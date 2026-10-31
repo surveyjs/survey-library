@@ -5,6 +5,58 @@ export var teluguStrings = {
   pagePrevText: "వెనకటి",
   // "Next"
   pageNextText: "తరువాయ",
+  // [Auto-translated] "First"
+  pageFirstText: "మొదట",
+  // [Auto-translated] "Last"
+  pageLastText: "చివరిది",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "పేజీని ఎంచుకోండి",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "ద్వారా క్రమబద్ధీకరించు {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "అధిక - తక్కువ",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "తక్కువ - అధిక",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "అక్షరమాలు, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "అక్షరం, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "సరికొత్త మొదటిది",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "పురాతనమైనది మొదటిది",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "ద్వారా క్రమబద్ధీకరించబడింది {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, తరువాత {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "క్రమబద్ధీకరించండి",
+  // [Auto-translated] "Default"
+  sortDefaultText: "డిఫాల్ట్",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "క్షేత్రాన్ని క్రమబద్ధీకరించండి",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "క్రమబద్ధీకరణ క్రమం",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "క్రమబద్ధీకరణ స్థాయిని జోడించండి",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "క్రమబద్ధీకరణ స్థాయిని తీసివేయండి {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "ఫీల్డ్ {0} క్రమబద్ధీకరించు",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "క్రమబద్ధీకరణ {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "అన్ని సార్ట్ లెవల్స్ చూపించు",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "క్రొత్తదాన్ని జోడించండి",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "క్రమబద్ధీకరణ స్థాయిని {0} తరలించండి",
   // "Complete"
   completeText: "పూర్తి చేయండి",
   // "Preview"
@@ -37,6 +89,8 @@ export var teluguStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} ప్రశ్నలకు జవాబు ఇవ్వడం అయినది",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "ప్రశ్న {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "ఈ సర్వేలో పేజీలు గాని ప్రశ్నలు గాని కనబడుట లేదు",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var teluguStrings = {
   value: "విలువ",
   // "Response required."
   requiredError: "దయచేసి ప్రశ్నకు జవాబు ఇవ్వండి",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "విలువ సరైనది కాదు.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "విలువ తెలియని కీలను కలిగి ఉంది: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "దయచేసి కనీసం ఒక్క ప్రశ్నకైనా జవాబు ఇవ్వండి",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var teluguStrings = {
   noUploadFilesHandler: "ఫైళ్లను అప్ లోడ్ చేయలేం. దయచేసి 'ఆన్ అప్ లోడ్ ఫైల్స్' ఈవెంట్ కొరకు ఒక హ్యాండ్లర్ ని జోడించండి.",
   // "Response required: enter another value."
   otherRequiredError: "దయచేసి ఇతర విలువలను నమో దించండి",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "'{0}' విలువ అందుబాటులో ఉన్న ఎంపికలలో ఒకటి కాదు.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "మీ ఫైల్ అప్లోడ్ అవుతున్నది దయచేసి కొన్ని సెకండ్లు వేచి ఉండండి మరియు మళ్లీ ప్రయత్నించండి",
   // "Loading..."
@@ -131,6 +191,8 @@ export var teluguStrings = {
   addRow: "వరుసలు చేర్పించండి",
   // "Remove"
   removeRow: "తీసేయండి",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "వరుస {0} తరలించు",
   // [Auto-translated] "There are no rows."
   noRowsText: "వరుసలు లేవు.",
   // [Auto-translated] "Row {rowIndex}"

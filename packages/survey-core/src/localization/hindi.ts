@@ -5,6 +5,58 @@ export var hindiStrings = {
   pagePrevText: "पिछला",
   // "Next"
   pageNextText: "अगला",
+  // [Auto-translated] "First"
+  pageFirstText: "पहला",
+  // [Auto-translated] "Last"
+  pageLastText: "पिछला",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0} की संख्या",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "पृष्ठ का चयन करें",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "{0} के आधार पर क्रमबद्ध करें",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "उच्च - निम्न",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "कम - उच्च",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "वर्णमाला, ए - जेड",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "वर्णमाला, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "सबसे नया पहला",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "सबसे पुराना पहला",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "{0} के आधार पर क्रमबद्ध",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, फिर {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "के अनुसार क्रमबद्ध करें",
+  // [Auto-translated] "Default"
+  sortDefaultText: "डिफ़ॉल्ट",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "सॉर्ट फ़ील्ड",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "क्रम क्रमबद्ध करें",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "सॉर्ट स्तर जोड़ें",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "सॉर्ट स्तर {0} निकालें",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "सॉर्ट फ़ील्ड {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "क्रमबद्ध क्रम {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "सभी सॉर्ट स्तर दिखाएं",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "नया जोड़ें",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "सॉर्ट स्तर {0} ले जाएँ",
   // "Complete"
   completeText: "पूरा",
   // "Preview"
@@ -37,6 +89,8 @@ export var hindiStrings = {
   panelDynamicTabTextFormat: "पैनल {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{1} सवालों में से {0} के जवाब दिए",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{1} प्रश्न {0}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "सर्वेक्षण में कोई दृश्यमान पृष्ठ या प्रश्न नहीं है",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var hindiStrings = {
   value: "मूल्य",
   // "Response required."
   requiredError: "कृपया प्रश्न का उत्तर दें",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "मान गलत है।",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "मान में अज्ञात कुंजियाँ हैं: {0}।",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "कृपया कम से कम एक प्रश्न का उत्तर दें",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var hindiStrings = {
   noUploadFilesHandler: "फ़ाइलें अपलोड नहीं की जा सकती. कृपया 'onloadFiles' ईवेंट के लिए एक हैंडलर जोड़ें.",
   // "Response required: enter another value."
   otherRequiredError: "कृपया दूसरा मूल्य दर्ज करें",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "मान '{0}' उपलब्ध विकल्पों में से एक नहीं है।",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "आपकी फाइल अपलोड हो रही है। कृपया कई सेकंड इंतजार करें और फिर से प्रयास करें।",
   // "Loading..."
@@ -131,6 +191,8 @@ export var hindiStrings = {
   addRow: "पंक्ति जोड़ें",
   // "Remove"
   removeRow: "हटाए",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "पंक्ति {0} ले जाएँ",
   // [Auto-translated] "There are no rows."
   noRowsText: "कोई पंक्तियाँ नहीं हैं.",
   // [Auto-translated] "Row {rowIndex}"

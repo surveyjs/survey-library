@@ -2,10 +2,11 @@ import { property, propertyArray } from "../decorators";
 import { Base } from "../base";
 import { ISurvey } from "../base-interfaces";
 import { IAction, Action, BaseAction, IActionAppearance } from "./action";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
 import { debounce } from "../utils/taskmanager";
+import { Scope } from "../utils/scope";
 import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 
 export type ContainerUpdateOptions = { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }
@@ -32,6 +33,9 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   @propertyArray({}) visibleActions: Array<T> = [];
   @propertyArray({
+    wrapSet: (target: ActionContainer<Action>, set: () => void) => {
+      target.runBulkUpdate(set);
+    },
     onSet: (_: any, target: ActionContainer<Action>) => {
       target.onSet();
     },
@@ -78,7 +82,27 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   protected setUpdatesAsync(isAsync: boolean): void {
     this.raiseUpdateCallback.async = isAsync;
   }
+  // Assigning n actions splices them in one by one, and each onPush/onRemove raises an update. While the
+  // container is unmounted, updates run synchronously, so a bulk assignment made n passes over the array.
+  // A bulk run collects the options of every raised update and raises one update when the outermost run ends.
+  private bulkUpdateScope = new Scope();
+  private pendingUpdateOptions: ContainerUpdateOptions;
+  protected runBulkUpdate(func: () => void): void {
+    try {
+      this.bulkUpdateScope.run(func);
+    } finally {
+      if (!this.bulkUpdateScope.isActive && !!this.pendingUpdateOptions) {
+        const options = this.pendingUpdateOptions;
+        this.pendingUpdateOptions = undefined;
+        this.raiseUpdate(options);
+      }
+    }
+  }
   protected raiseUpdate(options?: { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }) {
+    if (this.bulkUpdateScope.isActive) {
+      this.pendingUpdateOptions = this.mergeUpdateOptions(options, this.pendingUpdateOptions ?? {});
+      return;
+    }
     const lastArguments = this.raiseUpdateCallback.getLastArguments();
     const lastOptions = ((lastArguments && lastArguments[0]) ?? {}) as ContainerUpdateOptions;
     this.raiseUpdateCallback.run(this.mergeUpdateOptions(options, lastOptions));
@@ -166,9 +190,10 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public getRootCss(): string {
     const sizeModeClass = this.sizeMode === "small" ? this.cssClasses.smallSizeMode : this.cssClasses.defaultSizeMode;
-    return new CssClassBuilder().append(this.cssClasses.root + (!!sizeModeClass ? " " + sizeModeClass : "") + (!!this.containerCss ? " " + this.containerCss : ""))
-      .append(this.cssClasses.root + "--empty", this.isEmpty)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.root + (!!sizeModeClass ? " " + sizeModeClass : "") + (!!this.containerCss ? " " + this.containerCss : ""),
+      this.isEmpty && this.cssClasses.root + "--empty"
+    );
   }
   protected getDefaultCssClasses(): any {
     return defaultActionBarCss;
@@ -218,16 +243,18 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     return true;
   }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
-    const newActions: Array<T> = [];
-    items.forEach(item => {
-      if (!sortByVisibleIndex || this.isActionVisible(item)) {
-        newActions.push(this.createAction(item));
+    this.runBulkUpdate(() => {
+      const newActions: Array<T> = [];
+      items.forEach(item => {
+        if (!sortByVisibleIndex || this.isActionVisible(item)) {
+          newActions.push(this.createAction(item));
+        }
+      });
+      if (sortByVisibleIndex) {
+        this.sortItems(newActions);
       }
+      this.actions = newActions;
     });
-    if (sortByVisibleIndex) {
-      this.sortItems(newActions);
-    }
-    this.actions = newActions;
   }
   private sortItems(items: Array<IAction>): void {
     if (this.hasSetVisibleIndex(items)) {

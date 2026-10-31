@@ -129,12 +129,14 @@ frameworks.forEach((framework) => {
       // MERGE(V3): this test's progress assertions conflict every merge. V3 asserts the
       // active step via `.sd-progress-buttons__list > li` + `...--current` class; master (V2)
       // asserts `.sd-progress-buttons__page-title` text ("Page N of 3"). Keep the V3 step-based
-      // assertions here and at each ArrowDown/Tab/Enter step below.
+      // assertions here and at each ArrowDown/Enter step below.
       const stepElements = page.locator(".sd-progress-buttons__list > li");
       await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
+      await expect(page.locator(".sd-radio input").first()).toBeFocused();
 
       await page.keyboard.press("ArrowDown");
-      await page.keyboard.press("Tab");
+      await page.waitForTimeout(500);
+      await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await page.keyboard.press("Enter");
 
       await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
@@ -142,16 +144,17 @@ frameworks.forEach((framework) => {
       // wait for it to actually focus the first radio before pressing arrow keys.
       await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
+      await page.waitForTimeout(500);
+      await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await page.keyboard.press("Enter");
 
       await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
+      await page.waitForTimeout(500);
+      await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await page.keyboard.press("Enter");
+      await page.waitForTimeout(500);
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -205,11 +208,31 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("ArrowRight");
-      await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
+      await page.waitForTimeout(500);
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q1).toBe(3);
+    });
+
+    test("check auto next page with rating + number key", async ({ page }) => {
+      await initSurvey(page, framework, json3);
+      await page.waitForTimeout(500);
+      await page.keyboard.press("4");
+      await page.waitForTimeout(500);
+
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult.q1).toBe(4);
+    });
+
+    test("check rating arrow keys do not auto-advance", async ({ page }) => {
+      await initSurvey(page, framework, json3);
+      await page.waitForTimeout(500);
+      await page.keyboard.press("ArrowRight");
+      await page.waitForTimeout(500);
+
+      expect(await getSurveyResult(page)).toBeUndefined();
+      await expect(page.locator("fieldset").first()).toBeVisible();
     });
   });
 });

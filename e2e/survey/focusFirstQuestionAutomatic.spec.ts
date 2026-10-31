@@ -110,5 +110,31 @@ frameworks.forEach((framework) => {
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ q1: "b", panel1_q1: "a" });
     });
+
+    [
+      { type: "radiogroup", selector: ".sd-radio input", extra: { choices: ["a", "b"] } },
+      { type: "checkbox", selector: ".sd-checkbox input", extra: { choices: ["a", "b"] } },
+      { type: "boolean", selector: ".sd-boolean input" },
+      {
+        type: "imagepicker",
+        selector: ".sd-imagepicker__item input",
+        extra: {
+          choices: [
+            { value: "lion", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg" },
+            { value: "giraffe", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg" }
+          ]
+        }
+      }
+    ].forEach((testCase) => {
+      test(`Show focus indicator for ${testCase.type}`, async ({ page }) => {
+        await initSurvey(page, framework, {
+          autoFocusFirstQuestion: true,
+          elements: [{ type: testCase.type, name: "q1", ...testCase.extra }]
+        });
+        const input = page.locator(testCase.selector).first();
+        await expect(input).toBeFocused();
+        await expect.poll(async () => input.evaluate((el) => el.matches(":focus-visible"))).toBe(true);
+      });
+    });
   });
 });

@@ -1,0 +1,142 @@
+@use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
+
+/* The "Sort by" dialog of a dynamic panel and of a matrix (Figma 6380:25238). It is the standard modal
+   popup (title, close button, content, footer, overlay and radius), with these differences:
+   - the box is at most 580px wide, and the overlay keeps x200 at its sides instead of 15 spacing units,
+     so a 420px window still fits it;
+   - the box has x300 of vertical padding instead of x400, and no minimum width;
+   - the close button sits x200 from the top and the end instead of x100;
+   - the footer has Add New at its start and Apply at its end. */
+.sv-popup--records-sort.sv-popup--modal-popup {
+  padding-inline: var(--sjs2-spacing-x200);
+
+  // The container takes an inline width from the popup, so the box sets its own width.
+  // Not min(580px, calc(...)): Sass drops a calc() nested in min(), and older CSS parsers
+  // (postcss-custom-properties in the Angular build) fail on its bare subtraction.
+  & > .sv-popup__container > .sv-popup__body-content {
+    width: 580px;
+    max-width: calc(100vw - 2 * var(--sjs2-spacing-x200));
+    min-width: 0;
+    padding-top: var(--sjs2-spacing-x300);
+    padding-bottom: var(--sjs2-spacing-x300);
+  }
+  .sv-popup__close-button {
+    top: var(--sjs2-spacing-x200);
+    right: var(--sjs2-spacing-x200);
+    inset-inline-end: var(--sjs2-spacing-x200);
+    inset-inline-start: auto;
+  }
+  // Cancel is hidden: Add New stays at the start and Apply goes to the end.
+  .sv-popup__body-footer .sv-modal-footer-action-bar > .sd-action-bar__item:last-child {
+    margin-inline-start: auto;
+  }
+}
+
+/* The dialog's content is a survey with one dynamic matrix. The survey's own boxes - its root, body, page,
+   row and the question's frame - add nothing around the matrix: no background, padding, margin, shadow
+   or width limit. */
+.sv-popup--records-sort .sv-popup__content > .sd-root-modern {
+  background: transparent;
+
+  // The survey's surface color.
+  &::before {
+    content: none;
+  }
+
+  .sd-root-modern__wrapper,
+  .sd-container-modern,
+  .sv-components-row,
+  .sv-components-column,
+  .sd-body,
+  .sd-page,
+  .sd-page__content,
+  .sd-row,
+  .sd-element-wrapper,
+  .sd-question,
+  .sd-question__container,
+  .sd-question__header-and-content-container,
+  .sd-question__content,
+  .sd-table-wrapper,
+  .sd-table {
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    max-width: none;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .sd-table-wrapper {
+    overflow: visible;
+  }
+}
+
+/* The matrix as the frame's rows (node 6380:26237): the handle, the number, two dropdowns of the same width
+   and the remove button, x150 apart; the rows x400 apart. */
+.sv-popup--records-sort .sv-popup__content > .sd-root-modern .sd-table {
+  display: block;
+
+  .sd-table__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sjs2-spacing-x400);
+  }
+}
+
+/* A row - also the copy of a row that follows the pointer during a drag, which the drag places on the modal,
+   outside the dialog's survey (.sv-matrixdynamic-dragged-row). */
+.sv-popup--records-sort .sd-sort-dialog__row,
+.sv-matrixdynamic-dragged-row .sd-sort-dialog__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sjs2-spacing-x150);
+  border: none;
+  background: transparent;
+
+  & > .sd-table__cell {
+    display: block;
+    flex: 0 0 auto;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  /* The two dropdowns share the width that is left. The cells are counted "of .sd-table__cell": Angular puts
+     a hidden component element before each cell of a row. */
+  & > .sd-table__cell:not(.sd-table__cell--actions):not(:nth-child(2 of .sd-table__cell)) {
+    flex: 1 1 0;
+  }
+
+  /* The number: the text centered in x125, then x100 (Figma 6528:26858), in the default strong text of
+     the basic primary color. */
+  & > .sd-table__cell:nth-child(2 of .sd-table__cell) {
+    box-sizing: content-box;
+    width: var(--sjs2-spacing-x125);
+    padding-inline-end: var(--sjs2-spacing-x100);
+    text-align: center;
+
+    .sd-expression {
+      @include sjs2--typography--default-strong;
+      color: var(--sjs2-color-fg-basic-primary);
+      white-space: nowrap;
+    }
+  }
+
+  // The handle is grey, as the remove button is.
+  .sd-drag-element__svg use {
+    fill: var(--sjs2-color-component-action-neutral-quaternary-default-icon);
+  }
+}
+
+// The copy that follows the pointer has the dialog's background and the floating shadow of a dragged row.
+.sv-matrixdynamic-dragged-row .sd-sort-dialog__row {
+  background: $background;
+  line-height: normal;
+}
+// The place the dragged row leaves is one dim block, as a dragged matrix row's cells are.
+.sv-popup--records-sort .sd-sort-dialog__row.sv-matrix-row--drag-drop-ghost-mod {
+  background: $background-dim;
+  border-radius: var(--sjs2-radius-component-formbox);
+}

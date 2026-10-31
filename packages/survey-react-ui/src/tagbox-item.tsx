@@ -2,7 +2,7 @@ import * as React from "react";
 import { ReactSurveyElement } from "./reactquestion_element";
 import { Base, QuestionTagboxModel, ItemValue } from "survey-core";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
-import { attachKey2click } from "./reactSurvey";
+import { attachKey2click } from "./attach-key2click";
 
 export class SurveyQuestionTagboxItem extends ReactSurveyElement {
   constructor(props: any) {

@@ -122,7 +122,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
  * ```js
  * const surveyJson = {
  *   "elements": [{
- *     "name": "textquestion1"
+ *     "name": "textquestion1",
  *     "type": "text",
  *     "maskType": "pattern",
  *     "maskSettings": {
@@ -132,7 +132,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
  * }
  * ```
  *
- * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+ * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskPattern extends InputMaskBase {
   private literals: Array<IMaskLiteral> = [];
@@ -164,12 +164,16 @@ export class InputMaskPattern extends InputMaskBase {
    * - `hh` - Hours in 12-hour format, with leading zero for single-digit values.
    * - `MM` - Minutes.
    * - `ss` - Seconds.
-   * - `TT` - 12-hour clock period in upper case (AM/PM).
-   * - `tt` - 12-hour clock period in lower case (am/pm).
+   * - `TT` - 12-hour clock period in uppercase (AM/PM).
+   * - `tt` - 12-hour clock period in lowercase (am/pm).
    *
    * Example: `mm/dd/yyyy HH:MM:ss`
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   * The pattern syntax is locale-independent&mdash;the placeholders above keep their meaning in every locale. However, the characters displayed for unfilled placeholders may be localized.
+   *
+   * A `"datetime"` mask inherits its default format from the survey's [`regionalFormat`](/form-library/documentation/api-reference/survey-data-model#regionalFormat) settings and format locale. Setting an explicit `pattern` overrides those default formats.
+   *
+   * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see [settings.maskSettings](https://surveyjs.io/form-library/documentation/api-reference/settings#maskSettings)
    */
   @property() pattern: string;
@@ -186,6 +190,12 @@ export class InputMaskPattern extends InputMaskBase {
 
   public getType(): string {
     return "patternmask";
+  }
+  public getInputDirection(): "ltr" | "auto" {
+    return this.getInputDirectionByLiterals();
+  }
+  protected getLiteralText(): string {
+    return (this.literals || []).filter(l => l.type !== "regex").map(l => l.value).join("");
   }
 
   public fromJSON(json: any, options?: ILoadFromJSONOptions): void {

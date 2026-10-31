@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 3.0.1 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 3.2.3 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.0.1/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.2.3/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 
@@ -71,6 +71,8 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `completedHtmlOnCondition` | `array` of `htmlconditionitem` |  | An array of objects that allows you to specify different HTML content for the complete page. |
 | `navigateToUrlOnCondition` | `array` of `urlconditionitem` |  | An array of objects that allows you to navigate respondents to different URLs after survey completion. |
 | `pages` | `array` of `page` |  | Returns an array of all pages in the survey. |
+| `regionalFormat` | `regionalformat` |  | Configures date, time, number, and currency formats for input masks throughout the survey. |
+| `triggers` | `array` of `surveytrigger` |  | A list of triggers in the survey. |
 | `checkErrorsMode` | `onNextPage, onValueChanged, onComplete` | `"onNextPage"` | Specifies when the survey validates answers. |
 | `clearInvisibleValues` | `none, onComplete, onHidden, onHiddenContainer` | `"onComplete"` | Specifies when to remove values of invisible questions from survey results. |
 | `logoFit` | `none, contain, cover, fill` | `"contain"` | Specifies how to resize a logo to fit it into its container. |
@@ -94,10 +96,11 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `widthMode` | `auto, static, responsive` | `"auto"` | Specifies how to calculate the survey width. |
 | `allowResizeComment` | `boolean` | `true` | Specifies whether to display a resize handle for Long Text questions and other text areas intended for multi-line text content. |
 | `autoAdvanceAllowComplete` | `boolean` | `true` | Specifies whether to complete the survey automatically after a user answers all questions on the last page. |
-| `autoAdvanceEnabled` | `boolean` |  | Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page. |
+| `autoAdvanceEnabled` | `boolean` |  | Specifies whether the survey advances to the next page automatically after a respondent answers all questions on the current page and the answers pass validation. |
 | `autoFocusFirstError` | `boolean` | `true` | Specifies whether to focus the first question with a validation error on the current page. |
 | `autoFocusFirstQuestion` | `boolean` |  | Specifies whether to focus the first question on the page on survey startup or when users switch between pages. |
 | `autoGrowComment` | `boolean` | `false` | Specifies whether to increase the height of Long Text questions and other text areas to accommodate multi-line text content. |
+| `choiceShortcutsEnabled` | `boolean` | `false` | Specifies whether to enable letter shortcuts for selecting choices in Radio Button Group, Checkboxes, and Image Picker questions. |
 | `commentAreaRows` | `number` |  | Specifies the visible height of comment areas, measured in lines. |
 | `completedBeforeHtml` *(loc)* | `string` |  | HTML content displayed to a user who has completed the survey before. |
 | `completedHtml` *(loc)* | `string` |  | HTML content displayed on the complete page. |
@@ -140,7 +143,6 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `timeLimit` | `number` | `0` | A time period that a respondent has to complete the survey; measured in seconds. |
 | `timeLimitPerPage` | `number` | `0` | A time period that a respondent has to complete each survey page; measured in seconds. |
 | `title` *(loc)* | `string` |  | A title for the survey element. |
-| `triggers` | `array` |  | A list of triggers in the survey. |
 | `validateVisitedEmptyFields` | `boolean` |  | Specifies whether to trigger validation when a user focuses on an empty input field and then leaves it without making any changes. |
 | `width` | `string` |  | A survey width in CSS values. |
 
@@ -155,25 +157,11 @@ Inherits the properties of `selectbase`.
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `colCount` | `0, 1, 2, 3, 4, 5` | `1` |  |
-
-### `matrixbase`
-
-A base class for all matrix question types. Inherits the properties of `question`.
-
-[API](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md)
-
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |
-| `rowsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix row. |
-| `verticalAlign` | `top, middle` | `"middle"` | Aligns matrix cell content in the vertical direction. |
-| `alternateRows` | `boolean` | `false` | Specifies whether to apply shading to alternate matrix rows. |
-| `columnMinWidth` | `string` |  | Minimum column width in CSS values. |
-| `showHeader` | `boolean` | `true` | Specifies whether to display the table header that contains column captions. |
+| `choiceShortcutsEnabled` | `boolean` |  |  |
 
 ### `matrixdropdownbase`
 
-A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes. Inherits the properties of `matrixbase`.
+A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes. Inherits the properties of `question`.
 
 [API](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md)
 
@@ -181,13 +169,25 @@ A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicMod
 | --- | --- | --- | --- |
 | `choices` | `array` of `itemvalue` | `[]` | Gets or sets choice items for Dropdown, Checkbox, and Radiogroup matrix cells. |
 | `columns` | `array` of `matrixdropdowncolumn` |  | An array of matrix columns. |
+| `detailElements` | `array` of `question` |  | An array of survey elements (questions and panels) to be displayed in detail sections. |
+| `sortCriteria` | `array` of `sortcriterion` |  | Specifies the sort order used to display data. |
+| `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |
+| `rowsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix row. |
 | `cellErrorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position relative to matrix cells. |
 | `cellType` | `dropdown, checkbox, radiogroup, tagbox, text, comment, boolean, expression, rating, slider` | `"dropdown"` | Specifies the type of matrix cells. |
 | `columnColCount` | `0, 1, 2, 3, 4` | `0` | Specifies the number of columns in Radiogroup and Checkbox cells. |
 | `detailErrorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position for questions within detail sections. |
 | `detailPanelMode` | `none, underRow, underRowSingle` | `"none"` | Specifies the location of detail sections. |
+| `showSortBar` | `auto, always` | `"auto"` | Specifies when to display the sort bar. |
+| `verticalAlign` | `top, middle` | `"middle"` | Aligns matrix cell content in the vertical direction. |
+| `allowSort` | `boolean` | `false` | Specifies whether respondents can sort data in the UI. |
+| `alternateRows` | `boolean` | `false` | Specifies whether to apply shading to alternate matrix rows. |
+| `columnMinWidth` | `string` |  | Minimum column width in CSS values. |
 | `keyDuplicationError` *(loc)* | `string` |  | An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified). |
+| `maxSortLevel` | `number` | `1` | Specifies the maximum number of fields respondents can add to a sort. |
+| `pageSize` | `number` | `0` | Specifies the number of rows or panels per data page. |
 | `placeholder` *(loc)* | `string` |  | A placeholder for Dropdown matrix cells. |
+| `showHeader` | `boolean` | `true` | Specifies whether to display the table header that contains column captions. |
 | `singleInputTitleTemplate` *(loc)* | `string` |  | A title template that applies when the survey is in input-per-page mode. |
 | `transposeData` | `boolean` |  | Specifies whether to display `columns` as rows and `rows` as columns. |
 
@@ -205,6 +205,7 @@ A base class for the `PanelModel` and `PageModel` classes.
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
+| `elements` | `array` of `question` |  | An array of all survey elements (questions or panels) within this panel/page. |
 | `gridLayoutColumns` | `array` of `panellayoutcolumn` |  | An array of columns used to arrange survey elements within this page or panel. |
 | `enableIf` | `expression` |  | A Boolean expression. |
 | `requiredIf` | `expression` |  | A Boolean expression. |
@@ -228,6 +229,7 @@ A base class for all questions. Required: `name`.
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `name` | `string` |  | A survey element identifier. |
+| `validators` | `array` of `surveyvalidator` |  | Question validators. |
 | `defaultValueExpression` | `expression` |  | An expression used to calculate the `defaultValue`. |
 | `enableIf` | `expression` |  | A Boolean expression. |
 | `requiredIf` | `expression` |  | A Boolean expression. |
@@ -241,6 +243,7 @@ A base class for all questions. Required: `name`.
 | `indent` | `0, 1, 2, 3` | `0` | Increases or decreases an indent of survey element content from the left edge. |
 | `state` | `default, collapsed, expanded` | `"default"` | Gets and sets the survey element's expand state. |
 | `titleLocation` | `default, top, bottom, left, hidden` | `"default"` | Sets question title location relative to the input field. |
+| `allowClear` | `boolean` |  | Specifies whether to display a button that clears the question value. |
 | `commentPlaceholder` *(loc)* | `string` |  | A placeholder for the comment area. |
 | `commentText` *(loc)* | `string` |  | Specifies a caption displayed above the comment area. |
 | `correctAnswer` | `string` |  | A correct answer to this question. |
@@ -256,7 +259,6 @@ A base class for all questions. Required: `name`.
 | `startWithNewLine` | `boolean` | `true` | Disable this property if you want to render the current question on the same line or row with the previous question or panel. |
 | `title` *(loc)* | `string` |  | A title for the survey element. |
 | `useDisplayValuesInDynamicTexts` | `boolean` | `true` | Specifies whether to use display names for question values in placeholders. |
-| `validators` | `array` |  | Question validators. |
 | `valueName` | `string` |  | Specifies an object property that should store the question value. |
 | `visible` | `boolean` | `true` | Gets or sets question visibility. |
 | `width` | `string` |  | Sets survey element width in CSS values. |
@@ -382,7 +384,6 @@ A class that describes the Dropdown question type. Inherits the properties of `s
 | --- | --- | --- | --- |
 | `autocomplete` | `name, honorific-prefix, given-name, additional-name, family-name, honorific-suffix, nickname, organization-title, username, new-password, current-password, organization, street-address, address-line1, address-line2, address-line3, address-level4, address-level3, address-level2, address-level1, country, country-name, postal-code, cc-name, cc-given-name, cc-additional-name, cc-family-name, cc-number, cc-exp, cc-exp-month, cc-exp-year, cc-csc, cc-type, transaction-currency, transaction-amount, language, bday, bday-day, bday-month, bday-year, sex, url, photo, tel, tel-country-code, tel-national, tel-area-code, tel-local, tel-local-prefix, tel-local-suffix, tel-extension, email, impp` |  |  |
 | `searchMode` | `contains, startsWith` | `"contains"` | Specifies a comparison operation used to filter the drop-down list. |
-| `allowClear` | `boolean` | `true` | Specifies whether to display a button that clears the selected value. |
 | `allowCustomChoices` | `boolean` |  | Specifies whether users can add their own choices if the desired option isn't available in the dropdown. |
 | `choicesMax` | `number` | `0` | Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. |
 | `choicesMin` | `number` | `0` | Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. |
@@ -439,7 +440,8 @@ A class that describes the File Upload question type. Inherits the properties of
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `acceptedCategories` | `image, video, audio, document, archive, custom` |  | An array of predefined file category names used to control which files users can upload. |
-| `sourceType` | `file, camera, file-camera` | `"file"` | Specifies the source of uploaded files. |
+| `cameraFacingMode` | `user, environment` | `"user"` | Specifies the preferred camera to open for the File Upload question. |
+| `sourceType` | `file, camera, file-camera` | `"file"` | Specifies which sources respondents can use to upload files. |
 | `acceptedTypes` | `string` |  | An `accept` attribute value for the underlying `<input>` element. |
 | `allowImagesPreview` | `boolean` | `true` | Specifies whether to show a preview of image files. |
 | `allowMultiple` | `boolean` |  | Specifies whether users can upload multiple files. |
@@ -539,7 +541,7 @@ A class that describes the Image Picker question type. Inherits the properties o
 
 ### `matrix`
 
-A class that describes the Single-Select Matrix question type. Inherits the properties of `matrixbase`.
+A class that describes the Single-Select Matrix question type. Inherits the properties of `question`.
 
 [API](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixmodel.md) · [Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/)
 
@@ -547,13 +549,19 @@ A class that describes the Single-Select Matrix question type. Inherits the prop
 | --- | --- | --- | --- |
 | `columns` | `array` of `matrixcolumn` | `[]` | An array of matrix columns. |
 | `rows` | `array` of `itemvalue` | `[]` | An array of matrix rows. |
+| `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |
+| `rowsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix row. |
 | `cellType` | `radio, checkbox` | `"radio"` | Specifies the type of matrix cells. |
 | `rowOrder` | `initial, random` | `"initial"` | Specifies a sort order for matrix rows. |
+| `verticalAlign` | `top, middle` | `"middle"` | Aligns matrix cell content in the vertical direction. |
+| `alternateRows` | `boolean` | `false` | Specifies whether to apply shading to alternate matrix rows. |
 | `cells` | `string` |  | An array of matrix cells. |
+| `columnMinWidth` | `string` |  | Minimum column width in CSS values. |
 | `eachRowRequired` | `boolean` |  | Specifies whether each row requires an answer. |
 | `eachRowUnique` | `boolean` |  | Specifies whether answers in all rows should be unique. |
 | `hideIfRowsEmpty` | `boolean` |  | Specifies whether to hide the question when the matrix has no visible rows. |
 | `rowTitleWidth` | `string` |  | A width for the column that displays row titles (first column). |
+| `showHeader` | `boolean` | `true` | Specifies whether to display the table header that contains column captions. |
 
 ```json
 {
@@ -614,6 +622,7 @@ A class that describes the Dynamic Matrix question type. Inherits the properties
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
+| `rowCountExpression` | `expression` |  | An expression that dynamically calculates the row count. |
 | `addRowButtonLocation` | `default, top, bottom, topBottom` | `"default"` | Specifies the location of the Add Row button. |
 | `addRowText` *(loc)* | `string` |  | A caption for the Add Row button. |
 | `allowAddRows` | `boolean` | `true` | Specifies whether users are allowed to add new rows. |
@@ -715,6 +724,9 @@ A class that describes the Dynamic Panel question type. Inherits the properties 
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
+| `sortCriteria` | `array` of `sortcriterion` |  | Specifies the sort order used to display data. |
+| `templateElements` | `array` of `question` |  | An array of questions and panels included in a panel template. |
+| `panelCountExpression` | `expression` |  | An expression that dynamically calculates the panel count. |
 | `templateVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each panel. |
 | `displayMode` | `list, carousel, tab` | `"list"` | Specifies how to display panels. |
 | `newPanelPosition` | `next, last` | `"last"` | Specifies the position of newly added panels. |
@@ -729,6 +741,7 @@ A class that describes the Dynamic Panel question type. Inherits the properties 
 | `addPanelText` *(loc)* | `string` |  | A caption for the Add Panel button. |
 | `allowAddPanel` | `boolean` | `true` | Specifies whether users are allowed to add new panels. |
 | `allowRemovePanel` | `boolean` | `true` | Specifies whether users are allowed to delete panels. |
+| `allowSort` | `boolean` | `false` | Specifies whether respondents can sort data in the UI. |
 | `confirmDelete` | `boolean` |  | Specifies whether to display a confirmation dialog when a respondent wants to delete a panel. |
 | `confirmDeleteText` *(loc)* | `string` |  | A message displayed in a confirmation dialog that appears when a respondent wants to delete a panel. |
 | `copyDefaultValueFromLastEntry` | `boolean` |  | Specifies whether default values for a new panel should be copied from the last panel. |
@@ -736,9 +749,11 @@ A class that describes the Dynamic Panel question type. Inherits the properties 
 | `keyDuplicationError` *(loc)* | `string` |  | An error message displayed when users enter a duplicate value into a question that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified). |
 | `keyName` | `string` |  | Specifies a key question. |
 | `maxPanelCount` | `number` | `100` | A maximum number of panels in Dynamic Panel. |
+| `maxSortLevel` | `number` | `1` | Specifies the maximum number of fields respondents can add to a sort. |
 | `minPanelCount` | `number` | `0` | A minimum number of panels in Dynamic Panel. |
 | `nextPanelText` *(loc)* | `string` |  | A caption for the Next button. |
 | `noEntriesText` *(loc)* | `string` |  | A text displayed when Dynamic Panel contains no entries. |
+| `pageSize` | `number` | `0` | Specifies the number of rows or panels per data page. |
 | `prevPanelText` *(loc)* | `string` |  | A caption for the Previous button. |
 | `questionStartIndex` | `string` |  | Specifies a number or letter used to start numbering of elements inside the dynamic panel. |
 | `removePanelText` *(loc)* | `string` |  | A caption for the Remove Panel button. |
@@ -768,10 +783,6 @@ A class that describes the Dynamic Panel question type. Inherits the properties 
 A class that describes the Radio Button Group question type. Inherits the properties of `checkboxbase`.
 
 [API](https://surveyjs.io/form-library/documentation/api-reference/questionradiogroupmodel.md) · [Demo](https://surveyjs.io/form-library/examples/questiontype-radiogroup/)
-
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `allowClear` | `boolean` |  | Specifies whether to display a button that clears the question value. |
 
 ```json
 {
@@ -852,7 +863,6 @@ A class that describes the Signature question type. Inherits the properties of `
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `dataFormat` | `png, jpeg, svg` | `"png"` | Specifies the format in which to store the signature image. |
-| `allowClear` | `boolean` | `true` | Specifies whether to display a button that clears the signature area. |
 | `backgroundColor` | `string` |  | Specifies a color for the signature area background. |
 | `backgroundImage` | `string` |  | An image to display in the background of the signature area. |
 | `penColor` | `string` |  | Specifies a color for the pen. |
@@ -888,7 +898,6 @@ A class that describes the Slider question type. Inherits the properties of `que
 | `minValueExpression` | `expression` |  | An expression that dynamically calculates the minimum scale value. |
 | `sliderType` | `single, range` | `"single"` | Specifies whether the slider allows selecting a single value (`"single"`) or a value range (`"range"`). |
 | `tooltipVisibility` | `auto, always, never` | `"auto"` | Controls the visibility of thumb tooltips. |
-| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the selected slider value and resets it to `undefined`. |
 | `allowSwap` | `boolean` | `true` | Allows the start and end thumbs to cross over each other. |
 | `labelCount` | `number` | `-1` | Defines how many auto-generated labels should be displayed along the slider scale. |
 | `labelFormat` | `string` | `"{0}"` | A formatting string for auto-generated or custom labels. |
@@ -917,7 +926,6 @@ A class that describes the Multi-Select Dropdown (Tag Box) question type. Inheri
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `searchMode` | `contains, startsWith` | `"contains"` | Specifies a comparison operation used to filter the drop-down list. |
-| `allowClear` | `boolean` | `true` | Specifies whether to display a button that clears the selected value. |
 | `allowCustomChoices` | `boolean` | `false` | Specifies whether users can add their own choices if the desired option isn't available in the dropdown. |
 | `closeOnSelect` | `boolean` |  | Specifies whether to close the drop-down menu after a user selects a value. |
 | `hideSelectedItems` | `boolean` | `false` | Specifies whether to remove selected items from the drop-down list. |
@@ -1435,6 +1443,7 @@ Inherits the properties of `itemvalue`.
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
+| `elements` | `array` of `question` |  |  |
 | `commentPlaceholder` *(loc)* | `string` |  |  |
 | `isCommentRequired` | `boolean` |  |  |
 | `showCommentArea` | `boolean` |  |  |
@@ -1489,7 +1498,7 @@ Required: `value`.
 
 ### `masksettings`
 
-A base class for classes that implement input masks: - `InputMaskNumeric` - `InputMaskCurrency` - `InputMaskDateTime` - `InputMaskPattern`
+A base class for classes that implement input masks: - `InputMaskNumeric` - `InputMaskCurrency` - `InputMaskDateTime` - `InputMaskPattern` Date-time, numeric, and currency masks inherit format settings from the survey's `regionalFormat` object.
 
 [API](https://surveyjs.io/form-library/documentation/api-reference/inputmaskbase.md)
 
@@ -1514,6 +1523,7 @@ An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic M
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `name` | `string` |  | A column ID that is not visible to respondents. Unique. |
+| `validators` | `array` of `surveyvalidator` |  | Column validators. |
 | `enableIf` | `expression` |  | A Boolean expression. |
 | `requiredIf` | `expression` |  | A Boolean expression. |
 | `resetValueIf` | `expression` |  | A Boolean expression. |
@@ -1527,6 +1537,7 @@ An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic M
 | `totalCurrency` | `AED, AFN, ALL, AMD, ANG, AOA, ARS, AUD, AWG, AZN, BAM, BBD, BDT, BGN, BHD, BIF, BMD, BND, BOB, BOV, BRL, BSD, BTN, BWP, BYN, BZD, CAD, CDF, CHE, CHF, CHW, CLF, CLP, CNY, COP, COU, CRC, CUC, CUP, CVE, CZK, DJF, DKK, DOP, DZD, EGP, ERN, ETB, EUR, FJD, FKP, GBP, GEL, GHS, GIP, GMD, GNF, GTQ, GYD, HKD, HNL, HRK, HTG, HUF, IDR, ILS, INR, IQD, IRR, ISK, JMD, JOD, JPY, KES, KGS, KHR, KMF, KPW, KRW, KWD, KYD, KZT, LAK, LBP, LKR, LRD, LSL, LYD, MAD, MDL, MGA, MKD, MMK, MNT, MOP, MRO, MUR, MVR, MWK, MXN, MXV, MYR, MZN, NAD, NGN, NIO, NOK, NPR, NZD, OMR, PAB, PEN, PGK, PHP, PKR, PLN, PYG, QAR, RON, RSD, RUB, RWF, SAR, SBD, SCR, SDG, SEK, SGD, SHP, SLL, SOS, SRD, SSP, STD, SVC, SYP, SZL, THB, TJS, TMT, TND, TOP, TRY, TTD, TWD, TZS, UAH, UGX, USD, USN, UYI, UYU, UZS, VEF, VND, VUV, WST, XAF, XAG, XAU, XBA, XBB, XBC, XBD, XCD, XDR, XOF, XPD, XPF, XPT, XSU, XTS, XUA, XXX, YER, ZAR, ZMW, ZWL` | `"USD"` | Specifies a currency used to display calculated total values. |
 | `totalDisplayStyle` | `none, decimal, currency, percent` | `"none"` | A format for calculated total values. |
 | `totalType` | `none, sum, count, min, max, avg` | `"none"` | An aggregation method used to calculate the column total. |
+| `allowSort` | `boolean` | `true` | Specifies whether respondents can sort matrix rows by this column. |
 | `defaultDisplayValue` *(loc)* | `string` |  | A value to show in HTML questions and in the dynamic titles and descriptions of survey elements when the cell value is empty. |
 | `isRequired` | `boolean` | `false` | Marks the column as required. |
 | `isUnique` | `boolean` |  | Specifies whether a respondent is required to provide a unique response for each question within this column. |
@@ -1536,7 +1547,6 @@ An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic M
 | `showInMultipleColumns` | `boolean` |  | Specifies whether to create an individual column for each choice option. |
 | `title` *(loc)* | `string` |  | A user-friendly column caption to display. |
 | `totalFormat` *(loc)* | `string` |  | A string pattern used to display column totals. |
-| `validators` | `array` |  | Column validators. |
 | `visible` | `boolean` | `true` | Gets or sets column visibility. |
 | `width` | `string` |  | Gets or sets column width in CSS values. |
 | `totalMaximumFractionDigits` | `number` | `-1` |  |
@@ -1552,6 +1562,7 @@ A class that describes an item in a Multiple Textboxes question. Required: `name
 | --- | --- | --- | --- |
 | `name` | `string` |  | An item ID that is not visible to respondents. Unique. |
 | `maskSettings` | `masksettings` |  | An object with properties that configure the mask applied to the input. |
+| `validators` | `array` of `surveyvalidator` |  | Item validators. |
 | `defaultValueExpression` | `expression` |  | An expression used to calculate the default item value. |
 | `maxValueExpression` | `expression` |  | An expression used to calculate the maximum item value. |
 | `minValueExpression` | `expression` |  | An expression used to calculate the minimum item value. |
@@ -1564,7 +1575,6 @@ A class that describes an item in a Multiple Textboxes question. Required: `name
 | `placeholder` *(loc)* | `string` |  | A placeholder for the input field. |
 | `requiredErrorText` *(loc)* | `string` |  | Specifies a custom error message for a required item. |
 | `title` *(loc)* | `string` |  | A user-friendly item label to display. |
-| `validators` | `array` |  | Item validators. |
 
 ### `panellayoutcolumn`
 
@@ -1576,6 +1586,22 @@ A class that describes an item in a Multiple Textboxes question. Required: `name
 
 Inherits the properties of `itemvalue`.
 
+### `regionalformat`
+
+Configures date, time, number, and currency formats for input masks throughout a survey.
+
+[API](https://surveyjs.io/form-library/documentation/api-reference/regionalformat.md)
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `locale` | `ar, bg, ca, cs, cy, da, de, el, en, en-AU, en-CA, en-GB, en-IE, en-IN, en-NZ, en-ZA, es, et, eu, fa, fi, fil, fr, fr-CA, fr-CH, he, hi, hr, ht, hu, id, is, it, ja, ka, kk, ko, lt, lv, mk, mm, ms, nl, nl-BE, no, pl, pt, pt-BR, ro, ru, sk, sl, sr, sv, sw, tel, tg, th, tr, uk, ur, vi, zh, zh-CN, zh-TW` |  | The locale used to resolve default date, time, number, and currency formats for input masks. |
+| `currencyPattern` | `string` |  | A pattern that specifies the position of the number, currency symbol, and minus sign in currency input masks. |
+| `currencySymbol` | `string` |  | A currency symbol or code displayed by currency input masks, for example, `"$"` or `"USD"`. |
+| `datePattern` | `string` |  | A date pattern for date-time input masks. |
+| `decimalSeparator` | `string` |  | A symbol that separates the integer and fractional parts of a displayed number in numeric and currency input masks. |
+| `thousandsSeparator` | `string` |  | A symbol that separates the digits of a large number into groups of three in numeric and currency input masks. |
+| `timePattern` | `string` |  | A time pattern for date-time input masks. |
+
 ### `sliderlabel`
 
 Inherits the properties of `itemvalue`.
@@ -1583,6 +1609,15 @@ Inherits the properties of `itemvalue`.
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `showValue` | `boolean` | `false` |  |
+
+### `sortcriterion`
+
+Required: `field`.
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `field` | `string` |  |  |
+| `direction` | `asc, desc` | `"asc"` |  |
 
 ### `urlconditionitem`
 
@@ -1702,7 +1737,7 @@ Nesting is where generated JSON most often goes wrong. A `paneldynamic` repeats 
 - Every `name` in the document is unique, and an expression may only reference a name that exists.
 - Leave out any property that would be set to its default value.
 - Emit the JSON object on its own: no fences, no comments, no trailing commas.
-- Never emit these legacy aliases -- the library still parses them, but they are not the property names: `addRowLocation`, `allowCompleteSurveyAutomatic`, `allowRowsDragAndDrop`, `attachOriginalItems`, `autoComplete`, `commentPlaceHolder`, `defaultValueFromLastPanel`, `defaultValueFromLastRow`, `emptyRowsText`, `firstPageIsStarted`, `focusFirstQuestionAutomatic`, `focusOnFirstError`, `goNextPageAutomatic`, `hasComment`, `hasNone`, `hasOther`, `hasSelectAll`, `insensitive`, `isAllRowRequired`, `itemSize`, `maxOthersLength`, `maxTimeToFinish`, `maxTimeToFinishPage`, `maximumRateDescription`, `mininumRateDescription`, `navigationButtonsVisibility`, `optionsCaption`, `otherPlaceHolder`, `panelAddText`, `panelNextText`, `panelPrevText`, `panelRemoveButtonLocation`, `panelRemoveText`, `placeHolder`, `progressBarShowPageTitles`, `questionsOrder`, `rateDisplayMode`, `requiredText`, `rowsOrder`, `sendResultOnPageNext`, `showClearButton`, `showCompletedPage`, `showOptionsCaption`, `showRangeInProgress`, `showTimerPanelMode`, `size`, `templateTitleLocation`, `useDisplayValuesInTitle`.
+- Never emit these legacy aliases -- the library still parses them, but they are not the property names: `addRowLocation`, `allowCompleteSurveyAutomatic`, `allowRowsDragAndDrop`, `attachOriginalItems`, `autoComplete`, `commentPlaceHolder`, `defaultValueFromLastPanel`, `defaultValueFromLastRow`, `emptyRowsText`, `firstPageIsStarted`, `focusFirstQuestionAutomatic`, `focusOnFirstError`, `goNextPageAutomatic`, `hasComment`, `hasNone`, `hasOther`, `hasSelectAll`, `insensitive`, `isAllRowRequired`, `itemSize`, `maxOthersLength`, `maxTimeToFinish`, `maxTimeToFinishPage`, `maximumRateDescription`, `mininumRateDescription`, `navigationButtonsVisibility`, `optionsCaption`, `otherPlaceHolder`, `panelAddText`, `panelNextText`, `panelPrevText`, `panelRemoveButtonLocation`, `panelRemoveText`, `placeHolder`, `progressBarShowPageTitles`, `questionsOrder`, `rateDisplayMode`, `requiredText`, `rowsOrder`, `sendResultOnPageNext`, `showCompletedPage`, `showRangeInProgress`, `showSortMenu`, `showTimerPanelMode`, `size`, `templateTitleLocation`, `useDisplayValuesInTitle`.
 
 ## Complete examples
 

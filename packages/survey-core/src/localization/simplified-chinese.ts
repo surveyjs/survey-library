@@ -5,6 +5,58 @@ export var simplifiedChineseSurveyStrings = {
   pagePrevText: "上一页",
   // "Next"
   pageNextText: "下一页",
+  // [Auto-translated] "First"
+  pageFirstText: "首先",
+  // [Auto-translated] "Last"
+  pageLastText: "最后",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "选择页面",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "按{0}排序",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "高 - 低",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "低 - 高",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "字母表，A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "字母表，Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "最新优先",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "最年长的先",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "按{0}排序",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}，然后{1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "排序",
+  // [Auto-translated] "Default"
+  sortDefaultText: "默认",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "排序字段",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "排序顺序",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "添加排序层级",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "移除排序级别{0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "排序字段{0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "排序顺序{0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "显示各种级别",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "添加新",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "移动排序等级{0}",
   // "Complete"
   completeText: "提交问卷",
   // "Preview"
@@ -37,6 +89,8 @@ export var simplifiedChineseSurveyStrings = {
   panelDynamicTabTextFormat: "面板 {面板索引}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "第 {0}/{1} 题",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "问题{0}{1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "问卷中没有问题或页面",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var simplifiedChineseSurveyStrings = {
   value: "值",
   // "Response required."
   requiredError: "请填写此问题",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "数值是错误的。",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "该值包含未知键：{0}。",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "至少回答一题.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var simplifiedChineseSurveyStrings = {
   noUploadFilesHandler: "无法上传文件。请为“onUploadFiles”事件添加处理程序。",
   // "Response required: enter another value."
   otherRequiredError: "请完成其他问题",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "“{0}”这个数值并不是可选的选项之一。",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "文件上传中... 请耐心等待几秒后重试",
   // "Loading..."
@@ -131,6 +191,8 @@ export var simplifiedChineseSurveyStrings = {
   addRow: "添加行",
   // "Remove"
   removeRow: "删除答案",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "移动{0}行",
   // "There are no rows."
   noRowsText: "无内容",
   // [Auto-translated] "Row {rowIndex}"

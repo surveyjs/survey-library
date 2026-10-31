@@ -1,4 +1,4 @@
-import { CssClassBuilder } from "../src/utils/cssClassBuilder";
+import { CssClassBuilder, toCssClasses } from "../src/utils/cssClassBuilder";
 
 import { describe, test, expect } from "vitest";
 describe("cssClassBuilder", () => {
@@ -32,5 +32,16 @@ describe("cssClassBuilder", () => {
     builder.append("class5 ", true);
     expect(builder.toString(), "Append of space ended class trimmed").toBe("class1 class2 class3 class4 class5");
 
+  });
+  test("toCssClasses", () => {
+    expect(toCssClasses(), "No arguments").toBe("");
+    expect(toCssClasses("", null, undefined, false, 0), "Falsy arguments are skipped").toBe("");
+    expect(toCssClasses("  "), "Whitespace-only argument is skipped").toBe("");
+    expect(toCssClasses("class1"), "One class").toBe("class1");
+    const isOff = "a".length === 0;
+    const isOn = !isOff;
+    expect(toCssClasses("class1", isOff && "class2", isOn && "class3"), "Conditional classes").toBe("class1 class3");
+    expect(toCssClasses(undefined, "class1", null, "class2 class3"), "Skip empty values in the middle").toBe("class1 class2 class3");
+    expect(toCssClasses(" class1 ", "class2 "), "Classes are trimmed").toBe("class1 class2");
   });
 });

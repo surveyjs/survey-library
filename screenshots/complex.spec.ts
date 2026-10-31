@@ -5,7 +5,7 @@ const title = "Complex Screenshot";
 
 const json = {
   showQuestionNumbers: false,
-  width: "900px",
+  width: "1000px",
   elements: [
     {
       type: "Paneldynamic",
@@ -16,9 +16,9 @@ const json = {
       templateTitle: "{panel.itemName}",
       removePanelText: "Remove Item",
       panelCount: 5,
-      minWidth: "708px",
-      maxWidth: "708px",
-      width: "708px",
+      minWidth: "800px",
+      maxWidth: "800px",
+      width: "800px",
       templateElements: [
         {
           type: "text",

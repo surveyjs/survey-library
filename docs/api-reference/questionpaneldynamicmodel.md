@@ -16,7 +16,7 @@ Dynamic Panel allows respondents to add panels based on a panel template and del
 
 ## Inheritance
 
-[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; `QuestionPanelDynamicModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionRecordsModel`](https://surveyjs.io/form-library/documentation/api-reference/questionrecordsmodel.md) &rarr; `QuestionPanelDynamicModel`
 
 ## Properties
 
@@ -216,9 +216,9 @@ Specifies a key question. Set this property to the name of a question used in th
 
 A maximum number of panels in Dynamic Panel. Users cannot add new panels if `panelCount` equals `maxPanelCount`.
 
-Default value: 100 (inherited from [`settings.panel.maxPanelCount`](https://surveyjs.io/form-library/documentation/settings#panelMaximumPanelCount))
+Default value: 100 (inherited from [`settings.panel.maxPanelCount`](/form-library/documentation/api-reference/settings#panel))
 
-[View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
+[Demo: Dynamic Panel with Repeating Group of Fields](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
 
 **Related APIs:** [`panelCount`](#panelCount), [`minPanelCount`](#minPanelCount), [`allowAddPanel`](#allowAddPanel)
 
@@ -269,7 +269,21 @@ The number of panels in Dynamic Panel.
 
 [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
 
-**Related APIs:** [`minPanelCount`](#minPanelCount), [`maxPanelCount`](#maxPanelCount)
+**Related APIs:** [`minPanelCount`](#minPanelCount), [`maxPanelCount`](#maxPanelCount), [`panelCountExpression`](#panelCountExpression)
+
+### `panelCountExpression`
+
+**Type**: `string`
+
+An expression that dynamically calculates the panel count. Overrides the static [`panelCount`](#panelCount) property.
+
+The calculation result is clamped to the [`minPanelCount`](#minPanelCount) and [`maxPanelCount`](#maxPanelCount) limits: a value below the minimum is set to `minPanelCount`, and a value above the maximum is capped at `maxPanelCount`. If panels are not split into pages, the global [`settings.panel.maxPanelCount`](/form-library/documentation/api-reference/settings#panel) setting also limits the maximum.
+
+While this property is set, users cannot add or remove panels manually. The expression is reevaluated when its referenced values or panel limits change.
+
+[Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+
+Available since: v3.0.4
 
 ### `panels`
 

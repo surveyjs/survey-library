@@ -5,6 +5,58 @@ export var slovakSurveyStrings = {
   pagePrevText: "Predchádzajúca",
   // "Next"
   pageNextText: "Ďalej",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvá",
+  // [Auto-translated] "Last"
+  pageLastText: "Posledný",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vybrať stránku",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Zoradiť podľa {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Vysoké - Nízke",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nízke - Vysoké",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnovšie prvé",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstarší prvýkrát",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Zoradené podľa {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, potom do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Zoradiť podľa",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Predvolený stav",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort pole",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Poradie triedenia",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Pridať úroveň triedenia",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Odstráňte triedenie {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sortovacie pole {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Poradie triedenia {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Zobraziť všetky úrovne triedenia",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Pridať nové",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Presunúť triedenie úrovne {0}",
   // "Complete"
   completeText: "Dokončené",
   // "Preview"
@@ -37,6 +89,8 @@ export var slovakSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Zodpovedané otázky {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Otázka {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "V prieskume nie je žiadna vidieľná stránka ani otázka.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var slovakSurveyStrings = {
   value: "hodnota",
   // "Response required."
   requiredError: "Požaduje sa odozva.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Hodnota je nesprávna.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Hodnota obsahuje neznáme kľúče: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Požaduje sa odozva: zodpovedajte aspoň jednu otázku.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var slovakSurveyStrings = {
   noUploadFilesHandler: "Súbory nie je možné nahrať. Pridajte obslužný program pre udalosť \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Požaduje sa odozva: zadajte inú hodnotu.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Hodnota '{0}' nie je jednou z dostupných možností.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Súbor sa odovzdáva. Počkajte niekoľko sekúnd a skúste to znova.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var slovakSurveyStrings = {
   addRow: "Pridať riadok",
   // "Remove"
   removeRow: "Odstrániť",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Presuňte rad {0}",
   // "There are no rows."
   noRowsText: "K dispozícii nie sú žiadne riadky.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var slovakSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Indikátor priebehu",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Strana {0}"
+  progressbarPage: "Strana {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "r",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "h",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "H",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "Slovenčina", englishName: "Slovak" });

@@ -14,6 +14,7 @@ export class SurveyNavigationBase extends SurveyElementBase<any, any> {
   }
   private updateStateFunction: any = null;
   componentDidMount() {
+    super.componentDidMount();
     if (this.survey) {
       var self = this;
       this.updateStateFunction = function () {
@@ -23,6 +24,7 @@ export class SurveyNavigationBase extends SurveyElementBase<any, any> {
     }
   }
   componentWillUnmount() {
+    super.componentWillUnmount();
     if (this.survey && this.updateStateFunction) {
       this.survey.onPageVisibleChanged.remove(this.updateStateFunction);
       this.updateStateFunction = null;

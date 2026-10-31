@@ -7,6 +7,58 @@ export var haitianCreoleStrings = {
   pagePrevText: "Anvan",
   // "Next"
   pageNextText: "Pwochen",
+  // [Auto-translated] "First"
+  pageFirstText: "Premye",
+  // [Auto-translated] "Last"
+  pageLastText: "Denye",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "nan {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Chwazi paj",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Triye pa {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Segondè - Low",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Ba - Segondè",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabè, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabè, Z - Yon",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Dernye premye",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Pi ansyen premye",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Triye pa {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, Lè sa a, pa {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Triye pa",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Triye jaden",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sòt lòd",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Ajoute triye nivo",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Retire triye {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sòt jaden {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sòt lòd {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Montre tout nivo sòt",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Ajoute nouvo",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Deplase sòt nivo {0}",
   // "Complete"
   completeText: "Ranpli",
   // [Auto-translated] "Preview"
@@ -39,6 +91,8 @@ export var haitianCreoleStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Reponn {0}/{1} kesyon",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Kesyon {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Sondaj la pa genyen okenn eleman vizib.",
   // "Thank you for completing the survey"
@@ -57,6 +111,10 @@ export var haitianCreoleStrings = {
   value: "valè",
   // "Response required."
   requiredError: "Repons obligatwa.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Valè a pa kòrèk",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Valè a gen kle enkoni: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Repons obligatwa: reponn omwen yon kesyon.",
   // "Response required: answer questions in all rows."
@@ -113,6 +171,8 @@ export var haitianCreoleStrings = {
   noUploadFilesHandler: "Fichye yo pa ka telechaje. Tanpri ajoute yon moun kap okipe evènman 'onUploadFiles' la.",
   // "Response required: enter another value."
   otherRequiredError: "Repons obligatwa: antre yon lòt valè.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Valè '{0}' se pa youn nan chwa ki disponib",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Fichye w ap telechaje. Tanpri tann plizyè segonn epi eseye ankò.",
   // "Loading..."
@@ -133,6 +193,8 @@ export var haitianCreoleStrings = {
   addRow: "Ajoute Ranje",
   // "Remove"
   removeRow: "Retire",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Deplase ranje {0}",
   // "There are no rows."
   noRowsText: "Pa gen ranje.",
   // [Auto-translated] "Row {rowIndex}"

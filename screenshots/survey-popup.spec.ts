@@ -86,6 +86,7 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
 };
 
 const json = {
+  "headerView": "basic",
   "title": "Send Feedback to the SurveyJS team",
   "description": "Need help? Visit our support page.",
   "pages": [

@@ -5,6 +5,58 @@ export var serbianStrings = {
   pagePrevText: "Nazad",
   // "Next"
   pageNextText: "Dalje",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvo",
+  // [Auto-translated] "Last"
+  pageLastText: "Poslednji",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "od {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Mapa sajta",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortiraj po {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Visoko - Nisko",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nisko - Visoko",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Azbuka, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnovije prvo",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstariji prvo",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortirano po {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, a zatim {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sortiraj po",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Pretraživanje",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Polje za sortiranje",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Redosled sortiranja",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Dodajte nivo sortiranja",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Ukloni {0} nivoa sortiranja",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sortiraj polje {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Redosled sortiranja {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Pokaži sve nivoe sortiranja",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Dodaj novi",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Premesti nivo sortiranja {0}",
   // "Complete"
   completeText: "Završi",
   // "Preview"
@@ -37,6 +89,8 @@ export var serbianStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Odgovoreno na {0}/{1} pitanja",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pitanje {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Nema vidljivih stranica ili pitanja u anketi.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var serbianStrings = {
   value: "vrednost",
   // "Response required."
   requiredError: "Molimo odgovorite na ovo pitanje.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Vrednost je netačna.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Vrednost sadrži nepoznate ključeve: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Molimo odgovorite na bar jedno pitanje.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var serbianStrings = {
   noUploadFilesHandler: "Nije moguće otpremiti datoteke. Dodajte rukovaoca za događaj \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Molimo unesite drugu vrednost.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Vrednost \"{0}\" nije jedan od dostupnih izbora.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Fajl se šalje. Molimo sačekajte neko vreme i pokušajte ponovo.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var serbianStrings = {
   addRow: "Dodaj red",
   // "Remove"
   removeRow: "Ukloni",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Premesti red {0}",
   // "There are no rows."
   noRowsText: "Nema redova.",
   // [Auto-translated] "Row {rowIndex}"

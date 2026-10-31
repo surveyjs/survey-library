@@ -1,9 +1,11 @@
 import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question } from "./question";
+import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
+import { ItemValue } from "./itemvalue";
+import type { ISelectQuestion } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
 import { DomDocumentHelper } from "./global_variables_utils";
@@ -24,7 +26,7 @@ function isCustomRenderAs(val: string): boolean {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-boolean/ (linkStyle))
  */
-export class QuestionBooleanModel extends Question {
+export class QuestionBooleanModel extends Question implements ISelectQuestion {
   public getType(): string {
     return "boolean";
   }
@@ -32,7 +34,24 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   supportAutoAdvance(): boolean {
-    return this.getRenderAsValue() !== "checkbox";
+    return this.getRenderAsValue() !== "checkbox" || this.isAutoAdvanceRequested === true;
+  }
+  // Space toggles the checkbox. Enter is the completion signal, and only from the input
+  // or the question root. Title-action buttons inside the label must keep Enter.
+  public onKeyDown(event: any): void {
+    if (this.getRenderAsValue() !== "checkbox") return;
+    if (!this.isCheckboxAutoAdvanceTarget(event)) return;
+    if (this.canCommitAutoAdvanceOnEnter(event)) {
+      this.commitAutoAdvance(event);
+    }
+  }
+  private isCheckboxAutoAdvanceTarget(event: any): boolean {
+    const target = event?.target;
+    if (!target || target === event.currentTarget) return true;
+    const tag = (target.tagName || target.nodeName || "").toString().toLowerCase();
+    if (tag !== "input") return false;
+    const type = (target.type || "text").toString().toLowerCase();
+    return type === "checkbox";
   }
   public get isIndeterminate(): boolean {
     return this.isEmpty();
@@ -181,11 +200,45 @@ export class QuestionBooleanModel extends Question {
   @property()
     valueFalse: any;
 
+  public getValueType(): QuestionValueType {
+    return getScalarValueType(this.getValueTrue());
+  }
+  public isSelectQuestion(): boolean {
+    return true;
+  }
+  public getValueChoices(): Array<ItemValue> {
+    const trueItem = this.createValueChoice(this.getValueTrue(), this.locLabelTrue);
+    const falseItem = this.createValueChoice(this.getValueFalse(), this.locLabelFalse);
+    // The order the question itself renders, locLabelLeft first.
+    return this.swapOrder ? [trueItem, falseItem] : [falseItem, trueItem];
+  }
+  public get hasUnknownChoices(): boolean {
+    return false;
+  }
+  public isOtherItem(item: ItemValue): boolean {
+    return false;
+  }
+  public isNoneItem(item: ItemValue): boolean {
+    return false;
+  }
+  private createValueChoice(value: any, locText: LocalizableString): ItemValue {
+    const res = new ItemValue(value);
+    res.locOwner = this;
+    res.setLocText(locText);
+    return res;
+  }
   public getValueTrue(): any {
     return this.valueTrue !== undefined ? this.valueTrue : true;
   }
   public getValueFalse(): any {
     return this.valueFalse !== undefined ? this.valueFalse : false;
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.reportInvalidValueTypes) return true;
+    if (!(val instanceof Object) && (val == this.getValueTrue() || val == this.getValueFalse())) return true;
+    context.addIssue("invalidValueType", undefined, val, this);
+    return false;
   }
   protected setDefaultValue(): void {
     if (this.isDefaultValueSet("true", this.valueTrue))this.setBooleanValue(true);
@@ -201,29 +254,29 @@ export class QuestionBooleanModel extends Question {
     return this.locLabelFalse.textOrHtml;
   }
   private getItemCssValue(css: any): string {
-    return new CssClassBuilder()
-      .append(css.item)
-      .append(css.itemOnError, this.hasCssError())
-      .append(css.itemDisabled, this.isDisabledStyle)
-      .append(css.itemReadOnly, this.isReadOnlyStyle)
-      .append(css.itemPreview, this.isPreviewStyle)
-      .append(css.itemHover, !this.isDesignMode)
-      .append(css.itemChecked, !!this.booleanValue)
-      .append(css.itemExchanged, !!this.swapOrder)
-      .append(css.itemIndeterminate, !this.isDeterminated)
-      .append(css.itemIsLabelRendered, !!this.isLabelRendered)
-      .toString();
+    return toCssClasses(
+      css.item,
+      this.hasCssError() && css.itemOnError,
+      this.isDisabledStyle && css.itemDisabled,
+      this.isReadOnlyStyle && css.itemReadOnly,
+      this.isPreviewStyle && css.itemPreview,
+      !this.isDesignMode && css.itemHover,
+      !!this.booleanValue && css.itemChecked,
+      !!this.swapOrder && css.itemExchanged,
+      !this.isDeterminated && css.itemIndeterminate,
+      !!this.isLabelRendered && css.itemIsLabelRendered
+    );
   }
 
   public getItemCss(): string {
     return this.getItemCssValue(this.cssClasses);
   }
   public getSwitchButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.switchButton)
-      .append(this.cssClasses.switchButtonChecked, !!this.booleanValue)
-      .append(this.cssClasses.switchButtonReadOnly, this.isReadOnlyStyle)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.switchButton,
+      !!this.booleanValue && this.cssClasses.switchButtonChecked,
+      this.isReadOnlyStyle && this.cssClasses.switchButtonReadOnly
+    );
   }
   public getCheckboxItemCss() {
     return this.getItemCssValue(
@@ -242,14 +295,14 @@ export class QuestionBooleanModel extends Question {
   }
 
   public getLabelCss(checked: boolean): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.label)
-      .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isDisabledStyle)
-      .append(this.cssClasses.labelReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.labelPreview, this.isPreviewStyle)
-      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === !this.swapOrder)
-      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === this.swapOrder)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.label,
+      (this.booleanValue === !checked || this.isDisabledStyle) && this.cssClasses.disabledLabel,
+      this.isReadOnlyStyle && this.cssClasses.labelReadOnly,
+      this.isPreviewStyle && this.cssClasses.labelPreview,
+      !this.isIndeterminate && checked === !this.swapOrder && this.cssClasses.labelTrue,
+      !this.isIndeterminate && checked === this.swapOrder && this.cssClasses.labelFalse
+    );
   }
 
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
@@ -385,6 +438,8 @@ export class QuestionBooleanModel extends Question {
     return isBooleanDisplayMode(displayMode) ? displayMode : "default";
   }
   public getComponentName(): string {
+    const viewComponentName = this.getViewModeComponentName();
+    if (viewComponentName) return viewComponentName;
     return RendererFactory.Instance.getRenderer(this.getType(), this.getRenderAsValue());
   }
   public onSurveyLoad(): void {

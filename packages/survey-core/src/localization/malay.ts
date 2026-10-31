@@ -5,6 +5,58 @@ export var malaySurveyStrings = {
   pagePrevText: "Sebelumnya",
   // "Next"
   pageNextText: "Seterusnya",
+  // [Auto-translated] "First"
+  pageFirstText: "Pertama",
+  // [Auto-translated] "Last"
+  pageLastText: "Terakhir",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Pilih Halaman",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Susun mengikut {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Tinggi - Rendah",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Rendah - Tinggi",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abjad, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abjad, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Yang terbaru pertama",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Yang paling tua dahulu",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Disusun mengikut {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, kemudian oleh {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Susun mengikut",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Lalai",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Medan Sort",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Susunan susun",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Tambah tahap pengisihan",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Buang tahap pengisihan {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Susun medan {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Susunan {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Paparkan semua tahap susunan",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Tambah Baru",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Pindahkan tahap susun {0}",
   // "Complete"
   completeText: "Selesai",
   // "Preview"
@@ -37,6 +89,8 @@ export var malaySurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} soalan telah dijawab",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Soalan {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tiada halaman atau soalan boleh dilihat dalam tinjauan.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var malaySurveyStrings = {
   value: "nilai",
   // "Response required."
   requiredError: "Respons diperlukan.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Nilainya salah.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Nilai mengandungi kunci tidak diketahui: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Respons diperlukan: jawab sekurang-kurangnya satu soalan.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var malaySurveyStrings = {
   noUploadFilesHandler: "Fail tidak boleh dimuat naik. Sila tambah pengendali untuk acara 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Respons diperlukan: masukkan nilai lain.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Nilai '{0}' bukanlah salah satu pilihan yang tersedia.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Fail anda sedang dimuat naik. Sila tunggu beberapa saat dan cuba lagi.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var malaySurveyStrings = {
   addRow: "Tambahkan baris",
   // "Remove"
   removeRow: "Alih keluar",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Gerakkan baris {0}",
   // "There are no rows."
   noRowsText: "Tiada baris.",
   // [Auto-translated] "Row {rowIndex}"

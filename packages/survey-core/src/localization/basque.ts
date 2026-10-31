@@ -5,6 +5,58 @@ export var basqueSurveyStrings = {
   pagePrevText: "Aurrekoa",
   // "Next"
   pageNextText: "Hurrengoa",
+  // [Auto-translated] "First"
+  pageFirstText: "Lehenengoa",
+  // [Auto-translated] "Last"
+  pageLastText: "Azkena",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Hautatu Orria",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordenatu {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Goi - Baxua",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Baxua - Altua",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabetoa, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabetoa, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Azken berriena lehenik eta behin",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Zaharrena lehenik eta behin",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ordenatuta {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, orduan {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ordenatu arabera",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Lehenetsia",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sailkapen eremua",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sailkapen ordena",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Gehitu sailkapen maila",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Sailkapen maila kendu {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sailkapen eremua {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordena {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Mota maila guztiak erakutsi",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Gehitu Berria",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Mugimendu ordenatze maila {0}",
   // "Complete"
   completeText: "Bukatu",
   // "Preview"
@@ -37,6 +89,8 @@ export var basqueSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Erantzundako galderak {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Galdera {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Ez dago orrialde bistaragarririk edo ez dago galderarik.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var basqueSurveyStrings = {
   value: "balioa",
   // "Response required."
   requiredError: "Mesedez, galdera erantzun.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Balioa okerra da.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Balioak gako ezezagunak ditu: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Mesedez, gutxienez galdera bat erantzun.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var basqueSurveyStrings = {
   noUploadFilesHandler: "Artxiboak ezin dira kargatu. Gaineratu kontrolatzaile bat 'onUploadFiles' ekitaldirako.",
   // "Response required: enter another value."
   otherRequiredError: "Mesedez, beste estimazioa gehitu.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "'{0}' balioa ez da eskuragarri dauden aukeretako bat.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Zure fitxategia igotzen ari da. Mesedez, segundo batzuk itxaron eta saiatu berriro.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var basqueSurveyStrings = {
   addRow: "Errenkada bat gehitu",
   // "Remove"
   removeRow: "Errenkada bat kendu",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mugitu ilara {0}",
   // "There are no rows."
   noRowsText: "Ez dago errenkadarik.",
   // [Auto-translated] "Row {rowIndex}"

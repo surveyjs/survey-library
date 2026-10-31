@@ -15,7 +15,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
     const description = this.question.canRenderLabelDescription ?
       SurveyElementBase.renderQuestionDescription(this.question) : null;
     return (
-      <div className={cssClasses.rootCheckbox}>
+      <div className={cssClasses.rootCheckbox} onKeyDown={(event) => this.question.onKeyDown(event.nativeEvent ?? event)}>
         <div className={itemClass}>
           <label className={cssClasses.checkboxLabel}>
             <input
@@ -40,7 +40,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               aria-invalid={this.question.a11y_input_ariaInvalid}
               aria-errormessage={this.question.a11y_input_ariaErrormessage}
             />
-            <span className={cssClasses.checkboxMaterialDecorator}>
+            <span className={cssClasses.checkboxMaterialDecorator} aria-hidden="true">
               {this.question.svgIcon ?
                 <svg
                   className={cssClasses.checkboxItemDecorator}

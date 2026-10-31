@@ -6,6 +6,9 @@
         :model="question.tabbedMenu"
       ></SvComponent>
     </div>
+    <div v-if="question.sortBarLocation === 'top'" :class="question.cssClasses.sortBarTop">
+      <SvComponent :is="'sv-action-bar'" :model="question.recordsBar.sortActions"></SvComponent>
+    </div>
     <SvComponent
       v-if="question.getShowNoEntriesPlaceholder()"
       
@@ -41,16 +44,14 @@
         </div>
         <hr
           :class="question.cssClasses.separator"
-          v-if="
-            question.isRenderModeList && index < question.visiblePanelCount - 1
-          "
+          v-if="question.showSeparator(index)"
           :key="'separator' + panel.id"
         />
       </template>
     </div>
     <SvComponent
       :is="'survey-paneldynamicprogress'"
-      v-if="question.showNavigation"
+      v-if="question.showFooter"
       :question="question"
     />
   </div>

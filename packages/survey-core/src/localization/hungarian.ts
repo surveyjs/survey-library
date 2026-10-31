@@ -5,6 +5,58 @@ export var hungarianSurveyStrings = {
   pagePrevText: "Vissza",
   // "Next"
   pageNextText: "Tovább",
+  // [Auto-translated] "First"
+  pageFirstText: "Első",
+  // [Auto-translated] "Last"
+  pageLastText: "Utolsó",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Oldal kiválasztása",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Rendezd {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Magas - Alacsony",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Alacsony - Magas",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Ábécé, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Ábécé, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Legújabb első",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Első a legidősebb",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Rendezve {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, aztán {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Rendezd",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Alapértelmezés",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorolás mező",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorolási sorrend",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Szűrési szint hozzáadása",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Szűrj a rendezési szintet {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorolj mezőt {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Rendezés sorrendje {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Minden sortozási szintet mutat",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Add hozzá az újat",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Lépésrendezési szint {0}",
   // "Complete"
   completeText: "Kész",
   // "Preview"
@@ -37,6 +89,8 @@ export var hungarianSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Válaszolt kérdések: {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Kérdés {0} {1}",
   // [Auto-translated] "The survey doesn't contain any visible elements."
   emptySurvey: "A felmérés nem tartalmaz látható elemeket.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var hungarianSurveyStrings = {
   value: "érték",
   // "Response required."
   requiredError: "Kérjük, válaszolja meg ezt a kérdést!",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Az érték helytelen.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Az érték ismeretlen kulcsokat tartalmaz: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Kérjük, válaszoljon legalább egy kérdésre.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var hungarianSurveyStrings = {
   noUploadFilesHandler: "A fájlok nem tölthetők fel. Adjon hozzá egy kezelőt az \"onUploadFiles\" eseményhez.",
   // "Response required: enter another value."
   otherRequiredError: "Adja meg az egyéb értéket!",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "A '{0}' érték nem az elérhető választási lehetőségek közül.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Feltöltés folyamatban. Várjon pár másodpercet, majd próbálja újra.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var hungarianSurveyStrings = {
   addRow: "Sor hozzáadása",
   // "Remove"
   removeRow: "Eltávolítás",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mozgás sor{0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nincsenek sorok.",
   // [Auto-translated] "Row {rowIndex}"

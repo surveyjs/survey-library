@@ -5,6 +5,58 @@ export var romanianSurveyStrings = {
   pagePrevText: "Precedent",
   // "Next"
   pageNextText: "Următor",
+  // [Auto-translated] "First"
+  pageFirstText: "Primul",
+  // [Auto-translated] "Last"
+  pageLastText: "Ultimul",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selectează pagina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortează după {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Sus - Jos",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Jos - Sus",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Cea mai nouă premieră",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Cea mai veche primă",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortat după {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, apoi de {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sortează după",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Implicit",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Câmp de sortare",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ordinea de sortare",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Adaugă nivelul de sortare",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Elimină nivelul de sortare {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Câmpul de sortare {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordinea de sortare {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Afișează toate nivelurile de tip",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Adaugă noutăți",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nivel de sortare a mișcărilor {0}",
   // "Complete"
   completeText: "Finalizare",
   // "Preview"
@@ -37,6 +89,8 @@ export var romanianSurveyStrings = {
   panelDynamicTabTextFormat: "Panou {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Răspunsuri la {0} / {1} întrebări",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Întrebare {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Nu sunt întrebări pentru acest chestionar",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var romanianSurveyStrings = {
   value: "valoare",
   // "Response required."
   requiredError: "Răspunsul la această întrebare este obligatoriu.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Valoarea este incorectă.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Valoarea conține chei necunoscute: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vă rugăm să răspundeți la cel puțin o întrebare.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var romanianSurveyStrings = {
   noUploadFilesHandler: "Fișierele nu pot fi încărcate. Vă rugăm să adăugați un handler pentru evenimentul \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Trebuie să completați câmpul 'Altul'.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Valoarea \"{0}\" nu este una dintre opțiunile disponibile.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Fișierul dumneavoastră este în curs de încărcare. Vă rugăm așteptați câteva secunde și reveniți apoi.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var romanianSurveyStrings = {
   addRow: "Adăugare rând",
   // "Remove"
   removeRow: "Ștergere",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mută rândul {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nu există rânduri.",
   // [Auto-translated] "Row {rowIndex}"

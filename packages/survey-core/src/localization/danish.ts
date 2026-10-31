@@ -5,6 +5,58 @@ export var danishSurveyStrings = {
   pagePrevText: "Tilbage",
   // "Next"
   pageNextText: "Videre",
+  // [Auto-translated] "First"
+  pageFirstText: "Første",
+  // [Auto-translated] "Last"
+  pageLastText: "Sidste",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "af {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vælg side",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sorter efter {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Høj - Lav",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Lav - Høj",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nyeste første",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Ældste første",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorteret efter {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, så ved {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sorter efter",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteringsfelt",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteringsrækkefølge",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Tilføj sorteringsniveau",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Fjern sorteringsniveau {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteringsfelt {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteringsrækkefølge {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Vis alle sortniveauer",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Tilføj nyt",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flyt sorteringsniveau {0}",
   // "Complete"
   completeText: "Færdig",
   // "Preview"
@@ -37,6 +89,8 @@ export var danishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Besvarede {0} / {1} spørgsmål",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Spørgsmål {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Der er ingen synlige spørgsmål.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var danishSurveyStrings = {
   value: "værdi",
   // "Response required."
   requiredError: "Besvar venligst spørgsmålet.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Værdien er forkert.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Værdien indeholder ukendte nøgler: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Besvar venligst mindst ét spørgsmål.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var danishSurveyStrings = {
   noUploadFilesHandler: "Filer kan ikke uploades. Tilføj en handler for hændelsen 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Angiv en værdi for dit valgfrie svar.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Værdien '{0}' er ikke en af de tilgængelige muligheder.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Din fil bliver uploadet. Vent nogle sekunder og prøv eventuelt igen.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var danishSurveyStrings = {
   addRow: "Tilføj række",
   // "Remove"
   removeRow: "Fjern",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Flyt række {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Der er ingen rækker.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var danishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Statuslinje",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Side {0}"
+  progressbarPage: "Side {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "å",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "t",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "T",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "f",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "F"
 };
 
 setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk", englishName: "Danish" });

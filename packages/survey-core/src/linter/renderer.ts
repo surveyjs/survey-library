@@ -1,4 +1,4 @@
-import { ILintFinding, IRenderOptions, ISurveyLintResult } from "./types";
+import { countBySeverity, ILintFinding, IRenderOptions, ISurveyLintResult } from "./types";
 
 const SEVERITY_LABELS: { [severity: string]: string } = {
   error: "ERROR", warning: "WARN", info: "INFO",
@@ -17,7 +17,8 @@ function renderFinding(finding: ILintFinding): string {
     lines.push("  " + prop + ": " + expression);
   }
   lines.push("  at " + finding.path);
-  if (finding.related && finding.related.length > 1) {
+  // report() drops an empty list, so any related list a finding carries has something to say
+  if (finding.related && finding.related.length > 0) {
     lines.push("  related: " + finding.related.map(rel => rel.path).join(", "));
   }
   const note = finding.messageData ? finding.messageData.note : undefined;
@@ -44,17 +45,11 @@ export function renderFindings(input: ISurveyLintResult | Array<ILintFinding>, o
     findings = findings.concat(result.suppressed);
   }
   const blocks = findings.map(renderFinding);
-  let errors = 0;
-  let warnings = 0;
-  let infos = 0;
-  findings.forEach(finding => {
-    if (finding.severity === "error") errors++;
-    else if (finding.severity === "warning") warnings++;
-    else infos++;
-  });
-  let summary = errors + " error" + (errors === 1 ? "" : "s") + ", " +
-    warnings + " warning" + (warnings === 1 ? "" : "s") + ", " +
-    infos + " info";
+  // counted over what is rendered, which includeSuppressed may extend past result.findings
+  const counts = countBySeverity(findings);
+  let summary = counts.error + " error" + (counts.error === 1 ? "" : "s") + ", " +
+    counts.warning + " warning" + (counts.warning === 1 ? "" : "s") + ", " +
+    counts.info + " info";
   if (isResult && result.suppressedCount > 0) {
     summary += " (" + result.suppressedCount + " suppressed)";
   }

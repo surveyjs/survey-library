@@ -240,7 +240,8 @@ export class UnaryOperand extends Operand {
       if (!!res) return res;
     }
     const opName = OperandMaker.operatorToString(this.operator);
-    const exp = this.expression.toString(func);
+    // a null operand is the "null"/"undefined" literal
+    const exp = !!this.expression ? this.expression.toString(func) : "null";
     return this.isRigtOperator ? exp + " " + opName : opName + " " + exp;
   }
   private get isRigtOperator(): boolean {
@@ -252,23 +253,23 @@ export class UnaryOperand extends Operand {
     return uOp.operator == this.operator && this.areOperatorsEquals(this.expression, uOp.expression);
   }
   public hasFunction(noParamsOnly?: boolean): boolean {
-    return this.expression.hasFunction(noParamsOnly);
+    return !!this.expression && this.expression.hasFunction(noParamsOnly);
   }
   protected addChildrenToList(list: Array<Operand>): void {
-    this.expression.addOperandsToList(list);
+    if (!!this.expression)this.expression.addOperandsToList(list);
   }
   public hasAsyncFunction(): boolean {
-    return this.expression.hasAsyncFunction();
+    return !!this.expression && this.expression.hasAsyncFunction();
   }
   public addToAsyncList(list: Array<AsyncFunctionItem>): void {
-    this.expression.addToAsyncList(list);
+    if (!!this.expression)this.expression.addToAsyncList(list);
   }
   public evaluate(processValue?: ProcessValue): boolean {
-    let value = this.expression.evaluate(processValue);
+    const value = this.expression == null ? null : this.expression.evaluate(processValue);
     return this.consumer.call(this, value);
   }
   public setVariables(variables: Array<string>) {
-    this.expression.setVariables(variables);
+    if (!!this.expression)this.expression.setVariables(variables);
   }
   public isConstant(): boolean {
     return this.isOperandConstant(this.expression);
@@ -295,9 +296,10 @@ export class ArrayOperand extends Operand {
       if (!!res) return res;
     }
 
+    // a null item is the "null"/"undefined" literal
     let res = this.values
       .map(function(el: Operand) {
-        return el.toString(func);
+        return el == null ? "null" : el.toString(func);
       })
       .join(", ");
 
@@ -306,35 +308,37 @@ export class ArrayOperand extends Operand {
 
   public evaluate(processValue?: ProcessValue): Array<any> {
     return this.values.map(function(el: Operand) {
-      return el.evaluate(processValue);
+      return el == null ? null : el.evaluate(processValue);
     });
   }
 
   public setVariables(variables: Array<string>) {
     this.values.forEach((el) => {
-      el.setVariables(variables);
+      if (!!el) el.setVariables(variables);
     });
   }
 
   public hasFunction(noParamsOnly?: boolean): boolean {
-    return this.values.some((operand) => operand.hasFunction(noParamsOnly));
+    return this.values.some((operand) => !!operand && operand.hasFunction(noParamsOnly));
   }
   protected addChildrenToList(list: Array<Operand>): void {
     this.values.forEach((el) => {
-      el.addOperandsToList(list);
+      if (!!el) el.addOperandsToList(list);
     });
   }
   public hasAsyncFunction(): boolean {
-    return this.values.some((operand) => operand.hasAsyncFunction());
+    return this.values.some((operand) => !!operand && operand.hasAsyncFunction());
   }
   public addToAsyncList(list: Array<AsyncFunctionItem>): void {
-    this.values.forEach((operand) => operand.addToAsyncList(list));
+    this.values.forEach((operand) => {
+      if (!!operand) operand.addToAsyncList(list);
+    });
   }
   protected isContentEqual(op: Operand): boolean {
     const aOp = <ArrayOperand>op;
     if (aOp.values.length !== this.values.length) return false;
     for (var i = 0; i < this.values.length; i ++) {
-      if (!aOp.values[i].isEqual(this.values[i])) return false;
+      if (!this.areOperatorsEquals(aOp.values[i], this.values[i])) return false;
     }
     return true;
   }
@@ -362,7 +366,14 @@ export class Const extends Operand {
       var res = func(this);
       if (!!res) return res;
     }
-    return this.value === "" ? "''" : this.value.toString();
+    if (this.value === "") return "''";
+    if (this.isStringLiteral()) {
+      // The parser stores a string literal in single quotes with its escapes removed: put them back, so the text parses again.
+      // Backslashes stay as is: the grammar has no "\\" escape, a backslash escapes only a following quote and is literal otherwise.
+      // Escaping backslashes too would change the value parsed back ("a\b" -> "a\\b").
+      return "'" + this.value.substring(1, this.value.length - 1).replace(/['"]/g, (quote: string) => "\\" + quote) + "'";
+    }
+    return this.value.toString();
   }
   public get correctValue(): any {
     return this.getCorrectValue(this.value);
@@ -408,6 +419,10 @@ export class Const extends Operand {
   }
   private isQuote(ch: string): boolean {
     return ch == "'" || ch == '"';
+  }
+  private isStringLiteral(): boolean {
+    const val = this.value;
+    return typeof val === "string" && val.length > 1 && val[0] === "'" && val[val.length - 1] === "'";
   }
 }
 
@@ -573,7 +588,10 @@ export class FunctionOperand extends Operand {
       if (this.paramValues.length === 0) return true;
       const paramVars: string[] = [];
       this.parameters.setVariables(paramVars);
-      return paramVars.length === 0;
+      if (paramVars.length === 0) return true;
+      // A function with constant parameters nested in another call ("iif({a} = 1, readQ('src'), 0)")
+      // may read any value, so no changed key tells its result changed: the whole expression must run
+      return this.parameters.hasFunction(true);
     }
     return true;
   }

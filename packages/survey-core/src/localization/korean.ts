@@ -5,6 +5,58 @@ export var koreanStrings = {
   pagePrevText: "이전",
   // "Next"
   pageNextText: "다음",
+  // [Auto-translated] "First"
+  pageFirstText: "첫째",
+  // [Auto-translated] "Last"
+  pageLastText: "마지막입니다",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "선택 페이지",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "{0}로 정렬하기",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "높은 - 낮은",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "낮은 - 높은",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "알파벳, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "알파벳, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "최신 사태가 먼저",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "가장 오래된 첫 번째",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "{0} 정렬",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, 그다음에는 {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "정렬",
+  // [Auto-translated] "Default"
+  sortDefaultText: "기본 설정",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "정렬 필드",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "정렬 순서",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "정렬 단계 추가",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "정렬 수준 {0} 제거",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "정렬 필드 {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "정렬 순서 {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "모든 종류의 레벨 표시",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "새 항목 추가하기",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "이동 정렬 레벨 {0}",
   // "Complete"
   completeText: "완료",
   // "Preview"
@@ -37,6 +89,8 @@ export var koreanStrings = {
   panelDynamicTabTextFormat: "패널 {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0} / {1} 개의 질문에 답변함",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{1} 질문 {0}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "설문지에 보여지는 페이지나 질문이 없습니다.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var koreanStrings = {
   value: "값",
   // "Response required."
   requiredError: "질문에 답하시오.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "값이 잘못됐어요.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "이 값에는 알려지지 않은 키들이 포함되어 있습니다: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "하나 이상의 질문에 답하십시오.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var koreanStrings = {
   noUploadFilesHandler: "파일을 업로드할 수 없습니다. 'onUploadFiles'이벤트에 대한 핸들러를 추가하십시오.",
   // "Response required: enter another value."
   otherRequiredError: "다른 질문을 작성하십시오.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "값 '{0}'는 선택 가능한 옵션 중 하나가 아닙니다.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "파일 업로드 중입니다. 잠시 후 다시 시도하십시오.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var koreanStrings = {
   addRow: "행 추가",
   // "Remove"
   removeRow: "제거",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "{0}행 이동",
   // "There are no rows."
   noRowsText: "행이 없습니다.",
   // [Auto-translated] "Row {rowIndex}"

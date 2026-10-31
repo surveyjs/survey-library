@@ -525,6 +525,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework,
         {
+          headerView: "basic",
           showQuestionNumbers: true,
           autoFocusFirstQuestion: true,
           description: "Survey Description",

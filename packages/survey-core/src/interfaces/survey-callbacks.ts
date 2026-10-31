@@ -1,6 +1,7 @@
 import type { Base } from "../base";
 import type { SurveyError } from "../survey-error";
 import type { CreateCustomChoiceItemEvent } from "../survey-events-api";
+import type { DynamicDataErrorOperation } from "../dynamic-data/dynamic-data-interfaces";
 import type {
   IElement,
   IPage,
@@ -9,6 +10,33 @@ import type {
   ISurveyElement,
   IValueItemCustomPropValues,
 } from "../base-interfaces";
+
+// The transport a survey uses to load choices from a web service. It is a property of one model -
+// survey.webProvider - and not a global setting, so an application that has to serve those requests
+// itself (an offline client, a test run that must not touch the network, a server that proxies them)
+// replaces the transport of that model alone and leaves every other survey in the process on the
+// real one. Absent by default: nothing changes for a survey that does not carry a provider.
+export interface ISurveyWebRequest {
+  // The url the survey asks for, after text piping resolved the placeholders in it.
+  url: string;
+}
+export interface ISurveyWebResponse {
+  // The HTTP status the survey behaves as if it received. 200 loads the choices; anything else goes
+  // down the same path a failing service does.
+  status: number;
+  statusText?: string;
+  // The body. A string is parsed exactly as a real response is - JSON, XML or a plain list of lines -
+  // and an object or an array is taken as the already parsed body.
+  response?: any;
+}
+export interface ISurveyWebProvider {
+  // Optional. Return false to let the survey send this request through its default XMLHttpRequest or
+  // fetch transport. A provider without this callback handles every request for backward compatibility.
+  canHandleRequest?: (request: ISurveyWebRequest) => boolean;
+  // Called once per request. The survey is waiting from the moment this is entered until onResponse
+  // is called, and it is called exactly once.
+  sendRequest(request: ISurveyWebRequest, onResponse: (response: ISurveyWebResponse) => void): void;
+}
 
 export interface ISurveyElementLifecycle {
   questionCreated(question: IQuestion): any;
@@ -31,6 +59,8 @@ export interface ISurveyElementLifecycle {
     oldName: string,
     oldValueName: string
   ): any;
+  // A trigger property of a question changed, or the question order changed without an add or a remove
+  questionTriggersChanged(): void;
   pageVisibilityChanged(page: IPage, newValue: boolean): any;
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
@@ -86,6 +116,28 @@ export interface ISurveyDynamicPanelCallbacks {
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
   dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
   dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
+}
+// A dynamic question whose records come from a caller-provided data source reports every failure of
+// that source here - a page that could not be read, an edit the server rejected. The operation names
+// are the source method names, and "count" for the record count (DynamicDataErrorOperation).
+export interface ISurveyDynamicDataCallbacks {
+  dynamicDataError(question: IQuestion, operation: DynamicDataErrorOperation, error: any): void;
+}
+/* What a records question tells the survey about the writes its data source has not answered, so
+   that a completion waits for them. Not part of ISurvey and not exported by the entries: a survey
+   that does not implement it is never asked to wait (see getSurveyDynamicDataWrites in
+   question_records.ts). hasPendingWrites is true when the question's first unanswered write starts,
+   and false when its writes have settled, when it is disposed and when it leaves the survey. isFailed:
+   the source rejected one of the writes that settled. */
+export interface ISurveyDynamicDataWrites {
+  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void;
+}
+/* Whether questionValueChanged passes the old value of a question on to a handler, so that the question
+   needs a copy of it. Not part of ISurvey and not exported by the entries: SurveyModel keeps it private,
+   and a records question asks a survey for it by its member (getOldValueOnSetNewValue) - a custom ISurvey
+   without it gets the copy, as released. */
+export interface ISurveyOldValueReads {
+  isQuestionOldValueRead(question: IQuestion): boolean;
 }
 export interface ISurveyChoiceCallbacks {
   storeOthersAsComment: boolean;

@@ -633,6 +633,348 @@ describe("Survey_Questions", () => {
     expect(survey.currentPageNo, "Still stay on the first page").toBe(0);
   });
 
+  test("Radiogroup Question: autoAdvanceEnabled waits for Enter on keyboard, #3723", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "radiogroup", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const createKeyEvent = (key: string, keyCode: number) => {
+      let prevented = false;
+      return {
+        key,
+        keyCode,
+        preventDefault: () => { prevented = true; },
+        get defaultPrevented() { return prevented; }
+      };
+    };
+
+    question.value = 1;
+    expect(survey.currentPageNo, "Arrow/value change does not auto-advance").toBe(0);
+
+    const arrowEvent = createKeyEvent("ArrowDown", 40);
+    question.onKeyDown(arrowEvent);
+    expect(survey.currentPageNo, "ArrowDown key does not auto-advance").toBe(0);
+    expect(arrowEvent.defaultPrevented, "ArrowDown is not prevented").toBe(false);
+
+    const enterEvent = createKeyEvent("Enter", 13);
+    question.onKeyDown(enterEvent);
+    expect(enterEvent.defaultPrevented, "Enter is prevented when auto-advancing").toBe(true);
+    expect(survey.currentPageNo, "Enter confirms the value and auto-advances").toBe(1);
+  });
+
+  test("Radiogroup Question: Enter does not auto-advance when autoAdvanceEnabled is false", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "radiogroup", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    question.value = 1;
+    question.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+    expect(survey.currentPageNo, "Stay on the first page").toBe(0);
+  });
+
+  test("Radiogroup Question: Enter does not auto-advance if other questions are empty", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [
+          { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
+          { type: "text", name: "q2" }
+        ] },
+        { elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    question.value = 1;
+    question.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+    expect(survey.currentPageNo, "Stay until all questions on the page are answered").toBe(0);
+  });
+
+  test("Checkbox Question: autoAdvanceEnabled waits for Enter", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "checkbox", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const createKeyEvent = (key: string, keyCode: number, extra: any = {}) => {
+      let prevented = false;
+      return {
+        key,
+        keyCode,
+        ...extra,
+        preventDefault: () => { prevented = true; },
+        get defaultPrevented() { return prevented; }
+      };
+    };
+
+    question.value = [1];
+    expect(survey.currentPageNo, "Selecting a value does not auto-advance").toBe(0);
+    expect(question.supportAutoAdvance(), "Mouse selection does not opt in").toBe(false);
+
+    const spaceEvent = createKeyEvent(" ", 32);
+    question.onKeyDown(spaceEvent);
+    expect(survey.currentPageNo, "Space does not auto-advance").toBe(0);
+    expect(spaceEvent.defaultPrevented, "Space is not prevented").toBe(false);
+
+    const enterEvent = createKeyEvent("Enter", 13);
+    question.onKeyDown(enterEvent);
+    expect(enterEvent.defaultPrevented, "Enter is prevented when auto-advancing").toBe(true);
+    expect(survey.currentPageNo, "Enter confirms the value and auto-advances").toBe(1);
+  });
+
+  test("Checkbox Question: Enter does not auto-advance when the value is empty, read-only, or autoAdvanceEnabled is false", () => {
+    const createSurvey = (autoAdvanceEnabled?: boolean) => {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled,
+        pages: [
+          { elements: [{ type: "checkbox", name: "q1", choices: [1, 2, 3] }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      return survey;
+    };
+    const enterEvent = () => ({ key: "Enter", keyCode: 13, shiftKey: false, preventDefault: () => {} });
+
+    const emptySurvey = createSurvey(true);
+    const emptyQuestion = <QuestionCheckboxModel>emptySurvey.getQuestionByName("q1");
+    emptyQuestion.onKeyDown(enterEvent());
+    expect(emptySurvey.currentPageNo, "Empty value stays on the page").toBe(0);
+
+    const readOnlySurvey = createSurvey(true);
+    const readOnlyQuestion = <QuestionCheckboxModel>readOnlySurvey.getQuestionByName("q1");
+    readOnlyQuestion.value = [1];
+    readOnlyQuestion.readOnly = true;
+    readOnlyQuestion.onKeyDown(enterEvent());
+    expect(readOnlySurvey.currentPageNo, "Read-only stays on the page").toBe(0);
+
+    const disabledSurvey = createSurvey(false);
+    const disabledQuestion = <QuestionCheckboxModel>disabledSurvey.getQuestionByName("q1");
+    disabledQuestion.value = [1];
+    disabledQuestion.onKeyDown(enterEvent());
+    expect(disabledSurvey.currentPageNo, "autoAdvanceEnabled false stays on the page").toBe(0);
+
+    const shiftSurvey = createSurvey(true);
+    const shiftQuestion = <QuestionCheckboxModel>shiftSurvey.getQuestionByName("q1");
+    shiftQuestion.value = [1];
+    shiftQuestion.onKeyDown({ key: "Enter", keyCode: 13, shiftKey: true, preventDefault: () => {} });
+    expect(shiftSurvey.currentPageNo, "Shift+Enter stays on the page").toBe(0);
+  });
+
+  test("Checkbox Question: Enter in a text input does not auto-advance", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "checkbox", name: "q1", choices: [1, 2, 3], showOtherItem: true }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    question.value = [1];
+    let prevented = false;
+    question.onKeyDown({
+      key: "Enter",
+      keyCode: 13,
+      target: { tagName: "TEXTAREA" },
+      preventDefault: () => { prevented = true; }
+    });
+    expect(prevented, "Enter in a comment is not prevented").toBe(false);
+    expect(survey.currentPageNo, "Other comment stays on the page").toBe(0);
+
+    question.onKeyDown({
+      key: "Enter",
+      keyCode: 13,
+      target: { tagName: "INPUT", type: "text" },
+      preventDefault: () => { prevented = true; }
+    });
+    expect(survey.currentPageNo, "Text input stays on the page").toBe(0);
+  });
+
+  test("Checkbox Question: Enter does not auto-advance if other questions are empty", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [
+          { type: "checkbox", name: "q1", choices: [1, 2, 3] },
+          { type: "text", name: "q2" }
+        ] },
+        { elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    question.value = [1];
+    question.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+    expect(survey.currentPageNo, "Stay until all questions on the page are answered").toBe(0);
+  });
+
+  test("Matrix dropdown checkbox column does not support auto advance", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      elements: [{
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", cellType: "checkbox", choices: [1, 2] }],
+        rows: ["row1"]
+      }]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+    const cellQuestion = matrix.visibleRows[0].cells[0].question;
+    cellQuestion.value = [1];
+    expect(cellQuestion.getType(), "Cell question type").toBe("checkbox");
+    expect(cellQuestion.supportAutoAdvance(), "Checkbox cell stays opted out").toBe(false);
+    expect(matrix.supportAutoAdvance(), "Matrix stays opted out").toBe(false);
+  });
+
+  test("Imagepicker Question: multiSelect autoAdvanceEnabled waits for Enter", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", multiSelect: true, choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+    question.value = [1];
+    expect(survey.currentPageNo, "Selecting a value does not auto-advance").toBe(0);
+
+    let prevented = false;
+    question.onKeyDown({
+      key: "Enter",
+      keyCode: 13,
+      preventDefault: () => { prevented = true; }
+    });
+    expect(prevented, "Enter is prevented when auto-advancing").toBe(true);
+    expect(survey.currentPageNo, "Enter confirms the value and auto-advances").toBe(1);
+  });
+
+  test("Imagepicker Question: Enter does not auto-advance when the value is empty or read-only", () => {
+    const createSurvey = () => new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", multiSelect: true, choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const enterEvent = () => ({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+
+    const emptySurvey = createSurvey();
+    const emptyQuestion = <QuestionImagePickerModel>emptySurvey.getQuestionByName("q1");
+    emptyQuestion.onKeyDown(enterEvent());
+    expect(emptySurvey.currentPageNo, "Empty value stays on the page").toBe(0);
+
+    const readOnlySurvey = createSurvey();
+    const readOnlyQuestion = <QuestionImagePickerModel>readOnlySurvey.getQuestionByName("q1");
+    readOnlyQuestion.value = [1];
+    readOnlyQuestion.readOnly = true;
+    readOnlyQuestion.onKeyDown(enterEvent());
+    expect(readOnlySurvey.currentPageNo, "Read-only stays on the page").toBe(0);
+  });
+
+  test("Imagepicker Question: single-select auto-advances on a mouse selection", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+    question.value = 1;
+    expect(survey.currentPageNo, "Programmatic selection does not auto-advance").toBe(0);
+    expect(question.supportAutoAdvance(), "Programmatic selection does not opt in").toBe(false);
+    question.onMouseDown();
+    question.value = 2;
+    expect(survey.currentPageNo, "Mouse selection advances").toBe(1);
+  });
+
+  test("Imagepicker Question: single-select keyboard selection waits for Enter", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+    const createKeyEvent = (key: string, keyCode: number) => {
+      let prevented = false;
+      return {
+        key,
+        keyCode,
+        preventDefault: () => { prevented = true; },
+        get defaultPrevented() { return prevented; }
+      };
+    };
+
+    question.value = 1;
+    expect(survey.currentPageNo, "Keyboard selection does not auto-advance").toBe(0);
+
+    const arrowEvent = createKeyEvent("ArrowDown", 40);
+    question.onKeyDown(arrowEvent);
+    expect(survey.currentPageNo, "ArrowDown does not auto-advance").toBe(0);
+    expect(arrowEvent.defaultPrevented, "ArrowDown is not prevented").toBe(false);
+
+    const enterEvent = createKeyEvent("Enter", 13);
+    question.onKeyDown(enterEvent);
+    expect(enterEvent.defaultPrevented, "Enter is prevented when auto-advancing").toBe(true);
+    expect(survey.currentPageNo, "Enter confirms the value and auto-advances").toBe(1);
+  });
+
+  test("Imagepicker Question: single-select Enter does not auto-advance when empty, read-only, with Shift, or disabled", () => {
+    const createSurvey = (autoAdvanceEnabled?: boolean) => new SurveyModel({
+      autoAdvanceEnabled,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const enterEvent = () => ({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+
+    const emptySurvey = createSurvey(true);
+    (<QuestionImagePickerModel>emptySurvey.getQuestionByName("q1")).onKeyDown(enterEvent());
+    expect(emptySurvey.currentPageNo, "Empty value stays on the page").toBe(0);
+
+    const readOnlySurvey = createSurvey(true);
+    const readOnlyQuestion = <QuestionImagePickerModel>readOnlySurvey.getQuestionByName("q1");
+    readOnlyQuestion.value = 1;
+    readOnlyQuestion.readOnly = true;
+    readOnlyQuestion.onKeyDown(enterEvent());
+    expect(readOnlySurvey.currentPageNo, "Read-only stays on the page").toBe(0);
+
+    const shiftSurvey = createSurvey(true);
+    const shiftQuestion = <QuestionImagePickerModel>shiftSurvey.getQuestionByName("q1");
+    shiftQuestion.value = 1;
+    shiftQuestion.onKeyDown({ key: "Enter", keyCode: 13, shiftKey: true, preventDefault: () => {} });
+    expect(shiftSurvey.currentPageNo, "Shift+Enter stays on the page").toBe(0);
+
+    const disabledSurvey = createSurvey(false);
+    const disabledQuestion = <QuestionImagePickerModel>disabledSurvey.getQuestionByName("q1");
+    disabledQuestion.value = 1;
+    disabledQuestion.onKeyDown(enterEvent());
+    expect(disabledSurvey.currentPageNo, "autoAdvanceEnabled false stays on the page").toBe(0);
+  });
+
+  test("Imagepicker Question: Enter does nothing when autoAdvanceEnabled is false", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", multiSelect: true, choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+    question.value = [1];
+    question.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+    expect(survey.currentPageNo, "Stay on the first page").toBe(0);
+  });
+
   test("Validators for text question + getAllErrors", () => {
     var mText = new QuestionTextModel("");
     expect(mText.validate(), "There is no error by default").toBe(true);
@@ -3186,9 +3528,11 @@ describe("Survey_Questions", () => {
   });
   test("QuestionImagePickerModel.supportAutoAdvance", () => {
     const q = new QuestionImagePickerModel("q");
-    expect(q.supportAutoAdvance(), "It supports by default").toBe(true);
+    expect(q.supportAutoAdvance(), "Single-select waits for a mouse selection").toBe(false);
+    q.onMouseDown();
+    expect(q.supportAutoAdvance(), "Single-select supports it after mousedown").toBe(true);
     q.multiSelect = true;
-    expect(q.supportAutoAdvance(), "It doesn't support it for multiselect").toBe(false);
+    expect(q.supportAutoAdvance(), "It doesn't support it for multiselect even after mousedown").toBe(false);
     q.multiSelect = false;
     expect(q.supportAutoAdvance(), "multiselect is false").toBe(true);
   });
@@ -3565,6 +3909,332 @@ describe("Survey_Questions", () => {
     survey.setValue("q2", 4);
     expect(q1.value, "q1.value #4").toBe(6);
     expect(counter, "counter #4").toBe(5);
+  });
+  test("defaultValueExpression does not run on a value change that it does not use", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]) => { callCount++; return params[0]; });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "text", name: "q", defaultValueExpression: "countCalls({a})" }
+        ]
+      });
+      const q = survey.getQuestionByName("q");
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "b is not used").toBe(0);
+      survey.setValue("a", 4);
+      expect(callCount, "a is used").toBe(2);
+      expect(q.value, "q follows a").toBe(4);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("defaultValueExpression restores a value cleared by code on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", 1);
+    expect(q.value, "after a = 1").toBe(2);
+    q.clearValue();
+    expect(q.isEmpty(), "cleared by code").toBe(true);
+    survey.setValue("b", 1);
+    expect(q.value, "restored on an unrelated answer").toBe(2);
+  });
+  test("defaultValueExpression applies a defaultValue changed at runtime on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a}", defaultValue: 7 }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is empty, the default value is used").toBe(7);
+    q.defaultValue = 8;
+    expect(q.value, "nothing changes at once").toBe(7);
+    survey.setValue("b", 1);
+    expect(q.value, "the new default value on an unrelated answer").toBe(8);
+  });
+  test("defaultValueExpression changed at runtime applies on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", 1);
+    expect(q.value, "after a = 1").toBe(2);
+    q.defaultValueExpression = "{a} + 10";
+    expect(q.value, "nothing changes at once").toBe(2);
+    survey.setValue("b", 1);
+    expect(q.value, "the new expression on an unrelated answer").toBe(11);
+  });
+  test("defaultValueExpression does not restore a value set from outside", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1" }
+      ]
+    };
+    let survey = new SurveyModel(json);
+    survey.setValue("a", 1);
+    survey.setValue("q", 50);
+    survey.setValue("b", 1);
+    expect(survey.getValue("q"), "survey.setValue, then an unrelated answer").toBe(50);
+    survey.setValue("a", 2);
+    expect(survey.getValue("q"), "survey.setValue, then a used value changes").toBe(50);
+
+    survey = new SurveyModel(json);
+    survey.setValue("a", 1);
+    survey.mergeData({ q: 50 });
+    survey.setValue("b", 1);
+    expect(survey.getValue("q"), "survey.mergeData, then an unrelated answer").toBe(50);
+    survey.setValue("a", 2);
+    expect(survey.getValue("q"), "survey.mergeData, then a used value changes").toBe(50);
+  });
+  test("defaultValueExpression of a question hidden and shown again (clearInvisibleValues: onHidden)", () => {
+    const survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1", visibleIf: "{b} != 1" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", 1);
+    expect(q.value, "after a = 1").toBe(2);
+    survey.setValue("b", 1);
+    expect(q.isEmpty(), "hidden and cleared").toBe(true);
+    survey.setValue("b", 2);
+    expect(q.value, "shown again").toBe(2);
+  });
+  test("defaultValueExpression with a custom function that reads another survey value by itself is stale while settings.expressionQuestionTrackDependencies is true (a change from the earlier behaviour)", () => {
+    FunctionFactory.Instance.register("readOther", function (this: any) {
+      return this.survey.getValue("other");
+    });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    try {
+      const createSurvey = () => new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "other" },
+          { type: "text", name: "q", defaultValueExpression: "readOther({a})" }
+        ]
+      });
+      settings.expressionQuestionTrackDependencies = true;
+      let survey = createSurvey();
+      survey.setValue("other", 5);
+      expect(survey.getValue("q"), "true: other is not a parameter, q is stale").toBeUndefined();
+      survey.setValue("a", 1);
+      expect(survey.getValue("q"), "true: a changed, q reads other").toBe(5);
+
+      settings.expressionQuestionTrackDependencies = false;
+      survey = createSurvey();
+      survey.setValue("other", 5);
+      expect(survey.getValue("q"), "false: runs on every value change").toBe(5);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("readOther");
+    }
+  });
+  test("defaultValueExpression inside a dynamic panel follows the panel's value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "b" },
+        {
+          type: "paneldynamic", name: "pd", panelCount: 1,
+          templateElements: [
+            { type: "text", name: "a" },
+            { type: "text", name: "t", defaultValueExpression: "{panel.a} + 1" }
+          ]
+        }
+      ]
+    });
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels[0];
+    const t = panel.getQuestionByName("t");
+    panel.getQuestionByName("a").value = 1;
+    expect(t.value, "panel a = 1").toBe(2);
+    panel.getQuestionByName("a").value = 5;
+    expect(t.value, "panel a = 5").toBe(6);
+    survey.setValue("b", 1);
+    expect(t.value, "an answer outside the panel").toBe(6);
+  });
+  test("defaultValueExpression with a parameterless function runs on every value change", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countNoParams", () => { callCount++; return 1; });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "b" },
+          { type: "text", name: "q", defaultValueExpression: "countNoParams()" }
+        ]
+      });
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "b = 1").toBe(1);
+      survey.setValue("b", 2);
+      expect(callCount, "b = 2").toBe(2);
+      expect(survey.getValue("q"), "q").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("countNoParams");
+    }
+  });
+  test("defaultValueExpression with an element property runs on every value change", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a", visibleIf: "{b} != 1" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{$a.isVisible}" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is visible").toBe(true);
+    survey.setValue("b", 1);
+    expect(q.value, "a is hidden").toBe(false);
+    survey.setValue("b", 2);
+    expect(q.value, "a is visible again").toBe(true);
+  });
+  test("defaultValueExpression with a built-in variable runs on every value change", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "b" }, { type: "text", name: "q", defaultValueExpression: "{pageno}" }] },
+        { elements: [{ type: "text", name: "c" }] }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "the first run at load does not have the page number yet").toBe(0);
+    survey.setValue("b", 1);
+    expect(q.value, "an answer on the first page").toBe(1);
+    survey.nextPage();
+    survey.setValue("c", 1);
+    expect(q.value, "an answer on the second page").toBe(2);
+  });
+  test("defaultValueExpression runs on every value change while onExpressionRunning has a subscriber", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]) => { callCount++; return params[0]; });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "text", name: "q", defaultValueExpression: "countCalls({a})" }
+        ]
+      });
+      survey.onExpressionRunning.add(() => { });
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "an unrelated answer").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("defaultValueExpression runs on survey.runExpressions() and on survey.data", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]) => { callCount++; return params[0]; });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "text", name: "q", defaultValueExpression: "countCalls({a})" }
+        ]
+      });
+      callCount = 0;
+      survey.data = { a: 3, b: 1 };
+      expect(callCount, "survey.data").toBe(3);
+      expect(survey.getValue("q"), "q after survey.data").toBe(3);
+      callCount = 0;
+      survey.runExpressions();
+      expect(callCount, "survey.runExpressions()").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("defaultValueExpression that reads a path under a cleared value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "multipletext", name: "a", items: [{ name: "x" }] },
+        { type: "text", name: "q", defaultValueExpression: "{a.x}", defaultValue: 7 },
+        {
+          type: "paneldynamic", name: "pd", panelCount: 1,
+          templateElements: [
+            { type: "multipletext", name: "a", items: [{ name: "x" }] },
+            { type: "text", name: "t", defaultValueExpression: "{panel.a.x}", defaultValue: 7 }
+          ]
+        },
+        {
+          type: "paneldynamic", name: "pd2", panelCount: 1,
+          templateElements: [
+            { type: "text", name: "s", defaultValueExpression: "{a.x}", defaultValue: 7 }
+          ]
+        }
+      ]
+    });
+    const s = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd2")).panels[0].getQuestionByName("s");
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is empty").toBe(7);
+    expect(s.value, "a is empty, in a panel").toBe(7);
+    survey.setValue("a", { x: 2 });
+    expect(q.value, "a.x = 2").toBe(2);
+    expect(s.value, "a.x = 2, in a panel").toBe(2);
+    survey.clearValue("a");
+    expect(q.value, "a is cleared").toBe(7);
+    expect(s.value, "a is cleared, in a panel").toBe(7);
+    survey.setValue("a", { x: 3 });
+    expect(q.value, "a.x = 3").toBe(3);
+    expect(s.value, "a.x = 3, in a panel").toBe(3);
+
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels[0];
+    const panelA = panel.getQuestionByName("a");
+    const t = panel.getQuestionByName("t");
+    expect(t.value, "panel a is empty").toBe(7);
+    panelA.value = { x: 2 };
+    expect(t.value, "panel a.x = 2").toBe(2);
+    panelA.clearValue();
+    expect(t.value, "panel a is cleared").toBe(7);
+    panelA.value = { x: 3 };
+    expect(t.value, "panel a.x = 3").toBe(3);
+  });
+  test("defaultValueExpression applies a defaultValue changed in place on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "checkbox", name: "q", choices: ["x", "y"], defaultValue: ["x"], defaultValueExpression: "{a}" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is empty, the default value is used").toEqual(["x"]);
+    q.defaultValue.push("y");
+    survey.setValue("b", 1);
+    expect(q.value, "the changed default value on an unrelated answer").toEqual(["x", "y"]);
+  });
+  test("defaultValueExpression after the question value is changed in place", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "checkbox", name: "q", choices: ["x", "y"], defaultValue: ["x"], defaultValueExpression: "{a}" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is empty, the default value is used").toEqual(["x"]);
+    q.value.push("y");
+    expect(q.value, "changed in place").toEqual(["x", "y"]);
+    survey.setValue("b", 1);
+    expect(q.value, "after an unrelated answer").toEqual(["x"]);
   });
   test("Question minValueExpression && onExpressionRunning #10258", () => {
     const survey = new SurveyModel({
@@ -5702,6 +6372,23 @@ describe("Survey_Questions", () => {
     expect(maxJson.inputType).toBe("number");
     expect(maxJson.textUpdateMode).toBe("onBlur");
   });
+  test("QuestionTextModel placeholder property is visible for number inputType, Bug#11874", () => {
+    const prop = Serializer.findProperty("text", "placeholder");
+    const q1 = new QuestionTextModel("q1");
+    expect(prop.isVisible("", q1), "text").toBe(true);
+    q1.inputType = "number";
+    expect(prop.isVisible("", q1), "number").toBe(true);
+    q1.placeholder = "Enter a number";
+    expect(q1.renderedPlaceholder, "number rendered placeholder").toBe("Enter a number");
+    q1.inputType = "email";
+    expect(prop.isVisible("", q1), "email").toBe(true);
+    q1.inputType = "range";
+    expect(prop.isVisible("", q1), "range").toBe(false);
+    q1.inputType = "date";
+    expect(prop.isVisible("", q1), "date").toBe(false);
+    q1.inputType = "color";
+    expect(prop.isVisible("", q1), "color").toBe(false);
+  });
   test("QuestionTextModel inputStyle for empty inputWidth - https://github.com/surveyjs/survey-creator/issues/3755", () => {
     const q1 = new QuestionTextModel("q1");
     expect(q1.inputStyle).toEqual({ width: "" });
@@ -6360,6 +7047,32 @@ describe("Survey_Questions", () => {
     expect(q3.value, "Value is set correctly").toBe(3);
     q1.value = 5;
     expect(q3.value, "Value is changed based on expression").toBe(7);
+  });
+  test("defaultValueExpression doesn't overwrite a value from survey.data that equals the initial default, Bug#11985", () => {
+    const json = {
+      elements: [
+        { type: "dropdown", name: "servicePerformed", choices: ["281", "282", "1"] },
+        { type: "expression", name: "isReinspection", visible: false,
+          expression: "iif({servicePerformed} anyof ['281','282'], true, false)" },
+        { type: "radiogroup", name: "packingCheckMandatory", choices: ["YES", "NO"],
+          enableIf: "{isReinspection} = true",
+          defaultValueExpression: "iif({isReinspection} = true, 'NO', 'YES')" }
+      ]
+    };
+    const savedData = { servicePerformed: "281", isReinspection: true, packingCheckMandatory: "YES" };
+
+    let survey = new SurveyModel(json);
+    let q = survey.getQuestionByName("packingCheckMandatory");
+    expect(q.value, "initial default value").toBe("YES");
+    survey.data = savedData;
+    expect(q.value, "survey.data: the loaded value is kept").toBe("YES");
+    survey.setValue("servicePerformed", "282");
+    expect(q.value, "survey.data: the loaded value is kept after a dependency changes").toBe("YES");
+
+    survey = new SurveyModel(json);
+    q = survey.getQuestionByName("packingCheckMandatory");
+    survey.mergeData(savedData);
+    expect(q.value, "mergeData: the loaded value is kept").toBe("YES");
   });
   test("question.resetValueIf, basic functionality", () => {
     const survey = new SurveyModel({
@@ -7512,6 +8225,29 @@ describe("Survey_Questions", () => {
 
     FunctionFactory.Instance.unregister("asyncFunc");
   });
+  test("SurveyModel.validate: onAsyncValidation is fail-fast and fires once", () => {
+    let returnResults = new Array<any>();
+    function asyncFunc(params: any): any {
+      returnResults.push(this.returnResult);
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFuncSurveyValidate", asyncFunc, true);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2", validators: [{ type: "expression", expression: "asyncFuncSurveyValidate({q2})" }] }
+      ]
+    });
+    survey.getQuestionByName("q2").value = 2;
+    const callbackResults = new Array<any>();
+    const res = survey.validate(true, false, (hasErrors: boolean) => { callbackResults.push(hasErrors); });
+    expect(res, "a failure is already known").toBe(false);
+    expect(callbackResults, "fired on the synchronous failure").toEqual([true]);
+    returnResults[0](false);
+    expect(callbackResults, "not fired again when the pending validator answers").toEqual([true]);
+    expect(survey.getQuestionByName("q2").errors.length, "the async error is set").toBe(1);
+    FunctionFactory.Instance.unregister("asyncFuncSurveyValidate");
+  });
   test("Question.validate vs callback function and two different validates #10307", () => {
     let returnResults = new Array<any>();
     function asyncFunc(params: any): any {
@@ -7870,6 +8606,47 @@ describe("Survey_Questions", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     expect(q1.getPropertyValue("titleActions"), "There is no titleActions array on creatong&loading").toBeUndefined();
+  });
+  test("Reading hasTitleActions/titleActions the first time doesn't notify UI subscribers", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", title: "Page 1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", title: "Page 2", elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    survey.onGetPageTitleActions.add((_, options) => {
+      if (options.page.name === "page2") {
+        options.titleActions.push({ id: "action1", title: "Action 1" });
+      }
+    });
+    const page1 = survey.pages[0];
+    const page2 = survey.pages[1];
+    const changes: Array<string> = [];
+    [page1, page2].forEach(page => {
+      page.addOnPropertyValueChangedCallback((sender: Base, options) => changes.push(`${sender["name"]}:prop:${options.name}`));
+      page.addOnArrayChangedCallback((sender: Base, options) => changes.push(`${sender["name"]}:array:${options.name}`));
+    });
+
+    expect(page1.hasTitleActions, "page1 has no title actions").toBe(false);
+    expect(page2.hasTitleActions, "page2 has title actions").toBe(true);
+    expect(page2.titleActions.map(a => a.id), "page2 title actions").toEqual(["action1"]);
+    expect(changes, "Lazy creation of titleActions doesn't fire change events (it's called from render)").toEqual([]);
+
+    page2.titleActions.push({ id: "action2" });
+    expect(changes, "Changing titleActions after creation notifies UI subscribers").toEqual(["page2:array:titleActions"]);
+  });
+  test("titleActions notifies UI subscribers if the array has been created before requesting title actions", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.onGetQuestionTitleActions.add((_, options) => {
+      options.titleActions.push({ id: "action1", title: "Action 1" });
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.titleActions, "The array is created empty").toHaveLength(0);
+    const changes: Array<string> = [];
+    q1.addOnArrayChangedCallback((_, options) => changes.push(options.name));
+    expect(q1.hasTitleActions, "q1 has title actions").toBe(true);
+    expect(q1.titleActions.map(a => a.id), "q1 title actions").toEqual([`sv-clr-btn-${q1.id}`, "action1"]);
+    expect(changes, "The existing (possibly rendered) array is changed, notify UI subscribers").toEqual(["titleActions"]);
   });
   test("The expression of matrix cell value is shown in display value when there is no value, bug#11140", () => {
     const survey = new SurveyModel({

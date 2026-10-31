@@ -3,8 +3,9 @@ import { classifySiteRefs, equalsCI } from "../expression-utils";
 import { ElementRecord, ExpressionSite, ParsedRef } from "../symbols";
 import { ILintReproduction } from "../types";
 import { ILintResolvedSettings } from "../lint-settings";
+import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
 
-const SELF_PROPS: { [prop: string]: boolean } = { visibleIf: true, enableIf: true, requiredIf: true };
+const SELF_PROPS = new Set<string>(["visibleIf", "enableIf", "requiredIf"]);
 
 function hasItemValueFrame(site: ExpressionSite): boolean {
   return site.scope.some(frame => frame.kind === "itemValue");
@@ -21,6 +22,10 @@ function isSelfRef(ref: ParsedRef, owner: ElementRecord, site: ExpressionSite,
   // reference the owning question to filter items by its current value - only the item
   // hides, the question value stays, so evaluation converges (the exclusive-"none" idiom)
   if (hasItemValueFrame(site)) return false;
+  // only {row.x} / {panel.x} address the owner's own row/panel; {prevRow.x}, {nextRow.x},
+  // {totalRow.x}, {prevPanel.x} and {nextPanel.x} read the same field of another record
+  if (!!ref.scopePrefix && !equalsCI(ref.scopePrefix, vars.row) &&
+    !equalsCI(ref.scopePrefix, vars.panel)) return false;
   // identity, not name equality: a matrix column or a template question may share its
   // name with a top-level question, and then {name} resolves to that other element.
   // classifyRef already resolved the root (byName/byValueName) and the {row.x}/{panel.x}
@@ -32,6 +37,7 @@ function buildReproduction(owner: ElementRecord, prop: string): ILintReproductio
   const res: ILintReproduction = {
     description: "Answering \"" + owner.name + "\" re-evaluates its own " + prop +
       "; if the element becomes hidden its value is cleared, which flips the condition again.",
+    reason: SurveyLintReproductionReasons.selfReference,
     steps: [{ set: { [owner.name]: "<any value>" } }],
   };
   if (prop === "visibleIf") {
@@ -44,25 +50,23 @@ export const referenceSelfRule: ILintRule = {
   id: "reference/self",
   defaultSeverity: "error",
   run(ctx: LintContext): void {
-    ctx.index.expressionSites.forEach(site => {
-      if (site.parseError || !site.owner || !SELF_PROPS[site.prop]) return;
+    ctx.forEachSite("parsed", site => {
+      if (!site.owner || !SELF_PROPS.has(site.prop)) return;
       const owner = site.owner;
       if (!owner.name) return;
       const refs = classifySiteRefs(site, ctx.index, ctx.options);
       const selfRef = refs.filter(ref => isSelfRef(ref, owner, site, ctx.index.settings))[0];
       if (!selfRef) return;
-      ctx.report({
+      ctx.reportAtSite(site, {
         message: "The " + site.prop + " of \"" + owner.name + "\" references the element itself ({" +
           selfRef.raw + "} in \"" + site.text + "\").",
-        path: site.path,
+        reason: SurveyLintReasons["reference/self"].selfReference,
         messageData: {
           name: owner.name,
           prop: site.prop,
           reference: selfRef.raw,
           expression: site.text,
         },
-        elementName: owner.name,
-        elementType: owner.type,
         reproduction: owner.kind === "question" ? buildReproduction(owner, site.prop) : undefined,
       });
     });

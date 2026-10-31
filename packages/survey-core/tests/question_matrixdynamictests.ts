@@ -23,7 +23,12 @@ import { AnimationGroup } from "../src/utils/animation";
 import { setOldTheme } from "./oldTheme";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { describe, test, expect } from "vitest";
+import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
+import { describe, test, expect, vi } from "vitest";
+
+// The current sort of a records question, as plain { field, direction } criteria.
+const getSort = (q: any): Array<any> => q.sortCriteria.map((c: any) => ({ field: c.field, direction: c.direction }));
+const sortText = (sort: Array<any>): string => sort.map((c: any): string => c.field + " " + c.direction).join(", ");
 describe("Survey_QuestionMatrixDynamic", () => {
   test("Matrixdropdown cells tests", () => {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");
@@ -75,7 +80,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     visibleRows[1].cells[1].value = 4;
     expect(question.value, "set the cell value correctly").toEqual([{}, { column2: 4 }, {}]);
     visibleRows[1].cells[1].value = null;
-    expect(question.value, "set to null if all cells are null - array is empty").toEqual([]);
+    expect(question.value, "the empty records stay, Bug#12147").toEqual([{}, {}, {}]);
   });
   test("Matrixdynamic make the question empty on null cell value, Bug #608", () => {
     var question = new QuestionMatrixDynamicModel("matrixDynamic");
@@ -86,7 +91,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     visibleRows[1].cells[0].question.value = 2;
     expect(question.value, "The value set correctly").toEqual([{}, { column1: 2 }, {}]);
     visibleRows[1].cells[0].question.value = null;
-    expect(question.value, "Clear the question value if all cells are empty - empty array").toEqual([]);
+    expect(question.value, "the empty records stay, Bug#12147").toEqual([{}, {}, {}]);
+    expect(question.isEmpty(), "the question is empty").toBe(true);
   });
 
   test("Matrixdynamic set null value, Bug Editor #156", () => {
@@ -147,8 +153,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.value = [{}, { column1: 2 }, {}];
     question.removeRow(1);
     expect(question.rowCount, "one row is removed").toBe(2);
-    expect(question.value, "value is null now - array is empty").toEqual([]);
-    expect(survey.getValue("q1"), "survey value is undefined or null").toBeUndefined();
+    expect(question.value, "the empty records stay, Bug#12147").toEqual([{}, {}]);
+    expect(survey.getValue("q1"), "the survey holds them").toEqual([{}, {}]);
     question.addRow();
     expect(question.rowCount, "one row is added").toBe(3);
   });
@@ -252,6 +258,24 @@ describe("Survey_QuestionMatrixDynamic", () => {
       { column1: "val2", column2: "val1", column3: "val3" },
     ];
     expect(question.validate(), "There is no errors").toBe(true);
+  });
+  test("a keyName column that is also isUnique is checked once, after the isUnique columns before it", () => {
+    const question = new QuestionMatrixDynamicModel("q1");
+    question.cellType = "text";
+    question.rowCount = 2;
+    question.addColumn("c1").isUnique = true;
+    question.addColumn("c2").isUnique = true;
+    question.addColumn("c3");
+    question.keyName = "c2";
+    expect(question["getUniqueColumnsNames"](), "#1: the key is not repeated").toEqual(["c1", "c2"]);
+    question.keyName = "c3";
+    expect(question["getUniqueColumnsNames"](), "#2: a key that is not isUnique comes last").toEqual(["c1", "c2", "c3"]);
+    question.keyName = "c2";
+    question.value = [{ c1: "a", c2: "x" }, { c1: "a", c2: "x" }];
+    let firstErrorQuestion: Question = undefined;
+    expect(question.validate(true, false, false, (res: boolean, q: Question): void => { firstErrorQuestion = q; }), "#3").toBe(false);
+    expect(firstErrorQuestion === question.visibleRows[0].getQuestionByColumnName("c1"), "#4: the earlier column gets the focus").toBe(true);
+    expect(question.visibleRows.map(row => row.getQuestionByColumnName("c2").errors.length), "#5: one error per cell").toEqual([1, 1]);
   });
   test("Matrixdynamic column.isUnique, matrixdropdown", () => {
     var question = new QuestionMatrixDropdownModel("q1");
@@ -1837,6 +1861,46 @@ describe("Survey_QuestionMatrixDynamic", () => {
     matrix.visibleRows[1].cells[1].value = 40;
     expect(matrix.visibleTotalRow.cells[1].value, "total sum #3").toBe(50);
   });
+  test("matrix dynamic rowsVisibleIf hides the new row: onMatrixRowAdded & detailPanelShowOnAdding target the new row, Bug#11857", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic", name: "matrix", rowCount: 0,
+          rowsVisibleIf: "{row.col1} = 'Keep'", cellType: "text",
+          detailPanelMode: "underRow", detailPanelShowOnAdding: true,
+          columns: [{ name: "col1" }],
+          detailElements: [{ type: "text", name: "q1" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.value = [{ col1: "Keep" }];
+    expect(matrix.visibleRows.length, "the existing row is visible").toBe(1);
+    const addedRows: Array<any> = [];
+    survey.onMatrixRowAdded.add((_, options) => { addedRows.push(options.row); });
+    matrix.addRow();
+    expect(matrix.allRows.length, "the row is added").toBe(2);
+    expect(matrix.visibleRows.length, "the new row is hidden by rowsVisibleIf").toBe(1);
+    const newRow = matrix.allRows[1];
+    expect(addedRows.length, "onMatrixRowAdded is fired once").toBe(1);
+    expect(addedRows[0] === newRow, "onMatrixRowAdded receives the new row").toBe(true);
+    expect(newRow.isDetailPanelShowing, "detail panel is shown for the new row").toBe(true);
+    expect(matrix.allRows[0].isDetailPanelShowing, "detail panel is not shown for the existing row").toBe(false);
+
+    let focusedQuestionId = "";
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+    matrix.addRowUI();
+    expect(matrix.allRows.length, "the row is added from UI").toBe(3);
+    expect(focusedQuestionId, "do not focus a cell of an existing row when the new row is hidden").toBe("");
+    matrix.rowsVisibleIf = "";
+    matrix.addRowUI();
+    expect(focusedQuestionId, "focus the new visible row").toBe(matrix.allRows[3].cells[0].question.inputId);
+    SurveyElement.FocusElement = oldFunc;
+  });
   test("matrix dropdown rowsVisibleIf, defaultValue & designMode, Bug#9279", () => {
     const json = {
       elements: [
@@ -2131,6 +2195,59 @@ describe("Survey_QuestionMatrixDynamic", () => {
     rows[0].cells[0].question.value = "abc";
     expect(rows[0].cells[1].question.value, "Custom function with row property works correctly").toBe("abcabc");
     FunctionFactory.Instance.unregister("rowCustomFunc");
+  });
+  test("row property in a custom function the rowsVisibleIf calls", () => {
+    const seen: Array<any> = [];
+    FunctionFactory.Instance.register("rowVisibleCol1", function (this: any, params: any): any {
+      seen.push(this.row);
+      return !!this.row ? this.row.getValue(params[0]) : undefined;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "matrixdropdown", name: "dd", rows: ["r1", "r2", "r3"], cellType: "text", columns: [{ name: "col1" }],
+            rowsVisibleIf: "rowVisibleCol1('col1') != 'a'" },
+          { type: "matrixdynamic", name: "md", rowCount: 3, cellType: "text", columns: [{ name: "col1" }],
+            rowsVisibleIf: "rowVisibleCol1('col1') != 'a'" }
+        ]
+      });
+      survey.data = { dd: { r2: { col1: "a" } }, md: [{ col1: "b" }, { col1: "a" }, { col1: "c" }] };
+      const dd = <QuestionMatrixDropdownModel>survey.getQuestionByName("dd");
+      const md = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
+      expect(dd.visibleRows.map(r => r.rowName), "#1: the matrix dropdown row reads its own cell").toEqual(["r1", "r3"]);
+      expect(md.visibleRows.map(r => r.getValue("col1")), "#2: the dynamic matrix row reads its own cell").toEqual(["b", "c"]);
+      expect(seen.length > 0 && seen.every(row => !!row && (row.data === dd || row.data === md)), "#3: this.row is always the matrix's own row").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("rowVisibleCol1");
+    }
+  });
+  test("row property in a custom function the rowsVisibleIf of a matrix in a detail panel calls is the inner row", () => {
+    const seen: Array<any> = [];
+    FunctionFactory.Instance.register("rowVisibleCol1", function (this: any, params: any): any {
+      seen.push(this.row);
+      return !!this.row ? this.row.getValue(params[0]) : undefined;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [{
+          type: "matrixdynamic", name: "outer", rowCount: 1, detailPanelMode: "underRow",
+          columns: [{ name: "col1", cellType: "text" }],
+          detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 2, columns: [{ name: "col1", cellType: "text" }],
+            rowsVisibleIf: "rowVisibleCol1('col1') != 'a'" }]
+        }]
+      });
+      survey.data = { outer: [{ col1: "a", inner: [{ col1: "b" }, { col1: "a" }] }] };
+      const outer = <QuestionMatrixDynamicModel>survey.getQuestionByName("outer");
+      const outerRow = outer.visibleRows[0];
+      outerRow.showDetailPanel();
+      const inner = <QuestionMatrixDynamicModel>outerRow.detailPanel.getQuestionByName("inner");
+      seen.splice(0, seen.length);
+      survey.setValue("other", 1);
+      expect(inner.visibleRows.map(r => r.getValue("col1")), "#1: the inner row reads its own cell, not the outer row's").toEqual(["b"]);
+      expect(seen.length > 0 && seen.every(row => !!row && row.data === inner), "#2: this.row is the inner matrix's row").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("rowVisibleCol1");
+    }
   });
 
   test("Complete example with totals and expressions: invoice example", () => {
@@ -4740,8 +4857,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(rows[0].cells[0].question.errors.length, "There is error, e-mail is incorrect").toBe(1);
     expect(rows[0].cells[1].question.errors.length, "There is no errors yet in the cell, first row, second column").toBe(0);
     expect(rows[1].cells[0].question.errors.length, "There is no errors yet in the cell, second row, first column").toBe(0);
-    expect(matrix.value, "do not set value to matrix").toBeFalsy();
-    expect(survey.data, "do not set value into survey").toEqual({});
+    // The empty records of the untouched rows, written on first rendering (Bug#12147); the rejected cell value is not.
+    expect(matrix.value, "do not set value to matrix").toEqual([{}, {}]);
+    expect(survey.data, "do not set value into survey").toEqual({ question1: [{}, {}] });
     rows[0].cells[0].value = "a@a.com";
     expect(matrix.value, "set value to matrix").toEqual([{ col1: "a@a.com" }, {}]);
     expect(survey.data, "set value into survey").toEqual({ question1: [{ col1: "a@a.com" }, {}] });
@@ -5520,7 +5638,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     expect(rows[2].cells[rows[2].cells.length - 1].isActionsCell, "the last cell in detail panel is actions cell").toBe(true);
 
-    expect(rows[2].cells[6].item.value.actions.map(a => a.id)).toEqual(["show-detail", "remove-row"]);
+    expect(rows[2].cells[rows[2].cells.length - 1].item.value.actions.map(a => a.id)).toEqual(["show-detail", "remove-row"]);
   });
 
   test("Detail panel, rendered table mobile - expand collapse", () => {
@@ -5861,7 +5979,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     q1.clearValue();
     expect(logs, "#2").toEqual([
       { name: "matrix", value: [{ q1: "abc" }, {}] },
-      { name: "matrix", value: [] }
+      { name: "matrix", value: [{}, {}] }
     ]);
   });
 
@@ -6181,7 +6299,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(q1.value, "We have value in the cell").toEqual([{ col1: 1 }]);
     q1.removeRow(0);
     expect(q1.rowCount, "We do not allow to remove the row").toBe(1);
-    expect(q1.value, "We clear value in the row").toEqual([]);
+    expect(q1.value, "We clear value in the row, its empty record stays, Bug#12147").toEqual([{}]);
   });
   test("Text processing in rows and columns, rendered table", () => {
     var survey = new SurveyModel({
@@ -6514,8 +6632,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.renderedTable.headerRow.cells.length, "Drag handler cell + one column + actions cell").toBe(3);
     var rows = matrix.renderedTable.rows;
-    expect(rows[1].cells[0].isDragHandlerCell, "isDragHandlerCell").toBe(true);
-    expect(rows[3].cells[0].isDragHandlerCell, "isDragHandlerCell").toBe(true);
+    expect(rows[1].cells[0].isActionsCell, "isActionsCell").toBe(true);
+    expect(rows[3].cells[0].isActionsCell, "isActionsCell").toBe(true);
     expect(rows[1].cells[2].isActionsCell, "isActionsCell").toBe(true);
     expect(rows[3].cells[2].isActionsCell, "isActionsCell").toBe(true);
   });
@@ -6962,7 +7080,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     q.value = "1";
     expect(matrix.visibleTotalRow.cells[0].value, "summary for first column is empty").toBeFalsy();
-    expect(survey.data, "matrix is empty").toEqual({ col1: "1", "matrix-total": { col2: 0 } });
+    expect(survey.data, "matrix is empty: its empty record, Bug#12147").toEqual({ col1: "1", matrix: [{}], "matrix-total": { col2: 0 } });
   });
   test("Get choices from matrix for default column type", () => {
     const survey = new SurveyModel({
@@ -7033,21 +7151,61 @@ describe("Survey_QuestionMatrixDynamic", () => {
       ]
     });
 
+    // A default column has the properties of the inherited cell type (Issue#11836): the template question and the cells
+    // keep rateMax / choices, so the JSON keeps them as well
     const matrix1 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
     expect(matrix1.columns[0].rateMax, "rateMax loaded correctly").toBe(10);
     matrix1.columns[0].cellType = "default";
-    expect(matrix1.toJSON(), "There is no rateMax").toEqual({
+    expect((<any>matrix1.visibleRows[0].cells[0].question).rateMax, "cell rateMax").toBe(10);
+    expect(matrix1.toJSON(), "rateMax is kept, cellType is removed").toEqual({
       name: "matrix1",
       cellType: "rating",
-      columns: [{ name: "col1" }]
+      columns: [{ name: "col1", rateCount: 10, rateMax: 10 }]
     });
     const matrix2 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
     expect(matrix2.columns[0].choices.length, "choices loaded correctly").toBe(2);
     matrix2.columns[0].cellType = "default";
-    expect(matrix2.toJSON(), "There is no choices").toEqual({
+    expect((<any>matrix2.visibleRows[0].cells[0].question).choices.length, "cell choices").toBe(2);
+    expect(matrix2.toJSON(), "choices are kept, cellType is removed").toEqual({
       name: "matrix2",
-      columns: [{ name: "col1" }]
+      columns: [{ name: "col1", choices: [1, 2] }]
     });
+  });
+  test("Do not serialize default values of the inherited cell type in columns with the default cellType", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "matrix1", cellType: "rating", columns: [{ name: "col1" }, { name: "col2", cellType: "rating" }] },
+        { type: "matrixdynamic", name: "matrix2", columns: [{ name: "col1" }] },
+        { type: "matrixdynamic", name: "matrix3", cellType: "checkbox", columns: [{ name: "col1" }] },
+        { type: "matrixdynamic", name: "matrix4", cellType: "text", columns: [{ name: "col1" }] },
+        { type: "matrixdynamic", name: "matrix5", cellType: "boolean", columns: [{ name: "col1" }] }
+      ]
+    });
+    const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+    expect((<any>matrix1.columns[0]).rateMax, "default column has the rating properties").toBe(5);
+    expect(matrix1.toJSON(), "rating: default values are not serialized").toEqual({
+      name: "matrix1",
+      cellType: "rating",
+      columns: [{ name: "col1" }, { name: "col2", cellType: "rating" }]
+    });
+    matrix1.columns[1].cellType = "default";
+    expect(matrix1.toJSON(), "rating: switching to the default cellType adds nothing").toEqual({
+      name: "matrix1",
+      cellType: "rating",
+      columns: [{ name: "col1" }, { name: "col2" }]
+    });
+    (<any>matrix1.columns[0]).rateMax = 7;
+    expect(matrix1.toJSON().columns[0], "rating: only changed values are serialized").toEqual({ name: "col1", rateCount: 7, rateMax: 7 });
+    matrix1.cellType = "text";
+    expect(matrix1.toJSON(), "changing the matrix cellType drops the rating values from the default columns").toEqual({
+      name: "matrix1",
+      cellType: "text",
+      columns: [{ name: "col1" }, { name: "col2" }]
+    });
+    expect(survey.getQuestionByName("matrix2").toJSON(), "dropdown").toEqual({ name: "matrix2", columns: [{ name: "col1" }] });
+    expect(survey.getQuestionByName("matrix3").toJSON(), "checkbox").toEqual({ name: "matrix3", cellType: "checkbox", columns: [{ name: "col1" }] });
+    expect(survey.getQuestionByName("matrix4").toJSON(), "text").toEqual({ name: "matrix4", cellType: "text", columns: [{ name: "col1" }] });
+    expect(survey.getQuestionByName("matrix5").toJSON(), "boolean").toEqual({ name: "matrix5", cellType: "boolean", columns: [{ name: "col1" }] });
   });
   test("Change column cellType to 'rating', Bug#9853", () => {
     const survey = new SurveyModel({
@@ -7905,12 +8063,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(table.rows[1].isErrorsRow).toBe(false);
 
     expect(table.rows[0].visible).toBe(true);
-    expect(table.rows[0].cells.length, "header + 2 columns + 2 errors").toBe(5);
+    expect(table.rows[0].cells.length, "header + 2 columns").toBe(3);
     expect(table.rows[0].cells[0].hasTitle).toBe(true);
-    expect(table.rows[0].cells[1].isErrorsCell).toBe(true);
+    expect(table.rows[0].cells[1].hasQuestion).toBe(true);
     expect(table.rows[0].cells[2].hasQuestion).toBe(true);
-    expect(table.rows[0].cells[3].isErrorsCell).toBe(true);
-    expect(table.rows[0].cells[4].hasQuestion).toBe(true);
   });
   test("matrixdynamic.removeRow & confirmActionAsync, #6736", () => {
     const prevAsync = settings.confirmActionAsync;
@@ -7941,6 +8097,54 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(q.value, "Row is deleted correctly").toEqual([{ col1: 1 }, { col1: 3 }]);
 
     settings.confirmActionAsync = prevAsync;
+  });
+  test("matrixdynamic without a survey: removeRowUI with confirmDelete asks and removes the row", () => {
+    const prevAsync = settings.confirmActionAsync;
+    try {
+      const q = new QuestionMatrixDynamicModel("q");
+      q.addColumn("col1");
+      q.confirmDelete = true;
+      q.value = [{ col1: 1 }, { col1: 2 }, { col1: 3 }];
+      const asked: Array<any> = [];
+      settings.confirmActionAsync = (message: string, resFunc: (res: boolean) => void, options: any): boolean => {
+        asked.push(options.rootElement);
+        resFunc(true);
+        return true;
+      };
+      q.removeRowUI(q.visibleRows[1]);
+      expect(asked, "#1: asked once, with no root element").toEqual([undefined]);
+      expect(q.value, "#2").toEqual([{ col1: 1 }, { col1: 3 }]);
+    } finally {
+      settings.confirmActionAsync = prevAsync;
+    }
+  });
+  test("removeRowUI followed by dispose does not throw when the focus timer fires", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "id" }] }] });
+      survey.data = { q: [{ id: 0 }, { id: 1 }, { id: 2 }] };
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      matrix.removeRowUI(matrix.visibleRows[1]);
+      matrix.dispose();
+      expect(() => vi.advanceTimersByTime(20)).not.toThrow();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  test("removeRowUI of the last row followed by dispose does not focus the add button", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "id" }] }] });
+      survey.data = { q: [{ id: 0 }] };
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      matrix.removeRowUI(matrix.visibleRows[0]);
+      matrix.dispose();
+      const focusAdd = vi.spyOn(matrix, "focusAddBUtton");
+      vi.advanceTimersByTime(20);
+      expect(focusAdd).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
   test("matrixdynamic.removeRow & settings.confirmActionFunc, #10145", () => {
     let funcRes = false;
@@ -8468,14 +8672,14 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     const table = matrix.renderedTable;
     expect(table.headerRow.cells.length, "Drag handler cell + one column + actions cell").toBe(3);
-    expect(table.rows[1].cells[0].isDragHandlerCell, "isDragHandlerCell, row#1").toBe(false);
-    expect(table.rows[3].cells[0].isDragHandlerCell, "isDragHandlerCell, row#2").toBe(false);
-    expect(table.rows[5].cells[0].isDragHandlerCell, "isDragHandlerCell, row#3").toBe(true);
-    expect(table.rows[7].cells[0].isDragHandlerCell, "isDragHandlerCell, row#4").toBe(true);
+    expect(table.rows[1].cells[0].isActionsCell, "isActionsCell, row#1").toBe(false);
+    expect(table.rows[3].cells[0].isActionsCell, "isActionsCell, row#2").toBe(false);
+    expect(table.rows[5].cells[0].isActionsCell, "isActionsCell, row#3").toBe(true);
+    expect(table.rows[7].cells[0].isActionsCell, "isActionsCell, row#4").toBe(true);
     expect(table.rows[1].cells[0].isEmpty, "isEmpty, row#1").toBe(true);
     expect(table.rows[3].cells[0].isEmpty, "isEmpty, row#2").toBe(true);
-    expect(table.rows[5].cells[0].isEmpty, "isEmpty, row#3").toBe(false);
-    expect(table.rows[7].cells[0].isEmpty, "isEmpty, row#4").toBe(false);
+    expect(table.rows[5].cells[0].isEmpty, "isEmpty, row#3").toBeFalsy();
+    expect(table.rows[7].cells[0].isEmpty, "isEmpty, row#4").toBeFalsy();
   });
   test("Do not re-create rows on changing allowRowReorder property", () => {
     var survey = new SurveyModel({
@@ -8673,24 +8877,16 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(renderedTable.rows[0].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[1].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[3].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[4].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[1].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[3].isVisible).toBeFalsy();
-    expect(renderedTable.rows[1].cells[4].isVisible).toBeFalsy();
+    expect(renderedTable.rows[1].cells[2].isVisible).toBeFalsy();
     survey.data = { matrix: { row1: { col1: 1 }, row2: { col1: 1 } } };
     expect(renderedTable.rows[0].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[1].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[3].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[4].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[1].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[3].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[4].isVisible).toBeTruthy();
   });
 
   test("check displayMode property", () => {
@@ -9744,5 +9940,2839 @@ describe("Survey_QuestionMatrixDynamic", () => {
     prop.defaultValue = undefined;
     prop.defaultValueFunc = defaultFunc;
     expect(new QuestionMatrixDynamicModel("q1").cellType, "the default cellType is restored").toBe("dropdown");
+  });
+  test("rowCountExpression calculates rowCount, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "services", choices: ["A", "B", "C", "D"] },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{services.length}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "No selected choices - no rows").toBe(0);
+    survey.setValue("services", ["A", "B"]);
+    expect(matrix.rowCount, "Two selected choices - two rows").toBe(2);
+    expect(matrix.visibleRows.length, "Two rows are created").toBe(2);
+    matrix.visibleRows[0].cells[0].question.value = "note1";
+    matrix.visibleRows[1].cells[0].question.value = "note2";
+    survey.setValue("services", ["A"]);
+    expect(matrix.rowCount, "One selected choice - one row").toBe(1);
+    expect(survey.getValue("details"), "The removed row data is discarded").toEqual([{ note: "note1" }]);
+  });
+  test("rowCountExpression is calculated on loading data, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "services", choices: ["A", "B", "C", "D"] },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{services.length}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    survey.data = { services: ["A", "B", "C"] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "rowCount is calculated on setting the survey data").toBe(3);
+    expect(matrix.visibleRows.length, "Three rows are created").toBe(3);
+  });
+  test("rowCountExpression has priority over the loaded data, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    survey.data = { n: 2, details: [{ note: "a" }, { note: "b" }, { note: "c" }, { note: "d" }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "The expression wins over the longer data array").toBe(2);
+  });
+  test("rowCountExpression is limited by minRowCount and maxRowCount, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}", minRowCount: 2, maxRowCount: 4,
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "The empty result is increased to minRowCount").toBe(2);
+    survey.setValue("n", 10);
+    expect(matrix.rowCount, "The result is decreased to maxRowCount").toBe(4);
+    survey.setValue("n", 1);
+    expect(matrix.rowCount, "The result is increased to minRowCount").toBe(2);
+    survey.setValue("n", 3);
+    expect(matrix.rowCount, "The result is within the limits").toBe(3);
+  });
+  test("rowCountExpression is limited by settings.matrix.maxRowCount, Issue#11793", () => {
+    const prevMaxRowCount = settings.matrix.maxRowCount;
+    settings.matrix.maxRowCount = 5;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "n" },
+          {
+            type: "matrixdynamic", name: "details",
+            rowCountExpression: "{n}",
+            columns: [{ name: "note" }]
+          }
+        ]
+      });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+      survey.setValue("n", 100);
+      expect(matrix.rowCount, "The result is capped, not ignored").toBe(5);
+    } finally {
+      settings.matrix.maxRowCount = prevMaxRowCount;
+    }
+  });
+  function createMaxRowCountMatrix(json: any, count?: number): QuestionMatrixDynamicModel {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "n" }, Object.assign({ type: "matrixdynamic", name: "md", columns: [{ name: "id", cellType: "text" }] }, json)]
+    });
+    if (count !== undefined) {
+      const records: Array<any> = [];
+      for (let i = 0; i < count; i++) records.push({ id: i });
+      survey.setValue("md", records);
+    }
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
+  }
+  test("settings.maxPageSize, not settings.matrix.maxRowCount, is the maximum number of rows on one page: pageSize above it is capped", () => {
+    settings.maxPageSize = 5;
+    settings.matrix.maxRowCount = 3;
+    try {
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, pageSize: 10 }, 12);
+      expect(matrix.visibleRows.length, "#1: five rows on the page").toBe(5);
+      expect(matrix.pageCount, "#2: 12 records, five per page").toBe(3);
+      expect(matrix.pageSize, "#3: the property keeps its value").toBe(10);
+      expect(matrix.toJSON().pageSize, "#4: and its JSON").toBe(10);
+      matrix.pageIndex = 2;
+      expect(matrix.visibleRows.length, "#5: the last page").toBe(2);
+      matrix.pageSize = 4;
+      expect(matrix.visibleRows.length, "#6: a page size below settings.maxPageSize and above the type setting is used as is").toBe(4);
+      expect(matrix.pageCount, "#7").toBe(3);
+    } finally {
+      settings.maxPageSize = 100;
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("settings.matrix.maxRowCount does not limit the total number of rows while paging is on", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, pageSize: 3 }, 12);
+      expect(matrix.rowCount, "#1: every record is kept").toBe(12);
+      expect(matrix.canAddRow, "#2: a row can be added").toBe(true);
+      matrix.addRow();
+      expect(matrix.rowCount, "#3: the add is not blocked").toBe(13);
+      matrix.rowCount = 15;
+      expect(matrix.rowCount, "#4: rowCount above the setting from code").toBe(15);
+      const fromJson = createMaxRowCountMatrix({ rowCount: 8, pageSize: 3 });
+      expect(fromJson.rowCount, "#5: rowCount from JSON, pageSize loaded after it").toBe(8);
+      expect(fromJson.visibleRows.length, "#6").toBe(3);
+      expect(fromJson.pageCount, "#7").toBe(3);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("settings.matrix.maxRowCount: an explicit maxRowCount above it limits the total while paging is on", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, pageSize: 3, maxRowCount: 8 }, 7);
+      expect(matrix.maxRowCount, "#1: the value is not capped by the setting").toBe(8);
+      expect(matrix.toJSON().maxRowCount, "#2: and it is serialized").toBe(8);
+      expect(matrix.canAddRow, "#3: 7 of 8").toBe(true);
+      matrix.addRow();
+      expect(matrix.rowCount, "#4").toBe(8);
+      expect(matrix.canAddRow, "#5: 8 of 8").toBe(false);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("settings.matrix.maxRowCount limits the total number of rows without paging: they are all on one page", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, maxRowCount: 8 }, 6);
+      expect(matrix.maxRowCount, "#1: the setting caps the property").toBe(5);
+      expect(matrix.canAddRow, "#2: 6 rows on the only page, above the setting").toBe(false);
+      matrix.rowCount = 7;
+      expect(matrix.rowCount, "#3: rowCount above the setting is rejected").toBe(6);
+      matrix.pageSize = 3;
+      expect(matrix.maxRowCount, "#4: paging on, the property is not capped").toBe(8);
+      expect(matrix.canAddRow, "#4: paging on, maxRowCount is the limit").toBe(true);
+      matrix.addRow();
+      expect(matrix.rowCount, "#5").toBe(7);
+      const fromJson = createMaxRowCountMatrix({ rowCount: 7 });
+      expect(fromJson.rowCount, "#6: rowCount from JSON above the setting is rejected").toBe(2);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("settings.matrix.maxRowCount and rowCountExpression: the result is limited by the setting without paging only", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const matrix = createMaxRowCountMatrix({ pageSize: 3, rowCountExpression: "{n}" });
+      matrix.survey.setValue("n", 9);
+      expect(matrix.rowCount, "#1: paging on").toBe(9);
+      expect(matrix.visibleRows.length, "#2").toBe(3);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("settings.matrix.maxRowCount limits the total number of rows in design mode, whatever pageSize says", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "md", rowCount: 2, pageSize: 3, columns: [{ name: "id" }] }] });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
+      matrix.rowCount = 7;
+      expect(matrix.rowCount, "#2: above the setting is rejected").toBe(2);
+      matrix.rowCount = 5;
+      expect(matrix.rowCount, "#1: design mode does not page: the setting is the limit").toBe(5);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("rowCountExpression with an invalid result, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", "abc");
+    expect(matrix.rowCount, "A non-numeric result is treated as 0").toBe(0);
+    survey.setValue("n", -5);
+    expect(matrix.rowCount, "A negative result is treated as 0").toBe(0);
+    survey.setValue("n", 2.7);
+    expect(matrix.rowCount, "A fractional result is rounded down").toBe(2);
+  });
+  test("rowCountExpression disables adding and removing rows, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 2);
+    expect(matrix.canAddRow, "canAddRow is disabled by the expression").toBe(false);
+    expect(matrix.canRemoveRows, "canRemoveRows is disabled by the expression").toBe(false);
+    matrix.rowCountExpression = "";
+    expect(matrix.canAddRow, "canAddRow is restored").toBe(true);
+    expect(matrix.canRemoveRows, "canRemoveRows is restored").toBe(true);
+  });
+  test("rowCountExpression owns the row count, addRow does not change it, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 2);
+    matrix.addRow();
+    expect(matrix.rowCount, "The expression restores the count right away").toBe(2);
+    expect(matrix.visibleRows.length, "The rows array is in sync with rowCount").toBe(2);
+    matrix.removeRow(0);
+    expect(matrix.rowCount, "The expression restores the removed row").toBe(2);
+    expect(matrix.visibleRows.length, "The rows array is in sync with rowCount").toBe(2);
+    survey.setValue("n", 4);
+    expect(matrix.rowCount, "The count follows the expression").toBe(4);
+  });
+  test("rowCountExpression has priority over the rowCount binding, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "cnt" },
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          bindings: { rowCount: "cnt" },
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 3);
+    expect(matrix.rowCount, "The expression sets the count").toBe(3);
+    expect(survey.getValue("cnt"), "The count is not written into the bound value").toBeFalsy();
+    survey.setValue("cnt", 7);
+    expect(matrix.rowCount, "The binding does not override the expression").toBe(3);
+    matrix.rowCountExpression = "";
+    survey.setValue("cnt", 5);
+    expect(matrix.rowCount, "The binding works again after clearing the expression").toBe(5);
+    matrix.rowCount = 6;
+    expect(survey.getValue("cnt"), "The count is written back into the bound value again").toBe(6);
+  });
+  test("rowCount binding works without rowCountExpression, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "cnt" },
+        {
+          type: "matrixdynamic", name: "details",
+          bindings: { rowCount: "cnt" },
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("cnt", 3);
+    expect(matrix.rowCount, "The binding sets the count").toBe(3);
+    matrix.addRow();
+    expect(matrix.rowCount, "The row is added").toBe(4);
+    expect(survey.getValue("cnt"), "The count is written back into the bound value").toBe(4);
+  });
+  test("rowCountExpression uses an arithmetic expression, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{a} * {b}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("a", 2);
+    survey.setValue("b", 3);
+    expect(matrix.rowCount, "The arithmetic result is used").toBe(6);
+  });
+  test("rowCountExpression with an async function, Issue#11793", () => {
+    let returnResult: (res: any) => void;
+    function asyncRowCount(params: any[]): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncRowCount", asyncRowCount, true);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "asyncRowCount({n})",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    returnResult(0);
+    expect(matrix.rowCount, "The initial async run is completed").toBe(0);
+    survey.setValue("n", 3);
+    expect(matrix.rowCount, "The count is not set until the async run completes").toBe(0);
+    returnResult(3);
+    expect(matrix.rowCount, "The count is set when the async run completes").toBe(3);
+    FunctionFactory.Instance.unregister("asyncRowCount");
+  });
+  test("rowCountExpression in a matrix inside a dynamic panel, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic", name: "panel", panelCount: 2,
+          templateElements: [
+            { type: "text", name: "n" },
+            {
+              type: "matrixdynamic", name: "details",
+              rowCountExpression: "{panel.n}",
+              columns: [{ name: "note" }]
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.panels[0].getQuestionByName("n").value = 2;
+    panel.panels[1].getQuestionByName("n").value = 3;
+    const matrix1 = <QuestionMatrixDynamicModel>panel.panels[0].getQuestionByName("details");
+    const matrix2 = <QuestionMatrixDynamicModel>panel.panels[1].getQuestionByName("details");
+    expect(matrix1.rowCount, "The first panel matrix uses its own panel value").toBe(2);
+    expect(matrix2.rowCount, "The second panel matrix uses its own panel value").toBe(3);
+  });
+  test("rowCountExpression is calculated on assigning it at runtime, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        { type: "matrixdynamic", name: "details", rowCount: 0, columns: [{ name: "note" }] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 3);
+    expect(matrix.rowCount, "There are no rows before the expression is set").toBe(0);
+    matrix.rowCountExpression = "{n}";
+    expect(matrix.rowCount, "The expression is calculated right after it is assigned").toBe(3);
+  });
+  test("rowCountExpression is recalculated on changing minRowCount and maxRowCount, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}", maxRowCount: 4,
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 10);
+    expect(matrix.rowCount, "The result is limited by maxRowCount").toBe(4);
+    matrix.maxRowCount = 8;
+    expect(matrix.rowCount, "Increasing maxRowCount recalculates the count").toBe(8);
+    matrix.maxRowCount = 20;
+    expect(matrix.rowCount, "The count does not exceed the expression result").toBe(10);
+    matrix.minRowCount = 15;
+    expect(matrix.rowCount, "Increasing minRowCount recalculates the count").toBe(15);
+    matrix.minRowCount = 0;
+    expect(matrix.rowCount, "Decreasing minRowCount recalculates the count").toBe(10);
+  });
+  test("rowCountExpression is not calculated in the design mode, Issue#11793", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCount: 3, rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "The authored rowCount is used in the design mode").toBe(3);
+  });
+  test("rowCountExpression is serialized, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.toJSON().rowCountExpression, "The expression is serialized").toBe("{n}");
+  });
+  test("A column with the default cellType keeps the properties of the matrix cellType, Issue#11836", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "before", rowCount: 1, cellType: "text",
+          columns: [{ name: "a", inputType: "number", min: 1 }] },
+        { type: "matrixdynamic", name: "after", rowCount: 1,
+          columns: [{ name: "a", inputType: "number", min: 1 }], cellType: "text" },
+        { type: "matrixdynamic", name: "explicit", rowCount: 1,
+          columns: [{ name: "a", cellType: "text", inputType: "number", min: 1 }] }
+      ]
+    });
+    expect((survey.jsonErrors || []).map(err => err.message), "There are no unknown properties").toEqual([]);
+    ["before", "after", "explicit"].forEach(name => {
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName(name);
+      const column = matrix.columns[0];
+      const cell = <QuestionTextModel>matrix.visibleRows[0].cells[0].question;
+      expect(column.templateQuestion.getType(), name + ": template question type").toBe("text");
+      expect(column["inputType"], name + ": column inputType").toBe("number");
+      expect(column["min"], name + ": column min").toBe(1);
+      expect(cell.getType(), name + ": cell type").toBe("text");
+      expect(cell.inputType, name + ": cell inputType").toBe("number");
+      expect(cell.min, name + ": cell min").toBe(1);
+      const columnJson = name === "explicit" ? { name: "a", cellType: "text", inputType: "number", min: 1 } : { name: "a", inputType: "number", min: 1 };
+      expect(matrix.toJSON().columns, name + ": columns JSON").toEqual([columnJson]);
+    });
+  });
+  test("A column with the default cellType survives a JSON round trip, Issue#11836", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "matrix", rowCount: 1,
+          columns: [{ name: "a", inputType: "number", min: 1 }], cellType: "text" }
+      ]
+    });
+    const json = survey.getQuestionByName("matrix").toJSON();
+    expect(json.columns, "No cellType is added to the column").toEqual([{ name: "a", inputType: "number", min: 1 }]);
+    const survey2 = new SurveyModel({ elements: [{ type: "matrixdynamic", ...json }] });
+    const matrix = <QuestionMatrixDynamicModel>survey2.getQuestionByName("matrix");
+    expect(matrix.columns[0].cellType, "The column still inherits the cell type").toBe("default");
+    expect(matrix.columns[0].templateQuestion.getType(), "template question type").toBe("text");
+    const cell = <QuestionTextModel>matrix.visibleRows[0].cells[0].question;
+    expect(cell.getType(), "cell type").toBe("text");
+    expect(cell.inputType, "cell inputType").toBe("number");
+    expect(cell.min, "cell min").toBe(1);
+    expect(matrix.toJSON(), "The same JSON").toEqual(json);
+  });
+  test("A column with the default cellType in a dynamic panel and in a detail panel, Issue#11836", () => {
+    const innerMatrix = { type: "matrixdynamic", name: "inner", rowCount: 1, cellType: "text",
+      columns: [{ name: "a", inputType: "number", min: 1 }] };
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [innerMatrix] },
+        { type: "matrixdynamic", name: "outer", rowCount: 1, detailPanelMode: "underRow",
+          columns: [{ name: "b" }], detailElements: [innerMatrix] }
+      ]
+    });
+    const checkMatrix = (matrix: QuestionMatrixDynamicModel, name: string): void => {
+      expect(matrix.columns[0].templateQuestion.getType(), name + ": template question type").toBe("text");
+      const cell = <QuestionTextModel>matrix.visibleRows[0].cells[0].question;
+      expect(cell.getType(), name + ": cell type").toBe("text");
+      expect(cell.inputType, name + ": cell inputType").toBe("number");
+      expect(cell.min, name + ": cell min").toBe(1);
+    };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    checkMatrix(<QuestionMatrixDynamicModel>panel.panels[0].getQuestionByName("inner"), "dynamic panel");
+    const outer = <QuestionMatrixDynamicModel>survey.getQuestionByName("outer");
+    const row = outer.visibleRows[0];
+    row.showDetailPanel();
+    checkMatrix(<QuestionMatrixDynamicModel>row.detailPanel.getQuestionByName("inner"), "detail panel");
+  });
+  test("Changing the matrix cellType re-types default columns only, Issue#11836", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "matrix", rowCount: 1,
+          columns: [{ name: "a" }, { name: "b", cellType: "checkbox", choices: [1, 2] }] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const colA = matrix.columns[0];
+    const colB = matrix.columns[1];
+    expect(colA.templateQuestion.getType(), "a: dropdown by default").toBe("dropdown");
+    expect(Serializer.getDynamicPropertiesByObj(colA).filter(p => p.name === "inputType"), "a: no inputType for dropdown").toHaveLength(0);
+    matrix.cellType = "text";
+    expect(colA.templateQuestion.getType(), "a: re-typed").toBe("text");
+    expect(colB.templateQuestion.getType(), "b: explicit type is kept").toBe("checkbox");
+    expect(Serializer.getDynamicPropertiesByObj(colA).filter(p => p.name === "inputType"), "a: inputType is a dynamic property").toHaveLength(1);
+    colA["inputType"] = "number";
+    const cells = matrix.visibleRows[0].cells;
+    expect(cells[0].question.getType(), "a: cell type").toBe("text");
+    expect((<QuestionTextModel>cells[0].question).inputType, "a: cell inputType").toBe("number");
+    expect(cells[1].question.getType(), "b: cell type").toBe("checkbox");
+    expect(matrix.toJSON().columns, "columns JSON").toEqual([
+      { name: "a", inputType: "number" },
+      { name: "b", cellType: "checkbox", choices: [1, 2] }]);
+    const column = new MatrixDropdownColumn("c");
+    expect(column.getDynamicType(), "A column without a matrix").toBe("question");
+  });
+  test("visibleRowsChangedCallback fires when a row is added or removed", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "q1", columns: [{ name: "col1" }], rowCount: 2 }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    expect(matrix.visibleRows.length, "two rows").toBe(2);
+    let counter = 0;
+    matrix.visibleRowsChangedCallback = () => { counter++; };
+    matrix.addRow();
+    expect(counter, "a row is added").toBe(2);
+    expect(matrix.visibleRows.length, "three rows").toBe(3);
+    counter = 0;
+    matrix.removeRow(0);
+    expect(counter, "a row is removed").toBe(1);
+    expect(matrix.visibleRows.length, "two rows again").toBe(2);
+    counter = 0;
+    matrix.rowCount = 4;
+    expect(counter, "rowCount is increased").toBe(1);
+  });
+});
+
+describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
+  const createMatrix = (json: any, data?: any): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix" }, json)] });
+    if (!!data) {
+      survey.data = { matrix: data };
+    }
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  };
+  const textColumns = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  const setCell = (matrix: QuestionMatrixDynamicModel, rowIndex: number, cellIndex: number, val: any): void => {
+    matrix.visibleRows[rowIndex].cells[cellIndex].question.value = val;
+  };
+  const checkLockstep = (matrix: QuestionMatrixDynamicModel, name: string): void => {
+    const list = matrix["dataList"];
+    expect(list.count, name + ": count is rowCount").toBe(matrix.rowCount);
+    expect(matrix.allRows.length, name + ": one row per record").toBe(list.count);
+    const val = matrix.value || [];
+    for (let i = 0; i < val.length; i++) {
+      expect(list.getRecord(i), name + ": record #" + i).toEqual(val[i]);
+      expect(matrix.getRowValue(i), name + ": row value #" + i).toEqual(val[i]);
+    }
+  };
+
+  test("A record, a row and a value element per index, a row added at the end", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns });
+    setCell(matrix, 0, 0, "a");
+    setCell(matrix, 1, 0, "b");
+    checkLockstep(matrix, "#1");
+    matrix.addRow();
+    expect(matrix.rowCount, "#2: rowCount").toBe(3);
+    expect(matrix["dataList"].count, "#2: count").toBe(3);
+    setCell(matrix, 2, 0, "c");
+    expect(matrix.value, "#2: value").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    checkLockstep(matrix, "#2");
+    matrix["dataList"].setValue(1, "c2", "b2");
+    expect(matrix.value[1], "#3: the list writes through the value").toEqual({ c1: "b", c2: "b2" });
+    checkLockstep(matrix, "#3");
+  });
+  test("addRowByIndex inserts the record at the index", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns }, [{ c1: "a" }, { c1: "b" }]);
+    const rowIds = matrix.visibleRows.map(row => row.id);
+    matrix.addRowByIndex({ c1: "x" }, 0);
+    expect(matrix.rowCount, "rowCount").toBe(3);
+    expect(matrix.value, "value").toEqual([{ c1: "x" }, { c1: "a" }, { c1: "b" }]);
+    expect(matrix.visibleRows.map(row => row.cells[0].question.value), "cells").toEqual(["x", "a", "b"]);
+    expect(matrix.visibleRows.slice(0, 2).map(row => row.id), "the rows are not re-created").toEqual(rowIds);
+    checkLockstep(matrix, "#1");
+  });
+  test("removeRowByIndex removes the record at the index", () => {
+    const matrix = createMatrix({ rowCount: 3, columns: textColumns }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    matrix.removeRowByIndex(0);
+    expect(matrix.rowCount, "rowCount").toBe(2);
+    expect(matrix.value, "value").toEqual([{ c1: "b" }, { c1: "c" }]);
+    expect(matrix.visibleRows.map(row => row.cells[0].question.value), "cells").toEqual(["b", "c"]);
+    checkLockstep(matrix, "#1");
+  });
+  test("removeRow removes the record and the row", () => {
+    const matrix = createMatrix({ rowCount: 3, columns: textColumns }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    matrix.removeRow(1);
+    expect(matrix.rowCount, "rowCount").toBe(2);
+    expect(matrix.value, "value").toEqual([{ c1: "a" }, { c1: "c" }]);
+    checkLockstep(matrix, "#1");
+    matrix.removeRow(0);
+    matrix.removeRow(0);
+    expect(matrix.rowCount, "#2: rowCount").toBe(0);
+    expect(matrix["dataList"].count, "#2: count").toBe(0);
+    expect(matrix.isEmpty(), "#2: the matrix is empty").toBeTruthy();
+  });
+  test("moveRowByIndex reorders the records and the detail panel state follows", () => {
+    const matrix = createMatrix({
+      rowCount: 3, columns: textColumns, detailPanelMode: "underRow",
+      detailElements: [{ type: "text", name: "d1" }]
+    }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    matrix.visibleRows[0].showDetailPanel();
+    matrix.moveRowByIndex(0, 2);
+    expect(matrix.value, "value").toEqual([{ c1: "b" }, { c1: "c" }, { c1: "a" }]);
+    expect(matrix.visibleRows.map(row => row.cells[0].question.value), "cells").toEqual(["b", "c", "a"]);
+    expect(matrix.visibleRows[0].isDetailPanelShowing, "the first row detail panel is hidden").toBeFalsy();
+    expect(matrix.visibleRows[2].isDetailPanelShowing, "the detail panel moved with the record").toBeTruthy();
+    checkLockstep(matrix, "#1");
+  });
+  test("rowCount grows and shrinks", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns }, [{ c1: "a" }, { c1: "b" }]);
+    const list = matrix["dataList"];
+    matrix.rowCount = 4;
+    expect(list.count, "#1: count follows rowCount").toBe(4);
+    expect(matrix.value, "#1: the records of the added rows are stored at once").toEqual([{ c1: "a" }, { c1: "b" }, {}, {}]);
+    expect(list.getRecord(3), "#1: an empty record for a row without a value").toEqual({});
+    checkLockstep(matrix, "#1");
+    setCell(matrix, 3, 0, "d");
+    expect(matrix.value, "#2: the cell is written into its record").toEqual([{ c1: "a" }, { c1: "b" }, {}, { c1: "d" }]);
+    matrix.rowCount = 2;
+    expect(list.count, "#3: count").toBe(2);
+    expect(matrix.value, "#3: the records beyond rowCount are removed").toEqual([{ c1: "a" }, { c1: "b" }]);
+    checkLockstep(matrix, "#3");
+  });
+  test("count is rowCount when the value is empty", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns });
+    const list = matrix["dataList"];
+    expect(matrix.value, "#1: the empty records, Bug#12147").toEqual([{}, {}]);
+    expect(matrix.isEmpty(), "#1: the matrix is empty").toBeTruthy();
+    expect(list.count, "#1: count is rowCount").toBe(2);
+    expect(list.getRecord(1), "#1: an empty record").toEqual({});
+    expect(matrix.getRowValue(1), "#1: getRowValue returns an empty object").toEqual({});
+    setCell(matrix, 0, 0, "a");
+    setCell(matrix, 0, 0, undefined);
+    expect(matrix.isEmpty(), "#2: the matrix is empty again").toBeTruthy();
+    expect(list.count, "#2: count is still rowCount").toBe(2);
+  });
+  test("visibleCount follows the visible rows", () => {
+    const matrix = createMatrix({ rowCount: 3, columns: textColumns, rowsVisibleIf: "{row.c1} != 'hide'" },
+      [{ c1: "a" }, { c1: "hide" }, { c1: "c" }]);
+    const list = matrix["dataList"];
+    expect(matrix.visibleRows.length, "#1: visible rows").toBe(2);
+    expect(list.visibleCount, "#1: visibleCount").toBe(matrix.visibleRows.length);
+    expect(list.count, "#1: count is not touched by the visibility").toBe(3);
+    setCell(matrix, 0, 0, "hide");
+    expect(matrix.visibleRows.length, "#2: visible rows").toBe(1);
+    expect(list.visibleCount, "#2: visibleCount").toBe(matrix.visibleRows.length);
+    const emptyMatrix = createMatrix({ rowCount: 3, columns: textColumns });
+    expect(emptyMatrix["dataList"].visibleCount, "#3: every row of an untouched matrix is visible")
+      .toBe(emptyMatrix.visibleRows.length);
+  });
+  test("A matrix in a dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic", name: "panel", panelCount: 2,
+        templateElements: [{ type: "matrixdynamic", name: "matrix", rowCount: 2, columns: textColumns }]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const matrix = <QuestionMatrixDynamicModel>panel.panels[1].getQuestionByName("matrix");
+    setCell(matrix, 1, 0, "a");
+    // The matrix of the first panel item holds its empty records too, Bug#12147.
+    expect(survey.data, "the record reaches the panel item").toEqual({ panel: [{ matrix: [{}, {}] }, { matrix: [{}, { c1: "a" }] }] });
+    checkLockstep(matrix, "#1");
+    matrix.removeRow(0);
+    expect(survey.data, "the row is removed inside the panel item").toEqual({ panel: [{ matrix: [{}, {}] }, { matrix: [{ c1: "a" }] }] });
+  });
+  test("A dynamic panel in a matrix detail panel", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "matrix", rowCount: 2, columns: textColumns,
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [{ type: "text", name: "q1" }] }]
+      }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.visibleRows[1].showDetailPanel();
+    const panel = <QuestionPanelDynamicModel>matrix.visibleRows[1].detailPanel.getQuestionByName("panel");
+    // A dynamic panel in a detail panel starts empty: its panelCount is not restored from the template.
+    panel.addPanel();
+    panel.panels[0].getQuestionByName("q1").value = "a";
+    expect(survey.data, "the panel value is stored in the matrix record").toEqual({ matrix: [{}, { panel: [{ q1: "a" }] }] });
+    checkLockstep(matrix, "#1");
+  });
+  test("A live-object value is edited in place and never routed through the list", () => {
+    const question = new QuestionMatrixDynamicModel("q1");
+    question.addColumn("col1");
+    question.addColumn("col2");
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "columns", columns: [{ cellType: "text", name: "name" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+    survey.editingObj = question;
+    const value = matrix.value;
+    expect(value.length, "#1: one record per column").toBe(2);
+    expect(matrix["dataList"].getRecord(0), "#1: the record is the column itself").toBe(question.columns[0]);
+    setCell(matrix, 0, 0, "newName");
+    expect(question.columns[0].name, "#2: the property is written").toBe("newName");
+    expect(matrix.value, "#2: the array is the same instance").toBe(value);
+    matrix.moveRowByIndex(0, 1);
+    expect(question.columns.map(col => col.name), "#3: the columns are reordered").toEqual(["col2", "newName"]);
+  });
+  test("onValueChanging.oldValue is the previous array", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns }, [{ c1: "a" }, { c1: "b" }]);
+    const survey = <SurveyModel>matrix.survey;
+    const oldValues: Array<any> = [];
+    survey.onValueChanging.add((_, options) => { oldValues.push(options.oldValue); });
+    setCell(matrix, 0, 0, "a2");
+    expect(oldValues, "one value change").toHaveLength(1);
+    expect(oldValues[0], "the old array is not the new one").toEqual([{ c1: "a" }, { c1: "b" }]);
+    expect(matrix.value, "the new array").toEqual([{ c1: "a2" }, { c1: "b" }]);
+  });
+  test("Matrix dropdown keeps the base path: an object keyed by rowName", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "matrix", rows: ["r1", "r2"], columns: textColumns }]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    matrix.visibleRows[0].cells[0].question.value = "a";
+    matrix.visibleRows[1].cells[1].question.value = "b";
+    expect(matrix.value, "#1: keyed by rowName").toEqual({ r1: { c1: "a" }, r2: { c2: "b" } });
+    expect(matrix.getRowValue(0), "#1: getRowValue").toEqual({ c1: "a" });
+    matrix.visibleRows[0].cells[0].question.value = undefined;
+    expect(matrix.value, "#2: the emptied row is deleted").toEqual({ r2: { c2: "b" } });
+    matrix.visibleRows[1].cells[1].question.value = undefined;
+    expect(matrix.isEmpty(), "#3: the matrix is empty").toBeTruthy();
+    expect(Array.isArray(matrix.value), "#4: a cell edit writes through the record list, and the value stays keyed").toBe(false);
+    expect(!!(<any>matrix).dataListValue, "#4: the record list is created by the first cell edit").toBe(true);
+  });
+});
+
+describe("Survey_QuestionMatrixDynamic: the cached views follow the value", () => {
+  const textColumns = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  const createMatrix = (json: any, data?: any): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix" }, json)] });
+    if (!!data) {
+      survey.data = { matrix: data };
+    }
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  };
+  test("The cached views follow a rowCount change", () => {
+    const matrix = createMatrix({ rowCount: 1, columns: textColumns });
+    const list = matrix["dataList"];
+    expect(list.visibleCount, "#1: visibleCount").toBe(1);
+    matrix.rowCount = 3;
+    expect(list.count, "#2: count").toBe(3);
+    expect(list.visibleCount, "#2: visibleCount").toBe(3);
+    expect(matrix.visibleRows.length, "#2: one row per visible record").toBe(3);
+  });
+  test("The cached views follow a value assigned outside the question", () => {
+    const matrix = createMatrix({ rowCount: 1, columns: textColumns });
+    const survey = <SurveyModel>matrix.survey;
+    const list = matrix["dataList"];
+    expect(list.visibleCount, "#1: visibleCount").toBe(1);
+    survey.setValue("matrix", [{ c1: "a" }, { c1: "b" }]);
+    expect(list.count, "#2: count").toBe(2);
+    expect(list.visibleCount, "#2: visibleCount").toBe(2);
+  });
+  test("A value change of the same length invalidates the cached views", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns }, [{ c1: "a" }, { c1: "b" }]);
+    const survey = <SurveyModel>matrix.survey;
+    const list = matrix["dataList"];
+    list.filter = "{c1} = 'x'";
+    expect(list.visibleCount, "#1: nothing passes the filter").toBe(0);
+    survey.setValue("matrix", [{ c1: "x" }, { c1: "b" }]);
+    expect(list.visibleCount, "#2: the filter was re-run").toBe(1);
+    expect(list.getVisibleIndexes(), "#2: indexes").toEqual([0]);
+  });
+});
+
+describe("Survey_QuestionMatrixDynamic: rows follow the view", () => {
+  const cols = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  const createSurvey = (json: any, data?: any): SurveyModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix", columns: cols }, json)] });
+    if (!!data) {
+      survey.data = { matrix: data };
+    }
+    return survey;
+  };
+  const createMatrix = (json: any, data?: any): QuestionMatrixDynamicModel => {
+    return <QuestionMatrixDynamicModel>createSurvey(json, data).getQuestionByName("matrix");
+  };
+  const rowValues = (matrix: QuestionMatrixDynamicModel, name: string = "c1"): Array<any> => {
+    return matrix.allRows.map(row => row.getQuestionByName(name).value);
+  };
+
+  test("with no filter and no sort the rows are the records, and an edit keeps the instances", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    expect(matrix.allRows.length, "#1: one row per record").toBe(matrix.rowCount);
+    const rows = matrix.allRows.slice();
+    matrix.allRows[1].getQuestionByName("c1").value = "bb";
+    expect(matrix.allRows, "#2: the same instances").toEqual(rows);
+    expect(matrix.value, "#3").toEqual([{ c1: "a" }, { c1: "bb" }, { c1: "c" }]);
+  });
+  test("a filter creates rows only for the records that pass it", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    matrix["dataList"].filter = "{c1} = 'a'";
+    expect(matrix.allRows.length, "#1: two rows").toBe(2);
+    expect(rowValues(matrix), "#2").toEqual(["a", "a"]);
+    expect(matrix.rowCount, "#3: rowCount is the record count").toBe(3);
+    expect(matrix.value.length, "#4: the value holds every record").toBe(3);
+    expect(matrix.value, "#5").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    expect(matrix.visibleRows.length, "#6").toBe(2);
+    expect(matrix["dataList"].visibleCount, "#7").toBe(2);
+  });
+  test("a sort orders the rows and never the value", () => {
+    const survey = createSurvey({ rowCount: 3 }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    let valueChanged = 0;
+    survey.onValueChanged.add(() => valueChanged++);
+    matrix["dataList"].sort = [{ field: "c1", direction: "asc" }];
+    expect(rowValues(matrix), "#1: the rows follow the sort").toEqual(["a", "b", "c"]);
+    expect(matrix.value, "#2: the value kept its order").toEqual([{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
+    expect(valueChanged, "#3: no value change").toBe(0);
+  });
+  test("a cell edit under a filter and a sort writes the right record", () => {
+    const matrix = createMatrix({ rowCount: 4 },
+      [{ c1: "a", c2: "2" }, { c1: "b", c2: "1" }, { c1: "a", c2: "1" }, { c1: "a", c2: "3" }]);
+    const list = matrix["dataList"];
+    list.filter = "{c1} = 'a'";
+    list.sort = [{ field: "c2", direction: "asc" }];
+    expect(rowValues(matrix, "c2"), "#1: rows in sort order").toEqual(["1", "2", "3"]);
+    matrix.allRows[0].getQuestionByName("c2").value = "9";
+    expect(matrix.value, "#2: record 2 took the edit").toEqual([
+      { c1: "a", c2: "2" }, { c1: "b", c2: "1" }, { c1: "a", c2: "9" }, { c1: "a", c2: "3" }]);
+    expect(rowValues(matrix, "c2"), "#3: the row kept its place").toEqual(["9", "2", "3"]);
+  });
+  test("a row added under a filter stays even when its record does not match", () => {
+    const matrix = createMatrix({ rowCount: 2 }, [{ c1: "a" }, { c1: "b" }]);
+    const list = matrix["dataList"];
+    list.filter = "{c1} = 'a'";
+    expect(matrix.allRows.length, "#1").toBe(1);
+    matrix.addRow();
+    expect(matrix.rowCount, "#2: a record was added").toBe(3);
+    expect(matrix.allRows.length, "#3: the new row exists").toBe(2);
+    list.refreshView();
+    expect(matrix.allRows.length, "#4: the refresh filters it out").toBe(1);
+  });
+  test("removing a row under a sort removes the record the row holds", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
+    matrix["dataList"].sort = [{ field: "c1", direction: "asc" }];
+    matrix.removeRow(0);
+    expect(matrix.value, "#1: record 1 is gone").toEqual([{ c1: "c" }, { c1: "b" }]);
+    expect(matrix.rowCount, "#2").toBe(2);
+  });
+  test("rowCount grows and shrinks under a filter", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    const list = matrix["dataList"];
+    list.filter = "{c1} = 'a'";
+    expect(matrix.allRows.length, "#1").toBe(2);
+    matrix.rowCount = 5;
+    expect(matrix.allRows.length, "#2: the new records are in the view").toBe(4);
+    expect(list.count, "#3").toBe(5);
+    matrix.rowCount = 2;
+    expect(list.count, "#4").toBe(2);
+    expect(matrix.allRows.length, "#5: only record 0 passes now").toBe(1);
+  });
+  test("an assignment from outside that changes which records match rebuilds the rows", () => {
+    const survey = createSurvey({ rowCount: 2 }, [{ c1: "a" }, { c1: "b" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix["dataList"].filter = "{c1} = 'a'";
+    expect(matrix.allRows.length, "#1").toBe(1);
+    survey.setValue("matrix", [{ c1: "a" }, { c1: "a" }]);
+    expect(matrix.allRows.length, "#2: the rows were rebuilt").toBe(2);
+    expect(rowValues(matrix), "#3").toEqual(["a", "a"]);
+  });
+  test("an assignment from outside that does not change the view keeps the row instances", () => {
+    const survey = createSurvey({ rowCount: 2 }, [{ c1: "a", c2: "1" }, { c1: "b" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix["dataList"].filter = "{c1} = 'a'";
+    const row = matrix.allRows[0];
+    survey.setValue("matrix", [{ c1: "a", c2: "2" }, { c1: "b" }]);
+    expect(matrix.allRows.length, "#1").toBe(1);
+    expect(matrix.allRows[0], "#2: the same row").toBe(row);
+    expect(row.getQuestionByName("c2").value, "#3: its value was refreshed").toBe("2");
+  });
+  test("survey.data assigned under a filter rebuilds the rows", () => {
+    const survey = createSurvey({ rowCount: 2 }, [{ c1: "a" }, { c1: "b" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix["dataList"].filter = "{c1} = 'a'";
+    expect(matrix.allRows.length, "#1").toBe(1);
+    survey.data = { matrix: [{ c1: "b" }, { c1: "a" }, { c1: "a" }] };
+    expect(matrix.allRows.length, "#2").toBe(2);
+    expect(matrix.rowCount, "#3").toBe(3);
+  });
+  test("addRowByIndex under a filter inserts before the record the row at that position holds", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    matrix["dataList"].filter = "{c1} = 'a'";
+    matrix.addRowByIndex({ c1: "z" }, 1);
+    expect(matrix.value, "#1: the record went where the second row held its own").toEqual([
+      { c1: "a" }, { c1: "b" }, { c1: "z" }, { c1: "a" }]);
+    expect(rowValues(matrix), "#2").toEqual(["a", "z", "a"]);
+  });
+  test("moveRowByIndex under a filter moves the records the rows hold", () => {
+    const matrix = createMatrix({ rowCount: 4 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }, { c1: "a" }]);
+    matrix["dataList"].filter = "{c1} = 'a'";
+    expect(rowValues(matrix, "c1").length, "#1").toBe(3);
+    matrix.allRows[0].getQuestionByName("c2").value = "first";
+    matrix.moveRowByIndex(0, 2);
+    expect(matrix.value.map((r: any) => r.c2), "#2: the first record is last").toEqual([undefined, undefined, undefined, "first"]);
+  });
+  test("drag and drop is off while a sort is active", () => {
+    const matrix = createMatrix({ rowCount: 2, allowRowReorder: true }, [{ c1: "b" }, { c1: "a" }]);
+    expect(matrix.isRowsDragAndDrop, "#1").toBe(true);
+    matrix["dataList"].sort = [{ field: "c1", direction: "asc" }];
+    expect(matrix.isRowsDragAndDrop, "#2: the order is the sort's").toBe(false);
+    matrix["dataList"].sort = [];
+    expect(matrix.isRowsDragAndDrop, "#3").toBe(true);
+  });
+  test("clearing invisible rows keeps the records that have no row", () => {
+    const survey = createSurvey({ rowCount: 3, rowsVisibleIf: "{row.c1} != 'b'", clearIfInvisible: "onHidden" },
+      [{ c1: "a", c2: "1" }, { c1: "b", c2: "2" }, { c1: "x", c2: "3" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix["dataList"].filter = "{c1} != 'x'";
+    expect(matrix.allRows.length, "#1: record 2 has no row").toBe(2);
+    expect(matrix.visibleRows.length, "#2: record 1 is hidden by rowsVisibleIf").toBe(1);
+    matrix.clearValueIfInvisible();
+    expect(matrix.value, "#3: the filtered-out record survived, the hidden one was cleared")
+      .toEqual([{ c1: "a", c2: "1" }, { c1: "x", c2: "3" }]);
+  });
+  test("a filter alone leaves nothing to clear", () => {
+    const survey = createSurvey({ rowCount: 2, clearIfInvisible: "onHidden" }, [{ c1: "a" }, { c1: "b" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix["dataList"].filter = "{c1} = 'a'";
+    expect(matrix.visibleRows, "#1: no row is owner-hidden").toBe(matrix.allRows);
+    matrix.clearValueIfInvisible();
+    expect(matrix.value, "#2").toEqual([{ c1: "a" }, { c1: "b" }]);
+  });
+  test("a key that repeats a record without a row is a duplicate", () => {
+    const survey = createSurvey({ rowCount: 3, keyName: "c1" }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix["dataList"].filter = "{c1} != 'a'";
+    expect(matrix.allRows.length, "#1").toBe(2);
+    matrix.allRows[0].getQuestionByName("c1").value = "a";
+    matrix.hasErrors(true);
+    expect(matrix.allRows[0].getQuestionByName("c1").errors.length, "#2: the duplicate is reported").toBe(1);
+  });
+  test("rowIndex names the record, visibleRowIndex follows the view", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    matrix["dataList"].filter = "{c1} = 'a'";
+    expect(matrix.allRows.map(row => row.rowIndex), "#1: the record indexes").toEqual([1, 3]);
+    expect(matrix.visibleRows.map(row => row.visibleIndex), "#2: the view positions").toEqual([0, 1]);
+  });
+  test("the public index arguments keep the index they take", () => {
+    const survey = createSurvey({ rowCount: 4, rowsVisibleIf: "{row.c1} != 'h'" },
+      [{ c1: "h", c2: "0" }, { c1: "x", c2: "1" }, { c1: "a", c2: "2" }, { c1: "a", c2: "3" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix["dataList"].filter = "{c1} != 'x'";
+    // Records: 0 hidden by rowsVisibleIf, 1 filtered out, 2 and 3 visible. The three indexes differ.
+    expect(matrix.allRows.length, "#1: created rows").toBe(3);
+    expect(matrix.visibleRows.length, "#2: visible rows").toBe(2);
+    expect(matrix.getRowValue(0), "#3: getRowValue takes a created position").toEqual({ c1: "h", c2: "0" });
+    expect(matrix.getItemIndex(<any>matrix.allRows[1]), "#4: getItemIndex is a created position").toBe(1);
+    expect(matrix.getItem(1), "#5: getItem is a created position").toBe(<any>matrix.allRows[1]);
+    expect(matrix.getQuestionFromRecord("c2", 3), "#6: by record").toBe(matrix.allRows[2].getQuestionByName("c2"));
+    expect(matrix.getQuestionFromRecord("c2", 1), "#7: the filtered-out record has no row").toBeNull();
+    expect((<Question>matrix.getQuestionFromArray("c2", 0)).value, "#8: getQuestionFromArray is a visible position").toBe("2");
+    expect((<Question>matrix.getQuestionFromRecord("c2", 0)).value, "#9: getQuestionFromRecord is a record index").toBe("0");
+    matrix.setRowValue(0, { c1: "a", c2: "22" });
+    expect(matrix.value[2], "#10: setRowValue is a visible position").toEqual({ c1: "a", c2: "22" });
+  });
+  test("the cross-question path addresses a record, getQuestionFromArray a position", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "m1", valueName: "shared", rowCount: 3, columns: cols, rowsVisibleIf: "{row.c1} != 'h'" },
+        { type: "paneldynamic", name: "p1", valueName: "shared", templateElements: [{ type: "text", name: "c3" }] }
+      ]
+    });
+    survey.data = { shared: [{ c1: "h", c2: "0", c3: "p0" }, { c1: "a", c2: "1", c3: "p1" }, { c1: "a", c2: "2", c3: "p2" }] };
+    const m1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m1");
+    expect(m1.visibleRows.length, "#1: the first row is hidden").toBe(2);
+    expect((<Question>m1.getQuestionFromArray("c2", 0)).value, "#2: a visible position").toBe("1");
+    expect((<Question>m1.getQuestionFromRecord("c2", 0)).value, "#3: a record index").toBe("0");
+    // The panel answers positionally, the matrix does not: only the record index names the same
+    // record in both.
+    const byRecord = <Question>survey.getQuestionByValueNameFromRecord("shared", "c3", 0);
+    expect(byRecord.value, "#4: record 0 in the bound panel").toBe("p0");
+    const shared = m1.allRows[0].getSharedQuestionByName("c3");
+    expect(!!shared, "#5: the row found the question of its own record").toBe(true);
+    expect(shared.value, "#6").toBe("p0");
+  });
+  test("rowsVisibleIf and a filter intersect", () => {
+    const matrix = createMatrix({ rowCount: 4, rowsVisibleIf: "{row.c2} != 'h'" },
+      [{ c1: "a", c2: "h" }, { c1: "b" }, { c1: "a" }, { c1: "a", c2: "h" }]);
+    matrix["dataList"].filter = "{c1} = 'a'";
+    expect(matrix.allRows.length, "#1").toBe(3);
+    expect(matrix.visibleRows.length, "#2").toBe(1);
+    expect(matrix["dataList"].visibleCount, "#3").toBe(matrix.visibleRows.length);
+  });
+  test("a rebuild loses the detail panel and the row errors - the accepted cost", () => {
+    const matrix = createMatrix({ rowCount: 2, detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d1" }] },
+      [{ c1: "a" }, { c1: "b" }]);
+    const list = matrix["dataList"];
+    list.filter = "{c1} != ''";
+    const row = matrix.allRows[0];
+    row.showDetailPanel();
+    expect(row.isDetailPanelShowing, "#1").toBe(true);
+    list.sort = [{ field: "c1", direction: "desc" }];
+    expect(matrix.allRows[1], "#2: a new row object").not.toBe(row);
+    expect(matrix.allRows.map(r => r.getQuestionByName("c1").value), "#3").toEqual(["b", "a"]);
+    expect(matrix.allRows[1].isDetailPanelShowing, "#4: the open detail panel is gone").toBe(false);
+  });
+  test("the live-object branch is untouched by the seam", () => {
+    const question = new QuestionMatrixDynamicModel("q1");
+    question.addColumn("col1");
+    question.addColumn("col2", "Column 2");
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "columns", columns: [{ cellType: "text", name: "name" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+    survey.editingObj = question;
+    const rows = matrix.visibleRows;
+    expect(rows.length, "#1: a row per column of the edited object").toBe(2);
+    expect(rows[0].rowIndex, "#2: rowIndex counts the records").toBe(1);
+    expect(matrix.getItemIndex(<any>rows[1]), "#3").toBe(1);
+    rows[1].cells[0].value = "col22";
+    expect(question.columns[1].name, "#4: the edited object took the write").toBe("col22");
+  });
+});
+
+describe("Survey_QuestionMatrixDynamic: what the view decides", () => {
+  const cols = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  const createSurvey = (json: any, data?: any, extra?: Array<any>): SurveyModel => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "matrixdynamic", name: "matrix", columns: cols }, json)].concat(extra || [])
+    });
+    if (!!data) {
+      survey.data = { matrix: data };
+    }
+    return survey;
+  };
+  const filtered = (json: any, data: any, filter: string, extra?: Array<any>): QuestionMatrixDynamicModel => {
+    const survey = createSurvey(json, data, extra);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix["dataList"].filter = filter;
+    return matrix;
+  };
+
+  test("a record without a row is not validated", () => {
+    const matrix = filtered({ rowCount: 2, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
+      [{ c1: "a" }, {}], "{c1} = 'a'");
+    expect(matrix.allRows.length, "#1: the empty record has no row").toBe(1);
+    expect(matrix.hasErrors(true), "#2: nothing to validate").toBe(false);
+    matrix["dataList"].filter = "";
+    expect(matrix.hasErrors(true), "#3: it is validated once it has a row").toBe(true);
+  });
+  test("a column total is the total of the rows that exist, unpaged", () => {
+    const survey = createSurvey({
+      rowCount: 3,
+      columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", inputType: "number", totalType: "sum" }]
+    }, [{ c1: "a", c2: 1 }, { c1: "b", c2: 10 }, { c1: "a", c2: 100 }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.totalValue.c2, "#1").toBe(111);
+    matrix["dataList"].filter = "{c1} = 'a'";
+    expect(matrix.totalValue.c2, "#2: the filtered row is not in it").toBe(101);
+  });
+  test("getPlainData, the nested questions and the progress answer for the view", () => {
+    const matrix = filtered({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }], "{c1} = 'a'");
+    const plain = matrix.getPlainData();
+    expect((<Array<any>>plain.data).length, "#1: one entry per row that exists").toBe(2);
+    const nested: Array<Question> = [];
+    matrix.addNestedQuestion(nested, false, true, false);
+    expect(nested.length, "#2: two rows of two columns").toBe(4);
+    expect(matrix.getProgressInfo().questionCount, "#3").toBe(4);
+  });
+  test("lockedRowCount, minRowCount and maxRowCount count records", () => {
+    const matrix = filtered({ rowCount: 3, maxRowCount: 3, allowRemoveRows: true },
+      [{ c1: "a" }, { c1: "b" }, { c1: "a" }], "{c1} = 'a'");
+    matrix.lockedRowCount = 1;
+    expect(matrix.allRows.length, "#1").toBe(2);
+    expect(matrix.canRemoveRow(matrix.allRows[0]), "#2: record 0 is locked").toBe(false);
+    expect(matrix.canRemoveRow(matrix.allRows[1]), "#3: record 2 is not").toBe(true);
+    expect(matrix.canAddRow, "#4: three records is already the maximum").toBe(false);
+  });
+  test("a view change does not rewrite the records", () => {
+    const survey = createSurvey({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    let valueChanged = 0;
+    survey.onValueChanged.add(() => valueChanged++);
+    matrix["dataList"].filter = "{c1} = 'a'";
+    matrix["dataList"].filter = "";
+    expect(matrix.value, "#1: the records are untouched").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    expect(valueChanged, "#2: no value assignment").toBe(0);
+    expect(matrix.allRows.length, "#3: every record has a row again").toBe(3);
+  });
+  test("Bug#12156: a cell expression is computed for a record without a row", () => {
+    const survey = createSurvey({
+      rowCount: 3,
+      columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "expression", expression: "{q0} + '!'" }]
+    }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }], [{ type: "text", name: "q0" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix["dataList"].filter = "{c1} = 'a'";
+    survey.setValue("q0", "x");
+    expect(matrix.allRows.map(row => row.getQuestionByName("c2").value), "#1: the rows that exist ran it")
+      .toEqual(["x!", "x!"]);
+    expect(matrix.value[1].c2, "#2: the record without a row is computed too").toBe("x!");
+  });
+});
+
+describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
+  const cols = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  const createSurvey = (json: any, data?: any, extra?: Array<any>): SurveyModel => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "matrixdynamic", name: "matrix", columns: cols }, json)].concat(extra || [])
+    });
+    if (!!data) {
+      survey.data = { matrix: data };
+    }
+    return survey;
+  };
+  const createMatrix = (json: any, data?: any, extra?: Array<any>): QuestionMatrixDynamicModel => {
+    return <QuestionMatrixDynamicModel>createSurvey(json, data, extra).getQuestionByName("matrix");
+  };
+  const pageValues = (matrix: QuestionMatrixDynamicModel, name: string = "c1"): Array<any> => {
+    return matrix.visibleRows.map(row => row.getQuestionByName(name).value);
+  };
+  const dataRows = (matrix: QuestionMatrixDynamicModel): Array<QuestionMatrixDropdownRenderedRow> => {
+    return matrix.renderedTable.rows.filter(row => !row.isErrorsRow && !row.isDetailRow);
+  };
+  const abcde = [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }, { c1: "e" }];
+
+  test("paging is off by default: the page is every visible row", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    expect(matrix.pageSize, "#1: off").toBe(0);
+    expect(matrix.pageSize, "#2: the alias reads it").toBe(0);
+    expect(matrix.visibleRows.length, "#3: every row").toBe(3);
+    expect(matrix.pageCount, "#4: one page").toBe(1);
+    expect(matrix.pageIndex, "#5").toBe(0);
+    expect(matrix.canGoNextPage, "#6").toBe(false);
+    expect(matrix.canGoPrevPage, "#7").toBe(false);
+  });
+  test("a page size, from JSON or the setter, creates no row before the rows are asked for", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "intro", elements: [{ type: "html", name: "intro", html: "start" }] },
+        { name: "p1", elements: [{ type: "matrixdynamic", name: "matrix", columns: cols, pageSize: 2 }] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    survey.data = { matrix: abcde };
+    matrix.pageSize = 3;
+    matrix.pageSize = 0;
+    matrix.pageSize = 2;
+    expect((<any>matrix).generatedVisibleRows, "#1: generatedVisibleRows is protected").toBeFalsy();
+    survey.currentPageNo = 1;
+    expect(pageValues(matrix), "#2").toEqual(["a", "b"]);
+    expect(matrix.pageCount, "#3").toBe(3);
+  });
+  test("an empty question reports one page", () => {
+    const matrix = createMatrix({ rowCount: 0, pageSize: 2 });
+    expect(matrix.visibleRows.length, "#1: no rows").toBe(0);
+    expect(matrix.pageCount, "#2: still one page").toBe(1);
+    expect(matrix.pageIndex, "#3: page 0 is always valid").toBe(0);
+    expect(matrix.canGoNextPage, "#4").toBe(false);
+    expect(matrix.canGoPrevPage, "#5").toBe(false);
+  });
+  test("pageCount for one, N and an exact multiple of records", () => {
+    const matrix = createMatrix({ rowCount: 1, pageSize: 2 }, [{ c1: "a" }]);
+    expect(matrix.pageCount, "#1: one record").toBe(1);
+    matrix.rowCount = 5;
+    expect(matrix.pageCount, "#2: five records of two").toBe(3);
+    matrix.rowCount = 4;
+    expect(matrix.pageCount, "#3: an exact multiple").toBe(2);
+  });
+  test("the rows of every page, and the last page is the shorter one", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    expect(pageValues(matrix), "#1").toEqual(["a", "b"]);
+    matrix.nextPage();
+    expect(matrix.pageIndex, "#2").toBe(1);
+    expect(pageValues(matrix), "#3").toEqual(["c", "d"]);
+    matrix.nextPage();
+    expect(matrix.pageIndex, "#4").toBe(2);
+    expect(pageValues(matrix), "#5: the last page holds what is left").toEqual(["e"]);
+    expect(matrix.visibleRows.length, "#6: visibleRows is the page").toBe(1);
+    expect(matrix.allRows.length, "#7").toBe(1);
+  });
+  test("navigation clamps at both ends", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    matrix.prevPage();
+    expect(matrix.pageIndex, "#1: there is no page before the first").toBe(0);
+    matrix.goToPage(-5);
+    expect(matrix.pageIndex, "#2").toBe(0);
+    matrix.goToPage(99);
+    expect(matrix.pageIndex, "#3: clamped to the last page").toBe(2);
+    matrix.nextPage();
+    expect(matrix.pageIndex, "#4").toBe(2);
+    expect(matrix.canGoNextPage, "#5").toBe(false);
+    expect(matrix.canGoPrevPage, "#6").toBe(true);
+    matrix.goToPage(1);
+    expect(matrix.pageIndex, "#7").toBe(1);
+    expect(matrix.canGoNextPage, "#8").toBe(true);
+  });
+  test("switching paging off restores the unpaged rows and page 0", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    matrix.goToPage(2);
+    matrix.pageSize = 0;
+    expect(matrix.visibleRows.length, "#1: every row again").toBe(5);
+    expect(matrix.pageCount, "#2").toBe(1);
+    expect(matrix.pageIndex, "#3").toBe(0);
+  });
+  test("a negative pageSize is 0, from the setter and from JSON", () => {
+    const matrix = createMatrix({ rowCount: 3, pageSize: -2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    expect(matrix.pageSize, "#1: JSON is clamped too - the onSettingValue hook would be skipped").toBe(0);
+    matrix.pageSize = -1;
+    expect(matrix.pageSize, "#2").toBe(0);
+    expect(matrix.visibleRows.length, "#3").toBe(3);
+    matrix.pageSize = 2;
+    expect(matrix.visibleRows.length, "#4").toBe(2);
+  });
+  test("pageSize is one value, from code and from JSON", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    expect(matrix.pageSize, "#1: JSON, read through pageSize").toBe(2);
+    matrix.pageSize = 3;
+    expect(matrix.pageSize, "#2: set from code").toBe(3);
+    expect(matrix.visibleRows.length, "#3").toBe(3);
+    expect(matrix.toJSON().pageSize, "#4: and its JSON").toBe(3);
+    matrix.pageSize = 4;
+    expect(matrix.pageSize, "#5: set from code again").toBe(4);
+    matrix.pageSize = <any>"abc";
+    expect(matrix.pageSize, "#6: a value that is not a number is 0").toBe(0);
+    expect(matrix.pageCount, "#7: no paging").toBe(1);
+    matrix.pageSize = <any>"2";
+    expect(matrix.pageSize, "#8: a numeric string is its number").toBe(2);
+    expect(matrix.visibleRows.length, "#9").toBe(2);
+  });
+  test("an assigned page size refreshes the rendered table, also when the value is the same", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    let table = matrix.renderedTable;
+    matrix.pageSize = 2;
+    expect(matrix.renderedTable !== table, "#1: assigned").toBe(true);
+    table = matrix.renderedTable;
+    matrix.pageSize = 2;
+    expect(matrix.renderedTable !== table, "#2: assigned again").toBe(true);
+    expect(dataRows(matrix).length, "#3: the page").toBe(2);
+  });
+  test("a row hidden by rowsVisibleIf takes no page slot", () => {
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2, rowsVisibleIf: "{row.c1} != 'b'" },
+      [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    expect(matrix["dataList"].visibleCount, "#1: three records are visible").toBe(3);
+    expect(matrix.allRows.length, "#2: the page's two rows exist, a hidden record has none").toBe(2);
+    expect(matrix.pageCount, "#3: three visible rows of two").toBe(2);
+    expect(pageValues(matrix), "#4: the hidden row does not take a slot").toEqual(["a", "c"]);
+    matrix.nextPage();
+    expect(pageValues(matrix), "#5").toEqual(["d"]);
+  });
+  test("pageCount follows a row that becomes hidden, with no list event", () => {
+    const survey = createSurvey({ rowCount: 4, pageSize: 2, rowsVisibleIf: "{row.c1} != {q0}" },
+      [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }], [{ type: "text", name: "q0" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.pageCount, "#1").toBe(2);
+    survey.setValue("q0", "b");
+    expect(matrix["dataList"].visibleCount, "#2").toBe(3);
+    expect(matrix.pageCount, "#3: three visible rows still need two pages").toBe(2);
+    matrix.pageSize = 3;
+    expect(matrix.pageCount, "#4: three visible rows fit on one page").toBe(1);
+    survey.setValue("q0", "");
+    expect(matrix["dataList"].visibleCount, "#5").toBe(4);
+    expect(matrix.pageCount, "#6: the row that came back needs a second one").toBe(2);
+  });
+  test("pageCount follows an array replaced by survey.setValue", () => {
+    const survey = createSurvey({ rowCount: 5, pageSize: 2 }, abcde);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.pageCount, "#1").toBe(3);
+    survey.setValue("matrix", [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    expect(matrix.rowCount, "#2").toBe(3);
+    expect(matrix.pageCount, "#3").toBe(2);
+    survey.setValue("matrix", [{ c1: "a" }]);
+    expect(matrix.pageCount, "#4").toBe(1);
+    expect(matrix.pageIndex, "#5: the page index was clamped").toBe(0);
+  });
+  test("the rendered table renders the page, horizontal layout", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    expect(dataRows(matrix).length, "#1: two rows on the page").toBe(2);
+    matrix.goToPage(1);
+    const rows = dataRows(matrix);
+    expect(rows.length, "#2").toBe(2);
+    expect(rows[0].row === matrix.visibleRows[0], "#3: the first row of page 2, the first of visibleRows").toBe(true);
+    expect(rows[0].cells[0].question.value, "#4").toBe("c");
+    expect(rows[1].cells[0].question.value, "#5").toBe("d");
+    matrix.goToPage(2);
+    expect(dataRows(matrix).length, "#6: the last page").toBe(1);
+    expect(dataRows(matrix)[0].cells[0].question.value, "#7").toBe("e");
+  });
+  test("the rendered table renders the page, vertical layout", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, columnLayout: "vertical" }, abcde);
+    const table = matrix.renderedTable;
+    expect(table.rows[0].cells.length, "#1: the leading cell and the page, not all five rows").toBe(3);
+    expect(table.rows[1].cells.length, "#2: every rendered row is the page wide").toBe(3);
+    expect(table.rows[0].cells[1].question.value, "#3").toBe("a");
+    expect(table.rows[0].cells[2].question.value, "#4").toBe("b");
+    matrix.goToPage(1);
+    const table2 = matrix.renderedTable;
+    expect(table2.rows[0].cells[1].question.value, "#5").toBe("c");
+    expect(table2.rows[0].cells[2].question.value, "#6").toBe("d");
+    matrix.goToPage(2);
+    expect(matrix.renderedTable.rows[0].cells.length, "#7: one row on the last page").toBe(2);
+  });
+  test("the remove action of a page-2 row removes that row", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
+    matrix.goToPage(1);
+    const row = matrix.visibleRows[0];
+    const rendered = dataRows(matrix)[0];
+    const actionCell = rendered.cells.filter(cell => cell.isActionsCell)[0];
+    expect(!!actionCell, "#1: the row has an action cell").toBe(true);
+    const removeAction = actionCell.item.value.actions.filter((a: Action) => a.id === "remove-row")[0];
+    expect(!!removeAction, "#2: and a remove action").toBe(true);
+    expect(removeAction.data.row === row, "#3: the action belongs to the page-2 row").toBe(true);
+    removeAction.action();
+    expect(matrix.rowCount, "#4: one record is gone").toBe(4);
+    expect(matrix.value, "#5: and it is the one the row held").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "d" }, { c1: "e" }]);
+  });
+  test("an open detail panel on page 2 is rendered, and closing it removes the rendered row", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, detailPanelMode: "underRow" }, abcde);
+    matrix.detailPanel.addNewQuestion("text", "d1");
+    matrix.goToPage(1);
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    const table = matrix.renderedTable;
+    expect(table.rows.filter(r => r.isDetailRow).length, "#1: one detail row").toBe(1);
+    expect(dataRows(matrix).length, "#2: still two data rows").toBe(2);
+    row.hideDetailPanel();
+    expect(matrix.renderedTable.rows.filter(r => r.isDetailRow).length, "#3: it is gone").toBe(0);
+  });
+  test("an error row belongs to the row on the page", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
+      [{ c1: "a" }, { c1: "b" }, { c1: "" }, { c1: "d" }, { c1: "e" }]);
+    matrix.goToPage(1);
+    matrix.hasErrors(true);
+    const errorRows = matrix.renderedTable.rows.filter(r => r.isErrorsRow);
+    expect(errorRows.length, "#1: one error row per row on the page").toBe(2);
+    expect(dataRows(matrix).length, "#2: and the page still holds two rows").toBe(2);
+    expect(matrix.visibleRows[0].cells[0].question.errors.length, "#3: the empty cell is the one with the error").toBe(1);
+    expect(matrix.visibleRows[1].cells[0].question.errors.length, "#4: the other row on the page is valid").toBe(0);
+  });
+  test("adding a row lands on the last page and the page index follows", () => {
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    expect(matrix.pageIndex, "#1").toBe(0);
+    matrix.addRowUI();
+    expect(matrix.rowCount, "#2").toBe(5);
+    expect(matrix.pageCount, "#3").toBe(3);
+    expect(matrix.pageIndex, "#4: the page of the new row").toBe(2);
+    expect(matrix.visibleRows.length, "#5").toBe(1);
+    expect(matrix.visibleRows[0].visibleIndex, "#6: the new row, the only one of its page").toBe(4);
+    expect(dataRows(matrix).length, "#7: the rendered table was reset to the page").toBe(1);
+  });
+  test("removing the last row of the last page moves the page index back", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
+    matrix.goToPage(2);
+    expect(matrix.visibleRows.length, "#1").toBe(1);
+    matrix.removeRow(4);
+    expect(matrix.rowCount, "#2").toBe(4);
+    expect(matrix.pageCount, "#3").toBe(2);
+    expect(matrix.pageIndex, "#4: the list clamped it and the question re-read it").toBe(1);
+    expect(pageValues(matrix), "#5").toEqual(["c", "d"]);
+  });
+  test("removing the last row of the last page moves the page index back when the matrix has no value", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true });
+    matrix.goToPage(2);
+    expect(matrix.visibleRows.length, "#1").toBe(1);
+    matrix.removeRowUI(matrix.visibleRows[0]);
+    expect(matrix.isEmpty(), "#2: every record is still padding").toBe(true);
+    expect(matrix.rowCount, "#3").toBe(4);
+    expect(matrix.pageCount, "#4").toBe(2);
+    expect(matrix.pageIndex, "#5").toBe(1);
+    expect(matrix.visibleRows.length, "#6").toBe(2);
+    expect(dataRows(matrix).length, "#7: the rendered table shows the page it fell back to").toBe(2);
+  });
+  test("removing a row that was added and never filled moves the page index back", () => {
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2, allowRemoveRows: true }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    matrix.addRowUI();
+    expect(matrix.pageCount, "#1").toBe(3);
+    expect(matrix.pageIndex, "#2").toBe(2);
+    expect(matrix.value.length, "#3: the new row is not in the value yet").toBe(4);
+    matrix.removeRowUI(matrix.visibleRows[0]);
+    expect(matrix.rowCount, "#4").toBe(4);
+    expect(matrix.pageCount, "#5").toBe(2);
+    expect(matrix.pageIndex, "#6").toBe(1);
+    expect(pageValues(matrix), "#7").toEqual(["c", "d"]);
+    expect(dataRows(matrix).length, "#8: the rendered table shows the page it fell back to").toBe(2);
+    expect(matrix.value, "#9: the value is untouched").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+  });
+  test("a required cell on a page that was never opened does not block the survey", () => {
+    const survey = createSurvey({ rowCount: 5, pageSize: 2, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
+      [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "" }, { c1: "e" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.pageIndex, "#1").toBe(0);
+    expect(survey.tryComplete(), "#2: only the page is validated").toBe(true);
+  });
+  test("totals are the totals of every visible row, not of the page", () => {
+    const matrix = createMatrix({
+      rowCount: 4, pageSize: 2,
+      columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", inputType: "number", totalType: "sum" }]
+    }, [{ c2: 1 }, { c2: 10 }, { c2: 100 }, { c2: 1000 }]);
+    expect(matrix.totalValue.c2, "#1").toBe(1111);
+    matrix.goToPage(1);
+    expect(matrix.totalValue.c2, "#2: the page did not change it").toBe(1111);
+  });
+  test("the neighbour expressions follow the sorted rows and ignore the page", () => {
+    const matrix = createMatrix({
+      rowCount: 4, pageSize: 2,
+      columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "expression", expression: "{prevRow.c1}" }]
+    }, [{ c1: "d" }, { c1: "c" }, { c1: "b" }, { c1: "a" }]);
+    expect(matrix.visibleRows.map(r => r.getQuestionByName("c2").value), "#1: the record order, page 1").toEqual([undefined, "d"]);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(matrix.visibleRows.map(r => r.getQuestionByName("c2").value), "#2: the sorted neighbour, page 1").toEqual([undefined, "a"]);
+    matrix.goToPage(1);
+    expect(matrix.visibleRows.map(r => r.getQuestionByName("c2").value), "#3: the first row of page 2 reads a record of page 1").toEqual(["b", "c"]);
+    expect(pageValues(matrix, "c2"), "#4").toEqual(["b", "c"]);
+  });
+  test("keyName duplicates are looked for in every record, on-page or not", () => {
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2, keyName: "c1" },
+      [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "a" }]);
+    expect(matrix.hasErrors(true), "#1: the pair is on two different pages").toBe(true);
+    matrix.value = [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }];
+    expect(matrix.hasErrors(true), "#2").toBe(false);
+  });
+  const keyErrors = (matrix: QuestionMatrixDynamicModel): Array<number> => {
+    return matrix.visibleRows.map(row => row.getQuestionByName("c1").errors.length);
+  };
+  test("a key typed on the page repeats a record without a row: a filtered-out record takes part, an owner-hidden one does not", () => {
+    const create = (): QuestionMatrixDynamicModel => createMatrix({ rowCount: 6, pageSize: 2, keyName: "c1",
+      filterExpression: "{c2} != 'out'", rowsVisibleIf: "{row.c2} != 'hide'" },
+    [{ c1: "x", c2: "out" }, { c1: "y", c2: "hide" }, { c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    const matrix = create();
+    expect(pageValues(matrix), "#1").toEqual(["a", "b"]);
+    matrix.visibleRows[1].getQuestionByName("c1").value = "x";
+    expect(matrix.validate(false), "#2: the filtered-out record").toBe(false);
+    matrix.visibleRows[1].getQuestionByName("c1").value = "y";
+    expect(matrix.validate(false), "#3: the owner-hidden record, as a hidden row without paging").toBe(true);
+    matrix.visibleRows[1].getQuestionByName("c1").value = "z";
+    expect(matrix.validate(false), "#4").toBe(true);
+    const pair = create();
+    pair.visibleRows[0].getQuestionByName("c1").value = "x";
+    pair.visibleRows[1].getQuestionByName("c1").value = "x";
+    expect(pair.hasErrors(true), "#5").toBe(true);
+    expect(keyErrors(pair), "#6: every row of the group").toEqual([1, 1]);
+  });
+  test("a key typed on a sorted page repeats a record of another page: every row of the group gets the error", () => {
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2, keyName: "c1" },
+      [{ c1: "x", c2: "1" }, { c1: "b", c2: "4" }, { c1: "c", c2: "3" }, { c1: "d", c2: "2" }]);
+    matrix.sort([{ field: "c2", direction: "asc" }]);
+    matrix.goToPage(1);
+    expect(pageValues(matrix), "#1").toEqual(["c", "b"]);
+    matrix.visibleRows[0].getQuestionByName("c1").value = "x";
+    matrix.visibleRows[1].getQuestionByName("c1").value = "x";
+    expect(matrix.validate(false), "#2").toBe(false);
+    expect(matrix.hasErrors(true), "#3").toBe(true);
+    expect(matrix.pageIndex, "#4").toBe(1);
+    expect(keyErrors(matrix), "#5: both rows on the page").toEqual([1, 1]);
+    matrix.visibleRows[0].getQuestionByName("c1").value = "c";
+    expect(matrix.hasErrors(true), "#6: the pair with the record of page 1 remains").toBe(true);
+    expect(keyErrors(matrix), "#7: the row that left the group lost the error").toEqual([0, 1]);
+  });
+  test("keys on the page and keys off it compare alike: case as useCaseSensitiveComparison says, a number as its string", () => {
+    const create = (first: any, caseSensitive: boolean): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+      const survey = createSurvey({ rowCount: 4, pageSize: 2, keyName: "c1" }, [{ c1: first }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+      matrix.useCaseSensitiveComparison = caseSensitive;
+      return { survey: survey, matrix: matrix };
+    };
+    const check = (first: any, typed: any, caseSensitive: boolean): Array<boolean> => {
+      const onPage = create(first, caseSensitive);
+      onPage.matrix.goToPage(1);
+      onPage.matrix.visibleRows[1].getQuestionByName("c1").value = typed;
+      const offPage = create(first, caseSensitive);
+      offPage.matrix["dataList"].source.update(3, { c1: typed });
+      const offPageValid = offPage.survey.tryComplete();
+      return [onPage.matrix.validate(false), offPageValid];
+    };
+    expect(check("A", "a", false), "#1: case-insensitive").toEqual([false, false]);
+    expect(check("A", "a", true), "#2: case-sensitive").toEqual([true, true]);
+    expect(check(1, "1", true), "#3: 1 and \"1\"").toEqual([false, false]);
+    expect(check("x", "y", false), "#4").toEqual([true, true]);
+  });
+  test("a key typed on the page repeats a padded record: it reads the default row value", () => {
+    // On a page not shown yet the rowCount setter stores nothing (first rendering does): record 2 stays padded.
+    const survey = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "q0" }] }, { elements: [{ type: "matrixdynamic", name: "matrix",
+      columns: cols, rowCount: 2, pageSize: 2, keyName: "c1", defaultRowValue: { c1: "same" } }] }] });
+    survey.data = { matrix: [{ c1: "a" }, { c1: "b" }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.visibleRows;
+    matrix.rowCount = 3;
+    expect(matrix.getPropertyValueWithoutDefault("value").length, "#1: record 2 is padded, not stored").toBe(2);
+    expect(pageValues(matrix), "#2").toEqual(["a", "b"]);
+    matrix.visibleRows[1].getQuestionByName("c1").value = "same";
+    expect(matrix.validate(false), "#3").toBe(false);
+    expect(matrix.hasErrors(true), "#4").toBe(true);
+    expect(keyErrors(matrix), "#5").toEqual([0, 1]);
+  });
+  test("rowCountExpression pages like a rowCount that was set", () => {
+    const survey = createSurvey({ pageSize: 2, rowCountExpression: "{q0}" }, undefined, [{ type: "text", name: "q0" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    survey.setValue("q0", 5);
+    expect(matrix.rowCount, "#1").toBe(5);
+    expect(matrix.pageCount, "#2").toBe(3);
+    expect(matrix.visibleRows.length, "#3").toBe(2);
+    survey.setValue("q0", 1);
+    expect(matrix.pageCount, "#4").toBe(1);
+  });
+  test("a filter, a sort and a page combined", () => {
+    const matrix = createMatrix({ rowCount: 6, pageSize: 2 },
+      [{ c1: "a", c2: "6" }, { c1: "b", c2: "5" }, { c1: "a", c2: "4" }, { c1: "a", c2: "3" }, { c1: "b", c2: "2" }, { c1: "a", c2: "1" }]);
+    matrix.filterExpression = "{c1} = 'a'";
+    matrix.sort([{ field: "c2", direction: "asc" }]);
+    expect(matrix["dataList"].visibleCount, "#1: four records pass the filter").toBe(4);
+    expect(matrix.pageCount, "#2").toBe(2);
+    expect(pageValues(matrix, "c2"), "#3: the first two of the sorted rows").toEqual(["1", "3"]);
+    matrix.nextPage();
+    expect(pageValues(matrix, "c2"), "#4").toEqual(["4", "6"]);
+    expect(matrix.rowCount, "#5: the records are untouched").toBe(6);
+    expect(matrix.value.length, "#6").toBe(6);
+  });
+  test("sort(), toggleSort and clearSort reach the list and read back from it", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
+    const list = matrix["dataList"];
+    expect(getSort(matrix), "#1: none").toEqual([]);
+    matrix.toggleSort("c1");
+    expect(getSort(matrix), "#2: a header click sorts ascending").toEqual([{ field: "c1", direction: "asc" }]);
+    expect(list.sort, "#3: the list has it").toEqual([{ field: "c1", direction: "asc" }]);
+    expect(matrix.allRows.map(r => r.getQuestionByName("c1").value), "#4").toEqual(["a", "b", "c"]);
+    matrix.toggleSort("c1");
+    expect(getSort(matrix), "#5: the second click is descending").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(matrix.allRows.map(r => r.getQuestionByName("c1").value), "#6").toEqual(["c", "b", "a"]);
+    matrix.toggleSort("c1");
+    expect(getSort(matrix), "#7: the third clears it").toEqual([]);
+    expect(matrix.allRows.map(r => r.getQuestionByName("c1").value), "#8: the record order is back").toEqual(["c", "a", "b"]);
+    matrix.sort([{ field: "c1", direction: "desc" }]);
+    expect(getSort(matrix), "#9: an explicit sort skips the toggle").toEqual([{ field: "c1", direction: "desc" }]);
+    matrix.clearSort();
+    expect(getSort(matrix), "#10").toEqual([]);
+    expect(list.sort, "#11").toEqual([]);
+  });
+  test("a sort never reorders the value and drag reorder is off while it is on", () => {
+    const survey = createSurvey({ rowCount: 3, allowRowReorder: true }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.isRowsDragAndDrop, "#1").toBe(true);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(matrix.value, "#2: the value kept its order").toEqual([{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
+    expect(matrix.isRowsDragAndDrop, "#3: a sorted table cannot be reordered by hand").toBe(false);
+    matrix.clearSort();
+    expect(matrix.isRowsDragAndDrop, "#4").toBe(true);
+  });
+  test("the filter reaches the list, reads back from it and is not rowsVisibleIf", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    expect(matrix.filterExpression, "#1").toBe("");
+    matrix.filterExpression = "{c1} = 'a'";
+    expect(matrix.filterExpression, "#2").toBe("{c1} = 'a'");
+    expect(matrix["dataList"].filter, "#3: the list has it").toBe("{c1} = 'a'");
+    expect(matrix.allRows.length, "#4: only the records that pass it have a row").toBe(2);
+    expect(matrix.visibleRows.length, "#5").toBe(2);
+    expect(matrix.rowCount, "#6: the records are untouched").toBe(3);
+    matrix.filterExpression = "";
+    expect(matrix.allRows.length, "#7").toBe(3);
+  });
+  test("a filter the list cannot run locally is refused and reads back as empty", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    matrix.filterExpression = "{c1} = ";
+    expect(matrix.filterExpression, "#1: the list reset it to none").toBe("");
+    expect(matrix.allRows.length, "#2: showing every row beats showing none").toBe(3);
+  });
+  test("refreshView re-decides the membership and nothing else does", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
+    matrix.filterExpression = "{c1} = 'a'";
+    expect(matrix.allRows.length, "#1").toBe(2);
+    matrix.allRows[0].getQuestionByName("c1").value = "z";
+    expect(matrix.allRows.length, "#2: the edited record keeps its row").toBe(2);
+    matrix.refreshView();
+    expect(matrix.allRows.length, "#3: the refresh drops it").toBe(1);
+  });
+  test("assigning the same sort or the same filter rebuilds nothing", () => {
+    const matrix = createMatrix({ rowCount: 3 }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    matrix.filterExpression = "{c1} != 'z'";
+    const rows = matrix.allRows.slice();
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(matrix.allRows.every((row, i) => row === rows[i]), "#1: the same row instances").toBe(true);
+    matrix.filterExpression = "{c1} != 'z'";
+    expect(matrix.allRows.every((row, i) => row === rows[i]), "#2: the same row instances").toBe(true);
+    matrix.sort([{ field: "c1", direction: "desc" }]);
+    expect(matrix.allRows[0] === rows[0], "#3: a different sort does rebuild them").toBe(false);
+  });
+  test("pageIndex, pageCount, sortCriteria and filterExpression notify the reactivity bridge", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    const changed: Array<string> = [];
+    matrix.onPropertyChanged.add((sender, options) => { changed.push(options.name); });
+    matrix.nextPage();
+    expect(changed.indexOf("pageIndex") > -1, "#1").toBe(true);
+    changed.splice(0, changed.length);
+    matrix.rowCount = 2;
+    expect(changed.indexOf("pageCount") > -1, "#2").toBe(true);
+    changed.splice(0, changed.length);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(changed.indexOf("sortCriteria") > -1, "#3").toBe(true);
+    changed.splice(0, changed.length);
+    matrix.filterExpression = "{c1} != 'z'";
+    expect(changed.indexOf("filterExpression") > -1, "#4").toBe(true);
+  });
+  test("the pager actions are created once", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    const actions = matrix.recordsBar.pagerActions;
+    matrix.nextPage();
+    expect(matrix.recordsBar.pagerActions === actions, "#1: the same container after a page move").toBe(true);
+    matrix.pageSize = 3;
+    expect(matrix.recordsBar.pagerActions === actions, "#2: and after a page size change").toBe(true);
+  });
+  test("the pager actions run the navigation and follow it", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    const actions = matrix.recordsBar.pagerActions.actions;
+    expect(actions.map(action => action.id), "#1: first, prev, the page dropdown, the total, next and last").toEqual(
+      ["sv-pager-first", "sv-pager-prev", "sv-pager-page", "sv-pager-total", "sv-pager-next", "sv-pager-last"]);
+    const prev = matrix.recordsBar.pagerActions.getActionById("sv-pager-prev");
+    const next = matrix.recordsBar.pagerActions.getActionById("sv-pager-next");
+    const page = matrix.recordsBar.pagerActions.getActionById("sv-pager-page");
+    expect(prev.enabled, "#2").toBe(false);
+    expect(next.enabled, "#3").toBe(true);
+    expect(page.title, "#4").toBe("1");
+    next.action();
+    expect(matrix.pageIndex, "#5").toBe(1);
+    expect(page.title, "#6").toBe("2");
+    expect(prev.enabled, "#7").toBe(true);
+    next.action();
+    expect(next.enabled, "#8: the last page").toBe(false);
+    prev.action();
+    expect(matrix.pageIndex, "#9").toBe(1);
+  });
+  test("the pager's page dropdown follows the survey locale", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
+    const page = matrix.recordsBar.pagerActions.getActionById("sv-pager-page");
+    expect(page.ariaLabel, "#1").toBe("Page 1 of 3");
+    (<SurveyModel>matrix.survey).locale = "de";
+    expect(page.ariaLabel, "#2").toBe("Seite 1 von 3");
+    matrix.nextPage();
+    expect(page.ariaLabel, "#3").toBe("Seite 2 von 3");
+    (<SurveyModel>matrix.survey).locale = "";
+    expect(page.ariaLabel, "#4").toBe("Page 2 of 3");
+  });
+  test("single input walks every visible row and ignores the page", () => {
+    const survey = createSurvey({ rowCount: 4, pageSize: 2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    survey.questionsOnPageMode = "inputPerPage";
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.singleInputSummary?.items.length, "#1: every visible row, not the page - single input is its own paging").toBe(4);
+    expect(matrix.pageCount, "#2: the matrix does not page while single input is active").toBe(1);
+    expect(matrix.visibleRows.length, "#3").toBe(4);
+  });
+  test("design mode pages nothing and keeps the authored value", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 5, pageSize: 2, allowSort: true }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.pageSize, "#1: the authored value is kept for serialization").toBe(2);
+    expect(matrix.visibleRows.length, "#2").toBe(5);
+    expect(matrix.visibleRows.length, "#3: every row is shown").toBe(5);
+    expect(matrix.pageCount, "#4").toBe(1);
+    /* Design mode is a "do not push to the list" rule and nothing more: the authored sort and
+       filter are stored, read back and serialized - the Creator has to be able to edit them - and
+       only the list is left alone, so nothing is sorted or filtered. */
+    matrix.filterExpression = "{c1} = 'a'";
+    expect(matrix.filterExpression, "#5: it is kept").toBe("{c1} = 'a'");
+    expect(matrix["dataList"].filter, "#6: and not applied").toBe("");
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(getSort(matrix), "#7").toEqual([{ field: "c1", direction: "asc" }]);
+    expect(matrix.sortCriteria[0].getType(), "#8: the items are sort criteria").toBe("sortcriterion");
+    expect(matrix["dataList"].sort, "#9: and not applied").toEqual([]);
+    expect(matrix.visibleRows.length, "#10: every row, in storage order").toBe(5);
+    const json = matrix.toJSON();
+    expect(json.pageSize, "#11").toBe(2);
+    expect(json.sortCriteria, "#12").toEqual([{ field: "c1" }]);
+    expect(json.filterExpression, "#13").toBe("{c1} = 'a'");
+  });
+  test("the new properties round-trip through JSON, pageSize and the sort are in the property grid", () => {
+    const matrix = createMatrix({ rowCount: 2, pageSize: 3, allowSort: true,
+      columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", allowSort: false }] });
+    expect(matrix.pageSize, "#1").toBe(3);
+    expect(matrix.allowSort, "#2").toBe(true);
+    expect(matrix.columns[1].allowSort, "#3").toBe(false);
+    const json = matrix.toJSON();
+    expect(json.pageSize, "#4").toBe(3);
+    expect(json.allowSort, "#5").toBe(true);
+    expect(json.columns[1].allowSort, "#6").toBe(false);
+    expect(Serializer.findProperty("matrixdynamic", "pageSize").visible, "#7").toBe(true);
+    expect(Serializer.findProperty("matrixdynamic", "allowSort").visible, "#8").toBe(true);
+    expect(Serializer.findProperty("matrixdropdowncolumn", "allowSort").isVisible("", matrix.columns[1]), "#9: the matrix allows sorting").toBe(true);
+  });
+  test("the defaults are not serialized", () => {
+    const matrix = createMatrix({ rowCount: 2 });
+    const json = matrix.toJSON();
+    expect(json.pageSize, "#1").toBe(undefined);
+    expect(json.allowSort, "#2").toBe(undefined);
+    expect(json.columns[0].allowSort, "#3").toBe(undefined);
+    expect(matrix.pageSize, "#4").toBe(0);
+    expect(matrix.allowSort, "#5").toBe(false);
+    expect(matrix.columns[0].allowSort, "#6: a column sorts by default").toBe(true);
+  });
+  test("a column is sortable when the matrix allows it and the column does not opt out", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "dropdown", allowSort: false }] });
+    expect(matrix.columns[0].isSortable, "#1: the matrix does not allow it yet").toBe(false);
+    matrix.allowSort = true;
+    expect(matrix.columns[0].isSortable, "#2").toBe(true);
+    expect(matrix.columns[1].isSortable, "#3: the column opted out").toBe(false);
+    matrix.columns[1].allowSort = true;
+    expect(matrix.columns[1].isSortable, "#4: no cell type is unsortable").toBe(true);
+  });
+  test("a column sorts by its record key and not by its name", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", valueName: "shared" }] });
+    expect(matrix.columns[0].sortField, "#1: without a valueName it is the name").toBe("c1");
+    expect(matrix.columns[1].sortField, "#2: with one it is the key the cell writes").toBe("shared");
+    expect((<any>matrix).getFields().some(f => f.name === "shared"), "#3: and that is the field the list knows").toBe(true);
+  });
+  test("the fields of the columns: typed values, a comment, and the key the other text is stored under", () => {
+    const matrix = createMatrix({ rowCount: 0, columns: [
+      { name: "c1", cellType: "text" },
+      { name: "num", cellType: "text", inputType: "number" },
+      { name: "flag", cellType: "boolean" },
+      { name: "pick", cellType: "dropdown", choices: [1, 2], showOtherItem: true },
+      { name: "both", cellType: "dropdown", choices: [1, 2], showOtherItem: true, showCommentArea: true }
+    ] });
+    expect((<any>matrix).getFields()).toEqual([
+      { name: "c1", dataType: "any" },
+      { name: "num", dataType: "number" },
+      { name: "flag", dataType: "boolean" },
+      { name: "pick", dataType: "number" },
+      { name: "both", dataType: "number" },
+      { name: "both-Comment", dataType: "string" },
+      { name: "pick-Comment", dataType: "string" }
+    ]);
+  });
+  test("a date column sorts by date and not by text", () => {
+    const matrix = createMatrix({ rowCount: 3, columns: [{ name: "c1", cellType: "text", inputType: "date" }] },
+      [{ c1: "2024-01-10" }, { c1: "2024-1-5" }, { c1: "2023-12-31" }]);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(pageValues(matrix), "#1: as text 2024-1-5 would be last").toEqual(["2023-12-31", "2024-1-5", "2024-01-10"]);
+  });
+  test("toggleSort adds a field to the sort instead of replacing it", () => {
+    const matrix = createMatrix({ rowCount: 3, allowSort: true, maxSortLevel: 2 },
+      [{ c1: "b", c2: "2" }, { c1: "a", c2: "1" }, { c1: "b", c2: "1" }]);
+    matrix.toggleSort("c1", true);
+    matrix.toggleSort("c2", true);
+    expect(getSort(matrix), "#1: both fields, in click order").toEqual([{ field: "c1", direction: "asc" }, { field: "c2", direction: "asc" }]);
+    expect(matrix.allRows.map(r => r.getQuestionByName("c1").value + r.getQuestionByName("c2").value), "#2")
+      .toEqual(["a1", "b1", "b2"]);
+    matrix.toggleSort("c2", true);
+    expect(getSort(matrix), "#3: the second field turns around, the first keeps its place").toEqual([{ field: "c1", direction: "asc" }, { field: "c2", direction: "desc" }]);
+    expect(matrix.allRows.map(r => r.getQuestionByName("c1").value + r.getQuestionByName("c2").value), "#4")
+      .toEqual(["a1", "b2", "b1"]);
+    matrix.toggleSort("c1");
+    expect(getSort(matrix), "#5: a click without the modifier turns a sorted field around in its own level")
+      .toEqual([{ field: "c1", direction: "desc" }, { field: "c2", direction: "desc" }]);
+  });
+  test("removing a row on an earlier page fills the vacated slot from the next one", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
+    expect(dataRows(matrix).map(row => row.cells[0].question.value), "#1").toEqual(["a", "b"]);
+    matrix.removeRow(0);
+    expect(pageValues(matrix), "#2: the first row of page 2 moved up").toEqual(["b", "c"]);
+    expect(dataRows(matrix).map(row => row.cells[0].question.value), "#3: and the table shows it").toEqual(["b", "c"]);
+  });
+  test("removing the last row of the last page re-renders the page it falls back to", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
+    matrix.goToPage(2);
+    expect(dataRows(matrix).map(row => row.cells[0].question.value), "#1: the last page is rendered").toEqual(["e"]);
+    matrix.removeRow(4);
+    expect(matrix.pageIndex, "#2").toBe(1);
+    expect(dataRows(matrix).map(row => row.cells[0].question.value), "#3: not an empty table").toEqual(["c", "d"]);
+  });
+  test("lockedRowCount locks the first records, whatever page they are on", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRowReorder: true }, abcde);
+    matrix.lockedRowCount = 1;
+    expect(dataRows(matrix)[0].cells[0].isActionsCell, "#1: record 0 is locked - no drag handle").toBe(false);
+    expect(dataRows(matrix)[1].cells[0].isActionsCell, "#2: record 1 is not").toBe(true);
+    matrix.goToPage(1);
+    expect(dataRows(matrix)[0].cells[0].isActionsCell, "#3: the first row of page 2 is record 2 and is not locked").toBe(true);
+  });
+  test("a dropdown column sorts by value and not by display text", () => {
+    const matrix = createMatrix({
+      rowCount: 3,
+      columns: [{ name: "c1", cellType: "dropdown", choices: [{ value: 1, text: "zebra" }, { value: 2, text: "apple" }, { value: 3, text: "mango" }] }]
+    }, [{ c1: 3 }, { c1: 1 }, { c1: 2 }]);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(matrix.allRows.map(row => row.getQuestionByName("c1").value), "#1: by value").toEqual([1, 2, 3]);
+  });
+});
+
+describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => {
+  const cols = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  const createSurvey = (json: any, data?: any, designMode?: boolean): SurveyModel => {
+    const survey = new SurveyModel();
+    if (designMode) survey.setDesignMode(true);
+    survey.fromJSON({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix", columns: cols }, json)] });
+    if (!!data) {
+      survey.data = { matrix: data };
+    }
+    return survey;
+  };
+  const createMatrix = (json: any, data?: any, designMode?: boolean): QuestionMatrixDynamicModel => {
+    return <QuestionMatrixDynamicModel>createSurvey(json, data, designMode).getQuestionByName("matrix");
+  };
+  const values = (matrix: QuestionMatrixDynamicModel, name: string = "c1"): Array<any> => {
+    return matrix.visibleRows.map(row => row.getQuestionByName(name).value);
+  };
+  const cba = [{ c1: "c" }, { c1: "a" }, { c1: "b" }];
+
+  test("sortCriteria and filterExpression load from JSON, apply and round-trip", () => {
+    const matrix = createMatrix({ rowCount: 4, sortCriteria: [{ field: "c1", direction: "desc" }], filterExpression: "{c1} <> 'z'" },
+      [{ c1: "c" }, { c1: "z" }, { c1: "a" }, { c1: "b" }]);
+    expect(getSort(matrix), "#1").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(matrix.sortCriteria[0].getType(), "#2: the items are sort criteria").toBe("sortcriterion");
+    expect(matrix.filterExpression, "#3").toBe("{c1} <> 'z'");
+    expect(values(matrix), "#4: the rows are sorted and the filtered record has none").toEqual(["c", "b", "a"]);
+    expect(matrix.rowCount, "#5: the records are untouched").toBe(4);
+    const json = matrix.toJSON();
+    expect(json.sortCriteria, "#6").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(json.filterExpression, "#7").toBe("{c1} <> 'z'");
+  });
+  test("an authored sort with an empty and a repeated field is normalized once it runs", () => {
+    const matrix = createMatrix({ rowCount: 4, sortCriteria: [{ field: "c1" }, { field: "" }, { field: "c2", direction: "desc" },
+      { field: "c1", direction: "desc" }] },
+    [{ c1: "a", c2: "1" }, { c1: "b", c2: "2" }, { c1: "a", c2: "3" }, { c1: "b", c2: "1" }]);
+    expect(getSort(matrix), "#1: the first occurrence of a field wins").toEqual([{ field: "c1", direction: "asc" }, { field: "c2", direction: "desc" }]);
+    expect(values(matrix, "c2"), "#2").toEqual(["3", "1", "2", "1"]);
+    expect(matrix.toJSON().sortCriteria, "#3: normalized").toEqual([{ field: "c1" }, { field: "c2", direction: "desc" }]);
+  });
+  test("the defaults are not serialized; sortCriteria is in the property grid and filterExpression is not", () => {
+    const matrix = createMatrix({ rowCount: 2 }, cba);
+    const json = matrix.toJSON();
+    expect(json.sortCriteria, "#1").toBe(undefined);
+    expect(json.filterExpression, "#2").toBe(undefined);
+    expect(getSort(matrix), "#3").toEqual([]);
+    expect(matrix.filterExpression, "#4").toBe("");
+    expect(Serializer.findProperty("matrixdynamic", "sortCriteria").visible, "#5").toBe(true);
+    expect(Serializer.findProperty("matrixdynamic", "filterExpression").visible, "#6").toBe(false);
+    const sortProp = Serializer.findProperty("matrixdynamic", "sortCriteria");
+    expect([sortProp.className, sortProp.isArray], "#7: an array of sortcriterion objects").toEqual(["sortcriterion", true]);
+    expect(Serializer.findProperty("matrixdynamic", "filterExpression").isExpression, "#8").toBe(false);
+  });
+  test("sort(field, direction) equals sort(criteria)", () => {
+    const byField = createMatrix({ rowCount: 3 }, cba);
+    byField.sort("c1", "desc");
+    const byCriteria = createMatrix({ rowCount: 3 }, cba);
+    byCriteria.sort([{ field: "c1", direction: "desc" }]);
+    expect(getSort(byField), "#1").toEqual(getSort(byCriteria));
+    expect(values(byField), "#2").toEqual(values(byCriteria));
+    expect(byField.toJSON().sortCriteria, "#3").toEqual(byCriteria.toJSON().sortCriteria);
+  });
+  test("the sort a header click makes is what toJSON emits", () => {
+    const matrix = createMatrix({ rowCount: 3, allowSort: true }, cba);
+    matrix.toggleSort("c1");
+    expect(matrix.toJSON().sortCriteria, "#1").toEqual([{ field: "c1" }]);
+    matrix.toggleSort("c1");
+    expect(matrix.toJSON().sortCriteria, "#2").toEqual([{ field: "c1", direction: "desc" }]);
+    matrix.toggleSort("c1");
+    expect(matrix.toJSON().sortCriteria, "#3: the third click clears it").toBe(undefined);
+  });
+  test("onPropertyChanged fires for sortCriteria once per real change", () => {
+    const matrix = createMatrix({ rowCount: 3 }, cba);
+    const changed: Array<any> = [];
+    matrix.onPropertyChanged.add((sender, options) => {
+      if (options.name === "sortCriteria") changed.push(sortText(options.oldValue) + " -> " + sortText(options.newValue));
+    });
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(changed, "#1: sort() runs").toEqual([" -> c1 asc"]);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(changed, "#2: the same sort says nothing").toEqual([" -> c1 asc"]);
+    matrix.toggleSort("c1");
+    expect(changed, "#3: a header click").toEqual([" -> c1 asc", "c1 asc -> c1 desc"]);
+    matrix["dataList"].sort = [];
+    expect(changed, "#4: the list changed it on its own").toEqual([" -> c1 asc", "c1 asc -> c1 desc", "c1 desc -> "]);
+  });
+  test("the JSON key order does not decide the sort", () => {
+    const before = createMatrix({ sortCriteria: [{ field: "c1", direction: "desc" }], pageSize: 2, rowCount: 3 }, cba);
+    expect(getSort(before), "#1: sortCriteria before pageSize").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(values(before), "#2: the first page of the sorted records").toEqual(["c", "b"]);
+    const after = createMatrix({ pageSize: 2, sortCriteria: [{ field: "c1", direction: "desc" }], rowCount: 3 }, cba);
+    expect(getSort(after), "#3: and after it").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(values(after), "#4").toEqual(["c", "b"]);
+    expect(after.visibleRows.length, "#5: the page size survived it too").toBe(2);
+  });
+  test("the authored sort orders the first page", () => {
+    const matrix = createMatrix({ sortCriteria: [{ field: "c1", direction: "desc" }], pageSize: 2, rowCount: 3 }, cba);
+    expect(values(matrix), "#2: the first page of the sorted records").toEqual(["c", "b"]);
+  });
+  test("fromJSON into an attached question that already runs a different sort", () => {
+    const matrix = createMatrix({ rowCount: 3 }, cba);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(values(matrix), "#1").toEqual(["a", "b", "c"]);
+    matrix.fromJSON({ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 3, sortCriteria: [{ field: "c1", direction: "desc" }],
+      filterExpression: "{c1} <> 'a'" });
+    expect(getSort(matrix), "#2: the new sort, not the one that was mirrored").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(matrix["dataList"].sort, "#3: and the list has it").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(values(matrix), "#4").toEqual(["c", "b"]);
+  });
+  test("a reload whose JSON has no sortCriteria key leaves the current sort alone", () => {
+    const matrix = createMatrix({ rowCount: 3 }, cba);
+    matrix.sort([{ field: "c1", direction: "desc" }]);
+    matrix.fromJSON({ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 3 });
+    expect(getSort(matrix), "#1").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(values(matrix), "#2").toEqual(["c", "b", "a"]);
+  });
+  test("design mode set before the load, the Creator's order: the authored view is stored and not applied", () => {
+    const matrix = createMatrix({ rowCount: 3, sortCriteria: [{ field: "c1", direction: "desc" }], filterExpression: "{c1} = 'a'" }, undefined, true);
+    matrix.value = cba;
+    expect(getSort(matrix), "#1: authored and read back").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(matrix.filterExpression, "#2").toBe("{c1} = 'a'");
+    expect(matrix["dataList"].sort, "#3: the list has nothing").toEqual([]);
+    expect(matrix["dataList"].filter, "#4").toBe("");
+    expect(values(matrix), "#5: every row, in storage order").toEqual(["c", "a", "b"]);
+    const json = matrix.toJSON();
+    expect(json.sortCriteria, "#6: and both are serialized").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(json.filterExpression, "#7").toBe("{c1} = 'a'");
+  });
+  test("a design-mode switch after the load takes effect at the next sync", () => {
+    const survey = createSurvey({ rowCount: 3, sortCriteria: [{ field: "c1", direction: "desc" }] }, cba);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(values(matrix), "#1").toEqual(["c", "b", "a"]);
+    survey.setDesignMode(true);
+    expect(getSort(matrix), "#2: the hash is right at once").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(matrix.toJSON().sortCriteria, "#3: and so is the JSON").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(matrix["dataList"].sort, "#4: nothing told the list yet").toEqual([{ field: "c1", direction: "desc" }]);
+    matrix.refreshView();
+    expect(matrix["dataList"].sort, "#5: the next sync clears it").toEqual([]);
+    expect(getSort(matrix), "#6: and keeps what was authored").toEqual([{ field: "c1", direction: "desc" }]);
+    survey.setDesignMode(false);
+    matrix.refreshView();
+    expect(matrix["dataList"].sort, "#7: the way back").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(values(matrix), "#8").toEqual(["c", "b", "a"]);
+  });
+  test("a filter the list cannot run is not handed back after a load", () => {
+    const matrix = createMatrix({ rowCount: 3, filterExpression: "{c1} = " }, cba);
+    expect(matrix.filterExpression, "#1: the mirror takes what the list ended up with").toBe("");
+    expect(values(matrix), "#2: showing every row beats showing none").toEqual(["c", "a", "b"]);
+    matrix.refreshView();
+    expect(matrix.filterExpression, "#3: and it is not re-pushed").toBe("");
+  });
+});
+
+describe("matrixdynamic: the padded records", () => {
+  const ROW_COUNT = 20;
+  function createSurvey(): SurveyModel {
+    return new SurveyModel({
+      elements: [
+        { type: "text", name: "unrelated" },
+        {
+          type: "matrixdynamic", name: "matrix", rowCount: ROW_COUNT,
+          columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text" }, { name: "col3", cellType: "text" }]
+        }
+      ]
+    });
+  }
+  test("an unrelated value change, reading rowIndex and building the rendered table keep the rows, a cell edit materializes the value", () => {
+    const survey = createSurvey();
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const rows = matrix.visibleRows;
+    expect(rows.length, "#1").toBe(ROW_COUNT);
+    survey.setValue("unrelated", 1);
+    rows.forEach(row => row.rowIndex);
+    matrix.resetRenderedTable();
+    const table = matrix.renderedTable;
+    expect(table.rows.length > 0, "#4").toBe(true);
+    rows[0].getQuestionByColumnName("col1").value = "a";
+    survey.setValue("unrelated", 2);
+    expect(matrix.value.length, "#7: the value was materialized").toBe(ROW_COUNT);
+  });
+  test("a matrix detached from an assigned source stores its records up to rowCount", () => {
+    const survey = createSurvey();
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.dataSource = ArrayDynamicDataSource.fromArray([{ col1: "a" }]);
+    expect(matrix["dataList"].isRemote, "#1").toBe(true);
+    matrix.dataSource = undefined;
+    matrix.rowCount = ROW_COUNT;
+    const list = matrix["dataList"];
+    expect(list.isRemote, "#2: back on its own storage").toBe(false);
+    const rows = matrix.visibleRows;
+    expect(rows.length, "#3").toBe(ROW_COUNT);
+    expect(matrix.value.length, "#4: the detach stores the records of the authored rowCount").toBe(ROW_COUNT);
+    expect(list.count, "#5: the count of the records").toBe(ROW_COUNT);
+    rows.forEach(row => row.rowIndex);
+    expect(matrix.visibleRows.length, "#6").toBe(ROW_COUNT);
+  });
+});
+
+test("matrixdynamic: getRowValue inside a list batch sees the write that is being batched", () => {
+  const survey = new SurveyModel({
+    elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 2, columns: [{ name: "a", cellType: "text" }] }]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.value = [{ a: 1 }, { a: 2 }];
+  expect(matrix.visibleRows.length, "#1").toBe(2);
+  const list = matrix["dataList"];
+  let inside: any;
+  list.batch((): void => {
+    list.setRecord(0, { a: 3 });
+    inside = matrix.getRowValue(0);
+  });
+  expect(inside, "#2: read through the batch array").toEqual({ a: 3 });
+  expect(matrix.getRowValue(0), "#3: committed").toEqual({ a: 3 });
+  expect(matrix.value[0], "#4").toEqual({ a: 3 });
+});
+
+describe("value assigned by a handler during an add or remove", () => {
+  const createRecords = (): Array<any> => [{ a: "1" }, { a: "2" }, { a: "3" }];
+  const createSurvey = (props?: any): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const json: any = { type: "matrixdynamic", name: "q", columns: [{ name: "a", cellType: "text" }] };
+    const survey = new SurveyModel({ elements: [Object.assign(json, props)] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    matrix.value = createRecords();
+    return { survey: survey, matrix: matrix };
+  };
+  const getRowValues = (matrix: QuestionMatrixDynamicModel): Array<any> => matrix.visibleRows.map(row => row.value);
+  // The rendered table shows exactly the rows of the matrix, in their order.
+  const isRenderedTableOfRows = (matrix: QuestionMatrixDynamicModel): boolean => {
+    const rendered = matrix.renderedTable.rows.filter(row => !!row.row && !row.isErrorsRow && !row.isDetailRow);
+    const rows = matrix.visibleRows;
+    return rendered.length === rows.length && rendered.every((row, index) => row.row === rows[index]);
+  };
+  const runOnce = (event: any, func: () => void): void => {
+    let isDone = false;
+    event.add(() => {
+      if (isDone) return;
+      isDone = true;
+      func();
+    });
+  };
+
+  test("a value assigned on value changed while a row is removed replaces the rows", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    expect(isRenderedTableOfRows(matrix), "#0: rendered").toBe(true);
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+    expect(isRenderedTableOfRows(matrix), "#4: the rendered table shows the rows").toBe(true);
+  });
+  test("more records assigned on value changed while a row is removed get a row each", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    expect(isRenderedTableOfRows(matrix), "#0: rendered").toBe(true);
+    const assigned = [{ a: "x1" }, { a: "x2" }, { a: "x3" }, { a: "x4" }];
+    runOnce(survey.onValueChanged, () => survey.setValue("q", assigned));
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual(assigned);
+    expect(getRowValues(matrix), "#2").toEqual(assigned);
+    expect(matrix.rowCount, "#3").toBe(4);
+    expect(isRenderedTableOfRows(matrix), "#4: the rendered table shows the rows").toBe(true);
+  });
+  test("a value assigned on value changed while a paged matrix removes a row replaces the rows", () => {
+    const { survey, matrix } = createSurvey({ pageSize: 2 });
+    expect(getRowValues(matrix), "#0").toEqual([{ a: "1" }, { a: "2" }]);
+    expect(isRenderedTableOfRows(matrix), "#0: rendered").toBe(true);
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+    expect(isRenderedTableOfRows(matrix), "#4: the rendered table shows the rows").toBe(true);
+  });
+  test("a value assigned on row removed replaces the rows", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    runOnce(survey.onMatrixRowRemoved, () => survey.setValue("q", [{ a: "x" }]));
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+  });
+  test("an added row without a default row value writes its empty record, Bug#12147", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    let changedCount = 0;
+    survey.onValueChanged.add(() => { changedCount++; });
+    matrix.addRow();
+    expect(changedCount, "#1").toBe(1);
+    expect(matrix.value, "#2").toEqual(createRecords().concat([{}]));
+    expect(getRowValues(matrix), "#3").toEqual([{ a: "1" }, { a: "2" }, { a: "3" }, {}]);
+    expect(matrix.rowCount, "#4").toBe(4);
+  });
+  test("a value assigned on value changed while a row with a default row value is added replaces the rows", () => {
+    const { survey, matrix } = createSurvey({ defaultRowValue: { a: "d" } });
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    matrix.addRow();
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+  });
+  test("a value written by a matrix bound to the same value while a row is removed replaces the rows", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "q", valueName: "data", columns: [{ name: "a", cellType: "text" }] },
+        { type: "matrixdynamic", name: "twin", valueName: "data", columns: [{ name: "a", cellType: "text" }] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    const twin = <QuestionMatrixDynamicModel>survey.getQuestionByName("twin");
+    matrix.value = createRecords();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    runOnce(survey.onValueChanged, () => { twin.value = [{ a: "x" }]; });
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+    expect(twin.value, "#4").toEqual([{ a: "x" }]);
+  });
+  test("a handler that assigns the value and throws while a row is removed: the exception reaches the caller and the rows follow the value", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    runOnce(survey.onValueChanged, () => {
+      survey.setValue("q", [{ a: "x" }]);
+      throw new Error("handler error");
+    });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation + ": " + options.error.message); });
+    // A survey handler is not a data source: what it throws is the caller's, as it is without a list.
+    expect(() => matrix.removeRow(0), "#1: the exception reaches the caller").toThrow("handler error");
+    expect(errors, "#1: and it is not reported as a source error").toEqual([]);
+    expect(matrix.value, "#2").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#3").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#4").toBe(1);
+    const assigned = [{ a: "y1" }, { a: "y2" }, { a: "y3" }, { a: "y4" }];
+    survey.setValue("q", assigned);
+    expect(getRowValues(matrix), "#5: a later assignment is followed").toEqual(assigned);
+    expect(matrix.rowCount, "#6").toBe(4);
+  });
+});
+/* A survey that sets none of the new properties - pageSize, sortCriteria, filterExpression, a data
+   source - gets the dynamic matrix it has always had. */
+describe("Dynamic matrix without paging keeps its released behaviour", () => {
+  const createMatrix = (json: any, extra?: Array<any>): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "matrixdynamic", name: "m", columns: [{ name: "a", cellType: "text" }] }, json)].concat(extra || [])
+    });
+    return { survey: survey, matrix: <QuestionMatrixDynamicModel>survey.getQuestionByName("m") };
+  };
+  [true, false].forEach(isBuilt => {
+    test("lowering rowCount clears an expression that read a removed record, rows " + (isBuilt ? "built" : "not built"), () => {
+      const { survey, matrix } = createMatrix({ rowCount: 2 }, [{ type: "expression", name: "x", expression: "{m[1].a}" }]);
+      survey.setValue("m", [{ a: "n1" }, { a: "n2" }, { a: "n3" }]);
+      if (isBuilt) matrix.visibleRows;
+      expect(survey.getValue("x"), "#1").toBe("n2");
+      matrix.rowCount = 1;
+      expect(survey.data, "#2").toEqual({ m: [{ a: "n1" }] });
+    });
+  });
+  [true, false].forEach(isBuilt => {
+    test("removeRow with minRowCount: removing the only filled row clears the value, rows " + (isBuilt ? "built" : "not built"), () => {
+      const { survey, matrix } = createMatrix({ rowCount: 3, minRowCount: 2 });
+      matrix.value = [{ a: 1 }];
+      if (isBuilt) matrix.visibleRows;
+      matrix.removeRow(0);
+      expect(survey.data, "#1").toEqual({});
+      expect(matrix.rowCount, "#2").toBe(2);
+    });
+  });
+  test("removeRow: removing a filled row when the stored records fill rowCount keeps the empty records, Bug#12147", () => {
+    const { survey, matrix } = createMatrix({ rowCount: 3, minRowCount: 2 });
+    matrix.value = [{ a: 1 }, {}, {}];
+    matrix.visibleRows;
+    matrix.removeRow(0);
+    expect(survey.data, "#1").toEqual({ m: [{}, {}] });
+  });
+  test("a cell edit that empties every record keeps a record for every row, Bug#12147", () => {
+    const { survey, matrix } = createMatrix({ rowCount: 3, minRowCount: 2 });
+    matrix.value = [{ a: 1 }];
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = "";
+    expect(survey.data, "#1").toEqual({ m: [{}, {}, {}] });
+  });
+  test("lowering rowCount keeps the records it does not cut off as they are, empty ones included", () => {
+    const { survey, matrix } = createMatrix({ rowCount: 3 });
+    matrix.value = [{}, {}, {}];
+    matrix.rowCount = 1;
+    expect(survey.data, "#1").toEqual({ m: [{}] });
+  });
+  test("removing a row that was added and never filled writes the value without its empty record, Bug#12147", () => {
+    const { survey, matrix } = createMatrix({ rowCount: 0 });
+    matrix.value = [{ a: 1 }];
+    matrix.addRow();
+    expect(survey.data, "#0: the added row's empty record").toEqual({ m: [{ a: 1 }, {}] });
+    let changed = 0;
+    survey.onValueChanged.add(() => { changed++; });
+    matrix.removeRow(1);
+    expect(changed, "#1: the shorter value is written").toBe(1);
+    expect(survey.data, "#2").toEqual({ m: [{ a: 1 }] });
+    expect(matrix.rowCount, "#3").toBe(1);
+  });
+  test("maxRowCount above settings.matrix.maxRowCount reads as the setting and is not serialized", () => {
+    const { matrix } = createMatrix({ maxRowCount: 5000 });
+    expect(matrix.maxRowCount, "#1: from JSON").toBe(1000);
+    expect(matrix.toJSON().maxRowCount, "#2").toBeUndefined();
+    matrix.maxRowCount = 50;
+    expect(matrix.maxRowCount, "#3: below the setting").toBe(50);
+    matrix.maxRowCount = 5000;
+    expect(matrix.maxRowCount, "#4: assigned").toBe(1000);
+  });
+  test("the rows a new value replaces are disposed, after the next rerender while a UI renders the matrix", () => {
+    const { matrix } = createMatrix({ rowCount: 2 });
+    const first = matrix.visibleRows[0].cells[0].question;
+    matrix.value = [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }];
+    expect(first.isDisposed, "#1: without a UI at once").toBe(true);
+    matrix.enableOnElementRerenderedEvent();
+    const second = matrix.visibleRows[0].cells[0].question;
+    matrix.value = [{ a: 5 }, { a: 6 }, { a: 7 }, { a: 8 }, { a: 9 }, { a: 10 }];
+    expect(second.isDisposed, "#2: not before the UI rerendered").toBe(false);
+    matrix.afterRerender();
+    expect(second.isDisposed, "#3: after it").toBe(true);
+  });
+});
+
+describe("Survey_QuestionMatrixDynamic: the focus after removeRowUI", () => {
+  test("removing the last row focuses the Add button", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a", cellType: "text" }] }] });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      const focusAdd = vi.spyOn(matrix, "focusAddBUtton").mockImplementation(() => { });
+      matrix.removeRowUI(matrix.visibleRows[0]);
+      vi.advanceTimersByTime(20);
+      expect(matrix.rowCount, "#1").toBe(0);
+      expect(focusAdd, "#2").toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe("removeRowByIndex on a matrix whose value is shorter than rowCount", () => {
+  const createMatrix = (json: any): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "matrixdynamic", name: "m", columns: [{ name: "c1", cellType: "text" }] }, json)]
+    });
+    return { survey: survey, matrix: <QuestionMatrixDynamicModel>survey.getQuestionByName("m") };
+  };
+  test("removing the first row after an added row removes its record and keeps the padded row", () => {
+    const { matrix } = createMatrix({ rowCount: 3 });
+    matrix.value = [{ c1: 1 }, { c1: 2 }, { c1: 3 }];
+    matrix.addRow();
+    matrix.removeRowByIndex(0);
+    expect(matrix.value, "#1").toEqual([{ c1: 2 }, { c1: 3 }, {}]);
+    expect(matrix.rowCount, "#2").toBe(3);
+  });
+  test("removing the only stored record leaves the padded rows", () => {
+    const { matrix } = createMatrix({ rowCount: 3 });
+    matrix.value = [{ c1: 1 }];
+    matrix.removeRowByIndex(0);
+    expect(matrix.value, "#1").toEqual([{}, {}]);
+    expect(matrix.rowCount, "#2").toBe(2);
+  });
+  test("each removal raises one value-change pair", () => {
+    const { survey, matrix } = createMatrix({ rowCount: 3 });
+    matrix.value = [{ c1: 1 }];
+    const log = new Array<string>();
+    survey.onValueChanging.add((_, options) => { log.push("changing:" + JSON.stringify(options.value)); });
+    survey.onValueChanged.add((_, options) => { log.push("changed:" + JSON.stringify(options.value)); });
+    matrix.removeRowByIndex(0);
+    expect(log, "#1").toEqual(["changing:[{},{}]", "changed:[{},{}]"]);
+    log.length = 0;
+    matrix.value = [{ c1: 1 }, { c1: 2 }, { c1: 3 }];
+    log.length = 0;
+    matrix.removeRowByIndex(0);
+    expect(log, "#2").toEqual(["changing:[{\"c1\":2},{\"c1\":3}]", "changed:[{\"c1\":2},{\"c1\":3}]"]);
+  });
+});
+
+describe("removeRowByIndex numbers without paging", () => {
+  const createMatrix = (value?: Array<any>): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 3, columns: [{ name: "c1", cellType: "text" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    if (!!value) matrix.value = value;
+    return { survey: survey, matrix: matrix };
+  };
+  test("removeRowByIndex with a negative number counts from the end", () => {
+    let { matrix } = createMatrix([{ c1: 1 }, { c1: 2 }, { c1: 3 }]);
+    matrix.removeRowByIndex(-1);
+    expect(matrix.value, "#1: -1 removes the last row").toEqual([{ c1: 1 }, { c1: 2 }]);
+    expect(matrix.rowCount, "#2").toBe(2);
+    matrix = createMatrix([{ c1: 1 }, { c1: 2 }, { c1: 3 }]).matrix;
+    matrix.removeRowByIndex(-2);
+    expect(matrix.value, "#3: -2 removes the row before the last").toEqual([{ c1: 1 }, { c1: 3 }]);
+    matrix = createMatrix([{ c1: 1 }, { c1: 2 }, { c1: 3 }]).matrix;
+    matrix.removeRowByIndex(-5);
+    expect(matrix.value, "#4: a number below minus the row count removes the first row").toEqual([{ c1: 2 }, { c1: 3 }]);
+    matrix = createMatrix().matrix;
+    matrix.removeRowByIndex(-1);
+    expect(matrix.value, "#5: no value").toEqual([{}, {}]);
+    expect(matrix.rowCount, "#6").toBe(2);
+  });
+  test("removeRowByIndex past the last row changes nothing and raises no event", () => {
+    const { survey, matrix } = createMatrix([{ c1: 1 }, { c1: 2 }, { c1: 3 }]);
+    let counter = 0;
+    survey.onValueChanging.add(() => { counter++; });
+    survey.onValueChanged.add(() => { counter++; });
+    matrix.removeRowByIndex(3);
+    matrix.removeRowByIndex(5);
+    expect(matrix.value, "#1").toEqual([{ c1: 1 }, { c1: 2 }, { c1: 3 }]);
+    expect(matrix.rowCount, "#2").toBe(3);
+    expect(counter, "#3").toBe(0);
+  });
+});
+
+describe("the padded rows of a dynamic matrix show their defaults after a clear", () => {
+  const createMatrix = (json?: any): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 2, defaultRowValue: { c1: "d" },
+        columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }, json || {})]
+    });
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+  };
+  const cells = (matrix: QuestionMatrixDynamicModel): Array<Array<any>> =>
+    matrix.visibleRows.map(row => row.cells.map(cell => cell.question.value));
+  test("clearValue shows the default row value in every row", () => {
+    const matrix = createMatrix();
+    matrix.visibleRows;
+    matrix.clearValue();
+    expect(cells(matrix), "#1").toEqual([["d", undefined], ["d", undefined]]);
+    expect(matrix.getRowValue(0), "#2").toEqual({ c1: "d" });
+    expect(matrix.isEmpty(), "#3").toBe(true);
+  });
+  test("an edit of a row after clearValue keeps the default row value of every row", () => {
+    const matrix = createMatrix();
+    matrix.visibleRows;
+    matrix.clearValue();
+    matrix.visibleRows[0].getQuestionByColumnName("c2").value = "n";
+    expect(matrix.value, "#1").toEqual([{ c1: "d", c2: "n" }, { c1: "d" }]);
+  });
+  test("an empty array shows the default row value in every row", () => {
+    const matrix = createMatrix();
+    matrix.visibleRows;
+    matrix.value = [];
+    expect(cells(matrix), "#1").toEqual([["d", undefined], ["d", undefined]]);
+  });
+  test("clearValue shows the column default value", () => {
+    const matrix = createMatrix({ defaultRowValue: undefined });
+    matrix.columns[0].defaultValue = "cd";
+    matrix.visibleRows;
+    matrix.clearValue();
+    expect(cells(matrix), "#1").toEqual([["cd", undefined], ["cd", undefined]]);
+  });
+});
+
+describe("a cell question of a removed row", () => {
+  test("a cell question of a row removed by removeRow writes nothing", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    const q = matrix.visibleRows[0].getQuestionByColumnName("a");
+    let counter = 0;
+    survey.onMatrixCellValueChanged.add(() => { counter++; });
+    matrix.removeRow(0);
+    q.value = "late";
+    expect(matrix.value, "#1").toEqual([{ a: 2 }, { a: 3 }]);
+    expect(counter, "#2").toBe(0);
+  });
+});
+
+describe("minRowCount and rowCount when the rows are built", () => {
+  function build(json: any, data?: any): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel, log: Array<any> } {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", columns: [{ name: "a", cellType: "text" }] }, json)] });
+    if (!!data) survey.data = { m: data };
+    const log = new Array<any>();
+    survey.onValueChanged.add((_, options) => { log.push(options.value); });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    return { survey: survey, matrix: matrix, log: log };
+  }
+  // Bug#12147: the value holds a record for every row, written on first rendering (before the log's handler).
+  test("minRowCount 1 with rowCount 2: the value holds an empty record for every row", () => {
+    const { survey, matrix, log } = build({ minRowCount: 1 });
+    expect(survey.data, "#1").toEqual({ m: [{}, {}] });
+    expect(log, "#2: written on first rendering, before the rows are built").toEqual([]);
+    expect(survey.runExpression("{m.length}"), "#3").toBe(2);
+    expect(matrix.visibleRows.length, "#4: the rows stay").toBe(2);
+  });
+  test("removeRow of an untouched row writes the shorter value", () => {
+    const { survey, matrix, log } = build({ minRowCount: 1 });
+    log.length = 0;
+    matrix.removeRow(1);
+    expect(survey.data, "#1").toEqual({ m: [{}] });
+    expect(log.length, "#2: one value event, as released").toBe(1);
+    expect(matrix.rowCount, "#3").toBe(1);
+  });
+  test("removing an untouched row writes the records of the rows that stay", () => {
+    const check = (json: any, index: number, rowCount: number, label: string): void => {
+      const { survey, matrix, log } = build(json);
+      log.length = 0;
+      matrix.removeRow(index);
+      expect(survey.data, label + " data").toEqual({ m: [{}, {}] });
+      expect(log.length, label + " events").toBe(1);
+      expect(matrix.rowCount, label + " rowCount").toBe(rowCount);
+    };
+    check({ minRowCount: 1, rowCount: 3 }, 2, 2, "min 1, rowCount 3");
+    check({ minRowCount: 2, rowCount: 3 }, 2, 2, "min 2, rowCount 3");
+    check({ minRowCount: 1, rowCount: 3 }, 0, 2, "the first row");
+  });
+  test("removing a row of an untouched matrix writes the shorter value", () => {
+    const { survey, matrix, log } = build({ rowCount: 2 });
+    matrix.removeRow(1);
+    expect(survey.data, "#1").toEqual({ m: [{}] });
+    expect(log, "#2").toEqual([[{}]]);
+    expect(matrix.rowCount, "#3").toBe(1);
+  });
+  test("the empty records of every row are stored on first rendering", () => {
+    const check = (json: any, data: any, expectedData: any, rows: number, events: Array<any>, label: string): void => {
+      const { survey, matrix, log } = build(json, data);
+      expect(survey.data, label + " data").toEqual(expectedData);
+      expect(matrix.visibleRows.length, label + " rows").toBe(rows);
+      expect(log, label + " events").toEqual(events);
+    };
+    check({ minRowCount: 2, rowCount: 3 }, undefined, { m: [{}, {}, {}] }, 3, [], "min 2, rowCount 3");
+    check({ minRowCount: 3, rowCount: 1 }, undefined, { m: [{}] }, 1, [], "min 3, rowCount 1: one record for the one row");
+    check({ minRowCount: 1, rowCount: 3 }, [{ a: 1 }], { m: [{ a: 1 }] }, 1, [], "a value shorter than rowCount");
+    check({ minRowCount: 2, rowCount: 2 }, undefined, { m: [{}, {}] }, 2, [], "min equal to rowCount");
+    check({ minRowCount: 0, rowCount: 2 }, undefined, { m: [{}, {}] }, 2, [], "no minimum");
+  });
+  test("minRowCount 1 and isRequired: an all-empty matrix is empty, validate reports both errors", () => {
+    const { matrix } = build({ minRowCount: 1, isRequired: true });
+    matrix.validate();
+    expect(matrix.errors.map(error => error.getErrorType())).toEqual(["required", "minrowcounterror"]);
+  });
+});
+
+describe("the minimum row count check of a required matrix", () => {
+  function create(json: any, data: Array<any>): QuestionMatrixDynamicModel {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", minRowCount: 3, isRequired: true,
+      columns: [{ name: "a", cellType: "text" }] }, json)] });
+    survey.data = { m: data };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    return matrix;
+  }
+  const errorsOf = (matrix: QuestionMatrixDynamicModel): Array<string> => {
+    matrix.validate();
+    return matrix.errors.map(error => error.getErrorType());
+  };
+  test("without paging the check counts the filled rows", () => {
+    expect(errorsOf(create({}, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#1").toEqual([]);
+    expect(errorsOf(create({}, [{ a: 1 }, {}, { a: 3 }])), "#2").toEqual(["minrowcounterror"]);
+  });
+  test("under paging the check counts the filled records of every page", () => {
+    expect(errorsOf(create({ pageSize: 1 }, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#1: three filled records, one per page").toEqual([]);
+    expect(errorsOf(create({ pageSize: 1 }, [{ a: 1 }, {}, { a: 3 }])), "#2: two filled records").toEqual(["minrowcounterror"]);
+  });
+  test("under a filter without paging the check counts the filled records the view shows", () => {
+    expect(errorsOf(create({ filterExpression: "{a} != 2" }, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#1").toEqual(["minrowcounterror"]);
+    expect(errorsOf(create({ filterExpression: "{a} != 5" }, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#2").toEqual([]);
+  });
+  test("with a data source the minimum row count is not checked", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", minRowCount: 3, isRequired: true,
+      columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    let arr: Array<any> = [{ a: 1 }];
+    matrix.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    matrix.visibleRows;
+    expect(errorsOf(matrix), "#1").toEqual([]);
+    expect(matrix.canRemoveRows, "#2: the removal is still gated").toBe(false);
+  });
+});
+
+describe("the dynamic matrix without paging, as released", () => {
+  const cols = [{ name: "a", cellType: "text" }];
+  function create(json: any, data?: any): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", columns: cols }, json)] });
+    if (!!data) survey.data = { m: data };
+    return { survey: survey, matrix: <QuestionMatrixDynamicModel>survey.getQuestionByName("m") };
+  }
+  test("the delete confirmation sees a column default value before the rows are built", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 2, confirmDelete: true, columns: [{ name: "a", cellType: "text", defaultValue: "x" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    let cells = 0;
+    survey.onMatrixCellCreated.add(() => { cells++; });
+    const answers = [0, 1, 2, -1].map(index => matrix.isRequireConfirmOnRowDelete(index));
+    expect(answers, "#1: the rows hold the default value; an index outside the rows has no record").toEqual([true, true, false, false]);
+    expect(cells, "#2: no row is built").toBe(0);
+    matrix.visibleRows;
+    expect(cells > 0, "#3: the rows are built now").toBe(true);
+    expect([0, 1, 2, -1].map(index => matrix.isRequireConfirmOnRowDelete(index)), "#4: the built rows answer the same").toEqual(answers);
+  });
+  test("the drag handle of a locked row counts the visible rows", () => {
+    const { matrix } = create({ rowCount: 3, allowRowReorder: true, rowsVisibleIf: "{row.a} != 1" }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    matrix.lockedRowCount = 1;
+    const handles = matrix.renderedTable.rows.filter(row => !!row.row).map(row =>
+      row.cells.some(cell => cell.isActionsCell && (cell.item.value.actions || []).some(action => action.id === "drag-drop")));
+    expect(handles).toEqual([false, true]);
+  });
+  test("removeRow with a position past the visible rows removes nothing and runs the callback", () => {
+    const { survey, matrix } = create({ rowCount: 3, rowsVisibleIf: "{row.a} != 2" }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    matrix.visibleRows;
+    let removed = 0;
+    let callbacks = 0;
+    survey.onMatrixRowRemoved.add(() => { removed++; });
+    matrix.removeRow(2, undefined, () => { callbacks++; });
+    expect(survey.data, "#1").toEqual({ m: [{ a: 1 }, { a: 2 }, { a: 3 }] });
+    expect(removed, "#2").toBe(0);
+    expect(callbacks, "#3").toBe(1);
+  });
+  test("isRequireConfirmOnRowDelete answers without building the rows when nothing hides a record", () => {
+    const { matrix } = create({ rowCount: 3, confirmDelete: true }, [{ a: 1 }, {}, { a: 3 }]);
+    expect([0, 1, 2, 3].map(index => matrix.isRequireConfirmOnRowDelete(index)), "#1").toEqual([true, false, true, false]);
+    expect(!!matrix["generatedVisibleRows"], "#2: no row is built").toBe(false);
+  });
+  test("isRequireConfirmOnRowDelete with rowsVisibleIf builds the rows to find the visible row", () => {
+    const { matrix } = create({ rowCount: 3, confirmDelete: true, rowsVisibleIf: "{row.a} != 2" }, [{ a: 1 }, { a: 2 }, {}]);
+    expect(matrix.isRequireConfirmOnRowDelete(1), "#1: the visible row 1 is the empty record").toBe(false);
+    expect(matrix["generatedVisibleRows"].length, "#2").toBe(3);
+  });
+  test("a row an onMatrixRowAdded handler adds is the one that shows its detail panel", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow", detailPanelShowOnAdding: true,
+      detailElements: [{ type: "text", name: "d" }], columns: cols }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    let isNested = false;
+    survey.onMatrixRowAdded.add(() => { if (!isNested) { isNested = true; matrix.addRow(); } });
+    matrix.addRow();
+    expect(matrix.visibleRows.map(row => row.isDetailPanelShowing)).toEqual([false, false, true]);
+  });
+  test("an expression that reads a row a lower rowCount removes announces undefined", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3, columns: cols },
+      { type: "expression", name: "e", expression: "{m[2].a}" }] });
+    survey.data = { m: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    const log = new Array<any>();
+    survey.onValueChanged.add((_, options) => { if (options.name === "e") log.push(options.value); });
+    matrix.rowCount = 2;
+    expect(log, "#1").toEqual([undefined]);
+    expect(survey.getValue("e"), "#2").toBeUndefined();
+  });
+  test("moveRowByIndex with a row past the last one does nothing", () => {
+    const { survey, matrix } = create({ rowCount: 3 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    matrix.visibleRows;
+    let events = 0;
+    survey.onValueChanged.add(() => { events++; });
+    matrix.moveRowByIndex(5, 0);
+    expect(survey.data, "#1").toEqual({ m: [{ a: 1 }, { a: 2 }, { a: 3 }] });
+    expect(matrix.rowCount, "#2").toBe(3);
+    expect(events, "#3").toBe(0);
+  });
+  test("moveRowByIndex with a negative row does nothing", () => {
+    const { survey, matrix } = create({ rowCount: 3 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    matrix.visibleRows;
+    matrix.moveRowByIndex(-1, 0);
+    expect(survey.data, "#1").toEqual({ m: [{ a: 1 }, { a: 2 }, { a: 3 }] });
+    expect(matrix.rowCount, "#2").toBe(3);
+  });
+  test("a drag to another matrix under rowsVisibleIf moves the dragged row", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m1", allowRowReorder: true, rowCount: 3, rowsVisibleIf: "{row.a} != 1", columns: cols },
+      { type: "matrixdynamic", name: "m2", allowRowReorder: true, rowCount: 1, columns: cols }] });
+    survey.data = { m1: [{ a: 1 }, { a: 2 }, { a: 3 }], m2: [{ a: 9 }] };
+    const m1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m1");
+    const m2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m2");
+    const dragDrop: any = m1.dragDropMatrixRows;
+    dragDrop.parentElement = m1;
+    dragDrop.draggedElement = m1.visibleRows[0];
+    dragDrop.fromIndex = 0;
+    dragDrop.toIndex = 1;
+    dragDrop.toMatrix = m2;
+    dragDrop.doDrop();
+    expect(survey.data).toEqual({ m1: [{ a: 1 }, { a: 3 }], m2: [{ a: 9 }, { a: 2 }] });
+  });
+  test("addRowByIndex with undefined data inserts an empty record", () => {
+    const { matrix } = create({ rowCount: 2 }, [{ a: 1 }, { a: 2 }]);
+    matrix.visibleRows;
+    matrix.addRowByIndex(undefined, 0);
+    expect(matrix.value).toEqual([{}, { a: 1 }, { a: 2 }]);
+  });
+  test("survey.setValue of the matrix inside its own cell write rebuilds the rows for the assigned value", () => {
+    const { survey, matrix } = create({ rowCount: 3 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    const cell = matrix.visibleRows[1].cells[0].question;
+    let isAssigned = false;
+    survey.onValueChanged.add(() => { if (!isAssigned) { isAssigned = true; survey.setValue("m", [{ a: 5 }]); } });
+    cell.value = "x";
+    expect(matrix.rowCount, "#1").toBe(1);
+    expect(matrix.visibleRows.map(row => row.cells[0].question.value), "#2").toEqual([5]);
+    expect(cell.isDisposed, "#3").toBe(true);
+  });
+  test("maxRowCount above settings.matrix.maxRowCount is stored as assigned and limited by the setting without paging", () => {
+    const { matrix } = create({ maxRowCount: 5000 });
+    expect(matrix.maxRowCount, "#1").toBe(settings.matrix.maxRowCount);
+    expect(matrix.getPropertyValue("maxRowCount"), "#2").toBe(5000);
+  });
+});
+
+describe("disposing inside the question's own write", () => {
+  function create(): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel, cells: Array<Question> } {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 2 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const cells = new Array<Question>();
+    matrix.visibleRows.forEach(row => row.cells.forEach(cell => cells.push(cell.question)));
+    return { survey: survey, matrix: matrix, cells: cells };
+  }
+  test("a matrix disposed in onValueChanged of its own cell write disposes its cells", () => {
+    const { survey, matrix, cells } = create();
+    survey.onValueChanged.add((_, options) => { if (options.name === "m" && !matrix.isDisposed) matrix.dispose(); });
+    cells[0].value = 5;
+    expect(matrix.isDisposed, "#1").toBe(true);
+    expect(cells.map(cell => cell.isDisposed), "#2").toEqual([true, true]);
+  });
+  test("a survey disposed in onValueChanged of a cell write disposes the matrix cells", () => {
+    const { survey, cells } = create();
+    survey.onValueChanged.add(() => { if (!survey.isDisposed) survey.dispose(); });
+    cells[0].value = 5;
+    expect(cells.map(cell => cell.isDisposed), "#1").toEqual([true, true]);
+  });
+  test("rows replaced inside the own write are disposed when the write ends", () => {
+    const { survey, matrix, cells } = create();
+    let isAdded = false;
+    survey.onValueChanged.add(() => {
+      if (isAdded) return;
+      isAdded = true;
+      matrix.addColumn("b");
+      matrix.visibleRows;
+    });
+    cells[0].value = 5;
+    expect(cells.map(cell => cell.isDisposed), "#1").toEqual([true, true]);
+    expect(matrix.visibleRows[0].cells[0].question.isDisposed, "#2: the new rows stay").toBe(false);
+    expect(survey.data, "#3").toEqual({ m: [{ a: 5 }, { a: 2 }] });
+  });
+});
+
+describe("a matrix subclass and the row-changing flag", () => {
+  class RowChangingMatrix extends QuestionMatrixDynamicModel {
+    public setRowChanging(val: boolean): void { this.isRowChanging = val; }
+    public get rowChanging(): boolean { return this.isRowChanging; }
+  }
+  test("a matrix subclass may assign isRowChanging", () => {
+    const matrix = new RowChangingMatrix("m");
+    expect(matrix.rowChanging, "#1").toBe(false);
+    matrix.setRowChanging(true);
+    expect(matrix.rowChanging, "#2").toBe(true);
+    matrix.setRowChanging(false);
+    expect(matrix.rowChanging, "#3").toBe(false);
+  });
+});
+
+describe("row numbers that are not integers", () => {
+  const invalid: Array<any> = [1.5, NaN, Infinity, -Infinity, "1", null, undefined, {}];
+  function create(): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel, log: Array<string> } {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    const log = new Array<string>();
+    survey.onValueChanged.add(() => { log.push("changed"); });
+    survey.onMatrixRowRemoving.add(() => { log.push("removing"); });
+    survey.onMatrixRowRemoved.add(() => { log.push("removed"); });
+    return { survey: survey, matrix: matrix, log: log };
+  }
+  function checkNothing(run: (matrix: QuestionMatrixDynamicModel, index: any) => void, name: string): void {
+    invalid.forEach(index => {
+      const { survey, matrix, log } = create();
+      run(matrix, index);
+      const label = name + "(" + String(index) + ")";
+      expect(survey.data, label + " data").toEqual({ m: [{ a: 1 }, { a: 2 }, { a: 3 }] });
+      expect(matrix.rowCount, label + " rowCount").toBe(3);
+      expect(log, label + " events").toEqual([]);
+    });
+  }
+  test("removeRowByIndex with a number that is not an integer writes nothing and raises no event", () => {
+    checkNothing((matrix, index) => matrix.removeRowByIndex(index), "removeRowByIndex");
+  });
+  test("removeRowByIndex with a negative integer counts from the end", () => {
+    const { survey, matrix } = create();
+    matrix.removeRowByIndex(-1);
+    expect(survey.data).toEqual({ m: [{ a: 1 }, { a: 2 }] });
+  });
+  test("moveRowByIndex with a number that is not an integer writes nothing", () => {
+    checkNothing((matrix, index) => matrix.moveRowByIndex(index, 0), "moveRowByIndex from");
+    checkNothing((matrix, index) => matrix.moveRowByIndex(0, index), "moveRowByIndex to");
+  });
+  test("addRowByIndex with a number that is not an integer writes nothing", () => {
+    checkNothing((matrix, index) => { if (index !== undefined) matrix.addRowByIndex({ a: 9 }, index); }, "addRowByIndex");
+  });
+  test("addRowByIndex without an index inserts the row first, as the released call", () => {
+    const { survey, matrix } = create();
+    matrix.addRowByIndex({ a: 9 }, undefined);
+    expect(survey.data, "#1").toEqual({ m: [{ a: 9 }, { a: 1 }, { a: 2 }, { a: 3 }] });
+    expect(matrix.rowCount, "#2").toBe(4);
+  });
+  test("removeRow and removePanel with a number that is not an integer behave as the released methods", () => {
+    const ignored: Array<any> = [1.5, NaN, Infinity, null, undefined, {}];
+    ignored.forEach(index => {
+      const { survey, matrix } = create();
+      matrix.removeRow(index);
+      expect(survey.data, "removeRow(" + String(index) + ")").toEqual({ m: [{ a: 1 }, { a: 2 }, { a: 3 }] });
+    });
+    const { survey, matrix } = create();
+    matrix.removeRow(<any>"1");
+    expect(survey.data, "removeRow with \"1\" removes row 1").toEqual({ m: [{ a: 1 }, { a: 3 }] });
+    const createPanel = (): { survey: SurveyModel, panel: QuestionPanelDynamicModel } => {
+      const panelSurvey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+      panelSurvey.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+      return { survey: panelSurvey, panel: <QuestionPanelDynamicModel>panelSurvey.getQuestionByName("p") };
+    };
+    ignored.forEach(index => {
+      const { survey, panel } = createPanel();
+      panel.removePanel(index);
+      expect(survey.data, "removePanel(" + String(index) + ")").toEqual({ p: [{ a: 1 }, { a: 2 }, { a: 3 }] });
+    });
+    const panelCase = createPanel();
+    panelCase.panel.removePanel("1");
+    expect(panelCase.survey.data, "removePanel with \"1\" removes panel 1").toEqual({ p: [{ a: 1 }, { a: 3 }] });
+  });
+});
+
+describe("rowCountExpression and removeRowByIndex", () => {
+  test("the rows match the expression's row count after removeRowByIndex", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCountExpression: "3", columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    matrix.removeRowByIndex(0);
+    expect(matrix.rowCount, "#1").toBe(3);
+    expect(matrix.visibleRows.length, "#2: one row per counted row").toBe(3);
+    expect(survey.data, "#3: the expression's third row keeps its record, as a panel's does").toEqual({ m: [{ a: 2 }, { a: 3 }, {}] });
+  });
+});
+
+describe("row actions the application supplies", () => {
+  const getContainers = (matrix: QuestionMatrixDynamicModel): Array<any> => {
+    const res: Array<any> = [];
+    matrix.renderedTable.rows.forEach(row => row.cells.forEach(cell => {
+      if (cell.isActionsCell && !!cell.item) res.push(cell.item.value);
+    }));
+    return res;
+  };
+  const getActions = (containers: Array<any>): Array<any> => [].concat(...containers.map(container => container.actions));
+  test("a row action the application caches survives a table reset", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const cached = new Action({ id: "my", title: "My", location: "end", action: () => { } });
+    survey.onGetMatrixRowActions.add((_, options) => { options.actions.push(cached); });
+    expect(getActions(getContainers(matrix)).indexOf(cached) > -1, "#1").toBe(true);
+    matrix.addColumn("b");
+    expect(cached.isDisposed, "#2: the table reset leaves the application's action").toBe(false);
+    expect(getActions(getContainers(matrix)).indexOf(cached) > -1, "#3: the rebuilt table shows it").toBe(true);
+  });
+  test("a row action the application caches keeps the rebuilt table as its owner when a UI disposes the old table later", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const cached = new Action({ id: "my", title: "My", location: "end", action: () => { } });
+    survey.onGetMatrixRowActions.add((_, options) => { options.actions.push(cached); });
+    matrix.enableOnElementRerenderedEvent();
+    const oldTable = matrix.renderedTable;
+    matrix.addColumn("b");
+    const containers = getContainers(matrix);
+    expect(matrix.renderedTable !== oldTable, "#1: the table is rebuilt before the old one is disposed").toBe(true);
+    expect(containers.indexOf(cached.owner) > -1, "#2: the rebuilt table owns the action").toBe(true);
+    matrix.afterRerender();
+    expect(oldTable.isDisposed, "#3: the old table is disposed after the rerender").toBe(true);
+    expect(cached.isDisposed, "#4").toBe(false);
+    expect(containers.indexOf(cached.owner) > -1, "#5: the rebuilt table still owns the action").toBe(true);
+  });
+  test("a table reset disposes the row actions the matrix created", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
+      detailElements: [{ type: "text", name: "d" }], columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    survey.onGetMatrixRowActions.add((_, options) => { options.actions.push({ id: "plain", title: "Plain", location: "end", action: () => { } }); });
+    const containers = getContainers(matrix);
+    const actions = getActions(containers);
+    expect(actions.map(action => action.id).sort(), "#1").toEqual(["plain", "remove-row", "show-detail"]);
+    matrix.addColumn("b");
+    expect(containers.map(container => container.isDisposed), "#2: the containers of the dropped table").toEqual(containers.map(() => true));
+    expect(actions.map(action => action.isDisposed), "#3: the actions the matrix built or made from plain objects").toEqual([true, true, true]);
+  });
+});
+
+describe("Survey_QuestionMatrixDynamic: a row's record in a value", () => {
+  test("the record at the row's index is read as stored: a falsy one stays, a missing one is null, create gives {}", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 5, columns: [{ name: "a" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const rows = matrix.visibleRows;
+    const record = { a: 1 };
+    const value = [0, "", null, record];
+    const read = (index: number, create: boolean): any => (<any>matrix).getRowValueCore(rows[index], value, create);
+    expect([read(0, false), read(1, false), read(2, false)], "#1: without create").toEqual([0, "", null]);
+    expect(read(3, false) === record, "#2: the stored record").toBe(true);
+    expect(read(4, false), "#3: past the value").toBe(null);
+    expect([read(0, true), read(1, true), read(2, true), read(4, true)], "#4: with create").toEqual([{}, {}, {}, {}]);
+    expect(read(3, true) === record, "#5").toBe(true);
+    expect(value, "#6: create does not write the value").toEqual([0, "", null, record]);
+  });
+});
+
+/* The plain data and the display value of a checkbox cell answered with a value its choices do not have
+   are the stored answer, also when an expression built the rows before the data was assigned: the cell
+   shows the other item, and the answer stays what was assigned. The expected values are the released ones. */
+describe("Dynamic Matrix: the plain data of an other answer is the stored answer", () => {
+  const create = (withExpression: boolean): { survey: SurveyModel, matrix: any } => {
+    const elements: Array<any> = [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "c", cellType: "checkbox", choices: ["x", "y"], showOtherItem: true }] }];
+    if (withExpression) elements.push({ type: "expression", name: "e", expression: "{m[0].c}" });
+    const survey = new SurveyModel({ elements: elements });
+    survey.data = { m: [{ c: ["x", "zz"] }] };
+    return { survey: survey, matrix: survey.getQuestionByName("m") };
+  };
+  test("an expression built the rows before the data", () => {
+    const { survey, matrix } = create(true);
+    const plainData = matrix.getPlainData();
+    expect(plainData.value, "#1: the stored answer").toEqual([{ c: ["x", "zz"] }]);
+    expect(plainData.displayValue, "#2").toEqual([{ c: "x, zz" }]);
+    expect(matrix.getDisplayValue(false), "#3").toEqual([{ c: "x, zz" }]);
+    expect(matrix.getDisplayValue(true), "#4").toEqual([{ c: "x, zz" }]);
+    expect(matrix.value, "#5: the question keeps the stored answer").toEqual(survey.data.m);
+  });
+  test("without the expression the plain value is the same", () => {
+    expect(create(false).matrix.getPlainData().value).toEqual(create(true).matrix.getPlainData().value);
   });
 });

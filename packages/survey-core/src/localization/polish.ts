@@ -5,6 +5,58 @@ export var polishSurveyStrings = {
   pagePrevText: "Wstecz",
   // "Next"
   pageNextText: "Dalej",
+  // [Auto-translated] "First"
+  pageFirstText: "Pierwszy",
+  // [Auto-translated] "Last"
+  pageLastText: "Ostatni",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Wybierz stronę",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortuj według {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Wysokie - Niskie",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Niskie - Wysokie",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnowsze pierwsze",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstarszy pierwszorzędny",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Posortowane według {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, a potem do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sortuj według",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Domyślność",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Pole sortowania",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Kolejność sortowania",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Dodaj poziom sortowania",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Usuń sort level {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Pole sortowania {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sortowanie {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Pokaż wszystkie poziomy sortowania",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Dodaj Nowe",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Przesuń sortowanie poziomu {0}",
   // "Complete"
   completeText: "Gotowe",
   // "Preview"
@@ -37,6 +89,8 @@ export var polishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Odpowiedzi na {0}/{1} pytania",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pytanie {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Nie ma widocznych pytań.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var polishSurveyStrings = {
   value: "Wartość",
   // "Response required."
   requiredError: "Proszę odpowiedzieć na to pytanie.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Wartość jest nieprawidłowa.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Wartość zawiera nieznane klucze: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Proszę odpowiedzieć na co najmniej jedno pytanie.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var polishSurveyStrings = {
   noUploadFilesHandler: "Nie można przesłać plików. Dodaj moduł obsługi zdarzenia \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Proszę podać inną odpowiedź.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Wartość \"{0}\" nie jest jedną z dostępnych opcji.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Trwa przenoszenie Twojego pliku, proszę spróbować ponownie za kilka sekund.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var polishSurveyStrings = {
   addRow: "Dodaj wiersz",
   // "Remove"
   removeRow: "Usuń",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Przesuń rząd {0}",
   // "There are no rows."
   noRowsText: "Nie ma rzędów.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var polishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Pasek postępu",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Strona {0}"
+  progressbarPage: "Strona {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "r",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "g",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "G",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });

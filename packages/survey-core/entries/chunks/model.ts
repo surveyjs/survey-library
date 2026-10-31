@@ -2,8 +2,8 @@
 // import "../../src/main.scss";
 //import "../../src/modern.scss";
 
-import { DomWindowHelper } from "../../src/global_variables_utils";
 import { settings } from "../../src/settings";
+import { _slk } from "./license";
 
 export var Version: string;
 export var ReleaseDate: string;
@@ -23,66 +23,25 @@ export function checkLibraryVersion(ver: string, libraryName: string): void {
     console.error(str);
   }
 }
+// SurveyJS license keys are issued only by Devsoft Baltic OU via surveyjs.io.
+// Generating, modifying or forging keys is prohibited; see the notice in ./license.ts.
 export function setLicenseKey(key: string): void {
   slk(key);
 }
 export function slk(key: string): void {
-  _slk(key, lic, ReleaseDate);
+  _slk(key, ReleaseDate);
 }
-export function hasLicense(index: number): boolean {
-  return glc(index) === true;
-}
-export function glc(index: number): any {
-  const res = lic[index.toString()];
-  return !res ? false : res;
-}
-const lic: any = {};
-function _slk(k: any, lh: any, rd: any) {
-  if (!k) return;
-  const en = (s: string) => {
-    var e: any = {}, i, b = 0, c, x, l = 0, a, r = "", w = String.fromCharCode, L = s.length;
-    var A = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    for (i = 0; i < 64; i++) { e[A.charAt(i)] = i; }
-    for (x = 0; x < L; x++) {
-      let c = e[s.charAt(x)]; b = (b << 6) + c; l += 6;
-      while(l >= 8) { ((a = (b >>> (l -= 8)) & 0xff) || (x < (L - 2))) && (r += w(a)); }
-    }
-    return r;
-  };
-  let v = en(k);
-  if (!v) return;
-  let index = v.indexOf(";");
-  if (index < 0) return;
-  if (!checkPrefix(v.substring(0, index))) return;
-  v = v.substring(index + 1);
-  v.split(",").forEach(s => {
-    let i = s.indexOf("=");
-    if (i > 0) {
-      const sd = new Date(s.substring(i + 1));
-      lh[s.substring(0, i)] = new Date(rd) <= sd ? true : sd;
-    }
-  });
-}
-function checkPrefix(prefix: string): boolean {
-  if (!prefix) return true;
-  const s = "domains:";
-  const index = prefix.indexOf(s);
-  if (index < 0) return true;
-  const ds = prefix.substring(index + s.length).toLowerCase().split(",");
-  if (!Array.isArray(ds) || ds.length === 0) return true;
-  const location = DomWindowHelper.getLocation();
-  if (!!location && !!location.hostname) {
-    const hn = location.hostname.toLowerCase();
-    for (let i = 0; i < ds.length; i++) {
-      if (hn.indexOf(ds[i]) > -1) return true;
-    }
-    return false;
-  }
-  return true;
-}
+export { hasLicense, glc } from "./license";
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
-export { Helpers, HashTable } from "../../src/helpers";
+export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
+export {
+  SurveyVariablePresets,
+  ISurveyVariablePreset,
+  ISurveyVariablePresets,
+  ISurveyVariableError,
+  ISurveyVariableValidationResult
+} from "../../src/variablePresets";
 export { DomWindowHelper, DomDocumentHelper } from "../../src/global_variables_utils";
 export {
   AnswerCountValidator,
@@ -115,6 +74,9 @@ export {
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
+  ISurveyWebProvider,
+  ISurveyWebRequest,
+  ISurveyWebResponse,
   ISurveyTitleSettings,
   ISurveyValidation,
   ISurveySingleInput,
@@ -131,7 +93,10 @@ export {
   ILoadFromJSONOptions,
   ISaveToJSONOptions,
   HorizontalAlignment,
-  VerticalAlignment
+  VerticalAlignment,
+  DataIssueType,
+  IDataVerificationOptions,
+  IDataIssue
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";
 export { SurveyElementCore, SurveyElement } from "../../src/survey-element";
@@ -142,7 +107,8 @@ export {
   OneAnswerRequiredError,
   RequreNumericError,
   ExceedSizeError,
-  ExceedFilesCountError
+  ExceedFilesCountError,
+  IncorrectValueError
 } from "../../src/error";
 export {
   ILocalizableOwner,
@@ -152,7 +118,7 @@ export {
 } from "../../src/localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
-export { FunctionFactory, registerFunction, IFunctionRegistration } from "../../src/functionsfactory";
+export { FunctionFactory, registerFunction, IFunctionRegistration, IFunctionParameter, isReturnColumnParam } from "../../src/functionsfactory";
 export { IExpressionError, ExpressionErrorType } from "../../src/expressions/expressionError";
 export { ExpressionRunner } from "../../src/expressions/expressionRunner";
 export { ExpressionExecutorRunner } from "../../src/expressions/expressionExecutor";
@@ -169,7 +135,15 @@ export {
   runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
-export { ProcessValue, ValueGetter } from "../../src/conditions/conditionProcessValue";
+export { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
+export {
+  isConditionOperatorEnabled,
+  isQuestionTypeInList,
+  isQuestionClassContains,
+  getConditionOperatorNames,
+  getConditionDefaultOperator
+} from "../../src/conditions/conditionOperators";
+export { ProcessValue, ValueGetter, VariableGetterContext, findNameByPath, parseValuePath } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,
@@ -185,6 +159,10 @@ export {
   Serializer,
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
+export { QuestionRecordsModel } from "../../src/question_records";
+export { QuestionRecordsBar } from "../../src/question_records_bar";
+export { RecordsSortDialogModel } from "../../src/records/records-sort-dialog";
+export { IRecordsSortField } from "../../src/records/records-sort-bar";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,
@@ -208,7 +186,6 @@ export {
   MatrixColumn,
   IMatrixData
 } from "../../src/question_matrix";
-export { QuestionMatrixBaseModel } from "../../src/martixBase";
 export {
   MultipleTextItemModel,
   MultipleTextCell,
@@ -223,16 +200,18 @@ export { FlowPanelModel } from "../../src/flowpanel";
 export { PageModel } from "../../src/page";
 export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
-export { Question } from "../../src/question";
+export { Question, QuestionValueType, ValidationContext } from "../../src/question";
+export type { IValidationContextParams } from "../../src/question";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";
 export {
   QuestionCheckboxBase,
   QuestionSelectBase,
-  ChoiceItem
+  ChoiceItem,
+  ISelectQuestion
 } from "../../src/question_baseselect";
-export { QuestionCheckboxModel, CheckboxItem } from "../../src/question_checkbox";
+export { QuestionCheckboxModel, CheckboxItem, getCheckboxItemFields } from "../../src/question_checkbox";
 export { QuestionTagboxModel } from "../../src/question_tagbox";
 export { QuestionRankingModel } from "../../src/question_ranking";
 export { QuestionCommentModel } from "../../src/question_comment";
@@ -251,13 +230,20 @@ export {
   QuestionImagePickerModel,
   ImageItemValue
 } from "../../src/question_imagepicker";
-export { QuestionImageMapModel } from "../../src/question_imagemap";
+export { QuestionImageMapModel, getImageMapItemFields } from "../../src/question_imagemap";
 export { QuestionImageModel } from "../../src/question_image";
 export { QuestionSignaturePadModel } from "../../src/question_signaturepad";
 export {
   QuestionPanelDynamicModel,
   QuestionPanelDynamicItem
 } from "../../src/question_paneldynamic";
+export { LocalDynamicDataSource, ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dynamic-data-sources";
+export type {
+  IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, ISortCriterion, IDynamicDataField,
+  SortDirection,
+  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation
+} from "../../src/dynamic-data/dynamic-data-interfaces";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";
 export { SurveyProgressTextModel } from "../../src/surveyProgressTextModel";
@@ -267,6 +253,7 @@ export { SurveyProgressModel } from "../../src/surveyProgress";
 export { ProgressButtons } from "../../src/progress-buttons";
 export * from "../../src/themes";
 export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
+export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export {
   SurveyTrigger,
@@ -310,11 +297,13 @@ export { createPopupViewModel, createPopupModalViewModel } from "../../src/popup
 export { PopupModalManager } from "../../src/popup-modal-manager";
 export { DropdownListModel } from "../../src/dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../src/dropdownMultiSelectListModel";
+export { DropdownRenderState, DropdownMultiSelectRenderState } from "../../src/dropdownRenderState";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,
   ButtonGroupItemValue
 } from "../../src/question_buttongroup";
+export { indexToChoiceKeyCode, choiceKeyCodeToIndex } from "../../src/utils/choice-key-codes";
 export { IsMobile, IsTouch, _setIsTouch, _setIsTablet } from "../../src/utils/devices";
 export * from "../../src/utils/browser";
 export * from "../../src/utils/color";
@@ -325,15 +314,20 @@ export * from "../../src/utils/icons";
 export * from "../../src/utils/key2click";
 export * from "../../src/utils/animation-dom";
 export { InputMaskBase } from "../../src/mask/mask_base";
+export { IMaskLocaleChange } from "../../src/mask/mask_utils";
+export { IDateTimeInputFragments } from "../../src/mask/mask_datetime";
+export { ILocaleData, localeData, getLocaleDataValue, getLocaleDataLocales, findLocaleDataKey, canonicalizeLocale } from "../../src/locale-data";
+export { RegionalFormat, regionalFormatCategory } from "../../src/regional-format";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";
-export { InputMaskNumeric } from "../../src/mask/mask_numeric";
+export { InputMaskNumeric, isValidDecimalSeparator, isValidThousandsSeparator } from "../../src/mask/mask_numeric";
 export { InputMaskDateTime } from "../../src/mask/mask_datetime";
-export { InputMaskCurrency } from "../../src/mask/mask_currency";
+export { InputMaskCurrency, isValidCurrencyPattern, isValidCurrencySymbol } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
 export * from "../../src/utils/text-area";
 export * from "../../src/utils/shadow-effects";
 export * from "../../src/utils/resize-manager";
 export * from "../../src/utils/base-theme-init";
+export { setupThemeAdapter } from "../../src/utils/setupThemeAdapter";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 

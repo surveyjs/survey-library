@@ -5,6 +5,58 @@ export var vietnameseSurveyStrings = {
   pagePrevText: "Trở về",
   // "Next"
   pageNextText: "Tiếp theo",
+  // [Auto-translated] "First"
+  pageFirstText: "Đầu tiên",
+  // [Auto-translated] "Last"
+  pageLastText: "Cuối cùng",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "của {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Chọn trang",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sắp xếp theo {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Cao - Thấp",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Thấp - Cao",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Bảng chữ cái, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Bảng chữ cái, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Mới nhất là đầu tiên",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Người đầu tiên lâu đời nhất",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sắp xếp theo {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, rồi đến {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sắp xếp theo",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Mặc định",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Trường sắp xếp",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Thứ tự sắp xếp",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Thêm mức sắp xếp",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Loại bỏ {0} cấp sắp xếp",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Trường sắp xếp {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Thứ tự sắp xếp {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Hiển thị tất cả các cấp độ sắp xếp",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Thêm mới",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Di chuyển mức sắp xếp {0}",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"
@@ -37,6 +89,8 @@ export var vietnameseSurveyStrings = {
   panelDynamicTabTextFormat: "Bảng điều khiển {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Đã trả lời {0}/{1} câu hỏi",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Câu hỏi {0} về {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Không có trang hoặc câu hỏi nào được hiển thị trong cuộc khảo sát này.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var vietnameseSurveyStrings = {
   value: "Giá trị",
   // "Response required."
   requiredError: "Vui lòng trả lời câu hỏi.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Giá trị không chính xác.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Giá trị chứa các khóa không xác định: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vui lòng trả lời ít nhất một câu hỏi.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var vietnameseSurveyStrings = {
   noUploadFilesHandler: "Không thể tải tệp lên. Vui lòng thêm trình xử lý cho sự kiện 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Vui lòng điền giá trị khác.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Giá trị '{0}' không phải là một trong những lựa chọn có sẵn.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Tập tin đang được tải lên. Vui lòng chờ một lúc và thử lại.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var vietnameseSurveyStrings = {
   addRow: "Thêm dòng",
   // "Remove"
   removeRow: "Xóa",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Di chuyển hàng {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Không có hàng.",
   // [Auto-translated] "Row {rowIndex}"

@@ -578,7 +578,6 @@
 //       });
 //       //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
 //       await ClientFunction(() => {
-//         (<any>window).survey.isCompact = true;
 //         (<any>window).survey.applyTheme({
 //           "cssVariables": {
 //             "--sjs-general-backcolor-dim": "blue"
@@ -609,7 +608,6 @@
 //       });
 
 //       await ClientFunction(() => {
-//         (<any>window).survey.isCompact = true;
 //         (<any>window).survey.applyTheme({
 //           "cssVariables": {
 //             "--sjs-font-size": "3.2px",

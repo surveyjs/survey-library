@@ -38,6 +38,24 @@ This property is an object whose keys are category names and whose values are ar
 
 Available since: v2.3.16
 
+### `allowExponentialNotation`
+
+**Type**: `boolean`
+
+Specifies whether numeric text inputs accept exponential notation (for example, `1e5` or `2.5E-3`).
+
+Applies to the following elements when their [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) is set to `"number"`:
+
+- [Single-Line Input](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions
+- Items in [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)
+- `text` cell editors in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions
+
+Default value: `false` (the `e`, `E`, and `+` keys are blocked during keyboard input)
+
+This setting controls keyboard input only and does not change number parsing or numeric input mask behavior.
+
+Available since: v3.2.0
+
 ### `animationEnabled`
 
 **Type**: `boolean`
@@ -53,6 +71,20 @@ Default value: `true`
 Specifies how many milliseconds a survey should wait before it automatically switches to the next page. Applies only when [auto-advance](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) is enabled.
 
 Default value: 300
+
+### `calculatedValueTrackDependencies`
+
+**Type**: `boolean`
+
+Specifies whether [calculated values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values) recalculate only when their dependencies change.
+
+- `true` (default)\
+Recalculate on the initial run, when all expressions are re-evaluated, when the calculated value's expression or owner changes, and on a value change that affects a value or variable the expression references. Expressions with parameterless functions still recalculate on every value change.
+
+- `false`\
+Recalculate on every value change in the survey.
+
+Available since: v3.2.2
 
 ### `choicesSeparator`
 
@@ -230,10 +262,15 @@ Available since: v2.5.15
 
 **Type**: `boolean`
 
-Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions recalculate only when their dependencies change.
+Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions and the [`defaultValueExpression`](https://surveyjs.io/form-library/documentation/api-reference/question#defaultValueExpression) of questions recalculate only when their dependencies change.
 
-- `true` (default) - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
-- `false` - Recalculate on every value change in the survey.
+- `true` (default)\
+Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
+
+- `false`\
+Recalculate on every value change in the survey.
+
+Available since: v2.5.27
 
 ### `expressionVariableDelimiters`
 
@@ -280,6 +317,16 @@ A separator used in a shorthand notation that specifies a value and display text
 Default value: `"|"`
 
 **Related APIs:** [`settings.choicesSeparator`](https://surveyjs.io/form-library/documentation/api-reference/settings#choicesSeparator)
+
+### `keyboardInputTimeout`
+
+**Type**: `number`
+
+Specifies the maximum interval, in milliseconds, between consecutive key presses that SurveyJS treats as a single keyboard input sequence.
+
+Default value: 400
+
+Available since: v3.2.2
 
 ### `lazyRender`
 
@@ -346,8 +393,8 @@ You can specify this setting for individual questions or matrix columns: [`cellT
 A suffix added to the name of the property that stores total values. The resulting property name consists of the matrix name and the suffix. Default value: `"-total"`.
 
 - `maxRowCount`: `number`\
-A maximum number of rows in a Dynamic Matrix. Default value: 1000.\
-You can specify this setting for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
+A maximum number of rows in Dynamic Matrix questions. Ignored if [pagination is enabled](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#pageSize). Default value: 1000.\
+You can limit the total number of rows for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
 
 - `maxRowCountInCondition`: `number`\
 A maximum number of matrix rows included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\
@@ -376,6 +423,18 @@ Default value: 10
 **Type**: `string`
 
 Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
+
+### `maxPageSize`
+
+**Type**: `number`
+
+Specifies the maximum number of rows or panels per data page in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), and [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model) questions.
+
+Default value: 100
+
+If a question's `pageSize` exceeds this limit, this value is used as the effective page size. Set this property to 0 to remove the limit.
+
+Available since: v3.2.2
 
 ### `minDate`
 
@@ -425,8 +484,8 @@ An object with properties that apply to [Dynamic Panel](https://surveyjs.io/form
 Nested properties:
 
 - `maxPanelCount`: `number`\
-A maximum number of panels in Dynamic Panel. Default value: 100.\
-You can specify this setting for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
+A maximum number of panels in Dynamic Panel questions. Ignored if [pagination is enabled](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#pageSize). Default value: 100.\
+You can limit the total number of panels for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
 
 - `maxPanelCountInCondition`: `number`\
 A maximum number of Dynamic Panel panels included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\
@@ -488,6 +547,9 @@ Specifies how to render the input field of [Comment](https://surveyjs.io/form-li
 
 - `textRenderMode`: `"input"` (default) | `"div"`\
 Specifies how to render the input field of [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions in [read-only](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#readOnly) mode: as a disabled `<input>` element or as a `<div>` element with a non-editable question value within it.
+
+- `enableValidation`: `boolean`\
+Specifies whether to validate questions in read-only mode. Default value: `false`.
 
 ### `refuseItemValue`
 
@@ -636,11 +698,11 @@ An object that contains properties related to [triggers](https://surveyjs.io/for
 Nested properties:
 
 - `changeNavigationButtonsOnComplete`: `boolean`\
-Specifies whether to re-evaluate an expression associated with the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `false`.\
-Keep this property set to `false` if you want to re-evaluate the Complete trigger's expression only when the respondents navigate to another page.
+Specifies whether to replace the Next button with the Complete button when the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) is going to be executed. Default value: `true`.
 
 - `executeCompleteOnValueChanged`: `boolean`\
-Specifies whether to replace the Next button with the Complete button when the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) is going to be executed. Default value: `true`.
+Specifies whether to re-evaluate an expression associated with the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `false`.\
+Keep this property set to `false` if you want to re-evaluate the Complete trigger's expression only when the respondents navigate to another page.
 
 - `executeSkipOnValueChanged`: `boolean`\
 Specifies whether to re-evaluate an expression associated with the [Skip trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#skip) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `true`.\

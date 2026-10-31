@@ -1,0 +1,31 @@
+@use "../variables.scss" as *;
+
+.sd-sort-bar {
+  --sd-action-bar-gap: var(--sjs2-layout-component-panel-header-action-group-gap);
+  flex-wrap: nowrap;
+  min-width: 0;
+
+  .sd-action-bar__item-content > .sd-action-bar__separator {
+    align-self: stretch;
+    height: auto;
+    margin-right: 0;
+    margin-inline-end: var(--sjs2-layout-component-panel-header-action-group-gap);
+    background-color: var(--sjs2-color-border-basic-secondary);
+  }
+}
+.sd-sort-bar__level {
+  --sd-action-bar-gap: var(--sjs2-spacing-x100);
+  flex-wrap: nowrap;
+}
+.sd-action.sd-sort-bar__dropdown {
+  flex-direction: row-reverse;
+  box-sizing: border-box;
+}
+.sd-action.sd-sort-bar__label {
+  box-sizing: border-box;
+  // Text, not a button: the vertical padding of the other items, so it sits on their line, and none at the sides.
+  --sd-action-padding: var(--sjs2-layout-component-action-x-small-box-padding-vertical) var(--sjs2-spacing-x000);
+  --sd-action-title-padding: var(--sjs2-layout-component-action-x-small-label-padding-vertical) var(--sjs2-spacing-x000);
+  --sd-action-disabled-background: var(--sd-action-background);
+  --sd-action-disabled-title-color: var(--sd-action-title-color);
+}

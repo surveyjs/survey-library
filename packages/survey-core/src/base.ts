@@ -15,9 +15,11 @@ import { IExpressionError } from "./expressions/expressionError";
 import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { EventBase, Event } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
+import { isAnimationEnabled } from "./utils/reduced-motion";
+import { Scope } from "./utils/scope";
 
 export interface IPropertyValueChangedEvent {
   name: string;
@@ -177,17 +179,34 @@ export class Bindings {
   }
 }
 
+interface IPropChangeHandler {
+  name: string;
+  func: (...args: any[]) => void;
+  key: string;
+}
+
 export class Dependencies {
   private static DependenciesCount = 0;
   constructor(public currentDependency: () => void, public target: Base, public property: string) {
   }
   dependencies: Array<{ obj: Base, prop: string, id: string }> = [];
   id: string = "" + (++Dependencies.DependenciesCount);
+  // Objects already in "dependencies", per property: an updater can read thousands of properties,
+  // and scanning the array for a duplicate on every read is O(N^2).
+  // Keyed by property first: updaters read few property names from many objects
+  // (e.g. survey width mode reads "elements"/"startWithNewLine"/"rows" of every element), so there are few sets.
+  private dependencyKeys: Map<string, Set<Base>> = new Map<string, Set<Base>>();
   addDependency(target: Base, property: string): void {
     if (this.target === target && this.property === property)
       return;
-    if (this.dependencies.some(dependency => dependency.obj === target && dependency.prop === property))
+    let objs = this.dependencyKeys.get(property);
+    if (!objs) {
+      objs = new Set<Base>();
+      this.dependencyKeys.set(property, objs);
+    }
+    if (objs.has(target))
       return;
+    objs.add(target);
 
     this.dependencies.push({
       obj: target,
@@ -301,9 +320,7 @@ export class Base implements IObjectValueContext {
     return Helpers.isTwoValueEquals(this.toJSON(), obj.toJSON(), false, true, false);
   }
   protected trimValue(value: any): any {
-    if (!!value && (typeof value === "string" || value instanceof String))
-      return value.trim();
-    return value;
+    return Helpers.trimValue(value);
   }
   public static createPropertiesHash() {
     return {};
@@ -316,11 +333,19 @@ export class Base implements IObjectValueContext {
   private expressionInfo: { [index: string]: IExpressionRunnerInfo };
   private isDisposedValue: boolean;
   private classMetaData: JsonMetadataClass;
-  private onPropChangeFunctions: Array<{
-    name: string,
-    func: (...args: any[]) => void,
-    key: string,
-  }>;
+  // A map by name, then by slot: shared objects (the survey, a page, a matrix) carry thousands of keyed handlers.
+  // A truthy key is its own slot; an entry without one is its own slot. Empty name maps are kept, so a running
+  // dispatch never loses its map when the last handler removes itself and another one is registered.
+  private propChangeHandlers: Map<string, Map<any, IPropChangeHandler>>;
+  // A snapshot for tests only.
+  private get onPropChangeFunctions(): Array<IPropChangeHandler> {
+    if (!this.propChangeHandlers) return undefined;
+    const res = new Array<IPropChangeHandler>();
+    this.propChangeHandlers.forEach(handlers => {
+      handlers.forEach(entry => res.push({ name: entry.name, func: entry.func, key: entry.key }));
+    });
+    return res;
+  }
   protected isLoadingFromJsonValue: boolean = false;
   public loadingOwner: Base = null;
 
@@ -564,6 +589,8 @@ export class Base implements IObjectValueContext {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
+  // The matrix and the dynamic panel call it on their inner panels by element access: the compiler
+  // checks the signature; tests/dynamic-data/internal-access.test.ts checks that the member exists.
   protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
     this.mergeLocalizationInObjectCore(obj, locales);
     this.mergeLocalizationInArrays(obj, locales);
@@ -664,11 +691,15 @@ export class Base implements IObjectValueContext {
    * @param propName A property name.
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
+    const classInfo = this.getClassMetaData();
+    return !!classInfo ? classInfo.findProperty(propName) : null;
+  }
+  private getClassMetaData(): JsonMetadataClass {
     const type = this.getType();
     if (!this.classMetaData || this.classMetaData.name !== type) {
       this.classMetaData = Serializer.findClass(type);
     }
-    return !!this.classMetaData ? this.classMetaData.findProperty(propName) : null;
+    return this.classMetaData;
   }
   public isPropertyVisible(propName: string): boolean {
     const prop = this.getPropertyByName(propName);
@@ -752,7 +783,35 @@ export class Base implements IObjectValueContext {
     return Helpers.isValueUndefined(value);
   }
   public getDefaultPropertyValue(name: string): any {
+    const classInfo = this.getClassMetaData();
+    const entry = !!classInfo && !!classInfo["defaultValues"] ? classInfo["defaultValues"].get(name) : undefined;
+    if (!!entry) {
+      const cachedProp = entry.prop;
+      if (!cachedProp) return entry.value;
+      if (!cachedProp.defaultValueFunc && cachedProp.defaultValueValue === entry.defaultValue && cachedProp.type === entry.type &&
+        !this.localizableStrings?.[name]) return entry.value;
+    }
     const prop = this.getPropertyByName(name);
+    const res = this.getDefaultPropertyValueCore(prop, name);
+    // getPropertyByName may have refilled the class's properties, and with them its map of defaults
+    const defaultValues = !!this.classMetaData ? this.classMetaData["defaultValues"] : undefined;
+    if (!!defaultValues) {
+      if (!prop) {
+        defaultValues.set(name, { prop: null, value: res });
+      } else if (this.isDefaultPropertyValueCacheable(prop, name, res)) {
+        defaultValues.set(name, { prop: prop, value: res, defaultValue: prop.defaultValueValue, type: prop.type });
+      } else {
+        defaultValues.delete(name);
+      }
+    }
+    return res;
+  }
+  private isDefaultPropertyValueCacheable(prop: JsonObjectProperty, name: string, res: any): boolean {
+    if (prop.isCustom || prop.isLocalizable || !!prop.defaultValueFunc || !!prop.onGetValue || !!prop.className) return false;
+    if (this.localizableStrings?.[name]) return false;
+    return res === null || typeof res !== "object" && typeof res !== "function";
+  }
+  private getDefaultPropertyValueCore(prop: JsonObjectProperty, name: string): any {
     if (!prop || prop.isCustom && this.isCreating) return undefined;
     if (!!prop.defaultValueFunc) return prop.defaultValueFunc(this);
     const dValue = prop.getDefaultValue(this);
@@ -782,16 +841,20 @@ export class Base implements IObjectValueContext {
       this.setPropertyValue(name, undefined);
     }
   }
-  private doNotSerializeEmptyProperty(prop: JsonObjectProperty): boolean {
-    return this.isPropertyStoredInHash(prop.name);
-  }
   protected isPropertyStoredInHash(name: string): boolean {
     return false;
   }
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
-    const orgObj = this.getOriginalByProperty(prop.name);
-    if (prop.isLocalizable && !prop.isMultipleText) return !orgObj.getLocalizableString(prop.name);
-    if (orgObj === this && this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
+    const name = prop.name;
+    // Every getOriginalByProperty returns this object when it is its own original.
+    const orgObj = this.getOriginalObj() === this ? this : this.getOriginalByProperty(name);
+    if (prop.isLocalizable && !prop.isMultipleText) {
+      // getOriginalByProperty can return a wrapper. The value for a question-level
+      // loc string (description, requiredErrorText) stays on this object.
+      const locStr = this.getLocalizableString(name) || orgObj !== this && orgObj.getLocalizableString(name);
+      return !locStr;
+    }
+    if (orgObj === this && this.isPropertyStoredInHash(name)) return this.getPropertyValueWithoutDefault(name) == undefined;
     return false;
   }
   public getOriginalObj(): Base {
@@ -808,7 +871,8 @@ export class Base implements IObjectValueContext {
     return res;
   }
   protected getPropertyValueCore(propertiesHash: any, name: string): any {
-    if (!this.isLoadingFromJson) {
+    // Test for a running collection first: isLoadingFromJson walks up to the survey on every read
+    if (Base.currentDependencis !== undefined && !this.isLoadingFromJson) {
       Base.collectDependency(this, name);
     }
     if (this.getPropertyValueCoreHandler)
@@ -851,8 +915,9 @@ export class Base implements IObjectValueContext {
   protected getArrayPropertyValue(name: string, onPush?: (item: any) => void, onRemove?: (item: any) => void): Array<any> {
     let res = this.getPropertyValue(name);
     if (!Array.isArray(res)) {
-      res = this.createNewArray(name, onPush, onRemove);
-      this.setPropertyValueDirectly(name, res);
+      //The array is created lazily on reading (often during rendering), it is not a change, do not notify UI subscribers
+      res = this.createNewArray(name, onPush, onRemove, true);
+      this.setPropertyValueDirectly(name, res, true);
     }
     return res;
   }
@@ -945,12 +1010,14 @@ export class Base implements IObjectValueContext {
       propertyName: item.ownerPropertyName,
     });
   }
-  private isFuncExecuting: boolean;
+  // Created on the first sync: most Base objects never sync properties, and there are many of them.
+  private syncPropertiesScope: Scope;
   protected executeOnSyncPropertiesChanged(func: () => void): void {
-    if (!this.isFuncExecuting) {
-      this.isFuncExecuting = true;
-      func();
-      this.isFuncExecuting = false;
+    if (!this.syncPropertiesScope) {
+      this.syncPropertiesScope = new Scope();
+    }
+    if (!this.syncPropertiesScope.isActive) {
+      this.syncPropertiesScope.run(func);
     }
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void { }
@@ -973,11 +1040,10 @@ export class Base implements IObjectValueContext {
       this
     );
     this.checkConditionPropertyChanged(name);
-    if (!this.onPropChangeFunctions) return;
-    for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
-      if (this.onPropChangeFunctions[i].name == name)
-        this.onPropChangeFunctions[i].func(newValue, arrayChanges);
-    }
+    const handlers = this.propChangeHandlers?.get(name);
+    if (!handlers) return;
+    // Map.forEach is live: an entry removed before its turn does not fire, an entry added during the pass fires.
+    handlers.forEach(entry => entry.func(newValue, arrayChanges));
   }
   public onBindingChanged(oldValue: any, newValue: any): void {
     if (this.isLoadingFromJson) return;
@@ -1121,12 +1187,24 @@ export class Base implements IObjectValueContext {
     if (!keys) return false;
     return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
-  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
+  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     if (!!runner && runner.hasFunction(true)) return false;
-    if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
+    // Names given by the caller (triggers) have no per-runner slots: they are read from the survey's map, or parsed
+    // per check without a survey. The runner's own variables reuse its kept information
+    let varsInfo: Array<IValueGetterNameInfo>;
+    if (vars === undefined && !!runner) {
+      vars = runner.getVariables();
+      varsInfo = runner.getVariablesInfo();
+    }
     if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChanged(keys, vars);
+    return !new ValueGetter().isAnyKeyChangedCore(keys, vars, varsInfo, isClearedKeyChanged, this.getSurveyVariableNamesInfo());
+  }
+  // The parsed variable names shared by every runner of the survey (SurveyModel.getVariableNamesInfo),
+  // also for the names a trigger passes. Without a survey (a new Base()) each runner keeps its own items.
+  protected getSurveyVariableNamesInfo(): Map<string, IValueGetterNameInfo> {
+    const survey: any = this.getSurvey();
+    return !!survey && typeof survey.getVariableNamesInfo === "function" ? survey.getVariableNamesInfo() : undefined;
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {
@@ -1146,6 +1224,9 @@ export class Base implements IObjectValueContext {
     }
   }
   protected onAsyncRunningChanged(): void { }
+  // Stable read-only state: true while an asynchronous expression of this object is in flight.
+  // SurveyModel.getRunningAsyncOperations() reads it on every expression owner, so a rename or a
+  // semantics change here is a breaking change of that API.
   public get isAsyncExpressionRunning(): boolean {
     return !!this.asynExpressionHash && Object.keys(this.asynExpressionHash).length > 0;
   }
@@ -1248,31 +1329,47 @@ export class Base implements IObjectValueContext {
     }
   }
   public registerFunctionOnPropertyValueChanged(name: string, func: any, key: string = null): void {
-    if (!this.onPropChangeFunctions) {
-      this.onPropChangeFunctions = [];
+    if (!this.propChangeHandlers) {
+      this.propChangeHandlers = new Map<string, Map<any, IPropChangeHandler>>();
+    }
+    let handlers = this.propChangeHandlers.get(name);
+    if (!handlers) {
+      handlers = new Map<any, IPropChangeHandler>();
+      this.propChangeHandlers.set(name, handlers);
     }
     if (key) {
-      for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
-        var item = this.onPropChangeFunctions[i];
-        if (item.name == name && item.key == key) {
-          item.func = func;
-          return;
-        }
+      const item = handlers.get(key);
+      if (item) {
+        item.func = func;
+        return;
       }
     }
-    this.onPropChangeFunctions.push({ name: name, func: func, key: key });
+    const entry: IPropChangeHandler = { name: name, func: func, key: key };
+    // Only a truthy key replaces; null, undefined and "" entries stack, each one in its own slot.
+    handlers.set(key ? key : entry, entry);
   }
   public registerFunctionOnPropertiesValueChanged(names: Array<string>, func: any, key: string = null): void {
     this.registerPropertyChangedHandlers(names, func, key);
   }
   public unRegisterFunctionOnPropertyValueChanged(name: string, key: string = null): Array<any> {
-    if (!this.onPropChangeFunctions) return;
-    for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
-      var item = this.onPropChangeFunctions[i];
-      if (item.name == name && item.key == key) {
-        return this.onPropChangeFunctions.splice(i, 1);
+    const handlers = this.propChangeHandlers?.get(name);
+    if (!handlers) return undefined;
+    let slot: any = undefined;
+    if (key) {
+      if (handlers.has(key)) slot = key;
+    } else {
+      // Stacked entries are rare: scan this name only. "==" lets null and undefined match each other, not "".
+      for (const [itemSlot, item] of handlers) {
+        if (!item.key && item.key == key) {
+          slot = itemSlot;
+          break;
+        }
       }
     }
+    if (slot === undefined) return undefined;
+    const removed = handlers.get(slot);
+    handlers.delete(slot);
+    return [removed];
   }
   public unRegisterFunctionOnPropertiesValueChanged(names: Array<string>, key: string = null): void {
     this.unregisterPropertyChangedHandlers(names, key);
@@ -1508,14 +1605,14 @@ export class Base implements IObjectValueContext {
   public get hasActiveUISubscribers(): boolean {
     return !!this.onPropertyValueCoreChanged;
   }
-  protected createNewArrayCore(name: string): Array<any> {
+  protected createNewArrayCore(name: string, isCalcValue?: boolean): Array<any> {
     var res = null;
     if (!!this.createArrayCoreHandler) {
       res = this.createArrayCoreHandler(this.propertyHash, name);
     }
     if (!res) {
       res = new Array<any>();
-      this.setPropertyValueCore(this.propertyHash, name, res);
+      this.setPropertyValueCore(this.propertyHash, name, res, isCalcValue);
     }
     return res;
   }
@@ -1534,9 +1631,10 @@ export class Base implements IObjectValueContext {
   protected createNewArray(
     name: string,
     onPush: any = null,
-    onRemove: any = null
+    onRemove: any = null,
+    isCalcValue?: boolean
   ): Array<any> {
-    var newArray = this.createNewArrayCore(name);
+    var newArray = this.createNewArrayCore(name, isCalcValue);
     if (!this.arraysInfo) {
       this.arraysInfo = {};
     }
@@ -1573,7 +1671,7 @@ export class Base implements IObjectValueContext {
         value
       );
       if (!self.isDisposedValue) {
-        if (onPush) onPush(value, newArray.length - 1);
+        if (onPush) onPush(value, 0);
         const arrayChanges = new ArrayChanges(0, 0, [value], []);
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
         self.notifyArrayChanged(name, newArray, arrayChanges);
@@ -1702,7 +1800,7 @@ export class Base implements IObjectValueContext {
     return this.getIsAnimationAllowed();
   }
   protected getIsAnimationAllowed(): boolean {
-    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
+    return isAnimationEnabled() && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
   }
   private animationAllowedLock: number = 0;
   public blockAnimations(): void {

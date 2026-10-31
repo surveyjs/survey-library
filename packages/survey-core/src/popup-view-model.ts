@@ -6,6 +6,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 import { settings } from "./settings";
+import { isAnimationEnabled } from "./utils/reduced-motion";
 import { getActiveElement, getElement } from "./utils/dom-utils";
 
 import { AnimationBoolean, AnimationOptions, IAnimationConsumer } from "./utils/animation";
@@ -32,6 +33,8 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   @property({ defaultValue: "auto" }) width: string;
   @property({ defaultValue: "auto" }) minWidth: string;
   @property({ defaultValue: false }) _isVisible: boolean;
+  // Renderers mount the popup content only after the first show and keep it afterwards.
+  @property({ defaultValue: false }) hasBeenShown: boolean;
   @property() locale: string;
 
   private updateIsVisible(val: boolean) {
@@ -74,7 +77,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     return this.getAnimationContainer();
   }
   isAnimationEnabled(): boolean {
-    return this.model.displayMode !== "overlay" && settings.animationEnabled;
+    return this.model.displayMode !== "overlay" && isAnimationEnabled();
   }
   getRerenderEvent (): EventBase<Base> { return this.onElementRerendered; }
 
@@ -86,6 +89,11 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     return this._isVisible;
   }
   public set isVisible(val: boolean) {
+    // Set before _isVisible (and before the animation registers for the next render), so the content is
+    // in the DOM by the render that shows the popup, where it is positioned, focused and animated.
+    if (val) {
+      this.hasBeenShown = true;
+    }
     this.visibilityAnimation.sync(val);
   }
 
@@ -327,7 +335,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   protected preventScrollOuside(event: any, deltaY: number): void {
     let currentElement = event.target;
     while(currentElement !== this.container) {
-      if (DomDocumentHelper.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
+      if (DomDocumentHelper.getComputedStyle(currentElement)?.overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
         const { scrollHeight, scrollTop, clientHeight } = currentElement;
         if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
           return;

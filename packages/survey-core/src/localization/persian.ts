@@ -5,6 +5,58 @@ export var persianSurveyStrings = {
   pagePrevText: "قبلی",
   // "Next"
   pageNextText: "بعدی",
+  // [Auto-translated] "First"
+  pageFirstText: "اول",
+  // [Auto-translated] "Last"
+  pageLastText: "آخرین",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "از {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "صفحه انتخاب",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "مرتب سازی بر اساس {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "بالا - پایین",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "پایین - بالا",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "الفبا، A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "الفبا، Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "جدیدترین اولین",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "قدیمی ترین نفر اول",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "مرتب شده بر اساس {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}، بعد تا {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "مرتب سازی بر اساس",
+  // [Auto-translated] "Default"
+  sortDefaultText: "پیش فرض",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "فیلد مرتب سازی",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ترتیب مرتب سازی",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "افزودن سطح مرتب سازی",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "حذف سطح مرتب سازی {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "فیلد مرتب سازی {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "ترتیب مرتب سازی {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "نمایش همه سطوح مرتب سازی",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "افزودن جدید",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "سطح مرتب سازی حرکت {0}",
   // "Complete"
   completeText: "تکمیل",
   // "Preview"
@@ -37,6 +89,8 @@ export var persianSurveyStrings = {
   panelDynamicTabTextFormat: "پنل {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "تعداد پاسخ {0}/{1} سوال",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "سؤال {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "صفحه ای یا گزینه ای برای این پرسشنامه موجود نیست.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var persianSurveyStrings = {
   value: "مقدار",
   // "Response required."
   requiredError: "لطفا به سوال پاسخ دهید",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "این مقدار اشتباه است.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "مقدار شامل کلیدهای ناشناخته است: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "لطفا حداقل به یک سوال پاسخ دهید.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var persianSurveyStrings = {
   noUploadFilesHandler: "پروندهها را نمیتوان بارگذاری کرد. لطفا یک گرداننده برای رویداد \"onUploadFiles\" اضافه کنید.",
   // "Response required: enter another value."
   otherRequiredError: "مقدار 'دیگر' را وارد کنید",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "مقدار «{0}» یکی از گزینه های موجود نیست.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "فایل در حال آیلود است. لطفا صبر کنید.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var persianSurveyStrings = {
   addRow: "سطر جدید",
   // "Remove"
   removeRow: "حذف",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "حرکت ردیف {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "هیچ ردیفی وجود ندارد.",
   // [Auto-translated] "Row {rowIndex}"

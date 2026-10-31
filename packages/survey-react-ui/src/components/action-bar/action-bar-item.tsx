@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import { Base, Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { attachKey2click } from "../../reactSurvey";
+import { attachKey2click } from "../../attach-key2click";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyActionBarSeparator } from "./action-bar-separator";
 import { SurveyLocStringViewer } from "../../string-viewer";
@@ -122,11 +122,13 @@ export class SurveyActionBarItem extends SurveyElementBase<
         onFocus={(args) => this.item.doFocus(args)}
         onClick={(args) => this.item.doAction(args)}
         title={this.item.getTooltip()}
+        data-sv-tooltip={this.item.getTooltip()}
         tabIndex={tabIndex}
         aria-checked={this.item.ariaChecked}
         aria-expanded={this.item.ariaExpanded}
         aria-controls={this.item.ariaControls}
         aria-labelledby={this.item.ariaLabelledBy}
+        aria-label={this.item.ariaLabel}
         role={this.item.ariaRole}
       >
         {buttonContent}

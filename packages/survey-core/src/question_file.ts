@@ -1,5 +1,5 @@
 import { IPlainDataOptions, ISurvey, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
-import { IQuestionPlainData, Question } from "./question";
+import { IQuestionPlainData, Question, QuestionValueType, IVerifyDataContext } from "./question";
 import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -7,7 +7,7 @@ import { ComputedUpdater, Base } from "./base";
 import { EventBase } from "./event";
 import { UploadingFileError, ExceedSizeError, ExceedFilesCountError } from "./error";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { classesToSelector, isElementVisible } from "./utils/dom-utils";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { detectIEOrEdge } from "./utils/browser";
@@ -32,6 +32,15 @@ const customCategory = settings.customFileCategoryName;
  * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
  */
 export class QuestionFileModelBase extends Question {
+  // File Upload and Signature Pad already draw their own clear control.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
+  // The value is a file a respondent picks from a device or draws on a canvas: a consumer that
+  // renders nothing has no way to produce it.
+  public get hasPlainInput(): boolean {
+    return false;
+  }
   @property() public isUploading: boolean = false;
   @property({ defaultValue: "empty" }) currentState: string;
   /**
@@ -194,13 +203,27 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
   @property() allowCameraAccess: boolean;
   /**
-   * Specifies the source of uploaded files.
+   * Specifies the preferred camera to open for the File Upload question. Applies only if [`sourceType`](#sourceType) is `"camera"` or `"file-camera"`.
    *
    * Possible values:
    *
-   * - `"file"` (default) - Allows respondents to select a local file.
-   * - `"camera"` - Allows respondents to capture and upload a photo.
-   * - `"file-camera"` - Allows respondents to select a local file or capture a photo.
+   * - `"user"` (default) &ndash; Prefer the front-facing camera
+   * - `"environment"` &ndash; Prefer the rear-facing camera
+   *
+   * The question retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
+   * @since 3.0.4
+   */
+  @property({ defaultValue: "user" }) cameraFacingMode: string;
+  /**
+   * Specifies which sources respondents can use to upload files.
+   *
+   * Possible values:
+   *
+   * - `"file"` (default) &ndash; Allows respondents to select local files.
+   * - `"camera"` &ndash; Uses the device camera to capture and upload a photo. If no camera is available, the question falls back to file selection.
+   * - `"file-camera"` &ndash; Allows respondents to select local files or capture and upload a photo with the device camera. If no camera is available, file selection remains available.
+   *
+   * Use [`cameraFacingMode`](#cameraFacingMode) to specify the preferred camera for photo capture.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/photo-capture/ (linkStyle))
    * @see filePlaceholder
@@ -285,7 +308,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconName: "icon-choosefile",
       id: "sv-file-choose-file",
       iconSize: "auto",
-      innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.chooseFile).append(this.cssClasses.chooseFileDisabled, this.isInputReadOnly).toString()) as any),
+      innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.chooseFile, this.isInputReadOnly && this.cssClasses.chooseFileDisabled)) as any),
       data: { question: this },
       locTitle: this.locChooseButtonText,
       appearance: new ComputedUpdater<Partial<IActionAppearance>>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "secondary", size: "small" }; }) as any,
@@ -371,7 +394,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-closecamera",
         id: "sv-file-close-camera",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.closeCameraButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.closeCameraButton)) as any),
         appearance: { style: "brand", mode: "quaternary-surface", size: "medium" },
         action: () => {
           this.stopVideo();
@@ -387,7 +410,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-takepicture",
         id: "sv-file-take-picture",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.takePictureButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.takePictureButton)) as any),
         locTitle: this.locTakePhotoCaption,
         showTitle: false,
         appearance: { style: "alert", size: "large", mode: "primary" },
@@ -406,7 +429,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-changecamera",
         id: "sv-file-change-camera",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.changeCameraButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.changeCameraButton)) as any),
         visible: <boolean>(new ComputedUpdater<boolean>(() => this.canFlipCamera()) as any),
         appearance: { style: "brand", mode: "quaternary-surface", size: "medium" },
         action: () => {
@@ -423,13 +446,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private videoStream: MediaStream;
   public startVideo(): void {
     if (this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
+    this.camera.setFacingMode(this.cameraFacingMode);
     this.setIsPlayingVideo(true);
     setTimeout(() => {
       this.startVideoInCamera();
     }, 0);
   }
   private get videoHtmlElement() {
-    return this.rootElement?.querySelector(`#${this.videoId}`) as HTMLVideoElement;
+    return this.contentElement?.querySelector(`#${this.videoId}`) as HTMLVideoElement;
   }
   private startVideoInCamera(): void {
     this.camera.startVideo(this.videoHtmlElement, (stream: MediaStream) => {
@@ -553,6 +577,22 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   public getType(): string {
     return "file";
+  }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
+  public getValueType(): QuestionValueType {
+    return "array";
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.reportInvalidValueTypes) return true;
+    // A value is a file entry or an array of them. An entry is either a file object or a string:
+    // a file url or the file content, the shape loadPreview() and the file editors in Survey Creator use.
+    const files = Array.isArray(val) ? val : [val];
+    if (files.every(file => Helpers.isValueObject(file, true) || typeof file === "string")) return true;
+    context.addIssue("invalidValueType", undefined, val, this);
+    return false;
   }
 
   protected onChangeQuestionValue(newValue: any): void {
@@ -678,9 +718,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property() maxFiles: number;
 
   public chooseFile(event: MouseEvent): void {
-    if (!this.rootElement) return;
+    if (!this.contentElement) return;
 
-    const inputElement = this.rootElement.querySelector(`#${this.inputId}`) as HTMLInputElement;
+    const inputElement = this.contentElement.querySelector(`#${this.inputId}`) as HTMLInputElement;
     if (!inputElement) return;
 
     event.preventDefault();
@@ -823,13 +863,15 @@ export class QuestionFileModel extends QuestionFileModelBase {
     );
   }
   public get renderCapture(): string {
-    return this.allowCameraAccess ? "user" : undefined;
+    if (!this.allowCameraAccess) return undefined;
+    return this.cameraFacingMode === "environment" ? "environment" : "user";
   }
 
   get multipleRendered() {
     return this.allowMultiple ? "multiple" : undefined;
   }
   public get showFileDecorator(): boolean {
+    if (this.isViewMode) return false;
     const isPlayingVideo = this.isPlayingVideo;
     const showLoadingIndicator = this.showLoadingIndicator;
     return !isPlayingVideo && !showLoadingIndicator;
@@ -1035,13 +1077,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return questionPlainData;
   }
   public getImageWrapperCss(data: any): string {
-    return new CssClassBuilder().append(this.cssClasses.imageWrapper).append(this.cssClasses.imageWrapperDefaultImage, this.defaultImage(data)).toString();
+    return toCssClasses(this.cssClasses.imageWrapper, this.defaultImage(data) && this.cssClasses.imageWrapperDefaultImage);
   }
   protected getActionsContainerCss(css: any): string {
-    return new CssClassBuilder()
-      .append(css.actionsContainer)
-      .append(css.actionsContainerAnswered, this.isAnswered)
-      .toString();
+    return toCssClasses(css.actionsContainer, this.isAnswered && css.actionsContainerAnswered);
   }
   private removeFileButtonMap: Map<Object, Action> = new Map<Object, Action>();
   public getRemoveFileButton(item: any): Action {
@@ -1050,7 +1089,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       this.removeFileButtonMap.set(item, new Action({
         iconName: new ComputedUpdater<string>(() => this.cssClasses.removeFileSvgIconId) as any,
         locTitle: this.locRemoveFileCaption,
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.removeFileButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.removeFileButton)) as any),
         showTitle: false,
         action: () => { this.doRemoveFile(item); },
         iconSize: "auto",
@@ -1060,30 +1099,27 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return this.removeFileButtonMap.get(item);
   }
   public getReadOnlyFileCss(): string {
-    return new CssClassBuilder()
-      .append("form-control")
-      .append(this.cssClasses.placeholderInput)
-      .toString();
+    return toCssClasses("form-control", this.cssClasses.placeholderInput);
   }
   public get fileRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.rootPreview, this.isPreviewStyle)
-      .append(this.cssClasses.rootDragging, this.isDragging)
-      .append(this.cssClasses.rootAnswered, this.isAnswered)
-      .append(this.cssClasses.single, !this.allowMultiple)
-      .append(this.cssClasses.singleImage, !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]))
-      .append(this.cssClasses.mobile, this.isMobile)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.isDisabledStyle && this.cssClasses.rootDisabled,
+      this.isReadOnlyStyle && this.cssClasses.rootReadOnly,
+      this.isPreviewStyle && this.cssClasses.rootPreview,
+      this.isDragging && this.cssClasses.rootDragging,
+      this.isAnswered && this.cssClasses.rootAnswered,
+      !this.allowMultiple && this.cssClasses.single,
+      !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]) && this.cssClasses.singleImage,
+      this.isMobile && this.cssClasses.mobile
+    );
   }
   public getFileDecoratorCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.fileDecorator)
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.fileDecorator,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDragging && this.cssClasses.fileDecoratorDrag
+    );
   }
 
   private onChange(src: any) {
@@ -1139,24 +1175,24 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return {
       getEnterOptions: (page: QuestionFilePage) => {
         const pageClass = this.cssClasses.page;
-        return { cssClass: pageClass ? new CssClassBuilder()
-          .append(`${pageClass}--enter-from-left`, this.navigationDirection == "left" || this.navigationDirection == "left-delete")
-          .append(`${pageClass}--enter-from-right`, this.navigationDirection == "right").toString() : ""
+        return { cssClass: pageClass ? toCssClasses(
+          (this.navigationDirection == "left" || this.navigationDirection == "left-delete") && `${pageClass}--enter-from-left`,
+          this.navigationDirection == "right" && `${pageClass}--enter-from-right`) : ""
         };
       },
       getLeaveOptions: (page: QuestionFilePage) => {
         const pageClass = this.cssClasses.page;
         return {
-          cssClass: pageClass ? new CssClassBuilder()
-            .append(`${pageClass}--leave-to-left`, this.navigationDirection == "right")
-            .append(`${pageClass}--leave-to-right`, this.navigationDirection == "left").toString() : ""
+          cssClass: pageClass ? toCssClasses(
+            this.navigationDirection == "right" && `${pageClass}--leave-to-left`,
+            this.navigationDirection == "left" && `${pageClass}--leave-to-right`) : ""
         };
       },
       getAnimatedElement: (page: QuestionFilePage) => {
-        return this.rootElement?.querySelector(`#${page.id}`);
+        return this.contentElement?.querySelector(`#${page.id}`);
       },
       isAnimationEnabled: () => {
-        return this.animationAllowed && !!this.rootElement;
+        return this.animationAllowed && !!this.contentElement;
       },
       getRerenderEvent: () => {
         return this.onElementRerendered;
@@ -1184,17 +1220,17 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected processResponsiveness(_: number, availableWidth: number): boolean {
     this._width = availableWidth;
-    if (this.rootElement) {
+    if (this.contentElement) {
       if ((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
         const fileListSelector = this.getFileListSelector();
-        const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
+        const fileListElement = fileListSelector ? this.contentElement.querySelector(this.getFileListSelector()) : undefined;
         if (fileListElement) {
           const visiblePage = fileListElement.querySelector(classesToSelector(this.cssClasses.page));
           if (visiblePage) {
             const firstVisibleItem = visiblePage.querySelector(classesToSelector(this.cssClasses.previewItem));
-            this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(visiblePage).gap));
+            this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(visiblePage)?.gap));
             if (firstVisibleItem) {
-              this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));
+              this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem)?.width));
             }
           }
         }
@@ -1209,16 +1245,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   //#region
   // web-based methods
-  private rootElement: HTMLElement;
   private canDragDrop(): boolean { return !this.isInputReadOnly && this.currentMode !== "camera" && !this.isPlayingVideo; }
-  public afterRenderQuestionElement(el: HTMLElement): void {
-    super.afterRenderQuestionElement(el);
-    this.rootElement = el;
-  }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
     super.beforeDestroyQuestionElement(el);
     this.stopVideo();
-    this.rootElement = undefined;
   }
   private dragCounter: number = 0;
   onDragEnter = (event: any) => {
@@ -1271,8 +1301,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.clearFilesCore();
   };
   private clearFilesCore(): void {
-    if (this.rootElement) {
-      const input = this.rootElement.querySelectorAll("input")[0];
+    if (this.contentElement) {
+      const input = this.contentElement.querySelectorAll("input")[0];
       if (input) {
         input.value = "";
       }
@@ -1322,6 +1352,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
 Serializer.addClass(
   "file",
   [
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "showCommentArea:switch", visible: true },
     { name: "showPreview:boolean", default: true, visible: false },
     "allowMultiple:boolean",
@@ -1366,6 +1397,11 @@ Serializer.addClass(
     { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder" },
     { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder" },
     { name: "allowCameraAccess:switch", visible: false },
+    {
+      name: "cameraFacingMode", default: "user", choices: ["user", "environment"],
+      dependsOn: "sourceType",
+      visibleIf: (obj: any): boolean => obj.sourceType !== "file"
+    },
   ],
   function () {
     return new QuestionFileModel("");

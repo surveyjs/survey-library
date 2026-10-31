@@ -5,7 +5,7 @@
       <table :class="question.getTableCss()" role="presentation">
         <thead v-if="question.showHeader" role="presentation">
           <tr>
-            <td v-if="question.hasRows"></td>
+            <td :class="question.emptyCellCss" v-if="question.hasRows"></td>
             <th
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"
@@ -29,7 +29,7 @@
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody :class="question.getTableBodyCss()">
           <template v-for="(row) in visibleRows" :key="row.uniqueId">
             <SvComponent :is="'sv-matrix-row'" :question="question" :row="row"/>
           </template>

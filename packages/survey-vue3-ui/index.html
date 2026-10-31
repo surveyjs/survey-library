@@ -5,6 +5,11 @@
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vite+Vue3+SurveyJS App</title>
+    <!-- survey-core embeds no @font-face rule; the page supplies Open Sans itself.
+         Pinned to the files the reference screenshots were taken with. The package has no
+         publicDir of its own (one would end up inside the published build), so the dev
+         page borrows the example's copy; vite dev serves it straight from the project. -->
+    <link rel="stylesheet" href="/example/public/fonts.css" />
   </head>
   <body spellcheck="false">
     <div id="app"></div>

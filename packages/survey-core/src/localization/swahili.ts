@@ -5,6 +5,58 @@ export var swahiliStrings = {
   pagePrevText: "Iliyotangulia",
   // "Next"
   pageNextText: "Ifuatayo",
+  // [Auto-translated] "First"
+  pageFirstText: "Kwanza",
+  // [Auto-translated] "Last"
+  pageLastText: "Mwisho",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "ya {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Chagua Ukurasa",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Panga kwa {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Juu - Chini",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Chini - Juu",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabeti, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabeti, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Mpya kwanza",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Mzee kwanza",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Imepangwa na {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, kisha kwa {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Panga kwa",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Chaguo-msingi",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Panga shamba",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Panga mpangilio",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Ongeza kiwango cha kupanga",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Ondoa kiwango cha {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Panga uwanja {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Panga agizo {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Onyesha viwango vyote vya aina",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Ongeza mpya",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Sogeza kiwango cha aina {0}",
   // "Complete"
   completeText: "Kamili",
   // "Preview"
@@ -37,6 +89,8 @@ export var swahiliStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Yaliyojibiwa {0}/{1} maswali",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Swali {0} la {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Hakuna ukurasa unaoonekana au swali katika utafiti.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var swahiliStrings = {
   value: "thamani",
   // "Response required."
   requiredError: "Tafadhali jibu hili swali.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Thamani sio sahihi.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Thamani ina funguo zisizojulikana: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Tafadhali jibu swali angalau moja.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var swahiliStrings = {
   noUploadFilesHandler: "Faili haziwezi kupakiwa. Tafadhali ongeza kishiko kwa tukio la 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Tafadhali ingiza thamani nyingine.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Thamani '{0}' sio moja wapo ya chaguo zinazopatikana.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Faili yako inapakia.Tafadhali subiri sekunde kadhaa na ujaribu tena.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var swahiliStrings = {
   addRow: "Ongeza safu",
   // "Remove"
   removeRow: "Toa",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Sogeza safu {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Hakuna safu.",
   // [Auto-translated] "Row {rowIndex}"

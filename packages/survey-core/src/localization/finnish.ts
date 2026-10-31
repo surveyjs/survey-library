@@ -5,6 +5,58 @@ export var finnishSurveyStrings = {
   pagePrevText: "Edellinen",
   // "Next"
   pageNextText: "Seuraava",
+  // [Auto-translated] "First"
+  pageFirstText: "Ensimmäinen",
+  // [Auto-translated] "Last"
+  pageLastText: "Viimeinen",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Valitse sivu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Lajittele {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Korkea - Matala",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Matala - Korkea",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Aakkoset, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Aakkoset, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Uusin ensimmäisenä",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Vanhin ensin",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Lajiteltu {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, sitten {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Lajittele mukaan",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Oletus",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Lajittelukenttä",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Lajittelujärjestys",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Lisää lajittelutaso",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Poista lajittelutaso {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Lajittele kenttä {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Lajittelujärjestys {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Näytä kaikki lajittelutasot",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Lisää uusi",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Liikkeiden lajittelutaso {0}",
   // "Complete"
   completeText: "Valmis",
   // "Preview"
@@ -37,6 +89,8 @@ export var finnishSurveyStrings = {
   panelDynamicTabTextFormat: "Paneeli {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Olet vastannut {0} / {1} kysymykseen.",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Kysymys {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tässä kyselyssä ei ole yhtään näkyvillä olevaa sivua tai kysymystä.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var finnishSurveyStrings = {
   value: "arvo",
   // "Response required."
   requiredError: "Vastaa kysymykseen, kiitos.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Arvo on väärä.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Arvo sisältää tuntemattomia avaimia: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vastaa ainakin yhteen kysymykseen.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var finnishSurveyStrings = {
   noUploadFilesHandler: "Tiedostoja ei voi ladata. Lisää käsittelijä onUploadFiles-tapahtumalle.",
   // "Response required: enter another value."
   otherRequiredError: "Tarkenna vastaustasi tekstikenttään.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Arvo '{0}' ei ole yksi käytettävissä olevista vaihtoehdoista.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Tiedostoa lähetetään. Odota muutama sekunti ja yritä uudelleen.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var finnishSurveyStrings = {
   addRow: "Lisää rivi",
   // "Remove"
   removeRow: "Poista",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Siirrä rivi {0}",
   // "There are no rows."
   noRowsText: "Ei rivejä",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var finnishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Edistymispalkki",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Sivu {0}"
+  progressbarPage: "Sivu {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "p",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "k",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "v",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "t",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "T",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "m",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "i",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "I"
 };
 
 setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suomi", englishName: "Finnish" });

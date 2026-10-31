@@ -3,6 +3,7 @@ import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
 import { getQuestionErrorText } from "./expressions/expressionError";
 import { ConditionRunner } from "./conditions/conditionRunner";
+import { IValueGetterContext, ValueGetter } from "./conditions/conditionProcessValue";
 
 export interface IFunctionCachedResult {
   result: any;
@@ -13,6 +14,10 @@ interface IFunctionInfo {
   isAsync: boolean;
   useCache: boolean;
   originalValueParams?: Array<number>;
+  description?: string;
+  parameters?: Array<IFunctionParameter>;
+  returnType?: string;
+  resultDependsOn?: "parameters" | "survey" | "elements";
 }
 interface IFunctionCachedSurveyValue {
   name: string;
@@ -44,7 +49,11 @@ export class FunctionFactory {
       useCacheValue = true;
     }
     this.clearCache(info.name);
-    this.functionHash[info.name] = { name: info.name, func: info.func, isAsync: !!info.isAsync, useCache: !!useCacheValue, originalValueParams: info.originalValueParams };
+    this.functionHash[info.name] = {
+      name: info.name, func: info.func, isAsync: !!info.isAsync, useCache: !!useCacheValue, originalValueParams: info.originalValueParams,
+      description: info.description, parameters: info.parameters, returnType: info.returnType,
+      resultDependsOn: info.resultDependsOn,
+    };
   }
   // Returns the indexes of the parameters that must receive the original (unfiltered) value.
   public getOriginalValueParams(name: string): Array<number> {
@@ -78,6 +87,22 @@ export class FunctionFactory {
       result.push(key);
     }
     return result.sort();
+  }
+  public getRegistrations(): Array<IFunctionRegistration> {
+    return this.getAll().map((name: string): IFunctionRegistration => {
+      const info = this.functionHash[name];
+      const res: IFunctionRegistration = {
+        name: info.name, func: info.func, isAsync: info.isAsync, useCache: info.useCache,
+      };
+      if (Array.isArray(info.originalValueParams)) {
+        res.originalValueParams = info.originalValueParams.slice();
+      }
+      if (info.description !== undefined) res.description = info.description;
+      if (Array.isArray(info.parameters)) res.parameters = info.parameters.map(param => ({ ...param }));
+      if (info.returnType !== undefined) res.returnType = info.returnType;
+      if (info.resultDependsOn !== undefined) res.resultDependsOn = info.resultDependsOn;
+      return res;
+    });
   }
   public run(name: string, params: any[], properties: HashTable<any>, originalParams: any[]): any {
     if (!properties) {
@@ -211,6 +236,27 @@ export interface IFunctionRegistration {
   // Indexes of the parameters that must receive the original (unfiltered) value instead of the
   // default unwrapped value - e.g. the *InArray functions operate on the array of objects.
   originalValueParams?: Array<number>;
+  // What the function does, its parameters and the type it returns. The runtime does not read
+  // them: they are for tools that explain expressions or write them - documentation, an AI
+  // assistant in Survey Creator. Types are "number", "string", "boolean", "date", "array",
+  // "condition" (an expression evaluated as a filter), "any", or several joined by "|".
+  description?: string;
+  parameters?: Array<IFunctionParameter>;
+  returnType?: string;
+  // What the result depends on besides the code of the function: "parameters" - its arguments only;
+  // "survey" - also survey state that a conditions pass does not change unless a value changes (the
+  // clock, the display mode, a comment); "elements" - also element state that the conditions of the
+  // same pass change (visibility, readiness, visible choices, display texts). Not set means unknown,
+  // and it is treated as "elements".
+  resultDependsOn?: "parameters" | "survey" | "elements";
+}
+export interface IFunctionParameter {
+  name: string;
+  type?: string;
+  optional?: boolean;
+  // the parameter takes any number of values: sum(1, 2, 3)
+  isRest?: boolean;
+  description?: string;
 }
 export function registerFunction(info: IFunctionRegistration): void {
   FunctionFactory.Instance.register(info);
@@ -242,7 +288,15 @@ function sum(params: any[]): any {
   }
   return res;
 }
-FunctionFactory.Instance.register("sum", sum);
+FunctionFactory.Instance.register({
+  name: "sum", func: sum,
+  description: "Returns the sum of the passed numbers. Arrays are flattened.",
+  parameters: [
+    { name: "values", type: "number|array", description: "Numbers to add", isRest: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "parameters",
+});
 
 function min_max(params: any[], isMin: boolean): any {
   var arr: any[] = [];
@@ -264,19 +318,43 @@ function min_max(params: any[], isMin: boolean): any {
 function min(params: any[]): any {
   return min_max(params, true);
 }
-FunctionFactory.Instance.register("min", min);
+FunctionFactory.Instance.register({
+  name: "min", func: min,
+  description: "Returns the smallest of the passed numbers. Arrays are flattened.",
+  parameters: [
+    { name: "values", type: "number|array", description: "Numbers to compare", isRest: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "parameters",
+});
 
 function max(params: any[]): any {
   return min_max(params, false);
 }
-FunctionFactory.Instance.register("max", max);
+FunctionFactory.Instance.register({
+  name: "max", func: max,
+  description: "Returns the largest of the passed numbers. Arrays are flattened.",
+  parameters: [
+    { name: "values", type: "number|array", description: "Numbers to compare", isRest: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "parameters",
+});
 
 function count(params: any[]): any {
   var arr: any[] = [];
   getParamsAsArray(params, arr);
   return arr.length;
 }
-FunctionFactory.Instance.register("count", count);
+FunctionFactory.Instance.register({
+  name: "count", func: count,
+  description: "Returns how many values are passed. Arrays are flattened; empty values are not counted.",
+  parameters: [
+    { name: "values", type: "any", description: "Values to count", isRest: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "parameters",
+});
 
 function avg(params: any[]): any {
   var arr: any[] = [];
@@ -284,7 +362,15 @@ function avg(params: any[]): any {
   const res = sum(params);
   return arr.length > 0 ? res / arr.length : 0;
 }
-FunctionFactory.Instance.register("avg", avg);
+FunctionFactory.Instance.register({
+  name: "avg", func: avg,
+  description: "Returns the average of the passed numbers. Arrays are flattened.",
+  parameters: [
+    { name: "values", type: "number|array", description: "Numbers to average", isRest: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "parameters",
+});
 
 function round(params: any[]): any {
   var arr: any[] = [];
@@ -300,7 +386,16 @@ function round(params: any[]): any {
   }
   return NaN;
 }
-FunctionFactory.Instance.register("round", round);
+FunctionFactory.Instance.register({
+  name: "round", func: round,
+  description: "Rounds a number to a given number of decimal places, or to an integer when the precision is omitted.",
+  parameters: [
+    { name: "num", type: "number" },
+    { name: "precision", type: "number", description: "Decimal places", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "parameters",
+});
 
 function trunc(params: any[]): any {
   var arr: any[] = [];
@@ -315,9 +410,21 @@ function trunc(params: any[]): any {
   }
   return NaN;
 }
-FunctionFactory.Instance.register("trunc", trunc);
+FunctionFactory.Instance.register({
+  name: "trunc", func: trunc,
+  description: "Truncates a number to a given number of decimal places, or to its integer part when the precision is omitted.",
+  parameters: [
+    { name: "num", type: "number" },
+    { name: "precision", type: "number", description: "Decimal places", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "parameters",
+});
 
-function isReturnColumnParam(param: string, operand: any): boolean {
+// Whether the third argument of an inArray function names a column rather than being the
+// condition: exported so that a tool reading the JSON splits the arguments the way the
+// runtime does (survey-core/linter).
+export function isReturnColumnParam(param: string, operand: any): boolean {
   if (!operand || !operand.getType || operand.getType() !== "const") return false;
   return typeof param === "string" && !/[{}><=!]/.test(param);
 }
@@ -347,18 +454,47 @@ function getInArrayParams(params: any[], originalParams: any[]): any {
       expression = operand.toString();
     }
   }
-  return { data: arr, name: name, expression: expression, returnName: returnName };
+  return { data: arr, name: name, expression: expression, returnName: returnName, variable: getArrayVariableName(originalParams) };
+}
+// The name the array is read by, when the first argument is a reference: {matrix}.
+function getArrayVariableName(originalParams: any[]): string {
+  const operand = Array.isArray(originalParams) ? originalParams[0] : undefined;
+  return !!operand && typeof operand.getType === "function" && operand.getType() === "variable" ? operand.variable : undefined;
 }
 
 function convertToNumber(val: any): number {
   if (typeof val === "string") return Helpers.isNumber(val) ? Helpers.getNumber(val) : undefined;
   return val;
 }
-function processItemInArray(item: any, name: string, res: number,
+// The converter of the field, from the context {matrix} is read through (getFieldValueConverter).
+function getFieldValueConverter(v: any, properties: any): (val: any) => any {
+  if (!v.variable || !properties.context) return null;
+  const res = new ValueGetter().getValueInfo({ name: v.variable, context: properties.context });
+  const context: IValueGetterContext = res.isFound ? res.context : undefined;
+  return !!context && !!context.getFieldValueConverter ? context.getFieldValueConverter(v.name) || null : null;
+}
+/* An item's field as a number. A string goes through the field's converter, so the question that
+   stores the field converts it: a text question that saves its masked value ("1,234") gives the
+   unmasked one (Bug#12122). The converter is looked up once, on the first string. */
+function getItemNumber(v: any, key: string | number, properties: any): number {
+  let val = v.data[key][v.name];
+  if (typeof val === "string") {
+    if (v.converter === undefined) {
+      v.converter = getFieldValueConverter(v, properties);
+    }
+    const converted = !!v.converter ? v.converter(val) : undefined;
+    if (!Helpers.isValueEmpty(converted)) {
+      val = converted;
+    }
+  }
+  return convertToNumber(val);
+}
+function processItemInArray(v: any, key: string | number, res: number,
   func: (res: number, val: number) => number, needToConvert: boolean, condition: ConditionRunner, properties: any): number {
-  if (!item || Helpers.isValueEmpty(item[name])) return res;
+  const item = v.data[key];
+  if (!item || Helpers.isValueEmpty(item[v.name])) return res;
   if (condition && !condition.runValues(item, properties)) return res;
-  const val = needToConvert ? convertToNumber(item[name]) : 1;
+  const val = needToConvert ? getItemNumber(v, key, properties) : 1;
   return func(res, val);
 }
 function calcInArray(properties: any,
@@ -374,11 +510,11 @@ function calcInArray(properties: any,
   var res = undefined;
   if (Array.isArray(v.data)) {
     for (var i = 0; i < v.data.length; i++) {
-      res = processItemInArray(v.data[i], v.name, res, func, needToConvert, condition, properties);
+      res = processItemInArray(v, i, res, func, needToConvert, condition, properties);
     }
   } else {
     for (var key in v.data) {
-      res = processItemInArray(v.data[key], v.name, res, func, needToConvert, condition, properties);
+      res = processItemInArray(v, key, res, func, needToConvert, condition, properties);
     }
   }
   return res;
@@ -398,7 +534,18 @@ function sumInArray(params: any[], originalParams: any[]): any {
   });
   return res !== undefined ? res : 0;
 }
-FunctionFactory.Instance.register({ name: "sumInArray", func: sumInArray, originalValueParams: [0] });
+FunctionFactory.Instance.register({
+  name: "sumInArray", func: sumInArray,
+  originalValueParams: [0],
+  description: "Returns the sum of a field over the items of an array value.",
+  parameters: [
+    { name: "question", type: "array", description: "The value of a multi-select matrix, a dynamic matrix or a dynamic panel: {matrix}" },
+    { name: "dataFieldName", type: "string", description: "The column or template question name, quoted: 'total'" },
+    { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function calcMinMaxInArray(properties: any, params: any[], originalParams: any[],
   isMin: boolean
@@ -411,12 +558,12 @@ function calcMinMaxInArray(properties: any, params: any[], originalParams: any[]
   }
   var bestVal: number = undefined;
   var bestItem: any = undefined;
-  const items = Array.isArray(v.data) ? v.data : Object.keys(v.data).map(key => v.data[key]);
-  for (var i = 0; i < items.length; i++) {
-    const item = items[i];
+  const keys: Array<string | number> = Array.isArray(v.data) ? v.data.map((_: any, index: number) => index) : Object.keys(v.data);
+  for (var i = 0; i < keys.length; i++) {
+    const item = v.data[keys[i]];
     if (!item || Helpers.isValueEmpty(item[v.name])) continue;
     if (condition && !condition.runValues(item, properties)) continue;
-    const val = convertToNumber(item[v.name]);
+    const val = getItemNumber(v, keys[i], properties);
     if (val == undefined || val == null) continue;
     if (bestVal == undefined || (isMin ? val < bestVal : val > bestVal)) {
       bestVal = val;
@@ -431,12 +578,36 @@ function calcMinMaxInArray(properties: any, params: any[], originalParams: any[]
 function minInArray(params: any[], originalParams: any[]): any {
   return calcMinMaxInArray(getProperties(this), params, originalParams, true);
 }
-FunctionFactory.Instance.register({ name: "minInArray", func: minInArray, originalValueParams: [0] });
+FunctionFactory.Instance.register({
+  name: "minInArray", func: minInArray,
+  originalValueParams: [0],
+  description: "Returns the smallest value of a field over the items of an array value, or another field of the item that holds it.",
+  parameters: [
+    { name: "question", type: "array", description: "The value of a multi-select matrix, a dynamic matrix or a dynamic panel: {matrix}" },
+    { name: "valueField", type: "string", description: "The field compared, quoted: 'price'" },
+    { name: "returnFieldOrFilter", type: "string|condition", description: "A field to return from the item with the smallest value, or a filter", optional: true },
+    { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
+  ],
+  returnType: "number|string",
+  resultDependsOn: "survey",
+});
 
 function maxInArray(params: any[], originalParams: any[]): any {
   return calcMinMaxInArray(getProperties(this), params, originalParams, false);
 }
-FunctionFactory.Instance.register({ name: "maxInArray", func: maxInArray, originalValueParams: [0] });
+FunctionFactory.Instance.register({
+  name: "maxInArray", func: maxInArray,
+  originalValueParams: [0],
+  description: "Returns the largest value of a field over the items of an array value, or another field of the item that holds it.",
+  parameters: [
+    { name: "question", type: "array", description: "The value of a multi-select matrix, a dynamic matrix or a dynamic panel: {matrix}" },
+    { name: "valueField", type: "string", description: "The field compared, quoted: 'price'" },
+    { name: "returnFieldOrFilter", type: "string|condition", description: "A field to return from the item with the largest value, or a filter", optional: true },
+    { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
+  ],
+  returnType: "number|string",
+  resultDependsOn: "survey",
+});
 
 function countInArray(params: any[], originalParams: any[]): any {
   var res = calcInArray(getProperties(this), params, originalParams, function(res: number, val: number): number {
@@ -446,7 +617,18 @@ function countInArray(params: any[], originalParams: any[]): any {
   }, false);
   return res !== undefined ? res : 0;
 }
-FunctionFactory.Instance.register({ name: "countInArray", func: countInArray, originalValueParams: [0] });
+FunctionFactory.Instance.register({
+  name: "countInArray", func: countInArray,
+  originalValueParams: [0],
+  description: "Returns the number of items of an array value whose field has a value.",
+  parameters: [
+    { name: "question", type: "array", description: "The value of a multi-select matrix, a dynamic matrix or a dynamic panel: {matrix}" },
+    { name: "valueField", type: "string", description: "The field checked, quoted: 'quantity'" },
+    { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function avgInArray(params: any[], originalParams: any[]): any {
   const properties = getProperties(this);
@@ -455,25 +637,56 @@ function avgInArray(params: any[], originalParams: any[]): any {
   if (count == 0) return 0;
   return funcCall("sumInArray") / count;
 }
-FunctionFactory.Instance.register({ name: "avgInArray", func: avgInArray, originalValueParams: [0] });
+FunctionFactory.Instance.register({
+  name: "avgInArray", func: avgInArray,
+  originalValueParams: [0],
+  description: "Returns the average of a field over the items of an array value.",
+  parameters: [
+    { name: "question", type: "array", description: "The value of a multi-select matrix, a dynamic matrix or a dynamic panel: {matrix}" },
+    { name: "valueField", type: "string", description: "The field averaged, quoted: 'quantity'" },
+    { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function iif(params: any[]): any {
   if (!Array.isArray(params) || params.length < 2) return null;
   const va2 = params.length > 2 ? params[2] : undefined;
   return params[0] ? params[1] : va2;
 }
-FunctionFactory.Instance.register("iif", iif);
+FunctionFactory.Instance.register({
+  name: "iif", func: iif,
+  description: "Returns the second argument when the condition holds, otherwise the third.",
+  parameters: [
+    { name: "condition", type: "condition" },
+    { name: "valueIfTrue", type: "any" },
+    { name: "valueIfFalse", type: "any" },
+  ],
+  returnType: "any",
+  resultDependsOn: "parameters",
+});
 
 function getDate(params: any[]): any {
   if (!Array.isArray(params) || params.length < 1 || !params[0]) return null;
   return createDate("function-getDate", params[0]);
 }
-FunctionFactory.Instance.register("getDate", getDate);
+FunctionFactory.Instance.register({
+  name: "getDate", func: getDate,
+  description: "Converts a value to a date.",
+  parameters: [
+    { name: "value", type: "any", description: "A date question or a date string" },
+  ],
+  returnType: "date",
+  resultDependsOn: "parameters",
+});
 
-function dateDiffMonths(date1Param: any, date2Param: any, type: string): number {
+// owner carries the clock of the survey the expression belongs to: an age() with one parameter
+// measures it against the current moment, and that moment is the survey's, not the machine's.
+function dateDiffMonths(date1Param: any, date2Param: any, type: string, owner?: any): number {
   if (type === "days") return diffDays([date1Param, date2Param]);
-  const date1 = createDate("function-dateDiffMonths", date1Param);
-  const date2 = createDate("function-dateDiffMonths", date2Param);
+  const date1 = createDate("function-dateDiffMonths", date1Param, owner);
+  const date2 = createDate("function-dateDiffMonths", date2Param, owner);
   const age = date2.getFullYear() - date1.getFullYear();
   type = type || "years";
   let ageInMonths = age * 12 + date2.getMonth() - date1.getMonth();
@@ -484,24 +697,42 @@ function dateDiffMonths(date1Param: any, date2Param: any, type: string): number 
 }
 function age(params: any[]): number {
   if (!Array.isArray(params) || params.length < 1 || !params[0]) return null;
-  return dateDiffMonths(params[0], undefined, (params.length > 1 ? params[1] : "") || "years");
+  return dateDiffMonths(params[0], undefined, (params.length > 1 ? params[1] : "") || "years", this?.survey);
 }
-FunctionFactory.Instance.register("age", age);
+FunctionFactory.Instance.register({
+  name: "age", func: age,
+  description: "Returns the age in full years for a birth date.",
+  parameters: [
+    { name: "birthdate", type: "date" },
+  ],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function dateDiff(params: any[]): any {
   if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
   const type = (params.length > 2 ? params[2] : "") || "days";
   if (type === "hours" || type === "minutes" || type === "seconds") {
-    const date1: any = createDate("function-dateDiffMonths", params[0]);
-    const date2: any = createDate("function-dateDiffMonths", params[1]);
+    const date1: any = createDate("function-dateDiffMonths", params[0], this?.survey);
+    const date2: any = createDate("function-dateDiffMonths", params[1], this?.survey);
     const diffMs = Math.abs(date2 - date1);
     if (type === "hours") return Math.ceil(diffMs / (1000 * 60 * 60));
     if (type === "minutes") return Math.ceil(diffMs / (1000 * 60));
     return Math.ceil(diffMs / 1000);
   }
-  return dateDiffMonths(params[0], params[1], type);
+  return dateDiffMonths(params[0], params[1], type, this?.survey);
 }
-FunctionFactory.Instance.register("dateDiff", dateDiff);
+FunctionFactory.Instance.register({
+  name: "dateDiff", func: dateDiff,
+  description: "Returns the difference between two dates in a given unit.",
+  parameters: [
+    { name: "fromDate", type: "date" },
+    { name: "toDate", type: "date" },
+    { name: "interval", type: "string", description: "'days' (default), 'hours', 'minutes', 'seconds', 'months' or 'years'", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function dateAdd(params: any[]): any {
   if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
@@ -529,7 +760,17 @@ function dateAdd(params: any[]): any {
   return date;
 }
 
-FunctionFactory.Instance.register("dateAdd", dateAdd);
+FunctionFactory.Instance.register({
+  name: "dateAdd", func: dateAdd,
+  description: "Adds a number of units to a date; a negative number subtracts.",
+  parameters: [
+    { name: "date", type: "date" },
+    { name: "numberToAdd", type: "number" },
+    { name: "interval", type: "string", description: "'days' (default), 'hours', 'minutes', 'seconds', 'months' or 'years'", optional: true },
+  ],
+  returnType: "date",
+  resultDependsOn: "parameters",
+});
 
 function isContainerReadyCore(container: any): boolean {
   if (!container) return false;
@@ -568,20 +809,43 @@ function isContainerReady(params: any[]): any {
   }
   return isContainerReadyCore(container);
 }
-FunctionFactory.Instance.register("isContainerReady", isContainerReady);
+FunctionFactory.Instance.register({
+  name: "isContainerReady", func: isContainerReady,
+  description: "Returns true when every question of a panel or a page has valid input.",
+  parameters: [
+    { name: "nameOfPanelOrPage", type: "string", description: "Quoted: 'page1'" },
+  ],
+  returnType: "boolean",
+  resultDependsOn: "elements",
+});
 
 function isDisplayMode() {
   return this.survey && this.survey.isDisplayMode;
 }
-FunctionFactory.Instance.register("isDisplayMode", isDisplayMode);
+FunctionFactory.Instance.register({
+  name: "isDisplayMode", func: isDisplayMode,
+  description: "Returns true when the survey is shown in display (read-only) or preview mode.",
+  parameters: [],
+  returnType: "boolean",
+  resultDependsOn: "survey",
+});
 
+// The functions that mean "now" read the clock of the survey the expression runs in. this.survey is
+// the same object isDisplayMode() and isContainerReady() read, and it is absent only when an
+// expression is run outside a survey - then the machine clock answers, as it always did.
 function currentDate() {
-  return createDate("function-currentDate");
+  return createDate("function-currentDate", undefined, this?.survey);
 }
-FunctionFactory.Instance.register("currentDate", currentDate);
+FunctionFactory.Instance.register({
+  name: "currentDate", func: currentDate,
+  description: "Returns the current date and time.",
+  parameters: [],
+  returnType: "date",
+  resultDependsOn: "survey",
+});
 
 function today(params: any[]) {
-  var res = createDate("function-today");
+  var res = createDate("function-today", undefined, this?.survey);
   if (!settings.storeUtcDates) {
     res.setHours(0, 0, 0, 0);
   } else {
@@ -592,18 +856,40 @@ function today(params: any[]) {
   }
   return res;
 }
-FunctionFactory.Instance.register("today", today);
+FunctionFactory.Instance.register({
+  name: "today", func: today,
+  description: "Returns today's date at midnight, optionally shifted by a number of days.",
+  parameters: [
+    { name: "daysToAdd", type: "number", description: "today(-1) is yesterday", optional: true },
+  ],
+  returnType: "date",
+  resultDependsOn: "survey",
+});
 
 function getYear(params: any[]) {
   if (params.length !== 1 || !params[0]) return undefined;
   return createDate("function-getYear", params[0]).getFullYear();
 }
-FunctionFactory.Instance.register("getYear", getYear);
+FunctionFactory.Instance.register({
+  name: "getYear", func: getYear,
+  description: "Returns the year of a date.",
+  parameters: [
+    { name: "date", type: "date" },
+  ],
+  returnType: "number",
+  resultDependsOn: "parameters",
+});
 
 function currentYear() {
-  return createDate("function-currentYear").getFullYear();
+  return createDate("function-currentYear", undefined, this?.survey).getFullYear();
 }
-FunctionFactory.Instance.register("currentYear", currentYear);
+FunctionFactory.Instance.register({
+  name: "currentYear", func: currentYear,
+  description: "Returns the current year.",
+  parameters: [],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function diffDays(params: any[]) {
   if (!Array.isArray(params) || params.length !== 2) return 0;
@@ -614,39 +900,82 @@ function diffDays(params: any[]) {
   const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
   return Math.ceil(Math.abs(utc2 - utc1) / (1000 * 60 * 60 * 24));
 }
-FunctionFactory.Instance.register("diffDays", diffDays);
+FunctionFactory.Instance.register({
+  name: "diffDays", func: diffDays,
+  description: "Returns the number of days between two dates, regardless of their order.",
+  parameters: [
+    { name: "fromDate", type: "date" },
+    { name: "toDate", type: "date" },
+  ],
+  returnType: "number",
+  resultDependsOn: "parameters",
+});
 
+// Called through .call() so that the survey the function is running in reaches today(): a plain call
+// would lose it, and year() with no parameter means "the current year of this survey".
 function dateFromFirstParameterOrToday(name: string, params: any[]) {
-  let date = today(undefined);
+  let date = today.call(this, undefined);
   if (params && params[0]) {
-    date = createDate("function-" + name, params[0]);
+    date = createDate("function-" + name, params[0], this?.survey);
   }
   return date;
 }
 
 function year(params: any[]): any {
-  let date = dateFromFirstParameterOrToday("year", params);
+  let date = dateFromFirstParameterOrToday.call(this, "year", params);
   return date.getFullYear();
 }
-FunctionFactory.Instance.register("year", year);
+FunctionFactory.Instance.register({
+  name: "year", func: year,
+  description: "Returns the year of a date, or of today when the date is omitted.",
+  parameters: [
+    { name: "date", type: "date", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function month(params: any[]): any {
-  let date = dateFromFirstParameterOrToday("month", params);
+  let date = dateFromFirstParameterOrToday.call(this, "month", params);
   return date.getMonth() + 1;
 }
-FunctionFactory.Instance.register("month", month);
+FunctionFactory.Instance.register({
+  name: "month", func: month,
+  description: "Returns the month of a date from 1 (January) to 12 (December), or of today when the date is omitted.",
+  parameters: [
+    { name: "date", type: "date", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function day(params: any[]): any {
-  let date = dateFromFirstParameterOrToday("day", params);
+  let date = dateFromFirstParameterOrToday.call(this, "day", params);
   return date.getDate();
 }
-FunctionFactory.Instance.register("day", day);
+FunctionFactory.Instance.register({
+  name: "day", func: day,
+  description: "Returns the day of the month (1 to 31) of a date, or of today when the date is omitted.",
+  parameters: [
+    { name: "date", type: "date", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function weekday(params: any[]): any {
-  let date = dateFromFirstParameterOrToday("weekday", params);
+  let date = dateFromFirstParameterOrToday.call(this, "weekday", params);
   return date.getDay();
 }
-FunctionFactory.Instance.register("weekday", weekday);
+FunctionFactory.Instance.register({
+  name: "weekday", func: weekday,
+  description: "Returns the day of the week from 0 (Sunday) to 6 (Saturday) of a date, or of today when the date is omitted.",
+  parameters: [
+    { name: "date", type: "date", optional: true },
+  ],
+  returnType: "number",
+  resultDependsOn: "survey",
+});
 
 function getQuestionValueByContext(context: any, name: string): any {
   if (!context || !name) return undefined;
@@ -689,14 +1018,33 @@ function displayValue(params: any[]): any {
   }
   return undefined;
 }
-FunctionFactory.Instance.register("displayValue", displayValue, true, false);
+FunctionFactory.Instance.register({
+  name: "displayValue", func: displayValue,
+  isAsync: true, useCache: false,
+  description: "Returns the display text of a question's value, or of a given value of that question.",
+  parameters: [
+    { name: "questionName", type: "string", description: "Quoted: 'q1'" },
+    { name: "value", type: "any", optional: true },
+  ],
+  returnType: "any",
+  resultDependsOn: "elements",
+});
 
 function propertyValue(params: any[]): any {
   if (params.length !== 2 || !params[0] || !params[1]) return undefined;
   const q = getQuestionValueByContext(this, params[0]);
   return q ? q[params[1]] : undefined;
 }
-FunctionFactory.Instance.register("propertyValue", propertyValue);
+FunctionFactory.Instance.register({
+  name: "propertyValue", func: propertyValue,
+  description: "Obsolete: write {$q1.visible} instead. Returns a property value of a question.",
+  parameters: [
+    { name: "questionName", type: "string", description: "Quoted: 'q1'" },
+    { name: "propertyName", type: "string", description: "Quoted: 'visible'" },
+  ],
+  returnType: "any",
+  resultDependsOn: "elements",
+});
 function substring_(params: any[]): any {
   if (params.length < 2) return "";
   const s = params[0];
@@ -707,7 +1055,17 @@ function substring_(params: any[]): any {
   if (!Helpers.isNumber(end)) return s.substring(start);
   return s.substring(start, end);
 }
-FunctionFactory.Instance.register("substring", substring_);
+FunctionFactory.Instance.register({
+  name: "substring", func: substring_,
+  description: "Returns the part of a text from a start index up to, not including, an end index.",
+  parameters: [
+    { name: "text", type: "string" },
+    { name: "start", type: "number" },
+    { name: "end", type: "number", optional: true },
+  ],
+  returnType: "string",
+  resultDependsOn: "parameters",
+});
 
 function getComment(params: any[]): any {
   if (params.length < 1 || !params[0] || !this.survey) return undefined;
@@ -720,7 +1078,16 @@ function getComment(params: any[]): any {
   }
   return question.getCommentValue(question.otherItem) || question.comment;
 }
-FunctionFactory.Instance.register("getComment", getComment);
+FunctionFactory.Instance.register({
+  name: "getComment", func: getComment,
+  description: "Returns the comment a respondent entered for a question: the one of a given choice, or of the 'Other' item and the question comment.",
+  parameters: [
+    { name: "questionName", type: "string", description: "Quoted: 'q1'" },
+    { name: "choiceValue", type: "any", optional: true },
+  ],
+  returnType: "string",
+  resultDependsOn: "survey",
+});
 
 export function expressionSurveyCachedValue(name: string, value: any, isVariable?: boolean): void {
   FunctionFactory.Instance.addSurveyCachedValue(name, value, isVariable);

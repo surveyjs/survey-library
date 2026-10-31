@@ -5,6 +5,58 @@ export var dutchSurveyStrings = {
   pagePrevText: "Vorige",
   // "Next"
   pageNextText: "Volgende",
+  // [Auto-translated] "First"
+  pageFirstText: "Eerste",
+  // [Auto-translated] "Last"
+  pageLastText: "Laatste",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "van {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selecteer pagina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sorteer op {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Hoog - Laag",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Laag - Hoog",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nieuwste primeur",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Oudste eerste",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorteer op {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, dan door {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sorteer op",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Standaard",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteerveld",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteervolgorde",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Voeg sorteerniveau toe",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Verwijder sorteerniveau {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteerveld {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteervolgorde {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Laat alle sorteerniveaus zien",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Voeg Nieuw toe",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Plaats op niveau {0}",
   // "Complete"
   completeText: "Verzenden",
   // "Preview"
@@ -37,6 +89,8 @@ export var dutchSurveyStrings = {
   panelDynamicTabTextFormat: "Paneel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Geantwoord {0}/{1} vragen",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Vraag {0} van {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Er is geen zichtbare pagina of vraag in deze vragenlijst",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var dutchSurveyStrings = {
   value: "waarde",
   // "Response required."
   requiredError: "Dit is een vereiste vraag",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "De waarde is onjuist.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "De waarde bevat onbekende sleutels: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Gelieve ten minste een vraag te beantwoorden.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var dutchSurveyStrings = {
   noUploadFilesHandler: "Bestanden kunnen niet worden geüpload. Voeg een handler toe voor de gebeurtenis 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Vul het veld 'Anders, nl.' in",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "De waarde '{0}' is niet een van de beschikbare opties.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Uw bestand wordt geüpload. Gelieve enkele seconden te wachten en opnieuw te proberen.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var dutchSurveyStrings = {
   addRow: "Voeg rij toe",
   // "Remove"
   removeRow: "Verwijder",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Rij {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Er zijn geen rijen.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var dutchSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Voortgangsbalk",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Pagina {0}"
+  progressbarPage: "Pagina {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "j",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "u",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "U",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });

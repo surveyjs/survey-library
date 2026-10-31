@@ -3,6 +3,32 @@ import { registerMarkupTests } from "./helper";
 registerMarkupTests(
   [
     {
+      name: "Test multipletext masked item markup",
+      json: {
+        elements: [
+          {
+            type: "multipletext",
+            name: "multipletext",
+            titleLocation: "hidden",
+            items: [
+              {
+                name: "item1",
+                title: "Date",
+                maskType: "datetime"
+              },
+              {
+                name: "item2",
+                title: "Amount",
+                maskType: "currency"
+              }
+            ]
+          },
+        ]
+      },
+      snapshot: "multipletext-mask",
+      removeIds: true
+    },
+    {
       name: "Test mutlipletext question markup",
       json: {
         elements: [

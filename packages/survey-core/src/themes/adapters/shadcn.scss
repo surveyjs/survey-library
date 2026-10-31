@@ -281,8 +281,10 @@
   --sjs2-color-component-tagbox-item-hovered-label: var(--secondary-foreground);
   --sjs2-color-component-tagbox-item-action-default-bg: transparent;
   --sjs2-color-component-tagbox-item-action-hovered-bg: transparent;
+  --sjs2-color-component-tagbox-item-action-pressed-bg: transparent;
   --sjs2-color-component-tagbox-item-action-default-icon: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
   --sjs2-color-component-tagbox-item-action-hovered-icon: var(--foreground);
+  --sjs2-color-component-tagbox-item-action-pressed-icon: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
 
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
@@ -316,6 +318,10 @@
 
   --sjs2-color-border-basic-primary: var(--foreground);
   --sjs2-color-border-basic-secondary: var(--border);
+  --sjs2-color-component-shortcut-key-bg: var(--card);
+  --sjs2-color-component-shortcut-key-border: var(--border);
+  --sjs2-color-component-shortcut-key-text: var(--card-foreground);
+  --sjs2-radius-component-shortcut-key: var(--radius);
   --sjs2-color-utility-shadow-surface-default: var(--border);
   --sjs2-color-utility-shadow-trigger-default: transparent;
 
@@ -367,8 +373,8 @@
   /* the ring color; panel separators are off (transparent) across adapters */
   --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 10%, transparent);
   --sjs2-color-component-panel-default-separator: transparent;
-  --sjs2-border-effect-component-panel-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-typography-font-size-component-panel-title: var(--text-base);
   --sjs2-typography-line-height-component-panel-title: var(--text-base--line-height);
@@ -411,27 +417,28 @@
   --sjs2-layout-component-panel-footer-gap: var(--sjs2-shadcn-card-action-gap);
   --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs2-shadcn-card-action-gap);
 
-  /* a framed question is a <Card> with a <CardContent> only, so the card's py lands there */
-  --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
-  --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
-  --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-simple-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-simple-default-border), var(--sjs2-shadcn-card-shadow);
+  /* panelless: a page-level question is not a <Card>. Same recipe as the built-in *-panelless
+     themes: the simple panel keeps no background, ring or padding, so the fields sit directly on
+     the page the way a native form does. Real panels (nested / dynamic) stay cards. */
+  --sjs2-is-panelless: true;
+  --sjs2-color-component-panel-simple-default-bg: transparent;
+  --sjs2-color-component-panel-simple-default-border: transparent;
+  --sjs2-color-component-panel-simple-default-separator: transparent;
+  --sjs2-border-effect-component-panel-simple-default: none;
+  --sjs2-radius-component-panel-simple: var(--sjs2-radius-x000);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
   --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
+  /* the error box is offset by its own margin-top (FieldError), not by the container gap */
   --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
+  --sjs2-layout-component-panel-simple-nested-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-shadcn-card-edge-spacing);
-  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
-  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
-  --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(
-    --sjs2-layout-component-panel-content-area-gap-vertical
-  );
-  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(
-    --sjs2-layout-component-panel-content-area-gap-horizontal
-  );
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs2-spacing-x500);
+  --sjs2-layout-component-panel-simple-nested-content-area-gap-horizontal: var(--sjs2-spacing-x500);
 
   /* a nested panel is a <Card> that keeps a bordered <CardHeader>: [.border-b]:pb-6 restores the
      header's bottom padding and the content below it starts with the full card spacing again */
@@ -439,8 +446,8 @@
   --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-nested-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-nested-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-nested-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-nested-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-nested-box-padding-top: 0;
@@ -483,8 +490,9 @@
   --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-dynamic-default-separator: transparent;
-  --sjs2-border-effect-component-panel-dynamic-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-dynamic-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-dynamic-default-border),
+    var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
@@ -527,6 +535,8 @@
 
   --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;
+  --sjs2-layout-component-page-content-area-gap-horizontal: var(--sjs2-spacing-large-horizontal);
+  --sjs2-layout-component-page-content-area-gap-vertical: var(--sjs2-spacing-large-vertical);
 }
 
 .sd-page__title {
@@ -542,8 +552,15 @@
   height: var(--sjs2-shadcn-input-height);
 }
 .sd-comment__input {
+  height: initial;
   min-height: var(--sjs2-shadcn-textarea-min-height);
   padding-block: var(--sjs2-shadcn-textarea-padding-vertical);
+  field-sizing: content;
+}
+// content sizing drops the cols-based intrinsic width and resizes auto-layout matrix columns
+.sd-table .sd-comment__input {
+  field-sizing: fixed;
+  height: var(--sjs2-shadcn-input-height);
 }
 
 .sd-formbox--error {
@@ -563,6 +580,11 @@
 
 .sd-question__title--error {
   color: var(--destructive);
+}
+
+.sd-question__erbox {
+  order: 1;
+  margin-top: calc(var(--spacing) * 2);
 }
 
 .sd-question__erbox--below-question {
@@ -683,6 +705,10 @@
   &:hover {
     background-color: var(--muted);
   }
+
+  &:active {
+    background-color: var(--sjs2-color-component-tagbox-item-action-pressed-bg);
+  }
 }
 
 .sd-tagbox-item__clean-button-svg {
@@ -759,30 +785,41 @@
   --sd-table-cell-width: initial;
   --sd-table-cell-min-width: initial;
 }
-.sd-table.sd-table.sd-table > tbody > tr {
-  & > th,
-  & > td {
-    &:where(:not(.sd-table__cell--error)) {
-      border-top: 1px solid var(--border);
-      border-bottom: none;
-      padding: calc(var(--spacing) * 2);
-      .sd-radio {
-        padding: 0;
-      }
-      .sd-radio__decorator {
-        margin: 0;
-      }
-    }
+.sjs-theme-overrides {
+  --sjs2-border-width-component-matrix-default-separator: 1px;
+  --sjs2-color-component-matrix-default-separator: var(--border);
+  --sjs2-layout-component-matrix-cell-padding-top: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-padding-bottom: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-padding-left: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-padding-right: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-header-cell-padding-top: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-header-cell-padding-bottom: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-header-cell-padding-left: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-header-cell-padding-right: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-left-padding-left: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-right-padding-right: calc(var(--spacing) * 2);
+
+  --sjs2-layout-component-matrix-box-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-matrix-box-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-matrix-box-padding-top: 0;
+  --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
+  --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs2-layout-component-matrix-box-padding-bottom);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
+}
+.sd-table__cell {
+  .sd-radio {
+    padding: 0;
+  }
+  .sd-radio__decorator {
+    margin: 0;
   }
 }
-.sd-table.sd-table.sd-table > thead > tr {
-  & > th,
-  & > td {
-      border-top: none;
-      border-bottom: none;
-      padding: calc(var(--spacing) * 2);
-  }
+.sd-table__row--data:last-of-type {
+  border-bottom: none;
 }
+
 .sd-table__cell--header,
 .sd-table__cell--row-text {
   height: var(--sjs2-shadcn-table-header-height);
@@ -794,7 +831,6 @@
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
-  margin: 0;
   svg {
     width: calc(var(--spacing) * 4);
     height: calc(var(--spacing) * 4);
@@ -804,11 +840,6 @@
 .sd-question__placeholder {
   min-height: unset;
   align-items: flex-start;
-}
-
-/* panel */
-.sd-element--with-frame.sd-element--compact {
-  background-color: var(--card);
 }
 
 .sd-element__header ~ hr {
@@ -829,4 +860,7 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: calc(var(--spacing) * 1.5);
+}
+.sd-matrixdynamic__content > div > .sd-question__bar--footer {
+  border-top: none;
 }

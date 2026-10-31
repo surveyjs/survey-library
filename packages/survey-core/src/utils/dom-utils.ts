@@ -54,7 +54,7 @@ export function isElementVisible(
 
 export function findScrollableParent(element: Element): Element {
   if (!element) {
-    return DomDocumentHelper.isAvailable() ? DomDocumentHelper.getDocument().documentElement : undefined;
+    return DomDocumentHelper.getDocumentElement() || undefined;
   }
   if (
     element.scrollHeight > element.clientHeight &&
@@ -81,9 +81,15 @@ export function findScrollableParent(element: Element): Element {
   return findScrollableParent(element.parentElement);
 }
 
+// The document element never fires scroll; the window does. Must match QuestionRowModel.startLazyRendering,
+// which listens on window in that case.
+function getScrollEventTarget(scrollableEl: Element): EventTarget {
+  return scrollableEl === DomDocumentHelper.getDocumentElement() ? DomWindowHelper.getWindow() : scrollableEl;
+}
+
 export function activateLazyRenderingChecks(element: Element): void {
   if (!element) return;
-  const scrollableEl = findScrollableParent(element);
+  const scrollableEl = getScrollEventTarget(findScrollableParent(element));
   if (!!scrollableEl) {
     setTimeout(() => scrollableEl.dispatchEvent(new CustomEvent("scroll")), 10);
   }
@@ -162,7 +168,7 @@ export function preventDefaults(event: any) {
 export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean = true) {
   if (DomWindowHelper.isAvailable() && DomDocumentHelper.isAvailable() && element.childNodes.length > 0) {
     const selection = DomWindowHelper.getSelection();
-    if (selection.rangeCount == 0) {
+    if (!selection || selection.rangeCount == 0) {
       return;
     }
 
@@ -181,7 +187,9 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     const tail_len = tail.length;
 
     element.innerText = innerText;
-    range = DomDocumentHelper.getDocument().createRange();
+    const currentDocument = DomDocumentHelper.getDocument();
+    if (!currentDocument) return;
+    range = currentDocument.createRange();
 
     range.setStart(element.firstChild, 0);
     range.setEnd(element.firstChild, 0);

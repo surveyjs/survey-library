@@ -6,6 +6,9 @@
     "locale": {
       "type": "string"
     },
+    "regionalFormat": {
+      "$ref": "#/definitions/regionalformat"
+    },
     "title": {
       "oneOf": [
         {
@@ -114,6 +117,9 @@
       "items": {
         "anyOf": [
           {
+            "$ref": "#/definitions/expression"
+          },
+          {
             "$ref": "#/definitions/matrixdropdownbase"
           },
           {
@@ -121,12 +127,6 @@
           },
           {
             "$ref": "#/definitions/matrixdynamic"
-          },
-          {
-            "$ref": "#/definitions/matrix"
-          },
-          {
-            "$ref": "#/definitions/expression"
           },
           {
             "$ref": "#/definitions/checkbox"
@@ -148,6 +148,9 @@
           },
           {
             "$ref": "#/definitions/dropdown"
+          },
+          {
+            "$ref": "#/definitions/matrix"
           },
           {
             "$ref": "#/definitions/textbase"
@@ -407,6 +410,9 @@
     "autoAdvanceAllowComplete": {
       "type": "boolean"
     },
+    "choiceShortcutsEnabled": {
+      "type": "boolean"
+    },
     "clearInvisibleValues": {
       "type": "string",
       "enum": [
@@ -620,6 +626,33 @@
         }
       }
     },
+    "regionalformat": {
+      "type": "object",
+      "$id": "regionalformat",
+      "properties": {
+        "locale": {
+          "type": "string"
+        },
+        "datePattern": {
+          "type": "string"
+        },
+        "timePattern": {
+          "type": "string"
+        },
+        "decimalSeparator": {
+          "type": "string"
+        },
+        "thousandsSeparator": {
+          "type": "string"
+        },
+        "currencySymbol": {
+          "type": "string"
+        },
+        "currencyPattern": {
+          "type": "string"
+        }
+      }
+    },
     "expressionitem": {
       "type": "object",
       "$id": "expressionitem",
@@ -664,6 +697,9 @@
           "items": {
             "anyOf": [
               {
+                "$ref": "expression"
+              },
+              {
                 "$ref": "matrixdropdownbase"
               },
               {
@@ -671,12 +707,6 @@
               },
               {
                 "$ref": "matrixdynamic"
-              },
-              {
-                "$ref": "matrix"
-              },
-              {
-                "$ref": "expression"
               },
               {
                 "$ref": "checkbox"
@@ -698,6 +728,9 @@
               },
               {
                 "$ref": "dropdown"
+              },
+              {
+                "$ref": "matrix"
               },
               {
                 "$ref": "textbase"
@@ -1045,6 +1078,9 @@
         },
         "randomizeCategory": {
           "type": "string"
+        },
+        "allowClear": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -1183,9 +1219,240 @@
         }
       ]
     },
-    "matrixbase": {
+    "expression": {
       "type": "object",
-      "$id": "matrixbase",
+      "$id": "expression",
+      "allOf": [
+        {
+          "$ref": "question"
+        },
+        {
+          "properties": {
+            "expression": {
+              "type": "string"
+            },
+            "format": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "locstring"
+                }
+              ]
+            },
+            "displayStyle": {
+              "type": "string",
+              "enum": [
+                "none",
+                "decimal",
+                "currency",
+                "percent",
+                "date"
+              ]
+            },
+            "currency": {
+              "type": "string",
+              "enum": [
+                "AED",
+                "AFN",
+                "ALL",
+                "AMD",
+                "ANG",
+                "AOA",
+                "ARS",
+                "AUD",
+                "AWG",
+                "AZN",
+                "BAM",
+                "BBD",
+                "BDT",
+                "BGN",
+                "BHD",
+                "BIF",
+                "BMD",
+                "BND",
+                "BOB",
+                "BOV",
+                "BRL",
+                "BSD",
+                "BTN",
+                "BWP",
+                "BYN",
+                "BZD",
+                "CAD",
+                "CDF",
+                "CHE",
+                "CHF",
+                "CHW",
+                "CLF",
+                "CLP",
+                "CNY",
+                "COP",
+                "COU",
+                "CRC",
+                "CUC",
+                "CUP",
+                "CVE",
+                "CZK",
+                "DJF",
+                "DKK",
+                "DOP",
+                "DZD",
+                "EGP",
+                "ERN",
+                "ETB",
+                "EUR",
+                "FJD",
+                "FKP",
+                "GBP",
+                "GEL",
+                "GHS",
+                "GIP",
+                "GMD",
+                "GNF",
+                "GTQ",
+                "GYD",
+                "HKD",
+                "HNL",
+                "HRK",
+                "HTG",
+                "HUF",
+                "IDR",
+                "ILS",
+                "INR",
+                "IQD",
+                "IRR",
+                "ISK",
+                "JMD",
+                "JOD",
+                "JPY",
+                "KES",
+                "KGS",
+                "KHR",
+                "KMF",
+                "KPW",
+                "KRW",
+                "KWD",
+                "KYD",
+                "KZT",
+                "LAK",
+                "LBP",
+                "LKR",
+                "LRD",
+                "LSL",
+                "LYD",
+                "MAD",
+                "MDL",
+                "MGA",
+                "MKD",
+                "MMK",
+                "MNT",
+                "MOP",
+                "MRO",
+                "MUR",
+                "MVR",
+                "MWK",
+                "MXN",
+                "MXV",
+                "MYR",
+                "MZN",
+                "NAD",
+                "NGN",
+                "NIO",
+                "NOK",
+                "NPR",
+                "NZD",
+                "OMR",
+                "PAB",
+                "PEN",
+                "PGK",
+                "PHP",
+                "PKR",
+                "PLN",
+                "PYG",
+                "QAR",
+                "RON",
+                "RSD",
+                "RUB",
+                "RWF",
+                "SAR",
+                "SBD",
+                "SCR",
+                "SDG",
+                "SEK",
+                "SGD",
+                "SHP",
+                "SLL",
+                "SOS",
+                "SRD",
+                "SSP",
+                "STD",
+                "SVC",
+                "SYP",
+                "SZL",
+                "THB",
+                "TJS",
+                "TMT",
+                "TND",
+                "TOP",
+                "TRY",
+                "TTD",
+                "TWD",
+                "TZS",
+                "UAH",
+                "UGX",
+                "USD",
+                "USN",
+                "UYI",
+                "UYU",
+                "UZS",
+                "VEF",
+                "VND",
+                "VUV",
+                "WST",
+                "XAF",
+                "XAG",
+                "XAU",
+                "XBA",
+                "XBB",
+                "XBC",
+                "XBD",
+                "XCD",
+                "XDR",
+                "XOF",
+                "XPD",
+                "XPF",
+                "XPT",
+                "XSU",
+                "XTS",
+                "XUA",
+                "XXX",
+                "YER",
+                "ZAR",
+                "ZMW",
+                "ZWL"
+              ]
+            },
+            "maximumFractionDigits": {
+              "type": "number"
+            },
+            "minimumFractionDigits": {
+              "type": "number"
+            },
+            "useGrouping": {
+              "type": "boolean"
+            },
+            "precision": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "matrixdropdownbase": {
+      "type": "object",
+      "$id": "matrixdropdownbase",
       "allOf": [
         {
           "$ref": "question"
@@ -1221,20 +1488,7 @@
                 "table",
                 "list"
               ]
-            }
-          }
-        }
-      ]
-    },
-    "matrixdropdownbase": {
-      "type": "object",
-      "$id": "matrixdropdownbase",
-      "allOf": [
-        {
-          "$ref": "matrixbase"
-        },
-        {
-          "properties": {
+            },
             "columns": {
               "type": "array",
               "items": {
@@ -1249,6 +1503,9 @@
               "items": {
                 "anyOf": [
                   {
+                    "$ref": "expression"
+                  },
+                  {
                     "$ref": "matrixdropdownbase"
                   },
                   {
@@ -1256,12 +1513,6 @@
                   },
                   {
                     "$ref": "matrixdynamic"
-                  },
-                  {
-                    "$ref": "matrix"
-                  },
-                  {
-                    "$ref": "expression"
                   },
                   {
                     "$ref": "checkbox"
@@ -1283,6 +1534,9 @@
                   },
                   {
                     "$ref": "dropdown"
+                  },
+                  {
+                    "$ref": "matrix"
                   },
                   {
                     "$ref": "textbase"
@@ -1435,6 +1689,31 @@
             },
             "allowAdaptiveActions": {
               "type": "boolean"
+            },
+            "pageSize": {
+              "type": "number"
+            },
+            "sortCriteria": {
+              "type": "array",
+              "items": {
+                "$ref": "sortcriterion"
+              }
+            },
+            "filterExpression": {
+              "type": "string"
+            },
+            "allowSort": {
+              "type": "boolean"
+            },
+            "maxSortLevel": {
+              "type": "number"
+            },
+            "showSortBar": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "always"
+              ]
             }
           }
         }
@@ -1802,6 +2081,9 @@
         "renderAs": {
           "type": "string"
         },
+        "allowSort": {
+          "type": "boolean"
+        },
         "defaultDisplayValue": {
           "oneOf": [
             {
@@ -1921,6 +2203,9 @@
             "rowCount": {
               "type": "number"
             },
+            "rowCountExpression": {
+              "type": "string"
+            },
             "minRowCount": {
               "type": "number"
             },
@@ -1996,330 +2281,6 @@
             },
             "allowRowReorder": {
               "type": "boolean"
-            }
-          }
-        }
-      ]
-    },
-    "matrix": {
-      "type": "object",
-      "$id": "matrix",
-      "allOf": [
-        {
-          "$ref": "matrixbase"
-        },
-        {
-          "properties": {
-            "rowTitleWidth": {
-              "type": "string"
-            },
-            "columns": {
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "$ref": "matrixcolumn"
-                  },
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "number"
-                  }
-                ]
-              }
-            },
-            "rows": {
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "$ref": "itemvalue"
-                  },
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "number"
-                  }
-                ]
-              }
-            },
-            "cells": {
-              "type": "string"
-            },
-            "rowOrder": {
-              "type": "string",
-              "enum": [
-                "initial",
-                "random"
-              ]
-            },
-            "eachRowRequired": {
-              "type": "boolean"
-            },
-            "eachRowUnique": {
-              "type": "boolean"
-            },
-            "hideIfRowsEmpty": {
-              "type": "boolean"
-            },
-            "cellComponent": {
-              "type": "string"
-            },
-            "cellType": {
-              "type": "string",
-              "enum": [
-                "radio",
-                "checkbox"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "matrixcolumn": {
-      "type": "object",
-      "$id": "matrixcolumn",
-      "allOf": [
-        {
-          "$ref": "itemvalue"
-        },
-        {
-          "properties": {
-            "isExclusive": {
-              "type": "boolean"
-            }
-          }
-        }
-      ]
-    },
-    "expression": {
-      "type": "object",
-      "$id": "expression",
-      "allOf": [
-        {
-          "$ref": "question"
-        },
-        {
-          "properties": {
-            "expression": {
-              "type": "string"
-            },
-            "format": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "$ref": "locstring"
-                }
-              ]
-            },
-            "displayStyle": {
-              "type": "string",
-              "enum": [
-                "none",
-                "decimal",
-                "currency",
-                "percent",
-                "date"
-              ]
-            },
-            "currency": {
-              "type": "string",
-              "enum": [
-                "AED",
-                "AFN",
-                "ALL",
-                "AMD",
-                "ANG",
-                "AOA",
-                "ARS",
-                "AUD",
-                "AWG",
-                "AZN",
-                "BAM",
-                "BBD",
-                "BDT",
-                "BGN",
-                "BHD",
-                "BIF",
-                "BMD",
-                "BND",
-                "BOB",
-                "BOV",
-                "BRL",
-                "BSD",
-                "BTN",
-                "BWP",
-                "BYN",
-                "BZD",
-                "CAD",
-                "CDF",
-                "CHE",
-                "CHF",
-                "CHW",
-                "CLF",
-                "CLP",
-                "CNY",
-                "COP",
-                "COU",
-                "CRC",
-                "CUC",
-                "CUP",
-                "CVE",
-                "CZK",
-                "DJF",
-                "DKK",
-                "DOP",
-                "DZD",
-                "EGP",
-                "ERN",
-                "ETB",
-                "EUR",
-                "FJD",
-                "FKP",
-                "GBP",
-                "GEL",
-                "GHS",
-                "GIP",
-                "GMD",
-                "GNF",
-                "GTQ",
-                "GYD",
-                "HKD",
-                "HNL",
-                "HRK",
-                "HTG",
-                "HUF",
-                "IDR",
-                "ILS",
-                "INR",
-                "IQD",
-                "IRR",
-                "ISK",
-                "JMD",
-                "JOD",
-                "JPY",
-                "KES",
-                "KGS",
-                "KHR",
-                "KMF",
-                "KPW",
-                "KRW",
-                "KWD",
-                "KYD",
-                "KZT",
-                "LAK",
-                "LBP",
-                "LKR",
-                "LRD",
-                "LSL",
-                "LYD",
-                "MAD",
-                "MDL",
-                "MGA",
-                "MKD",
-                "MMK",
-                "MNT",
-                "MOP",
-                "MRO",
-                "MUR",
-                "MVR",
-                "MWK",
-                "MXN",
-                "MXV",
-                "MYR",
-                "MZN",
-                "NAD",
-                "NGN",
-                "NIO",
-                "NOK",
-                "NPR",
-                "NZD",
-                "OMR",
-                "PAB",
-                "PEN",
-                "PGK",
-                "PHP",
-                "PKR",
-                "PLN",
-                "PYG",
-                "QAR",
-                "RON",
-                "RSD",
-                "RUB",
-                "RWF",
-                "SAR",
-                "SBD",
-                "SCR",
-                "SDG",
-                "SEK",
-                "SGD",
-                "SHP",
-                "SLL",
-                "SOS",
-                "SRD",
-                "SSP",
-                "STD",
-                "SVC",
-                "SYP",
-                "SZL",
-                "THB",
-                "TJS",
-                "TMT",
-                "TND",
-                "TOP",
-                "TRY",
-                "TTD",
-                "TWD",
-                "TZS",
-                "UAH",
-                "UGX",
-                "USD",
-                "USN",
-                "UYI",
-                "UYU",
-                "UZS",
-                "VEF",
-                "VND",
-                "VUV",
-                "WST",
-                "XAF",
-                "XAG",
-                "XAU",
-                "XBA",
-                "XBB",
-                "XBC",
-                "XBD",
-                "XCD",
-                "XDR",
-                "XOF",
-                "XPD",
-                "XPF",
-                "XPT",
-                "XSU",
-                "XTS",
-                "XUA",
-                "XXX",
-                "YER",
-                "ZAR",
-                "ZMW",
-                "ZWL"
-              ]
-            },
-            "maximumFractionDigits": {
-              "type": "number"
-            },
-            "minimumFractionDigits": {
-              "type": "number"
-            },
-            "useGrouping": {
-              "type": "boolean"
-            },
-            "precision": {
-              "type": "number"
             }
           }
         }
@@ -2505,6 +2466,9 @@
               "items": {
                 "anyOf": [
                   {
+                    "$ref": "expression"
+                  },
+                  {
                     "$ref": "matrixdropdownbase"
                   },
                   {
@@ -2512,12 +2476,6 @@
                   },
                   {
                     "$ref": "matrixdynamic"
-                  },
-                  {
-                    "$ref": "matrix"
-                  },
-                  {
-                    "$ref": "expression"
                   },
                   {
                     "$ref": "checkbox"
@@ -2539,6 +2497,9 @@
                   },
                   {
                     "$ref": "dropdown"
+                  },
+                  {
+                    "$ref": "matrix"
                   },
                   {
                     "$ref": "textbase"
@@ -2614,6 +2575,9 @@
                 4,
                 5
               ]
+            },
+            "choiceShortcutsEnabled": {
+              "type": "boolean"
             }
           }
         }
@@ -2675,9 +2639,6 @@
                   "$ref": "locstring"
                 }
               ]
-            },
-            "allowClear": {
-              "type": "boolean"
             },
             "searchEnabled": {
               "type": "boolean"
@@ -2776,9 +2737,6 @@
         },
         {
           "properties": {
-            "allowClear": {
-              "type": "boolean"
-            },
             "itemComponent": {
               "type": "string"
             }
@@ -2872,9 +2830,6 @@
                   "$ref": "locstring"
                 }
               ]
-            },
-            "allowClear": {
-              "type": "boolean"
             },
             "choicesMin": {
               "type": "number"
@@ -2981,6 +2936,129 @@
             },
             "itemComponent": {
               "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "matrix": {
+      "type": "object",
+      "$id": "matrix",
+      "allOf": [
+        {
+          "$ref": "question"
+        },
+        {
+          "properties": {
+            "columnsVisibleIf": {
+              "type": "string"
+            },
+            "rowsVisibleIf": {
+              "type": "string"
+            },
+            "columnMinWidth": {
+              "type": "string"
+            },
+            "showHeader": {
+              "type": "boolean"
+            },
+            "verticalAlign": {
+              "type": "string",
+              "enum": [
+                "top",
+                "middle"
+              ]
+            },
+            "alternateRows": {
+              "type": "boolean"
+            },
+            "displayMode": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "table",
+                "list"
+              ]
+            },
+            "rowTitleWidth": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "matrixcolumn"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "itemvalue"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "cells": {
+              "type": "string"
+            },
+            "rowOrder": {
+              "type": "string",
+              "enum": [
+                "initial",
+                "random"
+              ]
+            },
+            "eachRowRequired": {
+              "type": "boolean"
+            },
+            "eachRowUnique": {
+              "type": "boolean"
+            },
+            "hideIfRowsEmpty": {
+              "type": "boolean"
+            },
+            "cellComponent": {
+              "type": "string"
+            },
+            "cellType": {
+              "type": "string",
+              "enum": [
+                "radio",
+                "checkbox"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "matrixcolumn": {
+      "type": "object",
+      "$id": "matrixcolumn",
+      "allOf": [
+        {
+          "$ref": "itemvalue"
+        },
+        {
+          "properties": {
+            "isExclusive": {
+              "type": "boolean"
             }
           }
         }
@@ -3238,6 +3316,14 @@
         },
         {
           "properties": {
+            "patternPreset": {
+              "type": "string",
+              "enum": [
+                "localeDate",
+                "localeTime",
+                "localeDateTime"
+              ]
+            },
             "min": {
               "type": "string"
             },
@@ -3269,6 +3355,9 @@
             "precision": {
               "type": "number"
             },
+            "showTrailingZeros": {
+              "type": "boolean"
+            },
             "min": {
               "type": "number"
             },
@@ -3288,10 +3377,10 @@
         },
         {
           "properties": {
-            "prefix": {
+            "currencySymbol": {
               "type": "string"
             },
-            "suffix": {
+            "currencyPattern": {
               "type": "string"
             }
           }
@@ -3727,6 +3816,13 @@
             },
             "allowCameraAccess": {
               "type": "boolean"
+            },
+            "cameraFacingMode": {
+              "type": "string",
+              "enum": [
+                "user",
+                "environment"
+              ]
             }
           }
         }
@@ -3935,9 +4031,6 @@
             },
             "labelCount": {
               "type": "number"
-            },
-            "allowClear": {
-              "type": "boolean"
             }
           }
         }
@@ -4171,9 +4264,6 @@
             "height": {
               "type": "number"
             },
-            "allowClear": {
-              "type": "boolean"
-            },
             "showPlaceholder": {
               "type": "boolean"
             },
@@ -4238,6 +4328,9 @@
               "items": {
                 "anyOf": [
                   {
+                    "$ref": "expression"
+                  },
+                  {
                     "$ref": "matrixdropdownbase"
                   },
                   {
@@ -4245,12 +4338,6 @@
                   },
                   {
                     "$ref": "matrixdynamic"
-                  },
-                  {
-                    "$ref": "matrix"
-                  },
-                  {
-                    "$ref": "expression"
                   },
                   {
                     "$ref": "checkbox"
@@ -4272,6 +4359,9 @@
                   },
                   {
                     "$ref": "dropdown"
+                  },
+                  {
+                    "$ref": "matrix"
                   },
                   {
                     "$ref": "textbase"
@@ -4403,6 +4493,9 @@
                 10
               ]
             },
+            "panelCountExpression": {
+              "type": "string"
+            },
             "minPanelCount": {
               "type": "number"
             },
@@ -4501,6 +4594,24 @@
             },
             "questionStartIndex": {
               "type": "string"
+            },
+            "pageSize": {
+              "type": "number"
+            },
+            "sortCriteria": {
+              "type": "array",
+              "items": {
+                "$ref": "sortcriterion"
+              }
+            },
+            "filterExpression": {
+              "type": "string"
+            },
+            "allowSort": {
+              "type": "boolean"
+            },
+            "maxSortLevel": {
+              "type": "number"
             },
             "displayMode": {
               "type": "string",
@@ -4646,6 +4757,25 @@
             }
           }
         }
+      ]
+    },
+    "sortcriterion": {
+      "type": "object",
+      "$id": "sortcriterion",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      "required": [
+        "field"
       ]
     },
     "choicesByUrl": {

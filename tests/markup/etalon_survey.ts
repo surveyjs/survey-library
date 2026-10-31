@@ -31,6 +31,28 @@ registerMarkupTests(
         return <HTMLElement>el?.querySelector("form");
       },
       snapshot: "survey-navigation"
+    },
+    {
+      name: "Test Survey do not render empty navigation action bar",
+      json: {
+        navigationButtonsLocation: "topBottom",
+        elements: [
+          {
+            "type": "html",
+            "name": "q1",
+            "html": "<div></div>"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      initSurvey: (survey) => {
+        survey.headerView = "basic";
+        survey.showCompleteButton = false;
+      },
+      getElement: (el) => {
+        return <HTMLElement>el?.querySelector("form");
+      },
+      snapshot: "survey-navigation-empty"
     }, {
       name: "Test Survey theme css variables",
       json: {
@@ -51,6 +73,16 @@ registerMarkupTests(
         el.removeAttribute("data-bind");
         el.removeAttribute("lang");
         el.removeAttribute("dir");
+        // The box-shadow reset variables are computed from the environment (resolved
+        // colors in a real browser, raw var() tokens in jsdom), so they are stripped
+        // to keep the snapshot deterministic; the reset behavior itself is covered by
+        // the csp unit tests and the CSP e2e spec.
+        [
+          "--sjs2-border-effect-surface-default-reset",
+          "--sjs2-border-effect-surface-focused-reset",
+          "--sjs2-border-effect-component-formbox-default-reset",
+          "--sjs2-border-effect-component-formbox-focused-reset"
+        ].forEach((name) => el.style.removeProperty(name));
         return el.outerHTML;
       },
       snapshot: "survey-theme-variables"
@@ -191,8 +223,7 @@ registerMarkupTests(
               }
             ]
           }
-        ],
-        "headerView": "advanced"
+        ]
       },
       event: "onAfterRenderSurvey",
       getElement: el => {
@@ -215,8 +246,7 @@ registerMarkupTests(
               }
             ]
           }
-        ],
-        "headerView": "advanced"
+        ]
       },
       event: "onAfterRenderSurvey",
       initSurvey: survey => survey.setIsMobile(true),
@@ -224,5 +254,23 @@ registerMarkupTests(
         return <HTMLElement>el?.querySelector(".sv-header--mobile");
       },
       snapshot: "survey-header-advanced-mobile"
+    },
+    {
+      name: "Test Survey questionPerPage body single question class",
+      json: {
+        questionsOnPageMode: "questionPerPage",
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      getSnapshot: (el) => {
+        const body = el.querySelector(".sd-body");
+        return body ? `<div class="${body.className}"></div>` : "";
+      },
+      snapshot: "survey-question-per-page"
     }
   ]);

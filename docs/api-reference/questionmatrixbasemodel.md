@@ -89,7 +89,6 @@ This array can contain primitive values or objects with the `text` (display valu
 [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
 
 [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
-+
 
 ### `rowsVisibleIf`
 

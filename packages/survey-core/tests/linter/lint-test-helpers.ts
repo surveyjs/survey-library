@@ -1,4 +1,6 @@
+import { expect } from "vitest";
 import { FunctionFactory, settings } from "survey-core";
+import { applyFix, ILintFinding, lintSurvey } from "../../src/linter/index";
 
 // The linter shares the application's settings object, so a test that customizes
 // a setting must restore it: "npm run test:watch" runs with --no-isolate, where a
@@ -32,4 +34,16 @@ export function withFunction(name: string, func: (params: any[]) => any, fn: () 
   } finally {
     if (!existed) FunctionFactory.Instance.unregister(name);
   }
+}
+
+// Applies the repair a finding carries and asserts the defect is gone: the rule that reported it
+// finds nothing in the repaired JSON. The repaired JSON comes back, for the assertions that look
+// at what the edit actually wrote. A finding pinned by its reason rather than its rule passes a
+// matcher of its own.
+export function expectFixSettles(json: any, finding: ILintFinding,
+  match?: (f: ILintFinding) => boolean): any {
+  const accepts = match || ((f: ILintFinding) => f.ruleId === finding.ruleId);
+  const fixed = applyFix(json, finding.fix);
+  expect(lintSurvey(fixed).findings.filter(accepts)).toHaveLength(0);
+  return fixed;
 }

@@ -1,62 +1,62 @@
 <div [class]="model.cssClasses.selectWrapper" (click)="click($event)">
-    <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.noTabIndex ? null : 0"
+    <div *ngIf="!model.isReadOnly" [attr.tabindex]="renderState.noTabIndex ? null : 0"
         [class]="model.getControlClass()" [attr.disabled]="model.isDisabledAttr ? true : null" (blur)="blur($event)"
-        (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.role]="dropdownModel.ariaQuestionRole"
-        [attr.aria-required]="dropdownModel.ariaQuestionRequired"
-        [attr.aria-invalid]="dropdownModel.ariaQuestionInvalid"
-        [attr.aria-errormessage]="dropdownModel.ariaQuestionErrorMessage"
-        [attr.aria-expanded]="dropdownModel.ariaQuestionExpanded" [attr.aria-label]="dropdownModel.ariaQuestionLabel"
-        [attr.aria-labelledby]="dropdownModel.ariaQuestionLabelledby"
-        [attr.aria-describedby]="dropdownModel.ariaQuestionDescribedby"
-        [attr.aria-controls]="dropdownModel.ariaQuestionControls"
-        [attr.aria-activedescendant]="dropdownModel.ariaQuestionActivedescendant">
+        (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.role]="renderState.ariaQuestionRole"
+        [attr.aria-required]="renderState.ariaQuestionRequired"
+        [attr.aria-invalid]="renderState.ariaQuestionInvalid"
+        [attr.aria-errormessage]="renderState.ariaQuestionErrorMessage"
+        [attr.aria-expanded]="renderState.ariaQuestionExpanded" [attr.aria-label]="renderState.ariaQuestionLabel"
+        [attr.aria-labelledby]="renderState.ariaQuestionLabelledby"
+        [attr.aria-describedby]="renderState.ariaQuestionDescribedby"
+        [attr.aria-controls]="renderState.ariaQuestionControls"
+        [attr.aria-activedescendant]="renderState.ariaQuestionActivedescendant">
         <div [class]="model.cssClasses.controlValue">
-            <div *ngIf="dropdownModel.showHintPrefix" [class]="model.cssClasses.hintPrefix">
-                <span>{{ dropdownModel.hintStringPrefix }}</span>
+            <div *ngIf="renderState.showHintPrefix" [class]="model.cssClasses.hintPrefix">
+                <span>{{ renderState.hintStringPrefix }}</span>
             </div>
             <div [class]="model.cssClasses.inputPrefixWrapper">
-                <div *ngIf="dropdownModel.showHintString" [class]="model.cssClasses.hintSuffix">
-                    <span style="visibility: hidden">{{ dropdownModel.inputStringRendered }}</span>
-                    <span>{{ dropdownModel.hintStringSuffix }}</span>
+                <div *ngIf="renderState.showHintString" [class]="model.cssClasses.hintSuffix">
+                    <span style="visibility: hidden">{{ renderState.inputStringRendered }}</span>
+                    <span>{{ renderState.hintStringSuffix }}</span>
                 </div>
-                <ng-container *ngIf="dropdownModel.showInputFieldComponent">
+                <ng-container *ngIf="renderState.showInputFieldComponent">
                     <ng-template
-                        [component]="{ name: model.inputFieldComponentName, data: { model: dropdownModel.getSelectedAction(), question: model } }"></ng-template>
+                        [component]="{ name: model.inputFieldComponentName, data: { model: renderState.getSelectedAction(), question: model } }"></ng-template>
                 </ng-container>
                 <sv-ng-string *ngIf="model.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
-                <input #inputElement *ngIf="dropdownModel.needRenderInput" type="text" autocomplete="off" [(ngModel)]="dropdownModel.inputStringRendered"
+                <input #inputElement *ngIf="renderState.needRenderInput" type="text" autocomplete="off" [(ngModel)]="inputStringRendered"
                     [class]="model.cssClasses.filterStringInput" [attr.id]="model.getInputId()"
-                    [attr.inputmode]="dropdownModel.inputMode" [attr.tabindex]="dropdownModel.noTabIndex ? null : -1"
-                    [attr.disabled]="model.isDisabledAttr ? true : null" [attr.role]="dropdownModel.ariaInputRole"
-                    [attr.aria-required]="dropdownModel.ariaInputRequired"
-                    [attr.aria-invalid]="dropdownModel.ariaInputInvalid"
-                    [attr.aria-errormessage]="dropdownModel.ariaInputErrorMessage"
-                    [attr.aria-expanded]="dropdownModel.ariaInputExpanded"
-                    [attr.aria-controls]="dropdownModel.ariaInputControls" [attr.aria-label]="dropdownModel.ariaInputLabel"
-                    [attr.aria-labelledby]="dropdownModel.ariaInputLabelledby"
-                    [attr.aria-describedby]="dropdownModel.ariaInputDescribedby"
-                    [attr.aria-activedescendant]="dropdownModel.ariaInputActivedescendant"
-                    [attr.placeholder]="dropdownModel.placeholderRendered"
-                    [attr.readonly]="dropdownModel.filterReadOnly ? true : null" (change)="inputChange($event)"
+                    [attr.inputmode]="renderState.inputMode" [attr.tabindex]="renderState.noTabIndex ? null : -1"
+                    [attr.disabled]="model.isDisabledAttr ? true : null" [attr.role]="renderState.ariaInputRole"
+                    [attr.aria-required]="renderState.ariaInputRequired"
+                    [attr.aria-invalid]="renderState.ariaInputInvalid"
+                    [attr.aria-errormessage]="renderState.ariaInputErrorMessage"
+                    [attr.aria-expanded]="renderState.ariaInputExpanded"
+                    [attr.aria-controls]="renderState.ariaInputControls" [attr.aria-label]="renderState.ariaInputLabel"
+                    [attr.aria-labelledby]="renderState.ariaInputLabelledby"
+                    [attr.aria-describedby]="renderState.ariaInputDescribedby"
+                    [attr.aria-activedescendant]="renderState.ariaInputActivedescendant"
+                    [attr.placeholder]="renderState.placeholderRendered"
+                    [attr.readonly]="renderState.filterReadOnly ? true : null" (change)="inputChange($event)"
                     (blur)="blur($event)" (focus)="focus($event)" />
             </div>
         </div>
-        <sv-ng-action-bar [model]="dropdownModel.editorButtons"></sv-ng-action-bar>
+        <sv-ng-action-bar [model]="renderState.editorButtons"></sv-ng-action-bar>
     </div>
     <sv-ng-popup *ngIf="!model.isInputReadOnly" [popupModel]="dropdownModel.popupModel"></sv-ng-popup>
     <div *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId"
         [attr.tabindex]="model.isDisabledAttr ? null : 0" [attr.disabled]="model.isDisabledAttr ? true : null"
-        [attr.role]="dropdownModel?.ariaQuestionRole" [attr.aria-label]="dropdownModel?.ariaQuestionLabel"
-        [attr.aria-labelledby]="dropdownModel?.ariaQuestionLabelledby"
-        [attr.aria-describedby]="dropdownModel?.ariaQuestionDescribedby" [attr.aria-expanded]="false"
+        [attr.role]="renderState.ariaQuestionRole" [attr.aria-label]="renderState.ariaQuestionLabel"
+        [attr.aria-labelledby]="renderState.ariaQuestionLabelledby"
+        [attr.aria-describedby]="renderState.ariaQuestionDescribedby" [attr.aria-expanded]="false"
         [attr.aria-readonly]="true" [attr.aria-disabled]="true">
         <div *ngIf="model.showInputFieldComponent" [class]="model.cssClasses.controlValue">
             <ng-template
-                [component]="{ name: model.inputFieldComponentName, data: { model: dropdownModel.getSelectedAction(), question: model } }"></ng-template>
+                [component]="{ name: model.inputFieldComponentName, data: { model: renderState.getSelectedAction(), question: model } }"></ng-template>
         </div>
         <div *ngIf="!model.showInputFieldComponent && model.readOnlyText" [class]="model.cssClasses.controlValue">
             <sv-ng-string [model]="model.locReadOnlyText"></sv-ng-string>
         </div>
-        <sv-ng-action-bar [model]="dropdownModel.editorButtons"></sv-ng-action-bar>
+        <sv-ng-action-bar [model]="renderState.editorButtons"></sv-ng-action-bar>
     </div>
 </div>

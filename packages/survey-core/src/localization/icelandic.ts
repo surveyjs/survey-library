@@ -5,6 +5,58 @@ export var icelandicSurveyStrings = {
   pagePrevText: "Tilbaka",
   // "Next"
   pageNextText: "Áfram",
+  // [Auto-translated] "First"
+  pageFirstText: "Fyrst",
+  // [Auto-translated] "Last"
+  pageLastText: "Síðasta",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Veldu síðu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Raðaðu eftir {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Hátt - Lágt",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Lágt - Hátt",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Stafróf, A - Ö",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Stafróf, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nýjasta fyrsta",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Elsti fyrsti",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Raðað eftir {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, þá um {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Raðaðu eftir",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Sjálfgefið",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Röðunarsvið",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Röðun",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Bættu við raðunarstigi",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Fjarlægðu flokkunarstig {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Flokkunarreitur {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Raða röð {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Sýndu öll flokkunarstig",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Bættu við Nýju",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flutningsflokkun á stigi {0}",
   // "Complete"
   completeText: "Lokið",
   // "Preview"
@@ -37,6 +89,8 @@ export var icelandicSurveyStrings = {
   panelDynamicTabTextFormat: "Pallborð {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Svarað {0} / {1} spurningum",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Spurning {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Það er enginn síða eða spurningar í þessari könnun.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var icelandicSurveyStrings = {
   value: "gildi",
   // "Response required."
   requiredError: "Vinsamlegast svarið spurningunni.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Gildið er rangt.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Gildið inniheldur óþekkta lykla: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vinsamlegast svaraðu að minnsta kosti einni spurningu.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var icelandicSurveyStrings = {
   noUploadFilesHandler: "Ekki er hægt að hlaða upp skrám. Vinsamlegast bættu við rekli fyrir 'onUploadFiles' atvikið.",
   // "Response required: enter another value."
   otherRequiredError: "Vinamlegast fyllið út hitt gildið.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Gildið '{0}' er ekki ein af þeim valkostum sem eru í boði.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Skráinn þín var send. Vinsamlegast bíðið í nokkrar sekúndur og reynið aftur.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var icelandicSurveyStrings = {
   addRow: "Bæta við röð",
   // "Remove"
   removeRow: "Fjarlægja",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Færðu röð {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Það eru engar raðir.",
   // [Auto-translated] "Row {rowIndex}"

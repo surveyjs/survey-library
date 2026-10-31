@@ -48,10 +48,15 @@ export class QuestionSingleInputBehavior {
     return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
   }
 
+  // The chain is walked through the behaviors' stored values, not the Question-level getter:
+  // Question.singleInputQuestion hides a stored "self" that is not a summary (a select question at
+  // its own step inside a Dynamic Panel or matrix), while navigation needs to see it.
   public get currentSingleInputQuestion(): Question {
     let res = this.singleInputQuestion;
-    while(!!res && !!res.singleInputQuestion && res.singleInputQuestion !== res) {
-      res = res.singleInputQuestion;
+    let next = this.getStoredSingleInputQuestion(res);
+    while(!!next && next !== res) {
+      res = next;
+      next = this.getStoredSingleInputQuestion(res);
     }
     return res;
   }
@@ -59,15 +64,17 @@ export class QuestionSingleInputBehavior {
   public get currentSingleInputParentQuestion(): Question {
     const q = this.currentSingleInputQuestion;
     if (!q) return this.question;
-    if (q.singleInputQuestion === q) return q;
+    if (this.getStoredSingleInputQuestion(q) === q) return q;
     return q.parentQuestion || this.question;
+  }
+
+  private getStoredSingleInputQuestion(q: Question): Question {
+    return !!q ? this.getBehavior(q).singleInputQuestion : undefined;
   }
 
   public get singleInputSummary(): QuestionSingleInputSummary {
     return this.getPropertyValue("singleInputSummary", undefined, () => {
-      if (!this.supportNestedSingleInput()) return undefined;
-      const q = this.singleInputQuestion;
-      if (!q || q !== this.question) return undefined;
+      if (this.singleInputQuestion !== this.question || !this.canShowSelfAsSummary()) return undefined;
       const res = this.createSingleInputSummary();
       if (!!res) {
         this.calcSingleInputActions();
@@ -79,6 +86,19 @@ export class QuestionSingleInputBehavior {
 
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     return undefined;
+  }
+
+  // true for the types whose createSingleInputSummary() returns a summary. Answers without building it.
+  protected canCreateSingleInputSummary(): boolean {
+    return false;
+  }
+
+  // Whether a stored "self" is a summary step that the question can show, asked without building the
+  // summary: building it reads the parent container's css, which reads Question.singleInputQuestion
+  // again for a dynamic container nested in another one. Not public API: besides singleInputSummary,
+  // its caller is Question.singleInputQuestion.
+  private canShowSelfAsSummary(): boolean {
+    return this.isSelfSummaryStep() && this.canCreateSingleInputSummary() && this.supportNestedSingleInput();
   }
 
   private get rootParentQuestion(): Question {
@@ -139,11 +159,34 @@ export class QuestionSingleInputBehavior {
   public validateSingleInput(): boolean {
     const q = this.currentSingleInputQuestion;
     if (!q) return true;
-    return q.validate(true, true);
+    return this.getBehavior(q).validateAsSingleInput();
+  }
+
+  // Validates the question when it is the deepest current single input. It is dispatched through
+  // that question's own behavior, so a question nested in a container can customize it.
+  protected validateAsSingleInput(): boolean {
+    return this.question.validate(true, true);
+  }
+
+  // true: a stored "self" is the summary step (Dynamic Panel, matrices).
+  // false: a stored "self" is an ordinary first step that renders the question's own content.
+  protected isSelfSummaryStep(): boolean {
+    return true;
+  }
+
+  public getProgressStepCount(): number {
+    return Math.max(1, this.getProgressSteps().length);
+  }
+  public getProgressStepIndex(): number {
+    return Math.max(0, this.getProgressSteps().indexOf(this.singleInputQuestion));
+  }
+  protected getProgressSteps(): Array<Question> {
+    if (!this.supportNestedSingleInput()) return [];
+    return this.getSingleInputQuestions();
   }
 
   public getSingleInputElementPos(): number {
-    if (this.singleInputQuestion === this.question) return 0;
+    if (this.singleInputQuestion === this.question && this.isSelfSummaryStep()) return 0;
     const pQ = this.currentSingleInputParentQuestion;
     if (pQ !== this.question) {
       let res = pQ.getSingleInputElementPos();
@@ -328,14 +371,14 @@ export class QuestionSingleInputBehavior {
     return undefined;
   }
 
-  private supportNestedSingleInput(): boolean {
+  protected supportNestedSingleInput(): boolean {
     return this.survey?.supportsNestedSingleInput(this.question);
   }
 
   public getSingleInputQuestions(): Array<Question> {
     if (!this.supportNestedSingleInput()) return [];
     const question = this.getPropertyValue("singleInputQuestion");
-    if (question === this.question) return [this.question];
+    if (question === this.question && this.isSelfSummaryStep()) return [this.question];
     const res = this.getSingleInputQuestionsCore(question, !question || !this.isSingleInputSummaryShown);
     if (this.survey) {
       this.survey.updateNestedSingleQuestions(this.question, res);
@@ -350,19 +393,9 @@ export class QuestionSingleInputBehavior {
 
   protected onSingleInputQuestionAdded(question: Question): void {}
 
-  public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {}
-
-  public getSingleInputQuestionsForDynamic(question: Question, arr: Array<Question>): Array<Question> {
-    const res = new Array<Question>();
-    if (!!question && question !== this.question && arr.indexOf(question) < 0) {
-      this.fillSingleInputQuestionsInContainer(res, question);
-    }
-    arr.forEach(q => res.push(q));
-    if (this.isSingleInputSummaryShown && res.length > 0) {
-      res.unshift(this.question);
-    }
-    res.push(this.question);
-    return res;
+  // true once the question itself (its summary) was the single input since it became the current one.
+  protected get singleInputSummaryShown(): boolean {
+    return this.isSingleInputSummaryShown;
   }
 
   public getSingleInputAddTextCore(): string { return undefined; }

@@ -25,10 +25,12 @@
     "
     v-bind:disabled="item.disabled"
     v-bind:title="item.getTooltip()"
+    v-bind:data-sv-tooltip="item.getTooltip()"
     v-bind:aria-checked="item.ariaChecked"
     v-bind:aria-expanded="item.ariaExpanded"
     v-bind:aria-controls="item.ariaControls"
     v-bind:aria-labelledby="item.ariaLabelledBy"
+    v-bind:aria-label="item.ariaLabel"
     v-bind:role="item.ariaRole"
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >

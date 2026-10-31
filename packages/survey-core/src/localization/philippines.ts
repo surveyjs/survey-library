@@ -5,6 +5,58 @@ export var philippinesStrings = {
   pagePrevText: "Nakaraang",
   // "Next"
   pageNextText: "Susunod",
+  // [Auto-translated] "First"
+  pageFirstText: "Una",
+  // [Auto-translated] "Last"
+  pageLastText: "Huli",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "ng {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Piliin ang Pahina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ayusin ayon sa {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Mataas - Mababa",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Mababa - Mataas",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alpabeto, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alpabeto, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Pinakabago muna",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Pinakamatanda muna",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Inayos ayon sa {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, tapos {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ayusin ayon sa",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort field",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ayusin ang pagkakasunod-sunod",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Magdagdag ng antas ng pag-aayos",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Alisin ang sort level {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sort field {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ayusin ang pagkakasunod-sunod {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Ipakita ang lahat ng antas ng sort",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Magdagdag ng Bago",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Ilipat ang sort level {0}",
   // "Complete"
   completeText: "Kumpleto",
   // "Preview"
@@ -37,6 +89,8 @@ export var philippinesStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Sinagot ang {0}/{1} mga tanong",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Tanong {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Ang survey ay hindi naglalaman ng anumang nakikitang elemento.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var philippinesStrings = {
   value: "halaga",
   // "Response required."
   requiredError: "Kinakailangan ang tugon.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Mali ang halaga.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Ang halaga ay naglalaman ng mga hindi kilalang susi: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Kinakailangan ang tugon: sagutin ang kahit isang tanong.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var philippinesStrings = {
   noUploadFilesHandler: "Hindi ma-upload ang mga file. Mangyaring magdagdag ng handler para sa kaganapang 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Kinakailangan ang tugon: maglagay ng isa pang halaga.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Ang halagang '{0}' ay hindi kabilang sa mga available na pagpipilian.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Ina-upload ang iyong file. Mangyaring maghintay ng ilang segundo at subukang muli.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var philippinesStrings = {
   addRow: "Magdagdag ng hilera",
   // "Remove"
   removeRow: "Alisin",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Ilipat ang row {0}",
   // "There are no rows."
   noRowsText: "Walang mga hilera.",
   // [Auto-translated] "Row {rowIndex}"

@@ -6,6 +6,7 @@ export class ElementHelper {
   }
   static visibility(node: Element): boolean {
     var style = DomDocumentHelper.getComputedStyle(node);
+    if (!style) return false;
     if (style.display === "none" || style.visibility === "hidden") return false;
     return node.parentElement ? this.visibility(node.parentElement) : true;
   }

@@ -1,14 +1,13 @@
-import { Action } from "./actions/action";
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
-import { HashTable, Helpers } from "./helpers";
+import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { Question } from "./question";
+import { Question, QuestionValueType, IVerifyDataContext } from "./question";
 import { QuestionFactory } from "./questionfactory";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 import { getRootNode } from "./utils/dom-utils";
 
@@ -259,6 +258,12 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     super(name);
     this.createItemValues("customLabels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
+    this.addExpressionProperty("maxValueExpression", (obj: Base, res: any): void => {
+      this.max = res ?? this.renderedMax;
+    });
+    this.addExpressionProperty("minValueExpression", (obj: Base, res: any): void => {
+      this.min = res ?? this.renderedMin;
+    });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -298,6 +303,22 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   public getType(): string {
     return "slider";
   }
+  public getValueType(): QuestionValueType {
+    return this.sliderType === "range" ? "array" : "number";
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.reportInvalidValueTypes) return true;
+    // A single slider holds a number, a range slider an array of numbers.
+    const isCorrect = this.sliderType === "range" ?
+      Array.isArray(val) && val.every(item => Helpers.isNumber(item)) : this.isValueOfValueType(val);
+    if (isCorrect) return true;
+    context.addIssue("invalidValueType", undefined, val, this);
+    return false;
+  }
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -306,37 +327,31 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   }
 
   public get rootCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootSingleMode, this.sliderType === "single")
-      .append(this.cssClasses.rootNegativeScaleMode, !!this.isNegativeScale)
-      .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
-      .append(this.cssClasses.rootAnimatedThumbMode, !!this.animatedThumb)
-      .append(this.cssClasses.rootTooltipsAlwaysMode, this.tooltipVisibility === "always")
-      .append(this.cssClasses.rootLabelsShowValueTextMode, this.isLabelsShowValueText)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.sliderType === "single" && this.cssClasses.rootSingleMode,
+      !!this.isNegativeScale && this.cssClasses.rootNegativeScaleMode,
+      !!this.isDesignMode && this.cssClasses.rootDesignMode,
+      !!this.animatedThumb && this.cssClasses.rootAnimatedThumbMode,
+      this.tooltipVisibility === "always" && this.cssClasses.rootTooltipsAlwaysMode,
+      this.isLabelsShowValueText && this.cssClasses.rootLabelsShowValueTextMode
+    );
   }
 
   public getThumbContainerCss = (thumbNumber: number): string => {
-    return new CssClassBuilder()
-      .append(this.cssClasses.thumbContainer)
-      .append(this.cssClasses.thumbContainerIndeterminateMode, !!this.isIndeterminate)
-      .append(this.cssClasses.thumbContainerFocusedMode, thumbNumber === this.focusedThumb)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.thumbContainer,
+      !!this.isIndeterminate && this.cssClasses.thumbContainerIndeterminateMode,
+      thumbNumber === this.focusedThumb && this.cssClasses.thumbContainerFocusedMode
+    );
   };
 
   public get tooltipCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.tooltip)
-      .append(this.cssClasses.tooltipOnHoverMode, this.tooltipVisibility === "auto")
-      .toString();
+    return toCssClasses(this.cssClasses.tooltip, this.tooltipVisibility === "auto" && this.cssClasses.tooltipOnHoverMode);
   }
 
   public getLabelCss = (locText: LocalizableString): string => {
-    return new CssClassBuilder()
-      .append(this.cssClasses.label)
-      .append(this.cssClasses.labelLongMod, locText.renderedHtml.length > 10)
-      .toString();
+    return toCssClasses(this.cssClasses.label, locText.renderedHtml.length > 10 && this.cssClasses.labelLongMod);
   };
 
   public getLabelMaxWidth = (item: ItemValue): string => {
@@ -565,6 +580,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   public refreshInputRange = (inputRef?: HTMLElement):void => {
     const { allowDragRange, renderedValue, getPercent } = this;
     if (!allowDragRange) return;
+    if (!inputRef && !this.questionRootElement) return;
     //if (!this.rangeInputRef.current) return;
     const input:HTMLElement = inputRef || this.questionRootElement.querySelector("#" + this.id + "-sjs-slider-input-range-input"); //TODO
 
@@ -651,11 +667,16 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public handleOnChange = (event: InputEvent, inputNumber: number): void => {
     if (!this.isAllowToChange()) return;
-    if (this.oldValue === null) return; // Firefox raise one more OnChange after PointerUp and break the value
     const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, renderedValue } = this;
     const inputNode = <HTMLInputElement>event.target;
 
     let newValue: number = +inputNode.value;
+    if (this.oldValue === null) {
+      // No pointer or keyboard gesture is in progress (assistive technology, a script, or a test),
+      // so there is no PointerUp/KeyUp that commits the value later
+      this.commitValueWithoutGesture(newValue, inputNumber);
+      return;
+    }
 
     if (renderedValue.length > 1) {
       newValue = ensureMaxRangeBorders(newValue, inputNumber);
@@ -667,6 +688,26 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     renderedValue.splice(inputNumber, 1, newValue);
   };
 
+  private commitValueWithoutGesture(newValue: number, inputNumber: number): void {
+    const { step, renderedValue } = this;
+    if (isNaN(newValue) || inputNumber < 0 || inputNumber >= renderedValue.length) return;
+    if (step) {
+      newValue = this.getClosestToStepValue(newValue);
+    }
+    if (renderedValue.length > 1) {
+      newValue = this.ensureMaxRangeBorders(newValue, inputNumber);
+      newValue = this.ensureMinRangeBorders(newValue, inputNumber);
+    }
+    // Firefox raises one more change after PointerUp; once rounded to the step and checked against the range borders
+    // it matches the value PointerUp committed (or reverted)
+    if (newValue === renderedValue[inputNumber]) return;
+    const value = renderedValue.slice();
+    value[inputNumber] = newValue;
+    value.sort((a, b) => a - b);
+    this.setSliderValue(value);
+    this.refreshInputRange();
+  }
+
   public handlePointerDown = (e: PointerEvent)=> {
     const { step, renderedValue } = this;
     if (step) {
@@ -677,13 +718,15 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     }
     this.isAllowFocusThumb = false;
     this.focusedThumb = null;
-    this.oldValue = this.renderedValue;
+    // a copy: handleOnChange changes renderedValue in place during the gesture
+    this.oldValue = this.renderedValue.slice();
     this.animatedThumb = false;
   };
 
   public handlePointerUp = (event:PointerEvent) => {
     event.stopPropagation();
-    const { step, focusedThumb, renderedValue, allowSwap, renderedMinRangeLength, getClosestToStepValue, refreshInputRange, setSliderValue } = this;
+    const { step, focusedThumb, allowSwap, renderedMinRangeLength, getClosestToStepValue, refreshInputRange, setSliderValue } = this;
+    let renderedValue = this.renderedValue;
     const focusedThumbValue = renderedValue[focusedThumb];
     const inputNode = <HTMLInputElement>event.target;
 
@@ -700,8 +743,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
     if (allowSwap) {
       for (let i = 0; i < renderedValue.length - 1; i++) {
-        if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedMinRangeLength) {
-          this.setPropertyValue("renderedValue", <number[]>this.oldValue);
+        if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedMinRangeLength && Array.isArray(this.oldValue)) {
+          renderedValue = this.oldValue;
           break;
         }
       }
@@ -717,7 +760,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       this.isAllowFocusThumb = true;
       this.focusedThumb = inputNumber;
     }
-    this.oldValue = this.renderedValue;
+    this.oldValue = this.renderedValue.slice();
     this.animatedThumb = true;
   };
 
@@ -818,15 +861,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.questionRootElement = undefined;
   }
 
-  protected runConditionCore(properties: HashTable<any>): void {
-    super.runConditionCore(properties);
-    this.runExpressionByProperty("maxValueExpression", properties, (value: number) => {
-      this.max = value ?? this.renderedMax;
-    });
-    this.runExpressionByProperty("minValueExpression", properties, (value: number) => {
-      this.min = value ?? this.renderedMin;
-    });
-  }
   protected setNewValue(newValue: any): void {
     newValue = this.ensureValueRespectMinMax(newValue);
     super.setNewValue(newValue);
@@ -843,24 +877,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       this.setSliderValue(val);
     }
     this.resetPropertyValue("renderedValue");
-  }
-
-  protected getDefaultTitleActions(): Array<Action> {
-    const actions = [];
-    if (!this.isDesignMode) {
-      const clearAction = new Action(
-        {
-          locTitleName: "clearCaption",
-          id: `sv-clr-btn-${this.id}`,
-          action: () => { this.clearValueFromUI(); },
-          innerCss: this.cssClasses.clearButton,
-          visible: <any>new ComputedUpdater(() => this.allowClear && !this.isReadOnly),
-          ariaLabelledBy: this.a11y_input_ariaLabelledBy
-        }
-      );
-      actions.push(clearAction);
-    }
-    return actions;
   }
 
   protected getItemValueType():string {

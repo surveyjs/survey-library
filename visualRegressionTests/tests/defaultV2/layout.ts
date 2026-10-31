@@ -96,7 +96,6 @@
 //       });
 //       await ClientFunction(() => {
 //         document.body.focus();
-//         (<any>window).survey.isCompact = true;
 //       })();
 
 //       const bodyRoot = Selector(".sd-container-modern");
@@ -206,7 +205,6 @@
 //       });
 //       await ClientFunction(() => {
 //         document.body.focus();
-//         (<any>window).survey.isCompact = true;
 //       })();
 
 //       const bodyRoot = Selector(".sd-container-modern");

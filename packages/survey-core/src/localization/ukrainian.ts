@@ -5,6 +5,58 @@ export var ukrainianSurveyStrings = {
   pagePrevText: "Назад",
   // "Next"
   pageNextText: "Далі",
+  // [Auto-translated] "First"
+  pageFirstText: "Перше",
+  // [Auto-translated] "Last"
+  pageLastText: "Останній",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Вибрати сторінку",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортуйте за {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Високий - Низький",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Низький - Високий",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Алфавіт, А - Я",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Алфавіт, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Найновіший перший",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Спочатку найстарші",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Відсортовано за {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, потім {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортуйте за",
+  // [Auto-translated] "Default"
+  sortDefaultText: "За замовчуванням",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле сортування",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Порядок сортування",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Додайте рівень сортування",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Видалити рівень сортування {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортування поля {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Порядок сортування {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Показати всі рівні сортування",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Додати нове",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Перемістити сортування на рівні {0}",
   // "Complete"
   completeText: "Завершити",
   // "Preview"
@@ -37,6 +89,8 @@ export var ukrainianSurveyStrings = {
   panelDynamicTabTextFormat: "Панель {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Відповіли на {0}/{1} питань",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Питання {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Немає жодного питання.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var ukrainianSurveyStrings = {
   value: "значення",
   // "Response required."
   requiredError: "Будь ласка, дайте відповідь.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Значення неправильне.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Значення містить невідомі ключі: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Будь ласка, дайте відповідь хоча б на одне питання.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var ukrainianSurveyStrings = {
   noUploadFilesHandler: "Файли не можна завантажити. Будь ласка, додайте обробник для події 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Будь ласка, введіть дані в поле 'Інше'",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Цінність «{0}» не є одним із доступних варіантів.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Ваш файл завантажується. Зачекайте декілька секунд і спробуйте знову.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var ukrainianSurveyStrings = {
   addRow: "Додати рядок",
   // "Remove"
   removeRow: "Видалити",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Перемістити ряд {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Рядів немає.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var ukrainianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Індикатор прогресу",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Сторінка {0}"
+  progressbarPage: "Сторінка {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "д",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "м",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "р",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "г",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "Г",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "х",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "с",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "п",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "П"
 };
 
 setupLocale({ localeCode: "uk", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });

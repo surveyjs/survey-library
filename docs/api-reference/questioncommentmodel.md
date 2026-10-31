@@ -18,14 +18,6 @@ A class that describes the Long Text question type.
 
 ## Properties
 
-### `acceptCarriageReturn`
-
-**Type**: `boolean`
-
-Specifies whether the question allows line breaks.
-
-When this property is enabled, a user can press Enter to insert line breaks. They are saved as `\n` in survey results. The Comment question also recognizes and interprets the `\n` sequence as a line break when you set the question `value` in code.
-
 ### `allowResize`
 
 **Type**: `boolean`

@@ -70,10 +70,9 @@ export interface ChoicesInfo {
   carryForwardFrom?: string;
   carryForwardValuesFrom?: string;
   carryForwardTextsFrom?: string;
-  showOtherItem: boolean;
-  showNoneItem: boolean;
-  showRefuseItem: boolean;
-  showDontKnowItem: boolean;
+  // the built-in items the question shows besides its listed choices ("other", "none",
+  // "refuse", "dontknow"; see SPECIAL_ITEMS in value-types.ts)
+  shownSpecialItems: Array<string>;
 }
 
 export type ValueShape = "scalar" | "array" | "object" | "none" | "unknown";
@@ -88,15 +87,24 @@ export interface ScopeFramePanelDynamic {
   kind: "panelDynamic";
   owner: ElementRecord;
   templateNames: CIMultiMap<ElementRecord>;
+  // memoized by record-fields.ts: the template questions by data key
+  dataKeys?: CIMultiMap<ElementRecord>;
 }
 export interface ScopeFrameMatrixRow {
   kind: "matrixRow";
   owner: ElementRecord;
   columns: CIMultiMap<ElementRecord>;
+  // memoized by record-fields.ts: the columns and detail-panel questions by data key
+  dataKeys?: CIMultiMap<ElementRecord>;
 }
 export interface ScopeFrameItemValue {
   kind: "itemValue";
   owner: ElementRecord;
+}
+export interface ScopeFrameArrayItem {
+  kind: "arrayItem";
+  owner: ElementRecord;
+  names: CIMultiMap<ElementRecord>;
 }
 export interface ScopeFrameComposite {
   kind: "composite";
@@ -105,7 +113,21 @@ export interface ScopeFrameComposite {
   owner?: ElementRecord;
   fieldNames: CIMap<boolean>;
 }
-export type ScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow | ScopeFrameItemValue | ScopeFrameComposite;
+export type ScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow | ScopeFrameItemValue | ScopeFrameComposite | ScopeFrameArrayItem;
+// A frame whose elements write into its own record: a dynamic-panel template or a matrix row.
+export type CapturingScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow;
+
+// The keys of an object value several questions share (multiple text, matrix, matrixdropdown).
+export interface MergedObjectKeys {
+  // the multiple-text items and matrix rows of every sharing question
+  keys: Array<string>;
+  // the fields of a key holding a matrixdropdown row object: the columns (detail-panel questions
+  // included) of every matrixdropdown on the data key that lists that row
+  rowFields: CIMap<CIMultiMap<ElementRecord>>;
+  // what a row of this matrixdropdown holds ({row.x}), set only when some matrixdropdown on the
+  // data key lists none of its rows
+  ownRowFields?: CIMultiMap<ElementRecord>;
+}
 
 export interface ElementRecord {
   name: string;
@@ -131,12 +153,60 @@ export interface ElementRecord {
   matrixColumns?: CIMultiMap<ElementRecord>;
   // memoized descendant question names for static-panel {panel.x} resolution
   panelDescendantNames?: CIMap<ElementRecord>;
+  // memoized synthetic records for the standalone scope variables of this matrix/panel
+  scopeValueRecords?: CIMap<ElementRecord>;
+  // the fields one panel/row object of this dynamic panel or matrix holds, under the data key each
+  // is stored by - its own and those of the questions sharing its value (see record-fields.ts);
+  // unset while it would equal templateNames/matrixColumns
+  itemFields?: CIMultiMap<ElementRecord>;
+  // set on an object-valued question that shares its value with another one
+  mergedObject?: MergedObjectKeys;
+  // memoized synthetic records for the fields a checkbox keeps in the object of a selected item
+  itemFieldRecords?: CIMap<ElementRecord>;
 }
+
+// A path into the linted JSON, the way every finding addresses it. The survey itself has the
+// empty path, so a key of it stands on its own.
+export function joinPath(base: string, key: string): string {
+  return base ? base + "." + key : key;
+}
+
+// The innermost scope frame that owns element names (dynamic-panel template or matrix row).
+export function getCapturingFrame(scope: Array<ScopeFrame>): CapturingScopeFrame | undefined {
+  for (let i = scope.length - 1; i >= 0; i--) {
+    const frame = scope[i];
+    if (frame.kind === "panelDynamic" || frame.kind === "matrixRow") return frame;
+  }
+  return undefined;
+}
+
+// The type to dispatch question-kind logic on: a matrix column answers as its cell type,
+// every other record as its own type.
+export function getEffectiveType(record: { type: string, effectiveType?: string }): string {
+  return record.effectiveType || record.type;
+}
+
+// The synthetic record types behind standalone scope variables: {rowIndex}/{panelIndex} is
+// always a number counted from 1, {rowValue} holds one of the matrix rows. Synthetic records
+// live on ElementRecord.scopeValueRecords, never in the index.
+export const SCOPE_INDEX_VARIABLE_TYPE = "scopeindexvariable";
+export const SCOPE_ROW_VALUE_TYPE = "scoperowvaluevariable";
+// The synthetic record type behind a field a checkbox or an image map keeps in the object of a
+// selected item ({panel.car} for valuePropertyName "car"). Lives on itemFieldRecords, never in the index.
+export const ITEM_FIELD_TYPE = "itemfieldvariable";
 
 export interface ParsedRefSegment {
   name: string;
   index?: number;
+  // where the name sits in ParsedRef.raw - an index, a postfix and the delimiters left out -
+  // so a fix can respell the name and keep all around it as written
+  from?: number;
+  to?: number;
 }
+
+// What an unknown segment inside a container was meant to name: the noun a message uses for it,
+// stated where the segment is checked rather than guessed back from its position.
+export type SegmentLevel = "row" | "column" | "item" | "templateQuestion" | "field";
 
 export type RefStatus = "resolved" | "unknown" | "skipped" | "scoped-resolved" | "scoped-unknown";
 
@@ -150,9 +220,16 @@ export interface ParsedRef {
   resolvedTo?: ElementRecord;
   resolvedKind?: ResolvedRefKind;
   unknownSegmentIndex?: number;
+  unknownSegmentLevel?: SegmentLevel;
   scopePrefix?: string;
   scopeHint?: string;
+  // the localizable form of scopeHint: one of SurveyLintHintReasons, plus the variable it is about
+  hintReason?: string;
+  hintName?: string;
   suggestion?: string;
+  // the last segment the suggestion replaces, from unknownSegmentIndex on: a dotted suggestion
+  // may spell several segments of the reference at once. Unset means that one segment alone.
+  suggestionEnd?: number;
 }
 
 export type ExpressionSiteKind = "condition" | "expression";
@@ -165,16 +242,42 @@ export interface ExpressionSite {
   owner?: ElementRecord;
   scope: Array<ScopeFrame>;
   synthesized?: boolean;
+  // An inArray filter is evaluated per data item, not as its owner's property.
+  inArrayOf?: ExpressionSite;
+  // the filter sites of the site's inArray calls written as operands, whose names the runtime
+  // reads as the site's own dependencies (getDependencyRefs)
+  operandFilterSites?: Array<ExpressionSite>;
   ast?: Operand;
   parseError?: { at?: number, message?: string };
   refs?: Array<ParsedRef>;
+  // refs keyed by the raw name an operand carries, memoized like refs
+  refByRaw?: Map<string, ParsedRef>;
+  // element names the site's function calls take as plain string arguments, memoized too.
+  // Typed as any[] here: the shape lives in expression-utils, which imports this file.
+  functionArgRefs?: Array<any>;
+  // set on a synthesized condition sub-site (an iif() condition argument): the site it
+  // was carved out of. Sub-sites live only here, never in index.expressionSites.
+  subOf?: ExpressionSite;
+  subSites?: Array<ExpressionSite>;
 }
 
-export type NameRefKind = "choicesByUrlVariable" | "binding";
+// A string the analysis carved out of another one: an inArray filter, and a condition
+// synthesized from a legacy trigger's name/operator/value. The document holds the string it was
+// carved from and no property of its own for it, so a fix has nowhere to write.
+export function isCarvedOutSite(site: ExpressionSite): boolean {
+  return !!site.inArrayOf || !!site.synthesized;
+}
+
+export type NameRefKind = "choicesByUrlVariable" | "binding" | "textPiping";
 
 export interface NameRef {
   name: string;
   path: string;
+  // the string the reference was read out of, for the kinds that carry one (a piped text, a
+  // choicesByUrl url). A binding holds the bare name, so its whole value is the reference.
+  text?: string;
+  // the property the reference was written in; the other kinds name it through their kind
+  prop?: string;
   owner?: ElementRecord;
   scope: Array<ScopeFrame>;
   kind: NameRefKind;
@@ -193,6 +296,8 @@ export interface TriggerRecord {
   path: string;
   json: any;
   expressionSite?: ExpressionSite;
+  // the sites of the trigger's extra expression properties (runExpression)
+  extraSites?: Array<ExpressionSite>;
   setRoot?: string;
   setToName?: string;
   targets: Array<TriggerTargetRef>;
@@ -220,9 +325,18 @@ export interface Namespace {
 
 export interface SurveyIndex {
   json: any;
+  // the elements a bare {name} resolves to: survey-level pages, panels and questions. A question
+  // inside a dynamic-panel template or a matrix row is reached through its scope instead.
   byName: CIMultiMap<ElementRecord>;
   byValueName: CIMultiMap<ElementRecord>;
+  // every page, panel and question by name, scopes included: element names are unique across the
+  // whole survey - a template or a detail panel is no namespace of its own - and this is the map
+  // name/duplicate reads
+  elementNames: CIMultiMap<ElementRecord>;
   calculatedValues: CIMap<CalculatedValueRecord>;
+  // every calculated value in declaration order, duplicates included: the map keeps only
+  // the first of a repeated name, which is the defect name/duplicate reports
+  calculatedValueList: Array<CalculatedValueRecord>;
   triggers: Array<TriggerRecord>;
   expressionSites: Array<ExpressionSite>;
   nameRefs: Array<NameRef>;
@@ -231,4 +345,11 @@ export interface SurveyIndex {
   namespaces: Array<Namespace>;
   // effective settings for this run, snapshotted from the shared survey-core settings
   settings: ILintResolvedSettings;
+  // the names of the host's variable definition, snapshotted once from the run's
+  // SurveyVariablePresets - empty when no definition was given. The value is the
+  // definition's own spelling of the name, which a finding quotes.
+  definitionVariables: CIMap<string>;
+  // The element a data key names: the runtime reads a value by name, and a valueName
+  // replaces the name as that key.
+  findByDataName(name: string): ElementRecord | undefined;
 }

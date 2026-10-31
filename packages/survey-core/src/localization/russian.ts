@@ -5,6 +5,58 @@ export var russianSurveyStrings = {
   pagePrevText: "Назад",
   // "Next"
   pageNextText: "Далее",
+  // [Auto-translated] "First"
+  pageFirstText: "Первый",
+  // [Auto-translated] "Last"
+  pageLastText: "Последний",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Выбрать страницу",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортируйте по {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Высокий — Низкий",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Низкий — Высокий",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Алфавит, А - Я",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Алфавит, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Новейший первый",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Сначала Старейшие",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Отсортировано по {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, потом {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортировать по",
+  // [Auto-translated] "Default"
+  sortDefaultText: "По умолчанию",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле сортировки",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Порядок сортировки",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Добавить уровень сортировки",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Удалить уровень сортировки {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортировка поля {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сортировка {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Показывать все уровни сортировки",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Добавить новое",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Переместить сортировку на уровне {0}",
   // "Complete"
   completeText: "Готово",
   // "Preview"
@@ -37,6 +89,8 @@ export var russianSurveyStrings = {
   panelDynamicTabTextFormat: "Панель {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Oтвечено на {0}/{1} вопросов",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Вопрос {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Нет ни одного вопроса.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var russianSurveyStrings = {
   value: "значение",
   // "Response required."
   requiredError: "Пожалуйста, ответьте на вопрос.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Значение неверное.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Значение содержит неизвестные ключи: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Пожалуйста, ответьте по крайней мере на один вопрос.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var russianSurveyStrings = {
   noUploadFilesHandler: "Файлы не могут быть загружены. Пожалуйста, добавьте обработчик для события 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Пожалуйста, введите данные в поле 'Другое'",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Ценность «{0}» не входит в число доступных вариантов.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Ваш файл загружается. Подождите несколько секунд и попробуйте снова.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var russianSurveyStrings = {
   addRow: "Добавить строку",
   // "Remove"
   removeRow: "Удалить",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Переместить ряд {0}",
   // "There are no rows."
   noRowsText: "Рядов нет.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var russianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Индикатор выполнения",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Страница {0}"
+  progressbarPage: "Страница {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "д",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "м",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "г",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "ч",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "Ч",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "М",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "с",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "п",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "П"
 };
 
 setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "русский", englishName: "Russian" });

@@ -1,0 +1,86 @@
+@use "../typography-mixins.scss" as *;
+
+// A sortable column header: the whole cell is one button. The <th> hands its padding to the button,
+// so that the padding is part of the click target and the title stays where it is in a plain header.
+.sd-table__cell--header.sd-table__cell--sortable {
+  padding: 0;
+  // A table cell's height is a minimum: 1px lets the row decide it, and the button's height: 100%
+  // then fills a header that is shorter than another one in the row that wraps to more lines.
+  height: 1px;
+}
+
+.sd-table__header-sort-button {
+  appearance: none;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sjs2-layout-component-matrix-header-cell-gap-horizontal);
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding-block: var(--sjs2-layout-component-matrix-header-cell-padding-top)
+    var(--sjs2-layout-component-matrix-header-cell-padding-bottom);
+  padding-inline: var(--sjs2-layout-component-matrix-header-cell-padding-left)
+    var(--sjs2-layout-component-matrix-header-cell-padding-right);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  outline: none;
+
+  // Inset: the table's borders and its scroll container would clip a ring drawn outside the cell.
+  &:focus-visible {
+    box-shadow: inset 0 0 0 var(--sjs2-border-width-a11y) var(--sjs2-color-utility-a11y);
+  }
+}
+.sd-table__header-sort-title {
+  flex: 1;
+  min-width: 0;
+}
+
+// The indicator's slot is always there, so that the title does not move when it appears.
+.sd-table__header-sort {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sjs2-spacing-x050);
+  border-radius: var(--sjs2-radius-component-action);
+  background: var(--sjs2-color-component-action-neutral-quaternary-default-bg);
+
+  .sv-svg-icon {
+    display: block;
+  }
+  use {
+    fill: var(--sjs2-color-component-action-neutral-quaternary-default-icon);
+  }
+}
+// Not sorted: hidden at rest, the quiet sort icon on hover and on keyboard focus.
+.sd-table__header-sort--none {
+  opacity: 0;
+}
+.sd-table__header-sort-button:hover,
+.sd-table__header-sort-button:focus-visible {
+  .sd-table__header-sort--none {
+    opacity: 1;
+  }
+}
+// Sorted: the arrow always shows, in the hovered chip.
+.sd-table__header-sort--asc,
+.sd-table__header-sort--desc {
+  background: var(--sjs2-color-component-action-neutral-quaternary-hovered-bg);
+
+  use {
+    fill: var(--sjs2-color-component-action-neutral-quaternary-hovered-icon);
+  }
+}
+// The level number after the arrow, while the sort can have more than one level. The chip grows with it,
+// so a two-digit level fits too; the arrow keeps its place at the start.
+.sd-table__header-sort-rank {
+  @include sjs2--typography--small-strong;
+  padding-inline: var(--sjs2-spacing-x025);
+  color: var(--sjs2-color-component-action-neutral-quaternary-hovered-label);
+}

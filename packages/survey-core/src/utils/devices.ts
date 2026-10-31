@@ -4,13 +4,15 @@ import { DomWindowHelper } from "../global_variables_utils";
 let _isMobile = false;
 let vendor = null;
 
-if (typeof navigator !== "undefined" && !!navigator && DomWindowHelper.isAvailable()) {
-  vendor = navigator.userAgent || navigator.vendor || DomWindowHelper.hasOwn("opera");
+const _window = DomWindowHelper.getWindow();
+if (!!_window) {
+  vendor = _window.navigator.userAgent || (<any>_window.navigator).vendor || DomWindowHelper.hasOwn("opera");
 }
 
 (function (a: any) {
   if (!a) return;
-  if ((navigator.platform === "MacIntel" && navigator.maxTouchPoints > 0) || navigator.platform === "iPad") {
+  const _navigator = DomWindowHelper.getWindow()?.navigator;
+  if (!!_navigator && ((_navigator.platform === "MacIntel" && _navigator.maxTouchPoints > 0) || _navigator.platform === "iPad")) {
     _isMobile = true;
   } else if (
     /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
@@ -32,7 +34,7 @@ export var mouseInfo = {
     return !this.hasMouse && this.hasTouchEvent;
   },
   get hasTouchEvent(): boolean {
-    return DomWindowHelper.isAvailable() && (DomWindowHelper.hasOwn("ontouchstart") || navigator.maxTouchPoints > 0);
+    return DomWindowHelper.isAvailable() && (DomWindowHelper.hasOwn("ontouchstart") || DomWindowHelper.getWindow()?.navigator.maxTouchPoints > 0);
   },
   hasMouse: true
 };

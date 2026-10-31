@@ -5,6 +5,58 @@ export var hebrewSurveyStrings = {
   pagePrevText: "אחורה",
   // "Next"
   pageNextText: "קדימה",
+  // [Auto-translated] "First"
+  pageFirstText: "ראשונה",
+  // [Auto-translated] "Last"
+  pageLastText: "אחרון",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "של {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Select Page",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "מיין לפי {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "גבוה-נמוך",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "נמוך - גבוה",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "אלפבית, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "אלפבית, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "החדש הראשון",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "הראשונה הוותיקה ביותר",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "ממויין לפי {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, ואז עד {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "מיין לפי",
+  // [Auto-translated] "Default"
+  sortDefaultText: "ברירת מחדל",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "שדה מיון",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "סדר מיון",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "הוספת רמת מיון",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "הסר את רמת המיון {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "שדה מיון {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "סדר מיון {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "הצג את כל רמות המיון",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "הוסף חדש",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "מיון מהלך ברמת {0}",
   // "Complete"
   completeText: "סיום",
   // "Preview"
@@ -37,6 +89,8 @@ export var hebrewSurveyStrings = {
   panelDynamicTabTextFormat: "לוח {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "ענה על שאלות",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "שאלה {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "אין שאלות",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var hebrewSurveyStrings = {
   value: "ערך",
   // "Response required."
   requiredError: "אנא השב על השאלה",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "הערך שגוי.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "הערך מכיל מפתחות לא ידועים: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "אנא ענה לפחות על שאלה אחת.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var hebrewSurveyStrings = {
   noUploadFilesHandler: "לא ניתן להעלות קבצים. אנא הוסף מטפל לאירוע 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "נא להזין נתונים בשדה \"אחר\"",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "הערך '{0}' אינו אחת מהאפשרויות הזמינות.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "הקובץ שלך נטען. המתן מספר שניות ונסה שוב.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var hebrewSurveyStrings = {
   addRow: "להוסיף שורה",
   // "Remove"
   removeRow: "לְהַסִיר",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "הזז שורה {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "אין שורות.",
   // [Auto-translated] "Row {rowIndex}"

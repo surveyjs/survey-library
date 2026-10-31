@@ -8,9 +8,13 @@ export type {
   ISurveyFileCallbacks,
   ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks,
+  ISurveyDynamicDataCallbacks,
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
+  ISurveyWebProvider,
+  ISurveyWebRequest,
+  ISurveyWebResponse,
 } from "./interfaces/survey-callbacks";
 
 // Data & text-processing interfaces.
@@ -28,6 +32,9 @@ export type {
   ISurveyErrorOwner,
   ISurveyValidatorOwner,
   ISurveyValidation,
+  DataIssueType,
+  IDataVerificationOptions,
+  IDataIssue,
 } from "./interfaces/validation-interfaces";
 
 // UI / layout / environment interfaces.

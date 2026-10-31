@@ -34,7 +34,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
 
   protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var rowsTH = this.question.hasRows ? <td /> : null;
+    var rowsTH = this.question.hasRows ? <td className={this.question.emptyCellCss}/> : null;
     var headers: Array<React.JSX.Element> = [];
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       var column = this.question.visibleColumns[i];
@@ -81,7 +81,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
           <legend className="sv-visuallyhidden">{this.question.locTitle.renderedHtml}</legend>
           <table className={this.question.getTableCss()} role="presentation">
             {header}
-            <tbody>{rows}</tbody>
+            <tbody className={this.question.getTableBodyCss()}>{rows}</tbody>
           </table>
         </fieldset>
       </div>
@@ -217,16 +217,23 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
     return !!this.question && !!this.row;
   }
   protected renderElement(): React.JSX.Element {
+    const viewText = this.question.getCellViewText(this.row, this.column);
+    const mobileSpan = this.question.isMobile ?
+      (<span className={this.question.cssClasses.cellResponsiveTitle}>{this.renderLocString(this.column.locText)}</span>)
+      : undefined;
+    if (viewText) {
+      return (<>
+        <div className={this.question.viewModeCssClass}>{viewText}</div>
+        {mobileSpan}
+      </>);
+    }
     const isChecked = this.row.isChecked(this.column);
     const inputId = this.question.inputId + "_" + this.row.name + "_" + this.columnIndex;
     const itemClass = this.question.getItemClass(this.row, this.column);
     const itemSvgIcon = this.question.getItemSvgIcon(this.row, this.column);
-    const mobileSpan = this.question.isMobile ?
-      (<span className={this.question.cssClasses.cellResponsiveTitle}>{this.renderLocString(this.column.locText)}</span>)
-      : undefined;
     return (<label onMouseDown={this.handleOnMouseDown} className={itemClass}>
       {this.renderInput(inputId, isChecked)}
-      <span className={this.question.cssMaterialDecorator}>
+      <span className={this.question.cssMaterialDecorator} aria-hidden="true">
         {itemSvgIcon ?
           <svg className={this.question.cssItemDecorator}>
             <use xlinkHref={itemSvgIcon}></use>

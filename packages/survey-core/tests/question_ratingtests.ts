@@ -1,4 +1,4 @@
-import { QuestionRatingModel, RatingItem } from "../src/question_rating";
+import { QuestionRatingModel, RatingItem, getRatingItemByDigitShortcut, ratingDigitShortcutHasPrefix } from "../src/question_rating";
 import { SurveyModel } from "../src/survey";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { CustomResizeObserver } from "./test-helpers";
@@ -951,6 +951,99 @@ test("rateStep changing rateMax", () => {
   expect(q1.rateCount).toBe(3);
 });
 
+test("rateMin is greater than rateMax in JSON, Bug#11832", () => {
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 10, rateMax: 1 }] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMin, "rateMin").toBe(1);
+  expect(q1.rateMax, "rateMax").toBe(1);
+  expect(q1.rateCount, "rateCount").toBe(1);
+  expect(q1.visibleChoices.map(item => item.value), "one item").toEqual([1]);
+
+  q1.rateType = "stars";
+  q1.rateColorMode = "scale";
+  q1.minRateDescription = "Bad";
+  expect(q1.visibleChoices.map(item => item.value), "one item after re-render").toEqual([1]);
+  expect(q1.rateCount, "rateCount after re-render").toBe(1);
+
+  q1.rateMax = 4;
+  expect(q1.rateMin, "rateMin #2").toBe(1);
+  expect(q1.rateCount, "rateCount #2").toBe(4);
+  expect(q1.visibleChoices.map(item => item.value), "items #2").toEqual([1, 2, 3, 4]);
+});
+
+test("rateMin is greater than rateMax in JSON with rateStep, Bug#11832", () => {
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 5, rateMax: 3, rateStep: 2 }] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMin, "rateMin").toBe(3);
+  expect(q1.rateMax, "rateMax").toBe(3);
+  expect(q1.rateCount, "rateCount").toBe(1);
+  expect(q1.visibleChoices.map(item => item.value), "one item").toEqual([3]);
+
+  q1.rateStep = 3;
+  expect(q1.rateStep, "rateStep is not reduced to 0").toBe(3);
+  expect(q1.visibleChoices.map(item => item.value), "one item after rateStep change").toEqual([3]);
+});
+
+test("rateMin is equal to rateMax in JSON renders one item, Bug#11832", () => {
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 3, rateMax: 3 }] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMin, "rateMin").toBe(3);
+  expect(q1.rateMax, "rateMax").toBe(3);
+  expect(q1.rateCount, "rateCount").toBe(1);
+  expect(q1.visibleChoices.map(item => item.value), "one item").toEqual([3]);
+
+  q1.rateCount = 3;
+  expect(q1.rateMin, "rateMin #2").toBe(3);
+  expect(q1.rateMax, "rateMax #2").toBe(5);
+  expect(q1.visibleChoices.map(item => item.value), "items #2").toEqual([3, 4, 5]);
+});
+
+test("rateMin is greater than rateMax, the one item scale is restored from JSON, Bug#11832", () => {
+  const jsons = [
+    { rateMin: 10, rateMax: 1 },
+    { rateMin: 10 },
+    { rateMin: 10, rateMax: 7 }
+  ];
+  jsons.forEach(json => {
+    const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", ...json }] });
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    const rateValue = q1.rateMax;
+    expect(q1.visibleChoices.map(item => item.value), JSON.stringify(json) + ": one item").toEqual([rateValue]);
+
+    const survey2 = new SurveyModel({ elements: [{ type: "rating", ...q1.toJSON() }] });
+    const q2 = <QuestionRatingModel>survey2.getQuestionByName("q1");
+    expect(q2.rateMin, JSON.stringify(json) + ": rateMin").toBe(rateValue);
+    expect(q2.rateMax, JSON.stringify(json) + ": rateMax").toBe(rateValue);
+    expect(q2.rateCount, JSON.stringify(json) + ": rateCount").toBe(1);
+    expect(q2.visibleChoices.map(item => item.value), JSON.stringify(json) + ": one item after reload").toEqual([rateValue]);
+  });
+});
+
+test("rateCount: 1 in JSON with rateMin or rateMax, Bug#11832", () => {
+  let survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 3, rateCount: 1 }] });
+  let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMax, "rateMin + rateCount -> rateMax").toBe(3);
+  expect(q1.visibleChoices.map(item => item.value), "rateMin + rateCount -> items").toEqual([3]);
+
+  survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMax: 7, rateCount: 1 }] });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMin, "rateMax + rateCount -> rateMin").toBe(7);
+  expect(q1.visibleChoices.map(item => item.value), "rateMax + rateCount -> items").toEqual([7]);
+});
+
+test("rateCount can't be less than 2 for a regular scale, Bug#11832", () => {
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1" }] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.rateCount = 1;
+  expect(q1.rateCount, "rateCount").toBe(2);
+  expect(q1.rateMax, "rateMax").toBe(2);
+  q1.rateMin = 2;
+  expect(q1.rateMin, "rateMin is clamped").toBe(1);
+  q1.rateMax = 1;
+  expect(q1.rateMax, "rateMax is clamped").toBe(2);
+  expect(q1.visibleChoices.map(item => item.value), "items").toEqual([1, 2]);
+});
+
 test("rateValues changing rateCount", () => {
   var json = {
     elements: [
@@ -1447,6 +1540,30 @@ test("rating colors when vars used", () => {
   expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
   expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
   expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+
+  rootElement.remove();
+});
+
+test("rating colors for one item when rateMin is greater than rateMax, Bug#11832", () => {
+  document.documentElement.style.setProperty("--sd-rating-bad-color", "#c8140a");
+  document.documentElement.style.setProperty("--sd-rating-normal-color", "gold");
+  document.documentElement.style.setProperty("--sd-rating-good-color", "rgb(10,200,20)");
+
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 10, rateMax: 1 }] });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+  const rootElement = document.createElement("div");
+  document.body.appendChild(rootElement);
+  q1.afterRenderQuestionElement(rootElement);
+  q1.scaleColorMode = "colored";
+  q1.rateColorMode = "scale";
+  expect(q1.visibleRateValues.length).toBe(1);
+  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+
+  document.documentElement.style.setProperty("--sd-rating-bad-color", null);
+  document.documentElement.style.setProperty("--sd-rating-normal-color", null);
+  document.documentElement.style.setProperty("--sd-rating-good-color", null);
   (QuestionRatingModel as any)["colorsCalculated"] = false;
 
   rootElement.remove();
@@ -1969,6 +2086,264 @@ test("supportAutoAdvance", () => {
   q1.displayMode = "dropdown";
   expect(q1.supportAutoAdvance(), "#4").toBe(true);
 });
+test("supportAutoAdvance on Enter, bug#11845", () => {
+  const prevDelay = settings.autoAdvanceDelay;
+  settings.autoAdvanceDelay = 0;
+  try {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "rating", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    expect(survey.currentPage.name).toBe(survey.pages[0].name);
+
+    q1.onKeyDown({ key: "Enter", target: { value: "3" }, preventDefault: () => {} });
+    expect(q1.value).toBe(3);
+    expect(survey.currentPage.name, "auto-advance after Enter sets a value").toBe(survey.pages[1].name);
+
+    survey.currentPageNo = 0;
+    q1.value = 2;
+    expect(survey.currentPage.name).toBe(survey.pages[0].name);
+    q1.onKeyDown({ key: "Enter", target: { value: "2" }, preventDefault: () => {} });
+    expect(q1.value).toBe(2);
+    expect(survey.currentPage.name, "auto-advance on Enter when value is already set").toBe(survey.pages[1].name);
+
+    survey.currentPageNo = 0;
+    q1.value = 4;
+    q1.onKeyDown({ key: " ", target: { value: "5" }, preventDefault: () => {} });
+    expect(q1.value, "non-Enter keys do not change the value").toBe(4);
+    expect(survey.currentPage.name, "non-Enter keys do not auto-advance").toBe(survey.pages[0].name);
+  } finally {
+    settings.autoAdvanceDelay = prevDelay;
+  }
+});
+
+function createRatingKeyEvent(key: string, extra: any = {}): any {
+  return {
+    key,
+    preventDefault: extra.preventDefault || (() => {}),
+    stopPropagation: extra.stopPropagation || (() => {}),
+    ...extra
+  };
+}
+
+test("getRatingItemByDigitShortcut matches by value, index, and skips disabled items", () => {
+  const q15 = new QuestionRatingModel("q1");
+  expect(getRatingItemByDigitShortcut(q15.visibleChoices, "3")?.value, "1-5 value 3").toBe(3);
+  expect(getRatingItemByDigitShortcut(q15.visibleChoices, "1")?.value, "1-5 value 1").toBe(1);
+  expect(ratingDigitShortcutHasPrefix(q15.visibleChoices, "1"), "1-5 has no two-digit prefix").toBe(false);
+  expect(ratingDigitShortcutHasPrefix(q15.visibleChoices, "0"), "0 never waits").toBe(false);
+
+  const q010 = new QuestionRatingModel("q1");
+  q010.rateMin = 0;
+  q010.rateMax = 10;
+  expect(getRatingItemByDigitShortcut(q010.visibleChoices, "0")?.value, "0-10 value 0").toBe(0);
+  expect(getRatingItemByDigitShortcut(q010.visibleChoices, "7")?.value, "0-10 value 7").toBe(7);
+  expect(getRatingItemByDigitShortcut(q010.visibleChoices, "10")?.value, "0-10 value 10").toBe(10);
+  expect(ratingDigitShortcutHasPrefix(q010.visibleChoices, "1"), "10 is a prefix of 1").toBe(true);
+  expect(ratingDigitShortcutHasPrefix(q010.visibleChoices, "7"), "7 has no two-digit prefix").toBe(false);
+  expect(ratingDigitShortcutHasPrefix(q010.visibleChoices, "0"), "0 is not a prefix of 10").toBe(false);
+
+  const qStep = new QuestionRatingModel("q1");
+  qStep.rateMin = 1;
+  qStep.rateMax = 9;
+  qStep.rateStep = 2;
+  expect(qStep.visibleChoices.map(i => i.value)).toEqual([1, 3, 5, 7, 9]);
+  expect(getRatingItemByDigitShortcut(qStep.visibleChoices, "1")?.value, "rateStep 2 value 1").toBe(1);
+  expect(getRatingItemByDigitShortcut(qStep.visibleChoices, "2")?.value, "rateStep 2 index fallback").toBe(3);
+  expect(getRatingItemByDigitShortcut(qStep.visibleChoices, "0"), "index fallback ignores 0").toBeUndefined();
+
+  const qText = new QuestionRatingModel("q1");
+  qText.rateValues = ["red", "green", "blue"];
+  expect(getRatingItemByDigitShortcut(qText.visibleChoices, "1")?.value, "non-numeric index 1").toBe("red");
+  expect(getRatingItemByDigitShortcut(qText.visibleChoices, "2")?.value, "non-numeric index 2").toBe("green");
+  expect(getRatingItemByDigitShortcut(qText.visibleChoices, "3")?.value, "non-numeric index 3").toBe("blue");
+  expect(getRatingItemByDigitShortcut(qText.visibleChoices, "0"), "non-numeric 0 selects nothing").toBeUndefined();
+  expect(getRatingItemByDigitShortcut(qText.visibleChoices, "9"), "out of range index").toBeUndefined();
+
+  const qDisabled = new QuestionRatingModel("q1");
+  qDisabled.visibleChoices[2].setIsEnabled(false);
+  expect(getRatingItemByDigitShortcut(qDisabled.visibleChoices, "3"), "disabled value is not selected").toBeUndefined();
+
+  expect(getRatingItemByDigitShortcut([], "1"), "empty scale").toBeUndefined();
+
+  const q20 = new QuestionRatingModel("q1");
+  q20.rateMin = 1;
+  q20.rateMax = 20;
+  expect(getRatingItemByDigitShortcut(q20.visibleChoices, "15")?.value, "two-digit 15").toBe(15);
+  expect(ratingDigitShortcutHasPrefix(q20.visibleChoices, "1"), "11-19 prefix").toBe(true);
+  expect(ratingDigitShortcutHasPrefix(q20.visibleChoices, "2"), "20 prefix").toBe(true);
+});
+
+test("rating number keys select by value and wait for two-digit values", () => {
+  vi.useFakeTimers();
+  try {
+    const q15 = new QuestionRatingModel("q1");
+    let prevented = false;
+    q15.onKeyDown(createRatingKeyEvent("3", { preventDefault: () => { prevented = true; } }));
+    expect(q15.value, "1-5 selects immediately").toBe(3);
+    expect(prevented, "preventDefault when a value is selected").toBe(true);
+    q15.clearValue();
+    q15.onKeyDown(createRatingKeyEvent("5", { target: { tagName: "INPUT", type: "radio", value: "1" } }));
+    expect(q15.value, "digit maps by key, not by focused radio value").toBe(5);
+
+    const q010 = new QuestionRatingModel("q1");
+    q010.rateMin = 0;
+    q010.rateMax = 10;
+    prevented = false;
+    q010.onKeyDown(createRatingKeyEvent("0", { preventDefault: () => { prevented = true; } }));
+    expect(q010.value, "0 selects 0 immediately").toBe(0);
+    expect(prevented).toBe(true);
+
+    q010.clearValue();
+    q010.onKeyDown(createRatingKeyEvent("7"));
+    expect(q010.value, "7 selects 7 immediately").toBe(7);
+
+    q010.clearValue();
+    prevented = false;
+    q010.onKeyDown(createRatingKeyEvent("1", { preventDefault: () => { prevented = true; } }));
+    expect(q010.value, "1 waits because 10 exists").toBeUndefined();
+    expect(prevented, "do not preventDefault while waiting").toBe(false);
+    vi.advanceTimersByTime(settings.keyboardInputTimeout - 1);
+    expect(q010.value, "still waiting before timeout").toBeUndefined();
+    vi.advanceTimersByTime(1);
+    expect(q010.value, "lone 1 after timeout").toBe(1);
+
+    q010.clearValue();
+    q010.onKeyDown(createRatingKeyEvent("1"));
+    q010.onKeyDown(createRatingKeyEvent("0"));
+    expect(q010.value, "1 then 0 quickly selects 10").toBe(10);
+
+    const q20 = new QuestionRatingModel("q1");
+    q20.rateMin = 1;
+    q20.rateMax = 20;
+    q20.onKeyDown(createRatingKeyEvent("1"));
+    q20.onKeyDown(createRatingKeyEvent("5"));
+    expect(q20.value, "1 then 5 selects 15").toBe(15);
+
+    const qStep = new QuestionRatingModel("q1");
+    qStep.rateMin = 1;
+    qStep.rateMax = 9;
+    qStep.rateStep = 2;
+    qStep.onKeyDown(createRatingKeyEvent("2"));
+    expect(qStep.value, "rateStep 2 index fallback via key").toBe(3);
+
+    const qText = new QuestionRatingModel("q1");
+    qText.rateValues = ["red", "green", "blue"];
+    qText.onKeyDown(createRatingKeyEvent("2"));
+    expect(qText.value, "non-numeric index via key").toBe("green");
+
+    const qStars = new QuestionRatingModel("q1");
+    qStars.rateType = "stars";
+    qStars.onKeyDown(createRatingKeyEvent("4"));
+    expect(qStars.value, "stars 1-5").toBe(4);
+
+    const qSmileys = new QuestionRatingModel("q1");
+    qSmileys.rateType = "smileys";
+    qSmileys.onKeyDown(createRatingKeyEvent("4"));
+    expect(qSmileys.value, "smileys 1-5").toBe(4);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("rating number keys ignore readOnly, dropdown, modifiers, repeat, and text targets", () => {
+  const q1 = new QuestionRatingModel("q1");
+  q1.readOnly = true;
+  q1.onKeyDown(createRatingKeyEvent("3"));
+  expect(q1.value, "readOnly").toBeUndefined();
+
+  const qDropdown = new QuestionRatingModel("q1");
+  qDropdown.displayMode = "dropdown";
+  qDropdown.onKeyDown(createRatingKeyEvent("3"));
+  expect(qDropdown.renderAs).toBe("dropdown");
+  expect(qDropdown.value, "dropdown").toBeUndefined();
+
+  const qDesign = new QuestionRatingModel("q1");
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1" }] });
+  survey.setDesignMode(true);
+  const qD = <QuestionRatingModel>survey.getQuestionByName("q1");
+  qD.onKeyDown(createRatingKeyEvent("3"));
+  expect(qD.value, "design mode").toBeUndefined();
+
+  const qMod = new QuestionRatingModel("q1");
+  qMod.onKeyDown(createRatingKeyEvent("3", { ctrlKey: true }));
+  qMod.onKeyDown(createRatingKeyEvent("3", { metaKey: true }));
+  qMod.onKeyDown(createRatingKeyEvent("3", { altKey: true }));
+  qMod.onKeyDown(createRatingKeyEvent("3", { repeat: true }));
+  qMod.onKeyDown(createRatingKeyEvent("3", { keyCode: 229 }));
+  qMod.onKeyDown(createRatingKeyEvent("3", { isComposing: true }));
+  expect(qMod.value, "modifiers / IME / repeat").toBeUndefined();
+
+  const qComment = new QuestionRatingModel("q1");
+  qComment.onKeyDown(createRatingKeyEvent("3", { target: { tagName: "TEXTAREA", value: "" } }));
+  expect(qComment.value, "textarea target").toBeUndefined();
+  qComment.onKeyDown(createRatingKeyEvent("3", { target: { tagName: "INPUT", type: "text", value: "" } }));
+  expect(qComment.value, "text input target").toBeUndefined();
+});
+
+test("rating number keys do not clear the same value and still auto-advance", () => {
+  const prevDelay = settings.autoAdvanceDelay;
+  settings.autoAdvanceDelay = 0;
+  try {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "rating", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    let supportDuringChange: boolean;
+    survey.onValueChanged.add(() => {
+      supportDuringChange = q1.supportAutoAdvance();
+    });
+
+    q1.onKeyDown(createRatingKeyEvent("3"));
+    expect(q1.value).toBe(3);
+    expect(supportDuringChange, "number key is a commit for auto-advance").toBe(true);
+    expect(survey.currentPage.name, "auto-advance after number key").toBe(survey.pages[1].name);
+
+    survey.currentPageNo = 0;
+    supportDuringChange = undefined;
+    q1.onKeyDown(createRatingKeyEvent("3"));
+    expect(q1.value, "same digit does not clear").toBe(3);
+    expect(survey.currentPage.name, "same digit still auto-advances").toBe(survey.pages[1].name);
+
+    survey.currentPageNo = 0;
+    q1.onKeyDown(createRatingKeyEvent("ArrowRight"));
+    expect(q1.value, "arrows do not change the value").toBe(3);
+    expect(q1.supportAutoAdvance(), "arrows are not a commit").toBe(false);
+    expect(survey.currentPage.name, "arrows do not auto-advance").toBe(survey.pages[0].name);
+
+    const qMouse = new QuestionRatingModel("q1");
+    qMouse.value = 1;
+    expect(qMouse.supportAutoAdvance()).toBe(false);
+    qMouse.onMouseDown();
+    expect(qMouse.supportAutoAdvance(), "mouse").toBe(true);
+    qMouse.displayMode = "dropdown";
+    expect(qMouse.supportAutoAdvance(), "dropdown").toBe(true);
+  } finally {
+    settings.autoAdvanceDelay = prevDelay;
+  }
+});
+
+test("rating number key affects only the focused question", () => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "rating", name: "q1" },
+      { type: "rating", name: "q2" }
+    ]
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+  q2.onKeyDown(createRatingKeyEvent("4"));
+  expect(q1.isEmpty(), "unfocused rating is unchanged").toBe(true);
+  expect(q2.value, "focused rating is set").toBe(4);
+});
 test("Check hasMin/MaxRateDescription properties on loading", () => {
   const survey = new SurveyModel({
     elements: [
@@ -2000,6 +2375,48 @@ test("Check dropdoun rating close on blur, #8862", () => {
   expect(popup.isVisible).toBeFalsy();
 });
 
+test("Rating in dropdown mode creates the model on focus and keeps keyboard selection, Issue#9014", () => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "rating", name: "q1", displayMode: "dropdown" },
+      { type: "rating", name: "q2" }
+    ]
+  });
+  const question = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(question.renderAs, "dropdown mode").toBe("dropdown");
+  expect(!!question["dropdownListModelValue"], "no model before focus").toBe(false);
+  question.onFocus({});
+  expect(!!question["dropdownListModelValue"], "focus creates the model").toBe(true);
+  const dropdownListModel = question.dropdownListModel;
+  expect(dropdownListModel.focused, "model is focused").toBe(true);
+  const event = (keyCode: number) => ({ keyCode, preventDefault: () => { }, stopPropagation: () => { } });
+  dropdownListModel.keyHandler(event(40));
+  expect(dropdownListModel.popupModel.isVisible, "ArrowDown opens the popup").toBe(true);
+  dropdownListModel.keyHandler(event(40));
+  dropdownListModel.keyHandler(event(13));
+  expect(question.value, "Enter selects the focused item").toBe(2);
+  expect(dropdownListModel.popupModel.isVisible, "Enter closes the popup").toBe(false);
+
+  const question2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+  question2.onFocus({});
+  expect(!!question2["dropdownListModelValue"], "focus outside dropdown mode creates nothing").toBe(false);
+});
+test("Switching to the compact renderer creates the model for an editable rating only, Issue#9014", () => {
+  const json = { elements: [{ type: "rating", name: "q1" }] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(!!question["dropdownListModelValue"], "editable, desktop").toBe(false);
+  question["processResponsiveness"](600, 500);
+  expect(question.renderAs, "editable, compact").toBe("dropdown");
+  expect(!!question["dropdownListModelValue"], "editable, compact: the popup is mounted").toBe(true);
+
+  const displaySurvey = new SurveyModel(json);
+  displaySurvey.mode = "display";
+  const displayQuestion = <QuestionRatingModel>displaySurvey.getQuestionByName("q1");
+  displayQuestion["processResponsiveness"](600, 500);
+  expect(displayQuestion.renderAs, "display, compact").toBe("dropdown");
+  expect(!!displayQuestion["dropdownListModelValue"], "display, compact: no popup").toBe(false);
+});
 test("Check dropdown rating text, #8953", () => {
   const survey = new SurveyModel({
     elements: [{
@@ -2226,4 +2643,118 @@ test("Test rateItem class on changing value, Bug#10737", () => {
   q1.value = 2;
   expect(containsSelected(item1), "item1 className after change select").toBe(false);
   expect(containsSelected(item2), "item2 className after change select").toBe(true);
+});
+test("clearIncorrectValues removes a value that is not in rateValues, Bug#11829", () => {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "question1",
+            choices: [
+              { value: "0", text: "" },
+              { value: "1", text: "" },
+              { value: "2", text: "" }
+            ]
+          },
+          {
+            type: "rating",
+            name: "satisfaction-numeric",
+            title: "How satisfied are you with our product?",
+            description: "Numeric rating scale",
+            autoGenerate: false,
+            rateCount: 10,
+            rateValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = {
+    "question1": "11",
+    "satisfaction-numeric": 11
+  };
+  expect(survey.data).toEqual({
+    "question1": "11",
+    "satisfaction-numeric": 11
+  });
+  survey.clearIncorrectValues();
+  expect(survey.data, "non-existing rating value is cleared").toEqual({});
+});
+test("clearIncorrectValues keeps an existing rating value", () => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        autoGenerate: false,
+        rateValues: [1, 2, 3, 4, 5]
+      }
+    ]
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.value = 5;
+  q1.clearIncorrectValues();
+  expect(q1.value, "existing rate value is kept").toBe(5);
+  q1.value = 11;
+  q1.clearIncorrectValues();
+  expect(q1.isEmpty(), "non-existing rate value is cleared").toBeTruthy();
+});
+test("clearIncorrectValues for auto-generated rate values", () => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        rateMin: 1,
+        rateMax: 5
+      }
+    ]
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.value = 3;
+  q1.clearIncorrectValues();
+  expect(q1.value, "value in generated range is kept").toBe(3);
+  q1.value = 11;
+  q1.clearIncorrectValues();
+  expect(q1.isEmpty(), "value outside generated range is cleared").toBeTruthy();
+});
+test("clearIncorrectValues respects survey.keepIncorrectValues", () => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        autoGenerate: false,
+        rateValues: [1, 2, 3]
+      }
+    ]
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  survey.keepIncorrectValues = true;
+  q1.value = 11;
+  survey.clearIncorrectValues();
+  expect(q1.value, "incorrect value is kept").toBe(11);
+  survey.keepIncorrectValues = false;
+  survey.clearIncorrectValues();
+  expect(q1.isEmpty(), "incorrect value is cleared").toBeTruthy();
+});
+test("dropdownListModel is a lazy property, Issue#9014", () => {
+  const survey = new SurveyModel({ elements: [
+    { type: "rating", name: "q1" },
+    { type: "rating", name: "q2", displayMode: "dropdown", defaultValue: 3 }
+  ] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+  expect(q1.dropdownListModel, "buttons mode never creates it").toBeFalsy();
+  const _values = [q2.displayValue, q2.readOnlyText, q2.cssClasses, q2.getControlClass(), q2.renderedRateItems];
+  expect(!!q2["dropdownListModelValue"], "dropdown mode, not created on load and reads").toBe(false);
+  const model = q2.dropdownListModel;
+  expect(!!model, "dropdown mode, created on the first access").toBe(true);
+  expect(q2.dropdownListModel, "the same instance on the next access").toBe(model);
+  q2.dispose();
+  expect(model.isDisposed, "disposed with the question").toBe(true);
+  expect(q2.dropdownListModel, "not re-created after dispose").toBeFalsy();
 });

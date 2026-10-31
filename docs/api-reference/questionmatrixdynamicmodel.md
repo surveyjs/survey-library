@@ -16,7 +16,7 @@ Dynamic Matrix allows respondents to add and delete matrix rows. You can use the
 
 ## Inheritance
 
-[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionMatrixBaseModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md) &rarr; [`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) &rarr; `QuestionMatrixDynamicModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionRecordsModel`](https://surveyjs.io/form-library/documentation/api-reference/questionrecordsmodel.md) &rarr; [`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) &rarr; `QuestionMatrixDynamicModel`
 
 ## Properties
 
@@ -182,9 +182,9 @@ Specifies a key column. Set this property to a column name, and the question wil
 
 A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
 
-Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
+Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix))
 
-[View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
+[Demo: Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
 
 **Related APIs:** [`rowCount`](#rowCount), [`minRowCount`](#minRowCount), [`allowAddRows`](#allowAddRows)
 
@@ -228,7 +228,21 @@ Default value: 2
 
 [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
 
-**Related APIs:** [`minRowCount`](#minRowCount), [`maxRowCount`](#maxRowCount)
+**Related APIs:** [`minRowCount`](#minRowCount), [`maxRowCount`](#maxRowCount), [`rowCountExpression`](#rowCountExpression)
+
+### `rowCountExpression`
+
+**Type**: `string`
+
+An expression that dynamically calculates the row count. Overrides the static [`rowCount`](#rowCount) property.
+
+The calculation result is clamped to the [`minRowCount`](#minRowCount) and [`maxRowCount`](#maxRowCount) limits: a value below the minimum is set to `minRowCount`, and a value above the maximum is capped at `maxRowCount`. If rows are not split into pages, the global [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix) setting also limits the maximum.
+
+While this property is set, users cannot add or remove rows manually. The expression is reevaluated when its referenced values or row limits change.
+
+[Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+
+Available since: v3.0.4
 
 ## Methods
 

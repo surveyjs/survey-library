@@ -50,7 +50,7 @@
         </div>
         <div v-else :class="question.getItemIndexClasses(item)">
           <svg>
-            <use :xlink:href="question.dashSvgIcon"></use>
+            <use :xlink:href="question.emptyIndexSvgIcon"></use>
           </svg>
         </div>
         <SvComponent

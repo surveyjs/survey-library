@@ -193,7 +193,9 @@ export function createSvg(
     return;
   } else {
     if (!titleElement) {
-      titleElement = DomDocumentHelper.getDocument().createElementNS("http://www.w3.org/2000/svg", "title");
+      const currentDocument = DomDocumentHelper.getDocument();
+      if (!currentDocument) return;
+      titleElement = currentDocument.createElementNS("http://www.w3.org/2000/svg", "title");
       svgElem.appendChild(titleElement);
     }
   }

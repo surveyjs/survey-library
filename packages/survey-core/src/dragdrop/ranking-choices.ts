@@ -1,6 +1,6 @@
 import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { IsMobile, IsTouch } from "../utils/devices";
 import { DomDocumentHelper } from "../global_variables_utils";
 import { QuestionRankingModel } from "../question_ranking";
@@ -52,10 +52,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   private get shortcutClass(): string {
-    return new CssClassBuilder()
-      .append(this.parentElement.cssClasses.root)
-      .append(this.parentElement.cssClasses.rootMobileMod, IsMobile)
-      .toString();
+    return toCssClasses(this.parentElement.cssClasses.root, IsMobile && this.parentElement.cssClasses.rootMobileMod);
   }
 
   protected getDropTargetByDataAttributeValue(dataAttributeValue: string): ItemValue {

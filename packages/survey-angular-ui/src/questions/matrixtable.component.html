@@ -3,12 +3,15 @@
     <thead *ngIf="table.showHeader">
       <tr>
         <ng-container *ngFor="let cell of table.headerRow.cells; trackBy: trackCellBy">
-          <th *ngIf="cell.hasTitle" [class]="cell.className" [style]="{ minWidth: cell.minWidth, width: cell.width }">
+          <th *ngIf="cell.hasTitle" [class]="cell.className" [style]="{ minWidth: cell.minWidth, width: cell.width }" [attr.aria-sort]="cell.ariaSort || null">
             <ng-template
               [component]="{ name: question.getColumnHeaderWrapperComponentName($any(cell)), data: { componentData: question.getColumnHeaderWrapperComponentData($any(cell)) } }">
-              <sv-ng-string [model]="cell.locTitle"></sv-ng-string>
-              <sv-ng-matrixheaderrequired *ngIf="!!cell.column" [column]="cell.column" [question]="question">
-              </sv-ng-matrixheaderrequired>
+              <sv-ng-matrixheadersortbutton *ngIf="cell.isSortable" [cell]="cell" [question]="question"></sv-ng-matrixheadersortbutton>
+              <ng-container *ngIf="!cell.isSortable">
+                <sv-ng-string [model]="cell.locTitle"></sv-ng-string>
+                <sv-ng-matrixheaderrequired *ngIf="!!cell.column" [column]="cell.column" [question]="question">
+                </sv-ng-matrixheaderrequired>
+              </ng-container>
             </ng-template>
           </th>
 
@@ -17,13 +20,13 @@
         </ng-container>
       </tr>
     </thead>
-    <tbody>
+    <tbody [class]="question.getTableBodyCss()">
       <ng-container *ngFor="let row of table.renderedRows; trackBy: trackRowBy">
         <sv-ng-matrix-row [model]="row" [question]="question"></sv-ng-matrix-row>
       </ng-container>
     </tbody>
     <tfoot *ngIf="table.showFooter">
-      <tr>
+      <tr [class]="table.footerRow.className">
         <sv-ng-matrixdropdown-cell [cell]="cell" [question]="question"
           *ngFor="let cell of table.footerRow.cells; trackBy: trackCellBy">
         </sv-ng-matrixdropdown-cell>

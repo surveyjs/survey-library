@@ -146,6 +146,14 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   public recalculatePosition(isResetHeight: boolean): void {
     this.onRecalculatePosition.fire(this, { isResetHeight: isResetHeight });
   }
+  // Content that changes while the popup opens (items built or loaded on show, a filter applied) is rendered
+  // after the popup has measured itself: measure it again once the renderer has caught up.
+  public recalculatePositionAfterRender(isResetHeight: boolean): void {
+    setTimeout(() => {
+      if (this.isDisposed || !this.isVisible) return;
+      this.recalculatePosition(isResetHeight);
+    }, 1);
+  }
   public updateFooterActions(footerActions: Array<IAction>): Array<IAction> {
     const options = { actions: footerActions };
     this.onFooterActionsCreated.fire(this, options);

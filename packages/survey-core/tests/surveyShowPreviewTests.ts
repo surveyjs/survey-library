@@ -1,5 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { PanelModel } from "../src/panel";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
 
@@ -796,5 +798,82 @@ describe("SurveyShowPreviewTests", () => {
     survey.tryComplete();
     expect(survey.state, "Survey is completed").toBe("completed");
     expect(survey.data, "Data should not contain values from hidden page2 questions").toEqual({ q1: "b", q4: "val4" });
+  });
+  test("Do not show 'Edit' button for a page without input questions, Bug#11776", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "intro",
+          elements: [
+            { type: "html", name: "intro_html", html: "I am some html" }
+          ]
+        },
+        {
+          name: "page1",
+          elements: [
+            { type: "text", name: "q1" }
+          ]
+        }
+      ],
+      showPreviewBeforeComplete: "showAllQuestions"
+    });
+    survey.setValue("q1", "val1");
+    survey.showPreview();
+    expect(survey.state, "Survey is in preview state").toBe("preview");
+    const introPanel = <PanelModel>survey.currentPage.elements[0];
+    const questionPanel = <PanelModel>survey.currentPage.elements[1];
+    expect(introPanel.name, "The first panel is the intro page").toBe("intro");
+    expect(questionPanel.name, "The second panel is the question page").toBe("page1");
+    expect(introPanel.hasEditButton, "There is nothing to edit on the intro page").toBe(false);
+    expect(introPanel.getFooterToolbar().hasActions, "The intro page footer is empty").toBe(false);
+    expect(questionPanel.hasEditButton, "The question page is editable").toBe(true);
+    expect(questionPanel.getFooterToolbar().hasActions, "The question page footer has the edit button").toBe(true);
+  });
+  test("Do not re-apply default values in preview for cleared questions, Bug#11987", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "checkbox", name: "cb", choices: ["a", "b"], defaultValue: ["a"] },
+            { type: "text", name: "tx", defaultValue: "hello" },
+            { type: "paneldynamic", name: "pd", panelCount: 1,
+              templateElements: [{ type: "checkbox", name: "pcb", choices: ["x", "y"], defaultValue: ["x"] }] }
+          ]
+        },
+        {
+          name: "page2",
+          elements: [
+            { type: "text", name: "q2" }
+          ]
+        }
+      ],
+      showPreviewBeforeComplete: "showAllQuestions"
+    });
+    const cb = <QuestionCheckboxModel>survey.getQuestionByName("cb");
+    const tx = survey.getQuestionByName("tx");
+    const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    const pcb = <QuestionCheckboxModel>pd.panels[0].getQuestionByName("pcb");
+    expect(cb.value, "cb default").toEqual(["a"]);
+    expect(tx.value, "tx default").toBe("hello");
+    expect(pcb.value, "pcb default").toEqual(["x"]);
+
+    cb.clickItemHandler(cb.choices[0], false);
+    tx.value = "";
+    pcb.clickItemHandler(pcb.choices[0], false);
+    expect(cb.isEmpty(), "cb is cleared").toBe(true);
+    expect(tx.isEmpty(), "tx is cleared").toBe(true);
+    expect(pcb.isEmpty(), "pcb is cleared").toBe(true);
+    const clearedData = survey.data;
+
+    survey.nextPage();
+    expect(survey.currentPage.name, "on the last page").toBe("page2");
+    survey.showPreview();
+    expect(survey.state, "Survey is in preview state").toBe("preview");
+    const previewPd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    expect(survey.getQuestionByName("cb").isEmpty(), "cb is still cleared in preview").toBe(true);
+    expect(survey.getQuestionByName("tx").isEmpty(), "tx is still cleared in preview").toBe(true);
+    expect(previewPd.panels[0].getQuestionByName("pcb").isEmpty(), "pcb is still cleared in preview").toBe(true);
+    expect(survey.data, "data is not changed by preview").toEqual(clearedData);
   });
 });

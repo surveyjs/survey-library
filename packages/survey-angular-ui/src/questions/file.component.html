@@ -1,10 +1,11 @@
-<div [class]="model.fileRootCss" #contentElement>
+<div *ngIf="model.isViewMode && model.isEmpty()" [class]="model.viewModeCssClass" [attr.id]="model.inputId">{{ model.viewDisplayText }}</div>
+<div *ngIf="!(model.isViewMode && model.isEmpty())" [class]="model.fileRootCss" #contentElement>
   <input [class]="model.cssClasses.fileInput" *ngIf="!model.isReadOnlyAttr && !model.isDisabledAttr && model.hasFileUI"
     tabindex="-1" type="file" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
     [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
     [attr.aria-errormessage]="model.ariaErrormessage" [attr.multiple]="model.multipleRendered"
     [attr.title]="model.inputTitle" [attr.accept]="model.renderedAcceptedTypes" [attr.capture]="model.renderCapture" />
-  <input *ngIf="model.isReadOnlyAttr" type="file" readonly [class]="model.getReadOnlyFileCss()"
+  <input *ngIf="model.isReadOnlyAttr && !model.isViewMode" type="file" readonly [class]="model.getReadOnlyFileCss()"
     [attr.id]="model.inputId" [attr.multiple]="model.multipleRendered" [attr.placeholder]="model.title"
     style="color: transparent" />
   <input *ngIf="model.isDisabledAttr" type="file" disabled [class]="model.getReadOnlyFileCss()"

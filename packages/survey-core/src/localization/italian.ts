@@ -5,6 +5,58 @@ export var italianSurveyStrings = {
   pagePrevText: "Precedente",
   // "Next"
   pageNextText: "Successivo",
+  // [Auto-translated] "First"
+  pageFirstText: "Primo",
+  // [Auto-translated] "Last"
+  pageLastText: "Ultimo",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "di {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Seleziona pagina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordina per {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Alto - Basso",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Basso - Alto",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabeto, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabeto, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Le novità prime",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Il più vecchio prima",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ordinato per {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, poi per {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ordina per",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Predefinito",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Campo di ordinamento",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ordine di ordinamento",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Aggiungi livello di ordinamento",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Rimuovi il livello di ordinamento {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Campo di ordinamento {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordine {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Mostra tutti i livelli di sortaggio",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Aggiungi nuovi",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Livello di ordinamento {0}",
   // "Complete"
   completeText: "Salva",
   // "Preview"
@@ -37,6 +89,8 @@ export var italianSurveyStrings = {
   panelDynamicTabTextFormat: "Pannello {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Risposte a {0}/{1} domande",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Domanda {0} di {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Non ci sono pagine o domande visibili nel questionario.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var italianSurveyStrings = {
   value: "valore",
   // "Response required."
   requiredError: "Campo obbligatorio",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Il valore è errato.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Il valore contiene chiavi sconosciute: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Per Favore, rispondi ad almeno una domanda.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var italianSurveyStrings = {
   noUploadFilesHandler: "I file non possono essere caricati. Aggiungere un gestore per l'evento 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Inserire il valore 'altro'",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Il valore '{0}' non è una delle opzioni disponibili.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "File in caricamento. Attendi alcuni secondi e riprova",
   // "Loading..."
@@ -131,6 +191,8 @@ export var italianSurveyStrings = {
   addRow: "Aggiungi riga",
   // "Remove"
   removeRow: "Rimuovi riga",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Sposta la fila {0}",
   // "There are no rows."
   noRowsText: "Non ci sono righe.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var italianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Indicatore",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Pagina {0}"
+  progressbarPage: "Pagina {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "g",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "a",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "h",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "H",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });

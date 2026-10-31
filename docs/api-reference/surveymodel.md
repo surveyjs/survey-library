@@ -54,15 +54,20 @@ Available since: v2.0.0
 
 **Type**: `boolean`
 
-Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page.
+Specifies whether the survey advances to the next page automatically after a respondent answers all questions on the current page and the answers pass validation.
 
 Default value: `false`
 
-If you enable this property, the survey is also completed automatically. Set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false` if you want to disable this behavior.
+Auto-advance behavior depends on the question type:
 
-> If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
+- The survey does not auto-advance if the last answered question is a Signature, File Upload, Dynamic Matrix, or Dynamic Panel.
+- A Single-Select Matrix can trigger auto-advance only when all its rows are answered.
+- For Checkboxes, Multi-Select Dropdown (Tag Box), Image Picker with `multiSelect: true`, Ranking, Yes/No (Boolean) rendered as a checkbox, and Long Text, respondents must press Enter after answering to trigger auto-advance.
+- For Radio Button Group and single-select Image Picker, a mouse or touch selection triggers auto-advance. After a keyboard selection, respondents must press Enter to trigger auto-advance.
 
-[View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+If you set `autoAdvanceEnabled` to `true`, the survey also completes automatically after the last page. To require respondents to complete it manually, set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false`.
+
+[Demo: Move to the Next Page Automatically](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
 
 Available since: v2.0.0
 
@@ -143,6 +148,22 @@ Possible values:
 Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
 
 **Related APIs:** [`validationEnabled`](#validationEnabled), [`validationAllowSwitchPages`](#validationAllowSwitchPages), [`validationAllowComplete`](#validationAllowComplete), [`validate`](#validate)
+
+### `choiceShortcutsEnabled`
+
+**Type**: `boolean`
+
+Specifies whether to enable letter shortcuts for selecting choices in [Radio Button Group](https://surveyjs.io/form-library/examples/single-select-radio-button-group/), [Checkboxes](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/), and [Image Picker](https://surveyjs.io/form-library/examples/image-picker-question/) questions.
+
+Default value: `false`
+
+When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that respondents can type while the question has focus. In questions that allow multiple selection, shortcuts toggle choice selection.
+
+You can override this setting for individual questions using their `choiceShortcutsEnabled` property.
+
+Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+
+Available since: v3.2.2
 
 ### `clearDisabledChoices`
 
@@ -523,6 +544,8 @@ Default value: `""` (a default locale is used)
 
 [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
 
+**Related APIs:** [`regionalFormat`](#regionalFormat)
+
 ### `logo`
 
 **Type**: `string`
@@ -835,10 +858,12 @@ Default value: `false`
 
 Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is `true`.
 
+The default type is `"pages"`. However, when [`questionsOnPageMode`](#questionsOnPageMode) is set to `"questionPerPage"`, the progress bar uses `"questions"` by default.
+
 Possible values:
 
 - `"pages"` (default) - The number of completed pages.
-- `"questions"` - The number of answered questions.
+- `"questions"` (default in question-per-page mode) - The number of answered questions.
 - `"requiredQuestions"` - The number of answered [required questions](https://surveyjs.io/form-library/documentation/api-reference/question#isRequired).
 - `"correctQuestions"` - The number of correct questions in a [quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
 
@@ -954,6 +979,22 @@ Enables the read-only mode. If you set this property to `true`, users cannot tak
 Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+
+### `regionalFormat`
+
+**Type**: `RegionalFormat`
+
+Configures date, time, number, and currency formats for [input masks](/form-library/examples/masked-input-fields/) throughout the survey.
+
+Formats follow the survey's [`locale`](#locale) by default. To configure formats independently of the survey's display language, set the `regionalFormat` object's [`locale`](/form-library/documentation/api-reference/regionalformat#locale) property to a locale code with a region, such as `"en-US"`.
+
+In addition, you can override regional date and time patterns, numeric separators, the currency symbol, and the currency pattern. See the [`RegionalFormat`](/form-library/documentation/api-reference/regionalformat) API reference for details.
+
+Those survey-wide settings can in turn be overridden by settings in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object. The inheritance order is:
+
+`SurveyModel.locale` &rarr; `regionalFormat.locale` &rarr; Overrides in `regionalFormat` &rarr; Overrides in `maskSettings`
+
+Available since: v3.1.0
 
 ### `requiredMark`
 
@@ -2085,13 +2126,36 @@ Sets a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/d
 
 **Related APIs:** [`hasCookie`](#hasCookie), [`deleteCookie`](#deleteCookie)
 
+### `setData()`
+
+**Return value:** `IDataIssue[]<IDataIssue>` &ndash; An array of [detected issues](/form-library/documentation/api-reference/idataissue), or an empty array if the enabled checks find none.
+
+Loads survey data, checks it against the survey definition, and returns an array of [detected issues](/form-library/documentation/api-reference/idataissue).
+
+This method applies the same survey logic as direct assignment to the [`data`](#data) property, then checks the resulting values and reports issues. Use the `options` parameter to configure these checks.
+
+This method does not run the validation rules defined in the JSON schema. To run them, call the [`validate()`](#validate) method separately.
+
+Available since: v3.1.2
+
+**Parameters:**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `data` | `any` | A JSON-serializable object with survey answers. |
+| `options` | `IDataVerificationOptions` | *(Optional)* Specifies which issues to report. |
+| `options.reportUnknownProperties` | `boolean` | Reports data properties that do not correspond to a question or another recognized survey result field. Default value: `true` |
+| `options.reportInvalidValueTypes` | `boolean` | Reports values whose type or structure does not match the question configuration. Default value: `true` |
+| `options.reportInvalidChoiceValues` | `boolean` | Reports values that do not match an available choice, matrix column or row, or rating value. Default value: `true` |
+| `options.reportExpressionResultMismatches` | `boolean` | Reports differences between the supplied data and the survey data after loading, including values added, changed, or removed by expressions, defaults, triggers, or other loading behavior. Default value: `false` |
+
 ### `setValue()`
 
 Sets a question value (answer).
 
 [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz/ (linkStyle))
 
-> This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredId`, and others). It also switches the survey to the next page if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is enabled and all questions on the current page have correct answers.
+> This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredIf`, and others). It also switches the survey to the next page if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is enabled and all questions on the current page have correct answers.
 
 **Parameters:**
 
@@ -2109,7 +2173,7 @@ Sets a question value (answer).
 
 Sets a variable value.
 
-[Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+[Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
 
 **Parameters:**
 
@@ -2117,6 +2181,25 @@ Sets a variable value.
 | ---- | ---- | ----------- |
 | `name` | `string` | A variable name. |
 | `newValue` | `any` | A new variable value. |
+
+**Related APIs:** [`getVariable`](#getVariable), [`getVariableNames`](#getVariableNames), [`setVariables`](#setVariables)
+
+### `setVariables()`
+
+Sets multiple variables at once.
+
+Unlike multiple [`setVariable(name, value)`](#setVariable) calls, this method updates all variables before recalculating expressions and running triggers. Pass `true` as the `clearPrevious` parameter to remove variables that are not included in the `variables` object.
+
+[Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+
+Available since: v3.0.4
+
+**Parameters:**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `variables` | `{ [name: string]: any; }` | An object containing the variable names and their new values. |
+| `clearPrevious` | `boolean` | Pass `true` to remove all existing variables that are not included in `variables`. |
 
 **Related APIs:** [`getVariable`](#getVariable), [`getVariableNames`](#getVariableNames)
 

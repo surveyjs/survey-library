@@ -14,11 +14,6 @@
       :element="cell.question"
     />
     <SvComponent
-      :is="'sv-matrix-drag-drop-icon'"
-      v-if="cell.isDragHandlerCell"
-      :item="{ data: { row: cell.row, question: question } }"
-    ></SvComponent>
-    <SvComponent
       :is="'sv-action-bar'"
       v-if="cell.isActionsCell"
       :model="cell.item.getData()"
@@ -29,6 +24,7 @@
       :is="panelComponentName"
       v-bind="panelComponentData"
     ></SvComponent>
+    <SvComponent :is="'survey-errors'" v-if="cell.showErrorsTop" :element="cell.question"></SvComponent>
     <span v-if="cell.showResponsiveTitle" :class="cell.responsiveTitleCss">
       <SvComponent :is="'survey-string'" :locString="cell.responsiveLocTitle" />
       <SvComponent
@@ -88,6 +84,7 @@
         :item="cell.question.otherItem"
       />
     </div>
+    <SvComponent :is="'survey-errors'" v-if="cell.showErrorsBottom" :element="cell.question"></SvComponent>
     <template v-if="cell.hasTitle">
       <SvComponent
         :is="question.getCellWrapperComponentName(cell)"

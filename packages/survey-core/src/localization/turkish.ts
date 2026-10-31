@@ -5,6 +5,58 @@ export var turkishSurveyStrings = {
   pagePrevText: "Önceki",
   // "Next"
   pageNextText: "Sonraki",
+  // [Auto-translated] "First"
+  pageFirstText: "İlk",
+  // [Auto-translated] "Last"
+  pageLastText: "Son",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Sayfa Seç",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sıralayın {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Yüksek - Düşük",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Düşük - Yüksek",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabe, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabe, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "En yeni ilk",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "İlk en yaşlı",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sıralanmış {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, sonra {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sıralayın",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Varsayılan",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sıralama alanı",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sıralama sırası",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Sıralama seviyesi ekleyin",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Sıralama seviyesini kaldır {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Alanı {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sıralama sırası {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Tüm sıralama seviyelerini göster",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Yeni Ekle",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Taşınma sıralaması seviyesi {0}",
   // "Complete"
   completeText: "Tamamla",
   // "Preview"
@@ -37,6 +89,8 @@ export var turkishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} soru yanıtlandı",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{0} soru {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Ankette görüntülenecek sayfa ya da soru mevcut değil.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var turkishSurveyStrings = {
   value: "değer",
   // "Response required."
   requiredError: "Lütfen soruya cevap verin.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Değer yanlış.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Değer bilinmeyen anahtarlar içerir: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Lütfen en az bir soruyu yanıtlayın.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var turkishSurveyStrings = {
   noUploadFilesHandler: "Dosyalar yüklenemiyor. Lütfen 'onUploadFiles' olayı için bir işleyici ekleyin.",
   // "Response required: enter another value."
   otherRequiredError: "Lütfen diğer değerleri girin.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "'{0}' değeri mevcut seçeneklerden biri değildir.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Dosyanız yükleniyor. Lütfen birkaç saniye bekleyin ve tekrar deneyin.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var turkishSurveyStrings = {
   addRow: "Satır Ekle",
   // "Remove"
   removeRow: "Kaldır",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Sıra {0}",
   // "There are no rows."
   noRowsText: "Satır yok.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var turkishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "İlerleme çubuğu",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Sayfa {0}"
+  progressbarPage: "Sayfa {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "g",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "a",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "y",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "s",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "S",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "d",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });

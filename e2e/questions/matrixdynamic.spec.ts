@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDragDrop, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDrag, doDragDrop, getButtonByText } from "../helper";
 
 const title = "matrixdynamic";
 
@@ -500,6 +500,90 @@ frameworks.forEach((framework) => {
       expect(await matrixRowSelector.count()).toBe(5);
     });
 
+    test("page move keeps rendering the rows it replaced until they are dropped", async ({ page }) => {
+      // The rows a page move replaces are disposed. A UI that renders asynchronously (Angular) checks
+      // their cells once more before it drops them: a disposed dropdown cell made that check throw.
+      const defaultValue: Array<any> = [];
+      for (let i = 0; i < 5; i++) defaultValue.push({ id: i, kind: "a", tags: ["x"] });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            pageSize: 2,
+            defaultValue: defaultValue,
+            columns: [
+              { name: "id", cellType: "text" },
+              { name: "kind", cellType: "dropdown", choices: ["a", "b", "c"] },
+              { name: "tags", cellType: "tagbox", choices: ["x", "y"] },
+            ],
+          },
+        ],
+      });
+      const firstId = page.locator("td[title='id'] input").first();
+      const firstKind = page.locator("td[title='kind'] .sd-dropdown").first();
+      const goToPage = async (next: boolean) => {
+        await page.evaluate((next) => {
+          const matrix = (window as any).survey.getQuestionByName("matrix");
+          next ? matrix.nextPage() : matrix.prevPage();
+        }, next);
+      };
+
+      await expect(firstId).toHaveValue("0");
+      await firstKind.click();
+      await getVisibleSelectListItemByText(page, "b").click();
+      await page.locator("body").click({ position: { x: 1, y: 1 } });
+      await expect(firstKind.locator(".sv-string-viewer")).toHaveText("b");
+
+      await goToPage(true);
+      await expect(firstId).toHaveValue("2");
+      await firstKind.click();
+      await getVisibleSelectListItemByText(page, "c").click();
+      // The dropdown that has the focus leaves the page.
+      await goToPage(false);
+      await page.locator("body").click({ position: { x: 1, y: 1 } });
+      await expect(firstId).toHaveValue("0");
+      await expect(firstKind.locator(".sv-string-viewer")).toHaveText("b");
+
+      const data = await getData(page);
+      expect(data.matrix.map((row: any) => row.kind)).toEqual(["b", "a", "c", "a", "a"]);
+    });
+
+    test("the pager moves the pages through its buttons and its page dropdown", async ({ page }) => {
+      const defaultValue: Array<any> = [];
+      for (let i = 1; i <= 25; i++) defaultValue.push({ id: "row" + i });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            pageSize: 2,
+            defaultValue: defaultValue,
+            columns: [{ name: "id", cellType: "text" }],
+          },
+        ],
+      });
+      const pager = page.locator(".sd-pager");
+      const firstId = page.locator("td[title='id'] input").first();
+
+      await expect(firstId).toHaveValue("row1");
+      await expect(pager.locator("button[title='First']")).toBeDisabled();
+      await expect(pager.locator("button[title='Previous']")).toBeDisabled();
+      await expect(pager.locator(".sd-pager__total")).toHaveText("of 13");
+      await pager.locator("button[title='Next']").click();
+      await expect(firstId).toHaveValue("row3");
+      await pager.locator("button[title='Last']").click();
+      await expect(firstId).toHaveValue("row25");
+      await expect(pager.locator("button[title='Last']")).toBeDisabled();
+      await pager.locator("button[title='First']").click();
+      await expect(firstId).toHaveValue("row1");
+      await expect(pager.locator("button[title='First']")).toBeDisabled();
+      await pager.getByRole("button", { name: "Page 1 of 13" }).click();
+      await page.getByRole("menuitemradio", { name: "3", exact: true }).click();
+      await expect(firstId).toHaveValue("row5");
+      await expect(pager.getByRole("button", { name: "Page 3 of 13" }).locator(".sd-action__title")).toHaveText("3");
+    });
+
     test("remove row with transposeData", async ({ page }) => {
       const json3 = {
         "elements": [
@@ -646,39 +730,39 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
 
       const textSelector = page.locator("input[type='text']").filter({ visible: true });
-      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(2);
+      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(1);
       await textSelector.nth(0).fill("1");
       await page.keyboard.press("Tab");
-      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(4);
-      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(2);
+      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(2);
+      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(1);
       await textSelector.nth(0).fill("0");
       await page.keyboard.press("Tab");
-      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(2);
+      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(1);
       await textSelector.nth(1).fill("1");
       await page.keyboard.press("Tab");
-      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(4);
-      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(2);
+      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(2);
+      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(1);
       await textSelector.nth(1).fill("0");
       await page.keyboard.press("Tab");
-      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(2);
+      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(1);
       await textSelector.nth(2).fill("1");
       await page.keyboard.press("Tab");
-      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(4);
+      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(2);
       await textSelector.nth(2).fill("0");
       await page.keyboard.press("Tab");
-      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(2);
-      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(2);
+      expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(1);
+      expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(1);
     });
 
     test("Clear value from UI & defaultValueExpression in cells, Bug#10436", async ({ page }) => {
@@ -703,7 +787,7 @@ frameworks.forEach((framework) => {
 
       await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
-      expect(surveyResult).toEqual({ });
+      expect(surveyResult).toEqual({ matrix: [{}, {}, {}] });
     });
 
     test("Matrix is not re-create rows on setting value after the matrix value is empty array, Bug#10622", async ({ page }) => {
@@ -813,7 +897,7 @@ frameworks.forEach((framework) => {
       await page.getByRole("button", { name: "Show Details" }).first().click();
       const row1 = page.locator(".sd-matrixdynamic .sd-matrixdynamic tbody tr").nth(0);
       const row2 = page.locator(".sd-matrixdynamic .sd-matrixdynamic tbody tr").nth(1);
-      const dragIcon = row1.locator(".sd-table__cell--drag .sd-drag-element__svg");
+      const dragIcon = row1.locator(".sd-drag-element__svg");
 
       await row1.hover();
       await doDragDrop({ page, element: dragIcon, target: row2 });
@@ -836,6 +920,852 @@ frameworks.forEach((framework) => {
           }
         ]
       });
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} sortable headers`, () => {
+    const sortJson = (extra?: any): any => ({
+      elements: [Object.assign({
+        type: "matrixdynamic",
+        name: "matrix",
+        allowSort: true,
+        allowRowReorder: true,
+        rowCount: 0,
+        columns: [
+          { name: "product", cellType: "text" },
+          { name: "price", cellType: "text", inputType: "number" },
+        ],
+        defaultValue: [
+          { product: "b", price: 20 },
+          { product: "a", price: 30 },
+          { product: "c", price: 10 },
+        ],
+      }, extra)],
+    });
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+    const prices = async (page): Promise<Array<string>> =>
+      page.locator(".sd-table__row input[type=number]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+    const ariaSorts = async (page): Promise<Array<string | null>> =>
+      page.locator("thead th").evaluateAll((cells: Array<HTMLElement>) => cells.map((cell) => cell.getAttribute("aria-sort")));
+
+    test("a click on a header sorts by its column: highest first, lowest first, then the original order", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      const priceHeader = page.locator("thead th").nth(1);
+      const priceButton = priceHeader.locator("button");
+      const dragHandles = page.locator(".sd-table__row .sd-drag-element__svg");
+      expect(await dragHandles.count()).toBe(3);
+      expect(await prices(page)).toEqual(["20", "30", "10"]);
+
+      await priceButton.click();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+      expect(await dragHandles.count()).toBe(0);
+
+      await priceButton.click();
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "ascending");
+
+      await priceButton.click();
+      expect(await prices(page)).toEqual(["20", "30", "10"]);
+      expect((await ariaSorts(page)).filter((value) => value !== null)).toEqual([]);
+      expect(await dragHandles.count()).toBe(3);
+    });
+
+    for (const key of ["Enter", "Space"]) {
+      test(`${key} on a focused header sorts and keeps the focus on its button`, async ({ page }) => {
+        await initSurvey(page, framework, sortJson());
+        const priceHeader = page.locator("thead th").nth(1);
+        const priceButton = priceHeader.locator("button");
+        const dragHandles = page.locator(".sd-table__row .sd-drag-element__svg");
+        await page.locator("thead th").nth(0).locator("button").focus();
+        await page.keyboard.press("Tab");
+        await expect(priceButton).toBeFocused();
+
+        await page.keyboard.press(key);
+        expect(await prices(page)).toEqual(["30", "20", "10"]);
+        await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+        await expect(priceButton).toBeFocused();
+        expect(await dragHandles.count()).toBe(0);
+
+        await page.keyboard.press(key);
+        expect(await prices(page)).toEqual(["10", "20", "30"]);
+        await expect(priceHeader).toHaveAttribute("aria-sort", "ascending");
+        await expect(priceButton).toBeFocused();
+
+        await page.keyboard.press(key);
+        expect(await prices(page)).toEqual(["20", "30", "10"]);
+        expect((await ariaSorts(page)).filter((value) => value !== null)).toEqual([]);
+        await expect(priceButton).toBeFocused();
+        expect(await dragHandles.count()).toBe(3);
+      });
+    }
+
+    test("the whole header cell is the click target", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({
+        allowRowReorder: false,
+        columns: [
+          { name: "product", cellType: "text", title: "A product title long enough to wrap to a second line", width: "160px" },
+          { name: "price", cellType: "text", inputType: "number" },
+        ],
+      }));
+      const priceHeader = page.locator("thead th").nth(1);
+      const productHeader = page.locator("thead th").nth(0);
+      const priceBox = await priceHeader.boundingBox();
+      const productBox = await productHeader.boundingBox();
+      expect(productBox.height > 60, "the product title wraps").toBeTruthy();
+      expect(Math.abs(priceBox.height - productBox.height) < 1, "the row decides the height").toBeTruthy();
+
+      // Inside what was the cell's padding, near the top-left corner.
+      await page.mouse.click(priceBox.x + 3, priceBox.y + 3);
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+      // Near the bottom edge of the short header, below its title.
+      await page.mouse.click(priceBox.x + priceBox.width / 2, priceBox.y + priceBox.height - 3);
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+    });
+
+    test("Shift-click sorts by a second column; only the first one has aria-sort", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({ maxSortLevel: 2, defaultValue: [
+        { product: "b", price: 20 },
+        { product: "a", price: 20 },
+        { product: "c", price: 10 },
+      ] }));
+      const priceHeader = page.locator("thead th").nth(1);
+      const productHeader = page.locator("thead th").nth(0);
+      await priceHeader.locator("button").click();
+      await productHeader.locator("button").click({ modifiers: ["Shift"] });
+      const products = await page.locator(".sd-table__row input[type=text]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+      expect(products).toEqual(["a", "b", "c"]);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+      await expect(productHeader).not.toHaveAttribute("aria-sort");
+      const describedBy = await productHeader.locator("button").getAttribute("aria-describedby");
+      expect(await page.locator(`[id="${describedBy}"]`).textContent()).toBe("Sorted by price (High - Low), then by product (Alphabet, A - Z)");
+    });
+
+    test("a click without Shift on the second sorted column turns it around in place, then removes it", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({ maxSortLevel: 2, defaultValue: [
+        { product: "b", price: 20 },
+        { product: "c", price: 20 },
+        { product: "a", price: 20 },
+        { product: "d", price: 10 },
+      ] }));
+      const priceHeader = page.locator("thead th").nth(1);
+      const productHeader = page.locator("thead th").nth(0);
+      const products = async (): Promise<Array<string>> =>
+        page.locator(".sd-table__row input[type=text]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+
+      await priceHeader.locator("button").click();
+      expect(await products()).toEqual(["b", "c", "a", "d"]);
+
+      await productHeader.locator("button").click({ modifiers: ["Shift"] });
+      expect(await products()).toEqual(["a", "b", "c", "d"]);
+
+      await productHeader.locator("button").click();
+      expect(await products()).toEqual(["c", "b", "a", "d"]);
+      await expect(priceHeader.locator(".sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(productHeader.locator(".sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+      await expect(productHeader).not.toHaveAttribute("aria-sort");
+
+      await productHeader.locator("button").click();
+      expect(await products()).toEqual(["b", "c", "a", "d"]);
+      await expect(productHeader.locator(".sd-table__header-sort--none")).toHaveCount(1);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} sort bar`, () => {
+    const barJson = (extra?: any): any => ({
+      elements: [Object.assign({
+        type: "matrixdynamic",
+        name: "matrix",
+        title: "Products",
+        allowSort: true,
+        showSortBar: "always",
+        rowCount: 0,
+        columns: [
+          { name: "product", title: "Product", cellType: "text" },
+          { name: "category", title: "Category", cellType: "dropdown", choices: ["tools", "toys"] },
+          { name: "price", title: "Price", cellType: "text", inputType: "number" },
+          { name: "discontinued", title: "Discontinued", cellType: "boolean" },
+        ],
+        defaultValue: [
+          { product: "b", category: "toys", price: 20, discontinued: false },
+          { product: "a", category: "tools", price: 30, discontinued: true },
+          { product: "c", category: "toys", price: 10, discontinued: false },
+        ],
+      }, extra)],
+    });
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+    const prices = async (page): Promise<Array<string>> =>
+      page.locator(".sd-table__row input[type=number]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+    const headerBar = (page) => page.locator(".sd-question__header .sd-question__sort-bar");
+    const fieldButton = (page) => page.getByRole("button", { name: /^Sort field/ });
+    const directionButton = (page) => page.getByRole("button", { name: /^Sort order/ });
+    const listItem = (page, text: string) =>
+      page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: text, exact: true });
+
+    test("a field pick sorts by it, a direction pick flips it and Default restores the stored order", async ({ page }) => {
+      await initSurvey(page, framework, barJson());
+      await expect(headerBar(page)).toBeVisible();
+      await expect(fieldButton(page).locator(".sd-action__title")).toHaveText("Product");
+      await expect(directionButton(page).locator(".sd-action__title")).toHaveText("Default");
+      expect(await prices(page)).toEqual(["20", "30", "10"]);
+
+      await fieldButton(page).click();
+      await listItem(page, "Price").click();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+      await expect(fieldButton(page).locator(".sd-action__title")).toHaveText("Price");
+      await expect(directionButton(page).locator(".sd-action__title")).toHaveText("High - Low");
+      await expect(page.locator("thead th").nth(2)).toHaveAttribute("aria-sort", "descending");
+
+      await directionButton(page).click();
+      await listItem(page, "Low - High").click();
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+
+      await directionButton(page).click();
+      await listItem(page, "Default").click();
+      expect(await prices(page)).toEqual(["20", "30", "10"]);
+      await expect(fieldButton(page).locator(".sd-action__title")).toHaveText("Price");
+      await expect(directionButton(page).locator(".sd-action__title")).toHaveText("Default");
+    });
+
+    test("the field list opens and picks with the keyboard", async ({ page }) => {
+      await initSurvey(page, framework, barJson());
+      await fieldButton(page).focus();
+      await page.keyboard.press("Enter");
+      // The list takes the focus on the selected item.
+      await expect(listItem(page, "Product")).toBeFocused();
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      await expect(listItem(page, "Price")).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(fieldButton(page).locator(".sd-action__title")).toHaveText("Price");
+      await expect(fieldButton(page)).toBeFocused();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+    });
+
+    test("a click on a dropdown opens its list and does not collapse the question", async ({ page }) => {
+      await initSurvey(page, framework, barJson({ state: "expanded" }));
+      await fieldButton(page).click();
+      await expect(listItem(page, "Price")).toBeVisible();
+      await expect(page.locator(".sd-table")).toBeVisible();
+      await listItem(page, "Price").click();
+      await expect(page.locator(".sd-table")).toBeVisible();
+      await directionButton(page).click();
+      await expect(listItem(page, "Low - High")).toBeVisible();
+      await listItem(page, "Low - High").click();
+      await expect(page.locator(".sd-table")).toBeVisible();
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+    });
+
+    test("with a hidden title the bar shows above the records", async ({ page }) => {
+      await initSurvey(page, framework, barJson({ titleLocation: "hidden" }));
+      await expect(headerBar(page)).toHaveCount(0);
+      await expect(page.locator(".sd-question__sort-bar-top .sd-question__sort-bar")).toBeVisible();
+      await fieldButton(page).click();
+      await listItem(page, "Price").click();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+    });
+    // Several levels: four rows whose product order inside a category differs from the stored order.
+    const levelsJson = (extra?: any): any => barJson(Object.assign({
+      columns: [
+        { name: "product", title: "Product", cellType: "text" },
+        { name: "category", title: "Category", cellType: "text" },
+        { name: "price", title: "Price", cellType: "text", inputType: "number" },
+      ],
+      defaultValue: [
+        { product: "c", category: "toys", price: 10 },
+        { product: "a", category: "tools", price: 30 },
+        { product: "b", category: "toys", price: 20 },
+        { product: "d", category: "toys", price: 5 },
+      ],
+    }, extra));
+    const products = async (page): Promise<Array<string>> =>
+      page.locator(".sd-table__row").evaluateAll((rows: Array<HTMLElement>) => rows.map((row) => (row.querySelector("input[type=text]") as HTMLInputElement).value));
+    // The first level keeps the names of a bar with one level; a later level's names carry its number.
+    const levelButton = (page, label: string, level: number) =>
+      page.getByRole("button", { name: level === 1 ? new RegExp("^" + label + " (?!\\d)") : new RegExp("^" + label + " " + level + " ") });
+    const levelField = (page, level: number) => levelButton(page, "Sort field", level);
+    const levelDirection = (page, level: number) => levelButton(page, "Sort order", level);
+    const removeButton = (page, level: number) => page.getByRole("button", { name: "Remove sort level " + level, exact: true });
+    const addButton = (page) => page.getByRole("button", { name: "Add sort level", exact: true });
+
+    test("\"+\" adds the next field as a second level, a level changes alone, and its remove button takes it out", async ({ page }) => {
+      await initSurvey(page, framework, levelsJson({ maxSortLevel: 3 }));
+      await expect(addButton(page)).toBeDisabled();
+      await levelField(page, 1).click();
+      await listItem(page, "Category").click();
+      expect(await products(page)).toEqual(["a", "c", "b", "d"]);
+
+      await addButton(page).click();
+      await expect(levelField(page, 2).locator(".sd-action__title")).toHaveText("Product");
+      await expect(levelDirection(page, 2).locator(".sd-action__title")).toHaveText("Alphabet, A - Z");
+      expect(await products(page)).toEqual(["a", "b", "c", "d"]);
+
+      await levelDirection(page, 2).click();
+      await listItem(page, "Alphabet, Z - A").click();
+      expect(await products(page)).toEqual(["a", "d", "c", "b"]);
+      await expect(levelField(page, 1).locator(".sd-action__title")).toHaveText("Category");
+
+      await removeButton(page, 2).click();
+      await expect(levelField(page, 2)).toHaveCount(0);
+      expect(await products(page)).toEqual(["a", "c", "b", "d"]);
+    });
+
+    test("the headers show the level numbers while two or more columns are sorted, and they follow the bar", async ({ page }) => {
+      await initSurvey(page, framework, levelsJson({ maxSortLevel: 3 }));
+      const headerButton = (title: string) => page.getByRole("button", { name: "Sort by " + title, exact: true });
+      const rank = (title: string) => headerButton(title).locator(".sd-table__header-sort-rank");
+      const anyRank = page.locator(".sd-table__header-sort-rank");
+      await headerButton("Product").click();
+      await expect(headerButton("Product").locator(".sd-table__header-sort--asc, .sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(anyRank).toHaveCount(0);
+
+      await headerButton("Category").click({ modifiers: ["Shift"] });
+      await expect(rank("Product")).toHaveText("1");
+      await expect(rank("Category")).toHaveText("2");
+      await expect(rank("Price")).toHaveCount(0);
+
+      await removeButton(page, 2).click();
+      await expect(headerButton("Product").locator(".sd-table__header-sort--asc, .sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(anyRank).toHaveCount(0);
+    });
+
+    test("the keyboard: \"+\" keeps the focus, a removed level hands it to the level before, and \"+\" disabled at the limit hands it to the new level", async ({ page }) => {
+      await initSurvey(page, framework, levelsJson({ maxSortLevel: 3, sortCriteria: [{ field: "category", direction: "asc" }] }));
+      await levelDirection(page, 1).focus();
+      await page.keyboard.press("Tab");
+      await expect(addButton(page)).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(levelField(page, 2).locator(".sd-action__title")).toHaveText("Product");
+      await expect(addButton(page)).toBeFocused();
+
+      await removeButton(page, 2).focus();
+      await page.keyboard.press("Enter");
+      await expect(levelField(page, 2)).toHaveCount(0);
+      await expect(levelField(page, 1)).toBeFocused();
+
+      // The limit: the third level disables "+".
+      await addButton(page).focus();
+      await page.keyboard.press("Enter");
+      await expect(addButton(page)).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(addButton(page)).toBeDisabled();
+      await expect(levelField(page, 3).locator(".sd-action__title")).toHaveText("Price");
+      await expect(levelField(page, 3)).toBeFocused();
+    });
+
+    test("the keyboard: \"+\" that uses the last offered field hands the focus to the new level", async ({ page }) => {
+      await initSurvey(page, framework, levelsJson({ maxSortLevel: 3, sortCriteria: [{ field: "category", direction: "asc" }],
+        columns: [
+          { name: "product", title: "Product", cellType: "text" },
+          { name: "category", title: "Category", cellType: "text" },
+          { name: "price", title: "Price", cellType: "text", inputType: "number", allowSort: false },
+        ] }));
+      await addButton(page).focus();
+      await page.keyboard.press("Enter");
+      await expect(addButton(page)).toBeDisabled();
+      await expect(levelField(page, 2).locator(".sd-action__title")).toHaveText("Product");
+      await expect(levelField(page, 2)).toBeFocused();
+    });
+
+    test("on a phone three levels scroll sideways, and a dropdown of the last level opens under its button", async ({ page }) => {
+      await page.setViewportSize({ width: 420, height: 900 });
+      await initSurvey(page, framework, levelsJson({ maxSortLevel: 3, sortCriteria: [
+        { field: "category", direction: "asc" }, { field: "product", direction: "asc" }, { field: "price", direction: "desc" }] }));
+      const bar = headerBar(page);
+      await expect(bar).toBeVisible();
+      const layout = await bar.evaluate((el: HTMLElement) => [el.scrollWidth > el.clientWidth, getComputedStyle(el).overflowX, getComputedStyle(el).flexWrap]);
+      expect(layout).toEqual([true, "auto", "nowrap"]);
+      const button = levelDirection(page, 3);
+      /* The respondent scrolls the row, then taps: a dropdown closes when a scroll box around it scrolls, and the
+         scroll event of a scroll made with the tap would arrive after the popup opened. */
+      await button.scrollIntoViewIfNeeded();
+      await bar.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      expect(await bar.evaluate((el: HTMLElement) => el.scrollLeft)).toBeGreaterThan(0);
+      await button.click();
+      const popup = page.locator(".sv-popup__container").filter({ visible: true });
+      await expect(popup.getByRole("menuitemradio", { name: "Low - High", exact: true })).toBeVisible();
+      const buttonBox = await button.boundingBox();
+      const popupBox = await popup.boundingBox();
+      expect(popupBox!.y).toBeGreaterThanOrEqual(buttonBox!.y + buttonBox!.height - 1);
+      expect(popupBox!.x < buttonBox!.x + buttonBox!.width && popupBox!.x + popupBox!.width > buttonBox!.x).toBe(true);
+      await popup.getByRole("menuitemradio", { name: "Low - High", exact: true }).click();
+      await expect(button.locator(".sd-action__title")).toHaveText("Low - High");
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} sort bar: "..." and the sort dialog`, () => {
+    // The design's frame: a long title and five sortable columns.
+    const moreJson = (extra?: any): any => ({
+      elements: [Object.assign({
+        type: "matrixdynamic",
+        name: "matrix",
+        title: "Health Product - Long Title for Example",
+        allowSort: true,
+        showSortBar: "always",
+        maxSortLevel: 4,
+        rowCount: 0,
+        columns: [
+          { name: "product", title: "Product", cellType: "text" },
+          { name: "category", title: "Category", cellType: "text" },
+          { name: "price", title: "Price, USD", cellType: "text", inputType: "number" },
+          { name: "quantity", title: "Quantity per Unit", cellType: "text" },
+          { name: "stock", title: "In Stock", cellType: "text", inputType: "number" },
+        ],
+        sortCriteria: [{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }, { field: "price", direction: "asc" }],
+        defaultValue: [
+          { product: "c", category: "toys", price: 10, quantity: "1 box", stock: 3 },
+          { product: "a", category: "tools", price: 30, quantity: "2 boxes", stock: 1 },
+          { product: "b", category: "toys", price: 20, quantity: "3 boxes", stock: 2 },
+          { product: "d", category: "toys", price: 5, quantity: "4 boxes", stock: 4 },
+        ],
+      }, extra)],
+    });
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1024, height: 900 });
+    });
+    // The rows of the question on the page; the dialog's own matrix is in a popup.
+    const products = async (page): Promise<Array<string>> =>
+      page.locator(".sd-table__row").evaluateAll((rows: Array<HTMLElement>) => rows.filter((row) => !row.closest(".sv-popup"))
+        .map((row) => (row.querySelector("input[type=text]") as HTMLInputElement).value));
+    const headerBar = (page) => page.locator(".sd-question__header .sd-question__sort-bar");
+    const levelButton = (page, label: string, level: number) =>
+      headerBar(page).getByRole("button", { name: level === 1 ? new RegExp("^" + label + " (?!\\d)") : new RegExp("^" + label + " " + level + " ") });
+    const levelField = (page, level: number) => levelButton(page, "Sort field", level);
+    const levelDirection = (page, level: number) => levelButton(page, "Sort order", level);
+    const moreButton = (page) => headerBar(page).getByRole("button", { name: "Show all sort levels", exact: true });
+    const addButton = (page) => page.getByRole("button", { name: "Add sort level", exact: true });
+    const headerRank = (page, title: string) => page.getByRole("button", { name: "Sort by " + title, exact: true }).locator(".sd-table__header-sort-rank");
+    const dialog = (page) => page.locator(".sv-popup--records-sort");
+    // A sort level of the dialog is a row of its matrix: the handle, the number, the field, the direction and the remove button.
+    const dialogRows = (page) => dialog(page).locator("tr.sd-sort-dialog__row");
+    const rowField = (page, row: number) => dialogRows(page).nth(row - 1).getByRole("combobox").nth(0);
+    const rowDirection = (page, row: number) => dialogRows(page).nth(row - 1).getByRole("combobox").nth(1);
+    const rowHandle = (page, row: number) => dialogRows(page).nth(row - 1).getByRole("button", { name: /^Move sort level/ });
+    const rowRemove = (page, row: number) => dialogRows(page).nth(row - 1).getByRole("button", { name: /^Remove sort level/ });
+    const dialogButton = (page, text: string) => dialog(page).locator(".sv-popup__body-footer").getByRole("button", { name: text, exact: true });
+    // An item of the open list: the bar's dropdowns list menu items, the dialog's dropdowns options.
+    const listItem = (page, text: string) =>
+      page.locator(".sv-popup--menu-popup .sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: text, exact: true });
+    const optionItem = (page, text: string) =>
+      page.locator(".sv-popup:not(.sv-popup--records-sort) .sv-popup__container").filter({ visible: true }).getByRole("option", { name: text, exact: true });
+    // Each row of the dialog: its number, field and direction.
+    const rowsShown = async (page): Promise<Array<Array<string>>> =>
+      dialogRows(page).evaluateAll((rows: Array<HTMLElement>) => rows.map((row) =>
+        [(row.querySelector(".sd-expression") as HTMLElement).textContent].concat(Array.prototype.map.call(row.querySelectorAll("[role=combobox] .sd-dropdown__input-prefix-wrapper"),
+          (el: Element): string => el.textContent) as Array<string>)));
+    const sortOf = async (page): Promise<any> => page.evaluate(() => (window as any).survey.getQuestionByName("matrix").sortCriteria
+      .map((item: any) => ({ field: item.field, direction: item.direction })));
+    // The bar is transparent until its first fit.
+    const waitForFit = async (page): Promise<void> => {
+      await expect(headerBar(page)).toBeVisible();
+      await expect(headerBar(page)).not.toHaveAttribute("style", /opacity/);
+    };
+    // The aria-label (or the text) of the focused element, read through a shadow root.
+    const focusedName = async (page): Promise<string> => page.evaluate(() => {
+      let el: any = document.activeElement;
+      while(!!el && !!el.shadowRoot && !!el.shadowRoot.activeElement) el = el.shadowRoot.activeElement;
+      return !!el ? el.getAttribute("aria-label") || el.textContent : "";
+    });
+    /* The modal moves in with a transform, and focuses row 1's field after it shows: a list a row's dropdown opens
+       before that is placed in the moving box, and closes when the focus leaves its dropdown. */
+    const waitForDialog = async (page): Promise<void> => {
+      await expect(dialog(page)).toBeVisible();
+      await expect(rowField(page, 1)).toBeFocused();
+      await dialog(page).evaluate((el: HTMLElement) => Promise.all(el.getAnimations({ subtree: true }).map((item: Animation) => item.finished)));
+    };
+    const openDialog = async (page): Promise<void> => {
+      await waitForFit(page);
+      await moreButton(page).click();
+      await waitForDialog(page);
+      await expect(rowField(page, 1)).toBeFocused();
+    };
+
+    test("a level that does not fit is behind \"...\", which takes the place of \"+\", and comes back on a wider window; the dialog sorts on Apply", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await expect(moreButton(page)).toBeVisible();
+      await expect(addButton(page)).toHaveCount(0);
+      await expect(levelField(page, 3)).toHaveCount(0);
+      await expect(levelField(page, 1)).toBeVisible();
+      // The rightmost button the bar shows; the renderers wrap the bar's items differently.
+      const lastButton = async (): Promise<string> => headerBar(page).evaluate((el: HTMLElement) => {
+        const shown = Array.prototype.filter.call(el.querySelectorAll("button"), (button: HTMLElement): boolean =>
+          button.getBoundingClientRect().width > 0 && getComputedStyle(button).visibility !== "hidden") as Array<HTMLElement>;
+        shown.sort((a: HTMLElement, b: HTMLElement): number => a.getBoundingClientRect().right - b.getBoundingClientRect().right);
+        return shown[shown.length - 1].getAttribute("aria-label");
+      });
+      expect(await lastButton(), "\"...\" is at the end").toBe("Show all sort levels");
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await expect(levelField(page, 3)).toBeVisible();
+      await expect(moreButton(page)).toHaveCount(0);
+      await expect(addButton(page)).toBeEnabled();
+      await page.setViewportSize({ width: 1024, height: 900 });
+      await expect(moreButton(page)).toBeVisible();
+      await expect(addButton(page)).toHaveCount(0);
+
+      await moreButton(page).click();
+      await waitForDialog(page);
+      await expect(dialog(page).locator(".sv-popup__body-header")).toHaveText("Sort by");
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, Z - A"], ["3", "Price, USD", "Low - High"]]);
+      await rowDirection(page, 2).click();
+      await optionItem(page, "Alphabet, A - Z").click();
+      await expect(dialog(page)).toBeVisible();
+      await dialogButton(page, "Add New").click();
+      await expect(dialogRows(page)).toHaveCount(4);
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, A - Z"], ["3", "Price, USD", "Low - High"], ["4", "Quantity per Unit", "\u2014"]]);
+      await expect(dialogButton(page, "Add New")).toBeDisabled();
+      await rowDirection(page, 4).click();
+      await optionItem(page, "Alphabet, Z - A").click();
+      expect(await sortOf(page), "a draft sorts nothing").toEqual([{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }, { field: "price", direction: "asc" }]);
+      await dialogButton(page, "Apply").click();
+      await expect(dialog(page)).toHaveCount(0);
+      expect(await sortOf(page)).toEqual([{ field: "category", direction: "asc" }, { field: "product", direction: "asc" },
+        { field: "price", direction: "asc" }, { field: "quantity", direction: "desc" }]);
+      expect(await products(page)).toEqual(["a", "b", "c", "d"]);
+      await expect(levelDirection(page, 1).locator(".sd-action__title")).toHaveText("Alphabet, A - Z");
+      await expect(moreButton(page)).toBeVisible();
+
+      await moreButton(page).click();
+      await waitForDialog(page);
+      await rowDirection(page, 1).click();
+      await optionItem(page, "Default").click();
+      await page.keyboard.press("Escape");
+      await expect(dialog(page)).toHaveCount(0);
+      expect((await sortOf(page)).length).toBe(4);
+      expect(await products(page)).toEqual(["a", "b", "c", "d"]);
+    });
+
+    test("the keyboard: Enter on \"...\" opens the dialog on row 1's field, the Tab order passes the handles, Space opens a row's list, Esc closes it and then the dialog", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      // "..." is the bar's last button: "+" is out of the bar while "..." shows.
+      await levelField(page, 1).focus();
+      for (let i = 0; i < 5 && await focusedName(page) !== "Show all sort levels"; i++) {
+        await page.keyboard.press("Tab");
+      }
+      await expect(moreButton(page)).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(rowField(page, 1)).toBeFocused();
+      const tabOrder: Array<string> = [];
+      for (let i = 0; i < 14; i++) {
+        await page.keyboard.press("Tab");
+        tabOrder.push(await focusedName(page));
+      }
+      expect(tabOrder).toEqual(["Sort order", "Remove sort level 1", "Move sort level 2", "Sort field 2", "Sort order 2", "Remove sort level 2",
+        "Move sort level 3", "Sort field 3", "Sort order 3", "Remove sort level 3", "Add New", "Apply", "Move sort level 1", "Sort field"]);
+      await rowDirection(page, 1).focus();
+      // A dropdown editor opens its list with Space or ArrowDown.
+      await page.keyboard.press("Space");
+      await expect(optionItem(page, "Default")).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(optionItem(page, "Default")).toHaveCount(0);
+      await expect(dialog(page)).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(dialog(page)).toHaveCount(0);
+      await expect(moreButton(page)).toBeFocused();
+    });
+
+    test("a dropdown of a row opens over the dialog, and a pick in its list keeps the dialog open", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await moreButton(page).click();
+      await waitForDialog(page);
+      await rowField(page, 3).click();
+      const item = optionItem(page, "In Stock");
+      await expect(item).toBeVisible();
+      const box = await item.boundingBox();
+      const isOnTop = await page.evaluate(({ x, y }) => {
+        let el: any = document.elementFromPoint(x, y);
+        while(!!el && !!el.shadowRoot && !!el.shadowRoot.elementFromPoint(x, y) && el.shadowRoot.elementFromPoint(x, y) !== el) el = el.shadowRoot.elementFromPoint(x, y);
+        return !!el && !!el.closest("[role=option]");
+      }, { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 });
+      expect(isOnTop, "the list is above the overlay").toBe(true);
+      await item.click();
+      await expect(dialog(page)).toBeVisible();
+      expect((await rowsShown(page))[2]).toEqual(["3", "In Stock", "High - Low"]);
+      await dialog(page).locator(".sv-popup__close-button").click();
+      await expect(dialog(page)).toHaveCount(0);
+      expect((await sortOf(page))[2]).toEqual({ field: "price", direction: "asc" });
+    });
+
+    test("\"+\" adds a level that does not fit: \"...\" takes the place of \"+\", the level is in the dialog, and the focus goes to \"...\"", async ({ page }) => {
+      await page.setViewportSize({ width: 1160, height: 900 });
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await expect(moreButton(page)).toHaveCount(0);
+      await addButton(page).focus();
+      await page.keyboard.press("Enter");
+      await expect(addButton(page)).toHaveCount(0);
+      await expect(moreButton(page)).toBeVisible();
+      await expect(moreButton(page)).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(dialogRows(page)).toHaveCount(4);
+      expect((await rowsShown(page))[3]).toEqual(["4", "Quantity per Unit", "Alphabet, A - Z"]);
+    });
+
+    test("\"+\" adds a level that fits and reaches the limit: \"+\" is disabled and the focus goes to the new level's field", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 900 });
+      await initSurvey(page, framework, moreJson({ title: "Products" }));
+      await waitForFit(page);
+      await addButton(page).focus();
+      await page.keyboard.press("Enter");
+      await expect(addButton(page)).toBeDisabled();
+      await expect(moreButton(page)).toHaveCount(0);
+      await expect(levelField(page, 4)).toBeFocused();
+    });
+
+    test("with two levels allowed, \"+\" adds level 2 and becomes disabled; the focus goes to level 2's field", async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await initSurvey(page, framework, moreJson({ maxSortLevel: 2, sortCriteria: [{ field: "category", direction: "asc" }] }));
+      await waitForFit(page);
+      await expect(addButton(page)).toBeEnabled();
+      await addButton(page).click();
+      await expect(levelField(page, 2).locator(".sd-action__title")).toHaveText("Product");
+      await expect(addButton(page)).toBeDisabled();
+      await expect(moreButton(page)).toHaveCount(0);
+      await expect(levelField(page, 2)).toBeFocused();
+    });
+
+    test("the keyboard: \"+\" adds a level that does not fit next to two levels: \"+\" leaves the bar and the focus goes to \"...\"", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 900 });
+      await initSurvey(page, framework, moreJson({ sortCriteria: [{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }] }));
+      await waitForFit(page);
+      await expect(levelField(page, 2)).toBeVisible();
+      await expect(moreButton(page)).toHaveCount(0);
+      await addButton(page).focus();
+      await page.keyboard.press("Enter");
+      await expect(levelField(page, 3)).toHaveCount(0);
+      await expect(addButton(page)).toHaveCount(0);
+      await expect(moreButton(page)).toBeFocused();
+      expect((await sortOf(page)).length).toBe(3);
+    });
+
+    test("a longer label pushes a level behind \"...\", a shorter one brings it back", async ({ page }) => {
+      await page.setViewportSize({ width: 1160, height: 900 });
+      const json = moreJson();
+      json.elements[0].columns[3].title = "Quantity per Unit, in Boxes";
+      await initSurvey(page, framework, json);
+      await waitForFit(page);
+      await expect(levelField(page, 3)).toBeVisible();
+      await expect(moreButton(page)).toHaveCount(0);
+      await levelField(page, 2).click();
+      await listItem(page, "Quantity per Unit, in Boxes").click();
+      await expect(levelField(page, 2).locator(".sd-action__title")).toHaveText("Quantity per Unit, in Boxes");
+      await expect(moreButton(page)).toBeVisible();
+      await expect(levelField(page, 3)).toHaveCount(0);
+      expect(await headerBar(page).evaluate((el: HTMLElement) => el.scrollWidth - el.clientWidth), "the bar does not overflow").toBeLessThanOrEqual(0);
+      await levelField(page, 2).click();
+      await listItem(page, "Product").click();
+      await expect(levelField(page, 3)).toBeVisible();
+      await expect(moreButton(page)).toHaveCount(0);
+    });
+
+    test("the focus after the dialog: level 1's field when an Apply leaves no \"...\"", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await moreButton(page).click();
+      await rowRemove(page, 3).click();
+      await expect(dialogRows(page)).toHaveCount(2);
+      await rowRemove(page, 2).click();
+      await expect(dialogRows(page)).toHaveCount(1);
+      await dialogButton(page, "Apply").click();
+      await expect(dialog(page)).toHaveCount(0);
+      await expect(moreButton(page)).toHaveCount(0);
+      await expect(levelField(page, 1)).toBeFocused();
+    });
+
+    test("the focus after the dialog: level 1's field when the window grows while it is open", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await moreButton(page).click();
+      await expect(rowField(page, 1)).toBeFocused();
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.keyboard.press("Escape");
+      await expect(dialog(page)).toHaveCount(0);
+      await expect(moreButton(page)).toHaveCount(0);
+      await expect(levelField(page, 1)).toBeFocused();
+    });
+
+    test("on a phone there is no \"...\": every level and \"+\" show and the row scrolls", async ({ page }) => {
+      await page.setViewportSize({ width: 420, height: 900 });
+      await initSurvey(page, framework, moreJson());
+      await expect(headerBar(page)).toBeVisible();
+      await expect(levelField(page, 3)).toHaveCount(1);
+      await expect(addButton(page)).toHaveCount(1);
+      await expect(moreButton(page)).toHaveCount(0);
+      const layout = await headerBar(page).evaluate((el: HTMLElement) => [el.scrollWidth > el.clientWidth, getComputedStyle(el).overflowX]);
+      expect(layout).toEqual([true, "auto"]);
+    });
+
+    test("a mouse drag of row 3's handle above row 1, then Apply: the bar, the header numbers and the rows follow the new order", async ({ page }) => {
+      await initSurvey(page, framework, moreJson({ maxSortLevel: 5 }));
+      await openDialog(page);
+      await doDrag({ page, element: rowHandle(page, 3), target: dialogRows(page).nth(0), options: { targetPosition: { x: 200, y: 2 } } });
+      await page.mouse.up();
+      await expect(dialogRows(page).nth(0).locator(".sd-expression")).toHaveText("1");
+      expect(await rowsShown(page)).toEqual([["1", "Price, USD", "Low - High"], ["2", "Category", "Alphabet, A - Z"], ["3", "Product", "Alphabet, Z - A"]]);
+      expect(await sortOf(page), "a draft").toEqual([{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }, { field: "price", direction: "asc" }]);
+      await dialogButton(page, "Apply").click();
+      await expect(dialog(page)).toHaveCount(0);
+      expect(await sortOf(page)).toEqual([{ field: "price", direction: "asc" }, { field: "category", direction: "asc" }, { field: "product", direction: "desc" }]);
+      await expect(levelField(page, 1).locator(".sd-action__title")).toHaveText("Price, USD");
+      await expect(headerRank(page, "Price, USD")).toHaveText("1");
+      await expect(headerRank(page, "Category")).toHaveText("2");
+      await expect(headerRank(page, "Product")).toHaveText("3");
+      expect(await products(page)).toEqual(["d", "c", "b", "a"]);
+    });
+
+    test("Escape during a drag of a row cancels the drag; the dialog stays open and the order is kept", async ({ page }) => {
+      await initSurvey(page, framework, moreJson({ maxSortLevel: 5 }));
+      await openDialog(page);
+      await doDrag({ page, element: rowHandle(page, 3), target: dialogRows(page).nth(0), options: { targetPosition: { x: 200, y: 2 } } });
+      // The drag re-renders the dragged row and the focus may fall to <body>; with the focus in the dialog its keydown handler hears the keys.
+      await rowField(page, 2).evaluate((el: HTMLElement) => el.focus());
+      await page.keyboard.press("Escape");
+      await page.mouse.up();
+      await expect(dialog(page)).toBeVisible();
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, Z - A"], ["3", "Price, USD", "Low - High"]]);
+      await dialogButton(page, "Apply").click();
+      expect(await sortOf(page)).toEqual([{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }, { field: "price", direction: "asc" }]);
+    });
+
+    test("the keyboard: ArrowUp on row 2's handle makes it row 1 and keeps the focus on its handle; Apply sorts in that order", async ({ page }) => {
+      await initSurvey(page, framework, moreJson({ maxSortLevel: 5 }));
+      await openDialog(page);
+      for (let i = 0; i < 5 && await focusedName(page) !== "Move sort level 2"; i++) {
+        await page.keyboard.press("Tab");
+      }
+      await expect(rowHandle(page, 2)).toBeFocused();
+      await page.keyboard.press("ArrowUp");
+      expect(await rowsShown(page)).toEqual([["1", "Product", "Alphabet, Z - A"], ["2", "Category", "Alphabet, A - Z"], ["3", "Price, USD", "Low - High"]]);
+      await expect(rowHandle(page, 1)).toBeFocused();
+      expect(await focusedName(page)).toBe("Move sort level 1");
+      await page.keyboard.press("ArrowUp");
+      expect((await rowsShown(page))[0], "not past the first row").toEqual(["1", "Product", "Alphabet, Z - A"]);
+      await dialogButton(page, "Apply").click();
+      await expect(dialog(page)).toHaveCount(0);
+      expect(await sortOf(page)).toEqual([{ field: "product", direction: "desc" }, { field: "category", direction: "asc" }, { field: "price", direction: "asc" }]);
+    });
+
+    test("Add New up to five rows: it is disabled and the focus is on row 5's field", async ({ page }) => {
+      await initSurvey(page, framework, moreJson({ maxSortLevel: 5 }));
+      await openDialog(page);
+      await dialogButton(page, "Add New").focus();
+      await page.keyboard.press("Enter");
+      await expect(dialogRows(page)).toHaveCount(4);
+      await expect(dialogButton(page, "Add New")).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(dialogRows(page)).toHaveCount(5);
+      await expect(dialogButton(page, "Add New")).toBeDisabled();
+      await expect(rowField(page, 5)).toBeFocused();
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, Z - A"], ["3", "Price, USD", "Low - High"],
+        ["4", "Quantity per Unit", "\u2014"], ["5", "In Stock", "\u2014"]]);
+    });
+
+    test("the remove button of row 1: row 2 becomes row 1 and shows Default instead of the dash; the focus goes to the new row 1's field", async ({ page }) => {
+      await initSurvey(page, framework, moreJson({ maxSortLevel: 5 }));
+      await openDialog(page);
+      await rowDirection(page, 2).click();
+      await optionItem(page, "\u2014").click();
+      expect((await rowsShown(page))[1]).toEqual(["2", "Product", "\u2014"]);
+      await rowRemove(page, 1).click();
+      await expect(dialogRows(page)).toHaveCount(2);
+      expect(await rowsShown(page)).toEqual([["1", "Product", "Default"], ["2", "Price, USD", "Low - High"]]);
+      await expect(rowField(page, 1)).toBeFocused();
+      await rowRemove(page, 2).click();
+      await expect(dialogRows(page)).toHaveCount(1);
+      await expect(rowRemove(page, 1), "the single row's remove button").toBeDisabled();
+      await expect(rowField(page, 1)).toBeFocused();
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} row reorder from the keyboard`, () => {
+    const reorderMatrix = {
+      type: "matrixdynamic",
+      name: "matrix",
+      allowRowReorder: true,
+      rowCount: 0,
+      columns: [{ name: "product", cellType: "text" }],
+      defaultValue: [{ product: "a" }, { product: "b" }, { product: "c" }],
+    };
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+    const products = async (locator): Promise<Array<string>> =>
+      locator.locator(".sd-table__row input[type=text]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+
+    test("ArrowUp on row 2's handle moves its record to row 1 and the focus to row 1's handle", async ({ page }) => {
+      await initSurvey(page, framework, { elements: [reorderMatrix] });
+      const handle = (n: number) => page.getByRole("button", { name: "Move row " + n, exact: true });
+      await expect(page.getByRole("button", { name: /^Move row \d$/ })).toHaveCount(3);
+      await handle(2).focus();
+      await page.keyboard.press("ArrowUp");
+      expect(await products(page)).toEqual(["b", "a", "c"]);
+      await expect(handle(1)).toBeFocused();
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      expect(await products(page)).toEqual(["a", "c", "b"]);
+      await expect(handle(3)).toBeFocused();
+      await page.keyboard.press("ArrowDown");
+      expect(await products(page), "the last row stays").toEqual(["a", "c", "b"]);
+      await expect(handle(3)).toBeFocused();
+      expect(await getData(page)).toEqual({ matrix: [{ product: "a" }, { product: "c" }, { product: "b" }] });
+    });
+    test("The handle is in the Tab order before the row's first cell", async ({ page }) => {
+      await initSurvey(page, framework, { elements: [reorderMatrix] });
+      const rowInput = (n: number) => page.locator(".sd-table__row input[type=text]").nth(n - 1);
+      await rowInput(1).focus();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("button", { name: "Move row 2", exact: true })).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(rowInput(2)).toBeFocused();
+    });
+    test("Escape during a row drag in a modal cancels the drag and keeps the modal open", async ({ page }) => {
+      await initSurvey(page, framework, {});
+      await page.evaluate((matrixJson) => {
+        const model = new window["Survey"].Model({ elements: [matrixJson] });
+        model.autoFocusFirstQuestion = false;
+        // The dialog is narrower than the mobile width, and a mobile matrix has no drag handle.
+        model.applyTheme({ cssVariables: { "--sd-mobile-width": "100px" } });
+        window["dialogSurvey"] = model;
+        window["Survey"].settings.showDialog({
+          componentName: "survey",
+          data: { model: model, survey: model }
+        }, window["survey"].rootElement);
+      }, reorderMatrix);
+      const modal = page.locator(".sv-popup.sv-popup--modal-popup").first();
+      await expect(modal).toBeVisible();
+      const rows = modal.locator(".sd-table__row");
+      await doDrag({ page, element: rows.nth(0).locator(".sd-drag-element__svg"), target: rows.nth(2) });
+      // The drag re-renders the dragged row and the focus falls to <body>; with the focus in the dialog its keydown handler hears the keys.
+      await rows.nth(1).locator("input[type=text]").evaluate((input: HTMLInputElement) => input.focus());
+      await page.keyboard.press("Escape");
+      await page.mouse.up();
+      await expect(modal).toBeVisible();
+      expect(await products(modal)).toEqual(["a", "b", "c"]);
+      expect(await page.evaluate(() => window["dialogSurvey"].data)).toEqual({ matrix: [{ product: "a" }, { product: "b" }, { product: "c" }] });
+      await modal.locator(".sd-table__row input[type=text]").first().focus();
+      await page.keyboard.press("Escape");
+      await expect(modal, "without a drag Escape closes the modal").not.toBeVisible();
     });
   });
 });

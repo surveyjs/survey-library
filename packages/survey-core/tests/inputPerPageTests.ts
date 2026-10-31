@@ -9,8 +9,10 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { Serializer } from "../src/jsonobject";
+import { registerFunction, unregisterFunction } from "../src/functionsfactory";
 
 import { describe, test, expect } from "vitest";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 describe("Input Per Page Tests", () => {
   function getSingleQuestion(page: PageModel): Question {
     if (page.visibleRows.length === 0) return <any>undefined;
@@ -83,6 +85,7 @@ describe("Input Per Page Tests", () => {
     survey.performNext();
     survey.performNext();
     expect(panel.singleInputQuestion.name, "singleInputQuestion, #1").toBe("panel1");
+    expect(panel.getRootCss().indexOf("sd-question--single-input") > -1, "summary step keeps rootSingleInput, #1, Bug#11824").toBe(true);
     expect(panel.isRenderModeTab, "isRenderModeTab, #1").toBe(false);
     const rootCss = panel.singleInputQuestion.getRootCss();
     expect(rootCss.indexOf("q-frame") > -1, "rootCss has q-frame, #1").toBe(false);
@@ -1133,6 +1136,65 @@ describe("Input Per Page Tests", () => {
     panel.singleInputSummary.items[0].btnRemove.action();
     expect(panel.singleInputSummary.items.length, "singleInputSummary.items.length, #2").toBe(1);
     expect(panel.singleInputSummary.items[0].showRemove, "singleInputSummary.items[0].showRemove, #1").toBe(false);
+  });
+  test("matrixdynamic singleInputSummary: a locked row has no Remove button", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q0" },
+        {
+          type: "matrixdynamic", name: "matrix",
+          defaultValue: [{ q1: "a" }, { q1: "b" }, { q1: "c" }],
+          columns: [{ name: "q1", cellType: "text" }]
+        }
+      ],
+      questionsOnPageMode: "inputPerPage"
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.lockedRowCount = 2;
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "the matrix is current").toBe("matrix");
+    const summary = matrix.singleInputSummary;
+    expect(summary.items.length, "items.length").toBe(3);
+    expect(summary.items.map(item => item.showRemove), "showRemove of each row").toEqual([false, false, true]);
+    summary.items[2].btnRemove.action();
+    expect(matrix.value, "the unlocked row is removed").toEqual([{ q1: "a" }, { q1: "b" }]);
+  });
+  test("paneldynamic breadcrumb: a question inside a nested panel moves to the first question of its dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic", name: "order", panelCount: 1,
+          templateElements: [
+            { type: "text", name: "buyerName" },
+            {
+              type: "panel", name: "details",
+              elements: [
+                {
+                  type: "paneldynamic", name: "stores", panelCount: 1,
+                  templateElements: [
+                    { type: "text", name: "storeName" },
+                    { type: "text", name: "address" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      questionsOnPageMode: "inputPerPage"
+    });
+    const order = <QuestionPanelDynamicModel>survey.getQuestionByName("order");
+    expect(order.singleInputQuestion.name, "#1").toBe("buyerName");
+    survey.performNext();
+    expect(order.singleInputQuestion.name, "#2").toBe("stores");
+    const stores = <QuestionPanelDynamicModel>order.singleInputQuestion;
+    expect(stores.singleInputQuestion.name, "#2, stores").toBe("storeName");
+    survey.performNext();
+    expect(stores.singleInputQuestion.name, "#3, stores").toBe("address");
+    const actions = order.singleInputActions.actions;
+    expect(actions.length, "the order breadcrumb").toBe(1);
+    actions[0].action();
+    expect(order.singleInputQuestion.name, "#4").toBe("buyerName");
   });
   test("singleInput & singleInputSummary, showAdd && carousel display mode, Bug##9900", () => {
     const survey = new SurveyModel({
@@ -2611,5 +2673,727 @@ describe("Input Per Page Tests", () => {
     expect(radio.isExpanded, "radio.isExpanded is false").toBe(false);
     expect(radio.isCollapsed, "radio.isCollapsed is false").toBe(false);
     expect(radio.showTitleExpandableSvg, "radio.showTitleExpandableSvg").toBe(false);
+  });
+  function getNestedChoicesJson(type: string = "radiogroup", addQ2: boolean = true): any {
+    const elements: Array<any> = [
+      { type: type, name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }, { type: "text", name: "nested2" }] }] }
+    ];
+    if (addQ2) elements.push({ type: "text", name: "q2" });
+    return { questionsOnPageMode: "inputPerPage", elements: elements };
+  }
+  function getStepNames(q: Question): Array<string> {
+    return q.singleInputBehavior.getSingleInputQuestions().map(el => el.name);
+  }
+  test("inputPerPage: radiogroup without nested choice elements has no inner steps, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2"] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q1").toBe("q1");
+    expect(getStepNames(q1), "no inner steps").toEqual([]);
+    expect(q1.singleInputQuestion, "singleInputQuestion is undefined").toBeUndefined();
+    expect(q1.getSingleInputElementPos(), "pos is 0").toBe(0);
+    expect(getSingleQuestion(survey.currentPage).name, "getSingleQuestion is q1").toBe("q1");
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q2").toBe("q2");
+  });
+  test("inputPerPage: radiogroup nested choice questions are separate steps, Bug#11824", () => {
+    const survey = new SurveyModel(getNestedChoicesJson());
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const item2 = q1.choices[1];
+    const nested1 = survey.getQuestionByName("nested1");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q1, #1").toBe("q1");
+    expect(getStepNames(q1), "steps, #1").toEqual([]);
+    expect(q1.singleInputQuestion, "singleInputQuestion, #1").toBeUndefined();
+    expect(item2.renderedIsPanelShowing, "item2 panel is not rendered, #1").toBeFalsy();
+    expect(survey.isLastElement, "isLastElement, #1").toBe(false);
+
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps, #2").toEqual(["q1", "nested1", "nested2"]);
+    expect(q1.singleInputQuestion, "own content, #2").toBeUndefined();
+    expect(q1.getSingleInputElementPos(), "pos, #2").toBe(-1);
+    expect(item2.isPanelShowing, "item2.isPanelShowing, #2").toBe(true);
+    expect(item2.renderedIsPanelShowing, "item2.renderedIsPanelShowing, #2").toBe(false);
+    expect(q1.getRootCss().indexOf("sd-question--single-input"), "own step root css, #2").toBe(-1);
+    expect(q1.locRenderedTitle.renderedHtml, "own title, #2").toBe("q1");
+    expect(getSingleQuestion(survey.currentPage).name, "getSingleQuestion, #2").toBe("q1");
+
+    expect(survey.performNext(), "next, #3").toBe(true);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q1, #3").toBe("q1");
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("nested1");
+    expect(q1.getSingleInputElementPos(), "pos, #3").toBe(2);
+    expect(q1.singleInputLocTitle.renderedHtml, "step title, #3").toBe("item2");
+    expect(q1.locRenderedTitle.renderedHtml, "rendered title, #3").toBe("item2");
+    expect(q1.getRootCss().indexOf("sd-question--single-input") > -1, "nested step root css, #3").toBe(true);
+    expect(nested1.parentQuestion.name, "nested1.parentQuestion, #3").toBe("q1");
+    expect(getSingleQuestion(survey.currentPage).name, "getSingleQuestion, #3").toBe("nested1");
+
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #4").toBe("nested2");
+    expect(q1.getSingleInputElementPos(), "pos, #4").toBe(1);
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q2, #5").toBe("q2");
+    survey.performPrevious();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q1, #6").toBe("q1");
+    expect(q1.singleInputQuestion.name, "back on the last nested step, #6").toBe("nested2");
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #7").toBe("nested1");
+    survey.performPrevious();
+    expect(q1.singleInputQuestion, "own step, #8").toBeUndefined();
+    expect(q1.singleInputLocTitle, "no step title, #8").toBeUndefined();
+    expect(q1.locRenderedTitle.renderedHtml, "own title, #8").toBe("q1");
+    expect(item2.renderedIsPanelShowing, "item2 panel is not rendered, #8").toBe(false);
+    expect(survey.isFirstElement, "isFirstElement, #8").toBe(true);
+    expect(survey.data, "survey.data").toEqual({ q1: "item2" });
+  });
+  test("inputPerPage: nested choice steps & the Complete button, Bug#11824", () => {
+    const survey = new SurveyModel(getNestedChoicesJson("radiogroup", false));
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    expect(survey.isCompleteButtonVisible, "complete, #1").toBe(true);
+    q1.value = "item2";
+    expect(survey.isCompleteButtonVisible, "complete, #2").toBe(false);
+    expect(survey.isShowNextButton, "next, #2").toBe(true);
+    survey.performNext();
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("nested2");
+    expect(survey.isCompleteButtonVisible, "complete, #3").toBe(true);
+    expect(survey.isShowNextButton, "next, #3").toBe(false);
+    survey.performPrevious();
+    survey.performPrevious();
+    expect(q1.singleInputQuestion, "own step, #4").toBeUndefined();
+    expect(survey.isCompleteButtonVisible, "complete, #4").toBe(false);
+    q1.value = "item1";
+    expect(survey.isCompleteButtonVisible, "complete, #5").toBe(true);
+    expect(survey.isShowNextButton, "next, #5").toBe(false);
+  });
+  test("inputPerPage: checkbox nested choice steps follow visibleChoices order, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "checkbox", name: "q1", choices: [
+          { value: "item1", elements: [{ type: "text", name: "n1" }] },
+          { value: "item2", elements: [{ type: "text", name: "n2a" }, { type: "text", name: "n2b" }] },
+          { value: "item3", elements: [{ type: "text", name: "n3" }] }
+        ] }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    q1.value = ["item3", "item1"];
+    expect(getStepNames(q1), "steps, #1").toEqual(["q1", "n1", "n3"]);
+    q1.value = ["item3", "item1", "item2"];
+    expect(getStepNames(q1), "steps, #2").toEqual(["q1", "n1", "n2a", "n2b", "n3"]);
+    survey.performNext();
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("n2a");
+    expect(q1.singleInputLocTitle.renderedHtml, "step title, #3").toBe("item2");
+  });
+  test("inputPerPage: invisible nested choice questions are skipped, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "text", name: "nested1" },
+          { type: "text", name: "nested2", visibleIf: "{nested1} = 'show'" }
+        ] }] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps, #1").toEqual(["q1", "nested1"]);
+    survey.getQuestionByName("nested1").value = "show";
+    expect(getStepNames(q1), "steps, #2").toEqual(["q1", "nested1", "nested2"]);
+  });
+  test("inputPerPage: deselecting the choice of the displayed nested step, Bug#11824", () => {
+    const survey = new SurveyModel(getNestedChoicesJson());
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "radiogroup: singleInputQuestion, #1").toBe("nested1");
+    q1.value = "item1";
+    expect(survey.currentSingleQuestion.name, "radiogroup: currentSingleQuestion, #2").toBe("q1");
+    expect(q1.singleInputQuestion, "radiogroup: back to the own step, #2").toBeUndefined();
+    expect(getStepNames(q1), "radiogroup: steps, #2").toEqual([]);
+
+    q1.value = "item2";
+    survey.performNext();
+    survey.performNext();
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "radiogroup: currentSingleQuestion, #3").toBe("q2");
+    q1.value = "item1";
+    survey.performPrevious();
+    expect(survey.currentSingleQuestion.name, "radiogroup: currentSingleQuestion, #4").toBe("q1");
+    expect(q1.singleInputQuestion, "radiogroup: the deselected step is not restored, #4").toBeUndefined();
+
+    const survey2 = new SurveyModel(getNestedChoicesJson("checkbox"));
+    const q2 = <QuestionCheckboxModel>survey2.getQuestionByName("q1");
+    q2.value = ["item2"];
+    survey2.performNext();
+    expect(q2.singleInputQuestion.name, "checkbox: singleInputQuestion, #1").toBe("nested1");
+    q2.value = ["item2", "item1"];
+    expect(q2.singleInputQuestion.name, "checkbox: the step is kept, #2").toBe("nested1");
+    q2.value = ["item1"];
+    expect(q2.singleInputQuestion, "checkbox: back to the own step, #3").toBeUndefined();
+  });
+  test("inputPerPage: nested choice validation on Next, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", isRequired: true, choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1", isRequired: true }] }] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const nested1 = survey.getQuestionByName("nested1");
+    expect(survey.performNext(), "required q1 blocks, #1").toBe(false);
+    expect(q1.errors.length, "q1 errors, #1").toBe(1);
+    q1.value = "item2";
+    expect(survey.performNext(), "next from the own step, #2").toBe(true);
+    expect(q1.errors.length, "q1 errors, #2").toBe(0);
+    expect(nested1.errors.length, "nested1 errors, #2").toBe(0);
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #2").toBe("nested1");
+    expect(survey.performNext(), "required nested1 blocks, #3").toBe(false);
+    expect(nested1.errors.length, "nested1 errors, #3").toBe(1);
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("nested1");
+    nested1.value = "a";
+    expect(survey.performNext(), "next, #4").toBe(true);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #4").toBe("q2");
+  });
+  test("inputPerPage: completion validates nested choice questions, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "text", name: "nested1", isRequired: true }, { type: "text", name: "nested2" }] }] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const nested1 = survey.getQuestionByName("nested1");
+    q1.value = "item2";
+    expect(survey.tryComplete(), "tryComplete on the own step, #1").toBe(false);
+    expect(survey.isCompleted, "not completed, #1").toBe(false);
+    expect(q1.singleInputQuestion.name, "focus landed on the nested step, #1").toBe("nested1");
+    expect(nested1.errors.length, "nested1 errors, #1").toBe(1);
+    nested1.value = "a";
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #2").toBe("nested2");
+    nested1.clearValue();
+    expect(survey.tryComplete(), "tryComplete from the last nested step, #3").toBe(false);
+    expect(q1.singleInputQuestion.name, "focus landed on the nested step, #3").toBe("nested1");
+    nested1.value = "a";
+    survey.performNext();
+    expect(survey.tryComplete(), "tryComplete, #4").toBe(true);
+    expect(survey.data, "survey.data, #4").toEqual({ q1: "item2", nested1: "a" });
+  });
+  test("inputPerPage: a select with nested choices inside a dynamic panel, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
+          { type: "text", name: "inner1" },
+          { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1", isRequired: true }] }] },
+          { type: "text", name: "inner2" }
+        ] }
+      ]
+    });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const panel = dp.panels[0];
+    const q1 = <QuestionRadiogroupModel>panel.getQuestionByName("q1");
+    const nested1 = q1.choices[1].panel.getQuestionByName("nested1");
+    expect(nested1.parentQuestion, "nested1.parentQuestion").toBe(q1);
+    expect(q1.parentQuestion, "q1.parentQuestion").toBe(dp);
+    expect(dp.singleInputQuestion.name, "singleInputQuestion, #1").toBe("inner1");
+    panel.getQuestionByName("inner1").value = "a";
+    survey.performNext();
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #2").toBe("q1");
+    expect(q1.singleInputQuestion, "q1: own step, #2").toBeUndefined();
+    q1.value = "item2";
+    expect(getStepNames(q1), "q1 steps, #3").toEqual(["q1", "nested1"]);
+    expect(q1.choices[1].renderedIsPanelShowing, "item2 panel is not rendered, #3").toBe(false);
+    expect(dp.singleInputBehavior.singleInputHideHeader, "dp header is shown on q1's own step, #3").toBe(false);
+    expect(survey.performNext(), "next from q1's own step, #4").toBe(true);
+    expect(nested1.errors.length, "nested1 errors, #4").toBe(0);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #4").toBe("dp");
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #4").toBe("q1");
+    expect(q1.singleInputQuestion.name, "q1: singleInputQuestion, #4").toBe("nested1");
+    expect(dp.singleInputBehavior.singleInputHideHeader, "dp header is hidden on the nested step, #4").toBe(true);
+    expect(survey.performNext(), "required nested1 blocks, #5").toBe(false);
+    expect(nested1.errors.length, "nested1 errors, #5").toBe(1);
+    nested1.value = "b";
+    expect(survey.performNext(), "next, #6").toBe(true);
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #6").toBe("inner2");
+    survey.performPrevious();
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #7").toBe("q1");
+    expect(q1.singleInputQuestion.name, "q1: back on the nested step, #7").toBe("nested1");
+    survey.performPrevious();
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #8").toBe("q1");
+    expect(q1.singleInputQuestion, "q1: own step, #8").toBeUndefined();
+    survey.performPrevious();
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #9").toBe("inner1");
+  });
+  test("inputPerPage: focusQuestion on a nested choice question, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "text", name: "q0" },
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }] }] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #1").toBe("q0");
+    survey.focusQuestion("nested1");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #2").toBe("q1");
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #2").toBe("nested1");
+  });
+  test("inputPerPage: onCheckSingleInputPerPageMode disables nested choice steps, Bug#11824", () => {
+    const survey = new SurveyModel(getNestedChoicesJson());
+    survey.onCheckSingleInputPerPageMode.add((_, options) => {
+      options.enabled = options.question.name !== "q1";
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps").toEqual([]);
+    expect(q1.singleInputQuestion, "singleInputQuestion").toBeUndefined();
+    expect(q1.getSingleInputElementPos(), "pos").toBe(0);
+    expect(q1.choices[1].renderedIsPanelShowing, "item2 panel is rendered inline").toBe(true);
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toBe("q2");
+  });
+  test("inputPerPage: nested choice elements in other modes and in preview, Bug#11824", () => {
+    ["questionPerPage", "standard"].forEach(mode => {
+      const json = getNestedChoicesJson();
+      json.questionsOnPageMode = mode;
+      const survey = new SurveyModel(json);
+      const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+      q1.value = "item2";
+      expect(q1.singleInputQuestion, mode + ": singleInputQuestion").toBeUndefined();
+      expect(q1.choices[1].isPanelShowing, mode + ": isPanelShowing").toBe(true);
+      expect(q1.choices[1].renderedIsPanelShowing, mode + ": renderedIsPanelShowing").toBe(true);
+      if (mode === "questionPerPage") {
+        survey.performNext();
+        expect(survey.currentSingleQuestion.name, mode + ": Next goes to q2").toBe("q2");
+      }
+    });
+    const json = getNestedChoicesJson();
+    json.showPreviewBeforeComplete = true;
+    const survey = new SurveyModel(json);
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(q1.choices[1].renderedIsPanelShowing, "inputPerPage: not rendered").toBe(false);
+    survey.showPreview();
+    expect(survey.isShowingPreview, "preview is shown").toBe(true);
+    expect(q1.choices[1].renderedIsPanelShowing, "preview: rendered inline").toBe(true);
+    expect(q1.singleInputQuestion, "preview: singleInputQuestion").toBeUndefined();
+  });
+  test("inputPerPage: a dynamic panel inside a choice is one step, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "t1" }, { type: "text", name: "t2" }] }
+        ] }] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps").toEqual(["q1", "dp"]);
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toBe("q1");
+    expect(q1.singleInputQuestion.name, "q1.singleInputQuestion").toBe("dp");
+    expect(q1.singleInputBehavior.currentSingleInputQuestion.name, "resolves through the dynamic panel").toBe("t1");
+  });
+  test("inputPerPage: nested choice questions inside two levels of panels, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "text", name: "n1" },
+          { type: "panel", name: "panel1", elements: [
+            { type: "text", name: "n2" },
+            { type: "panel", name: "panel2", visibleIf: "{n2} != 'skip'", elements: [
+              { type: "text", name: "n3", isRequired: true },
+              { type: "text", name: "n4" }
+            ] }
+          ] },
+          { type: "text", name: "n5" }
+        ] }] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const choicePanel = q1.choices[1].panel;
+    const panel2 = <PanelModel>choicePanel.getElementByName("panel2");
+    const n2 = choicePanel.getQuestionByName("n2");
+    const n3 = choicePanel.getQuestionByName("n3");
+    expect(n3.parentQuestion, "n3 (second level) is linked to q1").toBe(q1);
+    expect(choicePanel.getQuestionByName("n4").parentQuestion, "n4 (second level) is linked to q1").toBe(q1);
+
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps, #1").toEqual(["q1", "n1", "n2", "n3", "n4", "n5"]);
+    expect(q1.choices[1].renderedIsPanelShowing, "item2 panel is not rendered, #1").toBe(false);
+
+    survey.performNext();
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #2").toBe("n2");
+    n2.value = "x";
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("n3");
+    expect(q1.getSingleInputElementPos(), "pos, #3").toBe(2);
+    expect(q1.singleInputLocTitle.renderedHtml, "step title, #3").toBe("item2");
+    expect(q1.getRootCss().indexOf("sd-question--single-input") > -1, "nested step root css, #3").toBe(true);
+    expect(survey.performNext(), "required n3 blocks, #4").toBe(false);
+    expect(n3.errors.length, "n3 errors, #4").toBe(1);
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #4").toBe("n3");
+    n3.value = "a";
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #5").toBe("n4");
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #6").toBe("n5");
+    expect(q1.getSingleInputElementPos(), "pos, #6").toBe(1);
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #7").toBe("q2");
+    expect(survey.data, "nested values stay top-level, #7").toEqual({ q1: "item2", n2: "x", n3: "a" });
+
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #8").toBe("n5");
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #9").toBe("n4");
+    survey.performPrevious();
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #10").toBe("n2");
+    n2.value = "skip";
+    expect(getStepNames(q1), "the second-level panel is hidden, #10").toEqual(["q1", "n1", "n2", "n5"]);
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "Next skips the hidden panel, #11").toBe("n5");
+
+    n2.value = "x";
+    const n6 = panel2.addNewQuestion("text", "n6");
+    expect(n6.parentQuestion, "a question added to the second-level panel later").toBe(q1);
+    expect(getStepNames(q1), "steps, #12").toEqual(["q1", "n1", "n2", "n3", "n4", "n6", "n5"]);
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #13").toBe("n6");
+
+    q1.value = "item1";
+    expect(q1.singleInputQuestion, "deselecting returns to the own step, #14").toBeUndefined();
+    expect(getStepNames(q1), "steps, #14").toEqual([]);
+  });
+  const itemsJSON = {
+    type: "matrixdynamic", name: "items", rowCount: 1,
+    columns: [
+      { name: "sku", cellType: "text", isRequired: true },
+      { name: "qty", cellType: "text" }
+    ],
+    detailPanelMode: "underRow",
+    detailElements: [{ type: "text", name: "note", isRequired: true }]
+  };
+  function getNames(questions: Array<Question>): Array<string> {
+    return questions.map(q => q.name);
+  }
+  test("Dynamic matrix: the navigation check doesn't show errors or expand the detail panel, Bug#11833", () => {
+    const survey = new SurveyModel({ questionsOnPageMode: "inputPerPage", elements: [itemsJSON] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("items");
+    survey.data = { items: [{ qty: "2" }] };
+    const row = matrix.visibleRows[0];
+    const sku = row.cells[0].question;
+    expect(sku.errors.length, "sku has no error, #1").toBe(0);
+    expect(row.isDetailPanelShowing, "detail panel is collapsed, #1").toBe(false);
+    expect(matrix.singleInputQuestion.name, "the respondent stands on sku, #1").toBe("sku");
+    expect(getNames(survey.currentSingleQuestion.singleInputBehavior.getSingleInputQuestions()), "the row is still listed, #1").toEqual(["sku", "qty", "note", "items"]);
+    expect(sku.errors.length, "sku has no error after navigation, #1").toBe(0);
+    expect(row.isDetailPanelShowing, "detail panel is collapsed after navigation, #1").toBe(false);
+
+    survey.data = { items: [{ sku: "A", qty: "2" }] };
+    const row2 = matrix.visibleRows[0];
+    expect(getNames(matrix.singleInputBehavior.getSingleInputQuestions()), "the row with only the detail question missing is listed, #2").toEqual(["sku", "qty", "note", "items"]);
+    expect(row2.detailPanel.getQuestionByName("note").errors.length, "note has no error, #2").toBe(0);
+    expect(row2.isDetailPanelShowing, "detail panel is collapsed, #2").toBe(false);
+  });
+  test("Dynamic matrix: performNext still shows the error on an empty required cell, Bug#11833", () => {
+    const survey = new SurveyModel({ questionsOnPageMode: "inputPerPage", elements: [itemsJSON] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("items");
+    survey.data = { items: [{ qty: "2" }] };
+    const sku = matrix.visibleRows[0].cells[0].question;
+    expect(matrix.singleInputQuestion.name, "the respondent stands on sku").toBe("sku");
+    expect(sku.errors.length, "sku has no error before Next").toBe(0);
+    expect(survey.performNext(), "can't go next").toBe(false);
+    expect(sku.errors.length, "sku has an error after Next").toBe(1);
+    expect(sku.errors[0].getText(), "error text").toBe("Response required.");
+    expect(matrix.singleInputQuestion.name, "the respondent stays on sku").toBe("sku");
+  });
+  test("Dynamic matrix inside dynamic panel: the navigation check doesn't show errors, Bug#11833", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [{ type: "paneldynamic", name: "orders", panelCount: 1, templateElements: [itemsJSON] }]
+    });
+    survey.data = { orders: [{ items: [{ qty: "2" }] }] };
+    const orders = <QuestionPanelDynamicModel>survey.getQuestionByName("orders");
+    const matrix = <QuestionMatrixDynamicModel>orders.panels[0].getQuestionByName("items");
+    const row = matrix.visibleRows[0];
+    const sku = row.cells[0].question;
+    expect(sku.errors.length, "sku has no error, #1").toBe(0);
+    sku.singleInputBehavior.focusSingleInput(false);
+    expect(orders.singleInputQuestion.name, "the respondent stands in orders[0]").toBe("items");
+    expect(matrix.singleInputQuestion.name, "the respondent stands on sku").toBe("sku");
+    expect(sku.errors.length, "sku has no error, #2").toBe(0);
+    expect(row.isDetailPanelShowing, "detail panel is collapsed").toBe(false);
+  });
+  test("Dynamic matrix: the navigation check doesn't show errors of async validators, Bug#11833", () => {
+    const returnResults = new Array<(res: boolean) => void>();
+    function asyncSkuFunc(params: any): any {
+      returnResults.push(this.returnResult);
+      return false;
+    }
+    registerFunction({ name: "asyncSkuFunc", func: asyncSkuFunc, isAsync: true, useCache: false });
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [{
+        type: "matrixdynamic", name: "items", rowCount: 1,
+        columns: [
+          { name: "sku", cellType: "text", validators: [{ type: "expression", expression: "asyncSkuFunc({row.sku})" }] },
+          { name: "qty", cellType: "text" }
+        ]
+      }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("items");
+    survey.data = { items: [{ sku: "A", qty: "2" }] };
+    const sku = matrix.visibleRows[0].cells[0].question;
+    matrix.singleInputBehavior.getSingleInputQuestions();
+    matrix.singleInputBehavior.getSingleInputQuestions();
+    expect(returnResults.length > 0, "the async validator is run by the navigation check").toBe(true);
+    returnResults.forEach(res => res(false));
+    expect(sku.errors.length, "sku has no error nobody asked for").toBe(0);
+    unregisterFunction("asyncSkuFunc");
+  });
+  test("Dynamic matrix: the empty summary placeholder doesn't show the matrix toolbar", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const addAction = survey.navigationBar.getActionById("sv-singleinput-add");
+    expect(matrix.singleInputSummary.isEmpty(), "the summary is empty, #1").toBe(true);
+    expect(matrix.getShowPlaceholderToolbar(), "the placeholder has no toolbar, #1").toBe(false);
+    expect(addAction.visible, "the navigation bar shows the Add button, #1").toBe(true);
+
+    addAction.action();
+    expect(matrix.singleInputQuestion.name, "a row is added, #2").toBe("col1");
+    matrix.removeRow(0);
+    expect(matrix.singleInputSummary.isEmpty(), "the summary is empty, #3").toBe(true);
+    expect(matrix.getShowPlaceholderToolbar(), "the placeholder has no toolbar, #3").toBe(false);
+
+    survey.questionsOnPageMode = "standard";
+    expect(matrix.singleInputSummary, "no summary, #4").toBeFalsy();
+    expect(matrix.getShowPlaceholderToolbar(), "the placeholder has the toolbar, #4").toBe(true);
+    matrix.allowAddRows = false;
+    expect(matrix.getShowPlaceholderToolbar(), "the placeholder has no toolbar if rows can't be added, #5").toBe(false);
+  });
+  test("Dynamic panel: the empty summary placeholder doesn't show the panel footer toolbar", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "q1" }] }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const addAction = survey.navigationBar.getActionById("sv-singleinput-add");
+    expect(panel.singleInputSummary.isEmpty(), "the summary is empty, #1").toBe(true);
+    expect(panel.getShowPlaceholderToolbar(), "the placeholder has no toolbar, #1").toBe(false);
+    expect(addAction.visible, "the navigation bar shows the Add button, #1").toBe(true);
+
+    addAction.action();
+    expect(panel.singleInputQuestion.name, "a panel is added, #2").toBe("q1");
+    panel.removePanel(0);
+    expect(panel.singleInputSummary.isEmpty(), "the summary is empty, #3").toBe(true);
+    expect(panel.getShowPlaceholderToolbar(), "the placeholder has no toolbar, #3").toBe(false);
+
+    survey.questionsOnPageMode = "standard";
+    expect(panel.singleInputSummary, "no summary, #4").toBeFalsy();
+    expect(panel.getShowPlaceholderToolbar(), "the placeholder has the toolbar, #4").toBe(true);
+  });
+  test("Nested dynamic matrix and panel: the empty summary placeholder doesn't show the toolbar", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1, templateElements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] },
+          { type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "q2" }] }
+        ] }
+      ]
+    });
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    const panel = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("panel");
+    // css classes are calculated on rendering, before moving to the nested questions
+    outer.cssClasses;
+    survey.performNext();
+    expect(outer.singleInputQuestion.name, "the nested matrix is the single input, #1").toBe("matrix");
+    expect(matrix.singleInputSummary.isEmpty(), "the matrix summary is empty, #1").toBe(true);
+    expect(matrix.getShowPlaceholderToolbar(), "the matrix placeholder has no toolbar, #1").toBe(false);
+    survey.performNext();
+    expect(outer.singleInputQuestion.name, "the nested panel is the single input, #2").toBe("panel");
+    expect(panel.singleInputSummary.isEmpty(), "the panel summary is empty, #2").toBe(true);
+    expect(panel.getShowPlaceholderToolbar(), "the panel placeholder has no toolbar, #2").toBe(false);
+  });
+  function getNestedSummaryJson(): any {
+    return {
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1, templateElements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] },
+          { type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "q2" }] }
+        ] }
+      ]
+    };
+  }
+  test("Nested dynamic matrix and panel: the summary step is reached while the outer css is not calculated, Issue#11818", () => {
+    const survey = new SurveyModel(getNestedSummaryJson());
+    survey.data = { outer: [{ q1: "a", matrix: [{ col1: "A-1" }, { col1: "A-2" }], panel: [{ q2: "b" }] }] };
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    const panel = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("panel");
+    survey.currentSingleQuestion = outer;
+    [{ q: <Question>matrix, count: 2 }, { q: <Question>panel, count: 1 }].forEach(({ q, count }) => {
+      outer.singleInputBehavior.setSingleInputQuestion(q);
+      q.singleInputBehavior.setSingleInputQuestion(q);
+      // The step is reached before anything is rendered: no summary and no outer css yet.
+      q.singleInputBehavior.resetSingleInputSummary();
+      outer["clearCssClasses"]();
+      expect(!!outer.getPropertyValue("cssClassesValue"), q.name + ": the outer css is not calculated").toBe(false);
+      expect(q.singleInputSummary.items.length, q.name + ": the summary lists the entries").toBe(count);
+      expect(q.singleInputQuestion?.name, q.name + ": the container stands on its summary step").toBe(q.name);
+    });
+  });
+  test("A stored self that cannot show a summary renders the question itself, Issue#11818", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "text", name: "q0" },
+        { type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [{ type: "text", name: "q1" }] },
+        { type: "matrixdropdown", name: "matrix", rows: ["r1"], columns: [{ name: "col1", cellType: "text" }] }
+      ]
+    });
+    // The host turns the mode off for the panel, so it has no summary step to show.
+    survey.onCheckSingleInputPerPageMode.add((_, options) => {
+      if (options.question.name === "panel") options.enabled = false;
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    [<Question>panel, <Question>matrix].forEach(q => {
+      survey.currentSingleQuestion = q;
+      q.singleInputBehavior.setSingleInputQuestion(q);
+      expect(q.singleInputQuestion === undefined, q.name + ": singleInputQuestion is undefined").toBe(true);
+      expect(q.getRootCss().indexOf(q.cssRoot) > -1, q.name + ": css root is cssRoot").toBe(true);
+      expect(q.getRootCss().indexOf(q.cssClasses.rootSingleInput) < 0, q.name + ": no rootSingleInput").toBe(true);
+    });
+  });
+  test("A nested dynamic panel and matrix keep their summary step before the summary is built, Issue#11818", () => {
+    const survey = new SurveyModel(getNestedSummaryJson());
+    survey.data = { outer: [{ q1: "a", matrix: [{ col1: "A-1" }], panel: [{ q2: "b" }] }] };
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    const panel = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("panel");
+    outer.cssClasses;
+    survey.currentSingleQuestion = outer;
+    [<Question>matrix, <Question>panel].forEach(q => {
+      outer.singleInputBehavior.setSingleInputQuestion(q);
+      q.singleInputBehavior.setSingleInputQuestion(q);
+      q.singleInputBehavior.resetSingleInputSummary();
+      expect(!!q.getPropertyValue("singleInputSummary"), q.name + ": the summary is not built yet").toBe(false);
+      expect(q.singleInputQuestion?.name, q.name + ": singleInputQuestion is the container").toBe(q.name);
+      expect(q.getRootCss().indexOf(q.cssClasses.rootSingleInput) > -1, q.name + ": css root is rootSingleInput").toBe(true);
+      expect(q.singleInputSummary.items.length, q.name + ": the summary is then built").toBe(1);
+    });
+  });
+  function createPagedContainersSurvey(): SurveyModel {
+    const fiveRows = [1, 2, 3, 4, 5].map(i => ({ a: "r" + i }));
+    const fivePanels = [1, 2, 3, 4, 5].map(i => ({ t: "p" + i }));
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      showPreviewBeforeComplete: "showAllQuestions",
+      elements: [
+        { type: "text", name: "q0" },
+        { type: "matrixdynamic", name: "md", pageSize: 2, columns: [{ name: "a", cellType: "text" }] },
+        { type: "paneldynamic", name: "pd", pageSize: 2, templateElements: [{ type: "text", name: "t" }] },
+        { type: "paneldynamic", name: "outer", templateElements: [
+          { type: "matrixdynamic", name: "md2", pageSize: 2, columns: [{ name: "a", cellType: "text" }] },
+          { type: "paneldynamic", name: "pd2", pageSize: 2, templateElements: [{ type: "text", name: "t" }] }
+        ] }
+      ]
+    });
+    survey.data = { md: fiveRows, pd: fivePanels, outer: [{ md2: fiveRows, pd2: fivePanels }] };
+    return survey;
+  }
+  // The visible entries of md, pd and of the copies nested in the outer panel: [md, pd, md2, pd2].
+  function getPagedContainerCounts(survey: SurveyModel): Array<number> {
+    const outerPanel = (<QuestionPanelDynamicModel>survey.getQuestionByName("outer")).panels[0];
+    return [
+      (<QuestionMatrixDynamicModel>survey.getQuestionByName("md")).visibleRows.length,
+      (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).visiblePanels.length,
+      (<QuestionMatrixDynamicModel>outerPanel.getQuestionByName("md2")).visibleRows.length,
+      (<QuestionPanelDynamicModel>outerPanel.getQuestionByName("pd2")).visiblePanels.length
+    ];
+  }
+  test("Single-input mode: a dynamic matrix and panel that are not current list every entry, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    expect(survey.currentSingleQuestion.name, "the text question is current").toBe("q0");
+    expect(getPagedContainerCounts(survey), "[md, pd, md2, pd2]").toEqual([5, 5, 5, 5]);
+  });
+  test("Single-input mode: paging follows a questionsOnPageMode change, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    expect(getPagedContainerCounts(survey), "inputPerPage, #1").toEqual([5, 5, 5, 5]);
+    survey.questionsOnPageMode = "standard";
+    expect(getPagedContainerCounts(survey), "standard pages, #2").toEqual([2, 2, 2, 2]);
+    survey.questionsOnPageMode = "inputPerPage";
+    expect(survey.currentSingleQuestion.name, "the text question is current, #3").toBe("q0");
+    expect(getPagedContainerCounts(survey), "inputPerPage again, #3").toEqual([5, 5, 5, 5]);
+  });
+  test("Single-input mode: the preview pages, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    expect(survey.currentSingleQuestion.name, "the text question is current, #1").toBe("q0");
+    survey.showPreview();
+    expect(survey.state, "the preview is shown, #2").toBe("preview");
+    expect(getPagedContainerCounts(survey), "the preview pages, #2").toEqual([2, 2, 2, 2]);
+  });
+  test("Single-input mode: leaving the preview lists every entry again, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    survey.showPreview();
+    expect(survey.state, "the preview is shown, #1").toBe("preview");
+    survey.cancelPreview();
+    expect(survey.state, "the preview is closed, #2").toBe("running");
+    expect(survey.currentSingleQuestion.name, "the text question is current again, #2").toBe("q0");
+    expect(getPagedContainerCounts(survey), "every entry, #2").toEqual([5, 5, 5, 5]);
+  });
+  test("singleInput and single matrix: rows and columns shown by rowsVisibleIf / columnsVisibleIf, Issue#11818", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", choices: ["a", "b", "c"] },
+        { type: "checkbox", name: "q2", choices: ["x", "y", "z"], defaultValue: ["x", "y"] },
+        { type: "matrix", name: "matrix1", rows: ["a", "b", "c"], columns: ["x", "y", "z"],
+          rowsVisibleIf: "{q1} contains {item}", columnsVisibleIf: "{q2} contains {item}" }
+      ],
+      questionsOnPageMode: "inputPerPage"
+    });
+    const matrix1 = survey.getQuestionByName("matrix1");
+    survey.currentSingleQuestion = matrix1;
+    expect(matrix1.singleInputQuestion, "no row is visible, #1").toBeFalsy();
+    survey.getQuestionByName("q1").value = ["a", "b"];
+    expect(matrix1.singleInputQuestion?.name, "the first revealed row, #2").toBe("a");
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #2").toEqual(["x", "y"]);
+    survey.getQuestionByName("q2").value = ["y", "z"];
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #3").toEqual(["y", "z"]);
+    matrix1.singleInputQuestion.value = "z";
+    survey.performNext();
+    expect(matrix1.singleInputQuestion.name, "the second revealed row, #4").toBe("b");
+    expect(matrix1.value, "matrix1.value").toEqual({ a: "z" });
   });
 });

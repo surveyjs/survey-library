@@ -62,6 +62,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     return (
       <div className={cssClasses.root}>
         {this.question.hasTabbedMenu ? <div className={this.question.getTabsContainerCss()}><SurveyActionBar model={this.question.tabbedMenu}></SurveyActionBar></div> : null }
+        {this.renderSortBar()}
         {noEntriesPlaceholder}
         {rangeTop}
         <div className={this.question.cssClasses.panelsContainer}>
@@ -70,6 +71,18 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         {navigation}
       </div>
     );
+  }
+
+  // The sort bar above the panels, while the question header is not on top or on the left.
+  protected renderSortBar(): React.JSX.Element | null {
+    if (this.question.sortBarLocation !== "top") return null;
+    return <div className={this.question.cssClasses.sortBarTop}>
+      <SurveyActionBar model={this.question.recordsBar.sortActions}></SurveyActionBar>
+    </div>;
+  }
+  // The records bar in the footer: the pager.
+  protected renderRecordsBar(): React.JSX.Element | null {
+    return ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.question.recordsBar.pagerActions });
   }
 
   protected renderRange(): React.JSX.Element {
@@ -85,15 +98,12 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigator(): React.JSX.Element | null {
-    if (!this.question.showNavigation) return null;
-    const range: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
-    if (!range && !this.question.showFooterToolbar) return null;
-    return (<div className={this.question.cssClasses.footer}>
-      <hr className={this.question.cssClasses.separator} />
+    if (!this.question.showFooter) return null;
+    const range: React.JSX.Element | null = this.question.showFooterProgress ? this.renderRange() : null;
+    return (<div className={this.question.cssClasses.footerBar}>
       {range}
-      {this.question.showFooterToolbar ? (<div className={this.question.cssClasses.footerButtonsContainer}>
-        <SurveyActionBar model={this.question.footerToolbar}></SurveyActionBar>
-      </div>) : null}
+      {this.question.showFooterButtons ? (<SurveyActionBar model={this.question.footerToolbar}></SurveyActionBar>) : null}
+      {this.question.showPager ? this.renderRecordsBar() : null}
     </div>);
   }
   protected renderPlaceholder(cssClasses: any): React.JSX.Element | null {
@@ -152,7 +162,7 @@ export class SurveyQuestionPanelDynamicPlaceholder extends ReactSurveyElement {
     return (
       <div className={cssClasses.noEntriesPlaceholder}>
         <span>{this.renderLocString(question.locNoEntriesText)}</span>
-        {<SurveyActionBar model={this.props.question.footerToolbar}></SurveyActionBar>}
+        {question.getShowPlaceholderToolbar() ? <SurveyActionBar model={question.footerToolbar}></SurveyActionBar> : null}
       </div>
     );
   }

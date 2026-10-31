@@ -17,7 +17,7 @@ This help topic describes how to integrate a third-party Vue 3 component into a 
 As an example, we will integrate the [Vue 3 Color](https://lk77.github.io/vue3-color/) component. To install it, run the following command:
 
 ```sh
-npm install @lk77/vue3-color --save
+npm install @lk77/vue3-color
 ```
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/integrate-third-party-vue-components (linkStyle))
@@ -224,7 +224,7 @@ SvgRegistry.registerIcon(
 </script>
 ```
 
-Alternatively, you can use one of [built-in SurveyJS icons](https://surveyjs.io/form-library/documentation/icons#built-in-icons). The code below shows how to use the Text icon:
+Alternatively, you can use one of [built-in SurveyJS icons](/documentation/icons#built-in-svg-icons). The code below shows how to use the Text icon:
 
 ```html
 <!-- src/components/ColorPicker.vue -->
@@ -269,8 +269,8 @@ To try the functionality, you can add a custom property of the `"color"` type to
 ```html
 <!-- src/components/SurveyCreator.vue -->
 <script setup lang="ts">
-import "survey-core/survey-core.min.css";
-import "survey-creator-core/survey-creator-core.min.css";
+import "survey-core/survey-core.css";
+import "survey-creator-core/survey-creator-core.css";
 
 import { Serializer } from "survey-core";
 import { SurveyCreatorModel } from "survey-creator-core";

@@ -5,6 +5,58 @@ export var bulgarianStrings = {
   pagePrevText: "Назад",
   // "Next"
   pageNextText: "Напред",
+  // [Auto-translated] "First"
+  pageFirstText: "Първо",
+  // [Auto-translated] "Last"
+  pageLastText: "Последен",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "от {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Изберете страница",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортирайте по {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Високо - Ниско",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Ниско - Високо",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Азбука, А - Я",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Азбука, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Най-новото първо",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Най-старият първи",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Сортирано по {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, после от {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортирайте по",
+  // [Auto-translated] "Default"
+  sortDefaultText: "По подразбиране",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле за сортиране",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ред на сортиране",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Добавете ниво на сортиране",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Премахнете нивото на сортиране {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортиране на полето {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сортирайте {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Покажи всички нива на сортиране",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Добави ново",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Премести сортиране на ниво {0}",
   // "Complete"
   completeText: "Край",
   // "Preview"
@@ -37,6 +89,8 @@ export var bulgarianStrings = {
   panelDynamicTabTextFormat: "Панел {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Отговорени на {0} / {1} въпроса",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Въпрос {0} на {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Анкетата не съдържа видими страници или въпроси.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var bulgarianStrings = {
   value: "Стойност",
   // "Response required."
   requiredError: "Моля, отговорете на следния въпрос.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Стойността е грешна.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Стойността съдържа неизвестни ключове: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Моля, отговорете поне на един от въпросите.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var bulgarianStrings = {
   noUploadFilesHandler: "Файловете не могат да бъдат качени. Моля, добавете манипулатор за събитието \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Моля, въведете другата стойност.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Стойността \"{0}\" не е сред наличните опции.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Вашит файл се зарежда на сървъра. Моля, изчакайте няколко секунди и тогава опитвайте отново.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var bulgarianStrings = {
   addRow: "Добавяне на ред",
   // "Remove"
   removeRow: "Премахване на ред",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Преместете {0} ред",
   // [Auto-translated] "There are no rows."
   noRowsText: "Няма редове.",
   // [Auto-translated] "Row {rowIndex}"

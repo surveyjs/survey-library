@@ -1,34 +1,34 @@
-import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
-import { buildTriggerSetStep, builtInVariableNames, classifyTargetName, equalsCI } from "../expression-utils";
-import { ParsedRef, TriggerRecord } from "../symbols";
+import {
+  buildTriggerSetStep, classifyTargetName, equalsCI, nameCandidates, RefSuggestion, respellRef,
+  suggestForRef,
+} from "../expression-utils";
+import { ParsedRef, SegmentLevel, TriggerRecord } from "../symbols";
 import { ILintReproduction } from "../types";
+import {
+  SurveyLintFixReasons, SurveyLintReasons, SurveyLintReproductionReasons,
+} from "../reasons";
+import { setFix } from "../fix-utils";
 
-// Kind-filtered pools: classifyRef's own suggestion pool is unfiltered, which would
-// offer question names for a page target.
-function candidates(ctx: LintContext, kind: "questionvalue" | "question" | "page"): Array<string> {
-  const res: Array<string> = [];
-  ctx.index.byName.forEach((records, name) => {
-    const wantPage = kind === "page";
-    if (records.some(rec => wantPage ? rec.kind === "page" : rec.kind === "question")) res.push(name);
-  });
-  if (kind === "questionvalue") {
-    ctx.index.byValueName.forEach((_, name) => res.push(name));
-    ctx.index.calculatedValues.forEach((_, name) => res.push(name));
-    if (Array.isArray(ctx.options.knownVariables)) res.push(...ctx.options.knownVariables);
-    res.push(...builtInVariableNames());
-  }
-  return res;
+const reasons = SurveyLintReasons["trigger/unknown-target"];
+const fixReasons = SurveyLintFixReasons["trigger/unknown-target"];
+
+type TargetKind = "questionvalue" | "question" | "page";
+
+// Kind-filtered pools: the pool classifyRef draws from is the one an expression reference
+// may name, which would offer a question name for a page target.
+function rootSuggestion(ctx: LintContext, ref: ParsedRef, kind: TargetKind): RefSuggestion | undefined {
+  const wantPage = kind === "page";
+  return suggestForRef(ref, nameCandidates(ctx.index, ctx.options, {
+    accepts: record => record.kind === (wantPage ? "page" : "question"),
+    values: kind === "questionvalue",
+  }));
 }
 
-function rootSuggestion(ctx: LintContext, ref: ParsedRef, kind: "questionvalue" | "question" | "page"): string | undefined {
-  const pool = candidates(ctx, kind);
-  // a typo inside a dotted name ("address.cty") is closest to the full registered name
-  if (ref.segments.length > 1) {
-    const joined = closestMatch(ref.segments.map(seg => seg.name).join("."), pool);
-    if (joined) return joined;
-  }
-  return closestMatch(ref.segments[0].name, pool);
+// The property holds the name as the author wrote it, so a dotted one keeps every segment the
+// suggestion does not spell.
+function respellRoot(ref: ParsedRef, suggestion: RefSuggestion | undefined): string | undefined {
+  return suggestion ? respellRef(ref, 0, suggestion.end, suggestion.name) : undefined;
 }
 
 function buildReproduction(trigger: TriggerRecord, targetName: string): ILintReproduction | undefined {
@@ -36,21 +36,19 @@ function buildReproduction(trigger: TriggerRecord, targetName: string): ILintRep
   if (!step) return undefined;
   return {
     description: "This fires the trigger, which then targets the missing element \"" + targetName + "\".",
+    reason: SurveyLintReproductionReasons.missingTriggerTarget,
     steps: [step],
   };
 }
 
-// The noun for the container level the unknown segment belongs to.
-function innerNoun(type: string, segmentIndex: number): string {
-  if (type === "paneldynamic") return "template question";
-  if (type === "matrixdynamic") return "column";
-  if (type === "multipletext") return "item";
-  if (type === "matrix") return "row";
-  if (type === "matrixdropdown") return segmentIndex === 2 ? "column" : "row";
+// The noun for what the unknown segment was meant to name inside its container.
+function innerNoun(level: SegmentLevel): string {
+  if (level === "templateQuestion") return "template question";
+  if (level === "row" || level === "column" || level === "item") return level;
   return "field";
 }
 
-function isAcceptedTarget(ref: ParsedRef, kind: "questionvalue" | "question" | "page"): boolean {
+function isAcceptedTarget(ref: ParsedRef, kind: TargetKind): boolean {
   if (ref.status !== "resolved") return false;
   if (kind === "page") return ref.resolvedKind === "page";
   const record = ref.resolvedTo;
@@ -80,11 +78,14 @@ export const triggerUnknownTargetRule: ILintRule = {
           trigger: trigger.type, prop: target.prop, name: target.name, kind: target.kind,
         };
         if (target.kind === "page") {
+          const pageSuggestion = rootSuggestion(ctx, ref, "page");
           ctx.report({
             message: "The " + trigger.type + " trigger targets page \"" + target.name + "\", which does not exist.",
             path: target.path,
+            reason: reasons.pageNotFound,
             messageData: messageData,
-            suggestion: rootSuggestion(ctx, ref, "page"),
+            suggestion: pageSuggestion ? pageSuggestion.name : undefined,
+            fix: setFix(fixReasons.setName, target.path, respellRoot(ref, pageSuggestion)),
             reproduction: buildReproduction(trigger, target.name),
           });
           return;
@@ -93,28 +94,39 @@ export const triggerUnknownTargetRule: ILintRule = {
         if (ref.unknownSegmentIndex > 0 && ref.resolvedTo) {
           const segment = ref.segments[ref.unknownSegmentIndex];
           messageData.segment = segment.name;
+          messageData.root = root;
+          messageData.containerType = ref.resolvedTo.type;
+          messageData.segmentIndex = ref.unknownSegmentIndex;
+          messageData.segmentLevel = ref.unknownSegmentLevel;
+          const suggestionEnd = ref.suggestionEnd !== undefined ? ref.suggestionEnd : ref.unknownSegmentIndex;
           ctx.report({
             message: "The " + trigger.type + " trigger targets \"" + target.name + "\", but " +
               ref.resolvedTo.type + " \"" + root + "\" has no " +
-              innerNoun(ref.resolvedTo.type, ref.unknownSegmentIndex) + " \"" + segment.name + "\".",
+              innerNoun(ref.unknownSegmentLevel) + " \"" + segment.name + "\".",
             path: target.path,
+            reason: reasons.segmentNotFound,
             messageData: messageData,
             suggestion: ref.suggestion,
+            fix: setFix(fixReasons.setName, target.path,
+              respellRef(ref, ref.unknownSegmentIndex, suggestionEnd, ref.suggestion)),
             reproduction: buildReproduction(trigger, target.name),
           });
           return;
         }
+        const rootSuggestionValue = rootSuggestion(ctx, ref, target.kind);
         const kindText = target.kind === "question" ? "question" : "question or variable";
         ctx.report({
           message: "The " + trigger.type + " trigger " +
             (target.prop === "fromName" ? "reads" : (target.prop === "gotoName" ? "navigates to" : "sets")) +
             " \"" + target.name + "\", but no " + kindText + " with that name exists." +
             (target.kind === "questionvalue"
-              ? " If it is a variable set at runtime, list it in options.knownVariables."
+              ? " If it is a variable set at runtime, list it in options.knownVariables or declare it in the variable definition."
               : ""),
           path: target.path,
+          reason: reasons.rootNotFound,
           messageData: messageData,
-          suggestion: rootSuggestion(ctx, ref, target.kind),
+          suggestion: rootSuggestionValue ? rootSuggestionValue.name : undefined,
+          fix: setFix(fixReasons.setName, target.path, respellRoot(ref, rootSuggestionValue)),
           reproduction: buildReproduction(trigger, target.name),
         });
       });

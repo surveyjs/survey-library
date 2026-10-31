@@ -5,6 +5,58 @@ export var indonesianStrings = {
   pagePrevText: "Sebelumnya",
   // "Next"
   pageNextText: "Selanjutnya",
+  // [Auto-translated] "First"
+  pageFirstText: "Pertama",
+  // [Auto-translated] "Last"
+  pageLastText: "Terakhir",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "dari {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Pilih Halaman",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Urutkan berdasarkan {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Tinggi - Rendah",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Rendah - Tinggi",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Pertama yang terbaru",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Pertama kali tertua",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Diurutkan berdasarkan {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, lalu {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Urutkan berdasarkan",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Gagal bayar",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Kolom pengurutan",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Urutan pengurutan",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Tambahkan tingkat pengurutan",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Hapus {0} tingkat pengurutan",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Urutkan bidang {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Urutkan urutan {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Tampilkan semua tingkat pengurutan",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Tambah Baru",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Pindahkan level urut {0}",
   // "Complete"
   completeText: "Selesai",
   // "Preview"
@@ -37,6 +89,8 @@ export var indonesianStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Menjawab pertanyaan {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pertanyaan {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tidak ada halaman atau pertanyaan dalam survei.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var indonesianStrings = {
   value: "nilai",
   // "Response required."
   requiredError: "Silahkan jawab pertanyaan berikut.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Nilainya salah.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Nilai berisi kunci yang tidak diketahui: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Silahkan jawab setidaknya satu petanyaan.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var indonesianStrings = {
   noUploadFilesHandler: "File tidak dapat diunggah. Harap tambahkan handler untuk acara 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Silahkan masukkan nilai lainnnya.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Nilai '{0}' bukanlah salah satu pilihan yang tersedia.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Berkas Anda sedang diunggah. Silahkan tunggu beberapa saat atau coba lagi.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var indonesianStrings = {
   addRow: "Tambah baris",
   // "Remove"
   removeRow: "Hapus",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Pindahkan baris {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Tidak ada baris.",
   // [Auto-translated] "Row {rowIndex}"

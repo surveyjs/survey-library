@@ -1,0 +1,9 @@
+<ng-template #template>
+  <button type="button" [class]="cell.sortButtonCss" [attr.aria-label]="cell.sortAriaLabel" [attr.title]="cell.sortTooltip"
+    [attr.aria-describedby]="!!cell.sortDescription ? cell.sortDescriptionId : null"
+    [attr.aria-disabled]="!cell.canToggleSort ? 'true' : null" (click)="onClick($event)">
+    <span [class]="cell.sortTitleCss"><sv-ng-string [model]="cell.locTitle"></sv-ng-string><sv-ng-matrixheaderrequired [column]="cell.column" [question]="question"></sv-ng-matrixheaderrequired></span>
+    <span [class]="cell.sortCss" aria-hidden="true"><svg [iconName]="cell.sortIconName" [size]="16" sv-ng-svg-icon></svg><span *ngIf="!!cell.sortRank" [class]="cell.sortRankCss">{{ cell.sortRank }}</span></span>
+    <span *ngIf="!!cell.sortDescription" [attr.id]="cell.sortDescriptionId" class="sv-visuallyhidden">{{ cell.sortDescription }}</span>
+  </button>
+</ng-template>

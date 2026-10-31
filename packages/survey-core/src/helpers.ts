@@ -10,9 +10,19 @@ export interface IEqualValuesParameters {
   trimStrings?: boolean;
   doNotConvertNumbers?: boolean;
 }
-export function createDate(reason: string, val?: number | string | Date): Date {
+// What "the current moment" means for one survey. A survey that has no provider reads the machine
+// clock, which is what every application does. A provider is instance state on purpose: two surveys
+// evaluated in the same process, or one evaluated while another waits, never share a clock.
+export interface ISurveyDateProvider {
+  now(): number;
+}
+// owner is the object the date is created for - a survey, or anything that carries its clock. It only
+// matters when there is no value to convert: an explicit date is the date it says it is.
+export function createDate(reason: string, val?: number | string | Date,
+  owner?: { dateProvider?: ISurveyDateProvider }): Date {
   if (!val) {
-    return settings.onDateCreated(new Date(), reason, val);
+    const provider = !!owner ? owner.dateProvider : undefined;
+    return settings.onDateCreated(!!provider ? new Date(provider.now()) : new Date(), reason, val);
   }
   if (!settings.storeUtcDates && typeof val === "string" && isISODateOnly(val)) {
     val += "T00:00:00";
@@ -37,11 +47,23 @@ export function normalizeTextForSearch(text: string, reason: string = "filter"):
 }
 
 export class Helpers {
+  public static getCommentKey(name: string): string {
+    return name + settings.commentSuffix;
+  }
+  // The value name a comment key belongs to; undefined when the key is not a comment key.
+  // A key that is only the suffix is not a comment key.
+  public static getNameOfCommentKey(key: string): string {
+    const suffix = settings.commentSuffix;
+    if (!key || key.length <= suffix.length || !key.endsWith(suffix)) return undefined;
+    return key.substring(0, key.length - suffix.length);
+  }
   /**
    * A static methods that returns true if a value undefined, null, empty string or empty array.
    * @param value
    */
-  public static isValueEmpty(value: any): boolean {
+  // trimString: a string of spaces is empty. Only the value itself is trimmed, not the values inside it.
+  public static isValueEmpty(value: any, trimString: boolean = false): boolean {
+    if (trimString) value = Helpers.trimValue(value);
     if (Array.isArray(value) && value.length === 0) return true;
     if (!!value && Helpers.isValueObject(value) && value.constructor === Object) {
       for (var key in value) {
@@ -50,6 +72,11 @@ export class Helpers {
       return true;
     }
     return !value && value !== 0 && value !== false;
+  }
+  // A string or a String object trimmed; any other value as it is.
+  public static trimValue(value: any): any {
+    if (!!value && (typeof value === "string" || value instanceof String)) return value.trim();
+    return value;
   }
   public static isValueUndefined(value: any): boolean {
     return (value === undefined || value === null) || (typeof value === "number" && isNaN(value));
@@ -176,12 +203,12 @@ export class Helpers {
     }
 
     for (var p in x) {
-      if (!x.hasOwnProperty(p)) continue;
-      if (!y.hasOwnProperty(p)) return false;
+      if (!Object.prototype.hasOwnProperty.call(x, p)) continue;
+      if (!Object.prototype.hasOwnProperty.call(y, p)) return false;
       if (!this.checkIfValuesEqual(x[p], y[p], params)) return false;
     }
     for (p in y) {
-      if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
+      if (Object.prototype.hasOwnProperty.call(y, p) && !Object.prototype.hasOwnProperty.call(x, p)) return false;
     }
     return true;
   }
@@ -263,12 +290,14 @@ export class Helpers {
     return res;
   }
   public static isConvertibleToNumber(value: any): boolean {
-    return (
-      value !== undefined &&
-      value !== null &&
-      !Array.isArray(value) &&
-      !isNaN(value)
-    );
+    if (value === undefined || value === null || Array.isArray(value)) return false;
+    // isNaN converts an object to a primitive, which throws for an object whose own "toString" or
+    // "valueOf" key is not a function - e.g. a values object keyed by a question named "toString"
+    try {
+      return !isNaN(value);
+    } catch(e) {
+      return false;
+    }
   }
   public static isValueObject(val: any, excludeArray?: boolean): boolean {
     return val instanceof Object && (!excludeArray || !Array.isArray(val));

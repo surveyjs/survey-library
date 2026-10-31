@@ -34,13 +34,13 @@ If you are looking for a quick-start application that includes all SurveyJS comp
 The SurveyJS Form Library for Angular consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-angular-ui`](https://www.npmjs.com/package/survey-angular-ui) (rendering code). Run the following command to install `survey-angular-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-angular-ui` dependencies.
 
 ```cmd
-npm install survey-angular-ui --save
+npm install survey-angular-ui
 ```
 
 > SurveyJS for Angular requires Angular v12.0.0 or newer and depends on the `@angular/cdk` package. If your project does not include it yet, run the following command:
 >
 > ```cmd
-> npm install @angular/cdk@^12.0.0 --save
+> npm install @angular/cdk@^12.0.0
 > ```
 >
 > Earlier Angular versions are supported by the [`survey-angular`](https://www.npmjs.com/package/survey-angular) package. It depends on Knockout and is now obsolete. However, you can use it in your Angular v8&ndash;v11 projects. Refer to the following examples on GitHub for more information:
@@ -50,7 +50,9 @@ npm install survey-angular-ui --save
 
 ## Configure Styles
 
-SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
+### Add Themes
+
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible [theme customization mechanism](/documentation/design-tokens-css-customization) based on CSS variables.
 
 <img src="images/survey-library-themes.png" alt="Themes in SurveyJS Form Library" width="1544" height="820">
 
@@ -72,7 +74,7 @@ To add SurveyJS themes to your Angular application, open the `angular.json` file
             // ...
             "styles": [
               "src/styles.css",
-              "node_modules/survey-core/survey-core.min.css",
+              "node_modules/survey-core/survey-core.css",
             ],
             // ...
           }
@@ -83,16 +85,28 @@ To add SurveyJS themes to your Angular application, open the `angular.json` file
 }
 ```
 
-When [using standalone components](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular-standalone-components), import the style sheet directly in the component file:
-
-```js
-// survey.component.ts
-import "survey-core/survey-core.min.css";
-```
-
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
-[Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+[Themes](/documentation/themes-and-custom-styles (linkStyle))
+
+### Add Fonts
+
+Starting with SurveyJS v3.0.4, fonts are no longer included in SurveyJS packages. Load Open Sans separately to preserve the default appearance, unless your application already does so. If you use a custom font, load it instead. Otherwise, the browser uses a fallback font, which may affect spacing and layout.
+
+To add Open Sans using [Fontsource](https://fontsource.org/docs/getting-started/install), run the following command:
+
+```sh
+npm install @fontsource/open-sans
+```
+
+The configuration below includes the font style sheets for weights 400, 600, and 700. Add them once to your application's global styles.
+
+```css
+/* styles.css */
+@import '@fontsource/open-sans/400.css';
+@import '@fontsource/open-sans/600.css';
+@import '@fontsource/open-sans/700.css';
+```
 
 ## Create a Model
 

@@ -20,6 +20,7 @@
   --sjs2-color-utility-body: var(--mui-palette-background-default);
   --sjs2-color-utility-sheet: var(--mui-palette-background-paper);
   --sjs2-border-effect-a11y: 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-width-a11y: 12px;
   --sjs2-color-utility-toolbox: var(--mui-palette-background-default);
   --sjs2-color-utility-property-grid: var(--mui-palette-background-default);
   --sjs2-color-utility-tabs: var(--mui-palette-background-default);
@@ -124,8 +125,6 @@
   --sjs2-color-component-formbox-default-border: rgba(var(--mui-palette-common-onBackgroundChannel) / 0.23);
   --sjs2-color-component-formbox-hovered-border: var(--mui-palette-text-primary);
   --sjs2-color-component-formbox-focused-border: var(--mui-palette-primary-main);
-
-  --sjs2-color-component-input-default-placeholder: var(--mui-palette-text-primary);
 
   --sjs2-radius-component-formbox: var(--mui-shape-borderRadius);
   --sjs2-layout-component-formbox-medium-padding-vertical: 8px;
@@ -257,6 +256,10 @@
 
   --sjs2-color-border-basic-primary: var(--mui-palette-text-primary);
   --sjs2-color-border-basic-secondary: var(--mui-palette-divider);
+  --sjs2-color-component-shortcut-key-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-shortcut-key-border: var(--mui-palette-divider);
+  --sjs2-color-component-shortcut-key-text: var(--mui-palette-text-primary);
+  --sjs2-radius-component-shortcut-key: var(--mui-shape-borderRadius, 4px);
 
   --sjs2-color-component-slider-default-thumb: var(--mui-palette-primary-main);
   --sjs2-color-component-slider-default-dot: var(--mui-palette-primary-main);
@@ -285,7 +288,9 @@
   --sjs2-layout-component-question-description-padding-horizontal: 14px;
   --sjs2-layout-component-question-description-padding-top: 3px;
   --sjs2-typography-line-height-component-question-description: 1.66;
-  --sjs2-layout-component-question-box-gap-vertical: 0;
+  // A length, not a bare 0: creator adds this to px inside calc(), and a unitless 0
+  // makes that calc invalid. The winning declaration then falls back to padding: 0.
+  --sjs2-layout-component-question-box-gap-vertical: 0px;
 
   --sjs2-typography-line-height-default: 1.43;
   --sjs2-typography-line-height-large: 1.5;
@@ -337,8 +342,9 @@
   --sjs2-color-component-panel-default-border: var(--mui-palette-divider);
   --sjs2-color-component-panel-default-separator: transparent;
   --sjs2-color-component-panel-default-description: var(--mui-palette-text-secondary);
-  --sjs2-border-effect-component-panel-default: inset 0 0 0 var(--sjs-mui-card-border-width)
-    var(--sjs2-color-component-panel-default-border), var(--sjs-mui-card-shadow);
+  --sjs2-border-effect-component-panel-default:
+    inset 0 0 0 var(--sjs-mui-card-border-width) var(--sjs2-color-component-panel-default-border),
+    var(--sjs-mui-card-shadow);
 
   --sjs2-layout-component-panel-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-box-padding-top: 0;
@@ -367,36 +373,63 @@
 
   --sjs2-layout-component-panel-footer-padding-top: 0;
   --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs-mui-card-edge-actions-padding);
-  --sjs2-layout-component-panel-footer-padding-left: var(--sjs-mui-card-edge-actions-padding);
-  --sjs2-layout-component-panel-footer-padding-right: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-footer-padding-left: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-footer-padding-right: var(--sjs-mui-card-edge-padding);
   --sjs2-layout-component-panel-footer-gap: var(--sjs-mui-card-actions-gap);
   --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs-mui-card-actions-gap);
 
-  /* a framed question is a card with a <CardContent> only */
-  --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
-  --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
-  --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-simple-default: inset 0 0 0 var(--sjs-mui-card-border-width)
-    var(--sjs2-color-component-panel-simple-default-border), var(--sjs-mui-card-shadow);
+  --sjs2-border-width-component-matrix-default-separator: 1px;
+  --sjs2-color-component-matrix-default-separator: var(--mui-palette-TableCell-border);
+  --sjs2-layout-component-matrix-cell-padding-top: 16px;
+  --sjs2-layout-component-matrix-cell-padding-bottom: 16px;
+  --sjs2-layout-component-matrix-cell-padding-left: 16px;
+  --sjs2-layout-component-matrix-cell-padding-right: 16px;
+  --sjs2-layout-component-matrix-header-cell-padding-top: 16px;
+  --sjs2-layout-component-matrix-header-cell-padding-bottom: 16px;
+  --sjs2-layout-component-matrix-header-cell-padding-left: 16px;
+  --sjs2-layout-component-matrix-header-cell-padding-right: 16px;
+  --sjs2-layout-component-matrix-cell-left-padding-left: 16px;
+  --sjs2-layout-component-matrix-cell-right-padding-right: 16px;
+  --sjs2-layout-component-matrix-box-padding-left: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-matrix-box-padding-right: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-matrix-box-padding-top: 0;
+  --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
+  --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
+  --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
+
+  /* panelless: a page-level question is not a card. Same recipe as the built-in *-panelless
+     themes: the simple panel keeps no background, ring or padding, so the fields sit directly on
+     the page the way a native form does. Real panels (nested / dynamic) stay cards. */
+  --sjs2-is-panelless: true;
+  --sjs2-color-component-panel-simple-default-bg: transparent;
+  --sjs2-color-component-panel-simple-default-border: transparent;
+  --sjs2-color-component-panel-simple-default-separator: transparent;
+  --sjs2-border-effect-component-panel-simple-default: none;
+  --sjs2-radius-component-panel-simple: var(--sjs2-radius-x000);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
   --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
+  /* the error box is offset by its own margin-top (FormHelperText), not by the container gap */
   --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
+  --sjs2-layout-component-panel-simple-nested-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs-mui-card-edge-padding);
-  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
-  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs-mui-card-edge-padding);
-  --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(--sjs-mui-field-gap);
-  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs2-spacing-x500);
+  --sjs2-layout-component-panel-simple-nested-content-area-gap-horizontal: var(--sjs2-spacing-x500);
 
   /* a nested panel is an outlined card whose <CardHeader> keeps a divider above the content */
   --sjs2-radius-component-panel-nested: var(--sjs2-radius-component-panel);
   --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-nested-default: inset 0 0 0 var(--sjs-mui-card-border-width)
-    var(--sjs2-color-component-panel-nested-default-border), var(--sjs-mui-card-shadow);
+  --sjs2-border-effect-component-panel-nested-default:
+    inset 0 0 0 var(--sjs-mui-card-border-width) var(--sjs2-color-component-panel-nested-default-border),
+    var(--sjs-mui-card-shadow);
 
   --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-nested-box-padding-top: 0;
@@ -434,8 +467,9 @@
   --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-dynamic-default-separator: transparent;
-  --sjs2-border-effect-component-panel-dynamic-default: inset 0 0 0 var(--sjs-mui-card-border-width)
-    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs-mui-card-shadow);
+  --sjs2-border-effect-component-panel-dynamic-default:
+    inset 0 0 0 var(--sjs-mui-card-border-width) var(--sjs2-color-component-panel-dynamic-default-border),
+    var(--sjs-mui-card-shadow);
 
   --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
@@ -471,6 +505,8 @@
 
   --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;
+  --sjs2-layout-component-page-content-area-gap-horizontal: var(--sjs2-spacing-large-horizontal);
+  --sjs2-layout-component-page-content-area-gap-vertical: var(--sjs2-spacing-large-vertical);
 }
 
 /* input */
@@ -479,18 +515,33 @@
   transition: none;
 }
 
-.sd-question:not(.sd-element--with-frame):not(.sd-question--complex):has(
+.sd-question:not(.sd-question--complex):has(
     .sd-question__content--text,
     .sd-question__content--comment,
     .sd-question__content--dropdown
   ) {
+  /* The title is the floating label, so survey/question titleLocation must not move it. */
+  > .sd-question__container > .sd-question__header-and-content-container {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    column-gap: var(--sd-question-header-content-container-column-gap);
+    row-gap: var(--sd-question-header-content-container-row-gap);
+  }
+
+  .sd-question__content--left {
+    flex: initial;
+    max-width: none;
+  }
+
   .sd-question__header {
     position: absolute;
     top: 0;
     left: 0;
+    margin: 0;
     transition: all 0.2s ease-in-out;
     padding-bottom: 0px;
-    width: fit-content;
+    /* titleLocation "left" writes titleWidth as an inline width */
+    width: fit-content !important;
     padding-top: 0px;
     padding-left: 6px;
     padding-right: 10px;
@@ -500,6 +551,9 @@
     background-color: transparent;
 
     max-width: calc(100% - 12px);
+    & > .sd-question__description {
+      display: none;
+    }
   }
 
   .sd-question__title:not(:has(.svc-string-editor)) {
@@ -561,6 +615,10 @@
       --sjs2-color-component-question-default-title: var(--mui-palette-error-main);
       color: var(--mui-palette-error-main);
     }
+  }
+  .sd-question__erbox {
+    order: 1;
+    margin-top: 3px;
   }
 }
 
@@ -725,7 +783,10 @@
 }
 
 /* checkbox / radio hover highlight (MUI-style circular overlay) */
-:root {
+/* :host covers a stylesheet loaded inside a shadow root (the marketing preview).
+   :root does not match there, and a missing duration makes the ripple animation invalid. */
+:root,
+:host {
   --mui-to-sjs-animation-speed-slow: 0.4s;
   --mui-to-sjs-animation-speed-fast: 0.15s;
 }
@@ -950,7 +1011,6 @@
   }
 }
 
-
 /* tables */
 .sd-table-wrapper {
   &::before,
@@ -971,55 +1031,21 @@
   --sd-table-cell-min-width: initial;
 }
 
-.sd-table.sd-table.sd-table > tbody > tr {
-  & > th,
-  & > td {
-    &:where(:not(.sd-table__cell--error)) {
-      border-bottom: 1px solid var(--mui-palette-TableCell-border);
-      border-top: none;
-      padding: 16px;
-      font-weight: 400;
-      font-size: 0.875rem;
-      line-height: 1.43;
-      color: var(--mui-palette-text-primary);
-      &.sd-table__cell--header span {
-        font-size: 0.875rem;
-        line-height: 1.5rem;
-        font-weight: 500;
-      }
-      .sd-radio {
-        padding: 0;
-      }
-      .sd-radio__decorator {
-        margin: 0;
-      }
-    }
+.sd-table__cell {
+  color: var(--mui-palette-text-primary);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.43;
+  .sd-radio {
+    padding: 0;
+  }
+  .sd-radio__decorator {
+    margin: 0;
   }
 }
-
-.sd-table.sd-table.sd-table > thead > tr {
-  & > th,
-  & > td {
-    border-bottom: 1px solid var(--mui-palette-TableCell-border);
-    border-top: none;
-    padding: 16px;
-    &.sd-table__cell--header span {
-      font-size: 0.875rem;
-      line-height: 1.5rem;
-      font-weight: 500;
-      color: var(--mui-palette-text-primary);
-    }
-    .sd-radio {
-      padding: 0;
-    }
-    .sd-radio__decorator {
-      margin: 0;
-    }
-  }
-}
-
-.sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
-  margin: 0;
+.sd-table__cell--header {
+  line-height: 1.5rem;
+  font-weight: 500;
 }
 
 .sd-question__placeholder {
@@ -1041,9 +1067,9 @@
     color: var(--mui-palette-primary-contrastText);
   }
 
-  &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
-    top: 12px;
-    bottom: unset;
+  .sd-progress-buttons__list {
+    --sd-progress-buttons-marker-size: 24px;
+    --sd-progress-buttons-gap: 4px;
   }
 
   .sd-progress-buttons__page-title {
@@ -1058,16 +1084,26 @@
   }
 
   .sd-progress-buttons__list li {
+    // <Stepper alternativeLabel> gives every step an equal column with the icon in its
+    // middle, so the edge steps keep a full column instead of the shrunken one that pins
+    // the first and last markers to the container edges.
     &:first-child,
     &:last-child {
+      flex: 1 1 0;
+      width: auto;
+      min-width: var(--sjs2-size-x1200);
       align-items: center;
+
+      .sd-progress-buttons__page-title,
+      .sd-progress-buttons__page-description {
+        max-width: calc(100% - var(--sjs2-size-x400));
+        text-align: center;
+      }
     }
-    &::after,
-    &:nth-child(2):not(:last-child)::after,
-    &:nth-child(n + 3):last-child::after {
+
+    &::before,
+    &::after {
       background-color: var(--mui-palette-text-disabled);
-      width: calc(100% - var(--sjs2-size-x400));
-      right: calc(50% + var(--sjs2-size-x200));
     }
   }
 }
@@ -1085,4 +1121,169 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
+}
+.sd-matrixdynamic__content > div > .sd-question__bar--footer {
+  border-top: none;
+}
+
+.svc-question__content--title-bottom {
+  &
+    > .sd-question:not(.sd-question--complex):has(
+      .sd-question__content--text,
+      .sd-question__content--comment,
+      .sd-question__content--dropdown
+    )
+    .sd-question__container
+    > .sd-question__header-and-content-container {
+    & > .sd-question__content {
+      margin-top: 12px;
+    }
+    & > .sd-question__header {
+      top: 12px;
+    }
+  }
+}
+
+.svc-question__content--title-hidden {
+  padding-top: 32px;
+
+  .sd-question__header {
+    display: none;
+  }
+}
+
+// The designer keeps a hidden-title placeholder (question name) above the input.
+// MUI uses the question title as the floating label, so that placeholder must not stay on screen.
+.svc-question__adorner:not(.svc-question__adorner--collapsed) > .svc-element__header--hidden {
+  display: none;
+}
+
+// Collapsed bottom padding stays on the creator formula: spacing-x200 + question gap.
+// MUI's gap is 0px, so that is the same 16px the expanded card already has and the
+// plaque edge does not jump. Forcing it up to the 32px top padding is what needed
+// the padding animations.
+//
+// Floating labels (text, comment, dropdown) are position:absolute until collapsed,
+// so their height still has to join and leave the flow on the question-body clock.
+// 0fr → 1fr on collapse (100ms delay, 250ms). Expand plays the same frames backward
+// (250ms, ease-out once reversed) and the label fades in only after the row is 0.
+@keyframes svc-mui-floating-label-rows {
+  from,
+  to {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    display: grid;
+  }
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+
+@mixin svc-mui-floating-header($motion) {
+  .sd-question:not(.sd-question--complex):has(
+      .sd-question__content--text,
+      .sd-question__content--comment,
+      .sd-question__content--dropdown
+    ):has(
+      > .sd-question__container
+        > .sd-question__header-and-content-container
+        > .sd-question__content.svc-question--#{$motion}
+    )
+    > .sd-question__container
+    > .sd-question__header-and-content-container
+    > .sd-question__header:not(.sd-question__header--location--left) {
+    @content;
+  }
+}
+
+@mixin svc-mui-floating-header-clip {
+  // One grid row. Angular wraps the title, so keep whichever child contains it.
+  > * {
+    grid-row: 1;
+    grid-column: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  > *:not(.sd-element__title):not(:has(.sd-element__title)) {
+    display: none;
+  }
+}
+
+@include svc-mui-floating-header(leave) {
+  opacity: 0;
+  transition: opacity 150ms;
+  animation: svc-mui-floating-label-rows var(--sjs-svc-collapse-move-out-duration, 250ms) cubic-bezier(0, 0, 0.58, 1)
+    var(--sjs-svc-collapse-move-out-delay, 100ms) forwards;
+  @include svc-mui-floating-header-clip;
+}
+
+@include svc-mui-floating-header(enter) {
+  opacity: 0;
+  transition: none;
+  // Match the collapsed title width while the row closes. Transform stays the
+  // floating one: the label is invisible and must already be in place when it fades back.
+  width: auto !important;
+  animation: svc-mui-floating-label-rows var(--sjs-svc-expand-move-in-duration, 250ms) cubic-bezier(0.42, 0, 1, 1)
+    reverse both;
+  @include svc-mui-floating-header-clip;
+}
+
+.svc-question__content--collapsed
+  .sd-question:not(.sd-question--complex):has(
+    .sd-question__content--text,
+    .sd-question__content--comment,
+    .sd-question__content--dropdown
+  )
+  .sd-question__header:not(.sd-question__header--location--left) {
+  // Same plaque padding as every other collapsed question. Drop the floating
+  // offset so the label sits in that padding instead of on top of it.
+  // Grid (not flex) matches the leave animation's last frame, so removing that
+  // animation does not remeasure the title.
+  position: static !important;
+  top: auto;
+  right: auto;
+  left: auto;
+  transform: none !important;
+  width: auto !important;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  z-index: auto;
+  display: grid !important;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: opacity 150ms;
+  --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
+
+  > * {
+    grid-row: 1;
+    grid-column: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @include svc-mui-floating-header(leave) {
+    animation: none;
+  }
+  @include svc-mui-floating-header(enter) {
+    animation: none;
+  }
+}
+
+.svc-creator--disable-animations {
+  @include svc-mui-floating-header(leave) {
+    animation: none;
+  }
+  @include svc-mui-floating-header(enter) {
+    animation: none;
+  }
 }

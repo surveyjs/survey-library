@@ -4,10 +4,11 @@ import { ISurvey } from "../base-interfaces";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
 import { IPopupOptionsBase, PopupModel } from "../popup";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 import { IListModel } from "./list-model";
 import { ListModel } from "../list";
+import { initTooltips } from "../utils/tooltip";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";
 
@@ -159,6 +160,8 @@ export interface IAction {
   ariaExpanded?: boolean;
   ariaControls?: string;
   ariaLabelledBy?: string;
+  // The accessible name when the visible text does not say everything (the pager's page dropdown).
+  ariaLabel?: string;
   ariaRole?: string;
   elementId?: string;
   items?: Array<IAction>;
@@ -207,6 +210,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaChecked: boolean;
   @property() ariaExpanded: boolean;
   @property() ariaLabelledBy: string;
+  @property() ariaLabel: string;
   @property() ariaControls: string;
   @property({ defaultValue: "button" }) ariaRole: string;
   private idValue: string;
@@ -300,36 +304,31 @@ export abstract class BaseAction extends Base implements IAction {
     return this.popupModel.contentComponentData.model;
   }
   public getActionBarItemTitleCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemTitle)
-      .append(this.cssClasses.itemTitleWithIcon, !!this.iconName)
-      .toString();
+    return toCssClasses(this.cssClasses.itemTitle, !!this.iconName && this.cssClasses.itemTitleWithIcon);
   }
   public getActionBarItemCss(): string {
     const hasTitle = this.hasTitle;
-    return new CssClassBuilder()
-      .append(this.cssClasses.item)
+    return toCssClasses(
+      this.cssClasses.item,
       //TODO: remove itemWithTitle and itemAsIcon, itemIcon classes and replace with modifiers to item class in css
-      .append(this.cssClasses.itemWithTitle, hasTitle)
-      .append(this.cssClasses.itemAsIcon, !hasTitle)
+      hasTitle && this.cssClasses.itemWithTitle,
+      !hasTitle && this.cssClasses.itemAsIcon,
       //end of TODO
-      .append(this.cssClasses.itemActive, !!this.active)
-      .append(this.cssClasses.itemPopupActive, !!this.popupActive)
-      .append(this.innerCss)
-      .toString();
+      !!this.active && this.cssClasses.itemActive,
+      !!this.popupActive && this.cssClasses.itemPopupActive,
+      this.innerCss
+    );
   }
   public getActionRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.containerItem)
-      .append(this.css)
-      .append(this.cssClasses.containerItemSpace, this.needSpace)
-      .append(this.cssClasses.containerItemHidden, !this.isVisible)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.containerItem,
+      this.css,
+      this.needSpace && this.cssClasses.containerItemSpace,
+      !this.isVisible && this.cssClasses.containerItemHidden
+    );
   }
   public getActionRootContentCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.containerItemContent)
-      .toString();
+    return toCssClasses(this.cssClasses.containerItemContent);
   }
   public getTooltip(): string {
     return this.tooltip || (!this.hasTitle ? this.title : null);
@@ -658,6 +657,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private inputElementValue: HTMLElement;
   public setInputElement(val: HTMLElement) {
     this.inputElementValue = val;
+    if (val) initTooltips(val);
   }
   public getInputElement() {
     return this.inputElementValue;
@@ -672,12 +672,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     if (!prefix) {
       return css;
     }
-    return new CssClassBuilder().append(css)
-      .append(`${prefix}--${appearance.style}`, !!appearance.style)
-      .append(`${prefix}--${appearance.mode}`, !!appearance.mode)
-      .append(`${prefix}--${appearance.size}`, !!appearance.size)
-      .append(`${prefix}--border`, !!appearance.showBorder)
-      .toString();
+    return toCssClasses(
+      css,
+      !!appearance.style && `${prefix}--${appearance.style}`,
+      !!appearance.mode && `${prefix}--${appearance.mode}`,
+      !!appearance.size && `${prefix}--${appearance.size}`,
+      !!appearance.showBorder && `${prefix}--border`
+    );
   }
 }
 

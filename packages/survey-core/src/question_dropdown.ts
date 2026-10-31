@@ -3,7 +3,7 @@ import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { EventBase } from "./event";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
@@ -67,6 +67,14 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   public getType(): string {
     return "dropdown";
   }
+  // Design mode draws dropdown choices with the radio item component and passes this question
+  // into it. That component always asks for a shortcut badge. Dropdown does not show one.
+  public getChoiceKeyBadge(item: ItemValue): string { return ""; }
+  public getItemShortcutKeyClass(item: ItemValue): string { return ""; }
+  public getItemAriaKeyShortcuts(item: ItemValue): string | undefined { return undefined; }
+  public onChoiceKeyDown(event: any): void { }
+  public onChoiceFocusOut(event: any): void { }
+
   public get isNewA11yStructure() {
     return true;
   }
@@ -164,6 +172,10 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    * Specifies whether to display a button that clears the selected value.
    */
   @property() allowClear: boolean;
+  // The clear button lives in the input, not in the question title.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    *
@@ -248,16 +260,16 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    */
   @property() choicesLazyLoadPageSize: number;
   public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.control)
-      .append(this.cssClasses.controlSelect, this.renderAs == "select")
-      .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
-      .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.control,
+      this.renderAs == "select" && this.cssClasses.controlSelect,
+      this.isEmpty() && this.cssClasses.controlEmpty,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDisabledStyle && this.cssClasses.controlDisabled,
+      this.isReadOnlyStyle && this.cssClasses.controlReadOnly,
+      this.isPreviewStyle && this.cssClasses.controlPreview,
+      !!this.inputFieldComponentName && this.cssClasses.controlInputFieldComponent
+    );
   }
   protected updateCssClasses(res: any, css: any): void {
     super.updateCssClasses(res, css);
@@ -274,7 +286,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     return this.inputFieldComponent || this.itemComponent;
   }
   public get showSelectedItemLocText(): boolean {
-    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText && this.dropdownListModel.canShowSelectedItem;
+    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText && this.dropdownRenderState.canShowSelectedItem;
   }
   public get showInputFieldComponent(): boolean {
     return !this.inputHasValue && !!this.inputFieldComponentName && !this.isEmpty();
@@ -288,14 +300,11 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     return !!item ? item.text : "";
   }
   private get useDropdownList(): boolean { return this.renderAs !== "select"; }
-  public get dropdownListModel(): DropdownListModel {
-    if (!this.isDisposed && this.useDropdownList && !this.dropdownListModelValue) {
-      this.dropdownListModelValue = new DropdownListModel(this);
-    }
-    return this.dropdownListModelValue;
+  protected canCreateDropdownListModel(): boolean {
+    return this.useDropdownList;
   }
-  public set dropdownListModel(val: DropdownListModel) {
-    this.dropdownListModelValue = val;
+  protected createDropdownListModel(): DropdownListModel {
+    return new DropdownListModel(this);
   }
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
 

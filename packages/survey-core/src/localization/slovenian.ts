@@ -5,6 +5,58 @@ export var slovenianStrings = {
   pagePrevText: "Prejšnja",
   // "Next"
   pageNextText: "Naslednja",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvi",
+  // [Auto-translated] "Last"
+  pageLastText: "Zadnji",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Izberi stran",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Razvrstite po {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Visoko - Nizko",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nizko - Visoko",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnovejši prvi",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstarejši prvi",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Razvrščeno po {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, potem do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Razvrsti po",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Privzeto",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort polje",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Vrstni red razporejanja",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Dodaj stopnjo sortiranja",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Odstranite stopnjo sortiranja {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Polje sortiranja {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Razvrstitev {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Pokaži vse stopnje sortiranja",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Dodaj novo",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Premik sort nivo {0}",
   // "Complete"
   completeText: "Zaključi",
   // "Preview"
@@ -37,6 +89,8 @@ export var slovenianStrings = {
   panelDynamicTabTextFormat: "Plošča {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Odgovorjeno {0}/{1} vprašanj",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Vprašanje {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Anketa ne vsebuje vidnih elementov.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var slovenianStrings = {
   value: "vrednost",
   // "Response required."
   requiredError: "Odgovor je obvezen.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Vrednost je napačna.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Vrednost vsebuje neznane ključe: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Obvezen odgovor: odgovorite na vsaj eno vprašanje.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var slovenianStrings = {
   noUploadFilesHandler: "Datotek ni mogoče naložiti. Dodajte obravnavo za dogodek 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Obvezen odgovor: vnesite drugo vrednost.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Vrednost '{0}' ni ena izmed razpoložljivih možnosti.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Vaša datoteka se nalaga. Počakajte nekaj sekund in poskusite znova.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var slovenianStrings = {
   addRow: "Dodaj vrstico",
   // "Remove"
   removeRow: "Odstrani",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Premakni se {0}",
   // "There are no rows."
   noRowsText: "Ni vrstic.",
   // [Auto-translated] "Row {rowIndex}"

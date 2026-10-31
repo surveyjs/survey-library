@@ -5,6 +5,58 @@ export var norwegianSurveyStrings = {
   pagePrevText: "Forrige",
   // "Next"
   pageNextText: "Neste",
+  // [Auto-translated] "First"
+  pageFirstText: "Først",
+  // [Auto-translated] "Last"
+  pageLastText: "Siste",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "av {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Velg side",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sorter etter {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Høyt - Lavt",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Lav - Høy",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabetet, A - Å",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nyeste første",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Eldste første",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortert etter {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, så ved {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sorter etter",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteringsfelt",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteringsrekkefølge",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Legg til sorteringsnivå",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Fjern sorteringsnivå {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteringsfelt {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteringsrekkefølge {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Vis alle sorteringsnivåer",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Legg til nytt",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flytt sorteringsnivå {0}",
   // "Complete"
   completeText: "Fullfør",
   // "Preview"
@@ -37,6 +89,8 @@ export var norwegianSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Besvarte {0} / {1} spørsmål",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Spørsmål {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Det er ingen synlig side eller spørsmål i undersøkelsen.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var norwegianSurveyStrings = {
   value: "verdi",
   // "Response required."
   requiredError: "Vennligst svar på spørsmålet.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Verdien er feil.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Verdien inneholder ukjente nøkler: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vennligst svar på minst ett spørsmål.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var norwegianSurveyStrings = {
   noUploadFilesHandler: "Filer kan ikke lastes opp. Legg til et behandlingsprogram for onUploadFiles-hendelsen.",
   // "Response required: enter another value."
   otherRequiredError: "Vennligst skriv inn den andre verdien.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Verdien '{0}' er ikke et av de tilgjengelige valgene.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Filen din lastes opp. Vennligst vent noen sekunder og prøv igjen.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var norwegianSurveyStrings = {
   addRow: "Legg til rad",
   // "Remove"
   removeRow: "Fjern",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Flytt rad {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Det er ingen rader.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var norwegianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Fremdriftsindikator",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Side {0}"
+  progressbarPage: "Side {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "å",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "t",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "T",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "f",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "F"
 };
 
 setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "norsk", englishName: "Norwegian" });

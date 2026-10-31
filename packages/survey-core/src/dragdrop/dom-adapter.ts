@@ -52,7 +52,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     if (isShadowDOM(settings.environment.root)) {
       return this.rootContainer || settings.environment.root;
     } else {
-      return this.rootContainer || settings.environment.root.documentElement || DomDocumentHelper.getDocument().body;
+      return this.rootContainer || settings.environment.root.documentElement || DomDocumentHelper.getBody();
     }
   }
   public get viewRootElement(): Element {
@@ -76,8 +76,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private stopLongTap = (e?: any) => {
     clearTimeout(this.timeoutID);
     this.timeoutID = null;
-    DomDocumentHelper.getDocument().removeEventListener("pointerup", this.stopLongTap);
-    DomDocumentHelper.getDocument().removeEventListener("pointermove", this.stopLongTapIfMoveEnough);
+    DomDocumentHelper.removeEventListener("pointerup", this.stopLongTap);
+    DomDocumentHelper.removeEventListener("pointermove", this.stopLongTapIfMoveEnough);
   };
   private startLongTapProcessing(
     event: PointerEvent,
@@ -88,7 +88,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   ): void {
     this.startX = event.pageX;
     this.startY = event.pageY;
-    DomDocumentHelper.getDocument().body.style.setProperty("touch-action", "none", "important");
+    const body = DomDocumentHelper.getBody();
+    if (!!body) body.style.setProperty("touch-action", "none", "important");
     //DomDocumentHelper.getDocument().body.style.setProperty("-webkit-touch-callout", "none", "important");
 
     this.timeoutID = setTimeout(() => {
@@ -117,14 +118,18 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       this.stopLongTap();
     }, this.longTap ? 500 : 0);
 
-    DomDocumentHelper.getDocument().addEventListener("pointerup", this.stopLongTap);
-    DomDocumentHelper.getDocument().addEventListener("pointermove", this.stopLongTapIfMoveEnough);
+    DomDocumentHelper.addEventListener("pointerup", this.stopLongTap);
+    DomDocumentHelper.addEventListener("pointermove", this.stopLongTapIfMoveEnough);
   }
   private handlePointerCancel = (event: PointerEvent) => {
     this.clear();
   };
+  /* Escape cancels the drag and goes no further: it is heard on the window in the capture phase while a
+     drag is active, so a modal around the dragged element (its keydown handler is on the popup) stays open. */
   private handleEscapeButton = (event: KeyboardEvent) => {
-    if (event.keyCode == 27) {
+    if (event.key === "Escape" || event.keyCode == 27) {
+      event.stopPropagation();
+      event.stopImmediatePropagation();
       this.clear();
     }
   };
@@ -132,12 +137,21 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     event.preventDefault();
     event.stopPropagation();
   };
+  /* A drag in a modal puts the shortcut on the modal itself (a fixed box over the page), not on the root element:
+     the root element may be inside the modal's scrolling content, which the shortcut would widen and lengthen. */
+  private get shortcutContainer(): HTMLElement | ShadowRoot {
+    return <HTMLElement>this.popupNode || this.rootElement;
+  }
+  private get viewShortcutContainer(): Element {
+    return this.popupNode || this.viewRootElement;
+  }
   private moveShortcutElement(event: PointerEvent) {
-    let rootElementX = this.viewRootElement.getBoundingClientRect().x;
-    let rootElementY = this.viewRootElement.getBoundingClientRect().y;
+    const container = this.viewShortcutContainer;
+    let rootElementX = container.getBoundingClientRect().x;
+    let rootElementY = container.getBoundingClientRect().y;
 
-    let rootElementScrollLeft = this.viewRootElement.scrollLeft;
-    let rootElementScrollTop = this.viewRootElement.scrollTop;
+    let rootElementScrollLeft = container.scrollLeft;
+    let rootElementScrollTop = container.scrollTop;
 
     this.doScroll(event.clientY, event.clientX);
 
@@ -152,8 +166,9 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       shortcutYOffset = shortcutHeight / 2;
     }
 
-    const documentBottom = DomDocumentHelper.getDocument().documentElement.clientHeight;
-    const documentRight = DomDocumentHelper.getDocument().documentElement.clientWidth;
+    const documentElement = DomDocumentHelper.getDocumentElement();
+    const documentBottom = !!documentElement ? documentElement.clientHeight : 0;
+    const documentRight = !!documentElement ? documentElement.clientWidth : 0;
 
     const pageX = event.pageX;
     const pageY = event.pageY;
@@ -226,7 +241,14 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     return requestAnimationFrame(callback);
   }
 
+  /* The modal a drag started in: the drag scrolls only the scroll containers inside it, never the page
+     behind it. A dropdown popup is not one: a drag from it (Creator's toolbox) goes on to the page. */
+  private popupNode: Element = null;
+  private static getPopupNode(node: any): Element {
+    return !!node && typeof node.closest === "function" ? node.closest(".sv-popup--modal-popup, .sv-popup--modal-overlay") : null;
+  }
   protected scrollByDrag(scrollableParentNode: Element, clientY: number, clientX: number) {
+    if (!!this.popupNode && !this.popupNode.contains(scrollableParentNode)) return;
     const startScrollBoundary = 100;
 
     let top: number;
@@ -235,10 +257,11 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     let right: number;
 
     if (scrollableParentNode.tagName === "HTML") {
+      const documentElement = DomDocumentHelper.getDocumentElement();
       top = 0;
-      bottom = DomDocumentHelper.getDocument().documentElement.clientHeight;
+      bottom = !!documentElement ? documentElement.clientHeight : 0;
       left = 0;
-      right = DomDocumentHelper.getDocument().documentElement.clientWidth;
+      right = !!documentElement ? documentElement.clientWidth : 0;
     } else {
       top = scrollableParentNode.getBoundingClientRect().top;
       bottom = scrollableParentNode.getBoundingClientRect().bottom;
@@ -288,10 +311,10 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private clear = () => {
     cancelAnimationFrame(this.scrollIntervalId);
 
-    DomDocumentHelper.getDocument().removeEventListener("pointermove", this.dragOver);
-    DomDocumentHelper.getDocument().removeEventListener("pointercancel", this.handlePointerCancel);
-    DomDocumentHelper.getDocument().removeEventListener("keydown", this.handleEscapeButton);
-    DomDocumentHelper.getDocument().removeEventListener("pointerup", this.drop);
+    DomDocumentHelper.removeEventListener("pointermove", this.dragOver);
+    DomDocumentHelper.removeEventListener("pointercancel", this.handlePointerCancel);
+    DomWindowHelper.removeEventListener("keydown", this.handleEscapeButton, true);
+    DomDocumentHelper.removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
     if (IsTouch) {
       this.draggedElementShortcut.removeEventListener("contextmenu", this.onContextMenu);
@@ -301,6 +324,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.dd.clear();
     this.draggedElementShortcut = null;
     this.scrollIntervalId = null;
+    this.popupNode = null;
 
     if (IsTouch) {
       this.savedTargetNode.style.cssText = null;
@@ -329,15 +353,16 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     }
     if (event.which === 3) return; //right mouse btn
 
+    this.popupNode = DragDropDOMAdapter.getPopupNode(draggedElementNode) || DragDropDOMAdapter.getPopupNode(event.target);
     this.dd.dragInit(event, draggedElement, parentElement, draggedElementNode);
 
-    this.rootElement.append(this.draggedElementShortcut);
+    this.shortcutContainer.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
-    DomDocumentHelper.getDocument().addEventListener("pointermove", this.dragOver);
-    DomDocumentHelper.getDocument().addEventListener("pointercancel", this.handlePointerCancel);
-    DomDocumentHelper.getDocument().addEventListener("keydown", this.handleEscapeButton);
-    DomDocumentHelper.getDocument().addEventListener("pointerup", this.drop);
+    DomDocumentHelper.addEventListener("pointermove", this.dragOver);
+    DomDocumentHelper.addEventListener("pointercancel", this.handlePointerCancel);
+    DomWindowHelper.addEventListener("keydown", this.handleEscapeButton, true);
+    DomDocumentHelper.addEventListener("pointerup", this.drop);
     if (!IsTouch) {
       this.draggedElementShortcut.addEventListener("pointerup", this.drop);
     } else {
@@ -346,9 +371,11 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   }
 
   private returnUserSelectBack() {
-    DomDocumentHelper.getDocument().body.style.setProperty("touch-action", "auto");
-    DomDocumentHelper.getDocument().body.style.setProperty("user-select", "auto");
-    DomDocumentHelper.getDocument().body.style.setProperty("-webkit-user-select", "auto");
+    const body = DomDocumentHelper.getBody();
+    if (!body) return;
+    body.style.setProperty("touch-action", "auto");
+    body.style.setProperty("user-select", "auto");
+    body.style.setProperty("-webkit-user-select", "auto");
     //DomDocumentHelper.getDocument().body.style.setProperty("-webkit-touch-callout", "default");
   }
 
@@ -356,8 +383,11 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   public rootContainer: HTMLElement;
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
-    DomDocumentHelper.getDocument().body.style.setProperty("user-select", "none", "important");
-    DomDocumentHelper.getDocument().body.style.setProperty("-webkit-user-select", "none", "important");
+    const body = DomDocumentHelper.getBody();
+    if (!!body) {
+      body.style.setProperty("user-select", "none", "important");
+      body.style.setProperty("-webkit-user-select", "none", "important");
+    }
     if (IsTouch) {
       this.startLongTapProcessing(
         event,

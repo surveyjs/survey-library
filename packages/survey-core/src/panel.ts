@@ -17,7 +17,7 @@ import {
   IFindElement,
   ISurveyValidation
 } from "./base-interfaces";
-import { SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
+import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo } from "./survey-element";
 import { Question } from "./question";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -27,15 +27,98 @@ import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, set
 import { findScrollableParent, getElementWidth, isElementVisible } from "./utils/dom-utils";
 import { floorTo2Decimals } from "./utils/utils";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { Action, IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
-import { ValidationContext } from "./question";
+import { ValidationContext, IVerifyDataContext } from "./question";
+import { Scope } from "./utils/scope";
+
+// The lazily rendered rows waiting on one scroll container share a single "scroll" listener and a single
+// pending timer, instead of a listener and a timer per row: a survey can have thousands of such rows.
+class LazyRenderingContainer {
+  private static containers = new WeakMap<any, LazyRenderingContainer>();
+  public static register(target: any, row: QuestionRowModel): LazyRenderingContainer {
+    let res = LazyRenderingContainer.containers.get(target);
+    if (!res) {
+      res = new LazyRenderingContainer(target);
+      LazyRenderingContainer.containers.set(target, res);
+    }
+    res.addRow(row);
+    return res;
+  }
+  // Rows wait in pendingRows until the timer checks them, then move to rows, which the listener checks.
+  // Both sets keep the registration order.
+  private pendingRows = new Set<QuestionRowModel>();
+  private rows = new Set<QuestionRowModel>();
+  private timer: ReturnType<typeof setTimeout>;
+  private isListening = false;
+  private constructor(private target: any) {}
+  private onScroll = (): void => {
+    this.checkRows(Array.from(this.rows));
+  };
+  private addRow(row: QuestionRowModel): void {
+    this.pendingRows.add(row);
+    if (this.timer === undefined) {
+      this.timer = setTimeout(() => this.onTimer(), 10);
+    }
+  }
+  public removeRow(row: QuestionRowModel): void {
+    this.pendingRows.delete(row);
+    this.rows.delete(row);
+    if (this.pendingRows.size === 0 && this.timer !== undefined) {
+      clearTimeout(this.timer);
+      this.timer = undefined;
+    }
+    this.updateListener();
+    if (this.pendingRows.size === 0 && this.rows.size === 0) {
+      LazyRenderingContainer.containers.delete(this.target);
+    }
+  }
+  private onTimer(): void {
+    this.timer = undefined;
+    const rows = Array.from(this.pendingRows);
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (!this.pendingRows.has(row)) continue;
+      this.pendingRows.delete(row);
+      this.rows.add(row);
+      row.ensureVisibility();
+      if (!this.rows.has(row) && this.pendingRows.size > 0) {
+        // The row has rendered. Vue, Angular and Preact update the DOM in a microtask, so check the next rows
+        // in a new task, when their positions are up to date, as each row's own timer did before.
+        this.timer = setTimeout(() => this.onTimer(), 0);
+        break;
+      }
+    }
+    this.updateListener();
+  }
+  // Synchronous and in registration order, as the listeners of all rows ran in one event dispatch before.
+  // A row that renders (or stops) during the pass is skipped.
+  private checkRows(rows: Array<QuestionRowModel>): void {
+    rows.forEach(row => {
+      if (this.rows.has(row)) {
+        row.ensureVisibility();
+      }
+    });
+  }
+  private updateListener(): void {
+    const needListen = this.rows.size > 0;
+    if (needListen === this.isListening) return;
+    if (needListen) {
+      if (!this.target.addEventListener) return;
+      this.target.addEventListener("scroll", this.onScroll);
+    } else if (!!this.target.removeEventListener) {
+      this.target.removeEventListener("scroll", this.onScroll);
+    }
+    this.isListening = needListen;
+  }
+}
 
 export class QuestionRowModel extends Base {
   protected _scrollableParent: any = undefined;
@@ -43,9 +126,10 @@ export class QuestionRowModel extends Base {
   private get allowRendering(): boolean {
     return !this.panel || !this.panel.survey || !(this.panel.survey as any)["isLazyRenderingSuspended"];
   }
-  private lazyRenderingTimeout: ReturnType<typeof setTimeout>;
+  private lazyRenderingContainer: LazyRenderingContainer;
   public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
     if (!DomDocumentHelper.isAvailable()) return;
+    this.unregisterLazyRendering();
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
     const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
     // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
@@ -64,18 +148,7 @@ export class QuestionRowModel extends Base {
           this.stopLazyRendering();
         }
       };
-      this.lazyRenderingTimeout = setTimeout(() => {
-        if (
-          !!this._scrollableParent &&
-          !!this._scrollableParent.addEventListener
-        ) {
-          this._scrollableParent.addEventListener(
-            "scroll",
-            this._updateVisibility
-          );
-        }
-        this.ensureVisibility();
-      }, 10);
+      this.lazyRenderingContainer = LazyRenderingContainer.register(this._scrollableParent, this);
     }
   }
   public ensureVisibility() {
@@ -84,19 +157,15 @@ export class QuestionRowModel extends Base {
     }
   }
   public stopLazyRendering() {
-    if (
-      !!this._scrollableParent &&
-      !!this._updateVisibility &&
-      !!this._scrollableParent.removeEventListener
-    ) {
-      this._scrollableParent.removeEventListener(
-        "scroll",
-        this._updateVisibility
-      );
-    }
-    clearTimeout(this.lazyRenderingTimeout);
+    this.unregisterLazyRendering();
     this._scrollableParent = undefined;
     this._updateVisibility = undefined;
+  }
+  private unregisterLazyRendering(): void {
+    if (!!this.lazyRenderingContainer) {
+      this.lazyRenderingContainer.removeRow(this);
+      this.lazyRenderingContainer = undefined;
+    }
   }
   constructor(public panel: PanelModelBase) {
     super();
@@ -268,12 +337,11 @@ export class QuestionRowModel extends Base {
     this.stopLazyRendering();
   }
   public getRowCss() {
-    return new CssClassBuilder()
-      .append(this.panel.cssClasses.row)
-      .append(this.panel.cssClasses.rowCompact, this.panel["isCompact"])
-      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (this.panel as PanelModel).showPanelAsPage)
-      .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
-      .toString();
+    return toCssClasses(
+      this.panel.cssClasses.row,
+      (this.panel.isPage || (this.panel as PanelModel).showPanelAsPage) && this.panel.cssClasses.pageRow,
+      this.visibleElements.length > 1 && this.panel.cssClasses.rowMultiple
+    );
   }
   private rootElement?: HTMLElement;
   public setRootElement(element?: HTMLElement) {
@@ -298,6 +366,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private _columns: Array<PanelLayoutColumnModel> = undefined;
   private _columnsReady = false;
+  private isColumnsUpdatePending: boolean;
 
   /**
    * An array of columns used to arrange survey elements within this page or panel. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true`.
@@ -352,7 +421,7 @@ export class PanelModelBase extends SurveyElement<Question>
       getEnterOptions: (_: QuestionRowModel, animationInfo) => {
         const cssClasses = this.cssClasses;
         return {
-          cssClass: new CssClassBuilder().append(cssClasses.rowEnter).append(cssClasses.rowDelayedEnter, animationInfo.isDeletingRunning).toString(),
+          cssClass: toCssClasses(cssClasses.rowEnter, animationInfo.isDeletingRunning && cssClasses.rowDelayedEnter),
           onBeforeRunAnimation: prepareElementForVerticalAnimation,
           onAfterRunAnimation: cleanHtmlElementAfterAnimation
         };
@@ -445,6 +514,9 @@ export class PanelModelBase extends SurveyElement<Question>
     super.endLoadingFromJson();
     this.markQuestionListDirty();
     this.onRowsChanged();
+    if (this.isColumnsUpdatePending) {
+      this.updateColumns();
+    }
   }
 
   @property({ defaultValue: true }) showTitle: boolean;
@@ -616,20 +688,24 @@ export class PanelModelBase extends SurveyElement<Question>
   private canRandomize(isRandom: boolean): boolean {
     return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
   }
-  protected isRandomizing = false;
+  private randomizingScope = new Scope();
+  protected get isRandomizing(): boolean { return this.randomizingScope.isActive; }
   randomizeElements(isRandom: boolean): boolean {
     if (!this.canRandomize(isRandom) || this.isRandomizing) return false;
-    this.isRandomizing = true;
-    var oldElements = [];
-    var elements = this.elements;
-    for (var i = 0; i < elements.length; i++) {
-      oldElements.push(elements[i]);
-    }
-    const newElements = Helpers.randomizeArray<IElement>(oldElements, this.randomSeed);
-    this.setArrayPropertyDirectly("elements", newElements, false);
-    this.updateRows();
-    this.updateVisibleIndexes();
-    this.isRandomizing = false;
+    this.randomizingScope.run(() => {
+      var oldElements = [];
+      var elements = this.elements;
+      for (var i = 0; i < elements.length; i++) {
+        oldElements.push(elements[i]);
+      }
+      const newElements = Helpers.randomizeArray<IElement>(oldElements, this.randomSeed);
+      this.setArrayPropertyDirectly("elements", newElements, false);
+      if (!!this.survey) {
+        this.lifecycleCallbacks.questionTriggersChanged();
+      }
+      this.updateRows();
+      this.updateVisibleIndexes();
+    });
     return true;
   }
   /**
@@ -674,14 +750,11 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   @property() visibleIf: string;
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    var classes = { panel: {}, error: {}, row: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowMultiple: "", pageRow: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageRow) {
       classes.pageRow = css.pageRow;
-    }
-    if (!!css.rowCompact) {
-      classes.rowCompact = css.rowCompact;
     }
     if (!!css.row) {
       classes.row = css.row;
@@ -849,7 +922,7 @@ export class PanelModelBase extends SurveyElement<Question>
           if (!!this.data) {
             var comment = this.data.getComment(valueName);
             if (!!comment) {
-              data[valueName + Base.commentSuffix] = comment;
+              data[Helpers.getCommentKey(valueName)] = comment;
             }
           }
         }
@@ -986,6 +1059,17 @@ export class PanelModelBase extends SurveyElement<Question>
     this.validateCore(context);
     context.finish();
     return context.runningResult;
+  }
+  // The walk behind SurveyModel.setData(), see Question.initializeForVerification(). On a page or a
+  // panel it covers that subtree only: the unknown root keys of the survey data are a survey-level
+  // finding.
+  public initializeForVerification(): void {
+    this.elements.forEach(element => (<any>element).initializeForVerification());
+  }
+  // A page and a panel own no data key of their own, a dynamic panel item included: the index of
+  // the item is pushed by the dynamic panel that walks into it.
+  public verifyDataCore(context: IVerifyDataContext): void {
+    this.elements.forEach(element => (<any>element).verifyDataCore(context));
   }
   public validateContainerOnly(): void {
     this.validateInPanels(new ValidationContext({ fireCallback: true, isOnValueChanged: false }));
@@ -1231,6 +1315,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   };
   public updateColumns() {
+    this.isColumnsUpdatePending = false;
     this._columns = undefined;
     this.updateRootStyle();
   }
@@ -1409,8 +1494,10 @@ export class PanelModelBase extends SurveyElement<Question>
     return res;
   }
   protected childVisibilityChanged() {
+    this.resetRenderedIsContentVisible();
     if (this.isRunningConditions) return;
-    var newIsVisibleValue = this.getIsPageVisible(null);
+    // Compare with the value onVisibleChanged stores: isVisible, which counts areInvisibleElementsShowing.
+    var newIsVisibleValue = this.isVisible;
     var oldIsVisibleValue = this.getPropertyValue("isVisible", true);
     if (newIsVisibleValue !== oldIsVisibleValue) {
       this.onVisibleChanged();
@@ -1439,6 +1526,10 @@ export class PanelModelBase extends SurveyElement<Question>
     super.onSurveyLoad();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
+    }
+    // A panel without a survey gets here from its own endLoadingFromJson, which updates the columns after its rows.
+    if (this.isColumnsUpdatePending && !!this.survey) {
+      this.updateColumns();
     }
     this.onElementVisibilityChanged(this);
     this.releaseAnimations();
@@ -1826,6 +1917,12 @@ export class PanelModelBase extends SurveyElement<Question>
     this.getPropertyValueWithoutDefault("isVisible");
     return this.areInvisibleElementsShowing || this.getIsPageVisible(null);
   }
+  private resetRenderedIsContentVisible(): void {
+    this.resetPropertyValue("renderedIsContentVisible");
+  }
+  public get renderedIsContentVisible(): boolean {
+    return this.getPropertyValue("renderedIsContentVisible", undefined, () => !!this.getIsContentVisible());
+  }
   getIsContentVisible(exceptionQuestion?: IQuestion) {
     if (this.areInvisibleElementsShowing) return true;
     for (var i = 0; i < this.elements.length; i++) {
@@ -1888,6 +1985,12 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     super.onReadOnlyChanged();
   }
+  public onReadOnlyModeChanged(): void {
+    super.onReadOnlyModeChanged();
+    for (let i = 0; i < this.elements.length; i++) {
+      (<SurveyElement>(<any>this.elements[i])).onReadOnlyModeChanged();
+    }
+  }
   public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);
     for (let i = 0; i < this.elements.length; i++) {
@@ -1902,6 +2005,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
+   * @see readOnlyMode
    * @see isReadOnly
    */
   @property() enableIf: string;
@@ -1922,7 +2026,13 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.wasRendered) {
       element.onFirstRendering();
     }
-    this.updateColumns();
+    // Code that builds a survey element by element while it loads (Creator's translation tab) would restyle
+    // this subtree on every add. Update the columns once when loading ends: onSurveyLoad or endLoadingFromJson does it.
+    if (this.isLoadingFromJson) {
+      this.isColumnsUpdatePending = true;
+    } else {
+      this.updateColumns();
+    }
     return true;
   }
   public insertElement(element: IElement, dest?: IElement, location: "bottom" | "top" | "left" | "right" = "bottom"): void {
@@ -2122,7 +2232,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.getCssError(this.cssClasses);
   }
   protected getCssError(cssClasses: any): string {
-    return new CssClassBuilder().append(cssClasses.error.root).toString();
+    return toCssClasses(cssClasses.error.root);
   }
 
   public getSerializableColumnsValue(): Array<PanelLayoutColumnModel> {
@@ -2456,10 +2566,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   protected getCssError(cssClasses: any): string {
     if (this.isPage) return super.getCssError(cssClasses);
-    const builder = new CssClassBuilder()
-      .append(super.getCssError(cssClasses))
-      .append(cssClasses.panel.errorsContainer);
-    return builder.append("panel-error-root", builder.isEmpty()).toString();
+    return toCssClasses(super.getCssError(cssClasses), cssClasses.panel.errorsContainer) || "panel-error-root";
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();
@@ -2508,19 +2615,19 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (!!q) {
         setTimeout(() => {
           if (!this.isDisposed && !!this.survey) {
-            this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: "smooth" } });
+            this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: getScrollBehavior() } });
           }
         }, elementIsRendered ? 0 : 15);
       }
     }
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
-    return new CssClassBuilder()
-      .append(super.getCssRoot(cssClasses))
-      .append(cssClasses.container)
-      .append(cssClasses.asPage, this.showPanelAsPage)
-      .append(cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
-      .toString();
+    return toCssClasses(
+      super.getCssRoot(cssClasses),
+      cssClasses.container,
+      this.showPanelAsPage && cssClasses.asPage,
+      !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible && cssClasses.invisible
+    );
   }
   public getContainerCss(): string {
     return this.getCssRoot(this.cssClasses.panel);
@@ -2546,6 +2653,7 @@ Serializer.addClass(
     },
     { name: "visible:switch", default: true, overridingProperty: "visibleIf" },
     { name: "readOnly:boolean", overridingProperty: "enableIf" },
+    getReadOnlyModePropertyInfo(),
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",

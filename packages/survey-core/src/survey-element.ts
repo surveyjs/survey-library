@@ -25,15 +25,28 @@ import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer } from "./actions/container";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
+import { scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
+import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
 import { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
+
+// The readOnlyMode serializer property shared by questions and panels; a new object per class.
+export function getReadOnlyModePropertyInfo(): any {
+  return {
+    name: "readOnlyMode",
+    default: "default",
+    choices: ["default", "readonly", "view"],
+    dependsOn: ["readOnly"],
+    visibleIf: (obj: any) => !!obj && !!obj.readOnly
+  };
+}
 
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
@@ -194,60 +207,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  private static IsNeedScrollIntoView(el: Element, checkLeft: boolean, scrollIfVisible?: boolean) {
-    const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
-    let needScroll = elTop < 0;
-    let elLeft: number = -1;
-    if (!needScroll && checkLeft) {
-      elLeft = el.getBoundingClientRect().left;
-      needScroll = elLeft < 0;
-    }
-    if (!needScroll && DomWindowHelper.isAvailable()) {
-      const height = DomWindowHelper.getInnerHeight();
-      needScroll = height > 0 && height < elTop;
-      if (!needScroll && checkLeft) {
-        const width = DomWindowHelper.getInnerWidth();
-        needScroll = width > 0 && width < elLeft;
-      }
-    }
-    return needScroll;
-  }
   public static ScrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
-    el.scrollIntoView(scrollIntoViewOptions);
-    if (typeof doneCallback === "function") {
-      let lastPos: number = null;
-      let same: number = 0;
-      const checkPos = () => {
-        const newPos = el.getBoundingClientRect().top;
-        if (newPos === lastPos) {
-          if (same++ > 2) {
-            doneCallback();
-            return;
-          }
-        } else {
-          lastPos = newPos;
-          same = 0;
-        }
-        requestAnimationFrame(checkPos);
-      };
-      DomWindowHelper.requestAnimationFrame(checkPos);
-    }
+    scrollIntoView(el, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToViewCore(el: Element, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    if (!el || !el.scrollIntoView) {
-      doneCallback && doneCallback();
-      return false;
-    }
-    const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
-    if (needScroll) {
-      SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);
-    } else {
-      doneCallback && doneCallback();
-    }
-    return needScroll;
+    return scrollElementToViewCore(el, checkLeft, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static GetFirstNonTextElement(elements: any, removeSpaces: boolean = false): any {
     if (!elements || !elements.length || elements.length == 0) return null;
@@ -263,33 +230,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return null;
   }
-  public static FocusElement(elementId: string | (() => HTMLElement), isTimeOut?: boolean, containerEl?: HTMLElement): boolean {
-    if (!elementId || !DomDocumentHelper.isAvailable()) return false;
-    const res: boolean = !isTimeOut ? SurveyElement.focusElementCore(elementId, containerEl) : false;
-    if (!res) {
-      setTimeout(() => {
-        SurveyElement.focusElementCore(elementId, containerEl);
-      }, isTimeOut ? 100 : 10);
-    }
-    return res;
-  }
-  private static focusElementCore(element: string | (() => HTMLElement), containerEl?: HTMLElement): boolean {
-    const { root } = settings.environment;
-    if (!root && !containerEl) return false;
-
-    let el: HTMLElement;
-    if (typeof element == "string") {
-      el = containerEl ? containerEl.querySelector(`#${CSS.escape(element)}`) : root.getElementById(element);
-    } else {
-      el = element();
-    }
-    // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
-    if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
-      SurveyElement.ScrollElementToViewCore(el, true, false);
-      el.focus({ focusVisible: false } as any);
-      return true;
-    }
-    return false;
+  public static FocusElement(elementId: string | (() => HTMLElement), isTimeOut?: boolean, containerEl?: HTMLElement, scrollIntoScroller?: boolean): boolean {
+    return focusElement(elementId, isTimeOut, {
+      containerEl: containerEl,
+      scrollIntoScroller: scrollIntoScroller,
+      scrollIntoView: (el: HTMLElement) => { SurveyElement.ScrollElementToViewCore(el, true, false); }
+    });
   }
   public get effectiveColSpan(): number {
     const res = this.getPropertyValueWithoutDefault("effectiveColSpan");
@@ -321,6 +267,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     if (name === "isReadOnly") {
       this.onReadOnlyChanged();
+    }
+    if (name === "readOnlyMode") {
+      this.onReadOnlyModeChanged();
     }
     if (name === "errors") {
       this.updateVisibleErrors();
@@ -497,15 +446,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());
       this.titleToolbarValue.flushUpdates();
+      this.titleToolbarValue.registerFunctionOnPropertyValueChanged("isEmpty", () => {
+        this.resetHasVisibleTitleActions();
+      });
     }
     return this.titleToolbarValue;
   }
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
-    const actionContainer = allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+    return this.initActionContainer(allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer());
+  }
+  // Gives a container the survey's action bar classes.
+  protected initActionContainer<T extends ActionContainer>(actionContainer: T): T {
     if (this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
     }
-
     return actionContainer;
   }
   public get titleActions(): Array<any> {
@@ -527,16 +481,34 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!!this.survey) {
       actions = this.titleSettings.getUpdatedElementTitleActions(this, actions);
     }
-    this.setArrayPropertyValue("titleActions", actions);
+    if (Array.isArray(this.getPropertyValueWithoutDefault("titleActions"))) {
+      this.setArrayPropertyValue("titleActions", actions);
+    } else {
+      //titleActions are requested lazily (hasTitleActions is read during rendering), do not notify UI subscribers on creating them
+      const titleActions = this.titleActions;
+      Array.prototype.push.apply(titleActions, actions);
+    }
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
     if (!!this.titleToolbarValue) {
       this.titleToolbarValue.locStrsChanged();
     }
+    // An error text can interpolate values ({calculatedValue}) the same way a title does.
+    // Read the property directly: the errors getter creates the array.
+    const errors: Array<SurveyError> = this.getPropertyValue("errors");
+    errors?.forEach(err => err.updateRenderedText());
   }
   public get hasTitleActions(): boolean {
     return this.getTitleActions().length > 0;
+  }
+  public get hasVisibleTitleActions() {
+    return this.getPropertyValue("hasVisibleTitleActions", undefined, () => {
+      return this.hasTitleActions && this.getTitleToolbar().hasVisibleActions;
+    });
+  }
+  private resetHasVisibleTitleActions() {
+    this.resetPropertyValue("hasVisibleTitleActions");
   }
   public get hasTitleEvents(): boolean {
     return this.state !== undefined && this.state !== "default";
@@ -578,16 +550,19 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const data = <IObjectValueContext><any>this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
-  protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[]): boolean {
+  protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     const data = <IObjectValueContext><any>this.data;
     if (!!data && typeof data.getValueGetterContext === "function") {
       const dataContext = data.getValueGetterContext();
       if (typeof dataContext?.getContextKeys === "function") {
-        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars);
+        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars, isClearedKeyChanged);
       }
     }
-    return super.canSkipExpressionByKeys(runner, keys, vars);
+    return super.canSkipExpressionByKeys(runner, keys, vars, isClearedKeyChanged);
+  }
+  protected get shouldHandleFocusScroll(): boolean {
+    return !!(this.survey as SurveyModel)?.autoCenterFocusedQuestion;
   }
   protected createTextProcessor(): ITextProcessor {
     return this.surveyImplValue.getTextProcessor();
@@ -667,6 +642,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    *
    * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
+   * @see readOnlyMode
+   * @readonly
    */
   public get isReadOnly(): boolean {
     return this.readOnly;
@@ -675,6 +652,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * Makes the survey element read-only.
    *
    * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see readOnlyMode
    * @see isReadOnly
    */
   public get readOnly(): boolean {
@@ -687,6 +665,35 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.setPropertyValue("isReadOnly", this.isReadOnly);
     }
   }
+  /**
+   * Specifies how the survey element is displayed when it is read-only.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the mode from the parent panel, page, or survey, in this order.
+   * - `"readonly"` - Displays the usual input controls, but disabled for editing.
+   * - `"view"` - Displays answers as plain text or other non-interactive visuals.
+   *
+   * This property applies only when the survey element is read-only, including when this state is inherited from a parent element or the survey.
+   *
+   * To make the element read-only, set its [`readOnly`](#readOnly) property to `true` or specify an [`enableIf`](#enableIf) condition that evaluates to `false`.
+   * @see isReadOnly
+   */
+  public get readOnlyMode(): "default" | "readonly" | "view" {
+    return this.getPropertyValue("readOnlyMode");
+  }
+  public set readOnlyMode(val: "default" | "readonly" | "view") {
+    this.setPropertyValue("readOnlyMode", val);
+  }
+  public getReadOnlyMode(): "readonly" | "view" {
+    const own = this.readOnlyMode;
+    if (own === "view" || own === "readonly") return own;
+    const owner = <SurveyElement><any>(this.parent || this.parentQuestion);
+    if (!!owner) return owner.getReadOnlyMode();
+    return !!this.survey ? this.survey.getReadOnlyMode() : "readonly";
+  }
+  // Called down the element tree when readOnlyMode changes on the element or on any of its ancestors.
+  public onReadOnlyModeChanged(): void { }
   protected onReadOnlyChanged() {
     if (!!this.readOnlyChangedCallback) {
       this.readOnlyChangedCallback();
@@ -1026,9 +1033,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return !this.isDesignMode;
   }
 
-  protected get isCompact(): boolean {
-    return this.survey && (<SurveyModel>this.survey)["isCompact"];
-  }
   public isInternalNested: boolean;
   private canHaveFrameStyles() {
     if (<any>this.singleInput?.currentSingleElement === this) return true;
@@ -1044,15 +1048,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     const isExpanadable = !!this.isCollapsed || !!this.isExpanded;
-    return new CssClassBuilder()
-      .append(cssClasses.withFrame, this.getHasFrameV2() && !this.isCompact)
-      .append(cssClasses.compact, this.isCompact && this.getHasFrameV2())
-      .append(cssClasses.collapsed, !!this.isCollapsed)
-      .append(cssClasses.expandableAnimating, isExpanadable && this.isAnimatingCollapseExpand)
-      .append(cssClasses.expanded, !!this.isExpanded && this.renderedIsExpanded)
-      .append(cssClasses.expandable, isExpanadable)
-      .append(cssClasses.nested, this.getIsNested())
-      .toString();
+    return toCssClasses(
+      this.getHasFrameV2() && cssClasses.withFrame,
+      !!this.isCollapsed && cssClasses.collapsed,
+      isExpanadable && this.isAnimatingCollapseExpand && cssClasses.expandableAnimating,
+      !!this.isExpanded && this.renderedIsExpanded && cssClasses.expanded,
+      isExpanadable && cssClasses.expandable,
+      this.getIsNested() && cssClasses.nested
+    );
   }
 
   /**
@@ -1165,11 +1168,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public getWrapperCss(): string {
     const css = this.survey?.getCss() || {};
-    return new CssClassBuilder()
-      .append(css.elementWrapper)
-      .append(css.elementWrapperMinWidth, this.hasDefaultMinWidth)
-      .append(this.cssClasses.questionWrapper)
-      .toString();
+    return toCssClasses(css.elementWrapper, this.hasDefaultMinWidth && css.elementWrapperMinWidth, this.cssClasses.questionWrapper);
   }
   /**
    * Returns the minWidth CSS value for an element that overrides the default min-width. It is scaled the same way as the theme's default.
@@ -1274,24 +1273,22 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getCssHeader(cssClasses: any): string {
     const isExpandable = this.state !== "default";
-    return new CssClassBuilder()
-      .append(cssClasses.header)
-      .append(cssClasses.headerExpandable, isExpandable)
-      .toString();
+    return toCssClasses(cssClasses.header, isExpandable && cssClasses.headerExpandable);
   }
   protected getCssTitle(cssClasses: any): string {
     if (!cssClasses) return "";
     const isExpandable = this.state !== "default";
     const numInlineLimit = 4;
-    return new CssClassBuilder()
-      .append(cssClasses.title)
-      .append(cssClasses.titleNumInline, ((<any>this).no || "").length > numInlineLimit || isExpandable)
-      .append(cssClasses.titleExpandable, isExpandable)
-      .append(cssClasses.titleExpanded, this.isExpanded)
-      .append(cssClasses.titleCollapsed, this.isCollapsed)
-      .append(cssClasses.titleDisabled, this.isDisabledStyle)
-      .append(cssClasses.titleReadOnly, this.isReadOnly)
-      .append(cssClasses.titleOnError, this.containsErrors).toString();
+    return toCssClasses(
+      cssClasses.title,
+      (((<any>this).no || "").length > numInlineLimit || isExpandable) && cssClasses.titleNumInline,
+      isExpandable && cssClasses.titleExpandable,
+      this.isExpanded && cssClasses.titleExpanded,
+      this.isCollapsed && cssClasses.titleCollapsed,
+      this.isDisabledStyle && cssClasses.titleDisabled,
+      this.isReadOnly && cssClasses.titleReadOnly,
+      this.containsErrors && cssClasses.titleOnError
+    );
   }
   public get isDisabledStyle(): boolean {
     return this.getIsDisableAndReadOnlyStyles(false)[1];
@@ -1384,10 +1381,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       },
       getAnimatedElement: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        if (cssClasses.content) {
-          const selector = classesToSelector(cssClasses.content);
+        if (cssClasses.expandableContent) {
+          const selector = classesToSelector(cssClasses.expandableContent);
           if (selector) {
-            return this.getWrapperElement()?.querySelector(`:scope ${selector}`);
+            return this.rootElement?.querySelector(`:scope ${selector}`);
           }
         }
         return undefined;
@@ -1431,8 +1428,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public onAfterRenderElement: EventBase<SurveyElement<E>, any> = this.addEvent<SurveyElement<E>, any>();
+  protected rootElement: HTMLElement;
   public afterRenderCore(element: HTMLElement): void {
+    this.rootElement = element;
     this.onAfterRenderElement.fire(this, { htmlElement: element });
+  }
+  public beforeDestroy() {
+    this.rootElement = undefined;
   }
 
   public dispose(): void {

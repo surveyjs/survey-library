@@ -5,6 +5,58 @@ export var greekSurveyStrings = {
   pagePrevText: "Προηγούμενο",
   // "Next"
   pageNextText: "Επόμενο",
+  // [Auto-translated] "First"
+  pageFirstText: "Πρώτα",
+  // [Auto-translated] "Last"
+  pageLastText: "Τελευταία",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "της {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Επιλογή Σελίδας",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ταξινόμηση κατά {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Υψηλή - Χαμηλή",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Χαμηλή - Υψηλή",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Αλφάβητο, Α - Ω",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Αλφάβητο, Ω - Α",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Πρώτα τα νεότερα",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Πρώτα τα παλαιότερα",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ταξινόμηση κατά {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, μετά από {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ταξινόμηση ανά",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Προεπιλογή",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Πεδίο ταξινόμησης",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Σειρά ταξινόμησης",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Προσθήκη επιπέδου ταξινόμησης",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Κατάργηση {0} επιπέδου ταξινόμησης",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Ταξινόμηση πεδίου {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Σειρά ταξινόμησης {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Εμφάνιση όλων των επιπέδων ταξινόμησης",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Προσθήκη νέου",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Μετακίνηση επιπέδου ταξινόμησης {0}",
   // "Complete"
   completeText: "Ολοκλήρωση",
   // "Preview"
@@ -37,6 +89,8 @@ export var greekSurveyStrings = {
   panelDynamicTabTextFormat: "Πίνακας {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Απαντήθηκαν {0} / {1} ερωτήσεις",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Ερώτηση {0} του {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Δεν υπάρχει καμία ορατή σελίδα ή ορατή ερώτηση σε αυτό το ερωτηματολόγιο.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var greekSurveyStrings = {
   value: "τιμή",
   // "Response required."
   requiredError: "Παρακαλώ απαντήστε στην ερώτηση.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Η τιμή είναι λανθασμένη.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Η τιμή περιέχει άγνωστα κλειδιά: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Απαντήστε σε τουλάχιστον μία ερώτηση.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var greekSurveyStrings = {
   noUploadFilesHandler: "Δεν είναι δυνατή η αποστολή αρχείων. Προσθέστε ένα πρόγραμμα χειρισμού για το συμβάν 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Παρακαλώ συμπληρώστε την τιμή για το πεδίο 'άλλο'.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Η τιμή «{0}» δεν είναι μία από τις διαθέσιμες επιλογές.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Το αρχείο σας ανεβαίνει. Παρακαλώ περιμένετε μερικά δευτερόλεπτα και δοκιμάστε ξανά.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var greekSurveyStrings = {
   addRow: "Προσθήκη γραμμής",
   // "Remove"
   removeRow: "Αφαίρεση",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Μετακίνηση γραμμής {0}",
   // "There are no rows."
   noRowsText: "Δεν υπάρχουν εγγραφές.",
   // [Auto-translated] "Row {rowIndex}"

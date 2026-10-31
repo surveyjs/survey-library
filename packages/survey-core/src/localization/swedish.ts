@@ -5,6 +5,58 @@ export var swedishSurveyStrings = {
   pagePrevText: "Föregående",
   // "Next"
   pageNextText: "Nästa",
+  // [Auto-translated] "First"
+  pageFirstText: "Först",
+  // [Auto-translated] "Last"
+  pageLastText: "Sista",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "av {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Välj sida",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortera efter {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Högt - Lågt",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Låg - Hög",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabetet, A - Ö",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nyaste första gången",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Äldsta första",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorterat efter {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, sedan av {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sortera efter",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Standard",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteringsfält",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteringsordning",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Lägg till sorteringsnivå",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Ta bort sorteringsnivå {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteringsfält {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteringsordning {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Visa alla sorteringsnivåer",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Lägg till Nytt",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flytta sorteringsnivå {0}",
   // "Complete"
   completeText: "Slutför",
   // "Preview"
@@ -37,6 +89,8 @@ export var swedishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0} / {1} frågor besvarade",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Fråga {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Det finns ingen synlig sida eller fråga i enkäten.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var swedishSurveyStrings = {
   value: "värde",
   // "Response required."
   requiredError: "Frågan är obligatorisk.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Värdet är felaktigt.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Värdet innehåller okända nycklar: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vänligen svara på minst en fråga.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var swedishSurveyStrings = {
   noUploadFilesHandler: "Filer kan inte laddas upp. Lägg till en hanterare för händelsen 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Var vänlig ange det andra värdet.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Värdet '{0}' är inte ett av de tillgängliga valen.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Din fil laddas upp. Var vänlig vänta några sekunder och försök sedan igen.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var swedishSurveyStrings = {
   addRow: "Lägg till rad",
   // "Remove"
   removeRow: "Ta bort",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Flytta rad {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Det finns inga rader.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var swedishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Förloppsindikator",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Sida {0}"
+  progressbarPage: "Sida {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "å",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "t",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "T",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "f",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "F"
 };
 
 setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "svenska", englishName: "Swedish" });

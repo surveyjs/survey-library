@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.rootCheckbox" ref="root">
+  <div :class="question.cssClasses.rootCheckbox" ref="root" @keydown="question.onKeyDown($event)">
     <div :class="question.getCheckboxItemCss()">
       <label :class="question.cssClasses.checkboxLabel">
         <input
@@ -19,7 +19,7 @@
           :aria-invalid="question.a11y_input_ariaInvalid"
           :aria-errormessage="question.a11y_input_ariaErrormessage"
         />
-        <span :class="question.cssClasses.checkboxMaterialDecorator">
+        <span :class="question.cssClasses.checkboxMaterialDecorator" aria-hidden="true">
           <svg
             v-if="question.svgIcon"
             :class="question.cssClasses.checkboxItemDecorator"
@@ -35,13 +35,13 @@
         >
           <SvComponent
             :is="'survey-element-title-content'"
-            v-if="!question.hasTitleActions"
+            v-if="!question.hasVisibleTitleActions"
             :element="question"
             :css="css"
           ></SvComponent>
           <SvComponent
             :is="'sv-title-actions'"
-            v-if="question.hasTitleActions"
+            v-if="question.hasVisibleTitleActions"
             :element="question"
             :css="css"
           ></SvComponent>

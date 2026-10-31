@@ -12,3 +12,5 @@ examples_test/
 index.js
 packages/survey-core/tests/bundle/*
 packages/converter/corpus/
+packages/survey-core/prompts/
+packages/survey-core/promts/

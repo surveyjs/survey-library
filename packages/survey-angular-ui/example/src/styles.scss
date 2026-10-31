@@ -1,1 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* survey-core embeds no @font-face rule; the example supplies Open Sans itself, pinned
+   to the files the reference screenshots were taken with - see fonts.css. */
+@import "./fonts.css";

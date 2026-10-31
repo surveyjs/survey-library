@@ -1,4 +1,4 @@
-import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { DomDocumentHelper } from "../global_variables_utils";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
@@ -75,10 +75,10 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   }
 
   private get shortcutClass(): string {
-    return new CssClassBuilder()
-      .append(this.parentElement.cssClasses.draggedRow)
-      //.append(this.parentElement.cssClasses.dragShortcutMobileMod, IsMobile)
-      .toString();
+    return toCssClasses(
+      this.parentElement.cssClasses.draggedRow
+      // IsMobile && this.parentElement.cssClasses.dragShortcutMobileMod
+    );
   }
 
   protected createDraggedElementShortcut(
@@ -109,7 +109,8 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
       draggedElementShortcut.appendChild(clone);
 
-      const rect = draggedElementNode.getBoundingClientRect();
+      const rect = row.getBoundingClientRect();
+
       draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
       draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
     }
@@ -150,7 +151,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       const row = this.dropTarget;
       const matrix = row.data;
       const renderedRow = matrix.renderedTable.rows.filter(r => r.row == row)[0];
-      const startAction = renderedRow?.cells[1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
+      const startAction = renderedRow?.cells[0]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
       const endAction = renderedRow?.cells[renderedRow.cells.length - 1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
 
       if ((startAction?.visible || endAction?.visible)) {
@@ -223,19 +224,76 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     super.ghostPositionChanged();
   }
 
+  /* fromIndex and toIndex are positions on the rendered page. A paged matrix takes numbers of its whole
+     view, so they are converted through the rows they name; without paging they are passed as they
+     always have been. */
   protected doDrop = (): QuestionMatrixDynamicModel => {
-    if (this.parentElement == this.toMatrix) {
+    const from = this.parentElement;
+    if (from == this.toMatrix) {
       if (this.fromIndex < this.toIndex) {
         this.toIndex--;
       }
-      this.parentElement.moveRowByIndex(this.fromIndex, this.toIndex);
+      if (this.isPaged(from)) {
+        from.moveRowByIndex(from.getRowViewIndex(this.draggedElement), this.getDropViewIndex(from, this.toIndex));
+      } else {
+        from.moveRowByIndex(this.fromIndex, this.toIndex);
+      }
     } else if (this.toMatrix) {
-      const row = { ...this.parentElement.value[this.fromIndex] };
-      this.parentElement.removeRowByIndex(this.fromIndex);
-      this.toMatrix.addRowByIndex(row, this.toIndex);
+      /* The dragged row names its record: under a sort, a filter or a page the position the row is
+         shown at is not the record's index in the value. */
+      const to = this.toMatrix;
+      const row = { ...from.getItemData(this.draggedElement) };
+      from.removeRowByIndex(this.isPaged(from) ? from.getRowViewIndex(this.draggedElement) : from.getItemIndex(this.draggedElement));
+      to.addRowByIndex(row, this.isPaged(to) ? this.getDropViewIndex(to, this.toIndex) : this.toIndex);
     }
-    return this.parentElement;
+    return from;
   };
+  // The rendered table is a page only while pageSize is set: design and single-input mode, which do not page, have no row drag.
+  private isPaged(matrix: QuestionMatrixDynamicModel): boolean {
+    return matrix.pageSize > 0;
+  }
+  // A drop position on the page of a paged matrix, in its whole view: the row shown there, or right after the last row of the page.
+  private getDropViewIndex(matrix: QuestionMatrixDynamicModel, position: number): number {
+    const rows = matrix.visibleRows;
+    if (position < rows.length) return matrix.getRowViewIndex(rows[position]);
+    return rows.length > 0 ? matrix.getRowViewIndex(rows[rows.length - 1]) + 1 : 0;
+  }
+
+  /* A keyboard move: the row goes to toPosition on the page, as a drop on the row shown there (above
+     it moving up, below it moving down). The events are a drag's: onDragStart, onMatrixRowDragOver,
+     and on its allow the drop with onDragEnd; onDragClear always. There is no ghost and no shortcut, so
+     the table is not reset: the row objects keep their positions and take the moved records, and the
+     handles stay rendered for the focus to move at once. False when nothing moves. */
+  public moveRowByKeyboard(matrix: QuestionMatrixDynamicModel, row: MatrixDropdownRowModelBase, toPosition: number): boolean {
+    const rows = matrix.visibleRows;
+    const fromPosition = rows.indexOf(row);
+    const target = <MatrixDynamicRowModel>rows[toPosition];
+    if (fromPosition < 0 || !target || target === row) return false;
+    this.parentElement = matrix;
+    // Nothing crosses the locked rows: neither the row nor the one it passes may be locked, as for a drop.
+    if (!this.canInsertIntoThisRow(<MatrixDynamicRowModel>row) || !this.canInsertIntoThisRow(target)) {
+      this.parentElement = null;
+      return false;
+    }
+    this.draggedElement = row;
+    this.onDragStart.fire(this, { fromElement: (<any>row).parent, draggedElement: row });
+    const options: MatrixRowDragOverEvent = { allow: true, row: target, fromMatrix: matrix, toMatrix: matrix } as any;
+    this.survey?.onMatrixRowDragOver.fire(this.survey, options);
+    if (options.allow) {
+      this.fromIndex = fromPosition;
+      this.toIndex = toPosition > fromPosition ? toPosition + 1 : toPosition;
+      this.toMatrix = matrix;
+      this.dropTarget = target;
+      this.allowDropHere = true;
+      this.drop();
+    }
+    this.fromIndex = null;
+    this.toIndex = null;
+    this.toMatrix = null;
+    this.allowDropHere = false;
+    super.clear();
+    return options.allow;
+  }
 
   public clear(): void {
     this.matrixRowMap = {};

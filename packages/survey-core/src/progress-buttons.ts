@@ -2,11 +2,11 @@
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { surveyCss } from "./defaultCss/defaultCss";
-import { propertyArray } from "./decorators";
+import { property, propertyArray } from "./decorators";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { getLocaleString } from "./surveyStrings";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 export class ProgressButtons extends Base {
   constructor(public survey: SurveyModel) {
@@ -15,10 +15,12 @@ export class ProgressButtons extends Base {
       this.visiblePages = survey.visiblePages;
     };
     survey.onCurrentPageChanged.add(this.onCurrentPageChanged);
+    survey.onValueChanged.add(this.onSurveyValueChanged);
     this.visiblePages = survey.visiblePages;
   }
 
   @propertyArray() visiblePages: PageModel[];
+  @property({ defaultValue: 0 }) private valueChangedCounter: number;
 
   public isListElementClickable(index: number | any): boolean {
     if (!this.survey.onServerValidateQuestions ||
@@ -30,7 +32,11 @@ export class ProgressButtons extends Base {
   }
   public isListElementPassed(index: number): boolean {
     const page = this.survey.visiblePages[index];
-    return page.wasShown || page.hasValueAnyQuestion(false, false);
+    return page.wasShown && page.hasValueAnyQuestion(false, false) && this.isAllRequiredAnswered(page);
+  }
+  private isAllRequiredAnswered(page: PageModel): boolean {
+    const info = page.getProgressInfo();
+    return info.requiredAnsweredQuestionCount >= info.requiredQuestionCount;
   }
   public getRootCss(container: string = "center"): string {
     let result = this.survey.css.progressButtonsContainerCenter;
@@ -57,11 +63,11 @@ export class ProgressButtons extends Base {
   }
   public getListElementCss(index: number | any): string {
     if (index >= this.survey.visiblePages.length) return;
-    return new CssClassBuilder()
-      .append(this.survey.css.progressButtonsListElementPassed, this.isListElementPassed(index))
-      .append(this.survey.css.progressButtonsListElementCurrent, this.survey.currentPageNo === index)
-      .append(this.survey.css.progressButtonsListElementNonClickable, !this.isListElementClickable(index))
-      .toString();
+    return toCssClasses(
+      this.isListElementPassed(index) && this.survey.css.progressButtonsListElementPassed,
+      this.survey.currentPageNo === index && this.survey.css.progressButtonsListElementCurrent,
+      !this.isListElementClickable(index) && this.survey.css.progressButtonsListElementNonClickable
+    );
   }
   public clickListElement(element: number | PageModel): void {
     if (!(element instanceof PageModel)) {
@@ -125,11 +131,15 @@ export class ProgressButtons extends Base {
 
   public dispose(): void {
     this.survey.onCurrentPageChanged.remove(this.onCurrentPageChanged);
+    this.survey.onValueChanged.remove(this.onSurveyValueChanged);
     super.dispose();
   }
 
   private readonly onCurrentPageChanged = (): void => {
     this.resetProgressText();
+  };
+  private readonly onSurveyValueChanged = (): void => {
+    this.valueChangedCounter++;
   };
 
   public getButtonAriaLabel(page: PageModel): string {

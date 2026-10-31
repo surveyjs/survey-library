@@ -1,0 +1,30 @@
+@use "../variables.scss" as *;
+
+.sd-pager {
+  --sd-action-bar-gap: 0;
+}
+.sd-action.sd-pager__page {
+  flex-direction: row-reverse;
+  box-sizing: border-box;
+  min-width: var(--sjs2-spacing-x400);
+}
+
+.sd-action.sd-pager__total {
+  box-sizing: border-box;
+  min-width: var(--sjs2-spacing-x400);
+  --sd-action-disabled-background: var(--sd-action-background);
+  --sd-action-disabled-title-color: var(--sd-action-title-color);
+}
+.sd-pager {
+  .sd-action-bar__item--space {
+    margin-inline-start: var(--sjs2-spacing-x075);
+  }
+}
+
+.sd-question--mobile .sd-pager {
+  width: 100%;
+
+  .sd-action-bar__item--space {
+    margin-inline-start: auto;
+  }
+}

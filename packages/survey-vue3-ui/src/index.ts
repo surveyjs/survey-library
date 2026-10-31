@@ -18,6 +18,7 @@ import Signaturepad from "./Signaturepad.vue";
 import Html from "./Html.vue";
 import Image from "./Image.vue";
 import Expression from "./Expression.vue";
+import QuestionView from "./QuestionView.vue";
 import File from "./File.vue";
 import ImagePicker from "./Imagepicker.vue";
 import ImagePickerItem from "./ImagepickerItem.vue";
@@ -59,6 +60,7 @@ import MatrixCell from "./MatrixCell.vue";
 import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
 import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
+import MatrixHeaderSortButton from "./MatrixHeaderSortButton.vue";
 import MatrixDropdownCellComp from "./MatrixDropdownCellComp.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
 import MatrixDynamicPlaceholder from "./MatrixDynamicPlaceholder.vue";
@@ -84,6 +86,7 @@ import ActionBarItem from "./components/action-bar/ActionBarItem.vue";
 import ActionBarItemDropdown from "./components/action-bar/ActionBarItemDropdown.vue";
 import ActionBarSeparator from "./components/action-bar/ActionBarSeparator.vue";
 
+import SortBarLevel from "./components/records-bar/SortBarLevel.vue";
 import List from "./components/list/List.vue";
 import ListItem from "./components/list/ListItem.vue";
 import ListItemContent from "./components/list/ListItemContent.vue";
@@ -120,7 +123,7 @@ import Element from "./Element.vue";
 
 import TemplateRenderer from "./TemplateRenderer.vue";
 
-import { SurveyModel } from "survey-core";
+import { RendererFactory, SurveyModel } from "survey-core";
 import type { App } from "vue";
 import FileCleanButton from "./FileCleanButton.vue";
 import FileVideo from "./FileVideo.vue";
@@ -184,6 +187,7 @@ function registerComponents(
   registerComponent("survey-html", Html);
   registerComponent("survey-image", Image);
   registerComponent("survey-expression", Expression);
+  registerComponent("survey-question-view", QuestionView);
   registerComponent("survey-file", File);
   registerComponent("sv-file-choose-btn", FileChooseButton);
   registerComponent("sv-file-clean-btn", FileCleanButton);
@@ -232,6 +236,7 @@ function registerComponents(
   registerComponent("survey-matrixdropdown", MatrixDropdown);
   registerComponent("survey-matrixtable", MatrixTable);
   registerComponent("survey-matrixheaderrequired", MatrixHeaderRequired);
+  registerComponent("survey-matrixheadersortbutton", MatrixHeaderSortButton);
   registerComponent("survey-matrixdropdown-cell", MatrixDropdownCellComp);
   registerComponent("survey-matrixdynamic", MatrixDynamic);
   registerComponent("survey-placeholder-matrixdynamic", MatrixDynamicPlaceholder);
@@ -264,6 +269,7 @@ function registerComponents(
   registerComponent("sv-action-bar-item", ActionBarItem);
   registerComponent("sv-action-bar-item-dropdown", ActionBarItemDropdown);
   registerComponent("sv-action-bar-separator", ActionBarSeparator);
+  registerComponent("sv-sort-bar-level", SortBarLevel);
 
   registerComponent("sv-list", List);
   registerComponent("sv-list-item-content", ListItemContent);
@@ -301,6 +307,7 @@ function registerComponents(
 registerComponents((name, component) =>
   ComponentFactory.Instance.registerComponent(name, component)
 );
+RendererFactory.Instance.registerRenderer("question", "view", "survey-question-view");
 
 export const surveyPlugin = {
   install(app: App) {

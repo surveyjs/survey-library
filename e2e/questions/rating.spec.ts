@@ -38,6 +38,34 @@ frameworks.forEach(framework => {
       });
     });
 
+    test("choose value with number key", async ({ page }) => {
+      await initSurvey(page, framework, json);
+      await page.locator("input[type=radio]").first().focus();
+      await page.keyboard.press("4");
+      await getButtonByText(page, "Complete").click();
+
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult).toEqual({
+        satisfaction: 4
+      });
+    });
+
+    test("number key types into comment instead of changing rating", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            showCommentArea: true
+          }
+        ]
+      });
+      await page.locator("textarea").focus();
+      await page.keyboard.press("4");
+      expect(await page.locator("textarea").inputValue()).toBe("4");
+      expect(await getQuestionValue(page)).toBe(undefined);
+    });
+
     test("click on question title state editable", async ({ page }) => {
       await initSurvey(page, framework, json, true);
       var newTitle = "MyText";

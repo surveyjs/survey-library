@@ -5,6 +5,58 @@ export var welshSurveyStrings = {
   pagePrevText: "Blaenorol",
   // "Next"
   pageNextText: "Nesaf",
+  // [Auto-translated] "First"
+  pageFirstText: "Cyntaf",
+  // [Auto-translated] "Last"
+  pageLastText: "Olaf",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "o {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Dewis Tudalen",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Trefnu yn ôl {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Uchel - Isel",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Isel - Uchel",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Wyddor, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Wyddor, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Y mwyaf newydd yn gyntaf",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Yr hynaf yn gyntaf",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Trefnwyd yn ôl {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, yna erbyn {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Trefnu yn ôl",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Rhagosodiad",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Maes didoli",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Trefn ddidoli",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Ychwanegu lefel didoli",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Gwaredu {0} lefel didoli",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Trefnu {0} maes",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Trefn ddidoli {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Dangos pob lefel trefnu",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Ychwanegu Newydd",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Symud lefel trefn {0}",
   // "Complete"
   completeText: "Cwblhau",
   // "Preview"
@@ -37,6 +89,8 @@ export var welshSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Wedi ateb {0}/{1} cwestiwn",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Cwestiwn {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Does dim modd gweld tudalen na chwestiwn yn yr arolwg.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var welshSurveyStrings = {
   value: "gwerth",
   // "Response required."
   requiredError: "Atebwch y cwestiwn.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Mae'r gwerth yn anghywir.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Mae'r gwerth yn cynnwys allweddi anhysbys: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Atebwch o leiaf un cwestiwn.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var welshSurveyStrings = {
   noUploadFilesHandler: "Ni ellir llwytho ffeiliau i fyny. Ychwanegwch handler ar gyfer y digwyddiad 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Rhowch y gwerth arall.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Nid yw'r gwerth '{0}' yn un o'r dewisiadau sydd ar gael.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Mae eich ffeil wrthi’n llwytho i fyny. Arhoswch ychydig o eiliadau a rhoi cynnig arall arni.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var welshSurveyStrings = {
   addRow: "Ychwanegu rhes",
   // "Remove"
   removeRow: "Tynnu",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Symud {0} rhes",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nid oes unrhyw ffraeau.",
   // [Auto-translated] "Row {rowIndex}"

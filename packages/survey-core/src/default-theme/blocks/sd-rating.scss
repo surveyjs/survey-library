@@ -35,14 +35,14 @@
       .sd-rating__min-text {
         position: absolute;
         margin: 0;
-        left: 0;
+        inset-inline-start: 0;
         top: 0;
         border: 0;
       }
       .sd-rating__max-text {
         position: absolute;
         margin: 0;
-        right: 0;
+        inset-inline-end: 0;
         top: 0;
         border: 0;
       }
@@ -56,14 +56,14 @@
       .sd-rating__min-text {
         position: absolute;
         margin: 0;
-        left:0;
+        inset-inline-start: 0;
         bottom: 0;
         border: 0;
       }
       .sd-rating__max-text {
         position: absolute;
         margin: 0;
-        right: 0;
+        inset-inline-end: 0;
         bottom: 0;
         border: 0;
       }
@@ -77,14 +77,14 @@
       .sd-rating__min-text {
         position: absolute;
         margin: 0;
-        left: 0;
+        inset-inline-start: 0;
         top: 0;
         border: 0;
       }
       .sd-rating__max-text {
         position: absolute;
         margin: 0;
-        right: 0;
+        inset-inline-end: 0;
         bottom: 0;
         border: 0;
       }
@@ -95,6 +95,11 @@
 .sd-rating--small {
   min-height: var(--sjs2-size-x300);
   margin: auto;
+
+  &.sd-rating--view {
+    margin-inline-start: 0;
+    margin-inline-end: auto;
+  }
 
   fieldset {
     padding: 0;

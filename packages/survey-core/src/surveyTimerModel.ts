@@ -5,7 +5,7 @@ import { SurveyTimer, SurveyTimerEvent } from "./surveytimer";
 import { property } from "./decorators";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 export interface ISurveyTimerText {
   timerInfoText: string;
@@ -106,17 +106,14 @@ export class SurveyTimerModel extends Base implements ILayoutElementModel {
   }
 
   public get rootCss(): string {
-    return new CssClassBuilder()
-      .append(this.survey.getCss().clockTimerRoot)
-      .append(this.survey.getCss().clockTimerRootTop, this.survey.isTimerPanelShowingOnTop)
-      .append(this.survey.getCss().clockTimerRootBottom, this.survey.isTimerPanelShowingOnBottom)
-      .toString();
+    return toCssClasses(
+      this.survey.getCss().clockTimerRoot,
+      this.survey.isTimerPanelShowingOnTop && this.survey.getCss().clockTimerRootTop,
+      this.survey.isTimerPanelShowingOnBottom && this.survey.getCss().clockTimerRootBottom
+    );
   }
   public getProgressCss(): string {
-    return new CssClassBuilder()
-      .append(this.survey.getCss().clockTimerProgress)
-      .append(this.survey.getCss().clockTimerProgressAnimation, this.progress > 0)
-      .toString();
+    return toCssClasses(this.survey.getCss().clockTimerProgress, this.progress > 0 && this.survey.getCss().clockTimerProgressAnimation);
   }
   public get textContainerCss(): string {
     return this.survey.getCss().clockTimerTextContainer;

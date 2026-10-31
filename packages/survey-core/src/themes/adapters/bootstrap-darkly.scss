@@ -34,6 +34,7 @@
   /* tagbox */
   --sjs2-color-component-tagbox-item-action-default-icon: currentColor;
   --sjs2-color-component-tagbox-item-action-hovered-icon: currentColor;
+  --sjs2-color-component-tagbox-item-action-pressed-icon: currentColor;
 
   /* cards / panels sit on gray-800, a touch lighter than the gray-900 body */
   --sjs2-color-component-panel-default-bg: var(--bs-card-bg, #303030);
@@ -60,16 +61,11 @@
     }
   }
 }
-
-.sd-table.sd-table.sd-table {
-  &> tbody, &> thead {
-    &> tr {
-      & > th,
-      & > td {
-        background: var(--bs-body-bg);
-      }
-    }
-  }
+.sd-table__cell {
+  background: var(--bs-body-bg);
+}
+.sd-table-wrapper {
+  --sd-question-container-background: var(--bs-body-bg);
 }
 
 .sd-dropdown--empty .sd-dropdown__filter-string-input::placeholder {

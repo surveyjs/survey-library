@@ -1,7 +1,7 @@
 import { Base } from "./base";
 import { settings } from "./settings";
 import { property } from "./decorators";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 
@@ -34,14 +34,14 @@ export class Notifier extends Base {
   }
 
   getCssClass(type: string): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootWithButtons, this.actionBar.getVisibleActions().length > 0)
-      .append(this.cssClasses.info, type !== "error" && type !== "success")
-      .append(this.cssClasses.error, type === "error")
-      .append(this.cssClasses.success, type === "success")
-      .append(this.cssClasses.shown, this.active)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.actionBar.getVisibleActions().length > 0 && this.cssClasses.rootWithButtons,
+      type !== "error" && type !== "success" && this.cssClasses.info,
+      type === "error" && this.cssClasses.error,
+      type === "success" && this.cssClasses.success,
+      this.active && this.cssClasses.shown
+    );
   }
 
   updateActions(type: string): void {

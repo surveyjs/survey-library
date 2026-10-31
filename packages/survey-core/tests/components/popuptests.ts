@@ -534,6 +534,62 @@ describe("Popup", () => {
     areaElement.remove();
   });
 
+  test("Escape in a popup opened inside a modal closes that popup only", () => {
+    const model: PopupModel = new PopupModel("sv-list", {});
+    model.isModal = true;
+    let cancelCount = 0;
+    model.onCancel = () => { cancelCount++; };
+    const viewModel: PopupModalViewModel = createPopupViewModel(model) as PopupModalViewModel;
+    const container = document.createElement("div");
+    container.innerHTML = "<div class=\"sv-popup\"><button id=\"own\"></button><div class=\"sv-popup\"><ul><li id=\"nested\"></li></ul></div></div>";
+    document.body.appendChild(container);
+    viewModel.setComponentElement(container);
+    model.isVisible = true;
+    viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#nested"), preventDefault: () => { } });
+    expect([model.isVisible, cancelCount], "#1: the nested list's Escape").toEqual([true, 0]);
+    // The nested list has closed.
+    (<HTMLElement>container.querySelector("#nested").closest(".sv-popup")).style.display = "none";
+    viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#own"), preventDefault: () => { } });
+    expect([model.isVisible, cancelCount], "#2: the modal's own Escape").toEqual([false, 1]);
+    container.remove();
+    viewModel.dispose();
+  });
+  test("Escape on a dropdown editor in a modal whose list is shown closes the list only: the editor keeps the focus", () => {
+    const model: PopupModel = new PopupModel("survey", {});
+    model.isModal = true;
+    let cancelCount = 0;
+    model.onCancel = () => { cancelCount++; };
+    const viewModel: PopupModalViewModel = createPopupViewModel(model) as PopupModalViewModel;
+    const container = document.createElement("div");
+    container.innerHTML = "<div class=\"sv-popup\"><div id=\"editor\" tabindex=\"0\"></div><div class=\"sv-popup\" id=\"list\"><ul><li></li></ul></div></div>";
+    document.body.appendChild(container);
+    viewModel.setComponentElement(container);
+    model.isVisible = true;
+    viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#editor"), preventDefault: () => { } });
+    expect([model.isVisible, cancelCount], "#1: the list is shown").toEqual([true, 0]);
+    (<HTMLElement>container.querySelector("#list")).style.display = "none";
+    viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#editor"), preventDefault: () => { } });
+    expect([model.isVisible, cancelCount], "#2: the list is hidden: the modal closes").toEqual([false, 1]);
+    model.isVisible = true;
+    // A renderer calls it once the modal is shown.
+    viewModel.updateOnShowing();
+    const list = <HTMLElement>container.querySelector("#list");
+    list.style.display = "";
+    // A renderer that hides the list in the editor's own handler: the modal reads the list as the key went down.
+    const editor = container.querySelector("#editor");
+    const onEditorKey = (): void => { list.style.display = "none"; };
+    const onModalKey = (event: any): void => { viewModel.onKeyDown(event); };
+    editor.addEventListener("keydown", onEditorKey);
+    container.addEventListener("keydown", onModalKey);
+    editor.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect([model.isVisible, cancelCount], "#3: the list was shown as the key went down").toEqual([true, 1]);
+    editor.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect([model.isVisible, cancelCount], "#4: the next Escape closes the modal").toEqual([false, 2]);
+    editor.removeEventListener("keydown", onEditorKey);
+    container.removeEventListener("keydown", onModalKey);
+    container.remove();
+    viewModel.dispose();
+  });
   test("PopupModel PopupModalViewModel clickOutside", () => {
     const model: PopupModel = new PopupModel("sv-list", {});
     const targetElement: HTMLElement = document.createElement("div");
@@ -1616,14 +1672,15 @@ describe("Popup", () => {
     };
     const wrapContainer = (element) => {
       const oldAddEventListener = element.addEventListener;
-      element.addEventListener = function (name, callback) {
-        oldAddEventListener.call(element, name, callback);
-        subscribeLog += "->subscribed";
+      // The wheel listener only: the modal listens to keydown too.
+      element.addEventListener = function (name, callback, options) {
+        oldAddEventListener.call(element, name, callback, options);
+        if (name === "wheel") subscribeLog += "->subscribed";
       };
       const oldRemoveEventListener = element.removeEventListener;
-      element.removeEventListener = function (name, callback) {
-        oldRemoveEventListener.call(element, name, callback);
-        subscribeLog += "->unsubscribed";
+      element.removeEventListener = function (name, callback, options) {
+        oldRemoveEventListener.call(element, name, callback, options);
+        if (name === "wheel") subscribeLog += "->unsubscribed";
       };
     };
 
@@ -1911,5 +1968,88 @@ describe("Popup", () => {
       window.queueMicrotask = oldQueueMicrotask;
       vi.useRealTimers();
     }
+  });
+  test("PopupModel recalculatePositionAfterRender: once the content is rendered, only while the popup is shown", () => {
+    vi.useFakeTimers();
+    try {
+      const model = new PopupModel("sv-list", {});
+      const log: Array<boolean> = [];
+      model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => log.push(options.isResetHeight));
+      model.show();
+      model.recalculatePositionAfterRender(true);
+      expect(log, "#1: not before the renderer has caught up").toEqual([]);
+      vi.advanceTimersByTime(10);
+      expect(log, "#2").toEqual([true]);
+      model.recalculatePositionAfterRender(false);
+      model.hide();
+      vi.advanceTimersByTime(10);
+      expect(log, "#3: hidden meanwhile").toEqual([true]);
+      model.show();
+      model.recalculatePositionAfterRender(false);
+      model.dispose();
+      vi.advanceTimersByTime(10);
+      expect(log, "#4: disposed meanwhile").toEqual([true]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  test("A shown popup positions itself and focuses its first input", () => {
+    vi.useFakeTimers();
+    const targetElement: HTMLElement = document.createElement("div");
+    addElementIntoBody(targetElement);
+    const model: PopupModel = new PopupModel("sv-list", {}, { isFocusedContent: true });
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    try {
+      viewModel.initializePopupContainer();
+      viewModel.container.innerHTML = "<div class=\"sv-popup\"><div class=\"sv-popup__container\"><div class=\"sv-popup__body-content\">" +
+        "<div class=\"sv-popup__scrolling-content\"><div class=\"sv-popup__content\"><input id=\"popupInput\" /></div></div></div></div></div>";
+      const input = viewModel.container.querySelector("#popupInput");
+      model.isVisible = true;
+      expect(viewModel.isVisible, "#1").toBe(true);
+      viewModel.updateOnShowing();
+      expect(viewModel.isPositionSet, "#2").toBe(true);
+      expect(document.activeElement === input, "#3: not focused yet").toBe(false);
+      vi.advanceTimersByTime(100);
+      expect(document.activeElement === input, "#4: the input is focused").toBe(true);
+    } finally {
+      viewModel.dispose();
+      targetElement.remove();
+      vi.useRealTimers();
+    }
+  });
+  test("hasBeenShown: turns true on the first show and stays true after hiding", () => {
+    const model: PopupModel = new PopupModel("sv-list", {});
+    const viewModel = createPopupViewModel(model);
+    let log = "";
+    viewModel.registerFunctionOnPropertyValueChanged("hasBeenShown", () => { log += "->" + viewModel.hasBeenShown; });
+    model.isVisible = true;
+    expect(viewModel.hasBeenShown, "#1: shown").toBe(true);
+    model.isVisible = false;
+    expect(viewModel.isVisible, "#2: hidden").toBe(false);
+    expect(viewModel.hasBeenShown, "#2: hidden").toBe(true);
+    model.isVisible = true;
+    expect(viewModel.hasBeenShown, "#3: shown again").toBe(true);
+    model.isVisible = false;
+    expect(viewModel.hasBeenShown, "#4: hidden again").toBe(true);
+    expect(log, "#5: changed once").toBe("->true");
+    viewModel.dispose();
+  });
+  test("hasBeenShown: a never-shown popup is not marked shown", () => {
+    const model: PopupModel = new PopupModel("sv-list", {});
+    const viewModel = createPopupViewModel(model);
+    expect(viewModel.hasBeenShown, "#1: created").toBe(false);
+    model.hide();
+    model.title = "Title";
+    model.isVisible = false;
+    expect(viewModel.hasBeenShown, "#2: hidden, changed").toBe(false);
+    viewModel.model = new PopupModel("sv-list", {});
+    expect(viewModel.hasBeenShown, "#3: another hidden model").toBe(false);
+    viewModel.dispose();
+
+    const shownModel: PopupModel = new PopupModel("sv-list", {});
+    shownModel.isVisible = true;
+    const shownViewModel = createPopupViewModel(shownModel);
+    expect(shownViewModel.hasBeenShown, "#4: created for a shown model").toBe(true);
+    shownViewModel.dispose();
   });
 });

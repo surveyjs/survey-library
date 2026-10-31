@@ -1,12 +1,16 @@
-import { ArrayOperand, BinaryOperand, ConditionsParser, Const, FunctionOperand, getBuiltInVariableNames, Operand, ValueGetter, Variable } from "survey-core";
+import { ArrayOperand, BinaryOperand, ConditionsParser, Const, findNameByPath, FunctionFactory, FunctionOperand, getBuiltInVariableNames, IExpressionError, isReturnColumnParam, Operand, parseValuePath, UnaryOperand, Variable } from "survey-core";
+import { FUNCTION_NAME_ARGS, FunctionArgNameScope } from "./catalog";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
+import { SurveyLintHintReasons, SurveyLintReasons } from "./reasons";
 import { ILintResolvedSettings } from "./lint-settings";
 import { closestMatch } from "./levenshtein";
 import {
-  ElementRecord, ExpressionSite, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
-  ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic,
-  SurveyIndex, CIMultiMap, TriggerRecord,
+  ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
+  ScopeFrameArrayItem, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic,
+  SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
+  ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
+import { getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields, isOwnField } from "./record-fields";
 
 export interface ParseOutcome {
   ast?: Operand;
@@ -22,27 +26,83 @@ export function parseExpressionText(text: string): ParseOutcome {
   return { error: { message: "The expression cannot be parsed." } };
 }
 
-export function collectOperands(ast: Operand): Array<Operand> {
+// An inArray filter written as an operand ("sumInArray({m}, 'a', {b} > 0)") sits in the AST of the
+// expression that holds the call, yet the runtime runs it per item, in the item's scope - so it is
+// no part of that expression. "site": the filter got a site of its own, which analyses all of it.
+// "unknownItems": the array's items are unknown, so whatever in it depends on them is not analysed.
+// Keyed by the operand, so every walk over the AST meets the mark, an iif() sub-site's included.
+// The marks are set in a pass after the walk (addInArrayConditionSites), so nothing that runs
+// before it may memoize what collectOperands returns (site.refs, functionArgRefs, subSites):
+// the cached list would hold the filter's names as the parent's.
+type ItemFilterKind = "site" | "unknownItems";
+const itemFilterOperands = new WeakMap<Operand, ItemFilterKind>();
+
+function collectAllOperands(ast: Operand): Array<Operand> {
   const list: Array<Operand> = [];
   ast.addOperandsToList(list);
   return list;
 }
 
-export function getVariableOperands(ast: Operand): Array<Variable> {
-  return <Array<Variable>>collectOperands(ast).filter(op => op.getType() === "variable");
+// The operands of an expression, without the subtrees of its inArray filters (see
+// itemFilterOperands). keepUnknownItemFilters keeps a filter whose items are unknown, for the
+// checks that do not depend on the items.
+export function collectOperands(ast: Operand, keepUnknownItemFilters?: boolean): Array<Operand> {
+  const list = collectAllOperands(ast);
+  let skipped: Set<Operand> | undefined;
+  list.forEach(op => {
+    const kind = itemFilterOperands.get(op);
+    if (!kind || (keepUnknownItemFilters && kind === "unknownItems")) return;
+    if (!!skipped && skipped.has(op)) return;
+    if (!skipped) skipped = new Set<Operand>();
+    collectAllOperands(op).forEach(item => skipped.add(item));
+  });
+  return !!skipped ? list.filter(op => !skipped.has(op)) : list;
 }
 
-export function getFunctionOperands(ast: Operand): Array<FunctionOperand> {
-  return <Array<FunctionOperand>>collectOperands(ast).filter(op => op.getType() === "function");
+export function getVariableOperands(ast: Operand): Array<Variable> {
+  return collectOperands(ast).filter((op): op is Variable => op instanceof Variable);
 }
+
+export function getFunctionOperands(ast: Operand, keepUnknownItemFilters?: boolean): Array<FunctionOperand> {
+  return collectOperands(ast, keepUnknownItemFilters)
+    .filter((op): op is FunctionOperand => op instanceof FunctionOperand);
+}
+
+// A value known at lint time. Boxed, so that a value of null or false is still a value.
+export interface ConstValue {
+  value: any;
+}
+
+export type OperatorSet = { [op: string]: boolean };
+
+// The operator vocabulary, declared once: several rules and the satisfiability reasoning
+// classify the same operators, and a set written twice is a set that drifts.
+export const EQUALITY_OPERATORS: OperatorSet = { equal: true, notequal: true };
+export const ORDERING_OPERATORS: OperatorSet = {
+  greater: true, greaterorequal: true, less: true, lessorequal: true,
+};
+export const ARITHMETIC_OPERATORS: OperatorSet = {
+  plus: true, minus: true, mul: true, div: true, mod: true, power: true,
+};
+// what a pair of bounds decides: an ordering comparison, plus "equal" asking for one point
+// inside them. "notequal" is left out - a range holds more than one value, so it is always
+// satisfiable.
+export const RANGE_OPERATORS: OperatorSet = { ...ORDERING_OPERATORS, equal: true };
 
 // The runtime resolver owns reference-path parsing (including how "[n]" indexes are
 // read through Helpers.getNumber), so delegate instead of reimplementing it.
-// getPath is stateless, hence the shared instance.
-const pathParser = new ValueGetter();
-
 export function splitRefSegments(name: string): Array<ParsedRefSegment> {
-  return pathParser.getPath(name);
+  return parseValuePath(name);
+}
+
+// Element, row, column and item names may contain dots ("address.city"), so a name is found
+// through the runtime's own walk over the segments, longest name first - the order the survey
+// resolves a root name in. The order a container uses only decides between two names that both
+// exist; whether a name is found does not depend on it. Answers the index of the last segment
+// the found name spans, or -1.
+function findDottedName(segments: Array<ParsedRefSegment>, start: number,
+  isKnown: (name: string) => boolean): number {
+  return findNameByPath(segments, start, true, isKnown);
 }
 
 function findFrame<T extends ScopeFrame>(scope: Array<ScopeFrame>, kind: T["kind"]): T | undefined {
@@ -76,13 +136,44 @@ function endsWithCI(text: string, suffix: string): boolean {
 // The runtime stores a question's comment under name + settings.commentSuffix and
 // exposes that key next to the value - in the survey data, in a matrix row and in a
 // dynamic-panel value alike. Returns the base name, or undefined when the suffix is absent.
-function stripCommentSuffix(name: string, lintSettings: ILintResolvedSettings): string | undefined {
+export function stripCommentSuffix(name: string, lintSettings: ILintResolvedSettings): string | undefined {
   const suffix = lintSettings.commentSuffix;
   if (!endsWithCI(name, suffix)) return undefined;
   return name.substring(0, name.length - suffix.length);
 }
 
-export function isKnownVariable(name: string, options: ISurveyLintOptions): boolean {
+// Whether a name is the comment key of an element of a row/panel object. The comment lives next
+// to a question's or column's value; an item field a checkbox or an image map keeps in the object
+// of a selected item has none (a choice comment is that object's "comment").
+export function isCommentKeyOf(name: string, map: CIMultiMap<ElementRecord>, lintSettings: ILintResolvedSettings): boolean {
+  const base = stripCommentSuffix(name, lintSettings);
+  return base !== undefined && map.get(base).some(record => record.type !== ITEM_FIELD_TYPE);
+}
+
+// A matrix writes its total row next to its value under getValueName() +
+// settings.matrix.totalsSuffix (onTotalValueChanged). Returns the base name, or undefined when
+// the suffix is absent.
+export function stripTotalsSuffix(name: string, lintSettings: ILintResolvedSettings): string | undefined {
+  const suffix = lintSettings.matrixTotalsSuffix;
+  if (!endsWithCI(name, suffix)) return undefined;
+  return name.substring(0, name.length - suffix.length);
+}
+
+// The element of a row/panel object a totals key names ({panel.matrix1-total.col1}). The record
+// accepts that key for any element of it (isRecordKeyOfType), so a data key needs no more; only a
+// matrix ever writes it, so an expression passes owns to require one. Undefined for a name that
+// is no totals key.
+export function findTotalsKeyBase(name: string, map: CIMultiMap<ElementRecord>, lintSettings: ILintResolvedSettings,
+  owns: (record: ElementRecord) => boolean = record => record.type !== ITEM_FIELD_TYPE): ElementRecord | undefined {
+  const base = stripTotalsSuffix(name, lintSettings);
+  return base === undefined ? undefined : map.get(base).find(owns);
+}
+
+// The two sources of host-variable names are a union: what the host listed by hand, and what
+// the variable definition declares. Neither is more true than the other, and one host declaring
+// a name twice is not a defect.
+function isKnownVariable(name: string, index: SurveyIndex, options: ISurveyLintOptions): boolean {
+  if (index.definitionVariables.has(name)) return true;
   const vars = options.knownVariables;
   if (!Array.isArray(vars)) return false;
   return vars.some(v => equalsCI(v, name));
@@ -117,23 +208,102 @@ function findRootRecord(root: string, index: SurveyIndex, nameOnly: boolean): El
   return index.byValueName.first(root);
 }
 
-function rootCandidates(index: SurveyIndex, options: ISurveyLintOptions, nameOnly: boolean): Array<string> {
+export interface NameCandidateFilter {
+  // which indexed elements answer the name being suggested for
+  accepts: (record: ElementRecord) => boolean;
+  // add the names that answer as data without being elements: valueNames, calculated
+  // values, the host variables (options.knownVariables and the variable definition) and
+  // the built-in variables
+  values?: boolean;
+}
+
+// The pool a typo suggestion is drawn from. Each caller states which names would be a
+// valid answer in its position - offering a question name for a page target, or a page
+// name for an expression reference, would be a suggestion that cannot work.
+export function nameCandidates(index: SurveyIndex, options: ISurveyLintOptions,
+  filter: NameCandidateFilter): Array<string> {
   const res: Array<string> = [];
-  index.byName.forEach((values, name) => {
-    if (values.some(value => isRootRecordVisible(value, nameOnly))) res.push(name);
+  index.byName.forEach((records, name) => {
+    if (records.some(filter.accepts)) res.push(name);
   });
+  if (!filter.values) return res;
   index.byValueName.forEach((_, name) => res.push(name));
   index.calculatedValues.forEach((_, name) => res.push(name));
   if (Array.isArray(options.knownVariables)) res.push(...options.knownVariables);
+  res.push(...index.definitionVariables.names());
   res.push(...builtInVariableNames());
   return res;
 }
 
+// The reference with segments start..end respelled. A reference and a trigger target both name a
+// container and something inside it, so the suggestion replaces the names of those segments only,
+// and all around them - an index, a postfix, the segments before and after - stays as the author
+// wrote it. Nothing to respell, a segment without a position, or a spelling that changes nothing
+// answers undefined, which is no repair.
+export function respellRef(ref: ParsedRef, start: number, end: number,
+  suggestion: string): string | undefined {
+  const raw = ref.raw;
+  const first = ref.segments[start];
+  const last = ref.segments[end];
+  if (!raw || !suggestion || !first || !last || first.from === undefined || last.to === undefined) {
+    return undefined;
+  }
+  const res = raw.substring(0, first.from) + suggestion + raw.substring(last.to);
+  return res === raw ? undefined : res;
+}
+
+// A typo suggestion and the last segment it replaces.
+export interface RefSuggestion {
+  name: string;
+  end: number;
+}
+
+// The name closest to what the segments from start tried to address. A typo inside a dotted name
+// ({address.cty}) is closest to the full registered name, so the longest run of segments is tried
+// first, through the same walk that resolves the names.
+export function suggestForSegments(segments: Array<ParsedRefSegment>, start: number,
+  pool: Array<string>): RefSuggestion | undefined {
+  let name: string;
+  const end = findDottedName(segments, start, joined => {
+    name = closestMatch(joined, pool);
+    return !!name;
+  });
+  return end > -1 ? { name: name, end: end } : undefined;
+}
+
+export function suggestForRef(ref: ParsedRef, pool: Array<string>): RefSuggestion | undefined {
+  return suggestForSegments(ref.segments, 0, pool);
+}
+
+function setSuggestion(ref: ParsedRef, suggestion: RefSuggestion | undefined): void {
+  ref.suggestion = suggestion ? suggestion.name : undefined;
+  ref.suggestionEnd = suggestion ? suggestion.end : undefined;
+}
+
+// What a scope prefix made of the reference: "handled" means the root was one and "ref" is
+// the answer; otherwise the inactive-scope fields say whether it looked like one.
 interface ScopeResolution {
   handled: boolean;
   ref?: ParsedRef;
   // set when the root word looks like a scope prefix but the scope is not active
   inactiveHint?: string;
+  inactiveHintReason?: string;
+  inactiveHintName?: string;
+}
+
+const NOT_A_SCOPE: ScopeResolution = { handled: false };
+
+// The text is what the English message shows; the reason is what a host localizes on.
+function inactiveScope(reason: string, name: string, text: string): ScopeResolution {
+  return { handled: false, inactiveHint: text, inactiveHintReason: reason, inactiveHintName: name };
+}
+
+// A row or panel variable inside an inArray filter: the filter runs against the item and then
+// the survey, wherever the call sits, so the item's own fields are read by their bare names.
+function inFilterScope(name: string, isPrefix: boolean): ScopeResolution {
+  return inactiveScope(SurveyLintHintReasons.inArrayFilterScope, name, isPrefix
+    ? "An inArray filter runs against the item and then the survey: write a field of the item without \"" + name + ".\"."
+    : "\"" + name + "\" is not available inside an inArray filter, which runs against the item and then the survey.");
 }
 
 function scopedResolved(ref: ParsedRef, prefix: string): ParsedRef {
@@ -147,34 +317,66 @@ function scopedUnknown(ref: ParsedRef, prefix: string, segmentIndex: number, can
   ref.status = "scoped-unknown";
   ref.scopePrefix = prefix;
   ref.unknownSegmentIndex = segmentIndex;
-  ref.suggestion = closestMatch(ref.segments[segmentIndex].name, candidates);
+  setSuggestion(ref, suggestForSegments(ref.segments, segmentIndex, candidates));
   return ref;
 }
 
 function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<ElementRecord>,
-  lintSettings: ILintResolvedSettings): ParsedRef {
+  lintSettings: ILintResolvedSettings, withTotals: boolean): ParsedRef {
   if (ref.segments.length < 2) return scopedResolved(ref, prefix);
-  // inner names may contain dots too ({row.col.a} for a column named "col.a") -
-  // try progressively longer joins, longest first, like the runtime value walk
-  for (let end = ref.segments.length; end > 1; end--) {
-    if (!isFoldableRange(ref.segments, 1, end)) continue;
-    const inner = ref.segments.slice(1, end).map(seg => seg.name).join(".");
-    const record = map.first(inner);
-    if (record) {
-      scopedResolved(ref, prefix);
-      ref.resolvedTo = record;
-      return ref;
-    }
+  // inner names may contain dots too ({row.col.a} for a column named "col.a")
+  let record: ElementRecord | undefined;
+  const found = findDottedName(ref.segments, 1, name => {
+    record = map.first(name);
+    return !!record;
+  });
+  if (found > -1) {
+    scopedResolved(ref, prefix);
+    ref.resolvedTo = record;
+    return ref;
   }
   // a comment lives next to its value inside the row/panel too ({row.col1-Comment}):
   // resolvedTo stays unset, the comment is a plain string, not the base question
-  const commentBase = stripCommentSuffix(ref.segments[1].name, lintSettings);
-  if (ref.segments.length === 2 && commentBase && map.has(commentBase)) {
+  if (ref.segments.length === 2 && isCommentKeyOf(ref.segments[1].name, map, lintSettings)) {
     scopedResolved(ref, prefix);
     ref.resolvedKind = "comment";
     return ref;
   }
+  // so does the total row of a matrix of a dynamic panel ({panel.matrix1-total.col1}): resolvedTo stays
+  // unset, nothing types a total, but a column below it is checked as for {matrix1-total.col1}. A
+  // matrix of a detail panel never writes its total row into the matrix row, so a row has none.
+  const totalsBase = withTotals ? findTotalsKeyBase(ref.segments[1].name, map, lintSettings, record => !!getTotalFields(record)) : undefined;
+  if (!!totalsBase) {
+    const totals = getTotalFields(totalsBase);
+    if (ref.segments.length > 2 && isUnknownName(ref, 2, totals)) {
+      return scopedUnknown(ref, prefix, 2, totals.names());
+    }
+    return scopedResolved(ref, prefix);
+  }
   return scopedUnknown(ref, prefix, 1, map.names());
+}
+
+// The synthetic element behind a standalone scope variable, memoized on the matrix/panel it
+// belongs to: the domain and verdict caches key off record identity. It is a plain record
+// literal (never a model object) that only the value-typing machinery reads.
+function getScopeValueRecord(owner: ElementRecord, name: string, type: string,
+  valueType: ValueTypeInfo, choices?: Array<any>): ElementRecord {
+  if (!owner.scopeValueRecords) owner.scopeValueRecords = new CIMap<ElementRecord>();
+  let record = owner.scopeValueRecords.get(name);
+  if (!record) {
+    record = {
+      name: name, type: type, kind: "question", path: owner.path, json: {},
+      parent: owner, scope: [], isUnknownType: false, valueType: valueType,
+    };
+    if (!!choices) {
+      record.choicesInfo = {
+        staticValues: choices.slice(), hasChoicesByUrl: false, lazy: false,
+        shownSpecialItems: [],
+      };
+    }
+    owner.scopeValueRecords.set(name, record);
+  }
+  return record;
 }
 
 function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, scope: Array<ScopeFrame> },
@@ -186,29 +388,51 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
   const panelFrame = findFrame<ScopeFramePanelDynamic>(scope, "panelDynamic");
   const itemFrame = findFrame<ScopeFrameItemValue>(scope, "itemValue");
   const compositeFrame = findFrame<ScopeFrameComposite>(scope, "composite");
+  // an inArray filter runs against the item and the survey, never against its owner's row or panel
+  const inFilter = !!findFrame<ScopeFrameArrayItem>(scope, "arrayItem");
 
   const rowPrefixes = [vars.row, vars.prevRow, vars.nextRow, vars.totalRow];
   for (let i = 0; i < rowPrefixes.length; i++) {
     if (equalsCI(root, rowPrefixes[i])) {
-      if (!matrixFrame) return { handled: false, inactiveHint: "\"" + rowPrefixes[i] + ".\" references are only available inside a matrix cell or a matrix detail panel." };
-      return { handled: true, ref: validateInnerName(ref, rowPrefixes[i], matrixFrame.columns, lintSettings) };
+      if (inFilter) return inFilterScope(rowPrefixes[i], true);
+      if (!matrixFrame) return inactiveScope(SurveyLintHintReasons.rowScopePrefix, rowPrefixes[i],
+        "\"" + rowPrefixes[i] + ".\" references are only available inside a matrix cell or a matrix detail panel.");
+      // the total row holds the totals of the matrix's own columns, every other row its record
+      const fields = equalsCI(rowPrefixes[i], vars.totalRow) ? getTotalFields(matrixFrame.owner) : getFrameItemFields(matrixFrame);
+      return { handled: true, ref: validateInnerName(ref, rowPrefixes[i], fields, lintSettings, false) };
     }
   }
   const rowStandalone = [vars.rowIndex, vars.visibleRowIndex, vars.rowValue, vars.rowName, vars.rowTitle, vars.matrix];
   for (let i = 0; i < rowStandalone.length; i++) {
     if (equalsCI(root, rowStandalone[i])) {
-      if (!matrixFrame) return { handled: false, inactiveHint: "\"" + rowStandalone[i] + "\" is only available inside a matrix cell or a matrix detail panel." };
-      return { handled: true, ref: scopedResolved(ref, rowStandalone[i]) };
+      if (inFilter) return inFilterScope(rowStandalone[i], false);
+      if (!matrixFrame) return inactiveScope(SurveyLintHintReasons.rowScopeStandalone, rowStandalone[i],
+        "\"" + rowStandalone[i] + "\" is only available inside a matrix cell or a matrix detail panel.");
+      const resolved = scopedResolved(ref, rowStandalone[i]);
+      if (ref.segments.length === 1) {
+        if (equalsCI(root, vars.rowIndex) || equalsCI(root, vars.visibleRowIndex)) {
+          resolved.resolvedTo = getScopeValueRecord(matrixFrame.owner, root,
+            SCOPE_INDEX_VARIABLE_TYPE, { shape: "scalar", scalarType: "number" });
+        } else if (equalsCI(root, vars.rowValue) &&
+          Array.isArray(matrixFrame.owner.matrixRowValues) && matrixFrame.owner.matrixRowValues.length > 0) {
+          // only a matrix with listed rows pins {rowValue} down - a matrixdynamic row has none
+          resolved.resolvedTo = getScopeValueRecord(matrixFrame.owner, root,
+            SCOPE_ROW_VALUE_TYPE, { shape: "scalar", scalarType: "any" }, matrixFrame.owner.matrixRowValues);
+        }
+      }
+      return { handled: true, ref: resolved };
     }
   }
   if (equalsCI(root, vars.panel)) {
-    if (panelFrame) return { handled: true, ref: validateInnerName(ref, vars.panel, panelFrame.templateNames, lintSettings) };
+    if (inFilter) return inFilterScope(vars.panel, true);
+    if (panelFrame) return { handled: true, ref: validateInnerName(ref, vars.panel, getFrameItemFields(panelFrame), lintSettings, true) };
     const staticPanel = getStaticPanelAncestor(site.owner);
     if (staticPanel && staticPanel.panelDescendantNames) {
       if (ref.segments.length < 2) return { handled: true, ref: scopedResolved(ref, vars.panel) };
-      const inner = ref.segments[1].name;
-      if (staticPanel.panelDescendantNames.has(inner)) return { handled: true, ref: scopedResolved(ref, vars.panel) };
-      const commentBase = stripCommentSuffix(inner, lintSettings);
+      if (findDottedName(ref.segments, 1, name => staticPanel.panelDescendantNames.has(name)) > -1) {
+        return { handled: true, ref: scopedResolved(ref, vars.panel) };
+      }
+      const commentBase = stripCommentSuffix(ref.segments[1].name, lintSettings);
       if (commentBase && staticPanel.panelDescendantNames.has(commentBase)) {
         const commentRef = scopedResolved(ref, vars.panel);
         commentRef.resolvedKind = "comment";
@@ -216,132 +440,178 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
       }
       return { handled: true, ref: scopedUnknown(ref, vars.panel, 1, staticPanel.panelDescendantNames.names()) };
     }
-    return { handled: false, inactiveHint: "\"" + vars.panel + ".\" references are only available inside a dynamic panel or a panel container." };
+    return inactiveScope(SurveyLintHintReasons.panelScopePrefix, vars.panel,
+      "\"" + vars.panel + ".\" references are only available inside a dynamic panel or a panel container.");
   }
   const panelSiblings = [vars.prevPanel, vars.nextPanel];
   for (let i = 0; i < panelSiblings.length; i++) {
     if (equalsCI(root, panelSiblings[i])) {
-      if (!panelFrame) return { handled: false, inactiveHint: "\"" + panelSiblings[i] + ".\" references are only available inside a dynamic panel." };
-      return { handled: true, ref: validateInnerName(ref, panelSiblings[i], panelFrame.templateNames, lintSettings) };
+      if (inFilter) return inFilterScope(panelSiblings[i], true);
+      if (!panelFrame) return inactiveScope(SurveyLintHintReasons.panelSiblingPrefix, panelSiblings[i],
+        "\"" + panelSiblings[i] + ".\" references are only available inside a dynamic panel.");
+      return { handled: true, ref: validateInnerName(ref, panelSiblings[i], getFrameItemFields(panelFrame), lintSettings, true) };
     }
   }
   const panelStandalone = [vars.parentPanel, vars.panelIndex, vars.visiblePanelIndex];
   for (let i = 0; i < panelStandalone.length; i++) {
     if (equalsCI(root, panelStandalone[i])) {
-      if (!panelFrame) return { handled: false, inactiveHint: "\"" + panelStandalone[i] + "\" is only available inside a dynamic panel." };
-      return { handled: true, ref: scopedResolved(ref, panelStandalone[i]) };
+      if (inFilter) return inFilterScope(panelStandalone[i], false);
+      if (!panelFrame) return inactiveScope(SurveyLintHintReasons.panelStandalone, panelStandalone[i],
+        "\"" + panelStandalone[i] + "\" is only available inside a dynamic panel.");
+      const resolved = scopedResolved(ref, panelStandalone[i]);
+      if (ref.segments.length === 1 &&
+        (equalsCI(root, vars.panelIndex) || equalsCI(root, vars.visiblePanelIndex))) {
+        resolved.resolvedTo = getScopeValueRecord(panelFrame.owner, root,
+          SCOPE_INDEX_VARIABLE_TYPE, { shape: "scalar", scalarType: "number" });
+      }
+      return { handled: true, ref: resolved };
     }
   }
   const itemPrefixes = [vars.item, vars.choice, vars.column];
   for (let i = 0; i < itemPrefixes.length; i++) {
     if (equalsCI(root, itemPrefixes[i])) {
-      if (!itemFrame) return { handled: false, inactiveHint: "\"" + itemPrefixes[i] + "\" is only available inside choice/row/column conditions." };
+      if (!itemFrame) return inactiveScope(SurveyLintHintReasons.itemScope, itemPrefixes[i],
+        "\"" + itemPrefixes[i] + "\" is only available inside choice/row/column conditions.");
       return { handled: true, ref: scopedResolved(ref, itemPrefixes[i]) };
     }
   }
   if (equalsCI(root, vars.composite)) {
-    if (!compositeFrame) return { handled: false, inactiveHint: "\"" + vars.composite + ".\" references are only available inside a composite question." };
+    if (!compositeFrame) return inactiveScope(SurveyLintHintReasons.compositeScopePrefix, vars.composite,
+      "\"" + vars.composite + ".\" references are only available inside a composite question.");
     if (compositeFrame.fieldNames.size === 0 || ref.segments.length < 2) {
       return { handled: true, ref: scopedResolved(ref, vars.composite) };
     }
-    const inner = ref.segments[1].name;
-    if (compositeFrame.fieldNames.has(inner)) return { handled: true, ref: scopedResolved(ref, vars.composite) };
+    if (findDottedName(ref.segments, 1, name => compositeFrame.fieldNames.has(name)) > -1) {
+      return { handled: true, ref: scopedResolved(ref, vars.composite) };
+    }
     return { handled: true, ref: scopedUnknown(ref, vars.composite, 1, compositeFrame.fieldNames.names()) };
   }
   if (equalsCI(root, vars.self) || equalsCI(root, vars.parent) || equalsCI(root, vars.survey)) {
     return { handled: true, ref: scopedResolved(ref, root) };
   }
-  return { handled: false };
+  return NOT_A_SCOPE;
+}
+
+// The segment at index does not name anything inside the container the segment before it
+// resolved to; level is what it was meant to name there. Candidates are the names that
+// container does hold, for the typo suggestion.
+function markUnknownSegment(ref: ParsedRef, index: number, candidates: Array<string>,
+  level: SegmentLevel): void {
+  ref.status = "unknown";
+  ref.unknownSegmentIndex = index;
+  ref.unknownSegmentLevel = level;
+  setSuggestion(ref, suggestForSegments(ref.segments, index, candidates));
+}
+
+// The segments from start name nothing the container holds, not even joined into a dotted
+// name. The segments stay as written: a found dotted name is not collapsed into one.
+function isUnknownName(ref: ParsedRef, start: number, map: { has(name: string): boolean }): boolean {
+  return findDottedName(ref.segments, start, name => map.has(name)) < 0;
+}
+
+// An object value several questions share holds the keys of all of them: a key is a multiple-text
+// item or a matrix row of one of them, and below a matrixdropdown row come the columns of the
+// matrixdropdowns listing that row.
+function validateMergedObjectPath(ref: ParsedRef, record: ElementRecord, type: string): void {
+  const merged = record.mergedObject;
+  let key = "";
+  const keyEnd = findDottedName(ref.segments, 1, name => {
+    key = name;
+    return merged.keys.some(k => equalsCI(k, name));
+  });
+  if (keyEnd < 0) {
+    markUnknownSegment(ref, 1, merged.keys, type === "multipletext" ? "item" : "row");
+    return;
+  }
+  const columnStart = keyEnd + 1;
+  const fields = getRowFields(record, key);
+  if (ref.segments.length > columnStart && !!fields && isUnknownName(ref, columnStart, fields)) {
+    markUnknownSegment(ref, columnStart, fields.names(), "column");
+  }
 }
 
 function validateElementSubPath(ref: ParsedRef, record: ElementRecord): void {
   if (ref.segments.length < 2) return;
-  const seg1 = ref.segments[1];
-  if (record.type === "multipletext" && record.multipleTextItems) {
-    if (!record.multipleTextItems.has(seg1.name)) {
-      ref.status = "unknown";
-      ref.unknownSegmentIndex = 1;
-      ref.suggestion = closestMatch(seg1.name, record.multipleTextItems.names());
+  const type = getEffectiveType(record);
+  if (record.mergedObject) {
+    validateMergedObjectPath(ref, record, type);
+    return;
+  }
+  if (type === "multipletext" && record.multipleTextItems) {
+    if (isUnknownName(ref, 1, record.multipleTextItems)) {
+      markUnknownSegment(ref, 1, record.multipleTextItems.names(), "item");
     }
     return;
   }
-  if ((record.type === "matrix" || record.type === "matrixdropdown") && Array.isArray(record.matrixRowValues)) {
-    const rowKnown = record.matrixRowValues.some(v => equalsCI(String(v), seg1.name));
-    if (!rowKnown) {
-      ref.status = "unknown";
-      ref.unknownSegmentIndex = 1;
-      ref.suggestion = closestMatch(seg1.name, record.matrixRowValues.map(v => String(v)));
+  if ((type === "matrix" || type === "matrixdropdown") && Array.isArray(record.matrixRowValues)) {
+    const rowNames = record.matrixRowValues.map(v => String(v));
+    const rowEnd = findDottedName(ref.segments, 1, name => rowNames.some(row => equalsCI(row, name)));
+    if (rowEnd < 0) {
+      markUnknownSegment(ref, 1, rowNames, "row");
       return;
     }
-    if (record.type === "matrixdropdown" && ref.segments.length > 2 && record.matrixColumns) {
-      const seg2 = ref.segments[2];
-      if (!record.matrixColumns.has(seg2.name)) {
-        ref.status = "unknown";
-        ref.unknownSegmentIndex = 2;
-        ref.suggestion = closestMatch(seg2.name, record.matrixColumns.names());
+    const columnStart = rowEnd + 1;
+    const fields = getItemFields(record);
+    if (type === "matrixdropdown" && ref.segments.length > columnStart && fields) {
+      if (isUnknownName(ref, columnStart, fields)) {
+        markUnknownSegment(ref, columnStart, fields.names(), "column");
       }
     }
     return;
   }
-  if (record.type === "matrixdynamic" && record.matrixColumns) {
+  if (type === "matrixdynamic" && record.matrixColumns) {
     // {mdyn[0].col} - the index is attached to the root segment
     if (ref.segments[0].index === undefined) return;
-    if (!record.matrixColumns.has(seg1.name)) {
-      ref.status = "unknown";
-      ref.unknownSegmentIndex = 1;
-      ref.suggestion = closestMatch(seg1.name, record.matrixColumns.names());
+    const fields = getItemFields(record);
+    if (isUnknownName(ref, 1, fields)) {
+      markUnknownSegment(ref, 1, fields.names(), "column");
     }
     return;
   }
-  if (record.type === "paneldynamic" && record.templateNames) {
+  if (type === "paneldynamic" && record.templateNames) {
     if (ref.segments[0].index === undefined) return;
-    if (!record.templateNames.has(seg1.name)) {
-      ref.status = "unknown";
-      ref.unknownSegmentIndex = 1;
-      ref.suggestion = closestMatch(seg1.name, record.templateNames.names());
+    const fields = getItemFields(record);
+    if (isUnknownName(ref, 1, fields)) {
+      markUnknownSegment(ref, 1, fields.names(), "templateQuestion");
     }
     return;
   }
   if (record.componentFieldNames && record.componentFieldNames.size > 0) {
-    if (!record.componentFieldNames.has(seg1.name)) {
-      ref.status = "unknown";
-      ref.unknownSegmentIndex = 1;
-      ref.suggestion = closestMatch(seg1.name, record.componentFieldNames.names());
+    if (isUnknownName(ref, 1, record.componentFieldNames)) {
+      markUnknownSegment(ref, 1, record.componentFieldNames.names(), "field");
     }
     return;
   }
   // every other type (custom/unknown, expression, checkbox indexes, ...): stay lenient
 }
 
-// segments [start, end) can fold into one dotted name only if none but the last
-// carries an index: in {a[0].b} the index makes ".b" a walk into a's value
-function isFoldableRange(segments: Array<ParsedRefSegment>, start: number, end: number): boolean {
-  for (let i = start; i < end - 1; i++) {
-    if (segments[i].index !== undefined) return false;
-  }
-  return true;
+// Element/calculated-value names may themselves contain dots ("address.city"), and the
+// survey prefers the longest registered name (findNameByPath, longest first), so it must
+// win over "first segment plus sub-path". When a prefix of 2+ segments matches a
+// registered name, collapse it into the root segment; the remaining segments stay a
+// sub-path to validate as usual.
+function collapseLongestRootName(ref: ParsedRef, index: SurveyIndex, options: ISurveyLintOptions): void {
+  let joined = "";
+  const last = findDottedName(ref.segments, 0, name => {
+    joined = name;
+    return index.byName.has(name) || index.byValueName.has(name) ||
+      index.calculatedValues.has(name) || isKnownVariable(name, index, options);
+  });
+  if (last < 1) return;
+  foldRootSegments(ref, last, joined);
 }
 
-// Element/calculated-value names may themselves contain dots ("address.city").
-// The runtime resolver re-joins progressively longer dotted prefixes and prefers
-// the longest (ValueGetterContextCore.checkValueByPath with isSearchNameRevert),
-// so a longer registered name must win over "first segment plus sub-path".
-// When a prefix of 2+ segments matches a registered name, collapse it into the
-// root segment; the remaining segments stay a sub-path to validate as usual.
-function collapseLongestRootName(ref: ParsedRef, index: SurveyIndex, options: ISurveyLintOptions): void {
-  for (let end = ref.segments.length; end > 1; end--) {
-    if (!isFoldableRange(ref.segments, 0, end)) continue;
-    const joined = ref.segments.slice(0, end).map(seg => seg.name).join(".");
-    if (!index.byName.has(joined) && !index.byValueName.has(joined) &&
-      !index.calculatedValues.has(joined) && !isKnownVariable(joined, options)) {
-      continue;
-    }
-    const last = ref.segments[end - 1];
-    const collapsed: ParsedRefSegment = last.index === undefined
-      ? { name: joined } : { name: joined, index: last.index };
-    ref.segments = [collapsed].concat(ref.segments.slice(end));
-    return;
+// Segments 0..last become the one dotted root name they spell, at the position they span and
+// with the index the last of them carries.
+function foldRootSegments(ref: ParsedRef, last: number, name: string): void {
+  const end = ref.segments[last];
+  const root: ParsedRefSegment = { name: name };
+  if (end.index !== undefined) root.index = end.index;
+  if (ref.segments[0].from !== undefined) {
+    root.from = ref.segments[0].from;
+    root.to = end.to;
   }
+  ref.segments = [root].concat(ref.segments.slice(last + 1));
 }
 
 function stripUnwrapPostfix(name: string, postfix: string): string {
@@ -355,18 +625,16 @@ function stripUnwrapPostfix(name: string, postfix: string): string {
 // by default); the suffix comes from settings.matrix.totalsSuffix. The runtime keys
 // the total row off getValueName(), so a matrix with a valueName is addressed by it.
 function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex): boolean {
-  const suffix = index.settings.matrixTotalsSuffix;
-  if (!endsWithCI(root, suffix)) return false;
-  const base = root.substring(0, root.length - suffix.length);
-  const record = <ElementRecord>index.byName.first(base) || <ElementRecord>index.byValueName.first(base);
+  const base = stripTotalsSuffix(root, index.settings);
+  if (base === undefined) return false;
+  const record = index.findByDataName(base);
   if (!record || (record.type !== "matrixdropdown" && record.type !== "matrixdynamic")) return false;
   ref.status = "resolved";
   ref.resolvedTo = record;
   ref.resolvedKind = "element";
-  if (ref.segments.length > 1 && record.matrixColumns && !record.matrixColumns.has(ref.segments[1].name)) {
-    ref.status = "unknown";
-    ref.unknownSegmentIndex = 1;
-    ref.suggestion = closestMatch(ref.segments[1].name, record.matrixColumns.names());
+  const totals = getTotalFields(record);
+  if (ref.segments.length > 1 && !!totals && isUnknownName(ref, 1, totals)) {
+    markUnknownSegment(ref, 1, totals.names(), "column");
   }
   return true;
 }
@@ -382,6 +650,33 @@ function tryResolveCommentSuffix(ref: ParsedRef, root: string, index: SurveyInde
   ref.status = "resolved";
   ref.resolvedKind = "comment";
   return true;
+}
+
+// ConditionRunner.runValues reads an inArray item's bare data keys before falling
+// back to the survey context. These are not {row.x}/{panel.x} references.
+function tryResolveArrayItem(ref: ParsedRef, scope: Array<ScopeFrame>, settings: ILintResolvedSettings): boolean {
+  const frame = findFrame<ScopeFrameArrayItem>(scope || [], "arrayItem");
+  if (!frame) return false;
+  let joined = "";
+  let record: ElementRecord | undefined;
+  const last = findDottedName(ref.segments, 0, name => {
+    joined = name;
+    record = frame.names.first(name);
+    return !!record;
+  });
+  if (last > -1) {
+    foldRootSegments(ref, last, joined);
+    scopedResolved(ref, "");
+    ref.resolvedTo = record;
+    validateElementSubPath(ref, record);
+    return true;
+  }
+  if (ref.segments.length === 1 && isCommentKeyOf(ref.segments[0].name, frame.names, settings)) {
+    scopedResolved(ref, "");
+    ref.resolvedKind = "comment";
+    return true;
+  }
+  return false;
 }
 
 // nameOnly: the raw string is a runtime NAME (a trigger target), not an expression
@@ -405,21 +700,34 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
       name = name.substring(1);
     }
   }
-  ref.segments = splitRefSegments(name);
+  // positions are kept in raw, which still holds a stripped conversion char
+  const offset = raw.length - name.length;
+  ref.segments = parseValuePath(name, true);
+  ref.segments.forEach(seg => {
+    seg.from += offset;
+    seg.to += offset;
+  });
   if (ref.segments.length === 0 || !ref.segments[0].name) return ref;
   if (!nameOnly) {
     // a single trailing ".length" is valid whenever the base reference is
     if (ref.segments.length > 1 && ref.segments[ref.segments.length - 1].name === "length") {
       ref.segments = ref.segments.slice(0, ref.segments.length - 1);
     }
+    const first = ref.segments[0];
+    const rootName = stripUnwrapPostfix(first.name, index.settings.expressionVariables.unwrapPostfix);
     ref.segments[0] = {
-      name: stripUnwrapPostfix(ref.segments[0].name, index.settings.expressionVariables.unwrapPostfix),
-      index: ref.segments[0].index,
+      name: rootName, index: first.index, from: first.from, to: first.from + rootName.length,
     };
   }
 
-  const scopeRes = nameOnly ? { handled: false } : tryResolveScopePrefix(ref, site, index.settings);
-  if (scopeRes.handled) return (<ScopeResolution>scopeRes).ref;
+  // a scope prefix answers the reference outright; otherwise what it says about an inactive
+  // scope is the hint an unknown root is reported with, further down
+  let scopeRes: ScopeResolution = NOT_A_SCOPE;
+  if (!nameOnly) {
+    if (tryResolveArrayItem(ref, site.scope, index.settings)) return ref;
+    scopeRes = tryResolveScopePrefix(ref, site, index.settings);
+    if (scopeRes.handled) return scopeRes.ref;
+  }
 
   collapseLongestRootName(ref, index, options);
   const root = ref.segments[0].name;
@@ -437,7 +745,7 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
     ref.resolvedKind = "calculatedValue";
     return ref;
   }
-  if (isKnownVariable(root, options)) {
+  if (isKnownVariable(root, index, options)) {
     ref.status = "resolved";
     ref.resolvedKind = "knownVariable";
     return ref;
@@ -457,25 +765,35 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
 
   ref.status = "unknown";
   ref.unknownSegmentIndex = 0;
-  const inactiveHint = (<ScopeResolution>scopeRes).inactiveHint;
-  if (inactiveHint) ref.scopeHint = inactiveHint;
+  if (scopeRes.inactiveHint) {
+    ref.scopeHint = scopeRes.inactiveHint;
+    ref.hintReason = scopeRes.inactiveHintReason;
+    ref.hintName = scopeRes.inactiveHintName;
+  }
   // a bare name that exists in the enclosing template/matrix scope needs its prefix
   const panelFrame = findFrame<ScopeFramePanelDynamic>(site.scope || [], "panelDynamic");
   const matrixFrame = findFrame<ScopeFrameMatrixRow>(site.scope || [], "matrixRow");
-  if (matrixFrame && matrixFrame.columns.has(root)) {
+  const matrixFields = matrixFrame ? getFrameItemFields(matrixFrame) : undefined;
+  const panelFields = panelFrame ? getFrameItemFields(panelFrame) : undefined;
+  // a field a question sharing the value adds is no column or template question of the container
+  if (matrixFields && matrixFields.has(root)) {
     ref.suggestion = index.settings.expressionVariables.row + "." + root;
-    ref.scopeHint = "\"" + root + "\" is a column of this matrix - reference it as {" + ref.suggestion + "}.";
-  } else if (panelFrame && panelFrame.templateNames.has(root)) {
+    ref.scopeHint = "\"" + root + "\" is " + (isOwnField(matrixFrame.owner, matrixFields, root) ? "a column of this matrix"
+      : "a field of this matrix row, written by a question sharing the matrix value") +
+      " - reference it as {" + ref.suggestion + "}.";
+    ref.hintReason = SurveyLintHintReasons.matrixColumn;
+    ref.hintName = root;
+  } else if (panelFields && panelFields.has(root)) {
     ref.suggestion = index.settings.expressionVariables.panel + "." + root;
-    ref.scopeHint = "\"" + root + "\" is a question of this dynamic panel - reference it as {" + ref.suggestion + "}.";
+    ref.scopeHint = "\"" + root + "\" is " + (isOwnField(panelFrame.owner, panelFields, root) ? "a question of this dynamic panel"
+      : "a field of this dynamic panel, written by a question sharing the panel value") +
+      " - reference it as {" + ref.suggestion + "}.";
+    ref.hintReason = SurveyLintHintReasons.panelQuestion;
+    ref.hintName = root;
   } else {
-    const candidates = rootCandidates(index, options, nameOnly);
-    let suggestion: string = undefined;
-    // a typo inside a dotted name ({address.cty}) is closest to the full registered name
-    if (ref.segments.length > 1 && isFoldableRange(ref.segments, 0, ref.segments.length)) {
-      suggestion = closestMatch(ref.segments.map(seg => seg.name).join("."), candidates);
-    }
-    ref.suggestion = suggestion || closestMatch(root, candidates);
+    setSuggestion(ref, suggestForRef(ref, nameCandidates(index, options, {
+      accepts: record => isRootRecordVisible(record, nameOnly), values: true,
+    })));
   }
   return ref;
 }
@@ -502,6 +820,347 @@ export function classifySiteRefs(site: ExpressionSite, index: SurveyIndex, optio
   return site.refs;
 }
 
+// A subtree evaluated for its value at lint time. Wrapped rather than returned bare, because
+// the value itself may be null or false; undefined means the expression threw, which is the
+// runtime's own answer to a fragment that does not compute.
+export function tryEvaluate(node: Operand, processValue?: any): ConstValue | undefined {
+  try {
+    return { value: node.evaluate(processValue) };
+  } catch{
+    return undefined;
+  }
+}
+
+// A bound the JSON actually states. An empty string is what a cleared min/max field leaves
+// behind, so it is no more a bound than a missing one.
+export function hasBound(value: any): boolean {
+  return value !== undefined && value !== null && value !== "";
+}
+
+// A reference that names one known element: reasoning about its value is only sound then.
+export function isUsableRef(ref: ParsedRef | undefined): boolean {
+  return !!ref && (ref.status === "resolved" || ref.status === "scoped-resolved");
+}
+
+// A usable reference that reads the element's own value, not a part of it: a sub-path or an
+// index ({q.item}, {q[0]}) compares against a sub-value the linter does not model. A scoped
+// ref ({row.col}) already resolves to the compared element itself.
+export function isSimpleValueRef(ref: ParsedRef | undefined): boolean {
+  if (!isUsableRef(ref)) return false;
+  return ref.status !== "resolved" ||
+    ref.segments.length === 1 && ref.segments[0].index === undefined;
+}
+
+// The element whose own value a sub-path reference reads: a matrix cell path lands on the
+// column record (typed as its cell type), a dynamic panel path on the template question.
+// Only the shapes where every row/panel shares one sub-element are modelled - which row or
+// panel the index picks does not change what the cell can hold. Undefined elsewhere, and for
+// a path reference/unknown already reports.
+export function getSubPathRecord(ref: ParsedRef | undefined): ElementRecord | undefined {
+  if (!ref || ref.status !== "resolved" || !ref.resolvedTo) return undefined;
+  if (ref.unknownSegmentIndex !== undefined) return undefined;
+  const record = ref.resolvedTo;
+  if (record.isUnknownType) return undefined;
+  const segments = ref.segments;
+  const type = getEffectiveType(record);
+  if (type === "matrixdropdown" && record.matrixColumns) {
+    if (segments.length !== 3 || segments.some(seg => seg.index !== undefined)) return undefined;
+    const fields = getRowFields(record, segments[1].name);
+    return !!fields ? fields.first(segments[2].name) : undefined;
+  }
+  if (type === "matrixdynamic" && record.matrixColumns) {
+    if (segments.length !== 2 || segments[0].index === undefined ||
+      segments[1].index !== undefined) return undefined;
+    return getItemFields(record).first(segments[1].name);
+  }
+  if (type === "paneldynamic" && record.templateNames) {
+    if (segments.length !== 2 || segments[0].index === undefined ||
+      segments[1].index !== undefined) return undefined;
+    const sub = getItemFields(record).first(segments[1].name);
+    return !!sub && sub.kind === "question" ? sub : undefined;
+  }
+  return undefined;
+}
+
+// The element a reference compares against, sub-paths included: the referenced element itself
+// for a simple ref, the cell column / template question for a modelled sub-path.
+export function getRefValueRecord(ref: ParsedRef | undefined): ElementRecord | undefined {
+  return isSimpleValueRef(ref) ? ref.resolvedTo : getSubPathRecord(ref);
+}
+
+// A site whose result gates something and which parsed: the walker sets exactly one of
+// ast/parseError, so the ast test alone covers the parse failure.
+export function isAnalyzableCondition(site: ExpressionSite): boolean {
+  return !!site && site.kind === "condition" && !!site.ast;
+}
+
+// The classified refs of a site keyed by the raw name an operand carries, first ref wins.
+// A Map, not an object literal: the keys are raw variable names from user expressions, so
+// "constructor" must not collide with Object.prototype. Memoized on the site like refs.
+export function getSiteRefByRaw(site: ExpressionSite, index: SurveyIndex,
+  options: ISurveyLintOptions): Map<string, ParsedRef> {
+  if (!site.refByRaw) {
+    const refByRaw = new Map<string, ParsedRef>();
+    classifySiteRefs(site, index, options).forEach(ref => {
+      if (!refByRaw.has(ref.raw)) refByRaw.set(ref.raw, ref);
+    });
+    site.refByRaw = refByRaw;
+  }
+  return site.refByRaw;
+}
+
+// A name a function takes as a plain string argument: sumInArray({m1}, 'col1'),
+// displayValue('q1'), isContainerReady('page1'). The runtime looks such a name up at call
+// time, so a typo silently turns the call into undefined/0/"" instead of failing.
+export interface FunctionArgRef {
+  ref: ParsedRef;
+  functionName: string;
+  argIndex: number;
+  // the element whose entries the name is read from, for an inArray call
+  container?: ElementRecord;
+}
+
+// Variable extends Const, so the type tag - not instanceof - tells a written-out string from
+// a {reference}: only the former is a name the author typed.
+function getConstString(operand: Operand | undefined): string | undefined {
+  if (!operand || operand.getType() !== "const") return undefined;
+  const value = (<Const>operand).correctValue;
+  return typeof value === "string" && !!value ? value : undefined;
+}
+
+// The names the item of an array-valued element answers with: the fields of a matrix row or a
+// dynamic panel - its columns or template questions plus what the questions sharing its value add
+// (record-fields.ts).
+interface ArrayItemSource {
+  record: ElementRecord;
+  map: CIMultiMap<ElementRecord>;
+}
+function getArrayItemSource(operand: Operand | undefined, index: SurveyIndex): ArrayItemSource | undefined {
+  if (!operand || !(operand instanceof Variable)) return undefined;
+  const record = index.findByDataName(operand.variable);
+  const map = !!record ? getItemFields(record) : undefined;
+  if (!map) return undefined;
+  return { record: record, map: map };
+}
+
+function classifyArrayItemName(name: string, map: CIMultiMap<ElementRecord>): ParsedRef {
+  const ref: ParsedRef = { raw: name, segments: [{ name: name }], status: "resolved" };
+  const record = map.first(name);
+  if (record) {
+    ref.resolvedTo = record;
+    ref.resolvedKind = "element";
+    return ref;
+  }
+  ref.status = "unknown";
+  ref.unknownSegmentIndex = 0;
+  ref.suggestion = closestMatch(name, map.names());
+  return ref;
+}
+
+// getQuestionValueByContext walks up from the question the expression belongs to before it
+// asks the survey, so a sibling column or a template question answers its bare name here.
+// It is a question lookup (getQuestionByName), so the sub-elements by name, not the record's fields.
+function classifyContainerName(name: string, site: { scope: Array<ScopeFrame> },
+  index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
+  const scope = site.scope || [];
+  const panelFrame = findFrame<ScopeFramePanelDynamic>(scope, "panelDynamic");
+  const matrixFrame = findFrame<ScopeFrameMatrixRow>(scope, "matrixRow");
+  const local = matrixFrame && getFrameNames(matrixFrame).has(name) ? getFrameNames(matrixFrame)
+    : panelFrame && getFrameNames(panelFrame).has(name) ? getFrameNames(panelFrame) : undefined;
+  if (local) return classifyArrayItemName(name, local);
+  return classifyTargetName(name, index, options);
+}
+
+function classifyFunctionArgName(name: string, scope: FunctionArgNameScope, fn: FunctionOperand,
+  site: { scope: Array<ScopeFrame> }, index: SurveyIndex, options: ISurveyLintOptions):
+  { ref: ParsedRef, container?: ElementRecord } | undefined {
+  if (scope === "arrayItem") {
+    const source = getArrayItemSource(fn.paramValues[0], index);
+    // an unresolved first argument is reported on its own; what it holds is unknown here
+    if (!source) return undefined;
+    return { ref: classifyArrayItemName(name, source.map), container: source.record };
+  }
+  if (scope === "container") return { ref: classifyContainerName(name, site, index, options) };
+  return { ref: classifyTargetName(name, index, options) };
+}
+
+export function classifyFunctionArgRefs(site: ExpressionSite, index: SurveyIndex,
+  options: ISurveyLintOptions): Array<FunctionArgRef> {
+  if (site.functionArgRefs) return site.functionArgRefs;
+  const res: Array<FunctionArgRef> = [];
+  if (site.ast) {
+    getFunctionOperands(site.ast).forEach(fn => {
+      const def = FUNCTION_NAME_ARGS.get((fn.functionName || "").toLowerCase());
+      if (!def) return;
+      const params = fn.paramValues || [];
+      def.indexes.forEach(argIndex => {
+        const name = getConstString(params[argIndex]);
+        if (!name) return;
+        // the third argument of an inArray function is a column only when it is not the
+        // condition, which the runtime decides with this very function
+        if (def.scope === "arrayItem" && argIndex > 1 &&
+          !isReturnColumnParam(name, params[argIndex])) return;
+        const arg = classifyFunctionArgName(name, def.scope, fn, site, index, options);
+        if (!arg) return;
+        res.push({
+          ref: arg.ref, functionName: fn.functionName, argIndex: argIndex, container: arg.container,
+        });
+      });
+    });
+  }
+  site.functionArgRefs = res;
+  return res;
+}
+
+// The condition an inArray function runs as a ConditionRunner over every entry of the element the
+// first argument names: it is analysed as a site of its own, in that entry's scope. Which argument
+// holds it is decided the way getInArrayParams decides it - the third one is the condition unless
+// it names a return column. fromOperand: the filter is written as an operand, not as a string, so
+// the runtime re-runs the expression on the survey names it reads (see getDependencyRefs).
+export interface InArrayCondition {
+  text: string;
+  container: ElementRecord;
+  map: CIMultiMap<ElementRecord>;
+  fromOperand: boolean;
+}
+
+// The functions registered with returnType "boolean", looked up once per site.
+function getBooleanFunctionNames(): Set<string> {
+  const res = new Set<string>();
+  FunctionFactory.Instance.getRegistrations().forEach(info => {
+    if (info.returnType === "boolean") res.add(info.name.toLowerCase());
+  });
+  return res;
+}
+
+// Whether an operand gives a boolean whatever it reads. and/or answer one of their operands
+// (a && b), so they are boolean only when both sides are.
+function isBooleanOperand(op: Operand, booleanFunctions: Set<string>): boolean {
+  if (op instanceof UnaryOperand) return true;
+  if (op instanceof BinaryOperand) {
+    if (op.isConjunction) {
+      return isBooleanOperand(op.leftOperand, booleanFunctions) && isBooleanOperand(op.rightOperand, booleanFunctions);
+    }
+    return !op.isArithmetic;
+  }
+  if (op instanceof FunctionOperand) return booleanFunctions.has((op.functionName || "").toLowerCase());
+  return false;
+}
+
+interface FilterContext {
+  site: ExpressionSite;
+  index: SurveyIndex;
+  options: ISurveyLintOptions;
+  booleanFunctions: Set<string>;
+}
+
+function isUnresolvedInParent(variable: Variable, ctx: FilterContext): boolean {
+  return classifyRef(variable.variable, ctx.site, ctx.index, ctx.options).status === "unknown";
+}
+
+// Whether an operand cannot give a string when the runtime evaluates it in the scope of the
+// expression that holds the call. getInArrayParams takes a filter argument that evaluates to a
+// string as the filter's text and runs originalParams[i].toString() otherwise, so such an operand
+// always runs per item, as it is written. A name that resolves in the parent's scope may hold a
+// string; a name that resolves nowhere there is undefined.
+function neverGivesString(op: Operand, ctx: FilterContext): boolean {
+  if (!op) return true;
+  if (isBooleanOperand(op, ctx.booleanFunctions)) return true;
+  if (op instanceof Variable) return isUnresolvedInParent(op, ctx);
+  if (op.getType() === "const") return typeof (<Const>op).correctValue !== "string";
+  if (op instanceof BinaryOperand) return neverGivesString(op.leftOperand, ctx) && neverGivesString(op.rightOperand, ctx);
+  if (op instanceof FunctionOperand && (op.functionName || "").toLowerCase() === "iif") {
+    const params = op.paramValues || [];
+    return neverGivesString(params[1], ctx) && neverGivesString(params[2], ctx);
+  }
+  return false;
+}
+
+// Whether an operand that may give a string reads an item field: a name that resolves nowhere in
+// the parent's scope and that the item holds - any such name, when the items are unknown. The
+// runtime runs it per item whenever it does not give a string, so its names are not the parent's.
+function readsItemField(op: Operand, source: ArrayItemSource | undefined, ctx: FilterContext): boolean {
+  return collectAllOperands(op).some(item => item instanceof Variable &&
+    (!source || source.map.has(item.variable)) && isUnresolvedInParent(item, ctx));
+}
+
+// How an inArray filter argument is analysed. A part with a text is a filter of its own: a string
+// as it is written, an operand that never gives a string as its source text. A skipped part is an
+// operand that may give a string but reads item fields: which text runs is only known at run time,
+// so it is not analysed. Of an iif() with a string branch, each branch is taken apart this way;
+// its condition, and an operand that reads no item field, stay a part of the expression that
+// holds the call.
+interface FilterPart {
+  text?: string;
+  operand?: Operand;
+  skip?: boolean;
+}
+function getFilterParts(op: Operand, source: ArrayItemSource | undefined, ctx: FilterContext,
+  isBranch?: boolean): Array<FilterPart> {
+  if (!op) return [];
+  const text = getConstString(op);
+  if (!!text) return [{ text: text }];
+  if (op.getType() === "const") return [];
+  if (neverGivesString(op, ctx)) return [{ text: op.toString(), operand: op }];
+  if (!isBranch && op instanceof FunctionOperand && (op.functionName || "").toLowerCase() === "iif") {
+    const res: Array<FilterPart> = [];
+    (op.paramValues || []).slice(1, 3).forEach(branch =>
+      getFilterParts(branch, source, ctx, true).forEach(part => res.push(part)));
+    return res;
+  }
+  if (readsItemField(op, source, ctx)) return [{ operand: op, skip: true }];
+  return [];
+}
+
+// The filters of a site's inArray calls. An operand that holds a filter is marked on the way (see
+// itemFilterOperands), so the site's own rules leave it to the filter's site, and a call nested in
+// a filter is found from that filter's site, not from this one.
+export function takeInArrayConditions(site: ExpressionSite, index: SurveyIndex,
+  options: ISurveyLintOptions): Array<InArrayCondition> {
+  const res: Array<InArrayCondition> = [];
+  if (!site.ast) return res;
+  let ctx: FilterContext;
+  // the calls come outermost first, so a filter is marked before the calls inside it are met
+  const inFilters = new Set<Operand>();
+  getFunctionOperands(site.ast).forEach(fn => {
+    if (inFilters.has(fn)) return;
+    const def = FUNCTION_NAME_ARGS.get((fn.functionName || "").toLowerCase());
+    if (!def || def.scope !== "arrayItem") return;
+    if (!ctx) ctx = { site: site, index: index, options: options, booleanFunctions: getBooleanFunctionNames() };
+    const params = fn.paramValues || [];
+    let conditionIndex = 2;
+    const third = getConstString(params[2]);
+    if (!!third && isReturnColumnParam(third, params[2])) conditionIndex = 3;
+    const source = getArrayItemSource(params[0], index);
+    getFilterParts(params[conditionIndex], source, ctx).forEach(part => {
+      if (!!part.operand) {
+        itemFilterOperands.set(part.operand, !!source && !part.skip ? "site" : "unknownItems");
+        collectAllOperands(part.operand).forEach(op => inFilters.add(op));
+      }
+      if (!!source && !part.skip) {
+        res.push({ text: part.text, container: source.record, map: source.map, fromOperand: !!part.operand });
+      }
+    });
+  });
+  return res;
+}
+
+// The references an expression depends on: its own, plus the ones its unquoted inArray filters
+// read - the runtime evaluates such a filter in the expression's scope first (see
+// neverGivesString), so a change of a survey name in it re-runs the expression. A name inside a
+// string filter is no dependency, and neither is a name the item answers.
+export function getDependencyRefs(site: ExpressionSite, index: SurveyIndex, options: ISurveyLintOptions): Array<ParsedRef> {
+  const res = classifySiteRefs(site, index, options).slice();
+  (site.operandFilterSites || []).forEach(filterSite => {
+    const itemFrame = findFrame<ScopeFrameArrayItem>(filterSite.scope, "arrayItem");
+    getDependencyRefs(filterSite, index, options).forEach(ref => {
+      if (!!itemFrame && ref.segments.length > 0 && itemFrame.names.has(ref.segments[0].name)) return;
+      res.push(ref);
+    });
+  });
+  return res;
+}
+
 export function classifyNameRef(nameRef: NameRef, index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
   return classifyRef(nameRef.name, { owner: nameRef.owner, scope: nameRef.scope }, index, options);
 }
@@ -514,10 +1173,11 @@ export interface CarryForwardSource {
   candidates?: Array<string>;
 }
 
-// Mirrors dynamicItemModelBase.findQuestionByName: inside a matrix row or a dynamic
+// Mirrors QuestionRecordItem.findQuestionByName: inside a matrix row or a dynamic
 // panel, "<variableName>.<name>" addresses a sibling within that row/panel and anything
 // else falls through to the survey. The runtime compares that prefix case-sensitively,
-// unlike an expression reference, so this does too.
+// unlike an expression reference, so this does too. A question lookup by name, so the
+// sub-elements by name, not the record's fields.
 export function resolveCarryForwardSource(sourceName: string, owner: ElementRecord,
   index: SurveyIndex): CarryForwardSource {
   const vars = index.settings.expressionVariables;
@@ -527,9 +1187,9 @@ export function resolveCarryForwardSource(sourceName: string, owner: ElementReco
     const frame = findFrame<ScopeFrameMatrixRow>(scope, "matrixRow");
     const inner = sourceName.substring(rowPrefix.length);
     return {
-      source: frame ? frame.columns.first(inner) : undefined,
+      source: frame ? getFrameNames(frame).first(inner) : undefined,
       scopePrefix: vars.row,
-      candidates: frame ? frame.columns.names().map(name => rowPrefix + name) : [],
+      candidates: frame ? getFrameNames(frame).names().map(name => rowPrefix + name) : [],
     };
   }
   const panelPrefix = vars.panel + ".";
@@ -537,14 +1197,12 @@ export function resolveCarryForwardSource(sourceName: string, owner: ElementReco
     const frame = findFrame<ScopeFramePanelDynamic>(scope, "panelDynamic");
     const inner = sourceName.substring(panelPrefix.length);
     return {
-      source: frame ? frame.templateNames.first(inner) : undefined,
+      source: frame ? getFrameNames(frame).first(inner) : undefined,
       scopePrefix: vars.panel,
-      candidates: frame ? frame.templateNames.names().map(name => panelPrefix + name) : [],
+      candidates: frame ? getFrameNames(frame).names().map(name => panelPrefix + name) : [],
     };
   }
-  return {
-    source: <ElementRecord>index.byName.first(sourceName) || <ElementRecord>index.byValueName.first(sourceName),
-  };
+  return { source: index.findByDataName(sourceName) };
 }
 
 export interface VariableComparison {
@@ -553,35 +1211,65 @@ export interface VariableComparison {
   operator: string;
 }
 
-// A BinaryOperand with exactly one Variable side; the other side is returned as-is
-// (it may be a Const, an ArrayOperand, or any non-Variable operand - callers narrow).
-// operators === undefined accepts any BinaryOperand.
-export function matchVariableComparison(op: Operand, operators?: { [op: string]: boolean }): VariableComparison | undefined {
+// Answers what a reference is worth when it names a source known at authoring time. Without
+// one, a Variable is only ever a variable - which is how the rules read expressions until the
+// constant sources are built.
+export type ConstResolver = (variable: Variable) => ConstValue | undefined;
+
+// A BinaryOperand with exactly one side that is still unknown at authoring time; the other side
+// is returned as-is (it may be a Const, an ArrayOperand, a folded Variable, or any other operand
+// - callers narrow). operators === undefined accepts any BinaryOperand.
+export function matchVariableComparison(op: Operand, operators?: { [op: string]: boolean },
+  resolve?: ConstResolver): VariableComparison | undefined {
   if (!(op instanceof BinaryOperand)) return undefined;
   if (operators && !operators[op.operator]) return undefined;
   const left = op.leftOperand;
   const right = op.rightOperand;
-  if (left instanceof Variable && !(right instanceof Variable)) {
-    return { variable: left, constSide: right, operator: op.operator };
+  const leftIsVar = left instanceof Variable && !getConstantOperandValue(left, resolve);
+  const rightIsVar = right instanceof Variable && !getConstantOperandValue(right, resolve);
+  if (leftIsVar && !rightIsVar) {
+    return { variable: <Variable>left, constSide: right, operator: op.operator };
   }
-  if (right instanceof Variable && !(left instanceof Variable)) {
-    return { variable: right, constSide: left, operator: op.operator };
+  if (rightIsVar && !leftIsVar) {
+    return { variable: <Variable>right, constSide: left, operator: op.operator };
   }
   return undefined;
 }
 
+// The operator as it reads from the variable side: "10 < {q}" constrains {q} from below just
+// as "{q} > 10" does, and a caller that reasons about bounds needs the second form.
+export function operatorFromVariableSide(op: BinaryOperand, match: VariableComparison): string {
+  if (match.constSide === op.rightOperand) return op.operator;
+  if (op.operator === "greater") return "less";
+  if (op.operator === "less") return "greater";
+  if (op.operator === "greaterorequal") return "lessorequal";
+  if (op.operator === "lessorequal") return "greaterorequal";
+  return op.operator;
+}
+
 // Variable extends Const, so a plain constant must exclude variables
-export function isPlainConst(op: Operand): boolean {
+function isPlainConst(op: Operand): boolean {
   return op instanceof Const && !(op instanceof Variable);
 }
 
-export function getConstValues(op: Operand): Array<any> | undefined {
-  if (isPlainConst(op)) return [(<Const>op).correctValue];
+// The value of a single operand known at authoring time: a literal, or a reference the resolver
+// folds.
+export function getConstantOperandValue(op: Operand, resolve?: ConstResolver): ConstValue | undefined {
+  if (op instanceof Variable) return !!resolve ? resolve(op) : undefined;
+  return isPlainConst(op) ? { value: (<Const>op).correctValue } : undefined;
+}
+
+export function getConstValues(op: Operand, resolve?: ConstResolver): Array<any> | undefined {
+  const single = getConstantOperandValue(op, resolve);
+  // a reference folding to an array lists its members, exactly as an ArrayOperand
+  // literal does - "{q} anyof {constArray}" compares member-by-member
+  if (!!single) return Array.isArray(single.value) ? single.value.slice() : [single.value];
   if (op instanceof ArrayOperand) {
     const values: Array<any> = [];
     for (let i = 0; i < op.values.length; i++) {
-      if (!isPlainConst(op.values[i])) return undefined;
-      values.push((<Const>op.values[i]).correctValue);
+      const item = getConstantOperandValue(op.values[i], resolve);
+      if (!item) return undefined;
+      values.push(item.value);
     }
     return values;
   }
@@ -598,4 +1286,72 @@ export function buildTriggerSetStep(trigger: TriggerRecord, operators?: { [op: s
   const root = splitRefSegments(match.variable.variable)[0];
   if (!root || !root.name || root.name.indexOf(":") > -1) return undefined;
   return { set: { [root.name]: (<Const>match.constSide).correctValue } };
+}
+
+// What the core's own semantic check concludes about a condition.
+export type CoreConditionVerdict =
+  "alwaysFalse" | "alwaysTrue" | "notABoolean" | "meaninglessFragment";
+
+// What folding the condition against the values known at authoring time concludes.
+export type FoldConditionVerdict =
+  "alwaysFalseViaConstants" | "alwaysTrueViaConstants" | "outOfRange" | "unsatisfiable";
+
+export type ConditionSemanticsVerdict = CoreConditionVerdict | FoldConditionVerdict;
+
+// The reason a verdict is reported under. The two vocabularies use the same words today,
+// but they are separate contracts - a verdict is what the analysis concluded, a reason is
+// what a host localizes on - so the mapping is written out rather than assumed. Declared as
+// a full record, so a new verdict is a compile error here instead of a missing reason.
+const VERDICT_REASONS: { [verdict in ConditionSemanticsVerdict]: string } = {
+  alwaysFalse: SurveyLintReasons["expression/contradiction"].alwaysFalse,
+  alwaysFalseViaConstants: SurveyLintReasons["expression/contradiction"].alwaysFalseViaConstants,
+  outOfRange: SurveyLintReasons["expression/contradiction"].outOfRange,
+  unsatisfiable: SurveyLintReasons["expression/contradiction"].unsatisfiable,
+  alwaysTrue: SurveyLintReasons["expression/meaningless-condition"].alwaysTrue,
+  alwaysTrueViaConstants: SurveyLintReasons["expression/meaningless-condition"].alwaysTrueViaConstants,
+  notABoolean: SurveyLintReasons["expression/meaningless-condition"].notABoolean,
+  meaninglessFragment: SurveyLintReasons["expression/meaningless-condition"].meaninglessFragment,
+};
+
+export function verdictToReason(verdict: ConditionSemanticsVerdict): string {
+  return VERDICT_REASONS[verdict];
+}
+
+// A condition that can never hold, however that was established. Rules that act on
+// unreachability test this instead of listing the verdicts themselves.
+export function isAlwaysFalseVerdict(verdict: ConditionSemanticsVerdict | undefined): boolean {
+  return verdict === "alwaysFalse" || verdict === "alwaysFalseViaConstants" ||
+    verdict === "outOfRange" || verdict === "unsatisfiable";
+}
+
+// The verdict the core's own semantic check gives a condition, refined into which defect it is.
+// Undefined when the core reports nothing, which keeps the linter at parity with
+// Base.validateExpressions - including its deliberate silence on a lone boolean constant, the one
+// form that is a switch the author meant rather than a defect.
+//
+// Only a condition is judged: a constant *expression* is legitimate (a calculated value of
+// "1 + 2"), a constant *condition* is not.
+export function getConditionSemanticsVerdict(site: ExpressionSite): CoreConditionVerdict | undefined {
+  if (!isAnalyzableCondition(site)) return undefined;
+  const ast = site.ast;
+  const errors: Array<IExpressionError> = [];
+  ast.addConditionSemanticErrors(errors);
+  if (errors.length === 0) return undefined;
+  // A condition built only from constants has its result fixed at authoring time, so it can be
+  // evaluated without any answers: Const.evaluate() takes none, and the operands a constant tree
+  // is made of ignore the process value they are handed. A function call is never constant
+  // (FunctionOperand does not override isConstant), so nothing registered by the application runs
+  // here - hasFunction() states that intent rather than relying on it.
+  if (ast.isConstant() && !ast.hasFunction()) {
+    const evaluated = tryEvaluate(ast);
+    if (!evaluated) return "meaninglessFragment";
+    return !!evaluated.value ? "alwaysTrue" : "alwaysFalse";
+  }
+  // Knowing the value beats knowing the shape, so this runs after the branch above: a constant
+  // "1 + 1" is reported as alwaysTrue rather than as arithmetic. The core agrees - it adds the
+  // arithmetic error only when the operand is not constant.
+  if (ast instanceof BinaryOperand && ast.isArithmetic && !ast.isConjunction) {
+    return "notABoolean";
+  }
+  return "meaninglessFragment";
 }

@@ -5,6 +5,58 @@ export var latvianSurveyStrings = {
   pagePrevText: "Iepriekšēja lapa",
   // "Next"
   pageNextText: "Nākamā lapa",
+  // [Auto-translated] "First"
+  pageFirstText: "Pirmkārt",
+  // [Auto-translated] "Last"
+  pageLastText: "Last",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Izvēlēties lapu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Kārtot pēc {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Augsts - Zems",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Zems - Augsts",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabēts, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabēts, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Jaunākais pirmais",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Vecākais pirmais",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sakārtots pēc {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, tad līdz {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Kārtot pēc",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Noklusējums",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Kārtošanas lauks",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Kārtošanas secība",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Pievienot kārtošanas līmeni",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Noņemt sort level {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Kārtošanas lauka {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Kārtot {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Rādīt visdažādākos līmeņus",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Pievienot jaunu",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Move sort level {0}",
   // "Complete"
   completeText: "Iesniegt",
   // "Preview"
@@ -37,6 +89,8 @@ export var latvianSurveyStrings = {
   panelDynamicTabTextFormat: "Panelis {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Atbildēts uz {0} / {1} jautājumiem",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Jautājums {0} par {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Nav neviena jautājuma.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var latvianSurveyStrings = {
   value: "Vērtība",
   // "Response required."
   requiredError: "Lūdzu, atbildiet uz jautājumu!",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Vērtība ir nepareiza.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Vērtība satur nezināmas atslēgas: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Lūdzu, atbildiet uz vismaz vienu jautājumu.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var latvianSurveyStrings = {
   noUploadFilesHandler: "Failus nevar augšupielādēt. Lūdzu, pievienojiet apdarinātāju notikumam \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Lūdzu, ievadiet datus laukā 'Cits'",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Vērtība '{0}' nav viena no pieejamajām izvēlēm.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Jūsu fails tiek augšupielādēts. Lūdzu, uzgaidiet dažas sekundes un mēģiniet vēlreiz.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var latvianSurveyStrings = {
   addRow: "Pievienot rindu",
   // "Remove"
   removeRow: "Noņemt",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Pārvietojiet rindu {0}",
   // "There are no rows."
   noRowsText: "Nav rindu.",
   // [Auto-translated] "Row {rowIndex}"

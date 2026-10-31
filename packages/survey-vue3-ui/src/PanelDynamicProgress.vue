@@ -1,15 +1,8 @@
 <template>
-  <div
-    :class="question.cssClasses.footer"
-    v-if="
-      (question.isRangeShowing && question.isProgressBottomShowing) ||
-      question.showFooterToolbar
-    "
-  >
-    <hr :class="question.cssClasses.separator" />
+  <div :class="question.cssClasses.footerBar" v-if="question.showFooter">
     <div
       :class="question.cssClasses.progress"
-      v-if="question.isRangeShowing && question.isProgressBottomShowing"
+      v-if="question.showFooterProgress"
     >
       <div
         :class="question.cssClasses.progressBar"
@@ -18,12 +11,8 @@
         :aria-label="question.progressBarAriaLabel"
       ></div>
     </div>
-    <div
-      :class="question.cssClasses.footerButtonsContainer"
-      v-if="question.showFooterToolbar"
-    >
-      <SvComponent :is="'sv-action-bar'" :model="question.footerToolbar" />
-    </div>
+    <SvComponent v-if="question.showFooterButtons" :is="'sv-action-bar'" :model="question.footerToolbar" />
+    <SvComponent v-if="question.showPager" :is="'sv-action-bar'" :model="question.recordsBar.pagerActions"></SvComponent>
   </div>
 </template>
 

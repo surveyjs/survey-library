@@ -48,6 +48,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     return (
       <div className={this.question.ratingRootCss} ref={(div) => (this.setControl(div))}>
         <fieldset
+          onKeyDown={(event) => this.question.onKeyDown(event)}
           role={this.question.a11y_input_ariaRole}
           aria-required={this.question.a11y_input_ariaRequired}
           aria-label={this.question.a11y_input_ariaLabel}

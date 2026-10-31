@@ -2,9 +2,10 @@ import { SurveyModel } from "../src/survey";
 import { ChoiceItem, QuestionSelectBase } from "../src/question_baseselect";
 import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
-import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { getCheckboxItemFields, QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTagboxModel } from "../src/question_tagbox";
+import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { defaultCss } from "../src/defaultCss/defaultCss";
@@ -14,8 +15,10 @@ import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
+import { FunctionFactory } from "../src/functionsfactory";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
+import { PanelModel } from "../src/panel";
 describe("baseselect", () => {
   function getValuesInColumns(question: QuestionSelectBase) {
     return question.columns.map((column) => column.map((choice) => choice.id));
@@ -552,6 +555,74 @@ describe("baseselect", () => {
     expect(q.isItemSelected(q.choices[2]), "#3.3").toBe(true);
     survey.doComplete();
     expect(survey.data, "survey.data is correct on complete, #5").toEqual({ q1: [{ fruit: "apple" }, { fruit: "orange" }] });
+  });
+  test("getCheckboxItemFields names the fields a checkbox writes into the object of a selected item", () => {
+    const check = (json: any, fields: Array<string>): void => {
+      expect(getCheckboxItemFields(json.valuePropertyName, json.choices), JSON.stringify(json)).toEqual(fields);
+      const survey = new SurveyModel({ elements: [Object.assign({ type: "checkbox", name: "q1" }, json)] });
+      const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      q.renderedValue = ["a"];
+      if (q.choices[0].showCommentArea) q.setCommentValue(q.choices[0], "note");
+      const keys: Array<string> = [];
+      q.value.forEach((item: any) => {
+        if (typeof item === "object") Object.keys(item).forEach(key => { if (keys.indexOf(key) < 0) keys.push(key); });
+      });
+      expect(keys.sort(), "the runtime writes the same fields, " + JSON.stringify(json)).toEqual(fields.slice().sort());
+    };
+    check({ choices: ["a", "b"] }, []);
+    check({ valuePropertyName: "car", choices: ["a", "b"] }, ["car"]);
+    check({ choices: [{ value: "a", showCommentArea: true }, "b"] }, ["value", "comment"]);
+    check({ valuePropertyName: "car", choices: [{ value: "a", showCommentArea: true }, "b"] }, ["car", "comment"]);
+    check({ choices: ["a", { value: "other", showCommentArea: true }] }, []);
+  });
+  test("isTheOnlyComment follows an overridden isOtherValue", () => {
+    class OtherAwareCheckbox extends QuestionCheckboxModel {
+      protected isOtherValue(val: any): boolean { return val === "custom" || super.isOtherValue(val); }
+    }
+    const q = new OtherAwareCheckbox("q1");
+    q.choices = ["custom", "b"];
+    q.choices[0].showCommentArea = true;
+    expect(q.choices[0].showCommentArea, "the item shows a comment area").toBe(true);
+    expect(q.isTheOnlyComment).toBe(true);
+    expect(q.getValuePropertyName()).toBe("");
+  });
+  // A choice comment lives under "comment" in the object of a selected item; a dynamic panel or matrix
+  // sharing the value knows that key as it knows the value field (hasValueItemKey).
+  describe("a checkbox choice comment in a shared record", () => {
+    const checkbox = (extra: any): any => Object.assign({ type: "checkbox", name: "cars",
+      choices: [{ value: "Ford", showCommentArea: true }, "Vauxhall"] }, extra);
+    const records = (type: string, extra: any): any => Object.assign(type === "paneldynamic"
+      ? { type: "paneldynamic", name: "info", templateElements: [{ type: "rating", name: "rating" }] }
+      : { type: "matrixdynamic", name: "info", rowCount: 0, columns: [{ name: "rating", cellType: "rating" }] }, extra);
+    const check = (title: string, json: any, data: any): void => {
+      const survey = new SurveyModel(json);
+      expect(survey.setData(data).map(issue => issue.type + " @ " + issue.path), title).toEqual([]);
+      survey.clearIncorrectValues();
+      expect(survey.data, title).toEqual(data);
+    };
+    ["paneldynamic", "matrixdynamic"].forEach(type => {
+      test(type + ": the comment is known whatever side carries the name", () => {
+        const data = { cars: [{ car: "Ford", comment: "note", rating: 3 }] };
+        check("the checkbox goes by the key", { elements: [checkbox({ valuePropertyName: "car" }), records(type, { valueName: "cars" })] }, data);
+        check("both declare it", { elements: [checkbox({ valueName: "cars", valuePropertyName: "car" }), records(type, { valueName: "cars" })] }, data);
+        check("no valuePropertyName", { elements: [checkbox({}), records(type, { valueName: "cars" })] },
+          { cars: [{ value: "Ford", comment: "note", rating: 3 }] });
+      });
+    });
+    test("keyed by its name alone a dynamic panel still drops the fields", () => {
+      const survey = new SurveyModel({ elements: [records("paneldynamic", { name: "cars" }), checkbox({ name: "cb", valueName: "cars", valuePropertyName: "car" })] });
+      expect(survey.setData({ cars: [{ car: "Ford", comment: "note", rating: 3 }] }).map(issue => issue.type + " @ " + issue.path))
+        .toEqual(["unknownProperty @ cars[0].car", "unknownProperty @ cars[0].comment"]);
+    });
+    test("a checkbox claims the comment key only while a choice other than Other shows a comment area", () => {
+      const survey = new SurveyModel({ elements: [checkbox({ valuePropertyName: "car" })] });
+      const q = <QuestionCheckboxModel>survey.getQuestionByName("cars");
+      expect(q.hasValueItemKey("car")).toBe(true);
+      expect(q.hasValueItemKey("comment")).toBe(true);
+      expect(q.hasValueItemKey("rating")).toBe(false);
+      q.choices[0].showCommentArea = false;
+      expect(q.hasValueItemKey("comment")).toBe(false);
+    });
   });
   test("checkbox valuePropertyName and shared data vs panel dynamic ", () => {
     const survey = new SurveyModel({
@@ -3551,6 +3622,132 @@ describe("baseselect", () => {
     expect(q1.value, "q1.value #2").toEqual({ value: 3, comment: "test comment1" });
     expect([...(q2.value)], "q2.value #2").toEqual([{ value: 2 }, { value: 3, comment: "test comment2" }]);
   });
+  test("Empty required choice comment highlights the comment, not the choices, Bug#11902", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox", name: "q1",
+          choices: ["item1", { value: "item2", showCommentArea: true, isCommentRequired: true }, "item3"]
+        },
+        { type: "radiogroup", name: "q2", showOtherItem: true, choices: ["item1", "item2"] }
+      ]
+    });
+    survey.css = defaultCss;
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+    const item2 = q1.choices[1];
+    const itemError = defaultCss.checkbox.itemOnError;
+    const commentError = defaultCss.question.commentOnError;
+    q1.renderedValue = ["item2"];
+    q2.renderedValue = "other";
+    expect(survey.validate(true, false), "survey is invalid").toBe(false);
+    expect(q1.errors.length, "q1 has one error").toBe(1);
+    expect(q1.errors[0].getErrorType(), "q1 error type").toBe("otherempty");
+    expect(q2.errors.length, "q2 has one error").toBe(1);
+    expect(q2.errors[0].getErrorType(), "q2 error type").toBe("otherempty");
+
+    q1.visibleChoices.forEach((item, index) => {
+      expect(q1.getItemClass(item).indexOf(itemError), "q1 choice #" + index + " is not on error").toBe(-1);
+    });
+    q2.visibleChoices.forEach((item, index) => {
+      expect(q2.getItemClass(item).indexOf(itemError), "q2 choice #" + index + " is not on error").toBe(-1);
+    });
+    expect(q1.getCommentTextAreaModel(item2).getCssClasses().root.indexOf(commentError) > -1, "q1 item2 comment is on error").toBe(true);
+    expect(q1.getCommentTextAreaModel(item2).ariaInvalid, "q1 item2 comment aria-invalid").toBe("true");
+    expect(q1.getCommentTextAreaModel(item2).ariaDescribedBy, "q1 item2 comment aria-describedby").toBe(q1.renderedId + "_errors");
+    expect(q2.getCommentTextAreaModel(q2.otherItem).getCssClasses().root.indexOf(commentError) > -1, "q2 other comment is on error").toBe(true);
+
+    q1.setCommentValue(item2, "text");
+    q2.otherValue = "text";
+    expect(q1.errors.length, "q1 error is gone").toBe(0);
+    expect(q2.errors.length, "q2 error is gone").toBe(0);
+    expect(q1.getCommentTextAreaModel(item2).getCssClasses().root.indexOf(commentError), "q1 item2 comment is not on error").toBe(-1);
+    expect(q1.getCommentTextAreaModel(item2).ariaInvalid, "q1 item2 comment aria-invalid, #2").toBeNull();
+    expect(q1.getCommentTextAreaModel(item2).ariaDescribedBy, "q1 item2 comment aria-describedby, #2").toBeNull();
+    expect(q2.getCommentTextAreaModel(q2.otherItem).getCssClasses().root.indexOf(commentError), "q2 other comment is not on error").toBe(-1);
+  });
+  test("Only the empty required comment is on error, other comments are not, Bug#11902", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox", name: "q1",
+          choices: [
+            { value: "item1", showCommentArea: true, isCommentRequired: true },
+            { value: "item2", showCommentArea: true, isCommentRequired: true },
+            { value: "item3", showCommentArea: true }
+          ]
+        }
+      ]
+    });
+    survey.css = defaultCss;
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const commentError = defaultCss.question.commentOnError;
+    const isCommentOnError = (index: number): boolean => q1.getCommentTextAreaModel(q1.choices[index]).getCssClasses().root.indexOf(commentError) > -1;
+    q1.renderedValue = ["item1", "item2", "item3"];
+    q1.setCommentValue(q1.choices[0], "text");
+    expect(q1.validate(true), "q1 is invalid").toBe(false);
+    expect(isCommentOnError(0), "item1 comment has a value").toBe(false);
+    expect(isCommentOnError(1), "item2 comment is required and empty").toBe(true);
+    expect(isCommentOnError(2), "item3 comment is not required").toBe(false);
+  });
+  test("Other errors keep highlighting the choices, Bug#11902", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox", name: "q1", isRequired: true, minSelectedChoices: 2,
+          choices: ["item1", { value: "item2", showCommentArea: true, isCommentRequired: true }, "item3"]
+        }
+      ]
+    });
+    survey.css = defaultCss;
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const itemError = defaultCss.checkbox.itemOnError;
+    const commentError = defaultCss.question.commentOnError;
+    expect(q1.validate(true), "empty required question is invalid").toBe(false);
+    expect(q1.getItemClass(q1.choices[0]).indexOf(itemError) > -1, "required error: choices are on error").toBe(true);
+
+    q1.renderedValue = ["item2"];
+    expect(q1.validate(true), "one choice with an empty comment is invalid").toBe(false);
+    expect(q1.errors.map(er => er.getErrorType()).sort(), "two errors").toEqual(["custom", "otherempty"]);
+    expect(q1.getItemClass(q1.choices[0]).indexOf(itemError) > -1, "minSelectedChoices error: choices are on error").toBe(true);
+    expect(q1.getCommentTextAreaModel(q1.choices[1]).getCssClasses().root.indexOf(commentError) > -1, "the comment is on error as well").toBe(true);
+  });
+  test("Focus on error goes to the empty required comment, Bug#11902", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox", name: "q1",
+          choices: ["item1", { value: "item2", showCommentArea: true, isCommentRequired: true }, { value: "item3", showCommentArea: true, isCommentRequired: true }]
+        },
+        { type: "radiogroup", name: "q2", showOtherItem: true, choices: ["item1", "item2"] },
+        { type: "checkbox", name: "q3", isRequired: true, choices: ["item1", "item2"] }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+    const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+    q1.renderedValue = ["item3", "item2"];
+    q2.renderedValue = "other";
+    expect(survey.validate(true, false), "survey is invalid").toBe(false);
+
+    const oldFunc = SurveyElement.FocusElement;
+    const els = new Array<string>();
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      els.push(elId);
+      return true;
+    };
+    q1.focusInputElement(true);
+    q2.focusInputElement(true);
+    q3.focusInputElement(true);
+    q1.focusInputElement(false);
+    SurveyElement.FocusElement = oldFunc;
+    expect(els, "focused elements").toEqual([
+      q1.getItemCommentId(q1.choices[1]),
+      q2.getItemCommentId(q2.otherItem),
+      q3.inputId + "_0",
+      q1.inputId + "_0"
+    ]);
+  });
   test("radiogroup showCommentArea & renderedValue/value", () => {
     const survey = new SurveyModel({
       elements: [
@@ -4446,6 +4643,75 @@ describe("baseselect", () => {
     choiceItem.onExpandPanelAtDesign.fire(choiceItem, {});
     expect(counter, "onExpandPanelAtDesign should be called twice").toBe(2);
   });
+  test("choice item elements & parentQuestion, Bug#11824", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "text", name: "nested1" },
+          { type: "panel", name: "panel1", elements: [{ type: "text", name: "nested2" }] }
+        ] }] },
+        { type: "checkbox", name: "q2", choices: [{ value: "item1", elements: [{ type: "text", name: "nested3" }] }] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    const nested1 = survey.getQuestionByName("nested1");
+    expect(nested1.parentQuestion, "radiogroup: nested1").toBe(q1);
+    expect(survey.getQuestionByName("nested2").parentQuestion, "radiogroup: nested2 inside a nested panel").toBe(q1);
+    expect(survey.getQuestionByName("nested3").parentQuestion, "checkbox: nested3").toBe(q2);
+
+    const nested4 = q1.choices[0].panel.addNewQuestion("text", "nested4");
+    expect(nested4.parentQuestion, "a question added to a choice panel later").toBe(q1);
+    const panel1 = <PanelModel>q1.choices[1].panel.getElementByName("panel1");
+    const nested5 = panel1.addNewQuestion("text", "nested5");
+    expect(nested5.parentQuestion, "a question added to a nested panel later").toBe(q1);
+    const panel2 = new PanelModel("panel2");
+    panel2.addNewQuestion("text", "nested6");
+    q1.choices[0].panel.addElement(panel2);
+    expect(survey.getQuestionByName("nested6").parentQuestion, "a panel with a question added later").toBe(q1);
+    panel1.removeElement(nested5);
+    expect(nested5.parentQuestion, "a removed question is unlinked").toBeFalsy();
+
+    q1.value = "item2";
+    nested1.value = "x";
+    expect(survey.data, "nested values stay top-level").toEqual({ q1: "item2", nested1: "x" });
+    expect(nested1.isReadOnly, "isReadOnly, #1").toBe(false);
+    q1.readOnly = true;
+    expect(nested1.isReadOnly, "isReadOnly follows the owner, #2").toBe(true);
+  });
+  test("choice item elements & renderedIsPanelShowing in inputPerPage, Bug#11824", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }] }] },
+        { type: "dropdown", name: "q2", choices: ["item1"] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+    const item2 = q1.choices[1];
+    q1.value = "item2";
+    expect(q1.showChoicePanelsInline, "standard: inline").toBe(true);
+    expect(item2.renderedIsPanelShowing, "standard: rendered").toBe(true);
+    survey.questionsOnPageMode = "inputPerPage";
+    expect(survey.currentSingleQuestion.name, "inputPerPage: q1 is current").toBe("q1");
+    expect(q1.showChoicePanelsInline, "inputPerPage: not inline").toBe(false);
+    expect(item2.isPanelShowing, "inputPerPage: isPanelShowing is kept").toBe(true);
+    expect(item2.renderedIsPanelShowing, "inputPerPage: not rendered").toBe(false);
+    expect(q2.showChoicePanelsInline, "dropdown: inline").toBe(true);
+    survey.performNext();
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "inputPerPage: q2 is current").toBe("q2");
+    expect(q1.showChoicePanelsInline, "inputPerPage: not the active single input").toBe(true);
+    survey.questionsOnPageMode = "standard";
+    expect(item2.renderedIsPanelShowing, "standard again: rendered").toBe(true);
+
+    const designSurvey = new SurveyModel();
+    designSurvey.setDesignMode(true);
+    designSurvey.fromJSON({ questionsOnPageMode: "inputPerPage", elements: [
+      { type: "radiogroup", name: "q1", choices: [{ value: "item1", elements: [{ type: "text", name: "nested1" }] }] }
+    ] });
+    expect((<QuestionRadiogroupModel>designSurvey.getQuestionByName("q1")).showChoicePanelsInline, "design mode: inline").toBe(true);
+  });
   test("Checkbox question, defaultValue, skip trigger, Bug#10728", () => {
     const survey = new SurveyModel({
       "clearInvisibleValues": "none",
@@ -4589,6 +4855,65 @@ describe("baseselect", () => {
     expect(otherItem.value, "otherItem value is correct").toBe("other");
     expect(otherItem.locText.textOrHtml, "otherItem text is correct").toBe("Other please specify");
     expect(q1.otherItem.showCommentArea, "otherItem showCommentArea is true").toBe(true);
+  });
+  describe("selectAllText reads the Select All item's text", () => {
+    const checkboxJson = { elements: [{ type: "checkbox", name: "q1", choices: [1, 2] }] };
+    test("Runtime, selectAllItem is not created yet", () => {
+      const survey = new SurveyModel(checkboxJson);
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      expect(q1.getLocalizableString("selectAllText"), "selectAllItem is not created on loading").toBeFalsy();
+      expect(q1.selectAllText, "default text").toBe(surveyLocalization.getString("selectAllItemText"));
+    });
+    test("Runtime, selectAllItem is not created yet, survey.locale is 'de'", () => {
+      const survey = new SurveyModel(checkboxJson);
+      survey.locale = "de";
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      expect(q1.getLocalizableString("selectAllText"), "selectAllItem is not created on loading").toBeFalsy();
+      expect(q1.selectAllText, "German default text").toBe(surveyLocalization.getString("selectAllItemText", "de"));
+      survey.locale = "";
+    });
+    test("selectAllText from JSON", () => {
+      const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2], selectAllText: "Pick all" }] });
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      expect(q1.selectAllText, "text from JSON").toBe("Pick all");
+      expect(q1.toJSON().selectAllText, "text is serialized").toBe("Pick all");
+      expect(q1.selectAllItem.text, "selectAllItem text").toBe("Pick all");
+    });
+    test("Set selectAllText", () => {
+      const survey = new SurveyModel(checkboxJson);
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      q1.selectAllText = "Choose every item";
+      expect(q1.selectAllText, "the value set").toBe("Choose every item");
+      expect(q1.selectAllItem.text, "selectAllItem text").toBe("Choose every item");
+    });
+    test("Design mode", () => {
+      const survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.fromJSON(checkboxJson);
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      expect(q1.selectAllText, "default text").toBe(surveyLocalization.getString("selectAllItemText"));
+    });
+    test("Tagbox keeps selectAllText while its item shows 'Deselect all'", () => {
+      const survey = new SurveyModel({
+        elements: [{ type: "tagbox", name: "q1", choices: [1, 2], showSelectAllItem: true, selectAllText: "Pick all" }]
+      });
+      const q1 = <QuestionTagboxModel>survey.getQuestionByName("q1");
+      const item = q1.selectAllItem;
+      q1.clickItemHandler(item);
+      expect(q1.value, "all items are selected").toEqual([1, 2]);
+      // the tagbox swaps the item's text when isAllSelected is read, as rendering does
+      expect(q1.isAllSelected, "isAllSelected").toBe(true);
+      expect(item.title, "the item shows deselect all").toBe(surveyLocalization.getString("deselectAllItemText"));
+      expect(q1.selectAllText, "selectAllText is kept").toBe("Pick all");
+      expect(q1.toJSON().selectAllText, "selectAllText is serialized").toBe("Pick all");
+      q1.selectAllText = "Every item";
+      expect(item.title, "the item still shows deselect all").toBe(surveyLocalization.getString("deselectAllItemText"));
+      expect(q1.toJSON().selectAllText, "the new selectAllText is serialized").toBe("Every item");
+      q1.clickItemHandler(item);
+      expect(q1.isEmpty(), "all items are deselected").toBe(true);
+      expect(q1.isAllSelected, "isAllSelected after deselect").toBe(false);
+      expect(item.title, "the item shows the new selectAllText").toBe("Every item");
+    });
   });
   test("Do not send notifications on changing built-in choices properties on creating question", () => {
     const survey = new SurveyModel({
@@ -4780,5 +5105,696 @@ describe("baseselect", () => {
     expect(q3.isOtherSelected, "q3 doesn't select the other item").toBe(false);
     expect(q3.renderedValue, "q3 rendered value").toEqual(["apple", "eggs", "water"]);
     expect(survey.data, "survey data is not modified").toEqual({ val: ["apple", "eggs", "water"] });
+  });
+  test("Clear non-existent defaultValue values on changing choices in the design mode, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2", "item3"], defaultValue: "item2" },
+        { type: "checkbox", name: "q2", choices: ["item1", "item2", "item3"], defaultValue: ["item1", "item3"] },
+        { type: "dropdown", name: "q3", choices: ["item1", "item2"], defaultValue: "item1" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    const q3 = <QuestionDropdownModel>survey.getQuestionByName("q3");
+    //defaultValue is not modified on loading
+    expect(q1.defaultValue, "radiogroup defaultValue on load").toBe("item2");
+    expect(q2.defaultValue, "checkbox defaultValue on load").toEqual(["item1", "item3"]);
+    expect(q3.defaultValue, "dropdown defaultValue on load").toBe("item1");
+    //delete a choice that is not used in defaultValue
+    q1.choices.splice(0, 1);
+    expect(q1.defaultValue, "radiogroup defaultValue is not changed").toBe("item2");
+    //delete the choice that is used in defaultValue
+    q1.choices.splice(0, 1);
+    expect(q1.defaultValue, "radiogroup defaultValue is cleared").toBe(undefined);
+    expect(q1.toJSON(), "radiogroup JSON has no defaultValue").toEqual({ name: "q1", choices: ["item3"] });
+    //checkbox: non-existent values are removed from the defaultValue array
+    q2.choices.splice(2, 1);
+    expect(q2.defaultValue, "checkbox keeps existing defaultValue values").toEqual(["item1"]);
+    //checkbox: defaultValue becomes an empty array, so it is set to undefined
+    q2.choices = ["item2", "item3"];
+    expect(q2.defaultValue, "checkbox defaultValue becomes undefined").toBe(undefined);
+    expect(q2.toJSON(), "checkbox JSON has no defaultValue").toEqual({ name: "q2", choices: ["item2", "item3"] });
+    //dropdown: the choices array is replaced with a new one
+    q3.choices = ["item2", "item3"];
+    expect(q3.defaultValue, "dropdown defaultValue is cleared").toBe(undefined);
+    expect(q3.toJSON(), "dropdown JSON has no defaultValue").toEqual({ name: "q3", choices: ["item2", "item3"] });
+  });
+  test("Do not clear defaultValue for special choices on changing choices in the design mode, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2"], showNoneItem: true, defaultValue: "none" },
+        { type: "checkbox", name: "q2", choices: ["item1", "item2"], showOtherItem: true, defaultValue: ["other"] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    q1.choices.splice(0, 1);
+    q2.choices.splice(0, 1);
+    //special choices are not a part of the choices array, defaultValue is preserved
+    expect(q1.defaultValue, "defaultValue is preserved for the none item").toBe("none");
+    expect(q2.defaultValue, "defaultValue is preserved for the other item").toEqual(["other"]);
+    //the none item is hidden, so its value no longer exists
+    q1.showNoneItem = false;
+    expect(q1.defaultValue, "defaultValue is cleared for the hidden none item").toBe(undefined);
+  });
+  test("Clear non-existent defaultValue & correctAnswer values together, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "checkbox", name: "q1", choices: ["item1", "item2", "item3"],
+          defaultValue: ["item1", "item3"], correctAnswer: ["item2", "item3"] }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    q1.choices.splice(2, 1);
+    expect(q1.defaultValue, "the deleted choice is removed from defaultValue").toEqual(["item1"]);
+    expect(q1.correctAnswer, "the deleted choice is removed from correctAnswer").toEqual(["item2"]);
+    q1.choices.splice(0, 1);
+    expect(q1.defaultValue, "defaultValue is cleared, all its choices are deleted").toBe(undefined);
+    expect(q1.correctAnswer, "correctAnswer is not changed, its choice exists").toEqual(["item2"]);
+    expect(q1.toJSON(), "JSON has no defaultValue").toEqual({ name: "q1", correctAnswer: ["item2"], choices: ["item2"] });
+  });
+  test("Clear non-existent defaultValue values for numeric choices, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: [1, 2, 3], defaultValue: 2, correctAnswer: 3 }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.choices.splice(1, 1);
+    expect(q1.defaultValue, "defaultValue is cleared, its choice is deleted").toBe(undefined);
+    expect(q1.correctAnswer, "correctAnswer is not changed, its choice exists").toBe(3);
+    expect(q1.toJSON(), "JSON has no defaultValue").toEqual({ name: "q1", correctAnswer: 3, choices: [1, 3] });
+  });
+  test("Clear non-existent defaultValue values for tagbox & imagepicker, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"], defaultValue: ["item1", "item3"] },
+        { type: "imagepicker", name: "q2", multiSelect: true, choices: ["item1", "item2", "item3"],
+          defaultValue: ["item1", "item3"], correctAnswer: ["item1", "item3"] },
+        { type: "imagepicker", name: "q3", choices: ["item1", "item2"], defaultValue: "item1" }
+      ]
+    });
+    const q1 = <QuestionTagboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionImagePickerModel>survey.getQuestionByName("q2");
+    const q3 = <QuestionImagePickerModel>survey.getQuestionByName("q3");
+    q1.choices.splice(2, 1);
+    q2.choices.splice(2, 1);
+    q3.choices.splice(0, 1);
+    expect(q1.defaultValue, "tagbox keeps existing defaultValue values").toEqual(["item1"]);
+    expect(q2.defaultValue, "imagepicker keeps existing defaultValue values").toEqual(["item1"]);
+    expect(q2.correctAnswer, "imagepicker keeps existing correctAnswer values").toEqual(["item1"]);
+    expect(q3.defaultValue, "imagepicker defaultValue is cleared").toBe(undefined);
+  });
+  test("Do not clear defaultValue & correctAnswer if all choices are deleted, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1"], defaultValue: "item1", correctAnswer: "item1" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.choices.splice(0, 1);
+    //the choices array is empty, the values are kept since the choices can be populated later
+    expect(q1.defaultValue, "defaultValue is not changed").toBe("item1");
+    expect(q1.correctAnswer, "correctAnswer is not changed").toBe("item1");
+  });
+  test("Clear non-existent defaultValue values in the run mode, Bug#11800", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2"], defaultValue: "item1" },
+        { type: "checkbox", name: "q2", choices: ["item1", "item2"], defaultValue: ["item1", "item2"] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    expect(q1.value, "the default value is assigned to the question").toBe("item1");
+    q1.choices = ["item2", "item3"];
+    q2.choices = ["item2", "item3"];
+    expect(q1.defaultValue, "radiogroup defaultValue is cleared").toBe(undefined);
+    expect(q2.defaultValue, "checkbox keeps existing defaultValue values").toEqual(["item2"]);
+  });
+  test("Clear defaultValue on removing a referenced choice even if defaultValueExpression is set, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2"], defaultValue: "item1", defaultValueExpression: "'item2'" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.choices.splice(0, 1);
+    expect(q1.defaultValue, "defaultValue references a removed choice and is cleared").toBeUndefined();
+    expect(q1.defaultValueExpression, "defaultValueExpression is kept").toBe("'item2'");
+  });
+});
+describe("Item conditions run only when a variable they use changed", () => {
+  const visibleValues = (q: QuestionSelectBase): Array<any> => q.visibleChoices.map(c => c.value);
+  test("A shared choicesVisibleIf gives each choice its own result", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "x" },
+        { type: "text", name: "y" },
+        { type: "radiogroup", name: "q", choices: [1, 2, 3], choicesVisibleIf: "{item} != {x}" }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    survey.setValue("x", 2);
+    expect(visibleValues(q), "x = 2").toEqual([1, 3]);
+    survey.setValue("y", 1);
+    expect(visibleValues(q), "y = 1 changes nothing").toEqual([1, 3]);
+    survey.setValue("x", 3);
+    expect(visibleValues(q), "x = 3").toEqual([1, 2]);
+  });
+  test("onShowingChoiceItem gets the condition result when the choice does not run again", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "radiogroup", name: "q", choices: [1, 2, { value: 3, visibleIf: "{a} = 1" }] }
+      ]
+    });
+    survey.onShowingChoiceItem.add((sender, options) => {
+      if (options.item.value === 3 && sender.getValue("b") === 1) {
+        options.visible = false;
+      }
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    survey.setValue("a", 1);
+    expect(visibleValues(q), "a = 1").toEqual([1, 2, 3]);
+    survey.setValue("b", 1);
+    expect(visibleValues(q), "b = 1, the event hides 3").toEqual([1, 2]);
+    survey.setValue("b", 2);
+    expect(visibleValues(q), "b = 2, the event shows 3 again").toEqual([1, 2, 3]);
+  });
+  test("A choice inside a dynamic panel follows {panel.a}", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [
+          { type: "text", name: "a" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "{panel.a} = 1" }] }
+        ] }
+      ]
+    });
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels[0];
+    const q = <QuestionSelectBase>panel.getQuestionByName("q");
+    expect(visibleValues(q), "start").toEqual([1]);
+    panel.getQuestionByName("a").value = 1;
+    expect(visibleValues(q), "panel a = 1").toEqual([1, 2]);
+    panel.getQuestionByName("a").value = 2;
+    expect(visibleValues(q), "panel a = 2").toEqual([1]);
+  });
+  test("A choice whose visibleIf changed runs the new expression on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "{a} = 1" }] }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    survey.setValue("a", 2);
+    expect(visibleValues(q), "a = 2").toEqual([1]);
+    q.choices[1].visibleIf = "{a} = 2";
+    expect(visibleValues(q), "the new expression has not run yet").toEqual([1]);
+    survey.setValue("b", 1);
+    expect(visibleValues(q), "b = 1 runs the new expression").toEqual([1, 2]);
+  });
+  test("A choice enableIf follows {a} and keeps its result on an unrelated answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "radiogroup", name: "q", choices: [1, { value: 2, enableIf: "{a} = 1" }] }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    expect(q.choices[1].isEnabled, "start").toBe(false);
+    survey.setValue("a", 1);
+    expect(q.choices[1].isEnabled, "a = 1").toBe(true);
+    survey.setValue("b", 1);
+    expect(q.choices[1].isEnabled, "b = 1").toBe(true);
+  });
+  test("A choice visibleIf does not run when no value it uses changed", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]): boolean => {
+      callCount++;
+      return params[0] === 1;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "countCalls({a})" }] }
+        ]
+      });
+      const q = <QuestionSelectBase>survey.getQuestionByName("q");
+      expect(visibleValues(q), "start").toEqual([1]);
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "b = 1 does not run it").toBe(0);
+      survey.setValue("a", 1);
+      expect(callCount, "a = 1 runs it once").toBe(1);
+      expect(visibleValues(q), "a = 1 shows the choice").toEqual([1, 2]);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("A function that reads another value itself keeps the choice's old result when only that value changed (it ran on every answer before)", () => {
+    FunctionFactory.Instance.register("readOther", function (this: any, params: any[]): boolean {
+      return this.survey.getValue("other") === 1;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "other" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "readOther({a})" }] }
+        ]
+      });
+      const q = <QuestionSelectBase>survey.getQuestionByName("q");
+      expect(visibleValues(q), "start").toEqual([1]);
+      survey.setValue("other", 1);
+      expect(visibleValues(q), "other = 1: the function's parameter did not change").toEqual([1]);
+      survey.setValue("a", 5);
+      expect(visibleValues(q), "a = 5 runs it").toEqual([1, 2]);
+    } finally {
+      FunctionFactory.Instance.unregister("readOther");
+    }
+  });
+  test("A choice renamed in place runs {item} with its new value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "x" },
+        { type: "text", name: "y" },
+        { type: "radiogroup", name: "q", choices: [1, 2, 3], choicesVisibleIf: "{item} != {x}" }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    survey.setValue("x", 2);
+    expect(visibleValues(q), "x = 2").toEqual([1, 3]);
+    q.choices[1].value = 5;
+    survey.setValue("y", 1);
+    expect(visibleValues(q), "y = 1 runs the renamed choice").toEqual([1, 5, 3]);
+  });
+  test("A choice visibleIf with a parameterless function runs on every answer", () => {
+    let flag = false;
+    FunctionFactory.Instance.register("readFlag", (): boolean => flag);
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "b" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "readFlag()" }] }
+        ]
+      });
+      const q = <QuestionSelectBase>survey.getQuestionByName("q");
+      expect(visibleValues(q), "start").toEqual([1]);
+      flag = true;
+      survey.setValue("b", 1);
+      expect(visibleValues(q), "b = 1").toEqual([1, 2]);
+    } finally {
+      FunctionFactory.Instance.unregister("readFlag");
+    }
+  });
+  test("A choice visibleIf with an element property runs on every answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "c" },
+        { type: "text", name: "a", visibleIf: "{c} = 1" },
+        { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "{$a.isVisible} = true" }] }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    expect(visibleValues(q), "start").toEqual([1]);
+    survey.setValue("c", 1);
+    expect(visibleValues(q), "c = 1 shows a").toEqual([1, 2]);
+  });
+  test("A choice visibleIf with {correctanswers} follows the quiz answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "quiz", correctAnswer: 1 },
+        { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "{correctanswers} = 1" }] }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    expect(visibleValues(q), "start").toEqual([1]);
+    survey.setValue("quiz", 1);
+    expect(visibleValues(q), "a correct answer").toEqual([1, 2]);
+  });
+  test("A choice visibleIf runs again with an onExpressionRunning subscriber, runExpressions() and survey.data", () => {
+    FunctionFactory.Instance.register("readOther", function (this: any, params: any[]): boolean {
+      return this.survey.getValue("other") === 1;
+    });
+    try {
+      const json = {
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "other" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "readOther({a})" }] }
+        ]
+      };
+      let survey = new SurveyModel(json);
+      let q = <QuestionSelectBase>survey.getQuestionByName("q");
+      survey.onExpressionRunning.add(() => {});
+      survey.setValue("other", 1);
+      expect(visibleValues(q), "an onExpressionRunning subscriber").toEqual([1, 2]);
+
+      survey = new SurveyModel(json);
+      q = <QuestionSelectBase>survey.getQuestionByName("q");
+      survey.setValue("other", 1);
+      survey.runExpressions();
+      expect(visibleValues(q), "runExpressions()").toEqual([1, 2]);
+
+      survey = new SurveyModel(json);
+      q = <QuestionSelectBase>survey.getQuestionByName("q");
+      survey.data = { other: 1 };
+      expect(visibleValues(q), "survey.data").toEqual([1, 2]);
+    } finally {
+      FunctionFactory.Instance.unregister("readOther");
+    }
+  });
+  test("Rating values and image map areas follow {a} and do not run on an unrelated answer", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]): boolean => {
+      callCount++;
+      return params[0] === 1;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "rating", name: "r", rateValues: [1, 2, { value: 3, visibleIf: "countCalls({a})" }] },
+          { type: "imagemap", name: "im", areas: [{ value: "v1" }, { value: "v2", visibleIf: "countCalls({a})" }] }
+        ]
+      });
+      const r = <any>survey.getQuestionByName("r");
+      const im = <any>survey.getQuestionByName("im");
+      expect(r.rateValues[2].isVisible, "rating, start").toBe(false);
+      expect(im.areas[1].isVisible, "image map, start").toBe(false);
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "b = 1 runs neither").toBe(0);
+      survey.setValue("a", 1);
+      expect(callCount, "a = 1 runs both").toBe(2);
+      expect(r.rateValues[2].isVisible, "rating, a = 1").toBe(true);
+      expect(im.areas[1].isVisible, "image map, a = 1").toBe(true);
+      survey.setValue("a", 2);
+      expect(r.rateValues[2].isVisible, "rating, a = 2").toBe(false);
+      expect(im.areas[1].isVisible, "image map, a = 2").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("A choice that reads a path under a cleared value runs again", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrix", name: "m", rows: ["r1"], columns: ["c1", "c2"] },
+        { type: "checkbox", name: "q", choices: [1, { value: 2, visibleIf: "{m.r1} = 'c1'" }] },
+        { type: "text", name: "e", visibleIf: "{m.r1} = 'c1'" }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    const m = survey.getQuestionByName("m");
+    const e = survey.getQuestionByName("e");
+    m.value = { r1: "c1" };
+    expect(visibleValues(q), "m.r1 = c1").toEqual([1, 2]);
+    expect(e.isVisible, "the question, m.r1 = c1").toBe(true);
+    m.clearValue();
+    expect(visibleValues(q), "m cleared").toEqual([1]);
+    expect(e.isVisible, "the question keeps its result after the clear (the element rule)").toBe(true);
+    m.value = { r1: "c1" };
+    expect(visibleValues(q), "m.r1 = c1 again").toEqual([1, 2]);
+  });
+  test("defaultValueExpression with null as a function argument, Bug#12130", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "gender", choices: ["male", "female"] },
+        {
+          type: "dropdown",
+          name: "partnerGender",
+          choices: ["male", "female"],
+          defaultValueExpression: "iif({gender} = 'male', 'female', iif({gender} = 'female', 'male', null))"
+        }
+      ]
+    });
+    const q = survey.getQuestionByName("partnerGender");
+    expect(q.isEmpty(), "#1 gender is empty").toBe(true);
+    survey.setValue("gender", "male");
+    expect(q.value, "#2 gender is male").toBe("female");
+    survey.setValue("gender", "female");
+    expect(q.value, "#3 gender is female").toBe("male");
+  });
+});
+
+describe("Design mode: the visible choices are built on first read", () => {
+  const json = {
+    elements: [
+      { type: "checkbox", name: "cb", choices: [1, 2], showSelectAllItem: true },
+      { type: "radiogroup", name: "rg", choices: [1, 2], showNoneItem: true, showOtherItem: true },
+      { type: "dropdown", name: "dd", choices: [1, 2] },
+      { type: "ranking", name: "rk", choices: [1, 2, 3] }
+    ]
+  };
+  function loadInDesign(surveyJson: any): SurveyModel {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(surveyJson);
+    return survey;
+  }
+  function getQ(survey: SurveyModel, name: string): QuestionSelectBase {
+    return <QuestionSelectBase>survey.getQuestionByName(name);
+  }
+  function getValues(items: Array<ItemValue>): Array<any> {
+    return items.map(item => item.value);
+  }
+  function spyItemCreation(): { builtIn: any, itemValue: any, builtInCount: (type: string) => number, newItemCount: (type: string) => number, restore: () => void } {
+    const builtIn = vi.spyOn(QuestionSelectBase.prototype as any, "createBuiltInItem");
+    const itemValue = vi.spyOn(QuestionSelectBase.prototype as any, "createItemValue");
+    return {
+      builtIn, itemValue,
+      builtInCount: (type: string): number => builtIn.mock.contexts.filter((ctx: any) => ctx.getType() === type).length,
+      newItemCount: (type: string): number => itemValue.mock.calls.filter((args: Array<any>, index: number) =>
+        args[0] === "newitem" && (<any>itemValue.mock.contexts[index]).getType() === type).length,
+      restore: (): void => { builtIn.mockRestore(); itemValue.mockRestore(); }
+    };
+  }
+  const expectedLists: any = {
+    cb: {
+      visible: [["", "Select All", true], [1, "1", true], [2, "2", true], ["newitem", "newitem", true], ["none", "None", true], ["other", "Other (describe)", true]],
+      head: [""], foot: ["newitem", "none", "other"]
+    },
+    rg: {
+      visible: [[1, "1", true], [2, "2", true], ["newitem", "newitem", true], ["none", "None", true], ["other", "Other (describe)", true]],
+      head: [], foot: ["newitem", "none", "other"]
+    },
+    dd: {
+      visible: [[1, "1", true], [2, "2", true], ["newitem", "newitem", true], ["none", "None", true], ["other", "Other (describe)", true]],
+      head: [], foot: ["newitem", "none", "other"]
+    },
+    rk: {
+      visible: [[1, "1", true], [2, "2", true], [3, "3", true], ["newitem", "newitem", true]],
+      head: [], foot: ["newitem"]
+    }
+  };
+
+  test("No placeholder item is created by a design-mode load", () => {
+    const spies = spyItemCreation();
+    try {
+      loadInDesign(json);
+      ["checkbox", "radiogroup", "dropdown"].forEach(type => {
+        expect(spies.newItemCount(type), type + ": the new item is not created").toBe(0);
+        expect(spies.builtInCount(type), type + ": no built-in item is created").toBe(0);
+      });
+      expect(spies.newItemCount("ranking"), "ranking builds its list at load").toBe(1);
+      expect(spies.builtInCount("ranking"), "ranking has no built-in items").toBe(0);
+    } finally {
+      spies.restore();
+    }
+  });
+  ["visibleChoices", "renderedChoices", "newItem", "headItems", "footItems"].forEach(firstRead => {
+    test("The first read of " + firstRead + " builds the same lists as a load that builds them", () => {
+      const survey = loadInDesign(json);
+      ["cb", "rg", "dd", "rk"].forEach(name => {
+        const q = getQ(survey, name);
+        const expected = expectedLists[name];
+        const res = (<any>q)[firstRead];
+        if (firstRead === "newItem") {
+          expect(res.value, name + ": the first read of newItem").toBe("newitem");
+        } else if (firstRead === "headItems") {
+          expect(getValues(res), name + ": the first read of headItems").toEqual(expected.head);
+        } else if (firstRead === "footItems") {
+          expect(getValues(res), name + ": the first read of footItems").toEqual(expected.foot);
+        } else {
+          expect(getValues(res), name + ": the first read of " + firstRead).toEqual(expected.visible.map((item: Array<any>) => item[0]));
+        }
+        expect(q.visibleChoices.map(item => [item.value, item.text, item.isVisible]), name + ": visibleChoices").toEqual(expected.visible);
+        expect(getValues(q.renderedChoices), name + ": renderedChoices").toEqual(expected.visible.map((item: Array<any>) => item[0]));
+        expect(getValues(q.headItems), name + ": headItems").toEqual(expected.head);
+        expect(getValues(q.footItems), name + ": footItems").toEqual(expected.foot);
+        expect(q.newItem.value, name + ": newItem").toBe("newitem");
+      });
+    });
+  });
+  test("The carry-forward type is set by a design-mode load", () => {
+    const survey = loadInDesign({
+      elements: [
+        { type: "checkbox", name: "src", choices: [1, 2] },
+        { type: "matrixdynamic", name: "md", columns: [{ name: "col1" }] },
+        { type: "checkbox", name: "cf1", choicesFromQuestion: "src" },
+        { type: "checkbox", name: "cf2", choicesFromQuestion: "md", choiceValuesFromQuestion: "col1" }
+      ]
+    });
+    const cf1 = getQ(survey, "cf1");
+    const cf2 = getQ(survey, "cf2");
+    expect(cf1.carryForwardQuestionType, "cf1, select source").toBe("select");
+    expect(cf2.carryForwardQuestionType, "cf2, array source").toBe("array");
+    expect(cf1.isPropertyVisible("choicesFromQuestionMode"), "cf1: choicesFromQuestionMode is visible").toBe(true);
+    expect(cf1.isPropertyVisible("choiceValuesFromQuestion"), "cf1: choiceValuesFromQuestion is hidden").toBe(false);
+    expect(cf2.isPropertyVisible("choiceValuesFromQuestion"), "cf2: choiceValuesFromQuestion is visible").toBe(true);
+    expect(cf2.isPropertyVisible("choiceTextsFromQuestion"), "cf2: choiceTextsFromQuestion is visible").toBe(true);
+    expect(getValues(cf1.visibleChoices), "cf1: visibleChoices").toEqual(["", "none", "other"]);
+    expect(getValues(cf2.visibleChoices), "cf2: visibleChoices").toEqual(["", "none", "other"]);
+  });
+  test("The stored isVisible is set by the first read after a design-mode load", () => {
+    const survey = loadInDesign({ elements: [{ type: "panel", name: "p", elements: [{ type: "checkbox", name: "q", choices: [1, 2] }] }] });
+    const q = getQ(survey, "q");
+    // Like text, rating and matrix questions, which store no isVisible at load either
+    expect(q.getPropertyValue("isVisible"), "not stored after load").toBeUndefined();
+    let changes = 0;
+    q.registerFunctionOnPropertyValueChanged("isVisible", () => { changes ++; }, "test");
+    expect(getValues(q.visibleChoices), "the first read").toEqual(["", 1, 2, "newitem", "none", "other"]);
+    expect(q.getPropertyValue("isVisible"), "stored by the first read").toBe(true);
+    expect(changes, "one isVisible change").toBe(1);
+    expect(q.visibleChoices.length, "the second read").toBe(6);
+    expect(changes, "no change on the second read").toBe(1);
+  });
+  test("selectAllItem.isEnabled after the first read, design mode", () => {
+    const survey = loadInDesign({
+      elements: [
+        { type: "checkbox", name: "a", showSelectAllItem: true },
+        { type: "checkbox", name: "b", choices: [1, 2, 3], maxSelectedChoices: 2, showSelectAllItem: true }
+      ]
+    });
+    const a = <QuestionCheckboxModel>survey.getQuestionByName("a");
+    const b = <QuestionCheckboxModel>survey.getQuestionByName("b");
+    expect(getValues(a.visibleChoices), "a: visibleChoices").toEqual(["", "newitem", "none", "other"]);
+    expect(a.selectAllItem.isEnabled, "a: no choices").toBe(false);
+    expect(b.visibleChoices.length, "b: visibleChoices").toBe(7);
+    expect(b.selectAllItem.isEnabled, "b: maxSelectedChoices is less than the choices").toBe(false);
+  });
+  test("Design mode switched off before the first read gives the runtime list", () => {
+    const survey = loadInDesign({ elements: [{ type: "checkbox", name: "q", choices: [1, 2], showSelectAllItem: true }] });
+    survey.setDesignMode(false);
+    const q = getQ(survey, "q");
+    expect(getValues(q.visibleChoices), "no placeholder items").toEqual(["", 1, 2]);
+  });
+  test("Toggle showSelectAllItem, showNoneItem and showOtherItem after a design-mode load", () => {
+    const survey = loadInDesign(json);
+    const cb = <QuestionCheckboxModel>getQ(survey, "cb");
+    const rg = getQ(survey, "rg");
+    cb.showSelectAllItem = false;
+    rg.showNoneItem = false;
+    rg.showOtherItem = false;
+    expect(getValues(cb.visibleChoices), "cb, before the first read").toEqual(["", 1, 2, "newitem", "none", "other"]);
+    expect(getValues(rg.visibleChoices), "rg, before the first read").toEqual([1, 2, "newitem", "none", "other"]);
+    cb.showSelectAllItem = true;
+    rg.showNoneItem = true;
+    rg.showOtherItem = true;
+    expect(getValues(cb.visibleChoices), "cb, after the first read").toEqual(["", 1, 2, "newitem", "none", "other"]);
+    expect(getValues(rg.visibleChoices), "rg, after the first read").toEqual([1, 2, "newitem", "none", "other"]);
+  });
+  test("setCanShowOptionItemCallback before the first read, design mode", () => {
+    const survey = loadInDesign(json);
+    const cb = <QuestionCheckboxModel>getQ(survey, "cb");
+    const rg = getQ(survey, "rg");
+    const callback = (item: ItemValue): boolean => item.value === "newitem";
+    cb.setCanShowOptionItemCallback(callback);
+    rg.setCanShowOptionItemCallback(callback);
+    expect(getValues(cb.visibleChoices), "cb follows the callback").toEqual(["", 1, 2, "newitem"]);
+    expect(getValues(rg.visibleChoices), "rg follows the callback").toEqual([1, 2, "newitem", "none", "other"]);
+    expect(getValues(cb.headItems), "cb: headItems").toEqual([""]);
+    expect(getValues(cb.footItems), "cb: footItems").toEqual(["newitem"]);
+    cb.showSelectAllItem = false;
+    rg.showNoneItem = false;
+    expect(getValues(cb.visibleChoices), "cb, showSelectAllItem is off").toEqual([1, 2, "newitem"]);
+    expect(getValues(rg.visibleChoices), "rg, showNoneItem is off").toEqual([1, 2, "newitem", "other"]);
+  });
+  test("Change choices after a design-mode load", () => {
+    const survey = loadInDesign(json);
+    const cb = getQ(survey, "cb");
+    cb.choices = [3, 4];
+    expect(getValues(cb.visibleChoices), "before the first read").toEqual(["", 3, 4, "newitem", "none", "other"]);
+    cb.choices = [5];
+    expect(getValues(cb.visibleChoices), "after the first read").toEqual(["", 5, "newitem", "none", "other"]);
+  });
+  test("selectAllText before any read, design mode", () => {
+    const survey = loadInDesign(json);
+    const cb = <QuestionCheckboxModel>getQ(survey, "cb");
+    expect(cb.selectAllText).toBe("Select All");
+  });
+  test("A question added to a loaded design-mode survey builds its visible choices", () => {
+    const survey = loadInDesign(json);
+    const added = <QuestionSelectBase>survey.pages[0].addNewQuestion("checkbox", "added");
+    expect(getValues(added.visibleChoices), "addNewQuestion").toEqual(["", "item1", "item2", "item3", "newitem", "none", "other"]);
+    expect(added.newItem.value, "addNewQuestion: newItem").toBe("newitem");
+    const standalone = new QuestionCheckboxModel("standalone");
+    standalone.choices = [1, 2];
+    standalone.showSelectAllItem = true;
+    survey.pages[0].addElement(standalone);
+    expect(getValues(standalone.visibleChoices), "a question created standalone").toEqual(["", 1, 2, "newitem", "none", "other"]);
+    expect(standalone.newItem.value, "a question created standalone: newItem").toBe("newitem");
+  });
+  test("A runtime load builds the visible choices at load", () => {
+    const spies = spyItemCreation();
+    let survey: SurveyModel;
+    try {
+      survey = new SurveyModel(json);
+      expect(spies.builtIn.mock.calls.length, "Select All, None and Other").toBe(3);
+    } finally {
+      spies.restore();
+    }
+    expect(getValues(getQ(survey, "cb").getPropertyValue("visibleChoices")), "cb").toEqual(["", 1, 2]);
+    expect(getValues(getQ(survey, "rg").getPropertyValue("visibleChoices")), "rg").toEqual([1, 2, "none", "other"]);
+    expect(getValues(getQ(survey, "dd").getPropertyValue("visibleChoices")), "dd").toEqual([1, 2]);
+    expect(getValues(getQ(survey, "rk").getPropertyValue("visibleChoices")), "rk").toEqual([1, 2, 3]);
+  });
+  test("A design-mode ranking keeps its defaultValue after load", () => {
+    const survey = loadInDesign({ elements: [{ type: "ranking", name: "rk", choices: [1, 2, 3], defaultValue: [3, 1] }] });
+    const rk = getQ(survey, "rk");
+    expect(rk.defaultValue, "synchronized with the choices at load").toEqual([3, 1, 2]);
+    expect(getValues(rk.getPropertyValue("visibleChoices")), "built at load").toEqual([1, 2, 3, "newitem"]);
+  });
+  test("A build started by a direct updateVisibleChoices call is not made again on the next read, design mode", () => {
+    const survey = loadInDesign({
+      pages: [
+        { name: "p1", elements: [{ type: "checkbox", name: "q", choices: [1, 2] }] },
+        { name: "p2", elements: [{ type: "text", name: "t" }] }
+      ]
+    });
+    const q = getQ(survey, "q");
+    const spy = vi.spyOn(QuestionSelectBase.prototype as any, "onVisibleChoicesChanged");
+    try {
+      // setSurveyImpl calls updateVisibleChoices in design mode
+      survey.pages[1].addElement(q);
+      const callsAfterMove = spy.mock.calls.length;
+      expect(getValues(q.visibleChoices), "the list after the move").toEqual(["", 1, 2, "newitem", "none", "other"]);
+      expect(getValues(q.renderedChoices), "renderedChoices after the move").toEqual(["", 1, 2, "newitem", "none", "other"]);
+      expect(spy.mock.calls.length, "the reads do not build again").toBe(callsAfterMove);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

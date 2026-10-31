@@ -228,9 +228,13 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       value === "" || Helpers.isValueEmpty(value)
     );
   }
+  // For internal use: the empty check of getSerializableValue, shared with JsonObject's loop that skips empty properties
+  public isEmptyIn(obj: any): boolean {
+    return this.isSerializable && !!obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this);
+  }
   public getSerializableValue(obj: any, storeDefaults?: boolean, options?: ISaveToJSONOptions): any {
     if (!!this.onSerializeValue) return this.onSerializeValue(obj);
-    if (!storeDefaults && this.isSerializable && obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this)) return undefined;
+    if (!storeDefaults && this.isEmptyIn(obj)) return undefined;
     const value = this.getValue(obj, options);
     if (value === undefined || value === null) return undefined;
     if (!storeDefaults && this.isDefaultValueByObj(obj, value)) return undefined;
@@ -388,7 +392,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public set isLocalizable(val: boolean) {
     this.isLocalizableValue = val;
   }
-  public get isMultipleText(): boolean { return this.type === "string[]"; }
+  public get isMultipleText(): boolean { return this.typeValue === "string[]"; }
   public get dataList(): Array<string> {
     return Array.isArray(this.dataListValue) ? this.dataListValue : [];
   }
@@ -581,10 +585,18 @@ export class JsonMetadataClass {
   static requiredSymbol = "!";
   static typeSymbol = ":";
   properties: Array<JsonObjectProperty>;
+  public getInheritedPropertiesCallback: () => Array<JsonObjectProperty>;
   private isCustomValue: boolean;
   private allProperties: Array<JsonObjectProperty>;
   private requiredProperties: Array<JsonObjectProperty>;
   private hashProperties: Map<string, JsonObjectProperty>;
+  // Base.getDefaultPropertyValue's answers for unset properties, by name. It lives exactly as long as hashProperties.
+  // It keeps only the answers that depend on the metadata alone: "no property" (prop is null), and the undefined, null
+  // or primitive default of a property that is not custom, not localizable and has no defaultValueFunc, onGetValue or
+  // className. An entry also keeps the property's defaultValueValue and type: a hit compares them with the property's
+  // fields, so a direct assignment to either (or to defaultValueFunc) is caught without a reset. An object with its own
+  // localizable string of that name never uses or makes an entry for a property: that string can give the default.
+  private defaultValues: Map<string, { prop: JsonObjectProperty, value: any, defaultValue?: any, type?: string }>;
   constructor(
     public name: string,
     properties: Array<any>,
@@ -633,6 +645,7 @@ export class JsonMetadataClass {
     this.allProperties = undefined;
     this.requiredProperties = undefined;
     this.hashProperties = undefined;
+    this.defaultValues = undefined;
     var childClasses = Serializer.getChildrenClasses(this.name);
     for (var i = 0; i < childClasses.length; i++) {
       childClasses[i].resetAllProperties();
@@ -643,6 +656,7 @@ export class JsonMetadataClass {
     if (!!this.allProperties) return;
     this.allProperties = [];
     this.hashProperties = new Map<string, JsonObjectProperty>();
+    this.defaultValues = new Map();
     const localProperties = new Map<string, JsonObjectProperty>();
     this.properties.forEach(prop => localProperties.set(prop.name, prop));
     const parentClass = !!this.parentName ? Serializer.findClass(this.parentName) : null;
@@ -981,6 +995,7 @@ export class JsonMetadata {
     if (!metaClass) return;
     this.classes.delete(metaClass.name);
     this.removeFromParentClass(metaClass);
+    this.clearDynamicPropsCache(metaClass);
   }
   private removeFromParentClass(metaClass: JsonMetadataClass) {
     if (!metaClass.parentName) return;
@@ -1058,7 +1073,7 @@ export class JsonMetadata {
     if (!dynamicType) return [];
     const cacheType = dynamicType + "-" + objType;
     if (this.dynamicPropsCache.has(cacheType)) return this.dynamicPropsCache.get(cacheType);
-    var dynamicProps = this.getProperties(dynamicType);
+    var dynamicProps = this.getPropertiesForDynamicType(dynamicType);
     if (!dynamicProps || dynamicProps.length == 0) return [];
     const hash = new Map<string, JsonObjectProperty>();
     const props = this.getProperties(objType);
@@ -1081,6 +1096,22 @@ export class JsonMetadata {
       }
     }
     this.dynamicPropsCache.set(cacheType, res);
+    return res;
+  }
+  private getPropertiesForDynamicType(dynamicType: string): Array<JsonObjectProperty> {
+    const props = this.getProperties(dynamicType);
+    const metaClass = this.findClass(dynamicType);
+    const inheritedProps = !!metaClass && !!metaClass.getInheritedPropertiesCallback
+      ? metaClass.getInheritedPropertiesCallback() : undefined;
+    if (!inheritedProps || inheritedProps.length === 0) return props;
+    const hash = new Map<string, JsonObjectProperty>();
+    props.forEach(prop => hash.set(prop.name, prop));
+    const res = [].concat(props);
+    inheritedProps.forEach(prop => {
+      if (!hash.has(prop.name)) {
+        res.push(prop);
+      }
+    });
     return res;
   }
   private canAddDynamicProp(dProp: JsonObjectProperty, orgProp: JsonObjectProperty): boolean {
@@ -1735,23 +1766,36 @@ export class JsonObject {
     json: any,
     options: ISaveToJSONOptions
   ) {
+    // With these options and property flags, valueToJson's filters let the property through and
+    // getSerializableValue calls the same empty check (isEmptyIn) first, so an empty property writes nothing there.
+    const canSkipEmpty = !options.storeDefaults && !options.version && this.storesAllLocaleStrings(options);
     for (var i: number = 0; i < properties.length; i++) {
-      this.valueToJson(obj, json, properties[i], options);
+      const prop = properties[i];
+      if (canSkipEmpty && !prop.isSerializableFunc && !prop.onSerializeValue && !this.isLightSkipped(prop) && prop.isEmptyIn(obj)) continue;
+      this.valueToJson(obj, json, prop, options);
     }
   }
   public valueToJson(obj: any, result: any, prop: JsonObjectProperty, options?: ISaveToJSONOptions): void {
     if (!options) options = {};
     if (!this.isProretyCanBeStoredByOptions(prop, options)) return;
-    if (!prop.isPropertySerializable(obj) || (prop.isLightSerializable === false && this.lightSerializing)) return;
+    if (!prop.isPropertySerializable(obj) || this.isLightSkipped(prop)) return;
     if (options.version && !prop.isAvailableInVersion(options.version)) return;
     this.valueToJsonCore(obj, result, prop, options);
   }
   private isProretyCanBeStoredByOptions(prop: JsonObjectProperty, options: ISaveToJSONOptions): boolean {
+    if (this.storesAllLocaleStrings(options)) return true;
     const storeStrings = options.storeLocaleStrings;
     if (prop.isArray || prop.isUnique || prop.name === "name") return true;
     if (storeStrings === false) return !prop.isLocalizable;
     if (storeStrings === "stringsOnly") return prop.isLocalizable || !!prop.serializationProperty;
     return true;
+  }
+  private isLightSkipped(prop: JsonObjectProperty): boolean {
+    return prop.isLightSerializable === false && this.lightSerializing;
+  }
+  private storesAllLocaleStrings(options: ISaveToJSONOptions): boolean {
+    const storeStrings = options.storeLocaleStrings;
+    return storeStrings === undefined || storeStrings === true;
   }
   private valueToJsonCore(obj: any, result: any, prop: JsonObjectProperty, options: ISaveToJSONOptions): void {
     const serProp = prop.getSerializedProperty(obj, options.version);
@@ -1868,7 +1912,7 @@ export class JsonObject {
     var result: any = { newObj: null, error: null };
     const className = this.getClassNameForNewObj(value, property);
     result.newObj = className
-      ? Serializer.createClass(className, value)
+      ? Serializer.createClass(className, this.isItemJsonLoadedOnce(value, className) ? undefined : value)
       : null;
     result.error = this.checkNewObjectOnErrors(
       result.newObj,
@@ -1877,6 +1921,12 @@ export class JsonObject {
       className
     );
     return result;
+  }
+  // toObjectCore deserializes the JSON right after, so an item's creator does not get it. A JSON without value
+  // still does, for setData's text-to-value rule, and so does a Base in the JSON, for setData's toJSON().
+  private isItemJsonLoadedOnce(value: any, className: string): boolean {
+    return !!value && typeof value === "object" && typeof value.getType !== "function" && value.value !== undefined
+      && Serializer.isDescendantOf(className, "itemvalue");
   }
   private getClassNameForNewObj(value: any, property: JsonObjectProperty): string {
     var res = property != null && property.className ? property.className : undefined;

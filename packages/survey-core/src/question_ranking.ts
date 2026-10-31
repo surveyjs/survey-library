@@ -6,7 +6,7 @@ import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
 import { settings } from "../src/settings";
@@ -38,6 +38,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public getType(): string {
     return "ranking";
   }
+  protected getViewDisplayText(): string {
+    const value = this.value;
+    if (!Array.isArray(value) || value.length === 0) return "";
+    return value.map((val: any, index: number) => {
+      const item = this.getItemByValue(val);
+      const text = item ? item.text : "" + val;
+      return (index + 1) + ". " + text;
+    }).join("\n");
+  }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return false;
+  }
   supportElementsInChoice(): boolean { return false; }
   public getItemTabIndex(item: ItemValue) {
     if (this.isDesignMode || item.disabled) return undefined;
@@ -47,21 +59,21 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return this.selectToRankEnabled;
   }
   public get rootClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootMobileMod, this.isMobileMode())
-      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.rootPreview, this.isPreviewStyle)
-      .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
-      .append(this.cssClasses.itemOnError, this.hasCssError())
-      .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
-      .append(this.cssClasses.rootSelectToRankMod, this.selectToRankEnabled)
-      .append(this.cssClasses.rootSelectToRankEmptyValueMod, this.isEmpty())
-      .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal")
-      .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "vertical")
-      .append(this.cssClasses.rootSelectToRankSwapAreas, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal" && this.selectToRankSwapAreas)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.isMobileMode() && this.cssClasses.rootMobileMod,
+      this.isDisabledStyle && this.cssClasses.rootDisabled,
+      this.isReadOnlyStyle && this.cssClasses.rootReadOnly,
+      this.isPreviewStyle && this.cssClasses.rootPreview,
+      !!this.isDesignMode && this.cssClasses.rootDesignMode,
+      this.hasCssError() && this.cssClasses.itemOnError,
+      settings.rankingDragHandleArea === "icon" && this.cssClasses.rootDragHandleAreaIcon,
+      this.selectToRankEnabled && this.cssClasses.rootSelectToRankMod,
+      this.isEmpty() && this.cssClasses.rootSelectToRankEmptyValueMod,
+      this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal" && this.cssClasses.rootSelectToRankAlignHorizontal,
+      this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "vertical" && this.cssClasses.rootSelectToRankAlignVertical,
+      this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal" && this.selectToRankSwapAreas && this.cssClasses.rootSelectToRankSwapAreas
+    );
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
     if (this.selectToRankEnabled) {
@@ -70,10 +82,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return true;
   }
   protected getItemClassCore(item: ItemValue, options: any): string {
-    return new CssClassBuilder()
-      .append(super.getItemClassCore(item, options))
-      .append(this.cssClasses.itemGhostMod, this.currentDropTarget === item)
-      .toString();
+    return toCssClasses(super.getItemClassCore(item, options), this.currentDropTarget === item && this.cssClasses.itemGhostMod);
   }
 
   public getContainerClasses(containerType?: string) {
@@ -87,12 +96,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       isEmpty = this.renderedUnRankingChoices.length === 0;
     }
 
-    return new CssClassBuilder()
-      .append(this.cssClasses.container)
-      .append(this.cssClasses.containerToMode, isToContainer)
-      .append(this.cssClasses.containerFromMode, isFromContainer)
-      .append(this.cssClasses.containerEmptyMode, isEmpty)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.container,
+      isToContainer && this.cssClasses.containerToMode,
+      isFromContainer && this.cssClasses.containerFromMode,
+      isEmpty && this.cssClasses.containerEmptyMode
+    );
   }
 
   protected isItemCurrentDropTarget(item: ItemValue): boolean {
@@ -116,10 +125,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       noNumber = this.isEmpty();
     }
 
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemIndex)
-      .append(this.cssClasses.itemIndexEmptyMode, noNumber)
-      .toString();
+    return toCssClasses(this.cssClasses.itemIndex, noNumber && this.cssClasses.itemIndexEmptyMode);
   }
 
   public getNumberByIndex(index: number): string {
@@ -154,6 +160,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.syncValueWithVisibleChoices();
     this.updateRankingChoices();
     this.releaseAnimations();
+  }
+  // onSurveyLoad syncs the value and defaultValue with the visible choices (Bug#7919), so they are built at load
+  protected get canDeferVisibleChoicesOnLoad(): boolean {
+    return false;
   }
 
   protected onVisibleChoicesChanged = (): void => {
@@ -499,6 +509,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
     if (this.isReadOnlyAttr) return;
+    if (event.key === "Enter" || event.keyCode === 13) {
+      if (this.canCommitAutoAdvanceOnEnter(event)) {
+        this.commitAutoAdvance(event);
+      }
+      return;
+    }
     if (!this.isDesignMode) {
       const key: any = event.key;
       const index = this.rankingChoices.indexOf(choice);
@@ -595,17 +611,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.isValueSetByUser = true;
   };
   public getIconHoverCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemIcon)
-      .append(this.cssClasses.itemIconHoverMod)
-      .toString();
+    return toCssClasses(this.cssClasses.itemIcon, this.cssClasses.itemIconHoverMod);
   }
 
   public getIconFocusCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemIcon)
-      .append(this.cssClasses.itemIconFocusMod)
-      .toString();
+    return toCssClasses(this.cssClasses.itemIcon, this.cssClasses.itemIconFocusMod);
   }
 
   /**
@@ -682,6 +692,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
   public get dashSvgIcon(): string {
     return this.cssClasses.dashSvgIconId || "#icon-rankingundefined-16x16";
+  }
+  public get dotSvgIcon(): string {
+    return this.cssClasses.dotSvgIconId || "#icon-rankingdot-16x16";
+  }
+  public get plusSvgIcon(): string {
+    return this.cssClasses.plusSvgIconId || "#icon-rankingplus-16x16";
+  }
+  public get emptyIndexSvgIcon(): string {
+    return this.selectToRankEnabled ? this.plusSvgIcon : this.dotSvgIcon;
   }
 
   //a11y

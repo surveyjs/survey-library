@@ -134,7 +134,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
 
   protected renderHeaderPopup(popupModel: PopupBaseViewModel): React.JSX.Element | null {
-    return popupModel.showCloseButton ? <button tabIndex={-1} className="sv-popup__close-button sd-action sd-action--icon" onClick={() => this.model.clickClose()}>
+    return popupModel.showCloseButton ? <button tabIndex={-1} className="sv-popup__close-button sd-action sd-action--small sd-action--icon" onClick={() => this.model.clickClose()}>
       <SvgIcon
         className="sv-popup__close-button-icon"
         iconName="icon-close-24x24"
@@ -149,7 +149,9 @@ export class PopupContainer extends SurveyElementBase<any, any> {
       </div>
     );
   }
-  render(): React.JSX.Element {
+  render(): React.JSX.Element | null {
+    // Stays mounted and subscribed to the view model: Popup does not re-render when the popup opens.
+    if (!this.model.hasBeenShown) return null;
     const container = this.renderContainer(this.model);
     const className = new CssClassBuilder()
       .append("sv-popup")
@@ -185,6 +187,8 @@ export class PopupDropdownContainer extends PopupContainer {
   protected renderHeaderPopup(popupModel: PopupBaseViewModel): React.JSX.Element | null {
     const popupDropdownModel = popupModel as PopupDropdownViewModel;
     if (!popupDropdownModel || !popupDropdownModel.showHeader) return null;
+    // An overlay's header is its close button, not the pointer.
+    if (popupDropdownModel.isOverlay) return super.renderHeaderPopup(popupModel);
 
     return (
       <span

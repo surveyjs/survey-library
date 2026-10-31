@@ -33,7 +33,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   }
   public override ngDoCheck(): void {
     super.ngDoCheck();
-    if (this.cell.isErrorsCell && this.cell?.question) {
+    if ((this.cell.isErrorsCell || this.cell.showErrors) && this.cell?.question) {
       this.cell.question.registerFunctionOnPropertiesValueChanged(["errors", "visible"], () => {
         this.update();
       }, "__ngSubscription");

@@ -1,6 +1,7 @@
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
+import { DropdownMultiSelectRenderState, DropdownRenderState } from "./dropdownRenderState";
 import { ItemValue } from "./itemvalue";
 import { property } from "./decorators";
 import { IMultiSelectListModel, MultiSelectListModel } from "./multiSelectListModel";
@@ -12,8 +13,8 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
 
-  public get needRenderInput(): boolean {
-    return !this.question.isInputReadOnly || !!this.filterStringPlaceholder;
+  protected createRenderState(): DropdownRenderState {
+    return new DropdownMultiSelectRenderState(this.question, this);
   }
 
   public locStrsChanged(): void {
@@ -51,7 +52,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     let _onSelectionChanged = this.onSelectionChanged;
     if (!_onSelectionChanged) {
       _onSelectionChanged = (item: ItemValue, status: string) => {
-        this.resetFilterString();
+        this.resetFilterString(!this.closeOnSelect);
         if (item.id === "selectall") {
           this.selectAllItems();
         } else if (status === "added" && item.value === settings.noneItemValue) {
@@ -214,6 +215,22 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   protected handleEnterWhenPopupVisible(event: any): void {
     this.listModel.selectFocusedItem();
     this.onFocus(event);
+  }
+  protected commitSelectionOnTab(event: any): void {
+    if (!this.popupModel.isVisible) {
+      this.handleEnterWhenPopupHidden(event);
+      return;
+    }
+    const focusedItem = this.listModel.focusedItem;
+    if (focusedItem && !this.listModel.isItemSelected(focusedItem)) {
+      this.listModel.selectFocusedItem();
+      this.onFocus(event);
+    }
+  }
+  protected handleEnterWhenPopupHidden(event: any): void {
+    const question = <Question & { tryCommitAutoAdvanceOnEnter?(event: any): boolean }>this.question;
+    if (question.tryCommitAutoAdvanceOnEnter?.(event)) return;
+    super.handleEnterWhenPopupHidden(event);
   }
 
   protected onPropertyChangedHandler(sender: any, options: any) {

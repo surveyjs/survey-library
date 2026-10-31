@@ -28,7 +28,7 @@ export class SurveyQuestionSigleInputSummary extends ReactSurveyElement {
   private renderNoItems(): React.JSX.Element {
     const q = this.summary.question;
     const placeholder = ReactElementFactory.Instance.createElement("sv-placeholder-" + q.getTemplate(), { cssClasses: this.css, question: q });
-    return placeholder || <div>{this.renderLocString(this.summary.noEntry)}</div>;
+    return <div className={this.css.summaryPlaceholder}>{placeholder || <div>{this.renderLocString(this.summary.noEntry)}</div>}</div>;
   }
   private renderItem(item: QuestionSingleInputSummaryItem, index: number): React.JSX.Element {
     const btnEdit = item.btnEdit ?

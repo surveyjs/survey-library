@@ -1,14 +1,17 @@
 import { ItemValue } from "./itemvalue";
-import { Question } from "./question";
+import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
+import type { ISelectQuestion } from "./question_baseselect";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
+import { KeySequenceBuffer } from "./utils/key-sequence-buffer";
 import { getLocaleString } from "./surveyStrings";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { updateListCssValues } from "./utils/dom-utils";
 import { DropdownListModel } from "./dropdownListModel";
+import { dropdownQuestionMixin } from "./dropdownRenderState";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
@@ -16,6 +19,7 @@ import { getColorFromProperty } from "./utils/utils";
 import { getRGBaColor } from "./utils/color";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
+import { RendererFactory } from "./rendererFactory";
 import { HashTable } from "./helpers";
 import { Base } from "./base";
 
@@ -84,12 +88,56 @@ export class RatingItem extends ItemValue {
   }
 }
 
+function isRatingItemEnabled(item: ItemValue): boolean {
+  return !!item && item.isEnabled !== false;
+}
+
+function parseRatingShortcutNumber(val: any): number {
+  const num = parseFloat(val);
+  return isNaN(num) ? NaN : num;
+}
+
+export function ratingDigitShortcutHasPrefix(items: Array<ItemValue>, digit: string): boolean {
+  if (!digit || digit === "0" || !Array.isArray(items)) return false;
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (!isRatingItemEnabled(item)) continue;
+    const num = parseRatingShortcutNumber(item.value);
+    if (isNaN(num)) continue;
+    const str = String(num);
+    if (str.length > 1 && str.indexOf(digit) === 0) return true;
+  }
+  return false;
+}
+
+export function getRatingItemByDigitShortcut(items: Array<ItemValue>, digits: string): ItemValue {
+  if (!digits || !Array.isArray(items) || items.length === 0) return undefined;
+  const num = parseRatingShortcutNumber(digits);
+  if (!isNaN(num)) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const itemNum = parseRatingShortcutNumber(item.value);
+      if (!isNaN(itemNum) && itemNum === num) {
+        return isRatingItemEnabled(item) ? item : undefined;
+      }
+    }
+  }
+  if (digits.length === 1 && digits !== "0") {
+    const index = parseInt(digits, 10) - 1;
+    if (index >= 0 && index < items.length) {
+      const item = items[index];
+      return isRatingItemEnabled(item) ? item : undefined;
+    }
+  }
+  return undefined;
+}
+
 /**
  * A class that describes the Rating Scale question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
-export class QuestionRatingModel extends Question implements IRatingItemOwner {
+export class QuestionRatingModel extends dropdownQuestionMixin(Question) implements IRatingItemOwner, ISelectQuestion {
   constructor(name: string) {
     super(name);
 
@@ -189,6 +237,10 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
       this.updateRateMin();
     }
     if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined)this.autoGenerate = !this.jsonObj.rateValues.length;
+    if (this.autoGenerate && this.rateMin > this.rateMax) {
+      // JSON can contain rateMin > rateMax (onSettingValue is skipped on loading). Collapse the scale to a single rate value.
+      this.setPropertyValueDirectly("rateMin", this.rateMax);
+    }
     this.updateRateCount();
     this.setIconsToRateValues();
   }
@@ -312,12 +364,12 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     if (!DomDocumentHelper.isAvailable()) return;
     if (QuestionRatingModel.colorsCalculated) return;
 
-    QuestionRatingModel.badColor = getRGBColor(themeVariables, "--sjs2-color-bg-alert-primary", "--sd-rating-bad-color", this.rootElement);
-    QuestionRatingModel.normalColor = getRGBColor(themeVariables, "--sjs2-color-bg-warning-primary", "--sd-rating-normal-color", this.rootElement);
-    QuestionRatingModel.goodColor = getRGBColor(themeVariables, "--sjs2-color-bg-positive-primary", "--sd-rating-good-color", this.rootElement);
-    QuestionRatingModel.badColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-alert-secondary", "--sd-rating-bad-color-light", this.rootElement);
-    QuestionRatingModel.normalColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-warning-secondary", "--sd-rating-normal-color-light", this.rootElement);
-    QuestionRatingModel.goodColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-positive-secondary", "--sd-rating-good-color-light", this.rootElement);
+    QuestionRatingModel.badColor = getRGBColor(themeVariables, "--sjs2-color-bg-alert-primary", "--sd-rating-bad-color", this.contentElement);
+    QuestionRatingModel.normalColor = getRGBColor(themeVariables, "--sjs2-color-bg-warning-primary", "--sd-rating-normal-color", this.contentElement);
+    QuestionRatingModel.goodColor = getRGBColor(themeVariables, "--sjs2-color-bg-positive-primary", "--sd-rating-good-color", this.contentElement);
+    QuestionRatingModel.badColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-alert-secondary", "--sd-rating-bad-color-light", this.contentElement);
+    QuestionRatingModel.normalColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-warning-secondary", "--sd-rating-normal-color-light", this.contentElement);
+    QuestionRatingModel.goodColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-positive-secondary", "--sd-rating-good-color-light", this.contentElement);
 
     this.colorsCalculated = true;
     this.resetRenderedItems();
@@ -330,6 +382,26 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   }
   get visibleRateValues(): RatingItem[] {
     return this.visibleChoices;
+  }
+  public isSelectQuestion(): boolean {
+    return true;
+  }
+  public getValueChoices(): Array<ItemValue> {
+    return this.visibleRateValues;
+  }
+  public get hasUnknownChoices(): boolean {
+    return false;
+  }
+  public isOtherItem(item: ItemValue): boolean {
+    return false;
+  }
+  public isNoneItem(item: ItemValue): boolean {
+    return false;
+  }
+  public getValueType(): QuestionValueType {
+    // The generated items are numbers; only authored rateValues can carry another type.
+    const items = this.visibleRateValues;
+    return items.length > 0 ? getScalarValueType(items[0].value) : "number";
   }
   protected supportEmptyValidation(): boolean { return this.isDropdown; }
   private get isDropdown(): boolean { return this.renderAs === "dropdown"; }
@@ -403,7 +475,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   private resetRenderedItems() {
     if (this.autoGenerate) {
       const rateValues = this.createRateValues();
-      this.rateMax = rateValues[rateValues.length - 1].value;
+      if (rateValues.length > 0) {
+        this.rateMax = rateValues[rateValues.length - 1].value;
+      }
     }
     this.resetPropertyValue("visibleChoices");
   }
@@ -467,8 +541,130 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
   }
+  private isEnterKey: boolean;
+  private digitKeys: KeySequenceBuffer = new KeySequenceBuffer();
   supportAutoAdvance(): boolean {
-    return this.isMouseDown === true || this.isDropdown;
+    return this.isMouseDown === true || this.isDropdown || this.isEnterKey === true;
+  }
+  public onKeyDown(event: any): void {
+    const digit = this.getDigitFromEvent(event);
+    if (digit !== undefined) {
+      this.handleDigitShortcut(digit, event);
+      return;
+    }
+    this.resetDigitShortcut();
+    if (event.key !== "Enter" && event.keyCode !== 13) return;
+    if (this.isReadOnlyAttr || this.isDesignMode) return;
+    const raw = event.target?.value;
+    if (raw === undefined || raw === null || raw === "") return;
+    event.preventDefault();
+    this.commitRatingValue(raw);
+  }
+  private getDigitFromEvent(event: any): string {
+    if (!event || event.ctrlKey || event.metaKey || event.altKey || event.repeat) return undefined;
+    if (event.keyCode === 229 || event.isComposing) return undefined;
+    const key = event.key;
+    if (typeof key === "string" && key.length === 1 && key >= "0" && key <= "9") return key;
+    return undefined;
+  }
+  private isDigitShortcutTargetBlocked(target: any): boolean {
+    if (!target) return false;
+    const tag = (target.tagName || target.nodeName || "").toString().toLowerCase();
+    if (tag === "textarea" || tag === "select") return true;
+    if (tag === "input") {
+      const type = (target.type || "text").toString().toLowerCase();
+      if (type === "radio" || type === "checkbox" || type === "button" || type === "submit" || type === "reset" || type === "hidden") {
+        return false;
+      }
+      return true;
+    }
+    if (target.isContentEditable) return true;
+    return false;
+  }
+  private canHandleDigitShortcut(event: any): boolean {
+    if (this.isReadOnlyAttr || this.isDesignMode || this.isDropdown) return false;
+    if (this.dropdownListModelValue?.popupModel?.isVisible) return false;
+    if (this.visibleChoices.length === 0) return false;
+    if (this.isDigitShortcutTargetBlocked(event?.target)) return false;
+    const target = event?.target;
+    if (this.contentElement && target && target.nodeType && typeof this.contentElement.contains === "function" && !this.contentElement.contains(target)) {
+      return false;
+    }
+    return true;
+  }
+  private handleDigitShortcut(digit: string, event: any): void {
+    if (!this.canHandleDigitShortcut(event)) {
+      this.resetDigitShortcut();
+      return;
+    }
+    const items = this.visibleChoices;
+    if (this.digitKeys.text) {
+      const digits = this.digitKeys.append(digit);
+      this.digitKeys.reset();
+      const twoDigitItem = getRatingItemByDigitShortcut(items, digits);
+      if (twoDigitItem) {
+        this.applyDigitShortcut(twoDigitItem, event);
+        return;
+      }
+      const firstItem = getRatingItemByDigitShortcut(items, digits.charAt(0));
+      if (firstItem) {
+        this.applyDigitShortcut(firstItem, event);
+      }
+      return;
+    }
+    if (ratingDigitShortcutHasPrefix(items, digit)) {
+      this.digitKeys.append(digit);
+      this.digitKeys.waitAndApply((pending) => {
+        if (this.isDisposed || !pending) return;
+        const item = getRatingItemByDigitShortcut(this.visibleChoices, pending);
+        if (item) {
+          this.applyDigitShortcut(item);
+        }
+      }, settings.keyboardInputTimeout);
+      return;
+    }
+    const item = getRatingItemByDigitShortcut(items, digit);
+    if (!item) return;
+    this.applyDigitShortcut(item, event);
+  }
+  private applyDigitShortcut(item: ItemValue, event?: any): void {
+    if (event) {
+      if (event.preventDefault) event.preventDefault();
+      if (event.stopPropagation) event.stopPropagation();
+    }
+    this.commitRatingValue(item.value);
+    this.focusRateItem(item);
+  }
+  private commitRatingValue(val: any): void {
+    this.isEnterKey = true;
+    const prevValue = this.value;
+    this.value = val;
+    if (prevValue === this.value && !this.isEmpty()) {
+      const survey = this.survey as SurveyModel;
+      survey?.tryGoNextPageAutomatic(this.getValueName());
+    }
+    this.isEnterKey = false;
+  }
+  private focusRateItem(item: ItemValue): void {
+    const index = this.visibleChoices.indexOf(item as RatingItem);
+    if (index < 0) return;
+    const id = this.getInputId(index);
+    const selector = "#" + (typeof CSS !== "undefined" && CSS.escape ? CSS.escape(id) : id);
+    const roots = [this.contentElement, this.getWrapperElement(), (this.survey as SurveyModel)?.rootElement];
+    let el: HTMLElement = undefined;
+    for (let i = 0; i < roots.length; i++) {
+      const root = roots[i];
+      if (root && typeof root.querySelector === "function") {
+        el = root.querySelector(selector);
+        if (el) break;
+      }
+    }
+    if (el && typeof el.focus === "function") {
+      el.focus({ preventScroll: true });
+    }
+  }
+  private resetDigitShortcut(): void {
+    this.digitKeys.reset();
   }
   public supportOther(): boolean {
     return false;
@@ -506,9 +702,11 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     return this.getPropertyValue("hasMaxRateDescription", undefined, () => !!this.maxRateDescription);
   }
   get hasMinLabel(): boolean {
+    if (this.isCompactIconView) return false;
     return !this.displayRateDescriptionsAsExtremeItems && !!this.hasMinRateDescription;
   }
   get hasMaxLabel(): boolean {
+    if (this.isCompactIconView) return false;
     return !this.displayRateDescriptionsAsExtremeItems && !!this.hasMaxRateDescription;
   }
 
@@ -641,8 +839,19 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    // keepIncorrectValues is not read here: clearIncorrectValues() folds it into reportInvalidChoiceValues: false
+    // and setData() ignores it.
+    if (!context.checks.reportInvalidChoiceValues) return true;
+    if (!ItemValue.getItemByValue(this.visibleRateValues, val)) {
+      context.addIssue("invalidChoiceValue", undefined, val, this);
+    }
+    return true;
+  }
   public setValueFromClick(value: any) {
-    if (this.isReadOnlyAttr) return;
+    this.resetDigitShortcut();
+    if (this.isReadOnlyAttr || this.isEnterKey) return;
     if (this.value === ((typeof (this.value) === "string") ? value : parseFloat(value))) {
       this.clearValue(true);
     } else {
@@ -673,20 +882,42 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     this.resetItemsVisuals();
   }
 
+  // Stars and smileys in view mode stay icons, at the same small size matrices use.
+  private get isCompactIconView(): boolean {
+    return this.isViewMode && (this.isStar || this.isSmiley);
+  }
+  // Those icons are display-only: their radios must stay out of the tab order.
+  public get itemTabIndex(): number | undefined {
+    return this.isCompactIconView ? -1 : undefined;
+  }
+  protected get supportsQuestionView(): boolean {
+    return !this.isCompactIconView;
+  }
+  public getComponentName(): string {
+    if (this.isCompactIconView) {
+      return RendererFactory.Instance.getRenderer(this.getType(), "default");
+    }
+    return super.getComponentName();
+  }
   public get itemSmallMode() {
-    return !this.isSingleInputActive && this.inMatrixMode && settings.matrix.rateSize == "small";
+    if (this.isSingleInputActive) return false;
+    if (this.isCompactIconView) return true;
+    return this.inMatrixMode && settings.matrix.rateSize == "small";
   }
 
   public get ratingRootCss(): string {
     const hasLabel = this.hasMaxLabel || this.hasMinLabel;
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootWrappable, this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode) || (this.displayMode == "auto" && !this.supportResponsiveness()))
-      .append(this.cssClasses.rootLabelsTop, hasLabel && this.rateDescriptionLocation == "top")
-      .append(this.cssClasses.rootLabelsBottom, hasLabel && this.rateDescriptionLocation == "bottom")
-      .append(this.cssClasses.rootLabelsDiagonal, hasLabel && this.rateDescriptionLocation == "topBottom")
-      .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
-      .toString();
+    const isWrappable = this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode) ||
+      (this.displayMode == "auto" && !this.supportResponsiveness());
+    return toCssClasses(
+      this.cssClasses.root,
+      isWrappable && this.cssClasses.rootWrappable,
+      hasLabel && this.rateDescriptionLocation == "top" && this.cssClasses.rootLabelsTop,
+      hasLabel && this.rateDescriptionLocation == "bottom" && this.cssClasses.rootLabelsBottom,
+      hasLabel && this.rateDescriptionLocation == "topBottom" && this.cssClasses.rootLabelsDiagonal,
+      this.itemSmallMode && this.rateType != "labels" && this.cssClasses.itemSmall,
+      this.isCompactIconView && this.cssClasses.rootView
+    );
   }
 
   public get itemStarIcon(): string {
@@ -715,14 +946,11 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
 
   public afterRenderQuestionElement(el: HTMLElement): void {
     super.afterRenderQuestionElement(el);
-    this.rootElement = el;
     if (this.renderAs !== "dropdown") {
       this.colorsCalculated = false;
       this.updateColors((this.survey as SurveyModel).themeVariables);
     }
   }
-
-  private rootElement: HTMLElement;
 
   private getRenderedItemColor(index: number, light: boolean): string {
     let startColor = light ? QuestionRatingModel.badColorLight : QuestionRatingModel.badColor;
@@ -737,8 +965,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     }
     if (!startColor || !endColor) return null;
     const curColor = [0, 0, 0, 0];
+    const ratio = normalIndex > 0 ? index / normalIndex : 0;
     for (let i = 0; i < 4; i++) {
-      curColor[i] = startColor[i] + (endColor[i] - startColor[i]) * index / normalIndex;
+      curColor[i] = startColor[i] + (endColor[i] - startColor[i]) * ratio;
       if (i < 3) curColor[i] = Math.trunc(curColor[i]);
     }
     return "rgba(" + curColor[0] + ", " + curColor[1] + ", " + curColor[2] + ", " + curColor[3] + ")";
@@ -820,21 +1049,21 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
 
     const options: any = { item: item, css: "" };
 
-    options.css = new CssClassBuilder()
-      .append(itemClass)
-      .append(itemSelectedClass, isSelected)
-      .append(itemDisabledClass, this.isDisabledStyle)
-      .append(itemReadOnlyClass, this.isReadOnlyStyle)
-      .append(itemPreviewClass, this.isPreviewStyle)
-      .append(itemHoverClass, allowHover)
-      .append(itemHighlightedClass, isHighlighted)
-      .append(itemScaleColoredClass, this.scaleColorMode == "colored")
-      .append(itemRateColoredClass, this.rateColorMode == "scale" && isSelected)
-      .append(itemUnhighlightedClass, isUnhighlighted)
-      .append(itemitemOnErrorClass, this.hasCssError())
-      .append(itemSmallClass, this.itemSmallMode)
-      .append(this.cssClasses.itemFixedSize, hasFixedSize)
-      .toString();
+    options.css = toCssClasses(
+      itemClass,
+      isSelected && itemSelectedClass,
+      this.isDisabledStyle && itemDisabledClass,
+      this.isReadOnlyStyle && itemReadOnlyClass,
+      this.isPreviewStyle && itemPreviewClass,
+      allowHover && itemHoverClass,
+      isHighlighted && itemHighlightedClass,
+      this.scaleColorMode == "colored" && itemScaleColoredClass,
+      this.rateColorMode == "scale" && isSelected && itemRateColoredClass,
+      isUnhighlighted && itemUnhighlightedClass,
+      this.hasCssError() && itemitemOnErrorClass,
+      this.itemSmallMode && itemSmallClass,
+      hasFixedSize && this.cssClasses.itemFixedSize
+    );
 
     if (!!this.survey) {
       this.cssCallbacks.updateChoiceItemCss(this, options);
@@ -845,19 +1074,16 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   //methods for mobile view
   public getControlClass(): string {
     this.isEmpty();
-    return new CssClassBuilder()
-      .append(this.cssClasses.control)
-      .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.control,
+      this.isEmpty() && this.cssClasses.controlEmpty,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDisabledStyle && this.cssClasses.controlDisabled,
+      this.isReadOnlyStyle && this.cssClasses.controlReadOnly,
+      this.isPreviewStyle && this.cssClasses.controlPreview
+    );
   }
   @property({ localizable: { defaultStr: "ratingOptionsCaption" } }) placeholder: string;
-  get allowClear(): boolean {
-    return true;
-  }
   get searchEnabled(): boolean {
     return false;
   }
@@ -896,11 +1122,6 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   protected supportResponsiveness(): boolean {
     return !this.inMatrixMode;
   }
-  protected onBeforeSetCompactRenderer(): void {
-    if (!this.isDisposed && !this.dropdownListModelValue) {
-      this.dropdownListModelValue = new DropdownListModel(this);
-    }
-  }
   protected getCompactRenderAs(): string {
     return (this.displayMode == "buttons") ? "default" : "dropdown";
   }
@@ -908,31 +1129,18 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     return (this.displayMode == "dropdown") ? "dropdown" : "default";
   }
 
-  private dropdownListModelValue: DropdownListModel;
-  public set dropdownListModel(val: DropdownListModel) {
-    this.dropdownListModelValue = val;
+  protected canCreateDropdownListModel(): boolean {
+    return this.isDropdown;
+  }
+  protected createDropdownListModel(): DropdownListModel {
+    return new DropdownListModel(this);
+  }
+  protected onDropdownListModelAssigned(): void {
     this.updateElementCss();
-  }
-  public get dropdownListModel(): DropdownListModel {
-    if (this.isDropdown) {
-      this.onBeforeSetCompactRenderer();
-    }
-    return this.dropdownListModelValue;
-  }
-  protected onBlurCore(event: any): void {
-    this.dropdownListModel?.onBlur(event);
-    super.onBlurCore(event);
   }
   protected updateCssClasses(res: any, css: any) {
     super.updateCssClasses(res, css);
     updateListCssValues(res, css);
-  }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModelValue) {
-      this.dropdownListModelValue.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
   }
   public themeChanged(theme: ITheme): void {
     this.colorsCalculated = false;
@@ -945,11 +1153,8 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     this.updateRenderAsBasedOnDisplayMode();
   }
   public dispose(): void {
+    this.resetDigitShortcut();
     super.dispose();
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
-      this.dropdownListModelValue = undefined;
-    }
   }
 
   //a11y
@@ -1006,7 +1211,8 @@ Serializer.addClass(
       name: "rateCount:number",
       default: 5,
       onSettingValue: (obj: any, val: any): any => {
-        if (val < 2) return 2;
+        // A single-value scale (rateMin equals rateMax) is possible only after loading an invalid JSON.
+        if (val < 2) return obj.autoGenerate && obj.rateMin === obj.rateMax ? 1 : 2;
         if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
         if (val > 10 && obj.rateType == "smileys") return 10;
         return val;
@@ -1024,6 +1230,7 @@ Serializer.addClass(
     {
       name: "rateMin:number", default: 1,
       onSettingValue: (obj: any, val: any): any => {
+        if (obj.rateCount === 1 && val === obj.rateMax) return val;
         return val > obj.rateMax - obj.rateStep ? obj.rateMax - obj.rateStep : val;
       },
       visibleIf: function (obj: any) {
@@ -1033,6 +1240,7 @@ Serializer.addClass(
     {
       name: "rateMax:number", default: 5,
       onSettingValue: (obj: any, val: any): any => {
+        if (obj.rateCount === 1 && val === obj.rateMin) return val;
         return val < obj.rateMin + obj.rateStep ? obj.rateMin + obj.rateStep : val;
       },
       visibleIf: function (obj: any) {
@@ -1043,7 +1251,7 @@ Serializer.addClass(
       name: "rateStep:number", default: 1, minValue: 0.1,
       onSettingValue: (obj: any, val: any): any => {
         if (val <= 0) val = 1;
-        if (val > obj.rateMax - obj.rateMin)
+        if (obj.rateMax > obj.rateMin && val > obj.rateMax - obj.rateMin)
           val = obj.rateMax - obj.rateMin;
         return val;
       },

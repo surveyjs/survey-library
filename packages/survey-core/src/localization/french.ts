@@ -5,6 +5,58 @@ export var frenchSurveyStrings = {
   pagePrevText: "Précédent",
   // "Next"
   pageNextText: "Suivant",
+  // [Auto-translated] "First"
+  pageFirstText: "Première",
+  // [Auto-translated] "Last"
+  pageLastText: "Dernier",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Sélectionner la page",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Triez par {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Haut - Très bas",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Grave - Haut",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alphabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alphabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Les dernières premières",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Les plus anciens d’abord",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Trié par {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, puis par {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Trier par",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Par défaut",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Champ de tri",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ordre de tri",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Ajouter le niveau de tri",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Supprimez le niveau de tri {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Champ de tri {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordre de tri {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Afficher tous les niveaux de type",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Ajouter du nouveau",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Niveau de tri {0}",
   // "Complete"
   completeText: "Terminer",
   // "Preview"
@@ -37,6 +89,8 @@ export var frenchSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} question(s) répondue(s)",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Question {0} de {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Il n'y a ni page visible ni question visible dans ce questionnaire",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var frenchSurveyStrings = {
   value: "valeur",
   // "Response required."
   requiredError: "La réponse à cette question est obligatoire.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "La valeur est incorrecte.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "La valeur contient des clés inconnues : {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Merci de répondre au moins à une question.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var frenchSurveyStrings = {
   noUploadFilesHandler: "Les fichiers ne peuvent pas être téléchargés. Veuillez ajouter un gestionnaire pour l'événement 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Merci de préciser le champ 'Autre'.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "La valeur « {0} » n’est pas l’une des options disponibles.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Votre fichier est en cours de chargement. Merci d'attendre quelques secondes et de réessayer.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var frenchSurveyStrings = {
   addRow: "Ajouter une ligne",
   // "Remove"
   removeRow: "Supprimer",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Déplacer la rangée {0}",
   // "There are no rows."
   noRowsText: "Il n'y a pas de lignes.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var frenchSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Barre de progression",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Page {0}"
+  progressbarPage: "Page {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "j",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "a",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "h",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "H",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "français", englishName: "French" });

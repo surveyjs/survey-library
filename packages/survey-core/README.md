@@ -65,14 +65,14 @@ Pass the `survey` instance to the component from your UI package to render it �
 
 ## Theme Adapters
 
-Themes are built on `--sjs-*` CSS custom properties (design tokens). A theme adapter maps an existing design system's variables onto those tokens, so an embedded survey inherits the look of the host application instead of being restyled by hand. Adapters ship with `survey-core` as plain CSS — import one after the base style sheet:
+Themes are built on `--sjs2-*` CSS custom properties ([design tokens](https://surveyjs.io/documentation/design-tokens-css-customization)). A theme adapter maps an existing design system's variables onto those tokens, so an embedded survey inherits the look of the host application instead of being restyled by hand. Adapters ship with `survey-core` as plain CSS — import one after the base style sheet:
 
 ```js
 import "survey-core/survey-core.css";
 import "survey-core/themes/adapters/bootstrap-default.css";
 ```
 
-Adapters are available for [Bootstrap](https://getbootstrap.com), [Material UI](https://mui.com) (`mui.css`), and [shadcn/ui](https://ui.shadcn.com) (`shadcn-default.css`, `shadcn-new-york.css`). Bootstrap additionally ships [Bootswatch](https://bootswatch.com) variants — `bootstrap-darkly.css`, `bootstrap-flatly.css`, and others. Because adapters read the host system's live variables, any Bootstrap or Bootswatch build re-skins the survey automatically. Matching icon sets are optional side-effect imports:
+Adapters are available for [Bootstrap](https://getbootstrap.com), [Material UI](https://mui.com) (`mui.css`), [shadcn/ui](https://ui.shadcn.com) (`shadcn-default.css`, `shadcn-new-york.css`), and [Tailwind CSS v4](https://tailwindcss.com) (`tailwind4.css`). Bootstrap additionally ships [Bootswatch](https://bootswatch.com) variants — `bootstrap-darkly.css`, `bootstrap-flatly.css`, and others. Because adapters read the host system's live variables, any Bootstrap or Bootswatch build re-skins the survey automatically. Matching icon sets are optional side-effect imports:
 
 ```js
 import "survey-core/themes/adapters/icons/lucide"; // or ".../icons/mui"

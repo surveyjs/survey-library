@@ -195,3 +195,18 @@
 .sd-formbox__input[type="month"]:not(.sd-formbox__input--value-changed) {
     color: var(--sjs2-color-component-input-default-placeholder);
 }
+
+// A masked value is rendered as a left-to-right run (the question sets an inline direction), which
+// would pull the box to the left edge of a right-to-left survey. The ancestor selector still matches
+// through that inline direction, because :dir() follows the dir attribute, not the CSS property.
+// The placeholder rule lets an author's right-to-left placeholder text keep its own direction.
+:dir(rtl),
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
+    .sd-formbox__input--mask {
+        text-align: right;
+    }
+    .sd-formbox__input--mask::placeholder {
+        unicode-bidi: plaintext;
+    }
+}

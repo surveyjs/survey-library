@@ -1,0 +1,163 @@
+import { ILintRule, LintContext } from "../rule";
+import { ILintFix } from "../types";
+import { PropertySite } from "../property-walk";
+import { closestMatch } from "../levenshtein";
+import { didYouMean, ownerText, quoteValues } from "../message-utils";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { removeFix, setFix } from "../fix-utils";
+
+const reasons = SurveyLintReasons["property/invalid-value"];
+const fixReasons = SurveyLintFixReasons["property/invalid-value"];
+
+function isScalar(value: any): boolean {
+  const type = typeof value;
+  return type === "string" || type === "number" || type === "boolean";
+}
+
+// A property whose value the JSON states outright. An expression is evaluated at runtime, a
+// localizable value is a string or a per-locale object, and a value-typed property holds
+// whatever answer the author wants to preset - none of the three has a set of allowed values.
+function isCheckableProp(site: PropertySite): boolean {
+  const prop = site.prop;
+  return !prop.isExpression && !prop.isLocalizable && !prop.serializationProperty &&
+    isScalar(site.value);
+}
+
+// The allowed values, when the property lists them outright. A choices function is called
+// with no object, the way validateValue calls it: one that needs the object answers nothing
+// usable, and a partial answer would only invent a defect.
+function getAllowedValues(site: PropertySite): Array<any> | undefined {
+  let choices: any;
+  try {
+    choices = site.prop.getChoices(null, () => { });
+  } catch(e) {
+    return undefined;
+  }
+  if (!Array.isArray(choices) || choices.length === 0) return undefined;
+  if (!choices.every(isScalar)) return undefined;
+  return choices;
+}
+
+function matches(allowed: Array<any>, value: any): boolean {
+  // the loose comparison validateValue makes: the deserializer converts "5" to 5 for a
+  // number-typed property, so the two spellings are one value
+  return allowed.some(item => item == value);
+}
+
+// The suggestion is a spelling - String(item) - while the property holds the value itself, and
+// "5" is not 5 to a setter that compares what it was given. So the fix carries the allowed entry
+// the spelling came from, with its own type.
+function allowedValue(allowed: Array<any>, suggestion: string): any {
+  if (suggestion === undefined) return undefined;
+  const found = allowed.filter(item => String(item) === suggestion);
+  return found.length > 0 ? found[0] : undefined;
+}
+
+function caseInsensitiveMatch(allowed: Array<any>, value: any): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const lower = value.toLowerCase();
+  return allowed.filter(item => typeof item === "string" && item.toLowerCase() === lower)[0];
+}
+
+function checkChoices(ctx: LintContext, site: PropertySite): void {
+  const allowed = getAllowedValues(site);
+  if (!allowed || matches(allowed, site.value)) return;
+  const accepted = site.prop.acceptedValues;
+  if (Array.isArray(accepted) && accepted.indexOf(site.value) > -1) return;
+  // a value spelled with the wrong case is still the wrong value: most setters compare it
+  // as written, so the suggestion carries the spelling that works
+  const suggestion = caseInsensitiveMatch(allowed, site.value) ||
+    closestMatch(String(site.value), allowed.map(item => String(item)));
+  ctx.report({
+    message: "The " + site.key + " of " + ownerText(site.owner.name, site.className) + " is " +
+      JSON.stringify(site.value) + " - not one of the allowed values (" + quoteValues(allowed) + ")." +
+      didYouMean(suggestion),
+    path: site.path,
+    reason: reasons.notInChoices,
+    messageData: {
+      key: site.key, value: site.value, allowed: allowed,
+      className: site.className, name: site.owner.name,
+    },
+    elementName: site.owner.name,
+    elementType: site.owner.type,
+    suggestion: suggestion,
+    fix: buildFix(allowed, suggestion, site),
+  });
+}
+
+function buildFix(allowed: Array<any>, suggestion: string, site: PropertySite): ILintFix {
+  const value = allowedValue(allowed, suggestion);
+  if (value !== undefined) return setFix(fixReasons.useAllowedValue, site.path, value);
+  // nothing says which of the allowed values was meant, and picking one would be a guess dressed
+  // up as a repair. Dropping the key is what the value already amounts to: the runtime cannot
+  // hold it, so the property falls back to its default either way.
+  return removeFix(fixReasons.removeKey, site.path);
+}
+
+function toNumber(site: PropertySite): number | undefined {
+  const value = site.value;
+  if (typeof value === "number") return isFinite(value) ? value : undefined;
+  // the deserializer parses a string into a number-typed property
+  if (typeof value === "string" && site.prop.type === "number") {
+    const res = parseInt(value);
+    return isNaN(res) ? undefined : res;
+  }
+  return undefined;
+}
+
+function checkRange(ctx: LintContext, site: PropertySite): void {
+  const min = site.prop.minValue;
+  const max = site.prop.maxValue;
+  if (typeof min !== "number" && typeof max !== "number") return;
+  const value = toNumber(site);
+  if (value === undefined) return;
+  const belowMin = typeof min === "number" && value < min;
+  const aboveMax = typeof max === "number" && value > max;
+  if (!belowMin && !aboveMax) return;
+  const range = (typeof min === "number" ? min : "") + ".." + (typeof max === "number" ? max : "");
+  // the nearest value the property can hold: the bound the value falls off is the only one of the
+  // two the author is known to have meant to respect
+  const bound = belowMin ? min : max;
+  ctx.report({
+    message: "The " + site.key + " of " + ownerText(site.owner.name, site.className) + " is " +
+      value + ", outside its allowed range " + range + ".",
+    path: site.path,
+    reason: reasons.outOfRange,
+    messageData: {
+      key: site.key, value: value, min: min, max: max,
+      className: site.className, name: site.owner.name,
+    },
+    elementName: site.owner.name,
+    elementType: site.owner.type,
+    fix: setFix(fixReasons.clampToRange, site.path, bound),
+  });
+}
+
+// A dot makes the runtime read the name as a path into another key, so the flat data key the
+// author wrote can never be addressed.
+function checkValueName(ctx: LintContext, site: PropertySite): void {
+  if (site.key !== "valueName" || typeof site.value !== "string" || site.value.indexOf(".") < 0) return;
+  ctx.report({
+    message: "The valueName \"" + site.value + "\" of \"" + site.owner.name +
+      "\" contains a \".\" - expressions read {" + site.value + "} as a path into \"" +
+      site.value.split(".")[0] + "\", so the data key itself can never be addressed.",
+    path: site.path,
+    reason: reasons.valueNameDotted,
+    messageData: { key: site.key, valueName: site.value, name: site.owner.name },
+    elementName: site.owner.name,
+    elementType: site.owner.type,
+  });
+}
+
+export const propertyInvalidValueRule: ILintRule = {
+  id: "property/invalid-value",
+  defaultSeverity: "warning",
+  run(ctx: LintContext): void {
+    ctx.getPropertyWalk().props.forEach(site => {
+      if (!isCheckableProp(site)) return;
+      checkChoices(ctx, site);
+      checkRange(ctx, site);
+      checkValueName(ctx, site);
+    });
+  },
+};

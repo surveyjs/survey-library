@@ -165,11 +165,32 @@ describe("DropdownMultiListModel", () => {
     list.onItemClick(getVisibleActionByIndex(list, 3));
     expect(popup.isVisible, "popup.isVisible 3").toBe(true);
     expect(dropdownListModel.filterString, "filterString 3").toBe("");
+    expect(list.filterString, "list filter reset when popup stays open").toBe("");
     expect([...(question.value)], "question.value before onClear").toEqual(["item12"]);
 
     dropdownListModel.onClear(new Event("click"));
     expect(dropdownListModel.filterString, "filterString after onClear").toBe("");
     expect([...(question.value)], "question.value after onClear").toEqual([]);
+  });
+
+  test("keep list filter while tagbox popup closes on select", () => {
+    const survey = new SurveyModel(jsonTagbox);
+    const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+    question.closeOnSelect = true;
+    const dropdownListModel = new DropdownMultiSelectListModel(question);
+    const popup = dropdownListModel.popupModel;
+    const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+    list.flushUpdates();
+    const getVisibleItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
+
+    dropdownListModel.filterString = "12";
+    expect(getVisibleItems().length).toBe(1);
+
+    list.onItemClick(getVisibleItems()[0]);
+    expect(popup.isVisible).toBe(false);
+    expect(dropdownListModel.filterString).toBe("");
+    expect(list.filterString).toBe("12");
+    expect(getVisibleItems().length).toBe(1);
   });
 
   test("remove last selected item", () => {

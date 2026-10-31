@@ -5,6 +5,58 @@ export var arabicSurveyStrings = {
   pagePrevText: "السابق",
   // "Next"
   pageNextText: "التالي",
+  // [Auto-translated] "First"
+  pageFirstText: "أولا",
+  // [Auto-translated] "Last"
+  pageLastText: "الأخير",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "من {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "اختر الصفحة",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "الترتيب حسب {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "عالي - منخفض",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "منخفض - عالي",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "الأبجدية، A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "الأبجدية، Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "الأحدث أولا",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "الأقدم أولا",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "تم الترتيب حسب {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}، ثم بحلول {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "الترتيب حسب",
+  // [Auto-translated] "Default"
+  sortDefaultText: "الافتراضي",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "حقل الفرز",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ترتيب الفرز",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "أضف مستوى الفرز",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "إزالة مستوى الترتيب {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "حقل الفرز {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "ترتيب {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "عرض جميع مستويات الترتيب",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "إضافة جديد",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "الانتقال في ترتيب {0}",
   // "Complete"
   completeText: "إرسال البيانات",
   // "Preview"
@@ -37,6 +89,8 @@ export var arabicSurveyStrings = {
   panelDynamicTabTextFormat: "لوحة {بانل إندكس}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "تمت الإجابة على أسئلة {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "سؤال {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "لا توجد صفحة مرئية أو سؤال في النموذج",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var arabicSurveyStrings = {
   value: "القيمة",
   // "Response required."
   requiredError: ".يرجى الإجابة على السؤال",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "القيمة غير صحيحة.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "القيمة تحتوي على مفاتيح مجهولة: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "الرجاء الإجابة على سؤال واحد على الأقل.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var arabicSurveyStrings = {
   noUploadFilesHandler: "لا يمكن تحميل الملفات. يرجى إضافة معالج لحدث \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "الرجاء إدخال قيمة أخرى",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "القيمة '{0}' ليست من الخيارات المتاحة.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "تحميل الملف الخاص بك. يرجى الانتظار عدة ثوان والمحاولة لاحقًا",
   // "Loading..."
@@ -131,6 +191,8 @@ export var arabicSurveyStrings = {
   addRow: "اضافة صف",
   // "Remove"
   removeRow: "إزالة صف",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "نقل الصف {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "لا توجد صفوف.",
   // [Auto-translated] "Row {rowIndex}"

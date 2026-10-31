@@ -5,6 +5,58 @@ export var lithuaniaSurveyStrings = {
   pagePrevText: "Atgal",
   // "Next"
   pageNextText: "Toliau",
+  // [Auto-translated] "First"
+  pageFirstText: "Pirmiausia",
+  // [Auto-translated] "Last"
+  pageLastText: "Paskutinis",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Pasirinkti puslapį",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Rūšiuokite pagal {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Aukšta - Žema",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Žemas – aukštas",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abėcėlė, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abėcėlė, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Naujausias pirmas kartas",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Vyriausiasis pirmas",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Rūšiuota pagal {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, tada iki {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Rūšiuoti pagal",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Numatytasis",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Rūšiavimo laukas",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Rūšiavimo tvarka",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Pridėti rūšiavimo lygį",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Pašalinkite sort level {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Rūšiuoti lauką {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Rūšiuokite {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Rodyti įvairius lygius",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Pridėti naują",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Move sort level {0}",
   // "Complete"
   completeText: "Baigti",
   // "Preview"
@@ -37,6 +89,8 @@ export var lithuaniaSurveyStrings = {
   panelDynamicTabTextFormat: "Skydelis {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Atsakė į {0} / {1} klausimus",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Klausimas {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Apklausoje nėra matomo puslapio ar klausimo.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var lithuaniaSurveyStrings = {
   value: "reikšmė",
   // "Response required."
   requiredError: "Būtina atsakyti į šį klausimą.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Reikšmė neteisinga.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Reikšmė turi nežinomus raktus: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Būtina atsakyti bent į vieną klausimą.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var lithuaniaSurveyStrings = {
   noUploadFilesHandler: "Failų įkelti negalima. Pridėkite įvykio \"onUploadFiles\" tvarkytoją.",
   // "Response required: enter another value."
   otherRequiredError: "Įveskite kitą reikšmę.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Vertė \"{0}\" nėra viena iš galimų pasirinkimų.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Jūsų failas yra keliamas. Palaukite keletą sekundžių ir bandykite dar kartą.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var lithuaniaSurveyStrings = {
   addRow: "Pridėti eilutę",
   // "Remove"
   removeRow: "Ištrinti",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Perkelkite eilę {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Eilių nėra.",
   // [Auto-translated] "Row {rowIndex}"

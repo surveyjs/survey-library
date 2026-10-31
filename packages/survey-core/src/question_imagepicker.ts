@@ -2,13 +2,13 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase, ChoiceItem } from "./question_baseselect";
+import { QuestionValueType } from "./question";
 import { ItemValue } from "./itemvalue";
 import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { classesToSelector } from "./utils/dom-utils";
 import { DomDocumentHelper } from "./global_variables_utils";
-
 export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
 
   @property({ defaultValue: false }) private videoNotLoaded: boolean;
@@ -85,11 +85,51 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public getType(): string {
     return "imagepicker";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
+  public getViewModeItems(): Array<ImageItemValue> {
+    const items = this.visibleChoices;
+    const res: Array<ImageItemValue> = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = <ImageItemValue>items[i];
+      if (this.isViewValueSelected(item.value)) res.push(item);
+    }
+    return res;
+  }
+  private isViewValueSelected(itemValue: any): boolean {
+    const val = this.value;
+    if (this.isValueEmpty(val)) return false;
+    if (!this.multiSelect) return this.isTwoValueEquals(val, itemValue);
+    if (!Array.isArray(val)) return false;
+    for (let i = 0; i < val.length; i++) {
+      if (this.isTwoValueEquals(val[i], itemValue)) return true;
+    }
+    return false;
+  }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return true;
+  }
   supportAutoAdvance(): boolean {
-    return !this.multiSelect;
+    if (this.multiSelect) return this.isAutoAdvanceRequested === true;
+    return this.isMouseDown === true || this.isAutoAdvanceRequested === true;
+  }
+  // Single-select follows radiogroup: a click advances, a keyboard selection waits for Enter.
+  public onKeyDown(event: any): void {
+    if (this.canCommitAutoAdvanceOnEnter(event)) {
+      this.commitAutoAdvance(event);
+    }
   }
   public get hasSingleInput(): boolean {
     return false;
+  }
+  // The choices are images: a respondent picks one by looking at it, so there is nothing a
+  // consumer that renders nothing can send back.
+  public get hasPlainInput(): boolean {
+    return false;
+  }
+  public getValueType(): QuestionValueType {
+    return this.multiSelect ? "array" : super.getValueType();
   }
   protected getItemValueType() {
     return "imageitemvalue";
@@ -116,7 +156,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
   @property() multiSelect: boolean;
-
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
     const imageItemValue = item as ImageItemValue;
@@ -134,7 +173,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     if (!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
     return super.getItemEnabled(item);
   }
-  public clearIncorrectValues() {
+  protected clearIncorrectOwnValue(): void {
     if (this.multiSelect) {
       var val = this.value;
       if (!val) return;
@@ -155,7 +194,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
         this.value = newValue;
       }
     } else {
-      super.clearIncorrectValues();
+      super.clearIncorrectOwnValue();
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -263,6 +302,27 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public get inputType() {
     return this.multiSelect ? "checkbox" : "radio";
   }
+  protected applyChoiceKeyboardSelection(item: ItemValue): void {
+    if (!this.multiSelect) {
+      super.applyChoiceKeyboardSelection(item);
+      return;
+    }
+    if (this.isReadOnlyAttr || !item) return;
+    const current: Array<any> = [].concat(this.value || []);
+    let index = -1;
+    for (let i = 0; i < current.length; i++) {
+      if (this.isTwoValueEquals(current[i], item.value)) {
+        index = i;
+        break;
+      }
+    }
+    if (index > -1) {
+      current.splice(index, 1);
+    } else {
+      current.push(item.value);
+    }
+    this.value = current;
+  }
 
   public isBuiltInChoice(item: ItemValue): boolean {
     return false;
@@ -272,12 +332,12 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public getSelectBaseRootCss(): string {
     const isResponsive = this.isResponsive;
-    return new CssClassBuilder()
-      .append(super.getSelectBaseRootCss())
-      .append(this.cssClasses.rootResponsive, isResponsive)
-      .append(this.cssClasses.rootStatic, !isResponsive)
-      .append(this.cssClasses.rootColumn, this.getCurrentColCount() == 1)
-      .toString();
+    return toCssClasses(
+      super.getSelectBaseRootCss(),
+      isResponsive && this.cssClasses.rootResponsive,
+      !isResponsive && this.cssClasses.rootStatic,
+      this.getCurrentColCount() == 1 && this.cssClasses.rootColumn
+    );
   }
 
   //responsive mode
@@ -444,10 +504,45 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     const observedElement = el && selector ? el.querySelector(selector) : undefined;
     if (!!observedElement) {
       this.reCalcGapBetweenItemsCallback = () => {
-        this.gapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).gap)) || 16;
+        this.gapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement)?.gap)) || 16;
       };
       this.reCalcGapBetweenItemsCallback();
+      this.loadRenderedContentSizes(observedElement);
     }
+  }
+  // Reads the sizes of content that finished loading before the UI layer attached its
+  // `load` handler. Server-side rendering ships the `img`/`video` element with its
+  // `src` already in the markup, so a cached file can be ready before hydration, and no
+  // framework replays `load` for an element that has already loaded. Without this the
+  // aspect ratio stays undefined and `processResponsiveness` falls back to `minImageHeight`.
+  private loadRenderedContentSizes(observedElement: Element): void {
+    if (!this.isResponsive) return;
+    const isVideo = this.contentMode === "video";
+    const elements = observedElement.querySelectorAll(isVideo ? "video" : "img");
+    if (elements.length === 0) return;
+    const elementBySrc: { [index: string]: any } = {};
+    for (let i = 0; i < elements.length; i++) {
+      // The attribute, not the property: the property resolves to an absolute URL.
+      const src = elements[i].getAttribute("src");
+      if (!!src && elementBySrc[src] === undefined) {
+        elementBySrc[src] = elements[i];
+      }
+    }
+    this.choices.forEach((choice: ItemValue) => {
+      const item = choice as ImageItemValue;
+      if (item["aspectRatio"] !== undefined) return;
+      const element = elementBySrc[item.locImageLink.renderedHtml];
+      if (!!element && this.isContentReady(element, isVideo)) {
+        this.onContentLoaded(item, { target: element });
+      }
+    });
+  }
+  private isContentReady(element: any, isVideo: boolean): boolean {
+    // Content that failed to load also reports `complete`, hence the size check. Those
+    // items are the `error` handler's business.
+    return isVideo
+      ? element.readyState >= 1 /* HAVE_METADATA */ && element.videoWidth > 0
+      : element.complete && element.naturalWidth > 0;
   }
   //a11y
   public get ariaRole(): string {

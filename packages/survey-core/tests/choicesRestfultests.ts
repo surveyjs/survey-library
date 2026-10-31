@@ -14,6 +14,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { settings } from "../src/settings";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 import { SurveyError } from "../src/survey-error";
+import { WebRequestError } from "../src/error";
 import {
   QuestionCustomModel,
   QuestionCompositeModel,
@@ -1597,6 +1598,91 @@ test("Clear choices on changing variables", () => {
     expect(question2.isEmpty(), "Value is empty, locale choices").toBe(true);
   });
 
+  test("choicesByUrl: drop a saved value that is not in the remote list on Complete, #11851", () => {
+    const survey = new SurveyModel();
+    survey.addNewPage("p1");
+    const question = new QuestionDropdownModelTester("country");
+    survey.pages[0].addQuestion(question);
+    question.choicesByUrl.url = "countries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.choicesByUrl.valueName = "name";
+    question.choicesByUrl.allowEmptyResponse = true;
+    survey.data = { country: "foo" };
+    question.onSurveyLoad();
+    expect(question.value, "Keep the value until Complete").toBe("foo");
+    expect(question.visibleChoices.length > 0, "Remote list is loaded").toBe(true);
+    survey.doComplete();
+    expect(survey.data, "Drop the saved value that is not among available choices").toEqual({});
+  });
+
+  test("choicesByUrl: drop a saved value when the remote list is empty and allowEmptyResponse is true, #11851", () => {
+    const survey = new SurveyModel();
+    survey.addNewPage("p1");
+    const question = new QuestionDropdownModelTester("country");
+    survey.pages[0].addQuestion(question);
+    question.choicesByUrl.url = "empty";
+    question.choicesByUrl.allowEmptyResponse = true;
+    survey.data = { country: "foo" };
+    question.onSurveyLoad();
+    expect(question.value, "Keep the value until Complete, same as a non-empty remote list").toBe("foo");
+    expect(question.visibleChoices.length, "Remote list is empty").toBe(0);
+    survey.doComplete();
+    expect(survey.data, "Drop the saved value that is not among available choices").toEqual({});
+  });
+
+  test.each([false, true])("choicesByUrl: keep a saved value while URL parameters are missing, allowEmptyResponse=%s, #11851", (allowEmptyResponse) => {
+    const survey = new SurveyModel();
+    const question = new QuestionDropdownModelTester("country");
+    survey.addNewPage("p1").addQuestion(question);
+    question.choicesByUrl.url = "countries/{region}";
+    question.choicesByUrl.allowEmptyResponse = allowEmptyResponse;
+    question.onSurveyLoad();
+    question.value = "foo";
+    expect(question.restFulTest.sentRequestCounter, "No request has been sent").toBe(0);
+    expect(question.choicesByUrl.isWaitingForParameters).toBe(true);
+    expect(question.visibleChoices.length).toBe(0);
+    survey.doComplete();
+    expect(survey.data, "Preserve the answer until remote choices are available").toEqual({ country: "foo" });
+  });
+
+  test("choicesByUrl: keep a saved value while reloading an empty remote list, #11851", () => {
+    const survey = new SurveyModel();
+    const question = new QuestionDropdownModelTester("country");
+    survey.addNewPage("p1").addQuestion(question);
+    question.choicesByUrl.url = "empty";
+    question.choicesByUrl.allowEmptyResponse = true;
+    question.onSurveyLoad();
+    expect(question.restFulTest.sentRequestCounter).toBe(1);
+    question.restFulTest.blockSendingRequest = true;
+    question.choicesByUrl.url = "countries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    question.value = "foo";
+    expect(question.choicesByUrl.isRunning).toBe(true);
+    survey.clearIncorrectValues();
+    expect(question.value, "The previous empty list cannot validate the new answer").toBe("foo");
+    question.restFulTest.unblockSendRequest();
+    expect(question.visibleChoices.length).toBeGreaterThan(0);
+    expect(question.choicesByUrl.isRunning).toBe(false);
+    survey.doComplete();
+    expect(survey.data, "Validate the answer against the loaded list").toEqual({});
+  });
+
+  test("choicesByUrl: keep a saved value after a failed request with allowEmptyResponse, #11851", () => {
+    const survey = new SurveyModel();
+    const question = new QuestionDropdownModelTester("country");
+    survey.addNewPage("p1").addQuestion(question);
+    question.choicesByUrl.url = "empty";
+    question.choicesByUrl.allowEmptyResponse = true;
+    question.onSurveyLoad();
+    question.value = "foo";
+    question.choicesByUrl.error = new SurveyError("Request failed");
+    question.choicesByUrl.getResultCallback([]);
+    expect(question.errors.length).toBe(1);
+    survey.doComplete();
+    expect(survey.data, "A failed request is not a successful empty response").toEqual({ country: "foo" });
+  });
+
   test("matrix dynamic and has other, Bug #2854", () => {
     var survey = new SurveyModel();
     survey.addNewPage("1");
@@ -1926,4 +2012,156 @@ test("Clear choices on changing variables", () => {
     </XmlDataSource>
   </NSurveyDataSource>`;
   }
+});
+
+// The transport itself -- sendXmlHttpRequest/sendFetchRequest -- is not reachable through
+// ChoicesRestfulTester above: that class overrides sendRequest() wholesale. These tests drive the real
+// transport by replacing the global XMLHttpRequest with a fake that records what was sent and lets the
+// test decide how the request ends.
+describe("choicesRestful transport", () => {
+  const testUrl = "http://surveyjs.io/api/countries";
+  class FakeXhr {
+    public static sent: Array<FakeXhr> = [];
+    public status: number = 200;
+    public statusText: string = "OK";
+    public response: any = "";
+    public responseText: string = "";
+    public onload: () => void;
+    public onerror: () => void;
+    public ontimeout: () => void;
+    public method: string;
+    public url: string;
+    public headers: { [index: string]: string } = {};
+    public open(method: string, url: string): void {
+      this.method = method;
+      this.url = url;
+    }
+    public setRequestHeader(name: string, value: string): void {
+      this.headers[name] = value;
+    }
+    public send(): void {
+      FakeXhr.sent.push(this);
+    }
+  }
+  // The static itemsResult/sendingSameRequests caches survive between tests, so clear them on both ends.
+  function runWithFakeXhr(action: (sent: Array<FakeXhr>) => void): void {
+    const globalAny: any = globalThis;
+    const savedXhr = globalAny.XMLHttpRequest;
+    FakeXhr.sent = [];
+    globalAny.XMLHttpRequest = FakeXhr;
+    ChoicesRestful.clearCache();
+    try {
+      action(FakeXhr.sent);
+    } finally {
+      globalAny.XMLHttpRequest = savedXhr;
+      FakeXhr.sent = [];
+      ChoicesRestful.clearCache();
+    }
+  }
+  function createDropdown(url: string = testUrl): QuestionDropdownModel {
+    const survey = new SurveyModel({
+      elements: [{ type: "dropdown", name: "q1", choicesByUrl: { url: url } }],
+    });
+    return <QuestionDropdownModel>survey.getQuestionByName("q1");
+  }
+  test("XHR transport: sends GET and loads choices", () => {
+    runWithFakeXhr((sent) => {
+      const question = createDropdown();
+      expect(sent.length, "one request is sent").toBe(1);
+      expect(sent[0].method, "method").toBe("GET");
+      expect(sent[0].url, "url").toBe(testUrl);
+      expect(sent[0].headers["Content-Type"], "content type header").toBe(
+        "application/x-www-form-urlencoded"
+      );
+      expect(question.choicesByUrl.isRunning, "is running while waiting").toBe(true);
+      sent[0].response = JSON.stringify(["Item 1", "Item 2"]);
+      sent[0].onload();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "no error").toBeFalsy();
+      expect(question.visibleChoices.length, "choices are loaded").toBe(2);
+    });
+  });
+  test("XHR transport: a non-200 status reports WebRequestError", () => {
+    runWithFakeXhr((sent) => {
+      const question = createDropdown();
+      sent[0].status = 500;
+      sent[0].statusText = "Internal Server Error";
+      sent[0].responseText = "failure";
+      sent[0].onload();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "error is reported").toBeInstanceOf(WebRequestError);
+      expect(question.visibleChoices.length, "no choices").toBe(0);
+    });
+  });
+  test("XHR transport: settings.web.onBeforeRequestChoices receives the url and the request", () => {
+    const savedHook = settings.web.onBeforeRequestChoices;
+    const replacement = { sentCount: 0, send: function (): void { this.sentCount++; } };
+    let hookUrl = "";
+    let hookRequest: any = undefined;
+    settings.web.onBeforeRequestChoices = (_sender, options): void => {
+      hookUrl = options.url;
+      hookRequest = options.request;
+      options.request = <any>replacement;
+    };
+    try {
+      runWithFakeXhr((sent) => {
+        createDropdown();
+        expect(hookUrl, "the hook gets the processed url").toBe(testUrl);
+        expect(hookRequest, "the hook gets the request").toBeTruthy();
+        expect(replacement.sentCount, "the replaced request is the one sent").toBe(1);
+        expect(sent.length, "the original request is not sent").toBe(0);
+      });
+    } finally {
+      settings.web.onBeforeRequestChoices = savedHook;
+    }
+  });
+  test("XHR transport: a network error reports an error and stops running", () => {
+    runWithFakeXhr((sent) => {
+      const question = createDropdown();
+      sent[0].statusText = "";
+      sent[0].onerror();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "error is reported").toBeInstanceOf(WebRequestError);
+      expect(question.isReady, "the question is ready again").toBe(true);
+      expect(question.visibleChoices.length, "no choices").toBe(0);
+    });
+  });
+  test("XHR transport: a timeout reports an error and stops running", () => {
+    runWithFakeXhr((sent) => {
+      const question = createDropdown();
+      sent[0].ontimeout();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "error is reported").toBeInstanceOf(WebRequestError);
+      expect(question.isReady, "the question is ready again").toBe(true);
+    });
+  });
+  test("XHR transport: the same url can be requested again after a network error", () => {
+    runWithFakeXhr((sent) => {
+      createDropdown();
+      expect(sent.length, "the first request is sent").toBe(1);
+      sent[0].onerror();
+      createDropdown();
+      expect(sent.length, "the same url is requested again after the failure").toBe(2);
+    });
+  });
+  test("Fetch transport: a network error reports an error and stops running", async () => {
+    const globalAny: any = globalThis;
+    const savedXhr = globalAny.XMLHttpRequest;
+    const savedFetch = globalAny.fetch;
+    globalAny.XMLHttpRequest = undefined;
+    globalAny.fetch = (): Promise<any> => Promise.reject(new Error("Network error"));
+    ChoicesRestful.clearCache();
+    try {
+      const question = createDropdown();
+      expect(question.choicesByUrl.isRunning, "is running while waiting").toBe(true);
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "error is reported").toBeInstanceOf(WebRequestError);
+    } finally {
+      globalAny.XMLHttpRequest = savedXhr;
+      globalAny.fetch = savedFetch;
+      ChoicesRestful.clearCache();
+    }
+  });
 });

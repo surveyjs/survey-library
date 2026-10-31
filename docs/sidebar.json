@@ -87,16 +87,16 @@
       "Title": "Data Validation"
     },
     {
+      "Name": "survey-json-validation",
+      "Title": "Survey JSON Validation"
+    },
+    {
       "Name": "survey-localization",
       "Title": "Localization & Globalization"
     },
     {
-      "Name": "manage-default-themes-and-styles",
-      "Title": "Themes & Styles"
-    },
-    {
-      "Name": "icons",
-      "Title": "UI Icons"
+      "Name": "multi-user-form-filling",
+      "Title": "Collaborative Form Filling"
     },
     {
       "Name": "customize-question-types",
@@ -131,6 +131,10 @@
           "Title": "Integrate Third-Party Vue 3 Components"
         }
       ]
+    },
+    {
+      "Name": "shadow-dom-support",
+      "Title": "Shadow DOM Support"
     },
     {
       "Name": "Troubleshooting",
@@ -300,6 +304,10 @@
             {
               "Name": "inputmaskpattern",
               "Title": "InputMaskPattern"
+            },
+            {
+              "Name": "regionalformat",
+              "Title": "RegionalFormat"
             }
           ]
         },
@@ -326,6 +334,10 @@
             {
               "Name": "ISaveToJSONOptions",
               "Title": "ISaveToJSONOptions"
+            },
+            {
+              "Name": "IDataIssue",
+              "Title": "IDataIssue"
             },
             {
               "Name": "IExpressionValidationResult",

@@ -3,6 +3,9 @@
     <div *ngIf="model.hasTabbedMenu" [class]="model.getTabsContainerCss()">
       <sv-action-bar [model]="model.tabbedMenu"></sv-action-bar>
     </div>
+    <div *ngIf="model.sortBarLocation === 'top'" [class]="model.cssClasses.sortBarTop">
+      <sv-ng-action-bar [model]="model.recordsBar.sortActions"></sv-ng-action-bar>
+    </div>
     <sv-ng-placeholder-paneldynamic [question]="model"></sv-ng-placeholder-paneldynamic>
     <div [class]="model.cssClasses.progress" *ngIf="model.isProgressTopShowing && model.isRangeShowing">
       <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }"
@@ -22,20 +25,18 @@
         <hr [class]="model.cssClasses.separator" *ngIf="model.showSeparator(index)" />
       </ng-container>
     </div>
-    <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showNavigation"></ng-container>
+    <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showFooter"></ng-container>
   </div>
 </ng-template>
 
 <ng-template #progress>
-  <div [class]="model.cssClasses.footer" *ngIf="(model.isRangeShowing && model.isProgressBottomShowing) || model.showFooterToolbar">
-    <hr [class]="model.cssClasses.separator" />
-    <div [class]="model.cssClasses.progress" *ngIf="model.isRangeShowing && model.isProgressBottomShowing">
+  <div [class]="model.cssClasses.footerBar">
+    <div [class]="model.cssClasses.progress" *ngIf="model.showFooterProgress">
       <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }" 
       role="progressbar" [attr.aria-label]="model.progressBarAriaLabel"
       ></div>
     </div>
-    <div *ngIf="model.showFooterToolbar" [class]="model.cssClasses.footerButtonsContainer">
-      <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>
-    </div>
+    <sv-ng-action-bar  *ngIf="model.showFooterButtons" [model]="model.footerToolbar"></sv-ng-action-bar>
+    <sv-ng-action-bar *ngIf="model.showPager" [model]="model.recordsBar.pagerActions"></sv-ng-action-bar>
   </div>
 </ng-template>

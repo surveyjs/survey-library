@@ -36,7 +36,7 @@ package-lock.json
 
 svgbundle.html
 
-coverage/**/*
+coverage/
 
 /.angular/cache
 visualRegressionTests/screenshots
@@ -60,6 +60,7 @@ packages/survey-react-ui/tests/.snapshot-updates.*.log
 packages/survey-js-ui/tests/bundle/*
 packages/survey-core/test_output.txt
 .claude/
+packages/survey-core/prompts/
 packages/survey-core/promts/
 packages/converter/promts/
 packages/survey-core/docs/

@@ -2,10 +2,11 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
+import { DropdownMultiSelectRenderState, DropdownRenderState } from "./dropdownRenderState";
 import { EventBase } from "./event";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
@@ -39,6 +40,9 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     return super.getOtherItemDisplayValue(val);
   }
   supportElementsInChoice(): boolean { return false; }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return false;
+  }
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.resetReadOnlyText();
@@ -48,13 +52,24 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     return "";
   }
   public get dropdownListModel(): DropdownMultiSelectListModel {
-    if (!this.isDisposed && !this.dropdownListModelValue) {
-      this.dropdownListModelValue = new DropdownMultiSelectListModel(this);
-    }
-    return this.dropdownListModelValue as DropdownMultiSelectListModel;
+    return this.getDropdownListModel() as DropdownMultiSelectListModel;
   }
   public set dropdownListModel(val: DropdownMultiSelectListModel) {
-    this.dropdownListModelValue = val;
+    this.setDropdownListModel(val);
+  }
+  protected createDropdownListModel(): DropdownMultiSelectListModel {
+    return new DropdownMultiSelectListModel(this);
+  }
+  protected createDropdownRenderState(): DropdownRenderState {
+    return new DropdownMultiSelectRenderState(this);
+  }
+  // Internal. DropdownMultiSelectListModel calls this so a closed tagbox can advance on Enter.
+  // Stays public because that model is not a subclass and must not import this class.
+  public tryCommitAutoAdvanceOnEnter(event: any): boolean {
+    if (!this.canCommitAutoAdvanceOnEnter(event)) return false;
+    if (!this.requestAutoAdvance()) return false;
+    if (event?.preventDefault) event.preventDefault();
+    return true;
   }
   /**
    * Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
@@ -89,6 +104,10 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
    * Specifies whether to display a button that clears the selected value.
    */
   @property() allowClear: boolean;
+  // The clear button lives in the input, not in the question title.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
@@ -148,15 +167,15 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     return "combobox";
   }
   public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.control)
-      .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlEditable, !this.isDisabledStyle && !this.isReadOnlyStyle && !this.isPreviewStyle)
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.control,
+      this.isEmpty() && this.cssClasses.controlEmpty,
+      this.hasCssError() && this.cssClasses.onError,
+      !this.isDisabledStyle && !this.isReadOnlyStyle && !this.isPreviewStyle && this.cssClasses.controlEditable,
+      this.isDisabledStyle && this.cssClasses.controlDisabled,
+      this.isReadOnlyStyle && this.cssClasses.controlReadOnly,
+      this.isPreviewStyle && this.cssClasses.controlPreview
+    );
   }
   protected updateCssClasses(res: any, css: any): void {
     super.updateCssClasses(res, css);
@@ -222,10 +241,8 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   }
 
   public updateSelectAllItemText(isAllSelected: boolean): void {
-    this.selectAllTextValue = this.selectAllTextValue || this.locSelectAllText;
-    this.selectAllItem.setLocText(isAllSelected ? this.deselectAllText() : this.selectAllTextValue);
+    this.selectAllItem.setLocText(isAllSelected ? this.deselectAllText() : this.locSelectAllText);
   }
-  private selectAllTextValue: LocalizableString;
   private deselectAllTextValue: LocalizableString;
   private deselectAllText(): LocalizableString {
     if (!this.deselectAllTextValue) {

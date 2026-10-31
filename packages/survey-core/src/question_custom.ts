@@ -1,4 +1,4 @@
-import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, INestedElementInfo, NestedElementVisit, NestedWalkBuild } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -16,8 +16,9 @@ import { PanelModel } from "./panel";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
+import type { ISelectQuestion } from "./question_baseselect";
 import { TextContextProcessor } from "./textPreProcessor";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -25,6 +26,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
+import { Scope } from "./utils/scope";
 
 /**
  * An interface used to create custom question types.
@@ -300,6 +302,10 @@ export class ComponentQuestionJSON {
       },
       "question"
     );
+    const metaClass = Serializer.findClass(name);
+    if (!!metaClass) {
+      metaClass.getInheritedPropertiesCallback = (): Array<JsonObjectProperty> => self.getDynamicProperties();
+    }
     this.onInit();
   }
   public onInit() {
@@ -528,6 +534,9 @@ export abstract class QuestionCustomModelBase extends Question
   public getType(): string {
     return !!this.customQuestion ? this.customQuestion.name : "custom";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   public locStrsChanged(): void {
     super.locStrsChanged();
     if (!!this.getElement()) {
@@ -540,7 +549,7 @@ export abstract class QuestionCustomModelBase extends Question
     }
   }
   public localeChanged(): void {
-    super.locStrsChanged();
+    super.localeChanged();
     if (!!this.getElement()) {
       this.getElement().localeChanged();
     }
@@ -562,6 +571,11 @@ export abstract class QuestionCustomModelBase extends Question
     return !!el ? el.needResponsiveWidth() : false;
   }
   protected createWrapper(): void { }
+  // The content question or the content panel goes with the question.
+  public dispose(): void {
+    super.dispose();
+    this.getElement()?.dispose();
+  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (!!this.customQuestion && !this.isLoadingFromJson) {
@@ -617,12 +631,9 @@ export abstract class QuestionCustomModelBase extends Question
     if (!el) return;
     el.setSurveyImpl(this);
   }
-  protected isSettingValOnLoading: boolean;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
-    this.isSettingValOnLoading = true;
     super.setSurveyImpl(value, isLight);
     this.initElement(this.getElement());
-    this.isSettingValOnLoading = false;
   }
   private isLoadedCalled: boolean;
   private onCustomQuestionLoaded(): void {
@@ -666,8 +677,11 @@ export abstract class QuestionCustomModelBase extends Question
       this.customQuestion.onSetQuestionValue(this, newValue);
     }
   }
+  private isSettingNewValue: boolean;
   protected setNewValue(newValue: any) {
+    this.isSettingNewValue = true;
     super.setNewValue(newValue);
+    this.isSettingNewValue = false;
     this.updateElementCss();
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
@@ -708,6 +722,17 @@ export abstract class QuestionCustomModelBase extends Question
     );
     this.updateIsAnswered();
     this.updateElementCss();
+  }
+  // A value set through an inner question bypasses Question.setNewValue, so the survey is not notified
+  // about the custom question's own value change (e.g. onDynamicPanelValueChanged is not raised).
+  // The old value is taken from data: the question value may already be updated by the inner question.
+  protected getValueFromData(): any {
+    return !!this.data ? this.getUnbindValue(this.data.getValue(this.getValueName())) : undefined;
+  }
+  protected notifySurveyOnValueChanged(oldValue: any): void {
+    if (!this.isSettingNewValue && !!this.survey && !this.isTwoValueEquals(oldValue, this.value)) {
+      this.survey.questionValueChanged(this, oldValue);
+    }
   }
   protected getQuestionByName(name: string): IQuestion {
     return undefined;
@@ -803,6 +828,36 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getDynamicType(): string {
     return this.questionWrapper ? this.questionWrapper.getType() : "question";
   }
+  // A single component is answered exactly as the question it wraps is.
+  public getValueType(): QuestionValueType {
+    return !!this.contentQuestion ? this.contentQuestion.getValueType() : super.getValueType();
+  }
+  public get hasPlainInput(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.hasPlainInput : super.hasPlainInput;
+  }
+  /* The wrapped question decides: a wrapped signaturepad, html or image reports a string value type
+     while it excludes itself. */
+  public get isValueSortable(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.isValueSortable : super.isValueSortable;
+  }
+  public isSelectQuestion(): boolean {
+    return !!this.contentQuestion && this.contentQuestion.isSelectQuestion();
+  }
+  private get contentSelectQuestion(): ISelectQuestion {
+    return this.isSelectQuestion() ? <ISelectQuestion><any>this.contentQuestion : undefined;
+  }
+  public getValueChoices(): Array<ItemValue> {
+    return this.contentSelectQuestion?.getValueChoices();
+  }
+  public get hasUnknownChoices(): boolean {
+    return this.contentSelectQuestion?.hasUnknownChoices === true;
+  }
+  public isOtherItem(item: ItemValue): boolean {
+    return this.contentSelectQuestion?.isOtherItem(item) === true;
+  }
+  public isNoneItem(item: ItemValue): boolean {
+    return this.contentSelectQuestion?.isNoneItem(item) === true;
+  }
   public getOriginalObj(): Base {
     return this.questionWrapper;
   }
@@ -846,6 +901,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   protected getQuestionByName(name: string): IQuestion {
     return this.contentQuestion;
   }
+  // The content question stores the value of the custom question, so it reports at the same
+  // location: its getDataSegment() is undefined and verifyDataCore() adds no key for it.
+  // The content question holds the wrapper's value.
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
+    const question = this.contentQuestion;
+    return !!question && visit({ element: question, role: "content", segment: undefined, location: "same", visible: true });
+  }
   protected getDefaultTitle(): string {
     if (this.hasJSONTitle && this.contentQuestion) {
       return this.getProcessedText(this.contentQuestion.title);
@@ -854,7 +916,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean): any {
     if (this.isValueChanging(name, newValue)) return;
+    const oldValue = this.getValueFromData();
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
+    this.notifySurveyOnValueChanged(oldValue);
   }
   updateCommentFromSurvey(newValue: any): any {
     super.updateCommentFromSurvey(newValue);
@@ -1054,15 +1118,22 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     if (!!this.contentQuestion) return this.getContentQuestionValue();
     return super.getValueCore();
   }
-  private isSettingValueChanged: boolean;
-  protected setValueChangedDirectly(val: boolean): void {
-    if (this.isSettingValueChanged) return;
-    this.isSettingValueChanged = true;
-    super.setValueChangedDirectly(val);
-    if (!!this.contentQuestion) {
-      (<any>this.contentQuestion).setValueChangedDirectly(val);
+  // Created on first use: the base constructor calls onCreated, which can get here before this class's field initializers run.
+  private valueChangedDirectlySettingScopeValue: Scope;
+  private get valueChangedDirectlySettingScope(): Scope {
+    if (!this.valueChangedDirectlySettingScopeValue) {
+      this.valueChangedDirectlySettingScopeValue = new Scope();
     }
-    this.isSettingValueChanged = false;
+    return this.valueChangedDirectlySettingScopeValue;
+  }
+  protected setValueChangedDirectly(val: boolean): void {
+    if (this.valueChangedDirectlySettingScope.isActive) return;
+    this.valueChangedDirectlySettingScope.run(() => {
+      super.setValueChangedDirectly(val);
+      if (!!this.contentQuestion) {
+        (<any>this.contentQuestion).setValueChangedDirectly(val);
+      }
+    });
   }
   private createDynamicProperties(el: SurveyElement): void {
     if (!el) return;
@@ -1095,12 +1166,6 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.questionWrapper.updateElementCss(reNew);
     }
     super.updateElementCss(reNew);
-  }
-  public setIsMobile(val: boolean): void {
-    super.setIsMobile(val);
-    if (!!this.contentQuestion) {
-      this.contentQuestion.setIsMobile(val);
-    }
   }
   protected updateElementCssCore(cssClasses: any) {
     super.updateElementCssCore(this.getCssClasses());
@@ -1154,19 +1219,35 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     return this.contentPanel;
   }
   protected getCssRoot(cssClasses: any): string {
-    return new CssClassBuilder().append(super.getCssRoot(cssClasses)).append(cssClasses.composite).toString();
+    return toCssClasses(
+      super.getCssRoot(cssClasses),
+      cssClasses.composite
+    );
   }
   protected getCssHeader(cssClasses: any): string {
-    return new CssClassBuilder().append(super.getCssHeader(cssClasses)).append(cssClasses.compositeHeader).toString();
+    return toCssClasses(super.getCssHeader(cssClasses), cssClasses.compositeHeader);
   }
 
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
   }
+  public getValueType(): QuestionValueType {
+    return "object";
+  }
   protected validateElementCore(context: ValidationContext): boolean {
     const res = super.validateElementCore(context);
     const pnl = this.contentPanel;
     return !!pnl ? pnl.validateElement(context) && res : res;
+  }
+  // The questions of the content panel keep their values one segment deeper, under the key of the
+  // composite question. A key of the composite value that none of them owns is not reported: the
+  // composite question does not check its keys today and clearing one would drop the whole value.
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
+    const panel = this.contentPanel;
+    return !!panel && visit({ element: panel, role: "content", segment: undefined, location: "nested", visible: true });
+  }
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    return this.getFirstNestedQuestionToFocus(withError) || super.getFirstQuestionToFocus(withError);
   }
   public updateElementCss(reNew?: boolean) {
     super.updateElementCss(reNew);
@@ -1272,7 +1353,6 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.updateValueFromSurvey(newValue, clearData);
   }
   public onSurveyLoad(): void {
-    this.isSettingValOnLoading = true;
     if (!!this.contentPanel) {
       this.contentPanel.readOnly = this.isReadOnly;
       this.setIsContentElement(this.contentPanel);
@@ -1284,7 +1364,6 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
         this.value = val;
       }
     }
-    this.isSettingValOnLoading = false;
   }
   private setIsContentElement(panel: PanelModel) {
     panel.isContentElement = true;
@@ -1328,22 +1407,31 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected getQuestionByName(name: string): IQuestion {
     return !!this.contentPanel ? this.contentPanel.getQuestionByName(name) : undefined;
   }
-  private settingNewValue = false;
+  // Created on first use: the base constructor calls onCreated, which can get here before this class's field initializers run.
+  private newValueSettingScopeValue: Scope;
+  private get newValueSettingScope(): Scope {
+    if (!this.newValueSettingScopeValue) {
+      this.newValueSettingScopeValue = new Scope();
+    }
+    return this.newValueSettingScopeValue;
+  }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
-    if (this.settingNewValue) {
+    if (this.newValueSettingScope.isActive) {
       this.setNewValueIntoQuestion(name, newValue);
       return;
     }
     if (this.isValueChanging(name, newValue)) return;
-    this.settingNewValue = true;
-    if (!this.isEditingSurveyElement && !!this.contentPanel) {
-      let index = 0;
-      const maxTimes = this.contentPanel.questions.length + 1;
-      while(index < maxTimes && this.updateValueCoreWithPanelValue()) index ++;
-    }
-    this.setNewValueIntoQuestion(name, newValue);
-    super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
-    this.settingNewValue = false;
+    const oldValue = this.getValueFromData();
+    this.newValueSettingScope.run(() => {
+      if (!this.isEditingSurveyElement && !!this.contentPanel) {
+        let index = 0;
+        const maxTimes = this.contentPanel.questions.length + 1;
+        while(index < maxTimes && this.updateValueCoreWithPanelValue()) index ++;
+      }
+      this.setNewValueIntoQuestion(name, newValue);
+      super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
+    });
+    this.notifySurveyOnValueChanged(oldValue);
     this.runPanelTriggers(settings.expressionVariables.composite + "." + name, newValue);
     if (this.isEditingSurveyElement) {
       this.runCondition(this.getFilteredProperties());
@@ -1351,7 +1439,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   setComment(name: string, newValue: string): any {
     let val = this.getUnbindValue(this.value);
-    const commentName = this.getCommentName(name);
+    const commentName = Helpers.getCommentKey(name);
     if (!val && !newValue || !!newValue && !!val && val[commentName] === newValue) return;
     if (!!newValue) {
       if (!val) { val = {}; }
@@ -1363,7 +1451,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     if (!!q && q.comment !== newValue) {
       q.comment = newValue;
     }
-    if (!this.settingNewValue) {
+    if (!this.newValueSettingScope.isActive) {
       this.value = val;
     }
   }
@@ -1371,10 +1459,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     const q = <Question>this.getQuestionByName(name);
     if (!!q) return q.comment;
     const val = this.value;
-    return !!val && val[this.getCommentName(name)] || "";
-  }
-  private getCommentName(name: string): string {
-    return name + settings.commentSuffix;
+    return !!val && val[Helpers.getCommentKey(name)] || "";
   }
   private runPanelTriggers(name: string, value: any): void {
     if (!!this.contentPanel) {
@@ -1418,12 +1503,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (!this.contentPanel) return;
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.contentPanel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+  // Without a content panel a composite question lists nothing, itself included.
+  protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
+    return includeItSelf && !!this.contentPanel;
   }
   protected convertDataValue(name: string, newValue: any): any {
     var val = !!this.contentPanel && !this.isEditingSurveyElement ?
@@ -1447,25 +1529,24 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   private setValuesIntoQuestions(newValue: any): void {
-    if (!this.contentPanel || this.settingNewValue) return;
+    if (!this.contentPanel || this.newValueSettingScope.isActive) return;
     newValue = this.getValueForContentPanel(newValue);
-    const oldSettingNewValue = this.settingNewValue;
-    this.settingNewValue = true;
-    const questions = this.contentPanel.questions;
-    for (var i = 0; i < questions.length; i++) {
-      const q = questions[i];
-      const key = q.getValueName();
-      const commentKey = this.getCommentName(key);
-      const val = !!newValue ? newValue[key] : undefined;
-      const commentVal = !!newValue && newValue[commentKey] || "";
-      if (!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
-        q.value = val;
+    this.newValueSettingScope.run(() => {
+      const questions = this.contentPanel.questions;
+      for (var i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        const key = q.getValueName();
+        const commentKey = Helpers.getCommentKey(key);
+        const val = !!newValue ? newValue[key] : undefined;
+        const commentVal = !!newValue && newValue[commentKey] || "";
+        if (!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
+          q.value = val;
+        }
+        if (q.comment !== commentVal) {
+          q.comment = commentVal;
+        }
       }
-      if (q.comment !== commentVal) {
-        q.comment = commentVal;
-      }
-    }
-    this.settingNewValue = oldSettingNewValue;
+    });
   }
   public getValueGetterContext(): IValueGetterContext {
     return new CompositeValueGetterContext(this);
@@ -1491,13 +1572,5 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   public get ariaRole(): string {
     return "group";
-  }
-  public setIsMobile(val: boolean): void {
-    super.setIsMobile(val);
-    if (!!this.contentPanel) {
-      this.contentPanel.questions.forEach(q => {
-        q.setIsMobile(val);
-      });
-    }
   }
 }

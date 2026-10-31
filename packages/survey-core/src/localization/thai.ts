@@ -5,6 +5,58 @@ export var thaiStrings = {
   pagePrevText: "ก่อนหน้า",
   // "Next"
   pageNextText: "ถัดไป",
+  // [Auto-translated] "First"
+  pageFirstText: "อันดับแรก",
+  // [Auto-translated] "Last"
+  pageLastText: "สุดท้าย",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "ของ{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "เลือกหน้า",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "เรียงตาม{0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "สูง - ต่ํา",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "ต่ํา - สูง",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "ตัวอักษร, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "ตัวอักษร, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "ใหม่ล่าสุดก่อน",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "คนแรกที่เก่าแก่ที่สุด",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "เรียงตาม{0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0} แล้วก็{1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "เรียงตาม",
+  // [Auto-translated] "Default"
+  sortDefaultText: "ค่าเริ่มต้น",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "ฟิลด์เรียงลําดับ",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ลําดับการจัดเรียง",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "เพิ่มระดับการจัดเรียง",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "ลบระดับการจัดเรียง{0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "ฟิลด์เรียงลําดับ {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "เรียงลําดับ{0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "แสดงระดับการจัดเรียงทั้งหมด",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "เพิ่มใหม่",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "ย้ายระดับการจัดเรียง{0}",
   // "Complete"
   completeText: "สำเร็จ",
   // "Preview"
@@ -37,6 +89,8 @@ export var thaiStrings = {
   panelDynamicTabTextFormat: "แผง {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "คำตอบที่ {0}/{1} จำนวนคำถาม",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "คําถาม{0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "ไม่มีหน้าเพจที่มองเห็น หรือ คำถามใน survey นี้",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var thaiStrings = {
   value: "ข้อมูล",
   // "Response required."
   requiredError: "กรุณาตอบคำถาม",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "ค่านั้นไม่ถูกต้อง",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "ค่านี้มีคีย์ที่ไม่รู้จัก: {0}",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "กรุณาตอบขั้นต่ำหนึ่งคำถาม",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var thaiStrings = {
   noUploadFilesHandler: "ไม่สามารถอัปโหลดไฟล์ได้ โปรดเพิ่มตัวจัดการสําหรับเหตุการณ์ 'onUploadFiles'",
   // "Response required: enter another value."
   otherRequiredError: "กรุณาใส่ค่าอื่น",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "ค่า '{0}' ไม่ใช่ตัวเลือกที่มีอยู่",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "ไฟล์ของคุณกำลังอัพโหลดอยู่. กรุณารอสักครู่แล้วทำการลองอีกครั้ง",
   // "Loading..."
@@ -131,6 +191,8 @@ export var thaiStrings = {
   addRow: "เพิ่มแถว",
   // "Remove"
   removeRow: "ลบ",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "ย้ายแถว{0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "ไม่มีแถว",
   // [Auto-translated] "Row {rowIndex}"

@@ -15,8 +15,9 @@ export function loadFileFromBase64(b64Data: string, fileName: string): void {
       ia[i] = byteString.charCodeAt(i);
     }
     const bb: Blob = new Blob([ab], { type: mimeString });
-    if (!!navigator && (<any>navigator)["msSaveBlob"]) {
-      (<any>navigator)["msSaveOrOpenBlob"](bb, fileName);
+    const window = DomWindowHelper.getWindow();
+    if (!!window && (<any>window.navigator)["msSaveBlob"]) {
+      (<any>window.navigator)["msSaveOrOpenBlob"](bb, fileName);
     }
   } catch(err) { }
 }

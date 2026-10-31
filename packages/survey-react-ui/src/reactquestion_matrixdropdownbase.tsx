@@ -4,7 +4,7 @@ import {
   SurveyElementBase,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { ISurveyCreator, SurveyQuestion, SurveyQuestionAndErrorsCell, SurveyQuestionErrorCell } from "./reactquestion";
+import { ISurveyCreator, SurveyElementErrors, SurveyQuestion, SurveyQuestionAndErrorsCell, SurveyQuestionErrorCell } from "./reactquestion";
 import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
@@ -22,6 +22,7 @@ import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
 import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
+import "./components/matrix/header-sort-button";
 
 class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMatrixDropdownModelBase, wrapCell: (cell: QuestionMatrixDropdownRenderedCell, element: React.JSX.Element, reason: string) => React.JSX.Element, creator: ISurveyCreator }, any> {
   protected get question() {
@@ -46,7 +47,9 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     const cells = table.headerRow.cells;
     for (var i = 0; i < cells.length; i++) {
       const cell = cells[i];
-      const key = "column" + i;
+      // Keyed by the cell id, which a column header keeps across the rebuild a sort makes: the
+      // focused sort button stays the same DOM node.
+      const key = cell.id;
       const columnStyle: any = {};
       if (!!cell.width) {
         columnStyle.width = cell.width;
@@ -56,7 +59,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       }
       const cellContent = this.renderCellContent(cell, "column-header", {});
       const header = cell.hasTitle ?
-        <th className={cell.className} key={key} style={columnStyle}> {cellContent} </th>
+        <th className={cell.className} key={key} style={columnStyle} aria-sort={cell.ariaSort}> {cellContent} </th>
         : <td className={cell.className} key={key} style={columnStyle}></td>;
       headers.push(header);
     }
@@ -86,7 +89,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
         this.renderRow(renderedRows[i].id, renderedRows[i], cssClasses)
       );
     }
-    return <tbody>{rows}</tbody>;
+    return <tbody className={this.question.getTableBodyCss()}>{rows}</tbody>;
   }
   renderRow(
     keyValue: any,
@@ -104,7 +107,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
 
     return (
       <React.Fragment key={key}>
-        {(reason == "row-footer") ? <tr>{matrixrow}</tr> : <MatrixRow model={row} parentMatrix={this.question}>{matrixrow}</MatrixRow>}
+        {(reason == "row-footer") ? <tr className={row.className}>{matrixrow}</tr> : <MatrixRow model={row} parentMatrix={this.question}>{matrixrow}</MatrixRow>}
       </React.Fragment>
     );
   }
@@ -176,11 +179,11 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       const str = this.renderLocString(cell.locTitle);
       const require = !!cell.column ? <SurveyQuestionMatrixHeaderRequired column={cell.column} question={this.question} /> : null;
       cellContent = (<>{str}{require}</>);
-    }
-    if (cell.isDragHandlerCell) {
-      cellContent = (<>
-        <SurveyQuestionMatrixDynamicDragDropIcon item={{ data: { row: cell.row, question: this.question } }} />
-      </>);
+      if (cell.isSortable) {
+        cellContent = ReactElementFactory.Instance.createElement("sv-matrix-header-sort-button", {
+          cell: cell, question: this.question, content: cellContent
+        });
+      }
     }
     if (cell.isActionsCell) {
       cellContent = (
@@ -253,6 +256,16 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   }
   protected renderElement(): React.JSX.Element {
     return this.renderTableDiv();
+  }
+  protected renderRecordsBar(): React.JSX.Element | null {
+    return ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.question.recordsBar.pagerActions });
+  }
+  // The sort bar above the table, while the question header is not on top or on the left.
+  protected renderSortBar(): React.JSX.Element | null {
+    if (this.question.sortBarLocation !== "top") return null;
+    return <div className={this.question.cssClasses.sortBarTop}>
+      <SurveyActionBar model={this.question.recordsBar.sortActions}></SurveyActionBar>
+    </div>;
   }
   renderTableDiv(): React.JSX.Element {
     return (
@@ -398,9 +411,12 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   protected renderCellContent() {
     const content = super.renderCellContent();
     const responsiveTitle = this.cell.showResponsiveTitle ? (<span className={this.cell.responsiveTitleCss}>{this.renderLocString(this.cell.responsiveLocTitle)}<SurveyQuestionMatrixHeaderRequired column={this.cell.column} question={this.cell.matrix} /></span>) : null;
+    const errors = this.cell.matrix.isMobile ? <SurveyElementErrors element={this.cell.question} creator={this.props.creator} cssClasses={this.question.cssClasses}></SurveyElementErrors> : null;
     return <>
+      {this.cell.matrix.getErrorLocation() === "top" ? errors : null }
       {responsiveTitle}
       {content}
+      {this.cell.matrix.getErrorLocation() === "bottom" ? errors : null }
     </>;
   }
   protected renderQuestion(): React.JSX.Element {

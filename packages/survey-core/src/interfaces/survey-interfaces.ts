@@ -16,6 +16,7 @@ import type {
   ISurveyFileCallbacks,
   ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks,
+  ISurveyDynamicDataCallbacks,
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
@@ -70,7 +71,7 @@ export interface ISurveySingleInput {
 }
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   ISurveyElementLifecycle, ISurveyFileCallbacks, ISurveyMatrixCallbacks,
-  ISurveyDynamicPanelCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
+  ISurveyDynamicPanelCallbacks, ISurveyDynamicDataCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks, ISurveyTitleSettings, ISurveyValidation,
   ISurveySingleInput {
 
@@ -88,6 +89,14 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   getElementId(id: string): string;
   //#endregion
 
+  //#region Locale
+  // the locale that drives formats (masks); regionalFormat.locale || locale on the survey
+  getFormatLocale(): string;
+  // a format override stored in the survey's regional format (an ILocaleData field name), or
+  // undefined when the field inherits the locale data
+  getRegionalFormatValue(field: string): string;
+  //#endregion
+
   //#region Question lookup
   getQuestionByName(name: string): IQuestion;
   getQuestionsByValueName(valueName: string): IQuestion[];
@@ -97,6 +106,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
     valueName: string,
     name: string,
     index: number
+  ): IQuestion;
+  getQuestionByValueNameFromRecord(
+    valueName: string,
+    name: string,
+    recordIndex: number
   ): IQuestion;
   focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
   //#endregion
@@ -124,6 +138,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
 
   //#region Display modes & flags
   isDisplayMode: boolean;
+  getReadOnlyMode(): "readonly" | "view";
   isDesignMode: boolean;
   isLoadingFromJson: boolean;
   isEditingSurveyElement: boolean;
@@ -135,6 +150,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   //#region Text input settings
   isUpdateValueTextOnTyping: boolean;
   autoGrowComment: boolean;
+  choiceShortcutsEnabled: boolean;
   allowResizeComment: boolean;
   commentAreaRows: number;
   maxTextLength: number;

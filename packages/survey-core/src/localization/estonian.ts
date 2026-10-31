@@ -5,6 +5,58 @@ export var estonianSurveyStrings = {
   pagePrevText: "Tagasi",
   // "Next"
   pageNextText: "Edasi",
+  // [Auto-translated] "First"
+  pageFirstText: "Esimene",
+  // [Auto-translated] "Last"
+  pageLastText: "Viimane",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vali lehekülg",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sorteeri {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Kõrge - Madal",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Madal - Kõrge",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Tähestik, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Tähestik, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Uusim esimene",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Vanim esimene",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorteeritud {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, siis {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sorteeri vastavalt",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Vaikimisi",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteerimisväli",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteerimise järjekord",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Lisa sorteerimistase",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Eemalda sorteerimistase {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteeri välja {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteerimisjärjekord {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Näita kõiki sorteerimistasemeid",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Lisa uus",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Liigutuste sorteerimise tase {0}",
   // "Complete"
   completeText: "Lõpeta",
   // "Preview"
@@ -37,6 +89,8 @@ export var estonianSurveyStrings = {
   panelDynamicTabTextFormat: "Paneel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Vastatud {0} küsimust {1}-st",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Küsimus {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Selles uuringus ei ole ühtki nähtavat lehekülge või küsimust.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var estonianSurveyStrings = {
   value: "väärtus",
   // "Response required."
   requiredError: "Palun vasta küsimusele.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Väärtus on vale.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Väärtus sisaldab tundmatuid võtmeid: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Palun vasta vähemalt ühele küsimusele.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var estonianSurveyStrings = {
   noUploadFilesHandler: "Faile ei saa üles laadida. Palun lisage sündmuse \"onUploadFiles\" jaoks käitleja.",
   // "Response required: enter another value."
   otherRequiredError: "Sisesta palun muu vastus.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Väärtus '{0}' ei ole üks saadaolevatest valikutest.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Sinu fail laeb üles. Palun oota mõned sekundid ning proovi seejärel uuesti.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var estonianSurveyStrings = {
   addRow: "Lisa rida",
   // "Remove"
   removeRow: "Eemalda",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Liiguta rida {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Ridu pole.",
   // [Auto-translated] "Row {rowIndex}"

@@ -29,20 +29,22 @@ As a result, you will create a form displayed below:
 
 If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repositories:
 
-- <a href="https://github.com/surveyjs/surveyjs-nextjs" target="_blank">SurveyJS + Next.js Quickstart Template</a>
-- <a href="https://github.com/surveyjs/surveyjs-remix" target="_blank">SurveyJS + Remix Quickstart Template</a>
+- <a href="https://github.com/surveyjs/surveyjs-nextjs" target="_blank">SurveyJS + Next.js</a>
+- <a href="https://github.com/surveyjs/surveyjs-remix" target="_blank">SurveyJS + Remix</a>
 
 ## Install the `survey-react-ui` npm Package
 
 SurveyJS Form Library for React consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) (rendering code). Run the following command to install `survey-react-ui`. The `survey-core` package will be installed automatically as a dependency.
 
 ```cmd
-npm install survey-react-ui --save
+npm install survey-react-ui
 ```
 
 ## Configure Styles
 
-SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
+### Add Themes
+
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible [theme customization mechanism](/documentation/design-tokens-css-customization) based on CSS variables.
 
 <img src="images/survey-library-themes.png" alt="Themes in SurveyJS Form Library" width="1544" height="820">
 
@@ -55,7 +57,26 @@ import 'survey-core/survey-core.css';
 
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
-[Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+[Themes](/documentation/themes-and-custom-styles (linkStyle))
+
+### Add Fonts
+
+Starting with SurveyJS v3.0.4, fonts are no longer included in SurveyJS packages. Load Open Sans separately to preserve the default appearance, unless your application already does so. If you use a custom font, load it instead. Otherwise, the browser uses a fallback font, which may affect spacing and layout.
+
+To add Open Sans using [Fontsource](https://fontsource.org/docs/getting-started/install), run the following command:
+
+```sh
+npm install @fontsource/open-sans
+```
+
+The following example imports font weights 400, 600, and 700. Place the font imports in your application's entry file or root layout to load them once for all SurveyJS components.
+
+```js
+// app/layout.tsx or pages/_app.tsx
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+```
 
 ## Create a Model
 
@@ -81,12 +102,13 @@ To instantiate a model, pass the model schema to the [`Model`](https://surveyjs.
 
 ```js
 // components/Survey.tsx
+import { useMemo } from 'react';
 import { Model } from 'survey-core';
 
 const surveyJson = { /* ... */ }
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
 
   return "...";
 }
@@ -96,8 +118,16 @@ export default function SurveyComponent() {
     <summary>View Full Code</summary>  
 
 ```js
+// app/layout.tsx or pages/_app.tsx
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+```
+
+```js
 // components/Survey.tsx
 import 'survey-core/survey-core.css';
+import { useMemo } from 'react';
 import { Model } from 'survey-core';
 
 const surveyJson = {
@@ -113,7 +143,7 @@ const surveyJson = {
 };
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
 
   return "...";
 }
@@ -126,32 +156,29 @@ export default function SurveyComponent() {
 
 To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute, as shown below.
 
-SurveyJS components do not support server-side rendering (SSR). If you are using [Next.js](https://nextjs.org) or another framework that has adopted React Server Components, you need to explicitly mark the React component that renders a SurveyJS component as client code using the ['use client'](https://react.dev/reference/react/use-client) directive.
+> SurveyJS components are client-side components. Explicitly mark the React component that renders a SurveyJS component as client code using the ['use client'](https://react.dev/reference/react/use-client) directive.
 
 ```js
 // components/Survey.tsx
 'use client'
 // ...
+import { useMemo } from 'react';
 import { Survey } from 'survey-react-ui';
 
 const surveyJson = { /* ... */ }
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
 
   return <Survey model={survey} />;
 }
 ```
 
-The lack of SSR support may cause hydration errors if a SurveyJS component is pre-rendered on the server. To ensure against those errors, use dynamic imports with `ssr: false` for React components that render SurveyJS components. The following code shows how to do this in Next.js:
+Render the form directly in the page. The following code shows how to do that in a Next.js application: 
 
 ```js
 // survey/page.tsx
-import dynamic from 'next/dynamic';
-
-const SurveyComponent = dynamic(() => import("@/components/Survey"), {
-  ssr: false
-});
+import SurveyComponent from '@/components/Survey';
 
 export default function Survey() {
   return (
@@ -168,10 +195,18 @@ If you replicate the code correctly, you should see the following form:
     <summary>View Full Code</summary>  
 
 ```js
+// app/layout.tsx or pages/_app.tsx
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+```
+
+```js
 // components/Survey.tsx
 'use client'
 
 import 'survey-core/survey-core.css';
+import { useMemo } from 'react';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -188,7 +223,7 @@ const surveyJson = {
 };
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
 
   return <Survey model={survey} />;
 }
@@ -196,11 +231,7 @@ export default function SurveyComponent() {
 
 ```js
 // survey/page.tsx
-import dynamic from 'next/dynamic';
-
-const SurveyComponent = dynamic(() => import("@/components/Survey"), {
-  ssr: false
-});
+import SurveyComponent from '@/components/Survey';
 
 export default function Survey() {
   return (
@@ -220,12 +251,12 @@ After a respondent submits a form, the results are available within the [`onComp
 ```js
 // components/Survey.tsx
 // ...
-import { useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 
 const SURVEY_ID = 1;
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
   const surveyComplete = useCallback((survey: Model) => {
     const userId = /* ... Getting the user ID ... */
     survey.setValue("userId", userId);
@@ -267,10 +298,10 @@ In this tutorial, the results are simply output in an alert dialog:
 ```js
 // components/Survey.tsx
 // ...
-import { useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
   const alertResults = useCallback((survey: Model) => {
     const results = JSON.stringify(survey.data);
     alert(results);
@@ -292,11 +323,18 @@ To view the application, run `npm run dev` in a command line and open [http://lo
     <summary>View Full Code</summary>  
 
 ```js
+// app/layout.tsx or pages/_app.tsx
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+```
+
+```js
 // components/Survey.tsx
 'use client'
 
-import { useCallback } from 'react';
 import 'survey-core/survey-core.css';
+import { useMemo, useCallback } from 'react';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -313,7 +351,7 @@ const surveyJson = {
 };
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
   const alertResults = useCallback((survey: Model) => {
     const results = JSON.stringify(survey.data);
     alert(results);
@@ -327,11 +365,7 @@ export default function SurveyComponent() {
 
 ```js
 // survey/page.tsx
-import dynamic from 'next/dynamic';
-
-const SurveyComponent = dynamic(() => import("@/components/Survey"), {
-  ssr: false
-});
+import SurveyComponent from '@/components/Survey';
 
 export default function Survey() {
   return (

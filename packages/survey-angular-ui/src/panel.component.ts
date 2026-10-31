@@ -5,6 +5,7 @@ import { AngularComponentFactory } from "./component-factory";
 @Component({
   selector: "sv-ng-panel, '[sv-ng-panel]'",
   templateUrl: "./panel.component.html",
+  styleUrls: ["./hide-host.scss"]
 })
 export class PanelComponent extends BaseAngular<PanelModel> implements AfterViewInit {
   @Input() model!: PanelModel;
@@ -18,11 +19,15 @@ export class PanelComponent extends BaseAngular<PanelModel> implements AfterView
       this.model.afterRender(this.panelContainerRef.nativeElement);
     }
   }
+  override ngOnDestroy() {
+    super.ngOnDestroy();
+    this.model.beforeDestroy();
+  }
   trackRowBy = (_: any, row: any) => {
     return row.id;
   };
   public get canRender() {
-    return this.model && this.model.survey && this.model.getIsContentVisible();
+    return this.model && this.model.survey && this.model.renderedIsContentVisible;
   }
   public get panelContentStyle(): Record<string, string> {
     const hasInnerPadding = !!this.model?.innerPaddingLeft;

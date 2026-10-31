@@ -2,14 +2,10 @@
   <div
     :class="vueSurvey.getRootCss()"
     :style="vueSurvey.themeVariables"
-    :lang="vueSurvey.locale || 'en'"
+    :lang="vueSurvey.rootLang"
     :dir="vueSurvey.localeDir"
     ref="root"
   >
-    <template v-if="vueSurvey.generateStylesheet">
-      <component :is="'style'" v-if="vueSurvey.generateStylesheet">{{vueSurvey.themeStyle}}</component>
-      <component :is="'style'" v-if="vueSurvey.generateStylesheet">{{vueSurvey.resetVariablesStyle}}</component>
-    </template>
     <SvComponent :is="'sv-scroll'" :disabled="vueSurvey.rootScrollDisabled">
       <SvComponent
         :is="'sv-svg-bundle'"
@@ -153,7 +149,6 @@ import {
   ref,
   computed,
   onMounted,
-  onUnmounted,
   triggerRef
 } from "vue";
 import { useBase } from "./base";
@@ -208,17 +203,12 @@ useBase(
   },
   (model: SurveyModel) => {
     model.stopTimer();
+    model.beforeDestroySurveyElement();
     model.renderCallback = undefined as any;
   }
 );
 
 onMounted(() => {
   setupSurvey(vueSurvey.value);
-});
-
-onUnmounted(() => {
-  vueSurvey.value.stopTimer();
-  vueSurvey.value.beforeDestroySurveyElement();
-  vueSurvey.value.renderCallback = undefined as any;
 });
 </script>

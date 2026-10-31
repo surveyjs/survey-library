@@ -1,0 +1,585 @@
+# survey-core/linter
+
+Static analysis of a **survey JSON schema**. It reports logic defects — unresolvable
+references, self-referencing conditions, duplicate names, unreachable choice comparisons,
+trigger loops, dead carry-forward sources — before the survey is ever run.
+
+The linter analyses the JSON **as authored**, without constructing a survey model. That is
+the point: the serializer normalizes JSON while loading it (unknown properties are dropped,
+an unknown type is replaced), which swallows the very defects the linter looks for. So no
+`SurveyModel`, `PanelModel`, `Question` or `ItemValue` is created anywhere in this folder;
+only the core's stateless utilities (`ConditionsParser`, `ValueGetter`, `TextPreProcessor`,
+`FunctionFactory`, `Serializer` metadata) are reused. `tests/linter/linter-imports.tests.ts`
+pins both constraints. The rule is about the **linted document**: the optional
+[variable definition](#what-the-analysis-understands) is a different document — the host's own,
+already normalized by the host's build — and it is read through `survey-core`, which builds its
+model there.
+
+## Usage
+
+```js
+import { lintSurvey, renderFindings } from "survey-core/linter";
+
+const result = lintSurvey(surveyJson);
+if (result.errorCount > 0) {
+  console.log(renderFindings(result));
+}
+```
+
+`survey-core/linter` is a separate entry point that treats `survey-core` as an **external**
+dependency, so it is never pulled into the bundle of an application that only renders a
+survey. UMD global: `SurveyLinter` (expects `Survey` on the page).
+
+Because both share one module closure, the linter sees what the application customized:
+functions registered in `FunctionFactory.Instance`, question types registered in the
+`Serializer`, and `settings` (`expressionVariables`, `commentSuffix`, `matrix.totalsSuffix`,
+`noneItemValue`, comparison settings). Register your custom functions and types **before**
+linting and no configuration is needed.
+
+`lintSurvey` takes a parsed object — it throws a `TypeError` for a string, an array or
+`null`. Parse JSON text with `JSON.parse` first.
+
+Host variables — the values an application injects with `survey.setVariable()` — are described by
+a **variable definition** and its named presets:
+
+```js
+lintSurvey(surveyJson, {
+  variablePresets: {
+    definition: definitionJson,
+    presets: [{ name: "gold customer", variables: { tier: "gold", years: 12 } }],
+  },
+});
+
+// or, when the host already has the definition as a model - one with custom question types,
+// with choices loaded at runtime, or one a Creator is editing right now:
+lintSurvey(surveyJson, {
+  variableDefinitionModel: definitionModel,
+  variablePresets: { presets: [/* ... */] },
+});
+```
+
+## API
+
+| Export | Description |
+| --- | --- |
+| `lintSurvey(json, options?): ISurveyLintResult` | Runs every enabled rule over the survey JSON. |
+| `getRules(): Array<ILintRuleInfo>` | The rule registry: `{ id, defaultSeverity }` per rule. `defaultSeverity` is `"off"` for a rule that runs only when `options.rules` turns it on. |
+| `renderFindings(result \| findings, options?): string` | Human-readable text report (`{ includeSuppressed?: boolean }`). |
+| `applyFix(json, fix): any` | Applies one fix and returns the repaired JSON, leaving the input untouched. See [Fixes](#fixes). |
+| `SurveyLintReasons` | `reason` values per rule id — the localization key, see [Localization](#localization). |
+| `SurveyLintHintReasons` | `hint.reason` values. |
+| `SurveyLintReproductionReasons` | `reproduction.reason` values. |
+| `SurveyLintFixReasons` | `fix.reason` values per rule id, see [Fixes](#fixes). |
+
+### Result
+
+```ts
+interface ISurveyLintResult {
+  findings: Array<ILintFinding>;      // sorted by path, then ruleId
+  errorCount: number;
+  warningCount: number;
+  infoCount: number;
+  suppressedCount: number;
+  suppressed?: Array<ILintFinding>;   // only with options.reportSuppressed
+}
+
+interface ILintFinding {
+  ruleId: string;
+  severity: "error" | "warning" | "info";
+  message: string;                     // ready to show to a human, in English
+  reason?: string;                     // which branch of the rule's message this is
+  messageData: { [key: string]: any }; // the same facts, structured, for custom formatting
+  hint?: { reason: string, name: string };  // the scope hint appended to the message
+  path: string;                        // "pages[0].elements[1].visibleIf"
+  elementName?: string;
+  elementType?: string;
+  suggestion?: string;                 // closest known name, when the defect looks like a typo
+  fix?: ILintFix;                      // the one mechanical repair, when the defect has one
+  related?: Array<{ path: string, elementName?: string }>;
+  reproduction?: ILintReproduction;    // steps demonstrating the defect: { set } / { expect }
+}
+```
+
+`path` addresses the **linted survey JSON**, with one deliberate exception: the `variable/preset`
+rule reports on the `variablePresets` option, which is not part of that document, so its paths are
+rooted at `variablePresets…` (`variablePresets.definition`, `variablePresets.presets[2]`,
+`variablePresets.presets[2].variables.tier`). A `related` entry with the path
+`variablePresets.definition` addresses the variable definition itself; the question in it is named
+by `elementName`, not by a deeper path — the definition is held as a model, and a host that passed
+one has no JSON document for a deeper path to address.
+
+## Localization
+
+`message` is English. A host that shows findings in its own language does not translate that
+string: it composes its own sentence from **`(ruleId, reason)`** plus `messageData`.
+
+`reason` names the branch of the rule's message the finding took, and every value is listed in
+`SurveyLintReasons[ruleId]`. **The rule ids and the reason values are public API — they are
+frozen and they stay stable.** `getRules()` gives the rule ids on their own, for a host that
+also names the checks.
+
+```js
+import { lintSurvey, SurveyLintReasons } from "survey-core/linter";
+
+const key = finding.ruleId + "/" + finding.reason;   // "reference/unknown/notFound"
+const text = format(myStrings[key], finding.messageData);
+```
+
+Three things are composed on top of the base sentence, and none of them needs a channel of its
+own — a host appends them from fields it already has:
+
+* `finding.suggestion` — the *Did you mean "x"?* clause.
+* `messageData.expression` — the *(in "…")* clause.
+* `messageData.refKind` — for `reference/unknown`, whether the reference came from `bindings`
+  or from a `choicesByUrl` URL.
+
+`finding.hint` is the one part that is not a branch: any base message of `reference/unknown` can
+carry any of the `SurveyLintHintReasons`, so it travels separately. `reproduction.reason` and
+`messageData.suggestionReason` (`expression/type-mismatch` only, whose `suggestion` is prose
+rather than an identifier) work the same way.
+
+A rule interpolates only what it also reports in `messageData`, so a localized message never
+needs a fact the finding does not carry. `tests/linter/linter-reasons.tests.ts` pins that: every
+reason in the table is reachable, and every finding carries one.
+
+### Options
+
+```ts
+interface ISurveyLintOptions {
+  rules?: { [ruleId: string]: "error" | "warning" | "info" | "off" };
+  suppress?: Array<{ ruleId?: string, elementName?: string, path?: string }>;
+  knownVariables?: Array<string>;   // variables the host sets at runtime (survey.setVariable)
+  knownFunctions?: Array<string>;   // functions registered elsewhere/later
+  components?: { [typeName: string]: { questionJSON?: any, elementsJSON?: Array<any> } };
+  reportSuppressed?: boolean;       // keep suppressed findings in result.suppressed
+  newElementName?: (nameKind: string, taken: Array<string>) => string;  // how a fix names an element
+  variablePresets?: ISurveyVariablePresets;   // the variable definition and its named presets
+  variableDefinitionModel?: SurveyModel;      // that definition, as a model the host already has
+}
+```
+
+* **`rules`** overrides a rule's severity or switches it off entirely.
+* **`suppress`** silences findings that match *all* the fields of an entry. `elementName`
+  matching is case-insensitive; `path` is either exact or a prefix ending with `.*`
+  (`"pages[2].*"`). An entry with no fields matches nothing.
+* **`components`** describes custom question types (the `questionJSON` / `elementsJSON` of a
+  `ComponentCollection` definition) so their inner elements and expressions are analysed and
+  their type names stop being reported as unknown. Types already registered in the
+  `ComponentCollection` of the shared closure need no entry here.
+* **`variablePresets`** is the `ISurveyVariablePresets` container declared by `survey-core`
+  (`src/variablePresets.ts`) — `{ definition, presets }`, the same object the tester carries at
+  the root of a suite. Its **definition** is an ordinary survey JSON whose top-level questions
+  *are* the host variables (the data key of a question — its `valueName` when set, otherwise its
+  `name` — is the variable name), and its **presets** are named value records for it. The
+  definition names join `knownVariables` as a second source: the two are a **union**, and one
+  host declaring the same name in both is not a defect. The container itself must be a plain
+  object — a string or a class instance is a `TypeError`, like a bad survey JSON — while
+  everything *inside* it is data the `variable/preset` rule reports on.
+* **`variableDefinitionModel`** is that same definition as a `SurveyModel` the host already has.
+  It **wins** over `variablePresets.definition`, which is then never loaded, and is what to pass
+  when the JSON is not the whole truth (custom question types, choices assigned in code, a
+  definition open in a Creator) or when a host lints on every keystroke and does not want to pay a
+  `fromJSON` of the definition per call. The linter **borrows** it: it loads nothing into it and
+  disposes nothing (disposing the run's own companion never disposes a host model). What a run
+  *does* change is the model's **data** — every preset it checks is assigned to it — so pass an
+  instrument, not a definition a user is filling in at that moment. Anything but a `SurveyModel`
+  is a `TypeError`.
+
+## Fixes
+
+A finding whose defect has exactly one mechanical repair carries it as data:
+
+```ts
+interface ILintFix {
+  reason: string;                  // one of SurveyLintFixReasons[ruleId]
+  edits: Array<ILintFixEdit>;
+}
+
+interface ILintFixEdit {
+  op: "set" | "remove" | "rename" | "wrap";
+  path: string;                    // addresses the linted JSON, the way ILintFinding.path does
+  value?: any;                     // "set"
+  key?: string;                    // "rename"
+}
+```
+
+The linter never sees the document text, so an edit says **what** to change and not where in the
+text it stands. `op` acts on what `path` addresses: `set` writes a value and is the one op whose
+last segment may be missing yet, `remove` drops a key or splices an array item, `rename` gives a
+key another name where it stands, and `wrap` turns a value into a one-item array. A `value` is
+always a scalar or a string the linter composed, never a piece of the document itself - so a host
+that writes an edit back into text never copies an annotation into it.
+
+`applyFix(json, fix)` applies one fix and returns the repaired JSON. The input is left exactly as
+it was, the way `lintSurvey` leaves it: the containers on the way to the edit are copied and the
+rest of the document stays shared. It takes one fix at a time on purpose - removing an array item
+renumbers every path after it - so a host that repairs everything lints again after each one:
+
+```js
+let current = surveyJson;
+for (;;) {
+  const finding = lintSurvey(current).findings.filter(f => !!f.fix)[0];
+  if (!finding) break;
+  current = applyFix(current, finding.fix);
+}
+```
+
+`fix.reason` names what the repair does, and every value is listed in `SurveyLintFixReasons` -
+the same contract as `SurveyLintReasons`, for a host that labels the repair it offers.
+
+### Names a fix invents
+
+Three fixes have to make up a name: `name/duplicate` renames the later twin, `name/reserved` renames
+an element off a reserved name, and `property/required` names an element that has none. The linter
+spells it in English - `question1`, `page1`, `panel1` - and `options.newElementName(nameKind, taken)`
+lets a host spell it in the language its user works in. `nameKind` is `"page"`, `"panel"` or
+`"question"` (a matrix column, a multiple-text item and a calculated value are named the way a
+question is); `taken` is every name the document spells plus the ones this run has already handed
+out, so two duplicates never get one name.
+
+### Which rules offer a fix
+
+| Rule id | The repair |
+| --- | --- |
+| `name/duplicate` | A free name for the later twin (`elementNames` only - nothing says which calculated value a reference meant). |
+| `name/reserved` | A free name for a question, a column, an item or a calculated value: the reserved one cannot stay, whatever it is renamed to. A `valueName` carries none (dropping it and respelling it are two repairs), and neither does a matrix row, which is an item value rather than an element. |
+| `property/required` | A name for an element that has none, and the spelling of a name written as a number or a boolean. Every other required property states something no other key implies. |
+| `property/not-an-array` | The value becomes the one item of the array, which is what the deserializer does with it. |
+| `property/unknown` | Rename the key to the suggested property, or drop it - which is what the deserializer does anyway. A typo written next to the property it misspells is dropped rather than renamed over it. |
+| `property/dead` | Drop the key: it is written for nothing whichever way it is dead. |
+| `property/invalid-value` | The allowed value the suggestion spells, with its own type; the bound an out-of-range number falls off; or, when nothing is close to the value, the key itself, since the property falls back to its default either way. |
+| `element/unknown-type`, `trigger/unknown-type`, `validator/unknown-type`, `mask/mismatch` | Write the suggested type. |
+| `trigger/unknown-target`, `choices/dead-source`, `reference/unknown` (`keyNameNotFound`) | Write the suggested name. Only the segment that did not resolve is respelled. |
+| `reference/unknown` (in an expression, a binding or a piped text) | Respell the reference inside the string that carries it. The whole `{...}` token is replaced, so `{q1}` never matches inside `{q10}`. |
+| `expression/unknown-function` | Respell the call. Matched on an identifier boundary, so the same word written as an argument stays. |
+| `choices/duplicate` | Drop the repeated item (`duplicateValue` only - an item colliding with a built-in one can as well be repaired by the toggle that shows it). |
+
+A defect with no unique repair carries no fix: a cycle, a contradiction, an unreachable element,
+an empty page, a dead validator, a `valueName` with a dot in it, a count that contradicts its own
+bounds. Neither does one the document has no place for - a reference inside an `inArray` filter or
+inside a condition synthesized from a legacy trigger is a string the analysis carved out of
+another one, and no property holds it.
+
+
+## Rules
+
+| Rule id | Default | Reports |
+| --- | --- | --- |
+| `expression/syntax` | error | An expression that cannot be parsed — including one synthesized from a trigger's legacy `name`/`operator`/`value` properties, and the condition an inArray function carries as a string argument. |
+| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable — an entry of `options.knownVariables` or a variable of the definition counts as one; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings`, in a `choicesByUrl` `url`/`path`, or in a piped text (`title`, `description`, `templateTitle`, `html`, any localizable string); a `keyName` naming no column / template question; an element name a function takes as a plain string (`sumInArray({m1}, 'col')`, `displayValue('q1')`, `getComment`, `propertyValue`, `isContainerReady`). A field of a panel or row object (`{panel.x}`, `{row.x}`, `{q[0].x}`, `keyName`, `choiceValuesFromQuestion`, an inArray name, a default-value key) is a key that object holds: a template question or a column under the key it stores its value by — its `valueName`, else its name — plus the fields every question sharing the value adds, whichever side declares the `valueName`: a checkbox or ranking with object items (`valuePropertyName`, or `value`/`comment` when a choice other than "Other" shows a comment area), a tag box (`valuePropertyName` only — it shows a comment area on "Other" alone), an image map while it is `multiSelect` (`valuePropertyName`), another dynamic panel or matrix; in a matrix row, a column and a detail-panel question on one key share it too. An object value (multiple text, matrix, matrixdropdown) holds the keys of every question sharing it; a matrixdropdown row holds the columns of every matrixdropdown on the data key that lists that row (each one whose JSON lists no rows counts for every row), while an inArray function reads every row. The total row (`{totalRow.x}`, `{matrix-total.x}`) holds the matrix's own columns, never a detail-panel question. A `-Comment` key is known next to a question or a column, never next to an item field. Sharing stays within one data scope. |
+| `reference/self` | error | `visibleIf`/`enableIf`/`requiredIf` that references its own element (by name, `{self}`, `{row.x}` or `{panel.x}`) — hiding the element clears its value, which flips the condition back. The same field of another record (`{prevPanel.x}`, `{nextPanel.x}`, `{prevRow.x}`, `{nextRow.x}`, `{totalRow.x}`) is not a self reference. |
+| `name/duplicate` | error | Two elements sharing a name in one namespace. Pages, panels and questions form one namespace for the whole survey — a dynamic-panel template or a matrix detail panel is no scope of its own, the way the Creator keeps element names unique — while the columns of a matrix and the items of a multiple-text question are unique per owner. Also duplicate calculated-value names and a calculated value shadowing an element name. |
+| `name/shadowing` | warning | A name that answers somewhere else than the JSON suggests: a question, `valueName` or calculated value spelling a built-in variable (`{pageno}`, `{locale}`, the quiz counters), which the survey answers first; a `valueName` landing on the name of a dynamic panel or matrix that declares no `valueName` of its own, when the question adds a field its rows or panels do not hold themselves (a dynamic panel or matrix, a matrixdropdown in a row both list, a checkbox or tag box with object items, an image map selecting several areas) — keyed by its name alone, that question treats those fields as unknown: `setData()` reports them and `clearIncorrectValues()` deletes them; a data key spelling the `-Comment` or `-total` key the runtime derives for another element's data key (its `valueName`, else its name); a matrixdropdown row that a single-choice matrix row or a multiple-text item sharing the value takes too — a cell object and a single value cannot both live under one key, so the runtime keeps one and deletes the other; questions on one data key keeping values of different shapes — an array of objects (a dynamic panel or matrix, a checkbox or multi-select image map with object items), an object (multiple text, matrix, matrixdropdown) or a plain value or array (any other question) — where each side's checks drop the other's answer; and a `setvalue` trigger with `isVariable` writing a variable named after a question, whose answer then stops answering its own name. Any other share is not reported — two questions with one `valueName`, or a `valueName` landing on a question's name (the Merge Question Values pattern): that is how they answer as one. Data keys are compared exactly, as the runtime binds them: `Cars` and `cars` are two keys. Data keys meet only within one data scope: a question of a dynamic-panel template writes into its panel's record, and a question of a matrix detail panel into its row's record, next to the columns — so its `-Comment` / `-total` key collides with the keys of that record alone, never with a top-level question. A `valueName` inside such a record is not compared at all: landing on a neighbour's name there is a deliberate share as often as not. |
+| `name/reserved` | error | A name that is a member of `Object.prototype` — `constructor`, `__proto__`, `toString`, `valueOf`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `__defineGetter__`, `__defineSetter__`, `__lookupGetter__`, `__lookupSetter__` — as a question `name` or `valueName`, a column or a row of a matrix, an item of a multiple text, or a calculated value. The survey keys its own hashes by `Object.create(null)` and skips `__proto__` on the way in, so a question, a `valueName`, a calculated value and a matrix row spelled like a member carry their answer today. The value objects nested inside an answer were left plain: a matrix column and a multiple-text item still throw on the first write — reading such a key back off a row value or a multiple-text value hands out the prototype member, a function the value cloner cannot clone — and a name spelled `__proto__` keys nothing in any slot at all, so the question holds the answer the respondent gave and the submitted data goes without it. The comparison trims and ignores case — `Constructor`, `TOSTRING` and `" toString "` are reserved too, since the runtime trims a name and lower-cases its variable names and its question lookup hashes — and the name is reported in every one of these places alike, even where a particular slot happens to survive today: a name that works as a question and throws as a column of that same question is the confusing part. Pages, panels and the columns of a single-choice matrix are not data keys and are left alone; so are the elements of a composite component definition, which are never indexed. |
+| `variable/collision` | error | A variable of the `variablePresets` definition that writes the same data key as the linted survey: a root question (by `name` or `valueName`), or a calculated value. `setVariable(name)` deletes the answer stored under that key and the variables hash is consulted before the survey data, so the respondent's answer is gone the moment the host injects the variable; a calculated value stores its result through `setVariable` too, so both write the same slot and whichever runs last wins. A question inside a dynamic panel template or a matrix cell is not reported — it writes no root data key. Off without a definition. |
+| `variable/preset` | warning | A defect of the `variablePresets` object itself: a `definition` that is not an object, a `presets` that is not an array, an entry that is not an object, one without a name or without a `variables` object, two entries sharing a name — and, against the definition, a variable the definition does not declare (with the closest declared name as a suggestion) and a value it rejects. The value verdict is the definition's **own**: its validators, its `isRequired`, its `visibleIf`s and a choice-membership check all run on a model of it, so a required variable a preset leaves out and an unlisted choice on an optional dropdown are both reported. |
+| `element/unknown-type` | info | A question `type` that is neither registered nor passed via `options.components`, or a question with no `type` at all (`missingType`) — the deserializer drops the element either way. |
+| `property/invalid-value` | warning | A value the property cannot hold: one outside the values the serializer lists for it (`titleLocation`, `clearIfInvisible`, `progressBarType`, a column `cellType`, …) — with the closest allowed spelling as a suggestion, including a value that only has the wrong case — and a number outside the registered `minValue`/`maxValue`. Also a `valueName` containing a `.`, which every reference reads as a path into another key. |
+| `property/required` | error | A property the class marks required (`name` of a question, a matrix column, a multiple-text item or a calculated value; `items` of a multiple text; the target name of a trigger; any custom `!prop`) that the JSON leaves out or empty. The deserializer’s own reading: a falsy value is missing, an itemvalue is not checked, a property with a default value never is. A name written as a number or a boolean (`name: 5`) is reported too, on a page or a panel as much as on a question: the runtime trims and lower-cases a name, so the survey does not load, and the fix spells the value out. |
+| `property/not-an-array` | warning | A single value written where the property holds an array — `elements: { ... }`, `choices: "a"`, one column object under `columns`. The deserializer wraps it into a one-item array, so the survey works; the finding names the key as written (`questions` stays `questions`). |
+| `property/dead` | info | A property the JSON states and the runtime does not keep: one that is not serializable (globally, like `mode`, or suppressed on its own type, like `correctAnswer` on an `expression` question) and so disappears the next time the survey is saved; one property written under both its names (`elements` and `questions`, `showOtherItem` and `hasOther`), where the key written last silently wins; and `min`/`max`/`step` on an `inputType` that has no bounds. Kept apart from `property/unknown` at `info`, since legacy JSON carries these and they do work. |
+| `property/unknown` | warning | A key that matches no property of the class the JSON says it belongs to — the deserializer drops it, so the setting never takes effect. The key matching is the deserializer's own (a property name or its `alternativeName`, spelled exactly), and the class comes from the serializer, so custom types and custom properties are known automatically. A misspelling carries the closest property name as a suggestion. Custom components are left alone: what a component does with its JSON is its own business. |
+| `expression/unknown-function` | warning | A function call that `FunctionFactory.Instance` does not know and `options.knownFunctions` does not list. |
+| `cycle/calculated-value` | error | Calculated values that reference themselves or form a loop. |
+| `cycle/trigger` | warning | Triggers that form a loop through the values they set (a `valueName` and its question count as the same signal). Reads include the guard condition, `runExpression`, and a copyvalue's `fromName`. |
+| `cycle/value-write` | warning | Everything that writes a value - question `setValueIf`/`setValueExpression`, `resetValueIf`, `defaultValueExpression`, triggers, calculated values - in one graph: a loop spanning those domains, or an expression reading the very value it writes. A loop living entirely among triggers or entirely among calculated values stays with its own rule. |
+| `expression/unknown-choice` | warning | A condition comparing a question to a value none of the values it can hold matches: the `choices` of a select question, the `rateValues` of a rating, the `columns` a single-choice matrix row answers with, or the two values of a `boolean` with `valueTrue`/`valueFalse`. The check runs the runtime operator functions, so `contains` against a scalar value matches as a substring, exactly as at runtime. |
+| `expression/type-mismatch` | warning | An operator that cannot hold for the question's value type: `=` against a multi-select array, ordering on a boolean, a numeric question compared to a string, a date compared to a number, a text question used in arithmetic. |
+| `choices/dead-source` | error | `choicesFromQuestion` pointing at a missing question, at itself, or at a question that provides neither choices nor an array of values; `choiceValuesFromQuestion`/`choiceTextsFromQuestion` naming a column or template question that does not exist. |
+| `choices/duplicate` | warning | Two items of one itemvalue array holding the same value — `choices` (a question's own, a matrix column's own, or the shared cell choices of a matrix), `rateValues`, and the `rows`/`columns` of a single-choice matrix. Equality is the runtime one, so `1` and `"1"` are one value. Also a listed choice colliding with a built-in item the question shows anyway (`showNoneItem`, `showOtherItem`, `showRefuseItem`, `showDontKnowItem`), which renders the item twice. The finding names the key the author wrote — the legacy `hasOther`/`hasNone` aliases are read from the serializer — and the item by the caption the core renders it with. |
+| `trigger/unknown-target` | error | `setToName`, `fromName`, `gotoName` or `runExpression` targets that do not exist. |
+| `trigger/unknown-type` | warning | A missing or unknown trigger `type` (silently dropped at runtime). |
+| `validator/unknown-type` | warning | A missing or unknown validator `type` on a question, a matrix column or a multiple-text item — the deserializer drops it, so nothing validates. |
+| `validator/dead` | warning | A validator that cannot do the job it was written for: one whose check the answer's shape makes pointless — it never fires (a length check on a numeric input reads a `length` the answer has none of, an `answercount` on a single-value question) or rejects every answer (a `numeric` validator on a list, an `email` one on a numeric input); a `numeric`, `text` or `answercount` validator whose minimum is above its maximum; an `answercount` minimum above the choices that can be selected together; a `regex` the engine rejects; and an `expression` validator with no expression, which always passes. The criterion is behaviour, not `settings.supportedValidators` — that table says what the Creator offers, while the runtime runs whatever is attached, so a `regex` validator on a number input is left alone: it reads the answer as its digits and works. `tests/linter/linter-runtime-parity.tests.ts` pins every verdict against a live model. |
+| `expression/contradiction` | warning | A condition that can never hold: one that evaluates to false from constants written inline or reached through a reference, one asking for a value the question is not allowed to hold, and one that contradicts itself (`{q} = 'a' and {q} = 'b'`, `{q} empty and {q} notempty`, bounds with nothing between them, `anyof []`). |
+| `expression/meaningless-condition` | warning | A condition whose result is known upfront in some other way - always true, arithmetic where a boolean is expected, or a fragment (a constant branch of `and`/`or`, a comparison of two constants, an operand compared with itself). |
+| `expression/no-reference` | off | A condition that reads no question, calculated value or variable — `false`, `true`, `today() > '2026-12-31'`. Off by default: a lone `false` is how an author switches an element off (see [Relation to `Base.validateExpressions`](#relation-to-basevalidateexpressions)). A host turns it on where a constant condition is suspect, such as a condition an AI wrote. The message does not claim the result never changes — `today()`, `now()` or a custom function can still change it. An element a function names as a string (`isContainerReady('page1')`) counts as read; a condition the two rules above already report gets no second finding; a value expression, an iif() condition and an inArray filter are left alone. |
+| `value/not-a-choice` | warning | A value written in the JSON that its question can never hold: a `defaultValue`, a `correctAnswer`, or the `setValue` of a `setvalue` trigger. The same sets of values as `expression/unknown-choice`, checked from the other side. Composite defaults (matrix/dynamic panel `defaultValue`, `defaultRowValue`, `defaultPanelValue`) are taken apart per key: an unknown row/column/template-question key and an alien cell value are both reported. A key another question on the data key adds (a multiple-text item, a row of another matrix) is known, and its value is left to that question, the way the runtime leaves it. A trigger target inside a row (`matrix[0].x`) names a field of the row object, as for any value path. A `copyvalue` trigger whose ends cannot exchange a value (an array copied into a single-value question, or two listed value sets with nothing in common) is reported too. |
+| `element/count-contradiction` | warning | Authored count and bound constraints the runtime silently reconciles: `minRowCount` above `maxRowCount`, `rowCount`/`panelCount` outside the authored bounds (dynamic matrices and panels), and the same conflict in every other bound pair — `rateMin`/`rateMax`, a numeric or date `min`/`max` (question, matrix column, multiple-text item), slider `min`/`max` and `minRangeLength`/`maxRangeLength`, `minSelectedChoices`/`maxSelectedChoices`, and the fraction-digit pairs of an `expression` question and of column totals. Also a `rateStep` (or slider `step`) wider than the whole range, a `rateCount` outside `[2, settings.ratingMaximumRateValueCount]`, and a `minSelectedChoices` above the number of choices that can be selected together. |
+| `element/never-visible` | warning | An element dead through the cascade: its `visibleIf` demands a value of a question that can never become visible and that nothing (defaults, expressions, triggers, bindings) ever writes to. A question with `visible: false` is not a cascade source - hidden fields are routinely filled from application code. |
+| `mask/mismatch` | warning | An input mask the runtime resolves to something else than the JSON describes: an unknown `maskType` (which falls back to no mask), a `maskSettings` key that belongs to a different mask class, `maskSettings` written without a `maskType` (where only `saveMaskedValue` survives), a mask on an `inputType` other than `text`/`tel`, `datetime` bounds without a `pattern`, and a numeric `min` above its `max`. `maskSettings` is loaded through `setData`, which drops a foreign key without even a `JsonUnknownPropertyError`, so `property/unknown` deliberately stays out of it. |
+| `page/empty` | warning | A page or panel with no element that can ever render, and a dynamic panel with an empty template. An element is counted out when it is statically hidden or its own `visibleIf` can never hold. Also `detailElements` of a matrix whose `detailPanelMode` stays `"none"` (the default). |
+
+## What the analysis understands
+
+* **Scopes.** `{row.col}`, `{panel.q}`, `{composite.field}` and their standalone forms are
+  resolved against the matrix, dynamic panel or composite component that actually surrounds
+  the expression; used outside such a container they get an explaining hint instead of a bare
+  "not found". The prefixes come from `settings.expressionVariables`, so renaming them is
+  honoured.
+* **Data keys, not just names.** `valueName`, the `-Comment` suffix, matrix `-total` keys, the
+  built-in variables the survey answers itself (`{pageno}`, `{locale}`, quiz counters) and the
+  special choice items (`none`, `other`, `refuse`, `dontknow`) are all resolved. The `-Comment`
+  and `-total` keys of a template question or a column are known inside a panel or row object
+  too: in a `defaultValue` / `defaultPanelValue` / `defaultRowValue` and in `{panel.matrix1-total.col1}`.
+* **The condition of an inArray call.** `sumInArray({m1}, 'col1', '{col1} > 5')` runs its
+  third (or fourth, after a return column) argument as a condition over every row of `m1`, so
+  that condition becomes a site of its own, under the path `<property>.inArray[<n>]`, where `n`
+  counts the filters of the expression in order - one per call, or one per checked branch of an
+  `iif(...)` that picks the filter (see below). It gets every check a condition gets (syntax, references, choices, types, contradictions); its
+  findings carry no fix, because the document has no property of its own for it. A filter that
+  never holds excludes items without making the enclosing question or page unreachable.
+  * **Both forms.** The filter may be a string (`'{col1} > 5'`) or an operand
+    (`{product} = 'P-100'`); only the second can compare with a string, since the quotes do not
+    nest. The runtime runs the operand's source text per item, and the linter checks that text
+    exactly as it checks the string. The enclosing expression's rules leave the operand alone,
+    so a name in it is never read as a survey name. The first argument (`{m1}`) is still read
+    by the enclosing expression.
+  * **Item first, then the survey.** A name resolves against the item's data and, when the item
+    has no such field, against the survey - never against the scope of the expression that holds
+    the call. A column or template question wins over a survey question of the same name, and
+    its choices and type are the ones checked. `{row.col}` / `{panel.q}` name nothing in a
+    filter, wherever the call sits, and are reported with a hint to drop the prefix. The runtime
+    falls back per item: an item that lacks the key (an empty cell) reads the survey's value. A
+    survey name read inside a string filter is no dependency of the expression, so changing that
+    question alone does not re-run it; the operand form re-runs, and `cycle/calculated-value`
+    counts the names it reads as the expression's own.
+  * **An operand that may give a string.** The runtime first evaluates the operand in the scope
+    of the enclosing expression. A string result is taken as the filter's text; anything else
+    makes it run the operand's source text per item. So an operand is checked as a filter only
+    when it cannot give a string there:
+    * a comparison, `!`, `empty`/`notempty`, a function registered with `returnType: "boolean"`;
+    * a name that resolves nowhere in the enclosing scope (`{approved}`, an item field), or a
+      constant that is no string;
+    * `and`/`or`, arithmetic and `iif(...)` built of such operands (the `iif` condition aside).
+
+    An operand that may give a string - it reads a name of the enclosing scope, holds a string
+    constant, or calls another function - runs as the data decides. When it reads an item field
+    too (`{label} or {approved}`), it is not analysed at all; otherwise it stays a part of the
+    enclosing expression and is checked there (a bare `{filterText}`). In an `iif(...)` that
+    has a string branch, the condition stays in the enclosing expression and each branch is
+    taken apart on its own: a string branch, or one that cannot give a string, is a filter of
+    its own; any other branch follows the rule above. The runtime counts an item only when the
+    filter gives `true`, so arithmetic as a filter is reported as not a boolean.
+  * **Items the linter does not know.** When the first argument names no matrix or dynamic
+    panel - a host variable from `knownVariables`, or a name that does not resolve - the item
+    fields are unknown. The filter's names, choice values, types and contradictions are then
+    not checked, survey names included, because they cannot be told apart from item fields. An
+    unknown function in it is still reported.
+  * **A call nested in a filter** is taken apart from that filter's site, under
+    `<property>.inArray[<n>].inArray[<m>]`.
+* **Item-level conditions.** `choicesVisibleIf`, `choicesEnableIf`, `rowsVisibleIf` and
+  `columnsVisibleIf` are evaluated with an item frame, so the legitimate "filter my own items
+  by my own value" idiom is not reported as a self reference.
+* **Constant sources.** A calculated value or an `expression` question whose expression contains
+  no answer and no function call has one value, known while authoring, so a condition reading it
+  is decided too: `visibleIf: "{c1} = 5"` against `"expression": "1 + 1"` never holds. Chains are
+  followed (a source built on another source), and a branch that settles decides the whole
+  condition — a false `and` branch sinks it whatever the other branch depends on. A source is
+  disqualified when a trigger can write to it, when it carries a `defaultValue` or a
+  `setValueExpression`, when its name is declared twice, or when it sits inside a matrix or a
+  dynamic panel, where the name is not what the reference addresses. A source that can be hidden
+  proves "never holds" but not "always holds": under `clearInvisibleValues: "onHidden"` the value
+  is gone. The folded value also reaches `expression/unknown-choice` and
+  `expression/type-mismatch`, so `{q1} = {c1}` is checked the way `{q1} = 'zzz'` is.
+* **Sets of values.** A question whose JSON lists every value it can hold — `choices`,
+  `rateValues`, the `columns` a single-choice matrix row answers with, the `valueTrue`/`valueFalse`
+  pair of a boolean — is checked from both sides: a condition comparing it to something outside
+  that set (`expression/unknown-choice`), and a value the JSON itself writes into it
+  (`value/not-a-choice`). The set is used only when it is exhaustive, so `choicesByUrl`,
+  `choicesLazyLoadEnabled`, `choicesFromQuestion` and a question with no listed choice at all are
+  left alone. A `defaultValue` outside the choices is a deliberate legacy value, so it widens what
+  a *condition* may compare against — but it is exactly what `value/not-a-choice` reports, which
+  is why the domain itself does not carry it.
+* **Bounds.** A question that keeps its value between two bounds — `min`/`max` on a numeric or
+  date `text`, `rateMin`/`rateMax`/`rateCount` on a rating, `min`/`max` on a slider — rules out
+  the comparisons no allowed value satisfies: `visibleIf: "{age} > 10"` against `max: 5` never
+  holds. These are not merely validators — `canSetValueToSurvey` refuses to write an out-of-range
+  value into the survey data — but the reasoning runs one way only: an unanswered question makes
+  any comparison false, so bounds can prove that a condition *never* holds and never that it
+  always does. `inputType: "time"` and `"week"` are left out, since the runtime compares them
+  with its own arithmetic, and so is a bound given as `minValueExpression`/`maxValueExpression`.
+* **Conditions that contradict themselves.** Within one `and` chain, two requirements on the
+  same reference that cannot both hold — two different values, a value and its negation,
+  `empty` next to `notempty` or next to a value, a lower bound at or above an upper one, a value
+  outside a bound the same condition states — make the condition unreachable. Only an `and`
+  chain is taken apart: the branches of an `or` are alternatives. Tautologies are deliberately
+  not reported: `{q} = 'a' or {q} <> 'a'` is false for an unanswered question, so it is not
+  always true. The three mechanisms compose without knowing about each other, because each of
+  them settles a leaf of the same three-valued walk: `{age} > 3 and {age} > 10` against
+  `max: 5` is caught by the bounds of the question, not by the two conjuncts.
+* **Text piping.** A `{name}` written in a localizable string — a question or page `title`, a
+  `description`, a `templateTitle`, an `html`, a choice `text`, a matrix `cellHint`, the survey
+  `completedHtml` — is resolved through the very same chain an expression reference is, scope
+  prefixes included: a dynamic-panel `templateTitle` resolves `{panel.q1}` and `{panelIndex}`,
+  a matrix `singleInputTitleTemplate` resolves `{rowIndex}` and `{row.col}`, and a bare
+  `{q1}` inside a template gets the *reference it as `{panel.q1}`* hint. The string is scanned
+  with `TextPreProcessor`, the runtime's own scanner, so custom
+  `settings.expressionVariableDelimiters` apply and `{a:b}` is not a reference. Two kinds of
+  `{...}` are deliberately not references: a format placeholder (`{0}`, `{1}` — an `expression`
+  question `format`, a `minErrorText`, a column `totalFormat`) and a property the runtime takes
+  apart itself instead of piping it (`questionTitleTemplate` and its `{no}`/`{title}`/`{require}`,
+  listed in `catalog.ts`). A per-locale object is walked per locale, so the finding points at
+  `title.de`. Three piped properties are not localizable and are scanned by name:
+  `navigateToUrl`, and the `url`/`path` pair of `choicesByUrl` — a name missing from either of
+  those two blanks both, so the request never runs at all.
+* **Names inside function calls.** Several functions take an element name as a written-out
+  string, and the runtime resolves it at call time, so a typo turns the call into `undefined`,
+  `0` or `""` rather than failing. The second argument of `sumInArray`/`minInArray`/
+  `maxInArray`/`countInArray`/`avgInArray` — and its third, when that one is a column rather
+  than the condition, split with the runtime's own `isReturnColumnParam` — is resolved against
+  the columns or template questions of the element the first argument names, exactly as
+  `getArrayContextVarNames` does in the core. `displayValue` and `propertyValue` resolve their
+  argument the way `getQuestionValueByContext` does, walking up from the owner, so a sibling
+  column answers its bare name; `getComment` and `isContainerReady` resolve theirs against the
+  survey. A computed argument (`displayValue({q1})`) names nothing at lint time and is left
+  alone, and so is an inArray call whose first argument does not resolve — that one is already
+  reported on its own.
+* **Typos.** Unresolved names, types, functions and trigger targets carry a `suggestion` — the
+  closest known name by edit distance.
+* **Host variables and the variable definition.** A host application injects values through
+  `survey.setVariable()` — a customer tier, a role, a number of employees — and the survey reads
+  them in `visibleIf`, `defaultValueExpression` and calculated values. Those names appear nowhere
+  in the survey JSON, so without help a legitimate host variable and a typo look the same. The
+  **variable definition** (`options.variablePresets.definition`, or `options.variableDefinitionModel`)
+  is one ordinary survey JSON whose **top-level** questions are the variables: the data key a
+  question produces — its `valueName` when set, otherwise its `name` — is the variable name, and its
+  type, choices and validators are everything that is known about it. Everything about the concept
+  lives in `survey-core` (`SurveyVariablePresets`, `src/variablePresets.ts`); the linter declares
+  nothing of its own and derives nothing itself. Names match **case-insensitively**, because
+  `setVariable` lower-cases what it stores. A question inside a dynamic panel template or a matrix
+  cell is not a variable — the panel or the matrix itself is the one variable that holds the array.
+  A definition variable then resolves like an `options.knownVariables` entry (same `resolvedKind`,
+  so every rule that accepts a known variable accepts it), and joins the pool a `suggestion` is
+  drawn from, so `{teir}` gets *Did you mean "tier"?*. A dotted reference into one
+  (`{profile.city}`) resolves on its root; the sub-path is not validated. What a **preset** value is
+  checked against is the definition's own verdict, produced by a model of the definition inside
+  survey-core — not by a static approximation of it here.
+  The definition is a *different document* from the linted one: the linter still constructs no
+  model of the survey it analyses (the no-model rule of #11693 is about the linted document), and
+  the definition is the host's own, already normalized by the host's build. Lint it separately —
+  `lintSurvey(definitionJson)` — to find *its* defects; `lintSurvey(survey, { variablePresets })`
+  never reports on it.
+* **The serializer is the source of truth.** Element types, expression-bearing properties,
+  container array keys and trigger target properties are read from the `Serializer` at lint
+  time, so a property or a type added to the core — or registered by the application — is
+  analysed without touching this folder. `catalog.ts` holds only the handful of semantics the
+  metadata cannot carry, and `tests/linter/linter-catalog-drift.tests.ts` guards it.
+
+## Relation to `Base.validateExpressions`
+
+`validateExpressions` reports four kinds of error over a **built model**. The linter reports the
+same four over the **authored JSON**: syntax errors as `expression/syntax`, unknown functions as
+`expression/unknown-function`, unknown variables as `reference/unknown`, and semantic errors as
+`expression/contradiction` (the condition is always false) or `expression/meaningless-condition`
+(everything else). The semantic verdict is taken from the core itself — the rules call
+`Operand.addConditionSemanticErrors` rather than reimplementing it — so the two stay in step,
+including the deliberate silence on a lone boolean constant: `visibleIf: "false"` is how an author
+switches an element off, not a defect, and nothing reports it. A lone reference to a constant
+source (`visibleIf: "{c1}"`) is left alone for the same reason. The one exception is opt-in:
+`expression/no-reference` is off by default and reports such a condition only for a host that
+turns it on (Survey Creator does so for the conditions its AI assistant writes).
+
+`validateExpressions` also walks only the properties the serializer marks as expressions, so text
+piping is outside it entirely: an unknown name in a `title` is reported here and nowhere else.
+
+Where the linter goes further than `validateExpressions` is the constant sources above: the core
+judges one expression at a time, while the linter has the whole JSON and can tell that `{c1}` is
+always `2`. Such findings carry their own reasons (`alwaysFalseViaConstants`,
+`alwaysTrueViaConstants`), and the core's verdict wins whenever it has one — it names the more
+specific defect.
+
+`expression/contradiction` is named for the whole defect rather than for one way of establishing
+it, which is why the satisfiability reasoning of the reachability group of #11693 extended it
+under new reasons instead of needing a new rule id.
+
+## Limits
+
+* No runtime data: a defect that appears only for a particular set of answers is out of scope,
+  and a `cycle/trigger` loop may be unreachable — the message says so. A condition decided
+  entirely by what is known while authoring is the exception: it has no answers to depend on, so
+  it is evaluated. The satisfiability reasoning stays deliberately shallow — one reference at a
+  time, within one `and` chain — so a contradiction spread across several references, or one that
+  only holds for whole numbers, is not reported.
+* A custom question type without a `components` entry is analysed as an opaque element.
+* A custom trigger type is not covered by the target and cycle checks.
+* A dotted sub-path into a definition variable (`{profile.city}`) is not validated — only its
+  root is resolved, exactly as for an `options.knownVariables` entry.
+* Asynchronous validators of the variable definition are not awaited (inherited from the core
+  companion): a preset verdict is the synchronous one.
+* A `variableDefinitionModel` is left holding the values of the last preset the run checked, and
+  its `data` is cleared and reassigned per preset, so it is not a model to show someone at the
+  same time.
+
+## Example output
+
+```
+ERROR  reference/unknown
+  "frut" is not found - no question, panel, page, calculated value, or variable with that name exists. Did you mean "fruit"? (in "{frut} = 'apple'")
+
+  visibleIf: {frut} = 'apple'
+  at elements[1].visibleIf
+
+  No case: the reference cannot be evaluated.
+
+WARN  expression/unknown-choice
+  The condition compares "fruit" to "aple" - not among its choices. Available: "apple", "banana". (in "{fruit} = 'aple'")
+
+  visibleIf: {fruit} = 'aple'
+  at elements[2].visibleIf
+
+  Reproduction: No selectable choice of "fruit" equals "aple".
+    {
+      "steps": [
+        { "set": { "fruit": "apple" } },
+        { "set": { "fruit": "banana" } },
+        { "expect": { "visible": { "note": true } } }
+      ]
+    }
+
+1 error, 1 warning, 0 info
+```
+
+## Source layout
+
+| File | Responsibility |
+| --- | --- |
+| `index.ts` | `lintSurvey`, `getRules`, the run order and the result assembly. |
+| `types.ts` | The public interfaces (options, findings, result). |
+| `walker.ts` | Walks the JSON once and builds the index: elements, containers, name/valueName maps, calculated values, triggers, expression sites and their scopes. |
+| `symbols.ts` | The index data structures, including the case-insensitive maps used for user-supplied names. |
+| `metadata.ts` | Everything read from the `Serializer` at runtime (types, expression properties, trigger definitions, container keys). |
+| `catalog.ts` | The few linter semantics the serializer metadata cannot express. |
+| `lint-settings.ts` | Snapshot of the `settings` the analysis depends on, taken once per run. |
+| `expression-utils.ts` | Expression parsing, reference splitting and reference classification (resolved / unknown / scoped / skipped), the operator sets, and the constant-value extraction the analysis modules share. |
+| `value-types.ts` | Per-question value shape and choice information. |
+| `value-domain.ts` | The set of values a reference can hold, or the bounds it stays inside. |
+| `value-range.ts` | Whether a comparison against those bounds can hold at all. |
+| `satisfiability.ts` | Conjuncts of one `and` chain that demand contradictory things of the same reference. |
+| `constant-env.ts` | The values known at authoring time: calculated values and expression questions nothing else writes to. |
+| `condition-eval.ts` | Three-valued evaluation of a condition over the modules above. |
+| `graph.ts`, `levenshtein.ts` | Cycle detection and typo suggestions. |
+| `cycle-report.ts`, `message-utils.ts` | The shared halves of the cycle rules and of the sentences rules build. |
+| `fix-apply.ts` | `applyFix` — one fix onto a copy of the JSON. |
+| `fix-utils.ts` | The four edit shapes a rule's repair takes. |
+| `new-name.ts` | The name a fix gives a new element, asked of the host first. |
+| `rule.ts` | `ILintRule`, `LintContext` (site iteration, memoized verdicts and domains, `report`), severity resolution and suppression matching. |
+| `reasons.ts` | The frozen `(ruleId, reason)` tables a host localizes on. |
+| `rules/` | One file per rule, registered in `rules/index.ts`. |
+| `renderer.ts` | `renderFindings` — the text report. |
+
+### Adding a rule
+
+1. Create `rules/<id>.ts` exporting an `ILintRule` with a namespaced `id` (`"area/defect"`),
+   a `defaultSeverity` and a `run(ctx)` that reads `ctx.index` / `ctx.metadata` and calls
+   `ctx.report(...)`. Do not read the JSON directly when the walker already indexed what you
+   need, and never construct a model object.
+2. Register it in `rules/index.ts`.
+3. Give every finding a `path`, a message a form author can act on, and the same facts in
+   `messageData`; add a `suggestion` when the defect looks like a typo and a `reproduction`
+   when the failure can be demonstrated with a few `set` steps.
+4. Add an entry for the rule to `SurveyLintReasons` in `reasons.ts`, with one value per branch
+   of its message, and pass it as `reason`. Interpolate nothing the finding does not also
+   report: a host composes the localized sentence from `(ruleId, reason)` and `messageData`.
+5. Add tests under `tests/linter/`.
+
+## Build and test
+
+```bash
+npm run build          # survey-core itself — required first
+npm run build:linter   # rollup -c rollup.linter.config.mjs (part of npm run build:all)
+npx vitest run tests/linter
+```
+
+`build:linter` resolves `survey-core` types through `./build`, so it fails on a clean
+checkout unless `npm run build` ran before it.

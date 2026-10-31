@@ -5,6 +5,58 @@ export var japaneseSurveyStrings = {
   pagePrevText: "前へ",
   // "Next"
   pageNextText: "次へ",
+  // [Auto-translated] "First"
+  pageFirstText: "まず",
+  // [Auto-translated] "Last"
+  pageLastText: "ラスト",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "セレクトページ",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "{0}で並べ替え",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "ハイ - ロー",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "低 - 高",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "アルファベット、A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "アルファベット、Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "最新から",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "最年長の先",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "{0}順に並べ替え",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}、そして{1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "並べ替え",
+  // [Auto-translated] "Default"
+  sortDefaultText: "デフォルト",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "ソートフィールド",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ソート順",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "ソートレベルを追加",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "ソートレベル{0}を削除してください",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "ソートフィールド{0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "並べ替え順 {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "あらゆるレベルの表示",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "新しい追加",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "移動ソートレベル{0}",
   // "Complete"
   completeText: "完了",
   // "Preview"
@@ -37,6 +89,8 @@ export var japaneseSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1}問回答済",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "質問{0}{1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "アンケートに表示可能な要素がありません。",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var japaneseSurveyStrings = {
   value: "値",
   // "Response required."
   requiredError: "回答が必要です",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "値が誤っています。",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "この値には未知の鍵が含まれています:{0}。",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "回答が必要です：少なくとも1つの質問に答えてください。",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var japaneseSurveyStrings = {
   noUploadFilesHandler: "ファイルはアップロードできません。「onUploadFiles」イベントのハンドラーを追加してください。",
   // "Response required: enter another value."
   otherRequiredError: "回答が必要です：他の値を入力してください。",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "「{0}」という値は選択肢の一つではありません。",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "ファイルをアップロード中です。しばらくしてから再度お試し下さい",
   // "Loading..."
@@ -131,6 +191,8 @@ export var japaneseSurveyStrings = {
   addRow: "追加行",
   // "Remove"
   removeRow: "削除",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "{0}列を移動してください",
   // [Auto-translated] "There are no rows."
   noRowsText: "行がありません。",
   // [Auto-translated] "Row {rowIndex}"

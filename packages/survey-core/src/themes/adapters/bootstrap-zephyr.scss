@@ -35,8 +35,8 @@
   --sjs2-border-effect-component-action-brand-tertiary-surface-hovered:
     inset 0px 0px 0px 1px var(--bs-primary), 0 1px 2px rgba(0, 0, 0, 0.05);
 
-  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px
-    var(--sjs2-color-component-formbox-default-border), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --sjs2-border-effect-component-formbox-default:
+    inset 0px 0px 0px 1px var(--sjs2-color-component-formbox-default-border), 0 1px 2px rgba(0, 0, 0, 0.05);
 
   /* $form-label-font-weight: 500 */
   --sjs2-typography-font-weight-component-label-content: 500;
@@ -60,6 +60,8 @@
   --sjs-bs-card-cap-padding-y: var(--bs-card-cap-padding-y, 1rem);
   --sjs-bs-card-cap-padding-x: var(--bs-card-cap-padding-x, 1.5rem);
 
+  --sjs-bs-matrix-cell-padding: 1rem;
+
   --sjs2-typography-font-weight-component-question-title: 500;
 
   --sjs2-typography-font-weight-component-label-content: 400;
@@ -80,24 +82,15 @@
   box-shadow: 0 0 0 1px #dfe0e1;
 }
 
-.sd-table.sd-table.sd-table>tbody>tr {
-  &>th, &>td {
-    &:where(:not(.sd-table__cell--error)) {
-      padding: 1rem;
-      &.sd-table__cell--row-text span {
-        font-weight: 400;
-      }
-    }
-  }
+.sd-table__cell--header,
+.sd-table__cell--row-text {
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: calc(0.875rem * 1.5);
 }
-.sd-table.sd-table.sd-table>thead>tr {
-  &>th, &>td {
-    padding: 1rem;
-    &.sd-table__cell--header span {
-      font-weight: 400;
-    }
-  }
-}
+
 .sd-table {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }

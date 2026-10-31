@@ -5,6 +5,58 @@ export var czechSurveyStrings = {
   pagePrevText: "Předchozí",
   // "Next"
   pageNextText: "Další",
+  // [Auto-translated] "First"
+  pageFirstText: "První",
+  // [Auto-translated] "Last"
+  pageLastText: "Poslední",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vybrat stránku",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Seřadit podle {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Vysoké - Nízké",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nízké - Vysoké",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nejnovější poprvé",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Nejstarší první",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Seřazeno podle {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, pak do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Seřadit podle",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Výchozí stav",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort field",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Pořadí třídění",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Přidat úroveň třídění",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Odstraňte úroveň třídění {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sortovací pole {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Pořadí třídění {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Zobrazit všechny úrovně sortování",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Přidat nové",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Přesun třídění úrovně {0}",
   // "Complete"
   completeText: "Dokončit",
   // "Preview"
@@ -37,6 +89,8 @@ export var czechSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Zodpovězené otázky: {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Otázka {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Průzkum neobsahuje žádné otázky.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var czechSurveyStrings = {
   value: "hodnota",
   // "Response required."
   requiredError: "Odpovězte prosím na otázku.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Hodnota je nesprávná.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Hodnota obsahuje neznámé klíče: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Odpovězte prosím alespoň jednu otázku.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var czechSurveyStrings = {
   noUploadFilesHandler: "Soubory nelze nahrát. Přidejte obslužnou rutinu pro událost 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Zadejte prosím jinou hodnotu.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Hodnota '{0}' není jednou z dostupných možností.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Váš soubor se nahrává. Zkuste to prosím za několik sekund.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var czechSurveyStrings = {
   addRow: "Přidat řádek",
   // "Remove"
   removeRow: "Odstranit",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Přesuňte řadu {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Neexistují žádné řádky.",
   // [Auto-translated] "Row {rowIndex}"
@@ -246,7 +308,25 @@ export var czechSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Indikátor průběhu",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Stránka {0}"
+  progressbarPage: "Stránka {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "r",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "h",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "H",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });

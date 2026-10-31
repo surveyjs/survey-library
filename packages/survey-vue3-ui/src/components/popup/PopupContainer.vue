@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="model.hasBeenShown"
     tabindex="-1"
     class="sv-popup"
     v-bind:class="model.styleClass"

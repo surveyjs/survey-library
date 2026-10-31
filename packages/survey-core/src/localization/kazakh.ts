@@ -5,6 +5,58 @@ export var kazakhStrings = {
   pagePrevText: "Артқа",
   // "Next"
   pageNextText: "Келесі",
+  // [Auto-translated] "First"
+  pageFirstText: "Бірінші",
+  // [Auto-translated] "Last"
+  pageLastText: "Соңғысы",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Таңдау беті",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сұрыптау {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Жоғары - Төмен",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Төмен - Жоғары",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Алфавит, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Алфавит, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Ең жаңа бірінші",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Ең көне бірінші",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Сұрыпталған {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, сосын {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сұрыптау",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Әдепкі",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Сұрыптау өрісі",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Сұрыптау тәртібі",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Сұрыптау деңгейін қосу",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Сұрыптау деңгейін алып тастау {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сұрыптау өрісі {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сұрыптау тәртібі {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Барлық сұрыптау деңгейлерін көрсету",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Жаңа қосу",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Сұрыптау деңгейіне жылжытыңыз {0}",
   // "Complete"
   completeText: "Дайын",
   // "Preview"
@@ -37,6 +89,8 @@ export var kazakhStrings = {
   panelDynamicTabTextFormat: "Панель {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} сұрақтарға жауап",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{0} сұрақ {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Бір де бір сұрақ жоқ.",
   // "Thank you for completing the survey"
@@ -55,6 +109,10 @@ export var kazakhStrings = {
   value: "мәні",
   // "Response required."
   requiredError: "Өтінеміз, сұраққа жауап беріңіз.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Мәні дұрыс емес.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Мәнде белгісіз кілттер бар: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Өтінеміз, кем дегенде бір сұраққа жауап беріңіз.",
   // "Response required: answer questions in all rows."
@@ -111,6 +169,8 @@ export var kazakhStrings = {
   noUploadFilesHandler: "Файлдарды кері жүктеу мүмкін емес. 'OnUploadFiles' оқиғасына өңдеушіні қосуыңызды сұраймыз.",
   // "Response required: enter another value."
   otherRequiredError: "Өтінеміз, “Басқа” жолына деректі енгізіңіз",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "'{0}' мәні қолжетімді таңдаулардың бірі емес.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Сіздің файлыңыз жүктеліп жатыр. Бірнеше секунд тосып, қайтадан байқап көріңіз.",
   // "Loading..."
@@ -131,6 +191,8 @@ export var kazakhStrings = {
   addRow: "Жолды қосу",
   // "Remove"
   removeRow: "Өшіру",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Қатарға жылжы {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Қатарлар жоқ.",
   // [Auto-translated] "Row {rowIndex}"

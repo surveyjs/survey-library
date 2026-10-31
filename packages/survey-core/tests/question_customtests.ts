@@ -10,6 +10,7 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
@@ -4032,6 +4033,215 @@ describe("custom questions", () => {
       description: { default: "Description", de: "Beschreibung" },
       myChoices: [{ value: 1, text: { default: "item en", de: "item de" } }]
     });
+    ComponentCollection.Instance.clear();
+  });
+  test("Specialized question type properties do not appear on matrix columns, inheritBaseProps: true, Bug#11806", () => {
+    ComponentCollection.Instance.add({
+      name: "imageupload",
+      inheritBaseProps: true,
+      questionJSON: { type: "file" }
+    });
+    matrixDropdownColumnTypes["imageupload"] = {};
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 1,
+          columns: [{ name: "col1", cellType: "imageupload" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const column = matrix.columns[0];
+    const props = Serializer.getDynamicPropertiesByObj(column);
+    const propNames = props.map(prop => prop.name);
+    expect(propNames.indexOf("allowMultiple") > -1, "allowMultiple property is in the column dynamic properties").toBeTruthy();
+    expect(propNames.indexOf("maxSize") > -1, "maxSize property is in the column dynamic properties").toBeTruthy();
+
+    column["allowMultiple"] = true;
+    column["maxSize"] = 1000;
+    expect(column.templateQuestion["allowMultiple"], "templateQuestion.allowMultiple").toBe(true);
+    expect(column.templateQuestion["maxSize"], "templateQuestion.maxSize").toBe(1000);
+    expect(column.toJSON(), "column.toJSON()").toEqual({ name: "col1", cellType: "imageupload", allowMultiple: true, maxSize: 1000 });
+
+    const cellQuestion = <QuestionCustomModel>matrix.visibleRows[0].cells[0].question;
+    expect(cellQuestion.getType(), "cell question type").toBe("imageupload");
+    const contentQuestion = <QuestionFileModel>cellQuestion.contentQuestion;
+    expect(contentQuestion.allowMultiple, "contentQuestion.allowMultiple").toBe(true);
+    expect(contentQuestion.maxSize, "contentQuestion.maxSize").toBe(1000);
+
+    const survey2 = new SurveyModel(survey.toJSON());
+    const matrix2 = <QuestionMatrixDynamicModel>survey2.getQuestionByName("matrix");
+    const column2 = matrix2.columns[0];
+    expect(column2["allowMultiple"], "load from json, column.allowMultiple").toBe(true);
+    expect(column2["maxSize"], "load from json, column.maxSize").toBe(1000);
+    const contentQuestion2 = <QuestionFileModel>(<QuestionCustomModel>matrix2.visibleRows[0].cells[0].question).contentQuestion;
+    expect(contentQuestion2.allowMultiple, "load from json, contentQuestion.allowMultiple").toBe(true);
+    expect(contentQuestion2.maxSize, "load from json, contentQuestion.maxSize").toBe(1000);
+
+    delete matrixDropdownColumnTypes["imageupload"];
+    ComponentCollection.Instance.clear();
+  });
+  test("Raise onDynamicPanelValueChanged on changing a custom/composite question value via its inner question", () => {
+    ComponentCollection.Instance.add({
+      name: "test_composite",
+      elementsJSON: [{ type: "rating", name: "answer" }, { type: "text", name: "comment" }]
+    });
+    ComponentCollection.Instance.add({
+      name: "test_custom",
+      questionJSON: { type: "dropdown", choices: [1, 2, 3] }
+    });
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "panel", panelCount: 1,
+        templateElements: [{ type: "test_composite", name: "q1" }, { type: "test_custom", name: "q2" }] }]
+    });
+    const logs = new Array<string>();
+    survey.onDynamicPanelValueChanged.add((_, options) => {
+      logs.push(options.name + ":" + JSON.stringify(options.value) + ":" + JSON.stringify(options.oldValue) + ":" + options.panelIndex);
+    });
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("panel")).panels[0];
+    const q1 = <QuestionCompositeModel>panel.getQuestionByName("q1");
+    const q2 = <QuestionCustomModel>panel.getQuestionByName("q2");
+
+    q1.contentPanel.getQuestionByName("answer").value = 3;
+    expect(logs, "composite, set the first inner question").toEqual(["q1:{\"answer\":3}:undefined:0"]);
+    q1.contentPanel.getQuestionByName("comment").value = "abc";
+    expect(logs[1], "composite, set the second inner question").toBe("q1:{\"answer\":3,\"comment\":\"abc\"}:{\"answer\":3}:0");
+    q1.value = { answer: 4 };
+    expect(logs[2], "composite, set the value directly").toBe("q1:{\"answer\":4}:{\"answer\":3,\"comment\":\"abc\"}:0");
+    expect(logs, "composite, the event is raised once per change").toHaveLength(3);
+
+    q2.contentQuestion.value = 2;
+    expect(logs[3], "custom, set the inner question").toBe("q2:2:undefined:0");
+    q2.value = 3;
+    expect(logs[4], "custom, set the value directly").toBe("q2:3:2:0");
+    expect(logs, "custom, the event is raised once per change").toHaveLength(5);
+    expect(survey.data, "survey.data").toEqual({ panel: [{ q1: { answer: 4 }, q2: 3 }] });
+
+    ComponentCollection.Instance.clear();
+  });
+  test("Composite question keeps a panel frame in a panelless theme, Bug#11895", () => {
+    ComponentCollection.Instance.add({
+      name: "fullname_frame",
+      elementsJSON: [
+        { type: "text", name: "first" },
+        { type: "text", name: "last" }
+      ]
+    });
+    const json = {
+      elements: [
+        { type: "text", name: "email" },
+        { type: "fullname_frame", name: "name" },
+        {
+          type: "panel",
+          name: "namePanel",
+          elements: [
+            { type: "text", name: "panelFirst" },
+            { type: "fullname_frame", name: "nestedName" }
+          ]
+        }
+      ]
+    };
+    const survey = new SurveyModel(json);
+    survey.applyTheme({ isPanelless: true });
+    const email = survey.getQuestionByName("email");
+    const composite = <QuestionCompositeModel>survey.getQuestionByName("name");
+    const nested = <QuestionCompositeModel>survey.getQuestionByName("nestedName");
+    const panel = survey.getPanelByName("namePanel");
+
+    expect(email.cssRoot.indexOf("sd-question--with-frame") > -1, "plain question keeps the frame").toBe(true);
+    expect(composite.cssRoot.indexOf("sd-question--with-frame") > -1, "composite keeps the panel frame").toBe(true);
+    expect(composite.cssRoot.indexOf("sd-composite") > -1, "composite marker").toBe(true);
+    expect(panel.getContainerCss().indexOf("sd-panel--with-frame") > -1, "panel keeps its frame").toBe(true);
+    expect(nested.cssRoot.indexOf("sd-question--nested") > -1, "nested composite stays nested").toBe(true);
+    expect(nested.cssRoot.indexOf("sd-question--with-frame") > -1, "nested composite does not get the outer frame").toBe(false);
+
+    ComponentCollection.Instance.remove("fullname_frame");
+  });
+  test("inheritBaseProps: true keeps description and requiredErrorText in toJSON, Bug#11973", () => {
+    ComponentCollection.Instance.add({
+      name: "x-file",
+      inheritBaseProps: true,
+      questionJSON: { type: "file", title: "Document" }
+    });
+    const survey = new SurveyModel({ elements: [{ type: "x-file", name: "q" }] });
+    const q = survey.getQuestionByName("q");
+    q.title = "Beep";
+    q.description = "Desc";
+    q.requiredErrorText = "Err";
+    expect(q.toJSON()).toEqual({ name: "q", title: "Beep", description: "Desc", requiredErrorText: "Err" });
+
+    ComponentCollection.Instance.add({
+      name: "x-file-notitle",
+      inheritBaseProps: true,
+      questionJSON: { type: "file" }
+    });
+    const surveyNoTitle = new SurveyModel({ elements: [{ type: "x-file-notitle", name: "q" }] });
+    const qNoTitle = surveyNoTitle.getQuestionByName("q");
+    expect(qNoTitle.toJSON(), "unset localizable props stay omitted").toEqual({ name: "q" });
+    qNoTitle.title = "Beep";
+    qNoTitle.description = "Desc";
+    expect(qNoTitle.toJSON(), "title serializes without questionJSON.title").toEqual({ name: "q", title: "Beep", description: "Desc" });
+
+    ComponentCollection.Instance.add({
+      name: "x-text",
+      inheritBaseProps: true,
+      questionJSON: { type: "text" }
+    });
+    const surveyText = new SurveyModel({ elements: [{ type: "x-text", name: "q" }] });
+    const qText = surveyText.getQuestionByName("q");
+    qText.placeholder = "Type here";
+    expect(qText.toJSON(), "inner-only placeholder stays serialized").toEqual({ name: "q", placeholder: "Type here" });
+
+    ComponentCollection.Instance.add({
+      name: "x-radio",
+      inheritBaseProps: ["commentText"],
+      questionJSON: { type: "radiogroup", choices: [1, 2] }
+    });
+    const surveyRadio = new SurveyModel({ elements: [{ type: "x-radio", name: "q" }] });
+    const qRadio = surveyRadio.getQuestionByName("q");
+    qRadio.commentText = "Leave a comment";
+    expect(qRadio.toJSON().commentText, "array inherit writes commentText on the inner question").toBe("Leave a comment");
+
+    ComponentCollection.Instance.add({
+      name: "x-file-plain",
+      questionJSON: { type: "file", description: "From component" }
+    });
+    const surveyPlain = new SurveyModel({ elements: [{ type: "x-file-plain", name: "q" }] });
+    const qPlain = surveyPlain.getQuestionByName("q");
+    expect(qPlain.toJSON(), "questionJSON description is not copied into the instance").toEqual({ name: "q" });
+    qPlain.description = "Desc";
+    expect(qPlain.toJSON().description, "description without inheritBaseProps").toBe("Desc");
+
+    ComponentCollection.Instance.clear();
+  });
+  test("Single: onCreated reads the panels of an inner dynamic panel with minPanelCount", () => {
+    ComponentCollection.Instance.add({
+      name: "x-rules",
+      questionJSON: { type: "paneldynamic", minPanelCount: 1, templateElements: [{ type: "text", name: "x" }] },
+      onCreated(question: QuestionCustomModel) {
+        (<QuestionPanelDynamicModel>question.contentQuestion).panels.forEach(p => p.questions.forEach(q => q.allowRootStyle = false));
+      }
+    });
+    const survey = new SurveyModel({ elements: [{ type: "x-rules", name: "q" }] });
+    const q = <QuestionCustomModel>survey.getQuestionByName("q");
+    expect((<QuestionPanelDynamicModel>q.contentQuestion).panelCount, "the inner dynamic panel has its minimum panel").toBe(1);
+    ComponentCollection.Instance.clear();
+  });
+  test("Composite: onCreated sets an inner question value", () => {
+    ComponentCollection.Instance.add({
+      name: "x-name",
+      elementsJSON: [{ type: "text", name: "first" }, { type: "text", name: "last" }],
+      onCreated(question: QuestionCompositeModel) {
+        question.contentPanel.getQuestionByName("first").value = "John";
+      }
+    });
+    const survey = new SurveyModel({ elements: [{ type: "x-name", name: "q" }] });
+    const q = <QuestionCompositeModel>survey.getQuestionByName("q");
+    expect(q.contentPanel.getQuestionByName("first").value, "the inner value set in onCreated").toBe("John");
+    q.contentPanel.getQuestionByName("last").value = "Doe";
+    expect(survey.data, "later inner values still reach the survey").toEqual({ q: { first: "John", last: "Doe" } });
     ComponentCollection.Instance.clear();
   });
 });

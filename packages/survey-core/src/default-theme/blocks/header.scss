@@ -66,8 +66,9 @@
   // grid-auto-rows: min-content;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
+  --sd-header-column-gap: var(--sjs2-spacing-x600);
   row-gap: var(--sjs2-spacing-x150);
-  column-gap: var(--sjs2-spacing-x600);
+  column-gap: var(--sd-header-column-gap);
 }
 
 .sv-header--height-auto {

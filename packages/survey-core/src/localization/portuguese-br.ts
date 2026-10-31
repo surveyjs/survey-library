@@ -7,6 +7,58 @@ export var portugueseBrSurveyStrings = {
   pagePrevText: "Anterior",
   // [Auto-translated] "Next"
   pageNextText: "Próximo",
+  // [Auto-translated] "First"
+  pageFirstText: "Primeiro",
+  // [Auto-translated] "Last"
+  pageLastText: "Última",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selecionar Página",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordene por {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Alto - Baixo",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Baixo - Alto",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabeto, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabeto, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "O mais novo primeiro",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "O mais velho primeiro",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Organizado por {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, depois por {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ordenar por",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Padrão",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Campo de ordenação",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ordem de ordenação",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Adicionar nível de ordenação",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Remover o nível de ordenação {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Campo de ordenação {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordem de ordenação {0}",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Mostrar todos os níveis de tipo",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Adicionar Novo",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nível de ordenação de movimentos {0}",
   // [Auto-translated] "Complete"
   completeText: "Completar",
   // [Auto-translated] "Preview"
@@ -39,6 +91,8 @@ export var portugueseBrSurveyStrings = {
   panelDynamicTabTextFormat: "Painel {panelIndex}",
   // [Auto-translated] "Answered {0}/{1} questions"
   questionsProgressText: "Perguntas respondidas {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pergunta {0} de {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Não há página visível ou pergunta na pesquisa.",
   // "Thank you for completing the survey"
@@ -57,6 +111,10 @@ export var portugueseBrSurveyStrings = {
   value: "valor",
   // "Response required."
   requiredError: "Por favor, responda a pergunta.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "O valor está incorreto.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "O valor contém chaves desconhecidas: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Por favor, responda pelo menos uma pergunta.",
   // "Response required: answer questions in all rows."
@@ -113,6 +171,8 @@ export var portugueseBrSurveyStrings = {
   noUploadFilesHandler: "Os arquivos não podem ser carregados. Adicione um manipulador para o evento 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Por favor, informe o outro valor.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "O valor '{0}' não é uma das opções disponíveis.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Seu arquivo está sendo carregado. Por favor, aguarde alguns segundos e tente novamente.",
   // "Loading..."
@@ -133,6 +193,8 @@ export var portugueseBrSurveyStrings = {
   addRow: "Adicionar linha",
   // [Auto-translated] "Remove"
   removeRow: "Retirar",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mova a fila {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Não há filas.",
   // [Auto-translated] "Row {rowIndex}"

@@ -97,6 +97,14 @@ export class LocalizableString implements ILocalizableString {
     this.onChanged();
     this.onStringChanged.fire(this, {});
   }
+  // Notifies only when a value the text interpolates ({name}) has changed since it was rendered.
+  // A string nobody has rendered yet or one without placeholders is skipped.
+  public renderedTextChanged(): void {
+    if (this.renderedText === undefined) return;
+    const text = this.pureText;
+    if (!text || text.indexOf("{") < 0 || this.renderedText === this.calcText()) return;
+    this.strChanged();
+  }
   public get text(): string {
     return this.pureText;
   }

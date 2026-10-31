@@ -11,7 +11,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject, ValidationContext } from "./question";
+import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, INestedWalkOptions, NestedElementVisit, NestedWalkBuild, findInNestedWalk } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -19,7 +19,7 @@ import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable, Helpers } from "./helpers";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
@@ -71,6 +71,8 @@ export class MultipleTextEditorModel extends QuestionTextModel {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
  */
+const allEditors: INestedWalkOptions = { build: "none", visibleOnly: false };
+
 export class MultipleTextItemModel extends Base
   implements IValidatorOwner, ISurveyData, ISurveyImpl {
   private editorValue: MultipleTextEditorModel;
@@ -463,6 +465,12 @@ export class QuestionMultipleTextModel extends Question
   public getType(): string {
     return "multipletext";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
+  public getValueType(): QuestionValueType {
+    return "object";
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -479,6 +487,9 @@ export class QuestionMultipleTextModel extends Question
     return false;
   }
   public get isContainer(): boolean { return true; }
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    return this.getFirstNestedQuestionToFocus(withError) || super.getFirstQuestionToFocus(withError);
+  }
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
     super.onSurveyLoad();
@@ -568,11 +579,8 @@ export class QuestionMultipleTextModel extends Question
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.items.forEach(item => item.editor.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+  protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
+    return includeItSelf;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator);
@@ -617,8 +625,43 @@ export class QuestionMultipleTextModel extends Question
   public getChildErrorLocation(child: Question): string {
     return this.getQuestionErrorLocation();
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.reportUnknownProperties) return true;
+    Object.keys(val).forEach(key => {
+      if (this.isValueKeyKnown(key)) return;
+      context.addIssue("unknownProperty", key, val[key], this);
+    });
+    return true;
+  }
+  // The editors go with the question; the items are its definition.
+  public dispose(): void {
+    super.dispose();
+    this.items.forEach(item => item.editor.dispose());
+  }
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
+    return this.items.some(item => visit({ element: item.editor, role: "editor", segment: undefined, location: "nested", visible: true }));
+  }
+  protected hasValueKey(key: string): boolean {
+    return !!this.getItemByName(key);
+  }
+  protected clearIncorrectValuesCore(): void {
+    const val = this.value;
+    // A value of another shape, a string for example, has no items to keep: drop it as a whole.
+    if (!Helpers.isValueObject(val, true)) {
+      super.clearIncorrectValuesCore();
+      return;
+    }
+    const newValue: any = {};
+    Object.keys(val).forEach(key => {
+      if (this.isValueKeyKnown(key)) {
+        newValue[key] = val[key];
+      }
+    });
+    this.value = newValue;
   }
   supportAutoAdvance(): boolean {
     for (var i = 0; i < this.items.length; i++) {
@@ -715,11 +758,9 @@ export class QuestionMultipleTextModel extends Question
     this.items.forEach(item => item.editor.runCondition(properties));
   }
   protected getIsRunningValidators(): boolean {
-    if (super.getIsRunningValidators()) return true;
-    for (var i = 0; i < this.items.length; i++) {
-      if (this.items[i].editor.isRunningValidators) return true;
-    }
-    return false;
+    return super.getIsRunningValidators() || !!findInNestedWalk(
+      (visit: NestedElementVisit): void => this.forEachNestedElement(visit, allEditors),
+      (info: INestedElementInfo): boolean => (<Question>info.element).isRunningValidators);
   }
   protected validateElementCore(context: ValidationContext): boolean {
     let res = true;
@@ -731,29 +772,13 @@ export class QuestionMultipleTextModel extends Question
     return super.validateElementCore(context) && res;
   }
   public getAllErrors(): Array<SurveyError> {
-    var result = super.getAllErrors();
-    for (var i = 0; i < this.items.length; i++) {
-      var errors = this.items[i].editor.getAllErrors();
-      if (errors && errors.length > 0) {
-        result = result.concat(errors);
-      }
-    }
-    return result;
+    const res = super.getAllErrors();
+    this.forEachNestedElement(info => { res.push(...(<Question>info.element).getAllErrors()); }, allEditors);
+    return res;
   }
   public clearErrors() {
     super.clearErrors();
-    for (var i = 0; i < this.items.length; i++) {
-      this.items[i].editor.clearErrors();
-    }
-  }
-  protected getContainsErrors(): boolean {
-    var res = super.getContainsErrors();
-    if (res) return res;
-    var items = this.items;
-    for (var i = 0; i < items.length; i++) {
-      if (items[i].editor.containsErrors) return true;
-    }
-    return false;
+    this.forEachNestedElement(info => (<Question>info.element).clearErrors(), allEditors);
   }
   protected getIsAnswered(): boolean {
     if (!super.getIsAnswered()) return false;
@@ -850,21 +875,22 @@ export class QuestionMultipleTextModel extends Question
     // do nothing
   }
   public getItemLabelCss(item: MultipleTextItemModel): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemLabel)
-      .append(this.cssClasses.itemLabelDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.itemLabelReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.itemLabelPreview, this.isPreviewStyle)
-      .append(this.cssClasses.itemLabelAnswered, item.editor.isAnswered)
-      .append(this.cssClasses.itemLabelAllowFocus, !this.isDesignMode)
-      .append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.itemLabel,
+      this.isDisabledStyle && this.cssClasses.itemLabelDisabled,
+      this.isReadOnlyStyle && !this.isViewMode && this.cssClasses.itemLabelReadOnly,
+      this.isViewMode && this.cssClasses.itemLabelView,
+      this.isPreviewStyle && this.cssClasses.itemLabelPreview,
+      item.editor.isAnswered && this.cssClasses.itemLabelAnswered,
+      !this.isDesignMode && this.cssClasses.itemLabelAllowFocus,
+      item.editor.errors.length > 0 && this.cssClasses.itemLabelOnError
+    );
   }
   public getItemCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.item).toString();
+    return toCssClasses(this.cssClasses.item);
   }
   public getItemTitleCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.itemTitle).toString();
+    return toCssClasses(this.cssClasses.itemTitle);
   }
   public get ariaRole(): string {
     return "group";
@@ -898,7 +924,7 @@ export class MultipleTextCell {
   constructor(public item: MultipleTextItemModel, protected question: QuestionMultipleTextModel) {}
   public isErrorsCell: boolean = false;
   protected getClassName(): string {
-    return new CssClassBuilder().append(this.question.cssClasses.cell).toString();
+    return toCssClasses(this.question.cssClasses.cell);
   }
   public get className(): string {
     return this.getClassName();
@@ -908,12 +934,12 @@ export class MultipleTextCell {
 export class MultipleTextErrorCell extends MultipleTextCell {
   public isErrorsCell: boolean = true;
   protected getClassName(): string {
-    return new CssClassBuilder()
-      .append(super.getClassName())
-      .append(this.question.cssClasses.cellError)
-      .append(this.question.cssClasses.cellErrorTop, this.question.showItemErrorOnTop)
-      .append(this.question.cssClasses.cellErrorBottom, this.question.showItemErrorOnBottom)
-      .toString();
+    return toCssClasses(
+      super.getClassName(),
+      this.question.cssClasses.cellError,
+      this.question.showItemErrorOnTop && this.question.cssClasses.cellErrorTop,
+      this.question.showItemErrorOnBottom && this.question.cssClasses.cellErrorBottom
+    );
   }
 }
 
@@ -951,6 +977,12 @@ Serializer.addClass(
       },
       onGetValue: function (obj: any) {
         return obj.maskSettings.getData();
+      },
+      // An object whose every value is empty is dropped as a default, which would lose an
+      // authored "" separator or symbol. Anything getData() writes was written on purpose.
+      onSerializeValue: function (obj: any) {
+        const data = obj.maskSettings.getData();
+        return Object.keys(data).length > 0 ? data : undefined;
       },
       onSetValue: function (obj: any, value: any) {
         obj.maskSettings.setData(value);

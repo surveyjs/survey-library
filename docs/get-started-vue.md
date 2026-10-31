@@ -19,7 +19,13 @@ This step-by-step tutorial will help you get started with the SurveyJS Form Libr
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue3 (linkStyle))
 
-If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repository: <a href="https://github.com/surveyjs/surveyjs_vue3_quickstart" target="_blank">SurveyJS + Vue 3 Quickstart Template</a>.
+If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repositories:
+
+- <a href="https://github.com/surveyjs/surveyjs_vue3_quickstart" target="_blank">SurveyJS + Vue 3</a>
+- <a href="https://github.com/surveyjs/surveyjs-nuxtjs" target="_blank">SurveyJS + Nuxt</a>
+- <a href="https://github.com/surveyjs/surveyjs-vike" target="_blank">SurveyJS + Vike</a>
+- <a href="https://github.com/surveyjs/surveyjs-astro" target="_blank">SurveyJS + Astro</a>
+- <a href="https://github.com/surveyjs/surveyjs-quasar" target="_blank">SurveyJS + Quasar</a>
 
 <a id="add-a-survey-to-a-vue-3-application"></a>
 
@@ -28,12 +34,14 @@ If you are looking for a quick-start application that includes all SurveyJS comp
 SurveyJS Form Library for Vue 3 consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-vue3-ui`](https://www.npmjs.com/package/survey-vue3-ui) (rendering code). Run the following command to install `survey-vue3-ui`. The `survey-core` package will be installed automatically as a dependency.
 
 ```cmd
-npm install survey-vue3-ui --save
+npm install survey-vue3-ui
 ```
 
 ## Configure Styles
 
-SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
+### Add Themes
+
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible [theme customization mechanism](/documentation/design-tokens-css-customization) based on CSS variables.
 
 <img src="images/survey-library-themes.png" alt="Themes in SurveyJS Form Library" width="1544" height="820">
 
@@ -51,7 +59,26 @@ import 'survey-core/survey-core.css';
 
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
-[Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+[Themes](/documentation/themes-and-custom-styles (linkStyle))
+
+### Add Fonts
+
+Starting with SurveyJS v3.0.4, fonts are no longer included in SurveyJS packages. Load Open Sans separately to preserve the default appearance, unless your application already does so. If you use a custom font, load it instead. Otherwise, the browser uses a fallback font, which may affect spacing and layout.
+
+To add Open Sans using [Fontsource](https://fontsource.org/docs/getting-started/install), run the following command:
+
+```sh
+npm install @fontsource/open-sans
+```
+
+The following example imports font weights 400, 600, and 700. Place the font imports in your application's entry file to load them once for all SurveyJS components.
+
+```ts
+// main.ts
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+```
 
 ## Create a Model
 
@@ -91,6 +118,13 @@ const survey = new Model(surveyJson);
 
 <details>
     <summary>View Full Code</summary>  
+
+```ts
+// main.ts
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+```
 
 ```html
 <script setup lang="ts">
@@ -152,6 +186,13 @@ If you replicate the code correctly, you should see the following survey:
 
 <details>
     <summary>View Full Code</summary>  
+
+```ts
+// main.ts
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+```
 
 ```html
 <script setup lang="ts">
@@ -257,6 +298,13 @@ To view the application, run `npm run dev` in a command line and open [http://lo
 
 <details>
     <summary>View Full Code</summary>  
+
+```ts
+// main.ts
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+```
 
 ```html
 <script setup lang="ts">

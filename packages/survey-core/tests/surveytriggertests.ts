@@ -699,6 +699,142 @@ describe("Triggers", () => {
     expect(survey.isCompleteButtonVisible, "complete button is visible, #4").toBe(true);
     expect(survey.isShowNextButton, "next button is invisible, #4").toBe(false);
   });
+  function createSurveyWithCompleteTriggerAndRequiredQuestions(): SurveyModel {
+    return new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "question1",
+              "title": "Question 1",
+              "isRequired": true,
+              "choices": ["A", "B"]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2",
+              "title": "Question 2",
+              "isRequired": true
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "type": "complete",
+          "expression": "{question1} = 'A'"
+        }
+      ]
+    });
+  }
+  test("complete trigger and next/complete buttons on setting survey.data, Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    expect(survey.isCompleteButtonVisible, "complete button is invisible, #1").toBe(false);
+    expect(survey.isShowNextButton, "next button is visible, #1").toBe(true);
+    survey.data = { question1: "A" };
+    expect(survey.isCompleteButtonVisible, "complete button is visible, #2").toBe(true);
+    expect(survey.isShowNextButton, "next button is invisible, #2").toBe(false);
+    survey.data = { question1: "B" };
+    expect(survey.isCompleteButtonVisible, "complete button is invisible, #3").toBe(false);
+    expect(survey.isShowNextButton, "next button is visible, #3").toBe(true);
+  });
+  test("complete trigger and survey.validate() on setting survey.data, Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.data = { question1: "A" };
+    expect(survey.validate(true, false), "complete trigger is executed, question2 is not required to be answered").toBe(true);
+    expect(survey.getQuestionByName("question2").errors.length, "there is no errors in question2").toBe(0);
+    survey.data = { question1: "B" };
+    expect(survey.validate(true, false), "complete trigger is not executed, question2 is empty").toBe(false);
+  });
+  test("complete trigger and survey.validate() with focusing the first error on setting survey.data, Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.data = { question1: "A" };
+    expect(survey.validate(true, true), "complete trigger is executed").toBe(true);
+    expect(survey.currentPageNo, "We are staying on the first page").toBe(0);
+  });
+  test("complete trigger and survey.validate() on changing the question value, Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.getQuestionByName("question1").value = "A";
+    expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
+    expect(survey.validate(true, false), "complete trigger is executed, question2 is not required to be answered").toBe(true);
+    expect(survey.tryComplete(), "survey can be completed").toBe(true);
+    expect(survey.state, "survey is completed").toBe("completed");
+  });
+  test("complete trigger and survey.validate() on survey.mergeData(), Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.mergeData({ question1: "A" });
+    expect(survey.state, "survey is not completed on merging data").toBe("running");
+    expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
+    expect(survey.validate(true, false), "complete trigger is executed").toBe(true);
+    survey.mergeData({ question1: "B" });
+    expect(survey.isCompleteButtonVisible, "complete button is invisible").toBe(false);
+    expect(survey.validate(true, false), "complete trigger is not executed").toBe(false);
+  });
+  test("complete trigger and survey.validate() on survey.setValue(), Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.setValue("question1", "A");
+    expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
+    expect(survey.validate(true, false), "complete trigger is executed, question2 is not required to be answered").toBe(true);
+  });
+  function spyOnTriggerKeys(survey: SurveyModel): { counter: number, valueNames: Array<string> } {
+    const res = { counter: 0, valueNames: new Array<string>() };
+    const surveyAny = <any>survey;
+    const prevGetTriggerKeys = surveyAny.getTriggerKeys;
+    const prevGetValue = survey.getValue;
+    surveyAny.getTriggerKeys = function (...args: Array<any>) {
+      res.counter++;
+      survey.getValue = function (name: string): any {
+        res.valueNames.push(name);
+        return prevGetValue.call(survey, name);
+      };
+      try {
+        return prevGetTriggerKeys.apply(survey, args);
+      } finally {
+        survey.getValue = prevGetValue;
+      }
+    };
+    return res;
+  }
+  test("Do not build trigger keys on setting survey.data if there is no trigger that runs on setting data, Bug#11935", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "paneldynamic", name: "q2", valueName: "items", templateElements: [{ type: "text", name: "q2_1" }] },
+        { type: "matrixdynamic", name: "q3", valueName: "items", columns: [{ name: "q2_1" }] }
+      ]
+    };
+    let survey = new SurveyModel(json);
+    let spy = spyOnTriggerKeys(survey);
+    survey.data = { q1: "A", items: [{ q2_1: 1 }, { q2_1: 2 }] };
+    survey.mergeData({ q1: "B" });
+    expect(spy.counter, "there are no triggers").toBe(0);
+
+    survey = new SurveyModel({ ...json, triggers: [{ type: "setvalue", expression: "{q1} = 'A'", setToName: "q4", setValue: 1 }] });
+    spy = spyOnTriggerKeys(survey);
+    survey.data = { q1: "A" };
+    survey.mergeData({ q1: "B" });
+    expect(spy.counter, "setvalue trigger doesn't run on setting data").toBe(0);
+    expect(survey.getValue("q4"), "setvalue trigger is not executed").toBeUndefined();
+
+    survey = new SurveyModel({ ...json, triggers: [{ type: "complete", expression: "{q1} = 'A'" }] });
+    spy = spyOnTriggerKeys(survey);
+    survey.data = { q1: "A", items: [{ q2_1: 1 }, { q2_1: 2 }] };
+    expect(spy.counter, "complete trigger runs on setting data").toBe(1);
+    expect(spy.valueNames, "a value shared by several questions is read once").toEqual(["q1", "items"]);
+    expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
+    expect(survey.validate(true, false), "complete trigger is executed").toBe(true);
+
+    survey.mode = "display";
+    survey.data = { q1: "B" };
+    expect(spy.counter, "triggers do not run in display mode").toBe(1);
+  });
   test("runexpression trigger and isNextPage", () => {
     let counter = 0;
     FunctionFactory.Instance.register("calcCust", function getCustValue(params
@@ -1307,5 +1443,155 @@ describe("Triggers", () => {
     expect(q3.isVisible, "q3 still hidden after q1 change").toBe(false);
 
     FunctionFactory.Instance.unregister("checkConstParam");
+  });
+});
+describe("A nested function with constant parameters runs on any change", () => {
+  const nested = "iif({a} = 1, readQ('src'), 0)";
+  function registerReadQ(): void {
+    FunctionFactory.Instance.register("readQ", function (this: any, params: any[]) { return this.survey.getValue(params[0]); });
+  }
+  let calls = 0;
+  function registerCountCalls(): void {
+    calls = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]) => { calls++; return params[0]; });
+  }
+  function surveyJSON(q: any, calculatedValues?: any[]): any {
+    return {
+      elements: [{ type: "text", name: "a" }, { type: "text", name: "src" }, { type: "text", name: "other" }, q],
+      calculatedValues
+    };
+  }
+  test("A nested function with constant parameters in a question visibleIf runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q", visibleIf: nested + " = 1" }));
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      expect(q.isVisible, "a = 1").toBe(false);
+      survey.setValue("src", 1);
+      expect(q.isVisible, "src = 1").toBe(true);
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(q.isVisible, "src = 2, other = x").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A nested function with constant parameters in a calculated value runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q" }, [{ name: "cv", expression: nested }]));
+      survey.setValue("a", 1);
+      expect(survey.getVariable("cv"), "a = 1").toBeUndefined();
+      survey.setValue("src", 1);
+      expect(survey.getVariable("cv"), "src = 1").toBe(1);
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(survey.getVariable("cv"), "src = 2, other = x").toBe(2);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A nested function with constant parameters in a defaultValueExpression runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q", defaultValueExpression: nested }));
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      expect(q.value, "a = 1").toBeUndefined();
+      survey.setValue("src", 1);
+      expect(q.value, "src = 1").toBe(1);
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(q.value, "src = 2, other = x").toBe(2);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A nested function with constant parameters in a choice visibleIf runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "radiogroup", name: "q",
+        choices: [{ value: "x", visibleIf: nested + " = 1" }, "y"] }));
+      const q = <any>survey.getQuestionByName("q");
+      const visible = () => q.visibleChoices.map((c: any) => c.value).join(",");
+      survey.setValue("a", 1);
+      expect(visible(), "a = 1").toBe("y");
+      survey.setValue("src", 1);
+      expect(visible(), "src = 1").toBe("x,y");
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(visible(), "src = 2, other = x").toBe("y");
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A top-level function with constant parameters still runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q", visibleIf: "readQ('src') = 1" }));
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      expect(q.isVisible, "a = 1").toBe(false);
+      survey.setValue("src", 1);
+      expect(q.isVisible, "src = 1").toBe(true);
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(q.isVisible, "src = 2, other = x").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A nested function with variables only still skips", () => {
+    registerCountCalls();
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }, { type: "text", name: "other" },
+          { type: "text", name: "q", visibleIf: "iif({a} = 1, countCalls({b}), 0) = 1" }]
+      });
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      survey.setValue("b", 1);
+      expect(q.isVisible, "a = 1, b = 1").toBe(true);
+      calls = 0;
+      survey.setValue("other", "x");
+      expect(calls, "other = x").toBe(0);
+      survey.setValue("b", 2);
+      expect(calls, "b = 2").toBeGreaterThanOrEqual(1);
+      expect(q.isVisible, "b = 2").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("An expression replaced in place drops the kept answer", () => {
+    registerReadQ();
+    registerCountCalls();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q", visibleIf: "{a} = 1" },
+        [{ name: "cv", expression: "countCalls('k')" }]));
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      survey.setValue("other", "x");
+      expect(q.isVisible, "a = 1").toBe(true);
+      // The new expression holds a variable, so the skip check applies, but not src
+      q.visibleIf = "{a} = 1 and readQ('src') = 1";
+      survey.setValue("src", 1);
+      expect(q.isVisible, "src = 1").toBe(true);
+      survey.setValue("src", 2);
+      survey.setValue("other", "y");
+      expect(q.isVisible, "src = 2, other = y").toBe(false);
+
+      const cv = survey.calculatedValues[0];
+      calls = 0;
+      survey.setValue("other", "z");
+      expect(calls, "countCalls('k'), other = z").toBeGreaterThanOrEqual(1);
+      cv.expression = "countCalls({a})";
+      calls = 0;
+      survey.setValue("other", "w");
+      expect(calls, "countCalls({a}), other = w").toBe(0);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+      FunctionFactory.Instance.unregister("countCalls");
+    }
   });
 });

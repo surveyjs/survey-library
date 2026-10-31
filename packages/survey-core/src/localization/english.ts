@@ -4,6 +4,32 @@
 export var englishStrings = {
   pagePrevText: "Previous",
   pageNextText: "Next",
+  pageFirstText: "First",
+  pageLastText: "Last",
+  pagerTotalText: "of {0}",
+  pagerSelectPageTitle: "Select Page",
+  sortByColumnText: "Sort by {0}",
+  sortHighLowText: "High - Low",
+  sortLowHighText: "Low - High",
+  sortAZText: "Alphabet, A - Z",
+  sortZAText: "Alphabet, Z - A",
+  sortNewestFirstText: "Newest first",
+  sortOldestFirstText: "Oldest first",
+  sortOrderText: "Sorted by {0}",
+  sortOrderLevelText: "{0} ({1})",
+  sortOrderNextText: "{0}, then by {1}",
+  sortByText: "Sort by",
+  sortDefaultText: "Default",
+  sortFieldAriaLabel: "Sort field",
+  sortDirectionAriaLabel: "Sort order",
+  sortAddLevelText: "Add sort level",
+  sortRemoveLevelText: "Remove sort level {0}",
+  sortLevelFieldAriaLabel: "Sort field {0}",
+  sortLevelDirectionAriaLabel: "Sort order {0}",
+  sortMoreAriaLabel: "Show all sort levels",
+  sortAddNewText: "Add New",
+  sortNoDirectionText: "—",
+  sortMoveLevelAriaLabel: "Move sort level {0}",
   completeText: "Complete",
   previewText: "Preview",
   editText: "Edit",
@@ -20,6 +46,7 @@ export var englishStrings = {
   panelDynamicProgressText: "{0} of {1}",
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Answered {0}/{1} questions",
+  questionPositionProgressText: "Question {0} of {1}",
   emptySurvey: "The survey doesn't contain any visible elements.",
   completingSurvey: "Thank you for completing the survey",
   completingSurveyBefore: "You have already completed this survey.",
@@ -29,6 +56,8 @@ export var englishStrings = {
   buttongroupOptionsCaption: "Select...",
   value: "value",
   requiredError: "Response required.",
+  incorrectValueError: "The value is incorrect.",
+  incorrectValueUnknownKeysError: "The value contains unknown keys: {0}.",
   requiredErrorInPanel: "Response required: answer at least one question.",
   requiredInAllRowsError: "Response required: answer questions in all rows.",
   eachRowUniqueError: "Each row must have a unique value.",
@@ -57,6 +86,7 @@ export var englishStrings = {
   exceedMaxFiles: "The maximum number of files you can upload is {0}.",
   noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event.",
   otherRequiredError: "Response required: enter another value.",
+  variableValueNotInChoices: "The value '{0}' is not one of the available choices.",
   uploadingFile: "Your file is uploading. Please wait several seconds and try again.",
   loadingFile: "Loading...",
   chooseFile: "Choose file(s)...",
@@ -67,6 +97,7 @@ export var englishStrings = {
   addColumn: "Add Column",
   addRow: "Add Row",
   removeRow: "Remove",
+  moveRowAriaLabel: "Move row {0}",
   noRowsText: "There are no rows.",
   rowIndexTemplateTitle: "Row {rowIndex}",
   rowNameTemplateTitle: "{rowTitle}",
@@ -124,7 +155,16 @@ export var englishStrings = {
   createCustomItem: "Create \"{0}\" item...",
   toc: "Table of contents",
   progressbar: "Progress bar",
-  progressbarPage: "Page {0}"
+  progressbarPage: "Page {0}",
+  maskPlaceholderDay: "d", // [Do not translate]
+  maskPlaceholderMonth: "m", // [Do not translate]
+  maskPlaceholderYear: "y", // [Do not translate]
+  maskPlaceholderHour12: "h", // [Do not translate]
+  maskPlaceholderHour24: "H", // [Do not translate]
+  maskPlaceholderMinute: "M", // [Do not translate]
+  maskPlaceholderSecond: "s", // [Do not translate]
+  maskPlaceholderTimeMarkerLower: "t", // [Do not translate]
+  maskPlaceholderTimeMarkerUpper: "T" // [Do not translate]
 };
 
 /*

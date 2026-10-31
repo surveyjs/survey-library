@@ -1,5 +1,5 @@
 import { Base } from "./base";
-import { ITextProcessor, IQuestion, ISurvey } from "./base-interfaces";
+import { ITextProcessor, IQuestion, ISurvey, ISurveyWebProvider, ISurveyWebResponse } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { property } from "./decorators";
@@ -116,6 +116,7 @@ export class ChoicesRestful extends Base {
     settings.web.onBeforeRequestChoices = val;
   }
   private static getCachedItemsResult(obj: ChoicesRestful): boolean {
+    if (!obj.isUsingCache) return false;
     var hash = obj.objHash;
     var res = ChoicesRestful.itemsResult[hash];
     if (!res) return false;
@@ -178,9 +179,17 @@ export class ChoicesRestful extends Base {
     this.sendRequest();
   }
   public get isUsingCache(): boolean {
+    if (!!this.webProvider) return false;
     if (this.isUsingCacheFromUrl === true) return true;
     if (this.isUsingCacheFromUrl === false) return false;
     return settings.web.cacheLoadedChoices;
+  }
+  private get webProvider(): ISurveyWebProvider {
+    const survey: any = this.getSurvey();
+    const provider: ISurveyWebProvider = !!survey ? survey.webProvider : undefined;
+    if (!!provider && !!provider.canHandleRequest &&
+      !provider.canHandleRequest({ url: this.processedUrl })) return undefined;
+    return provider;
   }
   public get isRunning(): boolean {
     return this.getIsRunning();
@@ -191,6 +200,9 @@ export class ChoicesRestful extends Base {
 
   public get isWaitingForParameters() {
     return this.url && !this.processedUrl;
+  }
+  public get canUseResult(): boolean {
+    return !this.isRunning && !this.isWaitingForParameters && !this.error;
   }
   protected useChangedItemsResults(): boolean {
     return ChoicesRestful.getCachedItemsResult(this);
@@ -249,7 +261,10 @@ export class ChoicesRestful extends Base {
     return parsedResponse;
   }
   protected sendRequest() {
-    if (typeof XMLHttpRequest !== "undefined") {
+    const provider = this.webProvider;
+    if (!!provider) {
+      this.sendProviderRequest(provider);
+    } else if (typeof XMLHttpRequest !== "undefined") {
       this.sendXmlHttpRequest();
     } else if (typeof fetch !== "undefined") {
       this.sendFetchRequest();
@@ -261,6 +276,33 @@ export class ChoicesRestful extends Base {
       );
       this.doEmptyResultCallback("");
     }
+  }
+  // The provider replaces the transport and nothing else: what a status means, how a body is parsed,
+  // which field is the value and which is the title, and what a failure does to the question all stay
+  // where they are. settings.web.onBeforeRequestChoices is not called - it exists to let an
+  // application configure the XMLHttpRequest or the fetch options, and there is no request object to
+  // configure here.
+  protected sendProviderRequest(provider: ISurveyWebProvider) {
+    const loadingObjHash = this.objHash;
+    let isAnswered = false;
+    this.beforeSendRequest();
+    provider.sendRequest({ url: this.processedUrl }, (res: ISurveyWebResponse): void => {
+      // The survey is holding a load until this is called, and it may be called only once: a second
+      // answer would load the choices of a request that is already over.
+      if (isAnswered) return;
+      isAnswered = true;
+      this.beforeLoadRequest();
+      const status = !!res && typeof res.status === "number" ? res.status : 200;
+      const response = !!res ? res.response : undefined;
+      if (status === 200) {
+        // A string arrives the way a service sends it and is parsed as one; an object or an array is
+        // the body already parsed, and parsing it again would be nothing but a way to fail.
+        this.onLoad(typeof response === "string" ? this.parseResponse(response) : response, loadingObjHash);
+      } else {
+        const statusText = !!res && !!res.statusText ? res.statusText : String(status);
+        this.onError(statusText, typeof response === "string" ? response : "");
+      }
+    });
   }
   protected sendXmlHttpRequest() {
     var xhr = new XMLHttpRequest();
@@ -276,6 +318,15 @@ export class ChoicesRestful extends Base {
         self.onError(xhr.statusText, xhr.responseText);
       }
     };
+    // A transport failure - connection refused, DNS, timeout, CORS - has to reach the question the same
+    // way an error status does. Without this the request stays running forever: the question never becomes
+    // ready again and its url stays registered in sendingSameRequests, so it can never be requested again.
+    const onRequestFailed = function () {
+      self.beforeLoadRequest();
+      self.onError(xhr.statusText, xhr.responseText);
+    };
+    xhr.onerror = onRequestFailed;
+    xhr.ontimeout = onRequestFailed;
     var options = { url: this.processedUrl, request: xhr };
     if (!!settings.web.onBeforeRequestChoices) {
       settings.web.onBeforeRequestChoices(this, options);
@@ -316,6 +367,7 @@ export class ChoicesRestful extends Base {
         }
       })
       .catch(error => {
+        self.beforeLoadRequest();
         self.onError(error.message, "");
       });
   }

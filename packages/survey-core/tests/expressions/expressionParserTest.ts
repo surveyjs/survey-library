@@ -1,4 +1,4 @@
-import { parse } from "../../src/expressions/expressionParser";
+import { parse } from "../../src/expressions/expressionParserCore";
 import { ConditionRunner } from "../../src/conditions/conditionRunner";
 import { ExpressionRunner } from "../../src/expressions/expressionRunner";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
@@ -7,6 +7,7 @@ import {
   Const,
   BinaryOperand,
   Operand,
+  FunctionOperand,
 } from "../../src/expressions/expressions";
 
 import { ProcessValue, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
@@ -929,6 +930,14 @@ describe("Expressions", () => {
     var runner = new ExpressionRunner("countInArray({a}, 'val1')");
     var values = { a: [{ val1: "abc" }, { val2: 10 }, { val1: "cde" }] };
     expect(runner.runValues(values), "two items in array").toBe(2);
+  });
+  test("ExpressionRunner: an inArray filter with a quote inside a string", () => {
+    // The filter is parsed again from its toString()
+    const values = { arr: [{ a: 1, b: "it's" }, { a: 2, b: "x" }, { a: 4, b: "a\"b" }] };
+    expect(new ExpressionRunner(String.raw`sumInArray({arr}, 'a', {b} = 'it\'s')`).runValues(values), "#1").toBe(1);
+    expect(new ExpressionRunner(String.raw`sumInArray({arr}, 'a', {b} = 'a\"b')`).runValues(values), "#2").toBe(4);
+    expect(new ExpressionRunner(String.raw`countInArray({arr}, 'a', {b} <> 'it\'s')`).runValues(values), "#3").toBe(2);
+    expect(new ExpressionRunner(String.raw`sumInArray({arr}, 'a', {b} = "it's")`).runValues(values), "#4").toBe(1);
   });
 
   test("ConditionRunner, iif simple", () => {
@@ -1882,5 +1891,368 @@ describe("Expressions", () => {
     expect(runner.runContext(new VariableGetterContext({})), "#2").toBe(true);
     runner = new ExpressionRunner("{\"key\": \"value\"} = {\"key\": \"value1\"}");
     expect(runner.runContext(new VariableGetterContext({})), "#3").toBe(false);
+  });
+  test("null/undefined as a function argument, Bug#12130", () => {
+    let runner = new ExpressionRunner("iif({a} = 1, 'x', null)");
+    expect(runner.canRun(), "#1 canRun").toBe(true);
+    expect(runner.runValues({ a: 1 }), "#1 condition is true").toBe("x");
+    expect(runner.runValues({ a: 2 }), "#1 condition is false").toBeNull();
+    runner = new ExpressionRunner("iif({a} = 1, 'x', undefined)");
+    expect(runner.runValues({ a: 2 }), "#2").toBeNull();
+    runner = new ExpressionRunner("iif({a}, null, {b})");
+    expect(runner.runValues({ a: true, b: 1 }), "#3 null branch").toBeNull();
+    expect(runner.runValues({ a: false, b: 1 }), "#3 variable branch").toBe(1);
+    expect(runner.getVariables(), "#3 variables").toEqual(["a", "b"]);
+    expect(runner.hasFunction(), "#3 hasFunction").toBe(true);
+    expect(runner.isAsync, "#3 isAsync").toBe(false);
+
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression("iif({a} = 1, 'x', null)");
+    expect(operand.toString(), "#4 toString keeps null").toBe("iif(({a} == 1), 'x', null)");
+    expect(parser.parseExpression(operand.toString()).toString(), "#4 round trip").toBe("iif(({a} == 1), 'x', null)");
+    expect(operand.isEqual(parser.parseExpression("iif({a} = 1, 'x', null)")), "#5 equal").toBe(true);
+    expect(operand.isEqual(parser.parseExpression("iif({a} = 1, 'x', 'y')")), "#5 not equal, null vs const").toBe(false);
+    expect(parser.parseExpression("iif({a} = 1, 'x', 'y')").isEqual(operand), "#5 not equal, const vs null").toBe(false);
+
+    expect(parser.parseExpression("f()").toString(), "#6 no params").toBe("f()");
+    expect((<FunctionOperand>parser.parseExpression("f()")).paramValues.length, "#6 no params, length").toBe(0);
+    expect((<FunctionOperand>parser.parseExpression("f(null)")).paramValues.length, "#7 null param, length").toBe(1);
+    expect(parser.parseExpression("f(null)").toString(), "#7 null param").toBe("f(null)");
+    expect(parser.parseExpression("f(null, {a})").toString(), "#8 the first param is null").toBe("f(null, {a})");
+    expect(parser.parseExpression("{a} anyof [null, 1]").toString(), "#9 array starts with null").toBe("({a} anyof [null, 1])");
+    runner = new ExpressionRunner("iif(null, 1, {b})");
+    expect(runner.runValues({ b: 2 }), "#10 null condition").toBe(2);
+    expect(runner.getVariables(), "#10 variables").toEqual(["b"]);
+  });
+  test("The other quote inside a string literal needs no escape", () => {
+    expect(new ExpressionRunner(String.raw`'a"b'`).runValues({}), "#1 double quote in single quotes").toBe("a\"b");
+    expect(new ExpressionRunner(String.raw`"a'b"`).runValues({}), "#2 single quote in double quotes").toBe("a'b");
+    expect(new ConditionRunner(String.raw`{a} = "it's"`).runValues({ a: "it's" }), "#3 in a condition").toBe(true);
+    expect(new ExpressionRunner(String.raw`'a\"b'`).runValues({}), "#4 escaped double quote").toBe("a\"b");
+    expect(new ExpressionRunner(String.raw`"a\'b"`).runValues({}), "#5 escaped single quote").toBe("a'b");
+  });
+  test("toString() of a string literal parses back to the same value", () => {
+    const cases: Array<[string, string, any]> = [
+      [String.raw`'it\'s'`, String.raw`'it\'s'`, "it's"],
+      [String.raw`"x\'y"`, String.raw`'x\'y'`, "x'y"],
+      [String.raw`'x\"y'`, String.raw`'x\"y'`, "x\"y"],
+      [String.raw`"x\"y"`, String.raw`'x\"y'`, "x\"y"],
+      [String.raw`{a} = 'it\'s'`, String.raw`({a} == 'it\'s')`, true],
+      [String.raw`'a"b'`, String.raw`'a\"b'`, "a\"b"],
+      [String.raw`"a'b"`, String.raw`'a\'b'`, "a'b"],
+      [String.raw`{a} = "it's"`, String.raw`({a} == 'it\'s')`, true],
+      [String.raw`'a\\"b'`, String.raw`'a\\"b'`, String.raw`a\"b`],
+      [String.raw`"a\\"b"`, String.raw`'a\\"b'`, String.raw`a\"b`],
+      [String.raw`'a\\'b'`, String.raw`'a\\'b'`, String.raw`a\'b`],
+      [String.raw`"''"`, String.raw`'\'\''`, "''"],
+      ["''", "''", ""],
+      ["'abc'", "'abc'", "abc"],
+    ];
+    const values = { a: "it's" };
+    cases.forEach(([text, expectedText, expectedValue]) => {
+      const operand = new ConditionsParser().parseExpression(text);
+      expect(operand.toString(), text + " toString").toBe(expectedText);
+      expect(new ExpressionRunner(text).runValues(values), text + " value").toEqual(expectedValue);
+      const reparsed = new ConditionsParser().parseExpression(expectedText);
+      expect(reparsed && reparsed.toString(), text + " toString of the parsed toString").toBe(expectedText);
+      expect(new ExpressionRunner(expectedText).runValues(values), text + " value of the parsed toString").toEqual(expectedValue);
+    });
+  });
+  test("null/undefined as a unary operand", () => {
+    const parser = new ConditionsParser();
+    const texts = {
+      "!null": "! null",
+      "negate undefined": "! null",
+      "null empty": "null empty",
+      "null notempty": "null notempty",
+      "!undefined": "! null",
+      "!null empty": "! null empty"
+    };
+    for (const text in texts) {
+      const operand = parser.parseExpression(text);
+      expect(operand.toString(), "toString: " + text).toBe(texts[text]);
+      const reparsed = parser.parseExpression(operand.toString());
+      expect(reparsed.toString(), "round trip: " + text).toBe(texts[text]);
+      expect(reparsed.isEqual(operand), "equal after round trip: " + text).toBe(true);
+    }
+
+    expect(new ExpressionRunner("!null").runValues({}), "!null").toBe(true);
+    expect(new ExpressionRunner("null empty").runValues({}), "null empty").toBe(true);
+    expect(new ExpressionRunner("null notempty").runValues({}), "null notempty").toBe(false);
+    const condition = new ConditionRunner("{a} = 1 or !null");
+    expect(condition.runValues({ a: 2 }), "{a} = 1 or !null").toBe(true);
+    expect(condition.hasFunction(), "hasFunction").toBe(false);
+    expect(condition.isAsync, "isAsync").toBe(false);
+    expect(parser.parseExpression("{a} = 1 or !null").toString(), "inside a binary operand").toBe("(({a} == 1) or ! null)");
+
+    expect(new ExpressionRunner("{a} empty or !null").getVariables(), "variables").toEqual(["a"]);
+  });
+});
+
+describe("Expression parser: nesting and error offsets", () => {
+  const nestedIif = (depth: number, inner: string): string => {
+    let text = inner;
+    for (let i = 1; i <= depth; i++) text = `iif({a} > ${i}, ${i}, ${text})`;
+    return text;
+  };
+  const nestedAndOr = (depth: number): string => {
+    let text = "{a0}";
+    for (let i = 1; i <= depth; i++) text = `({a${i}} ${i % 2 ? "and" : "or"} ${text})`;
+    return text;
+  };
+  const deepParens = "(".repeat(200) + "1" + ")".repeat(200);
+  const deepIif = nestedIif(60, "{a}");
+  const deepNot = "!".repeat(100) + "{a}";
+  const deepAndOr = nestedAndOr(60);
+  const parseWithError = (text: string): { operand: Operand, at: number } => {
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression(text);
+    return { operand, at: parser.error ? parser.error.at : undefined };
+  };
+
+  test("Deeply nested expressions parse and round-trip through toString()", () => {
+    const cases = { deepParens, deepIif, deepNot, deepAndOr };
+    Object.keys(cases).forEach(name => {
+      const operand = new ConditionsParser().parseExpression(cases[name]);
+      expect(operand, name + " parses").toBeTruthy();
+      const text = operand.toString();
+      expect(new ConditionsParser().parseExpression(text).toString(), name + " round-trips").toBe(text);
+    });
+    expect(new ConditionsParser().parseExpression(deepParens).toString(), "parentheses collapse").toBe("1");
+  });
+  test("Deeply nested expressions with an error at the end fail at the end", () => {
+    const cases: Array<[string, string, number]> = [
+      ["parentheses, missing operand after the last and", deepParens + " and", 405],
+      ["unclosed parentheses, unclosed string", "(".repeat(200) + "{a} = 'x", 208],
+      ["iif, unclosed string in the innermost argument", nestedIif(60, "'x"), 1124],
+      ["negations, missing operand after the last and", deepNot + " and", 107],
+      ["and/or, missing operand after the last and", deepAndOr + " and", 689],
+    ];
+    cases.forEach(([name, text, at]) => {
+      const res = parseWithError(text);
+      expect(res.operand, name + " does not parse").toBeUndefined();
+      expect(res.at, name + " error offset").toBe(at);
+    });
+  });
+  test("Invalid expressions report the same error offset", () => {
+    const cases: Array<[string, number]> = [
+      ["1)", 1],
+      ["(1))", 3],
+      ["()", 1],
+      ["max(1,,2)", 6],
+      ["max(1, )", 7],
+      ["{a + 1", 6],
+      ["1 + * 2", 4],
+      ["{a} foo 1", 4],
+      ["{a} = 'x", 8],
+      ["{a} anyof [1,", 13],
+      ["1 +", 3],
+      ["and 1", 4],
+      ["{a} = = 1", 6],
+    ];
+    cases.forEach(([text, at]) => {
+      const res = parseWithError(text);
+      expect(res.operand, text + " does not parse").toBeUndefined();
+      expect(res.at, text + " error offset").toBe(at);
+    });
+  });
+  test("A missing closing parenthesis is accepted", () => {
+    const cases: Array<[string, string]> = [
+      ["(1", "1"],
+      ["({a} + 1", "({a} + 1)"],
+      ["max(1, 2", "max(1, 2)"],
+      ["iif(1, 2, 3", "iif(1, 2, 3)"],
+      ["{a} = (1 + 2", "({a} == (1 + 2))"],
+      ["[1, 2", "[1, 2]"],
+    ];
+    cases.forEach(([text, expected]) => {
+      const res = parseWithError(text);
+      expect(res.at, text + " has no error").toBeUndefined();
+      expect(res.operand.toString(), text).toBe(expected);
+    });
+  });
+  test("A parser reused for another text does not keep the previous error", () => {
+    const parser = new ConditionsParser();
+    expect(parser.parseExpression("1 +")).toBeUndefined();
+    expect(parser.error.at).toBe(3);
+    const operand = parser.parseExpression("1 + 2");
+    expect(operand.toString()).toBe("(1 + 2)");
+    expect(parser.error).toBeUndefined();
+  });
+});
+
+describe("Expression parser: atoms and variable names", () => {
+  const parseResult = (text: string): string | number => {
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression(text);
+    return operand ? operand.toString() : parser.error.at;
+  };
+  const checkCases = (cases: Array<[string, string | number]>): void => {
+    cases.forEach(([text, expected]) => {
+      expect(parseResult(text), text).toBe(expected);
+    });
+  };
+
+  test("empty / notempty after an atom", () => {
+    checkCases([
+      ["{a} empty", "{a} empty"],
+      ["{a} notempty", "{a} notempty"],
+      ["{a}empty", "{a} empty"],
+      ["'x' empty", "'x' empty"],
+      ["1 notempty", "1 notempty"],
+      ["!{a} empty", "! {a} empty"],
+      ["negate {a} notempty", "! {a} notempty"],
+      ["{a} empty and {b} notempty", "({a} empty and {b} notempty)"],
+      ["{a} emptyx", 9],
+      ["{a} empty = true", "({a} empty == true)"],
+      ["{a.b[0]} notempty", "{a.b[0]} notempty"],
+    ]);
+    const negated = <any>new ConditionsParser().parseExpression("!{a} empty");
+    expect(negated.operator, "! applies to {a} empty").toBe("negate");
+    expect(negated.expression.operator, "empty applies to {a}").toBe("empty");
+  });
+  test("Variable names", () => {
+    checkCases([
+      ["{a}", "{a}"],
+      ["{a b}", "{a b}"],
+      ["{a.b[1].c}", "{a.b[1].c}"],
+      ["{$q.isVisible}", "{$q.isVisible}"],
+      ["{a-unwrapped}", "{a-unwrapped}"],
+      ["{ a }", "{ a }"],
+      ["{}", 1],
+      ["{a{b}", 2],
+      ["{a}}", 3],
+    ]);
+  });
+  test("An unclosed [ inside an unclosed ( is parsed in linear time", () => {
+    const start = performance.now();
+    parseResult("(1 and [".repeat(30));
+    expect(performance.now() - start).toBeLessThan(50);
+  });
+});
+
+describe("Expression parser: PEG behaviours", () => {
+  const parseResult = (text: string): string | number => {
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression(text);
+    return operand ? operand.toString() : parser.error.at;
+  };
+  const checkCases = (cases: Array<[string, string | number]>): void => {
+    cases.forEach(([text, expected]) => {
+      expect(parseResult(text), text).toBe(expected);
+    });
+  };
+
+  test("Keywords have no word boundary", () => {
+    checkCases([
+      ["1 order", "(1 or der)"],
+      ["{a} andy", "({a} and y)"],
+      ["{a} containsX", "({a} contains X)"],
+      ["trueish", 7],
+      ["nullable", 8],
+    ]);
+  });
+  test("null and undefined are case-sensitive null operands", () => {
+    checkCases([
+      ["{a} = NULL", "({a} == NULL)"],
+      ["{a} = null", "({a} == )"],
+      ["{a} = undefined", "({a} == )"],
+      ["f(null, 1)", "f(null, 1)"],
+      ["f(null)", "f(null)"],
+      ["[null, 1]", "[null, 1]"],
+    ]);
+    ["null", " null ", "undefined"].forEach(text => {
+      const parser = new ConditionsParser();
+      expect(parser.parseExpression(text), text).toBeNull();
+      expect(parser.error, text + " has no error").toBeUndefined();
+    });
+  });
+  test("Optional parts: closers, the operand of a binary function, the head of a sequence", () => {
+    checkCases([
+      ["[ ]", 2],
+      ["{a} contains", "({a} contains )"],
+      ["(1", "1"],
+      ["max(1", "max(1)"],
+      ["{a} anyof ['x'", "({a} anyof ['x'])"],
+      ["f(,1)", "f()"],
+      ["[1,,2]", 3],
+    ]);
+  });
+  test("Every level is left-associative and keywords are case-insensitive", () => {
+    checkCases([
+      ["2 ^ 3 ^ 2", "((2 ^ 3) ^ 2)"],
+      ["1 = 2 = 3", "((1 == 2) == 3)"],
+      ["{a} AND {b}", "({a} and {b})"],
+      ["NEGATE {a}", "! {a}"],
+      ["negate{a}", "! {a}"],
+    ]);
+  });
+  test("Numbers, names and variables", () => {
+    checkCases([
+      ["-{a}", 1],
+      ["0x1F", 3],
+      ["1e5", 1],
+      ["01", 2],
+      ["1.", 2],
+      ["a.b", 1],
+      ["{a}.b", 3],
+      ["f(1)(2)", 4],
+      ["'a<>b' = {c}", "('a!=b' == {c})"],
+      ["{ a b }", "{ a b }"],
+      ["{a} <> 1 or {b} != 2", "(({a} != 1) or ({b} != 2))"],
+    ]);
+  });
+});
+
+describe("Expression parser: deep nesting", () => {
+  // About half of the depth at which the parser generated by peggy ran out of stack in Node
+  const parseDeep = (text: string): Operand => {
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression(text);
+    expect(parser.error, "no error").toBeUndefined();
+    expect(operand, "parses").toBeTruthy();
+    return operand;
+  };
+  const depthOf = (operand: any, next: (op: any) => any): number => {
+    let depth = 0;
+    while(!!operand) {
+      depth++;
+      operand = next(operand);
+    }
+    return depth;
+  };
+  test("600 nested parentheses", () => {
+    const operand = parseDeep("(".repeat(600) + "1" + ")".repeat(600));
+    expect(operand.toString()).toBe("1");
+  });
+  test("400 nested iif", () => {
+    const operand = parseDeep("iif(1, ".repeat(400) + "1" + ", 2)".repeat(400));
+    expect(depthOf(operand, op => op.getType() === "function" ? op.paramValues[1] : undefined)).toBe(401);
+  });
+  test("4,000 negations", () => {
+    const operand = parseDeep("!".repeat(4000) + "{a}");
+    expect(depthOf(operand, op => op.getType() === "unary" ? op.expression : undefined)).toBe(4001);
+  });
+  test("500 nested and/or", () => {
+    let text = "{a}";
+    for (let i = 0; i < 500; i++) text = "({b" + i + "} " + (i % 2 ? "or" : "and") + " " + text + ")";
+    const operand = parseDeep(text);
+    expect(depthOf(operand, op => op.getType() === "binary" ? op.rightOperand : undefined)).toBe(501);
+  });
+  test("400 nested arrays", () => {
+    const operand = parseDeep("[".repeat(400) + "1" + "]".repeat(400));
+    expect(depthOf(operand, op => op.getType() === "array" ? op.values[0] : undefined)).toBe(401);
+  });
+  test("Nesting beyond the stack is reported as an error without a position", () => {
+    const parser = new ConditionsParser();
+    expect(parser.parseExpression("(".repeat(100000) + "1" + ")".repeat(100000))).toBeUndefined();
+    expect(parser.error, "error").toBeTruthy();
+    expect(parser.error.code).toBe("The expression is nested too deeply to parse.");
+    expect(parser.error.at).toBeUndefined();
+  });
+  test("A text that is not a string gives no operand and no error", () => {
+    const parser = new ConditionsParser();
+    expect(parser.parseExpression(null)).toBeUndefined();
+    expect(parser.error).toBeUndefined();
   });
 });

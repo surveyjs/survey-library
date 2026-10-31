@@ -3,6 +3,8 @@
 
 .sd-question {
   position: relative;
+  // the indent is set by the question's inline style; do not inherit it from an outer question
+  --sv-element-add-padding-left: 0px;
 }
 
 .sd-question {
@@ -29,6 +31,7 @@
     var(--sjs2-layout-component-question-header-padding-bottom);
   --sd-question-header-padding-inline: var(--sjs2-layout-component-question-header-padding-left)
     var(--sjs2-layout-component-question-header-padding-right);
+  --sd-question-header-gap: 0;
   --sd-question-header-row-gap: var(--sjs2-layout-component-question-header-gap-vertical);
   --sd-question-header-column-gap: var(--sjs2-layout-component-question-header-gap-horizontal);
   --sd-question-header-border-bottom: none;
@@ -45,6 +48,15 @@
     var(--sjs2-layout-component-question-description-padding-bottom);
   --sd-question-description-padding-inline: var(--sjs2-layout-component-question-description-padding-horizontal);
   --sd-question-description-color: var(--sjs2-color-component-question-default-description);
+
+  //description under input
+  --sd-question-description-under-input-padding-block: var(--sd-question-description-padding-block);
+  --sd-question-description-under-input-padding-inline: var(--sd-question-description-padding-inline);
+  --sd-question-description-under-input-margin-block: var(--sjs2-layout-component-question-box-gap-vertical) 0;
+
+  //comment area
+  --sd-question-comment-padding-block: 0;
+  --sd-question-comment-padding-inline: 0;
 }
 .sd-question--nested {
   //container
@@ -132,6 +144,8 @@
 
 .sd-element--nested > div > .sd-question__header-and-content-container {
   padding: 0;
+  // keep the question indent for questions placed inside panels
+  padding-inline-start: var(--sv-element-add-padding-left, 0px);
 }
 
 .sd-question--single-input {
@@ -170,13 +184,15 @@
   flex: 1;
   max-width: 100%;
 }
-
 .sd-question__title {
   @include sjs2--typography--component--question--title;
   padding-block: var(--sd-question-title-padding-block);
   padding-inline: var(--sd-question-title-padding-inline);
   transition: color $transition-duration;
   color: var(--sd-question-title-color);
+  .sd-action-title-bar {
+    min-width: calc(var(--sd-question-header-column-gap) + var(--sjs2-size-x500));
+  }
 }
 .sd-question__title-expandable-svg {
   fill: var(--sd-question-title-color);
@@ -230,7 +246,9 @@
 }
 
 .sd-question__description--under-input {
-  margin-top: var(--sjs2-layout-component-question-box-gap-vertical);
+  margin-block: var(--sd-question-description-under-input-margin-block);
+  padding-inline: var(--sd-question-description-under-input-padding-inline);
+  padding-block: var(--sd-question-description-under-input-padding-block);
 }
 
 .sd-scrollable .sd-question__content {
@@ -251,6 +269,8 @@
   gap: var(--sjs2-spacing-x100);
   color: $foreground;
   white-space: normal;
+  padding-inline: var(--sd-question-comment-padding-inline);
+  padding-block: var(--sd-question-comment-padding-block);
 }
 
 .sd-question__placeholder {
@@ -277,4 +297,56 @@
   width: max-content;
   overflow: visible;
   max-width: 100%;
+}
+
+.sd-question__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  gap: var(--sd-question-bar-gap);
+  padding-block: var(--sd-question-bar-padding-block);
+  padding-inline: var(--sd-question-bar-padding-inline);
+}
+.sd-question__bar--header {
+  border-bottom: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+}
+.sd-question__bar--footer {
+  border-top: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+}
+.sd-question__records-bar {
+  width: max-content;
+}
+
+.sd-question--mobile {
+  .sd-question__bar {
+    flex-direction: column;
+  }
+}
+
+.sd-question__header .sd-question__sort-bar {
+  margin-block-start: calc(var(--sd-question-header-gap) - var(--sd-question-header-row-gap));
+}
+.sd-question--mobile {
+  .sd-question__sort-bar {
+    overflow-x: auto;
+    box-sizing: border-box;
+    padding: var(--sjs2-border-width-a11y);
+    margin: calc(-1 * var(--sjs2-border-width-a11y));
+  }
+  .sd-question__header .sd-question__sort-bar {
+    margin-block-start: calc(
+      var(--sd-question-header-gap) - var(--sd-question-header-row-gap) - var(--sjs2-border-width-a11y)
+    );
+  }
+}
+
+.sd-question__sort-bar-top {
+  display: flex;
+  margin-block-end: var(--sjs2-layout-component-question-header-action-group-gap);
+
+  & > .sd-action-bar {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+  }
 }

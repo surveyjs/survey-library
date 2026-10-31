@@ -126,6 +126,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const fixedPopupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer) as HTMLElement;
     const scrollContent = <HTMLElement>popupContainer.querySelector(this.scrollingContentSelector);
     const popupComputedStyle = DomDocumentHelper.getComputedStyle(popupContainer);
+    if (!popupComputedStyle) return;
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
     const marginTop = (parseFloat(popupComputedStyle.marginTop) || 0);
@@ -250,11 +251,12 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       .append("sv-popup--show-pointer", displayMode === "menu-popup" && this.showHeader)
       .append(`sv-popup--${this.popupDirection}`, displayMode === "menu-popup" && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
   }
+  // An overlay has no pointer: its header is the close button, when the popup asks for one.
   protected getShowHeader(): boolean {
-    return this.model.showPointer && !this.isOverlay;
+    return this.isOverlay ? this.getShowCloseButton() : this.model.showPointer;
   }
   protected getPopupHeaderTemplate(): string {
-    return "popup-pointer";
+    return this.isOverlay ? "popup-close-button" : "popup-pointer";
   }
 
   @property({ defaultValue: "left" }) popupDirection: string;
@@ -287,8 +289,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     DomWindowHelper.addEventListener("resize", this.resizeWindowCallback);
     if (this.shouldCreateResizeCallback) {
       const visualViewport = DomWindowHelper.getVisualViewport();
-      visualViewport.addEventListener("resize", this.visualViewportChangedCallback);
-      visualViewport.addEventListener("scroll", this.visualViewportChangedCallback);
+      if (!!visualViewport) {
+        visualViewport.addEventListener("resize", this.visualViewportChangedCallback);
+        visualViewport.addEventListener("scroll", this.visualViewportChangedCallback);
+      }
       if (this.container) {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
@@ -321,8 +325,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     DomWindowHelper.removeEventListener("resize", this.resizeWindowCallback);
     if (this.shouldCreateResizeCallback) {
       const visualViewport = DomWindowHelper.getVisualViewport();
-      visualViewport.removeEventListener("resize", this.visualViewportChangedCallback);
-      visualViewport.removeEventListener("scroll", this.visualViewportChangedCallback);
+      if (!!visualViewport) {
+        visualViewport.removeEventListener("resize", this.visualViewportChangedCallback);
+        visualViewport.removeEventListener("scroll", this.visualViewportChangedCallback);
+      }
       if (this.container) {
         this.container.removeEventListener("touchstart", this.touchStartEventCallback);
         this.container.removeEventListener("touchmove", this.touchMoveEventCallback);
@@ -345,7 +351,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     if (!this.recalculatePositionHandler) {
       this.recalculatePositionHandler = (_: any, options: { isResetHeight: boolean }) => {
-        if (!this.isOverlay) {
+        if (!this.isOverlay && this.model.isVisible) {
           this.updatePosition(options.isResetHeight);
         }
       };

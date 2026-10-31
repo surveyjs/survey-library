@@ -126,6 +126,8 @@ const surveyJson = {
 
 > If multiple notification types are eligible to be displayed for a question, only the strongest type is shown. Warnings appear only after all errors are resolved, and notes appear only when there are no errors or warnings.
 
+[Demo: Validator Notification Types](/form-library/examples/validator-notification-types/ (linkStyle))
+
 ## Implement Custom Client-Side Validation
 
 SurveyJS Form Library raises the [`onValidateQuestion`](https://surveyjs.io/Documentation/Library?id=surveymodel#onValidateQuestion) event, which you can handle to add custom validation logic to your survey. For example, the following code checks that the answer to a `"memo"` question contains the word "survey":

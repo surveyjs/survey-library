@@ -191,7 +191,7 @@ describe("header", () => {
       "alignItems": "flex-start",
       "justifyContent": "flex-end",
       "textAlign": "start",
-      "maxWidth": "300%",
+      "maxWidth": "calc(300% + 2 * var(--sd-header-column-gap))",
     });
   });
 
@@ -281,7 +281,7 @@ describe("header", () => {
     cover.descriptionPositionX = "left";
     cover.descriptionPositionY = "middle";
 
-    expect(cover.cells[3].contentStyle["maxWidth"], "title + description #1").toBe("200%");
+    expect(cover.cells[3].contentStyle["maxWidth"], "title + description #1").toBe("calc(200% + 1 * var(--sd-header-column-gap))");
     expect(cover.cells[5].contentStyle["maxWidth"], "logo #1").toBeUndefined();
 
     cover.descriptionPositionX = "center";
@@ -297,7 +297,7 @@ describe("header", () => {
     cover.descriptionPositionY = "bottom";
 
     expect(cover.cells[2].contentStyle["maxWidth"], "logo #3").toBeUndefined();
-    expect(cover.cells[3].contentStyle["maxWidth"], "title #3").toBe("300%");
+    expect(cover.cells[3].contentStyle["maxWidth"], "title #3").toBe("calc(300% + 2 * var(--sd-header-column-gap))");
     expect(cover.cells[7].contentStyle["maxWidth"], "description #3").toBeUndefined();
   });
 
@@ -484,5 +484,62 @@ describe("header", () => {
     cover.height = 0; // This will unset renderedHeight
     expect(bottomLeftCell.style.gridRow, "#2 gridRow").toBe(1);
     expect(bottomLeftCell.style.gridColumn, "#2 gridColumn").toBe(1);
+  });
+
+  const setupCoverWithMeasuredWidths = (measuredWidths: Array<number>) => {
+    const survey = new SurveyModel({
+      headerView: "advanced",
+      title: "Survey New Design Test",
+      elements: [{ type: "matrixdropdown", name: "q1", columns: [{ name: "col1" }], rows: ["row1"] }]
+    });
+    const cover = <Cover>survey.findLayoutElement("advanced-header").data;
+
+    const rootElement = document.createElement("div");
+    const headerElement = document.createElement("div");
+    headerElement.className = "sv-header__content";
+    headerElement.style.paddingLeft = "40px";
+    headerElement.style.paddingRight = "40px";
+    rootElement.appendChild(headerElement);
+    document.body.appendChild(rootElement);
+    survey.rootElement = rootElement;
+
+    const state = { measureCount: 0, renderCount: 0 };
+    headerElement.getBoundingClientRect = (): DOMRect => {
+      const width = measuredWidths[state.measureCount % measuredWidths.length];
+      state.measureCount++;
+      return <DOMRect>{ width: width };
+    };
+    // a renderer re-renders the header on every cover.width change and measures again afterwards
+    cover.registerPropertyChangedHandlers(["width"], () => {
+      state.renderCount++;
+      if (state.renderCount >= 50) return; // React gives up at this point
+      cover.processResponsiveness();
+    });
+    return { survey, cover, rootElement, state };
+  };
+
+  test("Advanced header doesn't re-render endlessly when the measured width oscillates, Bug#11778", () => {
+    const { cover, rootElement, state } = setupCoverWithMeasuredWidths([1000, 985]);
+
+    cover.processResponsiveness();
+
+    expect(state.renderCount, "the header is re-rendered once, not endlessly").toBe(1);
+    expect(cover.width, "cover.width").toBe(920);
+    document.body.removeChild(rootElement);
+  });
+
+  test("Advanced header still updates its width on a real resize, Bug#11778", () => {
+    const { cover, rootElement, state } = setupCoverWithMeasuredWidths([1000]);
+
+    cover.processResponsiveness();
+    expect(cover.width, "the initial width").toBe(920);
+    expect(state.renderCount, "the initial render").toBe(1);
+
+    (<any>rootElement.querySelector(".sv-header__content")).getBoundingClientRect = (): DOMRect => <DOMRect>{ width: 800 };
+    cover.processResponsiveness(); // this call is skipped, it is caused by our own update
+    cover.processResponsiveness(); // the resize observer reports the new container width
+
+    expect(cover.width, "the width after a resize").toBe(720);
+    document.body.removeChild(rootElement);
   });
 });

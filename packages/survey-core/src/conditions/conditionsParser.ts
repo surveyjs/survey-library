@@ -1,5 +1,5 @@
 import { Operand } from "../expressions/expressions";
-import { PeggySyntaxError, parse } from "../expressions/expressionParser";
+import { ExpressionSyntaxError, parse } from "../expressions/expressionParserCore";
 import { settings } from "../settings";
 
 export class ConditionsParserError {
@@ -38,14 +38,19 @@ export class ConditionsParser {
   }
 
   public parseExpression(text: string): Operand {
+    this.conditionError = undefined;
     try {
       return parse(this.patchExpression(text));
     } catch(e) {
-      if (e instanceof PeggySyntaxError) {
+      if (e instanceof ExpressionSyntaxError) {
         this.conditionError = new ConditionsParserError(
           e.location.start.offset,
           e.message
         );
+      } else if (e instanceof RangeError) {
+        // The parser is recursive: nesting deeper than the stack allows overflows it.
+        // There is no position to report, and the linter shows none for an undefined "at".
+        this.conditionError = new ConditionsParserError(undefined, "The expression is nested too deeply to parse.");
       }
     }
   }

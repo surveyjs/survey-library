@@ -1,45 +1,190 @@
 import { ILintRule, LintContext } from "../rule";
-import { classifyNameRef, classifySiteRefs } from "../expression-utils";
-import { ExpressionSite, NameRef, ParsedRef } from "../symbols";
+import {
+  classifyFunctionArgRefs, classifyNameRef, classifySiteRefs, FunctionArgRef, respellRef,
+} from "../expression-utils";
+import { closestMatch } from "../levenshtein";
+import { getItemFields, getSubElementNames } from "../record-fields";
+import {
+  ElementRecord, ExpressionSite, getEffectiveType, isCarvedOutSite, NameRef, ParsedRef,
+} from "../symbols";
+import { didYouMean } from "../message-utils";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { ILintFix, ILintHint } from "../types";
+import { setFix } from "../fix-utils";
+import { ILintResolvedSettings } from "../lint-settings";
+
+const reasons = SurveyLintReasons["reference/unknown"];
+const fixReasons = SurveyLintFixReasons["reference/unknown"];
+
+// The name the author meant, with only the segments the suggestion spells respelled: the
+// container a dotted reference starts with is right where it was written.
+function respellRaw(ref: ParsedRef): string | undefined {
+  const start = ref.unknownSegmentIndex || 0;
+  const end = ref.suggestionEnd !== undefined ? ref.suggestionEnd : start;
+  return respellRef(ref, start, end, ref.suggestion);
+}
+
+// A reference stands between the delimiters the settings configure, so the whole token is
+// replaced rather than the name inside it - {q1} then never matches inside {q10}. Every
+// occurrence goes: they are one and the same defect. The core drops the conversion char from
+// the name it hands over ({#q1}), so the token is looked for with that char as well, and keeps it.
+function rewriteReference(text: string, ref: ParsedRef,
+  settings: ILintResolvedSettings): string | undefined {
+  const raw = respellRaw(ref);
+  if (!raw || !text) return undefined;
+  const start = settings.expressionVariableStartDelimiter;
+  const end = settings.expressionVariableEndDelimiter;
+  const prefixes = [""];
+  if (!!settings.expressionDisableConversionChar) prefixes.push(settings.expressionDisableConversionChar);
+  let res = text;
+  prefixes.forEach(prefix => {
+    res = res.split(start + prefix + ref.raw + end).join(start + prefix + raw + end);
+  });
+  return res === text ? undefined : res;
+}
 
 function segmentName(ref: ParsedRef): string {
   const idx = ref.unknownSegmentIndex || 0;
   return ref.segments[idx] ? ref.segments[idx].name : ref.raw;
 }
 
-function buildMessage(ref: ParsedRef, context: string): string {
+function getReason(ref: ParsedRef): string {
   const idx = ref.unknownSegmentIndex || 0;
+  if (ref.status === "scoped-unknown") return reasons.scopedUnknown;
+  if (idx > 0 && ref.resolvedTo) return reasons.inContainer;
+  return reasons.notFound;
+}
+
+function buildMessage(ref: ParsedRef, context: string): string {
   let message: string;
-  if (ref.status === "scoped-unknown") {
+  const reason = getReason(ref);
+  if (reason === reasons.scopedUnknown) {
     message = "\"" + segmentName(ref) + "\" is not found in the \"" + ref.scopePrefix + "\" scope of {" + ref.raw + "}.";
-  } else if (idx > 0 && ref.resolvedTo) {
+  } else if (reason === reasons.inContainer) {
     message = "\"" + segmentName(ref) + "\" is not found in " + ref.resolvedTo.type + " \"" + ref.segments[0].name + "\" ({" + ref.raw + "}).";
   } else {
     message = "\"" + ref.raw + "\" is not found - no question, panel, page, calculated value, or variable with that name exists.";
   }
-  if (ref.suggestion) message += " Did you mean \"" + ref.suggestion + "\"?";
+  message += didYouMean(ref.suggestion);
   if (ref.scopeHint) message += " " + ref.scopeHint;
   if (context) message += " " + context;
   return message;
 }
 
-function reportRef(ctx: LintContext, ref: ParsedRef, path: string, site: ExpressionSite | undefined,
-  expression: string, refKind: string): void {
+// The sentence tail that says where the name was written. Text piping names the property:
+// unlike bindings or a choicesByUrl URL, any of dozens of localizable strings can carry it.
+function getNameRefContext(nameRef: NameRef): string {
+  if (nameRef.kind === "binding") return "(referenced in bindings)";
+  if (nameRef.kind === "choicesByUrlVariable") return "(referenced in the choicesByUrl " + nameRef.prop + ")";
+  return "(in the \"" + nameRef.prop + "\" text)";
+}
+
+// A name a function reads at call time. Reported apart from the expression references around
+// it: the sentence has to name the function, and for an inArray call the name is looked up in
+// one element rather than among the survey names, so the generic "not found" would mislead.
+function reportFunctionArg(ctx: LintContext, site: ExpressionSite, argRef: FunctionArgRef): void {
+  const ref = argRef.ref;
+  const name = ref.segments[0].name;
+  const container = argRef.container;
+  const call = argRef.functionName + "()";
+  let message = "\"" + name + "\" is not found";
+  if (container) {
+    message += " in " + container.type + " \"" + container.name + "\" - " + call +
+      " reads that name from every entry.";
+  } else {
+    message += " - the " + call + " argument names no question, panel or page.";
+  }
+  message += didYouMean(ref.suggestion) + " (in \"" + site.text + "\")";
   ctx.report({
-    message: buildMessage(ref, expression ? "(in \"" + expression + "\")" : ""),
-    path: path,
+    message: message,
+    path: site.path,
+    reason: reasons.functionArgNotFound,
+    messageData: {
+      name: name,
+      functionName: argRef.functionName,
+      argIndex: argRef.argIndex,
+      containerName: container ? container.name : undefined,
+      containerType: container ? container.type : undefined,
+      expression: site.text,
+      refKind: "functionArgument",
+      note: "No case: the function returns nothing for that name.",
+    },
+    elementName: site.owner ? site.owner.name : undefined,
+    elementType: site.owner ? site.owner.type : undefined,
+    suggestion: ref.suggestion,
+  });
+}
+
+function isUnknown(ref: ParsedRef): boolean {
+  return ref.status === "unknown" || ref.status === "scoped-unknown";
+}
+
+function getHint(ref: ParsedRef): ILintHint {
+  if (!ref.hintReason) return undefined;
+  return { reason: ref.hintReason, name: ref.hintName };
+}
+
+// One report for both forms an unknown reference takes: inside an expression, where the
+// expression itself is named, and inside a plain name property (bindings, a choicesByUrl URL),
+// where only the context sentence differs.
+function reportRef(ctx: LintContext, ref: ParsedRef, params: {
+  path: string, owner?: ElementRecord, context: string, expression?: string, refKind: string,
+  prop?: string, fix?: ILintFix,
+}): void {
+  ctx.report({
+    message: buildMessage(ref, params.context),
+    path: params.path,
+    reason: getReason(ref),
+    hint: getHint(ref),
     messageData: {
       name: ref.raw,
       segment: segmentName(ref),
       segmentIndex: ref.unknownSegmentIndex || 0,
-      expression: expression,
-      refKind: refKind,
+      root: ref.segments[0].name,
+      containerType: ref.resolvedTo ? ref.resolvedTo.type : undefined,
+      expression: params.expression,
+      refKind: params.refKind,
+      prop: params.prop,
       scopePrefix: ref.scopePrefix,
       note: "No case: the reference cannot be evaluated.",
     },
-    elementName: site && site.owner ? site.owner.name : undefined,
-    elementType: site && site.owner ? site.owner.type : undefined,
+    elementName: params.owner ? params.owner.name : undefined,
+    elementType: params.owner ? params.owner.type : undefined,
     suggestion: ref.suggestion,
+    fix: params.fix,
+  });
+}
+
+// A keyName is a runtime name lookup too: a typo silently disables duplicate-key validation.
+// The key is a field of the row/panel object - a template question by its valueName, a column, or
+// a field a question sharing the value adds (record-fields.ts). A matrix looks the key question up
+// by name first (getUniquenessQuestion -> row.getQuestionByName), so a column or a detail-panel
+// question is a key by its name too.
+function checkKeyName(ctx: LintContext, record: ElementRecord): void {
+  const keyName = record.json ? record.json.keyName : undefined;
+  if (typeof keyName !== "string" || !keyName) return;
+  const type = getEffectiveType(record);
+  const label = type === "matrixdynamic" ? "column" : type === "paneldynamic" ? "template question" : undefined;
+  const map = !!label ? getItemFields(record) : undefined;
+  if (!map || map.has(keyName)) return;
+  if (type === "matrixdynamic" && getSubElementNames(record).has(keyName)) return;
+  const suggestion = closestMatch(keyName, map.names());
+  ctx.report({
+    message: "The keyName of \"" + record.name + "\" names \"" + keyName + "\" - no such " +
+      label + ", so duplicate-key validation never runs." + didYouMean(suggestion),
+    path: record.path + ".keyName",
+    reason: reasons.keyNameNotFound,
+    fix: setFix(fixReasons.setKeyName, record.path + ".keyName", suggestion),
+    messageData: {
+      name: record.name,
+      questionType: record.type,
+      key: keyName,
+      available: map.names(),
+      note: "No case: the key is never matched.",
+    },
+    elementName: record.name,
+    elementType: record.type,
+    suggestion: suggestion,
   });
 }
 
@@ -47,33 +192,32 @@ export const referenceUnknownRule: ILintRule = {
   id: "reference/unknown",
   defaultSeverity: "error",
   run(ctx: LintContext): void {
-    ctx.index.expressionSites.forEach(site => {
-      if (site.parseError) return;
+    ctx.forEachSite("parsed", site => {
       classifySiteRefs(site, ctx.index, ctx.options).forEach(ref => {
-        if (ref.status === "unknown" || ref.status === "scoped-unknown") {
-          reportRef(ctx, ref, site.path, site, site.text, "expression");
-        }
+        if (!isUnknown(ref)) return;
+        reportRef(ctx, ref, {
+          path: site.path, owner: site.owner, refKind: "expression",
+          expression: site.text, context: site.text ? "(in \"" + site.text + "\")" : "",
+          fix: isCarvedOutSite(site) ? undefined
+            : setFix(fixReasons.renameReference, site.path,
+              rewriteReference(site.text, ref, ctx.index.settings)),
+        });
+      });
+      classifyFunctionArgRefs(site, ctx.index, ctx.options).forEach((argRef: FunctionArgRef) => {
+        if (isUnknown(argRef.ref)) reportFunctionArg(ctx, site, argRef);
       });
     });
     ctx.index.nameRefs.forEach((nameRef: NameRef) => {
       const ref = classifyNameRef(nameRef, ctx.index, ctx.options);
-      if (ref.status === "unknown" || ref.status === "scoped-unknown") {
-        ctx.report({
-          message: buildMessage(ref, nameRef.kind === "binding"
-            ? "(referenced in bindings)" : "(referenced in the choicesByUrl URL)"),
-          path: nameRef.path,
-          messageData: {
-            name: ref.raw,
-            segment: segmentName(ref),
-            segmentIndex: ref.unknownSegmentIndex || 0,
-            refKind: nameRef.kind,
-            note: "No case: the reference cannot be evaluated.",
-          },
-          elementName: nameRef.owner ? nameRef.owner.name : undefined,
-          elementType: nameRef.owner ? nameRef.owner.type : undefined,
-          suggestion: ref.suggestion,
-        });
-      }
+      if (!isUnknown(ref)) return;
+      reportRef(ctx, ref, {
+        path: nameRef.path, owner: nameRef.owner, refKind: nameRef.kind, prop: nameRef.prop,
+        context: getNameRefContext(nameRef),
+        fix: setFix(fixReasons.renameReference, nameRef.path, nameRef.kind === "binding"
+          ? respellRaw(ref)
+          : rewriteReference(nameRef.text, ref, ctx.index.settings)),
+      });
     });
+    ctx.index.allElements.forEach(record => checkKeyName(ctx, record));
   },
 };

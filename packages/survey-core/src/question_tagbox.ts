@@ -171,10 +171,11 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
       keyboardHint(this, "keyboardHintNavigateText", ["arrowsVertical"]),
       keyboardHint(this, "keyboardHintCloseText", ["esc"])
     ];
-    if (this.isPopupVisible) {
-      rows.push(keyboardHint(this, "keyboardHintSelectText", ["space", "enter"]));
-    } else if (survey.autoAdvanceEnabled === true) {
+    if (!this.isPopupVisible && survey.autoAdvanceEnabled === true) {
       rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"]));
+    } else {
+      // A closed popup keeps the slot hidden, so that opening it does not resize the row.
+      rows.push(keyboardHint(this, "keyboardHintSelectText", ["space", "enter"], this.isPopupVisible));
     }
     return rows;
   }

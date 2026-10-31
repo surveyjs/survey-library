@@ -2,9 +2,9 @@ import * as React from "react";
 import { Question, KeyboardHintItem } from "survey-core";
 
 export class QuestionHint extends React.Component<{ question: Question }, any> {
-  private renderHint(hint: KeyboardHintItem, index: number, itemCss: string): React.JSX.Element {
+  private renderHint(hint: KeyboardHintItem, index: number): React.JSX.Element {
     return (
-      <span className={itemCss} key={index}>
+      <span className={hint.className} key={index}>
         {hint.parts.map((part, partIndex) => (
           <span key={partIndex} className={part.className}>{part.text}</span>
         ))}
@@ -16,7 +16,7 @@ export class QuestionHint extends React.Component<{ question: Question }, any> {
     if (!keyboardHintModel.hasItems()) return null;
     return (
       <div className={keyboardHintModel.cssClasses.keyboardHintContainer} aria-hidden="true">
-        {keyboardHintModel.items.map((hint, index) => this.renderHint(hint, index, keyboardHintModel.cssClasses.keyboardHintItem))}
+        {keyboardHintModel.items.map((hint, index) => this.renderHint(hint, index))}
       </div>
     );
   }

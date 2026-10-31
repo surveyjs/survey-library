@@ -76,10 +76,11 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
       keyboardHint(this, "keyboardHintNavigateText", ["arrowsVertical"]),
       keyboardHint(this, "keyboardHintCloseText", ["esc"])
     ];
-    if (this.isPopupVisible) {
-      rows.push(keyboardHint(this, "keyboardHintSelectText", ["enter"]));
-    } else if (survey.autoAdvanceEnabled === true) {
+    if (!this.isPopupVisible && survey.autoAdvanceEnabled === true) {
       rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"]));
+    } else {
+      // A closed popup keeps the slot hidden, so that opening it does not resize the row.
+      rows.push(keyboardHint(this, "keyboardHintSelectText", ["enter"], this.isPopupVisible));
     }
     return rows;
   }

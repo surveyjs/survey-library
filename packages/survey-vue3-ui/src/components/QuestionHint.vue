@@ -7,7 +7,7 @@
     <span
       v-for="(hint, hintIndex) in keyboardHintModel.items"
       :key="hintIndex"
-      :class="keyboardHintModel.cssClasses.keyboardHintItem"
+      :class="hint.className"
     >
       <span
         v-for="(part, partIndex) in hint.parts"

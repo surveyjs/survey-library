@@ -1,5 +1,6 @@
 import { Question } from "./question";
 import { SurveyModel } from "./survey";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 export interface IKeyboardHintData {
   keyLabels: string[];
@@ -15,6 +16,7 @@ export interface IKeyboardHintPart {
 export interface IKeyboardHintCss {
   keyboardHintContainer: string;
   keyboardHintItem: string;
+  keyboardHintItemHidden: string;
   keyboardHintKeyLabel: string;
   keyboardHintSeparator: string;
   keyboardHintText: string;
@@ -22,6 +24,7 @@ export interface IKeyboardHintCss {
 
 export class KeyboardHintItem {
   readonly parts: IKeyboardHintPart[];
+  readonly className: string;
   constructor(hint: IKeyboardHintData, orText: string, cssClasses: IKeyboardHintCss) {
     const parts: IKeyboardHintPart[] = [];
     hint.keyLabels.forEach((keyLabel, index) => {
@@ -30,6 +33,7 @@ export class KeyboardHintItem {
     });
     parts.push({ text: hint.text, className: cssClasses.keyboardHintText });
     this.parts = parts;
+    this.className = toCssClasses(cssClasses.keyboardHintItem, !hint.visible && cssClasses.keyboardHintItemHidden);
   }
 }
 
@@ -39,7 +43,7 @@ export class KeyboardHintModel {
   constructor(owner: { getLocalizationString(name: string): string, cssClasses: IKeyboardHintCss }, hints: IKeyboardHintData[]) {
     const orText = owner.getLocalizationString("keyboardHintOrText");
     this.cssClasses = owner.cssClasses;
-    this.items = hints.filter(hint => hint.visible).map(hint => new KeyboardHintItem(hint, orText, this.cssClasses));
+    this.items = hints.map(hint => new KeyboardHintItem(hint, orText, this.cssClasses));
   }
   public hasItems(): boolean {
     return this.items.length > 0;

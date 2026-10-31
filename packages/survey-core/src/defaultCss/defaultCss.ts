@@ -252,6 +252,7 @@ export var defaultCss = {
     commentArea: "sd-question__comment-area",
     keyboardHintContainer: "sd-question__keyboard-hints",
     keyboardHintItem: "sd-question__keyboard-hint",
+    keyboardHintItemHidden: "sd-question__keyboard-hint--hidden",
     keyboardHintKeyLabel: "sd-item__shortcut-key",
     keyboardHintSeparator: "sd-question__keyboard-hint-or",
     keyboardHintText: "sd-question__keyboard-hint-text",

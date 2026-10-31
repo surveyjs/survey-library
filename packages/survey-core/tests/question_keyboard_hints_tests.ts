@@ -11,6 +11,7 @@ const arrows = "↑↓←→"; // eslint-disable-line surveyjs/eslint-plugin-i18
 const enter = "Enter";
 const tab = "Tab";
 const space = "Space";
+const hiddenClass = "sd-question__keyboard-hint--hidden";
 
 function row(text: string, keys: string[]): { text: string, keys: string[] } {
   return { text: text, keys: keys };
@@ -31,11 +32,11 @@ export function hints(question: any, surveyExtra: any = {}): Array<{ text: strin
     showKeyboardHints: true,
     elements: [Object.assign({ name: "q" }, question)]
   }, surveyExtra));
-  return (survey.getQuestionByName("q") as Question).getKeyboardHintModel().items.map(rowOf);
+  return shown(survey.getQuestionByName("q") as Question);
 }
 
 function shown(question: Question): Array<{ text: string, keys: string[] }> {
-  return question.getKeyboardHintModel().items.map(rowOf);
+  return question.getKeyboardHintModel().items.filter(item => !item.className.includes(hiddenClass)).map(rowOf);
 }
 
 test("showKeyboardHints defaults to false on the survey and stays unset on a question", () => {
@@ -335,6 +336,38 @@ test("tagbox swaps space or enter to select with enter to continue", () => {
   q.dropdownListModel.popupModel.show();
   survey.showKeyboardHints = true;
   expect(shown(q)[3].text).toBe("to select");
+});
+
+test("closed dropdown and tagbox without auto-advance keep the enter slot hidden", () => {
+  ["dropdown", "tagbox"].forEach(type => {
+    const survey = new SurveyModel({
+      showKeyboardHints: true,
+      elements: [{ type: type, name: "q", choices: ["a", "b"] }]
+    });
+    const q = survey.getQuestionByName("q") as any;
+    const closed = q.getKeyboardHintModel().items;
+    expect(rowOf(closed[3]).text, type).toBe("to select");
+    expect(closed[3].className, type).toContain(hiddenClass);
+    q.dropdownListModel.popupModel.show();
+    const open = q.getKeyboardHintModel().items;
+    expect(rowOf(open[3]), type).toEqual(rowOf(closed[3]));
+    expect(open[3].className, type).not.toContain(hiddenClass);
+    expect(open.length, type).toBe(closed.length);
+  });
+});
+
+test("only a hidden keyboard hint carries the hidden class", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    elements: [{ type: "dropdown", name: "q", choices: ["a", "b"] }]
+  });
+  const items = (survey.getQuestionByName("q") as Question).getKeyboardHintModel().items;
+  expect(items.map(item => item.className)).toEqual([
+    "sd-question__keyboard-hint",
+    "sd-question__keyboard-hint",
+    "sd-question__keyboard-hint",
+    "sd-question__keyboard-hint sd-question__keyboard-hint--hidden"
+  ]);
 });
 
 test("rating hints are only enter, and only when auto-advance is on", () => {

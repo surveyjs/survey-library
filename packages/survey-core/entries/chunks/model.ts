@@ -203,7 +203,7 @@ export { DefaultTitleModel } from "../../src/defaultTitle";
 export { Question, QuestionValueType, ValidationContext } from "../../src/question";
 export type { IValidationContextParams } from "../../src/question";
 export { KeyboardHintItem, KeyboardHintModel } from "../../src/keyboard-hints";
-export type { IKeyboardHintData, IKeyboardHintCss } from "../../src/keyboard-hints";
+export type { IKeyboardHintData, IKeyboardHintPart, IKeyboardHintCss } from "../../src/keyboard-hints";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";

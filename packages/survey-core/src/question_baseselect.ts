@@ -2973,7 +2973,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
    * @since 3.2.2
    */
   @property({
-    onSet: (_val, target: QuestionSelectBase) => {
+    onSet: (_val, target: QuestionCheckboxBase) => {
       if (!target.isLoadingFromJson) target.updateChoiceKeyBinding(false);
     }
   }) choiceShortcutsEnabled: boolean | undefined;

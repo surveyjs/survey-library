@@ -526,6 +526,9 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
   public getType(): string {
     return "rating";
   }
+  public supportsKeyboardHints(): boolean {
+    return this.displayMode !== "dropdown";
+  }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return this.isDropdown ? [] : advanceKeyboardHints(this);
   }

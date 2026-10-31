@@ -724,6 +724,9 @@ export class QuestionTextModel extends QuestionTextBase {
   supportAutoAdvance(): boolean {
     return !this.getIsInputTextUpdate() && !this.isDateInputType;
   }
+  public supportsKeyboardHints(): boolean {
+    return this.supportAutoAdvance();
+  }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return this.supportAutoAdvance() ? advanceKeyboardHints(this) : [];
   }

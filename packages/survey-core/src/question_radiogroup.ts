@@ -50,6 +50,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
       this.commitAutoAdvance(event);
     }
   }
+  public supportsKeyboardHints(): boolean {
+    return true;
+  }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return singleChoiceKeyboardHints(this);
   }

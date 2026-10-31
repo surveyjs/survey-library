@@ -82,37 +82,10 @@ const tagboxJson = {
   }]
 };
 
-const matrixRows = Array.from({ length: 5 }, (_, index) => ({ value: "row" + (index + 1), text: "Row" + (index + 1) + " title" }));
-const matrixJson = {
-  showQuestionNumbers: false,
-  showKeyboardHints: true,
-  autoAdvanceEnabled: true,
-  elements: [{
-    type: "panel",
-    name: "product",
-    title: "Tell us more about your product",
-    description: "Weird matrix situation",
-    elements: [{
-      type: "matrixdropdown",
-      name: "q",
-      titleLocation: "hidden",
-      cellType: "text",
-      columns: [
-        { name: "c1", title: "Column title" },
-        { name: "c2", title: "Column title" },
-        { name: "c3", title: "Column title" }
-      ],
-      rows: matrixRows
-    }]
-  }]
-};
-
-async function shot(page: Page, name: string, hints: boolean): Promise<void> {
+async function shot(page: Page, name: string): Promise<void> {
   const question = page.locator(".sd-element-wrapper").first();
   await question.waitFor();
-  if (hints) {
-    await page.locator(".sd-question__keyboard-hints").waitFor();
-  }
+  await page.locator(".sd-question__keyboard-hints").waitFor();
   await resetFocusToBody(page);
   await compareScreenshot(page, question, name);
 }
@@ -126,26 +99,26 @@ frameworks.forEach((framework) => {
 
     test("checkbox hints", async ({ page }) => {
       await initSurvey(page, framework, checkboxJson);
-      await shot(page, "keyboard-hints-checkbox.png", true);
+      await shot(page, "keyboard-hints-checkbox.png");
     });
 
     test("radiogroup hints", async ({ page }) => {
       await initSurvey(page, framework, radioJson);
-      await shot(page, "keyboard-hints-radio.png", true);
+      await shot(page, "keyboard-hints-radio.png");
     });
 
     test("tagbox hints", async ({ page }) => {
       await initSurvey(page, framework, tagboxJson);
-      await shot(page, "keyboard-hints-tagbox.png", true);
+      await shot(page, "keyboard-hints-tagbox.png");
     });
 
     test("text inputs hints", async ({ page }) => {
       await initSurvey(page, framework, textInputsJson);
-      await shot(page, "keyboard-hints-text.png", true);
+      await shot(page, "keyboard-hints-text.png");
       await getButtonByText(page, "Next").click();
-      await shot(page, "keyboard-hints-multipletext.png", true);
+      await shot(page, "keyboard-hints-multipletext.png");
       await getButtonByText(page, "Next").click();
-      await shot(page, "keyboard-hints-comment.png", true);
+      await shot(page, "keyboard-hints-comment.png");
     });
 
     test("checkbox hints, light panelless", async ({ page }) => {
@@ -153,7 +126,7 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
-      await shot(page, "keyboard-hints-checkbox-panelless.png", true);
+      await shot(page, "keyboard-hints-checkbox-panelless.png");
     });
   });
 });

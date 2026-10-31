@@ -111,13 +111,16 @@ export class QuestionCommentModel extends QuestionTextBase {
   supportAutoAdvance(): boolean {
     return this.isAutoAdvanceRequested === true;
   }
+  public supportsKeyboardHints(): boolean {
+    return true;
+  }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     if (!this.canAdvanceOnEnter()) return [];
-    const rows: IKeyboardHintData[] = [];
+    const hints: IKeyboardHintData[] = [];
     if (this.acceptCarriageReturn) {
-      rows.push(keyboardHint(this, "keyboardHintNewLineText", ["shiftEnter"]));
+      hints.push(keyboardHint(this, "keyboardHintNewLineText", ["shiftEnter"]));
     }
-    return rows.concat(advanceKeyboardHints(this));
+    return hints.concat(advanceKeyboardHints(this));
   }
   // IsTouch means an on-screen keyboard. question.isMobile follows layout width, so a narrow desktop window must keep Enter.
   protected isAutoAdvanceEnter(event: any): boolean {

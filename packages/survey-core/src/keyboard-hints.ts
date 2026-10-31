@@ -58,6 +58,7 @@ const keyboardHintLabels = {
   esc: "Esc",
   arrowDown: "↓", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   arrowsVertical: "↑↓", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  arrowsHorizontal: "←→", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   arrowsAll: "↑↓←→" // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 };
 

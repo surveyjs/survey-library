@@ -40,14 +40,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "ranking";
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
-    const rows = [
+    const hints = [
       keyboardHint(this, "keyboardHintNextItemText", ["tab"]),
       keyboardHint(this, "keyboardHintMoveText", ["arrowsVertical"])
     ];
     if (this.selectToRankEnabled) {
-      rows.push(keyboardHint(this, "keyboardHintToggleText", ["space"]));
+      hints.push(keyboardHint(this, "keyboardHintToggleText", ["space"]));
     }
-    return rows.concat(advanceKeyboardHints(this));
+    return hints.concat(advanceKeyboardHints(this));
   }
   protected getViewDisplayText(): string {
     const value = this.value;

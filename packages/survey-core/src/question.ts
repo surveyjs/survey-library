@@ -3596,6 +3596,10 @@ export class Question extends SurveyElement<Question>
     if (!survey || !(this.showKeyboardHints ?? survey.showKeyboardHints === true)) return false;
     return !IsTouch && !this.isDesignMode && !this.isReadOnly && !this.inMatrixMode && !this.isCollapsed && !this.singleInputQuestion;
   }
+  // Answers from the question's own settings: survey state and responsive rendering must not hide the property.
+  public supportsKeyboardHints(): boolean {
+    return false;
+  }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return [];
   }
@@ -4204,7 +4208,11 @@ Serializer.addClass("question", [
   { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
   { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
-  { name: "showKeyboardHints:boolean", defaultFunc: () => undefined },
+  {
+    name: "showKeyboardHints:boolean",
+    defaultFunc: () => undefined,
+    visibleIf: (obj: any): boolean => !!obj.supportsKeyboardHints && obj.supportsKeyboardHints() && !obj.isContentElement
+  },
   { name: "allowClear:boolean" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

@@ -97,6 +97,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.commitAutoAdvance(event);
     }
   }
+  public supportsKeyboardHints(): boolean {
+    return true;
+  }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return multiChoiceKeyboardHints(this);
   }

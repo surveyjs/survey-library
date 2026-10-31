@@ -70,6 +70,9 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
       return this.getPropertyValue("isPopupVisible", false);
     }
 
+    public supportsKeyboardHints(): boolean {
+      return true;
+    }
     // Each state keeps the other's slot hidden, so that opening the popup does not resize the row.
     protected getKeyboardHintsCore(): IKeyboardHintData[] {
       const isPopupVisible = this.isPopupVisible;

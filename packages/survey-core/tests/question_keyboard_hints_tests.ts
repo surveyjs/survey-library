@@ -2,6 +2,9 @@ import { afterEach, expect, test, vi } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
+import { QuestionBooleanModel } from "../src/question_boolean";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { ComponentCollection } from "../src/question_custom";
 import { Serializer } from "../src/jsonobject";
 import { getLocaleString } from "../src/surveyStrings";
 import { _setIsTouch } from "../src/utils/devices";
@@ -9,6 +12,7 @@ import { settings } from "../src/settings";
 import "../src/localization/german";
 
 const arrows = "↑↓←→"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+const horizontalArrows = "←→"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 const enter = "Enter";
 const tab = "Tab";
 const space = "Space";
@@ -28,7 +32,7 @@ function rowOf(item: { parts: Array<{ text: string, className: string }> }): { t
   return { text: text, keys: keys };
 }
 
-export function hints(question: any, surveyExtra: any = {}): Array<{ text: string, keys: string[] }> {
+function hints(question: any, surveyExtra: any = {}): Array<{ text: string, keys: string[] }> {
   const survey = new SurveyModel(Object.assign({
     showKeyboardHints: true,
     elements: [Object.assign({ name: "q" }, question)]
@@ -39,6 +43,111 @@ export function hints(question: any, surveyExtra: any = {}): Array<{ text: strin
 function shown(question: Question): Array<{ text: string, keys: string[] }> {
   return question.getKeyboardHintModel().items.filter(item => !item.className.includes(hiddenClass)).map(rowOf);
 }
+
+function isToggleVisible(obj: any): boolean {
+  return Serializer.findProperty(obj.getType(), "showKeyboardHints").isVisible("", obj);
+}
+
+function isToggleVisibleFor(question: any): boolean {
+  const survey = new SurveyModel({ elements: [Object.assign({ name: "q" }, question)] });
+  return isToggleVisible(survey.getQuestionByName("q"));
+}
+
+test("showKeyboardHints is visible on question types that have hints", () => {
+  const choices = ["a", "b"];
+  [
+    { type: "text" },
+    { type: "comment" },
+    { type: "radiogroup", choices: choices },
+    { type: "checkbox", choices: choices },
+    { type: "imagepicker", choices: choices },
+    { type: "ranking", choices: choices },
+    { type: "boolean" },
+    { type: "rating" },
+    { type: "multipletext", items: [{ name: "a" }] },
+    { type: "dropdown", choices: choices },
+    { type: "tagbox", choices: choices }
+  ].forEach(question => {
+    expect(isToggleVisibleFor(question), question.type).toBe(true);
+  });
+});
+
+test("showKeyboardHints is hidden on question types without hints", () => {
+  [
+    { type: "buttongroup", choices: ["a", "b"] },
+    { type: "slider" },
+    { type: "matrix", columns: ["a"], rows: ["b"] },
+    { type: "matrixdropdown", columns: [{ name: "a" }], rows: ["b"] },
+    { type: "matrixdynamic", columns: [{ name: "a" }] },
+    { type: "paneldynamic" },
+    { type: "file" },
+    { type: "signaturepad" },
+    { type: "imagemap" },
+    { type: "expression" },
+    { type: "html" },
+    { type: "image" }
+  ].forEach(question => {
+    expect(isToggleVisibleFor(question), question.type).toBe(false);
+  });
+});
+
+test("showKeyboardHints is hidden by the question settings that remove every hint", () => {
+  expect(isToggleVisibleFor({ type: "rating", displayMode: "dropdown" })).toBe(false);
+  expect(isToggleVisibleFor({ type: "text", inputType: "date" })).toBe(false);
+  expect(isToggleVisibleFor({ type: "text", textUpdateMode: "onTyping" })).toBe(false);
+  expect(isToggleVisibleFor({ type: "boolean", renderAs: "myRenderer" })).toBe(false);
+});
+
+test("showKeyboardHints follows the setting, not the rendering or the survey state", () => {
+  const survey = new SurveyModel({
+    autoAdvanceEnabled: false,
+    elements: [{ type: "rating", name: "q" }]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  q.renderAs = "dropdown";
+  expect(q.displayMode).toBe("auto");
+  expect(isToggleVisible(q)).toBe(true);
+  q.displayMode = "dropdown";
+  expect(isToggleVisible(q)).toBe(false);
+  q.displayMode = "buttons";
+  expect(isToggleVisible(q)).toBe(true);
+});
+
+test("showKeyboardHints is hidden on matrix columns: cells never show the row", () => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrixdropdown",
+      name: "q",
+      columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "dropdown", choices: [1] }],
+      rows: ["r"]
+    }]
+  });
+  const matrix = survey.getQuestionByName("q") as QuestionMatrixDropdownModel;
+  matrix.columns.forEach(column => {
+    expect(Serializer.findProperty(column.cellType, "showKeyboardHints").isVisible("", column), column.name).toBe(false);
+  });
+});
+
+test("showKeyboardHints is hidden on a custom question that inherits it from its content", () => {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    inheritBaseProps: true,
+    questionJSON: { type: "text" }
+  });
+  try {
+    expect(isToggleVisibleFor({ type: "customtext" })).toBe(false);
+  } finally {
+    ComponentCollection.Instance.clear();
+  }
+});
+
+test("showKeyboardHints set on a question type without hints still loads and serializes", () => {
+  const json = { type: "matrix", name: "q", showKeyboardHints: true, columns: ["a"], rows: ["b"] };
+  const survey = new SurveyModel({ elements: [json] });
+  const q = survey.getQuestionByName("q") as Question;
+  expect(q.showKeyboardHints).toBe(true);
+  expect(q.toJSON().showKeyboardHints).toBe(true);
+});
 
 test("showKeyboardHints defaults to false on the survey and stays unset on a question", () => {
   expect(Serializer.findProperty("survey", "showKeyboardHints").getDefaultValue(undefined)).toBe(false);
@@ -234,12 +343,46 @@ test("multi-select image picker uses the checkbox hint row", () => {
   }, { autoAdvanceEnabled: true })[0].keys).toEqual([arrows]);
 });
 
-test("boolean radio, switch, and segmented use arrow hints", () => {
-  for (const displayMode of ["segmented", "radio", "switch"]) {
-    expect(hints({ type: "boolean", displayMode: displayMode })).toEqual([
-      row("to select", [arrows])
-    ]);
-  }
+test("boolean radio shows all arrows: the native radio group moves on every arrow key", () => {
+  expect(hints({ type: "boolean", displayMode: "radio" })).toEqual([row("to select", [arrows])]);
+});
+
+test("boolean segmented shows the horizontal arrows at both widths", () => {
+  expect(hints({ type: "boolean", displayMode: "segmented" })).toEqual([row("to select", [horizontalArrows])]);
+  const survey = new SurveyModel({ showKeyboardHints: true, elements: [{ type: "boolean", name: "q" }] });
+  const q = survey.getQuestionByName("q") as QuestionBooleanModel;
+  q.renderAs = "radio";
+  expect(q.displayMode).toBe("segmented");
+  expect(shown(q)).toEqual([row("to select", [horizontalArrows])]);
+});
+
+test("boolean segmented: Left and Right set the value, Up and Down leave it", () => {
+  const survey = new SurveyModel({ elements: [{ type: "boolean", name: "q", defaultValue: true }] });
+  const q = survey.getQuestionByName("q") as QuestionBooleanModel;
+  const press = (key: string): void => {
+    q.onKeyDownCore({ key: key, stopPropagation: () => {} });
+  };
+  press("ArrowUp");
+  expect(q.value).toBe(true);
+  press("ArrowDown");
+  expect(q.value).toBe(true);
+  press("ArrowLeft");
+  expect(q.value).toBe(false);
+  press("ArrowUp");
+  expect(q.value).toBe(false);
+  press("ArrowRight");
+  expect(q.value).toBe(true);
+});
+
+test("boolean switch shows Space only: arrows do nothing there and Enter toggles too", () => {
+  expect(hints({ type: "boolean", displayMode: "switch" })).toEqual([row("to toggle", [space])]);
+  expect(hints({ type: "boolean", displayMode: "switch", defaultValue: true }, { autoAdvanceEnabled: true })).toEqual([
+    row("to toggle", [space])
+  ]);
+});
+
+test("boolean with a custom renderer shows no hints", () => {
+  expect(hints({ type: "boolean", renderAs: "myRenderer" })).toEqual([]);
 });
 
 test("boolean checkbox uses space and enter", () => {

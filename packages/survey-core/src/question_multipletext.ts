@@ -669,6 +669,9 @@ export class QuestionMultipleTextModel extends Question
     }
     return true;
   }
+  public supportsKeyboardHints(): boolean {
+    return true;
+  }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return advanceKeyboardHints(this);
   }

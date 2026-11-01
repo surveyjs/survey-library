@@ -1,4 +1,5 @@
 import { Serializer } from "../jsonobject";
+import { Helpers } from "../helpers";
 import { InputMaskNumeric } from "./mask_numeric";
 import { IMaskedInputResult, ITextInputParams, numberDefinition } from "./mask_utils";
 
@@ -84,8 +85,15 @@ export class InputMaskCurrency extends InputMaskNumeric {
   // The affixes the currently displayed text was wrapped with, kept apart from the format lookup
   // cache: a locale change callback may make the mask resolve the new locale's affixes before
   // this mask converts the text that the previous ones produced. Both sign forms are retained
-  // because an entered text and a saved value may differ in sign.
+  // because an entered text may have either sign.
   private textAffixes: { positive: ICurrencyAffixes, negative: ICurrencyAffixes };
+  protected updateTextFormat(decimal?: string, thousands?: string): void {
+    super.updateTextFormat(decimal, thousands);
+    this.textAffixes = this.getRenderedAffixes();
+  }
+  protected isTextFormatChanged(): boolean {
+    return super.isTextFormatChanged() || !Helpers.isTwoValueEquals(this.textAffixes, this.getRenderedAffixes(), false, true, false);
+  }
 
   /**
    * A currency symbol or code displayed by the mask, for example, `"$"` or `"USD"`.
@@ -267,12 +275,9 @@ export class InputMaskCurrency extends InputMaskNumeric {
   }
 
   private wrapText(str: string): string {
-    // the snapshot is taken even for an empty text: it records the affixes the element shows now
-    const affixes = this.getRenderedAffixes();
-    this.textAffixes = affixes;
     if (!str) return str;
     const isNegative = str[0] === signToken;
-    const active = isNegative ? affixes.negative : affixes.positive;
+    const active = this.getAffixes(isNegative);
     // the number keeps its own sign unless the pattern places one
     const result = isNegative && active.signInAffix ? str.substring(signToken.length) : str;
     // This is bare numeric text. A matching boundary character belongs to the number, not to

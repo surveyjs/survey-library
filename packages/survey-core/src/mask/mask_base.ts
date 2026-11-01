@@ -29,6 +29,92 @@ export class InputMaskBase extends Base implements IInputMask {
   private ownerValue: ISurveyImpl;
   private formatValues: { [field: string]: string };
   private formatValuesLocale: string;
+  private unmaskedText: any;
+  private unmaskedValueCore: any;
+  private isUnmaskedValueKept: boolean = false;
+  private isUnmaskedValueFaithful: boolean;
+
+  // The value of the owner question without the mask: a number for numeric and currency, ISO text
+  // for datetime, raw characters for pattern. It is a plain field: not serialized, and a change
+  // fires nothing, because the input element adapter re-renders on onPropertyChanged.
+  public get unmaskedValue(): any { return this.unmaskedValueCore; }
+  // The question hands the mask each value it gets. A saved text is parsed once, on arrival, while
+  // it is in the format it was written in. getMaskedValue and getUnmaskedValue also run on values
+  // that are not the question's own, so only this method changes unmaskedValue.
+  public updateUnmaskedValue(val: any): void {
+    if (this.isUnmaskedValueKept && val === this.unmaskedText) return;
+    this.unmaskedText = val;
+    // a number is there when saveMaskedValue is turned on at runtime, and it has no text to parse
+    const isText = this.saveMaskedValue && typeof val !== "number";
+    if (isText) {
+      this.onTextArriving();
+    }
+    this.unmaskedValueCore = isText ? this.getUnmaskedValue(val) : val;
+    this.isUnmaskedValueFaithful = undefined;
+    this.isUnmaskedValueKept = this.isFormatKnown;
+  }
+  // A value that renders back into its text survives a settings change: the text may be in the old
+  // format then, and reading it again would misread it. Any other text is read again. The stored
+  // text does not say which format wrote it, so this is the only test there is. A write does not
+  // pay for it: the check runs before a setting changes, while the old settings still apply.
+  // A number outside min/max has no text, and its own text stays as it is, so it counts as faithful.
+  // So does the text of a mask that is between two locales: the text is in the old format, and the
+  // new one can't judge it.
+  private checkUnmaskedValue(): boolean {
+    if (this.isUnmaskedValueFaithful === undefined) {
+      const text = this.getUnmaskedValueText();
+      this.isUnmaskedValueFaithful = text === this.unmaskedText || text === null || this.isTextFormatChanged();
+    }
+    return this.isUnmaskedValueFaithful;
+  }
+  public setPropertyValue(name: string, val: any): void {
+    this.checkUnmaskedValue();
+    super.setPropertyValue(name, val);
+  }
+  // A text that arrives is in the current format, also in a mask that a locale change did not reach.
+  protected onTextArriving(): void { }
+  protected isTextFormatChanged(): boolean { return false; }
+  // A replaced mask has the same type but maybe other separators, so the text can't be parsed again.
+  public copyUnmaskedValue(src: InputMaskBase): void {
+    if (!!src.saveMaskedValue !== !!this.saveMaskedValue || !src.checkUnmaskedValue()) return;
+    this.unmaskedText = src.unmaskedText;
+    this.unmaskedValueCore = src.unmaskedValueCore;
+    this.isUnmaskedValueFaithful = true;
+    this.isUnmaskedValueKept = src.isUnmaskedValueKept;
+  }
+  // The survey can bring its own formats, so what a mask without one resolves is provisional.
+  protected get isFormatKnown(): boolean {
+    return !!this.getSurvey();
+  }
+  // undefined when the mask can't read the text: an invalid date renders as the empty mask, which
+  // is no text. null for a number outside min/max.
+  private getUnmaskedValueText(): string {
+    const val = this.unmaskedValue;
+    if (val === undefined || val === null) return undefined;
+    const text = this.getMaskedValue(val);
+    return text === this.getMaskedValue("") ? undefined : text;
+  }
+  // The text the input displays for the kept value. What the mask cannot render stays as it is.
+  public getKeptValueText(): string {
+    return this.getUnmaskedValueText() || this.getMaskedValueBySaveMode(this.unmaskedText);
+  }
+  // Regenerates the saved text from the kept value. The new text is not parsed back when it arrives.
+  protected updateSavedText(state: IMaskLocaleChange): void {
+    if (!state || !this.saveMaskedValue) return;
+    const text = this.getUnmaskedValueText();
+    if (!text) return;
+    state.value = text;
+    this.unmaskedText = text;
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "saveMaskedValue" || this.isUnmaskedValueFaithful === false) {
+      this.isUnmaskedValueKept = false;
+      if (this.unmaskedText !== undefined) {
+        this.updateUnmaskedValue(this.unmaskedText);
+      }
+    }
+  }
 
   public get owner(): ISurveyImpl { return this.ownerValue; }
   // Attaching the mask to another owner may change every resolved format default even when the
@@ -107,6 +193,7 @@ export class InputMaskBase extends Base implements IInputMask {
       }
     }
     if (val === this.getPropertyValueWithoutDefault(name)) return;
+    this.checkUnmaskedValue();
     const oldValue = this.getPropertyValue(name);
     this.setPropertyValueDirectly(name, val);
     const newValue = this.getPropertyValue(name);
@@ -128,8 +215,12 @@ export class InputMaskBase extends Base implements IInputMask {
     properties.forEach(property => {
       // an omitted key leaves the property unset instead of storing today's default: a locale
       // dependent default must keep resolving on every read, not freeze at deserialization time
-      (this as any)[property.name] = json[property.name];
+      if (property.name !== "saveMaskedValue") {
+        (this as any)[property.name] = json[property.name];
+      }
     });
+    // last: it makes the mask read the saved text, which needs the rest of the settings
+    this.saveMaskedValue = json.saveMaskedValue;
   }
   public getData(): any {
     const res: any = {};

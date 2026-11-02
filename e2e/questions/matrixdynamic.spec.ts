@@ -1865,3 +1865,122 @@ frameworks.forEach((framework) => {
     });
   });
 });
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} comment area`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1200, height: 900 });
+    });
+
+    test("Comment area keeps the same inset as a single-select matrix", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "off",
+        autoFocusFirstQuestion: false,
+        pages: [{
+          name: "page1",
+          elements: [
+            {
+              type: "matrix",
+              name: "question1",
+              titleLocation: "bottom",
+              showCommentArea: true,
+              columns: ["Column 1", "Column 2", "Column 3"],
+              rows: ["Row 1", "Row 2"]
+            },
+            {
+              type: "matrixdynamic",
+              name: "question2",
+              titleLocation: "bottom",
+              showCommentArea: true,
+              columns: [
+                { name: "column1" },
+                { name: "column2" },
+                { name: "column3" }
+              ],
+              choices: [1, 2, 3, 4, 5]
+            }
+          ]
+        }]
+      });
+
+      const measure = async (question) => {
+        const field = question.locator(".sd-question__comment-area .sd-comment");
+        const title = question.locator(".sd-question__title");
+        const questionBox = await question.boundingBox();
+        const fieldBox = await field.boundingBox();
+        const titleBox = await title.boundingBox();
+        return {
+          titleLeft: titleBox.x - questionBox.x,
+          fieldLeft: fieldBox.x - questionBox.x,
+          fieldRight: questionBox.x + questionBox.width - (fieldBox.x + fieldBox.width),
+          fieldBottom: questionBox.y + questionBox.height - (fieldBox.y + fieldBox.height)
+        };
+      };
+      const gaps = {
+        matrix: await measure(page.locator(".sd-question--table:not(.sd-question--matrixdynamic)")),
+        dynamic: await measure(page.locator(".sd-question--matrixdynamic"))
+      };
+
+      expect(gaps.dynamic.fieldLeft).toBeGreaterThan(16);
+      expect(gaps.dynamic.fieldRight).toBeGreaterThan(16);
+      expect(gaps.dynamic.fieldBottom).toBeGreaterThan(8);
+      expect(Math.abs(gaps.dynamic.fieldLeft - gaps.dynamic.titleLeft)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.fieldLeft - gaps.matrix.fieldLeft)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.fieldRight - gaps.matrix.fieldRight)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.fieldBottom - gaps.matrix.fieldBottom)).toBeLessThan(1);
+    });
+
+    test("Description under the matrix keeps the same inset as a single-select matrix", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "off",
+        autoFocusFirstQuestion: false,
+        elements: [
+          {
+            type: "matrix",
+            name: "question1",
+            description: "A note under the matrix",
+            descriptionLocation: "underInput",
+            columns: ["Column 1", "Column 2", "Column 3"],
+            rows: ["Row 1", "Row 2"]
+          },
+          {
+            type: "matrixdynamic",
+            name: "question2",
+            description: "A note under the matrix",
+            descriptionLocation: "underInput",
+            columns: [
+              { name: "column1" },
+              { name: "column2" },
+              { name: "column3" }
+            ],
+            choices: [1, 2, 3, 4, 5]
+          }
+        ]
+      });
+
+      const measure = async (question) => {
+        const text = question.locator(".sd-question__description--under-input .sv-string-viewer");
+        const title = question.locator(".sd-question__title");
+        const questionBox = await question.boundingBox();
+        const textBox = await text.boundingBox();
+        const titleBox = await title.boundingBox();
+        return {
+          titleLeft: titleBox.x - questionBox.x,
+          textLeft: textBox.x - questionBox.x,
+          textBottom: questionBox.y + questionBox.height - (textBox.y + textBox.height)
+        };
+      };
+      const gaps = {
+        matrix: await measure(page.locator(".sd-question--table:not(.sd-question--matrixdynamic)")),
+        dynamic: await measure(page.locator(".sd-question--matrixdynamic"))
+      };
+
+      expect(gaps.dynamic.textLeft).toBeGreaterThan(16);
+      expect(gaps.dynamic.textBottom).toBeGreaterThan(8);
+      expect(Math.abs(gaps.dynamic.textLeft - gaps.dynamic.titleLeft)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.textLeft - gaps.matrix.textLeft)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.textBottom - gaps.matrix.textBottom)).toBeLessThan(1);
+    });
+  });
+});

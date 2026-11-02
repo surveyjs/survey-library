@@ -551,8 +551,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, paneldynamicRoot, "panel-dynamic-comment.png");
     });
 
-    // TODO: Reanimate in processing of https://github.com/surveyjs/survey-library/issues/11421
-    test.skip("Paneldynamic: removePanelButtonLocation=right", async ({ page }) => {
+    // https://github.com/surveyjs/survey-library/issues/11772
+    test("Paneldynamic: removePanelButtonLocation=right", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         "elements": [

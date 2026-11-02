@@ -308,7 +308,29 @@ export var teluguStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "పురోగతి బార్",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "పేజీ {0}"
+  progressbarPage: "పేజీ {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "ఎంచుకోవడానికి",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "టోగుల్ చేయడానికి",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "నావిగేట్ చేయడానికి",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "కొనసాగడానికి",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "సమర్పించడానికి",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "లేదా",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "కొత్త లైన్ కోసం",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "తరువాత ఆప్షన్ కు",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "తరలించడానికి",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "తెరవడానికి",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "మూసివేయడానికి"
 };
 
 setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "తెలుగు", englishName: "Telugu" });

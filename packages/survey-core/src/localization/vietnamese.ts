@@ -308,7 +308,29 @@ export var vietnameseSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Thanh tiến trình",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Trang {0}"
+  progressbarPage: "Trang {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "để chọn",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "chuyển đổi",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "điều hướng",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "tiếp tục",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "nộp",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "hoặc",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "cho dòng sản phẩm mới",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "đến tùy chọn tiếp theo",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "di chuyển",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "mở",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "đóng cửa"
 };
 
 setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "việt nam", englishName: "Vietnamese" });

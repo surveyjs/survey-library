@@ -308,7 +308,29 @@ export var hebrewSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "מד התקדמות",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "עמוד {0}"
+  progressbarPage: "עמוד {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "לבחור",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "להחליף",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "לנווט",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "להמשיך",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "להגיש",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "או",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "לקו חדש",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "לאפשרות הבאה",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "לזוז",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "לפתוח",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "לסיים"
 };
 
 setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew", rtl: true });

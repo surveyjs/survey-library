@@ -308,6 +308,28 @@ export var slovenianStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Vrstica napredovanja",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Stran {0}"
+  progressbarPage: "Stran {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "za izbiro",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "za preklop",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "za navigacijo",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "nadaljevanje",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "za oddajo",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "ali",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "za novo linijo",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Na naslednjo možnost",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "da se premaknemo",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "Za odpiranje",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "za zaprtje"
 };
 setupLocale({ localeCode: "sl", strings: slovenianStrings, nativeName: "slovenščina", englishName: "Slovenian" });

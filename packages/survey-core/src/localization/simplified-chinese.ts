@@ -308,7 +308,29 @@ export var simplifiedChineseSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "进度条",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "第{0}页"
+  progressbarPage: "第{0}页",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "选择",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "切换",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "导航",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "继续",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "提交",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "或",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "新线路",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "下一个选项",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "搬家",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "开场",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "结束"
 };
 
 setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nativeName: "简体中文", englishName: "Simplified Chinese" });

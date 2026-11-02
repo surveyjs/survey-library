@@ -308,7 +308,29 @@ export var catalanSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Barra de progrés",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Pàgina {0}"
+  progressbarPage: "Pàgina {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "per seleccionar",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "per canviar",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "per navegar",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Continuar",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "per presentar",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "o",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "per una nova línia",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "a l'opció següent",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "Moure's",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "per obrir",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "per tancar"
 };
 
 setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "català", englishName: "Catalan" });

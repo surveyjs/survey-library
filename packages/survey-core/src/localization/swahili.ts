@@ -308,7 +308,29 @@ export var swahiliStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Upau wa maendeleo",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Ukurasa {0}"
+  progressbarPage: "Ukurasa {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "Kuchagua",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "kugeuza",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "kuvinjari",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Kuendelea",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Kuwasilisha",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "au",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "kwa mstari mpya",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "kwa chaguo linalofuata",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "kusonga",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "kufungua",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "kufunga"
 };
 
 setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", englishName: "Swahili" });

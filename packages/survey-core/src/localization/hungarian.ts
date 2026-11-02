@@ -308,7 +308,29 @@ export var hungarianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Folyamatjelző sáv",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "{0} oldal"
+  progressbarPage: "{0} oldal",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "kiválasztani",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "kapcsolódni",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Navigációhoz",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "folytatni",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "benyújtani",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "vagy",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "egy új vonalhoz",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "A következő opcióhoz",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "mozogni",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "megnyitni",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "zárni"
 };
 
 setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "magyar", englishName: "Hungarian" });

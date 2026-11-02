@@ -326,7 +326,29 @@ export var portugueseSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "para selecionar",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "para alternar",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "para navegar",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Continuar",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "para submeter",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "ou",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "para uma nova linha",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "para a próxima opção",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "para se mover",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "abrir",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "para fechar"
 };
 
 setupLocale({ localeCode: "pt", strings: portugueseSurveyStrings, nativeName: "português", englishName: "Portuguese" });

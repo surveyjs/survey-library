@@ -326,7 +326,29 @@ export var slovakSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "na výber",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "prepnúť",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Na navigáciu",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "pokračovanie",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Na odoslanie",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "alebo",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "pre novú trať",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Na ďalšiu možnosť",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "pohnúť sa",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "na otvorenie",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "Na záver"
 };
 
 setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "Slovenčina", englishName: "Slovak" });

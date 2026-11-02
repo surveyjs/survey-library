@@ -10,6 +10,7 @@
 // into an alert. Keep that split: raw defs go to disk, tokens go to alerts.
 
 import { runInNewContext } from "node:vm";
+import { tableCellComponents } from "./scoring.mjs";
 
 // --- GitHub fetch -----------------------------------------------------------
 
@@ -32,6 +33,15 @@ export async function listRepoFiles(repo, ref) {
     return { paths: (body.tree || []).filter((t) => t.type === "blob").map((t) => t.path), truncated: true };
   }
   return { paths: (body.tree || []).filter((t) => t.type === "blob").map((t) => t.path), truncated: false };
+}
+
+/** The commit a ref points at, so a snapshot records exactly what it was scraped from. */
+export async function resolveCommit(repo, ref) {
+  const url = `https://api.github.com/repos/${repo}/commits/${encodeURIComponent(ref)}`;
+  const res = await fetch(url, { headers: GH_HEADERS() });
+  if (!res.ok) throw new Error(`GitHub commit ${repo}@${ref}: ${res.status} ${res.statusText}`);
+  const body = await res.json();
+  return body.sha;
 }
 
 /** Fetch a single file's raw text. */
@@ -156,30 +166,73 @@ function looksLikeJsonSchema(v) {
 function looksLikeFormioForm(v) {
   return v && typeof v === "object" && Array.isArray(v.components);
 }
+// Form.io test fixtures are often a single component rather than a form.
+function looksLikeFormioComponent(v) {
+  return v && typeof v === "object" && !Array.isArray(v) && typeof v.type === "string" && typeof v.key === "string";
+}
+
+// The part of a literal's name that pairs a schema with its uiSchema: `schema_2343` and
+// `uischema_2343` share `_2343`, `schema` and `uischema` share the empty key.
+function pairKey(name, word) {
+  const lower = name.toLowerCase();
+  const at = lower.indexOf(word);
+  return at < 0 ? lower : lower.slice(0, at) + lower.slice(at + word.length);
+}
 
 /**
  * Turn a module's extracted literals into definitions ready to score/convert.
- * For `json-schema`, pairs a schema literal with a sibling uiSchema literal when
- * both are present (`{ schema, uiSchema }`), else emits the bare schema. For
- * `formio`, emits each object with a top-level `components` array.
+ * For `json-schema`, pairs each schema literal with the uiSchema literal of the
+ * same name (`{ schema, uiSchema }`), see `pairSchemas`. For `formio`, emits each
+ * object with a top-level `components` array, and wraps a single component.
  */
 export function classifyDefinitions(source, literals) {
   const defs = [];
   if (source === "formio") {
-    for (const { name, value } of literals) if (looksLikeFormioForm(value)) defs.push({ suffix: name, def: value });
+    for (const { name, value } of literals) {
+      if (looksLikeFormioForm(value)) defs.push({ suffix: name, def: value });
+      else if (looksLikeFormioComponent(value)) defs.push({ suffix: name, def: { components: [value] } });
+    }
     return defs;
   }
   // json-schema family
-  const schemas = literals.filter((l) => looksLikeJsonSchema(l.value) && !looksLikeUiSchema(l.value));
-  const uis = literals.filter((l) => looksLikeUiSchema(l.value));
   // An RJSF/JSONForms module commonly exports `{ schema, uiSchema }` as one const.
   const envelopes = literals.filter((l) => looksLikeJsonSchema(l.value?.schema));
   for (const { name, value } of envelopes) defs.push({ suffix: name, def: { schema: value.schema, uiSchema: value.uiSchema } });
-  if (envelopes.length === 0) {
-    const ui = uis[0]?.value;
-    for (const { name, value } of schemas) defs.push({ suffix: name, def: ui ? { schema: value, uiSchema: ui } : value });
-  }
+  if (envelopes.length === 0) defs.push(...pairSchemas(literals));
   return defs;
+}
+
+// A schema pairs with the uiSchema of the same pair key. A schema with no match takes the
+// module's only uiSchema if it has exactly one, and otherwise stays bare. A uiSchema left over
+// pairs with the module's only schema, so one schema with two uiSchemas gives two definitions;
+// that schema is then not emitted bare as well.
+function pairSchemas(literals) {
+  const schemas = literals.filter((l) => looksLikeJsonSchema(l.value) && !looksLikeUiSchema(l.value));
+  const uis = literals.filter((l) => looksLikeUiSchema(l.value));
+  const used = new Set();
+  const paired = [];
+  const unmatched = [];
+  for (const schema of schemas) {
+    const key = pairKey(schema.name, "schema");
+    const ui = uis.find((u) => !used.has(u) && pairKey(u.name, "uischema") === key);
+    if (ui) {
+      used.add(ui);
+      paired.push({ suffix: schema.name, def: { schema: schema.value, uiSchema: ui.value } });
+    } else {
+      unmatched.push(schema);
+    }
+  }
+  if (uis.length === 1) {
+    for (const schema of unmatched) paired.push({ suffix: schema.name, def: { schema: schema.value, uiSchema: uis[0].value } });
+    return paired;
+  }
+  const leftover = uis.filter((u) => !used.has(u));
+  if (schemas.length === 1 && leftover.length > 0) {
+    for (const ui of leftover) paired.push({ suffix: ui.name, def: { schema: schemas[0].value, uiSchema: ui.value } });
+    return paired;
+  }
+  for (const schema of unmatched) paired.push({ suffix: schema.name, def: schema.value });
+  return paired;
 }
 
 // --- construct tokens (the drift signal) ------------------------------------
@@ -230,11 +283,23 @@ export function constructTokens(source, def) {
   if (source === "formio") {
     const visit = (comp) => {
       if (!comp || typeof comp !== "object") return;
-      if (typeof comp.type === "string") mark(`type:${comp.type}`, HANDLED_FORMIO_TYPES.has(comp.type));
+      if (typeof comp.type === "string") {
+        mark(`type:${comp.type}`, HANDLED_FORMIO_TYPES.has(comp.type));
+        for (const key of Object.keys(comp)) mark(`key:${comp.type}.${key}`, true);
+      }
+      // Values that change branching. Each is a closed set, so the value itself is the token.
+      const cond = comp.conditional;
+      if (cond && typeof cond === "object" && !Array.isArray(cond)) {
+        if ("show" in cond) mark(`show:${cond.show === null ? "null" : typeof cond.show}`, true);
+        if (Array.isArray(cond.conditions)) {
+          for (const c of cond.conditions) if (typeof c?.operator === "string") mark(`condition-op:${c.operator}`, true);
+        }
+      }
+      if (typeof comp.dataSrc === "string") mark(`data-src:${comp.dataSrc}`, true);
       const kids = [];
       if (Array.isArray(comp.components)) kids.push(...comp.components);
       if (Array.isArray(comp.columns)) for (const c of comp.columns) if (Array.isArray(c?.components)) kids.push(...c.components);
-      if (Array.isArray(comp.rows)) for (const r of comp.rows) if (Array.isArray(r)) for (const cell of r) if (Array.isArray(cell)) kids.push(...cell);
+      if (Array.isArray(comp.rows)) for (const r of comp.rows) if (Array.isArray(r)) for (const cell of r) kids.push(...tableCellComponents(cell));
       kids.forEach(visit);
     };
     (Array.isArray(def.components) ? def.components : []).forEach(visit);
@@ -270,16 +335,49 @@ export function constructTokens(source, def) {
   };
   visitSchema(schema, 0);
 
+  // JSONForms: a tree of typed UI nodes under `elements`.
+  const visitCondition = (c, depth) => {
+    if (!c || typeof c !== "object" || Array.isArray(c) || depth > 40) return;
+    if (typeof c.type === "string") mark(`rule-condition:${c.type}`, true);
+    else if (c.schema && typeof c.schema === "object") for (const k of Object.keys(c.schema)) mark(`rule-condition:${k}`, true);
+    if (Array.isArray(c.conditions)) c.conditions.forEach((x) => visitCondition(x, depth + 1));
+  };
   const visitUi = (n, depth) => {
     if (!n || typeof n !== "object" || depth > 40) return;
     if (typeof n.type === "string") mark(`ui-type:${n.type}`, HANDLED_UI_TYPES.has(n.type));
-    for (const [k, v] of Object.entries(n)) {
-      if (k === "ui:widget" && typeof v === "string") mark(`ui-widget:${v}`, HANDLED_UI_WIDGETS.has(v));
+    const options = n.options;
+    if (options && typeof options === "object" && !Array.isArray(options)) {
+      for (const k of Object.keys(options)) mark(`ui-option:${k}`, true);
+      if (options.detail && typeof options.detail === "object") visitUi(options.detail, depth + 1);
+    }
+    if (n.rule && typeof n.rule === "object") {
+      if (typeof n.rule.effect === "string") mark(`rule-effect:${n.rule.effect}`, true);
+      visitCondition(n.rule.condition, 0);
     }
     if (Array.isArray(n.elements)) n.elements.forEach((c) => visitUi(c, depth + 1));
   };
-  if (def && def.uiSchema) visitUi(def.uiSchema, 0);
+  // RJSF: `ui:*` keys nested by property name, `items` and variant at any depth.
+  const visitRjsf = (n, depth) => {
+    if (!n || typeof n !== "object" || depth > 40) return;
+    for (const [k, v] of Object.entries(n)) {
+      if (k.startsWith("ui:")) mark(`ui-key:${k}`, true);
+      if (k === "ui:widget" && typeof v === "string") mark(`ui-widget:${v}`, HANDLED_UI_WIDGETS.has(v));
+      if (v && typeof v === "object") visitRjsf(v, depth + 1);
+    }
+  };
+  if (def && def.uiSchema) {
+    visitUi(def.uiSchema, 0);
+    visitRjsf(def.uiSchema, 0);
+  }
   return { tokens, unhandled };
+}
+
+// Token kinds that name a property or a branching value rather than a construct. A new one
+// raises a `new-key` alert whether or not the converter handles it.
+const PROPERTY_TOKEN_PREFIXES = ["key:", "condition-op:", "data-src:", "show:", "ui-option:", "rule-effect:", "rule-condition:", "ui-key:"];
+
+export function isPropertyToken(token) {
+  return PROPERTY_TOKEN_PREFIXES.some((p) => token.startsWith(p));
 }
 
 // --- vendored @formio/core type snapshot parsing ----------------------------
@@ -327,6 +425,6 @@ export function diffSets(prev, next) {
 /** Stable, filesystem-safe snapshot filename for an upstream path. */
 export function snapshotName(repo, path, suffix) {
   const base = `${repo}/${path}`.replace(/[^A-Za-z0-9._-]+/g, "__").replace(/^_+|_+$/g, "");
-  const stem = base.replace(/\.(ts|js|json)$/i, "");
+  const stem = base.replace(/\.(tsx?|js|json)$/i, "");
   return `${stem}${suffix && suffix !== "default" ? "__" + suffix : ""}.json`;
 }

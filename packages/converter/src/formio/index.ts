@@ -4,11 +4,11 @@
 // logic embedded in the nodes. There is no published JSON Schema of the form
 // definition; the authoritative shape is the TypeScript types in `@formio/core`,
 // a snapshot of whose builtin `type` set we vendor under `vendor/` and diff
-// against upstream via `npm run corpus:refresh` (see `promts/03-eval-corpus.md`). This module never throws on a
+// against upstream via `npm run corpus:refresh`. This module never throws on a
 // construct it cannot map -- every such case goes to the report. It throws only
 // when the input is not a Form.io form at all (see `assertFormioForm`).
 //
-// SETTLED MODELLING DECISIONS (do not re-open in review -- see promts/01-formio.md):
+// SETTLED MODELLING DECISIONS (do not re-open in review):
 //
 //   * Data grids (`datagrid` / `editgrid`) -> `paneldynamic`, always, with
 //     `ASSUMED_DATAGRID_MODEL`. A data grid is a repeating group of arbitrary
@@ -83,9 +83,12 @@ interface FormioComponent {
   values?: FormioChoice[];
   components?: FormioComponent[]; // container/panel/grid children
   columns?: { components?: FormioComponent[] }[]; // `columns` layout
-  rows?: FormioComponent[][][]; // `table` layout
+  rows?: FormioTableCell[][]; // `table` layout
   [key: string]: unknown;
 }
+
+// A `table` cell is `{ components: [...] }`; older forms store the component array itself.
+type FormioTableCell = { components?: FormioComponent[] } | FormioComponent[];
 
 /**
  * Recognize a Form.io form definition. A Form.io form is an object with a
@@ -269,7 +272,7 @@ function mapComponent(
     // Layout containers carry no SurveyJS structural equivalent -- flatten to a
     // panel and record the lost layout.
     ctx.report.dropped(FormioCodes.DROPPED_STYLING, sourcePtr, targetPath);
-    return mapPanel(comp, sourcePtr, targetPath, ctx, collectLayoutChildren(comp));
+    return mapPanel(comp, sourcePtr, targetPath, ctx, collectLayoutChildren(comp, sourcePtr));
   }
   if (type === "datagrid" || type === "editgrid") {
     return mapDataGrid(comp, sourcePtr, targetPath, ctx);
@@ -353,9 +356,8 @@ function applyCommon(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: st
   if (comp.label !== undefined && el.type !== "html") el.title = comp.label;
   if (comp.description) el.description = comp.description;
   if (comp.placeholder && (el.type === "text" || el.type === "comment")) el.placeholder = comp.placeholder;
-  if (comp.defaultValue !== undefined && comp.defaultValue !== null && comp.defaultValue !== "") {
-    el.defaultValue = comp.defaultValue;
-  }
+  const defaultValue = readDefaultValue(comp.defaultValue);
+  if (defaultValue !== undefined) el.defaultValue = defaultValue;
 
   if (comp.validate?.required) el.isRequired = true;
   const validators = readValidators(comp.validate);
@@ -373,6 +375,16 @@ function applyCommon(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: st
     const visibleIf = readVisibleIf(comp, sourcePtr, targetPath, ctx);
     if (visibleIf) el.visibleIf = visibleIf;
   }
+}
+
+// Form.io writes `[null]` on a `multiple` number or currency field to mean "no default", and
+// survey-core cannot load it. Null items are dropped and an array left empty gives no default;
+// falsy values such as `0`, `false` and `""` inside an array stay.
+function readDefaultValue(value: unknown): unknown {
+  if (value === undefined || value === null || value === "") return undefined;
+  if (!Array.isArray(value)) return value;
+  const items = value.filter((item) => item !== null && item !== undefined);
+  return items.length > 0 ? items : undefined;
 }
 
 /** Map a container component to a SurveyJS `panel`, recursing into its children. */
@@ -420,22 +432,28 @@ function indexedChildren(components: FormioComponent[] | undefined, ptrPrefix: s
 }
 
 /** Flatten `columns` / `table` layout children into a single ordered list. */
-function collectLayoutChildren(comp: FormioComponent): IndexedChild[] {
+function collectLayoutChildren(comp: FormioComponent, sourcePtr: string): IndexedChild[] {
   const out: IndexedChild[] = [];
   if (Array.isArray(comp.columns)) {
     comp.columns.forEach((col, ci) => {
-      (col.components ?? []).forEach((child, i) => out.push({ child, ptr: `/columns/${ci}/components/${i}` }));
+      (col?.components ?? []).forEach((child, i) => out.push({ child, ptr: `${sourcePtr}/columns/${ci}/components/${i}` }));
     });
   }
   if (Array.isArray(comp.rows)) {
-    comp.rows.forEach((row, ri) =>
-      row.forEach((cell, ci) =>
-        cell.forEach((child, i) => out.push({ child, ptr: `/rows/${ri}/${ci}/${i}` }))
-      )
-    );
+    comp.rows.forEach((row, ri) => {
+      if (!Array.isArray(row)) return;
+      row.forEach((cell, ci) => {
+        const cellPtr = `${sourcePtr}/rows/${ri}/${ci}`;
+        if (Array.isArray(cell)) {
+          cell.forEach((child, i) => out.push({ child, ptr: `${cellPtr}/${i}` }));
+        } else if (Array.isArray(cell?.components)) {
+          cell.components.forEach((child, i) => out.push({ child, ptr: `${cellPtr}/components/${i}` }));
+        }
+      });
+    });
   }
   if (Array.isArray(comp.components)) {
-    comp.components.forEach((child, i) => out.push({ child, ptr: `/components/${i}` }));
+    comp.components.forEach((child, i) => out.push({ child, ptr: `${sourcePtr}/components/${i}` }));
   }
   return out;
 }

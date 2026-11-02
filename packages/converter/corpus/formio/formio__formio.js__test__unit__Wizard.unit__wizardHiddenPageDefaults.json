@@ -1,0 +1,79 @@
+{
+  "display": "wizard",
+  "type": "form",
+  "components": [
+    {
+      "title": "Page 1",
+      "label": "Page 1",
+      "type": "panel",
+      "key": "page1",
+      "components": [
+        {
+          "label": "Checkbox",
+          "tableView": false,
+          "key": "checkbox",
+          "type": "checkbox",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    },
+    {
+      "label": "Page 2",
+      "title": "Page 2",
+      "key": "page2",
+      "type": "panel",
+      "input": false,
+      "tableView": false,
+      "conditional": {
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "page1.checkbox",
+            "operator": "isEqual",
+            "value": true
+          }
+        ],
+        "show": true
+      },
+      "components": [
+        {
+          "label": "Text Field",
+          "tableView": true,
+          "clearOnHide": false,
+          "key": "textField",
+          "type": "textfield",
+          "input": true,
+          "defaultValue": "test"
+        },
+        {
+          "label": "Number",
+          "mask": false,
+          "tableView": false,
+          "defaultValue": 1,
+          "delimiter": false,
+          "requireDecimal": false,
+          "inputFormat": "plain",
+          "clearOnHide": false,
+          "key": "number",
+          "type": "number",
+          "input": true
+        },
+        {
+          "label": "Currency",
+          "mask": false,
+          "tableView": false,
+          "defaultValue": 2,
+          "currency": "USD",
+          "inputFormat": "plain",
+          "clearOnHide": false,
+          "key": "currency",
+          "type": "currency",
+          "input": true,
+          "delimiter": true
+        }
+      ]
+    }
+  ]
+}

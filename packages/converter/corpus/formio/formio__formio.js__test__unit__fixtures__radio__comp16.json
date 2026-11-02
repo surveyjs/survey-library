@@ -1,0 +1,47 @@
+{
+  "components": [
+    {
+      "label": "Checkbox",
+      "tableView": false,
+      "key": "checkbox",
+      "type": "checkbox",
+      "input": true
+    },
+    {
+      "label": "Radio",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "a",
+          "value": "a"
+        },
+        {
+          "label": "b",
+          "value": "b"
+        }
+      ],
+      "key": "radio",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "checkbox",
+            "operator": "isEqual",
+            "value": true
+          }
+        ]
+      },
+      "type": "radio",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "input": true
+    }
+  ]
+}

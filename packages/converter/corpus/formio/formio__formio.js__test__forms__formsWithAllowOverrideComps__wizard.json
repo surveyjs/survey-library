@@ -1,0 +1,108 @@
+{
+  "_id": "65966189ac3dff73a7234dd9",
+  "title": "clear rows",
+  "name": "clearRows",
+  "path": "clearrows",
+  "type": "form",
+  "display": "wizard",
+  "components": [
+    {
+      "title": "Page 1",
+      "label": "Page 1",
+      "type": "panel",
+      "key": "page1",
+      "components": [
+        {
+          "label": "Radio",
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "tableView": true,
+          "values": [
+            {
+              "label": " a",
+              "value": "a",
+              "shortcut": ""
+            },
+            {
+              "label": "b",
+              "value": "b",
+              "shortcut": ""
+            },
+            {
+              "label": "c",
+              "value": "c",
+              "shortcut": ""
+            }
+          ],
+          "allowCalculateOverride": true,
+          "key": "radio1",
+          "type": "radio",
+          "alwaysEnabled": false,
+          "input": true
+        },
+        {
+          "label": "Text Field",
+          "alwaysEnabled": false,
+          "tableView": true,
+          "calculateValue": "if (data.radio1 == 'a'){value = 'test data'}",
+          "allowCalculateOverride": true,
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "label": "Text Area",
+          "autoExpand": false,
+          "alwaysEnabled": false,
+          "tableView": true,
+          "calculateValue": "if (data.radio1 == 'a'){value = 'test data'}",
+          "allowCalculateOverride": true,
+          "key": "textArea",
+          "type": "textarea",
+          "input": true
+        },
+        {
+          "label": "Number",
+          "mask": false,
+          "alwaysEnabled": false,
+          "tableView": false,
+          "delimiter": false,
+          "requireDecimal": false,
+          "inputFormat": "plain",
+          "calculateValue": "if (data.radio1 == 'a'){value = 123}",
+          "allowCalculateOverride": true,
+          "key": "number",
+          "type": "number",
+          "input": true
+        },
+        {
+          "label": "Radio",
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "tableView": false,
+          "values": [
+            {
+              "label": "one",
+              "value": "one",
+              "shortcut": ""
+            },
+            {
+              "label": "two",
+              "value": "two",
+              "shortcut": ""
+            }
+          ],
+          "calculateValue": "value = 'one'",
+          "allowCalculateOverride": true,
+          "key": "radio",
+          "type": "radio",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false,
+      "alwaysEnabled": false,
+      "path": "page1"
+    }
+  ]
+}

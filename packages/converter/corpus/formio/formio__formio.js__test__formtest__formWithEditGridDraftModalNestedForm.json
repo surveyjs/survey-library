@@ -1,0 +1,46 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Edit Grid",
+      "tableView": false,
+      "modal": true,
+      "rowDrafts": true,
+      "key": "editGrid",
+      "type": "editgrid",
+      "input": true,
+      "components": [
+        {
+          "type": "form",
+          "components": [
+            {
+              "label": "Text Field",
+              "tableView": true,
+              "key": "textField",
+              "type": "textfield",
+              "input": true
+            }
+          ],
+          "title": "smallChildForm",
+          "display": "form",
+          "name": "smallChildForm",
+          "path": "smallchildform",
+          "machineName": "cjksbatcpbhyfbs:smallChildForm"
+        }
+      ]
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "title": "testEditGrid333",
+  "display": "form",
+  "name": "testEditGrid333",
+  "path": "testeditgrid333",
+  "machineName": "cjksbatcpbhyfbs:testEditGrid333"
+}

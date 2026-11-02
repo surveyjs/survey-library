@@ -1,0 +1,11 @@
+{
+  "components": [
+    {
+      "label": "Select",
+      "tableView": true,
+      "key": "select",
+      "type": "select",
+      "input": true
+    }
+  ]
+}

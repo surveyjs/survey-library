@@ -13,6 +13,7 @@
 // corpus specs (step 03) so both hold the output to the same bar.
 
 import { SurveyModel } from "survey-core";
+import { lintSurvey, ILintFinding } from "survey-core/linter";
 import { expect } from "vitest";
 
 // Container arrays a SurveyJS element tree can nest children under. Walking these
@@ -74,4 +75,11 @@ export function assertConstructsCleanly(surveyJson: unknown, label = "survey"): 
   ).toBe(0);
 
   return survey;
+}
+
+// Lint findings for a converted survey. Unlike `jsonErrors`, the linter sees defects that load
+// without error: a reference to a missing question, a default that is not a choice, a duplicate
+// name. Callers count findings by `ruleId` and `severity`; the messages hold content.
+export function lintOutput(surveyJson: unknown): ILintFinding[] {
+  return lintSurvey(surveyJson as object).findings;
 }

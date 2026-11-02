@@ -1,44 +1,72 @@
 {
-  "definitions": 95,
-  "fieldsIn": 433,
-  "fieldsOut": 322,
+  "definitions": 617,
+  "fieldsIn": 1552,
+  "fieldsOut": 1347,
   "buckets": {
-    "unsupported": 51,
-    "unknown": 0,
-    "assumed": 9,
-    "dropped": 55
+    "unsupported": 187,
+    "unknown": 17,
+    "assumed": 129,
+    "dropped": 375
   },
-  "weightedClean": 96,
-  "fidelityRatio": 0.7436,
-  "cleanPerField": 0.2217,
+  "weightedClean": 883,
+  "fidelityRatio": 0.8679,
+  "cleanPerField": 0.5689,
   "perSource": {
     "formio": {
-      "definitions": 7,
-      "fieldsIn": 28,
-      "fieldsOut": 24,
+      "definitions": 523,
+      "fieldsIn": 1120,
+      "fieldsOut": 1019,
       "buckets": {
-        "unsupported": 4,
-        "unknown": 0,
-        "assumed": 1,
-        "dropped": 6
+        "unsupported": 130,
+        "unknown": 17,
+        "assumed": 121,
+        "dropped": 345
       },
-      "weightedClean": 9,
-      "fidelityRatio": 0.8571,
-      "cleanPerField": 0.3214
+      "weightedClean": 786,
+      "fidelityRatio": 0.9098,
+      "cleanPerField": 0.7018
     },
     "json-schema": {
-      "definitions": 88,
-      "fieldsIn": 405,
-      "fieldsOut": 298,
+      "definitions": 94,
+      "fieldsIn": 432,
+      "fieldsOut": 328,
       "buckets": {
-        "unsupported": 47,
+        "unsupported": 57,
         "unknown": 0,
         "assumed": 8,
-        "dropped": 49
+        "dropped": 30
       },
-      "weightedClean": 87,
-      "fidelityRatio": 0.7358,
-      "cleanPerField": 0.2148
+      "weightedClean": 97,
+      "fidelityRatio": 0.7593,
+      "cleanPerField": 0.2245
+    }
+  },
+  "lint": {
+    "errors": 17,
+    "warnings": 123,
+    "perSource": {
+      "formio": {
+        "expression/type-mismatch": {
+          "warning": 2
+        },
+        "name/duplicate": {
+          "error": 9
+        },
+        "page/empty": {
+          "warning": 87
+        },
+        "reference/unknown": {
+          "error": 8
+        },
+        "value/not-a-choice": {
+          "warning": 8
+        }
+      },
+      "json-schema": {
+        "page/empty": {
+          "warning": 26
+        }
+      }
     }
   }
 }

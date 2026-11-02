@@ -1,0 +1,8 @@
+{
+  "components": [
+    {
+      "type": "datagrid",
+      "key": "testkey"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "components": [
+    {
+      "label": "Select",
+      "tableView": true,
+      "dataSrc": "url",
+      "data": {
+        "url": "https://example.com/api/items"
+      },
+      "valueProperty": "data.id",
+      "template": "<span>{{ item.data.id }}</span>",
+      "searchField": "data.id__regex",
+      "key": "select",
+      "type": "select",
+      "input": true,
+      "lazyLoad": true
+    }
+  ]
+}

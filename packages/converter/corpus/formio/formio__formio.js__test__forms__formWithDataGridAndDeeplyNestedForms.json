@@ -1,0 +1,139 @@
+{
+  "_id": "69d4e1d2d6d3afaa6c6d76e7",
+  "title": "PMTA Identification Information",
+  "name": "pmtaIdentificationInformation",
+  "path": "pmtaidentificationinformation",
+  "type": "form",
+  "display": "wizard",
+  "components": [
+    {
+      "label": "Page 1 form 1",
+      "title": "Page 1 form 1",
+      "breadcrumbClickable": true,
+      "buttonSettings": {
+        "previous": true,
+        "cancel": true,
+        "next": true
+      },
+      "navigateOnEnter": false,
+      "saveOnEnter": false,
+      "scrollToTop": false,
+      "collapsible": false,
+      "key": "page1form1",
+      "type": "panel",
+      "components": [
+        {
+          "label": "Data Grid",
+          "reorder": false,
+          "addAnother": "Add Another",
+          "addAnotherPosition": "bottom",
+          "layoutFixed": false,
+          "enableRowGroups": false,
+          "initEmpty": true,
+          "hideLabel": true,
+          "tableView": true,
+          "clearOnHide": false,
+          "validateWhenHidden": false,
+          "key": "dataGrid",
+          "type": "datagrid",
+          "input": true,
+          "components": [
+            {
+              "label": "Nested Form 2",
+              "hideLabel": true,
+              "tableView": true,
+              "form": "69d4e1d2d6d3afaa6c6d76df",
+              "lazyLoad": false,
+              "useOriginalRevision": false,
+              "reference": false,
+              "key": "nestedForms2",
+              "type": "form",
+              "input": true,
+              "components": [
+                {
+                  "label": "Address",
+                  "tableView": true,
+                  "form": "69d4e1d2d6d3afaa6c6d76ae",
+                  "useOriginalRevision": false,
+                  "reference": false,
+                  "key": "address",
+                  "type": "form",
+                  "input": true,
+                  "clearOnHide": false,
+                  "components": [
+                    {
+                      "key": "fieldSet",
+                      "type": "fieldset",
+                      "label": "Field Set",
+                      "input": false,
+                      "tableView": false,
+                      "components": [
+                        {
+                          "label": "Checkbox",
+                          "tableView": false,
+                          "validate": {
+                            "required": true
+                          },
+                          "validateWhenHidden": false,
+                          "key": "checkbox",
+                          "type": "checkbox",
+                          "input": true,
+                          "defaultValue": false
+                        }
+                      ],
+                      "keyModified": true
+                    }
+                  ]
+                },
+                {
+                  "type": "button",
+                  "label": "Submit",
+                  "key": "submit",
+                  "disableOnInvalid": true,
+                  "input": true,
+                  "tableView": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "input": false,
+      "tableView": false
+    },
+    {
+      "label": "Page 2 Form 1",
+      "title": "Page 2 Form 1",
+      "breadcrumbClickable": true,
+      "buttonSettings": {
+        "previous": true,
+        "cancel": true,
+        "next": true
+      },
+      "navigateOnEnter": false,
+      "saveOnEnter": false,
+      "scrollToTop": false,
+      "collapsible": false,
+      "key": "page2form1",
+      "type": "panel",
+      "components": [
+        {
+          "label": "Text Area",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "tableView": true,
+          "validateWhenHidden": false,
+          "key": "textArea",
+          "type": "textarea",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    }
+  ],
+  "pdfComponents": [],
+  "settings": {
+    "wizardHeaderType": "Vertical"
+  }
+}

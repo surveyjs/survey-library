@@ -1,0 +1,87 @@
+{
+  "type": "form",
+  "display": "wizard",
+  "title": "Radio Validation Test",
+  "name": "radioValidationTest",
+  "path": "radiovalidationtest",
+  "components": [
+    {
+      "title": "Page 1",
+      "label": "Page 1",
+      "type": "panel",
+      "key": "page1",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Is this valid?",
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "tableView": false,
+          "values": [
+            {
+              "label": "Yes",
+              "value": "yes",
+              "shortcut": ""
+            },
+            {
+              "label": "No",
+              "value": "no",
+              "shortcut": ""
+            }
+          ],
+          "validate": {
+            "required": true
+          },
+          "validateWhenHidden": false,
+          "key": "isValid",
+          "type": "radio",
+          "input": true
+        },
+        {
+          "label": "Yes, this is valid",
+          "inputType": "radio",
+          "tableView": false,
+          "defaultValue": false,
+          "validateWhenHidden": false,
+          "key": "yesThisIsValid",
+          "name": "isValid",
+          "value": "yes",
+          "type": "checkbox",
+          "input": true
+        },
+        {
+          "label": "No, it is not valid",
+          "inputType": "radio",
+          "tableView": false,
+          "defaultValue": false,
+          "validateWhenHidden": false,
+          "key": "noItIsNotValid",
+          "name": "isValid",
+          "value": "no",
+          "type": "checkbox",
+          "input": true
+        }
+      ]
+    },
+    {
+      "title": "Page 2",
+      "label": "Page 2",
+      "type": "panel",
+      "key": "page2",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Say something...",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validateWhenHidden": false,
+          "key": "saySomething",
+          "type": "textfield",
+          "input": true
+        }
+      ]
+    }
+  ]
+}

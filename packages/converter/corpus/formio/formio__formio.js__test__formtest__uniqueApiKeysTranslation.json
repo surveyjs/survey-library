@@ -1,0 +1,49 @@
+{
+  "_id": "6650ac72fab50fab9668c1e8",
+  "title": "uniqueAPIKeysTranslation",
+  "name": "uniqueApiKeysTranslation",
+  "path": "uniqueapikeystranslation",
+  "type": "form",
+  "display": "form",
+  "tags": [],
+  "access": [
+    {
+      "type": "read_all",
+      "roles": [
+        "664ccde9fab50fab9641b6d8",
+        "664ccde9fab50fab9641b6e0",
+        "664ccde9fab50fab9641b6e4"
+      ]
+    }
+  ],
+  "submissionAccess": [],
+  "owner": "659f068baa3ac0e81cf5f6c0",
+  "components": [
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Text Area",
+      "applyMaskOn": "change",
+      "autoExpand": false,
+      "tableView": true,
+      "key": "textField",
+      "type": "textarea",
+      "input": true
+    }
+  ],
+  "settings": {},
+  "properties": {},
+  "project": "664ccde8fab50fab9641b6d1",
+  "controller": "",
+  "revisions": "",
+  "submissionRevisions": "",
+  "_vid": 0,
+  "created": "2024-05-24T15:04:18.259Z",
+  "modified": "2024-05-24T15:04:18.261Z"
+}

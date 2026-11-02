@@ -1,0 +1,19 @@
+{
+  "components": [
+    {
+      "type": "panel",
+      "key": "panel",
+      "components": [
+        {
+          "type": "textfield",
+          "key": "foo",
+          "label": "Foo",
+          "hidden": true,
+          "validate": {
+            "required": true
+          }
+        }
+      ]
+    }
+  ]
+}

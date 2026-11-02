@@ -136,3 +136,52 @@ describe("formio convert - datagrid + refusals + drift", () => {
     assertConstructsCleanly(convert(datagridForm).output, "datagrid-form");
   });
 });
+
+// Resolve a JSON Pointer against a source definition, so a report entry can be checked to name
+// the component it reports on.
+function resolvePointer(root: unknown, pointer: string): unknown {
+  return pointer.split("/").slice(1).reduce<unknown>((node, part) =>
+    node && typeof node === "object" ? (node as Record<string, unknown>)[part] : undefined, root);
+}
+
+describe("formio convert - layout and defaults", () => {
+  it("converts a table whose cells hold components, keeping the fields in order", () => {
+    const form = { components: [{ type: "table", key: "t", rows: [
+      [{ components: [{ type: "textfield", key: "a" }] }, { components: [{ type: "textfield", key: "b" }] }],
+      [{ components: [{ type: "number", key: "c" }] }, { components: [] }]
+    ] }] };
+    const { output } = convert(form);
+    const table = findElement(output, "t");
+    expect((table?.elements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["a", "b", "c"]);
+    assertConstructsCleanly(output, "table with object cells");
+  });
+
+  it("still converts a table whose cells are component arrays", () => {
+    const form = { components: [{ type: "table", key: "t", rows: [[[{ type: "textfield", key: "a" }], [{ type: "textfield", key: "b" }]]] }] };
+    const { output } = convert(form);
+    expect((findElement(output, "t")?.elements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["a", "b"]);
+    assertConstructsCleanly(output, "table with array cells");
+  });
+
+  it("reports a field in columns in a panel with a pointer that resolves in the source", () => {
+    const form = { components: [{ type: "panel", key: "p", components: [
+      { type: "columns", key: "cols", columns: [{ components: [] }, { components: [{ type: "acmeWidget", key: "w" }] }] }
+    ] }] };
+    const { report } = convert(form);
+    const unknown = entry(report.entries, FormioCodes.UNKNOWN_COMPONENT);
+    expect(unknown?.sourcePointer).toBe("/components/0/components/0/columns/1/components/0");
+    expect((resolvePointer(form, unknown!.sourcePointer) as { key?: string })?.key).toBe("w");
+  });
+
+  it("gives no default for a multiple number field whose default is [null]", () => {
+    const form = { components: [{ type: "number", key: "n", multiple: true, defaultValue: [null] }] };
+    const { output } = convert(form);
+    expect(findElement(output, "n")?.defaultValue).toBeUndefined();
+    assertConstructsCleanly(output, "[null] default");
+  });
+
+  it("keeps the non-null items of an array default", () => {
+    const form = { components: [{ type: "number", key: "n", multiple: true, defaultValue: [0, null] }] };
+    expect(findElement(convert(form).output, "n")?.defaultValue).toEqual([0]);
+  });
+});

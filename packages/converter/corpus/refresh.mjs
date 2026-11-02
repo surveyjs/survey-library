@@ -3,9 +3,8 @@
 
 // Corpus refresh + vendored-schema diff.
 //
-// Two independent jobs, run together by `npm run corpus:refresh` (see
-// promts/03-eval-corpus.md). No scheduled workflow runs this — it is invoked by
-// hand, weekly being the cadence it was designed for:
+// Two independent jobs, run together by `npm run corpus:refresh`. No scheduled workflow runs this — it is invoked
+// by hand, weekly being the cadence it was designed for:
 //
 //   Job A — re-scrape upstream + diff. Fetch the definitions matched by
 //     sources.json, extract them into corpus/<source>/, and diff the set of
@@ -31,13 +30,14 @@
 //   --self-test       Offline: assert the diff/alert mechanism fires on a
 //                     synthetic new construct + vendored drift. No network.
 
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import process from "node:process";
 import {
-  listRepoFiles, fetchRaw, matchGlobs, extractLiterals, classifyDefinitions,
-  constructTokens, parseVendoredFormioTypes, scrapeUpstreamFormioTypes, diffSets
+  listRepoFiles, resolveCommit, fetchRaw, matchGlobs, extractLiterals, classifyDefinitions,
+  constructTokens, isPropertyToken, parseVendoredFormioTypes, scrapeUpstreamFormioTypes, diffSets,
+  snapshotName
 } from "./lib.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -60,80 +60,121 @@ function writeManifest(source, manifest) {
 
 // --- Job A ------------------------------------------------------------------
 
+// Files are fetched this many at a time; results keep the listing's order.
+const FETCH_CONCURRENCY = 8;
+
+async function fetchAll(repo, ref, paths) {
+  const texts = new Array(paths.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < paths.length) {
+      const i = next++;
+      try { texts[i] = await fetchRaw(repo, ref, paths[i]); } catch { texts[i] = undefined; }
+    }
+  };
+  await Promise.all(Array.from({ length: FETCH_CONCURRENCY }, worker));
+  return texts;
+}
+
 async function scrapeSource(source, entries, alerts) {
   const tokens = new Set();
   const unhandled = new Set();
-  const files = [];
+  const snapshots = new Map();
+  const seen = new Set();
+  const commits = [];
   let extractedDefs = 0;
+  let duplicateDefs = 0;
   let skippedLiterals = 0;
+  let unreadableFiles = 0;
+  let complete = true;
 
   for (const entry of entries) {
     const { repo, ref, globs } = entry;
+    let commit;
     let listing;
     try {
-      listing = await listRepoFiles(repo, ref);
+      // Scrape one commit, not a moving branch, so the files and the recorded commit agree.
+      commit = await resolveCommit(repo, ref);
+      listing = await listRepoFiles(repo, commit);
     } catch (e) {
       // A source we cannot even list is itself an alert — the config may have
       // rotted (repo renamed, ref deleted) and a silent skip would hide it.
       alerts.push({ job: "A", severity: "high", kind: "source-unreachable", source, repo, ref, detail: e.message });
+      complete = false;
       continue;
     }
+    commits.push({ repo, ref, commit });
     if (listing.truncated) {
       alerts.push({ job: "A", severity: "medium", kind: "tree-truncated", source, repo, ref });
       console.log(`  ! ${repo}@${ref}: tree truncated by GitHub API — scrape is partial`);
     }
     const matched = listing.paths.filter((p) => matchGlobs(p, globs));
-    console.log(`  ${repo}@${ref}: ${matched.length} file(s) match globs`);
+    console.log(`  ${repo}@${ref} (${commit.slice(0, 9)}): ${matched.length} file(s) match globs`);
 
-    for (const path of matched) {
-      let text;
-      try { text = await fetchRaw(repo, ref, path); } catch { continue; }
-      const defs = collectDefs(source, path, text);
-      extractedDefs += defs.length;
+    const texts = await fetchAll(repo, commit, matched);
+    matched.forEach((path, i) => {
+      if (texts[i] === undefined) { unreadableFiles++; return; }
+      const { defs, skipped } = collectDefs(source, repo, path, texts[i]);
+      skippedLiterals += skipped;
       for (const { snapshot, def } of defs) {
-        files.push(snapshot);
-        writeFileSync(join(sourceDir(source), snapshot), JSON.stringify(def, null, 2) + "\n", "utf8");
+        // The same form is often copied between test folders; score it once.
+        const json = JSON.stringify(def);
+        if (seen.has(json)) { duplicateDefs++; continue; }
+        seen.add(json);
+        extractedDefs++;
+        snapshots.set(uniqueSnapshot(snapshots, snapshot), json);
         const t = constructTokens(source, def);
         for (const tok of t.tokens) tokens.add(tok);
         for (const tok of t.unhandled) unhandled.add(tok);
       }
-    }
+    });
   }
 
-  console.log(`  extracted ${extractedDefs} definition(s); ${tokens.size} construct token(s), ${unhandled.size} unhandled`);
-  if (skippedLiterals > 0) console.log(`  (skipped ${skippedLiterals} non-literal exports)`);
-  return { tokens, unhandled, files };
+  console.log(`  extracted ${extractedDefs} definition(s), ${duplicateDefs} duplicate(s) skipped; ${tokens.size} construct token(s), ${unhandled.size} unhandled`);
+  // A literal that is not plain data (it references an import, or holds JSX) cannot be read.
+  console.log(`  skipped ${skippedLiterals} non-literal export(s)`);
+  if (unreadableFiles > 0) console.log(`  ! ${unreadableFiles} matched file(s) could not be fetched`);
+  return { tokens, unhandled, snapshots, commits, complete, extractedDefs, skippedLiterals };
 }
 
-function sourceDir(source) {
-  const d = join(here, source);
-  mkdirSync(d, { recursive: true });
-  return d;
+// A test module can declare the same `const` name in several test bodies, which gives the same
+// snapshot name. Number the later ones in source order so none overwrites another.
+function uniqueSnapshot(snapshots, name) {
+  if (!snapshots.has(name)) return name;
+  const stem = name.replace(/\.json$/, "");
+  let i = 2;
+  while (snapshots.has(`${stem}__${i}.json`)) i++;
+  return `${stem}__${i}.json`;
 }
 
-function collectDefs(source, path, text) {
+// Replace a source's snapshots with a new set. Deleting first keeps a renamed or removed
+// upstream file from being scored twice or forever.
+function writeSnapshots(source, snapshots) {
+  const dir = join(here, source);
+  mkdirSync(dir, { recursive: true });
+  for (const f of readdirSync(dir)) {
+    if (f.endsWith(".json") && f !== "_manifest.json") rmSync(join(dir, f));
+  }
+  for (const [name, json] of snapshots) {
+    writeFileSync(join(dir, name), JSON.stringify(JSON.parse(json), null, 2) + "\n", "utf8");
+  }
+}
+
+function collectDefs(source, repo, path, text) {
   const out = [];
   if (path.endsWith(".json")) {
     try {
       const value = JSON.parse(text);
       const defs = classifyDefinitions(source, [{ name: "default", value }]);
-      defs.forEach((d) => out.push({ snapshot: snapFor(source, path, d.suffix), def: d.def }));
+      defs.forEach((d) => out.push({ snapshot: snapshotName(repo, path, d.suffix), def: d.def }));
     } catch { /* not JSON we can use */ }
-    return out;
+    return { defs: out, skipped: 0 };
   }
-  // .ts / .js module -> extract exported literals, classify.
-  const { literals } = extractLiterals(text);
+  // .ts / .tsx / .js module -> extract exported literals, classify.
+  const { literals, skipped } = extractLiterals(text);
   const defs = classifyDefinitions(source, literals);
-  defs.forEach((d) => out.push({ snapshot: snapFor(source, path, d.suffix), def: d.def }));
-  return out;
-}
-
-// Snapshot filename derived from the upstream path + literal name. Deterministic
-// and filesystem-safe; carries no form content.
-function snapFor(source, path, suffix) {
-  const base = path.replace(/^.*\//, "").replace(/\.(ts|js|json)$/i, "");
-  const clean = `${base}${suffix && suffix !== "default" ? "-" + suffix : ""}`.replace(/[^A-Za-z0-9_-]+/g, "-");
-  return `${clean}.json`;
+  defs.forEach((d) => out.push({ snapshot: snapshotName(repo, path, d.suffix), def: d.def }));
+  return { defs: out, skipped };
 }
 
 function classifyUnhandledToken(source, token, vendoredFormioTypes) {
@@ -157,29 +198,62 @@ async function jobA(sources, alerts, vendoredFormioTypes) {
     console.log(`- ${source}`);
     const prev = loadManifest(source);
     const prevTokens = new Set(prev.tokens);
-    const { tokens, unhandled, files } = await scrapeSource(source, sources[source], alerts);
+    const scraped = await scrapeSource(source, sources[source], alerts);
+    if (!scraped.complete) {
+      // A partial scrape would delete the snapshots of the source that failed.
+      console.log(`  ! ${source}: a repo could not be listed — snapshots and manifest left as they were`);
+      continue;
+    }
+    const { tokens, unhandled, snapshots, commits } = scraped;
 
-    const { added, removed } = diffSets(prevTokens, tokens);
-    const newUnhandled = added.filter((t) => unhandled.has(t));
+    const diff = tokenAlerts(source, prevTokens, tokens, unhandled, vendoredFormioTypes);
+    for (const alert of diff.alerts) {
+      alerts.push(alert);
+      console.log(`  ALERT ${alert.kind}${alert.class ? ` [${alert.class}]` : ""} ${alert.token}`);
+    }
+    if (diff.bootstrapKeys > 0) {
+      console.log(`  ${diff.bootstrapKeys} property token(s) recorded for the first time — no new-key alerts on this run`);
+    }
+    if (diff.added.length > 0) console.log(`  + ${diff.added.length} new token(s)`);
+    if (diff.removed.length > 0) console.log(`  - ${diff.removed.length} token(s) gone`);
 
-    for (const token of newUnhandled) {
+    writeSnapshots(source, snapshots);
+    writeManifest(source, {
+      source,
+      commits,
+      files: [...snapshots.keys()].sort(),
+      tokens: [...tokens].sort(),
+      unhandled: [...unhandled].sort()
+    });
+  }
+}
+
+// Alerts for one source's token diff. A new unhandled token is a `new-construct` alert. A new
+// property token (see `isPropertyToken`) is a `new-key` alert, handled or not. The first run
+// after property tokens were introduced has none in the previous manifest, and every one would
+// alert, so that run only counts them.
+function tokenAlerts(source, prevTokens, tokens, unhandled, vendoredFormioTypes) {
+  const { added, removed } = diffSets(prevTokens, tokens);
+  const bootstrap = ![...prevTokens].some(isPropertyToken);
+  const alerts = [];
+  let bootstrapKeys = 0;
+  for (const token of added) {
+    if (unhandled.has(token)) {
       const cls = classifyUnhandledToken(source, token, vendoredFormioTypes);
       alerts.push({
         job: "A", severity: "high", kind: "new-construct", class: cls, source, token,
         detail: `New ${cls} construct with no converter rule: ${token}`
       });
-      console.log(`  ALERT new-construct [${cls}] ${token}`);
     }
-    if (added.length > 0) console.log(`  + ${added.length} new token(s) (${newUnhandled.length} unhandled)`);
-    if (removed.length > 0) console.log(`  - ${removed.length} token(s) gone`);
-
-    writeManifest(source, {
-      source,
-      files: files.sort(),
-      tokens: [...tokens].sort(),
-      unhandled: [...unhandled].sort()
-    });
+    if (isPropertyToken(token)) {
+      if (bootstrap) { bootstrapKeys++; continue; }
+      alerts.push({
+        job: "A", severity: "medium", kind: "new-key", source, token,
+        detail: `New property or branching value in upstream definitions: ${token}`
+      });
+    }
   }
+  return { alerts, added, removed, bootstrapKeys };
 }
 
 // --- Job B ------------------------------------------------------------------
@@ -292,6 +366,47 @@ function selfTest() {
   // 2. Job A: a novel JSON Schema keyword must be flagged unhandled.
   const js = constructTokens("json-schema", { type: "object", properties: { x: { type: "string", "x-vendor-widget": "slider" } } });
   check("Job A flags a vendor JSON Schema keyword", js.unhandled.has("keyword-unknown:x-vendor-widget"));
+
+  // 2a. Classification: a single Form.io component is wrapped as a form.
+  const single = classifyDefinitions("formio", [{ name: "comp", value: { type: "textfield", key: "a" } }]);
+  check("A single Form.io component is wrapped as a form",
+    single.length === 1 && Array.isArray(single[0].def.components) && single[0].def.components[0].key === "a");
+
+  // 2b. Pairing: a schema pairs with the uiSchema of its own name, not the module's first one.
+  const s1 = { type: "object", properties: { a: { type: "string" } } };
+  const s2 = { type: "object", properties: { b: { type: "string" } } };
+  const u1 = { type: "VerticalLayout", elements: [] };
+  const u2 = { type: "HorizontalLayout", elements: [] };
+  const byName = classifyDefinitions("json-schema", [
+    { name: "schema", value: s1 }, { name: "uischema", value: u1 },
+    { name: "schema_2343", value: s2 }, { name: "uischema_2343", value: u2 }
+  ]);
+  check("Pairing matches schema_2343 with uischema_2343",
+    byName.length === 2 && byName.some((d) => d.def.schema === s2 && d.def.uiSchema === u2)
+      && byName.some((d) => d.def.schema === s1 && d.def.uiSchema === u1));
+  const twoUis = classifyDefinitions("json-schema", [
+    { name: "schema", value: s1 }, { name: "uischema", value: u1 }, { name: "uischemaAlt", value: u2 }
+  ]);
+  check("One schema with two uiSchemas gives two definitions",
+    twoUis.length === 2 && twoUis.every((d) => d.def.schema === s1) && twoUis.some((d) => d.def.uiSchema === u2));
+
+  // 2c. Property tokens and the new-key alert, for a handled token too.
+  const fio = constructTokens("formio", { components: [{
+    type: "textfield", key: "a", conditional: { show: "true", conjunction: "all", conditions: [{ component: "b", operator: "isEqual" }] }
+  }, { type: "select", key: "s", dataSrc: "url" }] });
+  check("Form.io property tokens are collected",
+    ["key:textfield.conditional", "show:string", "condition-op:isEqual", "data-src:url"].every((t) => fio.tokens.has(t)));
+  const jf = constructTokens("json-schema", { schema: s1, uiSchema: { type: "Control", scope: "#/properties/a",
+    options: { multi: true }, rule: { effect: "HIDE", condition: { scope: "#/properties/a", schema: { const: "x" } } } } });
+  check("JSONForms property tokens are collected",
+    ["ui-option:multi", "rule-effect:HIDE", "rule-condition:const"].every((t) => jf.tokens.has(t)));
+  const rj = constructTokens("json-schema", { schema: s1, uiSchema: { a: { "ui:autocapitalize": "words", items: { "ui:readonly": true } } } });
+  check("Nested RJSF ui keys are collected", rj.tokens.has("ui-key:ui:autocapitalize") && rj.tokens.has("ui-key:ui:readonly"));
+  const keyDiff = tokenAlerts("formio", new Set(["key:textfield.key"]), new Set(["key:textfield.key", "key:textfield.prefix"]), new Set(), new Set());
+  check("Job A raises new-key for a new handled property token",
+    keyDiff.alerts.some((a) => a.kind === "new-key" && a.severity === "medium" && a.token === "key:textfield.prefix"));
+  const firstRun = tokenAlerts("formio", new Set(["type:textfield"]), new Set(["type:textfield", "key:textfield.key"]), new Set(), new Set());
+  check("Job A only counts property tokens on their first recording", firstRun.alerts.length === 0 && firstRun.bootstrapKeys === 1);
 
   // 3. Job B: a synthetic vendored drift (upstream ships a new builtin type).
   const vendored = new Set(["textfield", "panel"]);

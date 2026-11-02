@@ -56,8 +56,6 @@ snapshots (fast, deterministic, no network):
 Regenerate the baseline intentionally with
 `npm run corpus:score:update-baseline` and commit the diff.
 
-See `../promts/03-eval-corpus.md` for the full spec.
-
 ## Layout
 
 ```

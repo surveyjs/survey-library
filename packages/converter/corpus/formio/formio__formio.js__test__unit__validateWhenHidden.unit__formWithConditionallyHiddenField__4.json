@@ -1,0 +1,30 @@
+{
+  "components": [
+    {
+      "type": "checkbox",
+      "key": "checkbox",
+      "label": "Checkbox",
+      "input": true
+    },
+    {
+      "type": "panel",
+      "key": "panel",
+      "components": [
+        {
+          "type": "textfield",
+          "key": "foo",
+          "label": "Foo",
+          "conditional": {
+            "json": {
+              "var": "data.checkbox"
+            }
+          },
+          "validateWhenHidden": true,
+          "validate": {
+            "required": true
+          }
+        }
+      ]
+    }
+  ]
+}

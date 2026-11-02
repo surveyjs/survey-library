@@ -13,9 +13,9 @@
 //
 // "Free via JSON Schema" cases (OpenAPI 3.1 request bodies, Zod/Yup/TypeBox
 // bridges, ngx-formly JSON Schema mode, ...) are documentation only -- anything
-// that emits JSON Schema already converts here. See promts/04-docs-*.
+// that emits JSON Schema already converts here.
 //
-// SETTLED MODELLING DECISIONS (do not re-open in review -- see promts/02-json-schema.md).
+// SETTLED MODELLING DECISIONS (do not re-open in review).
 // JSON Schema under-specifies layout; these resolve that once, at the mapping site:
 //
 //   * if/then/else -> `visibleIf`/`requiredIf` on the AFFECTED QUESTIONS (the

@@ -1,13 +1,12 @@
 {
-  "_comment": "Upstream sources scraped weekly by refresh.mjs. Content-free contract: raw definitions land in corpus/<source>/ for scoring, never in the report/telemetry. Refs are the repos' default branches (pinned by the commit the refresh job records in each snapshot's diff).",
+  "_comment": "Upstream sources scraped weekly by refresh.mjs. Content-free contract: raw definitions land in corpus/<source>/ for scoring, never in the report/telemetry. Refs are the repos' default branches; the refresh job resolves each to a commit, scrapes that commit, and records it in the source's _manifest.json.",
   "formio": [
     {
       "repo": "formio/formio.js",
       "ref": "main",
       "globs": [
-        "test/forms/**/*.json",
-        "test/fixtures/**/*.json",
-        "src/**/fixtures/**/*.json"
+        "test/**/*.{js,ts,json}",
+        "src/**/fixtures/**/*.{js,ts,json}"
       ]
     }
   ],
@@ -23,7 +22,7 @@
       "repo": "rjsf-team/react-jsonschema-form",
       "ref": "main",
       "globs": [
-        "packages/playground/src/samples/*.ts"
+        "packages/playground/src/samples/*.{ts,tsx}"
       ]
     }
   ]

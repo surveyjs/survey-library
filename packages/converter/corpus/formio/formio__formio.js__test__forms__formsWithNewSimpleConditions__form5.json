@@ -1,0 +1,418 @@
+{
+  "title": "test all conditional operators",
+  "name": "testAllConditionalOperators",
+  "path": "testallconditionaloperators",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Text Field CONDITIONAL",
+      "tableView": true,
+      "key": "conditionalField",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "dateTime",
+            "operator": "dateGreaterThan",
+            "value": "2021-09-16T12:00:00+03:00"
+          },
+          {
+            "component": "day",
+            "operator": "dateGreaterThanOrEqual",
+            "value": "8/12/2022"
+          },
+          {
+            "component": "dateTime1",
+            "operator": "dateLessThan",
+            "value": "2023-01-19T12:00:00+03:00"
+          },
+          {
+            "component": "day1",
+            "operator": "dateLessThanOrEqual",
+            "value": "10/13/2023"
+          },
+          {
+            "component": "url",
+            "operator": "endsWith",
+            "value": ".form.io"
+          },
+          {
+            "component": "number",
+            "operator": "greaterThan",
+            "value": 50
+          },
+          {
+            "component": "currency",
+            "operator": "greaterThanOrEqual",
+            "value": 100
+          },
+          {
+            "component": "textField1",
+            "operator": "includes",
+            "value": "test"
+          },
+          {
+            "component": "day2",
+            "operator": "isDateEqual",
+            "value": "9/29/2022"
+          },
+          {
+            "component": "select",
+            "operator": "isEmpty"
+          },
+          {
+            "component": "radio",
+            "operator": "isEqual",
+            "value": "one"
+          },
+          {
+            "component": "dateTime3",
+            "operator": "isNotDateEqual",
+            "value": "2022-09-29T12:00:00+03:00"
+          },
+          {
+            "component": "textArea",
+            "operator": "isNotEmpty"
+          },
+          {
+            "component": "textField2",
+            "operator": "isNotEqual",
+            "value": "test"
+          },
+          {
+            "component": "number2",
+            "operator": "lessThan",
+            "value": 150
+          },
+          {
+            "component": "currency2",
+            "operator": "lessThanOrEqual",
+            "value": 500
+          },
+          {
+            "component": "email",
+            "operator": "notIncludes",
+            "value": "test"
+          },
+          {
+            "component": "url2",
+            "operator": "startsWith",
+            "value": "portal"
+          }
+        ]
+      },
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Date / Time",
+      "tableView": false,
+      "datePicker": {
+        "disableWeekends": false,
+        "disableWeekdays": false
+      },
+      "enableMinDateInput": false,
+      "enableMaxDateInput": false,
+      "key": "dateTime",
+      "type": "datetime",
+      "input": true,
+      "widget": {
+        "type": "calendar",
+        "displayInTimezone": "viewer",
+        "locale": "en",
+        "useLocaleSettings": false,
+        "allowInput": true,
+        "mode": "single",
+        "enableTime": true,
+        "noCalendar": false,
+        "format": "yyyy-MM-dd hh:mm a",
+        "hourIncrement": 1,
+        "minuteIncrement": 1,
+        "time_24hr": false,
+        "minDate": null,
+        "disableWeekends": false,
+        "disableWeekdays": false,
+        "maxDate": null
+      }
+    },
+    {
+      "label": "Day",
+      "hideInputLabels": false,
+      "inputsLabelPosition": "top",
+      "useLocaleSettings": false,
+      "tableView": false,
+      "fields": {
+        "day": {
+          "hide": false
+        },
+        "month": {
+          "hide": false
+        },
+        "year": {
+          "hide": false
+        }
+      },
+      "key": "day",
+      "type": "day",
+      "input": true,
+      "defaultValue": "00/00/0000"
+    },
+    {
+      "label": "Date / Time1",
+      "tableView": false,
+      "datePicker": {
+        "disableWeekends": false,
+        "disableWeekdays": false
+      },
+      "enableMinDateInput": false,
+      "enableMaxDateInput": false,
+      "key": "dateTime1",
+      "type": "datetime",
+      "input": true,
+      "widget": {
+        "type": "calendar",
+        "displayInTimezone": "viewer",
+        "locale": "en",
+        "useLocaleSettings": false,
+        "allowInput": true,
+        "mode": "single",
+        "enableTime": true,
+        "noCalendar": false,
+        "format": "yyyy-MM-dd hh:mm a",
+        "hourIncrement": 1,
+        "minuteIncrement": 1,
+        "time_24hr": false,
+        "minDate": null,
+        "disableWeekends": false,
+        "disableWeekdays": false,
+        "maxDate": null
+      }
+    },
+    {
+      "label": "Day1",
+      "hideInputLabels": false,
+      "inputsLabelPosition": "top",
+      "useLocaleSettings": false,
+      "tableView": false,
+      "fields": {
+        "day": {
+          "hide": false
+        },
+        "month": {
+          "hide": false
+        },
+        "year": {
+          "hide": false
+        }
+      },
+      "key": "day1",
+      "type": "day",
+      "input": true,
+      "defaultValue": "00/00/0000"
+    },
+    {
+      "label": "Url",
+      "tableView": true,
+      "key": "url",
+      "type": "url",
+      "input": true
+    },
+    {
+      "label": "Number",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Currency",
+      "mask": false,
+      "spellcheck": true,
+      "tableView": false,
+      "currency": "USD",
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "key": "currency",
+      "type": "currency",
+      "input": true,
+      "delimiter": true
+    },
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "key": "textField1",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Day2",
+      "hideInputLabels": false,
+      "inputsLabelPosition": "top",
+      "useLocaleSettings": false,
+      "tableView": false,
+      "fields": {
+        "day": {
+          "hide": false
+        },
+        "month": {
+          "hide": false
+        },
+        "year": {
+          "hide": false
+        }
+      },
+      "key": "day2",
+      "type": "day",
+      "input": true,
+      "defaultValue": "00/00/0000"
+    },
+    {
+      "label": "Select",
+      "widget": "choicesjs",
+      "tableView": true,
+      "data": {
+        "values": [
+          {
+            "label": "one",
+            "value": "one"
+          },
+          {
+            "label": "two",
+            "value": "two"
+          }
+        ]
+      },
+      "key": "select",
+      "type": "select",
+      "input": true
+    },
+    {
+      "label": "Radio",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "one",
+          "value": "one",
+          "shortcut": ""
+        },
+        {
+          "label": "two",
+          "value": "two",
+          "shortcut": ""
+        }
+      ],
+      "key": "radio",
+      "type": "radio",
+      "input": true
+    },
+    {
+      "label": "Date / Time3",
+      "tableView": false,
+      "datePicker": {
+        "disableWeekends": false,
+        "disableWeekdays": false
+      },
+      "enableMinDateInput": false,
+      "enableMaxDateInput": false,
+      "key": "dateTime3",
+      "type": "datetime",
+      "input": true,
+      "widget": {
+        "type": "calendar",
+        "displayInTimezone": "viewer",
+        "locale": "en",
+        "useLocaleSettings": false,
+        "allowInput": true,
+        "mode": "single",
+        "enableTime": true,
+        "noCalendar": false,
+        "format": "yyyy-MM-dd hh:mm a",
+        "hourIncrement": 1,
+        "minuteIncrement": 1,
+        "time_24hr": false,
+        "minDate": null,
+        "disableWeekends": false,
+        "disableWeekdays": false,
+        "maxDate": null
+      }
+    },
+    {
+      "label": "Text Area",
+      "autoExpand": false,
+      "tableView": true,
+      "key": "textArea",
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "label": "Text Field 2",
+      "tableView": true,
+      "key": "textField2",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Number 2",
+      "mask": false,
+      "tableView": false,
+      "multiple": true,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "key": "number2",
+      "type": "number",
+      "input": true,
+      "defaultValue": [
+        null
+      ]
+    },
+    {
+      "label": "Currency 2",
+      "mask": false,
+      "spellcheck": true,
+      "tableView": false,
+      "currency": "USD",
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "key": "currency2",
+      "type": "currency",
+      "input": true,
+      "delimiter": true
+    },
+    {
+      "label": "Email",
+      "tableView": true,
+      "key": "email",
+      "type": "email",
+      "input": true
+    },
+    {
+      "label": "Url2",
+      "tableView": true,
+      "key": "url2",
+      "type": "url",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "created": "2022-09-29T09:43:53.720Z",
+  "modified": "2022-09-29T10:13:37.115Z",
+  "machineName": "uubnbosxacwjzbk:testAllConditionalOperators"
+}

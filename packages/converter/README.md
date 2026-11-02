@@ -11,9 +11,8 @@ its own CDN bundle:
 | Form.io | `survey-converter/formio` | `survey.converter.formio.min.js` |
 | JSON Schema (JSONForms / RJSF / bare) | `survey-converter/json-schema` | `survey.converter.json-schema.min.js` |
 
-> **Status:** scaffold. The report contract, package resolution, CLI, and
-> format detection are in place; the converter walks are built per the specs in
-> [`promts/`](./promts). Track progress by the `PROMPT NN` markers in the source.
+Each converter maps what it can to SurveyJS and lists every construct it dropped, refused or
+guessed in a content-free report, so a lossy conversion is visible rather than silent.
 
 ## Install
 

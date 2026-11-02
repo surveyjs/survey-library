@@ -1,0 +1,33 @@
+{
+  "title": "calculate value metadata",
+  "name": "calculateValueMetadata",
+  "path": "calculatevaluemetadata",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Text Area",
+      "autoExpand": false,
+      "tableView": true,
+      "calculateValue": "value = data.textField;\r\nlet parsedSubmission = JSON.parse(JSON.stringify(submission));\r\nif (!!parsedSubmission.metadata && !!parsedSubmission.metadata.timezone) {\r\n  value += parsedSubmission.metadata.timezone;\r\n}",
+      "key": "textArea",
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

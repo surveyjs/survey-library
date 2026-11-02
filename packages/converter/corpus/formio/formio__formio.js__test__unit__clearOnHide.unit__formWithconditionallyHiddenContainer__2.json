@@ -1,0 +1,49 @@
+{
+  "components": [
+    {
+      "type": "checkbox",
+      "key": "checkbox",
+      "label": "Checkbox",
+      "input": true
+    },
+    {
+      "type": "container",
+      "key": "container",
+      "components": [
+        {
+          "type": "textfield",
+          "key": "childTextField",
+          "label": "Text Field",
+          "input": true
+        }
+      ],
+      "clearOnHide": false,
+      "conditional": {
+        "json": {
+          "!": {
+            "var": "data.checkbox"
+          }
+        }
+      }
+    },
+    {
+      "type": "container",
+      "key": "container2",
+      "components": [
+        {
+          "type": "textfield",
+          "key": "childTextField2",
+          "label": "Text Field 2",
+          "input": true
+        }
+      ],
+      "conditional": {
+        "json": {
+          "!": {
+            "var": "data.checkbox"
+          }
+        }
+      }
+    }
+  ]
+}

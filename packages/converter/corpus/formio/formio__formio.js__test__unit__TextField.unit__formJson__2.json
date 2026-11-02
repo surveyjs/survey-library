@@ -1,0 +1,20 @@
+{
+  "components": [
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "validate": {
+        "pattern": "^[0-9]*$]",
+        "customMessage": "Custom Error Message",
+        "minWords": 10
+      },
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "type": "button",
+      "key": "submit"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "experiments": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "ID": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "additionalItems": false
+        }
+      }
+    },
+    "required": [
+      "experiments"
+    ]
+  },
+  "uiSchema": {
+    "type": "Categorization",
+    "elements": [
+      {
+        "type": "Category",
+        "label": "Experiments",
+        "elements": [
+          {
+            "type": "ListWithDetail",
+            "scope": "#/properties/experiments",
+            "options": {
+              "labelRef": "#/items/properties/ID",
+              "detail": {
+                "type": "VerticalLayout",
+                "elements": [
+                  {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/ID"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Categorization",
+                    "elements": [
+                      {
+                        "type": "Category",
+                        "label": "Sequential",
+                        "elements": [
+                          {
+                            "type": "VerticalLayout",
+                            "elements": [
+                              {
+                                "type": "Control",
+                                "scope": "#/properties/ID"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

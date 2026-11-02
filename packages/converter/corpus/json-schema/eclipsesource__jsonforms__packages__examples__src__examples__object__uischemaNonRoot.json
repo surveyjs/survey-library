@@ -1,0 +1,79 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "address": {
+        "type": "object",
+        "properties": {
+          "street_address": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "street_address",
+          "city",
+          "state"
+        ]
+      },
+      "user": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "mail"
+        ]
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/address"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/user",
+        "rule": {
+          "effect": "SHOW",
+          "condition": {
+            "type": "LEAF",
+            "scope": "#/properties/address/properties/state",
+            "expectedValue": "DC"
+          }
+        },
+        "options": {
+          "detail": {
+            "type": "Group",
+            "label": "User Data",
+            "elements": [
+              {
+                "type": "Control",
+                "scope": "#/properties/name"
+              },
+              {
+                "type": "Control",
+                "scope": "#/properties/mail"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

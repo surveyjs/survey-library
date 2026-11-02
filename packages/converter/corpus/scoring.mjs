@@ -7,7 +7,7 @@
 // It reads ONLY structure and counts — never a label, option text, or
 // expression source — so its output is safe to log and to store as a baseline.
 //
-// The metric, per `promts/03-eval-corpus.md`:
+// The metric:
 //   fields_in  = leaf inputs in the SOURCE definition.
 //   fields_out = questions in the PRODUCED SurveyJS JSON that carry a value.
 //   clean      = weighted count of unsupported + unknown + assumed report
@@ -39,8 +39,14 @@ function formioChildren(comp) {
   const out = [];
   if (Array.isArray(comp.components)) out.push(...comp.components);
   if (Array.isArray(comp.columns)) for (const col of comp.columns) if (Array.isArray(col?.components)) out.push(...col.components);
-  if (Array.isArray(comp.rows)) for (const row of comp.rows) if (Array.isArray(row)) for (const cell of row) if (Array.isArray(cell)) out.push(...cell);
+  if (Array.isArray(comp.rows)) for (const row of comp.rows) if (Array.isArray(row)) for (const cell of row) out.push(...tableCellComponents(cell));
   return out;
+}
+
+/** A `table` cell is `{ components }`; older forms store the component array itself. */
+export function tableCellComponents(cell) {
+  if (Array.isArray(cell)) return cell;
+  return cell && Array.isArray(cell.components) ? cell.components : [];
 }
 
 /**

@@ -1,7 +1,6 @@
 // Corpus fidelity scoring — the regression gate (`npm run corpus:score`).
 //
-// For every scraped definition in corpus/<source>/ this runs TWO gates
-// (promts/03-eval-corpus.md):
+// For every scraped definition in corpus/<source>/ this runs TWO gates:
 //
 //   1. Oracle (HARD gate): convert(def).output constructs a survey-core
 //      SurveyModel with ZERO jsonErrors. This is the shared oracle from steps
@@ -24,7 +23,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { convert as convertFormio } from "../src/formio/index";
 import { convert as convertJsonSchema } from "../src/json-schema/index";
-import { assertConstructsCleanly, collectElementNames } from "../src/testing/oracle";
+import { assertConstructsCleanly, collectElementNames, lintOutput } from "../src/testing/oracle";
 import { scoreDefinition, aggregate, round4 } from "./scoring.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -47,7 +46,12 @@ interface Scored {
   output: unknown;
   reportEntries: number;
   score: ReturnType<typeof scoreDefinition>;
+  lint: { ruleId: string, severity: string }[];
 }
+
+// Lint findings per source, rule and severity. Only the error total is gated (a ratchet: it may
+// not rise above the baseline); warnings are tracked so a later change can quote them.
+type LintCounts = Record<string, Record<string, Record<string, number>>>;
 
 /** Load every committed snapshot for a source (excludes the token manifest). */
 function loadDefs(source: SourceId): { file: string, def: unknown }[] {
@@ -69,7 +73,8 @@ for (const source of Object.keys(CONVERTERS) as SourceId[]) {
   for (const { file, def } of loadDefs(source)) {
     try {
       const { output, report } = CONVERTERS[source](def);
-      scored.push({ source, file, output, reportEntries: report.entries.length, score: scoreDefinition(source, def, output, report) });
+      const lint = lintOutput(output).map((f) => ({ ruleId: f.ruleId, severity: f.severity }));
+      scored.push({ source, file, output, reportEntries: report.entries.length, score: scoreDefinition(source, def, output, report), lint });
     } catch (e) {
       // A throw here means detection rejected the file as wrong-format /
       // unparseable — it is not a scorable definition. Record it so it is
@@ -139,7 +144,7 @@ describe("corpus fidelity — aggregate metric (regression gate)", () => {
     for (const source of Object.keys(CONVERTERS) as SourceId[]) {
       perSource[source] = aggregate(scored.filter((s) => s.source === source).map((s) => s.score));
     }
-    const current = summarize(agg, perSource);
+    const current = { ...summarize(agg, perSource), lint: countLint(scored) };
 
     // Per-definition drop log (tracked, not failed).
     const worst = [...scored]
@@ -153,6 +158,12 @@ describe("corpus fidelity — aggregate metric (regression gate)", () => {
       }
     }
     console.log(`corpus:score — aggregate fidelityRatio=${current.fidelityRatio} cleanPerField=${current.cleanPerField} over ${current.definitions} defs.`);
+    console.log(`corpus:score — lint findings: ${current.lint.errors} error(s), ${current.lint.warnings} warning(s)`);
+    for (const [source, rules] of Object.entries(current.lint.perSource)) {
+      for (const [ruleId, bySeverity] of Object.entries(rules)) {
+        for (const [severity, n] of Object.entries(bySeverity)) console.log(`  ${source} ${ruleId} ${severity}: ${n}`);
+      }
+    }
 
     if (!existsSync(BASELINE_PATH) || process.env.UPDATE_BASELINE) {
       writeFileSync(BASELINE_PATH, JSON.stringify(current, null, 2) + "\n", "utf8");
@@ -170,6 +181,14 @@ describe("corpus fidelity — aggregate metric (regression gate)", () => {
       current.cleanPerField,
       `aggregate cleanPerField ${current.cleanPerField} rose >${CLEAN_EPS} above baseline ${baseline.cleanPerField}`
     ).toBeLessThanOrEqual(baseline.cleanPerField + CLEAN_EPS);
+    if (baseline.lint) {
+      expect(
+        current.lint.errors,
+        `lint error findings rose from ${baseline.lint.errors} to ${current.lint.errors} (see the per-rule list above)`
+      ).toBeLessThanOrEqual(baseline.lint.errors);
+    } else {
+      console.log("corpus:score — the baseline has no lint counts; regenerate it to gate on lint errors.");
+    }
 
     // A shrinking corpus can hide a regression — log it loudly (do not silently pass).
     if (current.definitions < baseline.definitions) {
@@ -177,6 +196,28 @@ describe("corpus fidelity — aggregate metric (regression gate)", () => {
     }
   });
 });
+
+function countLint(entries: Scored[]): { errors: number, warnings: number, perSource: LintCounts } {
+  const perSource: LintCounts = {};
+  let errors = 0;
+  let warnings = 0;
+  for (const { source, lint } of entries) {
+    for (const { ruleId, severity } of lint) {
+      const rules = perSource[source] ??= {};
+      const bySeverity = rules[ruleId] ??= {};
+      bySeverity[severity] = (bySeverity[severity] ?? 0) + 1;
+      if (severity === "error") errors++;
+      if (severity === "warning") warnings++;
+    }
+  }
+  // Sorted keys keep the baseline diff stable between runs.
+  const sorted: LintCounts = {};
+  for (const source of Object.keys(perSource).sort()) {
+    sorted[source] = {};
+    for (const ruleId of Object.keys(perSource[source]).sort()) sorted[source][ruleId] = perSource[source][ruleId];
+  }
+  return { errors, warnings, perSource: sorted };
+}
 
 function summarize(agg: ReturnType<typeof aggregate>, perSource: Record<string, ReturnType<typeof aggregate>>) {
   const shape = (a: ReturnType<typeof aggregate>) => ({

@@ -272,3 +272,173 @@ describe("json-schema convert - condition literals", () => {
     assertConstructsCleanly(output, "if const trailing backslash");
   });
 });
+
+describe("json-schema convert - references to renamed questions", () => {
+  // `home` and `work` each hold `c` and `s`; the second pair is renamed `c_1` and `s_1`.
+  const twoObjects = (rules: Record<string, unknown>) => {
+    const object = { type: "object", properties: { c: { type: "string" }, s: { type: "string" } }, ...rules };
+    return { type: "object", properties: { home: object, work: object } };
+  };
+  // Load the converted survey with `data` and read the named question.
+  const question = (schema: object, data: Record<string, unknown>, name: string) => {
+    const survey = assertConstructsCleanly(convert(schema).output, "renamed references");
+    survey.data = data;
+    return survey.getQuestionByName(name);
+  };
+
+  it("drives work's s from work's c in an if/then required", () => {
+    const schema = twoObjects({ if: { properties: { c: { const: "y" } } }, then: { required: ["s"] } });
+    expect(findElement(convert(schema).output, "s_1")?.requiredIf).toBe("{c_1} = 'y'");
+    expect(question(schema, { c_1: "y" }, "s_1").isRequired).toBe(true);
+    expect(question(schema, { c: "y" }, "s_1").isRequired).toBe(false);
+  });
+
+  it("drives work's s from work's c in if/then properties", () => {
+    const schema = twoObjects({ if: { properties: { c: { const: "y" } } }, then: { properties: { s: { type: "string" } } } });
+    expect(question(schema, { c_1: "y" }, "s_1").isVisible).toBe(true);
+    expect(question(schema, { c: "y" }, "s_1").isVisible).toBe(false);
+  });
+
+  it("drives work's s from work's c in dependentRequired", () => {
+    const schema = twoObjects({ dependentRequired: { c: ["s"] } });
+    expect(question(schema, { c_1: "x" }, "s_1").isRequired).toBe(true);
+    expect(question(schema, { c: "x" }, "s_1").isRequired).toBe(false);
+  });
+
+  it("drives work's s from work's c in dependentSchemas", () => {
+    const schema = twoObjects({ dependentSchemas: { c: { properties: { s: { type: "string" } } } } });
+    expect(question(schema, { c_1: "x" }, "s_1").isVisible).toBe(true);
+    expect(question(schema, { c: "x" }, "s_1").isVisible).toBe(false);
+  });
+
+  it("drives work's variant from work's discriminator", () => {
+    const object = { type: "object", oneOf: [
+      { properties: { kind: { const: "a" }, onlyA: { type: "string" } } },
+      { properties: { kind: { const: "b" }, onlyB: { type: "string" } } }
+    ] };
+    const schema = { type: "object", properties: { home: object, work: object } };
+    // `work`'s variant questions are the renamed ones.
+    expect(question(schema, { kind_1: "a" }, "onlyA_1").isParentVisible).toBe(true);
+    expect(question(schema, { kind: "a" }, "onlyA_1").isParentVisible).toBe(false);
+  });
+
+  it("gives no expression for an if on a property the object does not have, and reports it", () => {
+    const schema = { type: "object", properties: { s: { type: "string" } },
+      if: { properties: { missing: { const: "y" } } }, then: { required: ["s"] } };
+    const { output, report } = convert(schema);
+    expect(findElement(output, "s")?.requiredIf).toBeUndefined();
+    expect(entry(report.entries, JsonSchemaCodes.ASSUMED_IF_THEN_ELSE)?.sourcePointer).toBe("#/if");
+  });
+});
+
+describe("json-schema convert - references inside array items", () => {
+  // Load the converted survey with `data` and read a question from row `row` of each grid in `path`.
+  const rowQuestion = (schema: object, data: Record<string, unknown>, path: [string, number][], name: string) => {
+    const survey = assertConstructsCleanly(convert(schema).output, "item references");
+    survey.data = data;
+    let container: any = survey;
+    for (const [grid, row] of path) container = container.getQuestionByName(grid).panels[row];
+    return container.getQuestionByName(name);
+  };
+  const ifThen = { if: { properties: { c: { const: "y" } } }, then: { properties: { s: { type: "string" } } } };
+
+  it("reads an if/then from each row", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: {
+      type: "object", properties: { c: { type: "string" }, s: { type: "string" } }, ...ifThen
+    } } } };
+    expect(findElement(convert(schema).output, "s")?.visibleIf).toBe("{panel.c} = 'y'");
+    const data = { rows: [{ c: "y" }, { c: "n" }] };
+    expect(rowQuestion(schema, data, [["rows", 0]], "s").isVisible).toBe(true);
+    expect(rowQuestion(schema, data, [["rows", 1]], "s").isVisible).toBe(false);
+  });
+
+  it("reads a discriminated oneOf from each row", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object", oneOf: [
+      { properties: { kind: { const: "a" }, onlyA: { type: "string" } } },
+      { properties: { kind: { const: "b" }, onlyB: { type: "string" } } }
+    ] } } } };
+    const data = { rows: [{ kind: "a" }, { kind: "b" }] };
+    expect(rowQuestion(schema, data, [["rows", 0]], "onlyA").isParentVisible).toBe(true);
+    expect(rowQuestion(schema, data, [["rows", 1]], "onlyA").isParentVisible).toBe(false);
+    expect(rowQuestion(schema, data, [["rows", 1]], "onlyB").isParentVisible).toBe(true);
+  });
+
+  it("reads a nested object inside a row from that row", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object", properties: {
+      inner: { type: "object", properties: { c: { type: "string" }, s: { type: "string" } }, ...ifThen }
+    } } } } };
+    const data = { rows: [{ c: "y" }, { c: "n" }] };
+    expect(rowQuestion(schema, data, [["rows", 0]], "s").isVisible).toBe(true);
+    expect(rowQuestion(schema, data, [["rows", 1]], "s").isVisible).toBe(false);
+  });
+
+  it("reads a nested array's rows from their own row", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object", properties: {
+      subrows: { type: "array", items: { type: "object", properties: { c: { type: "string" }, s: { type: "string" } }, ...ifThen } }
+    } } } } };
+    const data = { rows: [{ subrows: [{ c: "n" }, { c: "y" }] }] };
+    expect(rowQuestion(schema, data, [["rows", 0], ["subrows", 0]], "s").isVisible).toBe(false);
+    expect(rowQuestion(schema, data, [["rows", 0], ["subrows", 1]], "s").isVisible).toBe(true);
+  });
+});
+
+describe("json-schema convert - exclusive bounds", () => {
+  // The numeric validator a property schema converts to, and the report.
+  const bound = (prop: Record<string, unknown>) => {
+    const { output, report } = convert({ type: "object", properties: { n: prop } });
+    assertConstructsCleanly(output, "bounds");
+    const validators = (findElement(output, "n")?.validators ?? []) as Record<string, unknown>[];
+    return { numeric: validators.find((v) => v.type === "numeric"), assumed: entry(report.entries, JsonSchemaCodes.ASSUMED_EXCLUSIVE_BOUND) };
+  };
+
+  // [schema, minValue, maxValue, assumed pointer]
+  const rows: [Record<string, unknown>, number | undefined, number | undefined, string | undefined][] = [
+    [{ type: "integer", exclusiveMinimum: 0 }, 1, undefined, undefined],
+    [{ type: "number", exclusiveMinimum: 0 }, 0, undefined, "#/properties/n/exclusiveMinimum"],
+    [{ type: "integer", minimum: 1, exclusiveMinimum: 5 }, 6, undefined, undefined],
+    [{ type: "number", minimum: 1, exclusiveMinimum: 5 }, 5, undefined, "#/properties/n/exclusiveMinimum"],
+    [{ type: "number", minimum: 5, exclusiveMinimum: 1 }, 5, undefined, undefined],
+    [{ type: "integer", minimum: 1, exclusiveMinimum: true }, 2, undefined, undefined],
+    [{ type: "number", minimum: 1, exclusiveMinimum: false }, 1, undefined, undefined],
+    [{ type: "integer", exclusiveMaximum: 10 }, undefined, 9, undefined],
+    [{ type: "number", exclusiveMaximum: 10 }, undefined, 10, "#/properties/n/exclusiveMaximum"],
+    [{ type: "integer", maximum: 20, exclusiveMaximum: 10 }, undefined, 9, undefined],
+    [{ type: "number", maximum: 5, exclusiveMaximum: 10 }, undefined, 5, undefined],
+    [{ type: "integer", maximum: 10, exclusiveMaximum: true }, undefined, 9, undefined],
+    [{ type: "number", maximum: 10, exclusiveMaximum: false }, undefined, 10, undefined]
+  ];
+  for (const [prop, minValue, maxValue, assumedPtr] of rows) {
+    it(`bounds ${JSON.stringify(prop)} to ${JSON.stringify({ minValue, maxValue })}`, () => {
+      const { numeric, assumed } = bound(prop);
+      expect(numeric?.minValue).toBe(minValue);
+      expect(numeric?.maxValue).toBe(maxValue);
+      expect(assumed?.sourcePointer).toBe(assumedPtr);
+    });
+  }
+});
+
+describe("json-schema convert - array metadata", () => {
+  const arrays = {
+    picks: { type: "array", items: { enum: ["a", "b"] }, default: ["b"], readOnly: true },
+    rows: { type: "array", items: { type: "object", properties: { x: { type: "string" } } }, default: [{ x: "1" }], readOnly: true },
+    tags: { type: "array", items: { type: "string" }, default: ["t"], readOnly: true }
+  };
+
+  for (const [name, expected] of [["picks", ["b"]], ["rows", [{ x: "1" }]], ["tags", ["t"]]] as const) {
+    it(`carries default and readOnly on the ${name} branch`, () => {
+      const { output } = convert({ type: "object", properties: arrays });
+      expect(findElement(output, name)).toMatchObject({ defaultValue: expected, readOnly: true });
+      const survey = assertConstructsCleanly(output, "array metadata");
+      expect(JSON.parse(JSON.stringify(survey.getQuestionByName(name).value))).toEqual(expected);
+      expect(survey.getQuestionByName(name).isReadOnly).toBe(true);
+    });
+  }
+
+  it("hides an array with ui:widget hidden", () => {
+    const { output } = convert({ schema: { type: "object", properties: arrays }, uiSchema: {
+      picks: { "ui:widget": "hidden" }, rows: { "ui:widget": "hidden" }, tags: { "ui:widget": "hidden" }
+    } });
+    const survey = assertConstructsCleanly(output, "hidden arrays");
+    for (const name of ["picks", "rows", "tags"]) expect(survey.getQuestionByName(name).isVisible).toBe(false);
+  });
+});

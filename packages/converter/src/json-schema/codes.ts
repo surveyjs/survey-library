@@ -12,6 +12,9 @@ export const JsonSchemaCodes = {
   ASSUMED_ONEOF_DISCRIMINATOR: "json-schema.assumed-oneof-discriminator",
   ASSUMED_DEPENDENCIES: "json-schema.assumed-dependencies",
   ASSUMED_ALLOF_MERGE: "json-schema.assumed-allof-merge",
+  // An exclusive bound on a `number`: survey-core's numeric validator is inclusive, so a value
+  // equal to the bound is accepted.
+  ASSUMED_EXCLUSIVE_BOUND: "json-schema.assumed-exclusive-bound",
 
   // A UI-layer hint we could not map (RJSF widget, JSONForms renderer option).
   UNSUPPORTED_UI_HINT: "json-schema.unsupported-ui-hint",

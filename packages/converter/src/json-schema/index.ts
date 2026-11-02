@@ -77,8 +77,8 @@ interface JsonSchemaDoc {
   readOnly?: boolean;
   minimum?: number;
   maximum?: number;
-  exclusiveMinimum?: number;
-  exclusiveMaximum?: number;
+  exclusiveMinimum?: number | boolean; // a boolean flag on `minimum` in draft-04
+  exclusiveMaximum?: number | boolean;
   minLength?: number;
   maxLength?: number;
   pattern?: string;
@@ -321,23 +321,26 @@ function combineAnd(existing: string | undefined, cond: string): string {
  * ANDed across keys). Returns `undefined` when the `if` cannot be expressed --
  * the caller then flags ASSUMED_IF_THEN_ELSE instead of guessing a branch.
  */
-function ifToExpression(ifSchema: JsonSchemaDoc): { pos: string, neg: string } | undefined {
+function ifToExpression(ifSchema: JsonSchemaDoc, state: WalkState): { pos: string, neg: string } | undefined {
   const props = ifSchema.properties;
   if (!props || Object.keys(props).length === 0) return undefined;
   const pos: string[] = [];
   const neg: string[] = [];
   for (const [k, cond] of Object.entries(props)) {
-    // A value that cannot be written as a literal makes the whole `if` inexpressible.
+    // A property with no question has nothing to read, and a value that cannot be written as a
+    // literal cannot be compared: either makes the whole `if` inexpressible.
+    const ref = questionRef(k, state);
+    if (ref === undefined) return undefined;
     if (cond && cond.const !== undefined) {
       const lit = formatLiteral(cond.const);
       if (lit === undefined) return undefined;
-      pos.push(`{${k}} = ${lit}`);
-      neg.push(`{${k}} <> ${lit}`);
+      pos.push(`${ref} = ${lit}`);
+      neg.push(`${ref} <> ${lit}`);
     } else if (cond && Array.isArray(cond.enum)) {
       const lits = cond.enum.map((v) => formatLiteral(v));
       if (lits.some((lit) => lit === undefined)) return undefined;
-      pos.push("(" + lits.map((lit) => `{${k}} = ${lit}`).join(" or ") + ")");
-      neg.push("(" + lits.map((lit) => `{${k}} <> ${lit}`).join(" and ") + ")");
+      pos.push("(" + lits.map((lit) => `${ref} = ${lit}`).join(" or ") + ")");
+      neg.push("(" + lits.map((lit) => `${ref} <> ${lit}`).join(" and ") + ")");
     } else {
       return undefined;
     }
@@ -350,6 +353,17 @@ function ifToExpression(ifSchema: JsonSchemaDoc): { pos: string, neg: string } |
 interface WalkState {
   elements: SurveyJSONElement[];
   byProp: Map<string, SurveyJSONElement>;
+  // How an expression in this object names its questions: empty at the top, `panel.` inside an
+  // array's item template, where a question is read from its own row.
+  refPrefix: string;
+}
+
+// The expression reference to the question made from property `key` of this object. It uses the
+// question's output name, which `uniqueName` may have changed, and is `undefined` when the
+// property has no question.
+function questionRef(key: string, state: WalkState): string | undefined {
+  const el = state.byProp.get(key);
+  return el ? `{${state.refPrefix}${el.name}}` : undefined;
 }
 
 /**
@@ -363,17 +377,18 @@ function walkObject(
   targetPath: string,
   ctx: Ctx,
   rjsfUi: Record<string, unknown> | undefined,
-  depth: number
+  depth: number,
+  refPrefix = ""
 ): SurveyJSONElement[] {
   const merged = mergeAllOf(schema, sourcePtr, ctx);
-  const state: WalkState = { elements: [], byProp: new Map() };
+  const state: WalkState = { elements: [], byProp: new Map(), refPrefix };
   const requiredSet = new Set(merged.required ?? []);
   const order = orderKeys(Object.keys(merged.properties ?? {}), rjsfUi);
 
   for (const key of order) {
     const sub = merged.properties![key];
     const hint = rjsfHint(rjsfUi?.[key]);
-    const el = mapProperty(key, sub, `${sourcePtr}/properties/${key}`, `${targetPath}[${state.elements.length}]`, ctx, requiredSet.has(key), hint, depth);
+    const el = mapProperty(key, sub, `${sourcePtr}/properties/${key}`, `${targetPath}[${state.elements.length}]`, ctx, requiredSet.has(key), hint, depth, refPrefix);
     if (el) {
       state.elements.push(el);
       state.byProp.set(key, el);
@@ -422,7 +437,8 @@ function mapProperty(
   ctx: Ctx,
   required: boolean,
   hint: UiHint,
-  depth: number
+  depth: number,
+  refPrefix = ""
 ): SurveyJSONElement | null {
   const resolved = resolveRef(rawSchema, ctx);
   if (resolved.remote) {
@@ -445,7 +461,7 @@ function mapProperty(
   // Nested object -> panel (recurse). A discriminated oneOf inside is handled by
   // the recursive walkObject.
   if (type === "object" || (type === undefined && schema.properties)) {
-    return mapObjectPanel(name, schema, sourcePtr, targetPath, ctx, required, depth);
+    return mapObjectPanel(name, schema, sourcePtr, targetPath, ctx, required, depth, refPrefix);
   }
   if (type === "array") {
     return mapArray(name, schema, sourcePtr, targetPath, ctx, required, hint, depth);
@@ -503,7 +519,8 @@ const WIDGET_INPUT_TYPE: Record<string, string> = {
   range: "number"
 };
 
-/** Map an object schema to a SurveyJS `panel`, recursing into its properties. */
+// Map an object schema to a SurveyJS `panel`, recursing into its properties. A static panel inside
+// an item template shares the row, so its questions keep the template's reference prefix.
 function mapObjectPanel(
   name: string,
   schema: JsonSchemaDoc,
@@ -511,12 +528,13 @@ function mapObjectPanel(
   targetPath: string,
   ctx: Ctx,
   required: boolean,
-  depth: number
+  depth: number,
+  refPrefix: string
 ): SurveyJSONElement {
   const panel: SurveyJSONElement = { type: "panel", name: uniqueName(name, ctx) };
   if (schema.title !== undefined) panel.title = String(schema.title);
   if (schema.description !== undefined) panel.description = String(schema.description);
-  const elements = walkObject(schema, sourcePtr, `${targetPath}.elements`, ctx, undefined, depth + 1);
+  const elements = walkObject(schema, sourcePtr, `${targetPath}.elements`, ctx, undefined, depth + 1, refPrefix);
   if (elements.length > 0) panel.elements = elements;
   if (required) panel.isRequired = true;
   return panel;
@@ -546,18 +564,18 @@ function mapArray(
     const wantTagbox = hint.multi === true || hint.widget === "tagbox" || hint.format === "combo";
     const el: SurveyJSONElement = { type: wantTagbox ? "tagbox" : "checkbox", name: qname, choices: itemChoices };
     applyTitleDesc(schema, el, hint);
-    if (required) el.isRequired = true;
-    if (hint.hidden) el.visible = false;
+    applyArrayMeta(schema, el, required, hint);
     return el;
   }
 
   if (effectiveType(items) === "object") {
-    // Repeating group of objects -> dynamic panel; item properties -> template.
+    // Repeating group of objects -> dynamic panel; item properties -> template. A question in the
+    // template is read from its own row, as `{panel.k}`; a nested array starts its own rows.
     const el: SurveyJSONElement = { type: "paneldynamic", name: qname };
     applyTitleDesc(schema, el, hint);
-    const template = walkObject(items, `${sourcePtr}/items`, `${targetPath}.templateElements`, ctx, undefined, depth + 1);
+    const template = walkObject(items, `${sourcePtr}/items`, `${targetPath}.templateElements`, ctx, undefined, depth + 1, "panel.");
     if (template.length > 0) el.templateElements = template;
-    if (required) el.isRequired = true;
+    applyArrayMeta(schema, el, required, hint);
     return el;
   }
 
@@ -565,8 +583,16 @@ function mapArray(
   // predefined choices; the user can add them after import.
   const el: SurveyJSONElement = { type: "tagbox", name: qname };
   applyTitleDesc(schema, el, hint);
-  if (required) el.isRequired = true;
+  applyArrayMeta(schema, el, required, hint);
   return el;
+}
+
+// `default`, `readOnly`, `required` and a hidden UI hint on an array question, in every branch.
+function applyArrayMeta(schema: JsonSchemaDoc, el: SurveyJSONElement, required: boolean, hint: UiHint): void {
+  if (schema.default !== undefined && schema.default !== null) el.defaultValue = schema.default;
+  if (schema.readOnly) el.readOnly = true;
+  if (required) el.isRequired = true;
+  if (hint.hidden) el.visible = false;
 }
 
 /** `title`/`description` onto an element, with UI-layer overrides winning. */
@@ -582,8 +608,6 @@ function applyTitleDesc(schema: JsonSchemaDoc, el: SurveyJSONElement, hint: UiHi
 
 /** `default`/validators/`required` onto a scalar element. */
 function applyScalarMeta(schema: JsonSchemaDoc, el: SurveyJSONElement, required: boolean, ctx: Ctx, sourcePtr: string): void {
-  void ctx;
-  void sourcePtr;
   if (schema.default !== undefined && schema.default !== null) el.defaultValue = schema.default;
   if (required) el.isRequired = true;
 
@@ -594,8 +618,9 @@ function applyScalarMeta(schema: JsonSchemaDoc, el: SurveyJSONElement, required:
     if (schema.maxLength !== undefined) t.maxLength = schema.maxLength;
     validators.push(t);
   }
-  const min = schema.minimum ?? schema.exclusiveMinimum;
-  const max = schema.maximum ?? schema.exclusiveMaximum;
+  const isInteger = effectiveType(schema) === "integer";
+  const min = readBound("min", schema.minimum, schema.exclusiveMinimum, isInteger, `${sourcePtr}/exclusiveMinimum`, ctx);
+  const max = readBound("max", schema.maximum, schema.exclusiveMaximum, isInteger, `${sourcePtr}/exclusiveMaximum`, ctx);
   if (min !== undefined || max !== undefined) {
     const n: Record<string, unknown> = { type: "numeric" };
     if (min !== undefined) n.minValue = min;
@@ -608,11 +633,40 @@ function applyScalarMeta(schema: JsonSchemaDoc, el: SurveyJSONElement, required:
   if (validators.length > 0) el.validators = validators;
 }
 
+// The inclusive bound a `numeric` validator takes from `minimum` / `exclusiveMinimum` (or the
+// maximum pair). Draft-04 writes `exclusiveMinimum: true` as a flag on `minimum`; later drafts
+// write the exclusive bound as a number next to an inclusive one, and the stricter wins. An
+// exclusive bound on an integer is exact one step inside; on a number it stays the bound and is
+// reported, since the validator accepts a value equal to it.
+function readBound(
+  side: "min" | "max",
+  inclusive: number | undefined,
+  exclusive: number | boolean | undefined,
+  isInteger: boolean,
+  exclusivePtr: string,
+  ctx: Ctx
+): number | undefined {
+  let lower = typeof inclusive === "number" ? inclusive : undefined;
+  let strict: number | undefined;
+  if (typeof exclusive === "number") strict = exclusive;
+  else if (exclusive === true && lower !== undefined) {
+    strict = lower;
+    lower = undefined;
+  }
+  if (strict === undefined) return lower;
+  const stepped = isInteger ? (side === "min" ? Math.floor(strict) + 1 : Math.ceil(strict) - 1) : strict;
+  const stricter = (a: number, b: number) => (side === "min" ? a > b : a < b);
+  // An inclusive bound at least as strict as the exclusive one makes it redundant.
+  if (lower !== undefined && (stricter(lower, stepped) || (isInteger && lower === stepped))) return lower;
+  if (!isInteger) ctx.report.assumed(JsonSchemaCodes.ASSUMED_EXCLUSIVE_BOUND, exclusivePtr, "");
+  return stepped;
+}
+
 // --- if/then/else -----------------------------------------------------------
 
 function applyIfThenElse(schema: JsonSchemaDoc, sourcePtr: string, targetPath: string, ctx: Ctx, state: WalkState, depth: number): void {
   if (!schema.if) return;
-  const expr = ifToExpression(schema.if);
+  const expr = ifToExpression(schema.if, state);
   if (!expr) {
     // Cannot express the condition -- do not guess a branch.
     ctx.report.assumed(JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, `${sourcePtr}/if`, "");
@@ -641,7 +695,7 @@ function applyBranch(
     let el = state.byProp.get(key);
     if (!el) {
       // Branch introduces a property not in the base object -- materialise it.
-      const created = mapProperty(key, sub, `${sourcePtr}/properties/${key}`, `${targetPath}[${state.elements.length}]`, ctx, false, {}, depth);
+      const created = mapProperty(key, sub, `${sourcePtr}/properties/${key}`, `${targetPath}[${state.elements.length}]`, ctx, false, {}, depth, state.refPrefix);
       if (!created) continue;
       el = created;
       state.elements.push(el);
@@ -657,6 +711,8 @@ function applyBranch(
 
 // --- dependencies -----------------------------------------------------------
 
+// Every dependency is reported `assumed`. One whose trigger has no question has nothing to read,
+// so it also adds no condition, and a schema dependency's properties are not created.
 function applyDependencies(schema: JsonSchemaDoc, sourcePtr: string, targetPath: string, ctx: Ctx, state: WalkState, depth: number): void {
   // draft-07 `dependencies`: value is either an array (property dependency) or a
   // schema (schema dependency).
@@ -665,7 +721,8 @@ function applyDependencies(schema: JsonSchemaDoc, sourcePtr: string, targetPath:
       requireWhenPresent(trigger, dep, state);
       ctx.report.assumed(JsonSchemaCodes.ASSUMED_DEPENDENCIES, `${sourcePtr}/dependencies/${trigger}`, "");
     } else if (dep && typeof dep === "object") {
-      applyBranch(dep, `{${trigger}} notempty`, `${sourcePtr}/dependencies/${trigger}`, targetPath, ctx, state, depth);
+      const ref = questionRef(trigger, state);
+      if (ref !== undefined) applyBranch(dep, `${ref} notempty`, `${sourcePtr}/dependencies/${trigger}`, targetPath, ctx, state, depth);
       ctx.report.assumed(JsonSchemaCodes.ASSUMED_DEPENDENCIES, `${sourcePtr}/dependencies/${trigger}`, "");
     }
   }
@@ -675,13 +732,16 @@ function applyDependencies(schema: JsonSchemaDoc, sourcePtr: string, targetPath:
     ctx.report.assumed(JsonSchemaCodes.ASSUMED_DEPENDENCIES, `${sourcePtr}/dependentRequired/${trigger}`, "");
   }
   for (const [trigger, dep] of Object.entries(schema.dependentSchemas ?? {})) {
-    applyBranch(dep, `{${trigger}} notempty`, `${sourcePtr}/dependentSchemas/${trigger}`, targetPath, ctx, state, depth);
+    const ref = questionRef(trigger, state);
+    if (ref !== undefined) applyBranch(dep, `${ref} notempty`, `${sourcePtr}/dependentSchemas/${trigger}`, targetPath, ctx, state, depth);
     ctx.report.assumed(JsonSchemaCodes.ASSUMED_DEPENDENCIES, `${sourcePtr}/dependentSchemas/${trigger}`, "");
   }
 }
 
 function requireWhenPresent(trigger: string, keys: string[], state: WalkState): void {
-  const cond = `{${trigger}} notempty`;
+  const ref = questionRef(trigger, state);
+  if (ref === undefined) return;
+  const cond = `${ref} notempty`;
   for (const key of keys) {
     const el = state.byProp.get(key);
     if (el) el.requiredIf = combineAnd(typeof el.requiredIf === "string" ? el.requiredIf : undefined, cond);
@@ -770,7 +830,7 @@ function appendOneOfVariants(
     state.elements.push(selector);
     state.byProp.set(d.disc, selector);
   }
-  const discName = state.byProp.get(d.disc)!.name;
+  const discRef = questionRef(d.disc, state)!;
 
   for (const variant of d.variants) {
     const panel: SurveyJSONElement = {
@@ -779,14 +839,14 @@ function appendOneOfVariants(
     };
     // A variant whose value cannot be written as a literal stays visible, reported.
     const lit = formatLiteral(variant.value);
-    if (lit !== undefined) panel.visibleIf = `{${discName}} = ${lit}`;
+    if (lit !== undefined) panel.visibleIf = `${discRef} = ${lit}`;
     else ctx.report.assumed(JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR, `${sourcePtr}/oneOf/${variant.index}`, `${targetPath}[${state.elements.length}]`);
     if (variant.schema.title !== undefined) panel.title = String(variant.schema.title);
     // Variant panel holds every property except the shared discriminator.
     const variantProps: Record<string, JsonSchemaDoc> = { ...variant.schema.properties };
     delete variantProps[d.disc];
     const variantSchema: JsonSchemaDoc = { ...variant.schema, properties: variantProps };
-    const elements = walkObject(variantSchema, `${sourcePtr}/oneOf/${variant.index}`, `${targetPath}[${state.elements.length}].elements`, ctx, undefined, depth + 1);
+    const elements = walkObject(variantSchema, `${sourcePtr}/oneOf/${variant.index}`, `${targetPath}[${state.elements.length}].elements`, ctx, undefined, depth + 1, state.refPrefix);
     if (elements.length > 0) panel.elements = elements;
     state.elements.push(panel);
   }
@@ -813,6 +873,7 @@ function rjsfHint(node: unknown): UiHint {
   const ui = node as Record<string, unknown>;
   const hint: UiHint = {};
   if (typeof ui["ui:widget"] === "string") hint.widget = ui["ui:widget"] as string;
+  if (hint.widget === "hidden") hint.hidden = true;
   if (typeof ui["ui:title"] === "string") hint.title = ui["ui:title"] as string;
   if (typeof ui["ui:description"] === "string") hint.description = ui["ui:description"] as string;
   if (typeof ui["ui:placeholder"] === "string") hint.placeholder = ui["ui:placeholder"] as string;

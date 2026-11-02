@@ -212,6 +212,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.syncFilterStringPlaceholder();
   }
 
+  public get isEnterClearingValue(): boolean { return false; }
   protected handleEnterWhenPopupVisible(event: any): void {
     this.listModel.selectFocusedItem();
     this.onFocus(event);

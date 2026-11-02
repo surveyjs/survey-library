@@ -1,4 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
+import { advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
@@ -722,6 +723,12 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   supportAutoAdvance(): boolean {
     return !this.getIsInputTextUpdate() && !this.isDateInputType;
+  }
+  public supportsKeyboardHints(): boolean {
+    return this.supportAutoAdvance();
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    return this.supportAutoAdvance() ? advanceKeyboardHints(this) : [];
   }
   public supportGoNextPageError(): boolean {
     return !this.isDateInputType;

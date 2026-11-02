@@ -30,6 +30,7 @@ class TooltipManager {
   private timer: ReturnType<typeof setTimeout> | undefined;
   private titleOwner: HTMLElement | undefined;
   private suppressedTitle: string | null = null;
+  private substituteAriaLabel: string | null = null;
   private listenedRoots = new WeakSet<Document | ShadowRoot>();
 
   constructor(private doc: Document) {
@@ -109,6 +110,12 @@ class TooltipManager {
     this.titleOwner = trigger;
     this.suppressedTitle = trigger.getAttribute("title");
     trigger.removeAttribute("title");
+    // The title is often the only accessible name of an icon-only button; an aria-label stands in for it
+    // meanwhile, unless the trigger is already named by aria-label or aria-labelledby.
+    if (this.suppressedTitle && !trigger.hasAttribute("aria-label") && !trigger.hasAttribute("aria-labelledby")) {
+      this.substituteAriaLabel = this.suppressedTitle;
+      trigger.setAttribute("aria-label", this.substituteAriaLabel);
+    }
   }
   private hide = (): void => {
     clearTimeout(this.timer);
@@ -118,8 +125,12 @@ class TooltipManager {
     if (this.titleOwner && this.suppressedTitle !== null && !this.titleOwner.hasAttribute("title")) {
       this.titleOwner.setAttribute("title", this.suppressedTitle);
     }
+    if (this.titleOwner && this.substituteAriaLabel !== null && this.titleOwner.getAttribute("aria-label") === this.substituteAriaLabel) {
+      this.titleOwner.removeAttribute("aria-label");
+    }
     this.titleOwner = undefined;
     this.suppressedTitle = null;
+    this.substituteAriaLabel = null;
     if (!this.element) return;
     this.element.classList.remove("sv-tooltip--visible");
     this.element.style.display = "";

@@ -308,7 +308,29 @@ export var croatianStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Traka napretka",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Stranica {0}"
+  progressbarPage: "Stranica {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "za odabir",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "za prebacivanje",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "za navigaciju",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "nastavit će se",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "za predaju",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "ili",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "za novu liniju",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Na sljedeću opciju",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "da se pomakne",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "otvoriti",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "za zatvaranje"
 };
 
 setupLocale({ localeCode: "hr", strings: croatianStrings, nativeName: "hrvatski", englishName: "Croatian" });

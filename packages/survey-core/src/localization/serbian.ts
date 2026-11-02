@@ -308,7 +308,29 @@ export var serbianStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Traka napretka",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Stranica {0}"
+  progressbarPage: "Stranica {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "da izaberete",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "Da biste se prebacili",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "za navigaciju",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Da nastavi",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Da podnese",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "ili",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "za novu liniju",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "na sledeću opciju",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "da se kreće",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "otvoriti",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "zatvoriti"
 };
 
 setupLocale({ localeCode: "sr", strings: serbianStrings, nativeName: "srpski", englishName: "Serbian" });

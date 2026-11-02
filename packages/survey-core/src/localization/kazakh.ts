@@ -308,7 +308,29 @@ export var kazakhStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Прогресс тақтасы",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "{0}-бет"
+  progressbarPage: "{0}-бет",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "таңдау үшін",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "ауыстыру",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Навигация",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "жалғастыру",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Тапсыру",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "немесе",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "жаңа желі үшін",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "келесі опцияға",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "қозғалу",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "Ашылу",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "жабу үшін"
 };
 
 setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });

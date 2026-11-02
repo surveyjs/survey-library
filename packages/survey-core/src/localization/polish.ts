@@ -326,7 +326,29 @@ export var polishSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "aby wybrać",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "to toggle",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "żeby nawigować",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "ciąg dalszy",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "do zgłoszenia",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "lub",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "dla nowej linii",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Do następnej opcji",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "Do ruchu",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "Otworzyć",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "do zamknięcia"
 };
 
 setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });

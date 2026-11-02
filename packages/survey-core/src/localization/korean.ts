@@ -308,7 +308,29 @@ export var koreanStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "진행률 표시줄",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "페이지 {0}"
+  progressbarPage: "페이지 {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "선택하기",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "토글하기",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "항해하기 위해",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "계속하기",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "제출하기",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "또는",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "새로운 노선을 위해",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "다음 옵션으로",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "이동하기 위해",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "개봉",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "마무리"
 };
 
 setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어", englishName: "Korean" });

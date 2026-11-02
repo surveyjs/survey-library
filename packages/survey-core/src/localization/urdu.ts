@@ -308,7 +308,29 @@ export var urduSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Progress bar",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "صفحہ {0}"
+  progressbarPage: "صفحہ {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "منتخب کرنے کے لیے",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "ٹو ٹوگل کرنا",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "نیویگیٹ کرنا",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "جاری رکھنے کے لیے",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "جمع کروانے کے لیے",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "یا",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "ایک نئی لائن کے لیے",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "اگلے آپشن کی طرف",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "منتقل ہونے کے لیے",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "کھولنے کے لیے",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "اختتام کے لیے"
 };
 
 setupLocale({ localeCode: "ur", strings: urduSurveyStrings, nativeName: "urdu", englishName: "Urdu" });

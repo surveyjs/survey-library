@@ -1,4 +1,5 @@
 import { Serializer } from "./jsonobject";
+import { singleChoiceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
@@ -48,6 +49,12 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     if (this.canCommitAutoAdvanceOnEnter(event)) {
       this.commitAutoAdvance(event);
     }
+  }
+  public supportsKeyboardHints(): boolean {
+    return true;
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    return singleChoiceKeyboardHints(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = super.getConditionJson(operator, path);

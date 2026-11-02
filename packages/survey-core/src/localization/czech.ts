@@ -326,7 +326,29 @@ export var czechSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "pro výběr",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "přepínat",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Navigace",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "pokračování",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "k odeslání",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "nebo",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "pro novou trať",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Na další možnost",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "Přesunout se",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "otevřít",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "Zavřít"
 };
 
 setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });

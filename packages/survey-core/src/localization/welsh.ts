@@ -308,7 +308,29 @@ export var welshSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Bar cynnydd",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Tudalen {0}"
+  progressbarPage: "Tudalen {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "dewis",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "toglu",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "llywio",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "parhau",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "cyflwyno",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "neu",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "ar gyfer llinell newydd",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "I'r opsiwn nesaf",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "symud",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "agor",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "cau"
 };
 
 setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymraeg", englishName: "Welsh" });

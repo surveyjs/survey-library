@@ -308,7 +308,29 @@ export var basqueSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Aurrerapen barra",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Orrialde {0}"
+  progressbarPage: "Orrialde {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "hautatzeko",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "Toggle",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "nabigatzeko",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Jarraitu",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Aurkezteko",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "edo",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "Lerro berri baterako",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "hurrengo aukerara",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "Mugitzeko",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "irekitzea",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "Itxiera"
 };
 
 setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euskara", englishName: "Basque" });

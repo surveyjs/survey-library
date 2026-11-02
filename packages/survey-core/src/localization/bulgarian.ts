@@ -308,7 +308,29 @@ export var bulgarianStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Лента за напредъка",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Страница {0}"
+  progressbarPage: "Страница {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "да избера",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "за превключване",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Да навигирате",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "да продължим",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "да подадеш",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "или",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "за нова линия",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "към следващата опция",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "да се движа",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "да отворя",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "да закрия"
 };
 
 setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "български", englishName: "Bulgarian" });

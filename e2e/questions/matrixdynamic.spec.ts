@@ -976,6 +976,43 @@ frameworks.forEach((framework) => {
       expect(await dragHandles.count()).toBe(3);
     });
 
+    test("a click on the sort icon and on the edge of the cell sorts as well", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      const priceHeader = page.locator("thead th").nth(1);
+
+      await priceHeader.locator(".sd-table__header-sort").click();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+
+      await priceHeader.click({ position: { x: 2, y: 2 } });
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+    });
+
+    test("the sort icon gets the hovered chip under the cursor only, and not while a click does nothing", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      const priceHeader = page.locator("thead th").nth(1);
+      const priceButton = priceHeader.locator("button");
+      const icon = priceHeader.locator(".sd-table__header-sort");
+      const background = (): Promise<string> => icon.evaluate((el) => getComputedStyle(el).backgroundColor);
+      const cursor = (): Promise<string> => priceButton.evaluate((el) => getComputedStyle(el).cursor);
+      const quiet = await background();
+      expect(await cursor()).toBe("pointer");
+
+      await icon.hover();
+      await expect.poll(background).not.toBe(quiet);
+
+      // The rest of the cell is the click target, but the chip stays quiet: the third click of the design.
+      await priceHeader.hover({ position: { x: 2, y: 2 } });
+      await expect.poll(background).toBe(quiet);
+      expect(await cursor()).toBe("pointer");
+
+      // A page is being read: canToggleSort is false.
+      await priceButton.evaluate((el) => el.setAttribute("aria-disabled", "true"));
+      await icon.hover();
+      await page.waitForTimeout(300);
+      expect(await background()).toBe(quiet);
+      expect(await cursor()).toBe("default");
+    });
+
     for (const key of ["Enter", "Space"]) {
       test(`${key} on a focused header sorts and keeps the focus on its button`, async ({ page }) => {
         await initSurvey(page, framework, sortJson());

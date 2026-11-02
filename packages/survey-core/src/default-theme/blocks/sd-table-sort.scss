@@ -1,3 +1,4 @@
+@use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
 // A sortable column header: the whole cell is one button. The <th> hands its padding to the button,
@@ -34,6 +35,11 @@
   cursor: pointer;
   outline: none;
 
+  // No sort while a page is read (canToggleSort).
+  &[aria-disabled="true"] {
+    cursor: default;
+  }
+
   // Inset: the table's borders and its scroll container would clip a ring drawn outside the cell.
   &:focus-visible {
     box-shadow: inset 0 0 0 var(--sjs2-border-width-a11y) var(--sjs2-color-utility-a11y);
@@ -64,17 +70,21 @@
   padding: var(--sjs2-spacing-x050);
   border-radius: var(--sjs2-radius-component-action);
   background: var(--sjs2-color-component-action-neutral-quaternary-default-bg);
+  transition: background-color $transition-duration;
 
   .sv-svg-icon {
     display: block;
   }
   use {
     fill: var(--sjs2-color-component-action-neutral-quaternary-default-icon);
+    transition: fill $transition-duration;
   }
 }
-// Sorted: the arrow in the hovered chip.
+// Sorted, or under the cursor: the icon in the hovered chip. A cursor elsewhere in the cell leaves it
+// quiet, though the whole cell is the click target (Figma 6365:17961).
 .sd-table__header-sort--asc,
-.sd-table__header-sort--desc {
+.sd-table__header-sort--desc,
+.sd-table__header-sort-button:not([aria-disabled="true"]) .sd-table__header-sort:hover {
   background: var(--sjs2-color-component-action-neutral-quaternary-hovered-bg);
 
   use {

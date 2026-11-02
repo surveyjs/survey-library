@@ -1,7 +1,7 @@
 // A YAML emitter for the subset the interview documents use: maps, sequences and scalars. No
 // anchors, no tags, no block scalars, no multi-document streams - and no dependency: survey-core
-// ships none and a sub-bundle may import nothing but "survey-core" (overview 2.5). It is a pure
-// function of plain data; nothing here knows that a SurveyModel exists.
+// ships none and a sub-bundle may import nothing but "survey-core" and the shared async helper
+// (overview 2.5). It is a pure function of plain data; nothing here knows that a SurveyModel exists.
 //
 // The one thing it has to get right is quoting. A consumer parses this text with a real YAML
 // parser, and a value that comes back as a boolean, a number or a date where the survey said the

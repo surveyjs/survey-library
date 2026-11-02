@@ -322,8 +322,30 @@ describe("createInterview takes the model the integrator owns (issue #11818)", (
     expect(error.code).toBe("asyncTimeout");
     expect(error.code).toBe(InterviewErrorCodes.asyncTimeout);
     expect(error.reason).toBe("webChoices");
+    expect(error.names).toEqual(["city"]);
     expect(error.urls).toEqual(["https://example.com/never"]);
     expect(Date.now() - start, "it stops at the budget, it does not hang").toBeLessThan(2000);
+  });
+
+  // A container with a dataSource is unsupported, but the model reports its pending read like any
+  // other running operation, so it holds the settle.
+  test("A data source that never answers ends in a timeout that names the container, Issue#11818", async () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "items", rowCount: 0, columns: [{ name: "sku", cellType: "text" }] },
+    ] });
+    (<any>survey.getQuestionByName("items")).dataSource = { read: () => new Promise<any>(() => { /* never answers */ }) };
+    let error: any = undefined;
+    try {
+      await createInterview(survey, { timeout: 50 });
+    } catch(e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+    expect(error.code).toBe(InterviewErrorCodes.asyncTimeout);
+    expect(error.reason).toBe("dynamicData");
+    expect(error.names).toEqual(["items"]);
+    expect(error.urls).toBeUndefined();
+    expect(error.message).toContain("the records of items are still loading from or saving to their data source");
   });
 
   test("dispose drops the interview's state and leaves the model alone", async () => {

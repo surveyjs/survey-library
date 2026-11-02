@@ -7,8 +7,12 @@ import { describe, expect, test } from "vitest";
 // The interview ships as a separate bundle, and that only stays true while the dependency arrow points
 // one way: src/interview/** may import from "survey-core", nothing else in src/** may import from
 // src/interview/**, and no public entry point - nor the tester and the linter, the other two
-// sub-bundles - must reach it, directly or transitively. Nothing here builds anything - the sources
-// are read from disk and their import specifiers are inspected.
+// sub-bundles - must reach it, directly or transitively. The one file outside src/interview/ the
+// interview may import is src/utils/survey-async.ts, the async waiting it shares with the tester: that
+// file imports nothing but types from "survey-core" (tests/tester/testIsolationTests.ts pins that, and
+// that no public entry reaches it), so it is compiled into the interview bundle without dragging any
+// other source along. Nothing here builds anything - the sources are read from disk and their import
+// specifiers are inspected.
 
 const packageRoot = findPackageRoot();
 const srcDir = join(packageRoot, "src");
@@ -17,6 +21,7 @@ const testerDir = join(srcDir, "tester");
 const linterDir = join(srcDir, "linter");
 const entriesDir = join(packageRoot, "entries");
 const testsDir = join(packageRoot, "tests", "interview");
+const asyncHelperFile = join(srcDir, "utils", "survey-async.ts");
 const SURVEY_CORE = "survey-core";
 
 function findPackageRoot(): string {
@@ -115,6 +120,10 @@ function isInsideTests(path: string): boolean {
   return isInside(testsDir, path);
 }
 
+function isAsyncHelper(path: string): boolean {
+  return toPosix(path) === toPosix(asyncHelperFile);
+}
+
 function resolveImport(record: IImportRecord): string {
   if (record.source.charAt(0) !== ".") return undefined;
   const base = resolve(dirname(record.file), record.source);
@@ -153,7 +162,7 @@ describe("The interview is isolated from the rest of the library (issue #11818)"
     });
   });
 
-  test("src/interview/ imports nothing but its own files and the survey-core package", () => {
+  test("src/interview/ imports nothing but its own files, the shared async helper and the survey-core package", () => {
     const offenders: Array<string> = [];
     getTypeScriptFiles(interviewDir).forEach(file => {
       getImports(file).forEach(record => {
@@ -162,15 +171,15 @@ describe("The interview is isolated from the rest of the library (issue #11818)"
           return;
         }
         const resolved = resolveImport(record);
-        if (!resolved || !isInsideInterview(resolved)) offenders.push(formatRecord(record));
+        if (!resolved || !isInsideInterview(resolved) && !isAsyncHelper(resolved)) offenders.push(formatRecord(record));
       });
     });
     expect(offenders, "the interview must reach the rest of the library through \"survey-core\", and must not depend on a node built-in or on any other package").toEqual([]);
   });
 
-  // The check above already rejects every relative escape. This one names the two neighbouring
-  // sub-bundles, so that the failure message says what the rule is: what they share belongs in
-  // survey-core and is consumed from "survey-core", never borrowed from another sub-bundle.
+  // The check above already rejects every relative escape but the shared async helper. This one names
+  // the two neighbouring sub-bundles, so that the failure message says what the rule is: what they
+  // share is consumed from "survey-core" or from that helper, never borrowed from another sub-bundle.
   test("No file of src/interview/ imports from src/tester/ or src/linter/", () => {
     const offenders: Array<string> = [];
     getTypeScriptFiles(interviewDir).forEach(file => {
@@ -205,7 +214,7 @@ describe("The interview is isolated from the rest of the library (issue #11818)"
   test("Everything src/interview/ imports from survey-core is exported by it", () => {
     const surface: any = SurveyCore;
     const offenders: Array<string> = [];
-    getTypeScriptFiles(interviewDir).forEach(file => {
+    getTypeScriptFiles(interviewDir).concat([asyncHelperFile]).forEach(file => {
       getImports(file).forEach(record => {
         // A type is erased before the bundle exists; only a value has to be reachable at run time.
         if (record.source !== SURVEY_CORE || record.isTypeOnly) return;

@@ -8,8 +8,9 @@ import type { Question, SurveyModel } from "survey-core";
 //
 // It is the same grammar as the tester's target names (SurveyTestTargets.nameOf / resolve,
 // src/tester/test-targets.ts). The two are twins that must stay in step, and they are separate on
-// purpose: a sub-bundle imports nothing but "survey-core" (overview 2.5), so neither can import the
-// other, and unifying them by moving the grammar into survey-core is a later task. A test in
+// purpose: a sub-bundle imports nothing but "survey-core" and the shared src/utils/survey-async.ts
+// (overview 2.5), so neither can import the other, and unifying them by moving the grammar into
+// survey-core is a later task. A test in
 // tests/interview/interviewAddressTests.ts pins the two against each other over a nested fixture.
 //
 // Two differences from the tester, both deliberate:

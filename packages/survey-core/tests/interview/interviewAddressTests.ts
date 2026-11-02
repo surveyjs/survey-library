@@ -107,7 +107,7 @@ describe("interview addresses (issue #11818)", () => {
   });
 
   // The twin-grammar guard. The tester writes the same paths for the same objects, and the two
-  // implementations are separate only because a sub-bundle may import nothing but "survey-core".
+  // implementations are separate only because a sub-bundle may not import another sub-bundle.
   // Where the tester has a name at all - it has none for a multiple-text item, a composite's content
   // question or a synthesized matrix row - it must be the interview's address, character for
   // character.

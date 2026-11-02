@@ -167,10 +167,12 @@ everything else a survey runs with are set on the model before the hand-over (se
 [The model is yours](#the-model-is-yours)). `undefined`, `null` and `{}` mean the defaults; options
 that are not an object are a `TypeError` too.
 
-`timeout` is wall-clock time and it bounds one asynchronous survey operation. When it runs out, the
-call rejects with an `Error` carrying `code: "asyncTimeout"`, the `reason` the model reported, the
-`names` of the questions it was still running for and, for choices loading from a web service, the
-`urls` that have not answered. `timeout: 0` never waits:
+`timeout` is wall-clock time and it bounds each wait for the model to settle, chained operations
+included. When it runs out, the call rejects with an `Error` carrying `code: "asyncTimeout"`, the
+`reason` the model reported (one of its six operation types: `serverValidation`, `navigationHandler`,
+`validators`, `expressions`, `webChoices`, `dynamicData`), the `names` of the questions it was still
+running for (for `dynamicData`, the container whose data source has not answered) and, for choices
+loading from a web service, the `urls` that have not answered. `timeout: 0` never waits:
 the interview then describes whatever the model holds at that instant — `choicesUnknown: true`, if
 the choices are still on their way. A request that failed is `choicesUnknown: true` as well, with the
 model's error text under `choicesError`; so is a URL whose `{placeholders}` are not answered yet.
@@ -212,7 +214,7 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | `completionBlocked` | A handler of `onCompleting` set `allow = false`. |
 | `surveyCompleted` | `answer()` or `skip()` after the survey completed. |
 | `startPageIncomplete` | `createInterview` rejects: the model shows a start page and `start()` refused to leave it. An `Error`, not an item error, carrying `names`. |
-| `asyncTimeout` | A call, or `createInterview`, rejects: the model was still running an asynchronous operation when the [`timeout`](#options) ran out. An `Error`, not an item error, carrying `reason`, and `names` / `urls` when the model reported them. |
+| `asyncTimeout` | A call, or `createInterview`, rejects: the model was still running an asynchronous operation when the [`timeout`](#options) ran out. An `Error`, not an item error, carrying `reason`, one of the model's six operation types, and `names` / `urls` when the model reported them. For `dynamicData`, `names` holds the container whose data source has not answered. |
 | `unknownTool` | `callTool()` rejects: the name is none of the [tools](#tools) `getTools()` defines. An `Error`, not an item error. |
 
 An error with a code means **nothing was written**: the pre-checks run before the value reaches the
@@ -1108,7 +1110,9 @@ carries — and not of the nested input a respondent fills one at a time. So:
   source owns the records: the question refuses writes to its value, it may page them on its own
   terms, and for most sources they are not in `survey.data`. So the interview does not support it
   yet. It is listed and never current, a key for it is `notAskable`, and in single mode so is an
-  address inside it (`items[0].sku`). It has no property in the answer schema.
+  address inside it (`items[0].sku`). It has no property in the answer schema. A read or a write the
+  source has not answered still holds the settle, and the call ends in `asyncTimeout` with
+  `reason: "dynamicData"`, unless `timeout: 0`.
 * an item an `enableIf` turned off is listed with `disabled: true` and refused by `answerAll()`,
   unless another key of the same call turns it on. The `enableIf` may be the question's own or one
   of a panel, a page or a container it sits in: a question is `disabled` when every element that
@@ -1967,13 +1971,14 @@ about.
 | `interview-tools.ts` | The three tool definitions and the name matching behind `callTool`. Plain data; nothing here talks to a network. |
 | `interview-state.ts` | The state the model has no notion of: the skipped set, and the snapshot / diff pair behind the change report. |
 | `interview-errors.ts` | `InterviewErrorCodes`, frozen, and one composing function per code. |
-| `interview-async.ts` | `settle()`: the one asynchronous primitive. Every mutating call ends with it before it reads the state it returns. |
+| `interview-async.ts` | `settle()`: the one asynchronous primitive. Every mutating call ends with it before it reads the state it returns. An adapter over `src/utils/survey-async.ts`, which owns the waiting; the timeout error is the interview's own. |
 | `yaml.ts` | `toYaml()`: the emitter, a pure function of plain data. It is where the quoting rules live. |
 | `render.ts` | `renderInterviewDocument()`: the document as a Markdown heading and one fenced `yaml` block. The one place text is assembled; nothing else writes Markdown or YAML by hand. |
 
-`src/interview/**` imports nothing but `"survey-core"` and its own files; nothing under `src/`
-outside this folder imports from it, and no public entry point — nor `survey-core/tester` and
-`survey-core/linter`, the other two sub-bundles — reaches it.
+`src/interview/**` imports nothing but `"survey-core"`, its own files and `src/utils/survey-async.ts`,
+the async waiting it shares with `survey-core/tester` and compiles in; that file imports only types
+from `"survey-core"`. Nothing under `src/` outside this folder imports from it, and no public entry
+point — nor `survey-core/tester` and `survey-core/linter`, the other two sub-bundles — reaches it.
 `tests/interview/interviewIsolationTests.ts` pins all of that, including that every value it imports
 from `"survey-core"` is really exported by `"survey-core"`: the bundle declares the package external,
 so a symbol the public surface does not export would be `undefined` at run time while the unit tests,

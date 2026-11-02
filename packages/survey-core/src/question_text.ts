@@ -900,7 +900,9 @@ export class QuestionTextModel extends QuestionTextBase {
         this._isWaitingForEnter = false;
       }
     } else {
-      if (event.keyCode === 13) {
+      // Enter can move the survey on keydown, so its keyup lands on the next input. A range always
+      // holds a number, and one nobody touched has no answer to store.
+      if (event.keyCode === 13 && (this.inputType !== "range" || this._isValueChanged)) {
         this.updateValueOnEvent(event);
       }
     }
@@ -931,8 +933,20 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
+    // Read before the key action. It can blur the input, and that write advances by itself, so a
+    // second request here would skip a multiple text item.
+    const canAdvance = this.canCommitAutoAdvanceOnEnter(event) && this.supportAutoAdvance() && !this.hasUncommittedInput(event);
     this.onTextKeyDownHandler(event);
+    if (canAdvance) {
+      this.commitAutoAdvance(event);
+    }
   };
+  // New text reaches the value on keyup, and that value change advances. The input is compared with
+  // inputValue because value holds a masked text unmasked, and the way the inputValue setter compares:
+  // a number input holds a string.
+  private hasUncommittedInput(event: any): boolean {
+    return !Helpers.isTwoValueEquals(this.inputValue, event.target?.value, false, true, false);
+  }
   private shouldPreventNumberInput(event: any): boolean {
     const key = event.key;
 

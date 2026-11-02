@@ -12,7 +12,12 @@ export const contractVersion = 1;
 export const resultSchema = 1;
 
 // The wall time of a suite on the perf server, in minutes; the caller stops a suite at 1.5x of it.
-const budgetMin: { [suite: string]: number } = { "core": 10, "react": 8, "survey-js-ui": 8 };
+const budgetMin: { [suite: string]: number } = { "core": 20, "react": 10, "survey-js-ui": 10 };
+
+// A guard against a hung core scenario process (perf/core/run.ts), below the core suite budget. On the perf server the
+// longest process on master takes about 175 s (expressions/answer/next10); on survey-core 3.2.0
+// complexLogic/answer/next10 takes 7 minutes, and load/design and output/dispose do not finish.
+export const scenarioTimeoutMs = 300000;
 
 export interface SuiteManifest {
   ids: Array<string>;

@@ -15,12 +15,10 @@ import { dependencyInfo } from "../harness/node/deps.ts";
 import { buildPart, resultFilePath, writeJsonAtomic } from "../harness/node/result.ts";
 import { sha1, fixtureHashes } from "../harness/node/fixture-hash.ts";
 import type { ResultFile, ResultEntry } from "../harness/node/result.ts";
+import { scenarioTimeoutMs } from "../manifest.ts";
 
 // The core suite (02): every core scenario in its own fresh `node --expose-gc` process, in a fixed order sorted by
 // id, against the target build (PERF_CORE_DIR, default the runner's). It writes one result file.
-// A guard against a hung process, below the 10-minute suite budget. On master the longest process takes about 80 s;
-// on survey-core 3.2.0 complexLogic/answer/next10 takes 7 minutes, and load/design and output/dispose do not finish.
-const scenarioTimeoutMs = 300000;
 const processScript = path.join(runnerRoot, "perf", "core", "scenario-process.ts");
 
 const env = readEnv();

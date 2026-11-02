@@ -19,7 +19,7 @@ function perfConfig(suite) {
     workers: 1,
     retries: 0,
     fullyParallel: false,
-    // A scenario takes under a minute at normal speed; a hung one fails alone and the suite stays inside 8 min.
+    // A scenario takes under a minute at normal speed; a hung one fails alone and the suite stays inside 10 min.
     timeout: 3 * 60000,
     outputDir: path.join(resultsDir, "playwright"),
     globalSetup: path.join(browserDir, "global-setup.ts"),

@@ -33,7 +33,8 @@ import {
      (refuseOperationOfSource). */
 
 async function flush(): Promise<void> {
-  for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0));
+  // setTimeout(0) takes about 12 ms on Windows; 125 tests of 20 turns each add up to 20 s.
+  for (let i = 0; i < 20; i++) await new Promise(r => setImmediate(r));
 }
 function records(count: number): Array<any> {
   const res: Array<any> = [];

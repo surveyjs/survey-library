@@ -10,6 +10,7 @@ export default defineConfig({
       "tests/vitest.setup.ts",
       "tests/typings/**",
       "tests/test-helpers.ts",
+      "tests/test-baseline.ts",
       "tests/oldTheme.ts",
       "tests/legacy-theme-vars.ts",
       "tests/linter/lint-test-helpers.ts",
@@ -19,6 +20,9 @@ export default defineConfig({
       "build/**",
     ],
     setupFiles: ["./tests/vitest.setup.ts"],
+    // Startup is most of the run: a new jsdom and a reload of all of src for each file.
+    // Without isolation a leak can fail an unrelated file; test:isolated tells them apart.
+    isolate: false,
   },
   resolve: {
     alias: {

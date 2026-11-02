@@ -1,6 +1,6 @@
 // Setup file for Vitest. Mirrors the side-effect imports and global settings
 // from the Karma+QUnit entry barrel at tests/entries/test.ts.
-import { afterEach, expect } from "vitest";
+import { afterAll, afterEach, expect } from "vitest";
 import "../src/localization/russian";
 import "../src/localization/french";
 import "../src/localization/finnish";
@@ -10,6 +10,17 @@ import { ComponentCollection } from "../src/question_custom";
 import { surveyLocalization } from "../src/surveyStrings";
 import { _setIsTouch } from "../src/utils/devices";
 import { reducedMotionMediaQuery } from "../src/utils/reduced-motion";
+import { mediaQueries, restoreSettings } from "./test-baseline";
+
+// jsdom has no constructable stylesheets, so each afterRenderSurvey falls to
+// applyBaseThemeVariablesInline in src/utils/base-theme-init.ts and writes 1,751
+// variables. cssstyle re-serializes the whole cssText on each setProperty, so one
+// render costs about 850 ms. Browsers do not take this path, so the stub lives here
+// and not in src. tests/csp_tests.ts removes it to test that fallback.
+(CSSStyleSheet.prototype as any).replaceSync = function () { /* no-op */ };
+const adopted = { configurable: true, get(this: any) { return this.__adopted || []; }, set(this: any, v: any) { this.__adopted = v; } };
+Object.defineProperty(Document.prototype, "adoptedStyleSheets", adopted);
+Object.defineProperty(ShadowRoot.prototype, "adoptedStyleSheets", adopted);
 
 settings.animationEnabled = false;
 settings.dropdownSearchDelay = 0;
@@ -26,12 +37,11 @@ _setIsTouch(false);
 // jsdom does not implement matchMedia. SurveyJS responsive logic and popup
 // displayMode use it. Provide a controllable registry.
 if (typeof (globalThis as any).matchMedia === "undefined") {
-  const __mqRegistry: Map<string, { matches: boolean, listeners: Set<(e: any) => void> }> = new Map();
   (globalThis as any).matchMedia = function (query: string) {
-    let entry = __mqRegistry.get(query);
+    let entry = mediaQueries.get(query);
     if (!entry) {
       entry = { matches: false, listeners: new Set() };
-      __mqRegistry.set(query, entry);
+      mediaQueries.set(query, entry);
     }
     const captured = entry;
     return {
@@ -46,10 +56,10 @@ if (typeof (globalThis as any).matchMedia === "undefined") {
     };
   };
   (globalThis as any).__setMatchMedia = function (query: string, matches: boolean) {
-    let entry = __mqRegistry.get(query);
+    let entry = mediaQueries.get(query);
     if (!entry) {
       entry = { matches, listeners: new Set() };
-      __mqRegistry.set(query, entry);
+      mediaQueries.set(query, entry);
       return;
     }
     if (entry.matches === matches) return;
@@ -310,9 +320,8 @@ if (typeof (globalThis as any).window !== "undefined" &&
 // browser-style default for the animation-* shorthand props.
 //
 // Re-applied in `afterEach` (see end of file) so tests that override
-// `window.getComputedStyle` and forget to restore it (or run interleaved with
-// such tests in the same worker under `--no-isolate`) cannot poison
-// downstream tests.
+// `window.getComputedStyle` and forget to restore it cannot poison downstream
+// tests.
 function __sv_installGetComputedStylePolyfills() {
   if (typeof (globalThis as any).window === "undefined" ||
       typeof (globalThis as any).window.getComputedStyle !== "function") {
@@ -642,33 +651,21 @@ expect.addEqualityTesters([
 // `.clear()` lines for the same reason.
 //
 // To register a new singleton for cleanup, add a reset call below.
-const __defaultLocale = surveyLocalization.defaultLocale;
-afterEach(() => {
-  // ComponentCollection: registered custom question types (including internal:true)
-  ComponentCollection.Instance.clear(true);
-  // surveyLocalization: tests sometimes flip the default locale
-  surveyLocalization.defaultLocale = __defaultLocale;
-  // settings: re-apply our test defaults in case a test mutated them
-  settings.animationEnabled = false;
-  settings.animation.respectReducedMotion = true;
-  settings.dropdownSearchDelay = 0;
-  if (typeof (globalThis as any).__setMatchMedia === "function") {
-    (globalThis as any).__setMatchMedia(reducedMotionMediaQuery, false);
-  }
-  // settings.environment: tests in popuptests / svgRegistryTests swap
-  // `settings.environment` to point `root` at a detached shadow root. They
-  // restore it at the end of the test, but the restore captures whatever
-  // `document` was the live global at that moment.
-  //
-  // Vitest re-creates the jsdom realm for every test file even under
-  // `--no-isolate` (only the module graph is shared), so the `settings`
-  // singleton imported once at worker start retains an `environment.root`
-  // that points at the *previous* file's now-stale `document`. In a later
-  // file, `instanceof Document` checks on that stale root fail, breaking
-  // `getRootNode()` and `DragDropDOMAdapter.documentOrShadowRoot`.
-  //
-  // Re-anchor `environment.root` / `rootElement` / `popupMountContainer` to
-  // the live `document` whenever they have drifted away from it.
+// settings.environment: tests in popuptests / svgRegistryTests swap
+// `settings.environment` to point `root` at a detached shadow root. They
+// restore it at the end of the test, but the restore captures whatever
+// `document` was the live global at that moment.
+//
+// Vitest re-creates the jsdom realm for every test file while the module
+// graph stays shared by the worker, so the `settings` singleton imported
+// once at worker start retains an `environment.root` that points at the
+// *previous* file's now-stale `document`. In a later
+// file, `instanceof Document` checks on that stale root fail, breaking
+// `getRootNode()` and `DragDropDOMAdapter.documentOrShadowRoot`.
+//
+// Re-anchor `environment.root` / `rootElement` / `popupMountContainer` to
+// the live `document` whenever they have drifted away from it.
+function __sv_reanchorEnvironment() {
   const __envRoot: any = (settings as any).environment?.root;
   const __live = (globalThis as any).document;
   if (__live && __envRoot !== __live &&
@@ -681,9 +678,27 @@ afterEach(() => {
       popupMountContainer: __live.body,
     };
   }
+}
+// Now for the first test of this file, and after each test for the swaps above.
+__sv_reanchorEnvironment();
+
+const __defaultLocale = surveyLocalization.defaultLocale;
+afterAll(() => restoreSettings());
+afterEach(() => {
+  // ComponentCollection: registered custom question types (including internal:true)
+  ComponentCollection.Instance.clear(true);
+  // surveyLocalization: tests sometimes flip the default locale
+  surveyLocalization.defaultLocale = __defaultLocale;
+  // settings: re-apply our test defaults in case a test mutated them
+  settings.animationEnabled = false;
+  settings.animation.respectReducedMotion = true;
+  settings.dropdownSearchDelay = 0;
+  if (typeof (globalThis as any).__setMatchMedia === "function") {
+    (globalThis as any).__setMatchMedia(reducedMotionMediaQuery, false);
+  }
+  __sv_reanchorEnvironment();
   // Re-install jsdom polyfills if a test replaced `window.getComputedStyle`
   // (common pattern: `window.getComputedStyle = () => ({...})` without a
-  // try/finally restore). Under `--no-isolate` parallel files share the same
-  // jsdom and such leaks fail unrelated tests in another file.
+  // try/finally restore), so such a leak does not fail unrelated tests.
   __sv_installGetComputedStylePolyfills();
 });

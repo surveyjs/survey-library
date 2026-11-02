@@ -3,8 +3,7 @@ import { FunctionFactory, settings } from "survey-core";
 import { applyFix, ILintFinding, lintSurvey } from "../../src/linter/index";
 
 // The linter shares the application's settings object, so a test that customizes
-// a setting must restore it: "npm run test:watch" runs with --no-isolate, where a
-// leaked value would reach unrelated test files.
+// a setting must restore it: a leaked value would reach the later tests in the file.
 // Paths are dotted, e.g. "commentSuffix", "matrix.totalsSuffix", "expressionVariables.row".
 export function withSettings(patch: { [path: string]: any }, fn: () => void): void {
   const paths = Object.keys(patch);

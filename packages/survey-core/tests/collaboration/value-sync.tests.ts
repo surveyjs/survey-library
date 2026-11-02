@@ -1,7 +1,17 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import { ArrayDynamicDataSource, QuestionMatrixDynamicModel, SurveyModel } from "survey-core";
-import { CollaborationPlugin } from "../../src/plugins/collaboration/index";
+import { CollaborationPlugin, ICollaborationOptions } from "../../src/plugins/collaboration/index";
 import { ICollabIn, ICollabOut } from "../../src/plugins/collaboration/collab-messages";
+
+// A plugin left alive keeps its presence overlay ticking, and without a rendered survey the
+// overlay watches document.body: the body of whichever test file the worker runs next.
+const plugins: Array<CollaborationPlugin> = [];
+function createPlugin(survey: SurveyModel, options?: ICollaborationOptions): CollaborationPlugin {
+  const plugin = new CollaborationPlugin(survey, options);
+  plugins.push(plugin);
+  return plugin;
+}
+afterEach(() => plugins.splice(0).forEach(plugin => plugin.dispose()));
 
 function collect(plugin: CollaborationPlugin): Array<ICollabOut> {
   const sent: Array<ICollabOut> = [];
@@ -19,7 +29,7 @@ const simpleJson = {
 describe("value sync: outgoing", () => {
   test("a local edit produces one value message", () => {
     const survey = new SurveyModel(simpleJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     survey.setValue("q1", "hello");
     expect(sent).toEqual([{ type: "value", key: "q1", value: "hello" }]);
@@ -27,7 +37,7 @@ describe("value sync: outgoing", () => {
   test("a comment travels under the protocol suffix, not survey.commentSuffix", () => {
     const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2], showOtherItem: true }] });
     survey.commentSuffix = "-SOMETHING-ELSE";
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     survey.setComment("q1", "note");
     expect(sent).toHaveLength(1);
@@ -38,7 +48,7 @@ describe("value sync: outgoing", () => {
   // the relay that knows its frame limit.
   test("a value of any size is sent as it is", () => {
     const survey = new SurveyModel(simpleJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     const large = "x".repeat(16 * 1024 * 1024 + 1);
     survey.setValue("q1", large);
@@ -51,7 +61,7 @@ describe("value sync: outgoing", () => {
 describe("value sync: incoming", () => {
   test("an applied value does not echo back", () => {
     const survey = new SurveyModel(simpleJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     plugin.apply({ type: "value", key: "q1", value: "from peer" });
     expect(survey.getValue("q1")).toBe("from peer");
@@ -59,7 +69,7 @@ describe("value sync: incoming", () => {
   });
   test("a comment message reaches setComment", () => {
     const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2], showOtherItem: true }] });
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     plugin.apply({ type: "value", key: "q1\u0000comment", value: "peer note" });
     expect(survey.getComment("q1")).toBe("peer note");
   });
@@ -76,7 +86,7 @@ describe("value sync: incoming", () => {
     });
     survey.setValue("has", true);
     survey.setValue("years", "5");
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     plugin.apply({ type: "value", key: "has", value: false });
     expect(sent.some((m) => (m as any).key === "years")).toBeTruthy();
@@ -84,7 +94,7 @@ describe("value sync: incoming", () => {
   });
   test("an unknown message type is ignored in silence", () => {
     const survey = new SurveyModel(simpleJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     expect(() => plugin.apply(<ICollabIn><any>{ type: "something-new", payload: 1 })).not.toThrow();
     expect(sent).toHaveLength(0);
@@ -100,7 +110,7 @@ describe("init: authoritative state", () => {
         { type: "text", name: "years", visibleIf: "{has} = true" }
       ]
     });
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     plugin.apply({ type: "init", values: { has: false, years: "5" } });
     // Scoped to value records on purpose: init also announces our own presence,
@@ -109,7 +119,7 @@ describe("init: authoritative state", () => {
   });
   test("init erases keys it does not carry", () => {
     const survey = new SurveyModel(simpleJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     survey.setValue("q1", "stale");
     survey.setValue("q2", "kept");
     plugin.apply({ type: "init", values: { q2: "kept" } });
@@ -118,19 +128,19 @@ describe("init: authoritative state", () => {
   });
   test("init marks the plugin connected", () => {
     const survey = new SurveyModel(simpleJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     expect(plugin.status).toBe("connecting");
     plugin.apply({ type: "init", values: {} });
     expect(plugin.status).toBe("connected");
   });
   test("getSnapshot round-trips through init, comments included", () => {
     const source = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2], showOtherItem: true }] });
-    const sourcePlugin = new CollaborationPlugin(source);
+    const sourcePlugin = createPlugin(source);
     source.setValue("q1", [1]);
     source.setComment("q1", "why");
 
     const target = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2], showOtherItem: true }] });
-    const targetPlugin = new CollaborationPlugin(target);
+    const targetPlugin = createPlugin(target);
     targetPlugin.apply({ type: "init", values: sourcePlugin.getSnapshot() });
 
     expect(target.getValue("q1")).toEqual([1]);
@@ -151,8 +161,8 @@ describe("two models converge through a fake relay", () => {
     };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
 
     const link = (from: CollaborationPlugin, to: CollaborationPlugin) => {
       from.onEvent.add((_sender, o) => {
@@ -182,8 +192,8 @@ describe("two models converge through a fake relay", () => {
     };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     pluginA.onEvent.add((_s, o) => { if (o.message.type === "value") pluginB.apply(o.message); });
 
     const matrix: any = a.getQuestionByName("m");
@@ -212,7 +222,7 @@ describe("value sync: a matrix with a data source", () => {
     matrix.dataSource = new ArrayDynamicDataSource((): Array<any> => records, (val: Array<any>): void => { records = val; });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((_sender, o) => errors.push(o.operation));
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     plugin.apply({ type: "value", key: "m", value: [{ c1: "x" }, { c1: "y" }, { c1: "z" }, { c1: "w" }, { c1: "v" }] });
     expect(matrix.rowCount, "#1").toBe(3);
     expect(records.length, "#2: the source keeps its records").toBe(3);

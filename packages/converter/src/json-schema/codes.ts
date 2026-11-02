@@ -15,6 +15,9 @@ export const JsonSchemaCodes = {
   // An exclusive bound on a `number`: survey-core's numeric validator is inclusive, so a value
   // equal to the bound is accepted.
   ASSUMED_EXCLUSIVE_BOUND: "json-schema.assumed-exclusive-bound",
+  // A JSONForms `rule` that could not be expressed, names a scope with no Control, or sits on a node
+  // with no element (the flattened root layout). The element stays visible and enabled.
+  ASSUMED_UI_RULE: "json-schema.assumed-ui-rule",
 
   // A UI-layer hint we could not map (RJSF widget, JSONForms renderer option).
   UNSUPPORTED_UI_HINT: "json-schema.unsupported-ui-hint",

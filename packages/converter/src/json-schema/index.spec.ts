@@ -442,3 +442,327 @@ describe("json-schema convert - array metadata", () => {
     for (const name of ["picks", "rows", "tags"]) expect(survey.getQuestionByName(name).isVisible).toBe(false);
   });
 });
+
+// Convert a JSONForms schema and UI schema, and load the survey with `data`.
+function loadJsonForms(schema: object, uiSchema: object, data: Record<string, unknown> = {}) {
+  const { output } = convert({ schema, uiSchema });
+  const survey = assertConstructsCleanly(output, "jsonforms");
+  survey.data = data;
+  return survey;
+}
+
+describe("json-schema convert - JSONForms rules", () => {
+  const schema = { type: "object", properties: { t: { type: "boolean" }, a: { type: "string" } } };
+  const condition = { scope: "#/properties/t", schema: { const: true } };
+  const control = (rule?: object) => ({ type: "Control", scope: "#/properties/a", ...(rule ? { rule } : {}) });
+  const toggle = { type: "Control", scope: "#/properties/t" };
+
+  // Each node kind carrying a rule, as a UI schema.
+  const carriers: Record<string, (rule: object) => object> = {
+    Control: (rule) => ({ type: "VerticalLayout", elements: [toggle, control(rule)] }),
+    Group: (rule) => ({ type: "VerticalLayout", elements: [toggle, { type: "Group", label: "G", rule, elements: [control()] }] }),
+    Category: (rule) => ({ type: "Categorization", elements: [
+      { type: "Category", label: "One", elements: [toggle] },
+      { type: "Category", label: "Two", rule, elements: [control()] }
+    ] }),
+    "nested layout": (rule) => ({ type: "VerticalLayout", elements: [toggle, { type: "HorizontalLayout", rule, elements: [control()] }] })
+  };
+  // Whether `a` shows and is editable, with `t` true and false.
+  const state = (ui: object, t: boolean) => {
+    const survey = loadJsonForms(schema, ui, { t });
+    const a = survey.getQuestionByName("a");
+    const shown = a.isVisible && a.isParentVisible && survey.visiblePages.some((p) => p.containsElement(a));
+    return { shown, editable: !a.isReadOnly };
+  };
+
+  // [effect, with t true, with t false]
+  const effects: [string, { shown: boolean, editable: boolean }, { shown: boolean, editable: boolean }][] = [
+    ["SHOW", { shown: true, editable: true }, { shown: false, editable: true }],
+    ["HIDE", { shown: false, editable: true }, { shown: true, editable: true }],
+    ["ENABLE", { shown: true, editable: true }, { shown: true, editable: false }],
+    ["WRITABLE", { shown: true, editable: true }, { shown: true, editable: false }],
+    ["DISABLE", { shown: true, editable: false }, { shown: true, editable: true }],
+    ["READONLY", { shown: true, editable: false }, { shown: true, editable: true }]
+  ];
+  for (const [carrier, build] of Object.entries(carriers)) {
+    for (const [effect, whenTrue, whenFalse] of effects) {
+      it(`applies ${effect} on a ${carrier}`, () => {
+        const ui = build({ effect, condition });
+        expect(state(ui, true)).toEqual(whenTrue);
+        expect(state(ui, false)).toEqual(whenFalse);
+      });
+    }
+  }
+});
+
+describe("json-schema convert - JSONForms rule conditions", () => {
+  const schema = { type: "object", properties: {
+    c: { type: "string" }, d: { type: "string" },
+    obj: { type: "object", properties: { x: { type: "string" } } },
+    a: { type: "string" }
+  }, required: [] };
+  const controls = ["#/properties/c", "#/properties/d", "#/properties/obj/properties/x"].map((scope) => ({ type: "Control", scope }));
+  // Whether `a` shows under a SHOW rule with `condition`, for each data set.
+  const shows = (condition: object, ...data: Record<string, unknown>[]) => data.map((d) =>
+    loadJsonForms(schema, { type: "VerticalLayout", elements: [...controls, { type: "Control", scope: "#/properties/a", rule: { effect: "SHOW", condition } }] }, d)
+      .getQuestionByName("a").isVisible);
+
+  it("compares a LEAF with its expected value", () => {
+    expect(shows({ type: "LEAF", scope: "#/properties/c", expectedValue: "x" }, { c: "x" }, { c: "y" })).toEqual([true, false]);
+  });
+
+  it("joins AND and OR, and AND nested in OR", () => {
+    const leaf = (scope: string, expectedValue: string) => ({ type: "LEAF", scope, expectedValue });
+    const and = { type: "AND", conditions: [leaf("#/properties/c", "x"), leaf("#/properties/d", "y")] };
+    expect(shows(and, { c: "x", d: "y" }, { c: "x", d: "z" })).toEqual([true, false]);
+    const or = { type: "OR", conditions: [and, leaf("#/properties/c", "w")] };
+    expect(shows(or, { c: "w" }, { c: "x", d: "y" }, { c: "x", d: "z" })).toEqual([true, true, false]);
+  });
+
+  it("validates a const, an enum and a not", () => {
+    expect(shows({ scope: "#/properties/c", schema: { const: "x" } }, { c: "x" }, { c: "y" }, {})).toEqual([true, false, false]);
+    expect(shows({ scope: "#/properties/c", schema: { enum: ["x", "y"] } }, { c: "y" }, { c: "z" })).toEqual([true, false]);
+    // An absent value passes `not`, as `ajv.validate(schema, undefined)` does.
+    expect(shows({ scope: "#/properties/c", schema: { not: { const: "x" } } }, { c: "y" }, { c: "x" }, {})).toEqual([true, false, true]);
+  });
+
+  it("fails an absent value first with failWhenUndefined", () => {
+    expect(shows({ scope: "#/properties/c", schema: { not: { const: "x" } }, failWhenUndefined: true }, { c: "y" }, {})).toEqual([true, false]);
+  });
+
+  it("validates the root object, one term per property", () => {
+    const condition = { scope: "#", schema: { properties: { c: { const: "x" }, d: { const: "y" } }, required: ["c"] } };
+    // `d` is optional, so an absent `d` passes; `c` is required.
+    expect(shows(condition, { c: "x" }, { c: "x", d: "y" }, { c: "x", d: "z" }, { d: "y" })).toEqual([true, true, false, false]);
+  });
+
+  it("validates a parent object's properties", () => {
+    const condition = { scope: "#/properties/obj", schema: { properties: { x: { const: "x" } }, required: ["x"] } };
+    expect(shows(condition, { x: "x" }, { x: "y" })).toEqual([true, false]);
+  });
+});
+
+describe("json-schema convert - JSONForms rule references", () => {
+  it("reads a Control declared after the rule", () => {
+    const schema = { type: "object", properties: { a: { type: "string" }, c: { type: "string" } } };
+    const ui = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/a", rule: { effect: "SHOW", condition: { scope: "#/properties/c", schema: { const: "x" } } } },
+      { type: "Control", scope: "#/properties/c" }
+    ] };
+    expect(loadJsonForms(schema, ui, { c: "x" }).getQuestionByName("a").isVisible).toBe(true);
+    expect(loadJsonForms(schema, ui, { c: "y" }).getQuestionByName("a").isVisible).toBe(false);
+  });
+
+  it("reads a renamed Control by its output name", () => {
+    const object = { type: "object", properties: { c: { type: "string" } } };
+    const schema = { type: "object", properties: { home: object, work: object, a: { type: "string" } } };
+    const ui = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/home/properties/c" },
+      { type: "Control", scope: "#/properties/work/properties/c" },
+      { type: "Control", scope: "#/properties/a", rule: { effect: "SHOW", condition: { scope: "#/properties/work/properties/c", schema: { const: "x" } } } }
+    ] };
+    expect(findElement(convert({ schema, uiSchema: ui }).output, "a")?.visibleIf).toBe("{c_1} = 'x'");
+    expect(loadJsonForms(schema, ui, { c_1: "x" }).getQuestionByName("a").isVisible).toBe(true);
+    expect(loadJsonForms(schema, ui, { c: "x" }).getQuestionByName("a").isVisible).toBe(false);
+  });
+
+  it("shares one value between two Controls on the same scope", () => {
+    const schema = { type: "object", properties: { c: { type: "string", enum: ["x", "y"] }, a: { type: "string" } } };
+    const ui = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/c" },
+      { type: "Control", scope: "#/properties/c", options: { format: "radio" } },
+      { type: "Control", scope: "#/properties/a", rule: { effect: "SHOW", condition: { scope: "#/properties/c", schema: { const: "x" } } } }
+    ] };
+    expect(findElement(convert({ schema, uiSchema: ui }).output, "c_1")?.valueName).toBe("c");
+    const survey = loadJsonForms(schema, ui);
+    survey.getQuestionByName("c_1").value = "x";
+    expect(survey.getQuestionByName("c").value).toBe("x");
+    expect(survey.getQuestionByName("a").isVisible).toBe(true);
+  });
+
+  const unexpressed: [string, object][] = [
+    ["a rule on the root layout", { type: "VerticalLayout", rule: { effect: "HIDE", condition: { scope: "#/properties/c", schema: { const: "x" } } },
+      elements: [{ type: "Control", scope: "#/properties/c" }, { type: "Control", scope: "#/properties/a" }] }],
+    ["a validate condition", { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/c" },
+      { type: "Control", scope: "#/properties/a", rule: { effect: "HIDE", condition: { scope: "#/properties/c", validate: () => true } } }] }],
+    ["a scope with no Control", { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/a", rule: { effect: "HIDE", condition: { scope: "#/properties/c", schema: { const: "x" } } } }] }]
+  ];
+  for (const [what, ui] of unexpressed) {
+    it(`reports ${what} and keeps the element visible`, () => {
+      const schema = { type: "object", properties: { c: { type: "string" }, a: { type: "string" } } };
+      const { report } = convert({ schema, uiSchema: ui });
+      expect(entry(report.entries, JsonSchemaCodes.ASSUMED_UI_RULE)?.bucket).toBe("assumed");
+      expect(loadJsonForms(schema, ui, { c: "x" }).getQuestionByName("a").isVisible).toBe(true);
+    });
+  }
+
+  it("reads a rule inside a detail layout from the row", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object",
+      properties: { kind: { type: "string" }, note: { type: "string" } } } } } };
+    const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/rows", options: { detail: { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/kind" },
+      { type: "Control", scope: "#/properties/note", rule: { effect: "SHOW", condition: { scope: "#/properties/kind", schema: { const: "x" } } } }
+    ] } } }] };
+    expect(findElement(convert({ schema, uiSchema: ui }).output, "note")?.visibleIf).toBe("{panel.kind} = 'x'");
+    const survey = loadJsonForms(schema, ui, { rows: [{ kind: "x" }, { kind: "y" }] });
+    const rows = (survey.getQuestionByName("rows") as any).panels;
+    expect(rows[0].getQuestionByName("note").isVisible).toBe(true);
+    expect(rows[1].getQuestionByName("note").isVisible).toBe(false);
+  });
+});
+
+describe("json-schema convert - JSONForms readonly", () => {
+  const schema = (readOnly: boolean) => ({ type: "object", properties: { t: { type: "boolean" }, a: { type: "string", ...(readOnly ? { readOnly: true } : {}) } } });
+  const ui = (options: object, rule?: object) => ({ type: "VerticalLayout", elements: [
+    { type: "Control", scope: "#/properties/t" },
+    { type: "Control", scope: "#/properties/a", options, ...(rule ? { rule } : {}) }
+  ] });
+  const editable = (s: object, u: object, data: Record<string, unknown> = {}) => !loadJsonForms(s, u, data).getQuestionByName("a").isReadOnly;
+
+  it("makes a Control read-only with options.readonly", () => {
+    expect(editable(schema(false), ui({ readonly: true }))).toBe(false);
+  });
+
+  it("lets options.readonly: false override schema.readOnly", () => {
+    expect(editable(schema(true), ui({}))).toBe(false);
+    expect(editable(schema(true), ui({ readonly: false }))).toBe(true);
+  });
+
+  it("lets an enable rule decide over options.readonly", () => {
+    const rule = { effect: "ENABLE", condition: { scope: "#/properties/t", schema: { const: true } } };
+    const { output } = convert({ schema: schema(true), uiSchema: ui({ readonly: true }, rule) });
+    expect(findElement(output, "a")?.readOnly).toBeUndefined();
+    expect(editable(schema(true), ui({ readonly: true }, rule), { t: true })).toBe(true);
+    expect(editable(schema(true), ui({ readonly: true }, rule), { t: false })).toBe(false);
+  });
+});
+
+describe("json-schema convert - JSONForms options and labels", () => {
+  const schema = { type: "object", properties: {
+    picks: { type: "array", items: { type: "string", enum: ["a", "b"] }, uniqueItems: true },
+    text: { type: "string" }
+  } };
+  const typeOf = (control: object) => {
+    const { output } = convert({ schema, uiSchema: { type: "VerticalLayout", elements: [control] } });
+    return (output.elements as SurveyJSONElement[])[0].type;
+  };
+
+  it("gives a tagbox for format multiselect", () => {
+    expect(typeOf({ type: "Control", scope: "#/properties/picks", options: { format: "multiselect" } })).toBe("tagbox");
+  });
+
+  it("gives a comment for multi on a string", () => {
+    expect(typeOf({ type: "Control", scope: "#/properties/text", options: { multi: true } })).toBe("comment");
+  });
+
+  it("keeps a tagbox for multi on an enum array", () => {
+    expect(typeOf({ type: "Control", scope: "#/properties/picks", options: { multi: true } })).toBe("tagbox");
+  });
+
+  const labelled = (label: unknown) => {
+    const { output } = convert({ schema, uiSchema: { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/text", label },
+      { type: "Group", label, elements: [{ type: "Control", scope: "#/properties/picks" }] }
+    ] } });
+    const [control, group] = output.elements as SurveyJSONElement[];
+    return { control: { title: control.title, titleLocation: control.titleLocation }, groupTitle: group.title };
+  };
+
+  it("titles a Control and a Group with a string label", () => {
+    expect(labelled("Shown")).toEqual({ control: { title: "Shown", titleLocation: undefined }, groupTitle: "Shown" });
+  });
+
+  it("titles a Control and a Group with a label object's text", () => {
+    expect(labelled({ text: "Shown" })).toEqual({ control: { title: "Shown", titleLocation: undefined }, groupTitle: "Shown" });
+  });
+
+  it("hides a Control title and gives a Group none for label false", () => {
+    expect(labelled(false)).toEqual({ control: { title: undefined, titleLocation: "hidden" }, groupTitle: undefined });
+  });
+
+  it("hides a Control title and gives a Group none for show: false", () => {
+    expect(labelled({ text: "Hidden", show: false })).toEqual({ control: { title: "Hidden", titleLocation: "hidden" }, groupTitle: undefined });
+  });
+});
+
+describe("json-schema convert - JSONForms Categorization", () => {
+  const schema = { type: "object", properties: { a: { type: "string" }, b: { type: "string" } } };
+  const categories = [
+    { type: "Category", label: "First", elements: [{ type: "Control", scope: "#/properties/a" }] },
+    { type: "Category", label: "Second", elements: [{ type: "Control", scope: "#/properties/b" }] }
+  ];
+
+  it("gives pages at the root", () => {
+    const { output } = convert({ schema, uiSchema: { type: "Categorization", elements: categories } });
+    expect(output.pages?.map((p) => p.title)).toEqual(["First", "Second"]);
+  });
+
+  it("gives pages as the only child of the root layout", () => {
+    const { output } = convert({ schema, uiSchema: { type: "VerticalLayout", elements: [{ type: "Categorization", elements: categories }] } });
+    expect(output.pages?.map((p) => p.title)).toEqual(["First", "Second"]);
+  });
+
+  it("gives a panel per Category inside a Category", () => {
+    const { output, report } = convert({ schema, uiSchema: { type: "Categorization", elements: [
+      { type: "Category", label: "Outer", elements: [{ type: "Categorization", elements: categories }] }
+    ] } });
+    const survey = assertConstructsCleanly(output, "nested categorization");
+    expect(survey.getQuestionByName("a")).toBeDefined();
+    const titles = (output.pages?.[0].elements[0] as SurveyJSONElement).elements as SurveyJSONElement[];
+    expect(titles.map((p) => [p.type, p.title])).toEqual([["panel", "First"], ["panel", "Second"]]);
+    expect(entry(report.entries, JsonSchemaCodes.UNSUPPORTED_UI_HINT)).toBeUndefined();
+  });
+
+  it("gives a panel per Category elsewhere", () => {
+    const { output } = convert({ schema, uiSchema: { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/a" },
+      { type: "Categorization", elements: [categories[1]] }
+    ] } });
+    expect(output.pages).toBeUndefined();
+    const nested = (output.elements as SurveyJSONElement[])[1].elements as SurveyJSONElement[];
+    expect(nested.map((p) => p.title)).toEqual(["Second"]);
+  });
+});
+
+describe("json-schema convert - JSONForms detail", () => {
+  const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object",
+    properties: { message: { type: "string" }, extra: { type: "string" } }, required: ["message"] } } } };
+  const ui = (detail?: unknown) => ({ type: "VerticalLayout", elements: [
+    { type: "Control", scope: "#/properties/rows", ...(detail === undefined ? {} : { options: { detail } }) }
+  ] });
+  const template = (detail?: unknown) => {
+    const { output, report } = convert({ schema, uiSchema: ui(detail) });
+    assertConstructsCleanly(output, "detail");
+    return { names: (findElement(output, "rows")?.templateElements as SurveyJSONElement[]).map((e) => e.name), report };
+  };
+
+  for (const detail of [undefined, "GENERATED", "DEFAULT"]) {
+    it(`walks the items schema for detail ${JSON.stringify(detail)}`, () => {
+      const { names, report } = template(detail);
+      expect(names).toEqual(["message", "extra"]);
+      expect(entry(report.entries, JsonSchemaCodes.UNSUPPORTED_UI_HINT)).toBeUndefined();
+    });
+  }
+
+  it("walks a detail layout with scopes relative to the items, taking required from them", () => {
+    const { output } = convert({ schema, uiSchema: ui({ type: "Group", label: "Row", elements: [{ type: "Control", scope: "#/properties/message" }] }) });
+    const row = (findElement(output, "rows")?.templateElements as SurveyJSONElement[])[0];
+    expect(row).toMatchObject({ type: "panel", title: "Row" });
+    expect((row.elements as SurveyJSONElement[])[0]).toMatchObject({ name: "message", isRequired: true });
+  });
+
+  it("walks the items schema for REGISTERED, and reports it", () => {
+    const { names, report } = template("REGISTERED");
+    expect(names).toEqual(["message", "extra"]);
+    expect(entry(report.entries, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe("#/uiSchema/elements/0/options/detail");
+  });
+
+  it("walks a detail layout inside a Categorization", () => {
+    const { output } = convert({ schema, uiSchema: { type: "Categorization", elements: [{ type: "Category", label: "Items", elements: [
+      { type: "Control", scope: "#/properties/rows", options: { detail: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/extra" }] } } }
+    ] }] } });
+    assertConstructsCleanly(output, "detail in categorization");
+    expect((findElement(output, "rows")?.templateElements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["extra"]);
+  });
+});

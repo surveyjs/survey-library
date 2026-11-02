@@ -183,12 +183,18 @@ interface UiHint {
   title?: string;
   description?: string;
   placeholder?: string;
+  // JSONForms `options.detail` as a layout: builds an array's item template in place of the
+  // default walk of the items schema.
+  template?: (items: JsonSchemaDoc, targetPath: string) => SurveyJSONElement[];
 }
 
 interface Ctx {
   report: ReportBuilder;
   usedNames: Set<string>;
   root: JsonSchemaDoc;
+  // JSONForms: the frame scopes resolve in, and the rules waiting for the end of the walk.
+  uiFrame: UiFrame;
+  uiRules: UiRuleRecord[];
 }
 
 // --- $ref resolution --------------------------------------------------------
@@ -482,7 +488,8 @@ function mapProperty(
     // radiogroup when a UI hint asks for it.
     const wantRadio = hint.widget === "radio" || hint.format === "radio";
     el = { type: wantRadio ? "radiogroup" : "dropdown", name: qname, choices };
-  } else if (hint.widget === "textarea") {
+  } else if (hint.widget === "textarea" || (hint.multi === true && (type === "string" || type === undefined))) {
+    // JSONForms `options.multi` on a string means a multi-line input.
     el = { type: "comment", name: qname };
   } else {
     // string (or untyped scalar) -> text, refined by format / widget inputType.
@@ -561,7 +568,7 @@ function mapArray(
   if (itemChoices) {
     // Multi-select. checkbox by default; tagbox when a UI hint prefers a compact
     // multi-select.
-    const wantTagbox = hint.multi === true || hint.widget === "tagbox" || hint.format === "combo";
+    const wantTagbox = hint.multi === true || hint.widget === "tagbox" || hint.format === "combo" || hint.format === "multiselect";
     const el: SurveyJSONElement = { type: wantTagbox ? "tagbox" : "checkbox", name: qname, choices: itemChoices };
     applyTitleDesc(schema, el, hint);
     applyArrayMeta(schema, el, required, hint);
@@ -573,7 +580,9 @@ function mapArray(
     // template is read from its own row, as `{panel.k}`; a nested array starts its own rows.
     const el: SurveyJSONElement = { type: "paneldynamic", name: qname };
     applyTitleDesc(schema, el, hint);
-    const template = walkObject(items, `${sourcePtr}/items`, `${targetPath}.templateElements`, ctx, undefined, depth + 1, "panel.");
+    const template = hint.template
+      ? hint.template(items, `${targetPath}.templateElements`)
+      : walkObject(items, `${sourcePtr}/items`, `${targetPath}.templateElements`, ctx, undefined, depth + 1, "panel.");
     if (template.length > 0) el.templateElements = template;
     applyArrayMeta(schema, el, required, hint);
     return el;
@@ -899,32 +908,102 @@ function detectUiKind(uiSchema: unknown): UiKind {
   return "rjsf";
 }
 
-/** Resolve a JSONForms `scope` (`#/properties/x/properties/y`) to a property. */
-function resolveScope(scope: string, ctx: Ctx): { name: string, schema: JsonSchemaDoc, required: boolean } | undefined {
-  const target = resolvePointer(ctx.root, scope);
+// Resolve a JSONForms `scope` (`#/properties/x/properties/y`) to a property of `root`: the root
+// schema, or an array's items schema for a scope inside `options.detail`.
+function resolveScope(scope: string, root: JsonSchemaDoc): { name: string, schema: JsonSchemaDoc, required: boolean } | undefined {
+  const target = resolvePointer(root, scope);
   if (!target) return undefined;
   const parts = scope.replace(/^#/, "").split("/").filter((p) => p.length > 0);
   const name = parts[parts.length - 1] ?? "field";
   // The owning object sits two segments up (the leaf key and its `properties`
   // keyword) and holds the `required` list for this leaf.
-  const owner = resolvePointer(ctx.root, "#/" + parts.slice(0, -2).join("/"));
+  const owner = resolvePointer(root, "#/" + parts.slice(0, -2).join("/"));
   const required = Array.isArray(owner?.required) && owner!.required!.includes(name);
   return { name, schema: target, required };
 }
 
-/** JSONForms `Control` `options` refinements. */
+// Where a UI node's scopes resolve. The root frame resolves against the root schema; an array's
+// `options.detail` opens a frame on the items schema, whose scopes are relative to the row.
+// `names` maps a scope to the data key of the first Control on it, so a rule reads that key; a
+// second Control on the same scope shares the value through `valueName`, as both edit one value in
+// JSONForms.
+interface UiFrame {
+  root: JsonSchemaDoc;
+  names: Map<string, string>;
+  refPrefix: string;
+}
+
+// A JSONForms `rule`, resolved after the walk because its scope can name a Control further down.
+interface UiRuleRecord {
+  rule: { effect?: unknown, condition?: unknown };
+  target: SurveyJSONElement | SurveyJSONPage;
+  sourcePtr: string;
+  targetPath: string;
+  frame: UiFrame;
+}
+
+// A JSONForms label: a string, a boolean, or `{ text, show }`.
+function readLabel(label: unknown): { text?: string, show: boolean } {
+  if (typeof label === "string") return { text: label, show: true };
+  if (label === false) return { show: false };
+  if (label && typeof label === "object") {
+    const { text, show } = label as { text?: unknown, show?: unknown };
+    return { text: typeof text === "string" ? text : undefined, show: show !== false };
+  }
+  return { show: true };
+}
+
+// JSONForms `Control` `options` refinements. `readonly` and `detail` are applied by the Control
+// itself; any other option has no rule yet and is reported.
 function jsonFormsHint(node: UiNode, ctx: Ctx, sourcePtr: string): UiHint {
   const hint: UiHint = {};
-  if (node.label !== undefined && node.label !== false) hint.title = String(node.label);
+  const label = readLabel(node.label);
+  if (label.text !== undefined) hint.title = label.text;
   const opts = node.options;
   if (!opts || typeof opts !== "object") return hint;
   for (const [k, v] of Object.entries(opts)) {
     if (k === "format") hint.format = String(v);
     else if (k === "multi") hint.multi = v === true;
-    else if (k === "readonly") hint.hidden = false; // handled via schema.readOnly; ignore quietly
+    else if (k === "readonly" || k === "readOnly" || k === "detail") continue;
     else ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, `${sourcePtr}/options/${k}`, "");
   }
   return hint;
+}
+
+// JSONForms' `isInherentlyEnabled`: an ENABLE or DISABLE rule decides alone; otherwise a boolean
+// `options.readonly` (or `readOnly`) decides; otherwise `schema.readOnly`, which `mapProperty`
+// already applied. survey-core's `enableIf` overrides `readOnly`, so a rule's element carries only
+// its `enableIf`, set when the rule is resolved.
+function applyReadonlyOption(node: UiNode, el: SurveyJSONElement): void {
+  const readonly = node.options?.readonly ?? node.options?.readOnly;
+  if (typeof readonly !== "boolean") return;
+  if (readonly) el.readOnly = true;
+  else delete el.readOnly;
+}
+
+function recordUiRule(node: UiNode, target: SurveyJSONElement | SurveyJSONPage, sourcePtr: string, targetPath: string, ctx: Ctx): void {
+  if (!node.rule || typeof node.rule !== "object") return;
+  ctx.uiRules.push({ rule: node.rule as UiRuleRecord["rule"], target, sourcePtr: `${sourcePtr}/rule`, targetPath, frame: ctx.uiFrame });
+}
+
+// `options.detail` on an array Control: a layout walks the row with scopes relative to the items
+// schema; "GENERATED", "DEFAULT" or none is the default walk; "REGISTERED" names a detail layout
+// registered in the application, which a definition cannot carry, so it is the default walk and
+// reported.
+function readDetail(node: UiNode, schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, depth: number): UiHint["template"] {
+  const detail = node.options?.detail;
+  if (detail === undefined || detail === "GENERATED" || detail === "DEFAULT") return undefined;
+  if (!detail || typeof detail !== "object" || effectiveType(resolveRef(schema, ctx).schema) !== "array") {
+    ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, `${sourcePtr}/options/detail`, "");
+    return undefined;
+  }
+  return (items, targetPath) => {
+    const outer = ctx.uiFrame;
+    ctx.uiFrame = { root: items, names: new Map(), refPrefix: "panel." };
+    const elements = walkUiNode(detail, `${sourcePtr}/options/detail`, targetPath, ctx, depth + 1, true);
+    ctx.uiFrame = outer;
+    return elements;
+  };
 }
 
 /**
@@ -940,18 +1019,29 @@ function walkUiNode(node: unknown, sourcePtr: string, targetPath: string, ctx: C
         ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, sourcePtr, "");
         return [];
       }
-      const resolved = resolveScope(ui.scope, ctx);
+      const frame = ctx.uiFrame;
+      const resolved = resolveScope(ui.scope, frame.root);
       if (!resolved) {
         ctx.report.dropped(JsonSchemaCodes.DROPPED_REMOTE_REF, `${sourcePtr}/scope`, "");
         return [];
       }
       const hint = jsonFormsHint(ui, ctx, sourcePtr);
-      const el = mapProperty(resolved.name, resolved.schema, ui.scope, targetPath, ctx, resolved.required, hint, depth);
-      return el ? [el] : [];
+      hint.template = readDetail(ui, resolved.schema, sourcePtr, ctx, depth);
+      const el = mapProperty(resolved.name, resolved.schema, ui.scope, targetPath, ctx, resolved.required, hint, depth, frame.refPrefix);
+      if (!el) return [];
+      if (!readLabel(ui.label).show) el.titleLocation = "hidden";
+      applyReadonlyOption(ui, el);
+      const shared = frame.names.get(ui.scope);
+      if (shared === undefined) frame.names.set(ui.scope, el.name as string);
+      else if (el.type !== "panel") el.valueName = shared;
+      recordUiRule(ui, el, sourcePtr, targetPath, ctx);
+      return [el];
     }
     case "Group": {
-      const panel: SurveyJSONElement = { type: "panel", name: uniqueName(labelToName(ui.label, "group"), ctx) };
-      if (ui.label !== undefined) panel.title = String(ui.label);
+      const label = readLabel(ui.label);
+      const panel: SurveyJSONElement = { type: "panel", name: uniqueName(labelToName(label.text, "group"), ctx) };
+      if (label.text !== undefined && label.show) panel.title = label.text;
+      recordUiRule(ui, panel, sourcePtr, targetPath, ctx);
       const elements = walkUiChildren(ui, sourcePtr, `${targetPath}.elements`, ctx, depth + 1);
       if (elements.length > 0) panel.elements = elements;
       return [panel];
@@ -959,13 +1049,37 @@ function walkUiNode(node: unknown, sourcePtr: string, targetPath: string, ctx: C
     case "VerticalLayout":
     case "HorizontalLayout": {
       const elements = walkUiChildren(ui, sourcePtr, root ? targetPath : `${targetPath}.elements`, ctx, depth + 1);
-      if (root) return elements; // outermost layout is the form body -- no wrapper
+      if (root) {
+        // The outermost layout is the form body, with no element to carry a rule.
+        reportRootRule(ui, sourcePtr, ctx);
+        return elements;
+      }
       const panel: SurveyJSONElement = { type: "panel", name: uniqueName("layout", ctx) };
+      recordUiRule(ui, panel, sourcePtr, targetPath, ctx);
+      if (elements.length > 0) panel.elements = elements;
+      return [panel];
+    }
+    case "Categorization": {
+      // Below the form root a Categorization cannot be pages: each Category becomes a titled panel,
+      // and the Categorization a panel around them.
+      const panel: SurveyJSONElement = { type: "panel", name: uniqueName(labelToName(readLabel(ui.label).text, "categorization"), ctx) };
+      recordUiRule(ui, panel, sourcePtr, targetPath, ctx);
+      const elements = walkUiChildren(ui, sourcePtr, `${targetPath}.elements`, ctx, depth + 1);
+      if (elements.length > 0) panel.elements = elements;
+      return [panel];
+    }
+    case "Category": {
+      const label = readLabel(ui.label);
+      const panel: SurveyJSONElement = { type: "panel", name: uniqueName(labelToName(label.text, "category"), ctx) };
+      if (label.text !== undefined && label.show) panel.title = label.text;
+      recordUiRule(ui, panel, sourcePtr, targetPath, ctx);
+      const elements = walkUiChildren(ui, sourcePtr, `${targetPath}.elements`, ctx, depth + 1);
       if (elements.length > 0) panel.elements = elements;
       return [panel];
     }
     case "Label": {
-      const html: SurveyJSONElement = { type: "html", name: uniqueName("label", ctx), html: String(ui.text ?? ui.label ?? "") };
+      const html: SurveyJSONElement = { type: "html", name: uniqueName("label", ctx), html: String(ui.text ?? readLabel(ui.label).text ?? "") };
+      recordUiRule(ui, html, sourcePtr, targetPath, ctx);
       return [html];
     }
     default:
@@ -983,6 +1097,10 @@ function walkUiChildren(ui: UiNode, sourcePtr: string, targetPath: string, ctx: 
   return out;
 }
 
+function reportRootRule(ui: UiNode, sourcePtr: string, ctx: Ctx): void {
+  if (ui.rule) ctx.report.assumed(JsonSchemaCodes.ASSUMED_UI_RULE, `${sourcePtr}/rule`, "");
+}
+
 function labelToName(label: unknown, fallback: string): string {
   if (typeof label !== "string" || label.length === 0) return fallback;
   // Join the alphanumeric runs rather than replacing separators and then trimming underscores:
@@ -991,19 +1109,132 @@ function labelToName(label: unknown, fallback: string): string {
   return cleaned.length > 0 ? cleaned : fallback;
 }
 
-/** Build pages from a JSONForms `Categorization` (each `Category` -> one page). */
-function buildCategorization(ui: UiNode, ctx: Ctx): SurveyJSONPage[] {
+// Pages from a JSONForms `Categorization` at the form root: each child becomes a page. A
+// `Category` child's elements go on the page; a child `Categorization` becomes a page holding one
+// panel per `Category`. A rule on a child goes on its page; one on the Categorization itself has
+// no element and is reported.
+function buildCategorization(ui: UiNode, sourcePtr: string, ctx: Ctx): SurveyJSONPage[] {
+  reportRootRule(ui, sourcePtr, ctx);
   const categories = Array.isArray(ui.elements) ? ui.elements : [];
   const pages: SurveyJSONPage[] = [];
   categories.forEach((cat, i) => {
     if (!cat || typeof cat !== "object") return;
     const c = cat as UiNode;
-    const page: SurveyJSONPage = { name: uniqueName(labelToName(c.label, `page${i + 1}`), ctx), elements: [] };
-    if (c.label !== undefined) page.title = String(c.label);
-    page.elements = walkUiChildren(c, `#/uiSchema/elements/${i}`, `pages[${i}].elements`, ctx, 1);
+    const ptr = `${sourcePtr}/elements/${i}`;
+    const targetPath = `pages[${pages.length}]`;
+    const label = readLabel(c.label);
+    const page: SurveyJSONPage = { name: uniqueName(labelToName(label.text, `page${i + 1}`), ctx), elements: [] };
+    if (label.text !== undefined && label.show) page.title = label.text;
+    recordUiRule(c, page, ptr, targetPath, ctx);
+    // A child Categorization's children are Categories, which `walkUiNode` makes panels.
+    page.elements = walkUiChildren(c, ptr, `${targetPath}.elements`, ctx, 1);
     pages.push(page);
   });
   return pages;
+}
+
+// --- JSONForms rules -----------------------------------------------------------
+
+function resolveUiRules(ctx: Ctx): void {
+  for (const record of ctx.uiRules) {
+    const { effect, condition } = record.rule;
+    const expr = translateUiCondition(condition, record.frame);
+    const isEnablement = effect === "ENABLE" || effect === "DISABLE" || effect === "WRITABLE" || effect === "READONLY";
+    // The rule decides enablement alone in JSONForms, so `readonly` and `schema.readOnly` give way.
+    if (isEnablement) delete record.target.readOnly;
+    if (expr === undefined || !(isEnablement || effect === "SHOW" || effect === "HIDE")) {
+      ctx.report.assumed(JsonSchemaCodes.ASSUMED_UI_RULE, record.sourcePtr, record.targetPath);
+      continue;
+    }
+    const target = record.target as Record<string, unknown>;
+    // `!` and not `not`: survey-core reads `not ({a} = 1)` as true when `a` is 1.
+    if (effect === "SHOW") target.visibleIf = expr;
+    else if (effect === "HIDE") target.visibleIf = `!(${expr})`;
+    else if (effect === "ENABLE" || effect === "WRITABLE") target.enableIf = expr;
+    else target.enableIf = `!(${expr})`;
+  }
+}
+
+// JSONForms' `evaluateCondition`: AND and OR by `type`, a LEAF compares the value with
+// `expectedValue`, a condition with a `schema` validates the value against it. A `validate`
+// function, or any other shape, has no expression.
+function translateUiCondition(cond: unknown, frame: UiFrame): string | undefined {
+  if (!cond || typeof cond !== "object") return undefined;
+  const c = cond as { type?: unknown, conditions?: unknown, scope?: unknown, expectedValue?: unknown, schema?: unknown, failWhenUndefined?: unknown };
+  if (c.type === "AND" || c.type === "OR") {
+    if (!Array.isArray(c.conditions) || c.conditions.length === 0) return undefined;
+    const parts = c.conditions.map((x) => translateUiCondition(x, frame));
+    if (parts.some((p) => p === undefined)) return undefined;
+    return `(${parts.join(c.type === "AND" ? " and " : " or ")})`;
+  }
+  if (typeof c.scope !== "string") return undefined;
+  if (c.type === "LEAF") {
+    const ref = scopeRef(c.scope, frame);
+    const lit = isPrimitive(c.expectedValue) ? formatLiteral(c.expectedValue) : undefined;
+    return ref !== undefined && lit !== undefined ? `${ref} = ${lit}` : undefined;
+  }
+  if ("schema" in c) {
+    const term = schemaTerm(c.scope, c.schema, frame);
+    if (term === undefined || c.failWhenUndefined !== true) return term;
+    // With failWhenUndefined, an absent value fails before the schema is checked.
+    const ref = scopeRef(c.scope, frame);
+    return ref === undefined ? undefined : `(${ref} notempty and ${term})`;
+  }
+  return undefined;
+}
+
+function isPrimitive(value: unknown): boolean {
+  return value === null || ["string", "number", "boolean"].includes(typeof value);
+}
+
+// The expression for the value at `scope` validating against `schema`, as `ajv.validate` does with
+// an absent value: `const` and `enum` fail on it, and `not` and an absent optional property pass.
+function schemaTerm(scope: string, schema: unknown, frame: UiFrame): string | undefined {
+  if (!schema || typeof schema !== "object" || Array.isArray(schema)) return undefined;
+  const s = schema as JsonSchemaDoc & { not?: unknown };
+  const keys = Object.keys(s).filter((k) => k !== "type");
+  if (keys.length === 1 && keys[0] === "const") {
+    const ref = scopeRef(scope, frame);
+    const lit = formatLiteral(s.const);
+    return ref !== undefined && lit !== undefined ? `${ref} = ${lit}` : undefined;
+  }
+  if (keys.length === 1 && keys[0] === "enum" && Array.isArray(s.enum) && s.enum.length > 0) {
+    const ref = scopeRef(scope, frame);
+    const lits = s.enum.map((v) => formatLiteral(v));
+    if (ref === undefined || lits.some((lit) => lit === undefined)) return undefined;
+    return `(${lits.map((lit) => `${ref} = ${lit}`).join(" or ")})`;
+  }
+  if (keys.length === 1 && keys[0] === "not") {
+    const inner = schemaTerm(scope, s.not, frame);
+    return inner === undefined ? undefined : `!(${inner})`;
+  }
+  if (keys.length > 0 && keys.every((k) => k === "properties" || k === "required")) {
+    // An object scope: one term per property. A required property must be present; an optional
+    // one passes when absent.
+    const base = scope === "#" ? "#" : scope;
+    const required = new Set(Array.isArray(s.required) ? s.required : []);
+    const names = new Set([...Object.keys(s.properties ?? {}), ...required]);
+    if (names.size === 0) return undefined;
+    const terms: string[] = [];
+    for (const name of names) {
+      const sub = `${base}/properties/${name}`;
+      const ref = scopeRef(sub, frame);
+      if (ref === undefined) return undefined;
+      const propSchema = s.properties?.[name];
+      const term = propSchema === undefined ? undefined : schemaTerm(sub, propSchema, frame);
+      if (propSchema !== undefined && term === undefined) return undefined;
+      if (required.has(name)) terms.push(term === undefined ? `${ref} notempty` : `(${ref} notempty and ${term})`);
+      else if (term !== undefined) terms.push(`(${ref} empty or ${term})`);
+    }
+    return terms.length > 0 ? `(${terms.join(" and ")})` : undefined;
+  }
+  return undefined;
+}
+
+// The expression reference to the Control on `scope`, or `undefined` when no Control has it.
+function scopeRef(scope: string, frame: UiFrame): string | undefined {
+  const name = frame.names.get(scope);
+  return name === undefined ? undefined : `{${frame.refPrefix}${name}}`;
 }
 
 // --- entry point ------------------------------------------------------------
@@ -1017,7 +1248,13 @@ function buildCategorization(ui: UiNode, ctx: Ctx): SurveyJSONPage[] {
 export function convert(input: unknown): ConversionResult<SurveyJSON> {
   const { schema, uiSchema } = normalizeInput(input);
   const report = new ReportBuilder(SOURCE);
-  const ctx: Ctx = { report, usedNames: new Set<string>(), root: schema };
+  const ctx: Ctx = {
+    report,
+    usedNames: new Set<string>(),
+    root: schema,
+    uiFrame: { root: schema, names: new Map(), refPrefix: "" },
+    uiRules: []
+  };
 
   const output: SurveyJSON = {};
   if (typeof schema.title === "string" && schema.title.length > 0) output.title = schema.title;
@@ -1027,12 +1264,18 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
 
   if (uiKind === "jsonforms") {
     const ui = uiSchema as UiNode;
+    // A Categorization at the root, or as the only child of the root layout, becomes pages.
+    const onlyChild = Array.isArray(ui.elements) && ui.elements.length === 1 ? ui.elements[0] as UiNode : undefined;
+    const isRootLayout = ui.type === "VerticalLayout" || ui.type === "HorizontalLayout";
     if (ui.type === "Categorization") {
-      // Categorization -> pages (each Category is a page).
-      output.pages = buildCategorization(ui, ctx);
+      output.pages = buildCategorization(ui, "#/uiSchema", ctx);
+    } else if (isRootLayout && onlyChild?.type === "Categorization") {
+      reportRootRule(ui, "#/uiSchema", ctx);
+      output.pages = buildCategorization(onlyChild, "#/uiSchema/elements/0", ctx);
     } else {
       output.elements = walkUiNode(ui, "#/uiSchema", "elements", ctx, 0, true);
     }
+    resolveUiRules(ctx);
     return { output, report: report.build() };
   }
 

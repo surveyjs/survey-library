@@ -10,7 +10,7 @@ import { ComponentCollection } from "../src/question_custom";
 import { surveyLocalization } from "../src/surveyStrings";
 import { _setIsTouch } from "../src/utils/devices";
 import { reducedMotionMediaQuery } from "../src/utils/reduced-motion";
-import { mediaQueries, restoreSettings } from "./test-baseline";
+import { mediaQueries, restoreSettings, windowSize } from "./test-baseline";
 
 // jsdom has no constructable stylesheets, so each afterRenderSurvey falls to
 // applyBaseThemeVariablesInline in src/utils/base-theme-init.ts and writes 1,751
@@ -697,6 +697,7 @@ afterEach(() => {
     (globalThis as any).__setMatchMedia(reducedMotionMediaQuery, false);
   }
   __sv_reanchorEnvironment();
+  Object.assign(window, windowSize);
   // Re-install jsdom polyfills if a test replaced `window.getComputedStyle`
   // (common pattern: `window.getComputedStyle = () => ({...})` without a
   // try/finally restore), so such a leak does not fail unrelated tests.

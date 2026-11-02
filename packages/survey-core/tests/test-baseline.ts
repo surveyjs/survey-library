@@ -11,6 +11,9 @@ export const coreFunctionNames: Array<string> = FunctionFactory.Instance.getAll(
 // and __setMatchMedia has to reach that entry from every later file.
 export const mediaQueries: Map<string, { matches: boolean, listeners: Set<(e: any) => void> }> = new Map();
 
+// jsdom's defaults: popup tests set their own sizes on the window that all files share.
+export const windowSize = { innerWidth: window.innerWidth, innerHeight: window.innerHeight };
+
 function isPlain(v: any): boolean {
   return !!v && typeof v === "object" && (Array.isArray(v) || Object.getPrototypeOf(v) === Object.prototype);
 }

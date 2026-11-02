@@ -4923,16 +4923,6 @@ describe("Survey", () => {
         return question["renderAs"] === "testwidget";
       },
     });
-    const oldMartixDropdownRenderAsProperty = Serializer.getProperty("matrixdropdowncolumn", "renderAs");
-    const oldDropdownRenderAsProperty = Serializer.getProperty("dropdown", "renderAs");
-
-    Serializer.addProperty("matrixdropdowncolumn", "renderAs");
-    Serializer.addProperty("dropdown", {
-      name: "renderAs",
-      default: "standard",
-      choices: ["standard", "chosen"],
-    });
-
     var survey = new SurveyModel({
       elements: [
         {
@@ -4949,9 +4939,6 @@ describe("Survey", () => {
     var rows = q.visibleRows;
     expect(rows[0].cells[0].question.customWidget.name, "the first cell has custom widget").toBe("first");
     expect(rows[0].cells[1].question.customWidget, "the second cell has no custom widget").toBeNull();
-
-    Serializer.addProperty("matrixdropdowncolumn", oldMartixDropdownRenderAsProperty);
-    Serializer.addProperty("dropdown", oldDropdownRenderAsProperty);
 
     CustomWidgetCollection.Instance.clear();
   });
@@ -6174,11 +6161,6 @@ describe("Survey", () => {
   });
 
   test("Pass custom properties to cell question", () => {
-    Serializer.addProperty("matrixdropdowncolumn", {
-      name: "renderAs",
-      default: "default",
-      choices: ["default", "select2tagbox"],
-    });
     var survey = new SurveyModel({
       elements: [
         {
@@ -16492,9 +16474,7 @@ describe("Survey", () => {
     survey.locale = "";
   });
   test("hasDescription is isDesignMode", () => {
-    const commentDescriptionProperty = Serializer.getProperty("comment", "description");
-    const oldValue = commentDescriptionProperty.placeholder;
-    commentDescriptionProperty.placeholder = "Q placeholder";
+    Serializer.getProperty("comment", "description").placeholder = "Q placeholder";
 
     const survey = new SurveyModel({});
     survey["_isDesignMode"] = true;
@@ -16520,12 +16500,11 @@ describe("Survey", () => {
     expect(q3.hasDescription, "text description is not shown, on adding question").toBeFalsy();
     expect(q4.hasDescription, "comment description is shown, on adding question").toBeTruthy();
 
-    commentDescriptionProperty.placeholder = oldValue;
+    // getProperty cloned the inherited property onto the comment class.
+    Serializer.removeProperty("comment", "description");
   });
   test("hasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide empty description in design mode", () => {
-    const commentDescriptionProperty = Serializer.getProperty("comment", "description");
-    const oldValue = commentDescriptionProperty.placeholder;
-    commentDescriptionProperty.placeholder = "Q placeholder";
+    Serializer.getProperty("comment", "description").placeholder = "Q placeholder";
 
     const survey = new SurveyModel({});
     survey["_isDesignMode"] = true;
@@ -16557,7 +16536,7 @@ describe("Survey", () => {
     expect(q4.hasDescription, "q4 empty description hidden by default").toBeFalsy();
     expect(calls.indexOf("q1") > -1, "callback is called for q1").toBeTruthy();
 
-    commentDescriptionProperty.placeholder = oldValue;
+    Serializer.removeProperty("comment", "description");
   });
   test("beforeShowInplaceDescriptionEditorCallback is called for both empty and non-empty descriptions", () => {
     const survey = new SurveyModel({});

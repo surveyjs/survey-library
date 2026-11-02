@@ -8843,7 +8843,7 @@ describe("Survey_QuestionPanelDynamic", () => {
   });
   test("paneldynamic.panelCountExpression custom property, Bug#10171", () => {
     Serializer.addProperty("paneldynamic", {
-      name: "panelCountExpression",
+      name: "customPanelCountExpression",
       type: "condition",
       category: "logic",
       onExecuteExpression: (obj, res) => {
@@ -8860,7 +8860,7 @@ describe("Survey_QuestionPanelDynamic", () => {
         {
           "type": "paneldynamic",
           "name": "question2",
-          "panelCountExpression": "{question1}",
+          "customPanelCountExpression": "{question1}",
           "templateElements": [
             {
               "type": "text",
@@ -8878,7 +8878,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.panelCount, "panelCount #3").toBe(1);
     survey.setValue("question1", 2);
     expect(panel.panelCount, "panelCount #4").toBe(2);
-    Serializer.removeProperty("paneldynamic", "panelCountExpression");
+    Serializer.removeProperty("paneldynamic", "customPanelCountExpression");
   });
   test("paneldynamic nested question valueName & clearIncorrectValues, Bug#10206", () => {
     const survey = new SurveyModel({

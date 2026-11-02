@@ -2062,7 +2062,7 @@ describe("JsonSerializationTests", () => {
     expect(propertiesOrder[l].name, "itemorder: price propeprty").toBe("price");
     expect(propertiesOrder[l].visible, "itemorder: price visible").toBe(true);
     Serializer.removeClass("itemorder");
-    Serializer.removeProperty("item", "price");
+    Serializer.removeProperty("itemvalue", "price");
   });
 
   test("ItemValue value changed notifications", () => {
@@ -2225,7 +2225,7 @@ describe("JsonSerializationTests", () => {
     expect(new Question("q1").isRequired, "It is false by defult").toBe(false);
     Serializer.findProperty("question", "isRequired").defaultValue = true;
     expect(new Question("q1").isRequired, "It is true now").toBe(true);
-    Serializer.findProperty("question", "isRequired").defaultValue = false;
+    Serializer.findProperty("question", "isRequired").defaultValue = undefined;
     expect(new Question("q1").isRequired, "It is false again").toBe(false);
   });
   test("Change question readOnly default value", () => {
@@ -2233,7 +2233,7 @@ describe("JsonSerializationTests", () => {
     Serializer.findProperty("question", "readOnly").defaultValue = true;
     expect(new Question("q1").readOnly, "It is true now").toBe(true);
     expect(new Question("q1").toJSON(), "no readOnly attribute in JSON, #1").toEqual({ name: "q1" });
-    Serializer.findProperty("question", "readOnly").defaultValue = false;
+    Serializer.findProperty("question", "readOnly").defaultValue = undefined;
     expect(new Question("q1").readOnly, "It is false again").toBe(false);
     expect(new Question("q1").toJSON(), "no readOnly attribute in JSON, #2").toEqual({ name: "q1" });
   });
@@ -3209,6 +3209,7 @@ describe("JsonSerializationTests", () => {
     doChecks(5, true, undefined, undefined, true, false, false);
     Serializer.findProperty("matrixdropdowncolumn", "isRequired").defaultValue = undefined;
     doChecks(6, true, undefined, undefined, true, false, false);
+    Serializer.findProperty("matrixdropdowncolumn", "isRequired").defaultValue = false;
   });
   test("choiceitem showCommentArea visibilty for different questions", () => {
     const prop = Serializer.findProperty("choiceitem", "showCommentArea");

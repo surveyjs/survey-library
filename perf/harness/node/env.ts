@@ -16,7 +16,6 @@ export interface PerfEnv {
   only: Array<string> | null;
   resultsDir: string;
   resultFile?: string;
-  stateDir: string;
   machineExtra: string;
   extraJson?: string;
 }
@@ -46,7 +45,6 @@ export function readEnv(env: NodeJS.ProcessEnv = process.env): PerfEnv {
     only: parseOnly(value(env, "PERF_ONLY")),
     resultsDir: path.resolve(value(env, "PERF_RESULTS_DIR") || path.join(runnerRoot, "perf", "results")),
     resultFile: value(env, "PERF_RESULT_FILE"),
-    stateDir: path.resolve(value(env, "PERF_STATE_DIR") || path.join(runnerRoot, "perf", "results", "state")),
     machineExtra: value(env, "PERF_MACHINE_EXTRA") || "",
     extraJson: value(env, "PERF_EXTRA_JSON")
   };

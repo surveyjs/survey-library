@@ -1,7 +1,8 @@
 @use "../typography-mixins.scss" as *;
 
 // A sortable column header: the whole cell is one button. The <th> hands its padding to the button,
-// so that the padding is part of the click target and the title stays where it is in a plain header.
+// so that the padding is part of the click target. The title and the indicator are one group, centered
+// inside that padding, so a sortable title sits off the center of its column, unlike a title in a plain header.
 .sd-table__cell--header.sd-table__cell--sortable {
   padding: 0;
   // A table cell's height is a minimum: 1px lets the row decide it, and the button's height: 100%
@@ -12,8 +13,10 @@
 .sd-table__header-sort-button {
   appearance: none;
   display: flex;
+  // flex-start: the indicator stays on the first line of a title that wraps.
   align-items: flex-start;
-  gap: var(--sjs2-layout-component-matrix-header-cell-gap-horizontal);
+  justify-content: center;
+  gap: var(--sjs2-spacing-x050);
   box-sizing: border-box;
   width: 100%;
   height: 100%;
@@ -36,12 +39,23 @@
     box-shadow: inset 0 0 0 var(--sjs2-border-width-a11y) var(--sjs2-color-utility-a11y);
   }
 }
+// The first and the last cell of a row have a wider outer padding (see sd-table.scss): the button takes it too.
+.sd-table__cell--sortable:where(:nth-child(1 of .sd-table__cell)) .sd-table__header-sort-button {
+  padding-inline-start: var(--sjs2-layout-component-matrix-cell-left-padding-left);
+}
+.sd-table__cell--sortable:where(:nth-last-child(1 of .sd-table__cell)) .sd-table__header-sort-button {
+  padding-inline-end: var(--sjs2-layout-component-matrix-cell-right-padding-right);
+}
 .sd-table__header-sort-title {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
 }
+// A header in view mode has text-align: start, and the group follows it.
+.sd-table--view .sd-table__header-sort-button {
+  justify-content: flex-start;
+}
 
-// The indicator's slot is always there, so that the title does not move when it appears.
+// The indicator shows in every state. Not sorted, it is the quiet sort icon, with no chip.
 .sd-table__header-sort {
   display: flex;
   flex-shrink: 0;
@@ -58,17 +72,7 @@
     fill: var(--sjs2-color-component-action-neutral-quaternary-default-icon);
   }
 }
-// Not sorted: hidden at rest, the quiet sort icon on hover and on keyboard focus.
-.sd-table__header-sort--none {
-  opacity: 0;
-}
-.sd-table__header-sort-button:hover,
-.sd-table__header-sort-button:focus-visible {
-  .sd-table__header-sort--none {
-    opacity: 1;
-  }
-}
-// Sorted: the arrow always shows, in the hovered chip.
+// Sorted: the arrow in the hovered chip.
 .sd-table__header-sort--asc,
 .sd-table__header-sort--desc {
   background: var(--sjs2-color-component-action-neutral-quaternary-hovered-bg);

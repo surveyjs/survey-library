@@ -775,9 +775,10 @@ describe("Sort dialog: the fields of the detail panel", () => {
     matrix.sort([{ field: "product", direction: "asc" }, { field: "qty", direction: "asc" }]);
     const open = openDialog(matrix);
     expect(titlesOf(fieldOf(open, 1)), "#1: the second row").toEqual(["Quantity"]);
-    expect(titlesOf(directionOf(open, 1)), "#2: its type's directions").toEqual(["\u2014", "High - Low", "Low - High"]);
+    expect(titlesOf(directionOf(open, 1)), "#2: its type's directions").toEqual(["High - Low", "Low - High"]);
     pick(directionOf(open, 1), "High - Low");
-    removeRow(open, 0);
+    moveRow(open, 1, 0);
+    removeRow(open, 1);
     apply(open.popup);
     expect(sortOf(matrix), "#3").toEqual([{ field: "qty", direction: "desc" }]);
     expect(columnValues(matrix, "product"), "#4").toEqual(["a", "c", "b"]);

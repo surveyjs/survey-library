@@ -276,6 +276,43 @@ frameworks.forEach((framework) => {
       expect(await getQuestionValue(page)).toEqual(true);
     });
 
+    test("radio boolean: Up and Down move the native radio group", async ({ page }) => {
+      await initSurvey(page, framework, jsonRadio);
+      await page.locator("input[type=radio]").first().focus();
+      await page.keyboard.press("Space");
+      const selected = await getQuestionValue(page);
+      await page.keyboard.press("ArrowDown");
+      expect(await getQuestionValue(page)).toEqual(!selected);
+      await page.keyboard.press("ArrowUp");
+      expect(await getQuestionValue(page)).toEqual(selected);
+    });
+
+    test("segmented boolean: Left and Right set the value, Up and Down leave it", async ({ page }) => {
+      await initSurvey(page, framework, json);
+      await page.locator(".sd-boolean").first().focus();
+      await page.keyboard.press("ArrowRight");
+      expect(await getQuestionValue(page)).toEqual(true);
+      await page.keyboard.press("ArrowDown");
+      expect(await getQuestionValue(page)).toEqual(true);
+      await page.keyboard.press("ArrowLeft");
+      expect(await getQuestionValue(page)).toEqual(false);
+      await page.keyboard.press("ArrowUp");
+      expect(await getQuestionValue(page)).toEqual(false);
+    });
+
+    test("switch boolean: arrow keys do nothing, Space toggles", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{ type: "boolean", name: "q", displayMode: "switch" }],
+      });
+      await page.locator("[role=checkbox]").first().focus();
+      for (const key of ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]) {
+        await page.keyboard.press(key);
+        expect(await getQuestionValue(page)).toEqual(undefined);
+      }
+      await page.keyboard.press("Space");
+      expect(await getQuestionValue(page)).toEqual(true);
+    });
+
     test("test radio boolean with values", async ({ page }) => {
       const checkQuestionValue = async (val: any) => {
         return await page.evaluate((val) => {

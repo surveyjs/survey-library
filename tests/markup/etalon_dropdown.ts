@@ -455,6 +455,28 @@ registerMarkupTests(
       },
       snapshot: "dropdown-aria-expanded",
       removeIds: true
+    },
+    {
+      name: "Test closed dropdown keyboard hints with the enter slot hidden",
+      json: {
+        showKeyboardHints: true,
+        elements: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "dropdown-keyboard-hints-closed",
+      removeIds: true,
+      getElement: (element) => element?.parentElement
     }
   ]
 );

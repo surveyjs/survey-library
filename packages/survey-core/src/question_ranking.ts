@@ -6,6 +6,7 @@ import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
+import { keyboardHint, advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
@@ -37,6 +38,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
   public getType(): string {
     return "ranking";
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    const hints = [
+      keyboardHint(this, "keyboardHintNextItemText", ["tab"]),
+      keyboardHint(this, "keyboardHintMoveText", ["arrowsVertical"])
+    ];
+    if (this.selectToRankEnabled) {
+      hints.push(keyboardHint(this, "keyboardHintToggleText", ["space"]));
+    }
+    return hints.concat(advanceKeyboardHints(this));
   }
   protected getViewDisplayText(): string {
     const value = this.value;

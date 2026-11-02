@@ -57,6 +57,8 @@ export var haitianCreoleStrings = {
   sortAddNewText: "Ajoute nouvo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Deplase sòt nivo {0}",
   // "Complete"
   completeText: "Ranpli",
   // [Auto-translated] "Preview"
@@ -191,6 +193,8 @@ export var haitianCreoleStrings = {
   addRow: "Ajoute Ranje",
   // "Remove"
   removeRow: "Retire",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Deplase ranje {0}",
   // "There are no rows."
   noRowsText: "Pa gen ranje.",
   // [Auto-translated] "Row {rowIndex}"

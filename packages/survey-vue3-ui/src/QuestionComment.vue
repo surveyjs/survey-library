@@ -1,5 +1,6 @@
 <template>
-  <div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
+  <div v-if="question.isViewMode" :class="question.viewModeCssClass">{{ question.getCommentViewText() }}</div>
+  <div v-else-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
 
   <SvComponent
     :is="'sv-text-area'"

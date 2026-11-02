@@ -2,7 +2,7 @@ import { Base } from "./base";
 import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, getNestedElementQuestions } from "./question";
+import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
@@ -40,26 +40,17 @@ import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/record
 import { IRecordRemoval, IRecordTarget, IRecordTargetResolverOwner, RecordTargetResolver } from "./records/records-target-resolver";
 import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, QuestionRecordsBar } from "./question_records_bar";
 import { IRecordsSortField } from "./records/records-sort-bar";
-import { RecordsSortDialogModel, showRecordsSortDialog } from "./records/records-sort-dialog";
-import { getLocaleString } from "./surveyStrings";
-import type { PopupBaseViewModel } from "./popup-view-model";
 import type { PanelModelBase } from "./panel";
+import type { QuestionExpressionModel } from "./question_expression";
+import { ExpressionRunner } from "./expressions/expressionRunner";
 
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
    QuestionPanelDynamicItem: in design mode the panel shown is the template, which has none. */
 export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
+// Answers true to stop the walk, as a NestedElementVisit does.
+export type NestedWalkItemVisit = (item: NestedWalkItem, position: number, visible: boolean) => boolean | void;
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyOldValueReads } from "./interfaces/survey-callbacks";
-
-// What Creator passes to QuestionRecordsModel.showSortDialog.
-export interface IRecordsDesignSortDialogOptions {
-  // Apply with a changed draft: the caller writes sortCriteria (Creator does it for undo/redo).
-  onApply: (criteria: Array<ISortCriterion>) => void;
-  // Where the modal is placed; the survey's root element when omitted.
-  rootElement?: HTMLElement;
-  // The locale of the dialog's own texts for as long as it is open; the question's locale when omitted.
-  locale?: string;
-}
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -99,6 +90,14 @@ export interface IRecordItemWrite {
   // What the owner's updateItemValue receives.
   ownerValue: any;
   isDeleting: boolean;
+}
+/* One question of the expression-field pass (QuestionRecordsModel.updateRecordsExpressionFields): its
+   expression questions, the records it built objects for, and its record scope, created on first use. */
+interface IRecordExpressionFields {
+  question: QuestionRecordsModel;
+  questions: Array<QuestionExpressionModel>;
+  built: Set<number>;
+  scope?: IDynamicDataRecordScope;
 }
 // The types of the removal flow keep importing these from here.
 export type { IRecordTarget, IRecordRemoval } from "./records/records-target-resolver";
@@ -429,7 +428,8 @@ export abstract class QuestionRecordsModel extends Question {
     // A list that pages in memory creates the edited set on every change it raises here. An edit
     // renumbers nothing: it marks the record edited.
     const validation = this.isPagedByList ? this.pageValidation : this._pageValidation;
-    if (change.type === "recordChanged" && !!validation) validation.markEdited(change.index);
+    // The fields the expression-field pass computes are not an edit (updateRecordsExpressionFields).
+    if (change.type === "recordChanged" && !!validation && !this.expressionFieldsWriteScope.isActive) validation.markEdited(change.index);
     const listChange = getRecordListChangeEvent(change);
     if (!!listChange)this.followRecordIndexEvent(listChange);
     /* A write the list pushed to a data source: with the array source over question.value the push
@@ -1085,8 +1085,10 @@ export abstract class QuestionRecordsModel extends Question {
      write (the limits, the count expression) is silent. */
   private writeRecordCount(val: number, origin: "code" | "authored" | "internal"): void {
     if (!this.isRemoteData) {
-      this.setRecordCountCore(val);
-      this.storeRecordsToCount();
+      this.runRecordsOperation(this.recordCountScope, (): void => {
+        this.setRecordCountCore(val);
+        this.storeRecordsToCount();
+      });
     } else if (origin === "authored") {
       this.setPropertyValue(this.getRecordCountNames().count, Helpers.getNumber(val));
     } else if (origin === "code" && Helpers.getNumber(val) !== this.recordCount) {
@@ -1184,18 +1186,17 @@ export abstract class QuestionRecordsModel extends Question {
     return Math.min(this.pageSize, maxPageSize);
   }
   // The nested elements of the rows or panels a build mode reads, item by item.
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
-    this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): void => {
-      this.forEachNestedElementOfItem(item, position, visible, build, visit);
-    });
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
+    return this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): boolean | void =>
+      this.forEachNestedElementOfItem(item, position, visible, build, visit));
   }
   /* The items a build mode reads, each with its position in the list of created items - never an index
      in a visible-only list, so that the segment of the record it holds can be computed - and whether the
      question shows it. */
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void { }
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: NestedWalkItemVisit): boolean | void { }
   // The nested elements of one item at a position in the list of created items.
   protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
-    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void { }
+    build: NestedWalkBuild, visit: NestedElementVisit): boolean | void { }
   protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
     return includeItSelf;
   }
@@ -1261,8 +1262,9 @@ export abstract class QuestionRecordsModel extends Question {
      and the page is not the one the objects hold, the objects are rebuilt - the rebuild runs the
      conditions of the new objects itself. Returns whether a flag changed and whether it rebuilt. */
   protected rebuildStalePage(properties: HashTable<any>): { isChanged: boolean, isRebuilt: boolean } {
+    const isViewChanged = this.updateRecordsExpressionFields(properties);
     const isChanged = this.updatePagedRecordsVisibility(properties);
-    const isRebuilt = isChanged && this.isPageStale();
+    const isRebuilt = isViewChanged || isChanged && this.isPageStale();
     if (isRebuilt) {
       this.rebuildFromDataList(false);
     }
@@ -1693,6 +1695,158 @@ export abstract class QuestionRecordsModel extends Question {
     return !this.survey || !this.validationCallbacks.canLeavePageWithErrors;
   }
 
+  /* Bug#12156: an expression column of a matrix and an expression question of a panel template are
+     computed by an object - a row or a panel - while sumInArray, the totals, the filter and the sort
+     read the stored records. A question that pages builds the objects of one page, and a filter builds
+     none for the records it excludes, so the records without an object compute their expression fields
+     here, value-only, in the record visibility scope (createRecordVisibilityScope), and the changed
+     records are written in one batch as a computed write. It runs with the conditions of the question
+     (rebuildStalePage), before the records decide their visibility: a survey value, a record written
+     from outside and an earlier computed field are seen there. The value is the one the object computes,
+     so an object built later writes nothing. The fields are computed in template order, up to three
+     passes per record, so a field that reads another one of the record sees its new value. Not computed:
+     an async expression, a question that does not run while read-only (runIfReadOnly), a record that is
+     not an object, a question that does not page and has no filter or sort - every record gets an object
+     there - and a source that pages itself. Cost: one expression run per expression field per record
+     without an object, per condition run; one runner per expression text.
+     Questions that share the value (Andrew, 2026-10-29): the first of them that computes fields computes
+     them for all - each one's expression questions over the records it has no object for - and writes
+     once; the others compute nothing and receive the write as an update in place (storeOwnListRecords).
+     Returns whether the view - the records with an object, in their order - changed. */
+  private recordExpressionRunners: Map<string, ExpressionRunner> = new Map<string, ExpressionRunner>();
+  private updateRecordsExpressionFields(properties: HashTable<any>): boolean {
+    if (!this.isExpressionFieldsComputed()) return false;
+    const group = this.getExpressionFieldsQuestions();
+    if (group.some((question: QuestionRecordsModel): boolean => question.isRecordsOperationOpen)) {
+      group.forEach((question: QuestionRecordsModel): void => { question.owedExpressionFields = properties; });
+      return false;
+    }
+    if (group[0] !== this) return false;
+    const parts = group.map((question: QuestionRecordsModel): IRecordExpressionFields => {
+      const built = new Set<number>();
+      question.forEachItem((item: QuestionRecordItem): void => {
+        if (isRecordItem(item)) built.add(question.getBuiltRecordIndex(item));
+      });
+      return { question: question, questions: question.getRecordExpressionFieldQuestions(), built: built };
+    });
+    const runners = new Map<string, ExpressionRunner>();
+    const getRunner = (text: string): ExpressionRunner => {
+      if (!text) return undefined;
+      let runner = runners.get(text) || this.recordExpressionRunners.get(text);
+      if (!runner) runner = new ExpressionRunner(text);
+      runners.set(text, runner);
+      return runner.isAsync ? undefined : runner;
+    };
+    const changes: Array<{ index: number, record: any }> = [];
+    const count = this._dataList.loadedCount;
+    for (let index = 0; index < count; index++) {
+      const record = this.getListRecordAt(index);
+      if (!Helpers.isValueObject(record, true)) continue;
+      const computed = this.computeRecordExpressionFields(index, record, parts, getRunner, properties);
+      if (!!computed) changes.push({ index: index, record: computed });
+    }
+    this.recordExpressionRunners = runners;
+    if (changes.length === 0) return false;
+    const views = group.filter((question: QuestionRecordsModel): boolean => question._dataList.hasView)
+      .map((question: QuestionRecordsModel) => ({ question: question, created: question._dataList.getCreatedIndexes().slice() }));
+    this.expressionFieldsWriteScope.run((): void => this.runComputedWrites((): void => this.writeRecordChanges(changes)));
+    let isChanged = false;
+    views.forEach((view: { question: QuestionRecordsModel, created: Array<number> }): void => {
+      const list = view.question._dataList;
+      if (!list || view.question.isDisposed) return;
+      // A same-length write is not seen by the list: the filter and the sort read the new fields.
+      list.invalidateViews(list.hasTouchedRecords ? (index: number): number => index : undefined);
+      if (Helpers.isArraysEqual(view.created, list.getCreatedIndexes())) return;
+      if (view.question === this) {
+        isChanged = true;
+      } else {
+        view.question.rebuildFromDataList(false);
+      }
+    });
+    return isChanged;
+  }
+  // The record with the fields recomputed, or undefined when none changed.
+  private computeRecordExpressionFields(index: number, record: any, parts: Array<IRecordExpressionFields>,
+    getRunner: (text: string) => ExpressionRunner, properties: HashTable<any>): any {
+    let res: any;
+    for (let pass = 0; pass < 3; pass++) {
+      let isChanged = false;
+      parts.forEach((part: IRecordExpressionFields): void => {
+        if (part.built.has(index)) return;
+        part.questions.forEach((q: QuestionExpressionModel): void => {
+          const runner = getRunner(q.expression);
+          if (!runner) return;
+          if (!part.scope) part.scope = part.question.createRecordVisibilityScope(properties);
+          const current = res || record;
+          part.scope.item.reset(index, current);
+          const value = q["roundValue"](runner.runContext(part.scope.item.getValueGetterContext(), part.scope.properties));
+          const name = q.getValueName();
+          const isEmpty = Helpers.isValueEmpty(value);
+          if (isEmpty ? Helpers.isValueEmpty(current[name]) : Helpers.isTwoValueEquals(current[name], value)) return;
+          if (!res) res = Object.assign({}, record);
+          if (isEmpty) {
+            delete res[name];
+          } else {
+            res[name] = value;
+          }
+          isChanged = true;
+        });
+      });
+      if (!isChanged) break;
+    }
+    return res;
+  }
+  private isExpressionFieldsComputed(): boolean {
+    const list = this._dataList;
+    return !!list && !this.isDesignMode && !this.isRemoteData && !!this.survey && (this.isPagingActive || list.hasView) &&
+      this.getRecordExpressionFieldQuestions().length > 0;
+  }
+  private getRecordExpressionFieldQuestions(): Array<QuestionExpressionModel> {
+    return this.getRecordExpressionQuestions().filter((q: QuestionExpressionModel): boolean => !this.isReadOnly || q.runIfReadOnly);
+  }
+  // The questions sharing the value that compute fields, in survey order: the first one computes them for all.
+  private getExpressionFieldsQuestions(): Array<QuestionRecordsModel> {
+    const res: Array<QuestionRecordsModel> = [];
+    const add = (question: IQuestion): void => {
+      if (question instanceof QuestionRecordsModel && res.indexOf(question) < 0 && question.isExpressionFieldsComputed()) res.push(question);
+    };
+    if (!!this.survey) {
+      this.getQuestionsSharingValue(this.getValueName()).forEach(add);
+    }
+    add(this);
+    return res;
+  }
+  /* The pass writes the records, so it does not run inside an operation of the question's own, nor of
+     a question sharing the value (Andrew, option A, 2026-10-29): an assignment of the value, an add, a
+     count change, a write of the question's own or of the list, a structural store and the objects
+     that follow it - the objects are built or written there. A condition run inside one owes the pass,
+     with its properties; it runs once, with the latest ones, when the last such operation has ended
+     (runOwedExpressionFields). */
+  private owedExpressionFields: HashTable<any>;
+  private expressionFieldsWriteScope: Scope = new Scope();
+  private recordCountScope: Scope = new Scope();
+  private get isRecordsOperationOpen(): boolean {
+    return this.valueAssignmentScope.isActive || this.recordAddScope.isActive || this.recordCountScope.isActive || this.isOwnWriteOpen ||
+      this.structuralStoreScope.isActive || this.followingWriteScope.isActive;
+  }
+  private runRecordsOperation<T>(scope: Scope, func: () => T): T {
+    try {
+      return scope.run(func);
+    } finally {
+      this.runOwedExpressionFields();
+    }
+  }
+  private runOwedExpressionFields(): void {
+    const properties = this.owedExpressionFields;
+    if (!properties || this.isDisposed) return;
+    const group = this.getExpressionFieldsQuestions();
+    if (group.some((question: QuestionRecordsModel): boolean => question.isRecordsOperationOpen)) return;
+    this.owedExpressionFields = undefined;
+    group.forEach((question: QuestionRecordsModel): void => { question.owedExpressionFields = undefined; });
+    if (group.length > 0) group[0].rebuildStalePage(properties);
+  }
+  // The expression questions of a record: the expression columns, the expression questions of the template.
+  protected abstract getRecordExpressionQuestions(): Array<QuestionExpressionModel>;
   /* rowsVisibleIf / templateVisibleIf under paging (Andrew's decision 2026-09-25): a page is a slice
      of the VISIBLE records, so the condition is evaluated over every record without an object and
      the list's hidden flags are written from it (DynamicDataRecordVisibility), without building a
@@ -1701,8 +1855,8 @@ export abstract class QuestionRecordsModel extends Question {
      as usual - and the record item is the {row} / {panel} variable of a copy of the run's
      properties, as a built row or panel is, so a custom function sees it as this.row / this.panel.
      A built object runs no visibility condition of its own (getRowsVisibleIfForRows, createNewPanel):
-     a hidden record gets none, and the two cannot disagree. Limitation: an expression cell or an
-     expression question the condition reads contributes its stored value.
+     a hidden record gets none, and the two cannot disagree. An expression cell or an expression
+     question the condition reads is computed before it (updateRecordsExpressionFields).
      The expression is read only past the guards, and before areInvisibleElementsShowing is applied:
      the survey's onExpressionRunning fires in that mode too. A flag that changed changes the page
      count, which the list does not announce: the question syncs it. Returns whether a flag changed. */
@@ -2315,9 +2469,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected getAdditionalTitleToolbar(): ActionContainer | null {
     return this.recordsBar.sortActions;
   }
-  protected getCssHeader(cssClasses: any): string {
-    return toCssClasses(super.getCssHeader(cssClasses), this.sortBarLocation === "header" && cssClasses.headerWithSortBar);
-  }
   /* The fields the sort bar offers, in the order the question shows them: the sortable columns of a
      matrix, the value-sortable template questions of a dynamic panel. Computed on every read from the
      columns or the template, which notify the bar through updateRecordsBar(). The data type is the
@@ -2426,8 +2577,7 @@ export abstract class QuestionRecordsModel extends Question {
       getCssClasses: (): IRecordsBarCssClasses => {
         const css = question.cssClasses;
         return { root: css.recordsBar, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
-          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel,
-          sortDialog: css.sortDialog, sortDialogRow: css.sortDialogRow };
+          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel };
       },
       createActionContainer: <T extends ActionContainer>(container?: T): T => {
         return !!container ? question.initActionContainer(container) : <T>question.createActionContainer();
@@ -2436,83 +2586,9 @@ export abstract class QuestionRecordsModel extends Question {
     };
   }
   /* The fields a designer can sort by, computed on every call: Creator's property grid offers them as the choices
-     of a sortCriteria item's field (SortCriterion.getFieldChoices), and the designer's dialog (showSortDialog)
-     offers the same ones, so the two never disagree. */
+     of a sortCriteria item's field (SortCriterion.getFieldChoices). */
   public getDesignSortFields(): Array<IRecordsSortField> {
     return this.toSortFields(this.getDesignSortFieldCandidates());
-  }
-  /* Creator's entry to the "Sort by" dialog, an alternative to editing the sortCriteria items in place in the
-     property grid (each item reports this question's survey, so an edit is an undo step). Not for respondents.
-     The dialog offers every value-sortable field (getDesignSortFieldCandidates) and as many rows as fields:
-     allowSort, a column's allowSort and maxSortLevel limit the respondent only. Its Apply neither sorts nor
-     validates the page: a changed draft goes to options.onApply. The dialog reads its texts again on every
-     change, so options.locale holds for its whole life. A second call closes the dialog of the first, and so does
-     the question's dispose(). Returns the modal, so the caller can wait for its onHide; undefined without
-     settings.showDialog. Design mode does not matter: the dialog does not read it. */
-  public showSortDialog(options: IRecordsDesignSortDialogOptions): PopupBaseViewModel {
-    this.closeDesignSortDialog();
-    if (!settings.showDialog) return undefined;
-    const owner = this.createDesignSortDialogOwner(options);
-    const fields = owner.sortFields;
-    const dialog = new RecordsSortDialogModel(owner, {
-      shownField: fields.length > 0 ? fields[0].field : undefined,
-      sortByUser: (criteria: Array<ISortCriterion>): boolean => {
-        options.onApply(criteria);
-        return true;
-      },
-      onApplied: (): void => { }
-    });
-    this.designSortDialog = dialog;
-    const popup = showRecordsSortDialog(dialog, owner, (): void => { this.onDesignSortDialogClosed(dialog); });
-    if (!popup) {
-      this.onDesignSortDialogClosed(dialog);
-    }
-    return popup;
-  }
-  private designSortDialog: RecordsSortDialogModel;
-  private onDesignSortDialogClosed(dialog: RecordsSortDialogModel): void {
-    if (this.designSortDialog !== dialog) return;
-    this.designSortDialog = undefined;
-    dialog.dispose();
-  }
-  // The bar owns the respondent's dialog (RecordsSortBar.closeDialog); the question owns the designer's.
-  private closeDesignSortDialog(): void {
-    const dialog = this.designSortDialog;
-    if (!dialog) return;
-    this.designSortDialog = undefined;
-    dialog.close();
-    dialog.dispose();
-  }
-  /* The bar's owner with the designer's fields, a row per field, no waiting state (the designer's Apply reads
-     no page) and, with options.locale, the dialog's own locale for its texts and lists. */
-  private createDesignSortDialogOwner(options: IRecordsDesignSortDialogOptions): IQuestionRecordsBarOwner {
-    const question = this;
-    const locale = options.locale;
-    const fields = (): Array<IRecordsSortField> => question.getDesignSortFields();
-    const owner: IQuestionRecordsBarOwner = Object.create(this.createRecordsBarOwner());
-    Object.defineProperties(owner, {
-      sortFields: { get: fields },
-      maxSortLevel: { get: (): number => Math.max(1, fields().length) },
-      isDataLoading: { value: false },
-      isPageMovePending: { value: false }
-    });
-    owner.getRootElement = (): HTMLElement => options.rootElement || question.survey?.rootElement;
-    if (!!locale) {
-      owner.getLocalizationString = (strName: string): string => getLocaleString(strName, locale);
-      owner.getLocalizationFormatString = (strName: string, ...args: any[]): string => {
-        const str: any = getLocaleString(strName, locale);
-        return !!str && !!str.format ? str.format(...args) : "";
-      };
-      const locOwner: ILocalizableOwner = {
-        getLocale: (): string => locale,
-        getMarkdownHtml: (text: string, name: string, item?: any): string => question.getMarkdownHtml(text, name, item),
-        getProcessedText: (text: string): string => question.getProcessedText(text),
-        getRenderer: (name: string): string => question.getRenderer(name),
-        getRendererContext: (locStr: LocalizableString): any => question.getRendererContext(locStr)
-      };
-      owner.getLocOwner = (): ILocalizableOwner => locOwner;
-    }
-    return owner;
   }
   /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar
      mirrors it (QuestionRecordsBar.showPager). */
@@ -2875,6 +2951,11 @@ export abstract class QuestionRecordsModel extends Question {
      (onRecordsValueStored) and after it (onRecordsValueAssigned) - and update isAnswered there, after
      that work: the value is stored with updateIsAnswered = false, whatever the caller passed. */
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    this.runRecordsOperation(this.valueAssignmentScope, (): void => this.setQuestionValueCore(newValue));
+  }
+  // The objects follow the assignment inside it: their condition runs owe the expression-field pass (runOwedExpressionFields).
+  private valueAssignmentScope: Scope = new Scope();
+  private setQuestionValueCore(newValue: any): void {
     const oldRecords = copyRecords(this.getStoredRecords());
     const assignment = this.beginValueAssignment(newValue, oldRecords);
     super.setQuestionValue(newValue, false);
@@ -3036,8 +3117,14 @@ export abstract class QuestionRecordsModel extends Question {
   // for it: without a list there is no view to keep them in.
   protected runRecordAdd<T>(func: () => T): T {
     const list = this.dataListValue;
-    return !!list ? list.runAddScope(func) : func();
+    return this.runAddOperation((): T => !!list ? list.runAddScope(func) : func());
   }
+  // A type's whole add - the insert, the objects that follow it and the values they write back: the
+  // expression-field pass waits for its end (runOwedExpressionFields).
+  protected runAddOperation<T>(func: () => T): T {
+    return this.runRecordsOperation(this.recordAddScope, func);
+  }
+  private recordAddScope: Scope = new Scope();
   /* Writes that only show the records a data source holds: the values the objects compute while they are
      built go with a record's next update (DynamicDataList.runShowingRecords). Nothing is created for it:
      without a list there is nothing to send. */
@@ -3108,6 +3195,7 @@ export abstract class QuestionRecordsModel extends Question {
       if (!this.ownRecordsChangeScope.isActive && !!this.owedAssignment && !(!!this._dataList && this._dataList.isWriteOpen)) {
         this.followOwedAssignment();
       }
+      this.runOwedExpressionFields();
     }
   }
   private get isOwnWriteOpen(): boolean {
@@ -3135,6 +3223,7 @@ export abstract class QuestionRecordsModel extends Question {
   private onListWriteEnded(): void {
     if (!this.ownRecordsChangeScope.isActive && !!this.owedAssignment)this.followOwedAssignment();
     this.runHeldItemsCondition();
+    this.runOwedExpressionFields();
   }
   /* An insert, a removal or a move of the list stores the value before the objects follow it: an
      in-memory source stores it inside the push, and the list notifies the owner after the push. Under
@@ -3152,7 +3241,7 @@ export abstract class QuestionRecordsModel extends Question {
     const isStructural = this.hasDataListView && (operations || []).some((operation: DynamicDataSourceMethod): boolean => operation !== "update");
     const store = (): void => this.setListRecords(records, operations);
     if (isStructural) {
-      this.structuralStoreScope.run(store);
+      this.runRecordsOperation(this.structuralStoreScope, store);
     } else {
       store();
     }
@@ -3177,6 +3266,7 @@ export abstract class QuestionRecordsModel extends Question {
       // have them write into the records their positions held before, so it is dropped.
       if (!isFollowed && !this.followingWriteScope.isActive)this.heldItemsCondition = undefined;
       this.runHeldItemsCondition();
+      this.runOwedExpressionFields();
     }
   }
   /* An object's write during the held run can change how many records are stored - a padded record
@@ -3357,7 +3447,6 @@ export abstract class QuestionRecordsModel extends Question {
       this.recordsBarValue.dispose();
       this.recordsBarValue = undefined;
     }
-    this.closeDesignSortDialog();
     if (!!this._dataList) {
       this._dataList.dispose();
     }
@@ -3688,10 +3777,9 @@ export abstract class QuestionRecordsModel extends Question {
      read-only (Question.focus refuses a read-only one). position: as forEachNestedWalkItem gives it. */
   protected focusNewRecord(item: NestedWalkItem, position: number, visible: boolean): void {
     if (!item) return;
-    let res: Question = null;
-    this.forEachNestedElementOfItem(item, position, visible, "none", (info: INestedElementInfo): void => {
-      if (!!res || !this.isNestedElementShown(item, info)) return;
-      res = getNestedElementQuestions(info).filter(q => q.isVisible && q.isParentVisible && q.hasInput && !q.isReadOnly)[0] || null;
+    const res = findInNestedWalk((visit: NestedElementVisit): void => { this.forEachNestedElementOfItem(item, position, visible, "none", visit); }, (info: INestedElementInfo): Question => {
+      if (!this.isNestedElementShown(item, info)) return null;
+      return getNestedElementQuestions(info).filter(q => q.isVisible && q.isParentVisible && q.hasInput && !q.isReadOnly)[0];
     });
     if (!!res) {
       res.focus();
@@ -3700,6 +3788,12 @@ export abstract class QuestionRecordsModel extends Question {
   // Does the question render a nested element of an item? The default: whenever it shows the item.
   protected isNestedElementShown(item: NestedWalkItem, info: INestedElementInfo): boolean {
     return info.visible;
+  }
+  // Item by item: a detail panel is shown by its row, and the total row is outside the items.
+  protected forEachNestedElementToFocus(visit: NestedElementVisit): void {
+    this.forEachNestedWalkItem("none", (item: NestedWalkItem, position: number, visible: boolean): boolean | void =>
+      this.forEachNestedElementOfItem(item, position, visible, "none", (info: INestedElementInfo): boolean | void =>
+        this.isNestedElementShown(item, info) && visit(info)));
   }
   /* The question defines which records exist and in what order (the rows of the fixed matrix) when its
      own source has no insert: the list it creates refuses to insert, remove or move one. */
@@ -3737,7 +3831,16 @@ export abstract class QuestionRecordsModel extends Question {
   /* The write of the default records source, as a type stores it. operations: the writes the source
      made (DynamicDataSourceMethod names), in order. */
   protected setListRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): void {
-    this.setOwnRecordsValue(records);
+    this.storeOwnListRecords(records);
+  }
+  /* The store of a list write. The write of the expression-field pass only updates records in place:
+     the siblings bound to the same value keep their objects (setOwnRecordsValueInPlace). */
+  protected storeOwnListRecords(value: any): void {
+    if (this.expressionFieldsWriteScope.isActive) {
+      this.setOwnRecordsValueInPlace(value);
+    } else {
+      this.setOwnRecordsValue(value);
+    }
   }
   /* A full validation visits every page of the view, not only the pages of the edited records: the
      records exist whether or not the respondent opened their page (the rows of the fixed matrix).
@@ -4348,7 +4451,7 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
    sortCriteria shows there too, whatever allowSort says - a designer's initial sort applies without
    letting respondents re-sort. Creator edits its items in place, a row per item with field and direction
    (SortCriterion: the survey and the field choices); uniqueProperty marks field as the column whose
-   values must not repeat. The "Sort by" dialog (showSortDialog) is the other way to edit it.
+   values must not repeat.
    filterExpression stays hidden and only loads from and saves to JSON.
    sortCriteria is an array of sortcriterion objects (the shape of calculatedValues); an element that
    is a plain string is not a criterion and has no shorthand.

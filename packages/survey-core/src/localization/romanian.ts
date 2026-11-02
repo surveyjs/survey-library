@@ -55,6 +55,8 @@ export var romanianSurveyStrings = {
   sortAddNewText: "Adaugă noutăți",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nivel de sortare a mișcărilor {0}",
   // "Complete"
   completeText: "Finalizare",
   // "Preview"
@@ -189,6 +191,8 @@ export var romanianSurveyStrings = {
   addRow: "Adăugare rând",
   // "Remove"
   removeRow: "Ștergere",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mută rândul {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nu există rânduri.",
   // [Auto-translated] "Row {rowIndex}"

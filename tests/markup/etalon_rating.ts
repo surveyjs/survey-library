@@ -295,6 +295,24 @@ registerMarkupTests(
     snapshot: "rating-stars-readonly",
   },
   {
+    name: "Test Rating question as stars readonly view",
+    json: {
+      elements: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          readOnly: true,
+          readOnlyMode: "view",
+          rateType: "stars",
+          rateMax: 2,
+        }
+      ]
+    },
+    snapshot: "rating-stars-readonly-view",
+  },
+  {
     name: "Test Rating question as stars disabled",
     json: {
       elements: [
@@ -343,6 +361,24 @@ registerMarkupTests(
       ]
     },
     snapshot: "rating-smileys-readonly",
+  },
+  {
+    name: "Test Rating question as smileys readonly view",
+    json: {
+      elements: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          readOnly: true,
+          readOnlyMode: "view",
+          rateType: "smileys",
+          rateMax: 2,
+        }
+      ]
+    },
+    snapshot: "rating-smileys-readonly-view",
   },
   {
     name: "Test Rating question as smileys disabled",

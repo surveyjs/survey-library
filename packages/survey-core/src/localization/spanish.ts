@@ -55,6 +55,8 @@ export var spanishSurveyStrings = {
   sortAddNewText: "Añadir Nuevo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nivel de ordenación de movimientos {0}",
   // "Complete"
   completeText: "Completar",
   // "Preview"
@@ -189,6 +191,8 @@ export var spanishSurveyStrings = {
   addRow: "Agregue una hilera",
   // "Remove"
   removeRow: "Eliminar una hilera",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mover la fila {0}",
   // "There are no rows."
   noRowsText: "No hay hileras.",
   // [Auto-translated] "Row {rowIndex}"

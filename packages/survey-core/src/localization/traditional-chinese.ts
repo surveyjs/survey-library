@@ -55,6 +55,8 @@ export var traditionalChineseSurveyStrings = {
   sortAddNewText: "新增",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "移動排序等級{0}",
   // "Complete"
   completeText: "提交問卷",
   // [Auto-translated] "Preview"
@@ -189,6 +191,8 @@ export var traditionalChineseSurveyStrings = {
   addRow: "添加答案",
   // "Remove"
   removeRow: "刪除答案",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "往{0}行移動",
   // [Auto-translated] "There are no rows."
   noRowsText: "沒有行。",
   // [Auto-translated] "Row {rowIndex}"

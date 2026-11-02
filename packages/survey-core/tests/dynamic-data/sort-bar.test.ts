@@ -340,7 +340,6 @@ describe("Sort bar: when it shows", () => {
 });
 
 describe("Sort bar: showSortBar", () => {
-  const hasHeaderClass = (q: QuestionRecordsModel): boolean => q.cssHeader.indexOf("sd-question__header--sort-bar") > -1;
   function loadMatrix(json: any): QuestionMatrixDynamicModel {
     const survey = new SurveyModel();
     survey.fromJSON({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix", allowSort: true, columns: productColumns }, json)] },
@@ -351,24 +350,24 @@ describe("Sort bar: showSortBar", () => {
   test("\"auto\" leaves a sortable header row without the bar; \"always\" shows the bar next to it", () => {
     const matrix = createMatrix({ showSortBar: "auto" });
     matrix.onFirstRendering();
-    expect([matrix.canSortByHeaders, matrix.isSortBarVisible, placement(matrix), hasHeaderClass(matrix)], "#1: no bar")
-      .toEqual([true, false, [false, false, "none"], false]);
+    expect([matrix.canSortByHeaders, matrix.isSortBarVisible, placement(matrix)], "#1: no bar")
+      .toEqual([true, false, [false, false, "none"]]);
     expect(header(matrix, "price").toggleSort(), "#2: the headers sort").toBe(true);
     expect(sortOf(matrix), "#3").toEqual([{ field: "price", direction: "desc" }]);
     matrix.showSortBar = "always";
-    expect([matrix.isSortBarVisible, placement(matrix), hasHeaderClass(matrix)], "#4: always").toEqual([true, [true, true, "header"], true]);
+    expect([matrix.isSortBarVisible, placement(matrix)], "#4: always").toEqual([true, [true, true, "header"]]);
     expect(header(matrix, "price").isSortable, "#5: the headers still sort").toBe(true);
     matrix.showSortBar = "auto";
-    expect([matrix.isSortBarVisible, placement(matrix), hasHeaderClass(matrix)], "#6: back to auto").toEqual([false, [false, false, "none"], false]);
+    expect([matrix.isSortBarVisible, placement(matrix)], "#6: back to auto").toEqual([false, [false, false, "none"]]);
   });
   test("\"auto\" shows the bar where the headers do not sort: no header row, the vertical layout, a phone; each switched both ways", () => {
     const matrix = createMatrix({ showSortBar: "auto" });
     matrix.onFirstRendering();
     const check = (change: () => void, undo: () => void, name: string): void => {
       change();
-      expect([matrix.canSortByHeaders, placement(matrix), hasHeaderClass(matrix)], name).toEqual([false, [true, true, "header"], true]);
+      expect([matrix.canSortByHeaders, placement(matrix)], name).toEqual([false, [true, true, "header"]]);
       undo();
-      expect([matrix.canSortByHeaders, placement(matrix), hasHeaderClass(matrix)], name + ", undone").toEqual([true, [false, false, "none"], false]);
+      expect([matrix.canSortByHeaders, placement(matrix)], name + ", undone").toEqual([true, [false, false, "none"]]);
     };
     check(() => { matrix.showHeader = false; }, () => { matrix.showHeader = true; }, "#1: no header row");
     check(() => { matrix.transposeData = true; }, () => { matrix.transposeData = false; }, "#2: the vertical layout on a desktop");
@@ -538,21 +537,11 @@ describe("Sort bar: where it goes", () => {
     matrix.onFirstRendering();
     expect(matrix.sortBarLocation, "#3").toBe("top");
   });
-  test("the header takes a modifier class while it holds the bar", () => {
-    const matrix = createMatrix();
-    matrix.onFirstRendering();
-    expect(matrix.cssHeader.indexOf("sd-question__header--sort-bar") > -1, "#1").toBe(true);
-    matrix.allowSort = false;
-    expect(matrix.cssHeader.indexOf("sd-question__header--sort-bar") > -1, "#2").toBe(false);
-    matrix.allowSort = true;
-    matrix.titleLocation = "hidden";
-    expect(matrix.cssHeader.indexOf("sd-question__header--sort-bar") > -1, "#3").toBe(false);
-  });
   test("the header holds the bar's container: additionalTitleToolbar is recordsBar.sortActions", () => {
     const matrix = createMatrix();
     expect(matrix.additionalTitleToolbar, "#1").toBe(matrix.recordsBar.sortActions);
-    expect(matrix.recordsBar.sortActions.containerCss, "#2").toBe("sd-matrixdynamic__sort-bar");
-    expect(createPanel().recordsBar.sortActions.containerCss, "#3").toBe("sd-paneldynamic__sort-bar");
+    expect(matrix.recordsBar.sortActions.containerCss, "#2").toBe("sd-sort-bar sd-question__sort-bar");
+    expect(createPanel().recordsBar.sortActions.containerCss, "#3").toBe("sd-sort-bar sd-question__sort-bar");
   });
 });
 

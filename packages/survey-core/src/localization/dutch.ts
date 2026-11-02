@@ -55,6 +55,8 @@ export var dutchSurveyStrings = {
   sortAddNewText: "Voeg Nieuw toe",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Plaats op niveau {0}",
   // "Complete"
   completeText: "Verzenden",
   // "Preview"
@@ -189,6 +191,8 @@ export var dutchSurveyStrings = {
   addRow: "Voeg rij toe",
   // "Remove"
   removeRow: "Verwijder",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Rij {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Er zijn geen rijen.",
   // [Auto-translated] "Row {rowIndex}"

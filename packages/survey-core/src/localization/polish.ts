@@ -55,6 +55,8 @@ export var polishSurveyStrings = {
   sortAddNewText: "Dodaj Nowe",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Przesuń sortowanie poziomu {0}",
   // "Complete"
   completeText: "Gotowe",
   // "Preview"
@@ -189,6 +191,8 @@ export var polishSurveyStrings = {
   addRow: "Dodaj wiersz",
   // "Remove"
   removeRow: "Usuń",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Przesuń rząd {0}",
   // "There are no rows."
   noRowsText: "Nie ma rzędów.",
   // [Auto-translated] "Row {rowIndex}"

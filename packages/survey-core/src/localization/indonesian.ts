@@ -55,6 +55,8 @@ export var indonesianStrings = {
   sortAddNewText: "Tambah Baru",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Pindahkan level urut {0}",
   // "Complete"
   completeText: "Selesai",
   // "Preview"
@@ -189,6 +191,8 @@ export var indonesianStrings = {
   addRow: "Tambah baris",
   // "Remove"
   removeRow: "Hapus",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Pindahkan baris {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Tidak ada baris.",
   // [Auto-translated] "Row {rowIndex}"

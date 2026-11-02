@@ -38,6 +38,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public getType(): string {
     return "ranking";
   }
+  protected getViewDisplayText(): string {
+    const value = this.value;
+    if (!Array.isArray(value) || value.length === 0) return "";
+    return value.map((val: any, index: number) => {
+      const item = this.getItemByValue(val);
+      const text = item ? item.text : "" + val;
+      return (index + 1) + ". " + text;
+    }).join("\n");
+  }
   public supportsChoiceKeyboardSelection(): boolean {
     return false;
   }

@@ -57,6 +57,8 @@ export var portugueseBrSurveyStrings = {
   sortAddNewText: "Adicionar Novo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nível de ordenação de movimentos {0}",
   // [Auto-translated] "Complete"
   completeText: "Completar",
   // [Auto-translated] "Preview"
@@ -191,6 +193,8 @@ export var portugueseBrSurveyStrings = {
   addRow: "Adicionar linha",
   // [Auto-translated] "Remove"
   removeRow: "Retirar",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mova a fila {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Não há filas.",
   // [Auto-translated] "Row {rowIndex}"

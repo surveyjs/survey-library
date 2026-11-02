@@ -11,6 +11,7 @@
     <span :class="cell.sortTitleCss"><slot></slot></span>
     <span :class="cell.sortCss" aria-hidden="true">
       <SvComponent :is="'sv-svg-icon'" :iconName="cell.sortIconName" :size="16"></SvComponent>
+      <span v-if="!!cell.sortRank" :class="cell.sortRankCss">{{ cell.sortRank }}</span>
     </span>
     <span
       v-if="!!cell.sortDescription"

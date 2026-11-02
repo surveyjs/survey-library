@@ -55,6 +55,8 @@ export var swedishSurveyStrings = {
   sortAddNewText: "Lägg till Nytt",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flytta sorteringsnivå {0}",
   // "Complete"
   completeText: "Slutför",
   // "Preview"
@@ -189,6 +191,8 @@ export var swedishSurveyStrings = {
   addRow: "Lägg till rad",
   // "Remove"
   removeRow: "Ta bort",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Flytta rad {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Det finns inga rader.",
   // [Auto-translated] "Row {rowIndex}"

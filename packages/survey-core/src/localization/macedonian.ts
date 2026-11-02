@@ -55,6 +55,8 @@ export var macedonianSurveyStrings = {
   sortAddNewText: "Додај ново",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Премести сортирање на ниво {0}",
   // "Complete"
   completeText: "Заврши",
   // "Preview"
@@ -189,6 +191,8 @@ export var macedonianSurveyStrings = {
   addRow: "Додади ред",
   // "Remove"
   removeRow: "Отстрани",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Премести го редот {0}",
   // "There are no rows."
   noRowsText: "Нема редови.",
   // [Auto-translated] "Row {rowIndex}"

@@ -1062,4 +1062,39 @@ describe("Expression Validation", () => {
     expect(result[0].errors[0].errorType, "Error type is 'UnknownVariable'").toBe(ExpressionErrorType.UnknownVariable);
     expect(result[0].errors[0].variableName, "The unknown variable is reported").toBe("unknown");
   });
+  test("validateExpressions() with null as a unary operand", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "!null" },
+        { type: "text", name: "q3", enableIf: "!true" },
+        { type: "text", name: "q4", visibleIf: "{q1} = 1 or !null" }
+      ],
+    });
+    const result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(convertIExpressionErrors(result).map(r => r.name), "q2, q3 and q4 have an error").toEqual(["q2", "q3", "q4"]);
+    result.forEach(r => {
+      expect(r.errors.length, "There is 1 error in " + (<any>r.obj).name).toBe(1);
+      expect(r.errors[0].errorType, "Error type is 'SemanticError' in " + (<any>r.obj).name).toBe(ExpressionErrorType.SemanticError);
+    });
+  });
+  test("A survey with null as a unary operand loads and runs", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "!null" },
+        { type: "text", name: "q3", visibleIf: "null notempty" }
+      ],
+      calculatedValues: [{ name: "cv", expression: "null empty" }]
+    };
+    const survey = new SurveyModel(json);
+    expect(survey.getQuestionByName("q2").isVisible, "!null").toBe(true);
+    expect(survey.getQuestionByName("q3").isVisible, "null notempty").toBe(false);
+    expect(survey.getVariable("cv"), "null empty").toBe(true);
+
+    const designSurvey = new SurveyModel();
+    designSurvey.setDesignMode(true);
+    designSurvey.fromJSON(json);
+    expect(designSurvey.getAllQuestions().length, "design mode loads").toBe(3);
+  });
 });

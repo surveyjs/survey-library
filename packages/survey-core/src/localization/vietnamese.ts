@@ -55,6 +55,8 @@ export var vietnameseSurveyStrings = {
   sortAddNewText: "Thêm mới",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Di chuyển mức sắp xếp {0}",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"
@@ -189,6 +191,8 @@ export var vietnameseSurveyStrings = {
   addRow: "Thêm dòng",
   // "Remove"
   removeRow: "Xóa",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Di chuyển hàng {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Không có hàng.",
   // [Auto-translated] "Row {rowIndex}"

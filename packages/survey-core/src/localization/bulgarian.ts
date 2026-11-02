@@ -55,6 +55,8 @@ export var bulgarianStrings = {
   sortAddNewText: "Добави ново",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Премести сортиране на ниво {0}",
   // "Complete"
   completeText: "Край",
   // "Preview"
@@ -189,6 +191,8 @@ export var bulgarianStrings = {
   addRow: "Добавяне на ред",
   // "Remove"
   removeRow: "Премахване на ред",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Преместете {0} ред",
   // [Auto-translated] "There are no rows."
   noRowsText: "Няма редове.",
   // [Auto-translated] "Row {rowIndex}"

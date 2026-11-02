@@ -55,6 +55,8 @@ export var thaiStrings = {
   sortAddNewText: "เพิ่มใหม่",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "ย้ายระดับการจัดเรียง{0}",
   // "Complete"
   completeText: "สำเร็จ",
   // "Preview"
@@ -189,6 +191,8 @@ export var thaiStrings = {
   addRow: "เพิ่มแถว",
   // "Remove"
   removeRow: "ลบ",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "ย้ายแถว{0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "ไม่มีแถว",
   // [Auto-translated] "Row {rowIndex}"

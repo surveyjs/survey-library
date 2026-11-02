@@ -55,6 +55,8 @@ export var estonianSurveyStrings = {
   sortAddNewText: "Lisa uus",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Liigutuste sorteerimise tase {0}",
   // "Complete"
   completeText: "Lõpeta",
   // "Preview"
@@ -189,6 +191,8 @@ export var estonianSurveyStrings = {
   addRow: "Lisa rida",
   // "Remove"
   removeRow: "Eemalda",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Liiguta rida {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Ridu pole.",
   // [Auto-translated] "Row {rowIndex}"

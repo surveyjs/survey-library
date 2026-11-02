@@ -55,6 +55,8 @@ export var hebrewSurveyStrings = {
   sortAddNewText: "הוסף חדש",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "מיון מהלך ברמת {0}",
   // "Complete"
   completeText: "סיום",
   // "Preview"
@@ -189,6 +191,8 @@ export var hebrewSurveyStrings = {
   addRow: "להוסיף שורה",
   // "Remove"
   removeRow: "לְהַסִיר",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "הזז שורה {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "אין שורות.",
   // [Auto-translated] "Row {rowIndex}"

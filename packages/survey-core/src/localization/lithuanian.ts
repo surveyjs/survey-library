@@ -55,6 +55,8 @@ export var lithuaniaSurveyStrings = {
   sortAddNewText: "Pridėti naują",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Move sort level {0}",
   // "Complete"
   completeText: "Baigti",
   // "Preview"
@@ -189,6 +191,8 @@ export var lithuaniaSurveyStrings = {
   addRow: "Pridėti eilutę",
   // "Remove"
   removeRow: "Ištrinti",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Perkelkite eilę {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Eilių nėra.",
   // [Auto-translated] "Row {rowIndex}"

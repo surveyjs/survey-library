@@ -1912,7 +1912,7 @@ export class JsonObject {
     var result: any = { newObj: null, error: null };
     const className = this.getClassNameForNewObj(value, property);
     result.newObj = className
-      ? Serializer.createClass(className, value)
+      ? Serializer.createClass(className, this.isItemJsonLoadedOnce(value, className) ? undefined : value)
       : null;
     result.error = this.checkNewObjectOnErrors(
       result.newObj,
@@ -1921,6 +1921,12 @@ export class JsonObject {
       className
     );
     return result;
+  }
+  // toObjectCore deserializes the JSON right after, so an item's creator does not get it. A JSON without value
+  // still does, for setData's text-to-value rule, and so does a Base in the JSON, for setData's toJSON().
+  private isItemJsonLoadedOnce(value: any, className: string): boolean {
+    return !!value && typeof value === "object" && typeof value.getType !== "function" && value.value !== undefined
+      && Serializer.isDescendantOf(className, "itemvalue");
   }
   private getClassNameForNewObj(value: any, property: JsonObjectProperty): string {
     var res = property != null && property.className ? property.className : undefined;

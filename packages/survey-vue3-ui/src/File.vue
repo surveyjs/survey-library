@@ -1,5 +1,11 @@
 <template>
-  <div :class="question.fileRootCss" ref="root">
+  <div
+    v-if="question.isViewMode && question.isEmpty()"
+    :id="question.inputId"
+    :class="question.viewModeCssClass"
+    ref="root"
+  >{{ question.viewDisplayText }}</div>
+  <div v-else :class="question.fileRootCss" ref="root">
     <input
       :class="question.cssClasses.fileInput"
       v-if="
@@ -20,7 +26,7 @@
       :capture="(question.renderCapture as any)"
     />
     <input
-      v-if="question.isReadOnlyAttr"
+      v-if="question.isReadOnlyAttr && !question.isViewMode"
       type="file"
       readonly
       :id="question.inputId"

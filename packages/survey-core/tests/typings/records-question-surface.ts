@@ -15,7 +15,6 @@ import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionRecordsBar } from "../../src/question_records_bar";
 import { ISortCriterion } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { settings } from "../../src/settings";
-import { PopupBaseViewModel } from "../../src/popup-view-model";
 
 // The released override surface of the matrix base.
 export class MatrixWithOverrides extends QuestionMatrixDropdownModelBase {
@@ -126,10 +125,6 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // Where the renderers mount the sort bar.
   const sortBarLocation: "header" | "top" | "none" = dd.sortBarLocation;
   res.push(showSortBar, sortBarLocation);
-  // Creator's entry to the designer's "Sort by" dialog.
-  const designDialog: PopupBaseViewModel = pd.showSortDialog({ onApply: (criteria: Array<ISortCriterion>): void => { res.push(criteria); },
-    rootElement: undefined, locale: "de" });
-  res.push(designDialog, md.showSortDialog({ onApply: (): void => { } }));
   // The fields a designer can sort by: Creator's property grid offers them for a sortCriteria item.
   const designFields: Array<{ field: string, title: string, dataType: string }> = md.getDesignSortFields();
   res.push(designFields, pd.getDesignSortFields());
@@ -183,16 +178,6 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error a direction is "asc" or "desc"
   md.sort("price", "up");
   res.push(criterion);
-  // The page size is pageSize on every records question: the type-specific names are gone.
-  // @ts-expect-error renamed to pageSize
-  const ddRowsPerPage: DeclaredKeys<QuestionMatrixDropdownModel> = "rowsPerPage";
-  // @ts-expect-error renamed to pageSize
-  const mdRowsPerPage: DeclaredKeys<QuestionMatrixDynamicModel> = "rowsPerPage";
-  // @ts-expect-error renamed to pageSize
-  const dbRowsPerPage: DeclaredKeys<QuestionMatrixDropdownModelBase> = "rowsPerPage";
-  // @ts-expect-error renamed to pageSize
-  const pdPanelsPerPage: DeclaredKeys<QuestionPanelDynamicModel> = "panelsPerPage";
-  res.push(ddRowsPerPage, mdRowsPerPage, dbRowsPerPage, pdPanelsPerPage);
   // The paging state shared by the records questions is protected on every one of them.
   // @ts-expect-error protected
   const md7: DeclaredKeys<QuestionMatrixDynamicModel> = "isPagingActive";

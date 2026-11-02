@@ -25,6 +25,15 @@
   }
 }
 
+// The row's drag handle is a keyboard stop: the focus ring of an action.
+.sd-matrixdynamic__drag-handle {
+  border-radius: var(--sjs2-radius-component-action);
+  outline: none;
+}
+.sd-matrixdynamic__drag-handle:focus-visible {
+  box-shadow: var(--sjs2-border-effect-component-action-a11y);
+}
+
 .sd-matrixdynamic__placeholder {
   .sd-matrixdynamic__add-btn {
     margin-left: 0;

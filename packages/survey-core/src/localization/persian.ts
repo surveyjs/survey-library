@@ -55,6 +55,8 @@ export var persianSurveyStrings = {
   sortAddNewText: "افزودن جدید",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "سطح مرتب سازی حرکت {0}",
   // "Complete"
   completeText: "تکمیل",
   // "Preview"
@@ -189,6 +191,8 @@ export var persianSurveyStrings = {
   addRow: "سطر جدید",
   // "Remove"
   removeRow: "حذف",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "حرکت ردیف {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "هیچ ردیفی وجود ندارد.",
   // [Auto-translated] "Row {rowIndex}"

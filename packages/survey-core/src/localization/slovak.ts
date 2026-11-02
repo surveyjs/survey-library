@@ -55,6 +55,8 @@ export var slovakSurveyStrings = {
   sortAddNewText: "Pridať nové",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Presunúť triedenie úrovne {0}",
   // "Complete"
   completeText: "Dokončené",
   // "Preview"
@@ -189,6 +191,8 @@ export var slovakSurveyStrings = {
   addRow: "Pridať riadok",
   // "Remove"
   removeRow: "Odstrániť",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Presuňte rad {0}",
   // "There are no rows."
   noRowsText: "K dispozícii nie sú žiadne riadky.",
   // [Auto-translated] "Row {rowIndex}"

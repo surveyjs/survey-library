@@ -55,6 +55,8 @@ export var arabicSurveyStrings = {
   sortAddNewText: "إضافة جديد",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "الانتقال في ترتيب {0}",
   // "Complete"
   completeText: "إرسال البيانات",
   // "Preview"
@@ -189,6 +191,8 @@ export var arabicSurveyStrings = {
   addRow: "اضافة صف",
   // "Remove"
   removeRow: "إزالة صف",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "نقل الصف {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "لا توجد صفوف.",
   // [Auto-translated] "Row {rowIndex}"

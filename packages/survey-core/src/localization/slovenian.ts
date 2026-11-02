@@ -55,6 +55,8 @@ export var slovenianStrings = {
   sortAddNewText: "Dodaj novo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Premik sort nivo {0}",
   // "Complete"
   completeText: "Zaključi",
   // "Preview"
@@ -189,6 +191,8 @@ export var slovenianStrings = {
   addRow: "Dodaj vrstico",
   // "Remove"
   removeRow: "Odstrani",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Premakni se {0}",
   // "There are no rows."
   noRowsText: "Ni vrstic.",
   // [Auto-translated] "Row {rowIndex}"

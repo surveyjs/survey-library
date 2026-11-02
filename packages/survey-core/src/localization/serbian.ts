@@ -55,6 +55,8 @@ export var serbianStrings = {
   sortAddNewText: "Dodaj novi",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Premesti nivo sortiranja {0}",
   // "Complete"
   completeText: "Završi",
   // "Preview"
@@ -189,6 +191,8 @@ export var serbianStrings = {
   addRow: "Dodaj red",
   // "Remove"
   removeRow: "Ukloni",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Premesti red {0}",
   // "There are no rows."
   noRowsText: "Nema redova.",
   // [Auto-translated] "Row {rowIndex}"

@@ -55,6 +55,8 @@ export var hungarianSurveyStrings = {
   sortAddNewText: "Add hozzá az újat",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Lépésrendezési szint {0}",
   // "Complete"
   completeText: "Kész",
   // "Preview"
@@ -189,6 +191,8 @@ export var hungarianSurveyStrings = {
   addRow: "Sor hozzáadása",
   // "Remove"
   removeRow: "Eltávolítás",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mozgás sor{0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nincsenek sorok.",
   // [Auto-translated] "Row {rowIndex}"

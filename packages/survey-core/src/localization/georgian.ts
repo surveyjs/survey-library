@@ -55,6 +55,8 @@ export var georgianSurveyStrings = {
   sortAddNewText: "ახლის დამატება",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "დალაგების დონის {0} გადატანა",
   // "Complete"
   completeText: "დასრულება",
   // [Auto-translated] "Preview"
@@ -189,6 +191,8 @@ export var georgianSurveyStrings = {
   addRow: "რიგის დამატება",
   // [Auto-translated] "Remove"
   removeRow: "წაშლა",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "მწკრივი {0} გადატანა",
   // [Auto-translated] "There are no rows."
   noRowsText: "რიგები არ არის.",
   // [Auto-translated] "Row {rowIndex}"

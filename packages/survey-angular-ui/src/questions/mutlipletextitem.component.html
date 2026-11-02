@@ -10,7 +10,7 @@
         item.editor.requiredMark }}</span>
     </span>
     <div [class]="question.getItemCss()" (focusin)="item.focusIn()">
-      <sv-ng-text-question [model]="item.editor"></sv-ng-text-question>
+      <ng-template [component]="{ name: getComponentName(item.editor), data: { model: item.editor } }"></ng-template>
     </div>
   </label>
 </ng-container>

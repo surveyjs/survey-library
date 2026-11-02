@@ -55,6 +55,8 @@ export var portugueseSurveyStrings = {
   sortAddNewText: "Adicionar Novo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nível de ordenação de movimentos {0}",
   // "Complete"
   completeText: "Finalizar",
   // "Preview"
@@ -189,6 +191,8 @@ export var portugueseSurveyStrings = {
   addRow: "Adicionar linha",
   // "Remove"
   removeRow: "Remover linha",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mova a fila {0}",
   // "There are no rows."
   noRowsText: "Não existem linhas.",
   // [Auto-translated] "Row {rowIndex}"

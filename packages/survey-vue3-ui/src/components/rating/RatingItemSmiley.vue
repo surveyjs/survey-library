@@ -16,6 +16,7 @@
       :value="item.value"
       :disabled="question.isDisabledAttr"
       :readonly="question.isReadOnlyAttr"
+      :tabindex="question.itemTabIndex"
       @click="(e) => question.setValueFromClick(((e.target as any).value))"
       :aria-label="question.ariaLabel"
     />

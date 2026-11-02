@@ -55,6 +55,8 @@ export var norwegianSurveyStrings = {
   sortAddNewText: "Legg til nytt",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flytt sorteringsnivå {0}",
   // "Complete"
   completeText: "Fullfør",
   // "Preview"
@@ -189,6 +191,8 @@ export var norwegianSurveyStrings = {
   addRow: "Legg til rad",
   // "Remove"
   removeRow: "Fjern",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Flytt rad {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Det er ingen rader.",
   // [Auto-translated] "Row {rowIndex}"

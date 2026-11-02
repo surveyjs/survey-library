@@ -108,6 +108,9 @@ export class QuestionImageMapModel extends Question {
   public getType(): string {
     return "imagemap";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   // A respondent answers by clicking a region of an image, so there is nothing a consumer that
   // renders nothing can send back.
   public get hasPlainInput(): boolean {

@@ -55,6 +55,8 @@ export var ukrainianSurveyStrings = {
   sortAddNewText: "Додати нове",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Перемістити сортування на рівні {0}",
   // "Complete"
   completeText: "Завершити",
   // "Preview"
@@ -189,6 +191,8 @@ export var ukrainianSurveyStrings = {
   addRow: "Додати рядок",
   // "Remove"
   removeRow: "Видалити",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Перемістити ряд {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Рядів немає.",
   // [Auto-translated] "Row {rowIndex}"

@@ -55,6 +55,8 @@ export var germanSurveyStrings = {
   sortAddNewText: "Neue hinzufügen",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Move sort Level {0}",
   // "Complete"
   completeText: "Abschließen",
   // "Preview"
@@ -189,6 +191,8 @@ export var germanSurveyStrings = {
   addRow: "Zeile hinzufügen",
   // "Remove"
   removeRow: "Entfernen",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Reihe {0}",
   // "There are no rows."
   noRowsText: "Es gibt keine Reihen.",
   // [Auto-translated] "Row {rowIndex}"

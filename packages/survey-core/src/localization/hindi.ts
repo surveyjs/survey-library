@@ -55,6 +55,8 @@ export var hindiStrings = {
   sortAddNewText: "नया जोड़ें",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "सॉर्ट स्तर {0} ले जाएँ",
   // "Complete"
   completeText: "पूरा",
   // "Preview"
@@ -189,6 +191,8 @@ export var hindiStrings = {
   addRow: "पंक्ति जोड़ें",
   // "Remove"
   removeRow: "हटाए",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "पंक्ति {0} ले जाएँ",
   // [Auto-translated] "There are no rows."
   noRowsText: "कोई पंक्तियाँ नहीं हैं.",
   // [Auto-translated] "Row {rowIndex}"

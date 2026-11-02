@@ -1,5 +1,20 @@
 <template>
   <div
+    v-if="question.isViewMode && !question.value"
+    :id="question.inputId"
+    :class="question.viewModeCssClass"
+    ref="root"
+  >{{ question.viewDisplayText }}</div>
+  <img
+    v-else-if="question.isViewMode"
+    :id="question.inputId"
+    :class="question.viewModeCssClass"
+    :src="question.value"
+    alt=""
+    ref="root"
+  />
+  <div
+    v-else
     :class="question.cssClasses.root"
     ref="root"
     v-bind:style="{

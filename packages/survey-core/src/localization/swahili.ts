@@ -55,6 +55,8 @@ export var swahiliStrings = {
   sortAddNewText: "Ongeza mpya",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Sogeza kiwango cha aina {0}",
   // "Complete"
   completeText: "Kamili",
   // "Preview"
@@ -189,6 +191,8 @@ export var swahiliStrings = {
   addRow: "Ongeza safu",
   // "Remove"
   removeRow: "Toa",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Sogeza safu {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Hakuna safu.",
   // [Auto-translated] "Row {rowIndex}"

@@ -55,6 +55,8 @@ export var welshSurveyStrings = {
   sortAddNewText: "Ychwanegu Newydd",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Symud lefel trefn {0}",
   // "Complete"
   completeText: "Cwblhau",
   // "Preview"
@@ -189,6 +191,8 @@ export var welshSurveyStrings = {
   addRow: "Ychwanegu rhes",
   // "Remove"
   removeRow: "Tynnu",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Symud {0} rhes",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nid oes unrhyw ffraeau.",
   // [Auto-translated] "Row {rowIndex}"

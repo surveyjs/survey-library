@@ -55,6 +55,8 @@ export var greekSurveyStrings = {
   sortAddNewText: "Προσθήκη νέου",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Μετακίνηση επιπέδου ταξινόμησης {0}",
   // "Complete"
   completeText: "Ολοκλήρωση",
   // "Preview"
@@ -189,6 +191,8 @@ export var greekSurveyStrings = {
   addRow: "Προσθήκη γραμμής",
   // "Remove"
   removeRow: "Αφαίρεση",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Μετακίνηση γραμμής {0}",
   // "There are no rows."
   noRowsText: "Δεν υπάρχουν εγγραφές.",
   // [Auto-translated] "Row {rowIndex}"

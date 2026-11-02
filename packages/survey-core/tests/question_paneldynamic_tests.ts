@@ -1713,16 +1713,12 @@ describe("Survey_QuestionPanelDynamic", () => {
     }));
     return new SurveyModel(json);
   }
-  /* Only the records of a built page have panels, and only a panel runs the writers: the records
-     past the first page keep what was assigned (expressions stored in records). */
-  function sharedValueNamePagedExpectedData(count: number, pageSize: number = 20): Array<any> {
-    const res = sharedValueNameRecords(count);
-    for (let i = 0; i < Math.min(count, pageSize); i++) {
-      sharedWriterNames.forEach(name => res[i][name] = "No");
-    }
-    return res;
+  /* Bug#12156: the writers are expression questions, and a record without a panel computes them too
+     (QuestionRecordsModel.updateRecordsExpressionFields): every record holds their values. */
+  function sharedValueNamePagedExpectedData(count: number): Array<any> {
+    return sharedValueNameExpectedData(count);
   }
-  test("A page size on a shared valueName builds no panel and makes no record write when the data is assigned", () => {
+  test("Bug#12156: a page size on a shared valueName builds no panel when the data is assigned, and every record gets the expression values", () => {
     const survey = sharedValueNamePagedSurvey(3);
     // updateItemValue is called by the panel items only.
     const created = countCreatedSharedPanels(survey);
@@ -1730,12 +1726,13 @@ describe("Survey_QuestionPanelDynamic", () => {
     survey.data = { rec: sharedValueNameRecords(50) };
     expect(created(), "#1").toBe(0);
     expect(writeSpy.mock.calls.length, "#2: no panel, so no writer runs").toBe(0);
+    expect(survey.data.rec, "#3: the records without a panel computed theirs").toEqual(sharedValueNamePagedExpectedData(50));
     survey.currentPageNo = 1;
     const pd0 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd0");
-    expect(created(), "#3: pd0 only, and its first page only").toBe(20);
-    expect(pd0.renderedPanels.length, "#4: one page").toBe(20);
-    expect((<any>survey.getQuestionByName("pd1")).panelsCore.length, "#5").toBe(0);
-    expect(survey.data.rec, "#6: the first build completes the records of the page").toEqual(sharedValueNamePagedExpectedData(50));
+    expect(created(), "#4: pd0 only, and its first page only").toBe(20);
+    expect(pd0.renderedPanels.length, "#5: one page").toBe(20);
+    expect((<any>survey.getQuestionByName("pd1")).panelsCore.length, "#6").toBe(0);
+    expect(survey.data.rec, "#7: the first build changes nothing").toEqual(sharedValueNamePagedExpectedData(50));
     writeSpy.mockRestore();
   });
   /* Every write a writer makes to one record field reaches the siblings as the whole array. A

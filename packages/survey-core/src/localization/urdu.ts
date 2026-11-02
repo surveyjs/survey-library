@@ -55,6 +55,8 @@ export var urduSurveyStrings = {
   sortAddNewText: "نیا شامل کریں",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "موو سورت لیول {0}",
   // "Complete"
   completeText: "مکمل",
   // "Preview"
@@ -189,6 +191,8 @@ export var urduSurveyStrings = {
   addRow: "قطار شامل کریں۔",
   // "Remove"
   removeRow: "مٹائے",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "قطار {0} منتقل کریں",
   // "There are no rows."
   noRowsText: "کوئی قطار نہیں ہیں۔ ",
   // [Auto-translated] "Row {rowIndex}"

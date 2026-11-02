@@ -138,6 +138,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
 
   //#region Display modes & flags
   isDisplayMode: boolean;
+  getReadOnlyMode(): "readonly" | "view";
   isDesignMode: boolean;
   isLoadingFromJson: boolean;
   isEditingSurveyElement: boolean;

@@ -55,6 +55,8 @@ export var icelandicSurveyStrings = {
   sortAddNewText: "Bættu við Nýju",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flutningsflokkun á stigi {0}",
   // "Complete"
   completeText: "Lokið",
   // "Preview"
@@ -189,6 +191,8 @@ export var icelandicSurveyStrings = {
   addRow: "Bæta við röð",
   // "Remove"
   removeRow: "Fjarlægja",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Færðu röð {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Það eru engar raðir.",
   // [Auto-translated] "Row {rowIndex}"

@@ -34,6 +34,28 @@ registerMarkupTests(
       snapshot: "matrixdynamic-default"
     },
     {
+      name: "Test matrixdynamic question with allowRowReorder markup",
+      json: {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "titleLocation": "hidden",
+            "name": "question1",
+            "allowRowReorder": true,
+            "rowCount": 2,
+            "columns": [
+              {
+                "name": "Column 1",
+                "cellType": "text"
+              }
+            ]
+          }
+        ]
+      },
+      removeIds: true,
+      snapshot: "matrixdynamic-allow-row-reorder"
+    },
+    {
       name: "Test matrixdynamic question (default) markup with pageSize and one page",
       json: {
         "elements": [

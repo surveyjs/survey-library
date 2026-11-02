@@ -37,6 +37,17 @@ import { PanelModel } from "./panel";
 import { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
 
+// The readOnlyMode serializer property shared by questions and panels; a new object per class.
+export function getReadOnlyModePropertyInfo(): any {
+  return {
+    name: "readOnlyMode",
+    default: "default",
+    choices: ["default", "readonly", "view"],
+    dependsOn: ["readOnly"],
+    visibleIf: (obj: any) => !!obj && !!obj.readOnly
+  };
+}
+
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -256,6 +267,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     if (name === "isReadOnly") {
       this.onReadOnlyChanged();
+    }
+    if (name === "readOnlyMode") {
+      this.onReadOnlyModeChanged();
     }
     if (name === "errors") {
       this.updateVisibleErrors();
@@ -628,6 +642,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    *
    * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
+   * @see readOnlyMode
+   * @readonly
    */
   public get isReadOnly(): boolean {
     return this.readOnly;
@@ -636,6 +652,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * Makes the survey element read-only.
    *
    * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see readOnlyMode
    * @see isReadOnly
    */
   public get readOnly(): boolean {
@@ -648,6 +665,35 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.setPropertyValue("isReadOnly", this.isReadOnly);
     }
   }
+  /**
+   * Specifies how the survey element is displayed when it is read-only.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the mode from the parent panel, page, or survey, in this order.
+   * - `"readonly"` - Displays the usual input controls, but disabled for editing.
+   * - `"view"` - Displays answers as plain text or other non-interactive visuals.
+   *
+   * This property applies only when the survey element is read-only, including when this state is inherited from a parent element or the survey.
+   *
+   * To make the element read-only, set its [`readOnly`](#readOnly) property to `true` or specify an [`enableIf`](#enableIf) condition that evaluates to `false`.
+   * @see isReadOnly
+   */
+  public get readOnlyMode(): "default" | "readonly" | "view" {
+    return this.getPropertyValue("readOnlyMode");
+  }
+  public set readOnlyMode(val: "default" | "readonly" | "view") {
+    this.setPropertyValue("readOnlyMode", val);
+  }
+  public getReadOnlyMode(): "readonly" | "view" {
+    const own = this.readOnlyMode;
+    if (own === "view" || own === "readonly") return own;
+    const owner = <SurveyElement><any>(this.parent || this.parentQuestion);
+    if (!!owner) return owner.getReadOnlyMode();
+    return !!this.survey ? this.survey.getReadOnlyMode() : "readonly";
+  }
+  // Called down the element tree when readOnlyMode changes on the element or on any of its ancestors.
+  public onReadOnlyModeChanged(): void { }
   protected onReadOnlyChanged() {
     if (!!this.readOnlyChangedCallback) {
       this.readOnlyChangedCallback();

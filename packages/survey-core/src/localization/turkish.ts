@@ -55,6 +55,8 @@ export var turkishSurveyStrings = {
   sortAddNewText: "Yeni Ekle",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Taşınma sıralaması seviyesi {0}",
   // "Complete"
   completeText: "Tamamla",
   // "Preview"
@@ -189,6 +191,8 @@ export var turkishSurveyStrings = {
   addRow: "Satır Ekle",
   // "Remove"
   removeRow: "Kaldır",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Sıra {0}",
   // "There are no rows."
   noRowsText: "Satır yok.",
   // [Auto-translated] "Row {rowIndex}"

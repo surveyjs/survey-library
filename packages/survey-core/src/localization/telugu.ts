@@ -55,6 +55,8 @@ export var teluguStrings = {
   sortAddNewText: "క్రొత్తదాన్ని జోడించండి",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "క్రమబద్ధీకరణ స్థాయిని {0} తరలించండి",
   // "Complete"
   completeText: "పూర్తి చేయండి",
   // "Preview"
@@ -189,6 +191,8 @@ export var teluguStrings = {
   addRow: "వరుసలు చేర్పించండి",
   // "Remove"
   removeRow: "తీసేయండి",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "వరుస {0} తరలించు",
   // [Auto-translated] "There are no rows."
   noRowsText: "వరుసలు లేవు.",
   // [Auto-translated] "Row {rowIndex}"

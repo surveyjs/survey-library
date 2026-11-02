@@ -55,6 +55,8 @@ export var russianSurveyStrings = {
   sortAddNewText: "Добавить новое",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Переместить сортировку на уровне {0}",
   // "Complete"
   completeText: "Готово",
   // "Preview"
@@ -189,6 +191,8 @@ export var russianSurveyStrings = {
   addRow: "Добавить строку",
   // "Remove"
   removeRow: "Удалить",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Переместить ряд {0}",
   // "There are no rows."
   noRowsText: "Рядов нет.",
   // [Auto-translated] "Row {rowIndex}"

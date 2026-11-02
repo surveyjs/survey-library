@@ -19,8 +19,8 @@ JSON. It needs no build and no installed package.
   "resultSchema": 1,
   "calibrationOnlyId": "calibration",
   "suites": {
-    "core": { "ids": ["..."], "budgetMin": 10, "cwd": "packages/survey-core", "script": "perf/core/run.ts", "args": [] },
-    "react": { "ids": ["..."], "budgetMin": 8, "cwd": "packages/survey-react-ui",
+    "core": { "ids": ["..."], "budgetMin": 20, "cwd": "packages/survey-core", "script": "perf/core/run.ts", "args": [] },
+    "react": { "ids": ["..."], "budgetMin": 10, "cwd": "packages/survey-react-ui",
       "script": "node_modules/@playwright/test/cli.js", "args": ["test", "-c", "playwright.perf.config.ts"],
       "package": "survey-react-ui", "buildFile": "survey-react-ui.min.js",
       "src": ["packages/survey-react-ui/src", "packages/survey-react-ui/entries"] },

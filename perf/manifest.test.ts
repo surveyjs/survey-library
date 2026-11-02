@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { spawnSync } from "node:child_process";
-import { manifest, contractVersion, resultSchema } from "./manifest.ts";
+import { manifest, contractVersion, resultSchema, scenarioTimeoutMs } from "./manifest.ts";
 import { SUITES, idsOfSuite, CALIBRATION_ONLY } from "./harness/ids.ts";
 import { runnerRoot } from "./harness/node/build.ts";
 
@@ -31,5 +31,8 @@ describe("the runner contract", () => {
       env: Object.assign({}, process.env, { PERF_MACHINE_EXTRA: "y" }) });
     expect(r.status).toBe(0);
     expect(JSON.parse(r.stdout)).toEqual(manifest({ PERF_MACHINE_EXTRA: "y" }));
+  });
+  test("a hung core scenario is stopped within the core budget", () => {
+    expect(scenarioTimeoutMs).toBeLessThan(manifest().suites.core.budgetMin * 60000);
   });
 });

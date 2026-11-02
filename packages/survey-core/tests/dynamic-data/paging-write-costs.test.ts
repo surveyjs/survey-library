@@ -1438,8 +1438,9 @@ describe("the cost of the off-page clean-ups", () => {
 });
 
 describe("a record write of a paged question copies the old records only for a handler that reads them", () => {
+  // Default values: a page build writes them, while the records without a panel compute their expression fields before it (Bug#12156).
   const template = [{ type: "text", name: "a" },
-    { type: "expression", name: "e1", expression: "{panel.a} + 1" }, { type: "expression", name: "e2", expression: "{panel.a} * 2" }];
+    { type: "text", name: "e1", defaultValueExpression: "{panel.a} + 1" }, { type: "text", name: "e2", defaultValueExpression: "{panel.a} * 2" }];
   function createNested(): { survey: SurveyModel, question: QuestionPanelDynamicModel } {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "outer", panelCount: 1,
       templateElements: [{ type: "paneldynamic", name: "pd", pageSize: 10, templateElements: template }] }] });
@@ -1543,13 +1544,13 @@ describe("the completion clean-up of the records without a panel builds a panel 
     expect(paged.survey.data.q[52].c, "#4: an answer its choices hide in the record is cleared").toBeUndefined();
     expect(paged.survey.data.q[53].c, "#5").toBe(1);
   });
-  test("a record without a panel keeps what a panel adds by being built: its computed values and its unknown keys", () => {
+  test("Bug#12156: a record without a panel keeps its unknown keys, and its expression fields are computed as a panel's", () => {
     const survey = new SurveyModel({ clearInvisibleValues: "onComplete", elements: [{ type: "paneldynamic", name: "q", pageSize: 2,
       templateElements: [{ type: "text", name: "n" }, { type: "expression", name: "e", expression: "{panel.n} * 2" }] }] });
     survey.data = { q: records(4, (i: number): any => ({ n: i, unknown: "u" + i })) };
     (<QuestionPanelDynamicModel>survey.getQuestionByName("q")).panels;
     survey.doComplete();
-    expect(survey.data.q, "#1: the panels of the first page computed theirs").toEqual([{ n: 0, e: 0, unknown: "u0" }, { n: 1, e: 2, unknown: "u1" }, { n: 2, unknown: "u2" }, { n: 3, unknown: "u3" }]);
+    expect(survey.data.q, "#1").toEqual([{ n: 0, e: 0, unknown: "u0" }, { n: 1, e: 2, unknown: "u1" }, { n: 2, e: 4, unknown: "u2" }, { n: 3, e: 6, unknown: "u3" }]);
   });
   test("matrix: clearIncorrectValues makes the detail panel JSON once for the walk", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 2,
@@ -1887,33 +1888,45 @@ describe("siblings on one value: a page build updates the records in place", () 
     const pagedRecords = paged.getValue("recs");
     const unpagedRecords = unpaged.getValue("recs");
     built.forEach((index: number) => { expect(pagedRecords[index], "#2: record " + index).toEqual(unpagedRecords[index]); });
+    // Bug#12156: a record without a panel computes the expression fields of the three questions too.
     for (let i = 10; i < 100; i++) {
-      expect(pagedRecords[i], "#3: record " + i).toEqual({ a: i });
+      expect(pagedRecords[i], "#3: record " + i).toEqual(unpagedRecords[i]);
     }
   });
-  test("validate(): the records are written once per page build, not again by the siblings that receive them", () => {
+  test("Bug#12156: the first question computes the expression fields of the three in one write, and a page build writes nothing", () => {
     const survey = createSiblings();
     const writes = countRecordWrites(survey);
+    survey.data = { recs: records(100, (i: number): any => ({ a: i })) };
+    expect(writes.count, "#1: one write for the three questions").toBe(1);
+    expect(survey.getValue("recs")[50], "#2").toEqual({ a: 50, x: 100, e1: 101, e3: 53 });
+    writes.count = 0;
     survey.validate(false);
-    // 30 expression values change: 10 records, one expression per question.
-    expect(writes.count <= 30, "#1: at most the values that change: " + writes.count).toBe(true);
-    expect(writes.count, "#2: one write per question's page build").toBe(3);
+    expect(writes.count, "#3: the panels compute the stored values").toBe(0);
   });
-  test("a page build reaches the siblings as an update in place: their panels and their edited records stay", () => {
-    const survey = createSiblings({ computedPages: 1 });
+  // Both questions have built panels for the first page: the panels of the third one are not built.
+  function createBuiltSiblings(): SurveyModel {
+    const survey = createSiblings();
+    survey.currentPageNo = 2;
     survey.currentPageNo = 1;
+    return survey;
+  }
+  test("Bug#12156: the expression fields an edit changes reach the siblings as an update in place: their panels and their edited records stay", () => {
+    const survey = createBuiltSiblings();
     const p1 = sibling(survey, "p1");
+    const p2 = sibling(survey, "p2");
     p1.panels[3].getQuestionByName("a").value = 1003;
     expect((<any>p1).getPageState().edited, "#1").toEqual([3]);
     const builds = countBuilds();
     const decisions = recordInPlaceDecisions();
-    const remaps = vi.spyOn(<any>QuestionRecordsModel.prototype, "createAssignmentRemap");
-    sibling(survey, "p2").pageIndex = 1;
-    expect(decisions, "#2: the second question's page build stores x for records 10-19").toEqual(["p2>p1:true", "p2>p3:true"]);
-    expect(builds.rebuilds, "#3: only the question whose page moved builds").toEqual({ p2: 1 });
-    expect(remaps.mock.calls.length, "#4").toBe(0);
-    expect((<any>p1).getPageState().edited, "#5").toEqual([3]);
-    expect(survey.getValue("recs")[15], "#6").toEqual({ a: 15, x: 30 });
+    p1.panels[4].getQuestionByName("a").value = 1004;
+    // x is computed by the second question's panel, e1 by the first one's; e3 has no panel.
+    expect(Helpers.isArraysEqual(decisions.filter((decision: string) => decision.indexOf("p1>") !== 0), []), "#2: only the first question writes in place").toBe(true);
+    expect(decisions.indexOf("p1>p2:true") > -1 && decisions.indexOf("p1>p3:true") > -1, "#3: " + JSON.stringify(decisions)).toBe(true);
+    expect(decisions.filter((decision: string) => decision.indexOf(":false") > -1), "#4").toEqual([]);
+    expect(builds.rebuilds, "#5: no question builds").toEqual({});
+    expect((<any>p1).getPageState().edited, "#6").toEqual([3, 4]);
+    expect(panelValues(p2), "#7").toEqual(pageRecordValues(p2));
+    expect(survey.getValue("recs")[4], "#8").toEqual({ a: 1004, x: 2008, e1: 2009, e3: 1007 });
   });
   test("an add and a remove inside the writer's own change reach the siblings by their content", () => {
     const survey = createSiblings({ computedPages: 1 });
@@ -1946,35 +1959,40 @@ describe("siblings on one value: a page build updates the records in place", () 
       p2.value = value.slice(1).concat(value.slice(0, 1));
     });
     const decisions = recordInPlaceDecisions();
-    const remaps = vi.spyOn(<any>QuestionRecordsModel.prototype, "createAssignmentRemap");
     p2.pageIndex = 1;
     expect(isAssigned, "#1").toBe(true);
     expect(decisions.filter((decision: string) => decision.indexOf("p2>") === 0), "#2: the second question makes no in-place write").toEqual([]);
+    // The records hold their expression fields already (Bug#12156): the page build writes nothing, and the
+    // handler's assignment is all the siblings receive.
     ["p1", "p3"].forEach((name: string) => {
-      expect(remaps.mock.instances.indexOf(sibling(survey, name)) > -1, "#3: " + name + " places the records").toBe(true);
-      expect(panelValues(sibling(survey, name)), "#4: " + name).toEqual(pageRecordValues(sibling(survey, name)));
+      expect(panelValues(sibling(survey, name)), "#3: " + name).toEqual(pageRecordValues(sibling(survey, name)));
     });
-    expect(survey.getValue("recs")[99].a, "#5").toBe(0);
+    expect(survey.getValue("recs")[99].a, "#4").toBe(0);
   });
-  test("an onValueChanging handler that moves a record during the in-place write: both writes reach the siblings from outside", () => {
-    const survey = createSiblings({ computedPages: 1 });
-    survey.currentPageNo = 1;
+  test("Bug#12156: an onValueChanging handler that moves a record during the in-place write of the expression fields: both writes reach the siblings from outside", () => {
+    const survey = createBuiltSiblings();
     const p1 = sibling(survey, "p1");
+    const p2 = sibling(survey, "p2");
     let calls = 0;
     survey.onValueChanging.add((_: SurveyModel, options: any): void => {
-      if (options.name !== "recs" || calls++ > 0) return;
+      if (options.name !== "recs" || calls > 0 || !(<any>p1).inPlaceWrite) return;
+      calls++;
       const value = [].concat(survey.getValue("recs"));
       survey.setValue("recs", value.slice(1).concat(value.slice(0, 1)));
     });
     const decisions = recordInPlaceDecisions();
-    sibling(survey, "p2").pageIndex = 1;
-    expect(calls > 0, "#1").toBe(true);
-    const fromSecond = decisions.filter((decision: string) => decision.indexOf("p2>p1:") === 0);
-    expect(fromSecond.length > 0, "#2").toBe(true);
-    expect(fromSecond.filter((decision: string) => decision === "p2>p1:true"), "#3: the first question's records are the handler's, not the ones the write replaced").toEqual([]);
-    expect(panelValues(p1), "#4").toEqual(pageRecordValues(p1));
+    p1.panels[4].getQuestionByName("a").value = 1004;
+    expect(calls, "#1").toBe(1);
+    const fromFirst = decisions.filter((decision: string) => decision.indexOf("p1>p2:") === 0);
+    expect(fromFirst.length > 0, "#2").toBe(true);
+    expect(fromFirst.filter((decision: string) => decision === "p1>p2:true"), "#3: the second question's records are the handler's, not the ones the write replaced").toEqual([]);
+    expect(panelValues(p2), "#4").toEqual(pageRecordValues(p2));
+    expect(panelValues(p1), "#5").toEqual(pageRecordValues(p1));
   });
-  test("an in-place write owed to a question's own write: kept in place alone, placed by content with an insert from outside", () => {
+  /* Bug#12156: the expression fields are written when no question sharing the value has a write of its
+     own open (QuestionRecordsModel.runOwedExpressionFields), so their in-place write is never owed to
+     one. An insert from outside made inside that write is placed by content. */
+  test("Bug#12156: the in-place write of the expression fields is owed to no question, and an insert from outside inside it is placed by content", () => {
     const owed: Array<string> = [];
     const proto = <any>QuestionRecordsModel.prototype;
     const owe = proto.oweOutsideAssignment;
@@ -1985,22 +2003,29 @@ describe("siblings on one value: a page build updates the records in place", () 
     const remaps = vi.spyOn(proto, "createAssignmentRemap");
     let survey = createSiblings();
     survey.validate(false);
-    expect(owed, "#1: the first question reads x inside its own condition run").toEqual(["p1:true"]);
+    expect(owed, "#1: the page builds write nothing").toEqual([]);
     expect(remaps.mock.calls.length, "#2").toBe(0);
 
+    survey = createBuiltSiblings();
+    const p1 = sibling(survey, "p1");
+    const p2 = sibling(survey, "p2");
     owed.length = 0;
-    survey = createSiblings();
+    p1.panels[3].getQuestionByName("a").value = 1003;
+    expect(owed.filter((entry: string) => entry.indexOf(":true") > -1), "#3: an edit's in-place write is owed to no question").toEqual([]);
+    expect(survey.getValue("recs")[3].e3, "#4").toBe(1006);
     let calls = 0;
     survey.onValueChanged.add((_: SurveyModel, options: any): void => {
-      if (options.name !== "recs" || calls++ > 0) return;
+      if (options.name !== "recs" || calls > 0 || !(<any>p1).inPlaceWrite) return;
+      calls++;
       survey.setValue("recs", [{ a: -1 }].concat(survey.getValue("recs")));
     });
-    survey.validate(false);
-    expect(owed.slice(0, 2), "#3: the insert joins the owed assignment").toEqual(["p1:true", "p1:false"]);
-    expect(remaps.mock.instances.indexOf(sibling(survey, "p1")) > -1, "#4: the follow-up places the records by their content").toBe(true);
-    const p1 = sibling(survey, "p1");
-    expect(panelValues(p1), "#5").toEqual(pageRecordValues(p1));
-    expect(panelValues(p1)[0], "#6").toBe(-1);
+    remaps.mockClear();
+    p1.panels[4].getQuestionByName("a").value = 1004;
+    expect(calls, "#5: the handler ran inside the in-place write").toBe(1);
+    expect(remaps.mock.instances.indexOf(p2) > -1, "#6: the second question places the records by their content").toBe(true);
+    expect(panelValues(p1), "#7").toEqual(pageRecordValues(p1));
+    expect(panelValues(p2), "#8").toEqual(pageRecordValues(p2));
+    expect(panelValues(p2)[0], "#9").toBe(-1);
   });
 });
 

@@ -931,6 +931,14 @@ describe("Expressions", () => {
     var values = { a: [{ val1: "abc" }, { val2: 10 }, { val1: "cde" }] };
     expect(runner.runValues(values), "two items in array").toBe(2);
   });
+  test("ExpressionRunner: an inArray filter with a quote inside a string", () => {
+    // The filter is parsed again from its toString()
+    const values = { arr: [{ a: 1, b: "it's" }, { a: 2, b: "x" }, { a: 4, b: "a\"b" }] };
+    expect(new ExpressionRunner(String.raw`sumInArray({arr}, 'a', {b} = 'it\'s')`).runValues(values), "#1").toBe(1);
+    expect(new ExpressionRunner(String.raw`sumInArray({arr}, 'a', {b} = 'a\"b')`).runValues(values), "#2").toBe(4);
+    expect(new ExpressionRunner(String.raw`countInArray({arr}, 'a', {b} <> 'it\'s')`).runValues(values), "#3").toBe(2);
+    expect(new ExpressionRunner(String.raw`sumInArray({arr}, 'a', {b} = "it's")`).runValues(values), "#4").toBe(1);
+  });
 
   test("ConditionRunner, iif simple", () => {
     var runner = new ExpressionRunner("iif({a}, 'high', 'low')");
@@ -1916,6 +1924,69 @@ describe("Expressions", () => {
     expect(runner.runValues({ b: 2 }), "#10 null condition").toBe(2);
     expect(runner.getVariables(), "#10 variables").toEqual(["b"]);
   });
+  test("The other quote inside a string literal needs no escape", () => {
+    expect(new ExpressionRunner(String.raw`'a"b'`).runValues({}), "#1 double quote in single quotes").toBe("a\"b");
+    expect(new ExpressionRunner(String.raw`"a'b"`).runValues({}), "#2 single quote in double quotes").toBe("a'b");
+    expect(new ConditionRunner(String.raw`{a} = "it's"`).runValues({ a: "it's" }), "#3 in a condition").toBe(true);
+    expect(new ExpressionRunner(String.raw`'a\"b'`).runValues({}), "#4 escaped double quote").toBe("a\"b");
+    expect(new ExpressionRunner(String.raw`"a\'b"`).runValues({}), "#5 escaped single quote").toBe("a'b");
+  });
+  test("toString() of a string literal parses back to the same value", () => {
+    const cases: Array<[string, string, any]> = [
+      [String.raw`'it\'s'`, String.raw`'it\'s'`, "it's"],
+      [String.raw`"x\'y"`, String.raw`'x\'y'`, "x'y"],
+      [String.raw`'x\"y'`, String.raw`'x\"y'`, "x\"y"],
+      [String.raw`"x\"y"`, String.raw`'x\"y'`, "x\"y"],
+      [String.raw`{a} = 'it\'s'`, String.raw`({a} == 'it\'s')`, true],
+      [String.raw`'a"b'`, String.raw`'a\"b'`, "a\"b"],
+      [String.raw`"a'b"`, String.raw`'a\'b'`, "a'b"],
+      [String.raw`{a} = "it's"`, String.raw`({a} == 'it\'s')`, true],
+      [String.raw`'a\\"b'`, String.raw`'a\\"b'`, String.raw`a\"b`],
+      [String.raw`"a\\"b"`, String.raw`'a\\"b'`, String.raw`a\"b`],
+      [String.raw`'a\\'b'`, String.raw`'a\\'b'`, String.raw`a\'b`],
+      [String.raw`"''"`, String.raw`'\'\''`, "''"],
+      ["''", "''", ""],
+      ["'abc'", "'abc'", "abc"],
+    ];
+    const values = { a: "it's" };
+    cases.forEach(([text, expectedText, expectedValue]) => {
+      const operand = new ConditionsParser().parseExpression(text);
+      expect(operand.toString(), text + " toString").toBe(expectedText);
+      expect(new ExpressionRunner(text).runValues(values), text + " value").toEqual(expectedValue);
+      const reparsed = new ConditionsParser().parseExpression(expectedText);
+      expect(reparsed && reparsed.toString(), text + " toString of the parsed toString").toBe(expectedText);
+      expect(new ExpressionRunner(expectedText).runValues(values), text + " value of the parsed toString").toEqual(expectedValue);
+    });
+  });
+  test("null/undefined as a unary operand", () => {
+    const parser = new ConditionsParser();
+    const texts = {
+      "!null": "! null",
+      "negate undefined": "! null",
+      "null empty": "null empty",
+      "null notempty": "null notempty",
+      "!undefined": "! null",
+      "!null empty": "! null empty"
+    };
+    for (const text in texts) {
+      const operand = parser.parseExpression(text);
+      expect(operand.toString(), "toString: " + text).toBe(texts[text]);
+      const reparsed = parser.parseExpression(operand.toString());
+      expect(reparsed.toString(), "round trip: " + text).toBe(texts[text]);
+      expect(reparsed.isEqual(operand), "equal after round trip: " + text).toBe(true);
+    }
+
+    expect(new ExpressionRunner("!null").runValues({}), "!null").toBe(true);
+    expect(new ExpressionRunner("null empty").runValues({}), "null empty").toBe(true);
+    expect(new ExpressionRunner("null notempty").runValues({}), "null notempty").toBe(false);
+    const condition = new ConditionRunner("{a} = 1 or !null");
+    expect(condition.runValues({ a: 2 }), "{a} = 1 or !null").toBe(true);
+    expect(condition.hasFunction(), "hasFunction").toBe(false);
+    expect(condition.isAsync, "isAsync").toBe(false);
+    expect(parser.parseExpression("{a} = 1 or !null").toString(), "inside a binary operand").toBe("(({a} == 1) or ! null)");
+
+    expect(new ExpressionRunner("{a} empty or !null").getVariables(), "variables").toEqual(["a"]);
+  });
 });
 
 describe("Expression parser: nesting and error offsets", () => {
@@ -1999,6 +2070,14 @@ describe("Expression parser: nesting and error offsets", () => {
       expect(res.at, text + " has no error").toBeUndefined();
       expect(res.operand.toString(), text).toBe(expected);
     });
+  });
+  test("A parser reused for another text does not keep the previous error", () => {
+    const parser = new ConditionsParser();
+    expect(parser.parseExpression("1 +")).toBeUndefined();
+    expect(parser.error.at).toBe(3);
+    const operand = parser.parseExpression("1 + 2");
+    expect(operand.toString()).toBe("(1 + 2)");
+    expect(parser.error).toBeUndefined();
   });
 });
 
@@ -2163,5 +2242,17 @@ describe("Expression parser: deep nesting", () => {
   test("400 nested arrays", () => {
     const operand = parseDeep("[".repeat(400) + "1" + "]".repeat(400));
     expect(depthOf(operand, op => op.getType() === "array" ? op.values[0] : undefined)).toBe(401);
+  });
+  test("Nesting beyond the stack is reported as an error without a position", () => {
+    const parser = new ConditionsParser();
+    expect(parser.parseExpression("(".repeat(100000) + "1" + ")".repeat(100000))).toBeUndefined();
+    expect(parser.error, "error").toBeTruthy();
+    expect(parser.error.code).toBe("The expression is nested too deeply to parse.");
+    expect(parser.error.at).toBeUndefined();
+  });
+  test("A text that is not a string gives no operand and no error", () => {
+    const parser = new ConditionsParser();
+    expect(parser.parseExpression(null)).toBeUndefined();
+    expect(parser.error).toBeUndefined();
   });
 });

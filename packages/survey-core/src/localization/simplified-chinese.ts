@@ -55,6 +55,8 @@ export var simplifiedChineseSurveyStrings = {
   sortAddNewText: "添加新",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "移动排序等级{0}",
   // "Complete"
   completeText: "提交问卷",
   // "Preview"
@@ -189,6 +191,8 @@ export var simplifiedChineseSurveyStrings = {
   addRow: "添加行",
   // "Remove"
   removeRow: "删除答案",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "移动{0}行",
   // "There are no rows."
   noRowsText: "无内容",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +308,29 @@ export var simplifiedChineseSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "进度条",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "第{0}页"
+  progressbarPage: "第{0}页",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "选择",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "切换",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "导航",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "继续",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "提交",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "或",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "新线路",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "下一个选项",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "搬家",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "开场",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "结束"
 };
 
 setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nativeName: "简体中文", englishName: "Simplified Chinese" });

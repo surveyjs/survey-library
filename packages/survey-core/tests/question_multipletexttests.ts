@@ -1,6 +1,7 @@
 import { ProcessValue } from "../src/conditions/conditionProcessValue";
 import { Serializer } from "../src/jsonobject";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
+import { SurveyElement } from "../src/survey-element";
 import { SurveyModel } from "../src/survey";
 
 import { describe, test, expect } from "vitest";
@@ -306,5 +307,38 @@ describe("Survey_QuestionMultipleText", () => {
     expect(processValue.hasValue("q1.a"), "#1").toBe(true);
     expect(processValue.hasValue("q1.c"), "#2").toBe(false);
     expect(processValue.hasValue("q1.b"), "#3").toBe(true);
+  });
+  test("focusFirstQuestion focuses the first multiple text input", () => {
+    let focusedId = "";
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedId = elId;
+      return true;
+    };
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "multipletext",
+          name: "q1",
+          items: [{ name: "a" }, { name: "b", isRequired: true }]
+        },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+    survey.focusFirstQuestion();
+    expect(focusedId, "the first item input").toBe(q1.items[0].editor.inputId);
+
+    q1.items[0].editor.readOnly = true;
+    focusedId = "";
+    survey.focusFirstQuestion();
+    expect(focusedId, "the first editable item input").toBe(q1.items[1].editor.inputId);
+
+    q1.items[0].editor.readOnly = false;
+    q1.validate(true);
+    focusedId = "";
+    q1.focus(true);
+    expect(focusedId, "the item with an error").toBe(q1.items[1].editor.inputId);
+    SurveyElement.FocusElement = oldFunc;
   });
 });

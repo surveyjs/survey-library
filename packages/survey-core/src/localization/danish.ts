@@ -55,6 +55,8 @@ export var danishSurveyStrings = {
   sortAddNewText: "Tilføj nyt",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flyt sorteringsniveau {0}",
   // "Complete"
   completeText: "Færdig",
   // "Preview"
@@ -189,6 +191,8 @@ export var danishSurveyStrings = {
   addRow: "Tilføj række",
   // "Remove"
   removeRow: "Fjern",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Flyt række {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Der er ingen rækker.",
   // [Auto-translated] "Row {rowIndex}"
@@ -322,7 +326,29 @@ export var danishSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "f",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "F"
+  maskPlaceholderTimeMarkerUpper: "F",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "At vælge",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "at skifte til og fra",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "At navigere",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "at fortsætte",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "at indsende",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "eller",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "For en ny linje",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "til næste mulighed",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "at bevæge sig",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "at åbne",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "Lukker"
 };
 
 setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk", englishName: "Danish" });

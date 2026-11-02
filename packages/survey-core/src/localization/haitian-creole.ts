@@ -57,6 +57,8 @@ export var haitianCreoleStrings = {
   sortAddNewText: "Ajoute nouvo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Deplase sòt nivo {0}",
   // "Complete"
   completeText: "Ranpli",
   // [Auto-translated] "Preview"
@@ -191,6 +193,8 @@ export var haitianCreoleStrings = {
   addRow: "Ajoute Ranje",
   // "Remove"
   removeRow: "Retire",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Deplase ranje {0}",
   // "There are no rows."
   noRowsText: "Pa gen ranje.",
   // [Auto-translated] "Row {rowIndex}"
@@ -306,7 +310,29 @@ export var haitianCreoleStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "ba pwogrè",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Paj {0}"
+  progressbarPage: "Paj {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "pou chwazi",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "pou vire",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "pou navige",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "pou kontinye",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "pou soumèt",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "oswa",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "pou yon nouvo liy",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "nan pwochen opsyon",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "pou avanse pou pi",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "pou louvri",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "femen"
 };
 
 setupLocale({ localeCode: "ht", strings: haitianCreoleStrings, nativeName: "Kreyòl ayisyen", englishName: "Haitian Creole" });

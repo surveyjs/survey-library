@@ -3,11 +3,12 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionRecordsModel } from "../../src/question_records";
+import { MatrixDropdownRowModelBase } from "../../src/question_matrixdropdownbase";
+import { QuestionDropdownModel } from "../../src/question_dropdown";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { settings } from "../../src/settings";
 import { Action } from "../../src/actions/action";
-import { ListModel } from "../../src/list";
 import { ActionContainer } from "../../src/actions/container";
 import { UpdateResponsivenessMode } from "../../src/actions/adaptive-container";
 import { PopupModalManager } from "../../src/popup-modal-manager";
@@ -87,29 +88,52 @@ afterEach(() => {
   manager.clear();
   settings.showDialog = savedShowDialog;
 });
-interface IOpenDialog { dialog: RecordsSortDialogModel, popup: PopupBaseViewModel }
+// The modal's content is the dialog's survey ({ model: survey }); the dialog model itself is a private field of the bar.
+interface IOpenDialog { dialog: RecordsSortDialogModel, popup: PopupBaseViewModel, survey: SurveyModel, levels: QuestionMatrixDynamicModel }
+function toOpenDialog(dialog: RecordsSortDialogModel, popup: PopupBaseViewModel): IOpenDialog {
+  const survey = <SurveyModel>popup.model.contentComponentData.model;
+  return { dialog: dialog, popup: popup, survey: survey, levels: <QuestionMatrixDynamicModel>survey.getQuestionByName("levels") };
+}
 function openDialog(q: QuestionRecordsModel): IOpenDialog {
   moreOf(q).action();
   const modals = manager.getModals();
-  const popup = modals[modals.length - 1];
-  return { dialog: <RecordsSortDialogModel>popup.model.contentComponentData.model, popup: popup };
+  return toOpenDialog((<any>q.recordsBar).sortActionsValue.dialog, modals[modals.length - 1]);
 }
-const rowActions = (dialog: RecordsSortDialogModel, index: number): Array<Action> => <Array<Action>>dialog.rows[index].actions;
-const fieldListOf = (dialog: RecordsSortDialogModel, index: number): ListModel => <ListModel>rowActions(dialog, index)[0].data;
-const directionListOf = (dialog: RecordsSortDialogModel, index: number): ListModel => <ListModel>rowActions(dialog, index)[1].data;
-const titlesOf = (list: ListModel): Array<string> => list.actions.map((item: Action): string => item.title);
-// Each row as the respondent sees it: the field, the direction and whether it has a remove button.
-const rowsOf = (dialog: RecordsSortDialogModel): Array<Array<any>> => dialog.rows.map((row: ActionContainer): Array<any> =>
-  [row.actions[0].title, row.actions[1].title, row.actions.length > 2]);
-function pick(list: ListModel, title: string): void {
-  const item = list.actions.filter((action: Action): boolean => action.title === title)[0];
+const rowAt = (open: IOpenDialog, index: number): MatrixDropdownRowModelBase => open.levels.visibleRows[index];
+const fieldOf = (open: IOpenDialog, index: number): QuestionDropdownModel => <QuestionDropdownModel>rowAt(open, index).getQuestionByName("field");
+const directionOf = (open: IOpenDialog, index: number): QuestionDropdownModel => <QuestionDropdownModel>rowAt(open, index).getQuestionByName("direction");
+const numberOf = (open: IOpenDialog, index: number): any => rowAt(open, index).getQuestionByName("number").value;
+// The accessible name of a cell's editor.
+const labelOf = (question: QuestionDropdownModel): string => question.a11y_input_ariaLabel;
+const titlesOf = (question: QuestionDropdownModel): Array<string> => question.visibleChoices.map((item: any): string => item.text);
+const shownText = (question: QuestionDropdownModel): string => !!question.selectedItem ? question.selectedItem.text : undefined;
+// A row action the table renders: "drag-drop" (the handle) or "remove-row".
+const rowAction = (open: IOpenDialog, index: number, id: string): Action => open.levels.renderedTable.getRowAction(rowAt(open, index), id);
+// Each row as the respondent sees it: the field, the direction and whether its remove button is enabled.
+const rowsOf = (open: IOpenDialog): Array<Array<any>> => open.levels.visibleRows.map((_: any, index: number): Array<any> =>
+  [shownText(fieldOf(open, index)), shownText(directionOf(open, index)), rowAction(open, index, "remove-row").enabled]);
+function pick(question: QuestionDropdownModel, title: string): void {
+  const item = question.visibleChoices.filter((choice: any): boolean => choice.text === title)[0];
   expect(item, "no item " + title).toBeTruthy();
-  list.onItemClick(item);
+  question.value = item.value;
 }
 const footerAction = (popup: PopupBaseViewModel, id: string): Action => popup.footerToolbar.getActionById(id);
 const addNew = (popup: PopupBaseViewModel): Action => footerAction(popup, "sv-sort-dialog-add");
-const removeRow = (dialog: RecordsSortDialogModel, index: number): void => { rowActions(dialog, index)[2].action(); };
+const removeRow = (open: IOpenDialog, index: number): void => { rowAction(open, index, "remove-row").action(); };
 const apply = (popup: PopupBaseViewModel): void => { footerAction(popup, "apply").action(); };
+// The handle's ArrowUp / ArrowDown (prompt 10a's model method); returns whether the key was taken.
+function pressOnHandle(open: IOpenDialog, index: number, key: string): boolean {
+  let isPrevented = false;
+  open.levels.onDragHandleKeyDown(<any>{ key: key, preventDefault: (): void => { isPrevented = true; } }, rowAt(open, index));
+  return isPrevented;
+}
+// Moves the row at a position to another one, a step at a time.
+function moveRow(open: IOpenDialog, from: number, to: number): void {
+  const step = from > to ? -1 : 1;
+  for (let i = from; i !== to; i += step) {
+    pressOnHandle(open, i, step < 0 ? "ArrowUp" : "ArrowDown");
+  }
+}
 
 describe("Sort dialog: \"...\" in the bar", () => {
   test("fit() shows every level and \"+\" while they fit; otherwise levels leave from the last one and \"...\" takes the place of \"+\"", () => {
@@ -227,60 +251,68 @@ describe("Sort dialog: \"...\" in the bar", () => {
 });
 
 describe("Sort dialog: the rows", () => {
-  test("it opens with one row per level, through settings.showDialog", () => {
+  test("it opens with one matrix row per level, through settings.showDialog and the survey component", () => {
     const matrix = createMatrix();
     matrix.sort(threeLevels);
-    const { dialog, popup } = openDialog(matrix);
+    const open = openDialog(matrix);
     const options = dialogOptions[0];
     expect([options.componentName, options.title, options.showCloseButton, options.displayMode, options.isFocusedContent, options.cssClass], "#1")
-      .toEqual(["sv-records-sort-dialog", "Sort by", true, "popup", true, "sv-popup--records-sort"]);
-    expect([popup.isVisible, popup.model.isModal], "#2").toEqual([true, true]);
-    expect(rowsOf(dialog), "#3").toEqual([["Product", "Alphabet, A - Z", false], ["Category", "Alphabet, Z - A", true], ["Price", "Low - High", true]]);
-    expect(titlesOf(directionListOf(dialog, 0)), "#4: row 1 starts with Default").toEqual(["Default", "Alphabet, A - Z", "Alphabet, Z - A"]);
-    expect(titlesOf(directionListOf(dialog, 1)), "#5: a later row with the dash").toEqual(["\u2014", "Alphabet, A - Z", "Alphabet, Z - A"]);
-    expect([dialog.rootCss, dialog.rows.map((row: ActionContainer): string => row.containerCss)], "#6")
-      .toEqual(["sd-sort-dialog", ["sd-sort-dialog__row", "sd-sort-dialog__row", "sd-sort-dialog__row"]]);
-    expect([rowActions(dialog, 0)[0].iconName, rowActions(dialog, 1)[2].iconName], "#7: the 24px icons").toEqual(["icon-chevrondown-24x24", "icon-delete-24x24"]);
-    expect([rowActions(dialog, 1)[0].ariaLabel, rowActions(dialog, 1)[2].title], "#8").toEqual(["Sort field 2 Category", "Remove sort level 2"]);
+      .toEqual(["survey", "Sort by", true, "popup", true, "sv-popup--records-sort"]);
+    expect([options.data.model === open.dialog.survey, options.data.survey === open.dialog.survey], "#1a: the dialog's survey").toEqual([true, true]);
+    expect([open.popup.isVisible, open.popup.model.isModal], "#2").toEqual([true, true]);
+    expect(rowsOf(open), "#3").toEqual([["Product", "Alphabet, A - Z", true], ["Category", "Alphabet, Z - A", true], ["Price", "Low - High", true]]);
+    expect(titlesOf(directionOf(open, 0)), "#4: row 1 starts with Default").toEqual(["Default", "Alphabet, A - Z", "Alphabet, Z - A"]);
+    expect(titlesOf(directionOf(open, 1)), "#5: a later row with the dash").toEqual(["\u2014", "Alphabet, A - Z", "Alphabet, Z - A"]);
+    const levels = open.levels;
+    expect([levels.showHeader, levels.hasTitle, levels.allowRowReorder, levels.canAddRow, levels.minRowCount, open.survey.showNavigationButtons, open.survey.showQuestionNumbers],
+      "#6: no header, title, own add button or navigation").toEqual([false, false, true, false, 0, false, "off"]);
+    expect([rowAction(open, 1, "remove-row").iconName, rowAction(open, 1, "drag-drop").iconName], "#7: the 24px icons").toEqual(["icon-delete-24x24", "icon-drag-24x24"]);
+    expect([labelOf(fieldOf(open, 1)), labelOf(directionOf(open, 1)), rowAction(open, 1, "remove-row").ariaLabel, rowAction(open, 1, "remove-row").tooltip, rowAction(open, 1, "drag-drop").ariaLabel], "#8")
+      .toEqual(["Sort field 2", "Sort order 2", "Remove sort level 2", "Remove sort level 2", "Move sort level 2"]);
+    expect([labelOf(fieldOf(open, 0)), labelOf(directionOf(open, 0)), [0, 1, 2].map((index: number): any => numberOf(open, index))], "#9: the first row's labels; the numbers")
+      .toEqual(["Sort field", "Sort order", [1, 2, 3]]);
+    expect([fieldOf(open, 0).allowClear, fieldOf(open, 0).searchEnabled, directionOf(open, 0).allowClear], "#10").toEqual([false, false, false]);
   });
   test("with nothing sorted it opens with one row: the shown field and no direction", () => {
     const matrix = createMatrix();
-    const { dialog } = openDialog(matrix);
-    expect(rowsOf(dialog), "#1").toEqual([["Product", "Default", false]]);
-    expect(directionListOf(dialog, 0).selectedItem.title, "#2").toBe("Default");
+    const open = openDialog(matrix);
+    expect(rowsOf(open), "#1: the single row's remove button is disabled").toEqual([["Product", "Default", false]]);
+    expect(directionOf(open, 0).value, "#2").toBe("none");
   });
   test("a field list leaves out the other rows' fields; Add New adds the next unused field without a direction", () => {
     const matrix = createMatrix({ maxSortLevel: 3 });
     matrix.sort([{ field: "category", direction: "asc" }]);
-    const { dialog, popup } = openDialog(matrix);
-    expect(titlesOf(fieldListOf(dialog, 0)), "#1").toEqual(["Product", "Category", "Price", "Discontinued"]);
-    expect([addNew(popup).visible, addNew(popup).title, addNew(popup).visibleIndex], "#2").toEqual([true, "Add New", 0]);
+    const open = openDialog(matrix);
+    const { popup } = open;
+    expect(titlesOf(fieldOf(open, 0)), "#1").toEqual(["Product", "Category", "Price", "Discontinued"]);
+    expect([addNew(popup).visible, addNew(popup).enabled, addNew(popup).title, addNew(popup).visibleIndex], "#2").toEqual([true, true, "Add New", 0]);
     addNew(popup).action();
-    expect(rowsOf(dialog), "#3").toEqual([["Category", "Alphabet, A - Z", false], ["Product", "\u2014", true]]);
-    expect(titlesOf(fieldListOf(dialog, 0)), "#4").toEqual(["Category", "Price", "Discontinued"]);
-    expect(titlesOf(fieldListOf(dialog, 1)), "#5").toEqual(["Product", "Price", "Discontinued"]);
+    expect(rowsOf(open), "#3").toEqual([["Category", "Alphabet, A - Z", true], ["Product", "\u2014", true]]);
+    expect(titlesOf(fieldOf(open, 0)), "#4").toEqual(["Category", "Price", "Discontinued"]);
+    expect(titlesOf(fieldOf(open, 1)), "#5").toEqual(["Product", "Price", "Discontinued"]);
     addNew(popup).action();
-    expect(rowsOf(dialog).map((row: Array<any>): string => row[0]), "#6").toEqual(["Category", "Product", "Price"]);
-    expect([dialog.canAddRow, addNew(popup).visible], "#7: maxSortLevel rows").toEqual([false, false]);
+    expect(rowsOf(open).map((row: Array<any>): string => row[0]), "#6").toEqual(["Category", "Product", "Price"]);
+    expect([open.dialog.canAddRow, addNew(popup).visible, addNew(popup).enabled], "#7: maxSortLevel rows: disabled, not hidden").toEqual([false, true, false]);
     expect(sortOf(matrix), "#8: the draft sorts nothing").toEqual([{ field: "category", direction: "asc" }]);
   });
-  test("Add New hides when no field is left", () => {
+  test("Add New is disabled when no field is left", () => {
     const matrix = createMatrix({ maxSortLevel: 10 });
     matrix.sort([{ field: "product" }, { field: "category" }, { field: "price" }]);
-    const { dialog, popup } = openDialog(matrix);
-    expect(addNew(popup).visible, "#1").toBe(true);
-    addNew(popup).action();
-    expect([rowsOf(dialog)[3][0], addNew(popup).visible], "#2").toEqual(["Discontinued", false]);
-    removeRow(dialog, 3);
-    expect(addNew(popup).visible, "#3").toBe(true);
+    const open = openDialog(matrix);
+    expect(addNew(open.popup).enabled, "#1").toBe(true);
+    addNew(open.popup).action();
+    expect([rowsOf(open)[3][0], addNew(open.popup).enabled], "#2").toEqual(["Discontinued", false]);
+    removeRow(open, 3);
+    expect(addNew(open.popup).enabled, "#3").toBe(true);
   });
   test("the footer: Cancel is hidden, Add New comes first and Apply stays primary", () => {
     const matrix = createMatrix();
-    const { popup } = openDialog(matrix);
+    const open = openDialog(matrix);
+    const { popup } = open;
     expect(popup.footerToolbar.visibleActions.map((item: Action): string => item.id), "#1").toEqual(["sv-sort-dialog-add", "apply"]);
     expect([footerAction(popup, "apply").title, footerAction(popup, "apply").getActionBarItemCss().indexOf("sd-action--primary") > -1], "#2")
       .toEqual(["Apply", true]);
-    expect(popup.model.focusFirstInputSelector, "#3: the first row's field takes the focus").toBe(".sd-sort-bar__dropdown");
+    expect(popup.model.focusFirstInputSelector, "#3: the first row's field takes the focus, not the handle before it").toBe("#" + fieldOf(open, 0).inputId);
   });
 });
 
@@ -288,22 +320,22 @@ describe("Sort dialog: Apply", () => {
   test("the rows that have a direction become the sort, in order", () => {
     const matrix = createMatrix();
     matrix.sort([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }]);
-    const { dialog, popup } = openDialog(matrix);
-    pick(directionListOf(dialog, 0), "Alphabet, Z - A");
-    addNew(popup).action();
-    expect(rowsOf(dialog)[2], "#1").toEqual(["Price", "\u2014", true]);
-    apply(popup);
+    const open = openDialog(matrix);
+    pick(directionOf(open, 0), "Alphabet, Z - A");
+    addNew(open.popup).action();
+    expect(rowsOf(open)[2], "#1").toEqual(["Price", "\u2014", true]);
+    apply(open.popup);
     expect(sortOf(matrix), "#2: the dash row is left out").toEqual([{ field: "product", direction: "desc" }, { field: "category", direction: "asc" }]);
-    expect(popup.isVisible, "#3: closed").toBe(false);
+    expect(open.popup.isVisible, "#3: closed").toBe(false);
     expect(columnValues(matrix, "product"), "#4").toEqual(["c", "b", "a"]);
   });
   test("row 1 with Default and row 2 with a direction sort by row 2 only", () => {
     const matrix = createMatrix();
     matrix.sort([{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }]);
-    const { dialog, popup } = openDialog(matrix);
-    pick(directionListOf(dialog, 0), "Default");
-    pick(directionListOf(dialog, 1), "Alphabet, A - Z");
-    apply(popup);
+    const open = openDialog(matrix);
+    pick(directionOf(open, 0), "Default");
+    pick(directionOf(open, 1), "Alphabet, A - Z");
+    apply(open.popup);
     expect(sortOf(matrix), "#1").toEqual([{ field: "category", direction: "asc" }]);
   });
   test("a removed row leaves the sort; a draft equal to the sort calls nothing", () => {
@@ -311,9 +343,9 @@ describe("Sort dialog: Apply", () => {
     matrix.sort(threeLevels);
     const sortByUser = vi.spyOn(matrix.paging, "sortByUser");
     let open = openDialog(matrix);
-    removeRow(open.dialog, 1);
-    expect(rowsOf(open.dialog).map((row: Array<any>): string => row[0]), "#1").toEqual(["Product", "Price"]);
-    expect(rowsOf(open.dialog)[1][1], "#2: the row keeps its direction").toBe("Low - High");
+    removeRow(open, 1);
+    expect(rowsOf(open).map((row: Array<any>): string => row[0]), "#1").toEqual(["Product", "Price"]);
+    expect(rowsOf(open)[1][1], "#2: the row keeps its direction").toBe("Low - High");
     apply(open.popup);
     expect(sortOf(matrix), "#3").toEqual([threeLevels[0], threeLevels[2]]);
     sortByUser.mockClear();
@@ -327,10 +359,10 @@ describe("Sort dialog: Apply", () => {
     const matrix = createMatrix();
     matrix.sortCriteria = <any>[{ field: "product" }, { field: "category", direction: "desc" }];
     const sortByUser = vi.spyOn(matrix.paging, "sortByUser");
-    const { dialog, popup } = openDialog(matrix);
-    expect(rowsOf(dialog), "#1").toEqual([["Product", "Alphabet, A - Z", false], ["Category", "Alphabet, Z - A", true]]);
-    expect(dialog.getCriteria(), "#2").toEqual([{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }]);
-    apply(popup);
+    const open = openDialog(matrix);
+    expect(rowsOf(open), "#1").toEqual([["Product", "Alphabet, A - Z", true], ["Category", "Alphabet, Z - A", true]]);
+    expect(open.dialog.getCriteria(), "#2").toEqual([{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }]);
+    apply(open.popup);
     expect(sortByUser, "#3").not.toHaveBeenCalled();
     expect(matrix.sortCriteria.length, "#4").toBe(2);
     sortByUser.mockRestore();
@@ -338,22 +370,158 @@ describe("Sort dialog: Apply", () => {
   test("a field pick in a row: a sorting row takes the field's first direction, a dash row stays without one", () => {
     const matrix = createMatrix();
     matrix.sort([{ field: "product", direction: "asc" }]);
-    const { dialog, popup } = openDialog(matrix);
-    pick(fieldListOf(dialog, 0), "Price");
-    expect(rowsOf(dialog)[0], "#1").toEqual(["Price", "High - Low", false]);
-    addNew(popup).action();
-    pick(fieldListOf(dialog, 1), "Discontinued");
-    expect(rowsOf(dialog)[1], "#2").toEqual(["Discontinued", "\u2014", true]);
-    expect(sortOf(matrix), "#3: still a draft").toEqual([{ field: "product", direction: "asc" }]);
+    const open = openDialog(matrix);
+    pick(fieldOf(open, 0), "Price");
+    expect(rowsOf(open)[0], "#1").toEqual(["Price", "High - Low", false]);
+    addNew(open.popup).action();
+    pick(fieldOf(open, 1), "Discontinued");
+    expect(rowsOf(open)[1], "#2").toEqual(["Discontinued", "\u2014", true]);
+    expect(titlesOf(fieldOf(open, 0)), "#3: the other row's new field leaves the list").toEqual(["Product", "Category", "Price"]);
+    expect(sortOf(matrix), "#4: still a draft").toEqual([{ field: "product", direction: "asc" }]);
   });
   test("the dynamic panel: the dialog sorts its panels", () => {
     const panel = createPanel();
-    const { dialog, popup } = openDialog(panel);
-    pick(fieldListOf(dialog, 0), "Price");
-    pick(directionListOf(dialog, 0), "Low - High");
-    apply(popup);
+    const open = openDialog(panel);
+    pick(fieldOf(open, 0), "Price");
+    pick(directionOf(open, 0), "Low - High");
+    apply(open.popup);
     expect(sortOf(panel), "#1").toEqual([{ field: "price", direction: "asc" }]);
     expect(panel.visiblePanels.map((item: any): any => item.getQuestionByName("price").value), "#2").toEqual([10, 20, 30]);
+  });
+});
+
+describe("Sort dialog: numbers and moves", () => {
+  const fiveLevels: Array<any> = [{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }, { field: "price", direction: "asc" },
+    { field: "discontinued", direction: "desc" }, { field: "code", direction: "asc" }];
+  const fiveColumns = productColumns.concat([{ name: "code", title: "Code", cellType: "text" }]);
+  test("five rows are numbered 1-5; a row moved to position 1 gets number 1 and Default, the old row 1 the dash, and the labels follow", () => {
+    const matrix = createMatrix({ maxSortLevel: 5, columns: fiveColumns });
+    matrix.sort(fiveLevels);
+    const open = openDialog(matrix);
+    expect([0, 1, 2, 3, 4].map((index: number): any => numberOf(open, index)), "#1").toEqual([1, 2, 3, 4, 5]);
+    pick(directionOf(open, 3), "\u2014");
+    moveRow(open, 3, 0);
+    expect(rowsOf(open).map((row: Array<any>): Array<string> => [row[0], row[1]]), "#2").toEqual([["Discontinued", "Default"], ["Product", "Alphabet, A - Z"],
+      ["Category", "Alphabet, Z - A"], ["Price", "Low - High"], ["Code", "Alphabet, A - Z"]]);
+    expect([0, 1, 2, 3, 4].map((index: number): any => numberOf(open, index)), "#3: the numbers by position").toEqual([1, 2, 3, 4, 5]);
+    expect(titlesOf(directionOf(open, 0))[0], "#4").toBe("Default");
+    pick(directionOf(open, 1), "\u2014");
+    expect([shownText(directionOf(open, 1)), titlesOf(directionOf(open, 1))[0]], "#5: the old row 1 shows the dash").toEqual(["\u2014", "\u2014"]);
+    expect([labelOf(fieldOf(open, 0)), labelOf(fieldOf(open, 1)), labelOf(directionOf(open, 1))], "#6: the labels by position").toEqual(["Sort field", "Sort field 2", "Sort order 2"]);
+    expect([0, 1, 4].map((index: number): string => rowAction(open, index, "drag-drop").ariaLabel), "#7").toEqual(["Move sort level 1", "Move sort level 2", "Move sort level 5"]);
+    expect([0, 1, 4].map((index: number): string => rowAction(open, index, "remove-row").ariaLabel), "#8").toEqual(["Remove sort level 1", "Remove sort level 2", "Remove sort level 5"]);
+    expect(open.dialog.getCriteria().map((item: any): string => item.field), "#9: neither row without a direction sorts").toEqual(["category", "price", "code"]);
+  });
+  test("a move, then Apply, sorts in the new order; a move and a move back applies nothing", () => {
+    const matrix = createMatrix();
+    matrix.sort([{ field: "product", direction: "desc" }, { field: "category", direction: "asc" }]);
+    const sortByUser = vi.spyOn(matrix.paging, "sortByUser");
+    let open = openDialog(matrix);
+    moveRow(open, 0, 1);
+    expect(open.levels.value.map((item: any): string => item.field), "#0").toEqual(["category", "product"]);
+    pressOnHandle(open, 1, "ArrowUp");
+    apply(open.popup);
+    expect(sortByUser, "#1: a move and a move back").not.toHaveBeenCalled();
+    open = openDialog(matrix);
+    moveRow(open, 1, 0);
+    expect(open.levels.value.map((item: any): any => [item.number, item.field, item.direction]), "#2: the matrix value holds the draft").toEqual([[1, "category", "asc"], [2, "product", "desc"]]);
+    apply(open.popup);
+    expect(sortOf(matrix), "#3").toEqual([{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }]);
+    expect(columnValues(matrix, "product"), "#4").toEqual(["a", "c", "b"]);
+    sortByUser.mockRestore();
+  });
+  test("the field lists leave out the other rows' fields after a move, an add and a removal", () => {
+    const matrix = createMatrix();
+    matrix.sort([{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }]);
+    const open = openDialog(matrix);
+    moveRow(open, 1, 0);
+    expect([titlesOf(fieldOf(open, 0)), titlesOf(fieldOf(open, 1))], "#1: a move").toEqual([["Category", "Price", "Discontinued"], ["Product", "Price", "Discontinued"]]);
+    addNew(open.popup).action();
+    expect([titlesOf(fieldOf(open, 0)), titlesOf(fieldOf(open, 1)), titlesOf(fieldOf(open, 2))], "#2: an add")
+      .toEqual([["Category", "Discontinued"], ["Product", "Discontinued"], ["Price", "Discontinued"]]);
+    removeRow(open, 0);
+    expect([titlesOf(fieldOf(open, 0)), titlesOf(fieldOf(open, 1))], "#3: a removal").toEqual([["Product", "Category", "Discontinued"], ["Category", "Price", "Discontinued"]]);
+    expect(titlesOf(directionOf(open, 0))[0], "#4: the new first row offers Default").toBe("Default");
+  });
+  test("the remove button on row 1 removes it and renumbers; on a single row it is disabled and the remove column stays", () => {
+    const matrix = createMatrix();
+    matrix.sort(threeLevels);
+    const open = openDialog(matrix);
+    pick(directionOf(open, 1), "\u2014");
+    removeRow(open, 0);
+    expect(rowsOf(open), "#1: row 2 is row 1 and shows Default").toEqual([["Category", "Default", true], ["Price", "Low - High", true]]);
+    expect([numberOf(open, 0), numberOf(open, 1), rowAction(open, 0, "drag-drop").ariaLabel, labelOf(fieldOf(open, 0))], "#2").toEqual([1, 2, "Move sort level 1", "Sort field"]);
+    const table = open.levels.renderedTable;
+    removeRow(open, 1);
+    const remove = rowAction(open, 0, "remove-row");
+    expect([open.levels.rowCount, !!remove, remove.enabled, open.dialog.canRemoveRow], "#3: one row: the remove button stays, disabled").toEqual([1, true, false, false]);
+    expect(open.levels.renderedTable === table, "#4: the table and its remove column are kept").toBe(true);
+    remove.action();
+    expect(open.levels.rowCount, "#5: a disabled remove button removes nothing").toBe(1);
+    addNew(open.popup).action();
+    expect([rowAction(open, 0, "remove-row").enabled, rowAction(open, 1, "remove-row").enabled], "#6: enabled again after an add").toEqual([true, true]);
+  });
+  test("Add New is disabled at maxSortLevel rows and with no free field, and enabled again after a removal", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    matrix.sort([{ field: "product", direction: "asc" }]);
+    let open = openDialog(matrix);
+    addNew(open.popup).action();
+    expect([open.levels.rowCount, addNew(open.popup).enabled], "#1: maxSortLevel rows").toEqual([2, false]);
+    addNew(open.popup).action();
+    expect(open.levels.rowCount, "#2: a disabled Add New adds nothing").toBe(2);
+    removeRow(open, 1);
+    expect(addNew(open.popup).enabled, "#3: enabled after a removal").toBe(true);
+    open.popup.clickClose();
+    matrix.maxSortLevel = 10;
+    matrix.sort([{ field: "product" }, { field: "category" }, { field: "price" }, { field: "discontinued" }]);
+    open = openDialog(matrix);
+    expect(addNew(open.popup).enabled, "#4: no free field").toBe(false);
+    removeRow(open, 0);
+    expect(addNew(open.popup).enabled, "#5").toBe(true);
+  });
+  test("ArrowUp and ArrowDown on a handle move the level, not past the first or the last row", () => {
+    const matrix = createMatrix();
+    matrix.sort(threeLevels);
+    const open = openDialog(matrix);
+    const fields = (): Array<string> => open.levels.value.map((item: any): string => item.field);
+    expect(pressOnHandle(open, 0, "ArrowUp"), "#1: the first row").toBe(false);
+    expect(pressOnHandle(open, 2, "ArrowDown"), "#2: the last row").toBe(false);
+    expect(fields(), "#3").toEqual(["product", "category", "price"]);
+    expect(pressOnHandle(open, 1, "ArrowDown"), "#4").toBe(true);
+    expect(fields(), "#5").toEqual(["product", "price", "category"]);
+    expect(pressOnHandle(open, 1, "ArrowUp"), "#6").toBe(true);
+    expect([fields(), rowsOf(open).map((row: Array<any>): string => row[1])], "#7: Default on row 1, the dash is not shown for a sorting row")
+      .toEqual([["price", "product", "category"], ["Low - High", "Alphabet, A - Z", "Alphabet, Z - A"]]);
+    expect(titlesOf(directionOf(open, 0)), "#8").toEqual(["Default", "High - Low", "Low - High"]);
+    expect(sortOf(matrix), "#9: a move is a draft change").toEqual(threeLevels);
+  });
+});
+
+describe("Sort dialog: the dialog's survey", () => {
+  test("it is not mobile at the dialog's width while the outer survey is not, and follows the outer survey's isMobile", () => {
+    const matrix = createMatrix();
+    matrix.sort(threeLevels);
+    const open = openDialog(matrix);
+    expect([matrix.survey.isMobile, open.survey.isMobile, open.levels.isMobile], "#1").toEqual([false, false, false]);
+    expect(open.survey.themeVariables["--sd-mobile-width"], "#2: its own width never makes it mobile").toBe("0px");
+    expect(!!rowAction(open, 0, "drag-drop"), "#3: the handle shows").toBe(true);
+    (<SurveyModel>matrix.survey).setIsMobile(true);
+    expect([open.survey.isMobile, open.levels.isMobile], "#4").toEqual([true, true]);
+    (<SurveyModel>matrix.survey).setIsMobile(false);
+    expect(open.survey.isMobile, "#5").toBe(false);
+  });
+  test("it takes the outer survey's theme: its root has no theme root class and its box-shadow resets inherit", () => {
+    const matrix = createMatrix();
+    matrix.survey.applyTheme({ cssVariables: { "--sjs2-border-effect-component-formbox-default": "inset 0 0 0 2px red" } });
+    const open = openDialog(matrix);
+    const rootCss = open.survey.getRootCss();
+    expect([rootCss.indexOf("sd-root-modern") > -1, rootCss.indexOf("sd-theme-root") > -1, rootCss.indexOf("sjs-theme-overrides") > -1], "#1").toEqual([true, false, false]);
+    const variables = open.survey.themeVariables;
+    const resets = Object.keys(variables).filter((name: string): boolean => name.slice(-6) === "-reset");
+    expect([resets.length, resets.every((name: string): boolean => variables[name] === "inherit")], "#2").toEqual([4, true]);
+    expect(Object.keys(variables).length, "#3: nothing else is set on its root").toBe(5);
+    expect(open.survey.css.matrixdynamic.row, "#4: the rows have the dialog's class, its drag shortcut too").toBe("sd-table__row sd-sort-dialog__row");
+    expect(matrix.survey.getRootCss().indexOf("sd-theme-root") > -1, "#5: the outer survey keeps its theme root").toBe(true);
   });
 });
 
@@ -362,9 +530,9 @@ describe("Sort dialog: closing without Apply", () => {
     const matrix = createMatrix();
     matrix.sort([{ field: "product", direction: "asc" }]);
     let open = openDialog(matrix);
-    pick(directionListOf(open.dialog, 0), "Alphabet, Z - A");
+    pick(directionOf(open, 0), "Alphabet, Z - A");
     addNew(open.popup).action();
-    pick(directionListOf(open.dialog, 1), "Alphabet, A - Z");
+    pick(directionOf(open, 1), "Alphabet, A - Z");
     expect(sortOf(matrix), "#1: a draft change writes nothing").toEqual([{ field: "product", direction: "asc" }]);
     open.popup.clickClose();
     expect([open.popup.isVisible, sortOf(matrix)], "#2: the close button").toEqual([false, [{ field: "product", direction: "asc" }]]);
@@ -373,8 +541,8 @@ describe("Sort dialog: closing without Apply", () => {
     expect(header.sortDirection, "#4").toBe("asc");
     expect(barAction(matrix, "sv-sort-level").data.getActionById("sv-sort-direction").title, "#5").toBe("Alphabet, A - Z");
     open = openDialog(matrix);
-    expect(rowsOf(open.dialog), "#6: the next open starts from the sort").toEqual([["Product", "Alphabet, A - Z", false]]);
-    pick(directionListOf(open.dialog, 0), "Default");
+    expect(rowsOf(open), "#6: the next open starts from the sort").toEqual([["Product", "Alphabet, A - Z", false]]);
+    pick(directionOf(open, 0), "Default");
     open.popup.onKeyDown({ key: "Escape", preventDefault: () => { }, stopPropagation: () => { } });
     expect([open.popup.isVisible, sortOf(matrix)], "#7: Esc").toEqual([false, [{ field: "product", direction: "asc" }]]);
   });
@@ -386,11 +554,11 @@ describe("Sort dialog: validation", () => {
       column.name === "product" ? Object.assign({ isRequired: true }, column) : column) });
     matrix.value = [{ price: 1 }, { product: "x", price: 2 }, { product: "y", price: 3 }];
     matrix.visibleRows;
-    const { dialog, popup } = openDialog(matrix);
-    pick(fieldListOf(dialog, 0), "Price");
-    pick(directionListOf(dialog, 0), "Low - High");
-    apply(popup);
-    expect([sortOf(matrix), popup.isVisible], "#1").toEqual([[], false]);
+    const open = openDialog(matrix);
+    pick(fieldOf(open, 0), "Price");
+    pick(directionOf(open, 0), "Low - High");
+    apply(open.popup);
+    expect([sortOf(matrix), open.popup.isVisible], "#1").toEqual([[], false]);
     expect(barAction(matrix, "sv-sort-level").data.getActionById("sv-sort-direction").title, "#2: the bar keeps the old sort").toBe("Default");
   });
   test("an asynchronous validator: the sort applies when it passes; Apply is disabled while it runs", () => {
@@ -401,8 +569,8 @@ describe("Sort dialog: validation", () => {
         column.name === "product" ? Object.assign({ validators: [{ type: "expression", expression: "sortDialogAsyncFunc({row.product}) = 1" }] }, column) : column) });
       matrix.visibleRows;
       let open = openDialog(matrix);
-      pick(fieldListOf(open.dialog, 0), "Price");
-      pick(directionListOf(open.dialog, 0), "High - Low");
+      pick(fieldOf(open, 0), "Price");
+      pick(directionOf(open, 0), "High - Low");
       apply(open.popup);
       expect([matrix.isPageMovePending, open.popup.isVisible, sortOf(matrix)], "#1: waits, closed").toEqual([true, false, []]);
       open = openDialog(matrix);
@@ -417,31 +585,29 @@ describe("Sort dialog: validation", () => {
 });
 
 describe("Sort dialog: the object", () => {
-  test("closing the dialog disposes its model and its rows", () => {
+  test("closing the dialog disposes its model and its survey", () => {
     const matrix = createMatrix();
     matrix.sort(threeLevels);
-    const { dialog, popup } = openDialog(matrix);
-    const rows = dialog.rows.slice();
-    const field = rowActions(dialog, 1)[0];
-    popup.clickClose();
-    expect([dialog.isDisposed, rows.every((row: ActionContainer): boolean => row.isDisposed), field.isDisposed, field.popupModel.isDisposed], "#1")
-      .toEqual([true, true, true, true]);
-    expect(openDialog(matrix).dialog === dialog, "#2: a new draft on the next open").toBe(false);
+    const open = openDialog(matrix);
+    const field = fieldOf(open, 1);
+    open.popup.clickClose();
+    expect([open.dialog.isDisposed, open.survey.isDisposed, open.levels.isDisposed, field.isDisposed], "#1").toEqual([true, true, true, true]);
+    expect(openDialog(matrix).dialog === open.dialog, "#2: a new draft on the next open").toBe(false);
   });
-  test("a removed row is disposed", () => {
+  test("a removed row leaves the matrix: its cells are disposed", () => {
     const matrix = createMatrix();
     matrix.sort(threeLevels);
-    const { dialog } = openDialog(matrix);
-    const row = dialog.rows[1];
-    removeRow(dialog, 1);
-    expect([row.isDisposed, dialog.rows.length], "#1").toEqual([true, 2]);
+    const open = openDialog(matrix);
+    const field = fieldOf(open, 1);
+    removeRow(open, 1);
+    expect([field.isDisposed, open.levels.visibleRows.length, open.levels.value.length], "#1").toEqual([true, 2, 2]);
   });
   test("disposing the question while the dialog is open closes it and does not throw", () => {
     const matrix = createMatrix();
     matrix.sort(threeLevels);
-    const { dialog, popup } = openDialog(matrix);
+    const open = openDialog(matrix);
     expect(() => matrix.dispose(), "#1").not.toThrow();
-    expect([dialog.isDisposed, popup.isVisible], "#2").toEqual([true, false]);
+    expect([open.dialog.isDisposed, open.survey.isDisposed, open.popup.isVisible], "#2").toEqual([true, true, false]);
   });
   test("\"...\" with no renderer to show a dialog does nothing", () => {
     const matrix = createMatrix();
@@ -455,150 +621,19 @@ describe("Sort dialog: the locale", () => {
   afterEach(() => { delete surveyLocalization.locales[testLocale]; });
   test("the dialog's texts follow a locale change while it is open", () => {
     surveyLocalization.locales[testLocale] = { sortByText: "Order", sortDefaultText: "Stored", sortNoDirectionText: "None", sortAddNewText: "New level",
-      modalApplyButtonText: "Use", sortAZText: "A first", sortMoreAriaLabel: "All levels" };
+      modalApplyButtonText: "Use", sortAZText: "A first", sortMoreAriaLabel: "All levels", sortMoveLevelAriaLabel: "Drag {0}", sortLevelFieldAriaLabel: "Key {0}" };
     const matrix = createMatrix();
     matrix.sort([{ field: "product", direction: "asc" }]);
-    const { dialog, popup } = openDialog(matrix);
+    const open = openDialog(matrix);
+    const { popup } = open;
     addNew(popup).action();
     matrix.survey.locale = testLocale;
     expect([popup.title, addNew(popup).title, footerAction(popup, "apply").title, moreOf(matrix).title, moreOf(matrix).ariaLabel], "#1")
       .toEqual(["Order", "New level", "Use", "All levels", "All levels"]);
-    expect(rowsOf(dialog), "#2").toEqual([["Product", "A first", false], ["Category", "None", true]]);
-    expect(titlesOf(directionListOf(dialog, 0))[0], "#3").toBe("Stored");
+    expect(rowsOf(open), "#2").toEqual([["Product", "A first", true], ["Category", "None", true]]);
+    expect(titlesOf(directionOf(open, 0))[0], "#3").toBe("Stored");
+    expect([open.survey.locale, rowAction(open, 1, "drag-drop").ariaLabel, labelOf(fieldOf(open, 1))], "#4: the matrix's texts").toEqual([testLocale, "Drag 2", "Key 2"]);
     matrix.survey.locale = "";
-    expect(popup.title, "#4").toBe("Sort by");
-  });
-});
-
-interface IOpenDesignDialog extends IOpenDialog { applied: Array<Array<any>> }
-function openDesignDialog(q: QuestionRecordsModel, options?: any): IOpenDesignDialog {
-  const applied: Array<Array<any>> = [];
-  const popup = q.showSortDialog(Object.assign({ onApply: (criteria: Array<any>): void => { applied.push(criteria); } }, options));
-  return { dialog: <RecordsSortDialogModel>popup.model.contentComponentData.model, popup: popup, applied: applied };
-}
-const designColumns = productColumns.map((column: any): any => column.name === "category" ? Object.assign({ allowSort: false }, column) : column)
-  .concat([{ name: "tags", title: "Tags", cellType: "checkbox", choices: ["a", "b"] }, { name: "code", title: "Code", cellType: "text", visible: false }]);
-
-describe("Sort dialog: the designer's dialog (showSortDialog)", () => {
-  test("opens in design mode without allowSort and offers every value-sortable column, a row per field; Apply hands the rows to onApply", () => {
-    const matrix = createMatrix({ allowSort: false, maxSortLevel: 1, columns: designColumns });
-    matrix.survey.setDesignMode(true);
-    expect(matrix.recordsBar.showSort, "#1: no bar in design mode").toBe(false);
-    const { dialog, popup, applied } = openDesignDialog(matrix);
-    expect([popup.isVisible, dialogOptions.length], "#2: open").toEqual([true, 1]);
-    expect(rowsOf(dialog), "#3: the first offered field, not sorted").toEqual([["Product", "Default", false]]);
-    expect(titlesOf(fieldListOf(dialog, 0)), "#4: a column with allowSort false and an invisible one are offered, a checkbox column is not")
-      .toEqual(["Product", "Category", "Price", "Discontinued", "Code"]);
-    for (let i = 0; i < 4; i++) addNew(popup).action();
-    expect([dialog.rows.length, dialog.canAddRow, addNew(popup).visible], "#5: a row per field, whatever maxSortLevel").toEqual([5, false, false]);
-    pick(directionListOf(dialog, 0), "Alphabet, Z - A");
-    pick(directionListOf(dialog, 2), "Low - High");
-    apply(popup);
-    expect(applied, "#6").toEqual([[{ field: "product", direction: "desc" }, { field: "price", direction: "asc" }]]);
-    expect([sortOf(matrix), popup.isVisible, dialog.isDisposed], "#7: sortCriteria is the caller's to write; closed and disposed").toEqual([[], false, true]);
-  });
-  test("the current sort fills the rows; an unchanged Apply calls nothing", () => {
-    const matrix = createMatrix({ allowSort: false });
-    matrix.sortCriteria = [{ field: "price", direction: "desc" }];
-    const { dialog, popup, applied } = openDesignDialog(matrix);
-    expect(rowsOf(dialog), "#1").toEqual([["Price", "High - Low", false]]);
-    apply(popup);
-    expect([applied, popup.isVisible], "#2").toEqual([[], false]);
-  });
-  test("Apply validates nothing: an empty required cell does not stop it", () => {
-    const matrix = createMatrix({ pageSize: 2, columns: productColumns.map((column: any): any =>
-      column.name === "product" ? Object.assign({ isRequired: true }, column) : column) });
-    matrix.value = [{ price: 1 }, { product: "x", price: 2 }, { product: "y", price: 3 }];
-    const emptyCell = matrix.visibleRows[0].getQuestionByName("product");
-    const { dialog, popup, applied } = openDesignDialog(matrix);
-    pick(fieldListOf(dialog, 0), "Price");
-    pick(directionListOf(dialog, 0), "Low - High");
-    apply(popup);
-    expect([applied, sortOf(matrix), emptyCell.errors.length], "#1").toEqual([[[{ field: "price", direction: "asc" }]], [], 0]);
-  });
-  test("the dynamic panel offers its bar's fields, a row per field, and hands the rows to onApply", () => {
-    const panel = createPanel({ allowSort: false, maxSortLevel: 1 });
-    panel.survey.setDesignMode(true);
-    const { dialog, popup, applied } = openDesignDialog(panel);
-    expect(titlesOf(fieldListOf(dialog, 0)), "#1").toEqual(["Product", "Category", "Price", "Discontinued"]);
-    for (let i = 0; i < 3; i++) addNew(popup).action();
-    expect([dialog.rows.length, dialog.canAddRow], "#2").toEqual([4, false]);
-    pick(directionListOf(dialog, 0), "Alphabet, A - Z");
-    apply(popup);
-    expect([applied, sortOf(panel)], "#3").toEqual([[[{ field: "product", direction: "asc" }]], []]);
-  });
-  test("the modal goes under options.rootElement, or the survey's root element without it", () => {
-    const roots: Array<HTMLElement> = [];
-    const show = settings.showDialog;
-    settings.showDialog = (options: IDialogOptions, rootElement?: HTMLElement): any => {
-      roots.push(rootElement);
-      return show(options, rootElement);
-    };
-    const matrix = createMatrix();
-    const root = document.createElement("div");
-    openDesignDialog(matrix, { rootElement: root });
-    openDesignDialog(matrix);
-    expect([roots[0] === root, roots[1] === matrix.survey.rootElement], "#1").toEqual([true, true]);
-  });
-  test("with no renderer to show a dialog it returns undefined and keeps nothing", () => {
-    const matrix = createMatrix();
-    settings.showDialog = undefined;
-    expect(matrix.showSortDialog({ onApply: (): void => { } }), "#1").toBeUndefined();
-    expect((<any>matrix).designSortDialog, "#2").toBeUndefined();
-  });
-  test("disposing the question closes the open dialog and disposes it; onHide runs once", () => {
-    const matrix = createMatrix();
-    const { dialog, popup } = openDesignDialog(matrix);
-    let hides = 0;
-    const onHide = popup.model.onHide;
-    popup.model.onHide = (): void => { hides++; onHide(); };
-    matrix.dispose();
-    expect([dialog.isDisposed, popup.isVisible, hides], "#1").toEqual([true, false, 1]);
-  });
-  test("a second call closes and disposes the first dialog", () => {
-    const matrix = createMatrix();
-    const first = openDesignDialog(matrix);
-    const second = openDesignDialog(matrix);
-    expect([first.dialog.isDisposed, first.popup.isVisible, second.dialog.isDisposed, second.popup.isVisible], "#1").toEqual([true, false, false, true]);
-    second.popup.clickClose();
-    expect([second.dialog.isDisposed, (<any>matrix).designSortDialog], "#2: closed by the designer").toEqual([true, undefined]);
-  });
-});
-
-describe("Sort dialog: the designer's locale", () => {
-  const testLocale = "sort-design-dialog-test";
-  beforeEach(() => {
-    surveyLocalization.locales[testLocale] = { sortByText: "Order", sortDefaultText: "Stored", sortNoDirectionText: "None", sortAddNewText: "New level",
-      modalApplyButtonText: "Use", sortAZText: "A first", sortZAText: "Z first", sortLowHighText: "Small first", sortHighLowText: "Big first",
-      sortRemoveLevelText: "Drop {0}", sortLevelFieldAriaLabel: "Key {0}" };
-  });
-  afterEach(() => { delete surveyLocalization.locales[testLocale]; });
-  test("options.locale holds for the dialog's whole life: at opening, after Add New, a removed row and each pick", () => {
-    const matrix = createMatrix();
-    matrix.survey.setDesignMode(true);
-    const { dialog, popup } = openDesignDialog(matrix, { locale: testLocale });
-    const texts = (): Array<string> => [popup.title, addNew(popup).title, footerAction(popup, "apply").title];
-    expect(texts(), "#1: opening").toEqual(["Order", "New level", "Use"]);
-    expect(rowsOf(dialog), "#2").toEqual([["Product", "Stored", false]]);
-    expect(titlesOf(directionListOf(dialog, 0)), "#3").toEqual(["Stored", "A first", "Z first"]);
-    addNew(popup).action();
-    expect([texts(), rowsOf(dialog), rowActions(dialog, 1)[2].title, rowActions(dialog, 1)[0].ariaLabel], "#4: Add New")
-      .toEqual([["Order", "New level", "Use"], [["Product", "Stored", false], ["Category", "None", true]], "Drop 2", "Key 2 Category"]);
-    addNew(popup).action();
-    removeRow(dialog, 1);
-    expect([texts(), rowsOf(dialog)], "#5: a removed row").toEqual([["Order", "New level", "Use"], [["Product", "Stored", false], ["Price", "None", true]]]);
-    pick(fieldListOf(dialog, 0), "Category");
-    expect([texts(), rowsOf(dialog)[0]], "#6: a field pick").toEqual([["Order", "New level", "Use"], ["Category", "Stored", false]]);
-    pick(directionListOf(dialog, 0), "Z first");
-    pick(directionListOf(dialog, 1), "Small first");
-    expect([texts(), rowsOf(dialog)], "#7: the direction picks").toEqual([["Order", "New level", "Use"], [["Category", "Z first", false], ["Price", "Small first", true]]]);
-    expect(matrix.survey.locale, "#8: the survey's locale is not touched").toBe("");
-  });
-  test("without options.locale the dialog follows the survey's locale", () => {
-    const matrix = createMatrix();
-    matrix.survey.locale = testLocale;
-    const { popup } = openDesignDialog(matrix);
-    expect(popup.title, "#1").toBe("Order");
-    matrix.survey.locale = "";
+    expect([popup.title, open.survey.locale, rowAction(open, 1, "drag-drop").ariaLabel], "#5").toEqual(["Sort by", "", "Move sort level 2"]);
   });
 });

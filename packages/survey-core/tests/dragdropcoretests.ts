@@ -85,4 +85,46 @@ describe("Drag and Drop Tests", () => {
     expect(container.scrollLeft).toBe(0);
     container.remove();
   });
+  test("A drag started inside a modal scrolls only the scroll containers inside it", () => {
+    const dragDropCore = new DragDropTest({} as any, {} as any);
+    const createContainer = (): HTMLElement => {
+      const container = document.createElement("div");
+      Object.defineProperty(container, "clientWidth", { configurable: true, value: 1920 });
+      Object.defineProperty(container, "clientHeight", { configurable: true, value: 1080 });
+      const containerRect = { top: 0, bottom: 1080, left: 0, right: 1920, width: 1920, height: 1080, x: 0, y: 0, toJSON() { return this; } };
+      container.getBoundingClientRect = () => containerRect as DOMRect;
+      return container;
+    };
+    const outside = createContainer();
+    const popup = document.createElement("div");
+    popup.className = "sv-popup sv-popup--modal-popup";
+    const inside = createContainer();
+    popup.appendChild(inside);
+    document.body.appendChild(outside);
+    document.body.appendChild(popup);
+    dragDropCore["popupNode"] = popup;
+    dragDropCore.scrollByDragTest(outside, 1070, 400);
+    expect(outside.scrollTop, "#1: the page behind the modal is not scrolled").toBe(0);
+    dragDropCore.scrollByDragTest(inside, 1070, 400);
+    expect(inside.scrollTop, "#2: a container inside the modal is").toBe(15);
+    dragDropCore["popupNode"] = null;
+    dragDropCore.scrollByDragTest(outside, 1070, 400);
+    expect(outside.scrollTop, "#3: a drag outside a modal scrolls as before").toBe(15);
+    outside.remove();
+    popup.remove();
+  });
+  test("Only a modal limits the scroll: a drag from a dropdown popup goes on to the page", () => {
+    const adapter: any = DragDropDOMAdapter;
+    const dropdown = document.createElement("div");
+    dropdown.className = "sv-popup";
+    const item = document.createElement("div");
+    dropdown.appendChild(item);
+    const modal = document.createElement("div");
+    modal.className = "sv-popup sv-popup--modal-overlay";
+    const row = document.createElement("div");
+    modal.appendChild(row);
+    expect(adapter.getPopupNode(item), "#1").toBeNull();
+    expect(adapter.getPopupNode(row) === modal, "#2").toBe(true);
+    expect(adapter.getPopupNode(undefined), "#3").toBeNull();
+  });
 });

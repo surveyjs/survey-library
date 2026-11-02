@@ -55,6 +55,8 @@ export var finnishSurveyStrings = {
   sortAddNewText: "Lisää uusi",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Liikkeiden lajittelutaso {0}",
   // "Complete"
   completeText: "Valmis",
   // "Preview"
@@ -189,6 +191,8 @@ export var finnishSurveyStrings = {
   addRow: "Lisää rivi",
   // "Remove"
   removeRow: "Poista",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Siirrä rivi {0}",
   // "There are no rows."
   noRowsText: "Ei rivejä",
   // [Auto-translated] "Row {rowIndex}"
@@ -322,7 +326,29 @@ export var finnishSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "i",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "I"
+  maskPlaceholderTimeMarkerUpper: "I",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "valita",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "vaihtaa",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "navigoida",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "jatkaa",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "alistua",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "tai",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "Uudelle linjalle",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Seuraavaan vaihtoehtoon",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "liikkua",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "avaamaan",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "sulkea"
 };
 
 setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suomi", englishName: "Finnish" });

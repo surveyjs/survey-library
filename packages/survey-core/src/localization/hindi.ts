@@ -55,6 +55,8 @@ export var hindiStrings = {
   sortAddNewText: "नया जोड़ें",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "सॉर्ट स्तर {0} ले जाएँ",
   // "Complete"
   completeText: "पूरा",
   // "Preview"
@@ -189,6 +191,8 @@ export var hindiStrings = {
   addRow: "पंक्ति जोड़ें",
   // "Remove"
   removeRow: "हटाए",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "पंक्ति {0} ले जाएँ",
   // [Auto-translated] "There are no rows."
   noRowsText: "कोई पंक्तियाँ नहीं हैं.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +308,29 @@ export var hindiStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "प्रगति पट्टी",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "पेज {0}"
+  progressbarPage: "पेज {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "चुनने के लिए",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "टॉगल करने के लिए",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "नेविगेट करने के लिए",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "जारी रखने के लिए",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "प्रस्तुत करने के लिए",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "या",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "एक नई लाइन के लिए",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "अगले विकल्प के लिए",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "स्थानांतरित करने के लिए",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "खोलने के लिए",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "बंद करने के लिए"
 };
 
 setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "हिन्दी", englishName: "Hindi" });

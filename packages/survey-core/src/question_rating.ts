@@ -13,12 +13,14 @@ import { updateListCssValues } from "./utils/dom-utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { dropdownQuestionMixin } from "./dropdownRenderState";
 import { SurveyModel } from "./survey";
+import { advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
 import { getColorFromProperty } from "./utils/utils";
 import { getRGBaColor } from "./utils/color";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
+import { RendererFactory } from "./rendererFactory";
 import { HashTable } from "./helpers";
 import { Base } from "./base";
 
@@ -524,6 +526,12 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
   public getType(): string {
     return "rating";
   }
+  public supportsKeyboardHints(): boolean {
+    return this.displayMode !== "dropdown";
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    return this.isDropdown ? [] : advanceKeyboardHints(this);
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -701,9 +709,11 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     return this.getPropertyValue("hasMaxRateDescription", undefined, () => !!this.maxRateDescription);
   }
   get hasMinLabel(): boolean {
+    if (this.isCompactIconView) return false;
     return !this.displayRateDescriptionsAsExtremeItems && !!this.hasMinRateDescription;
   }
   get hasMaxLabel(): boolean {
+    if (this.isCompactIconView) return false;
     return !this.displayRateDescriptionsAsExtremeItems && !!this.hasMaxRateDescription;
   }
 
@@ -879,8 +889,27 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     this.resetItemsVisuals();
   }
 
+  // Stars and smileys in view mode stay icons, at the same small size matrices use.
+  private get isCompactIconView(): boolean {
+    return this.isViewMode && (this.isStar || this.isSmiley);
+  }
+  // Those icons are display-only: their radios must stay out of the tab order.
+  public get itemTabIndex(): number | undefined {
+    return this.isCompactIconView ? -1 : undefined;
+  }
+  protected get supportsQuestionView(): boolean {
+    return !this.isCompactIconView;
+  }
+  public getComponentName(): string {
+    if (this.isCompactIconView) {
+      return RendererFactory.Instance.getRenderer(this.getType(), "default");
+    }
+    return super.getComponentName();
+  }
   public get itemSmallMode() {
-    return !this.isSingleInputActive && this.inMatrixMode && settings.matrix.rateSize == "small";
+    if (this.isSingleInputActive) return false;
+    if (this.isCompactIconView) return true;
+    return this.inMatrixMode && settings.matrix.rateSize == "small";
   }
 
   public get ratingRootCss(): string {
@@ -893,7 +922,8 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
       hasLabel && this.rateDescriptionLocation == "top" && this.cssClasses.rootLabelsTop,
       hasLabel && this.rateDescriptionLocation == "bottom" && this.cssClasses.rootLabelsBottom,
       hasLabel && this.rateDescriptionLocation == "topBottom" && this.cssClasses.rootLabelsDiagonal,
-      this.itemSmallMode && this.rateType != "labels" && this.cssClasses.itemSmall
+      this.itemSmallMode && this.rateType != "labels" && this.cssClasses.itemSmall,
+      this.isCompactIconView && this.cssClasses.rootView
     );
   }
 

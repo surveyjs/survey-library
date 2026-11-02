@@ -23,6 +23,7 @@ export class SurveyMatrixHeaderSortButton extends ReactSurveyElement {
   protected renderElement(): React.JSX.Element | null {
     const cell = this.cell;
     const description = cell.sortDescription;
+    const rank = cell.sortRank;
     return (
       <button
         type="button"
@@ -36,6 +37,7 @@ export class SurveyMatrixHeaderSortButton extends ReactSurveyElement {
         <span className={cell.sortTitleCss}>{this.props.content}</span>
         <span className={cell.sortCss} aria-hidden="true">
           <SvgIcon iconName={cell.sortIconName} size={16}></SvgIcon>
+          {!!rank ? <span className={cell.sortRankCss}>{rank}</span> : null}
         </span>
         {!!description ? <span id={cell.sortDescriptionId} className="sv-visuallyhidden">{description}</span> : null}
       </button>

@@ -138,6 +138,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
 
   //#region Display modes & flags
   isDisplayMode: boolean;
+  getReadOnlyMode(): "readonly" | "view";
   isDesignMode: boolean;
   isLoadingFromJson: boolean;
   isEditingSurveyElement: boolean;
@@ -150,6 +151,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   isUpdateValueTextOnTyping: boolean;
   autoGrowComment: boolean;
   choiceShortcutsEnabled: boolean;
+  showKeyboardHints: boolean;
   allowResizeComment: boolean;
   commentAreaRows: number;
   maxTextLength: number;

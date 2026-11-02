@@ -856,9 +856,13 @@ export class DropdownListModel extends Base {
   }
 
   private handleTab(event: any): { stopPropagation: boolean } {
-    this.handleEnter(event);
+    this.commitSelectionOnTab(event);
     this.popupModel.hide();
     return { stopPropagation: false };
+  }
+
+  protected commitSelectionOnTab(event: any): void {
+    this.handleEnter(event);
   }
 
   private handleSpace(event: any): { stopPropagation: boolean } {
@@ -888,10 +892,13 @@ export class DropdownListModel extends Base {
     (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
   }
 
-  protected handleEnterWhenPopupVisible(event: any): void {
-    const shouldClearOnEnter = this.searchEnabled && !this.inputString && !this._markdownMode && !!this.question.value;
+  // Reads the question's inputHasValue: the keyboard hint row depends on this value, and it rerenders on question properties.
+  public get isEnterClearingValue(): boolean {
+    return this.searchEnabled && !this.question.inputHasValue && !this._markdownMode && !!this.question.value;
+  }
 
-    if (shouldClearOnEnter) {
+  protected handleEnterWhenPopupVisible(event: any): void {
+    if (this.isEnterClearingValue) {
       this._popupModel.hide();
       this.onClear(event);
     } else {

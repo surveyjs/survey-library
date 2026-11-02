@@ -1,4 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
+import type { QuestionExpressionModel } from "./question_expression";
 import {
   IElement,
   IQuestion,
@@ -14,7 +15,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedElementVisit, NestedWalkBuild } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -36,7 +37,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange, toKnownRemap } from "./records/records-index-followers";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem,
+  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
 } from "./question_records";
@@ -328,14 +329,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return null;
   }
   protected getFirstInputElementId(): string | (() => HTMLElement) {
-    const question = this.getFirstQuestionToFocus(false);
-    if (question && question !== this) return question.inputId;
-    if (this.showAddPanelButton) return () => this.addPanelAction.getInputElement();
+    if (this.getFirstQuestionToFocus(false) === this) return () => this.addPanelAction.getInputElement();
     return super.getFirstInputElementId();
-  }
-  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
-    const question = this.getFirstQuestionToFocus(true);
-    return question ? question.inputId : super.getFirstErrorInputElementId();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
@@ -670,6 +665,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public getType(): string {
     return "paneldynamic";
+  }
+  protected get supportsQuestionView(): boolean {
+    return this.visiblePanelCount === 0;
+  }
+  protected getViewDisplayText(): string {
+    if (this.supportsQuestionView) return "";
+    return super.getViewDisplayText();
   }
   // Records can belong to dataSource, and each panel already has remove. A title Clear does not fit.
   public get supportClearTitleAction(): boolean {
@@ -2131,7 +2133,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return newPanel;
   }
   private addPanelAndShow(index: number, isUI: boolean): PanelModel {
-    const newPanel = this.addPanelCore(index);
+    const newPanel = this.runAddOperation((): PanelModel => this.addPanelCore(index));
     this.panelOnFirstRendering(newPanel);
     if (isUI && !!newPanel) {
       if (this.displayMode === "list" && this.panelsState !== "default") {
@@ -2578,17 +2580,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.isCorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
   // "none" and "rows": the panels that exist; "all": panels, which builds them.
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: NestedWalkItemVisit): boolean | void {
     const panels = build === "all" ? this.panels : this.panelsCore;
     const visiblePanels = new Set<PanelModel>(this.visiblePanelsCore);
-    panels.forEach((panel, position) => {
-      func(panel, position, visiblePanels.has(panel));
-    });
+    return panels.some((panel, position) => func(panel, position, visiblePanels.has(panel)));
   }
   protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
-    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
+    build: NestedWalkBuild, visit: NestedElementVisit): boolean | void {
     const segment = this.getRecordIndexAtCreatedPosition(position);
-    visit({ element: <PanelModel>item, role: "item", segment: segment, location: "nested", visible: visible });
+    return visit({ element: <PanelModel>item, role: "item", segment: segment, location: "nested", visible: visible });
   }
   protected clearIncorrectValuesInObjects(): void {
     for (var i = 0; i < this.panelsCore.length; i++) {
@@ -2882,6 +2882,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.clearHiddenAnswersWithoutObjects(properties);
     }
   }
+  // QuestionRecordsModel hook of updateRecordsExpressionFields: the expression questions of the template.
+  protected getRecordExpressionQuestions(): Array<QuestionExpressionModel> {
+    return this.template.questions.filter((q: Question): boolean => q.getType() === "expression") as Array<QuestionExpressionModel>;
+  }
   // QuestionRecordsModel hooks of clearHiddenAnswersWithoutObjects: the template questions and the panels around them.
   protected getRecordConditionalInputs(): Array<Question> {
     const template = this.template;
@@ -2985,15 +2989,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!Array.isArray(qs) || qs.length === 0) return false;
     for (let i = 0; i < qs.length; i++) {
       if (qs[i].hasInput) return true;
-    }
-    return false;
-  }
-  protected getContainsErrors(): boolean {
-    var res = super.getContainsErrors();
-    if (res) return res;
-    var panels = this.panelsCore;
-    for (var i = 0; i < panels.length; i++) {
-      if (panels[i].containsErrors) return true;
     }
     return false;
   }
@@ -3449,6 +3444,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return toCssClasses(
       super.getRootCss(),
       this.getShowNoEntriesPlaceholder() && this.cssClasses.empty,
+      this.isViewMode && this.visiblePanelCount === 0 && this.cssClasses.root + "--view",
       this.isRangeShowing && this.isProgressTopShowing && this.cssClasses.navigation + "--top",
       this.isRangeShowing && this.isProgressBottomShowing && this.cssClasses.navigation + "--bottom"
     );

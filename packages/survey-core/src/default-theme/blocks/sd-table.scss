@@ -39,6 +39,7 @@
   --sd-question-header-padding-inline: var(--sjs2-layout-component-panel-header-padding-left)
     var(--sjs2-layout-component-panel-header-padding-right);
   --sd-question-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
+  --sd-question-header-gap: var(--sjs2-layout-component-panel-matrix-header-gap);
 
   //title
   --sd-question-title-padding-block: var(--sjs2-layout-component-panel-title-padding-vertical);
@@ -190,6 +191,11 @@
 }
 .sd-table__cell--header.sd-table__cell--action {
   width: 0;
+}
+
+.sd-matrixdropdown.sd-table--view thead .sd-table__cell--header,
+.sd-matrixdynamic.sd-table--view thead .sd-table__cell--header {
+  text-align: start;
 }
 
 .sd-table__cell--actions {

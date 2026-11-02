@@ -55,6 +55,8 @@ export var philippinesStrings = {
   sortAddNewText: "Magdagdag ng Bago",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Ilipat ang sort level {0}",
   // "Complete"
   completeText: "Kumpleto",
   // "Preview"
@@ -189,6 +191,8 @@ export var philippinesStrings = {
   addRow: "Magdagdag ng hilera",
   // "Remove"
   removeRow: "Alisin",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Ilipat ang row {0}",
   // "There are no rows."
   noRowsText: "Walang mga hilera.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +308,29 @@ export var philippinesStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Email Address *",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Pahina {0}"
+  progressbarPage: "Pahina {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "pumili",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "i-toggle",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "mag-navigate",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "magpatuloy",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "isumite",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "o",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "para sa bagong linya",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "sa susunod na opsyon",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "lumipat",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "buksan",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "isara"
 };
 
 // Uncomment the lines below if you create a custom dictionary.

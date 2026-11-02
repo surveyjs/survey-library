@@ -74,6 +74,9 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   public getType(): string {
     return "signaturepad";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   // A data URL is a string, but no order of signatures means anything.
   public get isValueSortable(): boolean {
     return false;
@@ -89,7 +92,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   public afterRenderQuestionElement(el: HTMLElement) {
     if (DomWindowHelper.isAvailable()) {
       if (!!el) {
-        if (!this.isDesignMode) {
+        if (!this.isDesignMode && !this.isViewMode) {
           this.initSignaturePad(el);
         }
         this.element = el;

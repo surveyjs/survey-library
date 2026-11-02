@@ -1,4 +1,5 @@
 import { Serializer } from "./jsonobject";
+import { singleChoiceKeyboardHints, multiChoiceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase, ChoiceItem } from "./question_baseselect";
@@ -84,6 +85,28 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public getType(): string {
     return "imagepicker";
+  }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
+  public getViewModeItems(): Array<ImageItemValue> {
+    const items = this.visibleChoices;
+    const res: Array<ImageItemValue> = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = <ImageItemValue>items[i];
+      if (this.isViewValueSelected(item.value)) res.push(item);
+    }
+    return res;
+  }
+  private isViewValueSelected(itemValue: any): boolean {
+    const val = this.value;
+    if (this.isValueEmpty(val)) return false;
+    if (!this.multiSelect) return this.isTwoValueEquals(val, itemValue);
+    if (!Array.isArray(val)) return false;
+    for (let i = 0; i < val.length; i++) {
+      if (this.isTwoValueEquals(val[i], itemValue)) return true;
+    }
+    return false;
   }
   public supportsChoiceKeyboardSelection(): boolean {
     return true;
@@ -279,6 +302,13 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public get inputType() {
     return this.multiSelect ? "checkbox" : "radio";
+  }
+  public supportsKeyboardHints(): boolean {
+    return true;
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    if (this.multiSelect) return multiChoiceKeyboardHints(this);
+    return singleChoiceKeyboardHints(this);
   }
   protected applyChoiceKeyboardSelection(item: ItemValue): void {
     if (!this.multiSelect) {

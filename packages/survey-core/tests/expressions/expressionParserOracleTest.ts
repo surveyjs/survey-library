@@ -111,7 +111,7 @@ describe("Expression parser: differential test against the generated parser", ()
 
   // Per node: getType(); binary: operator, isArithmetic, left/right; unary: operator, expression; function: functionName,
   // paramValues; array: values; const: typeof and the raw value (=== semantics); variable: variable; null vs undefined.
-  // Not toString() (it throws on "!null") and not isEqual (it compares constants with ==).
+  // Not isEqual (it compares constants with ==).
   const constText = (value: any): string => {
     const type = typeof value;
     if (type === "string") return "s" + JSON.stringify(value);
@@ -163,5 +163,15 @@ describe("Expression parser: differential test against the generated parser", ()
     expect(kinds["null root"], "null roots").toBeGreaterThan(0);
     expect(kinds.exception, "other exceptions").toBe(0);
     expect(escapedFound, "escaped characters in messages").toBeGreaterThan(0);
+  });
+  test("An unterminated string ends only at its own quote: offset and message", () => {
+    const sq = String.raw`Expected "'", "\\'", "\\\"", or [^'] but end of input found.`;
+    const dq = String.raw`Expected "\"", "\\'", "\\\"", or [^"] but end of input found.`;
+    const cases: Array<[string, string]> = [["'abc", sq], ["\"abc", dq], ["'a\"b", sq], ["\"a'b", dq]];
+    cases.forEach(([text, message]) => {
+      const expected = "error at 4: " + message;
+      expect(outcome(oracleParse, PeggySyntaxError, text), text + " generated").toBe(expected);
+      expect(outcome(parse, ExpressionSyntaxError, text), text + " hand-written").toBe(expected);
+    });
   });
 });

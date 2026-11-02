@@ -55,6 +55,8 @@ export var spanishSurveyStrings = {
   sortAddNewText: "Añadir Nuevo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nivel de ordenación de movimientos {0}",
   // "Complete"
   completeText: "Completar",
   // "Preview"
@@ -189,6 +191,8 @@ export var spanishSurveyStrings = {
   addRow: "Agregue una hilera",
   // "Remove"
   removeRow: "Eliminar una hilera",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mover la fila {0}",
   // "There are no rows."
   noRowsText: "No hay hileras.",
   // [Auto-translated] "Row {rowIndex}"
@@ -322,7 +326,29 @@ export var spanishSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "para seleccionar",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "para alternar",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "para orientarse",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Continuar",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "para enviar",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "o",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "para una nueva línea",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "a la siguiente opción",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "moverse",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "para abrir",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "Hasta cerrar"
 };
 
 setupLocale({ localeCode: "es", strings: spanishSurveyStrings, nativeName: "español", englishName: "Spanish" });

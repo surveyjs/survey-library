@@ -55,6 +55,8 @@ export var thaiStrings = {
   sortAddNewText: "เพิ่มใหม่",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "ย้ายระดับการจัดเรียง{0}",
   // "Complete"
   completeText: "สำเร็จ",
   // "Preview"
@@ -189,6 +191,8 @@ export var thaiStrings = {
   addRow: "เพิ่มแถว",
   // "Remove"
   removeRow: "ลบ",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "ย้ายแถว{0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "ไม่มีแถว",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +308,29 @@ export var thaiStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "แถบความคืบหน้า",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "หน้า {0}"
+  progressbarPage: "หน้า {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "เพื่อเลือก",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "สลับ",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "นําทาง",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "ดําเนินการต่อ",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "ส่ง",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "หรือ",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "สําหรับสายใหม่",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "ไปยังตัวเลือกถัดไป",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "ย้าย",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "เปิด",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "ปิด"
 };
 
 setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", englishName: "Thai" });

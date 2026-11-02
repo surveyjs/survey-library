@@ -1,4 +1,6 @@
-<div
+<div *ngIf="model.isViewMode && !model.value" [class]="model.viewModeCssClass" [attr.id]="model.inputId">{{ model.viewDisplayText }}</div>
+<img *ngIf="model.isViewMode && !!model.value" [class]="model.viewModeCssClass" [attr.id]="model.inputId" [src]="model.value" alt="">
+<div *ngIf="!model.isViewMode"
 [class]="model.cssClasses.root"
 [style.width]="model.renderedCanvasWidth" #contentElement>
 <div [class]="model.cssClasses.placeholder" [visible]="model.needShowPlaceholder()" [model]="$any(model).locRenderedPlaceholder" sv-ng-string></div>

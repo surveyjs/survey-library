@@ -55,6 +55,8 @@ export var dutchSurveyStrings = {
   sortAddNewText: "Voeg Nieuw toe",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Plaats op niveau {0}",
   // "Complete"
   completeText: "Verzenden",
   // "Preview"
@@ -189,6 +191,8 @@ export var dutchSurveyStrings = {
   addRow: "Voeg rij toe",
   // "Remove"
   removeRow: "Verwijder",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Rij {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Er zijn geen rijen.",
   // [Auto-translated] "Row {rowIndex}"
@@ -322,7 +326,29 @@ export var dutchSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "om te selecteren",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "om te wisselen",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Om te navigeren",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "om door te gaan",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "om zich te onderwerpen",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "of",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "voor een nieuwe lijn",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Naar volgende optie",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "om te bewegen",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "om te openen",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "om te sluiten"
 };
 
 setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });

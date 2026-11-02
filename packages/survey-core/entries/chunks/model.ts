@@ -159,7 +159,7 @@ export {
   Serializer,
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
-export { QuestionRecordsModel, IRecordsDesignSortDialogOptions } from "../../src/question_records";
+export { QuestionRecordsModel } from "../../src/question_records";
 export { QuestionRecordsBar } from "../../src/question_records_bar";
 export { RecordsSortDialogModel } from "../../src/records/records-sort-dialog";
 export { IRecordsSortField } from "../../src/records/records-sort-bar";
@@ -202,6 +202,8 @@ export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
 export { Question, QuestionValueType, ValidationContext } from "../../src/question";
 export type { IValidationContextParams } from "../../src/question";
+export { KeyboardHintItem, KeyboardHintModel } from "../../src/keyboard-hints";
+export type { IKeyboardHintData, IKeyboardHintPart, IKeyboardHintCss } from "../../src/keyboard-hints";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";

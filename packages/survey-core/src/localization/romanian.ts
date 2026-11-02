@@ -55,6 +55,8 @@ export var romanianSurveyStrings = {
   sortAddNewText: "Adaugă noutăți",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nivel de sortare a mișcărilor {0}",
   // "Complete"
   completeText: "Finalizare",
   // "Preview"
@@ -189,6 +191,8 @@ export var romanianSurveyStrings = {
   addRow: "Adăugare rând",
   // "Remove"
   removeRow: "Ștergere",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mută rândul {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nu există rânduri.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +308,29 @@ export var romanianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Bara de progres",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Pagina {0}"
+  progressbarPage: "Pagina {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "pentru a selecta",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "pentru comutarea comutării",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "pentru a naviga",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Să continue",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "pentru a depune",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "sau",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "pentru o nouă linie",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "către următoarea opțiune",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "să se miște",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "pentru deschidere",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "Până la încheiere"
 };
 
 setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "română", englishName: "Romanian" });

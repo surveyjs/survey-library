@@ -55,6 +55,8 @@ export var vietnameseSurveyStrings = {
   sortAddNewText: "Thêm mới",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Di chuyển mức sắp xếp {0}",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"
@@ -189,6 +191,8 @@ export var vietnameseSurveyStrings = {
   addRow: "Thêm dòng",
   // "Remove"
   removeRow: "Xóa",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Di chuyển hàng {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Không có hàng.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +308,29 @@ export var vietnameseSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Thanh tiến trình",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Trang {0}"
+  progressbarPage: "Trang {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "để chọn",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "chuyển đổi",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "điều hướng",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "tiếp tục",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "nộp",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "hoặc",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "cho dòng sản phẩm mới",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "đến tùy chọn tiếp theo",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "di chuyển",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "mở",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "đóng cửa"
 };
 
 setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "việt nam", englishName: "Vietnamese" });

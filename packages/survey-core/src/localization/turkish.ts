@@ -55,6 +55,8 @@ export var turkishSurveyStrings = {
   sortAddNewText: "Yeni Ekle",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Taşınma sıralaması seviyesi {0}",
   // "Complete"
   completeText: "Tamamla",
   // "Preview"
@@ -189,6 +191,8 @@ export var turkishSurveyStrings = {
   addRow: "Satır Ekle",
   // "Remove"
   removeRow: "Kaldır",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Sıra {0}",
   // "There are no rows."
   noRowsText: "Satır yok.",
   // [Auto-translated] "Row {rowIndex}"
@@ -322,7 +326,29 @@ export var turkishSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "seçmek",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "Açmak",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Navigasyon",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "devam etmek",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "teslim olmak",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "veya",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "yeni bir hat için",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Sonraki seçeneğe",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "hareket etmek",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "açmak",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "kapanmak"
 };
 
 setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });

@@ -55,6 +55,8 @@ export var icelandicSurveyStrings = {
   sortAddNewText: "Bættu við Nýju",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flutningsflokkun á stigi {0}",
   // "Complete"
   completeText: "Lokið",
   // "Preview"
@@ -189,6 +191,8 @@ export var icelandicSurveyStrings = {
   addRow: "Bæta við röð",
   // "Remove"
   removeRow: "Fjarlægja",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Færðu röð {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Það eru engar raðir.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +308,29 @@ export var icelandicSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Framvindustika",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Síða {0}"
+  progressbarPage: "Síða {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "Til að velja",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "til að slökkva á",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Til að rata",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "til að halda áfram",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "að leggja fram",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "eða",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "fyrir nýja línu",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Í næsta valkost",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "að hreyfa sig",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "til að opna",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "til að loka"
 };
 
 setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "íslenska", englishName: "Icelandic" });

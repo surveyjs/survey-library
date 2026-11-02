@@ -98,6 +98,7 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
+import { registerRecordsSortDialogSurvey } from "./records/records-sort-dialog";
 import { IConfirmDialogOptions, PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -1311,6 +1312,9 @@ export class SurveyModel extends SurveyElementCore
     if (name === "readOnly") {
       this.onReadOnlyChanged();
     }
+    if (name === "readOnlyMode") {
+      this.pages.forEach(page => page.onReadOnlyModeChanged());
+    }
     const resetVisibleIndexesProps = ["questionStartIndex", "requiredMark", "questionTitlePattern"];
     if (resetVisibleIndexesProps.indexOf(name) > -1) {
       this.resetVisibleIndexes();
@@ -2026,6 +2030,7 @@ export class SurveyModel extends SurveyElementCore
     defaultValue: false,
     onSet: (_newValue, target: SurveyModel) => target.onChoiceShortcutsEnabledChanged()
   }) choiceShortcutsEnabled: boolean;
+  @property({ defaultValue: false }) showKeyboardHints: boolean;
   private onChoiceShortcutsEnabledChanged(): void {
     // While loading, onSurveyLoad binds what the JSON enables.
     if (this.isLoadingFromJson) return;
@@ -3385,9 +3390,25 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: `false`
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+   * [Demo: Read-Only / Display Mode](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+   * @see readOnlyMode
    */
   @property() readOnly: boolean;
+  /**
+   * Specifies how read-only questions are displayed.
+   *
+   * Possible values:
+   *
+   * - `"readonly"` (default) - Displays the usual input controls, but disabled for editing.
+   * - `"view"` - Displays answers as plain text or other non-interactive visuals.
+   *
+   * You can override this setting for individual questions, panels, and pages using their `readOnlyMode` property.
+   * @see readOnly
+   */
+  @property({ defaultValue: "readonly" }) readOnlyMode: "readonly" | "view";
+  public getReadOnlyMode(): "readonly" | "view" {
+    return this.readOnlyMode === "view" ? "view" : "readonly";
+  }
 
   private onReadOnlyChanged() {
     for (var i = 0; i < this.pages.length; i++) {
@@ -9692,6 +9713,13 @@ Serializer.addClass("survey", [
     visible: false
   },
   { name: "readOnly:boolean" },
+  {
+    name: "readOnlyMode",
+    default: "readonly",
+    choices: ["readonly", "view"],
+    dependsOn: ["readOnly"],
+    visibleIf: (obj: any) => !!obj && !!obj.readOnly
+  },
   { name: "mode", visible: false, isSerializable: false },
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },
@@ -9713,6 +9741,7 @@ Serializer.addClass("survey", [
     visibleIf: (obj: any): boolean => obj.autoAdvanceEnabled === true
   },
   { name: "choiceShortcutsEnabled:boolean", default: false },
+  { name: "showKeyboardHints:boolean", default: false },
   {
     name: "clearInvisibleValues",
     default: "onComplete",
@@ -9834,3 +9863,5 @@ const progressBarLocationProp = Serializer.findProperty("survey", "progressBarLo
 progressBarLocationProp.dependsOn = ["progressBarType", "headerView"];
 Serializer.findProperty("survey", "progressBarType").addDependedProperty("progressBarLocation");
 Serializer.findProperty("survey", "headerView").addDependedProperty("progressBarLocation");
+// The sort dialog of a records question shows a survey of its own.
+registerRecordsSortDialogSurvey((): SurveyModel => new SurveyModel());

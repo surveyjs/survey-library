@@ -55,6 +55,8 @@ export var hebrewSurveyStrings = {
   sortAddNewText: "הוסף חדש",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "מיון מהלך ברמת {0}",
   // "Complete"
   completeText: "סיום",
   // "Preview"
@@ -189,6 +191,8 @@ export var hebrewSurveyStrings = {
   addRow: "להוסיף שורה",
   // "Remove"
   removeRow: "לְהַסִיר",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "הזז שורה {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "אין שורות.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +308,29 @@ export var hebrewSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "מד התקדמות",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "עמוד {0}"
+  progressbarPage: "עמוד {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "לבחור",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "להחליף",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "לנווט",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "להמשיך",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "להגיש",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "או",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "לקו חדש",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "לאפשרות הבאה",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "לזוז",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "לפתוח",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "לסיים"
 };
 
 setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew", rtl: true });

@@ -1,6 +1,6 @@
 import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedWalkBuild, getNestedElementQuestions } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedElementVisit, NestedWalkBuild, getNestedElementQuestions } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { IElement, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
@@ -26,7 +26,7 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValuePa
 import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem,
+  QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
@@ -1138,6 +1138,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public getType(): string {
     return "matrixdropdownbase";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   /**
    * Specifies whether to display the table header that contains column captions.
    *
@@ -1204,7 +1207,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.columns.filter((column: MatrixDropdownColumn): boolean => column.visible && column.isSortable)
       .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
   }
-  /* The designer's dialog offers every column whose values sort, an invisible one included: the column still
+  /* The designer's sort fields (getDesignSortFields) are every column whose values sort, an invisible one included: the column still
      holds a value in every row, so a designer can order the rows by a key the respondent does not see. */
   protected getDesignSortFieldCandidates(): Array<{ field: string, title: string }> {
     return this.columns.filter((column: MatrixDropdownColumn): boolean => column.isValueSortable)
@@ -1222,7 +1225,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return isMatrixColumnsAutoWidth(this.isMobile, this.columns);
   }
   public getTableCss(): string {
-    return getMatrixTableCss(this.cssClasses, this.columnsAutoWidth, this.showHeader, this.verticalAlign);
+    return toCssClasses(
+      getMatrixTableCss(this.cssClasses, this.columnsAutoWidth, this.showHeader, this.verticalAlign),
+      this.isViewMode && this.cssClasses.rootView
+    );
   }
   public getTableBodyCss(): string {
     return getMatrixTableBodyCss(this.cssClasses, this.alternateRows, this.isMobile);
@@ -1545,6 +1551,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return true;
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase): void { }
+  public onDragHandleKeyDown(event: KeyboardEvent, row: MatrixDropdownRowModelBase): void { }
   protected onRowsChanged(): void {
     this.clearVisibleRows();
     this.resetRenderedTable();
@@ -1924,33 +1931,27 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.recordsSource["getRecordSegment"](index > -1 ? index : position);
   }
   // The rows, then the cells of the total row when it is generated, in every build mode.
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
-    super.forEachNestedElementCore(visit, build);
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
+    if (super.forEachNestedElementCore(visit, build)) return true;
     const totalRow = this.generatedTotalRow;
     if (!totalRow) return;
-    totalRow.cells.forEach(cell => {
-      if (!!cell?.question) visit({ element: cell.question, role: "total", segment: undefined, location: "nested", visible: true });
-    });
+    return totalRow.cells.some(cell => !!cell?.question && visit({ element: cell.question, role: "total", segment: undefined, location: "nested", visible: true }));
   }
   // "none": the generated rows; "rows": visibleRows; "all": allRows. visibleRows drops the rows rowsVisibleIf hides.
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: NestedWalkItemVisit): boolean | void {
     const rows = build === "rows" ? this.visibleRows : (build === "all" ? this.allRows : this.generatedVisibleRows);
     if (!Array.isArray(rows)) return;
     const created = this.generatedVisibleRows;
-    rows.forEach((row, index) => {
-      func(row, rows === created ? index : created.indexOf(row), row.isVisible);
-    });
+    return rows.some((row, index) => func(row, rows === created ? index : created.indexOf(row), row.isVisible));
   }
   // The cells, then the detail panel; "all" creates the detail panel after the cells, as the verification always did.
   protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
-    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
+    build: NestedWalkBuild, visit: NestedElementVisit): boolean | void {
     const row = <MatrixDropdownRowModelBase>item;
     const segment = this.getRowDataSegment(position);
-    row.cells.forEach(cell => {
-      if (!!cell?.question) visit({ element: cell.question, role: "cell", segment: segment, location: "nested", visible: visible });
-    });
+    if (row.cells.some(cell => !!cell?.question && visit({ element: cell.question, role: "cell", segment: segment, location: "nested", visible: visible }))) return true;
     if (build === "all") row.ensureDetailPanel();
-    if (!!row.detailPanel) visit({ element: row.detailPanel, role: "detail", segment: segment, location: "nested", visible: visible });
+    return !!row.detailPanel && visit({ element: row.detailPanel, role: "detail", segment: segment, location: "nested", visible: visible });
   }
   // A row has its detail panel after the panel was shown once; it renders it only while it shows it.
   protected isNestedElementShown(item: NestedWalkItem, info: INestedElementInfo): boolean {
@@ -1969,6 +1970,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       if (!!question && question.getValueName() === key) return question;
     }
     return this.detailPanelMode !== "none" ? <Question>this.detailPanel.getQuestionByValueName(key) || undefined : undefined;
+  }
+  // QuestionRecordsModel hook of updateRecordsExpressionFields: the cell questions of the expression columns.
+  protected getRecordExpressionQuestions(): Array<QuestionExpressionModel> {
+    return this.columns.map((column: MatrixDropdownColumn): Question => column.templateQuestion)
+      .filter((q: Question): boolean => !!q && q.getType() === "expression") as Array<QuestionExpressionModel>;
   }
   // QuestionRecordsModel hook of clearHiddenAnswersWithoutObjects: the cell questions a column condition hides.
   protected getRecordConditionalInputs(): Array<Question> {
@@ -2827,28 +2833,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return true;
   }
-  protected getContainsErrors(): boolean {
-    return (
-      super.getContainsErrors() ||
-      this.checkForAnswersOrErrors(
-        (question: Question) => question.containsErrors,
-        false
-      )
-    );
-  }
   protected getIsAnswered(): boolean {
-    return (
-      super.getIsAnswered() &&
-      this.checkForAnswersOrErrors(
-        (question: Question) => question.isAnswered,
-        true
-      )
-    );
+    return super.getIsAnswered() && this.isEveryCellAnswered();
   }
-  private checkForAnswersOrErrors(
-    predicate: (question: Question) => boolean,
-    every: boolean = false
-  ) {
+  private isEveryCellAnswered(): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) return false;
     for (var i = 0; i < rows.length; i++) {
@@ -2858,15 +2846,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       for (var colIndex = 0; colIndex < cells.length; colIndex++) {
         if (!cells[colIndex]) continue;
         var question = cells[colIndex].question;
-        if (question && question.isVisible)
-          if (predicate(question)) {
-            if (!every) return true;
-          } else {
-            if (every) return false;
-          }
+        if (question && question.isVisible && !question.isAnswered) return false;
       }
     }
-    return every ? true : false;
+    return true;
   }
   // Off the page: the edited records, the pages isEveryPageValidated asks for, and a duplicate pair
   // both of whose records have no row. Either moves to the page that holds the error.
@@ -2939,26 +2922,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
   }
   public getFirstQuestionToFocus(withError: boolean): Question {
-    return this.getFirstCellQuestion(withError);
-  }
-  protected getFirstInputElementId(): string | (() => HTMLElement) {
-    var question = this.getFirstCellQuestion(false);
-    return question ? question.inputId : super.getFirstInputElementId();
-  }
-  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
-    var question = this.getFirstCellQuestion(true);
-    return question ? question.inputId : super.getFirstErrorInputElementId();
-  }
-  protected getFirstCellQuestion(onError: boolean): Question {
-    if (!this.generatedVisibleRows) return null;
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      var cells = this.generatedVisibleRows[i].cells;
-      for (var colIndex = 0; colIndex < cells.length; colIndex++) {
-        const q = cells[colIndex].question;
-        if (q.isVisible && !q.isReadOnly && (!onError || q.currentErrorCount > 0)) return q;
-      }
-    }
-    return null;
+    return this.getFirstNestedQuestionToFocus(withError);
   }
   // The rows that exist, hidden ones included; nothing is built. A row built later reads the state then.
   protected onReadOnlyChanged() {

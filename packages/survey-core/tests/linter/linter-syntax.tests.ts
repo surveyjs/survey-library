@@ -38,4 +38,14 @@ describe("expression/syntax", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].messageData.synthesized).toBe(true);
   });
+  test("nesting beyond the stack is reported with the parser's text and no position", () => {
+    const res = lintSurvey({
+      elements: [{ type: "text", name: "q1", visibleIf: "(".repeat(100000) + "1" + ")".repeat(100000) }],
+    });
+    const findings = res.findings.filter(f => f.ruleId === "expression/syntax");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.detail).toBe("The expression is nested too deeply to parse.");
+    expect(findings[0].messageData.at).toBeUndefined();
+    expect(findings[0].message.indexOf("position")).toBe(-1);
+  });
 });

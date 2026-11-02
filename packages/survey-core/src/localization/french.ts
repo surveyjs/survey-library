@@ -55,6 +55,8 @@ export var frenchSurveyStrings = {
   sortAddNewText: "Ajouter du nouveau",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Niveau de tri {0}",
   // "Complete"
   completeText: "Terminer",
   // "Preview"
@@ -189,6 +191,8 @@ export var frenchSurveyStrings = {
   addRow: "Ajouter une ligne",
   // "Remove"
   removeRow: "Supprimer",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Déplacer la rangée {0}",
   // "There are no rows."
   noRowsText: "Il n'y a pas de lignes.",
   // [Auto-translated] "Row {rowIndex}"
@@ -322,7 +326,29 @@ export var frenchSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "à sélectionner",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "à basculer",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "pour naviguer",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "à continuer",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "à soumettre",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "ou",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "pour une nouvelle ligne",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "à l’option suivante",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "pour bouger",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "pour ouvrir",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "à la fin"
 };
 
 setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "français", englishName: "French" });

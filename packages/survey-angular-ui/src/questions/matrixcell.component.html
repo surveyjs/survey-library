@@ -1,4 +1,6 @@
-<label (mousedown)="question.onMouseDown()" [class]="question.getItemClass(row, column)">
+<div *ngIf="viewText" [class]="question.viewModeCssClass">{{ viewText }}</div>
+<span *ngIf="viewText && question.isMobile" [class]="question.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string></span>
+<label *ngIf="!viewText" (mousedown)="question.onMouseDown()" [class]="question.getItemClass(row, column)">
   <input
     [type]="question.checkType"
     [class]="question.cssItemValue"

@@ -330,7 +330,8 @@
   --sjs2-layout-component-panel-header-padding-top: var(--sjs2-spacing-medium-vertical);
   --sjs2-layout-component-panel-header-padding-bottom: var(--sjs2-spacing-medium-vertical);
   --sjs2-layout-component-panel-header-gap-vertical: var(--sjs2-spacing-x050);
-  --sjs2-layout-component-panel-header-gap-horizontal: var(--sjs2-spacing-x150);
+  --sjs2-layout-component-panel-header-gap-horizontal: var(--sjs2-spacing-x300);
+  --sjs2-layout-component-panel-header-gap: var(--sjs2-spacing-x300);
   --sjs2-layout-component-panel-title-padding-horizontal: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-title-padding-vertical: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-description-padding-horizontal: var(--sjs2-spacing-x000);
@@ -380,7 +381,8 @@
   --sjs2-layout-component-panel-nested-header-padding-top: var(--sjs2-spacing-x200);
   --sjs2-layout-component-panel-nested-header-padding-bottom: var(--sjs2-spacing-x200);
   --sjs2-layout-component-panel-nested-header-gap-vertical: var(--sjs2-spacing-x050);
-  --sjs2-layout-component-panel-nested-header-gap-horizontal: var(--sjs2-spacing-x150);
+  --sjs2-layout-component-panel-nested-header-gap-horizontal: var(--sjs2-spacing-x300);
+  --sjs2-layout-component-panel-nested-header-gap: var(--sjs2-spacing-x300);
   --sjs2-layout-component-panel-nested-title-padding-horizontal: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-nested-title-padding-vertical: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-nested-description-padding-horizontal: var(--sjs2-spacing-x000);
@@ -402,7 +404,8 @@
   --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs2-spacing-medium-vertical);
   --sjs2-layout-component-panel-dynamic-header-padding-bottom: var(--sjs2-spacing-medium-vertical);
   --sjs2-layout-component-panel-dynamic-header-gap-vertical: var(--sjs2-spacing-x050);
-  --sjs2-layout-component-panel-dynamic-header-gap-horizontal: var(--sjs2-spacing-x150);
+  --sjs2-layout-component-panel-dynamic-header-gap-horizontal: var(--sjs2-spacing-x300);
+  --sjs2-layout-component-panel-dynamic-header-gap: var(--sjs2-spacing-x300);
   --sjs2-layout-component-panel-dynamic-title-padding-horizontal: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-dynamic-title-padding-vertical: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-dynamic-description-padding-horizontal: var(--sjs2-spacing-x000);
@@ -576,7 +579,8 @@
   --sjs2-layout-component-panel-matrix-header-padding-top: var(--sjs2-spacing-medium-vertical);
   --sjs2-layout-component-panel-matrix-header-padding-bottom: var(--sjs2-spacing-medium-vertical);
   --sjs2-layout-component-panel-matrix-header-gap-vertical: var(--sjs2-spacing-x050);
-  --sjs2-layout-component-panel-matrix-header-gap-horizontal: var(--sjs2-spacing-x150);
+  --sjs2-layout-component-panel-matrix-header-gap-horizontal: var(--sjs2-spacing-x300);
+  --sjs2-layout-component-panel-matrix-header-gap: var(--sjs2-spacing-x300);
   --sjs2-layout-component-panel-matrix-title-padding-horizontal: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-matrix-title-padding-vertical: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-matrix-description-padding-horizontal: var(--sjs2-spacing-x000);
@@ -598,12 +602,12 @@
   --sjs2-size-component-icon-small: var(--sjs2-size-x200);
   --sjs2-size-component-icon-medium: var(--sjs2-size-x300);
   --sjs2-size-component-icon-large: var(--sjs2-size-x400);
+}
+:where(.sd-theme-root) {
   --sjs2-size-component-checkbox-box: var(--sjs2-size-x300);
   --sjs2-size-component-checkbox-icon: var(--sjs2-size-x200);
   --sjs2-size-component-radio-box: var(--sjs2-size-x300);
   --sjs2-size-component-radio-icon: var(--sjs2-size-x200);
-}
-:where(.sd-theme-root) {
   --sjs2-size-component-action-large-icon: var(--sjs2-typography-line-height-component-action-large-content);
   --sjs2-size-component-action-medium-icon: var(--sjs2-typography-line-height-component-action-medium-content);
   --sjs2-size-component-action-small-icon: var(--sjs2-typography-line-height-component-action-small-content);
@@ -900,12 +904,12 @@
   --sjs2-color-border-positive-primary: var(--sjs2-palette-green-600);
   --sjs2-color-border-positive-on-primary: var(--sjs2-palette-gray-000);
   --sjs2-color-border-warning-primary: var(--sjs2-palette-yellow-600);
+}
+:where(.sd-theme-root) {
   --sjs2-color-border-warning-on-primary: var(--sjs2-palette-gray-000);
   --sjs2-color-border-alert-primary: var(--sjs2-palette-red-600);
   --sjs2-color-border-alert-on-primary: var(--sjs2-palette-gray-000);
   --sjs2-color-border-static-1-primary: var(--sjs2-palette-gray-000);
-}
-:where(.sd-theme-root) {
   --sjs2-color-border-static-2-primary: var(--sjs2-palette-gray-900);
   --sjs2-color-data-chart-bg-color-0: var(--sjs2-color-bg-brand-primary);
   --sjs2-color-data-chart-bg-color-1: #84CAD4;
@@ -1202,12 +1206,12 @@
   --sjs2-color-component-input-disabled-line: var(--sjs2-color-border-basic-secondary-disabled);
   --sjs2-color-component-input-disabled-value: var(--sjs2-color-fg-basic-primary-disabled);
   --sjs2-color-component-input-disabled-placeholder: var(--sjs2-color-fg-basic-secondary-disabled);
+}
+:where(.sd-theme-root) {
   --sjs2-color-component-input-disabled-label: var(--sjs2-color-fg-basic-secondary-disabled);
   --sjs2-color-component-input-disabled-limit: var(--sjs2-color-fg-basic-secondary-disabled);
   --sjs2-color-component-input-disabled-icon: var(--sjs2-color-fg-basic-tertiary-disabled);
   --sjs2-color-component-input-disabled-description: var(--sjs2-color-fg-basic-primary-disabled);
-}
-:where(.sd-theme-root) {
   --sjs2-color-component-toggle-false-default-bg: var(--sjs2-color-bg-basic-secondary);
   --sjs2-color-component-toggle-false-default-border: var(--sjs2-color-border-basic-secondary);
   --sjs2-color-component-toggle-false-default-thumb: var(--sjs2-color-fg-basic-secondary);
@@ -1504,12 +1508,12 @@
   --sjs2-border-blur-trigger-pressed: 0px;
   --sjs2-border-blur-trigger-disabled: 0px;
   --sjs2-border-blur-trigger-design: 0px;
+}
+:where(.sd-theme-root) {
   --sjs2-border-blur-trigger-readonly: 0px;
   --sjs2-border-blur-trigger-invalid: 0px;
   --sjs2-border-blur-surface-default: 0px;
   --sjs2-border-blur-surface-hovered: 0px;
-}
-:where(.sd-theme-root) {
   --sjs2-border-blur-surface-pressed: 0px;
   --sjs2-border-blur-surface-focused: 0px;
   --sjs2-border-blur-surface-disabled: 0px;

@@ -838,8 +838,14 @@ export abstract class QuestionRecordsModel extends Question {
     }
   }
   /* The records of the view in view order, each with its object (undefined for a record without one):
-     visibleOnly walks the visible records, otherwise every record the view creates. */
+     visibleOnly walks the visible records, otherwise every record the view creates. The built objects
+     of a question the list does not page are what is shown, with or without a view: visibleOnly walks
+     them all, in created order, func checks each one's visibility, and the list is not created. */
   protected forEachViewRecord(visibleOnly: boolean, func: (index: number, item: QuestionRecordItem) => void): void {
+    if (visibleOnly && !this.isPagedByList && this.areObjectsBuilt()) {
+      this.forEachItem((item: QuestionRecordItem): void => { func(this.getBuiltRecordIndex(item), item); });
+      return;
+    }
     this.forEachRecordItem(this.getViewIndexes(visibleOnly), (index: number, item: QuestionRecordItem): void => { func(index, item); });
   }
   protected getViewIndexes(visibleOnly: boolean): Array<number> {
@@ -856,6 +862,37 @@ export abstract class QuestionRecordsModel extends Question {
     for (let i = 0; i < count; i++) {
       func(i, this.getItem(i) || undefined);
     }
+  }
+  /* The data of the view, what a row reads as {matrix}: the records of the view, not of the page, in the
+     answer's shape. A record the list filter excluded is not part of it - the same answer a source that
+     filters on its own side gives. The type's hooks decide when the value is the answer, which records
+     take part and what each gives. */
+  public getFilteredData(): any {
+    if (this.isValueFilteredData()) return this.value;
+    const visibleOnly = !this.isHiddenRecordInFilteredData();
+    return this.collectRecordValues((func: (index: number, item: QuestionRecordItem) => void): void => this.forEachViewRecord(visibleOnly, func),
+      (index: number, item: QuestionRecordItem, add: (value: any) => void): void => this.addFilteredRecordValue(index, item, add));
+  }
+  // There is nothing to walk: without a view every record is in the value.
+  protected isValueFilteredData(): boolean {
+    return !this.hasDataListView;
+  }
+  // Whether a record the owner hides (rowsVisibleIf, templateVisibleIf) takes part: it does when its completed value keeps it.
+  protected isHiddenRecordInFilteredData(): boolean {
+    return false;
+  }
+  // What a record of the walk gives to the filtered data, through add; item is undefined for a record without an object.
+  protected abstract addFilteredRecordValue(index: number, item: QuestionRecordItem, add: (value: any) => void): void;
+  /* One walk, the result in the answer's shape, which the own source decides: an array in walk order,
+     or keyed by the row value. forEachRecord is the walk, func adds what a record contributes. */
+  protected collectRecordValues(forEachRecord: (func: (index: number, item: QuestionRecordItem) => void) => void,
+    func: (index: number, item: QuestionRecordItem, add: (value: any) => void) => void): any {
+    const source = this.recordsSource;
+    const res = source["createEmptyAnswer"]();
+    forEachRecord((index: number, item: QuestionRecordItem): void => {
+      func(index, item, (value: any): void => { source["addRecordToAnswer"](res, index, value); });
+    });
+    return res;
   }
   /* The display values of a records value, in record order: getRecordDisplayValue formats each record
      with the object that holds it, or with the question's templates. This is a live path - text piping
@@ -3715,8 +3752,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordIndexOfUnknownItem(): number {
     return -1;
   }
-  // The value an item's {matrix} / {panel} variable reads.
-  public abstract getFilteredData(): any;
   /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
      matrix row (see QuestionRecordItem.prepareRecordWrite). A refused or ignored write never reaches it
      (writeItemValue). A temporary object of the records clean-up writes its copy; every other write is

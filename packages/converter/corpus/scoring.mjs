@@ -57,19 +57,32 @@ export function tableCellComponents(cell) {
  */
 export function countFormioLeafInputs(def) {
   let n = 0;
+  // Radio-type checkbox siblings sharing a `name` are one field: Form.io stores one value under
+  // the name, and the converter makes one radio group of them.
+  const visitList = (list) => {
+    const radioNames = new Set();
+    for (const comp of list) {
+      if (comp && comp.type === "checkbox" && comp.inputType === "radio" && typeof comp.name === "string" && comp.name) {
+        if (radioNames.has(comp.name)) continue;
+        radioNames.add(comp.name);
+      }
+      visit(comp);
+    }
+  };
   const visit = (comp) => {
     if (!comp || typeof comp !== "object") return;
     const type = typeof comp.type === "string" ? comp.type : "";
     const children = formioChildren(comp);
-    if (FORMIO_CONTAINER_TYPES.has(type)) {
-      children.forEach(visit);
+    // A tab has no `type`; it is a container like the `tabs` around it.
+    if (FORMIO_CONTAINER_TYPES.has(type) || (type === "" && children.length > 0)) {
+      visitList(children);
       return;
     }
     if (!FORMIO_NONVALUE_TYPES.has(type) && comp.input !== false && type !== "") n++;
     // Some inputs (e.g. select with nested data) may still carry children; only
     // containers recurse, so nothing else to do here.
   };
-  (Array.isArray(def.components) ? def.components : []).forEach(visit);
+  visitList(Array.isArray(def.components) ? def.components : []);
   return n;
 }
 

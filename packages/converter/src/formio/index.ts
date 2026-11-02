@@ -138,7 +138,7 @@ const TEXT_INPUT_TYPE: Record<string, string | undefined> = {
   url: "url",
   phoneNumber: "tel",
   number: "number",
-  currency: "number", // currency formatting (symbol/precision) is presentation -> dropped
+  currency: undefined, // plain text under a currency mask, see `applyCurrencyMask`
   password: "password",
   datetime: "datetime-local",
   day: "date",
@@ -243,8 +243,9 @@ function isSimpleConditional(cond: FormioConditional): boolean {
   return !!cond.conjunction && !!cond.conditions;
 }
 
-// `customConditional` is arbitrary JavaScript and is refused, content-free. Any other conditional
-// is recorded with its target and resolved after the walk. Called for leaves, panels, data grids,
+// `customConditional`, `logic`, `calculateValue` and `customDefaultValue` hold arbitrary code or
+// rules and are refused, content-free: path and count, never the source. Any other conditional is
+// recorded with its target and resolved after the walk. Called for leaves, panels, data grids,
 // tabs and wizard pages.
 function applyLogic(
   comp: FormioComponent,
@@ -253,6 +254,12 @@ function applyLogic(
   targetPath: string,
   ctx: Ctx
 ): void {
+  if (Array.isArray(comp.logic) && comp.logic.length > 0) {
+    ctx.report.unsupported(FormioCodes.CUSTOM_LOGIC, `${sourcePtr}/logic`, targetPath);
+  }
+  for (const key of ["calculateValue", "customDefaultValue"]) {
+    if (holdsCode(comp[key])) ctx.report.unsupported(FormioCodes.CUSTOM_VALUE, `${sourcePtr}/${key}`, targetPath);
+  }
   if (typeof comp.customConditional === "string" && comp.customConditional.trim().length > 0) {
     ctx.report.unsupported(FormioCodes.CUSTOM_CONDITIONAL, `${sourcePtr}/customConditional`, targetPath);
     return;
@@ -262,6 +269,12 @@ function applyLogic(
   if (isJsonConditional(cond) || isLegacyConditional(cond) || isSimpleConditional(cond)) {
     ctx.conditions.push({ conditional: cond, target, sourcePtr, targetPath, grids: [...ctx.grids] });
   }
+}
+
+// JavaScript as a string, or JSON logic as an object.
+function holdsCode(value: unknown): boolean {
+  if (typeof value === "string") return value.trim().length > 0;
+  return !!value && typeof value === "object" && Object.keys(value).length > 0;
 }
 
 function recordField(comp: FormioComponent, name: string, ctx: Ctx): void {
@@ -597,6 +610,7 @@ function mapLeaf(
     const el: SurveyJSONElement = { type: "text", name };
     const inputType = TEXT_INPUT_TYPE[type];
     if (inputType) el.inputType = inputType;
+    if (type === "currency") applyCurrencyMask(comp, el, sourcePtr, targetPath, ctx);
     return el;
   }
 
@@ -620,8 +634,7 @@ function mapLeaf(
     }
     case "select": {
       const el: SurveyJSONElement = { type: comp.multiple ? "tagbox" : "dropdown", name };
-      const choices = readChoices(comp);
-      if (choices) el.choices = choices;
+      applyDataSource(comp, el, sourcePtr, targetPath, ctx);
       return el;
     }
     case "file":
@@ -640,6 +653,153 @@ function mapLeaf(
       }
       return null;
   }
+}
+
+// --- currency -----------------------------------------------------------------
+
+// Form.io's default when a currency field names none.
+const DEFAULT_CURRENCY = "USD";
+
+// The parts of an amount formatted in `currency` with the "en" format, or `undefined` for a code
+// `Intl` does not know (it throws a RangeError).
+function currencyParts(currency: string): Intl.NumberFormatPart[] | undefined {
+  try {
+    return new Intl.NumberFormat("en", { style: "currency", currency }).formatToParts(1);
+  } catch{
+    return undefined;
+  }
+}
+
+// A Form.io currency field is a number under a mask: the currency symbol sits inside the value, and
+// the component's own `prefix` and `suffix` render outside the input. In survey-core the mask's
+// `currencyPattern` holds both: `@` is the symbol and `#` the number, so `prefix` and `suffix`
+// wrap the currency's own layout. `currency` is an ISO code and `currencySymbol` is displayed as
+// written, so the symbol is resolved with `Intl` ("USD" gives "$").
+function applyCurrencyMask(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: string, targetPath: string, ctx: Ctx): void {
+  const settings: Record<string, unknown> = {};
+  const currency = typeof comp.currency === "string" && comp.currency.length > 0 ? comp.currency : undefined;
+  const parts = currencyParts(currency ?? DEFAULT_CURRENCY);
+  if (currency !== undefined) {
+    const symbol = parts?.find((p) => p.type === "currency")?.value;
+    if (symbol !== undefined) settings.currencySymbol = symbol;
+    else ctx.report.assumed(FormioCodes.ASSUMED_CURRENCY_FORMAT, `${sourcePtr}/currency`, `${targetPath}.maskSettings`);
+  }
+  if (comp.requireDecimal === true) settings.showTrailingZeros = true;
+  if (typeof comp.decimalLimit === "number") settings.precision = comp.decimalLimit;
+
+  const prefix = typeof comp.prefix === "string" ? comp.prefix : "";
+  const suffix = typeof comp.suffix === "string" ? comp.suffix : "";
+  if (prefix.length > 0 || suffix.length > 0) {
+    // A digit is refused by the pattern's validator, and `#`, `@` and `-` are its own symbols with
+    // no escape, so such an affix cannot be written.
+    if (/[0-9#@-]/.test(prefix + suffix)) {
+      ctx.report.assumed(FormioCodes.ASSUMED_CURRENCY_FORMAT, sourcePtr, `${targetPath}.maskSettings`);
+    } else {
+      settings.currencyPattern = `${prefix}${currencyLayout(parts)}${suffix}`;
+    }
+  }
+  el.maskType = "currency";
+  if (Object.keys(settings).length > 0) el.maskSettings = settings;
+}
+
+// The currency's own layout as a pattern: "@#" for "$1.00", "@ #" for "CHF 1.00".
+function currencyLayout(parts: Intl.NumberFormatPart[] | undefined): string {
+  if (!parts) return "@#";
+  let layout = "";
+  for (const part of parts) {
+    if (part.type === "currency") layout += "@";
+    else if (part.type === "literal") layout += part.value;
+    else if (!layout.endsWith("#")) layout += "#";
+  }
+  return layout;
+}
+
+// --- select data sources ----------------------------------------------------------
+
+// The item template Form.io falls back to without one shows `item.label`.
+const DEFAULT_ITEM_TITLE = "label";
+
+// `dataSrc: "url"` becomes `choicesByUrl`; static values become `choices`. A resource, custom code,
+// or inline JSON is refused, and so is a URL the form would call wrongly: one that interpolates
+// form data, or one that needs authentication or request headers.
+function applyDataSource(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: string, targetPath: string, ctx: Ctx): void {
+  const src = comp.dataSrc;
+  if (src === undefined || src === "" || src === "values") {
+    const choices = readChoices(comp);
+    if (choices) el.choices = choices;
+    return;
+  }
+  if (src !== "url") {
+    ctx.report.unsupported(FormioCodes.UNSUPPORTED_DATA_SOURCE, `${sourcePtr}/dataSrc`, targetPath);
+    return;
+  }
+  const url = comp.data?.url;
+  const headers = Array.isArray(comp.data?.headers) ? comp.data.headers as { key?: unknown, value?: unknown }[] : [];
+  const hasHeaders = headers.some((h) => !!h && (!!h.key || !!h.value));
+  if (typeof url !== "string" || url.length === 0 || url.includes("{{") || comp.authenticate === true || hasHeaders) {
+    ctx.report.unsupported(FormioCodes.UNSUPPORTED_DATA_SOURCE, `${sourcePtr}/dataSrc`, targetPath);
+    return;
+  }
+  const byUrl: Record<string, unknown> = { url };
+  if (typeof comp.selectValues === "string" && comp.selectValues.length > 0) byUrl.path = comp.selectValues;
+  if (typeof comp.valueProperty === "string" && comp.valueProperty.length > 0) byUrl.valueName = comp.valueProperty;
+  const titleName = readTemplateTitle(comp.template);
+  if (titleName !== undefined) byUrl.titleName = titleName;
+  else ctx.report.assumed(FormioCodes.ASSUMED_DATA_SOURCE_TITLE, `${sourcePtr}/template`, `${targetPath}.choicesByUrl`);
+  el.choicesByUrl = byUrl;
+}
+
+// The item property a template shows, when the template is exactly `<span>{{ item.x }}</span>`.
+// `titleName` reads a dotted path, so `item.data.name` gives `data.name`.
+function readTemplateTitle(template: unknown): string | undefined {
+  if (template === undefined || template === "") return DEFAULT_ITEM_TITLE;
+  if (typeof template !== "string") return undefined;
+  const match = /^<span>\{\{\s*item\.([A-Za-z0-9_$]+(?:\.[A-Za-z0-9_$]+)*)\s*\}\}<\/span>$/.exec(template.trim());
+  return match ? match[1] : undefined;
+}
+
+// --- radio-type checkboxes -----------------------------------------------------------
+
+// A `checkbox` with `inputType: "radio"` and a `name` is one option of a radio group: Form.io stores
+// the checked member's `value` under `name`. Without a `name` it stays a boolean.
+function isRadioCheckbox(comp: FormioComponent): boolean {
+  return comp.type === "checkbox" && comp.inputType === "radio" && typeof comp.name === "string" && comp.name.length > 0;
+}
+
+// The group's element, taken at the first member's place. It has no title, as in Form.io. Its
+// `name` is the field a condition reads; a member's `key` holds no data, so a condition on it
+// finds no field and is reported.
+function mapRadioGroup(first: FormioComponent, sourcePtr: string, targetPath: string, ctx: Ctx): SurveyJSONElement {
+  const dataKey = first.name as string;
+  const name = uniqueName(dataKey, ctx);
+  const el: SurveyJSONElement = { type: "radiogroup", name, choices: [] };
+  applyState(first, el);
+  ctx.fields.push({
+    key: dataKey,
+    dataPath: [...ctx.dataPath, dataKey].join("."),
+    fullPath: [...ctx.fullPath, dataKey].join("."),
+    name,
+    type: "radio",
+    multiple: false,
+    grids: [...ctx.grids]
+  });
+  addRadioMember(el, first, sourcePtr, targetPath, ctx);
+  return el;
+}
+
+function addRadioMember(group: SurveyJSONElement, member: FormioComponent, sourcePtr: string, targetPath: string, ctx: Ctx): void {
+  const value = member.value !== undefined ? member.value : member.key;
+  const choice: Record<string, unknown> = { value };
+  if (typeof member.label === "string") choice.text = member.label;
+  (group.choices as Record<string, unknown>[]).push(choice);
+  if (member.validate?.required) group.isRequired = true;
+  if (member.defaultValue === true) group.defaultValue = value;
+  // A member's own condition would show or hide one option; the group carries none of them.
+  if (member.conditional && typeof member.conditional === "object" && (isJsonConditional(member.conditional)
+    || isLegacyConditional(member.conditional) || isSimpleConditional(member.conditional))) {
+    ctx.report.assumed(FormioCodes.ASSUMED_CONDITIONAL, `${sourcePtr}/conditional`, `${targetPath}.choices`);
+  }
+  applyLogic({ ...member, conditional: undefined }, group, sourcePtr, targetPath, ctx);
 }
 
 /** Apply `title`/`description`/validators/conditional/custom-logic to a leaf. */
@@ -839,8 +999,22 @@ function collectLayoutChildren(comp: FormioComponent, sourcePtr: string): Indexe
 /** Walk an indexed list of components into SurveyJS elements, dropping nulls. */
 function walk(children: IndexedChild[], targetPath: string, ctx: Ctx): SurveyJSONElement[] {
   const elements: SurveyJSONElement[] = [];
+  // Radio-type checkbox siblings sharing a `name` become one radio group at the first one's place.
+  const radioGroups = new Map<string, { el: SurveyJSONElement, path: string }>();
   for (const { child, ptr } of children) {
-    const el = mapComponent(child, ptr, `${targetPath}[${elements.length}]`, ctx);
+    const path = `${targetPath}[${elements.length}]`;
+    if (child && isRadioCheckbox(child)) {
+      const group = radioGroups.get(child.name as string);
+      if (group) {
+        addRadioMember(group.el, child, ptr, group.path, ctx);
+      } else {
+        const el = mapRadioGroup(child, ptr, path, ctx);
+        radioGroups.set(child.name as string, { el, path });
+        elements.push(el);
+      }
+      continue;
+    }
+    const el = mapComponent(child, ptr, path, ctx);
     if (el) elements.push(el);
   }
   return elements;

@@ -3,6 +3,7 @@ import { convert, FormioCodes } from "./index";
 import { UnparseableInputError, WrongFormatError } from "../errors";
 import { ReportEntry } from "../report";
 import { SurveyJSONElement } from "../types";
+import { ChoicesRestful } from "survey-core";
 import { assertConstructsCleanly } from "../testing/oracle";
 import simpleForm from "./fixtures/simple-form.json";
 import wizardForm from "./fixtures/wizard-form.json";
@@ -681,4 +682,192 @@ describe("formio convert - condition literals", () => {
       expect(isVisible(compareWith(value), { a: "other" }, "b")).toBe(true);
     });
   }
+});
+
+describe("formio convert - currency", () => {
+  // Convert one currency field, load it, and show how the mask writes 1234.5.
+  function convertCurrency(props: Record<string, unknown>) {
+    const result = convert({ components: [{ type: "currency", key: "c", ...props }] });
+    const survey = assertConstructsCleanly(result.output, "currency");
+    const question = survey.getQuestionByName("c") as unknown as { maskInstance: { getMaskedValue(v: unknown): string } };
+    return { ...result, el: findElement(result.output, "c"), shown: question.maskInstance.getMaskedValue(1234.5) };
+  }
+
+  it("masks the field as currency with the symbol of the currency code", () => {
+    const { el, shown } = convertCurrency({ currency: "USD" });
+    expect(el).toMatchObject({ type: "text", maskType: "currency", maskSettings: { currencySymbol: "$" } });
+    expect(el?.inputType).toBeUndefined();
+    expect(shown).toBe("$1,234.5");
+  });
+
+  it("reports an unknown currency code and leaves the symbol out, without throwing", () => {
+    const { el, report } = convertCurrency({ currency: "NOT-A-CODE" });
+    expect(el?.maskType).toBe("currency");
+    expect((el?.maskSettings as Record<string, unknown> | undefined)?.currencySymbol).toBeUndefined();
+    expect(entry(report.entries, FormioCodes.ASSUMED_CURRENCY_FORMAT)?.sourcePointer).toBe("/components/0/currency");
+  });
+
+  it("shows trailing zeros for requireDecimal", () => {
+    const { el, shown } = convertCurrency({ currency: "USD", requireDecimal: true });
+    expect((el?.maskSettings as Record<string, unknown>).showTrailingZeros).toBe(true);
+    expect(shown).toBe("$1,234.50");
+  });
+
+  it("takes the precision from decimalLimit", () => {
+    const { el, shown } = convertCurrency({ currency: "USD", decimalLimit: 3, requireDecimal: true });
+    expect((el?.maskSettings as Record<string, unknown>).precision).toBe(3);
+    expect(shown).toBe("$1,234.500");
+  });
+
+  it("writes a prefix before the symbol", () => {
+    const { el, shown } = convertCurrency({ currency: "USD", prefix: "Total " });
+    expect((el?.maskSettings as Record<string, unknown>).currencyPattern).toBe("Total @#");
+    expect(shown).toBe("Total $1,234.5");
+  });
+
+  it("writes a suffix after the number", () => {
+    const { el, shown } = convertCurrency({ currency: "USD", suffix: " net" });
+    expect((el?.maskSettings as Record<string, unknown>).currencyPattern).toBe("@# net");
+    expect(shown).toBe("$1,234.5 net");
+  });
+
+  it("reports an affix with a digit and writes no pattern", () => {
+    const { el, report } = convertCurrency({ currency: "USD", prefix: "No. 1 " });
+    expect((el?.maskSettings as Record<string, unknown>).currencyPattern).toBeUndefined();
+    expect(entry(report.entries, FormioCodes.ASSUMED_CURRENCY_FORMAT)?.sourcePointer).toBe("/components/0");
+  });
+});
+
+describe("formio convert - radio-type checkboxes", () => {
+  const member = (key: string, value: string, extra: Record<string, unknown> = {}) =>
+    ({ type: "checkbox", inputType: "radio", name: "size", key, value, label: value.toUpperCase(), ...extra });
+  const form = { components: [
+    { type: "textfield", key: "before" },
+    member("small", "s"),
+    member("medium", "m", { defaultValue: true, validate: { required: true } }),
+    member("large", "l"),
+    { type: "textfield", key: "after" }
+  ] };
+
+  it("gives one radio group at the first member's place, with the fields around it in order", () => {
+    const { output } = convert(form);
+    expect((output.pages?.[0].elements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["before", "size", "after"]);
+    expect(findElement(output, "size")).toMatchObject({
+      type: "radiogroup",
+      choices: [{ value: "s", text: "S" }, { value: "m", text: "M" }, { value: "l", text: "L" }],
+      isRequired: true,
+      defaultValue: "m"
+    });
+    expect(findElement(output, "size")?.title).toBeUndefined();
+    const survey = assertConstructsCleanly(output, "radio group");
+    expect(survey.getQuestionByName("size").value).toBe("m");
+  });
+
+  it("branches a condition on the group's name", () => {
+    const withCondition = { components: [...form.components,
+      { type: "textfield", key: "b", conditional: { show: true, when: "size", eq: "l" } }] };
+    const survey = assertConstructsCleanly(convert(withCondition).output, "radio group condition");
+    survey.data = { size: "l" };
+    expect(survey.getQuestionByName("b").isVisible).toBe(true);
+    survey.data = { size: "s" };
+    expect(survey.getQuestionByName("b").isVisible).toBe(false);
+  });
+
+  it("reports a condition on a member's key, which holds no data", () => {
+    const onMember = { components: [...form.components,
+      { type: "textfield", key: "b", conditional: { show: true, when: "large", eq: "true" } }] };
+    const { output, report } = convert(onMember);
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)?.sourcePointer).toBe("/components/5/conditional/when");
+  });
+
+  it("keeps a radio-type checkbox with no name as a boolean", () => {
+    const { output } = convert({ components: [{ type: "checkbox", inputType: "radio", key: "alone", value: "x" }] });
+    expect(findElement(output, "alone")?.type).toBe("boolean");
+  });
+});
+
+describe("formio convert - select data sources", () => {
+  const urlSelect = (props: Record<string, unknown>) => ({ components: [{
+    type: "select", key: "s", dataSrc: "url", data: { url: "https://example.com/items", headers: [{ key: "", value: "" }] }, ...props
+  }] });
+
+  it("maps a URL source to choicesByUrl", () => {
+    const { output, report } = convert(urlSelect({ selectValues: "results", valueProperty: "id", template: "<span>{{ item.name }}</span>" }));
+    expect(findElement(output, "s")?.choicesByUrl).toEqual({ url: "https://example.com/items", path: "results", valueName: "id", titleName: "name" });
+    expect(report.entries).toEqual([]);
+    assertConstructsCleanly(output, "url select");
+  });
+
+  it("titles items with item.label when there is no template, as Form.io does", () => {
+    const { output } = convert(urlSelect({}));
+    expect((findElement(output, "s")?.choicesByUrl as Record<string, unknown>).titleName).toBe("label");
+  });
+
+  it("reports a template that is not a single item property", () => {
+    const { output, report } = convert(urlSelect({ template: "<span>{{ item.first }} {{ item.last }}</span>" }));
+    expect((findElement(output, "s")?.choicesByUrl as Record<string, unknown>).titleName).toBeUndefined();
+    expect(entry(report.entries, FormioCodes.ASSUMED_DATA_SOURCE_TITLE)?.sourcePointer).toBe("/components/0/template");
+  });
+
+  const refused: [string, Record<string, unknown>][] = [
+    ["an interpolated address", { data: { url: "https://example.com/{{ data.make }}" } }],
+    ["authentication", { authenticate: true }],
+    ["request headers", { data: { url: "https://example.com/items", headers: [{ key: "Authorization", value: "token" }] } }]
+  ];
+  for (const [what, props] of refused) {
+    it(`refuses a URL source with ${what}`, () => {
+      const { output, report } = convert(urlSelect(props));
+      expect(findElement(output, "s")?.choicesByUrl).toBeUndefined();
+      expect(entry(report.entries, FormioCodes.UNSUPPORTED_DATA_SOURCE)).toMatchObject({ bucket: "unsupported", sourcePointer: "/components/0/dataSrc" });
+    });
+  }
+
+  it("reads a nested valueProperty and template property from the response", () => {
+    const { output } = convert(urlSelect({ valueProperty: "data.email", template: "<span>{{ item.data.name }}</span>" }));
+    const byUrl = findElement(output, "s")?.choicesByUrl as Record<string, string>;
+    const restful = new ChoicesRestful();
+    restful.valueName = byUrl.valueName;
+    restful.titleName = byUrl.titleName;
+    let items: { value: unknown, text: string }[] = [];
+    restful.getResultCallback = (result) => { items = result.map((i) => ({ value: i.value, text: i.text })); };
+    (restful as unknown as { onLoad(result: unknown): void }).onLoad([
+      { data: { email: "ann@example.com", name: "Ann" } },
+      { data: { email: "bob@example.com", name: "Bob" } }
+    ]);
+    expect(items).toEqual([{ value: "ann@example.com", text: "Ann" }, { value: "bob@example.com", text: "Bob" }]);
+  });
+
+  for (const dataSrc of ["resource", "custom", "json"]) {
+    it(`reports a ${dataSrc} source`, () => {
+      const { output, report } = convert({ components: [{ type: "select", key: "s", dataSrc }] });
+      expect(findElement(output, "s")?.choices).toBeUndefined();
+      expect(entry(report.entries, FormioCodes.UNSUPPORTED_DATA_SOURCE)?.sourcePointer).toBe("/components/0/dataSrc");
+    });
+  }
+});
+
+describe("formio convert - logic and computed values", () => {
+  const secret = "data.secretTotal * 2";
+  const refusals: [string, Record<string, unknown>, string][] = [
+    ["logic", { logic: [{ name: "rule", trigger: { type: "javascript", javascript: secret }, actions: [] }] }, FormioCodes.CUSTOM_LOGIC],
+    ["calculateValue as a string", { calculateValue: `value = ${secret};` }, FormioCodes.CUSTOM_VALUE],
+    ["calculateValue as an object", { calculateValue: { "*": [{ var: "data.secretTotal" }, 2] } }, FormioCodes.CUSTOM_VALUE],
+    ["customDefaultValue", { customDefaultValue: `value = ${secret};` }, FormioCodes.CUSTOM_VALUE]
+  ];
+  for (const [what, props, code] of refusals) {
+    const key = Object.keys(props)[0];
+    it(`reports ${what} on a field without its content`, () => {
+      const { report } = convert({ components: [{ type: "textfield", key: "t", ...props }] });
+      expect(entry(report.entries, code)).toMatchObject({ bucket: "unsupported", sourcePointer: `/components/0/${key}` });
+      expect(JSON.stringify(report)).not.toContain("secretTotal");
+    });
+  }
+
+  it("reports logic on a panel", () => {
+    const { report } = convert({ components: [
+      { type: "panel", key: "p", logic: [{ name: "rule", actions: [] }], components: [{ type: "textfield", key: "t" }] }
+    ] });
+    expect(entry(report.entries, FormioCodes.CUSTOM_LOGIC)?.sourcePointer).toBe("/components/0/logic");
+  });
 });

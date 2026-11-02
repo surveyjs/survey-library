@@ -20,7 +20,7 @@ guessed in a content-free report, so a lossy conversion is visible rather than s
 npm install survey-converter survey-core
 ```
 
-`survey-core` is a **peer dependency** (`^3.0.0`) — it is not used at runtime,
+`survey-core` is a **peer dependency** (`^3.1.0`) — it is not used at runtime,
 only as the conversion **oracle** in this package's tests (every converted JSON
 must construct a `SurveyModel` with no errors). An install mismatch warns; it
 does not change which Serializer you convert against.

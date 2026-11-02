@@ -166,9 +166,13 @@ function looksLikeJsonSchema(v) {
 function looksLikeFormioForm(v) {
   return v && typeof v === "object" && Array.isArray(v.components);
 }
-// Form.io test fixtures are often a single component rather than a form.
+// Form.io test fixtures are often a single component rather than a form. A container component
+// has `components` too, so this is checked before `looksLikeFormioForm`; a saved form carries
+// `type: "form"` or `"resource"`, and stays a form.
+const FORMIO_FORM_TYPES = new Set(["form", "resource"]);
 function looksLikeFormioComponent(v) {
-  return v && typeof v === "object" && !Array.isArray(v) && typeof v.type === "string" && typeof v.key === "string";
+  return v && typeof v === "object" && !Array.isArray(v) && typeof v.type === "string" && typeof v.key === "string"
+    && !FORMIO_FORM_TYPES.has(v.type);
 }
 
 // The part of a literal's name that pairs a schema with its uiSchema: `schema_2343` and
@@ -189,8 +193,8 @@ export function classifyDefinitions(source, literals) {
   const defs = [];
   if (source === "formio") {
     for (const { name, value } of literals) {
-      if (looksLikeFormioForm(value)) defs.push({ suffix: name, def: value });
-      else if (looksLikeFormioComponent(value)) defs.push({ suffix: name, def: { components: [value] } });
+      if (looksLikeFormioComponent(value)) defs.push({ suffix: name, def: { components: [value] } });
+      else if (looksLikeFormioForm(value)) defs.push({ suffix: name, def: value });
     }
     return defs;
   }

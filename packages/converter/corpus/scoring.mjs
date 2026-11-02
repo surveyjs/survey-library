@@ -43,7 +43,7 @@ function formioChildren(comp) {
   return out;
 }
 
-/** A `table` cell is `{ components }`; older forms store the component array itself. */
+// A `table` cell is `{ components }`; older forms store the component array itself.
 export function tableCellComponents(cell) {
   if (Array.isArray(cell)) return cell;
   return cell && Array.isArray(cell.components) ? cell.components : [];

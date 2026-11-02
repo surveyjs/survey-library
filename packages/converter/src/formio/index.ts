@@ -69,6 +69,11 @@ interface FormioComponent {
   type?: string;
   key?: string;
   label?: string;
+  title?: string; // `panel`: the displayed title; `label` is the builder's name
+  legend?: string; // `fieldset`: the displayed title
+  hideLabel?: boolean;
+  hidden?: boolean;
+  disabled?: boolean;
   description?: string;
   placeholder?: string;
   defaultValue?: unknown;
@@ -130,8 +135,8 @@ const TEXT_INPUT_TYPE: Record<string, string | undefined> = {
 // Container types whose children are recursed into a SurveyJS `panel`.
 const PANEL_CONTAINERS = new Set(["panel", "fieldset", "well", "container"]);
 // Layout containers with no SurveyJS equivalent -- flattened into a `panel`,
-// their layout reported `dropped`.
-const LAYOUT_CONTAINERS = new Set(["columns", "table", "tabs"]);
+// their layout reported `dropped`. `tabs` has its own path, see `mapTabs`.
+const LAYOUT_CONTAINERS = new Set(["columns", "table"]);
 
 interface Ctx {
   report: ReportBuilder;
@@ -268,6 +273,11 @@ function mapComponent(
   if (PANEL_CONTAINERS.has(type)) {
     return mapPanel(comp, sourcePtr, targetPath, ctx);
   }
+  if (type === "tabs") {
+    // The tab strip is lost; the tabs' fields are kept, grouped by tab.
+    ctx.report.dropped(FormioCodes.DROPPED_STYLING, sourcePtr, targetPath);
+    return mapTabs(comp, sourcePtr, targetPath, ctx);
+  }
   if (LAYOUT_CONTAINERS.has(type)) {
     // Layout containers carry no SurveyJS structural equivalent -- flatten to a
     // panel and record the lost layout.
@@ -356,8 +366,14 @@ function applyCommon(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: st
   if (comp.label !== undefined && el.type !== "html") el.title = comp.label;
   if (comp.description) el.description = comp.description;
   if (comp.placeholder && (el.type === "text" || el.type === "comment")) el.placeholder = comp.placeholder;
-  const defaultValue = readDefaultValue(comp.defaultValue);
+  let defaultValue = readDefaultValue(comp.defaultValue);
+  if (comp.type === "selectboxes") defaultValue = readSelectboxesDefault(defaultValue);
+  if (comp.multiple === true && isTextLike(comp.type)) {
+    ctx.report.unsupported(FormioCodes.UNSUPPORTED_MULTIPLE, sourcePtr, targetPath);
+    defaultValue = readSingleDefault(defaultValue);
+  }
   if (defaultValue !== undefined) el.defaultValue = defaultValue;
+  applyState(comp, el);
 
   if (comp.validate?.required) el.isRequired = true;
   const validators = readValidators(comp.validate);
@@ -387,6 +403,53 @@ function readDefaultValue(value: unknown): unknown {
   return items.length > 0 ? items : undefined;
 }
 
+// A `selectboxes` default is `{ a: true, b: false }`; the SurveyJS checkbox value is the array of
+// checked keys, in the object's order. No checked key gives no default.
+function readSelectboxesDefault(value: unknown): unknown {
+  if (value === undefined || typeof value !== "object" || Array.isArray(value)) return value;
+  const checked = Object.keys(value as object).filter((key) => (value as Record<string, unknown>)[key] === true);
+  return checked.length > 0 ? checked : undefined;
+}
+
+function isTextLike(type: string | undefined): boolean {
+  return type === "textarea" || (type !== undefined && Object.prototype.hasOwnProperty.call(TEXT_INPUT_TYPE, type));
+}
+
+// A text-like field keeps one input when Form.io allows several, so only a one-item default
+// fits it. A longer one is dropped; the field's `multiple` report entry covers the loss.
+function readSingleDefault(value: unknown): unknown {
+  if (!Array.isArray(value)) return value;
+  return value.length === 1 ? value[0] : undefined;
+}
+
+// `hidden` and `disabled` on any component that becomes an element or a page. In survey-core a
+// `visibleIf` overrides `visible: false`, as a Form.io condition overrides `hidden`, so no guard
+// for a condition is needed.
+function applyState(comp: FormioComponent, el: SurveyJSONElement | SurveyJSONPage): void {
+  if (comp.hidden === true) el.visible = false;
+  if (comp.disabled === true) el.readOnly = true;
+}
+
+// The displayed title of a container. `label` is the builder's name for a component, so a panel
+// shows `title`, a fieldset `legend`, and a layout container nothing. Other types keep `label`.
+function readContainerTitle(comp: FormioComponent): string | undefined {
+  switch(comp.type) {
+    case "panel":
+      return typeof comp.title === "string" ? comp.title : comp.label;
+    case "fieldset":
+      return typeof comp.legend === "string" ? comp.legend : undefined;
+    case "container":
+      return comp.hideLabel === true ? undefined : comp.label;
+    case "columns":
+    case "table":
+    case "well":
+    case "tabs":
+      return undefined;
+    default:
+      return comp.label;
+  }
+}
+
 /** Map a container component to a SurveyJS `panel`, recursing into its children. */
 function mapPanel(
   comp: FormioComponent,
@@ -397,10 +460,36 @@ function mapPanel(
 ): SurveyJSONElement {
   const name = uniqueName(comp.key ?? sanitizePointer(sourcePtr), ctx);
   const panel: SurveyJSONElement = { type: "panel", name };
-  if (comp.label !== undefined) panel.title = comp.label;
+  const title = readContainerTitle(comp);
+  if (title !== undefined) panel.title = title;
+  applyState(comp, panel);
 
   const children = childrenOverride ?? indexedChildren(comp.components, `${sourcePtr}/components`);
   const elements = walk(children, `${targetPath}.elements`, ctx);
+  if (elements.length > 0) panel.elements = elements;
+  return panel;
+}
+
+// A tab is `{ label, key, components }` with no `type`, so it cannot go through `mapComponent`.
+// The `tabs` component becomes an untitled panel holding one panel per tab, titled with the
+// tab's label, so the fields stay on one page (D2). A tab with no fields gives no element; its
+// fields are walked before its name is taken, so an empty tab reserves no name.
+function mapTabs(comp: FormioComponent, sourcePtr: string, targetPath: string, ctx: Ctx): SurveyJSONElement {
+  const name = uniqueName(comp.key ?? sanitizePointer(sourcePtr), ctx);
+  const panel: SurveyJSONElement = { type: "panel", name };
+  applyState(comp, panel);
+
+  const elements: SurveyJSONElement[] = [];
+  (Array.isArray(comp.components) ? comp.components : []).forEach((tab, i) => {
+    const tabPtr = `${sourcePtr}/components/${i}`;
+    const tabPath = `${targetPath}.elements[${elements.length}]`;
+    const children = walk(indexedChildren(tab?.components, `${tabPtr}/components`), `${tabPath}.elements`, ctx);
+    if (children.length === 0) return;
+    const tabPanel: SurveyJSONElement = { type: "panel", name: uniqueName(tab.key ?? sanitizePointer(tabPtr), ctx) };
+    if (typeof tab.label === "string") tabPanel.title = tab.label;
+    tabPanel.elements = children;
+    elements.push(tabPanel);
+  });
   if (elements.length > 0) panel.elements = elements;
   return panel;
 }
@@ -412,6 +501,7 @@ function mapDataGrid(comp: FormioComponent, sourcePtr: string, targetPath: strin
 
   const panel: SurveyJSONElement = { type: "paneldynamic", name };
   if (comp.label !== undefined) panel.title = comp.label;
+  applyState(comp, panel);
 
   const children = indexedChildren(comp.components, `${sourcePtr}/components`);
   const template = walk(children, `${targetPath}.templateElements`, ctx);
@@ -513,12 +603,15 @@ function wizardPage(comp: FormioComponent, sourcePtr: string, pageIndex: number,
   const targetPath = `pages[${pageIndex}]`;
   const name = uniqueName(comp.key ?? `page${pageIndex + 1}`, ctx);
   const page: SurveyJSONPage = { name, elements: [] };
-  if (comp.label !== undefined) page.title = comp.label;
+  const title = readContainerTitle(comp);
+  if (title !== undefined) page.title = title;
 
   // A wizard page is a container: its `components` become the page elements. A
-  // non-container top-level component (rare) becomes the page's single element.
+  // non-container top-level component (rare) becomes the page's single element,
+  // which carries the component's own state.
   const isContainer = typeof comp.type === "string" && (PANEL_CONTAINERS.has(comp.type) || comp.type === "panel");
   if (isContainer && Array.isArray(comp.components)) {
+    applyState(comp, page);
     page.elements = walk(indexedChildren(comp.components, `${sourcePtr}/components`), `${targetPath}.elements`, ctx);
   } else {
     const el = mapComponent(comp, sourcePtr, `${targetPath}.elements[0]`, ctx);

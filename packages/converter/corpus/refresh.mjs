@@ -371,6 +371,12 @@ function selfTest() {
   const single = classifyDefinitions("formio", [{ name: "comp", value: { type: "textfield", key: "a" } }]);
   check("A single Form.io component is wrapped as a form",
     single.length === 1 && Array.isArray(single[0].def.components) && single[0].def.components[0].key === "a");
+  const container = classifyDefinitions("formio", [
+    { name: "tabs", value: { type: "tabs", key: "tabs", components: [{ key: "t", components: [] }] } },
+    { name: "saved", value: { type: "form", key: "saved", components: [{ type: "textfield", key: "a" }] } }
+  ]);
+  check("A single container component is wrapped, a saved form is not",
+    container[0].def.components?.[0]?.type === "tabs" && container[1].def.type === "form");
 
   // 2b. Pairing: a schema pairs with the uiSchema of its own name, not the module's first one.
   const s1 = { type: "object", properties: { a: { type: "string" } } };

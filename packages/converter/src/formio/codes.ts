@@ -5,6 +5,9 @@
 export const FormioCodes = {
   // A component `type` we do not have a mapping for yet. Our gap.
   UNSUPPORTED_COMPONENT: "formio.unsupported-component",
+  // `multiple` on a text-like field: SurveyJS `text` and `comment` hold one value, so the field
+  // keeps one input.
+  UNSUPPORTED_MULTIPLE: "formio.unsupported-multiple",
 
   // `customConditional` / `validate.custom`: arbitrary JS. We REFUSE to parse
   // it - path and count only, never the source string (content-free rule).

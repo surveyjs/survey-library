@@ -181,7 +181,160 @@ describe("formio convert - layout and defaults", () => {
   });
 
   it("keeps the non-null items of an array default", () => {
-    const form = { components: [{ type: "number", key: "n", multiple: true, defaultValue: [0, null] }] };
+    const form = { components: [{ type: "select", key: "n", multiple: true, data: { values: [{ label: "Zero", value: 0 }] }, defaultValue: [0, null] }] };
     expect(findElement(convert(form).output, "n")?.defaultValue).toEqual([0]);
+  });
+});
+
+describe("formio convert - tabs", () => {
+  const tabsForm = { components: [{ type: "tabs", key: "tabs", label: "Tabs", components: [
+    { label: "Personal", key: "personal", components: [{ type: "textfield", key: "a" }] },
+    { label: "Work", key: "work", components: [{ type: "textfield", key: "b" }, { type: "number", key: "c" }] },
+    { label: "Empty", key: "empty", components: [] }
+  ] }] };
+
+  it("keeps the fields of every tab, each inside a panel titled with the tab label", () => {
+    const { output, report } = convert(tabsForm);
+    const tabs = findElement(output, "tabs");
+    expect(tabs?.title).toBeUndefined();
+    const panels = tabs?.elements as SurveyJSONElement[];
+    expect(panels.map((p) => [p.name, p.title, (p.elements as SurveyJSONElement[]).map((e) => e.name)])).toEqual([
+      ["personal", "Personal", ["a"]],
+      ["work", "Work", ["b", "c"]]
+    ]);
+    expect(entry(report.entries, FormioCodes.UNKNOWN_COMPONENT)).toBeUndefined();
+    expect(entry(report.entries, FormioCodes.DROPPED_STYLING)?.sourcePointer).toBe("/components/0");
+    assertConstructsCleanly(output, "tabs");
+  });
+
+  it("keeps the tabs of a wizard whose top-level component is tabs", () => {
+    const { output, report } = convert({ ...tabsForm, display: "wizard" });
+    expect(output.pages?.length).toBe(1);
+    expect(output.pages?.[0].elements[0]).toMatchObject({ type: "panel" });
+    expect(findElement(output, "work")?.title).toBe("Work");
+    expect(findElement(output, "c")?.type).toBe("text");
+    expect(entry(report.entries, FormioCodes.UNKNOWN_COMPONENT)).toBeUndefined();
+    assertConstructsCleanly(output, "wizard of tabs");
+  });
+});
+
+describe("formio convert - container titles", () => {
+  const titleOf = (comp: Record<string, unknown>) =>
+    findElement(convert({ components: [{ key: "x", components: [{ type: "textfield", key: "a" }], ...comp }] }).output, "x")?.title;
+
+  it("titles a panel with `title` rather than its builder label", () => {
+    expect(titleOf({ type: "panel", title: "Shown", label: "Builder name" })).toBe("Shown");
+  });
+
+  it("titles a panel with no `title` with its label", () => {
+    expect(titleOf({ type: "panel", label: "Builder name" })).toBe("Builder name");
+  });
+
+  it("titles a fieldset with its legend", () => {
+    expect(titleOf({ type: "fieldset", legend: "Legend", label: "Builder name" })).toBe("Legend");
+    expect(titleOf({ type: "fieldset", label: "Builder name" })).toBeUndefined();
+  });
+
+  it("titles a container with its label unless the label is hidden", () => {
+    expect(titleOf({ type: "container", label: "Address" })).toBe("Address");
+    expect(titleOf({ type: "container", label: "Address", hideLabel: true })).toBeUndefined();
+  });
+
+  it("gives a layout container no title", () => {
+    expect(titleOf({ type: "columns", label: "Columns", components: undefined, columns: [{ components: [{ type: "textfield", key: "a" }] }] })).toBeUndefined();
+    expect(titleOf({ type: "table", label: "Table", components: undefined, rows: [[{ components: [{ type: "textfield", key: "a" }] }]] })).toBeUndefined();
+    expect(titleOf({ type: "well", label: "Well" })).toBeUndefined();
+  });
+
+  it("titles a wizard page made from a panel with the panel `title`", () => {
+    const { output } = convert({ display: "wizard", components: [
+      { type: "panel", key: "page1", title: "Shown", label: "Page 1", components: [{ type: "textfield", key: "a" }] }
+    ] });
+    expect(output.pages?.[0].title).toBe("Shown");
+  });
+});
+
+describe("formio convert - hidden and disabled", () => {
+  it("makes a hidden field invisible", () => {
+    const { output } = convert({ components: [{ type: "textfield", key: "a", hidden: true }] });
+    const survey = assertConstructsCleanly(output, "hidden");
+    expect(survey.getQuestionByName("a").isVisible).toBe(false);
+  });
+
+  it("shows a hidden field whose condition holds, as Form.io does", () => {
+    const { output } = convert({ components: [
+      { type: "textfield", key: "a" },
+      { type: "textfield", key: "b", hidden: true, conditional: { show: true, when: "a", eq: "x" } }
+    ] });
+    const survey = assertConstructsCleanly(output, "hidden with condition");
+    survey.data = { a: "x" };
+    expect(survey.getQuestionByName("b").isVisible).toBe(true);
+    survey.data = { a: "y" };
+    expect(survey.getQuestionByName("b").isVisible).toBe(false);
+  });
+
+  it("applies hidden and disabled on a panel to its children", () => {
+    const { output } = convert({ components: [
+      { type: "panel", key: "p", hidden: true, components: [{ type: "textfield", key: "a" }] },
+      { type: "panel", key: "q", disabled: true, components: [{ type: "textfield", key: "b" }] }
+    ] });
+    const survey = assertConstructsCleanly(output, "hidden and disabled panels");
+    expect(survey.getQuestionByName("a").isParentVisible).toBe(false);
+    expect(survey.getQuestionByName("b").isReadOnly).toBe(true);
+  });
+
+  it("makes a disabled field read-only", () => {
+    const { output } = convert({ components: [{ type: "textfield", key: "a", disabled: true }] });
+    const survey = assertConstructsCleanly(output, "disabled");
+    expect(survey.getQuestionByName("a").isReadOnly).toBe(true);
+  });
+});
+
+describe("formio convert - selectboxes default", () => {
+  const values = [{ label: "A", value: "a" }, { label: "B", value: "b" }, { label: "C", value: "c" }];
+  const convertDefault = (defaultValue?: unknown) =>
+    convert({ components: [{ type: "selectboxes", key: "s", values, ...(defaultValue === undefined ? {} : { defaultValue }) }] }).output;
+
+  it("checks the keys that are true, in the object order", () => {
+    const output = convertDefault({ c: true, b: false, a: true });
+    expect(findElement(output, "s")?.defaultValue).toEqual(["c", "a"]);
+    expect(assertConstructsCleanly(output, "selectboxes some true").getQuestionByName("s").value.slice()).toEqual(["c", "a"]);
+  });
+
+  it("gives no default when every key is false", () => {
+    const output = convertDefault({ a: false, b: false, c: false });
+    expect(findElement(output, "s")?.defaultValue).toBeUndefined();
+    assertConstructsCleanly(output, "selectboxes all false");
+  });
+
+  it("gives no default when there is none", () => {
+    const output = convertDefault();
+    expect(findElement(output, "s")?.defaultValue).toBeUndefined();
+    assertConstructsCleanly(output, "selectboxes absent");
+  });
+});
+
+describe("formio convert - multiple on a text field", () => {
+  const convertMultiple = (defaultValue?: unknown) =>
+    convert({ components: [{ type: "textfield", key: "t", multiple: true, ...(defaultValue === undefined ? {} : { defaultValue }) }] });
+
+  it("keeps one input and reports the lost multiple", () => {
+    const { output, report } = convertMultiple();
+    const unsupported = entry(report.entries, FormioCodes.UNSUPPORTED_MULTIPLE);
+    expect(unsupported).toMatchObject({ bucket: "unsupported", sourcePointer: "/components/0" });
+    expect(findElement(output, "t")?.type).toBe("text");
+    assertConstructsCleanly(output, "multiple textfield");
+  });
+
+  it("keeps a one-item default as the value", () => {
+    const { output } = convertMultiple(["x"]);
+    expect(findElement(output, "t")?.defaultValue).toBe("x");
+    assertConstructsCleanly(output, "multiple textfield one default");
+  });
+
+  it("drops a default of two items", () => {
+    const { output } = convertMultiple(["x", "y"]);
+    expect(findElement(output, "t")?.defaultValue).toBeUndefined();
+    assertConstructsCleanly(output, "multiple textfield two defaults");
   });
 });

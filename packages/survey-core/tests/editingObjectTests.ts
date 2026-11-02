@@ -1891,4 +1891,35 @@ describe("Survey.editingObj: a matrix that edits an array of the edited object",
     matrix.rowCount = 1;
     expect(choiceValues(question), "#1").toEqual([1, 2, 3]);
   });
+  test("a lowered rowCount goes back to the length of the live array, as released", () => {
+    const { question, matrix } = createChoicesMatrix([1, 2, 3, 4, 5]);
+    matrix.rowCount = 2;
+    expect(choiceValues(question), "#1: the array").toEqual([1, 2, 3, 4, 5]);
+    expect(matrix.rowCount, "#2: rowCount").toBe(5);
+    expect(matrix.visibleRows.length, "#3: every item has a row").toBe(5);
+  });
+  test("a lowered rowCount raises one value change for the live array, as released", () => {
+    const { matrix } = createChoicesMatrix([1, 2, 3, 4, 5]);
+    matrix.visibleRows;
+    let counter = 0;
+    matrix.survey.onValueChanged.add(() => { counter++; });
+    matrix.rowCount = 2;
+    expect(counter, "#1").toBe(1);
+  });
+  test("a lowered maxRowCount goes back to the length of the live array, as released", () => {
+    const { matrix } = createChoicesMatrix([1, 2, 3, 4, 5]);
+    matrix.visibleRows;
+    matrix.maxRowCount = 3;
+    expect(matrix.rowCount, "#1").toBe(5);
+  });
+  test("a lowered rowCount truncates a plain array of the edited object, as released", () => {
+    const edited = new QuestionDropdownModel("q3");
+    const records = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    (<any>edited).foo = records;
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "foo", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }] });
+    survey.editingObj = edited;
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("foo");
+    matrix.rowCount = 1;
+    expect((<any>edited).foo, "#1").toEqual([{ a: 1 }]);
+  });
 });

@@ -712,7 +712,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.value && this.value.length > val) {
       if (this.isEditingObjectValue) {
         var qVal = this.value;
-        qVal.splice(val);
+        this.truncateRecords(qVal, val);
         this.value = qVal;
       } else {
         this.dataList.batch((): void => { this.dataList.truncate(val); });
@@ -1649,8 +1649,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     /* The window of a data source is neither truncated nor padded to rowCount: rowCount is the server
        total and the records beyond the window are on the server, not missing from the value. */
     if (this.isRemoteData) return result;
-    if (result.length > this.rowCount) result.splice(this.rowCount);
+    if (result.length > this.rowCount) {
+      this.truncateRecords(result, this.rowCount);
+    }
     return this.arrayRecordsSource["padRecordsToMinCount"](result);
+  }
+  /* The value of an edited object is not copied, so a Base live array here is that object's own array,
+     and rowCount can lag behind it: it keeps its items. Its empty splice only notifies, and that
+     notification brings rowCount back to the length of the array. A plain array is truncated. */
+  private truncateRecords(records: Array<any>, count: number): void {
+    if (Object.prototype.hasOwnProperty.call(records, "splice")) {
+      records.splice(count, 0);
+    } else {
+      records.splice(count);
+    }
   }
   // The lookup is the own source's (readRecordInAnswer); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {

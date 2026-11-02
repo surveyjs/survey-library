@@ -320,6 +320,15 @@
   visibility: hidden;
 }
 
+.sd-question__keyboard-hint-slot {
+  display: inline-grid;
+
+  > .sd-question__keyboard-hint {
+    grid-area: 1 / 1;
+    justify-self: start;
+  }
+}
+
 .sd-question__keyboard-hints .sd-item__shortcut-key {
   margin-inline-end: 0;
 }

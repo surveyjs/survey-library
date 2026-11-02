@@ -2274,7 +2274,7 @@ frameworks.forEach((framework) => {
       });
     });
 
-    test("tagbox: opening keeps the height of a hint row that wraps only the closed chip", async ({ page }) => {
+    test("tagbox: opening keeps the height of a hint row that wraps the shared enter cell", async ({ page }) => {
       await initSurvey(page, framework, {
         showKeyboardHints: true,
         autoAdvanceEnabled: true,
@@ -2287,15 +2287,45 @@ frameworks.forEach((framework) => {
       const closedHint = hintRow.getByText("to continue");
       const selectHint = hintRow.getByText("to select");
       await expect(closedHint).toBeVisible();
-      // One pixel short of "to continue" wraps it. "to select" is narrower, so sharing a slot with it would unwrap the row.
+      // One pixel short of the cell wraps it. "to select" alone is narrower, so the cell has to keep the hidden "to continue".
       await hintRow.evaluate((row: HTMLElement) => {
-        const closedChip = row.children[3].getBoundingClientRect();
-        row.style.width = `${Math.floor(closedChip.right - row.getBoundingClientRect().left) - 1}px`;
+        const enterCell = row.children[3].getBoundingClientRect();
+        row.style.width = `${Math.floor(enterCell.right - row.getBoundingClientRect().left) - 1}px`;
       });
       const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
       await page.locator(".sd-dropdown").click();
       await expect(selectHint).toBeVisible();
       expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+    });
+
+    test("tagbox: the hint row stays on one line and Enter stays in place when the popup opens", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] }
+        ]
+      });
+      const hintRow = page.locator(".sd-question__keyboard-hints");
+      const enterKey = hintRow.getByText("Enter", { exact: true }).locator("visible=true");
+      const selectHint = hintRow.getByText("to select");
+      await expect(hintRow.getByText("to continue")).toBeVisible();
+      await hintRow.evaluate((row: HTMLElement) => {
+        const enterChip = row.children[3].getBoundingClientRect();
+        row.style.width = `${Math.ceil(enterChip.right - row.getBoundingClientRect().left)}px`;
+      });
+      const isOneLine = () => hintRow.evaluate((row) => {
+        return row.firstElementChild?.getBoundingClientRect().top === row.lastElementChild?.getBoundingClientRect().top;
+      });
+      expect(await isOneLine()).toBe(true);
+      const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+      const closedEnterLeft = await enterKey.evaluate((key) => key.getBoundingClientRect().left);
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+      expect(await isOneLine()).toBe(true);
+      expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+      expect(await enterKey.evaluate((key) => key.getBoundingClientRect().left)).toBe(closedEnterLeft);
     });
   });
 });

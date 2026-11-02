@@ -6,6 +6,7 @@ export interface IKeyboardHintData {
   keyLabels: string[];
   text: string;
   visible: boolean;
+  alternatives?: IKeyboardHintData[];
 }
 
 export interface IKeyboardHintPart {
@@ -19,14 +20,22 @@ export interface IKeyboardHintCss {
   keyboardHintItemHidden: string;
   keyboardHintKeyLabel: string;
   keyboardHintSeparator: string;
+  keyboardHintSlot: string;
   keyboardHintText: string;
 }
 
 export class KeyboardHintItem {
   readonly parts: IKeyboardHintPart[];
   readonly className: string;
+  readonly alternatives: KeyboardHintItem[];
   constructor(hint: IKeyboardHintData, orText: string, cssClasses: IKeyboardHintCss) {
     const parts: IKeyboardHintPart[] = [];
+    this.alternatives = (hint.alternatives || []).map(alternative => new KeyboardHintItem(alternative, orText, cssClasses));
+    if (this.alternatives.length > 0) {
+      this.parts = parts;
+      this.className = cssClasses.keyboardHintSlot;
+      return;
+    }
     hint.keyLabels.forEach((keyLabel, index) => {
       if (index > 0) parts.push({ text: orText, className: cssClasses.keyboardHintSeparator });
       parts.push({ text: keyLabel, className: cssClasses.keyboardHintKeyLabel });
@@ -66,6 +75,11 @@ export type KeyboardHintKey = keyof typeof keyboardHintLabels;
 
 export function keyboardHint(owner: { getLocalizationString(name: string): string }, textLocName: string, hintKeys: KeyboardHintKey[], visible: boolean = true): IKeyboardHintData {
   return { text: owner.getLocalizationString(textLocName), keyLabels: hintKeys.map(hintKey => keyboardHintLabels[hintKey]), visible: visible };
+}
+
+// One cell as wide as the widest hint, for hints that are never visible together.
+export function keyboardHintSlot(hints: IKeyboardHintData[]): IKeyboardHintData {
+  return { text: "", keyLabels: [], visible: true, alternatives: hints };
 }
 
 // Enter navigation is page-based, so the chip reads the survey's stored page state and never walks the questions.

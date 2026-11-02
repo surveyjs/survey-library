@@ -303,8 +303,7 @@ describe("interview nested containers in batch mode (issue #11818)", () => {
     expect(record.entries[1].fields.map(field => field.name)).toEqual(["sku"]);
     // A new row takes the detail questions too, after the columns.
     expect(record.template.map(field => field.name)).toEqual(["sku", "note", "notes"]);
-    // The price of creating the panel through the model's public gesture: the row is expanded.
-    expect(matrix.visibleRows[0].isDetailPanelShowing).toBe(true);
+    expect(matrix.visibleRows[0].isDetailPanelShowing).toBe(false);
     expect(matrix.visibleRows[1].detailPanel).toBeFalsy();
   });
 
@@ -425,6 +424,53 @@ describe("interview nested containers in batch mode (issue #11818)", () => {
     const res = await iv.answerAll({ items: [{ sku: "A", note: "x" }] });
     expect(res.errors).toEqual([]);
     expect(iv.data).toEqual({ items: [{ sku: "A", note: "x" }] });
+  });
+
+  // A model a UI renders too: the interview must not touch what the respondent sees. The rows hold no
+  // data on purpose: stored values create the panels before the hand-over.
+  function createUnderRowSingle(rowCount: number, detail: any = { type: "text", name: "note" }) {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "items", rowCount: rowCount, cellType: "text", columns: [{ name: "sku" }],
+          detailPanelMode: "underRowSingle", detailElements: [detail] },
+      ],
+    });
+    const events: Array<string> = [];
+    survey.onMatrixDetailPanelVisibleChanged.add((_, options) => {
+      events.push(options.rowIndex + ":" + options.visible);
+    });
+    return { survey, events, matrix: <any>survey.getQuestionByName("items") };
+  }
+
+  test("Hand-over creates detail panels without expanding a row, Issue#11818", async () => {
+    const { survey, events, matrix } = createUnderRowSingle(2);
+    const iv = await createInterview(survey);
+    expect(events).toEqual([]);
+    expect(matrix.visibleRows.map(row => row.isDetailPanelShowing)).toEqual([false, false]);
+    const record = rootRecord(iv, "items");
+    expect(record.entries[0].fields.map(field => field.name)).toEqual(["sku", "note"]);
+    expect(record.entries[1].fields.map(field => field.name)).toEqual(["sku", "note"]);
+  });
+
+  test("A row a batch adds takes its detail fields without being expanded, Issue#11818", async () => {
+    const { survey, events, matrix } = createUnderRowSingle(0);
+    const iv = await createInterview(survey);
+    const res = await iv.answerAll({ items: [{ sku: "A", note: "x" }] });
+    expect(res.errors).toEqual([]);
+    expect(iv.data).toEqual({ items: [{ sku: "A", note: "x" }] });
+    expect(events).toEqual([]);
+    expect(matrix.visibleRows[0].isDetailPanelShowing).toBe(false);
+  });
+
+  test("The model still opens a row whose detail panel fails a validation, Issue#11818", async () => {
+    const detail = { type: "text", name: "note", validators: [{ type: "regex", regex: "^ok$" }] };
+    const { survey, events, matrix } = createUnderRowSingle(1, detail);
+    const iv = await createInterview(survey);
+    expect(events).toEqual([]);
+    const res = await iv.answerAll({ items: [{ note: "bad" }] });
+    expect(res.errors).toHaveLength(1);
+    expect(events).toEqual(["0:true"]);
+    expect(matrix.visibleRows[0].isDetailPanelShowing).toBe(true);
   });
 
   test("The transcript of the README, through the loop", async () => {

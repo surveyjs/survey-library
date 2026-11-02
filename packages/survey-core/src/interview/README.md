@@ -391,15 +391,16 @@ revealed a row through `rowsVisibleIf`, a batch that added one — before it set
 question is an item from the first `current()` on (`items[0].note` right after `items[0].sku`), and a
 `choicesByUrl` on it is drained by the settle of the call that created the panel. **No read creates
 anything**: `current()`, `describe()` and `describeAll()` see a panel only once a call that writes has
-run. A row the survey's `onHasDetailPanelCallback` excludes gets no panel, and a row whose panel
+run. A row the matrix's `onHasDetailPanelCallback` excludes gets no panel, and a row whose panel
 already exists is left as it is.
 
-The panel is created through `row.showDetailPanel()`, the one public gesture the model offers for it,
-and that has a UI side effect: the row is **expanded** — with `detailPanelMode: "underRowSingle"`, the
-row expanded before it collapses — the matrix builds its rendered table, and
-`onMatrixDetailPanelVisibleChanged` fires for the row. Each row is expanded once, by the call that
-made it visible; a panel a UI collapses afterwards stays collapsed and stays readable, because a
-collapsed panel is kept.
+The panel is created through `row.ensureDetailPanel()`, without expanding the row: with
+`detailPanelMode: "underRowSingle"` no other row collapses, and `onMatrixDetailPanelVisibleChanged`
+does not fire, so a UI on the same model shows what it showed. The model still opens a row whose detail
+panel fails a validation, and `detailPanelShowOnAdding` still opens a new row, each with its event.
+Creating a panel is not free of effects: `onCreateDetailPanelCallback` runs and `choicesByUrl` requests
+go out. A detail `defaultValue` reaches the question and `row.value` at once, and `survey.data` with
+the row's next write. A row nothing writes completes without it.
 
 **The questions inside a choice are items of their own.** A radiogroup's or a checkbox's choice may
 hold questions — `choices: [{ value: "Yes", elements: [{ type: "text", name: "petName" }] }, "No"]` —

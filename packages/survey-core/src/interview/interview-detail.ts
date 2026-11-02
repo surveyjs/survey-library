@@ -11,18 +11,15 @@ import { getEntryObjects, isDynamicPanel } from "./interview-dynamic";
 //
 // Only inside a mutating call, and before that call settles. Creating a panel is not behavior-free:
 // the host's onCreateDetailPanelCallback fires, every detail question's surveyLoadCallback runs, a
-// defaultValue is written into the row's data and a choicesByUrl request goes out. All of that is
-// fine in a call that settles before it reads, and none of it is fine in a read: current(),
-// describeAll() and every describer read row.visibleQuestions / row.getQuestionByName as they did
-// before, and see the detail questions because this module ran first.
+// defaultValue reaches the question and a choicesByUrl request goes out. All of that is fine in a
+// call that settles before it reads, and none of it is fine in a read: current(), describeAll() and
+// every describer read row.visibleQuestions / row.getQuestionByName as they did before, and see the
+// detail questions because this module ran first.
 //
-// It creates a panel through row.showDetailPanel(), the public gesture a respondent's click runs,
-// because the model offers no other public way to create one. The price is a UI state change: the row
-// is expanded (with detailPanelMode "underRowSingle" the previously expanded row collapses), the
-// matrix builds its rendered table, and onMatrixDetailPanelVisibleChanged fires for the row. The panel
-// survives a later collapse - hideDetailPanel() keeps it - so the questions stay readable whatever a
-// UI on the same model does afterwards. A panel that exists is never shown again: a row is expanded
-// at most once, by the call that made it visible.
+// It creates a panel through row.ensureDetailPanel(), which is no UI gesture: the row is not expanded,
+// and onMatrixDetailPanelVisibleChanged does not fire, so a UI on the same model shows what it showed.
+// row.showDetailPanel() would expand the row and, with detailPanelMode "underRowSingle", collapse the
+// previous one. The model itself still opens a row whose detail panel fails a validation.
 //
 // Almost a leaf: nothing here imports another module of the interview but the ceiling and
 // interview-dynamic.ts, and nothing that describes, predicates or builds the inventory imports this
@@ -30,12 +27,12 @@ import { getEntryObjects, isDynamicPanel } from "./interview-dynamic";
 // panel of the one entry a batch record is about to write, which is a mutation inside a mutating call
 // too.
 
-// hasPanel reads hasDetailPanel(row), which honors detailPanelMode, detailElements and the survey's
+// hasPanel reads hasDetailPanel(row), which honors detailPanelMode, detailElements and the matrix's
 // onHasDetailPanelCallback: a row the host excluded gets no panel from the interview either.
 export function ensureRowDetailPanel(row: any): void {
-  if (!row || typeof row.showDetailPanel !== "function") return;
+  if (!row || typeof row.ensureDetailPanel !== "function") return;
   if (!!row.detailPanel || row.hasPanel !== true) return;
-  row.showDetailPanel();
+  row.ensureDetailPanel();
 }
 
 // The materialization pass: the panel of every visible row that has one, in every matrix the

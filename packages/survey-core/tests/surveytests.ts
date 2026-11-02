@@ -19446,6 +19446,332 @@ describe("Survey", () => {
     expect(survey.state, "survey.state #4").toBe("completed");
   });
 
+  function runWithAutoAdvanceDelay(func: () => void): void {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 5;
+    vi.useFakeTimers();
+    try {
+      func();
+    } finally {
+      vi.useRealTimers();
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  }
+  function pressEnter(question: Question): void {
+    (<any>question).onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+    vi.runAllTimers();
+  }
+  function createRadiogroups(...names: Array<string>): Array<any> {
+    return names.map(name => ({ type: "radiogroup", name: name, choices: [1, 2] }));
+  }
+
+  test("questionPerPage: Enter on a filled question moves one question", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: createRadiogroups("q1", "q2", "q3"),
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q1: 1, q2: 1, q3: 1 };
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q1").toBe("q2");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q2").toBe("q3");
+      expect(survey.state, "Enter on q2 does not complete the survey").toBe("running");
+    });
+  });
+  test("questionPerPage: autoAdvanceAllowComplete: false keeps the survey running on the last question", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: createRadiogroups("q1", "q2", "q3"),
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+        autoAdvanceAllowComplete: false,
+      });
+      survey.data = { q1: 1, q2: 1, q3: 1 };
+      survey.currentSingleQuestion = survey.getQuestionByName("q2");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.state, "Enter on q2").toBe("running");
+      expect(survey.currentSingleQuestion.name, "Enter on q2").toBe("q3");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.state, "Enter on q3").toBe("running");
+      expect(survey.currentSingleQuestion.name, "Enter on q3").toBe("q3");
+    });
+  });
+  test("questionPerPage: changing a filled question moves one question", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "dropdown", name: "q1", choices: ["A", "B"] },
+          { type: "dropdown", name: "q2", choices: ["A", "B"] },
+          { type: "dropdown", name: "q3", choices: ["A", "B"] }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q1: "A", q2: "A", q3: "A" };
+      survey.setValue("q1", "B");
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q2");
+    });
+  });
+  test("questionPerPage: Enter walks two filled pages one question at a time", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        pages: [
+          { elements: createRadiogroups("q1", "q2") },
+          { elements: createRadiogroups("q3", "q4") }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q1: 1, q2: 1, q3: 1, q4: 1 };
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q1").toBe("q2");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q2 crosses the page").toBe("q3");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q3").toBe("q4");
+    });
+  });
+  test("questionPerPage: setting another question's value in code does not move", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: createRadiogroups("q1", "q2").concat([{ type: "text", name: "q3" }]),
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.setValue("q3", 1);
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q1");
+    });
+  });
+  test("inputPerPage: setting another question's value in code does not move", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "b" }] },
+          { type: "text", name: "q2" }
+        ],
+        questionsOnPageMode: "inputPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.setValue("q2", 1);
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("mt");
+      expect(survey.currentSingleQuestion.singleInputQuestion.name).toBe("a");
+    });
+  });
+  test("questionPerPage: a panel as one element waits for its last visible input, then moves once", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "panel", name: "panel",
+            elements: [
+              { type: "text", name: "a" },
+              { type: "text", name: "b" },
+              { type: "text", name: "hidden", visible: false }
+            ]
+          },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q2: 1, q3: 1 };
+      survey.setValue("a", 1);
+      vi.runAllTimers();
+      expect((<any>survey.currentSingleElement).name, "b is empty").toBe("panel");
+      survey.setValue("b", 1);
+      vi.runAllTimers();
+      expect((<any>survey.currentSingleElement).name, "the panel is filled").toBe("q2");
+    });
+  });
+  test("questionPerPage: nothing is scheduled on the last element with autoAdvanceAllowComplete: false", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      questionsOnPageMode: "questionPerPage",
+      autoAdvanceEnabled: true,
+      autoAdvanceAllowComplete: false,
+    });
+    survey.data = { q1: 1, q2: 1 };
+    survey.currentSingleQuestion = survey.getQuestionByName("q2");
+    expect(survey.tryGoNextPageAutomaticCore("q2")).toBe(false);
+  });
+  test("questionPerPage: Enter keeps its line break in the last comment with autoAdvanceAllowComplete: false", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "comment", name: "q1" }, { type: "comment", name: "q2" }],
+      questionsOnPageMode: "questionPerPage",
+      autoAdvanceEnabled: true,
+      autoAdvanceAllowComplete: false,
+    });
+    survey.data = { q1: "text", q2: "text" };
+    survey.currentSingleQuestion = survey.getQuestionByName("q2");
+    const preventDefault = vi.fn();
+    (<QuestionCommentModel>survey.currentSingleQuestion).onKeyDown({ key: "Enter", keyCode: 13, target: { value: "text" }, preventDefault: preventDefault });
+    expect(preventDefault).not.toHaveBeenCalled();
+  });
+  test("questionPerPage: the last question fires onShowingPreview once with no delay", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "dropdown", name: "q1", choices: ["A", "B"] }, { type: "dropdown", name: "q2", choices: ["A", "B"] }],
+      questionsOnPageMode: "questionPerPage",
+      autoAdvanceEnabled: true,
+      showPreviewBeforeComplete: true,
+    });
+    let counter = 0;
+    survey.onShowingPreview.add(() => counter++);
+    survey.setValue("q1", "A");
+    survey.setValue("q2", "A");
+    expect(counter).toBe(1);
+    expect(survey.state).toBe("preview");
+  });
+  test("inputPerPage: Enter walks a filled multipletext one input at a time", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "b" }] },
+          { type: "text", name: "q2" }
+        ],
+        questionsOnPageMode: "inputPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { mt: { a: "1", b: "2" }, q2: "3" };
+      const commitInput = (value: string) => {
+        (<any>survey.currentSingleQuestion.singleInputQuestion).onKeyUp({ keyCode: 13, target: { value: value } });
+        vi.runAllTimers();
+      };
+      commitInput("10");
+      expect(survey.currentSingleQuestion.name, "Enter on a").toBe("mt");
+      expect(survey.currentSingleQuestion.singleInputQuestion.name, "Enter on a").toBe("b");
+      commitInput("20");
+      expect(survey.currentSingleQuestion.name, "Enter on b").toBe("q2");
+    });
+  });
+
+  test("questionPerPage: a change does not move once another question is on screen", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "dropdown", name: "q1", choices: ["A", "B"] },
+          { type: "dropdown", name: "q2", choices: ["A", "B"] },
+          { type: "dropdown", name: "q3", choices: ["A", "B"] }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.setValue("q1", "A");
+      survey.performNext();
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q2");
+    });
+  });
+  test("questionPerPage: the second question with a shared valueName moves on", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "dropdown", name: "q1", valueName: "shared", choices: ["A", "B"] },
+          { type: "dropdown", name: "q2", valueName: "shared", choices: ["A", "B"] },
+          { type: "dropdown", name: "q3", choices: ["A", "B"] }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.currentSingleQuestion = survey.getQuestionByName("q2");
+      survey.currentSingleQuestion.value = "B";
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q3");
+    });
+  });
+  test("questionPerPage: a panel moves on when its empty question is in a hidden nested panel", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "panel", name: "panel",
+            elements: [
+              { type: "dropdown", name: "a", choices: ["A", "B"] },
+              {
+                type: "panel", name: "nested", visibleIf: "{a} = 'A'",
+                elements: [{ type: "text", name: "detail" }]
+              }
+            ]
+          },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q2: 1, q3: 1 };
+      survey.setValue("a", "A");
+      vi.runAllTimers();
+      expect((<any>survey.currentSingleElement).name, "detail is visible and empty").toBe("panel");
+      survey.setValue("a", "B");
+      vi.runAllTimers();
+      expect((<any>survey.currentSingleElement).name, "detail is hidden").toBe("q2");
+    });
+  });
+  function createChoiceWithNestedDropdowns(questionsOnPageMode: string): SurveyModel {
+    return new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup", name: "q1",
+          choices: [
+            {
+              value: 1,
+              elements: [
+                { type: "dropdown", name: "nested1", choices: ["A", "B"] },
+                { type: "dropdown", name: "nested2", choices: ["A", "B"] }
+              ]
+            },
+            2
+          ]
+        },
+        { type: "text", name: "q2" }
+      ],
+      questionsOnPageMode: questionsOnPageMode,
+      autoAdvanceEnabled: true,
+    });
+  }
+  test("inputPerPage: questions nested in a choice item move one step at a time", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = createChoiceWithNestedDropdowns("inputPerPage");
+      const q1 = survey.currentSingleQuestion;
+      q1.value = 1;
+      survey.performNext();
+      expect(q1.singleInputQuestion.name, "the first nested step").toBe("nested1");
+      q1.singleInputQuestion.value = "A";
+      vi.runAllTimers();
+      expect(q1.singleInputQuestion.name, "the second nested step").toBe("nested2");
+      q1.singleInputQuestion.value = "A";
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name, "after the last nested step").toBe("q2");
+    });
+  });
+  test("inputPerPage: setting a nested question that is not on screen in code does not move", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = createChoiceWithNestedDropdowns("inputPerPage");
+      const q1 = survey.currentSingleQuestion;
+      q1.value = 1;
+      survey.performNext();
+      survey.setValue("nested2", "A");
+      vi.runAllTimers();
+      expect(q1.singleInputQuestion.name).toBe("nested1");
+    });
+  });
+  test("questionPerPage: a question nested in a choice item does not move", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = createChoiceWithNestedDropdowns("questionPerPage");
+      const q1 = survey.currentSingleQuestion;
+      q1.value = 1;
+      survey.setValue("nested1", "A");
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q1");
+    });
+  });
+
   test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", () => {
     const survey = new SurveyModel({
       elements: [

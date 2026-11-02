@@ -53,8 +53,6 @@ export var russianSurveyStrings = {
   sortMoreAriaLabel: "Показывать все уровни сортировки",
   // [Auto-translated] "Add New"
   sortAddNewText: "Добавить новое",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Переместить сортировку на уровне {0}",
   // "Complete"
@@ -326,7 +324,29 @@ export var russianSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "п",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "П"
+  maskPlaceholderTimeMarkerUpper: "П",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "выбирать",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "переключать",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Ориентироваться",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "продолжать",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Отправить",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "или",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "для новой линии",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "к следующему варианту",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "двигаться",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "открывать",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "Закрыть"
 };
 
 setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "русский", englishName: "Russian" });

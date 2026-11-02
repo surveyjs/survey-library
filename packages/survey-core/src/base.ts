@@ -1640,92 +1640,60 @@ export class Base implements IObjectValueContext {
     }
     this.arraysInfo[name] = { onPush: onPush, isItemValues: false };
     var self = this;
-    newArray.push = function (value): number {
-      var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
-      if (!self.isDisposedValue) {
-        if (onPush) onPush(value, newArray.length - 1);
-        const arrayChanges = new ArrayChanges(
-          newArray.length - 1,
-          0,
-          [value],
-          []
-        );
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
+    // Runs after the native call: every item is in place when the callbacks and subscribers see the array.
+    const onItemsChanged = (index: number, itemsToAdd: Array<any>, deletedItems: Array<any>): void => {
+      if (self.isDisposedValue) return;
+      if (onRemove) {
+        for (var i = 0; i < deletedItems.length; i++) {
+          onRemove(deletedItems[i]);
+        }
       }
+      if (onPush) {
+        for (var i = 0; i < itemsToAdd.length; i++) {
+          onPush(itemsToAdd[i], index + i);
+        }
+      }
+      const arrayChanges = new ArrayChanges(index, deletedItems.length, itemsToAdd, deletedItems);
+      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
+      self.notifyArrayChanged(name, newArray, arrayChanges);
+    };
+    newArray.push = function (...items: Array<any>): number {
+      const oldLength = newArray.length;
+      var result = Object.getPrototypeOf(newArray).push.call(newArray, ...items);
+      if (items.length > 0) onItemsChanged(oldLength, items, []);
       return result;
     };
-    newArray.shift = function (): number {
+    newArray.shift = function (): any {
+      const oldLength = newArray.length;
       var result = Object.getPrototypeOf(newArray).shift.call(newArray);
-      if (!self.isDisposedValue && result) {
-        if (onRemove) onRemove(result);
-        const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
-      }
+      if (oldLength > 0) onItemsChanged(0, [], [result]);
       return result;
     };
-    newArray.unshift = function (value): number {
-      var result = Object.getPrototypeOf(newArray).unshift.call(
-        newArray,
-        value
-      );
-      if (!self.isDisposedValue) {
-        if (onPush) onPush(value, 0);
-        const arrayChanges = new ArrayChanges(0, 0, [value], []);
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
-      }
+    newArray.unshift = function (...items: Array<any>): number {
+      var result = Object.getPrototypeOf(newArray).unshift.call(newArray, ...items);
+      if (items.length > 0) onItemsChanged(0, items, []);
       return result;
     };
-    newArray.pop = function (): number {
+    newArray.pop = function (): any {
+      const oldLength = newArray.length;
       var result = Object.getPrototypeOf(newArray).pop.call(newArray);
-      if (!self.isDisposedValue) {
-        if (onRemove) onRemove(result);
-        const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
-      }
+      if (oldLength > 0) onItemsChanged(oldLength - 1, [], [result]);
       return result;
     };
-    newArray.splice = function (
-      start?: number,
-      deleteCount?: number,
-      ...items: any[]
-    ): any[] {
-      if (!start) start = 0;
-      if (!deleteCount) deleteCount = 0;
-      var result = Object.getPrototypeOf(newArray).splice.call(
-        newArray,
-        start,
-        deleteCount,
-        ...items
-      );
-      if (!items) items = [];
-      if (!self.isDisposedValue) {
-        if (onRemove && result) {
-          for (var i = 0; i < result.length; i++) {
-            onRemove(result[i]);
-          }
-        }
-        if (onPush) {
-          for (var i = 0; i < items.length; i++) {
-            onPush(items[i], start + i);
-          }
-        }
-        const arrayChanges = new ArrayChanges(
-          start,
-          deleteCount,
-          items,
-          result
-        );
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
-      }
+    // The native splice tells an omitted deleteCount from an undefined one, so the arguments go as they came.
+    newArray.splice = function (...args: Array<any>): Array<any> {
+      const index = self.getSpliceIndex(args[0], newArray.length);
+      var result = Object.getPrototypeOf(newArray).splice.call(newArray, ...args);
+      onItemsChanged(index, args.slice(2), result);
       return result;
     };
 
     return newArray;
+  }
+  private getSpliceIndex(start: any, length: number): number {
+    // || 0: NaN, and the -0 that a start between -1 and 0 truncates to
+    const index = Math.trunc(Number(start)) || 0;
+    return index < 0 ? Math.max(length + index, 0) : Math.min(index, length);
   }
   protected getItemValueType(): string {
     return undefined;

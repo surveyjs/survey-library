@@ -116,10 +116,15 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!val) return;
     const oldValue = this.maskSettings;
     if (oldValue) {
+      this.updateUnmaskedValue();
       oldValue.dispose();
     }
     this.setNewMaskSettingsProperty();
     this.maskSettings.fromJSON(val.toJSON());
+    if (oldValue) {
+      this.maskSettings.copyUnmaskedValue(oldValue);
+      this.updateUnmaskedValue();
+    }
     this.updateMaskAdapter();
   }
   public localeChanged(): void {
@@ -135,10 +140,12 @@ export class QuestionTextModel extends QuestionTextBase {
     // not stored in the question value - has to be carried across.
     const isEditing = !!this.maskInputAdapter && this.maskInputAdapter.isInputElementFocused;
     const state: IMaskLocaleChange = {
-      enteredText: isEditing ? this.maskInputAdapter.inputElementText : (this.isEmpty() ? this._inputValue : undefined),
-      // a masked value is stored in the format of the previous locale
-      value: this.maskSettings.saveMaskedValue ? this.value : undefined
+      enteredText: isEditing ? this.maskInputAdapter.inputElementText : (this.isEmpty() ? this._inputValue : undefined)
     };
+    // without a survey nothing is kept, so this would parse the old text in the new format
+    if (!!this.survey) {
+      this.updateUnmaskedValue();
+    }
     // Base.localeChanged() does not descend into the maskSettings property. The mask notifies
     // this question and the input element adapter about the change via onPropertyChanged.
     this.maskSettings.localeChanged(state);
@@ -463,9 +470,18 @@ export class QuestionTextModel extends QuestionTextBase {
       this.doNotUpdateInputValue = false;
     }
   }
-  public getFilteredValue(): any {
-    return this.getExpressionValue(this.value);
+  private updateUnmaskedValue(): void {
+    if (!this.maskTypeIsEmpty) {
+      this.maskSettings.updateUnmaskedValue(this.value);
+    }
   }
+  public getFilteredValue(): any {
+    if (this.maskTypeIsEmpty) return this.value;
+    // a write that skips onChangeQuestionValue reaches the mask here
+    this.updateUnmaskedValue();
+    return this.maskSettings.unmaskedValue;
+  }
+  // Converts a value that is not this question's own: a record's value through a column's template.
   getExpressionValue(val: any): any {
     if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue)
       return this.maskInstance.getUnmaskedValue(val);
@@ -500,7 +516,15 @@ export class QuestionTextModel extends QuestionTextBase {
 
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
+    this.updateUnmaskedValue();
     this.updateInputValue();
+  }
+  // The survey can bring other formats, and a text that stays the same is not a value change.
+  protected onSetData(): void {
+    super.onSetData();
+    if (!this.isEmpty()) {
+      this.updateUnmaskedValue();
+    }
   }
 
   private updateInputValue() {

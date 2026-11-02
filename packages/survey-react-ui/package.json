@@ -22,6 +22,8 @@
         "accessibility-tests:ci": "cross-env env=react playwright test --project a11y --reporter dot --quiet",
         "e2e": "cross-env env=react playwright test --project e2e --ui",
         "e2e:ci": "cross-env env=react playwright test --project e2e",
+        "perf": "cross-env env=react playwright test -c playwright.perf.config.ts --ui",
+        "perf:ci": "cross-env env=react playwright test -c playwright.perf.config.ts",
         "scr": "cross-env env=react playwright test --project vrt --ui",
         "scr:ci": "cross-env env=react playwright test --project vrt",
         "scr:update": "cross-env env=react playwright test --project vrt --update-snapshots",

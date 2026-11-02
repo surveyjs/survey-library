@@ -53,8 +53,6 @@ export var macedonianSurveyStrings = {
   sortMoreAriaLabel: "Прикажи ги сите нивоа на сортирање",
   // [Auto-translated] "Add New"
   sortAddNewText: "Додај ново",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Премести сортирање на ниво {0}",
   // "Complete"
@@ -308,7 +306,29 @@ export var macedonianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Лента за напредок",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Страница {0}"
+  progressbarPage: "Страница {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "да се избере",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "да се прекинува",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "За навигација",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "да продолжам",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "за поднесување",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "или",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "за нова линија",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "до следната опција",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "да се движи",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "да се отвори",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "да затворам"
 };
 
 setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "македонски", englishName: "Macedonian" });

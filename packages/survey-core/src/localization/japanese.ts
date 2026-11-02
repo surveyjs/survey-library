@@ -53,8 +53,6 @@ export var japaneseSurveyStrings = {
   sortMoreAriaLabel: "あらゆるレベルの表示",
   // [Auto-translated] "Add New"
   sortAddNewText: "新しい追加",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "移動ソートレベル{0}",
   // "Complete"
@@ -308,7 +306,29 @@ export var japaneseSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "進行状況バー",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "ページ{0}"
+  progressbarPage: "ページ{0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "選ぶために",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "切り替える",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "ナビゲートするために",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "続けるために",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "服従するために",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "または",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "新線のために",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "次の選択肢へ",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "動くために",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "開会",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "締めくくり"
 };
 
 setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日本語", englishName: "Japanese" });

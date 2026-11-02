@@ -1,6 +1,7 @@
 import type { PanelModel, Question, SurveyModel } from "survey-core";
 import type { IInterviewItem } from "./interview-types";
 import { MAX_NESTING_DEPTH, getAddress, getPanelAddress, getParentContainer } from "./interview-address";
+import { hasDataSource, isDynamicContainer } from "./interview-dynamic";
 import { getSummaryDescription } from "./interview-summary";
 import { describeQuestion } from "./question-description";
 
@@ -21,9 +22,6 @@ import { describeQuestion } from "./question-description";
 // The container-specific parts live next door: interview-address.ts derives the address of a nested
 // input from the model, interview-summary.ts describes a summary step and runs its actions.
 
-// The types whose entries a respondent adds and removes one at a time, and which therefore own a
-// summary step: the list of entries with add / remove / edit that the mode itself offers.
-const DYNAMIC_CONTAINER_TYPES = ["paneldynamic", "matrixdynamic"];
 // A single-choice matrix is the one type whose inputs are not questions of the JSON: the mode
 // synthesizes one radiogroup or checkbox per row, with the columns as its choices.
 const MATRIX_TYPE = "matrix";
@@ -113,16 +111,6 @@ export function hasChoiceElements(question: Question): boolean {
     target.supportElementsInChoice() === true;
 }
 
-// A dynamic panel or a dynamic matrix whose records belong to a data source (the records layer's
-// public "dataSource"). The source owns them: the question refuses writes to its value, it may page
-// them on its own terms, and the records are in survey.data only for some sources. The interview does
-// not support it yet (OPEN 32): the container is one unsupported item with reason "dataSource", in
-// both modes, and nothing below it is an item. Duck-typed, as hasChoiceElements is.
-export function hasDataSource(question: Question): boolean {
-  const target: any = question;
-  return !!target && !!target.dataSource;
-}
-
 // The container with a data source that holds the question - the question itself included - at any
 // depth; undefined for one outside every such container. A cell or an entry's question names its
 // container as parentQuestion.
@@ -205,7 +193,7 @@ function addInputs(survey: SurveyModel, question: Question, root: Question, dept
     return;
   }
   const isMatrix = question.getType() === MATRIX_TYPE;
-  const isDynamic = DYNAMIC_CONTAINER_TYPES.indexOf(question.getType()) >= 0;
+  const isDynamic = isDynamicContainer(question);
   // Structural and navigation-free: a dynamic panel yields the visible questions of every visible
   // panel, a matrix its cells row by row, a multiple text its editors, a composite its content
   // questions. Empty means the question is an input of its own - unless it is a dynamic container,
@@ -240,9 +228,9 @@ function addInputs(survey: SurveyModel, question: Question, root: Question, dept
 // A root whose value is not one plain answer: the mode splits it into the nested questions a
 // respondent fills one at a time. Batch mode asks it once per root, to tell a plain root from one it
 // describes as a container (interview-batch.ts); what a field inside a container is, is decided by
-// the shape of the question and not here (interview-fields.ts). The dynamic types are named because a
-// dynamic panel with no panels yet, or a matrix with no rows, has no nested question at this instant
-// and is a container all the same.
+// the shape of the question and not here (interview-fields.ts). A dynamic container is asked first
+// because a dynamic panel with no panels yet, or a matrix with no rows, has no nested question at this
+// instant and is a container all the same.
 export function isContainerQuestion(question: Question): boolean {
   // A select question whose choices hold questions is never a container, whatever
   // getNestedQuestions() answers for it: its value is a choice, and the questions of its choices are
@@ -250,8 +238,7 @@ export function isContainerQuestion(question: Question): boolean {
   // model lists a choice panel's questions with includeNested alone; a model that listed them like
   // every other container does would otherwise turn a radiogroup into a container overnight.
   if (hasChoiceElements(question)) return false;
-  const type = question.getType();
-  if (type === MATRIX_TYPE || DYNAMIC_CONTAINER_TYPES.indexOf(type) >= 0) return true;
+  if (question.getType() === MATRIX_TYPE || isDynamicContainer(question)) return true;
   return question.getNestedQuestions(true, false).length > 0;
 }
 

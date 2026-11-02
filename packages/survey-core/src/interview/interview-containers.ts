@@ -4,12 +4,12 @@ import { MAX_NESTING_DEPTH } from "./interview-address";
 import {
   IFieldWriteResult, IInterviewNesting, InterviewDescribeMode, clearUntouchedFields,
   createBatchItem, getContainerFields, getContainerInputs, getContainerRows, getDeclaredFields,
-  getDeclaredRows, getFieldItems, getRowRecords, isContainerValid, isDynamicContainer,
-  isFixedShapeContainer, mergeWriteResult, writeContainerValue,
+  getDeclaredRows, getFieldItems, getRowRecords, isContainerValid, isFixedShapeContainer, mergeWriteResult,
+  writeContainerValue,
 } from "./interview-fields";
+import { canAddEntry, isDynamicContainer } from "./interview-dynamic";
 import {
-  canAddEntry, clearUntouchedErrors, getEntryRecords, getRecordEntries, getTemplateItems,
-  isRecordsValid, writeRecordsValue,
+  clearUntouchedErrors, getEntryRecords, getRecordEntries, getTemplateItems, isRecordsValid, writeRecordsValue,
 } from "./interview-records";
 
 // One describer and one writer for "a container at an address", whatever it holds and wherever it

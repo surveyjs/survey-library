@@ -4,7 +4,8 @@ import {
   IInterviewInput, getInputErrors, getRootQuestions, isContainerQuestion, isInputValid, isInShowingChoice,
   isOnStartPage,
 } from "./interview-items";
-import { createBatchItem, isContainerAnswered, isDynamicContainer } from "./interview-fields";
+import { createBatchItem, isContainerAnswered } from "./interview-fields";
+import { isDynamicContainer } from "./interview-dynamic";
 import { isRecordsAnswered } from "./interview-records";
 import { describeContainer, isContainerTreeValid } from "./interview-containers";
 

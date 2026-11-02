@@ -1,4 +1,5 @@
 import type { Question, SurveyModel } from "survey-core";
+import { getEntryIndexOf, getEntryObjects, isDynamicContainer, isDynamicMatrix } from "./interview-dynamic";
 
 // The address of an input: the string that names it in answer(name, value), in errors[].name and in
 // the answered map. A plain question name at the top level, "medications[0].dose" for a question of
@@ -160,8 +161,8 @@ function isInChoiceOf(question: Question, owner: Question): boolean {
 // children are named and unique - a multiple text, a composite, a single-choice matrix, whose
 // synthesized row question is named after the row.
 function getContainerSegment(parent: any, child: any): string | undefined {
-  if (isDynamicPanel(parent)) {
-    const index = getPanelIndex(parent, child);
+  if (isDynamicContainer(parent)) {
+    const index = getEntryIndexOf(parent, child);
     return index < 0 ? undefined : getEntryAddress("", index);
   }
   // The one container whose inputs are not questions of the JSON: the mode synthesizes a radiogroup
@@ -173,7 +174,6 @@ function getContainerSegment(parent: any, child: any): string | undefined {
     // the row it belongs to.
     const index = rows.indexOf(child.data);
     if (index >= 0) {
-      if (isDynamicMatrix(parent)) return getEntryAddress("", index);
       const rowName = getRowName(rows[index]);
       return rowName === undefined ? undefined : getChildAddress("", rowName);
     }
@@ -182,33 +182,6 @@ function getContainerSegment(parent: any, child: any): string | undefined {
     return undefined;
   }
   return "";
-}
-
-// The question may sit in a static panel inside the panel of the dynamic panel, so the parent chain
-// is walked until one of the panels is reached - the walk getPanelByQuestion does
-// (src/question_paneldynamic.ts).
-function getPanelIndex(panelDynamic: any, child: any): number {
-  const panels: Array<any> = panelDynamic.visiblePanels;
-  if (!Array.isArray(panels)) return -1;
-  let node = child.parent;
-  // Static panels, not containers: the same bound only stops a cycle here.
-  for (let depth = 0; depth < MAX_NESTING_DEPTH && !!node; depth++) {
-    const index = panels.indexOf(node);
-    if (index > -1) return index;
-    node = node.parent;
-  }
-  return -1;
-}
-
-// Duck-typed, as the tester duck-types the same three shapes: the address grammar knows a dynamic
-// panel by the fact that it holds panels one adds and removes, not by a table of type strings that
-// a custom question type registered under another name would fall out of.
-function isDynamicPanel(question: any): boolean {
-  return !!question && typeof question.addPanel === "function" && Array.isArray(question.panels);
-}
-
-function isDynamicMatrix(question: any): boolean {
-  return !!question && typeof question.addRow === "function" && Array.isArray(question.visibleRows);
 }
 
 function isSingleChoiceMatrix(question: any): boolean {
@@ -315,7 +288,7 @@ export function resolveAddress(survey: SurveyModel, text: string): IInterviewAdd
 // name exists once per entry: the address is malformed, not a way to say "the first one". A name after
 // a matrix dropdown that is neither a row nor a column - a hidden row, a typo - names nothing.
 function isEntryMissing(obj: any, name: string): boolean {
-  if (isDynamicPanel(obj) || isDynamicMatrix(obj)) return true;
+  if (isDynamicContainer(obj)) return true;
   if (!isMatrixDropdown(obj) || !!findRowByName(obj.visibleRows, name)) return false;
   const columns: Array<any> = Array.isArray(obj.columns) ? obj.columns : [];
   return columns.some(column => !!column && column.name === name);
@@ -348,9 +321,7 @@ function resolveChild(obj: any, name: string): any {
 }
 
 function getEntries(obj: any): Array<any> | undefined {
-  if (isDynamicPanel(obj)) return obj.visiblePanels;
-  if (isDynamicMatrix(obj)) return obj.visibleRows;
-  return undefined;
+  return isDynamicContainer(obj) ? getEntryObjects(obj) : undefined;
 }
 
 function findByName(questions: Array<any>, name: string): any {

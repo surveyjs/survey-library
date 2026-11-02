@@ -1,4 +1,3 @@
-import { settings } from "survey-core";
 import type { Question } from "survey-core";
 import type { IInterviewEntry, IInterviewError, IInterviewItem } from "./interview-types";
 import {
@@ -8,6 +7,10 @@ import {
 } from "./interview-fields";
 import { getEntryAddress } from "./interview-address";
 import { ensureRowDetailPanel } from "./interview-detail";
+import {
+  addEntry, canAddEntry, canRemoveEntry, getEntryCount, getEntryObjects, getMaxEntryCount, getMinEntryCount,
+  isDynamicPanel, removeEntry,
+} from "./interview-dynamic";
 import { badRecordError, cannotAddError, cannotRemoveError, notAskableError } from "./interview-errors";
 
 // The entries of a dynamic container as batch records, in both directions. A dynamic panel and a
@@ -40,58 +43,6 @@ export interface IInterviewRecordEntry {
   entry: any;
   address: string;
   fields: Array<IInterviewField>;
-}
-
-function isPanelDynamic(question: any): boolean {
-  return !!question && typeof question.addPanel === "function";
-}
-
-// What the interviewee sees, in the order they see it: visiblePanels with templateVisibleIf applied,
-// visibleRows with rowsVisibleIf applied. Read on a live container only: the first read builds the
-// entries of a container nobody has rendered.
-function getEntryObjects(container: Question): Array<any> {
-  const target: any = container;
-  const res = isPanelDynamic(target) ? target.visiblePanels : target.visibleRows;
-  return Array.isArray(res) ? res : [];
-}
-
-// Whether an add or a remove actually happened. The visible list is the wrong thing to count with: a
-// new panel a templateVisibleIf hides never appears in it although the container did grow.
-function getEntryCount(container: Question): number {
-  const target: any = container;
-  return isPanelDynamic(target) ? target.panelCount : target.rowCount;
-}
-
-export function canAddEntry(container: Question): boolean {
-  const target: any = container;
-  // False at the maximum count, with adding turned off, in read-only state, and under a
-  // panelCountExpression / rowCountExpression - the count is then the expression's, and records
-  // cannot change it.
-  return isPanelDynamic(target) ? target.canAddPanel === true : target.canAddRow === true;
-}
-
-// The very reads the summary step's remove button is built from.
-function canRemoveEntry(container: Question, entry: any): boolean {
-  const target: any = container;
-  if (isPanelDynamic(target)) return target.canRemovePanel === true;
-  return target.canRemoveRows === true && target.canRemoveRow(entry) === true;
-}
-
-// The limit the model checks every add against (canAddPanel / canAddRow): the maximum, capped by the
-// global setting while the list does not page - and it never pages in single-input mode, which the
-// interview keeps the survey in. Not the description's maxCount, which leaves out a ceiling the survey
-// never set.
-function getMaxEntryCount(container: Question): number {
-  const target: any = container;
-  return isPanelDynamic(target)
-    ? Math.min(target.maxPanelCount, settings.panel.maxPanelCount)
-    : Math.min(target.maxRowCount, settings.matrix.maxRowCount);
-}
-
-function getMinEntryCount(container: Question): number {
-  const target: any = container;
-  const min = isPanelDynamic(target) ? target.minPanelCount : target.minRowCount;
-  return typeof min === "number" ? min : 0;
 }
 
 interface IEntryPosition {
@@ -200,7 +151,7 @@ function isContainerRecord(item: IInterviewItem): boolean {
 
 function getTemplateQuestions(container: Question, entries: Array<any>): Array<Question> {
   const target: any = container;
-  if (isPanelDynamic(target)) {
+  if (isDynamicPanel(target)) {
     // The template panel is attached to the survey, so titles and the locale resolve on it.
     const template: any = target.template;
     return !!template && Array.isArray(template.questions) ? template.questions : [];
@@ -419,30 +370,6 @@ function applyAdds(res: IRecordWriteResult, container: Question, address: string
   }
 }
 
-// Not singleInputAddItem(), addPanelUI() or addRowUI(): those are the mode's and the UI's gestures -
-// canLeaveCurrentPanel, focus, moving the current input - and this is a data write.
-function addEntry(container: Question): any {
-  const target: any = container;
-  if (isPanelDynamic(target)) {
-    // A negative index appends in every display mode; runAdditionalActions left off means no focus,
-    // no animation and no canAddPanel check of its own, which is why the interview checks first.
-    return target.addPanel(-1);
-  }
-  // addRow checks canAddRow itself, fires onMatrixRowAdding, and shows the detail panel when
-  // detailPanelShowOnAdding says so. It returns nothing, so the new row is the one allRows did not hold
-  // before - not the last of visibleRows: a rowsVisibleIf may hide the new row, and the last visible
-  // one is then an existing entry the add's values would overwrite. allRows, because a hidden row is
-  // still the row this add created, and a new panel a templateVisibleIf hides is patched the same way.
-  const before: Array<any> = getAllRows(target).slice();
-  target.addRow(false);
-  const added = getAllRows(target).filter(row => before.indexOf(row) < 0);
-  return added.length > 0 ? added[added.length - 1] : undefined;
-}
-
-function getAllRows(matrix: any): Array<any> {
-  return Array.isArray(matrix.allRows) ? matrix.allRows : [];
-}
-
 // Descending position, each on the entry object the plan resolved: removing from the back leaves the
 // positions of the removals that are still to come untouched in the model's own lists.
 function applyRemoves(res: IRecordWriteResult, container: Question, address: string,
@@ -466,18 +393,6 @@ function applyRemoves(res: IRecordWriteResult, container: Question, address: str
         { container: address, byHost: true }));
     }
   });
-}
-
-function removeEntry(container: Question, entry: any): void {
-  const target: any = container;
-  if (isPanelDynamic(target)) {
-    // confirmDelete left undefined: the non-UI branch, no dialog - and nobody answers a dialog in Node.
-    target.removePanel(entry);
-    return;
-  }
-  // The index is the row's position now, not the one the agent sent; false skips the prompt.
-  const index = target.visibleRows.indexOf(entry);
-  if (index >= 0) target.removeRow(index, false);
 }
 
 // The untouched-errors rule (interview-fields.ts clearUntouchedFields) over every field of every

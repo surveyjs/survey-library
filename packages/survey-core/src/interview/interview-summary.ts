@@ -3,6 +3,7 @@ import type { IInterviewAction, IInterviewError, IInterviewSummary } from "./int
 import {
   badActionIndexError, cannotAddError, cannotRemoveError, notAnActionError, unknownActionError,
 } from "./interview-errors";
+import { getEntryObjects, removeEntry } from "./interview-dynamic";
 
 // The summary step of a dynamic panel or a dynamic matrix: the list of entries with add / remove /
 // edit that the mode itself offers a respondent, described as an item and answered with an action.
@@ -58,7 +59,7 @@ export function applySummaryAction(container: Question, address: string, value: 
   switch(action.action) {
     case "done": return { isDone: true };
     case "add": return addEntry(container, address);
-    case "remove": return removeEntry(container, address, action.index);
+    case "remove": return removeSummaryEntry(container, address, action.index);
     case "edit": return editEntry(container, address, action.index);
   }
   return { error: unknownActionError(address, action.action) };
@@ -82,7 +83,7 @@ function addEntry(container: Question, address: string): ISummaryActionResult {
 // a populated entry to confirmActionAsync - a dialog nobody answers in Node, so the removal would
 // stay pending forever. The data-level calls do the removal itself; asking "remove X?" first is the
 // consumer's job, and a chat or a voice front end is where that question belongs.
-function removeEntry(container: Question, address: string, index: any): ISummaryActionResult {
+function removeSummaryEntry(container: Question, address: string, index: any): ISummaryActionResult {
   const entries = getEntries(container);
   if (!isEntryIndex(index, entries.length)) {
     return { error: badActionIndexError(address, "remove", index, entries.length) };
@@ -90,16 +91,8 @@ function removeEntry(container: Question, address: string, index: any): ISummary
   // The entry's own remove button is the model's answer to "may this one go": it is absent when
   // canRemovePanel / canRemoveRow says no.
   if (entries[index].showRemove !== true) return { error: cannotRemoveError(address, index) };
-  const target: any = container;
-  if (typeof target.removePanel === "function" && Array.isArray(target.visiblePanels)) {
-    // confirmDelete left undefined: the non-UI branch goes straight to removePanelCore.
-    target.removePanel(target.visiblePanels[index]);
-    return {};
-  }
-  if (typeof target.removeRow === "function") {
-    // false skips the prompt; the call still checks canRemoveRows and notifies the single-input mode.
-    target.removeRow(index, false);
-  }
+  // The summary's items are the entries shown, in the same order: paging is off in the mode.
+  removeEntry(container, getEntryObjects(container)[index]);
   return {};
 }
 

@@ -597,6 +597,11 @@ current:
 `constraints.minCount` / `maxCount` are on the item as well when the container declares them, the
 way every other constraint of the description layer is.
 
+The step belongs to the container and not to its type name: a subclass of `QuestionPanelDynamicModel`
+or `QuestionMatrixDynamicModel` registered under a type name of its own is the same container, with
+the same summary step, the same [records](#dynamic-containers-as-records) and the same schema. The
+item's `type` is that name.
+
 Every string in it is the model's: the entry title is the processed `templateTitle` (piping included
 — `{panel.name}` is why the entry above reads "Aspirin"), or `"Panel {panelIndex}"` / `"Row
 {rowIndex}"` / the row name; `addText` is `addPanelText` / `addRowText`; and when there are no
@@ -1965,8 +1970,9 @@ about.
 | `interview-batch.ts` | The same inventory read at the root level: which roots batch mode can write, the list of items a batch document carries and when a root is listed. |
 | `interview-containers.ts` | One describer and one writer for "a container at an address", whatever it holds and wherever it sits, live or declared, plus the recursive validity. The root code and the field code both go through it; the field code reaches it through a parameter, so there is no import cycle. |
 | `interview-fields.ts` | A fixed-shape container as an object of fields: the field records read from the live structure, the per-field write, and the value pre-checks all three modes of writing share. A field that is a container is handed to the recursion it is given. |
-| `interview-records.ts` | A dynamic container as a list of entry records: the entries and the template read from the live structure, and the patch / add / remove of one call, planned before anything is written. The fields of an entry are `interview-fields.ts`, reused per entry. |
-| `interview-detail.ts` | The one place a row's detail panel is brought into being: the pass every settle starts with — over every matrix the interview reaches, on the page and inside a selected choice — and the panel of the one row a batch record is about to write. A leaf that nothing describing or reading imports. |
+| `interview-records.ts` | A dynamic container as a list of entry records: the entry records and the template read from the live structure, and the patch / add / remove of one call, planned before anything is written. The fields of an entry are `interview-fields.ts`, reused per entry. |
+| `interview-dynamic.ts` | The one place that knows a dynamic container is a dynamic panel or a dynamic matrix: the checks, the entries and an entry's position, the counts and permissions, the add and the remove, and whether a data source owns the records. It imports nothing of the interview. |
+| `interview-detail.ts` | The one place a row's detail panel is brought into being: the pass every settle starts with — over every matrix the interview reaches, on the page and inside a selected choice — and the panel of the one row a batch record is about to write. Nothing describing or reading imports it. |
 | `interview-schema.ts` | `createAnswerSchema()`: the item records as a JSON Schema. A pure function of the records — it never looks at the model. |
 | `interview-tools.ts` | The three tool definitions and the name matching behind `callTool`. Plain data; nothing here talks to a network. |
 | `interview-state.ts` | The state the model has no notion of: the skipped set, and the snapshot / diff pair behind the change report. |

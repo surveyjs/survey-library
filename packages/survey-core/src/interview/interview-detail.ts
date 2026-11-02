@@ -1,5 +1,6 @@
 import type { Question, SurveyModel } from "survey-core";
 import { MAX_NESTING_DEPTH, getParentContainer } from "./interview-address";
+import { getEntryObjects, isDynamicPanel } from "./interview-dynamic";
 
 // The one place a row's detail panel is brought into being. A row of a matrix creates its detail
 // panel lazily: until something asks for it, row.questions and row.visibleQuestions are the cells
@@ -23,10 +24,11 @@ import { MAX_NESTING_DEPTH, getParentContainer } from "./interview-address";
 // UI on the same model does afterwards. A panel that exists is never shown again: a row is expanded
 // at most once, by the call that made it visible.
 //
-// A leaf: nothing here imports another module of the interview but the ceiling, and nothing that
-// describes, predicates or builds the inventory imports this one. interview.ts runs the pass at the
-// start of every settle, and interview-records.ts creates the panel of the one entry a batch record
-// is about to write, which is a mutation inside a mutating call too.
+// Almost a leaf: nothing here imports another module of the interview but the ceiling and
+// interview-dynamic.ts, and nothing that describes, predicates or builds the inventory imports this
+// one. interview.ts runs the pass at the start of every settle, and interview-records.ts creates the
+// panel of the one entry a batch record is about to write, which is a mutation inside a mutating call
+// too.
 
 // hasPanel reads hasDetailPanel(row), which honors detailPanelMode, detailElements and the survey's
 // onHasDetailPanelCallback: a row the host excluded gets no panel from the interview either.
@@ -59,13 +61,10 @@ function ensureInQuestion(question: Question, depth: number): void {
   if (Array.isArray(target.visibleRows)) {
     target.visibleRows.forEach((row: any) => ensureRowDetailPanel(row));
   }
-  if (typeof target.addPanel === "function") {
-    // The first read builds the panels of a dynamic panel nobody has rendered, and the nested walk
-    // below reads the ones already built: a matrix in a panel nobody has read yet is reached all the
-    // same, in the call that made the panel exist.
-    const panels = target.visiblePanels;
-    if (!Array.isArray(panels)) return;
-  }
+  // The first read builds the panels of a dynamic panel nobody has rendered, and the nested walk
+  // below reads the ones already built: a matrix in a panel nobody has read yet is reached all the
+  // same, in the call that made the panel exist.
+  if (isDynamicPanel(question)) getEntryObjects(question);
   question.getNestedQuestions(true, false).forEach(child => ensureInQuestion(child, depth + 1));
   // The questions inside the selected choices of a radiogroup or a checkbox are roots of the
   // inventory, so a matrix among them - or inside a container among them - needs its panels as much

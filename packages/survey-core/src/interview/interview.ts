@@ -20,7 +20,8 @@ import {
   IInterviewBatchEntry, findBatchEntry, getBatchAddresses, getBatchCurrent, getBatchEntries,
   getBatchItems, isBatchWritable, refreshBatchEntry,
 } from "./interview-batch";
-import { IPreparedValue, isDynamicContainer, prepareValue } from "./interview-fields";
+import { IPreparedValue, prepareValue } from "./interview-fields";
+import { isDynamicContainer } from "./interview-dynamic";
 import { isRecordsAnswered } from "./interview-records";
 import { isContainerTreeValid, writeContainer } from "./interview-containers";
 import { ensureDetailPanels } from "./interview-detail";
@@ -574,7 +575,7 @@ export class Interview implements IInterview {
     const resolved = resolveAddress(this.surveyValue, name);
     if (resolved.isBad === true) return badAddressError(name);
     // The model builds the entries of a container with a data source, so the address resolves, but
-    // nothing inside it is an item (interview-items.ts hasDataSource).
+    // nothing inside it is an item (interview-dynamic.ts hasDataSource).
     if (!!resolved.question && !!getDataSourceOwner(resolved.question)) return notAskableError(name, "dataSource");
     return unknownQuestionError(name, this.getAskableAddresses(inputs));
   }

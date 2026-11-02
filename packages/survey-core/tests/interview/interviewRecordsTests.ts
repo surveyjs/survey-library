@@ -3,7 +3,10 @@
 // needs a DOM.
 import { createInterview, InterviewErrorCodes } from "survey-core/interview";
 import type { IInterview } from "survey-core/interview";
-import { ArrayDynamicDataSource, ComponentCollection, SurveyModel, settings, surveyLocalization } from "survey-core";
+import {
+  ArrayDynamicDataSource, ComponentCollection, ElementFactory, QuestionMatrixDynamicModel, QuestionPanelDynamicModel,
+  Serializer, SurveyModel, settings, surveyLocalization,
+} from "survey-core";
 
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -16,9 +19,13 @@ function block(...text: Array<string>): string {
 }
 
 const customComponents: Array<string> = [];
+const customTypes: Array<string> = [];
 afterEach(() => {
   while(customComponents.length > 0) {
     ComponentCollection.Instance.remove(customComponents.pop());
+  }
+  while(customTypes.length > 0) {
+    ElementFactory.Instance.unregisterElement(customTypes.pop(), true);
   }
   settings.commentSuffix = "-Comment";
 });
@@ -823,3 +830,102 @@ function pagedSurvey(type: string, introFirst: boolean): SurveyModel {
   survey.data = { meds: [1, 2, 3, 4, 5].map(i => ({ name: "n" + i })) };
   return survey;
 }
+
+class MyPanels extends QuestionPanelDynamicModel {
+  public getType(): string { return "mypanels"; }
+}
+
+class MyRows extends QuestionMatrixDynamicModel {
+  public getType(): string { return "myrows"; }
+}
+
+function registerType(name: string, parent: string, creator: (name: string) => any): void {
+  Serializer.addClass(name, [], () => creator(""), parent);
+  ElementFactory.Instance.registerElement(name, creator);
+  customTypes.push(name);
+}
+
+function registerMyPanels(): void {
+  registerType("mypanels", "paneldynamic", (name: string) => new MyPanels(name));
+}
+
+function registerMyRows(): void {
+  registerType("myrows", "matrixdynamic", (name: string) => new MyRows(name));
+}
+
+function myPanelsJson(name: string, count: number): any {
+  return { type: "mypanels", name: name, panelCount: count, templateElements: [{ type: "text", name: "a" }] };
+}
+
+function myRowsJson(name: string, count: number): any {
+  return { type: "myrows", name: name, rowCount: count, columns: [{ name: "a", cellType: "text" }] };
+}
+
+// The type name is the only difference from the built-in containers: the interview knows a dynamic
+// container by what it can do.
+describe.each([
+  ["a dynamic panel subclass", registerMyPanels, myPanelsJson],
+  ["a dynamic matrix subclass", registerMyRows, myRowsJson],
+])("%s under its own type name, Issue#11818", (_title: string, register: () => void,
+  containerJson: (name: string, count: number) => any) => {
+  test("zero entries: the summary step is reached, and add, answer and remove work", async () => {
+    register();
+    const iv = await createInterview({ elements: [containerJson("c", 0)] });
+    expect((<any>iv.current()).name).toBe("c");
+    expect((<any>iv.current()).summary).toBeDefined();
+    expect((await iv.answer({ action: "add" })).errors).toEqual([]);
+    expect((<any>iv.current()).name).toBe("c[0].a");
+    await iv.answer("x");
+    expect((<any>iv.current()).name).toBe("c");
+    expect((<any>iv.current()).summary.entries.length).toBe(1);
+    expect((await iv.answer({ action: "remove", index: 0 })).errors).toEqual([]);
+    expect((<any>iv.current()).summary.entries).toBeUndefined();
+  });
+
+  test("entries present: answering them reaches the summary step, and done ends it", async () => {
+    register();
+    const iv = await createInterview({ elements: [containerJson("c", 2)] });
+    await iv.answer("1");
+    await iv.answer("2");
+    expect((<any>iv.current()).name).toBe("c");
+    expect((<any>iv.current()).summary.entries.length).toBe(2);
+    await iv.answer({ action: "done" });
+    expect(iv.current()).toBeNull();
+  });
+
+  test("inside a template: the nested container has a summary step", async () => {
+    register();
+    const iv = await createInterview({ elements: [{
+      type: "paneldynamic", name: "o", panelCount: 1, templateElements: [containerJson("m", 0)],
+    }] });
+    expect((<any>iv.current()).name).toBe("o[0].m");
+    expect((<any>iv.current()).summary).toBeDefined();
+    await iv.answer({ action: "add" });
+    expect((<any>iv.current()).name).toBe("o[0].m[0].a");
+  });
+
+  test("getAnswerSchema() describes the records", async () => {
+    register();
+    const iv = await createInterview({ elements: [containerJson("c", 0)] });
+    expect(iv.getAnswerSchema().properties.c.items).toBeDefined();
+  });
+
+  test("batch mode writes records: two adds, then a null removes one", async () => {
+    register();
+    const iv = await createInterview({ elements: [containerJson("c", 0)] });
+    expect((await iv.answerAll({ c: [{ a: "1" }, { a: "2" }] })).errors).toEqual([]);
+    expect(iv.survey.data.c).toEqual([{ a: "1" }, { a: "2" }]);
+    await iv.answerAll({ c: [null] });
+    expect(iv.survey.data.c).toEqual([{ a: "2" }]);
+  });
+});
+
+test("a summary remove counts over the visible rows: rowsVisibleIf hides a row in front of it, Issue#11818", async () => {
+  const iv = await createInterview({ elements: [{
+    type: "matrixdynamic", name: "rows", rowCount: 0, rowsVisibleIf: "{row.a} != 'hide'",
+    columns: [{ name: "a", cellType: "text" }],
+    defaultValue: [{ a: "hide" }, { a: "two" }, { a: "three" }],
+  }] });
+  expect((await iv.answer("rows", { action: "remove", index: 0 })).errors).toEqual([]);
+  expect(iv.survey.data.rows).toEqual([{ a: "hide" }, { a: "three" }]);
+});

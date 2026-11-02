@@ -3,6 +3,7 @@ import type { Question } from "survey-core";
 import type { IInterviewError, IInterviewItem, IInterviewRow } from "./interview-types";
 import { IInterviewContainer, hasChoiceElements, markDataSourceItem } from "./interview-items";
 import { createNameLookup, getAddress, getChildAddress } from "./interview-address";
+import { isDynamicContainer } from "./interview-dynamic";
 import { isAction } from "./interview-summary";
 import { describeQuestion, getMaskValueFormat } from "./question-description";
 import {
@@ -83,16 +84,6 @@ export interface IInterviewFieldRow {
   title: string;
   address: string;
   fields: Array<IInterviewField>;
-}
-
-// A container whose value is a list that grows and shrinks - a dynamic panel, a dynamic matrix -
-// filled per entry (interview-records.ts). Duck-typed, the way the address grammar duck-types the
-// same shapes: a custom type registered under another name still holds panels one adds and removes.
-// By the method alone, never by visiblePanels or visibleRows: reading either builds the entries of a
-// question nobody has rendered, and a template's own nested question must never be built by a look.
-export function isDynamicContainer(question: Question): boolean {
-  const target: any = question;
-  return !!target && (typeof target.addPanel === "function" || typeof target.addRow === "function");
 }
 
 export function isFixedShapeContainer(question: Question): boolean {

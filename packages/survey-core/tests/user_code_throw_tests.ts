@@ -138,3 +138,198 @@ describe("A throw from user code leaves the survey working", () => {
     expect(survey.data, "#2").toEqual({ q1: { a: 1, b: 2 } });
   });
 });
+
+describe("A throw from user code leaves the expressions running", () => {
+  // Returns its first parameter, so the result follows the value the expression reads
+  function registerThrowOnceEcho(name: string): { arm: () => void } {
+    const throwOnce = createThrowOnce(name);
+    FunctionFactory.Instance.register(name, (params: Array<any>): any => {
+      throwOnce.check();
+      return params[0];
+    });
+    return throwOnce;
+  }
+  test("a value-changed handler that throws while a defaultValueExpression applies: the expression still applies", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", defaultValueExpression: "{q1}" }
+    ] });
+    const throwOnce = createThrowOnce("throwOnDefaultValue");
+    survey.onValueChanged.add((_, options) => {
+      if (options.name === "q2") throwOnce.check();
+    });
+    throwOnce.arm();
+    expect(() => survey.setValue("q1", "a"), "#1").toThrow("throwOnDefaultValue");
+    survey.setValue("q1", "b");
+    expect(survey.getValue("q2"), "#2").toBe("b");
+  });
+  test("a visibility handler that throws while a visibleIf applies: the visibleIf still runs", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", visibleIf: "{q1} = 1" }
+    ] });
+    const q2 = survey.getQuestionByName("q2");
+    const throwOnce = createThrowOnce("throwOnVisibility");
+    survey.onQuestionVisibleChanged.add(() => { throwOnce.check(); });
+    throwOnce.arm();
+    expect(() => survey.setValue("q1", 1), "#1").toThrow("throwOnVisibility");
+    survey.setValue("q1", 2);
+    expect(q2.isVisible, "#2").toBe(false);
+  });
+  test("a custom function that throws in a visibleIf: the visibleIf still runs", () => {
+    const fn = registerThrowOnceEcho("throwOnceEchoInVisibleIf");
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "throwOnceEchoInVisibleIf({q1}) = 1" }
+      ] });
+      const q2 = survey.getQuestionByName("q2");
+      fn.arm();
+      expect(() => survey.setValue("q1", 5), "#1").toThrow("throwOnceEchoInVisibleIf");
+      survey.setValue("q1", 1);
+      expect(q2.isVisible, "#2").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("throwOnceEchoInVisibleIf");
+    }
+  });
+  test("a custom function that throws in an expression question: the question still updates", () => {
+    const fn = registerThrowOnceEcho("throwOnceEchoInExpression");
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "q1" },
+        { type: "expression", name: "q2", expression: "throwOnceEchoInExpression({q1})" }
+      ] });
+      const q2 = survey.getQuestionByName("q2");
+      fn.arm();
+      expect(() => survey.setValue("q1", 5), "#1").toThrow("throwOnceEchoInExpression");
+      survey.setValue("q1", 7);
+      expect(q2.value, "#2").toBe(7);
+    } finally {
+      FunctionFactory.Instance.unregister("throwOnceEchoInExpression");
+    }
+  });
+  test("a custom function that throws in a calculated value: the value still updates", () => {
+    const fn = registerThrowOnceEcho("throwOnceEchoInCalculated");
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "q1" }],
+        calculatedValues: [{ name: "calc", expression: "throwOnceEchoInCalculated({q1})" }]
+      });
+      fn.arm();
+      expect(() => survey.setValue("q1", 5), "#1").toThrow("throwOnceEchoInCalculated");
+      survey.setValue("q1", 7);
+      expect(survey.getVariable("calc"), "#2").toBe(7);
+    } finally {
+      FunctionFactory.Instance.unregister("throwOnceEchoInCalculated");
+    }
+  });
+  test("a value-changed handler that throws while a calculated value writes: the value still updates", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1" }],
+      calculatedValues: [{ name: "calc", expression: "{q1}", includeIntoResult: true }]
+    });
+    const throwOnce = createThrowOnce("throwOnCalculatedWrite");
+    survey.onVariableChanged.add((_, options) => {
+      if (options.name === "calc") throwOnce.check();
+    });
+    throwOnce.arm();
+    expect(() => survey.setValue("q1", 5), "#1").toThrow("throwOnCalculatedWrite");
+    survey.setValue("q1", 7);
+    expect(survey.getVariable("calc"), "#2").toBe(7);
+  });
+  test("a handler that throws when an asynchronous expression completes: the question is ready and the expression still runs", () => {
+    const results: Array<(val: any) => void> = [];
+    FunctionFactory.Instance.register("asyncFuncThrowOnComplete", function (params: Array<any>): any {
+      results.push(this.returnResult);
+      return undefined;
+    }, true);
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "asyncFuncThrowOnComplete({q1}) = 1" }
+      ] });
+      const q2 = survey.getQuestionByName("q2");
+      const once = createThrowOnce("onQuestionVisibleChanged");
+      survey.onQuestionVisibleChanged.add(() => once.check());
+      results.splice(0).forEach(res => res(0));
+      survey.setValue("q1", "a");
+      once.arm();
+      expect(() => results.pop()(1), "#1").toThrow("onQuestionVisibleChanged");
+      expect(q2.isAsyncExpressionRunning, "#2").toBe(false);
+      expect(q2.isReady, "#3").toBe(true);
+      expect(survey.getRunningAsyncOperations().length, "#4").toBe(0);
+      survey.setValue("q1", "b");
+      results.pop()(0);
+      expect(q2.isVisible, "#5").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("asyncFuncThrowOnComplete");
+    }
+  });
+  test("an asynchronous function that throws when it starts: the question is ready and the expression still runs", () => {
+    const throwOnce = createThrowOnce("asyncFuncThrowOnStart");
+    FunctionFactory.Instance.register("asyncFuncThrowOnStart", function (params: Array<any>): any {
+      throwOnce.check();
+      this.returnResult(params[0]);
+      return undefined;
+    }, true);
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "asyncFuncThrowOnStart({q1}) = 1" }
+      ] });
+      const q2 = survey.getQuestionByName("q2");
+      throwOnce.arm();
+      expect(() => survey.setValue("q1", 5), "#1").toThrow("asyncFuncThrowOnStart");
+      expect(q2.isAsyncExpressionRunning, "#2").toBe(false);
+      expect(q2.isReady, "#3").toBe(true);
+      survey.setValue("q1", 1);
+      expect(q2.isVisible, "#4").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("asyncFuncThrowOnStart");
+    }
+  });
+  test("a ready handler that throws when an asynchronous expression starts: the question is ready and the expression still runs", () => {
+    const results: Array<(val: any) => void> = [];
+    FunctionFactory.Instance.register("asyncFuncThrowOnReady", function (params: Array<any>): any {
+      results.push(this.returnResult);
+      return undefined;
+    }, true);
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "asyncFuncThrowOnReady({q1}) = 1" }
+      ] });
+      const q2 = survey.getQuestionByName("q2");
+      const once = createThrowOnce("onReadyChanged");
+      q2.onReadyChanged.add(() => once.check());
+      results.splice(0).forEach(res => res(0));
+      once.arm();
+      expect(() => survey.setValue("q1", "a"), "#1").toThrow("onReadyChanged");
+      expect(q2.isAsyncExpressionRunning, "#2").toBe(false);
+      expect(q2.isReady, "#3").toBe(true);
+      expect(survey.getRunningAsyncOperations().length, "#4").toBe(0);
+      survey.setValue("q1", "b");
+      results.pop()(1);
+      expect(q2.isVisible, "#5").toBe(true);
+      expect(q2.isReady, "#6").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("asyncFuncThrowOnReady");
+    }
+  });
+  test("a custom function that throws in an expression validator: the question is not left validating", () => {
+    const fn = registerThrowOnceEcho("throwOnceEchoInValidator");
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "q1", validators: [{ type: "expression", expression: "throwOnceEchoInValidator({q1})" }] }
+      ] });
+      const q1 = survey.getQuestionByName("q1");
+      survey.setValue("q1", 1);
+      fn.arm();
+      expect(() => q1.validate(), "#1").toThrow("throwOnceEchoInValidator");
+      expect(q1.isRunningValidators, "#2").toBe(false);
+      expect(survey.getRunningAsyncOperations().length, "#3").toBe(0);
+    } finally {
+      FunctionFactory.Instance.unregister("throwOnceEchoInValidator");
+    }
+  });
+});

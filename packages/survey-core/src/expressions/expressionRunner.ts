@@ -83,15 +83,23 @@ export class ExpressionRunnerBase {
   }
   public runContextCore(context: IValueGetterContext, properties?: HashTable<any>): any {
     const id = this.getRunId ? this.getRunId() : ++this.runIdCounter;
-    if (this.onBeforeAsyncRun && this.isAsync) {
-      this.onBeforeAsyncRun(id);
+    try {
+      if (this.onBeforeAsyncRun && this.isAsync) {
+        this.onBeforeAsyncRun(id);
+      }
+      return this.expressionExecutor.runContext(context, properties, id);
+    } catch(e) {
+      this.doAfterAsyncRun(id);
+      throw e;
     }
-    return this.expressionExecutor.runContext(context, properties, id);
   }
   public validate(context: IValueGetterContext, options: IExpressionValidationOptions, isCondition: boolean): IExpressionError[] {
     return this.expressionExecutor.validate(context, isCondition, options);
   }
   protected doOnComplete(res: any, id: number): void {
+    this.doAfterAsyncRun(id);
+  }
+  private doAfterAsyncRun(id: number): void {
     if (this.onAfterAsyncRun && this.isAsync) {
       this.onAfterAsyncRun(id);
     }
@@ -107,7 +115,10 @@ export class ExpressionRunner extends ExpressionRunnerBase {
     return this.runContextCore(context, properties);
   }
   protected doOnComplete(res: any, id: number): void {
-    if (!!this.onRunComplete)this.onRunComplete(res);
-    super.doOnComplete(res, id);
+    try {
+      if (!!this.onRunComplete)this.onRunComplete(res);
+    } finally {
+      super.doOnComplete(res, id);
+    }
   }
 }

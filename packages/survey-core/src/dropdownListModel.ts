@@ -856,9 +856,13 @@ export class DropdownListModel extends Base {
   }
 
   private handleTab(event: any): { stopPropagation: boolean } {
-    this.handleEnter(event);
+    this.commitSelectionOnTab(event);
     this.popupModel.hide();
     return { stopPropagation: false };
+  }
+
+  protected commitSelectionOnTab(event: any): void {
+    this.handleEnter(event);
   }
 
   private handleSpace(event: any): { stopPropagation: boolean } {

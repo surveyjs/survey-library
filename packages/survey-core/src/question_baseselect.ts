@@ -3,7 +3,7 @@ import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
-import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedElementInfo, INestedWalkOptions, NestedWalkBuild } from "./question";
+import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedElementInfo, INestedWalkOptions, NestedElementVisit, NestedWalkBuild } from "./question";
 import { ItemValue } from "./itemvalue";
 import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
@@ -397,7 +397,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   public getPanels(): Array<IPanel> {
     if (!this.supportElementsInChoice()) return super.getPanels();
     const res = new Array<IPanel>();
-    this.forEachNestedElement(info => res.push(<PanelModel>info.element), allChoicePanels);
+    this.forEachNestedElement(info => { res.push(<PanelModel>info.element); }, allChoicePanels);
     return res;
   }
   /* Every choice panel that is created, empty ones included, as getPanels() and disposal see them. A
@@ -405,13 +405,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
      element is removed. The walk reads item.createdPanel, never item.panel: reading item.panel creates
      the panel and links it to the survey, and a walk run from setSurveyImpl (setIsMobile) happens before
      the question has its parent, so the panel would keep no parent. */
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
     if (!this.supportElementsInChoice()) return;
-    this.choices.forEach((item) => {
+    return this.choices.some((item) => {
       const panel = item.createdPanel;
-      if (!!panel) {
-        visit({ element: panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
-      }
+      return !!panel && visit({ element: panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
     });
   }
   // A select question always lists itself, and the questions of its choice panels only with includeNested.
@@ -2064,6 +2062,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!this.hasCssError()) return false;
     if (this.hasCssErrorCallback()) return true;
     return this.errors.some(er => er.visible && er.isError && !this.isOtherEmptyError(er));
+  }
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    return super.getFirstQuestionToFocus(withError) || this.getFirstNestedQuestionToFocus(withError);
   }
   protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
     if (!this.hasItemsCssError() && this.hasVisibleOtherEmptyError()) {

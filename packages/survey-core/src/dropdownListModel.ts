@@ -94,6 +94,7 @@ export class DropdownListModel extends Base {
   }
   private _loadQuestionChoices(callbackAfterItemsLoaded?: () => void) {
     const _filterString = this.filterString;
+    this.listModel.isAllDataLoaded = false;
     this.setIsChoicesLoading(true);
     this.question.survey.loadQuestionChoices({
       question: this.question,
@@ -217,6 +218,7 @@ export class DropdownListModel extends Base {
     }
     if (isVisible && this.choicesLazyLoadEnabled) {
       this.listModel.actions = [];
+      this.listModel.isAllDataLoaded = false;
       this.resetItemsSettings();
       this.updateQuestionChoices();
     }
@@ -608,6 +610,7 @@ export class DropdownListModel extends Base {
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
+    this.setLoadingComponent(this.question.loadingComponent);
     this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.setInputPlaceholder(this.question.placeholder);
     this.updateAfterListModelCreated(this.listModel);
@@ -703,6 +706,10 @@ export class DropdownListModel extends Base {
     if (newValue) {
       this.searchEnabled = newValue;
     }
+  }
+
+  public setLoadingComponent(newValue: string): void {
+    this.listModel.loadingComponent = newValue || "sv-list-loading";
   }
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {

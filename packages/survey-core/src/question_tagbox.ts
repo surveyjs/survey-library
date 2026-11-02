@@ -150,6 +150,16 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
    */
   @property() choicesLazyLoadPageSize: number;
   /**
+   * The name of the component used to render the dropdown's loading indicator and/or text.
+   */
+  @property({
+    onSet: (newValue: string, target: any) => {
+      if (!!target.dropdownListModelValue) {
+        target.dropdownListModel.setLoadingComponent(newValue);
+      }
+    }
+  }) loadingComponent: string;
+  /**
    * Specifies whether to close the drop-down menu after a user selects a value.
    */
   @property({ getDefaultValue: () => { return settings.tagboxCloseOnSelect; } }) closeOnSelect: number;
@@ -278,6 +288,7 @@ Serializer.addClass(
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean" },
     { name: "itemComponent", visible: false, default: "" },
+    { name: "loadingComponent", visible: false, default: "" },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"] }
   ],
   function () {

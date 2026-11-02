@@ -539,5 +539,33 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(500);
       await compareScreenshot(page, page.getByRole("option", { name: 'Create "test" item...' }).locator("div"), "dropdown-custom-list-item.png");
     });
+
+    test("Check dropdown lazy loading indicator", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 1100 });
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onChoicesLazyLoad.add(() => { });
+        window["survey"].fromJSON(json);
+      }, {
+        showQuestionNumbers: false,
+        elements: [{
+          type: "dropdown",
+          name: "q1",
+          title: "Where are you living?",
+          choicesLazyLoadEnabled: true,
+          placeholder: "Select country here..."
+        }]
+      });
+
+      await page.locator(".sd-dropdown").click();
+      await page.locator(".sd-loading-indicator").waitFor({ state: "visible" });
+      await page.evaluate(() => {
+        const element = (window as any).survey.rootElement.getRootNode().querySelector(".sd-loading-indicator .sv-svg-icon") as HTMLElement;
+        if (element) {
+          element.style.animation = "none";
+        }
+      });
+      await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-loading-indicator.png");
+    });
   });
 });

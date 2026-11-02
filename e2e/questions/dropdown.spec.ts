@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, checkSurveyWithEmptyQuestion, test, expect, getVisibleSelectListItemByText, getButtonByText } from "../helper";
-import { registerCustomItemComponent } from "../registerCustomComponents";
+import { registerCustomItemComponent, registerCustomListLoadingComponent } from "../registerCustomComponents";
 
 const title = "Dropdown question";
 
@@ -658,6 +658,57 @@ frameworks.forEach((framework) => {
       await myListItems.nth(3).click();
 
       await expect(page.locator(".sd-dropdown__input").locator(".sv-svg-icon")).toHaveCount(1);
+    });
+
+    test("Check dropdown custom loading component", async ({ page }) => {
+      await registerCustomListLoadingComponent(page, framework);
+
+      const json = {
+        elements: [
+          {
+            type: "dropdown",
+            name: "withItems",
+            choicesLazyLoadEnabled: true,
+            loadingComponent: "my-list-loading"
+          }, {
+            type: "dropdown",
+            name: "noItems",
+            choicesLazyLoadEnabled: true,
+            loadingComponent: "my-list-loading"
+          }
+        ]
+      };
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onChoicesLazyLoad.add((_, opt) => {
+          setTimeout(() => {
+            if (opt.question.name === "noItems") {
+              opt.setItems([], 0);
+            } else {
+              opt.setItems(["Ford", "Audi", "BMW"], 3);
+            }
+          }, 500);
+        });
+        window["survey"].fromJSON(json);
+      }, json);
+
+      const customLoading = page.locator(".my-list-loading");
+      const visiblePopup = page.locator(".sv-popup.sv-dropdown-popup").filter({ visible: true });
+
+      await page.locator(".sd-dropdown").nth(0).click();
+      await expect(customLoading).toHaveCount(1);
+      await expect(customLoading).toHaveAttribute("data-state", "loading");
+      await expect(customLoading).toHaveText("Custom loading");
+      await expect(visiblePopup.locator(".sd-selectlist__empty-container")).toHaveCount(0);
+
+      await expect(customLoading).toHaveCount(0);
+      await expect(getVisibleSelectListItemByText(page, "Ford")).toBeVisible();
+      await page.keyboard.press("Escape");
+
+      await page.locator(".sd-dropdown").nth(1).click();
+      await expect(customLoading).toHaveAttribute("data-state", "loading");
+      await expect(customLoading).toHaveCount(0);
+      await expect(page.locator(".sd-selectlist__empty-text").filter({ visible: true })).toHaveText("No data to display");
     });
 
     test("Check dropdown key press with searchEnabled", async ({ page }) => {

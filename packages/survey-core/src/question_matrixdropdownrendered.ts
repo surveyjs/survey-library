@@ -196,9 +196,12 @@ export class QuestionMatrixDropdownRenderedCell {
   private getSort(): Array<ISortCriterion> {
     return this.matrix.sortCriteria || [];
   }
+  // The column first: one whose cell type has no sortable value can be sorted from code. A detail question has a title too.
   private getSortFieldTitle(field: string): string {
     const column = this.matrix.columns.filter((item: MatrixDropdownColumn): boolean => item.sortField === field)[0];
-    return !!column ? column.title : field;
+    if (!!column) return column.title;
+    const detail = this.matrix.getDesignSortFields().filter((item: { field: string, title: string }): boolean => item.field === field)[0];
+    return !!detail ? detail.title : field;
   }
   private getSortDirectionText(field: string, direction: SortDirection): string {
     const locName = getSortDirectionLocStringName(this.matrix.getSortFieldDataType(field), direction);

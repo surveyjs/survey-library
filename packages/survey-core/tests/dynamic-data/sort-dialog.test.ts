@@ -637,3 +637,19 @@ describe("Sort dialog: the locale", () => {
     expect([popup.title, open.survey.locale, rowAction(open, 1, "drag-drop").ariaLabel], "#5").toEqual(["Sort by", "", "Move sort level 2"]);
   });
 });
+describe("Sort dialog: the fields of the detail panel", () => {
+  test("the dialog offers the detail fields after the columns, and Apply sorts by them", () => {
+    const matrix = createMatrix({ maxSortLevel: 2, columns: [{ name: "product", title: "Product", cellType: "text" }], detailPanelMode: "underRow",
+      detailElements: [{ type: "text", name: "qty", title: "Quantity", inputType: "number" }] });
+    (<SurveyModel>matrix.survey).data = { matrix: [{ product: "b", qty: 5 }, { product: "a", qty: 30 }, { product: "c", qty: 10 }] };
+    matrix.sort([{ field: "product", direction: "asc" }, { field: "qty", direction: "asc" }]);
+    const open = openDialog(matrix);
+    expect(titlesOf(fieldOf(open, 1)), "#1: the second row").toEqual(["Quantity"]);
+    expect(titlesOf(directionOf(open, 1)), "#2: its type's directions").toEqual(["\u2014", "High - Low", "Low - High"]);
+    pick(directionOf(open, 1), "High - Low");
+    removeRow(open, 0);
+    apply(open.popup);
+    expect(sortOf(matrix), "#3").toEqual([{ field: "qty", direction: "desc" }]);
+    expect(columnValues(matrix, "product"), "#4").toEqual(["a", "c", "b"]);
+  });
+});

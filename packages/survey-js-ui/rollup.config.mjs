@@ -13,7 +13,6 @@ const aliases = {
   "react-dom/test-utils": resolve(__dirname, "./node_modules/preact/test-utils"),
   "react-dom": resolve(__dirname, "./node_modules/preact/compat"),
   "react/jsx-runtime": resolve(__dirname, "./node_modules/preact/jsx-runtime"),
-  "survey-core/icons/iconsV1": resolve(__dirname, "./node_modules/survey-core/icons/iconsV1"),
   "survey-core/icons/iconsV2": resolve(__dirname, "./node_modules/survey-core/icons/iconsV2"),
 };
 
@@ -109,7 +108,6 @@ export default (options = {}) => {
       ],
       resolve: {
         dedupe: [
-          "survey-core/icons/iconsV1",
           "survey-core/icons/iconsV2",
           "preact/compat",
           "preact/jsx-runtime",

@@ -246,3 +246,29 @@ describe("json-schema convert - discriminated oneOf", () => {
     expect(entry(report.entries, JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR)?.bucket).toBe("assumed");
   });
 });
+
+describe("json-schema convert - condition literals", () => {
+  const ifConst = (value: string) => ({
+    type: "object",
+    properties: { a: { type: "string" }, b: { type: "string" } },
+    if: { properties: { a: { const: value } } },
+    then: { properties: { b: { type: "string" } } }
+  });
+
+  for (const value of ["O'Brien", "x\\y"]) {
+    it(`matches an if const of ${JSON.stringify(value)} exactly`, () => {
+      const survey = assertConstructsCleanly(convert(ifConst(value)).output, "if const literal");
+      survey.data = { a: value };
+      expect(survey.getQuestionByName("b").isVisible).toBe(true);
+      survey.data = { a: value.replace(/['\\]/g, "") };
+      expect(survey.getQuestionByName("b").isVisible).toBe(false);
+    });
+  }
+
+  it("does not express an if const ending in a backslash, and reports it assumed", () => {
+    const { output, report } = convert(ifConst("c:\\"));
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    expect(entry(report.entries, JsonSchemaCodes.ASSUMED_IF_THEN_ELSE)?.sourcePointer).toBe("#/if");
+    assertConstructsCleanly(output, "if const trailing backslash");
+  });
+});

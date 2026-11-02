@@ -56,6 +56,7 @@
 import { ConversionResult, ReportBuilder } from "../report";
 import { UnparseableInputError, WrongFormatError } from "../errors";
 import { SurveyJSON, SurveyJSONElement, SurveyJSONPage } from "../types";
+import { formatLiteral } from "../expression";
 import { JsonSchemaCodes } from "./codes";
 
 const SOURCE = "json-schema";
@@ -310,12 +311,6 @@ function readChoices(schema: JsonSchemaDoc): { value: unknown, text?: string }[]
 
 // --- expression helpers -----------------------------------------------------
 
-/** Quote a value for a SurveyJS expression literal. */
-function fmt(value: unknown): string {
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-  return `'${String(value ?? "")}'`;
-}
-
 function combineAnd(existing: string | undefined, cond: string): string {
   return existing ? `(${existing}) and (${cond})` : cond;
 }
@@ -332,12 +327,17 @@ function ifToExpression(ifSchema: JsonSchemaDoc): { pos: string, neg: string } |
   const pos: string[] = [];
   const neg: string[] = [];
   for (const [k, cond] of Object.entries(props)) {
+    // A value that cannot be written as a literal makes the whole `if` inexpressible.
     if (cond && cond.const !== undefined) {
-      pos.push(`{${k}} = ${fmt(cond.const)}`);
-      neg.push(`{${k}} <> ${fmt(cond.const)}`);
+      const lit = formatLiteral(cond.const);
+      if (lit === undefined) return undefined;
+      pos.push(`{${k}} = ${lit}`);
+      neg.push(`{${k}} <> ${lit}`);
     } else if (cond && Array.isArray(cond.enum)) {
-      pos.push("(" + cond.enum.map((v) => `{${k}} = ${fmt(v)}`).join(" or ") + ")");
-      neg.push("(" + cond.enum.map((v) => `{${k}} <> ${fmt(v)}`).join(" and ") + ")");
+      const lits = cond.enum.map((v) => formatLiteral(v));
+      if (lits.some((lit) => lit === undefined)) return undefined;
+      pos.push("(" + lits.map((lit) => `{${k}} = ${lit}`).join(" or ") + ")");
+      neg.push("(" + lits.map((lit) => `{${k}} <> ${lit}`).join(" and ") + ")");
     } else {
       return undefined;
     }
@@ -775,9 +775,12 @@ function appendOneOfVariants(
   for (const variant of d.variants) {
     const panel: SurveyJSONElement = {
       type: "panel",
-      name: uniqueName(`${d.disc}_${String(variant.value)}`, ctx),
-      visibleIf: `{${discName}} = ${fmt(variant.value)}`
+      name: uniqueName(`${d.disc}_${String(variant.value)}`, ctx)
     };
+    // A variant whose value cannot be written as a literal stays visible, reported.
+    const lit = formatLiteral(variant.value);
+    if (lit !== undefined) panel.visibleIf = `{${discName}} = ${lit}`;
+    else ctx.report.assumed(JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR, `${sourcePtr}/oneOf/${variant.index}`, `${targetPath}[${state.elements.length}]`);
     if (variant.schema.title !== undefined) panel.title = String(variant.schema.title);
     // Variant panel holds every property except the shared discriminator.
     const variantProps: Record<string, JsonSchemaDoc> = { ...variant.schema.properties };
@@ -1019,9 +1022,12 @@ function buildDiscriminatorPages(
     const variantSchema: JsonSchemaDoc = { ...variant.schema, properties: variantProps };
     const page: SurveyJSONPage = {
       name: uniqueName(`${d.disc}_${String(variant.value)}`, ctx),
-      visibleIf: `{${selectorName}} = ${fmt(variant.value)}`,
       elements: walkObject(variantSchema, `#/oneOf/${variant.index}`, `pages[${variant.index + 1}].elements`, ctx, rjsfUi, 1)
     };
+    // A variant whose value cannot be written as a literal stays visible, reported.
+    const lit = formatLiteral(variant.value);
+    if (lit !== undefined) page.visibleIf = `{${selectorName}} = ${lit}`;
+    else ctx.report.assumed(JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR, `#/oneOf/${variant.index}`, `pages[${variant.index + 1}]`);
     if (variant.schema.title !== undefined) page.title = String(variant.schema.title);
     pages.push(page);
   }

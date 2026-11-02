@@ -3,28 +3,28 @@
   "fieldsIn": 1547,
   "fieldsOut": 1357,
   "buckets": {
-    "unsupported": 208,
+    "unsupported": 217,
     "unknown": 3,
-    "assumed": 150,
+    "assumed": 168,
     "dropped": 376
   },
-  "weightedClean": 967,
+  "weightedClean": 1066,
   "fidelityRatio": 0.8772,
-  "cleanPerField": 0.6251,
+  "cleanPerField": 0.6891,
   "perSource": {
     "formio": {
       "definitions": 522,
       "fieldsIn": 1115,
       "fieldsOut": 1029,
       "buckets": {
-        "unsupported": 151,
+        "unsupported": 160,
         "unknown": 3,
-        "assumed": 142,
+        "assumed": 160,
         "dropped": 346
       },
-      "weightedClean": 870,
+      "weightedClean": 969,
       "fidelityRatio": 0.9229,
-      "cleanPerField": 0.7803
+      "cleanPerField": 0.8691
     },
     "json-schema": {
       "definitions": 94,
@@ -42,13 +42,10 @@
     }
   },
   "lint": {
-    "errors": 16,
-    "warnings": 120,
+    "errors": 13,
+    "warnings": 118,
     "perSource": {
       "formio": {
-        "expression/type-mismatch": {
-          "warning": 2
-        },
         "name/duplicate": {
           "error": 9
         },
@@ -56,7 +53,7 @@
           "warning": 92
         },
         "reference/unknown": {
-          "error": 7
+          "error": 4
         }
       },
       "json-schema": {

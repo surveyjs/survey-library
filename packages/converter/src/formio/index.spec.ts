@@ -338,3 +338,347 @@ describe("formio convert - multiple on a text field", () => {
     assertConstructsCleanly(output, "multiple textfield two defaults");
   });
 });
+
+// Convert a form, load it, set data, and read whether the named question is visible.
+function isVisible(form: object, data: Record<string, unknown>, name: string): boolean {
+  const survey = assertConstructsCleanly(convert(form).output, "conditions");
+  survey.data = data;
+  return survey.getQuestionByName(name).isVisible;
+}
+
+function simpleConditional(show: unknown, conditions: unknown[], conjunction = "all") {
+  return { show, conjunction, conditions };
+}
+
+describe("formio convert - simple conditions", () => {
+  // [operator, target type, compared value, data that matches, data that does not, assumed]
+  const rows: [string, string, unknown, unknown, unknown, boolean][] = [
+    ["isEqual", "textfield", "x", "x", "y", false],
+    ["isNotEqual", "textfield", "x", "y", "x", false],
+    ["isEmpty", "textfield", "", undefined, "x", false],
+    ["isNotEmpty", "textfield", "", "x", undefined, false],
+    ["lessThan", "number", 5, 3, 7, false],
+    ["lessThanOrEqual", "number", 5, 5, 6, false],
+    ["greaterThan", "number", 5, 7, 5, false],
+    ["greaterThanOrEqual", "number", 5, 5, 4, false],
+    ["includes", "textfield", "ell", "hello", "abc", false],
+    ["notIncludes", "textfield", "ell", "abc", "hello", false],
+    ["dateGreaterThan", "day", "2024-01-01T00:00:00", "2024-06-01", "2023-06-01", true],
+    ["dateGreaterThanOrEqual", "day", "2024-01-01", "2024-01-01", "2023-06-01", true],
+    ["dateLessThan", "day", "2024-01-01T00:00:00", "2023-06-01", "2024-06-01", true],
+    ["dateLessThanOrEqual", "day", "2024-01-01", "2024-01-01", "2024-06-01", true],
+    ["isDateEqual", "day", "2024-06-01", "2024-06-01", "2024-06-02", true],
+    ["isNotDateEqual", "day", "2024-06-01", "2024-06-02", "2024-06-01", true]
+  ];
+
+  for (const [operator, type, value, match, noMatch, assumed] of rows) {
+    const form = (show: boolean) => ({ components: [
+      { type, key: "a" },
+      { type: "textfield", key: "b", conditional: simpleConditional(show, [{ component: "a", operator, value }]) }
+    ] });
+
+    it(`${operator} shows the field when it holds, with show: true`, () => {
+      expect(isVisible(form(true), { a: match }, "b")).toBe(true);
+      expect(isVisible(form(true), { a: noMatch }, "b")).toBe(false);
+      const assumedEntry = entry(convert(form(true)).report.entries, FormioCodes.ASSUMED_CONDITIONAL);
+      expect(assumedEntry?.sourcePointer).toBe(assumed ? "/components/1/conditional/conditions/0" : undefined);
+    });
+
+    it(`${operator} hides the field when it holds, with show: false`, () => {
+      expect(isVisible(form(false), { a: match }, "b")).toBe(false);
+      expect(isVisible(form(false), { a: noMatch }, "b")).toBe(true);
+    });
+  }
+
+  for (const operator of ["startsWith", "endsWith", "matchesSomething"]) {
+    it(`${operator} gives no visibleIf, keeps the field visible, and is reported assumed`, () => {
+      const form = { components: [
+        { type: "textfield", key: "a" },
+        { type: "textfield", key: "b", conditional: simpleConditional(true, [{ component: "a", operator, value: "x" }]) }
+      ] };
+      const { output, report } = convert(form);
+      expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+      expect(isVisible(form, { a: "y" }, "b")).toBe(true);
+      expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)?.sourcePointer).toBe("/components/1/conditional/conditions/0");
+    });
+  }
+
+  const twoConditions = (conjunction: string) => ({ components: [
+    { type: "textfield", key: "a" },
+    { type: "textfield", key: "c" },
+    { type: "textfield", key: "b", conditional: simpleConditional(true, [
+      { component: "a", operator: "isEqual", value: "x" },
+      { component: "c", operator: "isEqual", value: "y" }
+    ], conjunction) }
+  ] });
+
+  it("needs every condition with conjunction all", () => {
+    expect(isVisible(twoConditions("all"), { a: "x", c: "y" }, "b")).toBe(true);
+    expect(isVisible(twoConditions("all"), { a: "x", c: "z" }, "b")).toBe(false);
+  });
+
+  it("needs one condition with conjunction any", () => {
+    expect(isVisible(twoConditions("any"), { a: "x", c: "z" }, "b")).toBe(true);
+    expect(isVisible(twoConditions("any"), { a: "w", c: "z" }, "b")).toBe(false);
+  });
+
+  it("ignores a condition with no component, as Form.io does", () => {
+    const form = { components: [
+      { type: "textfield", key: "a" },
+      { type: "textfield", key: "b", conditional: simpleConditional(true, [
+        { component: "a", operator: "isEqual", value: "x" },
+        { component: "", operator: "isEqual", value: "y" }
+      ]) }
+    ] };
+    expect(isVisible(form, { a: "x" }, "b")).toBe(true);
+    expect(isVisible(form, { a: "w" }, "b")).toBe(false);
+    expect(convert(form).report.entries.some((e) => e.code === FormioCodes.ASSUMED_CONDITIONAL)).toBe(false);
+  });
+
+  it("reads show: \"true\" as true and show: null as false", () => {
+    const form = (show: unknown) => ({ components: [
+      { type: "textfield", key: "a" },
+      { type: "textfield", key: "b", conditional: simpleConditional(show, [{ component: "a", operator: "isEqual", value: "x" }]) }
+    ] });
+    expect(isVisible(form("true"), { a: "x" }, "b")).toBe(true);
+    expect(isVisible(form(null), { a: "x" }, "b")).toBe(false);
+    expect(isVisible(form(null), { a: "y" }, "b")).toBe(true);
+  });
+});
+
+describe("formio convert - legacy conditions", () => {
+  const form = (show: unknown) => ({ components: [
+    { type: "textfield", key: "a" },
+    { type: "textfield", key: "b", conditional: { show, when: "a", eq: "x" } }
+  ] });
+
+  it("shows the field when equal for show: \"true\"", () => {
+    expect(isVisible(form("true"), { a: "x" }, "b")).toBe(true);
+    expect(isVisible(form("true"), { a: "y" }, "b")).toBe(false);
+  });
+
+  for (const show of ["false", null, ""]) {
+    it(`hides the field when equal for show: ${JSON.stringify(show)}`, () => {
+      expect(isVisible(form(show), { a: "x" }, "b")).toBe(false);
+      expect(isVisible(form(show), { a: "y" }, "b")).toBe(true);
+    });
+  }
+
+  it("compares a number target as a number and a checkbox target as a boolean", () => {
+    const typed = { components: [
+      { type: "number", key: "n" },
+      { type: "checkbox", key: "c" },
+      { type: "textfield", key: "b", conditional: { show: true, when: "n", eq: "5" } },
+      { type: "textfield", key: "d", conditional: { show: true, when: "c", eq: "true" } }
+    ] };
+    const { output } = convert(typed);
+    expect(findElement(output, "b")?.visibleIf).toBe("{n} = 5");
+    expect(findElement(output, "d")?.visibleIf).toBe("{c} = true");
+    expect(isVisible(typed, { n: 5 }, "b")).toBe(true);
+    expect(isVisible(typed, { c: true }, "d")).toBe(true);
+    expect(isVisible(typed, { c: false }, "d")).toBe(false);
+  });
+});
+
+describe("formio convert - selectboxes targets", () => {
+  const values = [{ label: "A", value: "a" }, { label: "B", value: "b" }];
+  const withConditional = (conditional: unknown) => ({ components: [
+    { type: "selectboxes", key: "s", values },
+    { type: "textfield", key: "b", conditional }
+  ] });
+
+  it("shows on a checked key in the legacy format", () => {
+    const form = withConditional({ show: true, when: "s", eq: "a" });
+    expect(isVisible(form, { s: ["a"] }, "b")).toBe(true);
+    expect(isVisible(form, { s: ["b"] }, "b")).toBe(false);
+  });
+
+  it("hides on a checked key in the legacy format", () => {
+    const form = withConditional({ show: false, when: "s", eq: "a" });
+    expect(isVisible(form, { s: ["a"] }, "b")).toBe(false);
+    expect(isVisible(form, {}, "b")).toBe(true);
+  });
+
+  it("shows on a checked key with isEqual in the simple format", () => {
+    const form = withConditional(simpleConditional(true, [{ component: "s", operator: "isEqual", value: "a" }]));
+    expect(isVisible(form, { s: ["a", "b"] }, "b")).toBe(true);
+    expect(isVisible(form, { s: ["b"] }, "b")).toBe(false);
+  });
+
+  it("hides on a checked key with isNotEqual in the simple format", () => {
+    const form = withConditional(simpleConditional(true, [{ component: "s", operator: "isNotEqual", value: "a" }]));
+    expect(isVisible(form, { s: ["a"] }, "b")).toBe(false);
+    expect(isVisible(form, { s: ["b"] }, "b")).toBe(true);
+  });
+});
+
+describe("formio convert - conditions on containers", () => {
+  it("hides the children of a panel with a condition", () => {
+    const form = { components: [
+      { type: "textfield", key: "a" },
+      { type: "panel", key: "p", conditional: { show: true, when: "a", eq: "x" }, components: [{ type: "textfield", key: "b" }] }
+    ] };
+    const survey = assertConstructsCleanly(convert(form).output, "panel condition");
+    survey.data = { a: "y" };
+    expect(survey.getPanelByName("p").isVisible).toBe(false);
+    expect(survey.getQuestionByName("b").isParentVisible).toBe(false);
+    survey.data = { a: "x" };
+    expect(survey.getPanelByName("p").isVisible).toBe(true);
+  });
+
+  it("hides a data grid with a condition", () => {
+    const form = { components: [
+      { type: "textfield", key: "a" },
+      { type: "datagrid", key: "g", conditional: { show: true, when: "a", eq: "x" }, components: [{ type: "textfield", key: "b" }] }
+    ] };
+    expect(isVisible(form, { a: "y" }, "g")).toBe(false);
+    expect(isVisible(form, { a: "x" }, "g")).toBe(true);
+  });
+
+  it("skips a wizard page with a condition", () => {
+    const form = { display: "wizard", components: [
+      { type: "panel", key: "one", components: [{ type: "textfield", key: "a" }] },
+      { type: "panel", key: "two", conditional: { show: true, when: "a", eq: "x" }, components: [{ type: "textfield", key: "b" }] }
+    ] };
+    const survey = assertConstructsCleanly(convert(form).output, "page condition");
+    survey.data = { a: "y" };
+    expect(survey.visiblePages.map((p) => p.name)).toEqual(["one"]);
+    survey.data = { a: "x" };
+    expect(survey.visiblePages.map((p) => p.name)).toEqual(["one", "two"]);
+  });
+
+  it("refuses customConditional on a panel without its source", () => {
+    const { output, report } = convert({ components: [
+      { type: "panel", key: "p", customConditional: "show = data.secretFlag;", components: [{ type: "textfield", key: "b" }] }
+    ] });
+    const custom = entry(report.entries, FormioCodes.CUSTOM_CONDITIONAL);
+    expect(custom).toMatchObject({ bucket: "unsupported", sourcePointer: "/components/0/customConditional" });
+    expect(JSON.stringify(report)).not.toContain("secretFlag");
+    expect(findElement(output, "p")?.visibleIf).toBeUndefined();
+  });
+});
+
+describe("formio convert - condition references", () => {
+  it("follows a renamed target", () => {
+    const form = { components: [
+      { type: "container", key: "c1", components: [{ type: "textfield", key: "x" }] },
+      { type: "container", key: "c2", components: [{ type: "textfield", key: "x" }] },
+      { type: "textfield", key: "b", conditional: { show: true, when: "c2.x", eq: "y" } }
+    ] };
+    expect(findElement(convert(form).output, "b")?.visibleIf).toBe("{x_1} = 'y'");
+    expect(isVisible(form, { x_1: "y" }, "b")).toBe(true);
+    expect(isVisible(form, { x: "y" }, "b")).toBe(false);
+  });
+
+  it("resolves a field declared after the condition", () => {
+    const form = { components: [
+      { type: "textfield", key: "b", conditional: { show: true, when: "a", eq: "x" } },
+      { type: "textfield", key: "a" }
+    ] };
+    expect(isVisible(form, { a: "x" }, "b")).toBe(true);
+    expect(isVisible(form, { a: "y" }, "b")).toBe(false);
+  });
+
+  // Data grids become dynamic panels; read the question inside the first panel.
+  function gridQuestion(form: object, data: Record<string, unknown>, path: string[], name: string) {
+    const survey = assertConstructsCleanly(convert(form).output, "grid references");
+    survey.data = data;
+    let container: any = survey;
+    for (const grid of path) container = container.getQuestionByName(grid).panels[0];
+    return container.getQuestionByName(name);
+  }
+
+  for (const when of ["g.x", "row.x"]) {
+    it(`names a sibling in the same grid as panel.x, from ${when}`, () => {
+      const form = { components: [{ type: "datagrid", key: "g", components: [
+        { type: "textfield", key: "x" },
+        { type: "textfield", key: "b", conditional: { show: true, when, eq: "1" } }
+      ] }] };
+      expect(findElement(convert(form).output, "b")?.visibleIf).toBe("{panel.x} = '1'");
+      expect(gridQuestion(form, { g: [{ x: "1" }] }, ["g"], "b").isVisible).toBe(true);
+      expect(gridQuestion(form, { g: [{ x: "2" }] }, ["g"], "b").isVisible).toBe(false);
+    });
+  }
+
+  it("names a field of the parent grid as parentPanel.x", () => {
+    const form = { components: [{ type: "datagrid", key: "o", components: [
+      { type: "textfield", key: "y" },
+      { type: "editgrid", key: "i", components: [{ type: "textfield", key: "b", conditional: { show: true, when: "o.y", eq: "1" } }] }
+    ] }] };
+    expect(findElement(convert(form).output, "b")?.visibleIf).toBe("{parentPanel.y} = '1'");
+    expect(gridQuestion(form, { o: [{ y: "1", i: [{}] }] }, ["o", "i"], "b").isVisible).toBe(true);
+    expect(gridQuestion(form, { o: [{ y: "2", i: [{}] }] }, ["o", "i"], "b").isVisible).toBe(false);
+  });
+
+  it("names a top-level field from inside a grid by its name", () => {
+    const form = { components: [
+      { type: "textfield", key: "t" },
+      { type: "datagrid", key: "g", components: [{ type: "textfield", key: "b", conditional: { show: true, when: "t", eq: "1" } }] }
+    ] };
+    expect(findElement(convert(form).output, "b")?.visibleIf).toBe("{t} = '1'");
+    expect(gridQuestion(form, { t: "1", g: [{}] }, ["g"], "b").isVisible).toBe(true);
+    expect(gridQuestion(form, { t: "2", g: [{}] }, ["g"], "b").isVisible).toBe(false);
+  });
+
+  it("names a field inside a container by its name", () => {
+    const form = { components: [
+      { type: "container", key: "c", components: [{ type: "textfield", key: "x" }] },
+      { type: "textfield", key: "b", conditional: { show: true, when: "c.x", eq: "1" } }
+    ] };
+    expect(findElement(convert(form).output, "b")?.visibleIf).toBe("{x} = '1'");
+    expect(isVisible(form, { x: "1" }, "b")).toBe(true);
+  });
+
+  it("names a field by its full path through a layout panel", () => {
+    const form = { components: [
+      { type: "panel", key: "page1", components: [{ type: "checkbox", key: "agree" }] },
+      { type: "textfield", key: "b", conditional: simpleConditional(true, [{ component: "page1.agree", operator: "isEqual", value: true }]) }
+    ] };
+    expect(isVisible(form, { agree: true }, "b")).toBe(true);
+    expect(isVisible(form, { agree: false }, "b")).toBe(false);
+  });
+
+  const notExpressible: [string, object][] = [
+    ["a field inside a grid, from outside it", { components: [
+      { type: "datagrid", key: "g", components: [{ type: "textfield", key: "x" }] },
+      { type: "textfield", key: "b", conditional: { show: true, when: "g.x", eq: "1" } }
+    ] }],
+    ["a missing field", { components: [
+      { type: "textfield", key: "b", conditional: { show: true, when: "nowhere", eq: "1" } }
+    ] }]
+  ];
+  for (const [what, form] of notExpressible) {
+    it(`gives no visibleIf for ${what}, keeps the field visible, and reports it assumed`, () => {
+      const { output, report } = convert(form);
+      expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+      expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)?.sourcePointer).toMatch(/\/conditional\/when$/);
+      const survey = assertConstructsCleanly(output, what);
+      expect(survey.getQuestionByName("b").isVisible).toBe(true);
+    });
+  }
+});
+
+describe("formio convert - condition literals", () => {
+  const compareWith = (eq: string) => ({ components: [
+    { type: "textfield", key: "a" },
+    { type: "textfield", key: "b", conditional: { show: true, when: "a", eq } }
+  ] });
+
+  for (const value of ["O'Brien", "x\\y", "a\\'b"]) {
+    it(`matches a compared value of ${JSON.stringify(value)} exactly`, () => {
+      expect(isVisible(compareWith(value), { a: value }, "b")).toBe(true);
+      expect(isVisible(compareWith(value), { a: value.replace(/['\\]/g, "") }, "b")).toBe(false);
+    });
+  }
+
+  // survey-core reads `\'` and `\"` as escapes, so a trailing `\` would escape the closing quote
+  // and `\"` would read back as `"`.
+  for (const value of ["c:\\", "a\\\"b"]) {
+    it(`gives no visibleIf for a compared value of ${JSON.stringify(value)}, and reports it assumed`, () => {
+      const { output, report } = convert(compareWith(value));
+      expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+      expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)?.sourcePointer).toBe("/components/1/conditional/when");
+      expect(isVisible(compareWith(value), { a: "other" }, "b")).toBe(true);
+    });
+  }
+});

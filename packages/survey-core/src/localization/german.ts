@@ -53,8 +53,6 @@ export var germanSurveyStrings = {
   sortMoreAriaLabel: "Zeigen Sie alle Sortierungsstufen",
   // [Auto-translated] "Add New"
   sortAddNewText: "Neue hinzufügen",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Move sort Level {0}",
   // "Complete"

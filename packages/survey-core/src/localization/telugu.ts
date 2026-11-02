@@ -53,8 +53,6 @@ export var teluguStrings = {
   sortMoreAriaLabel: "అన్ని సార్ట్ లెవల్స్ చూపించు",
   // [Auto-translated] "Add New"
   sortAddNewText: "క్రొత్తదాన్ని జోడించండి",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "క్రమబద్ధీకరణ స్థాయిని {0} తరలించండి",
   // "Complete"

@@ -53,8 +53,6 @@ export var greekSurveyStrings = {
   sortMoreAriaLabel: "Εμφάνιση όλων των επιπέδων ταξινόμησης",
   // [Auto-translated] "Add New"
   sortAddNewText: "Προσθήκη νέου",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Μετακίνηση επιπέδου ταξινόμησης {0}",
   // "Complete"

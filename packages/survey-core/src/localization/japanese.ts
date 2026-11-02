@@ -53,8 +53,6 @@ export var japaneseSurveyStrings = {
   sortMoreAriaLabel: "あらゆるレベルの表示",
   // [Auto-translated] "Add New"
   sortAddNewText: "新しい追加",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "移動ソートレベル{0}",
   // "Complete"

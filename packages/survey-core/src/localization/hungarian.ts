@@ -53,8 +53,6 @@ export var hungarianSurveyStrings = {
   sortMoreAriaLabel: "Minden sortozási szintet mutat",
   // [Auto-translated] "Add New"
   sortAddNewText: "Add hozzá az újat",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Lépésrendezési szint {0}",
   // "Complete"

@@ -53,8 +53,6 @@ export var philippinesStrings = {
   sortMoreAriaLabel: "Ipakita ang lahat ng antas ng sort",
   // [Auto-translated] "Add New"
   sortAddNewText: "Magdagdag ng Bago",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Ilipat ang sort level {0}",
   // "Complete"

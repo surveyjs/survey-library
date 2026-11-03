@@ -521,6 +521,10 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   // The survey can bring other formats, and a text that stays the same is not a value change.
   protected onSetData(): void {
+    // before the value arrives: localeChanged() is not for this, it would convert a saved text
+    if (!this.maskTypeIsEmpty && this.maskSettings.updateFormatFromSurvey()) {
+      this.updateInputValue();
+    }
     super.onSetData();
     if (!this.isEmpty()) {
       this.updateUnmaskedValue();

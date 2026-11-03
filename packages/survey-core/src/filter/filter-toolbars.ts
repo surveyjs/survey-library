@@ -213,7 +213,7 @@ export class FilterToolbars {
       return;
     }
     footer.setItems([
-      new Action({ id: "sv-filter-modal-clear", title: filterUIStrings.clearAll, appearance: { style: "neutral", mode: "secondary", showBorder: true },
+      new Action({ id: "sv-filter-modal-clear", title: filterUIStrings.clearAll, appearance: { style: "neutral", mode: "tertiary", showBorder: true },
         action: (): void => { modal.clearAll(); } }),
       new Action({ id: "sv-filter-modal-apply", needSpace: true, appearance: { style: "brand", mode: "primary" },
         title: <any>new ComputedUpdater<string>((): string => modal.showResultsText),
@@ -355,7 +355,7 @@ export class FilterToolbars {
       this.saveAction = new Action({ id: "sv-filter-save", title: filterUIStrings.save, appearance: { style: "brand" },
         visible: false, action: (): void => { this.owner.saveActiveItem(); } });
       this.clearAction = new Action({ id: "sv-filter-clear", title: filterUIStrings.clearAll, iconName: "icon-close-16x16",
-        iconSize: "auto", innerCss: this.cssClasses.clear, appearance: { showBorder: true }, visible: false,
+        iconSize: "auto", innerCss: this.cssClasses.clear, appearance: { style: "neutral", mode: "tertiary-surface", showBorder: true }, visible: false,
         action: (): void => { this.owner.clearActiveItem(); } });
       this.clearToolbarValue.setItems([this.saveAction, this.clearAction], false);
     }

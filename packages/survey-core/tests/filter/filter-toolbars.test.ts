@@ -238,6 +238,12 @@ describe("FilterToolbars: Filters, Clear All and Save", () => {
     clear.action();
     expect([q.activeItemName, q.searchString, clear.visible], "#3").toEqual(["", "an", false]);
   });
+  test("Clear All in the chips row is a neutral tertiary-surface action without a fill at rest", () => {
+    const q = createFilter();
+    const clear = action(q.clearToolbar, "sv-filter-clear");
+    expect(Object.assign({}, clear.predefinedAppearance, clear.appearance))
+      .toEqual({ style: "neutral", mode: "tertiary-surface", size: "small", showBorder: true });
+  });
   test("Save is there in single mode only, while there are edits to save", () => {
     const q = createFilter({ allowMultipleItems: false });
     const save = action(q.clearToolbar, "sv-filter-save");
@@ -316,6 +322,8 @@ describe("FilterToolbars: the Filters dialog", () => {
       expect(ids(dialog.footerToolbar), "#1").toEqual(["sv-filter-modal-clear", "sv-filter-modal-apply"]);
       const apply = action(dialog.footerToolbar, "sv-filter-modal-apply");
       expect([apply.title, apply.needSpace], "#2: a standalone control cannot count").toEqual(["Show results", true]);
+      expect(action(dialog.footerToolbar, "sv-filter-modal-clear").appearance, "#2a: Clear All has no fill at rest")
+        .toEqual({ style: "neutral", mode: "tertiary", showBorder: true });
       modal.togglePreset(q.getItemByName("adults"));
       action(dialog.footerToolbar, "sv-filter-modal-clear").action();
       expect(modal.activeItemName, "#3: Clear All").toBe("");

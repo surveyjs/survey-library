@@ -158,17 +158,6 @@ export class DropdownListModel extends Base {
     this._popupModel.focusFirstInputSelector = this.focusFirstInputSelector;
   }
 
-  // A left title sits beside the input, outside the popup target. Measure that row so the popup is as wide as the title and the input.
-  // Search inside the question's own root: a matrix cell or a custom component's inner question renders no root and no row of its own,
-  // so the nearest row would belong to the outer question.
-  private getPopupWidthTarget(container: HTMLElement): HTMLElement {
-    if (!container || !this.question.hasTitleOnLeft) return undefined;
-    const selector = classesToSelector(this.question.cssClasses?.headerAndContentContainer);
-    if (!selector) return undefined;
-    const root = container.closest(`[id="${this.question.id}"]`);
-    return root?.querySelector(selector) as HTMLElement;
-  }
-
   private getDropdownMenuOptions(): IDropdownMenuOptions {
     const windowWidth = DomWindowHelper.getInnerWidth();
     const windowHeight = DomWindowHelper.getInnerHeight();
@@ -205,7 +194,6 @@ export class DropdownListModel extends Base {
     this._popupModel.isFocusedContainer = false;
     this._popupModel.isFocusedContent = IsTouch;
     this._popupModel.setWidthByTarget = !IsTouch;
-    this._popupModel.getWidthTargetCallback = (container: HTMLElement) => this.getPopupWidthTarget(container);
     this._popupModel.locale = this.question.getLocale();
     this.updatePopupFocusFirstInputSelector();
     this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {

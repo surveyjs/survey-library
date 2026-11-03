@@ -394,52 +394,6 @@ describe("DropdownListModel", () => {
     expect(popup.isVisible).toBeTruthy();
     _setIsTouch(false);
   });
-  test("popup width target includes the question title when the title is on the left", () => {
-    const survey = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", choices: ["a", "b"] }] });
-    const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
-    const popup = question.dropdownListModel.popupModel;
-    const root = document.createElement("div");
-    root.id = question.id;
-    const row = document.createElement("div");
-    row.className = question.cssClasses.headerAndContentContainer;
-    const input = document.createElement("div");
-    const popupRoot = document.createElement("div");
-    root.appendChild(row);
-    row.appendChild(input);
-    input.appendChild(popupRoot);
-    document.body.appendChild(root);
-
-    question.titleLocation = "left";
-    expect(popup.getWidthTargetCallback(popupRoot)).toBe(row);
-
-    question.titleLocation = "top";
-    expect(popup.getWidthTargetCallback(popupRoot)).toBeFalsy();
-
-    root.remove();
-  });
-  test("popup width target of a matrix cell dropdown ignores the matrix row", () => {
-    const survey = new SurveyModel({
-      questionTitleLocation: "left",
-      elements: [{ type: "matrixdropdown", name: "m1", rows: ["r1"], columns: [{ name: "c1", cellType: "dropdown", choices: ["a", "b"] }] }]
-    });
-    const matrix = survey.getQuestionByName("m1");
-    const cellQuestion = <QuestionDropdownModel>(<any>matrix).visibleRows[0].cells[0].question;
-    const popup = cellQuestion.dropdownListModel.popupModel;
-    const root = document.createElement("div");
-    root.id = matrix.id;
-    const row = document.createElement("div");
-    row.className = matrix.cssClasses.headerAndContentContainer;
-    const cell = document.createElement("div");
-    const popupRoot = document.createElement("div");
-    root.appendChild(row);
-    row.appendChild(cell);
-    cell.appendChild(popupRoot);
-    document.body.appendChild(root);
-
-    expect(popup.getWidthTargetCallback(popupRoot)).toBeFalsy();
-
-    root.remove();
-  });
   test("Check dropdown list model is updated from value", () => {
     const survey = new SurveyModel(jsonDropdown);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];

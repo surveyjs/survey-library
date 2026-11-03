@@ -1,69 +1,54 @@
 {
-  "schema": {
-    "type": "object",
-    "properties": {
-      "quantity": {
-        "oneOf": [
-          {
-            "$ref": "#/definitions/unrangedQuantity"
-          },
-          {
-            "$ref": "#/definitions/rangedQuantity"
-          }
-        ]
-      }
-    },
-    "definitions": {
-      "unrangedQuantity": {
-        "title": "Value",
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "number"
-          },
-          "unit": {
-            "type": "string"
-          }
+  "type": "object",
+  "properties": {
+    "quantity": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/unrangedQuantity"
         },
-        "required": [
-          "value",
-          "unit"
-        ]
-      },
-      "rangedQuantity": {
-        "title": "Range",
-        "type": "object",
-        "properties": {
-          "valueLow": {
-            "type": "number"
-          },
-          "valueHigh": {
-            "type": "number",
-            "maximum": 10
-          },
-          "unit": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "valueLow",
-          "valueHigh",
-          "unit"
-        ]
-      }
+        {
+          "$ref": "#/definitions/rangedQuantity"
+        }
+      ]
     }
   },
-  "uiSchema": {
-    "type": "VerticalLayout",
-    "elements": [
-      {
-        "type": "Control",
-        "scope": "#/properties/name"
+  "definitions": {
+    "unrangedQuantity": {
+      "title": "Value",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        }
       },
-      {
-        "type": "Control",
-        "scope": "#/properties/addressOrUser"
-      }
-    ]
+      "required": [
+        "value",
+        "unit"
+      ]
+    },
+    "rangedQuantity": {
+      "title": "Range",
+      "type": "object",
+      "properties": {
+        "valueLow": {
+          "type": "number"
+        },
+        "valueHigh": {
+          "type": "number",
+          "maximum": 10
+        },
+        "unit": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "valueLow",
+        "valueHigh",
+        "unit"
+      ]
+    }
   }
 }

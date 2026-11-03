@@ -1,39 +1,18 @@
 {
-  "schema": {
-    "type": "object",
-    "properties": {
-      "foo": {
-        "anyOf": [
-          {
-            "type": "string"
-          },
-          {
-            "enum": [
-              "foo",
-              "bar"
-            ]
-          }
-        ]
-      }
+  "type": "object",
+  "properties": {
+    "foo": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "enum": [
+            "foo",
+            "bar"
+          ]
+        }
+      ]
     }
-  },
-  "uiSchema": {
-    "type": "VerticalLayout",
-    "elements": [
-      {
-        "type": "Control",
-        "scope": "#/properties/addressOrUser"
-      },
-      {
-        "type": "Control",
-        "scope": "#/properties/addressesOrUsers",
-        "label": "Addresses or Users (AnyOf Schema)"
-      },
-      {
-        "type": "Control",
-        "scope": "#/properties/addressesOrUsersAnyOfItems",
-        "label": "Addresses or Users (AnyOf Array Items)"
-      }
-    ]
   }
 }

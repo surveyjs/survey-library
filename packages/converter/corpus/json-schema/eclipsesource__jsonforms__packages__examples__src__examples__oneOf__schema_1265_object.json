@@ -1,84 +1,69 @@
 {
-  "schema": {
-    "type": "object",
-    "properties": {
-      "coloursOrNumbers": {
-        "oneOf": [
-          {
-            "$ref": "#/definitions/colours"
-          },
-          {
-            "$ref": "#/definitions/numbers"
-          },
-          {
-            "$ref": "#/definitions/shapes"
-          }
-        ]
-      }
-    },
-    "additionalProperties": false,
-    "definitions": {
-      "colours": {
-        "title": "Colours",
-        "type": "object",
-        "properties": {
-          "colour": {
-            "title": "Type",
-            "type": "string",
-            "enum": [
-              "Red",
-              "Green",
-              "Blue"
-            ]
-          }
+  "type": "object",
+  "properties": {
+    "coloursOrNumbers": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/colours"
         },
-        "additionalProperties": false
-      },
-      "numbers": {
-        "title": "Numbers",
-        "type": "object",
-        "properties": {
-          "number": {
-            "title": "Type",
-            "type": "string",
-            "enum": [
-              "One",
-              "Two",
-              "Three"
-            ]
-          }
+        {
+          "$ref": "#/definitions/numbers"
         },
-        "additionalProperties": false
-      },
-      "shapes": {
-        "title": "Shapes",
-        "type": "object",
-        "properties": {
-          "shape": {
-            "title": "Type",
-            "type": "string",
-            "enum": [
-              "Circle",
-              "Triangle",
-              "Square"
-            ]
-          }
-        },
-        "additionalProperties": false
-      }
+        {
+          "$ref": "#/definitions/shapes"
+        }
+      ]
     }
   },
-  "uiSchema": {
-    "type": "VerticalLayout",
-    "elements": [
-      {
-        "type": "Control",
-        "scope": "#/properties/name"
+  "additionalProperties": false,
+  "definitions": {
+    "colours": {
+      "title": "Colours",
+      "type": "object",
+      "properties": {
+        "colour": {
+          "title": "Type",
+          "type": "string",
+          "enum": [
+            "Red",
+            "Green",
+            "Blue"
+          ]
+        }
       },
-      {
-        "type": "Control",
-        "scope": "#/properties/addressOrUser"
-      }
-    ]
+      "additionalProperties": false
+    },
+    "numbers": {
+      "title": "Numbers",
+      "type": "object",
+      "properties": {
+        "number": {
+          "title": "Type",
+          "type": "string",
+          "enum": [
+            "One",
+            "Two",
+            "Three"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "shapes": {
+      "title": "Shapes",
+      "type": "object",
+      "properties": {
+        "shape": {
+          "title": "Type",
+          "type": "string",
+          "enum": [
+            "Circle",
+            "Triangle",
+            "Square"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
   }
 }

@@ -51,8 +51,6 @@
     "eclipsesource__jsonforms__packages__examples__src__examples__login__schema.json",
     "eclipsesource__jsonforms__packages__examples__src__examples__mixed-object__schema.json",
     "eclipsesource__jsonforms__packages__examples__src__examples__mixed__schema.json",
-    "eclipsesource__jsonforms__packages__examples__src__examples__nestedArrays__control1.json",
-    "eclipsesource__jsonforms__packages__examples__src__examples__nestedArrays__control2.json",
     "eclipsesource__jsonforms__packages__examples__src__examples__nestedArrays__schema.json",
     "eclipsesource__jsonforms__packages__examples__src__examples__nestedCategorization__schema.json",
     "eclipsesource__jsonforms__packages__examples__src__examples__numbers__schema.json",
@@ -213,12 +211,6 @@
   "unhandled": [
     "format:data-url",
     "format:password",
-    "ref:remote",
-    "ui-type:ListWithDetail",
-    "ui-widget:alt-date",
-    "ui-widget:alt-datetime",
-    "ui-widget:checkbox",
-    "ui-widget:checkboxes",
-    "ui-widget:select"
+    "ref:remote"
   ]
 }

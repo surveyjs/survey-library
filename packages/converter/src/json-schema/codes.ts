@@ -25,6 +25,9 @@ export const JsonSchemaCodes = {
   // A key that is neither JSON Schema nor a known UI vocabulary - drift alarm.
   UNKNOWN_KEYWORD: "json-schema.unknown-keyword",
 
+  // A JSONForms Control whose `scope` resolves to nothing in the schema, so it gives no question.
+  UNRESOLVED_SCOPE: "json-schema.unresolved-scope",
+
   // Out of scope by design: remote `$ref`, custom renderer components.
   DROPPED_REMOTE_REF: "json-schema.dropped-remote-ref",
   DROPPED_CUSTOM_RENDERER: "json-schema.dropped-custom-renderer",

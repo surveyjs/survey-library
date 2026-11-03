@@ -3,7 +3,7 @@ import { convert, JsonSchemaCodes } from "./index";
 import { UnparseableInputError, WrongFormatError } from "../errors";
 import { ReportEntry } from "../report";
 import { SurveyJSONElement } from "../types";
-import { assertConstructsCleanly } from "../testing/oracle";
+import { assertConstructsCleanly, lintOutput } from "../testing/oracle";
 import simpleSchema from "./fixtures/simple-schema.json";
 import dataTypes from "./fixtures/data-types-schema.json";
 import jsonforms from "./fixtures/jsonforms-schema.json";
@@ -867,7 +867,7 @@ describe("json-schema convert - RJSF report", () => {
     ["ui:field", JsonSchemaCodes.DROPPED_CUSTOM_RENDERER],
     ["ui:FieldTemplate", JsonSchemaCodes.DROPPED_CUSTOM_RENDERER],
     ["ui:enumDisabled", JsonSchemaCodes.UNSUPPORTED_UI_HINT],
-    ["ui:help", JsonSchemaCodes.UNSUPPORTED_UI_HINT],
+    ["ui:orderable", JsonSchemaCodes.UNSUPPORTED_UI_HINT],
     ["ui:futureKey", JsonSchemaCodes.UNSUPPORTED_UI_HINT]
   ];
   for (const [key, code] of rows) {
@@ -892,7 +892,7 @@ describe("json-schema convert - RJSF report", () => {
       { properties: { kind: { const: "a" }, note: { type: "string" } } },
       { properties: { kind: { const: "b" }, note: { type: "string" } } }
     ] };
-    const { report } = convert({ schema: shared, uiSchema: { note: { "ui:help": "h" } } });
+    const { report } = convert({ schema: shared, uiSchema: { note: { "ui:orderable": false } } });
     expect(report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_UI_HINT)).toHaveLength(1);
   });
 });
@@ -924,5 +924,846 @@ describe("json-schema convert - RJSF widgets", () => {
     expect(findElement(output, "when")?.inputType).toBe("date");
     expect(findElement(output, "text")?.inputType).toBe("datetime-local");
     expect(report.entries).toEqual([]);
+  });
+});
+
+describe("json-schema convert - JSONForms scopes", () => {
+  const control = (scope: string) => ({ type: "VerticalLayout", elements: [{ type: "Control", scope }] });
+  // The question a single Control on `scope` gives, loaded in a SurveyModel.
+  const question = (schema: object, scope: string) => loadJsonForms(schema, control(scope)).getAllQuestions()[0];
+
+  it("reports a scope that resolves nowhere as an unresolved scope, not a remote reference", () => {
+    const schema = { type: "object", properties: { a: { type: "string" } } };
+    const { output, report } = convert({ schema, uiSchema: control("#/properties/missing") });
+    const unresolved = entry(report.entries, JsonSchemaCodes.UNRESOLVED_SCOPE);
+    expect(unresolved?.bucket).toBe("unsupported");
+    expect(unresolved?.sourcePointer).toBe("#/uiSchema/elements/0/scope");
+    expect(entry(report.entries, JsonSchemaCodes.DROPPED_REMOTE_REF)).toBeUndefined();
+    expect(assertConstructsCleanly(output, "unresolved scope").getAllQuestions()).toHaveLength(0);
+  });
+
+  it("follows a $ref in the middle of a scope, and reads required from the referenced object", () => {
+    const schema = { type: "object",
+      definitions: { order: { type: "object", properties: { id: { type: "string" } }, required: ["id"] } },
+      properties: { order: { $ref: "#/definitions/order" } } };
+    const q = question(schema, "#/properties/order/properties/id");
+    expect(q?.name).toBe("id");
+    expect(q?.isRequired).toBe(true);
+  });
+
+  it("follows a $ref on the scope's target", () => {
+    const schema = { type: "object", definitions: { flag: { type: "boolean" } }, properties: { f: { $ref: "#/definitions/flag" } } };
+    expect(question(schema, "#/properties/f")?.getType()).toBe("boolean");
+  });
+
+  const branches: [string, object][] = [
+    ["allOf", { allOf: [{ properties: { b: { type: "string" } } }] }],
+    ["anyOf", { anyOf: [{ properties: { b: { type: "string" } } }] }],
+    ["oneOf", { oneOf: [{ properties: { b: { type: "string" } } }] }],
+    ["then", { if: { properties: { a: { const: "x" } } }, then: { properties: { b: { type: "string" } } } }],
+    ["else", { if: { properties: { a: { const: "x" } } }, else: { properties: { b: { type: "string" } } } }],
+    ["a $ref inside allOf", { definitions: { base: { properties: { b: { type: "string" } } } }, allOf: [{ $ref: "#/definitions/base" }] }],
+    ["allOf nested in anyOf", { anyOf: [{ allOf: [{ properties: { b: { type: "string" } } }] }] }]
+  ];
+  for (const [where, composition] of branches) {
+    it(`gives a question for a property found in ${where}`, () => {
+      const schema = { type: "object", properties: { a: { type: "string" } }, ...composition };
+      const { report } = convert({ schema, uiSchema: control("#/properties/b") });
+      expect(report.entries).toEqual([]);
+      expect(question(schema, "#/properties/b")?.name).toBe("b");
+    });
+  }
+
+  it("takes the first match in the order oneOf, allOf, anyOf, then, else", () => {
+    const all: [string, object, string][] = [
+      ["oneOf", { oneOf: [{ properties: { b: { type: "boolean" } } }] }, "boolean"],
+      ["allOf", { allOf: [{ properties: { b: { type: "string", enum: ["x", "y"] } } }] }, "dropdown"],
+      ["anyOf", { anyOf: [{ properties: { b: { type: "array", items: { type: "string", enum: ["x"] } } } }] }, "checkbox"],
+      ["then", { if: { properties: { a: { const: "x" } } }, then: { properties: { b: { type: "string", format: "date" } } } }, "date"],
+      ["else", { else: { properties: { b: { type: "number" } } } }, "number"]
+    ];
+    // Drop the winner each time, so every combinator wins once over those after it.
+    for (let i = 0; i < all.length; i++) {
+      const schema: Record<string, unknown> = { type: "object", properties: { a: { type: "string" } } };
+      for (const [, composition] of all.slice(i)) Object.assign(schema, composition);
+      const q = question(schema, "#/properties/b");
+      const kind = q.getType() === "text" ? q.inputType : q.getType();
+      expect(kind, all[i][0]).toBe(all[i][2]);
+    }
+  });
+
+  it("prefers a property found directly over one in a combinator", () => {
+    const schema = { type: "object", properties: { b: { type: "boolean" } }, allOf: [{ properties: { b: { type: "string" } } }] };
+    expect(question(schema, "#/properties/b")?.getType()).toBe("boolean");
+  });
+
+  it("reads required from the scope's parent, not from the branch that holds the property", () => {
+    const schema = { type: "object", required: ["inAllOf"],
+      allOf: [{ properties: { inAllOf: { type: "string" } } }],
+      if: { properties: { a: { const: "x" } } },
+      then: { properties: { inThen: { type: "string" } }, required: ["inThen"] } };
+    expect(question(schema, "#/properties/inAllOf")?.isRequired).toBe(true);
+    expect(question(schema, "#/properties/inThen")?.isRequired).toBe(false);
+  });
+
+  it("resolves a scope that names a combinator branch's path", () => {
+    const schema = { type: "object", anyOf: [{ then: { properties: { last: { type: "string" } } } }] };
+    expect(question(schema, "#/anyOf/0/then/properties/last")?.name).toBe("last");
+  });
+
+  it("still reports a remote $ref on the scope's target as a remote reference", () => {
+    const schema = { type: "object", properties: { r: { $ref: "https://example.com/r.json" } } };
+    const { output, report } = convert({ schema, uiSchema: control("#/properties/r") });
+    expect(entry(report.entries, JsonSchemaCodes.DROPPED_REMOTE_REF)?.bucket).toBe("dropped");
+    expect(entry(report.entries, JsonSchemaCodes.UNRESOLVED_SCOPE)).toBeUndefined();
+    expect(findElement(output, "r")?.type).toBe("text");
+  });
+
+  describe("a combinator that leads back to a schema being searched", () => {
+    // Pet's oneOf names Cat and Dog, whose allOf names Pet again before their own properties.
+    const pets = { type: "object", properties: { pet: { $ref: "#/definitions/Pet" } }, definitions: {
+      Pet: { type: "object", properties: { kind: { type: "string" } }, oneOf: [{ $ref: "#/definitions/Cat" }, { $ref: "#/definitions/Dog" }] },
+      Cat: { allOf: [{ $ref: "#/definitions/Pet" }, { properties: { meow: { type: "boolean" } } }] },
+      Dog: { allOf: [{ $ref: "#/definitions/Pet" }, { properties: { bark: { type: "boolean" } } }] }
+    } };
+
+    for (const name of ["kind", "meow", "bark"]) {
+      it(`finds ${name} past the cycle`, () => {
+        const scope = `#/properties/pet/properties/${name}`;
+        expect(() => convert({ schema: pets, uiSchema: control(scope) })).not.toThrow();
+        expect(question(pets, scope)?.name).toBe(name);
+      });
+    }
+
+    it("reports a property it never finds as an unresolved scope", () => {
+      const run = () => convert({ schema: pets, uiSchema: control("#/properties/pet/properties/nope") });
+      expect(run).not.toThrow();
+      expect(entry(run().report.entries, JsonSchemaCodes.UNRESOLVED_SCOPE)?.sourcePointer).toBe("#/uiSchema/elements/0/scope");
+    });
+
+    it("reports an unresolved scope under a root anyOf that names the root", () => {
+      const schema = { type: "object", properties: { a: { type: "string" } }, anyOf: [{ $ref: "#" }] };
+      const run = () => convert({ schema, uiSchema: control("#/properties/missing") });
+      expect(run).not.toThrow();
+      expect(entry(run().report.entries, JsonSchemaCodes.UNRESOLVED_SCOPE)?.bucket).toBe("unsupported");
+      expect(question(schema, "#/properties/a")?.name).toBe("a");
+    });
+  });
+});
+
+describe("json-schema convert - array items composed of objects", () => {
+  const objects = [{ properties: { foo: { type: "string" } } }, { properties: { bar: { type: "string" } } }];
+  const keywordReports = (items: object) => convert({ type: "object", properties: { rows: { type: "array", items } } })
+    .report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_KEYWORD).map((e) => e.sourcePointer);
+
+  it("reports items that are an anyOf of objects", () => {
+    expect(keywordReports({ type: "object", anyOf: objects })).toEqual(["#/properties/rows/items/anyOf"]);
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object", anyOf: objects } } } };
+    assertConstructsCleanly(convert(schema).output, "items anyOf");
+  });
+
+  it("reports items that are a oneOf of objects with no discriminator", () => {
+    expect(keywordReports({ type: "object", oneOf: objects })).toEqual(["#/properties/rows/items/oneOf"]);
+  });
+
+  it("reports untyped items that are an anyOf or a oneOf of objects", () => {
+    expect(keywordReports({ anyOf: objects })).toEqual(["#/properties/rows/items/anyOf"]);
+    expect(keywordReports({ oneOf: objects })).toEqual(["#/properties/rows/items/oneOf"]);
+  });
+
+  it("does not report items with properties of their own, a discriminated oneOf, or a choice set", () => {
+    expect(keywordReports({ type: "object", properties: { foo: { type: "string" } }, anyOf: [{ required: ["foo"] }] })).toEqual([]);
+    expect(keywordReports({ type: "object", oneOf: [
+      { properties: { kind: { const: "a" }, onlyA: { type: "string" } } },
+      { properties: { kind: { const: "b" }, onlyB: { type: "string" } } }
+    ] })).toEqual([]);
+    expect(keywordReports({ anyOf: [{ const: "a" }, { const: "b" }] })).toEqual([]);
+  });
+});
+
+describe("json-schema convert - bundled schema references", () => {
+  const bundle = (properties: object) => ({
+    $id: "https://example.com/schemas/root",
+    type: "object",
+    $defs: {
+      "https://example.com/schemas/count": { $id: "https://example.com/schemas/count", type: "integer", minimum: 0 },
+      nested: { definitions: { flag: { $id: "urn:example:flag", type: "boolean" } } },
+      both: { allOf: [{ $ref: "/schemas/count" }, { $ref: "https://example.com/schemas/count" }] }
+    },
+    properties
+  });
+
+  it("resolves a $ref to an $id declared in the document, absolute or relative to the base", () => {
+    const schema = bundle({ rel: { $ref: "/schemas/count" }, abs: { $ref: "https://example.com/schemas/count" },
+      urn: { $ref: "urn:example:flag" }, merged: { $ref: "#/$defs/both" } });
+    const { output, report } = convert(schema);
+    expect(report.entries).toEqual([]);
+    const survey = assertConstructsCleanly(output, "bundled");
+    for (const name of ["rel", "abs"]) {
+      const q = survey.getQuestionByName(name);
+      expect(q.inputType, name).toBe("number");
+      q.value = -1;
+      expect(q.hasErrors(), name).toBe(true);
+      q.value = 1;
+      expect(q.hasErrors(), name).toBe(false);
+    }
+    expect(survey.getQuestionByName("urn").getType()).toBe("boolean");
+    // allOf merges properties and required only, so the merged reference gives a plain question.
+    expect(survey.getQuestionByName("merged")).toBeTruthy();
+  });
+
+  it("resolves a JSON Pointer fragment after an $id", () => {
+    const schema = bundle({ p: { $ref: "https://example.com/schemas/root#/$defs/nested/definitions/flag" } });
+    const { output, report } = convert(schema);
+    expect(report.entries).toEqual([]);
+    expect(findElement(output, "p")?.type).toBe("boolean");
+  });
+
+  it("still reports a $ref to a URI no $id declares as a remote reference", () => {
+    const { output, report } = convert(bundle({ other: { $ref: "https://example.com/schemas/unknown" } }));
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.DROPPED_REMOTE_REF, "#/properties/other"]]);
+    expect(findElement(output, "other")?.type).toBe("text");
+  });
+});
+
+describe("json-schema convert - JSONForms ListWithDetail", () => {
+  const schema = { type: "object",
+    definitions: { order: { type: "object", properties: { title: { type: "string" }, kind: { type: "string" }, note: { type: "string" } }, required: ["title"] } },
+    properties: { orders: { type: "array", items: { $ref: "#/definitions/order" } } } };
+  const templateNames = (output: unknown) => (findElement(output, "orders")?.templateElements as SurveyJSONElement[]).map((e) => e.name);
+  const rows = (survey: { getQuestionByName(name: string): unknown }) => (survey.getQuestionByName("orders") as any).panels;
+
+  it("gives a dynamic panel from the items schema with no detail, and reports the master list", () => {
+    const uiSchema = { type: "ListWithDetail", scope: "#/properties/orders" };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(findElement(output, "orders")?.type).toBe("paneldynamic");
+    expect(templateNames(output)).toEqual(["title", "kind", "note"]);
+    expect(report.entries.map((e) => [e.code, e.bucket, e.sourcePointer])).toEqual([[JsonSchemaCodes.DROPPED_STYLING, "dropped", "#/uiSchema/type"]]);
+    const survey = loadJsonForms(schema, uiSchema, { orders: [{ title: "First" }, { title: "Second", note: "n" }] });
+    expect(rows(survey).map((p: any) => p.getQuestionByName("title").value)).toEqual(["First", "Second"]);
+    expect(rows(survey)[0].getQuestionByName("title").isRequired).toBe(true);
+    expect(survey.data).toEqual({ orders: [{ title: "First" }, { title: "Second", note: "n" }] });
+  });
+
+  it("builds the template from a detail layout with scopes relative to the items, and reads a rule from the row", () => {
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "ListWithDetail", scope: "#/properties/orders", options: { detail: { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/kind" },
+      { type: "Control", scope: "#/properties/note", rule: { effect: "SHOW", condition: { scope: "#/properties/kind", schema: { const: "x" } } } }
+    ] } } }] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(templateNames(output)).toEqual(["kind", "note"]);
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.DROPPED_STYLING, "#/uiSchema/elements/0/type"]]);
+    const survey = loadJsonForms(schema, uiSchema, { orders: [{ kind: "x" }, { kind: "y" }] });
+    expect(rows(survey).map((p: any) => p.getQuestionByName("note").isVisible)).toEqual([true, false]);
+  });
+
+  it("keeps a page name apart from a question name that differs only in case", () => {
+    const camel = { type: "object", properties: { sourceItems: schema.properties.orders }, definitions: schema.definitions };
+    const uiSchema = { type: "Categorization", elements: [{ type: "Category", label: "SourceItems", elements: [{ type: "ListWithDetail", scope: "#/properties/sourceItems" }] }] };
+    const { output } = convert({ schema: camel, uiSchema });
+    assertConstructsCleanly(output, "case-only names");
+    expect(lintOutput(output).filter((f) => f.ruleId === "name/duplicate")).toHaveLength(0);
+  });
+
+  it("maps a ListWithDetail on primitive items as an array Control maps them", () => {
+    const primitives = { type: "object", properties: { tags: { type: "array", items: { type: "string" } } } };
+    const { output, report } = convert({ schema: primitives, uiSchema: { type: "ListWithDetail", scope: "#/properties/tags" } });
+    const control = convert({ schema: primitives, uiSchema: { type: "Control", scope: "#/properties/tags" } }).output;
+    expect(output).toEqual(control);
+    expect(report.entries.map((e) => e.code)).toEqual([JsonSchemaCodes.DROPPED_STYLING]);
+    expect(loadJsonForms(primitives, { type: "ListWithDetail", scope: "#/properties/tags" }, { tags: ["a", "b"] }).getQuestionByName("tags").value.slice()).toEqual(["a", "b"]);
+  });
+});
+
+describe("json-schema convert - JSONForms detail on an object Control", () => {
+  const user = { type: "object", properties: { kind: { type: "string" }, note: { type: "string" } }, required: ["kind"] };
+  const detail = { type: "Group", label: "User data", elements: [
+    { type: "Control", scope: "#/properties/kind" },
+    { type: "Control", scope: "#/properties/note", rule: { effect: "SHOW", condition: { scope: "#/properties/kind", schema: { const: "x" } } } }
+  ] };
+
+  it("walks the detail layout with scopes relative to the object, and branches on a rule inside it", () => {
+    const schema = { type: "object", properties: { user } };
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/user", options: { detail } }] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(report.entries).toEqual([]);
+    const panel = findElement(output, "user");
+    expect(panel?.type).toBe("panel");
+    const group = (panel?.elements as SurveyJSONElement[])[0];
+    expect(group).toMatchObject({ type: "panel", title: "User data" });
+    expect((group.elements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["kind", "note"]);
+    expect(findElement(output, "kind")?.isRequired).toBe(true);
+    expect(loadJsonForms(schema, uiSchema, { kind: "x" }).getQuestionByName("note").isVisible).toBe(true);
+    expect(loadJsonForms(schema, uiSchema, { kind: "y" }).getQuestionByName("note").isVisible).toBe(false);
+  });
+
+  it("reads a field of the object's detail from a rule outside it", () => {
+    const schema = { type: "object", properties: { user, a: { type: "string" } } };
+    const uiSchema = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/user", options: { detail } },
+      { type: "Control", scope: "#/properties/a", rule: { effect: "HIDE", condition: { scope: "#/properties/user/properties/kind", schema: { const: "x" } } } }
+    ] };
+    expect(entry(convert({ schema, uiSchema }).report.entries, JsonSchemaCodes.ASSUMED_UI_RULE)).toBeUndefined();
+    expect(loadJsonForms(schema, uiSchema, { kind: "x" }).getQuestionByName("a").isVisible).toBe(false);
+    expect(loadJsonForms(schema, uiSchema, { kind: "y" }).getQuestionByName("a").isVisible).toBe(true);
+  });
+
+  it("keeps the row's reference prefix for an object detail inside an array's detail", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object", properties: { user } } } } };
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/rows", options: { detail: { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/user", options: { detail } }
+    ] } } }] };
+    expect(findElement(convert({ schema, uiSchema }).output, "note")?.visibleIf).toBe("{panel.kind} = 'x'");
+    const survey = loadJsonForms(schema, uiSchema, { rows: [{ kind: "x" }, { kind: "y" }] });
+    const panels = (survey.getQuestionByName("rows") as any).panels;
+    expect(panels.map((p: any) => p.getQuestionByName("note").isVisible)).toEqual([true, false]);
+  });
+});
+
+describe("json-schema convert - JSONForms object Control fields", () => {
+  const address = { type: "object", properties: { street: { type: "string" }, state: { type: "string" },
+    geo: { type: "object", properties: { zone: { type: "string" } } } } };
+  const schema = { type: "object", properties: { address, a: { type: "string" } } };
+  const showA = (scope: string) => ({ type: "Control", scope: "#/properties/a", rule: { effect: "SHOW", condition: { type: "LEAF", scope, expectedValue: "DC" } } });
+
+  it("reads a field the object Control's data walk created from a rule", () => {
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/address" }, showA("#/properties/address/properties/state")] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(report.entries).toEqual([]);
+    expect(findElement(output, "a")?.visibleIf).toBe("{state} = 'DC'");
+    expect(loadJsonForms(schema, uiSchema, { state: "DC" }).getQuestionByName("a").isVisible).toBe(true);
+    expect(loadJsonForms(schema, uiSchema, { state: "NY" }).getQuestionByName("a").isVisible).toBe(false);
+  });
+
+  it("reads a field of a nested object the data walk created", () => {
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/address" }, showA("#/properties/address/properties/geo/properties/zone")] };
+    expect(entry(convert({ schema, uiSchema }).report.entries, JsonSchemaCodes.ASSUMED_UI_RULE)).toBeUndefined();
+    expect(loadJsonForms(schema, uiSchema, { zone: "DC" }).getQuestionByName("a").isVisible).toBe(true);
+    expect(loadJsonForms(schema, uiSchema, { zone: "NY" }).getQuestionByName("a").isVisible).toBe(false);
+  });
+
+  it("shares the value between the data walk's field and a second Control on it", () => {
+    const field = { type: "Control", scope: "#/properties/address/properties/state" };
+    const object = { type: "Control", scope: "#/properties/address" };
+    for (const elements of [[object, field], [field, object]]) {
+      const uiSchema = { type: "VerticalLayout", elements: [...elements, showA("#/properties/address/properties/state")] };
+      expect(findElement(convert({ schema, uiSchema }).output, "state_1")?.valueName).toBe("state");
+      const survey = loadJsonForms(schema, uiSchema);
+      survey.getQuestionByName("state_1").value = "DC";
+      expect(survey.getQuestionByName("state").value).toBe("DC");
+      expect(survey.getQuestionByName("a").isVisible).toBe(true);
+      survey.getQuestionByName("state").value = "NY";
+      expect(survey.getQuestionByName("state_1").value).toBe("NY");
+      expect(survey.getQuestionByName("a").isVisible).toBe(false);
+    }
+  });
+
+  it("keeps the object's own if/then working on a field shared with an earlier Control", () => {
+    const zoned = { type: "object", properties: { state: { type: "string" }, zip: { type: "string" } },
+      if: { properties: { state: { const: "DC" } }, required: ["state"] }, then: { required: ["zip"] } };
+    const s = { type: "object", properties: { address: zoned } };
+    const uiSchema = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/address/properties/state" }, { type: "Control", scope: "#/properties/address" }
+    ] };
+    expect(findElement(convert({ schema: s, uiSchema }).output, "state_1")?.valueName).toBe("state");
+    expect(loadJsonForms(s, uiSchema, { state: "DC" }).getQuestionByName("zip").isRequired).toBe(true);
+    expect(loadJsonForms(s, uiSchema, { state: "NY" }).getQuestionByName("zip").isRequired).toBe(false);
+  });
+
+  it("keeps the object's discriminated oneOf working on a selector shared with an earlier Control", () => {
+    const pet = { type: "object", properties: { kind: { type: "string", enum: ["cat", "dog"] } },
+      oneOf: [{ properties: { kind: { const: "cat" }, purr: { type: "string" } } }, { properties: { kind: { const: "dog" }, bark: { type: "string" } } }] };
+    const s = { type: "object", properties: { pet } };
+    const uiSchema = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/pet/properties/kind" }, { type: "Control", scope: "#/properties/pet" }
+    ] };
+    const shown = (kind: string) => {
+      const survey = loadJsonForms(s, uiSchema, { kind });
+      return ["purr", "bark"].map((n) => survey.getQuestionByName(n).isVisible && survey.getQuestionByName(n).isParentVisible);
+    };
+    expect(shown("cat")).toEqual([true, false]);
+    expect(shown("dog")).toEqual([false, true]);
+  });
+
+  const objectConditions: [string, object][] = [
+    ["a LEAF", { type: "LEAF", scope: "#/properties/address/properties/geo", expectedValue: "x" }],
+    ["failWhenUndefined", { scope: "#/properties/address/properties/geo", schema: { not: { const: "x" } }, failWhenUndefined: true }],
+    ["a const schema", { scope: "#/properties/address/properties/geo", schema: { const: "x" } }]
+  ];
+  for (const [what, condition] of objectConditions) {
+    it(`reports ${what} on a nested object the data walk created, and keeps the element visible`, () => {
+      const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/address" },
+        { type: "Control", scope: "#/properties/a", rule: { effect: "SHOW", condition } }] };
+      const { output, report } = convert({ schema, uiSchema });
+      expect(entry(report.entries, JsonSchemaCodes.ASSUMED_UI_RULE)?.bucket).toBe("assumed");
+      expect(findElement(output, "a")?.visibleIf).toBeUndefined();
+      expect(loadJsonForms(schema, uiSchema, { zone: "x" }).getQuestionByName("a").isVisible).toBe(true);
+      expect(loadJsonForms(schema, uiSchema, {}).getQuestionByName("a").isVisible).toBe(true);
+    });
+  }
+});
+
+describe("json-schema convert - JSONForms container names", () => {
+  it("keeps a property's question name and data key when a Category or Group is labelled like it", () => {
+    const schema = { type: "object",
+      definitions: { place: { type: "object", properties: { street: { type: "string" } } } },
+      properties: { rows: { type: "string" }, sourceItems: { type: "string" }, home: { $ref: "#/definitions/place" } } };
+    const uiSchema = { type: "Categorization", elements: [
+      { type: "Category", label: "Rows", elements: [{ type: "Control", scope: "#/properties/rows" }] },
+      { type: "Category", label: "SourceItems", elements: [
+        { type: "Group", label: "Street", elements: [{ type: "Control", scope: "#/properties/home/properties/street" }] },
+        { type: "Control", scope: "#/properties/sourceItems" }
+      ] }
+    ] };
+    const { output } = convert({ schema, uiSchema });
+    expect(output.pages?.map((p) => p.name)).toEqual(["rows_1", "sourceitems_1"]);
+    expect(findElement(output, "street_1")?.type).toBe("panel");
+    expect(["rows", "sourceItems", "street"].map((n) => findElement(output, n)?.type)).toEqual(["text", "text", "text"]);
+    expect(lintOutput(output).filter((f) => f.ruleId === "name/duplicate")).toHaveLength(0);
+    const survey = loadJsonForms(schema, uiSchema, { rows: "r", sourceItems: "s", street: "t" });
+    expect(["rows", "sourceItems", "street"].map((n) => survey.getQuestionByName(n).value)).toEqual(["r", "s", "t"]);
+  });
+});
+
+describe("json-schema convert - JSONForms schema conditionals", () => {
+  const properties = { kind: { type: "string", enum: ["x", "y"] }, note: { type: "string" } };
+  const controls = [{ type: "Control", scope: "#/properties/kind" }, { type: "Control", scope: "#/properties/note" }];
+  const uiSchema = { type: "VerticalLayout", elements: controls };
+  const ifKindX = { if: { properties: { kind: { const: "x" } } } };
+  const note = (schema: object, data: Record<string, unknown>, ui: object = uiSchema) => loadJsonForms(schema, ui, data).getQuestionByName("note");
+  const conditions = (output: unknown) => JSON.stringify(output).match(/"(visibleIf|requiredIf)"/g) ?? [];
+
+  it("requires a field under a root then.required, and hides nothing", () => {
+    const schema = { type: "object", properties, ...ifKindX,
+      then: { required: ["note"], properties: { note: { minLength: 2 }, extra: { type: "string" } } },
+      else: { required: ["kind"] } };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(report.entries).toEqual([]);
+    expect(findElement(output, "extra")).toBeUndefined();
+    expect(conditions(output)).toEqual(["\"requiredIf\"", "\"requiredIf\""]);
+    expect(note(schema, { kind: "x" }).isRequired).toBe(true);
+    expect(note(schema, { kind: "y" }).isRequired).toBe(false);
+    expect(note(schema, { kind: "y" }).isVisible).toBe(true);
+    expect(loadJsonForms(schema, uiSchema, { kind: "x" }).getQuestionByName("kind").isRequired).toBe(false);
+  });
+
+  it("reads a root conditional from an allOf entry and a single anyOf or oneOf entry", () => {
+    for (const key of ["allOf", "anyOf", "oneOf"]) {
+      const schema = { type: "object", properties, [key]: [{ ...ifKindX, then: { required: ["note"] } }] };
+      expect(findElement(convert({ schema, uiSchema }).output, "note")?.requiredIf).toBe("{kind} = 'x'");
+      expect(note(schema, { kind: "x" }).isRequired).toBe(true);
+      expect(note(schema, { kind: "y" }).isRequired).toBe(false);
+    }
+  });
+
+  it("reports a conditional in an anyOf of several entries and emits nothing for it", () => {
+    const schema = { type: "object", properties,
+      anyOf: [{ ...ifKindX, then: { required: ["note"] } }, { dependentRequired: { kind: ["note"] } }] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(conditions(output)).toEqual([]);
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([
+      [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/anyOf/1/dependentRequired/kind"],
+      [JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/anyOf/0/if"]
+    ]);
+  });
+
+  it("reads the condition from the data key of a Control shared with a second Control", () => {
+    const schema = { type: "object", properties, ...ifKindX, then: { required: ["note"] } };
+    const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/kind" }, ...controls] };
+    expect(findElement(convert({ schema, uiSchema: ui }).output, "kind_1")?.valueName).toBe("kind");
+    const survey = loadJsonForms(schema, ui);
+    survey.getQuestionByName("kind_1").value = "x";
+    expect(survey.getQuestionByName("note").isRequired).toBe(true);
+    survey.getQuestionByName("kind_1").value = "y";
+    expect(survey.getQuestionByName("note").isRequired).toBe(false);
+  });
+
+  const dependencies: [string, object, string][] = [
+    ["a property dependency", { dependencies: { kind: ["note"] } }, "#/dependencies/kind"],
+    ["dependentRequired", { dependentRequired: { kind: ["note"] } }, "#/dependentRequired/kind"],
+    ["a schema dependency", { dependencies: { kind: { required: ["note"], properties: { extra: { type: "string" } } } } }, "#/dependencies/kind"],
+    ["dependentSchemas", { dependentSchemas: { kind: { required: ["note"], properties: { note: { minLength: 2 } } } } }, "#/dependentSchemas/kind"]
+  ];
+  for (const [what, keywords, pointer] of dependencies) {
+    it(`requires a field under ${what} at the root, reported assumed`, () => {
+      const schema = { type: "object", properties, ...keywords };
+      const { output, report } = convert({ schema, uiSchema });
+      expect(report.entries.map((e) => [e.code, e.bucket, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "assumed", pointer]]);
+      expect(findElement(output, "note")?.requiredIf).toBe("{kind} notempty");
+      expect(findElement(output, "extra")).toBeUndefined();
+      expect(conditions(output)).toEqual(["\"requiredIf\""]);
+      expect(note(schema, { kind: "x" }).isRequired).toBe(true);
+      expect(note(schema, {}).isRequired).toBe(false);
+    });
+  }
+
+  it("gives no condition for a key with no Control, and reports it", () => {
+    const schema = { type: "object", properties, ...ifKindX, then: { required: ["note"] }, dependentRequired: { kind: ["note"] } };
+    const ui = { type: "VerticalLayout", elements: [controls[1]] };
+    const { output, report } = convert({ schema, uiSchema: ui });
+    expect(findElement(output, "note")?.requiredIf).toBeUndefined();
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([
+      [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentRequired/kind"],
+      [JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/if"]
+    ]);
+    expect(note(schema, { kind: "x" }, ui).isRequired).toBe(false);
+  });
+
+  it("reports nothing for an if whose branches require nothing, as it hides nothing", () => {
+    const schema = { type: "object", properties, if: { properties: { missing: { const: "x" } } },
+      then: { properties: { note: { minLength: 2 } } }, anyOf: [{ ...ifKindX, then: { properties: { extra: { type: "string" } } } }] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(report.entries).toEqual([]);
+    expect(conditions(output)).toEqual([]);
+    expect(note(schema, { kind: "y" }).isVisible).toBe(true);
+  });
+
+  const nested = { type: "object", properties: { kind: { type: "string" }, note: { type: "string" } }, ...ifKindX,
+    then: { required: ["note"], properties: { note: { type: "string" }, extra: { type: "string" } } } };
+
+  it("hides nothing for an if/then inside an object Control, and still applies its then.required", () => {
+    const schema = { type: "object", properties: { user: nested } };
+    const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/user" }] };
+    const { output, report } = convert({ schema, uiSchema: ui });
+    expect(report.entries).toEqual([]);
+    expect(findElement(output, "extra")).toBeUndefined();
+    expect(conditions(output)).toEqual(["\"requiredIf\""]);
+    expect(note(schema, { kind: "x" }, ui).isRequired).toBe(true);
+    expect(note(schema, { kind: "y" }, ui).isRequired).toBe(false);
+    expect(note(schema, { kind: "y" }, ui).isVisible).toBe(true);
+  });
+
+  it("requires a field under an object's if/then read through the object Control's detail layout", () => {
+    const object = { ...nested, dependentRequired: { missing: ["note"] } };
+    const schema = { type: "object", properties: { user: object } };
+    const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/user", options: { detail: { type: "Group", label: "User", elements: controls } } }] };
+    const { output, report } = convert({ schema, uiSchema: ui });
+    expect(report.entries.map((e) => [e.code, e.sourcePointer, e.count])).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/properties/user/dependentRequired/missing", 1]]);
+    expect(findElement(output, "extra")).toBeUndefined();
+    expect(conditions(output)).toEqual(["\"requiredIf\""]);
+    expect(note(schema, { kind: "x" }, ui).isRequired).toBe(true);
+    expect(note(schema, { kind: "y" }, ui).isRequired).toBe(false);
+  });
+
+  it("requires a field under the items' if/then in each row of an array Control's detail layout", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: nested } } };
+    const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/rows", options: { detail: { type: "VerticalLayout", elements: controls } } }] };
+    const { output, report } = convert({ schema, uiSchema: ui });
+    expect(report.entries).toEqual([]);
+    expect(findElement(output, "note")?.requiredIf).toBe("{panel.kind} = 'x'");
+    const panels = (loadJsonForms(schema, ui, { rows: [{ kind: "x" }, { kind: "y" }] }).getQuestionByName("rows") as any).panels;
+    expect(panels.map((p: any) => p.getQuestionByName("note").isRequired)).toEqual([true, false]);
+  });
+
+  it("follows the root schema's own $ref to its conditionals", () => {
+    const schema = { $ref: "#/definitions/u", definitions: { u: { type: "object", properties, ...ifKindX, then: { required: ["note"] } } } };
+    expect(findElement(convert({ schema, uiSchema }).output, "note")?.requiredIf).toBe("{kind} = 'x'");
+    expect(note(schema, { kind: "x" }).isRequired).toBe(true);
+    expect(note(schema, { kind: "y" }).isRequired).toBe(false);
+  });
+
+  it("applies the root's conditionals once under a Control on the whole form", () => {
+    const schema = { type: "object", properties, ...ifKindX, then: { required: ["note"] }, dependentRequired: { missing: ["note"] } };
+    const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#" }] };
+    const { output, report } = convert({ schema, uiSchema: ui });
+    expect(findElement(output, "note")?.requiredIf).toBe("{kind} = 'x'");
+    expect(report.entries.map((e) => [e.code, e.count])).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, 1]]);
+    expect(note(schema, { kind: "x" }, ui).isRequired).toBe(true);
+    expect(note(schema, { kind: "y" }, ui).isRequired).toBe(false);
+  });
+
+  it("reports a remote $ref among the root's allOf entries once", () => {
+    const schema = { type: "object", properties, allOf: [{ $ref: "http://example.com/s.json" }] };
+    for (const ui of [uiSchema, { type: "VerticalLayout", elements: [{ type: "Control", scope: "#" }] }]) {
+      const { report } = convert({ schema, uiSchema: ui });
+      expect(report.entries.map((e) => [e.code, e.sourcePointer, e.count])).toEqual([[JsonSchemaCodes.DROPPED_REMOTE_REF, "#/allOf/0", 1]]);
+    }
+  });
+
+  it("keeps visibleIf for the same schema with no UI schema", () => {
+    const schema = { type: "object", properties: { user: nested } };
+    const survey = assertConstructsCleanly(convert(schema).output, "bare if/then");
+    survey.data = { kind: "y" };
+    expect(survey.getQuestionByName("note").isVisible).toBe(false);
+    expect(survey.getQuestionByName("extra").isVisible).toBe(false);
+    survey.data = { kind: "x" };
+    expect(survey.getQuestionByName("note").isVisible).toBe(true);
+    expect(survey.getQuestionByName("note").isRequired).toBe(true);
+    expect(survey.getQuestionByName("extra").isVisible).toBe(true);
+  });
+});
+
+describe("json-schema convert - RJSF mapped options", () => {
+  const convertField = (field: object, ui: object) => {
+    const { output, report } = convert({ schema: { type: "object", properties: { a: field } }, uiSchema: { a: ui } });
+    return { survey: assertConstructsCleanly(output, "rjsf option"), report: report.entries, output };
+  };
+  const rows = { type: "array", items: { type: "object", properties: { n: { type: "string" } } } };
+
+  it("gives a text question the inputType", () => {
+    const { survey, report } = convertField({ type: "string" }, { "ui:options": { inputType: "tel" } });
+    expect(survey.getQuestionByName("a").inputType).toBe("tel");
+    expect(report).toEqual([]);
+  });
+
+  it("reports an inputType survey-core has no equivalent of", () => {
+    const { report } = convertField({ type: "string" }, { "ui:options": { inputType: "bogus" } });
+    expect(entry(report, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe("#/uiSchema/a/ui:options/inputType");
+  });
+
+  it("removes the add button with addable false", () => {
+    const { survey, report } = convertField(rows, { "ui:options": { addable: false } });
+    const q = survey.getQuestionByName("a");
+    expect(q.allowAddPanel).toBe(false);
+    expect(q.canAddPanel).toBe(false);
+    expect(q.allowRemovePanel).toBe(true);
+    expect(report).toEqual([]);
+  });
+
+  it("removes the remove button with removable false", () => {
+    const { survey } = convertField(rows, { "ui:removable": false });
+    const q = survey.getQuestionByName("a");
+    expect(q.allowRemovePanel).toBe(false);
+    expect(q.allowAddPanel).toBe(true);
+  });
+
+  it("keeps the buttons with addable true", () => {
+    const { survey, report } = convertField(rows, { "ui:addable": true, "ui:removable": true });
+    expect(survey.getQuestionByName("a").allowAddPanel).toBe(true);
+    expect(report).toEqual([]);
+  });
+
+  it("reports addable false on a list that has no add button", () => {
+    const { report } = convertField({ type: "array", items: { type: "string", enum: ["x", "y"] } }, { "ui:addable": false });
+    expect(entry(report, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe("#/uiSchema/a/ui:addable");
+  });
+
+  it("still reports orderable", () => {
+    const { report } = convertField(rows, { "ui:orderable": false });
+    expect(entry(report, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe("#/uiSchema/a/ui:orderable");
+  });
+
+  it("reads enumNames as an array by index, null included", () => {
+    const { survey, report } = convertField({ type: "string", enum: ["x", null, "y"] }, { "ui:enumNames": ["Ex", "Nothing", "Why"] });
+    const q = survey.getQuestionByName("a");
+    expect(q.choices.map((c: { value: unknown }) => c.value)).toEqual(["x", "y"]);
+    expect(q.choices.map((c: { text: string }) => c.text)).toEqual(["Ex", "Why"]);
+    expect(report).toEqual([]);
+  });
+
+  it("reads enumNames as an object by value", () => {
+    const { survey } = convertField({ type: "number", enum: [1, 2] }, { "ui:options": { enumNames: { 2: "Two" } } });
+    const q = survey.getQuestionByName("a");
+    expect(q.choices.map((c: { text: string }) => c.text)).toEqual(["1", "Two"]);
+  });
+
+  it("names the choices of an enum array", () => {
+    const { survey } = convertField({ type: "array", items: { type: "string", enum: ["x", "y"] } }, { "ui:enumNames": ["Ex", "Why"] });
+    expect(survey.getQuestionByName("a").choices.map((c: { text: string }) => c.text)).toEqual(["Ex", "Why"]);
+  });
+
+  it("disables the choices named by enumDisabled", () => {
+    const { survey, report } = convertField({ type: "string", enum: ["x", "y", "z"] }, { "ui:enumDisabled": ["y"] });
+    const q = survey.getQuestionByName("a");
+    expect(q.choices.map((c: { isEnabled: boolean }) => c.isEnabled)).toEqual([true, false, true]);
+    expect(report).toEqual([]);
+  });
+
+  it("makes help the description of a field that has none", () => {
+    const { survey, report } = convertField({ type: "string" }, { "ui:help": "Hint" });
+    expect(survey.getQuestionByName("a").description).toBe("Hint");
+    expect(report).toEqual([]);
+  });
+
+  it("keeps the description and reports help when the field has one", () => {
+    const { survey, report } = convertField({ type: "string", description: "Own" }, { "ui:help": "Hint" });
+    expect(survey.getQuestionByName("a").description).toBe("Own");
+    expect(entry(report, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe("#/uiSchema/a/ui:help");
+  });
+
+  it("keeps a ui:description and reports help", () => {
+    const { survey, report } = convertField({ type: "string" }, { "ui:description": "Own", "ui:help": "Hint" });
+    expect(survey.getQuestionByName("a").description).toBe("Own");
+    expect(report).toHaveLength(1);
+  });
+});
+
+describe("json-schema convert - JSONForms mapped options", () => {
+  const control = (field: object, options: object) => {
+    const { output, report } = convert({
+      schema: { type: "object", properties: { a: field } },
+      uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a", options }] }
+    });
+    return { survey: assertConstructsCleanly(output, "jsonforms option"), report: report.entries };
+  };
+
+  it("limits the input to maxLength with restrict", () => {
+    const { survey, report } = control({ type: "string", maxLength: 5 }, { restrict: true });
+    expect(survey.getQuestionByName("a").maxLength).toBe(5);
+    expect(report).toEqual([]);
+  });
+
+  it("limits a multi-line input with restrict", () => {
+    const { survey } = control({ type: "string", maxLength: 9 }, { restrict: true, multi: true });
+    expect(survey.getQuestionByName("a").maxLength).toBe(9);
+  });
+
+  it("leaves the length alone with no restrict", () => {
+    const { survey } = control({ type: "string", maxLength: 5 }, {});
+    expect(survey.getQuestionByName("a").maxLength).toBe(-1);
+  });
+
+  it("gives a numeric text the step", () => {
+    const { survey, report } = control({ type: "number" }, { step: 0.5 });
+    const q = survey.getQuestionByName("a");
+    expect(q.inputType).toBe("number");
+    expect(q.step).toBe(0.5);
+    expect(report).toEqual([]);
+  });
+
+  it("reports a step on a question with no step", () => {
+    const { report } = control({ type: "string" }, { step: 2 });
+    expect(entry(report, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe("#/uiSchema/elements/0/options/step");
+  });
+
+  it("makes a slider question from slider", () => {
+    const { survey, report } = control({ type: "integer", minimum: 10, maximum: 50, default: 20 }, { slider: true, step: 5 });
+    const q = survey.getQuestionByName("a");
+    expect(q.getType()).toBe("slider");
+    expect([q.min, q.max, q.step]).toEqual([10, 50, 5]);
+    expect(q.value).toBe(20);
+    expect(report).toEqual([]);
+  });
+
+  it("reports slider on a question that cannot be one", () => {
+    const { survey, report } = control({ type: "string" }, { slider: true });
+    expect(survey.getQuestionByName("a").getType()).toBe("text");
+    expect(entry(report, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe("#/uiSchema/elements/0/options/slider");
+  });
+
+  it("reports nothing for toggle on a boolean, which is already a switch", () => {
+    const { survey, report } = control({ type: "boolean" }, { toggle: true });
+    expect(survey.getQuestionByName("a").getType()).toBe("boolean");
+    expect(report).toEqual([]);
+  });
+
+  const orders = { type: "array", items: { type: "object", properties: { id: { type: "string" }, name: { type: "string" } } } };
+
+  it("titles the rows from elementLabelProp", () => {
+    const { survey, report } = control(orders, { elementLabelProp: "name" });
+    const q = survey.getQuestionByName("a");
+    expect(q.templateTitle).toBe("{panel.name}");
+    survey.data = { a: [{ id: "1", name: "First" }, { id: "2", name: "Second" }] };
+    expect(q.panels.map((p: { locTitle: { renderedHtml: string } }) => p.locTitle.renderedHtml)).toEqual(["First", "Second"]);
+    expect(report).toEqual([]);
+  });
+
+  it("titles the rows of a ListWithDetail from labelRef", () => {
+    const { output, report } = convert({
+      schema: { type: "object", properties: { a: orders } },
+      uiSchema: { type: "VerticalLayout", elements: [{ type: "ListWithDetail", scope: "#/properties/a", options: { labelRef: "#/items/properties/name" } }] }
+    });
+    const survey = assertConstructsCleanly(output, "labelRef");
+    const q = survey.getQuestionByName("a");
+    expect(q.templateTitle).toBe("{panel.name}");
+    survey.data = { a: [{ id: "1", name: "First" }] };
+    expect(q.panels[0].locTitle.renderedHtml).toBe("First");
+    expect(report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_UI_HINT)).toEqual([]);
+  });
+
+  it("reports a label property the rows do not have", () => {
+    const { report } = control(orders, { elementLabelProp: "missing" });
+    expect(entry(report, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe("#/uiSchema/elements/0/options/elementLabelProp");
+  });
+});
+
+describe("json-schema convert - JSONForms presentation options", () => {
+  const control = (options: object) => convert({
+    schema: { type: "object", properties: { a: { type: "string" } } },
+    uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a", options }] }
+  });
+
+  for (const key of ["trim", "showUnfocusedDescription", "hideRequiredAsterisk", "autocomplete", "clearable", "orientation", "ampm",
+    "okLabel", "cancelLabel", "clearLabel", "dateFormat", "dateTimeFormat", "views"]) {
+    it(`reports ${key} as dropped styling`, () => {
+      const { output, report } = control({ [key]: true });
+      assertConstructsCleanly(output, key);
+      expect(report.entries).toHaveLength(1);
+      expect(entry(report.entries, JsonSchemaCodes.DROPPED_STYLING)?.sourcePointer).toBe(`#/uiSchema/elements/0/options/${key}`);
+    });
+  }
+
+  for (const key of ["dateSaveFormat", "dateTimeSaveFormat", "showSortButtons"]) {
+    it(`keeps reporting ${key} as an unsupported hint`, () => {
+      const { report } = control({ [key]: true });
+      expect(entry(report.entries, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe(`#/uiSchema/elements/0/options/${key}`);
+    });
+  }
+});
+
+describe("json-schema convert - option review fixes", () => {
+  const jf = (field: object, options: object) => {
+    const { output, report } = convert({
+      schema: { type: "object", properties: { a: field } },
+      uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a", options }] }
+    });
+    return { survey: assertConstructsCleanly(output, "option fix"), report: report.entries };
+  };
+  const rjsfConvert = (schema: object, uiSchema: object) => {
+    const { output, report } = convert({ schema, uiSchema });
+    return { survey: assertConstructsCleanly(output, "option fix"), report: report.entries, output };
+  };
+  const pointers = (entries: ReportEntry[]) => entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_UI_HINT).map((e) => e.sourcePointer);
+
+  it("keeps a number input and reports slider when the schema has no bounds", () => {
+    const { survey, report } = jf({ type: "number" }, { slider: true });
+    expect(survey.getQuestionByName("a").getType()).toBe("text");
+    expect(pointers(report)).toEqual(["#/uiSchema/elements/0/options/slider"]);
+  });
+
+  it("keeps a number input and reports slider when the schema has no default", () => {
+    const { survey, report } = jf({ type: "number", minimum: 0, maximum: 10 }, { slider: true });
+    expect(survey.getQuestionByName("a").getType()).toBe("text");
+    expect(pointers(report)).toHaveLength(1);
+  });
+
+  it("reads slider bounds and restrict from an allOf", () => {
+    const slider = jf({ allOf: [{ type: "number" }, { minimum: 1, maximum: 9, default: 3 }] }, { slider: true });
+    const q = slider.survey.getQuestionByName("a");
+    expect([q.getType(), q.min, q.max]).toEqual(["slider", 1, 9]);
+    const restrict = jf({ allOf: [{ type: "string" }, { maxLength: 4 }] }, { restrict: true });
+    expect(restrict.survey.getQuestionByName("a").maxLength).toBe(4);
+    expect(restrict.report).toEqual([]);
+  });
+
+  it("does not take an enumNames key from the object prototype", () => {
+    const { survey } = rjsfConvert({ type: "object", properties: { a: { type: "string", enum: ["constructor", "x"] } } },
+      { a: { "ui:enumNames": { x: "Ex" } } });
+    expect(survey.getQuestionByName("a").choices.map((c: { text: string }) => c.text)).toEqual(["constructor", "Ex"]);
+  });
+
+  it("makes a root ui:help the form description, and reports it when the form has one", () => {
+    const bare = rjsfConvert({ type: "object", properties: { a: { type: "string" } } }, { "ui:help": "Form help" });
+    expect(bare.output.description).toBe("Form help");
+    expect(bare.report).toEqual([]);
+    const described = rjsfConvert({ type: "object", description: "Own", properties: { a: { type: "string" } } }, { "ui:help": "Form help" });
+    expect(described.output.description).toBe("Own");
+    expect(pointers(described.report)).toEqual(["#/uiSchema/ui:help"]);
+  });
+
+  it("reports an inputType a number question cannot take", () => {
+    const { report } = rjsfConvert({ type: "object", properties: { a: { type: "number" } } }, { a: { "ui:options": { inputType: "range" } } });
+    expect(pointers(report)).toEqual(["#/uiSchema/a/ui:options/inputType"]);
+  });
+
+  it("reports enumDisabled and enumNames on a boolean", () => {
+    const { report } = rjsfConvert({ type: "object", properties: { a: { type: "boolean" } } },
+      { a: { "ui:widget": "radio", "ui:enumDisabled": [false], "ui:enumNames": ["Y", "N"] } });
+    expect(pointers(report).sort()).toEqual(["#/uiSchema/a/ui:enumDisabled", "#/uiSchema/a/ui:enumNames"]);
+  });
+
+  it("reports enumNames on a oneOf of consts, which carries its own titles", () => {
+    const { report } = rjsfConvert({ type: "object", properties: { a: { oneOf: [{ const: "x", title: "X" }] } } }, { a: { "ui:enumNames": ["Ex"] } });
+    expect(pointers(report)).toEqual(["#/uiSchema/a/ui:enumNames"]);
   });
 });

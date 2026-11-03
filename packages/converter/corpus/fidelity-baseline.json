@@ -1,16 +1,16 @@
 {
-  "definitions": 616,
-  "fieldsIn": 1561,
-  "fieldsOut": 1361,
+  "definitions": 614,
+  "fieldsIn": 1557,
+  "fieldsOut": 1830,
   "buckets": {
-    "unsupported": 355,
+    "unsupported": 305,
     "unknown": 3,
-    "assumed": 172,
-    "dropped": 396
+    "assumed": 171,
+    "dropped": 406
   },
-  "weightedClean": 1224,
-  "fidelityRatio": 0.8719,
-  "cleanPerField": 0.7841,
+  "weightedClean": 1169,
+  "fidelityRatio": 1.1753,
+  "cleanPerField": 0.7508,
   "perSource": {
     "formio": {
       "definitions": 522,
@@ -27,23 +27,23 @@
       "cleanPerField": 0.9557
     },
     "json-schema": {
-      "definitions": 94,
-      "fieldsIn": 432,
-      "fieldsOut": 334,
+      "definitions": 92,
+      "fieldsIn": 428,
+      "fieldsOut": 803,
       "buckets": {
-        "unsupported": 90,
+        "unsupported": 40,
         "unknown": 0,
-        "assumed": 11,
-        "dropped": 50
+        "assumed": 10,
+        "dropped": 60
       },
-      "weightedClean": 145,
-      "fidelityRatio": 0.7731,
-      "cleanPerField": 0.3356
+      "weightedClean": 90,
+      "fidelityRatio": 1.8762,
+      "cleanPerField": 0.2103
     }
   },
   "lint": {
     "errors": 13,
-    "warnings": 117,
+    "warnings": 103,
     "perSource": {
       "formio": {
         "name/duplicate": {
@@ -61,7 +61,7 @@
       },
       "json-schema": {
         "page/empty": {
-          "warning": 23
+          "warning": 9
         }
       }
     }

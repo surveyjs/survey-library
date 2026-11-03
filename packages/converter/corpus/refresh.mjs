@@ -396,6 +396,50 @@ function selfTest() {
   check("One schema with two uiSchemas gives two definitions",
     twoUis.length === 2 && twoUis.every((d) => d.def.schema === s1) && twoUis.some((d) => d.def.uiSchema === u2));
 
+  // 2b'. Pairing by fit: a fallback pairing needs one of the uiSchema's scopes to resolve in the schema.
+  const sa = { type: "object", properties: { a: { type: "string" } } };
+  const sb = { type: "object", properties: { b: { type: "string" } } };
+  const ua = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a" }] };
+  const ub = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/b" }] };
+  const misOnly = classifyDefinitions("json-schema", [{ name: "schema_1", value: sa }, { name: "uischema_2", value: ub }]);
+  check("A single uiSchema written for another schema stays unpaired",
+    misOnly.length === 1 && misOnly[0].def === sa);
+  const okOnly = classifyDefinitions("json-schema", [{ name: "schema_1", value: sa }, { name: "uischema_2", value: ua }]);
+  check("A single uiSchema whose scope resolves still pairs",
+    okOnly.length === 1 && okOnly[0].def.schema === sa && okOnly[0].def.uiSchema === ua);
+  const misLeft = classifyDefinitions("json-schema", [
+    { name: "schema", value: sa }, { name: "uischema", value: ua }, { name: "uischemaOther", value: ub }
+  ]);
+  check("A leftover uiSchema written for another schema is not used, the name match is kept",
+    misLeft.length === 1 && misLeft[0].def.schema === sa && misLeft[0].def.uiSchema === ua);
+  const misBare = classifyDefinitions("json-schema", [
+    { name: "schema", value: sa }, { name: "uischemaX", value: ub }, { name: "uischemaY", value: ub }
+  ]);
+  check("One schema with only mis-paired leftovers stays bare",
+    misBare.length === 1 && misBare[0].def === sa);
+  const refd = { $defs: { p: { type: "object", properties: { c: { type: "string" } } } }, type: "object", allOf: [{ $ref: "#/$defs/p" }] };
+  const uc = { type: "Control", scope: "#/properties/c" };
+  const viaRef = classifyDefinitions("json-schema", [{ name: "schema_1", value: refd }, { name: "uischema_2", value: uc }]);
+  check("A scope that resolves through allOf and $ref counts as fitting",
+    viaRef.length === 1 && viaRef[0].def.uiSchema === uc);
+  // A combinator that leads back to a schema being searched: Cat's allOf names Pet, whose oneOf
+  // names Cat. The search moves on to Cat's own properties, and a missing one ends, not overflows.
+  const pets = { type: "object", properties: { pet: { $ref: "#/definitions/Pet" } }, definitions: {
+    Pet: { type: "object", properties: { kind: { type: "string" } }, oneOf: [{ $ref: "#/definitions/Cat" }] },
+    Cat: { allOf: [{ $ref: "#/definitions/Pet" }, { properties: { meow: { type: "boolean" } } }] }
+  } };
+  const pairPets = (scope) => {
+    try {
+      return classifyDefinitions("json-schema", [{ name: "schema_1", value: pets }, { name: "uischema_2", value: { type: "Control", scope } }]);
+    } catch {
+      return undefined;
+    }
+  };
+  const viaCycle = pairPets("#/properties/pet/properties/meow");
+  check("A scope found past a combinator cycle counts as fitting", viaCycle?.length === 1 && viaCycle[0].def.uiSchema !== undefined);
+  const missCycle = pairPets("#/properties/pet/properties/nope");
+  check("A scope missing behind a combinator cycle does not fit, and does not throw", missCycle?.length === 1 && missCycle[0].def === pets);
+
   // 2c. Property tokens and the new-key alert, for a handled token too.
   const fio = constructTokens("formio", { components: [{
     type: "textfield", key: "a", conditional: { show: "true", conjunction: "all", conditions: [{ component: "b", operator: "isEqual" }] }

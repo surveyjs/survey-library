@@ -209,7 +209,9 @@ export function classifyDefinitions(source, literals) {
 // A schema pairs with the uiSchema of the same pair key. A schema with no match takes the
 // module's only uiSchema if it has exactly one, and otherwise stays bare. A uiSchema left over
 // pairs with the module's only schema, so one schema with two uiSchemas gives two definitions;
-// that schema is then not emitted bare as well.
+// that schema is then not emitted bare as well. A fallback pairing (no name match) is made only
+// when the uiSchema fits the schema, see `uiSchemaFitsSchema`; otherwise the schema stays bare
+// and the uiSchema is not used.
 function pairSchemas(literals) {
   const schemas = literals.filter((l) => looksLikeJsonSchema(l.value) && !looksLikeUiSchema(l.value));
   const uis = literals.filter((l) => looksLikeUiSchema(l.value));
@@ -227,16 +229,126 @@ function pairSchemas(literals) {
     }
   }
   if (uis.length === 1) {
-    for (const schema of unmatched) paired.push({ suffix: schema.name, def: { schema: schema.value, uiSchema: uis[0].value } });
+    for (const schema of unmatched) {
+      paired.push({ suffix: schema.name, def: uiSchemaFitsSchema(uis[0].value, schema.value) ? { schema: schema.value, uiSchema: uis[0].value } : schema.value });
+    }
     return paired;
   }
   const leftover = uis.filter((u) => !used.has(u));
   if (schemas.length === 1 && leftover.length > 0) {
-    for (const ui of leftover) paired.push({ suffix: ui.name, def: { schema: schemas[0].value, uiSchema: ui.value } });
+    for (const ui of leftover) {
+      if (uiSchemaFitsSchema(ui.value, schemas[0].value)) paired.push({ suffix: ui.name, def: { schema: schemas[0].value, uiSchema: ui.value } });
+    }
+    // The schema is emitted bare when no leftover uiSchema fits it and nothing else paired with it.
+    if (paired.length === 0) paired.push({ suffix: schemas[0].name, def: schemas[0].value });
     return paired;
   }
   for (const schema of unmatched) paired.push({ suffix: schema.name, def: schema.value });
   return paired;
+}
+
+// The scopes a JSONForms UI schema reads from the root schema: every `scope` string in its layout
+// and rule conditions, leaving out `options.detail` subtrees, whose scopes are relative to an
+// array's items.
+function collectUiScopes(ui, out = []) {
+  if (Array.isArray(ui)) { for (const item of ui) collectUiScopes(item, out); return out; }
+  if (!ui || typeof ui !== "object") return out;
+  if (typeof ui.scope === "string") out.push(ui.scope);
+  for (const [key, value] of Object.entries(ui)) {
+    if (key === "options" && value && typeof value === "object") {
+      for (const [optKey, optValue] of Object.entries(value)) if (optKey !== "detail") collectUiScopes(optValue, out);
+    } else if (key !== "scope") {
+      collectUiScopes(value, out);
+    }
+  }
+  return out;
+}
+
+// A uiSchema fits a schema when at least one of its scopes resolves in it. A uiSchema with no
+// scope at all (RJSF `ui:*` keys, a layout of labels) cannot be checked and fits.
+function uiSchemaFitsSchema(ui, schema) {
+  const scopes = collectUiScopes(ui);
+  return scopes.length === 0 || scopes.some((scope) => resolveScopeIn(schema, scope) !== undefined);
+}
+
+// Resolve a scope in a schema as the converter's `resolveScope` does (itself a port of JSONForms'
+// `resolveSchema`): one segment at a time as a property lookup, `#` and empty segments skipped, a
+// `$ref` on a result followed from the root before the next segment; when the rest of the path
+// is not found, tried from `oneOf`, `allOf`, `anyOf`, `then`, `else` entries in that order (each
+// entry's `$ref` followed), first match wins; a path asked again from the same schema while it is
+// being resolved is a cycle and resolves to nothing, and so is a combinator entry that leads back to
+// a schema the same rest of the path is being searched from. Duplicated here, not imported, so refresh
+// needs no build of the TS sources.
+const SCOPE_COMBINATORS = ["oneOf", "allOf", "anyOf", "then", "else"];
+function resolveScopeIn(root, scope) {
+  const walk = { root, visited: new Map() };
+  const decode = (s) => s.replace(/~1/g, "/").replace(/~0/g, "~");
+  const isEmpty = (v) => (typeof v === "string" || Array.isArray(v)) ? v.length === 0
+    : (v !== null && typeof v === "object") ? Object.keys(v).length === 0 : true;
+  const refOf = (v) => (v && typeof v === "object" && !Array.isArray(v) && typeof v.$ref === "string") ? v.$ref : undefined;
+  const withRef = (schema, path) => {
+    let resolved;
+    const ref = refOf(schema);
+    if (ref !== undefined) {
+      const base = from(walk.root, ref);
+      if (base !== undefined) resolved = from(base, path);
+    }
+    return resolved === undefined ? from(schema, path) : resolved;
+  };
+  const from = (schema, path) => {
+    let paths = walk.visited.get(schema);
+    if (!paths) { paths = new Set(); walk.visited.set(schema, paths); }
+    if (paths.has(path)) return undefined;
+    paths.add(path);
+    const resolved = withCombinators(schema, path.split("/").map(decode));
+    paths.delete(path);
+    return resolved;
+  };
+  const withCombinators = (schema, segments) => {
+    if (segments.length === 0) return schema;
+    if (isEmpty(schema)) return undefined;
+    const direct = step(schema, segments);
+    if (direct !== undefined) return direct;
+    const entries = [];
+    for (const key of SCOPE_COMBINATORS) {
+      const value = schema[key];
+      if (Array.isArray(value)) entries.push(...value);
+      else if (value !== undefined && value !== null) entries.push(value);
+    }
+    const path = segments.join("/");
+    for (const entry of entries) {
+      const ref = refOf(entry);
+      const sub = ref !== undefined ? withRef(walk.root, ref) : entry;
+      // An entry back to a schema this path is already searched from is a cycle: try the next.
+      let paths = walk.visited.get(sub);
+      if (!paths) { paths = new Set(); walk.visited.set(sub, paths); }
+      if (paths.has(path)) continue;
+      paths.add(path);
+      const resolved = withCombinators(sub, segments);
+      paths.delete(path);
+      if (resolved) return resolved;
+    }
+    return undefined;
+  };
+  const step = (schema, segments) => {
+    if (segments.length === 0) return schema;
+    if (isEmpty(schema)) return undefined;
+    let rest = segments;
+    while (rest.length > 0 && (rest[0] === "#" || rest[0] === "")) rest = rest.slice(1);
+    let next = schema;
+    if (rest.length > 0) {
+      next = Object.prototype.hasOwnProperty.call(schema, rest[0]) ? schema[rest[0]] : undefined;
+      rest = rest.slice(1);
+    }
+    const ref = refOf(next);
+    if (ref !== undefined) {
+      if (rest.length === 0 && !ref.startsWith("#")) return next;
+      next = withRef(walk.root, ref);
+    }
+    return withCombinators(next, rest);
+  };
+  const target = withRef(root, scope);
+  return target && typeof target === "object" && !Array.isArray(target) ? target : undefined;
 }
 
 // --- construct tokens (the drift signal) ------------------------------------
@@ -270,7 +382,7 @@ const BENIGN_JSONSCHEMA_KEYWORDS = new Set([
   "deprecated", "nullable", "prefixItems"
 ]);
 const HANDLED_FORMATS = new Set(["date", "date-time", "time", "email", "idn-email", "uri", "iri", "uri-reference"]);
-const HANDLED_UI_TYPES = new Set(["VerticalLayout", "HorizontalLayout", "Group", "Categorization", "Category", "Control", "Label"]);
+const HANDLED_UI_TYPES = new Set(["VerticalLayout", "HorizontalLayout", "Group", "Categorization", "Category", "Control", "ListWithDetail", "Label"]);
 const HANDLED_UI_WIDGETS = new Set(["hidden", "radio", "textarea", "tagbox", "password", "email", "url", "color", "date", "date-time", "datetime-local", "time", "updown", "range", "alt-date", "alt-datetime", "checkboxes", "checkbox", "select"]);
 
 /**

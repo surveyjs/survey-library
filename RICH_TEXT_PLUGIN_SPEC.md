@@ -18,7 +18,7 @@ Provide a rich text editor that can be used in:
 ### 1.2 Guiding principles (apply to every decision)
 
 - **Minimum code.** Reuse existing survey-core mechanisms (`ActionContainer` + `sv-action-bar`, `RendererFactory`, `settings.showDialog`, `SvgRegistry`, `onTextMarkdown`). Framework-specific code is limited to thin wrappers.
-- **No hard dependency on external libraries.** The plugin has zero runtime dependencies. External converters (markdown-it, turndown, DOMPurify, …) can be plugged in by customers through a public interface. External libraries may be used as **dev/test dependencies only** (test oracle).
+- **No hard dependency on external libraries.** The plugin has zero runtime dependencies. External converters (markdown-it, turndown, DOMPurify, …) can be plugged in by customers through a public interface.
 - **Minimum functionality** that survey authors actually need. No tables, images, colors, font sizes, alignment.
 - **Opt-in and zero cost when unused.** A survey that does not load the plugin downloads no plugin JS/CSS and behaves exactly as today.
 - **Self-describing JSON.** Only properties stored in the survey JSON switch rich text on (`stringFormat` on the survey, `textFormat` on comment questions). Loading the plugin alone never changes how an existing survey renders.
@@ -454,7 +454,7 @@ packages/survey-angular-ui/example/...                    # "rich-text" route, d
 
 - Build: `npm run build:rich-text` (ESM `build/fesm/rich-text/index.mjs`, UMD `build/rich-text/index.js` with global `SurveyRichText`, `build/rich-text.css` + minified variants, typings stub for classic module resolution as in the collaboration config). Add `build:rich-text` to `build:all`. `survey-core` is external.
 - Requires a prior `npm run build` (same as collaboration).
-- No runtime dependencies. Dev-only: `markdown-it` as a test oracle.
+- No runtime dependencies.
 - Target bundle size: ≤ 30 KB minified (JS), excluding CSS.
 - Conventions (see `CLAUDE.md`): no API doccomments; comments only for constraints the code cannot express; ESLint with zero warnings; Conventional Commits.
 
@@ -469,7 +469,6 @@ All test suites below are required deliverables.
 - **markdown.tests.ts:** subset parsing; escaping; line-break and paragraph rules; single-paragraph unwrapping; inline vs block context; unsupported syntax as literal text; link scheme allow-list; `target`/`rel` on render; plain text → `""` through the provider.
 - **serializer.tests.ts:** DOM-shape normalization (`b`/`strong`, `i`/`em`, `div`/`p`, duplicated nested tags, `span[style]` unwrapped); whitespace movement; overlapping marks including the worked example in §3.3; intraword emphasis; link outermost; lists; escaping of special characters and line-start markers; empty content.
 - **roundtrip.tests.ts:** corpus + deterministic generated run sequences; `toSource(toHtml(x))` stability; parse(serialize(runs)) equals runs.
-- **oracle.tests.ts:** markdown-it (`breaks: true`, dev dependency) renders the serializer output identically to the built-in `toHtml` (after HTML normalization) for the corpus.
 - **html-format.tests.ts:** allow-list; unknown elements unwrapped with text kept; block elements → boundaries; dropped elements with content; attribute stripping; `href` schemes; canonical output; XSS vectors; SSR (no DOM) returns `""`.
 - **lossless.tests.ts:** equivalent Markdown syntax variants are lossless; tables are lossy with a lossy external converter; literal tables are lossless with the built-in Markdown converter but reported by its `getUnsupported`; built-in HTML: content with removed elements/attributes is not lossless, canonical renaming is; `lossless: true` converters skip the check; `checkLossless` takes precedence over the round trip; `findUnsupported`.
 - **provider.tests.ts:** the full precedence matrix of §5.2, including `stringFormat: "plain"` with the plugin loaded; `useMarkdown === false` strings untouched; HTML cache invalidation on handler add and on `stringFormat` change; `stringFormat: "html"` rendering; `findUnsupported` with and without the `format` argument.
@@ -584,20 +583,20 @@ Automated: core part of `comment-text-format.tests.ts`; `provider.tests.ts` with
 
 #### M2 — Converters and survey string rendering (§3, §5.2, §6.1 items 1 and 6, §6.2, §6.3, §7.4 lossless check, §11 `findUnsupported`)
 
-Automated: `markdown`, `serializer`, `roundtrip`, `oracle`, `html-format`, `lossless`, `provider`, `edit-mode` unit tests.
+Automated: `markdown`, `serializer`, `roundtrip`, `html-format`, `lossless`, `provider`, `edit-mode` unit tests.
 
 **CP2 — survey strings render rich text; converters are inspectable.** Open the React demo page (plugin on), page "Strings".
-- [ ] Survey title, question titles, descriptions and choice texts show bold/italic/strikethrough/links; links open in a new tab.
-- [ ] The description of `s1` shows two lines, a paragraph break and a bulleted list.
-- [ ] The title of `s6` (`- not a list in a title`) is shown literally (inline context).
-- [ ] Plain strings look exactly as with `?plugin=off`.
-- [ ] String format `"plain"`: the whole page "Strings" looks exactly as with `?plugin=off`; switching back to `"markdown"` restores formatting without reloading.
-- [ ] `s3` and `s4`: no alert appears; the script tag and the `javascript:` link are shown as text.
-- [ ] `s5` (Markdown table) is shown as literal text with its line breaks.
-- [ ] Custom handler toggle: titles show the `[handler]` prefix; descriptions are still rendered by the plugin.
-- [ ] String format `"html"`: `s7` (HTML with `style` and a table) renders without color and without table structure, text kept.
-- [ ] Converter playground: `__a__` → canonical `**a**`, lossless; a Markdown table → lossless, `getUnsupported` = `["table"]`; HTML format with `<span style="color:red">x</span>` → not lossless, `getUnsupported` lists `style`.
-- [ ] "Find unsupported" lists `s3`, `s5` and `s7`.
+- [x] Survey title, question titles, descriptions and choice texts show bold/italic/strikethrough/links; links open in a new tab.
+- [x] The description of `s1` shows two lines, a paragraph break and a bulleted list.
+- [x] The title of `s6` (`- not a list in a title`) is shown literally (inline context).
+- [x] Plain strings look exactly as with `?plugin=off`.
+- [x] String format `"plain"`: the whole page "Strings" looks exactly as with `?plugin=off`; switching back to `"markdown"` restores formatting without reloading.
+- [x] `s3` and `s4`: no alert appears; the script tag and the `javascript:` link are shown as text.
+- [x] `s5` (Markdown table) is shown as literal text with its line breaks.
+- [x] Custom handler toggle: titles show the `[handler]` prefix; descriptions are still rendered by the plugin.
+- [x] String format `"html"`: `s7` (HTML with `style` and a table) renders without color and without table structure, text kept.
+- [x] Converter playground: `__a__` → canonical `**a**`, lossless; a Markdown table → lossless, `getUnsupported` = `["table"]`; HTML format with `<span style="color:red">x</span>` → not lossless, `getUnsupported` lists `style`.
+- [x] "Find unsupported" lists `s3`, `s5` and `s7`.
 
 #### M3 — Editor core in React (§6.1 items 2–5, §7.1–§7.3, value flow basics of §7.4, §8 for React)
 

@@ -2,7 +2,8 @@
 // that does not use rich text loads neither this JS nor its CSS, and nothing under src/
 // outside src/plugins/rich-text/ imports from here. entries/index.ts does not reference this file.
 
-export { RichText } from "../src/plugins/rich-text/index";
+export { RichText, setRichTextStrings } from "../src/plugins/rich-text/index";
+export type { IRichTextConverter, IRichTextConverterContext, UnsupportedHit } from "../src/plugins/rich-text/index";
 
 import { checkLibraryVersion } from "survey-core";
 export let Version: string;

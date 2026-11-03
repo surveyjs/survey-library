@@ -1,4 +1,11 @@
-// Public facade of "survey-core/rich-text". Behavior is added milestone by milestone;
-// importing the package must stay side-effect free until registration is wired.
-export class RichText {
-}
+import { installConverters } from "./api";
+import { htmlConverter } from "./html-format";
+import { markdownConverter } from "./markdown";
+import { activateRichTextProvider } from "./provider";
+
+export { RichText } from "./api";
+export { setRichTextStrings } from "./rich-text-strings";
+export type { IRichTextConverter, IRichTextConverterContext, UnsupportedHit } from "./api";
+
+installConverters(markdownConverter, htmlConverter);
+activateRichTextProvider();

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Rich text demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <script src="https://unpkg.com/react@16.5.0/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.5.0/umd/react-dom.development.js"></script>
+    <script src="./node_modules/survey-core/survey.core.js"></script>
+    <script src="./node_modules/survey-core/themes/index.js"></script>
+    <link rel="stylesheet" href="./node_modules/survey-core/survey-core.css" />
+    <script src="./build/survey-react-ui.js"></script>
+    <link rel="stylesheet" href="./fonts.css" />
+    <script>
+      (function () {
+        var pluginOff = new URLSearchParams(location.search).get("plugin") === "off";
+        if (pluginOff) {
+          document.documentElement.classList.add("plugin-off");
+        } else {
+          document.write("<link rel=\"stylesheet\" href=\"./node_modules/survey-core/rich-text.css\" />");
+          document.write("<script src=\"./node_modules/survey-core/rich-text/index.js\"><\/script>");
+        }
+      })();
+    </script>
+    <style>
+      html, body { height: 100%; margin: 0; }
+      #layout { display: flex; height: 100%; }
+      #surveyElement { flex: 1; min-width: 0; overflow: auto; }
+      #panel {
+        width: 380px;
+        flex: none;
+        overflow: auto;
+        box-sizing: border-box;
+        padding: 12px 14px 24px;
+        border-left: 1px solid #d4d4d8;
+        background: #f6f6f8;
+        font: 13px/1.4 "Open Sans", sans-serif;
+        color: #1c1c1c;
+      }
+      #panel h1 { font-size: 16px; margin: 0 0 4px; }
+      #panel h2 { font-size: 13px; margin: 16px 0 6px; }
+      #panel p { margin: 0 0 8px; }
+      #panel button, #panel select, #panel textarea { font: inherit; }
+      #panel button, #panel select { margin: 0 6px 6px 0; }
+      #panel button.is-active { font-weight: 700; }
+      #panel pre, #panel textarea {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0 0 8px;
+        padding: 8px;
+        border: 1px solid #d0d0d4;
+        background: #fff;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      #panel pre { max-height: 180px; overflow: auto; }
+      #panel textarea { height: 72px; resize: vertical; }
+      #pg-preview { min-height: 32px; padding: 8px; border: 1px solid #d0d0d4; background: #fff; margin: 0 0 8px; }
+      .plugin-off .plugin-only { display: none; }
+    </style>
+</head>
+
+<body>
+    <div id="layout">
+        <div id="surveyElement"></div>
+        <aside id="panel">
+            <h1>Rich text demo</h1>
+            <p id="plugin-status"></p>
+
+            <h2>Live data</h2>
+            <pre id="live-data">{}</pre>
+            <pre id="event-log"></pre>
+
+            <h2>Show JSON</h2>
+            <button type="button" id="show-json">Show JSON</button>
+            <pre id="json-out"></pre>
+
+            <h2>Set value externally</h2>
+            <button type="button" id="set-value">Set c_md</button>
+            <button type="button" id="set-value-delayed">Set c_md in 3 seconds</button>
+            <p id="delay-status"></p>
+
+            <h2>Mode</h2>
+            <button type="button" data-mode="edit">Edit</button>
+            <button type="button" data-mode="readonly">Read-only</button>
+            <button type="button" data-mode="display">Display</button>
+            <button type="button" data-mode="design">Design</button>
+
+            <h2>Theme</h2>
+            <button type="button" data-theme="light">Light</button>
+            <button type="button" data-theme="dark">Dark</button>
+
+            <h2>String format</h2>
+            <button type="button" data-format="plain">plain</button>
+            <button type="button" data-format="markdown">markdown</button>
+            <button type="button" data-format="html">html</button>
+
+            <h2>Custom handler</h2>
+            <label><input type="checkbox" id="custom-handler" /> onTextMarkdown for titles</label>
+
+            <div class="plugin-only">
+                <h2>External converter</h2>
+                <label><input type="checkbox" id="external-converter" /> markdown-it / turndown</label>
+                <p id="converter-status"></p>
+
+                <h2>Converter playground</h2>
+                <select id="pg-format">
+                    <option value="markdown">markdown</option>
+                    <option value="html">html</option>
+                </select>
+                <textarea id="pg-source" spellcheck="false"></textarea>
+                <div id="pg-preview"></div>
+                <pre id="pg-canonical"></pre>
+                <pre id="pg-meta"></pre>
+
+                <h2>Find unsupported</h2>
+                <button type="button" id="find-unsupported">Find unsupported</button>
+                <pre id="unsupported-out"></pre>
+            </div>
+        </aside>
+    </div>
+    <script src="./rich-text.js"></script>
+</body>
+
+</html>

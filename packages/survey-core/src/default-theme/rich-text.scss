@@ -1,0 +1,5 @@
+// Stylesheet of "survey-core/rich-text", built as its own artifact so a form
+// that does not use rich text downloads none of it.
+//
+// base-theme.scss is deliberately not used here: it emits the whole --sjs2-* custom
+// property block, which survey-core.css already delivers to the same page.

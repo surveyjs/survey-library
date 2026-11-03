@@ -138,7 +138,7 @@ export class FilterPresetDialog extends Base {
       this.rowCount = 0;
       this.getConditionKeys(this.buffer.conditions).forEach((key: string): void => { this.addRow(panel, key); });
       // An action of each form's own: the panel's footer disposes its actions with the form.
-      this.addFieldAction = new Action({ id: "sv-filter-preset-add-field", title: filterUIStrings.addField, iconName: "icon-plus-16x16",
+      this.addFieldAction = new Action({ id: "sv-filter-preset-add-field", title: filterUIStrings.addField, iconName: "icon-plus-24x24",
         iconSize: "auto", appearance: { style: "neutral", mode: "secondary" }, action: (): void => { this.addEmptyRow(); } });
       panel.footerActions.push(this.addFieldAction);
     }
@@ -298,9 +298,9 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     super(owner);
     this.tabsToolbarValue = new ActionContainer();
     this.tabsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
-    this.deleteAction = new Action({ id: "sv-filter-preset-delete", title: filterUIStrings.deletePreset, iconName: "icon-delete-16x16",
+    this.deleteAction = new Action({ id: "sv-filter-preset-delete", title: filterUIStrings.deletePreset, iconName: "icon-delete-24x24",
       iconSize: "auto", appearance: { style: "alert", mode: "tertiary-muted", showBorder: true }, action: (): void => { this.deleteSelected(); } });
-    this.resetAction = new Action({ id: "sv-filter-preset-reset", title: filterUIStrings.resetPreset, iconName: "icon-reset-16x16",
+    this.resetAction = new Action({ id: "sv-filter-preset-reset", title: filterUIStrings.resetPreset, iconName: "icon-reset-24x24",
       iconSize: "auto", appearance: { style: "neutral", mode: "secondary", showBorder: true }, action: (): void => { this.resetSelected(); } });
     this.actionsToolbarValue = new ActionContainer();
     this.actionsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });

@@ -68,13 +68,13 @@ export class FilterModal extends Base {
     this.presetsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
     this.presetsToolbarValue.setItems(this.createPresetChips(), false);
     this.updatePresetChips();
-    this.addPresetAction = new Action({ id: "sv-filter-modal-add-preset", title: filterUIStrings.addPreset, iconName: "icon-plus-16x16",
+    this.addPresetAction = new Action({ id: "sv-filter-modal-add-preset", title: filterUIStrings.addPreset, iconName: "icon-plus-24x24",
       iconSize: "auto", action: (): void => { this.owner.showPresetDialog(this, false); } });
     this.creationToolbarValue = new ActionContainer();
     this.creationToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
     this.creationToolbarValue.setItems([this.addPresetAction], false);
     this.editPresetsAction = new Action({ id: "sv-filter-modal-edit-presets", title: filterUIStrings.editPresets, showTitle: false,
-      tooltip: filterUIStrings.editPresets, iconName: "icon-editsmall-16x16", iconSize: "auto",
+      tooltip: filterUIStrings.editPresets, iconName: "icon-edit-24x24", iconSize: "auto",
       action: (): void => { this.owner.showPresetDialog(this, true); } });
     this.presetsTitleToolbarValue = new ActionContainer();
     this.presetsTitleToolbarValue.setActionsAppearance({ style: "neutral", mode: "tertiary", size: "small" });
@@ -201,7 +201,7 @@ export class FilterModal extends Base {
       }
       used[id] = true;
       const chip = new Action({ id: id, enabled: !this.isReadOnly, iconSize: "auto",
-        iconName: item.type === "ai" ? "icon-sparkle-16x16" : undefined,
+        iconName: item.type === "ai" ? "icon-sparkle-24x24" : undefined,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.togglePreset(item); } });
       chip.locTitle = item.locTitle;
       chip.data = item;

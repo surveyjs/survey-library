@@ -354,7 +354,7 @@ export class FilterToolbars {
     if (!this.clearAction) {
       this.saveAction = new Action({ id: "sv-filter-save", title: filterUIStrings.save, appearance: { style: "brand" },
         visible: false, action: (): void => { this.owner.saveActiveItem(); } });
-      this.clearAction = new Action({ id: "sv-filter-clear", title: filterUIStrings.clearAll, iconName: "icon-close-16x16",
+      this.clearAction = new Action({ id: "sv-filter-clear", title: filterUIStrings.clearAll, iconName: "icon-close-24x24",
         iconSize: "auto", innerCss: this.cssClasses.clear, appearance: { style: "neutral", mode: "tertiary-surface", showBorder: true }, visible: false,
         action: (): void => { this.owner.clearActiveItem(); } });
       this.clearToolbarValue.setItems([this.saveAction, this.clearAction], false);
@@ -471,7 +471,7 @@ export class FilterToolbars {
   }
   private updateItemChip(item: FilterItem, chip: Action): void {
     chip.active = item === this.owner.activeItem;
-    chip.iconName = item.type === "ai" ? "icon-sparkle-16x16" : undefined;
+    chip.iconName = item.type === "ai" ? "icon-sparkle-24x24" : undefined;
     chip.iconSize = "auto";
   }
   // A field or a preset that is no longer shown takes its chip with it; an open popup is closed and

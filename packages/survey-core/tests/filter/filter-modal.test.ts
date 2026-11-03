@@ -41,7 +41,7 @@ describe("FilterModal: the buffer", () => {
     expect(modal.editor.getConditions(), "#2").toEqual([
       { field: "country", operator: "equal", value: "de" }, { field: "age", operator: "greater", value: 18 }]);
     expect([chip(modal, "adults").active, chip(modal, "edges").active], "#3").toEqual([true, false]);
-    expect(chip(modal, "smart").iconName, "#4").toBe("icon-sparkle-16x16");
+    expect(chip(modal, "smart").iconName, "#4").toBe("icon-sparkle-24x24");
     modal.dispose();
   });
   test("nothing is written until apply(); apply() writes everything with one event of each", () => {

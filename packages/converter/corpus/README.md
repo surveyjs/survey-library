@@ -25,9 +25,13 @@ is the cadence it was designed for: upstream moves on its own clock, not on
 ours). It runs both jobs:
 
 1. **Job A — re-scrape upstream** into `corpus/<source>/` and diff the set of
-   **construct tokens** (a Form.io component `type`, a JSON Schema keyword)
-   against the committed `<source>/_manifest.json`. A construct the converter
-   has no rule for → **alert**.
+   **construct tokens** against the committed `<source>/_manifest.json`. A
+   token is a component `type`, a property name per type, or a closed-set value
+   that changes branching (a condition operator, `show`, `dataSrc`) for Form.io;
+   a schema keyword, `format`, a UI element type, a JSONForms rule effect or
+   option, or an RJSF `ui:*` key or widget for JSON Schema. A construct the
+   converter has no rule for → **alert**. Needs `GITHUB_TOKEN` (or `GH_TOKEN`)
+   to stay under the GitHub API rate limit.
 2. **Job B — diff the vendored schema snapshots** (`src/formio/vendor/` and the
    JSON Schema draft meta-schemas) against upstream. These go stale silently for
    the same reason → **alert**.
@@ -52,6 +56,9 @@ snapshots (fast, deterministic, no network):
   aggregated. A regression of the aggregate below `corpus/fidelity-baseline.json`
   fails the run; per-definition drops are logged. The corpus is scored in full — any
   file that cannot be scored is logged, never silently skipped.
+- **Lint (ratchet):** every output is run through the survey-core linter. The
+  count of error findings may not rise above the baseline's; warnings are
+  logged per source and rule but not gated.
 
 Regenerate the baseline intentionally with
 `npm run corpus:score:update-baseline` and commit the diff.

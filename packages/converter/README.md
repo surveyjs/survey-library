@@ -12,7 +12,8 @@ its own CDN bundle:
 | JSON Schema (JSONForms / RJSF / bare) | `survey-converter/json-schema` | `survey.converter.json-schema.min.js` |
 
 Each converter maps what it can to SurveyJS and lists every construct it dropped, refused or
-guessed in a content-free report, so a lossy conversion is visible rather than silent.
+guessed in a content-free report, so a lossy conversion is visible rather than silent. What maps
+to what, and the report code for each loss: [docs/mappings.md](./docs/mappings.md).
 
 ## Install
 
@@ -103,7 +104,9 @@ package installs and builds on its own.
 # with zero jsonErrors) and is reached through node_modules/survey-core, a
 # junction to ../survey-core/build. Build it BEFORE installing/testing here,
 # or `npm install` links an empty directory and every spec fails to import it.
-cd ../survey-core && npm run build
+# build:linter adds survey-core/linter, which the oracle and corpus:score use
+# to lint every converted survey.
+cd ../survey-core && npm run build && npm run build:linter
 
 cd ../converter && npm install
 ```
@@ -138,9 +141,9 @@ run by hand: this package has no workflow of its own in `.github/workflows/`.
 
 | Command | Network | What it does |
 | --- | --- | --- |
-| `npm run corpus:score` | no | The regression gate — run it before pushing a converter change: runs `corpus/fidelity.spec.ts` over the **committed** snapshots. Hard-fails on an oracle break (any output that will not construct a `SurveyModel`) or an aggregate fidelity regression below `corpus/fidelity-baseline.json`. |
+| `npm run corpus:score` | no | The regression gate — run it before pushing a converter change: runs `corpus/fidelity.spec.ts` over the **committed** snapshots. Hard-fails on an oracle break (any output that will not construct a `SurveyModel`), an aggregate fidelity regression below `corpus/fidelity-baseline.json`, or a rise in survey-core linter **errors** above the baseline's count (a ratchet; warnings are logged, not gated). |
 | `npm run corpus:score:update-baseline` | no | Deletes `corpus/fidelity-baseline.json` and re-scores so the spec writes a fresh one. **Deliberate act** — commit the baseline diff and say why it moved; a converter improvement raises it, a regression must not be laundered through it. |
-| `npm run corpus:refresh` | **yes** | The drift job (weekly cadence, run by hand). A: re-scrape the repos in `corpus/sources.json` into `corpus/<source>/` and diff construct tokens against each `_manifest.json`. B: diff the vendored schema snapshots (`src/formio/vendor/`, JSON Schema meta-schemas) against upstream. Writes content-free alerts to `corpus/.alerts.json` (gitignored) and rewrites snapshots + manifests in the working tree. Add `--fail-on-alert` to gate on it. |
+| `npm run corpus:refresh` | **yes** | The drift job (weekly cadence, run by hand). A: re-scrape the repos in `corpus/sources.json` into `corpus/<source>/` and diff construct tokens against each `_manifest.json`. B: diff the vendored schema snapshots (`src/formio/vendor/`, JSON Schema meta-schemas) against upstream. Writes content-free alerts to `corpus/.alerts.json` (gitignored) and rewrites snapshots + manifests in the working tree. Add `--fail-on-alert` to gate on it. Set `GITHUB_TOKEN` (or `GH_TOKEN`) first, e.g. `GITHUB_TOKEN=$(gh auth token)`: unauthenticated GitHub API calls hit the rate limit partway through the scrape. |
 | `npm run corpus:refresh:self-test` | no | Proves the alert paths fire against a synthetic new construct + vendored drift. Nothing else covers the alarm itself, so run it whenever the diff/alert code changes. |
 
 `corpus:refresh` is the one that needs a cadence rather than a trigger — weekly

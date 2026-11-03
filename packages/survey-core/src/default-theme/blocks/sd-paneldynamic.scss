@@ -152,48 +152,21 @@
 .sd-paneldynamic__panel-wrapper--in-row.sd-paneldynamic__panel-wrapper--in-row {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     position: relative;
     // Same inset as the question header and the Add button, so Remove does not sit on the frame.
     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+    gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
 
     > .sd-row__panel {
         flex: 1 1 auto;
         min-width: 0;
         width: auto;
-    }
 
-    // Line the button up with the first input: spacers stand in for the panel header and the first question title.
-    // Line-height tokens may be unitless, so each spacer takes its title's font metrics and measures 1lh.
-    > .sd-action-bar__item {
-        flex: 0 0 auto;
-        display: flex;
-        flex-direction: column;
-        margin-top: var(--sjs2-layout-component-panel-content-area-padding-top);
-
-        &::before,
-        &::after {
-            display: block;
-            flex: 0 0 auto;
-            order: -1;
+        // The button sits beside the panel, so the content's own end padding would be a second gap.
+        .sd-panel__content {
+            padding-inline-end: 0;
         }
-    }
-    &:has(> .sd-panel > .sd-panel__header) > .sd-action-bar__item::before {
-        content: "";
-        font-size: var(--sjs2-typography-font-size-component-panel-title);
-        line-height: var(--sjs2-typography-line-height-component-panel-title);
-        height: calc(
-            1lh + var(--sjs2-layout-component-panel-header-padding-top) +
-                var(--sjs2-layout-component-panel-header-padding-bottom)
-        );
-    }
-    // :nth-child(1 of .sd-row) is the first row even when Angular inserts hidden hosts
-    // (sv-template-renderer, sv-ng-row) in front of it. :first-child misses the row there.
-    &:has(> .sd-panel .sd-panel__content > :nth-child(1 of .sd-row) .sd-question--title-top) > .sd-action-bar__item::after {
-        content: "";
-        font-size: var(--sjs2-typography-font-size-component-question-title);
-        line-height: var(--sjs2-typography-line-height-component-question-title);
-        height: calc(1lh + var(--sjs2-layout-component-question-box-gap-vertical));
     }
 
     &:before {

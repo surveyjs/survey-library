@@ -116,10 +116,13 @@ export class ProgressButtons extends Base {
     return this.survey.currentPage ? this.survey.currentPage.renderedNavigationTitle : "";
   }
   public get headerTitle(): string {
+    const page = this.survey.currentPage;
+    if (!page || !page.locNavigationTitle.hasHtml) return this.headerText;
     return this.getPlainText(this.headerText);
   }
   public getItemTitle(page: PageModel): string {
-    return this.getPlainText(page.renderedNavigationTitle);
+    const text = page.renderedNavigationTitle;
+    return page.locNavigationTitle.hasHtml ? this.getPlainText(text) : text;
   }
   private getPlainText(html: string): string {
     if (!html || typeof DOMParser === "undefined") return html;

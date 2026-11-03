@@ -178,4 +178,18 @@ describe("ProgressButtons", () => {
     expect(progress.headerTitle).toBe("STEP ONE Let's start");
     expect(progress.getItemTitle(survey.pages[1])).toBe("About you");
   });
+
+  test("A plain title with < stays intact in the tooltip", () => {
+    const survey: SurveyModel = new SurveyModel({
+      pages: [
+        { name: "page1", navigationTitle: "a<b", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", navigationTitle: "Score < 10", elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    expect(survey.pages[0].locNavigationTitle.hasHtml, "plain title is not HTML").toBe(false);
+    expect(progress.headerTitle).toBe("a<b");
+    expect(progress.getItemTitle(survey.pages[0])).toBe("a<b");
+    expect(progress.getItemTitle(survey.pages[1])).toBe("Score < 10");
+  });
 });

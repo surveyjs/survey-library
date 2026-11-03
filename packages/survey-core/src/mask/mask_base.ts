@@ -23,6 +23,8 @@ export class InputMaskBase extends Base implements IInputMask {
    * Specifies whether to store the question value with an applied mask in survey results.
    *
    * Default value: `false`
+   *
+   * > Leave this property disabled if your survey allows changing [`locale`](/form-library/documentation/api-reference/survey-data-model#locale) or [`regionalFormat`](/form-library/documentation/api-reference/survey-data-model#regionalFormat) at runtime or loads responses saved with a different regional format. Saved masked text can be misinterpreted in another format. For example, `"2,222.22"` may be read as `2.22` when the decimal separator is a comma. With `saveMaskedValue` disabled, the question stores the plain value and displays it correctly in the current format.
    */
   @property() saveMaskedValue: boolean;
 

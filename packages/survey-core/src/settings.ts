@@ -1,5 +1,6 @@
 import { DomDocumentHelper } from "./global_variables_utils";
 import { IDialogOptions, IConfirmDialogOptions } from "./popup";
+import type { IRichTextProvider } from "./rich-text-provider";
 
 export type ISurveyEnvironment = {
   root: Document | ShadowRoot | undefined,
@@ -753,6 +754,8 @@ export var settings = {
    * [View Demo](https://surveyjs.io/survey-creator/examples/add-modal-property-editor-to-property-grid/ (linkStyle))
    */
   showDialog: <(options: IDialogOptions, rootElement?: HTMLElement) => any>undefined,
+  // Undefined until survey-core/rich-text is imported. Core never assigns it.
+  richText: <IRichTextProvider>undefined,
   showDefaultItemsInCreator: true,
   /**
    * An object that specifies icon replacements. Object keys are built-in icon names. To use a custom icon, assign its name to the key of the icon you want to replace:

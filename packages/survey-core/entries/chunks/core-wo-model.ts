@@ -5,6 +5,7 @@ export * from "../../src/svgbundle";
 
 // utils
 export * from "../../src/rendererFactory";
+export * from "../../src/rich-text-provider";
 export * from "../../src/utils/responsivity-manager";
 export * from "../../src/utils/utils";
 export { getOriginalEvent } from "../../src/utils/dom-utils";

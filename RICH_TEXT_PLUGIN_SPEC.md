@@ -578,9 +578,9 @@ Scope: `settings.richText` slot and types, pre-filling `options.html` in `getSur
 Automated: core part of `comment-text-format.tests.ts`; `provider.tests.ts` with a fake provider; the full existing survey-core suite is green without changed expectations.
 
 **CP1 — core is unchanged without the plugin** (`?plugin=off`).
-- [ ] Questions `c_md`, `c_html` render as ordinary textareas; typing `**x**` stores `**x**` literally (data panel).
-- [ ] "Show JSON" contains `"stringFormat": "markdown"` at the survey level and `"textFormat": "markdown"` for `c_md`; a plain comment has no `textFormat` key.
-- [ ] Titles with Markdown on page "Strings" show raw Markdown characters (no plugin → no rendering), exactly as before the change.
+- [x] Questions `c_md`, `c_html` render as ordinary textareas; typing `**x**` stores `**x**` literally (data panel).
+- [x] "Show JSON" contains `"stringFormat": "markdown"` at the survey level and `"textFormat": "markdown"` for `c_md`; a plain comment has no `textFormat` key.
+- [x] Titles with Markdown on page "Strings" show raw Markdown characters (no plugin → no rendering), exactly as before the change.
 
 #### M2 — Converters and survey string rendering (§3, §5.2, §6.1 items 1 and 6, §6.2, §6.3, §7.4 lossless check, §11 `findUnsupported`)
 

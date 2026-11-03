@@ -2,6 +2,7 @@ import { Serializer } from "./jsonobject";
 import { keyboardHint, advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
+import { RendererFactory } from "./rendererFactory";
 import { QuestionTextBase } from "./question_textbase";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Helpers } from "./helpers";
@@ -108,6 +109,15 @@ export class QuestionCommentModel extends QuestionTextBase {
   public getType(): string {
     return "comment";
   }
+  @property() textFormat: string;
+  public getComponentName(): string {
+    if (this.textFormat !== "plain") {
+      // "comment", not getType(): a class that inherits comment still uses the one rich renderer.
+      const richName = RendererFactory.Instance.getRenderer("comment", "richtext");
+      if (richName !== "default") return richName;
+    }
+    return super.getComponentName();
+  }
   supportAutoAdvance(): boolean {
     return this.isAutoAdvanceRequested === true;
   }
@@ -200,7 +210,8 @@ Serializer.addClass(
     },
     { name: "autoGrow:boolean", defaultFunc: () => undefined },
     { name: "allowResize:boolean", defaultFunc: () => undefined },
-    { name: "acceptCarriageReturn:boolean", default: true, visible: false }
+    { name: "acceptCarriageReturn:boolean", default: true, visible: false },
+    { name: "textFormat", default: "plain", choices: ["plain", "markdown", "html"], visible: false }
   ],
   function () {
     return new QuestionCommentModel("");

@@ -3406,6 +3406,7 @@ export class SurveyModel extends SurveyElementCore
    * @see readOnly
    */
   @property({ defaultValue: "readonly" }) readOnlyMode: "readonly" | "view";
+  @property({ onSet: (_val: string, survey: SurveyModel) => survey.locStrsChanged() }) stringFormat: string;
   public getReadOnlyMode(): "readonly" | "view" {
     return this.readOnlyMode === "view" ? "view" : "readonly";
   }
@@ -8559,12 +8560,16 @@ export class SurveyModel extends SurveyElementCore
     return this.textPreProcessorValue;
   }
   getSurveyMarkdownHtml(element: Question | PanelModel | PageModel | SurveyModel, text: string, name: string, item: any): string {
+    const provider = settings.richText;
+    const format = this.stringFormat;
     const options: TextMarkdownEvent = {
       element: element,
       text: text,
       name: name,
       item: item,
-      html: null
+      html: provider && format !== "plain"
+        ? provider.toHtml(text, { element: element, name: name, item: item, format: <"markdown" | "html">format })
+        : null
     };
     this.onTextMarkdown.fire(this, options);
     return options.html;
@@ -9537,6 +9542,7 @@ Serializer.addClass("survey", [
     onSetValue: (obj: any, value: any): void => { obj.setRegionalFormatFromJson(value); },
   },
   { name: "title", serializationProperty: "locTitle", dependsOn: "locale" },
+  { name: "stringFormat", default: "plain", choices: ["plain", "markdown", "html"], visible: false },
   {
     name: "description:text",
     serializationProperty: "locDescription",

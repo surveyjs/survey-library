@@ -257,6 +257,7 @@ export * from "../../src/themes";
 export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
 export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
 export * from "../../src/survey-events-api";
+export type { AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEventBase } from "../../src/interfaces/ai-interfaces";
 export {
   SurveyTrigger,
   SurveyTriggerComplete,

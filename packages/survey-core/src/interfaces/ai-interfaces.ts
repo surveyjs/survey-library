@@ -1,0 +1,60 @@
+// The payload types of an AI request event. SurveyJS never calls a model: a product raises an event
+// with these fields, the application's handler sends systemPrompt and messages to a model and passes
+// the answer to callback. The product reads the answer, checks it, and may send a rejected answer
+// back with the problems it found (attempt > 0, issues). A handler written against
+// AIRequestEventBase works for every feature of every product. Survey Creator raises
+// creator.onAIRequest with them.
+
+export interface AIMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+// The JSON the answer must be: a JSON Schema in the subset that OpenAI strict structured outputs and
+// Anthropic structured outputs accept as is. The product also reads plain text that holds this JSON.
+export interface AIResponseFormat {
+  name: string;
+  schema: { [key: string]: any };
+}
+
+// A problem the product found in the previous answer, in English, as it is sent to the model.
+export interface AIRequestIssue {
+  severity: "error" | "warning" | "info";
+  message: string;
+  // the feature's id of the problem; for a Creator expression, "<linter ruleId>:<reason>"
+  code?: string;
+}
+
+// What a handler passes to callback: the model's text, the parsed object of a structured output, or an
+// error. No argument means no answer.
+export interface AIResponse {
+  text?: string;
+  data?: any;
+  error?: string;
+}
+
+export interface AIRequestEventBase {
+  // which feature asks; each product's payload narrows it. A handler forwards a feature it does not
+  // know as it is, or answers it with an error.
+  feature: string;
+  // what the feature asks; each feature's payload narrows it
+  action: string;
+  // what the author typed; empty when the author typed nothing
+  userPrompt: string;
+  // 0 for the author's request; 1..n when the product sends back an answer it rejected
+  attempt: number;
+  // why the previous answer was rejected; empty when attempt is 0
+  issues: Array<AIRequestIssue>;
+  // a copy of what systemPrompt is built from: a handler that changes it changes this request only
+  context: any;
+  systemPrompt: string;
+  // rebuilds systemPrompt from context after the handler changed context
+  rebuildSystemPrompt: () => void;
+  // the whole conversation, ending with this request; systemPrompt is not in it
+  messages: Array<AIMessage>;
+  responseFormat: AIResponseFormat;
+  signal: AbortSignal;
+  // completes the request; a later call, or one after the signal aborted, is ignored. A request
+  // without an answer stays in progress until the author stops it.
+  callback: (response?: AIResponse) => void;
+}

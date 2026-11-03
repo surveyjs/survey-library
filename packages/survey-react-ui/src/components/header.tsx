@@ -114,7 +114,9 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
       </div>
     );
   }
-
+  protected forceHiddenDependencies(): void {
+    this.model.width;
+  }
   componentDidMount() {
     super.componentDidMount();
     this.model.processResponsiveness();

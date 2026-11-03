@@ -338,14 +338,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.setPanelsSurveyImpl();
     this.syncPageSizeWithSurvey();
   }
-  /* The data the survey and the expressions see: the records that have a panel. A record the list
-     filter excluded has no panel and is not part of it - the same answer a source that filters on
-     its own side gives. */
-  getFilteredData(): any {
-    if (!this.hasDataListView) return this.value;
-    const list = this.dataList;
-    // The view, not the page: a question that pages still answers for every record it shows.
-    return list.getCreatedIndexes().map((index: number): any => list.getRecord(index));
+  // A hidden panel keeps its record at completion: only the questions inside it are cleared.
+  protected isHiddenRecordInFilteredData(): boolean {
+    return true;
+  }
+  // The stored record, whether or not it has a panel and empty or not.
+  protected addFilteredRecordValue(index: number, item: QuestionRecordItem, add: (value: any) => void): void {
+    add(this.getListRecordAt(index));
   }
   protected getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof QuestionPanelDynamicItem) return this.getPanelVisibleIndex(item.panel);

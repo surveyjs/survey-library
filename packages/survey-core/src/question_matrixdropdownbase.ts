@@ -3039,58 +3039,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return false;
   }
-  /* Under paging the records answer, whether or not the page's rows are built; without paging the
-     rows, and before they exist the records a view shows. */
-  getFilteredData(): any {
-    if (this.isEmpty() || this.isEditingSurveyElement) return this.value;
-    if (this.isPagedByList) return this.getPagedFilteredData();
-    if (!this.generatedVisibleRows) {
-      return this.hasRecordView ? this.getPagedFilteredData() : this.value;
+  // An empty matrix, the property grid's and a plain one before its rows exist; before the rows of a view or a page exist the records answer.
+  protected isValueFilteredData(): boolean {
+    if (this.isEmpty() || this.isEditingSurveyElement) return true;
+    return !this.isPagedByList && !this.areObjectsBuilt() && !this.hasRecordView;
+  }
+  // A visible row with an answer gives its filteredValue, what its questions hold; a record without a row what is stored, unless it is empty.
+  protected addFilteredRecordValue(index: number, item: QuestionRecordItem, add: (value: any) => void): void {
+    const row = <MatrixDropdownRowModelBase>item;
+    if (!!row) {
+      if (row.isVisible && !row.isEmpty) add(row.filteredValue);
+      return;
     }
-    return this.getFilteredDataCore();
-  }
-  /* The data the survey and the expressions see: the rows that exist and are visible, in row order, in
-     the answer's shape, which the own source decides. A record the list filter excluded has no row and
-     is not part of it - the same answer a source that filters on its own side gives, and what makes a
-     total the total of the filtered rows. */
-  protected getFilteredDataCore(): any {
-    const source = this.recordsSource;
-    const res = source["createEmptyAnswer"]();
-    this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => {
-      if (row.isVisible && !row.isEmpty) {
-        source["addRecordToAnswer"](res, this.getBuiltRecordIndex(row), row.filteredValue);
-      }
-    });
-    return res;
-  }
-  // forEachRecordItem with the rows typed.
-  protected forEachRecordRow(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, position: number) => void): void {
-    this.forEachRecordItem(indexes, (index: number, item: QuestionRecordItem, position: number): void => {
-      func(index, <MatrixDropdownRowModelBase>item, position);
-    });
-  }
-  /* One walk, the result in the answer's shape, which the own source decides: an array in walk order,
-     or keyed by the row value. func adds what a record contributes. */
-  protected collectRecordValues(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void) => void): any {
-    const source = this.recordsSource;
-    const res = source["createEmptyAnswer"]();
-    this.forEachRecordRow(indexes, (index: number, row: MatrixDropdownRowModelBase): void => {
-      func(index, row, (value: any): void => { source["addRecordToAnswer"](res, index, value); });
-    });
-    return res;
-  }
-  /* Under paging - and before the rows of a view exist - the survey data and the totals are the view's
-     records, not the page's rows: a record with a row gives its filteredValue (the values of invisible
-     cells dropped), a record without one is taken as it is stored - it has no cells to be invisible. */
-  protected getPagedFilteredData(): any {
-    return this.collectRecordValues(this.getViewIndexes(true), (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void): void => {
-      if (!!row) {
-        if (row.isVisible && !row.isEmpty) add(row.filteredValue);
-        return;
-      }
-      const record = this.getListRecordAt(index);
-      if (!this.isValueEmpty(record)) add(record);
-    });
+    const record = this.getListRecordAt(index);
+    if (!this.isValueEmpty(record)) add(record);
   }
   onRowChanging(
     row: MatrixDropdownRowModelBase,
@@ -3431,14 +3393,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!this.hasDataListView) return this.getFilteredData();
     // loadedCount, not count: with a data source that pages, count is the server total and only the
     // records of the loaded window can be looked at. Equal for every local source.
-    return this.collectRecordValues(this.getLoadedRecordIndexes(), (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void): void => {
-      if (!row) {
-        // A row's filteredValue holds the keys its questions store: a record without a row loses the others too.
-        if (this.isRecordKeptWithoutRow(index)) add(this.getRecordWithoutUnknownKeys(index));
-      } else if (row.isVisible && !row.isEmpty) {
-        add(row.filteredValue);
-      }
-    });
+    const indexes = this.getLoadedRecordIndexes();
+    return this.collectRecordValues((func: (index: number, item: QuestionRecordItem) => void): void => this.forEachRecordItem(indexes, func),
+      (index: number, item: QuestionRecordItem, add: (value: any) => void): void => {
+        const row = <MatrixDropdownRowModelBase>item;
+        if (!row) {
+          // A row's filteredValue holds the keys its questions store: a record without a row loses the others too.
+          if (this.isRecordKeptWithoutRow(index)) add(this.getRecordWithoutUnknownKeys(index));
+        } else if (row.isVisible && !row.isEmpty) {
+          add(row.filteredValue);
+        }
+      });
   }
   private getRecordWithoutUnknownKeys(index: number): any {
     const record = this.getListRecordAt(index);

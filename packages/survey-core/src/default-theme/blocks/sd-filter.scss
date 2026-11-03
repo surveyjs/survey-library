@@ -102,6 +102,25 @@
   text-decoration: none;
 }
 
+// A text action - the mockup's link: a popup's Clear and Select All, a list's Show More. No padding
+// and no fill at any state; the default-strong text in the brand color. Declared after sd-action, so
+// it wins over the action's size and mode at the same specificity.
+.sd-action.sd-filter__link {
+  --sd-action-padding: 0;
+  --sd-action-title-padding: 0;
+  --sd-action-background: transparent;
+  --sd-action-hover-background: transparent;
+  --sd-action-disabled-background: transparent;
+  --sd-action-title-color: var(--sjs2-color-fg-brand-primary);
+  --sd-action-hover-title-color: var(--sjs2-color-fg-brand-primary-dim);
+  --sd-action-disabled-title-color: var(--sjs2-color-fg-brand-primary-disabled);
+  --sd-action-title-font-family: var(--sjs2-typography-font-family-text);
+  --sd-action-title-font-weight: var(--sjs2-typography-font-weight-strong);
+  --sd-action-title-font-size: var(--sjs2-typography-font-size-default);
+  --sd-action-title-line-height: var(--sjs2-typography-line-height-default);
+  --sd-action-border-radius: var(--sjs2-radius-form-item);
+}
+
 .sd-filter__clear {
   flex: 0 0 auto;
 }

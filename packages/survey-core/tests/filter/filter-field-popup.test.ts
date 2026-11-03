@@ -44,6 +44,17 @@ function headerAction(popup: FilterFieldPopup): Action {
   return popup.headerToolbar.actions[0];
 }
 
+describe("FilterFieldPopup: the title row's link", () => {
+  test("Clear and Select All are the mockup's link: a text action of the control's link class", () => {
+    const q = control();
+    const clear = headerAction(open(q, "age").popup);
+    const selectAll = headerAction(open(q, "country").popup);
+    expect([clear.id, clear.innerCss], "#1").toEqual(["sv-filter-clear", "sd-filter__link"]);
+    expect([selectAll.id, selectAll.innerCss], "#2").toEqual(["sv-filter-select-all", "sd-filter__link"]);
+    expect(clear.getActionBarItemCss().split(" "), "#3: on the button").toContain("sd-filter__link");
+  });
+});
+
 describe("FilterFieldPopup: a condition", () => {
   test("the field's operator and value; nothing is written until Apply, which closes the popup", () => {
     const q = control();

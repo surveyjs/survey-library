@@ -19,6 +19,7 @@ export interface IFilterPresetDialogOwner extends IFilterConditionsEditorOwner {
   visibleItems: Array<FilterItem>;
   getAllFieldKeys(): Array<string>;
   addItem(title: string, conditions: Array<IFilterCondition>): FilterItem;
+  cssClasses: any;
 }
 // The longest title a preset may get: the mockup's counter.
 export const filterPresetTitleMaxLength = 32;
@@ -226,7 +227,7 @@ export class FilterPresetDialog extends Base {
     const keys = !!this.form ? this.getRowKeys() : [];
     if (keys.length === 0 || this.buffer.conditions === null) return undefined;
     return new FilterConditionsEditor(this.createEditorOwner(), keys, { readOnly: this.isReadOnly, showFieldTitles: true,
-      useFieldKinds: true, onFieldChanged: (): void => { this.onChanged(); } });
+      useFieldKinds: true, linkCss: (this.owner.cssClasses || {}).link, onFieldChanged: (): void => { this.onChanged(); } });
   }
   // The control, except that the fields start with the preset's conditions and not the filter's.
   private createEditorOwner(): IFilterConditionsEditorOwner {

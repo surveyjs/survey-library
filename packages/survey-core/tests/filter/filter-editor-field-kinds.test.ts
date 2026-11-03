@@ -123,6 +123,18 @@ describe("Filter editor field kinds: lists of values", () => {
   });
 });
 
+describe("Filter editor field kinds: Show More is the mockup's link", () => {
+  test("in the Filters dialog's editor and in a preset dialog's, it takes the control's link class", () => {
+    const q = control();
+    const modalEditor = q.createModalEditor(() => { });
+    expect(moreAction(modalEditor).innerCss, "#1: the Filters dialog").toBe("sd-filter__link");
+    const dialog = q.createAddPresetDialog([{ field: "category", operator: "anyof", value: ["a"] }]);
+    expect(moreAction(dialog.editor).innerCss, "#2: a preset dialog").toBe("sd-filter__link");
+    dialog.dispose();
+    modalEditor.dispose();
+  });
+});
+
 describe("Filter editor field kinds: an operator and a value", () => {
   test("a condition field: the operator and the value in one row", () => {
     const e = editor(control(), "age");

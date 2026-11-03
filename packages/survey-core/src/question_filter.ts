@@ -636,6 +636,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       readOnly: !this.canEditConditions,
       showFieldTitles: true,
       useFieldKinds: true,
+      linkCss: (this.cssClasses || {}).link,
       onFieldChanged: onFieldChanged
     });
   }

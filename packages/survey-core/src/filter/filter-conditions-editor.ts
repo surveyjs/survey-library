@@ -56,6 +56,8 @@ export interface IFilterConditionsEditorOptions {
   // the kind cannot show. The Filters dialog's fields. Without it every field is an operator and a
   // value, as in a fast mode popup.
   useFieldKinds?: boolean;
+  // The class that draws a list's Show More as a text link (the control's cssClasses.link).
+  linkCss?: string;
   // Called after every change the respondent makes to a field - not for the prefill, not for
   // setConditions(), not for the search box. The Filters dialog counts the records again on it.
   onFieldChanged?: () => void;
@@ -331,7 +333,7 @@ export class FilterConditionsEditor {
     if (!this.options.useFieldKinds) return;
     let action = this.moreActions[index];
     if (!action) {
-      action = new Action({ id: "sv-filter-show-more", appearance: { style: "brand", mode: "tertiary" },
+      action = new Action({ id: "sv-filter-show-more", innerCss: this.options.linkCss, appearance: { style: "brand", mode: "tertiary" },
         action: (): void => { this.toggleMore(index); } });
       this.moreActions[index] = action;
       this.getPanel(index).footerActions.push(action);

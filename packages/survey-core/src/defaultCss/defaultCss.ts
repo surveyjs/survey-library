@@ -1086,6 +1086,7 @@ export var defaultCss = {
     chipMarker: "sd-filter__chip-marker",
     chipOverflow: "sd-filter__chip--overflow",
     showMore: "sd-filter__show-more",
+    link: "sd-filter__link",
     clear: "sd-filter__clear",
     editor: "sd-filter-editor",
     popup: "sd-filter-popup",

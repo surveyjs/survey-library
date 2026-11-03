@@ -199,10 +199,11 @@ export class FilterFieldPopup extends Base {
     if (this.isReadOnly) return;
     if (this.kind === "multi" || this.kind === "boolean") {
       if (canFilterFieldSelectAll(this.field, this.kind)) {
-        this.headerAction = new Action({ id: "sv-filter-select-all", action: (): void => { this.toggleAll(); } });
+        this.headerAction = new Action({ id: "sv-filter-select-all", innerCss: this.cssClasses.link,
+          action: (): void => { this.toggleAll(); } });
       }
     } else {
-      this.headerAction = new Action({ id: "sv-filter-clear", locTitleName: "clearCaption",
+      this.headerAction = new Action({ id: "sv-filter-clear", locTitleName: "clearCaption", innerCss: this.cssClasses.link,
         action: (): void => { this.owner.clearFieldCondition(this.key); this.close(); } });
     }
     if (!!this.headerAction) {

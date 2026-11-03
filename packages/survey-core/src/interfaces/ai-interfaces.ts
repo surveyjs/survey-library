@@ -1,3 +1,6 @@
+import type { Base } from "../base";
+import type { IExpressionContext } from "../ai/expression-context";
+
 // The payload types of an AI request event. SurveyJS never calls a model: a product raises an event
 // with these fields, the application's handler sends systemPrompt and messages to a model and passes
 // the answer to callback. The product reads the answer, checks it, and may send a rejected answer
@@ -57,4 +60,31 @@ export interface AIRequestEventBase {
   // completes the request; a later call, or one after the signal aborted, is ignored. A request
   // without an answer stays in progress until the author stops it.
   callback: (response?: AIResponse) => void;
+}
+
+// Which Creator feature asks. The union is widened when a feature is added: a handler forwards a
+// feature it does not know as it is, or answers it with an error.
+export type AIRequestFeature = "expression";
+
+// The expression assistant:
+// - "generate": the target property is empty and the author describes a new expression.
+//   Example: userPrompt "show this question to adults only" -> "{age} >= 18".
+// - "modify": the target already has an expression (or the assistant shows a suggestion the author
+//   refines) and the author describes a change.
+//   Example: expression "{age} >= 18", userPrompt "and only for residents" -> "{age} >= 18 and {resident} = true".
+// - "explain": the author clicked Explain; the AI describes the target's current expression in words.
+// A retry keeps the action: the AI answered "{Age} >= 18", the survey has no "Age", and Creator asks
+// again with attempt 1 and that issue; expression is then the rejected answer.
+// The answer is { expression, explanation } (responseFormat).
+export interface ExpressionAIRequestEvent extends AIRequestEventBase {
+  feature: "expression";
+  action: "generate" | "modify" | "explain";
+  context: IExpressionContext;
+  // empty for "generate"; the property value or the suggestion to revise for "modify"; the current
+  // property value for "explain"; the rejected answer on a retry
+  expression: string;
+  // whether the expression must return a Boolean value
+  isCondition: boolean;
+  // the survey objects and properties the expression is written to
+  targets: Array<{ element: Base, propertyName: string }>;
 }

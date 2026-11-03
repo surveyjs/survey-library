@@ -2024,12 +2024,30 @@ export class SurveyModel extends SurveyElementCore
    * You can override this setting for individual questions using their `choiceShortcutsEnabled` property.
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   *
+   * [Demo: Letter Shortcuts](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @since 3.2.2
+   * @see showKeyboardHints
    */
   @property({
     defaultValue: false,
     onSet: (_newValue, target: SurveyModel) => target.onChoiceShortcutsEnabledChanged()
   }) choiceShortcutsEnabled: boolean;
+  /**
+   * Specifies whether to display keyboard shortcut hints for questions that support them.
+   *
+   * Default value: `false`
+   *
+   * Hints describe available keyboard actions, such as selecting choices or pressing Enter to continue. Displayed hints depend on the question type and settings.
+   *
+   * Keyboard hints are hidden on touch devices, in read-only or preview mode, for collapsed questions, and in matrix cells.
+   *
+   * You can override this setting for individual questions using their [`showKeyboardHints`](https://surveyjs.io/form-library/documentation/api-reference/question#showKeyboardHints) property.
+   *
+   * [Demo: Keyboard Hints](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * @see choiceShortcutsEnabled
+   * @since 3.2.4
+   */
   @property({ defaultValue: false }) showKeyboardHints: boolean;
   private onChoiceShortcutsEnabledChanged(): void {
     // While loading, onSurveyLoad binds what the JSON enables.

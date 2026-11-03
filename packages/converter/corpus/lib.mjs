@@ -271,7 +271,7 @@ const BENIGN_JSONSCHEMA_KEYWORDS = new Set([
 ]);
 const HANDLED_FORMATS = new Set(["date", "date-time", "time", "email", "idn-email", "uri", "iri", "uri-reference"]);
 const HANDLED_UI_TYPES = new Set(["VerticalLayout", "HorizontalLayout", "Group", "Categorization", "Category", "Control", "Label"]);
-const HANDLED_UI_WIDGETS = new Set(["hidden", "radio", "textarea", "tagbox", "password", "email", "url", "color", "date", "date-time", "datetime-local", "time", "updown", "range"]);
+const HANDLED_UI_WIDGETS = new Set(["hidden", "radio", "textarea", "tagbox", "password", "email", "url", "color", "date", "date-time", "datetime-local", "time", "updown", "range", "alt-date", "alt-datetime", "checkboxes", "checkbox", "select"]);
 
 /**
  * Collect construct tokens for a definition. A token is namespaced and

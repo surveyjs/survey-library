@@ -3,14 +3,14 @@
   "fieldsIn": 1561,
   "fieldsOut": 1361,
   "buckets": {
-    "unsupported": 318,
+    "unsupported": 355,
     "unknown": 3,
     "assumed": 172,
-    "dropped": 376
+    "dropped": 396
   },
-  "weightedClean": 1187,
+  "weightedClean": 1224,
   "fidelityRatio": 0.8719,
-  "cleanPerField": 0.7604,
+  "cleanPerField": 0.7841,
   "perSource": {
     "formio": {
       "definitions": 522,
@@ -31,14 +31,14 @@
       "fieldsIn": 432,
       "fieldsOut": 334,
       "buckets": {
-        "unsupported": 53,
+        "unsupported": 90,
         "unknown": 0,
         "assumed": 11,
-        "dropped": 30
+        "dropped": 50
       },
-      "weightedClean": 108,
+      "weightedClean": 145,
       "fidelityRatio": 0.7731,
-      "cleanPerField": 0.25
+      "cleanPerField": 0.3356
     }
   },
   "lint": {

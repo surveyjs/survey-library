@@ -186,6 +186,19 @@ interface UiHint {
   // JSONForms `options.detail` as a layout: builds an array's item template in place of the
   // default walk of the items schema.
   template?: (items: JsonSchemaDoc, targetPath: string) => SurveyJSONElement[];
+  // RJSF `ui:disabled` / `ui:readonly`.
+  readOnly?: boolean;
+  // RJSF: where `widget` came from, for a report on a widget the converter does not honour.
+  widgetPtr?: string;
+  // RJSF: the uiSchema node the hint was read from. An object's properties and an array's
+  // `items` read their own nodes from it.
+  ui?: RjsfNode;
+}
+
+// An RJSF uiSchema node and its pointer in the input (`#/uiSchema/address/street`).
+interface RjsfNode {
+  node: Record<string, unknown>;
+  ptr: string;
 }
 
 interface Ctx {
@@ -195,6 +208,9 @@ interface Ctx {
   // JSONForms: the frame scopes resolve in, and the rules waiting for the end of the walk.
   uiFrame: UiFrame;
   uiRules: UiRuleRecord[];
+  // RJSF: uiSchema nodes whose keys were reported, so a node read twice (a property shared by
+  // `oneOf` variants) reports once.
+  reportedUi: Set<string>;
 }
 
 // --- $ref resolution --------------------------------------------------------
@@ -362,6 +378,8 @@ interface WalkState {
   // How an expression in this object names its questions: empty at the top, `panel.` inside an
   // array's item template, where a question is read from its own row.
   refPrefix: string;
+  // RJSF: this object's uiSchema node, for questions a branch creates.
+  ui?: RjsfNode;
 }
 
 // The expression reference to the question made from property `key` of this object. It uses the
@@ -374,26 +392,26 @@ function questionRef(key: string, state: WalkState): string | undefined {
 
 /**
  * Walk an object schema's `properties` (plus its composition keywords) into a
- * flat list of SurveyJS elements. `rjsfUi` supplies per-property widget/order
- * hints (empty for JSONForms / bare schemas).
+ * flat list of SurveyJS elements. `rjsfUi` is the object's RJSF uiSchema node:
+ * its `order`, and one node per property (none for JSONForms / bare schemas).
  */
 function walkObject(
   schema: JsonSchemaDoc,
   sourcePtr: string,
   targetPath: string,
   ctx: Ctx,
-  rjsfUi: Record<string, unknown> | undefined,
+  rjsfUi: RjsfNode | undefined,
   depth: number,
   refPrefix = ""
 ): SurveyJSONElement[] {
   const merged = mergeAllOf(schema, sourcePtr, ctx);
-  const state: WalkState = { elements: [], byProp: new Map(), refPrefix };
+  const state: WalkState = { elements: [], byProp: new Map(), refPrefix, ui: rjsfUi };
   const requiredSet = new Set(merged.required ?? []);
-  const order = orderKeys(Object.keys(merged.properties ?? {}), rjsfUi);
+  const order = orderKeys(Object.keys(merged.properties ?? {}), rjsfUi ? rjsfOptions(rjsfUi).options.get("order")?.value : undefined);
 
   for (const key of order) {
     const sub = merged.properties![key];
-    const hint = rjsfHint(rjsfUi?.[key]);
+    const hint = rjsfHint(childUi(rjsfUi, key), ctx);
     const el = mapProperty(key, sub, `${sourcePtr}/properties/${key}`, `${targetPath}[${state.elements.length}]`, ctx, requiredSet.has(key), hint, depth, refPrefix);
     if (el) {
       state.elements.push(el);
@@ -409,8 +427,7 @@ function walkObject(
 }
 
 /** RJSF `ui:order` reordering; unlisted keys fill the `"*"` slot (or append). */
-function orderKeys(keys: string[], rjsfUi: Record<string, unknown> | undefined): string[] {
-  const order = rjsfUi?.["ui:order"];
+function orderKeys(keys: string[], order: unknown): string[] {
   if (!Array.isArray(order)) return keys;
   const listed = order.filter((k): k is string => typeof k === "string" && k !== "*");
   const rest = keys.filter((k) => !listed.includes(k));
@@ -467,7 +484,7 @@ function mapProperty(
   // Nested object -> panel (recurse). A discriminated oneOf inside is handled by
   // the recursive walkObject.
   if (type === "object" || (type === undefined && schema.properties)) {
-    return mapObjectPanel(name, schema, sourcePtr, targetPath, ctx, required, depth, refPrefix);
+    return mapObjectPanel(name, schema, sourcePtr, targetPath, ctx, required, depth, refPrefix, hint);
   }
   if (type === "array") {
     return mapArray(name, schema, sourcePtr, targetPath, ctx, required, hint, depth);
@@ -476,10 +493,10 @@ function mapProperty(
   const qname = uniqueName(name, ctx);
   let el: SurveyJSONElement;
   const choices = readChoices(schema);
+  checkWidget(hint, type === "boolean" ? "boolean" : choices ? "enum" : "scalar", ctx);
 
-  if (hint.widget === "hidden") {
-    el = { type: "text", name: qname, visible: false };
-  } else if (type === "boolean") {
+  // A hidden widget keeps the question's real type; `hint.hidden` hides it below.
+  if (type === "boolean") {
     el = { type: "boolean", name: qname };
   } else if ((type === "integer" || type === "number") && !choices) {
     el = { type: "text", name: qname, inputType: "number" };
@@ -501,7 +518,7 @@ function mapProperty(
   applyTitleDesc(schema, el, hint);
   applyScalarMeta(schema, el, required, ctx, sourcePtr);
   if (hint.hidden) el.visible = false;
-  if (schema.readOnly) el.readOnly = true;
+  if (schema.readOnly || hint.readOnly) el.readOnly = true;
   return el;
 }
 
@@ -523,11 +540,31 @@ const WIDGET_INPUT_TYPE: Record<string, string> = {
   "datetime-local": "datetime-local",
   time: "time",
   updown: "number",
-  range: "number"
+  range: "number",
+  // RJSF's dropdown date pickers store the same values as `date` and `date-time`.
+  "alt-date": "date",
+  "alt-datetime": "datetime-local"
 };
 
+// RJSF `ui:widget` values the converter honours, whatever the field. `corpus/lib.mjs`
+// (`HANDLED_UI_WIDGETS`) mirrors this set.
+const HANDLED_WIDGETS = new Set([...Object.keys(WIDGET_INPUT_TYPE), "hidden", "radio", "textarea", "tagbox"]);
+
+// Report a widget the converter does not honour. A widget that restates RJSF's default for the
+// field is honoured too: `checkboxes` on an enum array, `checkbox` on a boolean, `select` on a
+// single-choice enum.
+function checkWidget(hint: UiHint, kind: "boolean" | "enum" | "scalar" | "array-enum" | "array" | "object", ctx: Ctx): void {
+  const widget = hint.widget;
+  if (widget === undefined || hint.widgetPtr === undefined || HANDLED_WIDGETS.has(widget)) return;
+  if ((widget === "checkboxes" && kind === "array-enum") || (widget === "checkbox" && kind === "boolean")
+    || (widget === "select" && kind === "enum")) return;
+  ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, hint.widgetPtr, "");
+}
+
 // Map an object schema to a SurveyJS `panel`, recursing into its properties. A static panel inside
-// an item template shares the row, so its questions keep the template's reference prefix.
+// an item template shares the row, so its questions keep the template's reference prefix. An RJSF
+// hint gives the panel its title, description, hidden and read-only state, and its node holds the
+// properties' own nodes and `order`.
 function mapObjectPanel(
   name: string,
   schema: JsonSchemaDoc,
@@ -536,12 +573,15 @@ function mapObjectPanel(
   ctx: Ctx,
   required: boolean,
   depth: number,
-  refPrefix: string
+  refPrefix: string,
+  hint: UiHint
 ): SurveyJSONElement {
   const panel: SurveyJSONElement = { type: "panel", name: uniqueName(name, ctx) };
-  if (schema.title !== undefined) panel.title = String(schema.title);
-  if (schema.description !== undefined) panel.description = String(schema.description);
-  const elements = walkObject(schema, sourcePtr, `${targetPath}.elements`, ctx, undefined, depth + 1, refPrefix);
+  checkWidget(hint, "object", ctx);
+  applyTitleDesc(schema, panel, hint);
+  if (hint.hidden) panel.visible = false;
+  if (hint.readOnly) panel.readOnly = true;
+  const elements = walkObject(schema, sourcePtr, `${targetPath}.elements`, ctx, hint.ui, depth + 1, refPrefix);
   if (elements.length > 0) panel.elements = elements;
   if (required) panel.isRequired = true;
   return panel;
@@ -564,6 +604,7 @@ function mapArray(
 
   const itemChoices = readChoices(items);
   const qname = uniqueName(name, ctx);
+  checkWidget(hint, itemChoices ? "array-enum" : "array", ctx);
 
   if (itemChoices) {
     // Multi-select. checkbox by default; tagbox when a UI hint prefers a compact
@@ -582,7 +623,7 @@ function mapArray(
     applyTitleDesc(schema, el, hint);
     const template = hint.template
       ? hint.template(items, `${targetPath}.templateElements`)
-      : walkObject(items, `${sourcePtr}/items`, `${targetPath}.templateElements`, ctx, undefined, depth + 1, "panel.");
+      : walkObject(items, `${sourcePtr}/items`, `${targetPath}.templateElements`, ctx, childUi(hint.ui, "items"), depth + 1, "panel.");
     if (template.length > 0) el.templateElements = template;
     applyArrayMeta(schema, el, required, hint);
     return el;
@@ -599,7 +640,7 @@ function mapArray(
 // `default`, `readOnly`, `required` and a hidden UI hint on an array question, in every branch.
 function applyArrayMeta(schema: JsonSchemaDoc, el: SurveyJSONElement, required: boolean, hint: UiHint): void {
   if (schema.default !== undefined && schema.default !== null) el.defaultValue = schema.default;
-  if (schema.readOnly) el.readOnly = true;
+  if (schema.readOnly || hint.readOnly) el.readOnly = true;
   if (required) el.isRequired = true;
   if (hint.hidden) el.visible = false;
 }
@@ -704,7 +745,7 @@ function applyBranch(
     let el = state.byProp.get(key);
     if (!el) {
       // Branch introduces a property not in the base object -- materialise it.
-      const created = mapProperty(key, sub, `${sourcePtr}/properties/${key}`, `${targetPath}[${state.elements.length}]`, ctx, false, {}, depth, state.refPrefix);
+      const created = mapProperty(key, sub, `${sourcePtr}/properties/${key}`, `${targetPath}[${state.elements.length}]`, ctx, false, rjsfHint(childUi(state.ui, key), ctx), depth, state.refPrefix);
       if (!created) continue;
       el = created;
       state.elements.push(el);
@@ -855,7 +896,7 @@ function appendOneOfVariants(
     const variantProps: Record<string, JsonSchemaDoc> = { ...variant.schema.properties };
     delete variantProps[d.disc];
     const variantSchema: JsonSchemaDoc = { ...variant.schema, properties: variantProps };
-    const elements = walkObject(variantSchema, `${sourcePtr}/oneOf/${variant.index}`, `${targetPath}[${state.elements.length}].elements`, ctx, undefined, depth + 1, state.refPrefix);
+    const elements = walkObject(variantSchema, `${sourcePtr}/oneOf/${variant.index}`, `${targetPath}[${state.elements.length}].elements`, ctx, state.ui, depth + 1, state.refPrefix);
     if (elements.length > 0) panel.elements = elements;
     state.elements.push(panel);
   }
@@ -876,16 +917,86 @@ const MAX_DEPTH = 24;
 
 // --- RJSF uiSchema ----------------------------------------------------------
 
-/** Read a single property's RJSF `ui:*` hints into the shared UiHint shape. */
-function rjsfHint(node: unknown): UiHint {
-  if (!node || typeof node !== "object") return {};
-  const ui = node as Record<string, unknown>;
-  const hint: UiHint = {};
-  if (typeof ui["ui:widget"] === "string") hint.widget = ui["ui:widget"] as string;
-  if (hint.widget === "hidden") hint.hidden = true;
-  if (typeof ui["ui:title"] === "string") hint.title = ui["ui:title"] as string;
-  if (typeof ui["ui:description"] === "string") hint.description = ui["ui:description"] as string;
-  if (typeof ui["ui:placeholder"] === "string") hint.placeholder = ui["ui:placeholder"] as string;
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+// The uiSchema node of a property, or of an array's `items`.
+function childUi(ui: RjsfNode | undefined, key: string): RjsfNode | undefined {
+  const node = ui?.node[key];
+  if (!ui || !isPlainObject(node)) return undefined;
+  return { node, ptr: `${ui.ptr}/${key.replace(/~/g, "~0").replace(/\//g, "~1")}` };
+}
+
+// RJSF's `getUiOptions`: every `ui:` key without its prefix, with the keys of `ui:options` spread
+// in, in the node's key order, so a later key wins. Each option keeps the pointer it came from. A
+// `ui:widget` holding an object is refused upstream and is returned apart, to be reported.
+function rjsfOptions(ui: RjsfNode): { options: Map<string, { value: unknown, ptr: string }>, objectWidgetPtr?: string } {
+  const options = new Map<string, { value: unknown, ptr: string }>();
+  let objectWidgetPtr: string | undefined;
+  for (const [key, value] of Object.entries(ui.node)) {
+    if (!key.startsWith("ui:")) continue;
+    const ptr = `${ui.ptr}/${key}`;
+    if (key === "ui:widget" && isPlainObject(value)) {
+      objectWidgetPtr = ptr;
+    } else if (key === "ui:options" && isPlainObject(value)) {
+      for (const [option, optionValue] of Object.entries(value)) {
+        options.delete(option);
+        options.set(option, { value: optionValue, ptr: `${ptr}/${option}` });
+      }
+    } else {
+      options.delete(key.slice(3));
+      options.set(key.slice(3), { value, ptr });
+    }
+  }
+  return { options, objectWidgetPtr };
+}
+
+// RJSF options the converter maps; `widget` is checked against the field in `checkWidget`.
+const RJSF_MAPPED = new Set(["widget", "title", "description", "placeholder", "order", "disabled", "readonly"]);
+// Options that only change how a field looks. `UIOptionsBaseType` and `GlobalUISchemaOptions` in
+// `@rjsf/utils` `types.ts`, plus the singular `className` the samples still use.
+const RJSF_PRESENTATION = new Set([
+  "classNames", "className", "style", "rows", "autocomplete", "autocapitalize", "autofocus", "inline", "label",
+  "submitButtonOptions", "hideError", "filePreview", "enableMarkdownInDescription", "enableMarkdownInHelp",
+  "allowClearTextInputs"
+]);
+
+// Read an RJSF uiSchema node into the shared UiHint shape, and report each option the converter
+// does not map: presentation is `DROPPED_STYLING`, a custom field, template or widget component is
+// `DROPPED_CUSTOM_RENDERER`, and anything else, a new key included, is `UNSUPPORTED_UI_HINT`.
+function rjsfHint(ui: RjsfNode | undefined, ctx: Ctx): UiHint {
+  if (!ui) return {};
+  const { options, objectWidgetPtr } = rjsfOptions(ui);
+  const report = !ctx.reportedUi.has(ui.ptr);
+  ctx.reportedUi.add(ui.ptr);
+  if (report && objectWidgetPtr) ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, objectWidgetPtr, "");
+
+  const hint: UiHint = { ui };
+  const text = (name: string) => {
+    const value = options.get(name)?.value;
+    return typeof value === "string" ? value : undefined;
+  };
+  const widget = options.get("widget");
+  if (typeof widget?.value === "string") {
+    hint.widget = widget.value;
+    // `checkWidget` reports an unhonoured widget once, where the field's type is known.
+    if (report) hint.widgetPtr = widget.ptr;
+    if (widget.value === "hidden") hint.hidden = true;
+  }
+  hint.title = text("title");
+  hint.description = text("description");
+  hint.placeholder = text("placeholder");
+  if (options.get("disabled")?.value === true || options.get("readonly")?.value === true) hint.readOnly = true;
+
+  if (!report) return hint;
+  for (const [name, { value, ptr }] of options) {
+    if (name === "widget" && typeof value === "function") ctx.report.dropped(JsonSchemaCodes.DROPPED_CUSTOM_RENDERER, ptr, "");
+    else if (RJSF_MAPPED.has(name)) continue;
+    else if (RJSF_PRESENTATION.has(name)) ctx.report.dropped(JsonSchemaCodes.DROPPED_STYLING, ptr, "");
+    else if (name === "field" || name.endsWith("Template")) ctx.report.dropped(JsonSchemaCodes.DROPPED_CUSTOM_RENDERER, ptr, "");
+    else ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, ptr, "");
+  }
   return hint;
 }
 
@@ -1253,7 +1364,8 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
     usedNames: new Set<string>(),
     root: schema,
     uiFrame: { root: schema, names: new Map(), refPrefix: "" },
-    uiRules: []
+    uiRules: [],
+    reportedUi: new Set<string>()
   };
 
   const output: SurveyJSON = {};
@@ -1280,7 +1392,13 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
   }
 
   // Bare schema / RJSF uiSchema / Uniforms (no layout data) -> data walk.
-  const rjsfUi = uiKind === "rjsf" ? (uiSchema as Record<string, unknown>) : undefined;
+  const rjsfUi: RjsfNode | undefined = uiKind === "rjsf" ? { node: uiSchema as Record<string, unknown>, ptr: "#/uiSchema" } : undefined;
+  // The root node's own options: `order` is read by the walk, `title` and `description` title the
+  // form, and the rest is reported here.
+  const rootHint = rjsfHint(rjsfUi, ctx);
+  checkWidget(rootHint, "object", ctx);
+  if (rootHint.title !== undefined) output.title = rootHint.title;
+  if (rootHint.description !== undefined) output.description = rootHint.description;
 
   // A top-level discriminated oneOf becomes one page per variant.
   const merged = mergeAllOf(schema, "#", ctx);
@@ -1294,7 +1412,7 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
     output.elements = walkObject(schema, "#", "elements", ctx, rjsfUi, 0);
   } else {
     // Root is a single scalar/array schema -> one question.
-    const el = mapProperty(String(schema.title ?? "value"), schema, "#", "elements[0]", ctx, false, {}, 0);
+    const el = mapProperty(String(schema.title ?? "value"), schema, "#", "elements[0]", ctx, false, rootHint, 0);
     output.elements = el ? [el] : [];
   }
 
@@ -1306,7 +1424,7 @@ function buildDiscriminatorPages(
   schema: JsonSchemaDoc,
   d: Discriminated,
   ctx: Ctx,
-  rjsfUi: Record<string, unknown> | undefined
+  rjsfUi: RjsfNode | undefined
 ): SurveyJSONPage[] {
   if (!d.explicit) ctx.report.assumed(JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR, "#/oneOf", "pages");
   const selectorName = uniqueName(d.disc, ctx);

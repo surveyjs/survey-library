@@ -766,3 +766,163 @@ describe("json-schema convert - JSONForms detail", () => {
     expect((findElement(output, "rows")?.templateElements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["extra"]);
   });
 });
+
+describe("json-schema convert - RJSF nested uiSchema", () => {
+  it("applies a widget two objects down", () => {
+    const schema = { type: "object", properties: { a: { type: "object", properties: { b: { type: "object", properties: { note: { type: "string" } } } } } } };
+    const { output } = convert({ schema, uiSchema: { a: { b: { note: { "ui:widget": "textarea" } } } } });
+    expect(findElement(output, "note")?.type).toBe("comment");
+  });
+
+  it("orders a nested object's properties by its ui:order", () => {
+    const schema = { type: "object", properties: { box: { type: "object", properties: { x: { type: "string" }, y: { type: "string" }, z: { type: "string" } } } } };
+    const { output } = convert({ schema, uiSchema: { box: { "ui:order": ["z", "*"] } } });
+    expect((findElement(output, "box")?.elements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["z", "x", "y"]);
+  });
+
+  it("applies items to an array's template", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object", properties: { note: { type: "string" } } } } } };
+    const { output } = convert({ schema, uiSchema: { rows: { items: { note: { "ui:widget": "textarea", "ui:placeholder": "More" } } } } });
+    expect(findElement(output, "note")).toMatchObject({ type: "comment", placeholder: "More" });
+  });
+
+  it("applies the object's node to a oneOf variant", () => {
+    const schema = { type: "object", properties: { kind: { type: "string" } }, oneOf: [
+      { properties: { kind: { const: "a" }, note: { type: "string" } } },
+      { properties: { kind: { const: "b" }, other: { type: "string" } } }
+    ] };
+    const { output } = convert({ schema, uiSchema: { note: { "ui:widget": "textarea" } } });
+    expect(findElement(output, "note")?.type).toBe("comment");
+  });
+
+  it("applies the object's node to a question an if/then creates", () => {
+    const schema = { type: "object", properties: { c: { type: "string" } },
+      if: { properties: { c: { const: "y" } } }, then: { properties: { note: { type: "string" } } } };
+    const { output } = convert({ schema, uiSchema: { note: { "ui:widget": "textarea" } } });
+    expect(findElement(output, "note")).toMatchObject({ type: "comment", visibleIf: "{c} = 'y'" });
+  });
+});
+
+describe("json-schema convert - RJSF options", () => {
+  const schema = { type: "object", properties: { a: { type: "string" } } };
+  const element = (ui: object) => findElement(convert({ schema, uiSchema: { a: ui } }).output, "a");
+
+  it("reads ui:options like the matching ui: keys", () => {
+    const viaKeys = element({ "ui:widget": "textarea", "ui:title": "T", "ui:placeholder": "P" });
+    const viaOptions = element({ "ui:options": { widget: "textarea", title: "T", placeholder: "P" } });
+    expect(viaOptions).toEqual(viaKeys);
+  });
+
+  it("lets a later key win", () => {
+    expect(element({ "ui:title": "First", "ui:options": { title: "Second" } })?.title).toBe("Second");
+    expect(element({ "ui:options": { title: "First" }, "ui:title": "Second" })?.title).toBe("Second");
+  });
+
+  it("reports a ui:widget object and ignores it", () => {
+    const { output, report } = convert({ schema, uiSchema: { a: { "ui:widget": { component: "textarea" } } } });
+    expect(findElement(output, "a")?.type).toBe("text");
+    expect(entry(report.entries, JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer).toBe("#/uiSchema/a/ui:widget");
+  });
+
+  for (const key of ["ui:disabled", "ui:readonly"]) {
+    it(`makes a question and an object read-only with ${key}`, () => {
+      const nested = { type: "object", properties: { a: { type: "string" }, box: { type: "object", properties: { b: { type: "string" } } } } };
+      const { output } = convert({ schema: nested, uiSchema: { a: { [key]: true }, box: { [key]: true } } });
+      const survey = assertConstructsCleanly(output, key);
+      expect(survey.getQuestionByName("a").isReadOnly).toBe(true);
+      expect(survey.getQuestionByName("b").isReadOnly).toBe(true);
+    });
+  }
+
+  it("hides a scalar with ui:widget hidden and keeps its type", () => {
+    const { output } = convert({ schema: { type: "object", properties: { n: { type: "integer" }, f: { type: "boolean" } } },
+      uiSchema: { n: { "ui:widget": "hidden" }, f: { "ui:widget": "hidden" } } });
+    expect(findElement(output, "n")).toMatchObject({ type: "text", inputType: "number", visible: false });
+    expect(findElement(output, "f")).toMatchObject({ type: "boolean", visible: false });
+  });
+
+  it("hides an object and an array with ui:widget hidden", () => {
+    const { output } = convert({ schema: { type: "object", properties: {
+      box: { type: "object", properties: { b: { type: "string" } } },
+      tags: { type: "array", items: { type: "string" } }
+    } }, uiSchema: { box: { "ui:widget": "hidden" }, tags: { "ui:widget": "hidden" } } });
+    const survey = assertConstructsCleanly(output, "hidden containers");
+    expect(survey.getQuestionByName("b").isParentVisible).toBe(false);
+    expect(survey.getQuestionByName("tags").isVisible).toBe(false);
+  });
+});
+
+describe("json-schema convert - RJSF report", () => {
+  const schema = { type: "object", properties: { a: { type: "string" } } };
+  const reported = (ui: object) => convert({ schema, uiSchema: { a: ui } }).report.entries;
+
+  it("reports nothing for the options it maps", () => {
+    expect(reported({ "ui:widget": "textarea", "ui:title": "T", "ui:description": "D", "ui:placeholder": "P", "ui:disabled": false, "ui:readonly": false })).toEqual([]);
+  });
+
+  // [option, code]
+  const rows: [string, string][] = [
+    ["ui:classNames", JsonSchemaCodes.DROPPED_STYLING],
+    ["ui:autofocus", JsonSchemaCodes.DROPPED_STYLING],
+    ["ui:field", JsonSchemaCodes.DROPPED_CUSTOM_RENDERER],
+    ["ui:FieldTemplate", JsonSchemaCodes.DROPPED_CUSTOM_RENDERER],
+    ["ui:enumDisabled", JsonSchemaCodes.UNSUPPORTED_UI_HINT],
+    ["ui:help", JsonSchemaCodes.UNSUPPORTED_UI_HINT],
+    ["ui:futureKey", JsonSchemaCodes.UNSUPPORTED_UI_HINT]
+  ];
+  for (const [key, code] of rows) {
+    it(`reports ${key} as ${code}`, () => {
+      expect(entry(reported({ [key]: "x" }), code)?.sourcePointer).toBe(`#/uiSchema/a/${key}`);
+    });
+  }
+
+  it("reports an option inside ui:options at its own pointer", () => {
+    expect(entry(reported({ "ui:options": { futureKey: 1 } }), JsonSchemaCodes.UNSUPPORTED_UI_HINT)?.sourcePointer)
+      .toBe("#/uiSchema/a/ui:options/futureKey");
+  });
+
+  it("reports the root node's own options", () => {
+    const { report } = convert({ schema, uiSchema: { "ui:submitButtonOptions": { norender: true }, "ui:order": ["a"] } });
+    expect(entry(report.entries, JsonSchemaCodes.DROPPED_STYLING)?.sourcePointer).toBe("#/uiSchema/ui:submitButtonOptions");
+    expect(report.entries).toHaveLength(1);
+  });
+
+  it("reports a node shared by oneOf variants once", () => {
+    const shared = { type: "object", properties: { kind: { type: "string" } }, oneOf: [
+      { properties: { kind: { const: "a" }, note: { type: "string" } } },
+      { properties: { kind: { const: "b" }, note: { type: "string" } } }
+    ] };
+    const { report } = convert({ schema: shared, uiSchema: { note: { "ui:help": "h" } } });
+    expect(report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_UI_HINT)).toHaveLength(1);
+  });
+});
+
+describe("json-schema convert - RJSF widgets", () => {
+  const schema = { type: "object", properties: {
+    when: { type: "string" },
+    pick: { type: "string", enum: ["a", "b"] },
+    picks: { type: "array", items: { type: "string", enum: ["a", "b"] }, uniqueItems: true },
+    flag: { type: "boolean" },
+    text: { type: "string" }
+  } };
+  const widgetReports = (ui: object) => convert({ schema, uiSchema: ui }).report.entries.filter((e) => e.sourcePointer.endsWith("/ui:widget"));
+
+  it("reports an unknown widget value", () => {
+    expect(widgetReports({ text: { "ui:widget": "fancySlider" } }).map((e) => e.sourcePointer)).toEqual(["#/uiSchema/text/ui:widget"]);
+  });
+
+  it("does not report a widget that restates the default", () => {
+    expect(widgetReports({ picks: { "ui:widget": "checkboxes" }, flag: { "ui:widget": "checkbox" }, pick: { "ui:widget": "select" } })).toEqual([]);
+  });
+
+  it("reports a default widget on a field it does not fit", () => {
+    expect(widgetReports({ text: { "ui:widget": "checkboxes" } })).toHaveLength(1);
+  });
+
+  it("maps alt-date and alt-datetime like date and date-time", () => {
+    const { output, report } = convert({ schema, uiSchema: { when: { "ui:widget": "alt-date" }, text: { "ui:widget": "alt-datetime" } } });
+    expect(findElement(output, "when")?.inputType).toBe("date");
+    expect(findElement(output, "text")?.inputType).toBe("datetime-local");
+    expect(report.entries).toEqual([]);
+  });
+});

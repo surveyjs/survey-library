@@ -154,20 +154,7 @@
     flex-direction: row;
     align-items: center;
     position: relative;
-    // Same inset as the question header and the Add button, so Remove does not sit on the frame.
     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
-    gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
-
-    > .sd-row__panel {
-        flex: 1 1 auto;
-        min-width: 0;
-        width: auto;
-
-        // The button sits beside the panel, so the content's own end padding would be a second gap.
-        .sd-panel__content {
-            padding-inline-end: 0;
-        }
-    }
 
     &:before {
         top: 0;

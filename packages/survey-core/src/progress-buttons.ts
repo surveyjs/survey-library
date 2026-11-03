@@ -115,6 +115,16 @@ export class ProgressButtons extends Base {
   public get headerText(): string {
     return this.survey.currentPage ? this.survey.currentPage.renderedNavigationTitle : "";
   }
+  public get headerTitle(): string {
+    return this.getPlainText(this.headerText);
+  }
+  public getItemTitle(page: PageModel): string {
+    return this.getPlainText(page.renderedNavigationTitle);
+  }
+  private getPlainText(html: string): string {
+    if (!html || typeof DOMParser === "undefined") return html;
+    return new DOMParser().parseFromString(html, "text/html").body.textContent || "";
+  }
   public get footerText(): string {
     return this.progressText;
   }

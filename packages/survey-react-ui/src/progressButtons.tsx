@@ -37,7 +37,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
         role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label={this.model.progressBarAriaLabel}
       >
         {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
-          <div className={this.css.progressButtonsPageTitle} title={this.model.headerText}>{this.model.headerText}</div>
+          <div className={this.css.progressButtonsPageTitle} title={this.model.headerTitle}>{this.renderHeaderText()}</div>
         </div> : null}
         <div className={this.css.progressButtonsContainer}>
           <div
@@ -69,6 +69,10 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
       </div>
     );
   }
+  protected renderHeaderText(): React.JSX.Element | string {
+    const page = this.model.survey.currentPage;
+    return page ? SurveyElementBase.renderLocString(page.locNavigationTitle) : "";
+  }
   protected getListElements(): React.JSX.Element[] {
     let buttons: React.JSX.Element[] = [];
     this.model.visiblePages.forEach((page: PageModel, index: number) => {
@@ -93,7 +97,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
         {this.state.canShowItemTitles ? <>
           <div
             className={this.css.progressButtonsPageTitle}
-            title={page.renderedNavigationTitle}
+            title={this.model.getItemTitle(page)}
           >
             {text}
           </div>

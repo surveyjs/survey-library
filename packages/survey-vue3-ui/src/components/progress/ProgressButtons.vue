@@ -10,9 +10,13 @@
     <div v-if="canShowHeader" :class="survey.css.progressButtonsHeader">
       <div
         :class="survey.css.progressButtonsPageTitle"
-        :title="model.headerText"
+        :title="model.headerTitle"
       >
-        {{ model.headerText }}
+        <SvComponent
+          v-if="survey.currentPage"
+          :is="'survey-string'"
+          :locString="survey.currentPage.locNavigationTitle"
+        />
       </div>
     </div>
     <div :class="css.progressButtonsContainer">
@@ -41,7 +45,7 @@
             <div
               v-if="canShowItemTitles"
               :class="css.progressButtonsPageTitle"
-              :title="page.renderedNavigationTitle"
+              :title="model.getItemTitle(page)"
             >
               <SvComponent
                 :is="'survey-string'"

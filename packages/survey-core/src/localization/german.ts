@@ -53,8 +53,6 @@ export var germanSurveyStrings = {
   sortMoreAriaLabel: "Zeigen Sie alle Sortierungsstufen",
   // [Auto-translated] "Add New"
   sortAddNewText: "Neue hinzufügen",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Move sort Level {0}",
   // "Complete"
@@ -326,7 +324,29 @@ export var germanSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "v",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "V"
+  maskPlaceholderTimeMarkerUpper: "V",
+  // "to select"
+  keyboardHintSelectText: "zum Auswählen",
+  // "to toggle"
+  keyboardHintToggleText: "zum Umschalten",
+  // "to navigate"
+  keyboardHintNavigateText: "zum Navigieren",
+  // "to continue"
+  keyboardHintContinueText: "zum Fortfahren",
+  // "to submit"
+  keyboardHintSubmitText: "zum Absenden",
+  // "or"
+  keyboardHintOrText: "oder",
+  // "for a new line"
+  keyboardHintNewLineText: "für eine neue Zeile",
+  // "to next option"
+  keyboardHintNextItemText: "zur nächsten Option",
+  // "to move"
+  keyboardHintMoveText: "zum Verschieben",
+  // "to open"
+  keyboardHintOpenText: "zum Öffnen",
+  // "to close"
+  keyboardHintCloseText: "zum Schließen"
 };
 
 setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });

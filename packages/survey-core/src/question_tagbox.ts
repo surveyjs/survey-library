@@ -1,4 +1,5 @@
 import { Serializer } from "./jsonobject";
+import { advanceKeyboardHints, IKeyboardHintData, KeyboardHintKey } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -149,6 +150,16 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
    */
   @property() choicesLazyLoadPageSize: number;
   /**
+   * The name of the component used to render the dropdown's loading indicator and/or text.
+   */
+  @property({
+    onSet: (newValue: string, target: any) => {
+      if (!!target.dropdownListModelValue) {
+        target.dropdownListModel.setLoadingComponent(newValue);
+      }
+    }
+  }) loadingComponent: string;
+  /**
    * Specifies whether to close the drop-down menu after a user selects a value.
    */
   @property({ getDefaultValue: () => { return settings.tagboxCloseOnSelect; } }) closeOnSelect: number;
@@ -161,6 +172,13 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   @property({ localizable: { defaultStr: true } }) placeholder: string;
   public getType(): string {
     return "tagbox";
+  }
+  protected getClosedKeyboardHints(): IKeyboardHintData[] {
+    return advanceKeyboardHints(this);
+  }
+  // With an input in the control, Space types into it.
+  protected getSelectHintKeys(): KeyboardHintKey[] {
+    return this.dropdownRenderState.inputAvailable ? ["enter"] : ["space", "enter"];
   }
   public supportMultipleComment(item: ItemValue): boolean { return this.isOtherValue(item.value); }
   public get a11yInputAriaRole(): string | null {
@@ -270,6 +288,7 @@ Serializer.addClass(
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean" },
     { name: "itemComponent", visible: false, default: "" },
+    { name: "loadingComponent", visible: false, default: "" },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"] }
   ],
   function () {

@@ -1637,6 +1637,66 @@ describe("page moves leak nothing", () => {
     movePages(matrix, 100);
     expect(countHandlers() - afterFirst <= 5, "#1: " + (countHandlers() - afterFirst)).toBe(true);
   });
+  describe("the input actions of rendered cells", () => {
+    const columns = [{ name: "a", cellType: "text" }, { name: "b", cellType: "comment" }];
+    const countHandlers = (survey: SurveyModel): number => (<any>survey).onPropChangeFunctions.length;
+    // Rendering a text or a comment cell reads its input actions, and only rendering does.
+    const renderCells = (matrix: QuestionMatrixDynamicModel): void => {
+      matrix.visibleRows.forEach((row: any): void => {
+        row.cells.forEach((cell: any): void => { cell.question.inputActionsContainer; });
+      });
+    };
+    test("page moves leave no survey property handlers", () => {
+      const { survey, matrix } = createMatrix({ columns: columns });
+      renderCells(matrix);
+      const rendered = countHandlers(survey);
+      for (let i = 0; i < 20; i++) {
+        i % 2 === 0 ? matrix.nextPage() : matrix.prevPage();
+        renderCells(matrix);
+      }
+      expect(countHandlers(survey), "#1").toBe(rendered);
+    });
+    test("sorts of a paged matrix leave no survey property handlers", () => {
+      const { survey, matrix } = createMatrix({ columns: columns });
+      renderCells(matrix);
+      const rendered = countHandlers(survey);
+      for (let i = 0; i < 20; i++) {
+        matrix.sort("a", i % 2 === 0 ? "desc" : "asc");
+        renderCells(matrix);
+      }
+      expect(countHandlers(survey), "#1").toBe(rendered);
+    });
+    test("sorts of a matrix without paging leave no survey property handlers", () => {
+      const { survey, matrix } = createMatrix({ columns: columns, pageSize: 0 });
+      renderCells(matrix);
+      const rendered = countHandlers(survey);
+      for (let i = 0; i < 20; i++) {
+        matrix.sort("a", i % 2 === 0 ? "desc" : "asc");
+        renderCells(matrix);
+      }
+      expect(countHandlers(survey), "#1").toBe(rendered);
+    });
+    test("sorts and page moves of a dynamic panel leave no survey property handlers", () => {
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelCount: 0, pageSize: 5,
+        templateElements: [{ type: "text", name: "a" }, { type: "comment", name: "b" }] }] });
+      survey.data = { q: records(50, (i: number): any => ({ a: i })) };
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      const renderPanels = (): void => {
+        panel.panels.forEach((item: PanelModel): void => {
+          item.questions.forEach((q: any): void => { q.inputActionsContainer; });
+        });
+      };
+      renderPanels();
+      const rendered = countHandlers(survey);
+      for (let i = 0; i < 20; i++) {
+        panel.sort("a", i % 2 === 0 ? "desc" : "asc");
+        renderPanels();
+        i % 2 === 0 ? panel.nextPage() : panel.prevPage();
+        renderPanels();
+      }
+      expect(countHandlers(survey), "#1").toBe(rendered);
+    });
+  });
 });
 
 describe("the validation of a paged records question: its objects, the question, then the records off the page", () => {
@@ -1680,7 +1740,8 @@ describe("the focus kept for a re-read after a removal from the UI", () => {
     };
     return { source: source, release: (): void => { isHolding = true; pending.splice(0).forEach(answer => answer()); } };
   };
-  const flushAll = async (): Promise<void> => { for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0)); };
+  // setImmediate because setTimeout(0) takes about 12 ms on Windows.
+  const flushAll = async (): Promise<void> => { for (let i = 0; i < 20; i++) await new Promise(r => setImmediate(r)); };
   test("a cancelled removal while a read is pending keeps no focus position for that read", async () => {
     const matrixFocused = vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "focusItemAfterRead");
     const panelFocused = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "focusItemAfterRead");

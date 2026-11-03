@@ -136,7 +136,7 @@ If it is not empty, then this value is set to every new panel, including panels 
 
 ### `displayMode`
 
-**Type**: `"list" | "carousel" | "tab"`
+**Type**: `"tab" | "list" | "carousel"`
 
 Specifies how to display panels.
 

@@ -15,7 +15,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedElementVisit, NestedWalkBuild } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -37,7 +37,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange, toKnownRemap } from "./records/records-index-followers";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem,
+  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
 } from "./question_records";
@@ -211,12 +211,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.template.selectedElementInDesign = this;
 
     this.template.addElementCallback = (element) => {
-      this.addOnPropertyChangedCallback(<SurveyElement><any>element);
+      this.watchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();
     };
     this.template.removeElementCallback = (element) => {
-      this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
+      this.unwatchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();
     };
@@ -257,7 +257,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public dispose(): void {
     super.dispose();
-    this.template.elements.forEach((element: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>element); });
+    this.template.elements.forEach((element: IElement): void => { this.unwatchRecordTemplateElement(<SurveyElement><any>element); });
     this.templateValue.dispose();
   }
   /* The panels go with the question, before the list: the ones kept for a later dispose (still animated
@@ -329,14 +329,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return null;
   }
   protected getFirstInputElementId(): string | (() => HTMLElement) {
-    const question = this.getFirstQuestionToFocus(false);
-    if (question && question !== this) return question.inputId;
-    if (this.showAddPanelButton) return () => this.addPanelAction.getInputElement();
+    if (this.getFirstQuestionToFocus(false) === this) return () => this.addPanelAction.getInputElement();
     return super.getFirstInputElementId();
-  }
-  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
-    const question = this.getFirstQuestionToFocus(true);
-    return question ? question.inputId : super.getFirstErrorInputElementId();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
@@ -344,14 +338,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.setPanelsSurveyImpl();
     this.syncPageSizeWithSurvey();
   }
-  /* The data the survey and the expressions see: the records that have a panel. A record the list
-     filter excluded has no panel and is not part of it - the same answer a source that filters on
-     its own side gives. */
-  getFilteredData(): any {
-    if (!this.hasDataListView) return this.value;
-    const list = this.dataList;
-    // The view, not the page: a question that pages still answers for every record it shows.
-    return list.getCreatedIndexes().map((index: number): any => list.getRecord(index));
+  // A hidden panel keeps its record at completion: only the questions inside it are cleared.
+  protected isHiddenRecordInFilteredData(): boolean {
+    return true;
+  }
+  // The stored record, whether or not it has a panel and empty or not.
+  protected addFilteredRecordValue(index: number, item: QuestionRecordItem, add: (value: any) => void): void {
+    add(this.getListRecordAt(index));
   }
   protected getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof QuestionPanelDynamicItem) return this.getPanelVisibleIndex(item.panel);
@@ -403,8 +396,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.template.questions);
   }
-  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
-    return this.getTemplateSortFieldCandidates(this.template);
+  protected getRecordSortTemplate(): PanelModelBase {
+    return this.template;
   }
   protected refreshRenderedPage(): void {
     this.updateRenderedPanels();
@@ -615,45 +608,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
     for (var i = 0; i < elements.length; i++) {
-      this.addOnPropertyChangedCallback(<SurveyElement><any>elements[i]);
+      this.watchRecordTemplateElement(<SurveyElement><any>elements[i]);
     }
   }
-  /* One handler for every template element, so that the element is subscribed once however often the
-     panels are built (assignOnPropertyChangedToTemplate): onPropertyChanged.add skips a callback it
-     holds. It is removed when the element leaves the template, and with the question. */
-  private onTemplateElementPropertyChangedHandler = (element: any, options: any): void => {
-    this.onTemplateElementPropertyChanged(element, options);
-  };
-  private onNestedTemplateElementAdded = (element: IElement): void => {
-    this.addOnPropertyChangedCallback(<SurveyElement><any>element);
-    this.updateRecordsBar();
-  };
-  private onNestedTemplateElementRemoved = (element: IElement): void => {
-    this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
-    this.updateRecordsBar();
-  };
-  private addOnPropertyChangedCallback(element: SurveyElement) {
+  protected onRecordTemplateElementWatched(element: SurveyElement): void {
     if (element.isQuestion) {
       (<Question>element).setParentQuestion(this);
     }
-    element.onPropertyChanged.add(this.onTemplateElementPropertyChangedHandler);
-    if (element.isPanel) {
-      (<PanelModel>element).addElementCallback = this.onNestedTemplateElementAdded;
-      (<PanelModel>element).removeElementCallback = this.onNestedTemplateElementRemoved;
-    }
   }
-  private removeOnPropertyChangedCallback(element: SurveyElement): void {
-    element.onPropertyChanged.remove(this.onTemplateElementPropertyChangedHandler);
-    if (element.isPanel) {
-      const panel = <PanelModel>element;
-      if (panel.addElementCallback === this.onNestedTemplateElementAdded) panel.addElementCallback = undefined;
-      if (panel.removeElementCallback === this.onNestedTemplateElementRemoved) panel.removeElementCallback = undefined;
-      panel.elements.forEach((el: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>el); });
-    }
-  }
-  private onTemplateElementPropertyChanged(element: any, options: any) {
+  protected onTemplateElementPropertyChanged(element: any, options: any): void {
     // Before the return below: the sort bar offers the template questions without any panel too.
-    this.updateRecordsBar();
+    super.onTemplateElementPropertyChanged(element, options);
     if (this.isLoadingFromJson || this.useTemplatePanel || this.panelsCore.length == 0)
       return;
     var property = Serializer.findProperty(element.getType(), options.name);
@@ -2586,17 +2551,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.isCorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
   // "none" and "rows": the panels that exist; "all": panels, which builds them.
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: NestedWalkItemVisit): boolean | void {
     const panels = build === "all" ? this.panels : this.panelsCore;
     const visiblePanels = new Set<PanelModel>(this.visiblePanelsCore);
-    panels.forEach((panel, position) => {
-      func(panel, position, visiblePanels.has(panel));
-    });
+    return panels.some((panel, position) => func(panel, position, visiblePanels.has(panel)));
   }
   protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
-    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
+    build: NestedWalkBuild, visit: NestedElementVisit): boolean | void {
     const segment = this.getRecordIndexAtCreatedPosition(position);
-    visit({ element: <PanelModel>item, role: "item", segment: segment, location: "nested", visible: visible });
+    return visit({ element: <PanelModel>item, role: "item", segment: segment, location: "nested", visible: visible });
   }
   protected clearIncorrectValuesInObjects(): void {
     for (var i = 0; i < this.panelsCore.length; i++) {
@@ -2997,15 +2960,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!Array.isArray(qs) || qs.length === 0) return false;
     for (let i = 0; i < qs.length; i++) {
       if (qs[i].hasInput) return true;
-    }
-    return false;
-  }
-  protected getContainsErrors(): boolean {
-    var res = super.getContainsErrors();
-    if (res) return res;
-    var panels = this.panelsCore;
-    for (var i = 0; i < panels.length; i++) {
-      if (panels[i].containsErrors) return true;
     }
     return false;
   }

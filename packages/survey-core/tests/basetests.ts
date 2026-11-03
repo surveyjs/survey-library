@@ -293,6 +293,42 @@ describe("Base", () => {
     }
   }
 
+  // The callbacks only record their arguments, so the items of the array can be primitives.
+  class ArrayRecorder extends Base {
+    public pushed: Array<[any, number]> = [];
+    public removed: Array<any> = [];
+    public propertyChanges: Array<ArrayChanges> = [];
+    public arrayChanges: Array<ArrayChanges> = [];
+    constructor(items: Array<any> = []) {
+      super();
+      this.createNewArray(
+        "items",
+        (item: any, index: number): void => { this.pushed.push([item, index]); },
+        (item: any): void => { this.removed.push(item); }
+      );
+      this.setPropertyValue("items", items);
+      this.pushed = [];
+      this.onPropertyChanged.add((_, options) => { this.propertyChanges.push(options.arrayChanges); });
+      this.addOnArrayChangedCallback((_, options) => { this.arrayChanges.push(options.arrayChanges); });
+    }
+    public get items(): Array<any> {
+      return this.getPropertyValue("items");
+    }
+    public get plainItems(): Array<any> {
+      return this.items.slice();
+    }
+  }
+  function expectOneArrayChange(base: ArrayRecorder, expected: ArrayChanges, name: string): void {
+    expect(base.propertyChanges, name + ", onPropertyChanged").toEqual([expected]);
+    expect(base.arrayChanges, name + ", onArrayChanged").toEqual([expected]);
+  }
+  function expectNoArrayChange(base: ArrayRecorder, name: string): void {
+    expect(base.pushed, name + ", no onPush").toEqual([]);
+    expect(base.removed, name + ", no onRemove").toEqual([]);
+    expect(base.propertyChanges, name + ", no onPropertyChanged").toEqual([]);
+    expect(base.arrayChanges, name + ", no onArrayChanged").toEqual([]);
+  }
+
   test("Base simple propety value", () => {
     var base = new BaseTester();
     var counter = 0;
@@ -446,6 +482,119 @@ describe("Base", () => {
     base.items.unshift({ value: 0 });
     expect(base.items[0].value, "#2: unshift adds at the start").toBe(0);
     expect(base.indexes, "#3: unshift, index 0").toEqual([0, 1, 0]);
+  });
+  test("Base live array, push adds every item with one notification", () => {
+    const base = new ArrayRecorder(["a"]);
+    expect(base.items.push("b", "c"), "the new length").toBe(3);
+    expect(base.plainItems, "both items are added in order").toEqual(["a", "b", "c"]);
+    expect(base.pushed, "onPush gets the final indexes").toEqual([["b", 1], ["c", 2]]);
+    expectOneArrayChange(base, new ArrayChanges(1, 0, ["b", "c"], []), "push");
+  });
+  test("Base live array, unshift adds every item with one notification", () => {
+    const base = new ArrayRecorder(["a"]);
+    expect(base.items.unshift("b", "c"), "the new length").toBe(3);
+    expect(base.plainItems, "both items are added in order").toEqual(["b", "c", "a"]);
+    expect(base.pushed, "onPush gets the final indexes").toEqual([["b", 0], ["c", 1]]);
+    expectOneArrayChange(base, new ArrayChanges(0, 0, ["b", "c"], []), "unshift");
+  });
+  test.each(["push", "unshift"])("Base live array, %s without items changes nothing", (method: string) => {
+    const base = new ArrayRecorder(["a"]);
+    expect(base.items[method](), "the length is not changed").toBe(1);
+    expect(base.plainItems, "no undefined is added").toEqual(["a"]);
+    expectNoArrayChange(base, method);
+  });
+  test.each<[string, Array<any>, number]>([
+    ["splice(0)", [0], 0],
+    ["splice(undefined)", [undefined], 0],
+    ["splice(1)", [1], 1],
+    ["splice(1, undefined)", [1, undefined], 1],
+    ["splice(-1)", [-1], 2],
+    ["splice(-1, 1, x)", [-1, 1, "x"], 2],
+    ["splice(-1.5, 1, x)", [-1.5, 1, "x"], 2],
+    ["splice(-0.5, 1, x)", [-0.5, 1, "x"], 0],
+    ["splice(1.9, 1, x, y)", [1.9, 1, "x", "y"], 1],
+    ["splice(-5, 1)", [-5, 1], 0],
+    ["splice(NaN, 1)", [NaN, 1], 0],
+    ["splice(-Infinity, 1)", [-Infinity, 1], 0],
+    ["splice(Infinity, 0, x)", [Infinity, 0, "x"], 3],
+    ["splice(5)", [5], 3],
+    ["splice()", [], 0],
+    ["splice(1, 0)", [1, 0], 1],
+  ])("Base live array, %s on 3 items works as the native one", (name: string, args: Array<any>, index: number) => {
+    const plain: any = ["a", "b", "c"];
+    const expectedResult = plain.splice(...args);
+    const base = new ArrayRecorder(["a", "b", "c"]);
+    const items: any = base.items;
+    expect(items.splice(...args), "the removed items").toEqual(expectedResult);
+    expect(base.plainItems, "the array").toEqual(plain);
+    const added = args.slice(2);
+    expect(base.pushed, "onPush").toEqual(added.map((item: any, i: number) => [item, index + i]));
+    expect(base.removed, "onRemove").toEqual(expectedResult);
+    expectOneArrayChange(base, new ArrayChanges(index, expectedResult.length, added, expectedResult), name);
+  });
+  test("Base live array, pop reports the removed item and its slot", () => {
+    const base = new ArrayRecorder(["a", "b", "c"]);
+    expect(base.items.pop(), "the removed item").toBe("c");
+    expect(base.removed, "onRemove").toEqual(["c"]);
+    expectOneArrayChange(base, new ArrayChanges(2, 1, [], ["c"]), "pop");
+  });
+  test("Base live array, shift reports the removed item and its slot", () => {
+    const base = new ArrayRecorder(["a", "b", "c"]);
+    expect(base.items.shift(), "the removed item").toBe("a");
+    expect(base.removed, "onRemove").toEqual(["a"]);
+    expectOneArrayChange(base, new ArrayChanges(0, 1, [], ["a"]), "shift");
+  });
+  test("Base live array, shift removes and reports a falsy item", () => {
+    const base = new ArrayRecorder([0, 1]);
+    expect(base.items.shift(), "the removed item").toBe(0);
+    expect(base.removed, "onRemove").toEqual([0]);
+    expectOneArrayChange(base, new ArrayChanges(0, 1, [], [0]), "shift");
+  });
+  test("Base live array, pop removes and reports a falsy item", () => {
+    const base = new ArrayRecorder([1, 0]);
+    expect(base.items.pop(), "the removed item").toBe(0);
+    expect(base.removed, "onRemove").toEqual([0]);
+    expectOneArrayChange(base, new ArrayChanges(1, 1, [], [0]), "pop");
+  });
+  test("Base live array, shift removes and reports an undefined item", () => {
+    const base = new ArrayRecorder([undefined, 1]);
+    expect(base.items.shift(), "the removed item").toBeUndefined();
+    expect(base.plainItems, "the array").toEqual([1]);
+    expect(base.removed, "onRemove").toEqual([undefined]);
+    expectOneArrayChange(base, new ArrayChanges(0, 1, [], [undefined]), "shift");
+  });
+  test.each(["pop", "shift"])("Base live array, %s on an empty array does nothing", (method: string) => {
+    const base = new ArrayRecorder();
+    expect(base.items[method](), "nothing is removed").toBeUndefined();
+    expectNoArrayChange(base, method);
+  });
+  test.each<[string, (items: Array<any>) => void]>([
+    ["push(x, y)", (items) => items.push("x", "y")],
+    ["unshift(x, y)", (items) => items.unshift("x", "y")],
+    ["pop()", (items) => items.pop()],
+    ["shift()", (items) => items.shift()],
+    ["splice(1)", (items) => items.splice(1)],
+    ["splice(-2, 1, x, y)", (items) => items.splice(-2, 1, "x", "y")],
+    ["splice(-1.5, 1, x)", (items) => items.splice(-1.5, 1, "x")],
+  ])("Base live array, the reported changes of %s undo it the way the Creator does", (name: string, change: (items: Array<any>) => void) => {
+    const base = new ArrayRecorder(["a", "b", "c", "d"]);
+    change(base.items);
+    const changes = base.arrayChanges[0];
+    const copy = base.plainItems;
+    copy.splice(changes.index, changes.itemsToAdd.length, ...changes.deletedItems);
+    expect(copy, name).toEqual(["a", "b", "c", "d"]);
+  });
+  test("Base live array, a disposed owner still changes the array and notifies nobody", () => {
+    const base = new ArrayRecorder(["a", "b", "c"]);
+    const items = base.items;
+    base.dispose();
+    items.push("d");
+    items.unshift("e");
+    items.pop();
+    items.shift();
+    items.splice(1, 1, "f");
+    expect(items.slice(), "the array").toEqual(["a", "f", "c"]);
+    expectNoArrayChange(base, "disposed");
   });
   test("Base array propety value, set value", () => {
     var base = new BaseTester();

@@ -8843,7 +8843,7 @@ describe("Survey_QuestionPanelDynamic", () => {
   });
   test("paneldynamic.panelCountExpression custom property, Bug#10171", () => {
     Serializer.addProperty("paneldynamic", {
-      name: "panelCountExpression",
+      name: "customPanelCountExpression",
       type: "condition",
       category: "logic",
       onExecuteExpression: (obj, res) => {
@@ -8860,7 +8860,7 @@ describe("Survey_QuestionPanelDynamic", () => {
         {
           "type": "paneldynamic",
           "name": "question2",
-          "panelCountExpression": "{question1}",
+          "customPanelCountExpression": "{question1}",
           "templateElements": [
             {
               "type": "text",
@@ -8878,7 +8878,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.panelCount, "panelCount #3").toBe(1);
     survey.setValue("question1", 2);
     expect(panel.panelCount, "panelCount #4").toBe(2);
-    Serializer.removeProperty("paneldynamic", "panelCountExpression");
+    Serializer.removeProperty("paneldynamic", "customPanelCountExpression");
   });
   test("paneldynamic nested question valueName & clearIncorrectValues, Bug#10206", () => {
     const survey = new SurveyModel({
@@ -10480,6 +10480,46 @@ describe("Question Panel Dynamic: panels follow the view", () => {
     expect(question.getFilteredData(), "#1").toEqual([{ q1: "a" }, { q1: "a" }]);
     const plain = question.getPlainData();
     expect((<Array<any>>plain.data).length, "#2: one entry per panel").toBe(2);
+  });
+  test("getFilteredData keeps the record of a hidden panel; an expression that names the question reads the stored value", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "items", panelCount: 3, templateVisibleIf: "{panel.q1} != 2",
+      templateElements: [{ type: "text", name: "q1" }, { type: "expression", name: "total", expression: "sumInArray({items}, 'q1')" }] }] });
+    survey.data = { items: [{ q1: 1 }, { q1: 2 }, { q1: 3 }] };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
+    expect(question.visiblePanels.length, "#1: the second panel is hidden").toBe(2);
+    expect(question.getFilteredData().map(record => record.q1), "#2: without a view").toEqual([1, 2, 3]);
+    expect(question.visiblePanels[0].getQuestionByName("total").value, "#3: {items} reads the hidden record").toBe(6);
+    question["dataList"].filter = "{q1} != 3";
+    expect(question.panels.length, "#4: the filter leaves two panels").toBe(2);
+    expect(question.visiblePanels.length, "#5: one of them hidden").toBe(1);
+    expect(question.getFilteredData().map(record => record.q1), "#6: with a view").toEqual([1, 2]);
+    question.visiblePanels[0].getQuestionByName("q1").value = 4;
+    expect(question.visiblePanels[0].getQuestionByName("total").value, "#7: every stored record, the filtered one too").toBe(9);
+  });
+  test("getFilteredData of records without answers answers for the view", () => {
+    const question = createQuestion({ panelCount: 3 }, [{}, {}, {}]);
+    expect(question.isEmpty(), "#1").toBe(true);
+    question["dataList"].filter = "{q1} = 'a'";
+    expect(question.getFilteredData(), "#2: the filter excludes them all").toEqual([]);
+  });
+  test("getFilteredData without a view is the value", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }]);
+    question.panels;
+    expect(question.getFilteredData() === question.value, "#1: the same array").toBe(true);
+    expect(question.getFilteredData(), "#2: a panel without a record adds nothing").toEqual([{ q1: "a" }]);
+  });
+  test("getFilteredData while a panel is removed: every record that stays, once", () => {
+    const survey = createSurvey({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question["dataList"].filter = "{q1} != 'b'";
+    question.panels;
+    const reads: Array<any> = [];
+    survey.onValueChanging.add(() => { reads.push(question.getFilteredData()); });
+    question.removePanel(0);
+    expect(reads.length > 0, "#1").toBe(true);
+    reads.forEach((read: any): void => {
+      expect(read.map(record => record.q1), "#2: the view without the removed record").toEqual(["c"]);
+    });
   });
   test("a rebuild loses the panel state - the accepted cost", () => {
     const question = createQuestion({ panelCount: 2, templateTitle: "t" }, [{ q1: "a" }, { q1: "b" }]);

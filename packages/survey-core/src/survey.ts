@@ -2024,12 +2024,31 @@ export class SurveyModel extends SurveyElementCore
    * You can override this setting for individual questions using their `choiceShortcutsEnabled` property.
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   *
+   * [Demo: Letter Shortcuts](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @since 3.2.2
+   * @see showKeyboardHints
    */
   @property({
     defaultValue: false,
     onSet: (_newValue, target: SurveyModel) => target.onChoiceShortcutsEnabledChanged()
   }) choiceShortcutsEnabled: boolean;
+  /**
+   * Specifies whether to display keyboard shortcut hints for questions that support them.
+   *
+   * Default value: `false`
+   *
+   * Hints describe available keyboard actions, such as selecting choices or pressing Enter to continue. Displayed hints depend on the question type and settings.
+   *
+   * Keyboard hints are hidden on touch devices, in read-only or preview mode, for collapsed questions, and in matrix cells.
+   *
+   * You can override this setting for individual questions using their [`showKeyboardHints`](https://surveyjs.io/form-library/documentation/api-reference/question#showKeyboardHints) property.
+   *
+   * [Demo: Keyboard Hints](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * @see choiceShortcutsEnabled
+   * @since 3.2.4
+   */
+  @property({ defaultValue: false }) showKeyboardHints: boolean;
   private onChoiceShortcutsEnabledChanged(): void {
     // While loading, onSurveyLoad binds what the JSON enables.
     if (this.isLoadingFromJson) return;
@@ -2801,20 +2820,15 @@ export class SurveyModel extends SurveyElementCore
       if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
       this.updateNavigationCss();
       this.navigationBarValue.flushUpdates();
-      this.updateHasVisibleNavigationActions();
-      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.updateHasVisibleNavigationActions());
+      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
     }
     return this.navigationBarValue;
   }
-  // Mirrors navigationBar.isEmpty onto the survey so layout containers re-render: the survey component
-  // is not subscribed to the bar while the bar itself is not rendered.
-  // The bar read has to be part of the returned value. Production builds treat getters as pure and drop
-  // an unused `void this.navigationBar`, which leaves the flag at its default and hides the buttons.
-  public get hasVisibleNavigationActions(): boolean {
-    return this.navigationBar.hasVisibleActions;
+  public get hasVisibleNavigationActions() {
+    return this.getPropertyValue("hasVisibleNavigationActions", undefined, () => this.navigationBar.hasVisibleActions);
   }
-  private updateHasVisibleNavigationActions(): void {
-    this.setPropertyValue("hasVisibleNavigationActions", this.navigationBarValue.hasVisibleActions);
+  private resetHasVisibleNavigationActions(): void {
+    this.resetPropertyValue("hasVisibleNavigationActions");
   }
   public createNavigationBarCallback: () => ActionContainer;
   protected createNavigationBar(): ActionContainer {
@@ -8136,29 +8150,14 @@ export class SurveyModel extends SurveyElementCore
     const question = <Question>this.getQuestionByValueName(name);
     if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return false;
     if (!question.validate(false) && !question.supportGoNextPageError()) return false;
-    let scheduled = false;
-    if (!!this.currentSingleElement) {
-      const curQuestion = this.currentSingleElement;
-      const goNextQuestion = () => {
-        if (curQuestion !== this.currentSingleElement) return;
-        if (!this.isLastElement) {
-          this.performNext();
-        } else {
-          if (this.autoAdvanceAllowComplete) {
-            this.tryCompleteOrShowPreview();
-          }
-        }
-      };
-      surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
-      scheduled = true;
-    }
+    if (!!this.currentSingleElement) return this.tryGoNextSingleElementAutomatic(question);
     var questions = this.getCurrentPageQuestions();
-    if (questions.indexOf(question) < 0) return scheduled;
+    if (questions.indexOf(question) < 0) return false;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].hasInput && questions[i].isEmpty()) return scheduled;
+      if (questions[i].hasInput && questions[i].isEmpty()) return false;
     }
-    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return scheduled;
-    if (!this.validateActivePage(false)) return scheduled;
+    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return false;
+    if (!this.validateActivePage(false)) return false;
     const curPage = this.currentPage;
     const goNextPage = () => {
       if (curPage !== this.currentPage) return;
@@ -8169,6 +8168,33 @@ export class SurveyModel extends SurveyElementCore
       }
     };
     surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
+    return true;
+  }
+  private tryGoNextSingleElementAutomatic(question: Question): boolean {
+    const element: any = this.currentSingleElement;
+    const questions: Array<Question> = element.isPanel ? element.visibleQuestions : [element];
+    // The value's first holder may be off screen: a shared valueName, or a nested inputPerPage step.
+    const isOnScreen = (q: Question) => questions.indexOf(q) > -1 || q === element.singleInputQuestion;
+    if (!this.getQuestionsByValueName(question.getValueName()).some(isOnScreen)) return false;
+    // A question as the element has no empty check: multipletext and inputPerPage decide through supportAutoAdvance.
+    if (element.isPanel) {
+      for (let i = 0; i < questions.length; i++) {
+        if (questions[i].hasInput && questions[i].isEmpty()) return false;
+      }
+    }
+    if (this.isLastElement && !this.autoAdvanceAllowComplete) return false;
+    const input = element.singleInputQuestion;
+    const goNextQuestion = () => {
+      if (element !== this.currentSingleElement || input !== element.singleInputQuestion) return;
+      if (!this.isLastElement) {
+        this.performNext();
+      } else {
+        if (this.autoAdvanceAllowComplete) {
+          this.tryCompleteOrShowPreview();
+        }
+      }
+    };
+    surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
     return true;
   }
   private tryCompleteOrShowPreview(): void {
@@ -9740,6 +9766,7 @@ Serializer.addClass("survey", [
     visibleIf: (obj: any): boolean => obj.autoAdvanceEnabled === true
   },
   { name: "choiceShortcutsEnabled:boolean", default: false },
+  { name: "showKeyboardHints:boolean", default: false },
   {
     name: "clearInvisibleValues",
     default: "onComplete",

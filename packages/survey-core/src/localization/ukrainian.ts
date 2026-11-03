@@ -53,8 +53,6 @@ export var ukrainianSurveyStrings = {
   sortMoreAriaLabel: "Показати всі рівні сортування",
   // [Auto-translated] "Add New"
   sortAddNewText: "Додати нове",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Перемістити сортування на рівні {0}",
   // "Complete"
@@ -326,7 +324,29 @@ export var ukrainianSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "п",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "П"
+  maskPlaceholderTimeMarkerUpper: "П",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "Вибрати",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "перемикати",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Орієнтуватися",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "продовжувати",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Подати",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "або",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "для нової лінії",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "до наступного варіанту",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "рухатися",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "відкривати",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "Закрити"
 };
 
 setupLocale({ localeCode: "uk", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });

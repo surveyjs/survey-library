@@ -31,6 +31,8 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 import { Scope, ValueScope } from "./utils/scope";
+import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
+import { IsTouch } from "./utils/devices";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -253,6 +255,16 @@ export function getNestedElementQuestions(info: INestedElementInfo): Array<Quest
   return info.element.isPanel ? (<PanelModel>info.element).questions : [<Question>info.element];
 }
 
+// The first truthy answer of find to what a walk visits. The walk stops there.
+export function findInNestedWalk<T>(walk: (visit: NestedElementVisit) => void, find: (info: INestedElementInfo) => T): T {
+  let res: T = undefined;
+  walk((info: INestedElementInfo): boolean => {
+    res = find(info);
+    return !!res;
+  });
+  return res;
+}
+
 // The nested element instances a container question owns, see Question.forEachNestedElement().
 // Internal: not re-exported from entries/.
 // cell, detail, total: a matrix row's cell questions, its detail panel, the total row's cell questions.
@@ -279,6 +291,8 @@ export interface INestedElementInfo {
   // item.isPanelShowing. Always true for editors, content and the total row.
   visible: boolean;
 }
+// A visitor answers true to stop the walk; a walk that takes a visitor passes that answer up.
+export type NestedElementVisit = (info: INestedElementInfo) => boolean | void;
 // "none": the items that exist; nothing is built. "rows": what the visibleRows getter gives (it
 // generates rows, drops rows hidden by rowsVisibleIf and gives nothing under isUpdateLocked); kept for
 // the callers that read visibleRows. "all": allRows with every detail panel ensured, panels.
@@ -1649,6 +1663,15 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get isContainer(): boolean { return false; }
+  // A container that keeps the saved masked text of its nested question on a locale change (QuestionTextModel.localeChanged).
+  protected keepsSavedTextOnLocaleChange(question: Question): boolean { return false; }
+  // At any depth: through dynamic panels, composites and custom questions, whose content has no parentQuestion.
+  protected get isSavedTextKeptOnLocaleChange(): boolean {
+    for (let q: Question = this; !!q; q = q.parentQuestion || q.getCustomQuestionWrapper()) {
+      if (!!q.parentQuestion && q.parentQuestion.keepsSavedTextOnLocaleChange(q)) return true;
+    }
+    return false;
+  }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
       if (event.target) {
@@ -2043,11 +2066,30 @@ export class Question extends SurveyElement<Question>
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.hasInput && (!withError || this.currentErrorCount > 0) ? this : null;
   }
+  /* The first nested question that can take the focus, in walk order. A panel decides for its elements;
+     a cell or an editor has to be editable as well, because Question.focus refuses a read-only question. */
+  protected getFirstNestedQuestionToFocus(withError: boolean): Question {
+    return findInNestedWalk((visit: NestedElementVisit): void => this.forEachNestedElementToFocus(visit), (info: INestedElementInfo): Question => {
+      if (info.element.isPanel) return (<PanelModel>info.element).getFirstQuestionToFocus(withError);
+      const question = <Question>info.element;
+      return question.isVisible && !question.isReadOnly ? question.getFirstQuestionToFocus(withError) : null;
+    });
+  }
+  // The nested elements the question shows. Nothing is built: an element that does not exist has no input.
+  protected forEachNestedElementToFocus(visit: NestedElementVisit): void {
+    this.forEachNestedElement(visit, { build: "none", visibleOnly: true });
+  }
   protected getFirstInputElementId(): string | (() => HTMLElement) {
-    return this.inputId;
+    return this.getNestedInputElementId(false) || this.inputId;
   }
   protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
-    return this.getFirstInputElementId();
+    return this.getNestedInputElementId(true) || this.getFirstInputElementId();
+  }
+  // The question decides what gets the focus; a nested one knows its own first input.
+  private getNestedInputElementId(withError: boolean): string | (() => HTMLElement) {
+    const question = this.getFirstQuestionToFocus(withError);
+    if (!question || question === this) return undefined;
+    return withError ? question.getFirstErrorInputElementId() : question.getFirstInputElementId();
   }
   public supportComment(): boolean {
     const prop = this.getPropertyByName("showCommentArea");
@@ -2997,12 +3039,12 @@ export class Question extends SurveyElement<Question>
      record segment, where its value lives and whether the container shows it. Instances only: the
      definitions (a dynamic panel's template, matrix columns, choice items) stay with the walks that
      need them. Each walk decides what to do at the boundary. */
-  protected forEachNestedElement(visit: (info: INestedElementInfo) => void, options: INestedWalkOptions): void {
-    const func = options.visibleOnly ? (info: INestedElementInfo): void => { if (info.visible) visit(info); } : visit;
+  protected forEachNestedElement(visit: NestedElementVisit, options: INestedWalkOptions): void {
+    const func: NestedElementVisit = options.visibleOnly ? (info: INestedElementInfo): boolean | void => info.visible && visit(info) : visit;
     this.forEachNestedElementCore(func, options.build);
   }
   // A container type overrides this; a question without nested instances yields nothing.
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void { }
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void { }
   addNestedQuestion(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf?: boolean): void {
     if (includeNested) {
       this.collectNestedQuestions(questions, visibleOnly, includeNested, includeItSelf);
@@ -3064,6 +3106,23 @@ export class Question extends SurveyElement<Question>
   }
   public get currentErrorCount(): number {
     return this.errors.length;
+  }
+  // The elements the question shows: a hidden one is not validated, so what it holds is stale.
+  protected getContainsErrors(): boolean {
+    return super.getContainsErrors() || !!findInNestedWalk(
+      (visit: NestedElementVisit): void => this.forEachNestedElement(visit, { build: "none", visibleOnly: true }),
+      (info: INestedElementInfo): boolean => info.element.isVisible && info.element.containsErrors);
+  }
+  /* A fix can come without a validation of the containers, so a nested question tells them. It does so
+     on a change only: a validation without errors must not ask a container once per cell. */
+  public updateContainsErrors(): void {
+    const prevValue = this.containsErrors;
+    super.updateContainsErrors();
+    if (prevValue === this.containsErrors) return;
+    for (let parent = <PanelModel>this.parent; !!parent; parent = <PanelModel>parent.parent) {
+      parent.updateContainsErrors();
+    }
+    this.parentQuestion?.updateContainsErrors();
   }
   /**
    * Returns a character or text string that indicates a required question.
@@ -3174,7 +3233,12 @@ export class Question extends SurveyElement<Question>
       context.removeElement(this.id);
     };
     context.addElement(this.id);
-    return this.validatorRunner.run(this);
+    try {
+      return this.validatorRunner.run(this);
+    } catch(e) {
+      this.validatorRunner = null;
+      throw e;
+    }
   }
   private doOnAsyncCompleted(fireCallback: boolean, errors: Array<SurveyError>): void {
     if (fireCallback) {
@@ -3582,6 +3646,37 @@ export class Question extends SurveyElement<Question>
   public supportAutoAdvance(): boolean {
     return false;
   }
+  /**
+   * Specifies whether to display keyboard shortcut hints for this question.
+   *
+   * Default value: `undefined` (inherits the survey's [`showKeyboardHints`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showKeyboardHints) setting)
+   *
+   * Hints describe available keyboard actions, such as selecting choices or pressing Enter to continue. Displayed hints depend on the question type and settings.
+   *
+   * Keyboard hints are hidden on touch devices, in read-only or preview mode, for collapsed questions, and in matrix cells.
+   *
+   * [Demo: Keyboard Hints](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * @since 3.2.4
+   */
+  @property() showKeyboardHints: boolean | undefined;
+  public getKeyboardHintModel(): KeyboardHintModel {
+    const hints = this.canShowKeyboardHints() ? this.getKeyboardHintsCore() : [];
+    return new KeyboardHintModel(this, hints);
+  }
+  // The renderers mount the hint row on this, and the row stays outside the collapsible content.
+  // With a single input on screen the inner question owns the keys, so the outer question yields.
+  public canShowKeyboardHints(): boolean {
+    const survey = this.survey;
+    if (!survey || !(this.showKeyboardHints ?? survey.showKeyboardHints === true)) return false;
+    return !IsTouch && !this.isDesignMode && !this.isReadOnly && !this.inMatrixMode && !this.isCollapsed && !this.singleInputQuestion;
+  }
+  // Answers from the question's own settings: survey state and responsive rendering must not hide the property.
+  public supportsKeyboardHints(): boolean {
+    return false;
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    return [];
+  }
   // Set only while Enter commits the current value. tryGoNextPageAutomatic runs on every
   // value change, so multi-value questions stay opted out until this flag is raised.
   private autoAdvanceRequestScope = new Scope();
@@ -3591,18 +3686,28 @@ export class Question extends SurveyElement<Question>
     if (!event || (event.key !== "Enter" && event.keyCode !== 13)) return false;
     if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || event.keyCode === 229 || event.defaultPrevented) return false;
     if (this.isDesignMode || this.isInputReadOnly) return false;
-    const survey = this.survey as SurveyModel;
-    return !!survey && survey.autoAdvanceEnabled === true;
+    return this.isSurveyAutoAdvanceEnabled;
   }
   protected canCommitAutoAdvanceOnEnter(event: any): boolean {
     return this.isAutoAdvanceEnter(event) && !this.isEmpty();
   }
+  protected get isSurveyAutoAdvanceEnabled(): boolean {
+    return (this.survey as SurveyModel)?.autoAdvanceEnabled === true;
+  }
+  // getQuestionByValueName only sees top-level questions. A nested question with the same
+  // name must not advance on behalf of that other question.
+  protected get isAutoAdvanceOwner(): boolean {
+    return (this.survey as SurveyModel)?.getQuestionByValueName(this.getValueName()) === this;
+  }
+  // A question nested in a choice item is found by value name, but it is not in the page's question
+  // list, so the survey advances for it only when it is the single input on screen.
+  public canAdvanceOnEnter(): boolean {
+    if (!this.isSurveyAutoAdvanceEnabled || !this.isAutoAdvanceOwner) return false;
+    return !this.parentQuestion || this.parentQuestion.singleInputQuestion === this;
+  }
   protected requestAutoAdvance(): boolean {
-    const survey = this.survey as SurveyModel;
-    // getQuestionByValueName only sees top-level questions. A nested question with the same
-    // name must not advance on behalf of that other question.
-    if (!survey || survey.getQuestionByValueName(this.getValueName()) !== this) return false;
-    return this.autoAdvanceRequestScope.run(() => survey.tryGoNextPageAutomaticCore(this.getValueName()));
+    if (!this.isAutoAdvanceOwner) return false;
+    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomaticCore(this.getValueName()));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();
@@ -4180,6 +4285,11 @@ Serializer.addClass("question", [
   { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
   { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
+  {
+    name: "showKeyboardHints:boolean",
+    defaultFunc: () => undefined,
+    visibleIf: (obj: any): boolean => !!obj.supportsKeyboardHints && obj.supportsKeyboardHints() && !obj.isContentElement
+  },
   { name: "allowClear:boolean" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

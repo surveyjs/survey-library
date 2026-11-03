@@ -1,4 +1,4 @@
-import { IAction } from "../src/actions/action";
+import { Action, IAction } from "../src/actions/action";
 import { Notifier } from "../src/notifier";
 import { settings } from "../src/settings";
 
@@ -71,6 +71,14 @@ describe("Notifier model", () => {
     expect(testAction.visible).toBe(true);
     expect(testAction.appearance.style).toBe("alert");
 
+  });
+
+  test("the style a notification gives its action does not reach other actions", () => {
+    const notifier = new Notifier(testCssClasses);
+    notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
+    notifier.updateActions("error");
+    expect(notifier.actionBar.actions[0].appearance.style).toBe("alert");
+    expect(new Action({ id: "other" }).appearance.style).toBeUndefined();
   });
 
   test("message box visibility", () => {

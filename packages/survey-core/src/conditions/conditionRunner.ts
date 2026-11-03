@@ -11,7 +11,10 @@ export class ConditionRunner extends ExpressionRunnerBase {
     return this.runContextCore(context, properties) == true;
   }
   protected doOnComplete(res: any, id: number): void {
-    if (!!this.onRunComplete)this.onRunComplete(res == true);
-    super.doOnComplete(res, id);
+    try {
+      if (!!this.onRunComplete)this.onRunComplete(res == true);
+    } finally {
+      super.doOnComplete(res, id);
+    }
   }
 }

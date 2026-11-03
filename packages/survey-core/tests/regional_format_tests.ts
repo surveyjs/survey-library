@@ -4,9 +4,14 @@ import { RegionalFormat, regionalFormatCategory } from "../src/regional-format";
 import { Serializer } from "../src/jsonobject";
 import { localeData, getLocaleDataLocales, getLocaleDataValue, findLocaleDataKey, canonicalizeLocale } from "../src/locale-data";
 import { surveyLocalization } from "../src/surveyStrings";
+import { ComponentCollection } from "../src/question_custom";
+import "../src/question_paneldynamic";
+import "../src/question_matrixdropdown";
+import "../src/question_matrixdynamic";
+import "../src/question_multipletext";
 import "../src/localization/german";
 
-import { describe, test, expect, afterEach } from "vitest";
+import { describe, test, expect, afterEach, beforeEach } from "vitest";
 
 const euro = "\u20AC";
 const pound = "\u00A3";
@@ -689,5 +694,248 @@ describe("RegionalFormat: locale casing", () => {
     });
     const english = createSurvey({ regionalFormat: { locale: "de" } });
     expect(getQuestion(english, "date").inputValue, "an english survey with a german format").toBe("dd.mm.yyyy");
+  });
+});
+
+describe("Datetime mask: a question that is created before it reaches the survey", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+
+  const dateMask = (settings: any = {}): any => ({ maskType: "datetime", maskSettings: { patternPreset: "localeDate", ...settings } });
+  const savedDateMask = (): any => dateMask({ saveMaskedValue: true });
+
+  const dynamicPanel = {
+    json: (mask: any): any => ({ type: "paneldynamic", name: "c", panelCount: 1, templateElements: [{ type: "text", name: "q", ...mask }] }),
+    data: (text: string): any => ({ c: [{ q: text }] }),
+    entry: (survey: SurveyModel): QuestionTextModel => (<any>survey.getQuestionByName("c")).panels[0].getQuestionByName("q"),
+  };
+  const matrixDropdown = {
+    json: (mask: any): any => ({ type: "matrixdropdown", name: "c", rows: ["r1"], columns: [{ name: "q", cellType: "text", ...mask }] }),
+    data: (text: string): any => ({ c: { r1: { q: text } } }),
+    entry: (survey: SurveyModel): QuestionTextModel => (<any>survey.getQuestionByName("c")).visibleRows[0].cells[0].question,
+  };
+  const matrixDynamic = {
+    json: (mask: any): any => ({ type: "matrixdynamic", name: "c", rowCount: 1, columns: [{ name: "q", cellType: "text", ...mask }] }),
+    data: (text: string): any => ({ c: [{ q: text }] }),
+    entry: (survey: SurveyModel): QuestionTextModel => (<any>survey.getQuestionByName("c")).visibleRows[0].cells[0].question,
+  };
+  const german = { json: { regionalFormat: { locale: "de-DE" } }, emptyText: "dd.mm.yyyy", toEnglish: (survey: SurveyModel) => { survey.regionalFormat.locale = ""; } };
+  const germanLocale = { json: { locale: "de" }, emptyText: "TT.MM.JJJJ", toEnglish: (survey: SurveyModel) => { survey.locale = ""; } };
+
+  const containerCases: Array<[string, any]> = [["a dynamic panel", dynamicPanel], ["a matrix dropdown", matrixDropdown], ["a matrix dynamic", matrixDynamic]];
+  const formatCases: Array<[string, any]> = [["regionalFormat", german], ["locale", germanLocale]];
+  const cases: Array<[string, string, any, any]> = [];
+  containerCases.forEach(c => formatCases.forEach(f => cases.push([c[0], f[0], c[1], f[1]])));
+
+  // the survey is passed to the listener before the data arrives, so a write on the way is seen
+  type DataLoader = (json: any, data: any, listen: (survey: SurveyModel) => void) => SurveyModel;
+  const dataCases: Array<[string, DataLoader]> = [
+    ["survey.data after the JSON", (json, data, listen) => { const survey = new SurveyModel(json); listen(survey); survey.data = data; return survey; }],
+    ["survey.mergeData", (json, data, listen) => { const survey = new SurveyModel(json); listen(survey); survey.mergeData(data); return survey; }],
+    ["survey.data before survey.fromJSON", (json, data, listen) => { const survey = new SurveyModel(); listen(survey); survey.data = data; survey.fromJSON(json); return survey; }],
+  ];
+  const savedCases: Array<[string, string, string, any, any, DataLoader]> = [];
+  cases.forEach(c => dataCases.forEach(d => savedCases.push([c[0], c[1], d[0], c[2], c[3], d[1]])));
+
+  test.each(cases)("%s, %s: the pattern and the empty mask are the survey's", (_, __, container, format) => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "top", ...dateMask() }, container.json(dateMask())], ...format.json });
+    const entry = container.entry(survey);
+    expect((<any>entry.maskInstance).activePattern, "pattern").toBe("dd.mm.yyyy");
+    expect(entry.inputValue, "empty mask").toBe(format.emptyText);
+    expect(entry.inputValue, "the top-level text").toBe((<QuestionTextModel>survey.getQuestionByName("top")).inputValue);
+  });
+
+  test.each(cases)("%s, %s: the JSON may name the format before or after the elements", (_, __, container, format) => {
+    const first = new SurveyModel({ ...format.json, elements: [container.json(dateMask())] });
+    expect((<any>container.entry(first).maskInstance).activePattern, "format first").toBe("dd.mm.yyyy");
+    const last = new SurveyModel({ elements: [container.json(dateMask())], ...format.json });
+    expect((<any>container.entry(last).maskInstance).activePattern, "format last").toBe("dd.mm.yyyy");
+  });
+
+  test.each(cases)("%s, %s: a stored date shows in the survey's format", (_, __, container, format) => {
+    const survey = new SurveyModel({ elements: [container.json(dateMask())], ...format.json });
+    survey.data = container.data("2024-05-01");
+    expect(container.entry(survey).inputValue).toBe("01.05.2024");
+  });
+
+  const addedCases: Array<[string, string, any, any, (survey: SurveyModel) => void]> = [];
+  [["a dynamic panel", dynamicPanel, (survey: SurveyModel) => (<any>survey.getQuestionByName("c")).addPanel()],
+    ["a matrix dynamic", matrixDynamic, (survey: SurveyModel) => (<any>survey.getQuestionByName("c")).addRow()]].forEach((c: any) =>
+    formatCases.forEach(f => addedCases.push([c[0], f[0], c[1], f[1], c[2]])));
+  test.each(addedCases)("%s, %s: an entry added later has the survey's pattern", (_, __, container, format, add) => {
+    const json = container.json(dateMask());
+    json[json.type === "paneldynamic" ? "panelCount" : "rowCount"] = 0;
+    const survey = new SurveyModel({ elements: [json], ...format.json });
+    add(survey);
+    const entry = container.entry(survey);
+    expect((<any>entry.maskInstance).activePattern, "pattern").toBe("dd.mm.yyyy");
+    expect(entry.inputValue, "empty mask").toBe(format.emptyText);
+  });
+
+  test.each(savedCases)("%s, %s, %s: a saved text is read in the survey's format and stays", (_, __, ___, container, format, load) => {
+    const data = { top: "05.12.2000", ...container.data("05.12.2000") };
+    const json = { elements: [{ type: "text", name: "top", ...savedDateMask() }, container.json(savedDateMask())], ...format.json };
+    const changes: Array<string> = [];
+    const survey = load(json, data, s => s.onValueChanged.add((_, options) => changes.push(options.name)));
+    const entry = container.entry(survey);
+    expect((<QuestionTextModel>survey.getQuestionByName("top")).getFilteredValue(), "the top level").toBe("2000-12-05");
+    expect(entry.getFilteredValue(), "the entry").toBe("2000-12-05");
+    expect(entry.value, "the text").toBe("05.12.2000");
+    expect(entry.inputValue, "the input").toBe("05.12.2000");
+    expect(survey.data, "the data").toEqual(data);
+    expect(changes, "no value change").toEqual([]);
+  });
+
+  test.each(savedCases)("%s, %s, %s: a later switch converts the saved text", (_, __, ___, container, format, load) => {
+    const survey = load({ elements: [container.json(savedDateMask())], ...format.json }, container.data("05.12.2000"), () => { });
+    const entry = container.entry(survey);
+    format.toEnglish(survey);
+    expect(entry.value, "the text").toBe("12/05/2000");
+    expect(entry.getFilteredValue(), "the entry").toBe("2000-12-05");
+    expect(survey.data, "the data").toEqual(container.data("12/05/2000"));
+  });
+
+  const presetCases: Array<[string, string, string, any]> = [];
+  [["localeDateTime", "dd.mm.yyyy HH:MM"], ["localeTime", "HH:MM"]].forEach(p => formatCases.forEach(f => presetCases.push([p[0], f[0], p[1], f[1]])));
+  test.each(presetCases)("%s, %s: an entry has the survey's pattern", (preset, _, pattern, format) => {
+    const survey = new SurveyModel({ elements: [dynamicPanel.json(dateMask({ patternPreset: preset }))], ...format.json });
+    expect((<any>dynamicPanel.entry(survey).maskInstance).activePattern).toBe(pattern);
+  });
+
+  describe("A question that gets its value from an outer question before it reaches the survey", () => {
+    beforeEach(() => {
+      ComponentCollection.Instance.add({ name: "datecomposite", elementsJSON: [{ type: "text", name: "q", ...savedDateMask() }] });
+      ComponentCollection.Instance.add({ name: "dateinput", questionJSON: { type: "text", ...savedDateMask() } });
+      ComponentCollection.Instance.add({ name: "outercomposite", elementsJSON: [{ type: "datecomposite", name: "y" }] });
+    });
+    afterEach(() => {
+      ComponentCollection.Instance.clear();
+    });
+    const inPanel = (survey: SurveyModel) => (<any>survey.getQuestionByName("c")).panels[0].getQuestionByName("x");
+    const compositeJson = { type: "datecomposite", name: "x" };
+    const dataOfTwoLevels = (text: string): any => ({ c: [{ x: { q: text } }] });
+    const nestedHosts: Array<[string, any]> = [
+      ["a composite in a dynamic panel", {
+        json: { type: "paneldynamic", name: "c", templateElements: [compositeJson] }, data: dataOfTwoLevels,
+        entry: (survey: SurveyModel) => inPanel(survey).contentPanel.getQuestionByName("q"),
+      }],
+      ["a single question composite in a dynamic panel", {
+        json: { type: "paneldynamic", name: "c", templateElements: [{ type: "dateinput", name: "x" }] }, data: (text: string) => ({ c: [{ x: text }] }),
+        entry: (survey: SurveyModel) => inPanel(survey).contentQuestion,
+      }],
+      ["a multiple text item in a dynamic panel", {
+        json: { type: "paneldynamic", name: "c", templateElements: [{ type: "multipletext", name: "x", items: [{ name: "q", ...savedDateMask() }] }] }, data: dataOfTwoLevels,
+        entry: (survey: SurveyModel) => inPanel(survey).items[0].editor,
+      }],
+      ["a composite in a composite in a dynamic panel", {
+        json: { type: "paneldynamic", name: "c", templateElements: [{ type: "outercomposite", name: "x" }] }, data: (text: string) => ({ c: [{ x: { y: { q: text } } }] }),
+        entry: (survey: SurveyModel) => inPanel(survey).contentPanel.getQuestionByName("y").contentPanel.getQuestionByName("q"),
+      }],
+    ];
+    const nestedCases: Array<[string, string, string, any, any, DataLoader]> = [];
+    nestedHosts.forEach(h => formatCases.forEach(f => dataCases.forEach(d => nestedCases.push([h[0], f[0], d[0], h[1], f[1], d[1]]))));
+
+    test.each(nestedCases)("%s, %s, %s: a saved text is read once, in the survey's format", (_, __, ___, host, format, load) => {
+      const changes: Array<string> = [];
+      const survey = load({ elements: [host.json], ...format.json }, host.data("05.12.2000"), s => s.onValueChanged.add((_, options) => changes.push(options.name)));
+      const entry = host.entry(survey);
+      expect(entry.maskInstance.activePattern, "pattern").toBe("dd.mm.yyyy");
+      expect(entry.getFilteredValue(), "the entry").toBe("2000-12-05");
+      expect(survey.data, "the data").toEqual(host.data("05.12.2000"));
+      expect(changes, "no value change").toEqual([]);
+      format.toEnglish(survey);
+      expect(entry.getFilteredValue(), "the entry after a switch").toBe("2000-12-05");
+      expect(survey.data, "the converted text").toEqual(host.data("12/05/2000"));
+    });
+
+    test.each(formatCases)("A composite added in code, %s: a saved text is read in the survey's format", (_, format) => {
+      const survey = new SurveyModel({ pages: [{ name: "page1" }], ...format.json });
+      survey.data = { x: { q: "05.12.2000" } };
+      const composite = <any>survey.pages[0].addNewQuestion("datecomposite", "x");
+      const entry = composite.contentPanel.getQuestionByName("q");
+      expect(entry.getFilteredValue(), "the entry").toBe("2000-12-05");
+      format.toEnglish(survey);
+      expect(survey.data, "the converted text").toEqual({ x: { q: "12/05/2000" } });
+    });
+
+    test("A composite in a matrix detail panel reads a saved text in the survey's format", () => {
+      const survey = new SurveyModel({
+        elements: [{ type: "matrixdynamic", name: "c", detailPanelMode: "underRow", columns: [{ name: "a", cellType: "text" }], detailElements: [compositeJson] }],
+        regionalFormat: { locale: "de-DE" }
+      });
+      survey.data = dataOfTwoLevels("05.12.2000");
+      const row = (<any>survey.getQuestionByName("c")).visibleRows[0];
+      row.showDetailPanel();
+      const entry = row.detailPanel.getQuestionByName("x").contentPanel.getQuestionByName("q");
+      expect(entry.getFilteredValue(), "the entry").toBe("2000-12-05");
+      expect(survey.data, "the data").toEqual(dataOfTwoLevels("05.12.2000"));
+    });
+  });
+
+  test("A question taken off the page over a locale switch keeps the date it read", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q", ...savedDateMask() }], locale: "de" });
+    survey.data = { q: "05.12.2000" };
+    const q = <QuestionTextModel>survey.getQuestionByName("q");
+    const page = survey.pages[0];
+    page.removeElement(q);
+    survey.locale = "";
+    page.addElement(q);
+    expect((<any>q.maskInstance).activePattern, "pattern").toBe("mm/dd/yyyy");
+    expect(q.getFilteredValue(), "the date").toBe("2000-12-05");
+  });
+
+  test("A matrix detail panel question has the survey's pattern and reads a saved text with it", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "c", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "a", cellType: "text" }], detailElements: [{ type: "text", name: "q", ...savedDateMask() }] }],
+      regionalFormat: { locale: "de-DE" }
+    });
+    survey.data = dynamicPanel.data("05.12.2000");
+    const row = (<any>survey.getQuestionByName("c")).visibleRows[0];
+    row.showDetailPanel();
+    const entry = row.detailPanel.getQuestionByName("q");
+    expect(entry.maskInstance.activePattern, "pattern").toBe("dd.mm.yyyy");
+    expect(entry.getFilteredValue(), "the entry").toBe("2000-12-05");
+    expect(survey.data, "the data").toEqual(dynamicPanel.data("05.12.2000"));
+  });
+
+  test("A composite's question has the survey's pattern and reads a saved text with it", () => {
+    ComponentCollection.Instance.add({ name: "datecomposite", elementsJSON: [{ type: "text", name: "q", ...savedDateMask() }] });
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "datecomposite", name: "c" }], regionalFormat: { locale: "de-DE" } });
+      survey.data = { c: { q: "05.12.2000" } };
+      const entry = (<any>survey.getQuestionByName("c")).contentPanel.getQuestionByName("q");
+      expect(entry.maskInstance.activePattern, "pattern").toBe("dd.mm.yyyy");
+      expect(entry.getFilteredValue(), "the entry").toBe("2000-12-05");
+      expect(survey.data, "the data").toEqual({ c: { q: "05.12.2000" } });
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
+
+  test("A survey that keeps its questions through a second fromJSON converts a saved text", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q", ...savedDateMask() }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q");
+    survey.data = { q: "12/05/2000" };
+    survey.fromJSON({ regionalFormat: { locale: "de-DE" } });
+    expect((<any>q.maskInstance).activePattern, "pattern").toBe("dd.mm.yyyy");
+    expect(q.value, "the text").toBe("05.12.2000");
+    expect(q.getFilteredValue(), "the question").toBe("2000-12-05");
+  });
+
+  test.each(formatCases)("%s: a top-level question and a multiple text item keep the survey's pattern", (_, format) => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "top", ...dateMask() },
+        { type: "multipletext", name: "mt", items: [{ name: "q", ...dateMask() }] }
+      ],
+      ...format.json
+    });
+    const top = <QuestionTextModel>survey.getQuestionByName("top");
+    const item = (<any>survey.getQuestionByName("mt")).items[0].editor;
+    expect((<any>top.maskInstance).activePattern, "top level").toBe("dd.mm.yyyy");
+    expect(top.inputValue, "top-level empty mask").toBe(format.emptyText);
+    expect((<any>item.maskInstance).activePattern, "multiple text").toBe("dd.mm.yyyy");
+    expect(item.inputValue, "multiple text empty mask").toBe(format.emptyText);
   });
 });

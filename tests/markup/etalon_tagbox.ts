@@ -26,6 +26,29 @@ registerMarkupTests(
       snapshot: "tagbox"
     },
     {
+      name: "Test tagbox keyboard hints with the enter chips in one cell",
+      json: {
+        showKeyboardHints: true,
+        autoAdvanceEnabled: true,
+        elements: [
+          {
+            "type": "tagbox",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      removeIds: true,
+      snapshot: "tagbox-keyboard-hints-closed",
+      getElement: (element) => element?.parentElement
+    },
+    {
       name: "Test Tagbox question markup - touch",
       json: {
         elements: [

@@ -2717,6 +2717,23 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     expect(result.pages[0].elements[0].columns[1].name, "name is generated for column 2").toBe("question1");
     expect(result.pages[0].elements[0].columns[2].name, "name is generated for column 3").toBe("question3");
   });
+  test("matrixdropdown: a splice whose deleteCount runs past the end removes the last row incrementally", () => {
+    const matrix = new QuestionMatrixDropdownModel("q1");
+    matrix.addColumn("col1");
+    matrix.rows = ["row1", "row2", "row3"];
+    const firstRow = matrix.visibleRows[0];
+    const renderedTable = matrix.renderedTable;
+
+    const removed = matrix.rows.splice(2, 5);
+
+    expect(removed.map((item: ItemValue) => item.value), "#1: one row is removed").toEqual(["row3"]);
+    expect(matrix.visibleRows.map(row => row.rowName), "#2: visible rows").toEqual(["row1", "row2"]);
+    expect(matrix.visibleRows[0] === firstRow, "#3: the other rows are kept").toBe(true);
+    expect(matrix.renderedTable === renderedTable, "#4: the rendered table is kept").toBe(true);
+    // Data rows are at odd indices (each data row is preceded by an error row).
+    const renderedRows = matrix.renderedTable.rows.filter((_, index: number) => index % 2 === 1);
+    expect(renderedRows.map(row => row.row.rowName), "#5: rendered rows match visible rows").toEqual(["row1", "row2"]);
+  });
   test("matrixdropdown: removing or adding a single row updates renderedTable incrementally, Bug#11212", () => {
     const matrix = new QuestionMatrixDropdownModel("q1");
     matrix.addColumn("col1");

@@ -119,16 +119,21 @@ export class CalculatedValue extends Base {
   private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>, canSkip?: boolean) {
     if (!this.canRunExpression || !this.ensureExpression()) return;
     this.locCalculation();
-    if (!!calculatedValues) {
-      this.runDependentExpressions(calculatedValues, properties);
-    }
-    // Decided after the dependents ran: a calculated value this one uses and that changed in
-    // this pass is in the survey's changed keys by now
-    if (canSkip && this.canSkipCalculation()) {
+    try {
+      if (!!calculatedValues) {
+        this.runDependentExpressions(calculatedValues, properties);
+      }
+      // Decided after the dependents ran: a calculated value this one uses and that changed in
+      // this pass is in the survey's changed keys by now
+      if (canSkip && this.canSkipCalculation()) {
+        this.unlocCalculation();
+        return;
+      }
+      this.expressionRunner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, "expression"));
+    } catch(e) {
       this.unlocCalculation();
-      return;
+      throw e;
     }
-    this.expressionRunner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, "expression"));
   }
   // A run in the survey's conditions pass is skipped, the way a strict-dependency visibleIf is,
   // when no variable the expression uses changed. The value's own state must also be what the
@@ -287,11 +292,14 @@ export class CalculatedValue extends Base {
     } else {
       this.expressionRunner = this.createExpressionRunner(expression);
       this.expressionRunner.onRunComplete = newValue => {
-        if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
-          this.setValue(newValue);
+        try {
+          if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
+            this.setValue(newValue);
+          }
+          this.lastRun = { name: this.name, value: newValue };
+        } finally {
+          this.unlocCalculation();
         }
-        this.lastRun = { name: this.name, value: newValue };
-        this.unlocCalculation();
       };
     }
     return true;

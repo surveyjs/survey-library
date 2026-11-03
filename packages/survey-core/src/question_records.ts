@@ -1,8 +1,8 @@
 import { Base } from "./base";
-import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
+import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, getNestedElementQuestions } from "./question";
+import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
@@ -41,12 +41,15 @@ import { IRecordRemoval, IRecordTarget, IRecordTargetResolverOwner, RecordTarget
 import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, QuestionRecordsBar } from "./question_records_bar";
 import { IRecordsSortField } from "./records/records-sort-bar";
 import type { PanelModelBase } from "./panel";
+import type { SurveyElement } from "./survey-element";
 import type { QuestionExpressionModel } from "./question_expression";
 import { ExpressionRunner } from "./expressions/expressionRunner";
 
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
    QuestionPanelDynamicItem: in design mode the panel shown is the template, which has none. */
 export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
+// Answers true to stop the walk, as a NestedElementVisit does.
+export type NestedWalkItemVisit = (item: NestedWalkItem, position: number, visible: boolean) => boolean | void;
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyOldValueReads } from "./interfaces/survey-callbacks";
 
@@ -372,8 +375,8 @@ export abstract class QuestionRecordsModel extends Question {
   private getQuestionsSharingValue(name: string): Array<IQuestion> {
     return this.survey.getQuestionsByValueName(name) || [];
   }
-  /* The record fields the template questions of a dynamic panel or the column questions of a matrix
-     contribute to the list: one per question, under its value name, and one more for a comment,
+  /* The record fields the template questions of a dynamic panel, or the column and detail panel questions
+     of a matrix, contribute to the list: one per question, under its value name, and one more for a comment,
      which is stored under an ordinary key of the same record. A question with an "other" item and no
      comment stores the other text under the same comment key (storeOthersAsComment): a string field,
      declared after the others. */
@@ -835,8 +838,14 @@ export abstract class QuestionRecordsModel extends Question {
     }
   }
   /* The records of the view in view order, each with its object (undefined for a record without one):
-     visibleOnly walks the visible records, otherwise every record the view creates. */
+     visibleOnly walks the visible records, otherwise every record the view creates. The built objects
+     of a question the list does not page are what is shown, with or without a view: visibleOnly walks
+     them all, in created order, func checks each one's visibility, and the list is not created. */
   protected forEachViewRecord(visibleOnly: boolean, func: (index: number, item: QuestionRecordItem) => void): void {
+    if (visibleOnly && !this.isPagedByList && this.areObjectsBuilt()) {
+      this.forEachItem((item: QuestionRecordItem): void => { func(this.getBuiltRecordIndex(item), item); });
+      return;
+    }
     this.forEachRecordItem(this.getViewIndexes(visibleOnly), (index: number, item: QuestionRecordItem): void => { func(index, item); });
   }
   protected getViewIndexes(visibleOnly: boolean): Array<number> {
@@ -853,6 +862,37 @@ export abstract class QuestionRecordsModel extends Question {
     for (let i = 0; i < count; i++) {
       func(i, this.getItem(i) || undefined);
     }
+  }
+  /* The data of the view, what a row reads as {matrix}: the records of the view, not of the page, in the
+     answer's shape. A record the list filter excluded is not part of it - the same answer a source that
+     filters on its own side gives. The type's hooks decide when the value is the answer, which records
+     take part and what each gives. */
+  public getFilteredData(): any {
+    if (this.isValueFilteredData()) return this.value;
+    const visibleOnly = !this.isHiddenRecordInFilteredData();
+    return this.collectRecordValues((func: (index: number, item: QuestionRecordItem) => void): void => this.forEachViewRecord(visibleOnly, func),
+      (index: number, item: QuestionRecordItem, add: (value: any) => void): void => this.addFilteredRecordValue(index, item, add));
+  }
+  // There is nothing to walk: without a view every record is in the value.
+  protected isValueFilteredData(): boolean {
+    return !this.hasDataListView;
+  }
+  // Whether a record the owner hides (rowsVisibleIf, templateVisibleIf) takes part: it does when its completed value keeps it.
+  protected isHiddenRecordInFilteredData(): boolean {
+    return false;
+  }
+  // What a record of the walk gives to the filtered data, through add; item is undefined for a record without an object.
+  protected abstract addFilteredRecordValue(index: number, item: QuestionRecordItem, add: (value: any) => void): void;
+  /* One walk, the result in the answer's shape, which the own source decides: an array in walk order,
+     or keyed by the row value. forEachRecord is the walk, func adds what a record contributes. */
+  protected collectRecordValues(forEachRecord: (func: (index: number, item: QuestionRecordItem) => void) => void,
+    func: (index: number, item: QuestionRecordItem, add: (value: any) => void) => void): any {
+    const source = this.recordsSource;
+    const res = source["createEmptyAnswer"]();
+    forEachRecord((index: number, item: QuestionRecordItem): void => {
+      func(index, item, (value: any): void => { source["addRecordToAnswer"](res, index, value); });
+    });
+    return res;
   }
   /* The display values of a records value, in record order: getRecordDisplayValue formats each record
      with the object that holds it, or with the question's templates. This is a live path - text piping
@@ -1184,18 +1224,17 @@ export abstract class QuestionRecordsModel extends Question {
     return Math.min(this.pageSize, maxPageSize);
   }
   // The nested elements of the rows or panels a build mode reads, item by item.
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
-    this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): void => {
-      this.forEachNestedElementOfItem(item, position, visible, build, visit);
-    });
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
+    return this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): boolean | void =>
+      this.forEachNestedElementOfItem(item, position, visible, build, visit));
   }
   /* The items a build mode reads, each with its position in the list of created items - never an index
      in a visible-only list, so that the segment of the record it holds can be computed - and whether the
      question shows it. */
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void { }
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: NestedWalkItemVisit): boolean | void { }
   // The nested elements of one item at a position in the list of created items.
   protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
-    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void { }
+    build: NestedWalkBuild, visit: NestedElementVisit): boolean | void { }
   protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
     return includeItSelf;
   }
@@ -2414,7 +2453,7 @@ export abstract class QuestionRecordsModel extends Question {
     return this.allowSort === true;
   }
   /* Whether the rendered column headers sort. The dynamic panel has no headers, so its sort bar is the only
-     sort UI; the matrix's showSortBar "auto" shows the bar only while this is false. */
+     sort UI; the matrix's showSortBar "auto" shows the bar while this is false or a detail field is offered. */
   public get canSortByHeaders(): boolean { return false; }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value
@@ -2469,9 +2508,10 @@ export abstract class QuestionRecordsModel extends Question {
     return this.recordsBar.sortActions;
   }
   /* The fields the sort bar offers, in the order the question shows them: the sortable columns of a
-     matrix, the value-sortable template questions of a dynamic panel. Computed on every read from the
-     columns or the template, which notify the bar through updateRecordsBar(). The data type is the
-     one the list registered (getFields), so the bar and the list agree. */
+     matrix and then the questions of its detail panel, the value-sortable template questions of a
+     dynamic panel. Computed on every read from the columns or the template, which notify the bar
+     through updateRecordsBar(). The data type is the one the list registered (getFields), so the bar
+     and the list agree. */
   protected get sortFields(): Array<IRecordsSortField> {
     return this.toSortFields(this.getSortFieldCandidates());
   }
@@ -2485,7 +2525,13 @@ export abstract class QuestionRecordsModel extends Question {
     return res;
   }
   protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
-    return [];
+    const template = this.getRecordSortTemplate();
+    return !!template ? this.getTemplateSortFieldCandidates(template) : [];
+  }
+  /* The panel whose questions fill a record and are offered by the sort bar: the template of a dynamic
+     panel, the detail panel of a matrix. */
+  protected getRecordSortTemplate(): PanelModelBase {
+    return undefined;
   }
   /* The fields a designer can sort by (getDesignSortFields): every field whose values sort, whatever allowSort
      and a column's allowSort say - they gate the respondent, not sortCriteria. The dynamic panel offers what its
@@ -2497,13 +2543,54 @@ export abstract class QuestionRecordsModel extends Question {
      the same record), under the value name the list knows it by (getFieldsOfQuestions). A question
      hidden in the template is left out; one a visibleIf hides in some records is not: the sort covers
      those records too. */
-  protected getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
+  private getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
     const res: Array<{ field: string, title: string }> = [];
     template.questions.forEach((q: Question): void => {
-      if (!q.isValueSortable || !isVisibleInTemplate(q, template)) return;
-      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q) });
+      if (!this.isTemplateQuestionSortable(q) || !isVisibleInTemplate(q, template)) return;
+      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q, this) });
     });
     return res;
+  }
+  protected isTemplateQuestionSortable(q: Question): boolean {
+    return q.isValueSortable;
+  }
+  /* The watch of a record template. One handler for every template element, so that an element is
+     subscribed once however often it is walked: onPropertyChanged.add skips a callback it holds. A
+     panel brings its elements, and its later ones through the nested callbacks. It ends when the
+     element leaves the template, and with the question. */
+  private onTemplateElementPropertyChangedHandler = (element: any, options: any): void => {
+    this.onTemplateElementPropertyChanged(element, options);
+  };
+  private onNestedTemplateElementAdded = (element: IElement): void => {
+    this.watchRecordTemplateElement(<SurveyElement><any>element);
+    this.updateRecordsBar();
+  };
+  private onNestedTemplateElementRemoved = (element: IElement): void => {
+    this.unwatchRecordTemplateElement(<SurveyElement><any>element);
+    this.updateRecordsBar();
+  };
+  protected watchRecordTemplateElement(element: SurveyElement): void {
+    this.onRecordTemplateElementWatched(element);
+    element.onPropertyChanged.add(this.onTemplateElementPropertyChangedHandler);
+    if (element.isPanel) {
+      const panel = <PanelModelBase><any>element;
+      panel.addElementCallback = this.onNestedTemplateElementAdded;
+      panel.removeElementCallback = this.onNestedTemplateElementRemoved;
+      panel.elements.forEach((el: IElement): void => { this.watchRecordTemplateElement(<SurveyElement><any>el); });
+    }
+  }
+  protected unwatchRecordTemplateElement(element: SurveyElement): void {
+    element.onPropertyChanged.remove(this.onTemplateElementPropertyChangedHandler);
+    if (element.isPanel) {
+      const panel = <PanelModelBase><any>element;
+      if (panel.addElementCallback === this.onNestedTemplateElementAdded) panel.addElementCallback = undefined;
+      if (panel.removeElementCallback === this.onNestedTemplateElementRemoved) panel.removeElementCallback = undefined;
+      panel.elements.forEach((el: IElement): void => { this.unwatchRecordTemplateElement(<SurveyElement><any>el); });
+    }
+  }
+  protected onRecordTemplateElementWatched(element: SurveyElement): void { }
+  protected onTemplateElementPropertyChanged(element: any, options: any): void {
+    this.updateRecordsBar();
   }
   // A locale change changes no sort and no property; the bar's texts and the field titles follow it.
   public locStrsChanged(): void {
@@ -3665,8 +3752,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordIndexOfUnknownItem(): number {
     return -1;
   }
-  // The value an item's {matrix} / {panel} variable reads.
-  public abstract getFilteredData(): any;
   /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
      matrix row (see QuestionRecordItem.prepareRecordWrite). A refused or ignored write never reaches it
      (writeItemValue). A temporary object of the records clean-up writes its copy; every other write is
@@ -3776,10 +3861,9 @@ export abstract class QuestionRecordsModel extends Question {
      read-only (Question.focus refuses a read-only one). position: as forEachNestedWalkItem gives it. */
   protected focusNewRecord(item: NestedWalkItem, position: number, visible: boolean): void {
     if (!item) return;
-    let res: Question = null;
-    this.forEachNestedElementOfItem(item, position, visible, "none", (info: INestedElementInfo): void => {
-      if (!!res || !this.isNestedElementShown(item, info)) return;
-      res = getNestedElementQuestions(info).filter(q => q.isVisible && q.isParentVisible && q.hasInput && !q.isReadOnly)[0] || null;
+    const res = findInNestedWalk((visit: NestedElementVisit): void => { this.forEachNestedElementOfItem(item, position, visible, "none", visit); }, (info: INestedElementInfo): Question => {
+      if (!this.isNestedElementShown(item, info)) return null;
+      return getNestedElementQuestions(info).filter(q => q.isVisible && q.isParentVisible && q.hasInput && !q.isReadOnly)[0];
     });
     if (!!res) {
       res.focus();
@@ -3788,6 +3872,12 @@ export abstract class QuestionRecordsModel extends Question {
   // Does the question render a nested element of an item? The default: whenever it shows the item.
   protected isNestedElementShown(item: NestedWalkItem, info: INestedElementInfo): boolean {
     return info.visible;
+  }
+  // Item by item: a detail panel is shown by its row, and the total row is outside the items.
+  protected forEachNestedElementToFocus(visit: NestedElementVisit): void {
+    this.forEachNestedWalkItem("none", (item: NestedWalkItem, position: number, visible: boolean): boolean | void =>
+      this.forEachNestedElementOfItem(item, position, visible, "none", (info: INestedElementInfo): boolean | void =>
+        this.isNestedElementShown(item, info) && visit(info)));
   }
   /* The question defines which records exist and in what order (the rows of the fixed matrix) when its
      own source has no insert: the list it creates refuses to insert, remove or move one. */
@@ -4484,9 +4574,12 @@ function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
 }
 /* The title the sort bar shows for a template question. The template belongs to no record, so the
    record piping ({panel.x}, {panelIndex}, {row.x}, {rowIndex}) has nothing to resolve: the unprocessed
-   title is taken with every placeholder stripped, and the name when nothing is left. */
-function getTemplateQuestionSortTitle(q: Question): string {
-  const res = (q.locTitle.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
+   title is taken with every placeholder stripped, and the name when nothing is left. The title is read
+   in the owner's locale: the detail panel of a matrix belongs to no survey, so its questions have none. */
+function getTemplateQuestionSortTitle(q: Question, owner: ILocalizableOwner): string {
+  const title = new LocalizableString(owner);
+  title.sharedData = q.locTitle;
+  const res = (title.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
   return res || q.name;
 }
 /* The count properties of a type with a record count, named after its entity: rowCount, minRowCount,

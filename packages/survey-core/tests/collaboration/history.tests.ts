@@ -3,6 +3,7 @@ import { ComponentCollection, SurveyModel } from "survey-core";
 import { CollaborationPlugin } from "../../src/plugins/collaboration/index";
 import { IPresencePeerEntry } from "../../src/plugins/collaboration/presence/presence-envelope";
 import { MAX_HISTORY_TEXT } from "../../src/plugins/collaboration/history/history-entry";
+import { createPlugin, disposePlugins } from "./collab-test-helpers";
 
 const threeQuestions = {
   elements: [
@@ -12,20 +13,17 @@ const threeQuestions = {
   ]
 };
 
-let plugins: Array<CollaborationPlugin> = [];
 let roots: Array<HTMLElement> = [];
 
 afterEach(() => {
-  plugins.splice(0).forEach((plugin) => plugin.dispose());
+  disposePlugins();
   roots.splice(0).forEach((root) => root.remove());
   document.body.querySelectorAll(".collab-presence-layer").forEach((el) => el.remove());
 });
 
 function make(json: any, options?: any): { survey: SurveyModel, plugin: CollaborationPlugin } {
   const survey = new SurveyModel(json);
-  const plugin = new CollaborationPlugin(survey, options);
-  plugins.push(plugin);
-  return { survey, plugin };
+  return { survey, plugin: createPlugin(survey, options) };
 }
 
 function join(plugin: CollaborationPlugin, entry?: Partial<IPresencePeerEntry>): void {

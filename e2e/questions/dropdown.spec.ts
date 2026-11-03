@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, checkSurveyWithEmptyQuestion, test, expect, getVisibleSelectListItemByText, getButtonByText } from "../helper";
-import { registerCustomItemComponent } from "../registerCustomComponents";
+import { registerCustomItemComponent, registerCustomListLoadingComponent } from "../registerCustomComponents";
 
 const title = "Dropdown question";
 
@@ -658,6 +658,57 @@ frameworks.forEach((framework) => {
       await myListItems.nth(3).click();
 
       await expect(page.locator(".sd-dropdown__input").locator(".sv-svg-icon")).toHaveCount(1);
+    });
+
+    test("Check dropdown custom loading component", async ({ page }) => {
+      await registerCustomListLoadingComponent(page, framework);
+
+      const json = {
+        elements: [
+          {
+            type: "dropdown",
+            name: "withItems",
+            choicesLazyLoadEnabled: true,
+            loadingComponent: "my-list-loading"
+          }, {
+            type: "dropdown",
+            name: "noItems",
+            choicesLazyLoadEnabled: true,
+            loadingComponent: "my-list-loading"
+          }
+        ]
+      };
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onChoicesLazyLoad.add((_, opt) => {
+          setTimeout(() => {
+            if (opt.question.name === "noItems") {
+              opt.setItems([], 0);
+            } else {
+              opt.setItems(["Ford", "Audi", "BMW"], 3);
+            }
+          }, 500);
+        });
+        window["survey"].fromJSON(json);
+      }, json);
+
+      const customLoading = page.locator(".my-list-loading");
+      const visiblePopup = page.locator(".sv-popup.sv-dropdown-popup").filter({ visible: true });
+
+      await page.locator(".sd-dropdown").nth(0).click();
+      await expect(customLoading).toHaveCount(1);
+      await expect(customLoading).toHaveAttribute("data-state", "loading");
+      await expect(customLoading).toHaveText("Custom loading");
+      await expect(visiblePopup.locator(".sd-selectlist__empty-container")).toHaveCount(0);
+
+      await expect(customLoading).toHaveCount(0);
+      await expect(getVisibleSelectListItemByText(page, "Ford")).toBeVisible();
+      await page.keyboard.press("Escape");
+
+      await page.locator(".sd-dropdown").nth(1).click();
+      await expect(customLoading).toHaveAttribute("data-state", "loading");
+      await expect(customLoading).toHaveCount(0);
+      await expect(page.locator(".sd-selectlist__empty-text").filter({ visible: true })).toHaveText("No data to display");
     });
 
     test("Check dropdown key press with searchEnabled", async ({ page }) => {
@@ -2216,6 +2267,137 @@ frameworks.forEach((framework) => {
       expect(filterInputString).not.toBeFocused();
       expect(await filterInputString.inputValue()).toBe("");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("Item 2");
+    });
+
+    [true, false].forEach((searchEnabled) => {
+      test(`touch: a long list opens with the selected item in view, search ${searchEnabled ? "on" : "off"}`, async ({ page }) => {
+        await page.evaluate(() => {
+          window["Survey"]._setIsTouch(true);
+        });
+        await page.setViewportSize({ width: 750, height: 900 });
+        await initSurvey(page, framework, {
+          elements: [{
+            type: "dropdown",
+            name: "q1",
+            searchEnabled: searchEnabled,
+            defaultValue: "item80",
+            choices: Array.from({ length: 100 }, (_, i) => `item${i + 1}`)
+          }]
+        });
+        await page.locator(".sd-dropdown").click();
+        await expect(page.locator(".sd-selectlist__item--selected")).toBeInViewport();
+      });
+    });
+
+    test("keyboard: a long list opens with the selected item in view", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{
+          type: "dropdown",
+          name: "q1",
+          searchEnabled: false,
+          defaultValue: "item80",
+          choices: Array.from({ length: 100 }, (_, i) => `item${i + 1}`)
+        }]
+      });
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("ArrowDown");
+      await expect(page.getByRole("option", { name: "item80", exact: true })).toBeInViewport();
+    });
+
+    test("dropdown with search: the select chip follows the input, and Enter on an erased input clears the value", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        elements: [{ type: "dropdown", name: "q1", choices: ["item1", "item2", "item3"], defaultValue: "item2" }]
+      });
+      const selectHint = page.locator(".sd-question__keyboard-hints").getByText("to select");
+      const input = page.locator(".sd-dropdown__filter-string-input");
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+
+      await input.fill("");
+      await expect(selectHint).toBeHidden();
+      await input.pressSequentially("item");
+      await expect(selectHint).toBeVisible();
+
+      await input.fill("");
+      await expect(selectHint).toBeHidden();
+      await page.keyboard.press("Enter");
+      expect(await page.evaluate(() => (window as any).survey.data)).toEqual({});
+    });
+
+    ["dropdown", "tagbox"].forEach((type) => {
+      test(`${type}: opening keeps the height of a hint row that has no room to spare`, async ({ page }) => {
+        await initSurvey(page, framework, {
+          showKeyboardHints: true,
+          elements: [{ type: type, name: "q1", choices: ["item1", "item2", "item3"] }]
+        });
+        const hintRow = page.locator(".sd-question__keyboard-hints");
+        const selectHint = hintRow.getByText("to select");
+        await expect(selectHint).toBeHidden();
+        // Narrow the row to the always visible chips, so anything wider wraps at every viewport and font.
+        await hintRow.evaluate((row: HTMLElement) => {
+          const lastChip = row.children[2].getBoundingClientRect();
+          row.style.width = `${Math.ceil(lastChip.right - row.getBoundingClientRect().left)}px`;
+        });
+        const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+        await page.locator(".sd-dropdown").click();
+        await expect(selectHint).toBeVisible();
+        expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+      });
+    });
+
+    test("tagbox: opening keeps the height of a hint row that wraps the shared enter cell", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] }
+        ]
+      });
+      const hintRow = page.locator(".sd-question__keyboard-hints");
+      const closedHint = hintRow.getByText("to continue");
+      const selectHint = hintRow.getByText("to select");
+      await expect(closedHint).toBeVisible();
+      // One pixel short of the cell wraps it. "to select" alone is narrower, so the cell has to keep the hidden "to continue".
+      await hintRow.evaluate((row: HTMLElement) => {
+        const enterCell = row.children[3].getBoundingClientRect();
+        row.style.width = `${Math.floor(enterCell.right - row.getBoundingClientRect().left) - 1}px`;
+      });
+      const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+      expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+    });
+
+    test("tagbox: the hint row stays on one line and Enter stays in place when the popup opens", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] }
+        ]
+      });
+      const hintRow = page.locator(".sd-question__keyboard-hints");
+      const enterKey = hintRow.getByText("Enter", { exact: true }).locator("visible=true");
+      const selectHint = hintRow.getByText("to select");
+      await expect(hintRow.getByText("to continue")).toBeVisible();
+      await hintRow.evaluate((row: HTMLElement) => {
+        const enterChip = row.children[3].getBoundingClientRect();
+        row.style.width = `${Math.ceil(enterChip.right - row.getBoundingClientRect().left)}px`;
+      });
+      const isOneLine = () => hintRow.evaluate((row) => {
+        return row.firstElementChild?.getBoundingClientRect().top === row.lastElementChild?.getBoundingClientRect().top;
+      });
+      expect(await isOneLine()).toBe(true);
+      const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+      const closedEnterLeft = await enterKey.evaluate((key) => key.getBoundingClientRect().left);
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+      expect(await isOneLine()).toBe(true);
+      expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+      expect(await enterKey.evaluate((key) => key.getBoundingClientRect().left)).toBe(closedEnterLeft);
     });
   });
 });

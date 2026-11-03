@@ -42,7 +42,7 @@ A survey parses and runs all expressions on startup. If any values used in the e
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Related APIs:** [`readOnly`](#readOnly), [`isReadOnly`](#isReadOnly)
+**Related APIs:** [`readOnly`](#readOnly), [`readOnlyMode`](#readOnlyMode), [`isReadOnly`](#isReadOnly)
 
 ### `gridLayoutColumns`
 

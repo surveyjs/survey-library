@@ -2304,6 +2304,27 @@ frameworks.forEach((framework) => {
       await expect(page.getByRole("option", { name: "item80", exact: true })).toBeInViewport();
     });
 
+    test("dropdown with search: the select chip follows the input, and Enter on an erased input clears the value", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        elements: [{ type: "dropdown", name: "q1", choices: ["item1", "item2", "item3"], defaultValue: "item2" }]
+      });
+      const selectHint = page.locator(".sd-question__keyboard-hints").getByText("to select");
+      const input = page.locator(".sd-dropdown__filter-string-input");
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+
+      await input.fill("");
+      await expect(selectHint).toBeHidden();
+      await input.pressSequentially("item");
+      await expect(selectHint).toBeVisible();
+
+      await input.fill("");
+      await expect(selectHint).toBeHidden();
+      await page.keyboard.press("Enter");
+      expect(await page.evaluate(() => (window as any).survey.data)).toEqual({});
+    });
+
     ["dropdown", "tagbox"].forEach((type) => {
       test(`${type}: opening keeps the height of a hint row that has no room to spare`, async ({ page }) => {
         await initSurvey(page, framework, {

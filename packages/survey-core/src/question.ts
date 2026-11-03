@@ -3687,8 +3687,11 @@ export class Question extends SurveyElement<Question>
   protected get isAutoAdvanceOwner(): boolean {
     return (this.survey as SurveyModel)?.getQuestionByValueName(this.getValueName()) === this;
   }
+  // A question nested in a choice item is found by value name, but it is not in the page's question
+  // list, so the survey advances for it only when it is the single input on screen.
   public canAdvanceOnEnter(): boolean {
-    return this.isSurveyAutoAdvanceEnabled && this.isAutoAdvanceOwner;
+    if (!this.isSurveyAutoAdvanceEnabled || !this.isAutoAdvanceOwner) return false;
+    return !this.parentQuestion || this.parentQuestion.singleInputQuestion === this;
   }
   protected requestAutoAdvance(): boolean {
     if (!this.isAutoAdvanceOwner) return false;

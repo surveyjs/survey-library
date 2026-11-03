@@ -8170,8 +8170,9 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (this.isLastElement && !this.autoAdvanceAllowComplete) return false;
+    const input = element.singleInputQuestion;
     const goNextQuestion = () => {
-      if (element !== this.currentSingleElement) return;
+      if (element !== this.currentSingleElement || input !== element.singleInputQuestion) return;
       if (!this.isLastElement) {
         this.performNext();
       } else {

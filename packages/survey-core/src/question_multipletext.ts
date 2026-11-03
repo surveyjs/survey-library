@@ -59,6 +59,9 @@ export class MultipleTextEditorModel extends QuestionTextModel {
   public canAdvanceOnEnter(): boolean {
     return !!this.parentQuestion && this.parentQuestion.canAdvanceOnEnter();
   }
+  protected requestAutoAdvance(): boolean {
+    return !!this.parentQuestion && (<QuestionMultipleTextModel><any>this.parentQuestion).requestItemAutoAdvance();
+  }
   public get a11y_input_ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
@@ -679,6 +682,11 @@ export class QuestionMultipleTextModel extends Question
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return advanceKeyboardHints(this);
+  }
+  // Internal. MultipleTextEditorModel calls this so an input can advance on Enter.
+  // Stays public because that model is not a subclass and requestAutoAdvance is protected.
+  public requestItemAutoAdvance(): boolean {
+    return this.requestAutoAdvance();
   }
   /**
    * The number of columns used to arrange input items. Accepts the following values: 1, 2, 3, 4, 5.

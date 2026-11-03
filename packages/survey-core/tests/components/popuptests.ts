@@ -1458,6 +1458,151 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
+  test("Fixed PopupModel width is taken from the width target and the vertical position stays on the input", () => {
+    const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
+    model.positionMode = "fixed";
+    model.setWidthByTarget = true;
+    const targetElement: HTMLElement = document.createElement("button");
+    const widthTarget: HTMLElement = document.createElement("div");
+
+    targetElement.style.position = "absolute";
+    targetElement.style.top = "130px";
+    targetElement.style.left = "200px";
+    targetElement.style.width = "120px";
+    targetElement.style.height = "48px";
+    widthTarget.style.position = "absolute";
+    widthTarget.style.top = "120px";
+    widthTarget.style.left = "40px";
+    widthTarget.style.width = "560px";
+    widthTarget.style.height = "80px";
+    addElementIntoBody(targetElement);
+    addElementIntoBody(widthTarget);
+    stubFromInlineStyle(targetElement);
+    stubFromInlineStyle(widthTarget);
+
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    model.getWidthTargetCallback = () => widthTarget;
+    viewModel.initializePopupContainer();
+    viewModel.container.innerHTML = popupTemplate;
+    let popupContainer = getPopupContainer(viewModel.container);
+    popupContainer.style.width = "120px";
+    popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 120, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 120, height: 400 });
+
+    (<any>window).innerWidth = 1000;
+    (<any>window).innerHeight = 800;
+    model.toggleVisibility();
+    viewModel.updateOnShowing();
+    expect(viewModel.minWidth, "minWidth").toBe("560px");
+    expect(viewModel.width, "width").toBe("560px");
+    expect(viewModel.left, "left").toBe("40px");
+    expect(viewModel.top, "top").toBe("178px");
+
+    viewModel.dispose();
+    targetElement.remove();
+    widthTarget.remove();
+  });
+
+  test("Popup width falls back to the input when the width target is missing or has no width", () => {
+    const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
+    model.positionMode = "fixed";
+    model.setWidthByTarget = true;
+    const targetElement: HTMLElement = document.createElement("button");
+    const widthTarget: HTMLElement = document.createElement("div");
+
+    targetElement.style.position = "absolute";
+    targetElement.style.top = "130px";
+    targetElement.style.left = "200px";
+    targetElement.style.width = "120px";
+    targetElement.style.height = "48px";
+    widthTarget.style.position = "absolute";
+    widthTarget.style.left = "40px";
+    widthTarget.style.width = "0px";
+    widthTarget.style.height = "80px";
+    addElementIntoBody(targetElement);
+    addElementIntoBody(widthTarget);
+    stubFromInlineStyle(targetElement);
+    stubFromInlineStyle(widthTarget);
+
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    model.getWidthTargetCallback = () => undefined;
+    viewModel.initializePopupContainer();
+    viewModel.container.innerHTML = popupTemplate;
+    let popupContainer = getPopupContainer(viewModel.container);
+    popupContainer.style.width = "700px";
+    popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 700, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 700, height: 400 });
+
+    (<any>window).innerWidth = 1000;
+    (<any>window).innerHeight = 800;
+    model.toggleVisibility();
+    viewModel.updateOnShowing();
+    expect(viewModel.minWidth, "missing target minWidth").toBe("120px");
+    expect(viewModel.width, "missing target width").toBe("120px");
+    expect(viewModel.left, "missing target left").toBe("200px");
+
+    model.getWidthTargetCallback = () => widthTarget;
+    viewModel.updateOnShowing();
+    expect(viewModel.minWidth, "zero width minWidth").toBe("120px");
+    expect(viewModel.width, "zero width width").toBe("120px");
+    expect(viewModel.left, "zero width left").toBe("200px");
+
+    viewModel.dispose();
+    targetElement.remove();
+    widthTarget.remove();
+  });
+
+  test("Popup width ignores the width target when setWidthByTarget is false", () => {
+    const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
+    model.positionMode = "fixed";
+    model.setWidthByTarget = false;
+    const targetElement: HTMLElement = document.createElement("button");
+    const widthTarget: HTMLElement = document.createElement("div");
+
+    targetElement.style.position = "absolute";
+    targetElement.style.top = "130px";
+    targetElement.style.left = "200px";
+    targetElement.style.width = "120px";
+    targetElement.style.height = "48px";
+    widthTarget.style.position = "absolute";
+    widthTarget.style.left = "40px";
+    widthTarget.style.width = "560px";
+    widthTarget.style.height = "80px";
+    addElementIntoBody(targetElement);
+    addElementIntoBody(widthTarget);
+    stubFromInlineStyle(targetElement);
+    stubFromInlineStyle(widthTarget);
+
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    const widthTargetCallback = vi.fn(() => widthTarget);
+    model.getWidthTargetCallback = widthTargetCallback;
+    viewModel.initializePopupContainer();
+    viewModel.container.innerHTML = popupTemplate;
+    let popupContainer = getPopupContainer(viewModel.container);
+    popupContainer.style.width = "1500px";
+    popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 1500, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 1500, height: 400 });
+
+    (<any>window).innerWidth = 1000;
+    (<any>window).innerHeight = 800;
+    model.toggleVisibility();
+    viewModel.updateOnShowing();
+    expect(widthTargetCallback, "callback is not used").not.toHaveBeenCalled();
+    expect(viewModel.minWidth, "minWidth").toBe("auto");
+    expect(viewModel.width, "width").toBe("800px");
+    expect(viewModel.left, "left").toBe("200px");
+
+    viewModel.dispose();
+    targetElement.remove();
+    widthTarget.remove();
+  });
+
   test("Fixed PopupModel width calculate if short content", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";

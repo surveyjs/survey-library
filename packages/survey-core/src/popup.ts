@@ -84,6 +84,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   public onBlur: () => void = () => { };
   public onDispose: () => void = () => { };
   public getTargetCallback?: (container: HTMLElement) => HTMLElement;
+  public getWidthTargetCallback?: (container: HTMLElement) => HTMLElement;
   public getAreaCallback?: (container: HTMLElement) => HTMLElement;
 
   @property() contentComponentName: string;

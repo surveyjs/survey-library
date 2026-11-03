@@ -528,10 +528,11 @@ export class PanelModelBase extends SurveyElement<Question>
     this.resetPropertyValue("hasTextInTitle");
   }
   get hasTitle(): boolean {
-    return (
-      (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
-      (this.isDesignMode && !this.isPanel && this.showTitle && settings.designMode.showEmptyTitles)
-    );
+    if (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) return true;
+    const show = this.isDesignMode && !this.isPanel && this.showTitle && settings.designMode.showEmptyTitles;
+    const survey: any = this.survey;
+    if (show && !!survey && !!survey.getShowEmptyPlaceholder) return survey.getShowEmptyPlaceholder(this, "title", show);
+    return show;
   }
   public delete(doDispose: boolean = true): void {
     this.deletePanel();

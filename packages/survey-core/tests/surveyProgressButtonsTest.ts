@@ -162,4 +162,20 @@ describe("ProgressButtons", () => {
     survey.questionsOnPageMode = "standard";
     expect(survey.getProgressTypeComponent(), "back to standard").toBe("sv-progress-pages");
   });
+
+  test("Page titles with HTML are plain text in tooltips, Bug#12135", () => {
+    const json: any = {
+      pages: [
+        { name: "page1", title: "<span style='color: red'>STEP ONE</span> <b>Let's start</b>", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", title: "<b>About you</b>", elements: [{ type: "text", name: "q2" }] }
+      ]
+    };
+    const survey: SurveyModel = new SurveyModel(json);
+    survey.onTextMarkdown.add((_, options) => { options.html = options.text; });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    expect(survey.pages[0].locNavigationTitle.hasHtml, "page title is rendered as HTML").toBe(true);
+    expect(progress.headerText).toBe("<span style='color: red'>STEP ONE</span> <b>Let's start</b>");
+    expect(progress.headerTitle).toBe("STEP ONE Let's start");
+    expect(progress.getItemTitle(survey.pages[1])).toBe("About you");
+  });
 });

@@ -94,6 +94,13 @@ describe("FilterEditPresetsDialog: Delete and Reset", () => {
     expect(actions(dialog), "#1").toEqual(["Delete"]);
     dialog.dispose();
   });
+  test("Delete is a muted alert action that turns red on hover", () => {
+    const dialog = control().createEditPresetsDialog("adults");
+    const del = dialog.actionsToolbar.getActionById("sv-filter-preset-delete");
+    expect(Object.assign({}, del.predefinedAppearance, del.appearance))
+      .toEqual({ style: "alert", mode: "tertiary-muted", size: "small", showBorder: true });
+    dialog.dispose();
+  });
   test("Delete takes the tab away and selects the next one, or the one before the last", () => {
     const dialog = control().createEditPresetsDialog("edges");
     dialog.deleteSelected();

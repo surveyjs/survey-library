@@ -299,7 +299,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     this.tabsToolbarValue = new ActionContainer();
     this.tabsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
     this.deleteAction = new Action({ id: "sv-filter-preset-delete", title: filterUIStrings.deletePreset, iconName: "icon-delete-16x16",
-      iconSize: "auto", appearance: { style: "neutral", mode: "secondary", showBorder: true }, action: (): void => { this.deleteSelected(); } });
+      iconSize: "auto", appearance: { style: "alert", mode: "tertiary-muted", showBorder: true }, action: (): void => { this.deleteSelected(); } });
     this.resetAction = new Action({ id: "sv-filter-preset-reset", title: filterUIStrings.resetPreset, iconName: "icon-reset-16x16",
       iconSize: "auto", appearance: { style: "neutral", mode: "secondary", showBorder: true }, action: (): void => { this.resetSelected(); } });
     this.actionsToolbarValue = new ActionContainer();

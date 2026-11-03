@@ -50,7 +50,7 @@ describe("FilterToolbars: the chips row", () => {
     const adults = action(q.chipsToolbar, "sv-filter-item-adults");
     const ai = action(q.chipsToolbar, "sv-filter-item-ai");
     expect([adults.title, !!adults.active, adults.iconName], "#1").toEqual(["adults", false, undefined]);
-    expect(ai.iconName, "#2").toBe("icon-sparkle-24x24");
+    expect(ai.iconName, "#2").toBe("icon-sparkle-16x16");
     adults.action();
     expect([q.activeItemName, adults.active], "#3").toEqual(["adults", true]);
     q.items[0].title = "Adults";

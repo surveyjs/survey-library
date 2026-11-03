@@ -74,10 +74,10 @@ export class FilterModal extends Base {
     this.creationToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
     this.creationToolbarValue.setItems([this.addPresetAction], false);
     this.editPresetsAction = new Action({ id: "sv-filter-modal-edit-presets", title: filterUIStrings.editPresets, showTitle: false,
-      tooltip: filterUIStrings.editPresets, iconName: "icon-edit-24x24", iconSize: "auto",
+      tooltip: filterUIStrings.editPresets, iconName: "icon-edit-16x16", iconSize: "auto",
       action: (): void => { this.owner.showPresetDialog(this, true); } });
     this.presetsTitleToolbarValue = new ActionContainer();
-    this.presetsTitleToolbarValue.setActionsAppearance({ style: "neutral", mode: "tertiary", size: "small" });
+    this.presetsTitleToolbarValue.setActionsAppearance({ style: "neutral", mode: "tertiary-muted", size: "x-small" });
     this.presetsTitleToolbarValue.setItems([this.editPresetsAction], false);
     this.updatePresetActions();
     this.count();

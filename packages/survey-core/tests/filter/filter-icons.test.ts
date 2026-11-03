@@ -6,9 +6,10 @@ import { QuestionFilterModel } from "../../src/question_filter";
 import { PanelModel } from "../../src/panel";
 import { Action } from "../../src/actions/action";
 
-// The control's buttons are small or larger, and those give an icon 24px (sd-action.scss): a 16px
-// drawing there is scaled up - blurred, its lines half as thick again. Every icon they show is a
-// 24px one of the v2 set, drawn for that size.
+// An icon is drawn for the size it is shown at; one drawn for another size is scaled - blurred, its
+// lines thicker or thinner than the set's. A small or larger action shows an icon at 24px
+// (sd-action.scss), an x-small one at 16px; the chips row brings its actions' icons down to 16px
+// (sd-filter.scss).
 const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "smart", type: "ai", expression: "{age} > 60" }];
@@ -38,25 +39,33 @@ function iconsOf(q: QuestionFilterModel): { [id: string]: string } {
 }
 
 describe("Filter: the icons of its buttons", () => {
-  test("every button shows a 24px icon", () => {
+  test("every button shows an icon drawn for its size: 16px in the chips row and the pencil, 24px elsewhere", () => {
     expect(iconsOf(control())).toEqual({
-      "sv-filter-clear": "icon-close-24x24",
-      "sv-filter-item-smart": "icon-sparkle-24x24",
+      "sv-filter-clear": "icon-close-16x16",
+      "sv-filter-item-smart": "icon-sparkle-16x16",
       "sv-filter-modal-add-preset": "icon-plus-24x24",
-      "sv-filter-modal-edit-presets": "icon-edit-24x24",
+      "sv-filter-modal-edit-presets": "icon-edit-16x16",
       "sv-filter-modal-item-smart": "icon-sparkle-24x24",
       "sv-filter-preset-delete": "icon-delete-24x24",
       "sv-filter-preset-reset": "icon-reset-24x24",
       "sv-filter-preset-add-field": "icon-plus-24x24"
     });
   });
-  test("each of them is in the v2 set and drawn on a 24px canvas", () => {
+  test("each of them is in the v2 set and drawn on the canvas its name says", () => {
     const icons = iconsOf(control());
     Object.keys(icons).map((id: string): string => icons[id]).forEach((name: string): void => {
       const file = path.resolve(__dirname, "../../src/images-v2", name.substring("icon-".length) + ".svg");
       expect(fs.existsSync(file), name).toBe(true);
+      const size = /-(\d+)x\d+$/.exec(name)[1];
       const svg = fs.readFileSync(file, "utf8");
-      expect(/width="24" height="24" viewBox="0 0 24 24"/.test(svg), name).toBe(true);
+      expect(new RegExp(`width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"`).test(svg), name).toBe(true);
     });
+  });
+  test("the pencil of the presets is an x-small muted action, as the mockup's title actions", () => {
+    const modal = control().createFilterModal();
+    const pencil = modal.presetsTitleToolbar.getActionById("sv-filter-modal-edit-presets");
+    expect(Object.assign({}, pencil.predefinedAppearance, pencil.appearance))
+      .toEqual({ style: "neutral", mode: "tertiary-muted", size: "x-small" });
+    modal.dispose();
   });
 });

@@ -978,7 +978,24 @@ Enables the read-only mode. If you set this property to `true`, users cannot tak
 
 Default value: `false`
 
-[View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+[Demo: Read-Only / Display Mode](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+
+**Related APIs:** [`readOnlyMode`](#readOnlyMode)
+
+### `readOnlyMode`
+
+**Type**: `"readonly" | "view"`
+
+Specifies how read-only questions are displayed.
+
+Possible values:
+
+- `"readonly"` (default) - Displays the usual input controls, but disabled for editing.
+- `"view"` - Displays answers as plain text or other non-interactive visuals.
+
+You can override this setting for individual questions, panels, and pages using their `readOnlyMode` property.
+
+**Related APIs:** [`readOnly`](#readOnly)
 
 ### `regionalFormat`
 

@@ -59,6 +59,10 @@ export class RecordTargetResolver implements IRecordIndexFollower {
      question's own inserts, removes and moves; an assignment from outside, a read and a new source drop
      the held targets, and their answers fall back to the record object. */
   private held: Array<IRecordTarget>;
+  /* Counts the rebinds of the objects (onItemsRebound): a confirmation about an object, opened before
+     one, finds nothing when the respondent answers. A count and not a list: an answered "no" leaves no
+     target behind. */
+  private itemsRebindCount: number = 0;
   // The last removeTarget removed a record (a handler may cancel it, or it may find nothing to remove).
   private isLastTargetRemoved: boolean = false;
   constructor(private owner: IRecordTargetResolverOwner) { }
@@ -275,9 +279,11 @@ export class RecordTargetResolver implements IRecordIndexFollower {
      removed when it is gone. */
   private confirmRecordRemoval(target: IRecordTarget, message: string, remove: (current: IRecordTarget) => void): void {
     this.holdRemoveTarget(target);
+    const rebindCount = this.itemsRebindCount;
     confirmActionAsync({
       message: message,
       funcOnYes: () => {
+        if (!!target.item && rebindCount !== this.itemsRebindCount) return;
         const current = this.findRemoveTargetAgain(target);
         if (!!current) remove(current);
       },
@@ -290,6 +296,12 @@ export class RecordTargetResolver implements IRecordIndexFollower {
     if (!!target.item) return;
     if (!this.held)this.held = [];
     this.held.push(target);
+  }
+  /* The objects were kept and rebound to other records (a sort or a page move the type follows without
+     rebuilding them): an open confirmation was about the record an object held, so it removes nothing
+     now - as it would after a rebuild disposed the object. */
+  public onItemsRebound(): void {
+    this.itemsRebindCount++;
   }
   public follow(event: RecordIndexEvent): void {
     if (isRecordListChange(event)) {

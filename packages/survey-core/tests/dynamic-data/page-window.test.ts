@@ -1187,6 +1187,8 @@ describe("Page window: carousel, tab and design mode", () => {
   test("while a UI renders the matrix, the rows a page move replaced are disposed after the next rerender", () => {
     const matrix = createMatrix({ pageSize: 3,
       columns: [{ name: "id", cellType: "text" }, { name: "kind", cellType: "dropdown", choices: ["a", "b"] }] }, records(10));
+    // A cell-creation handler keeps the rebuild of a page move (RB01): the rows are replaced.
+    (<SurveyModel>matrix.survey).onMatrixCellCreated.add(() => { });
     const oldCell = <QuestionDropdownModel>matrix.visibleRows[0].getQuestionByName("kind");
     matrix.enableOnElementRerenderedEvent();
     matrix.nextPage();

@@ -1144,6 +1144,25 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   private makeCommentEmpty: boolean;
+  /* What a question holds for the old record goes with it (Question.resetForAnotherRecord):
+     - the comment typed for a choice - of the visible choices too, which are copies under choicesFromQuestion;
+     - the "other" text: with showCommentArea the value reset does not clear it, and the next "other"
+       answer would write it into the new record;
+     - the "other" text typed before it, which would show the empty "other" error on a value change;
+     - the old value kept for a choices request;
+     - the comment clearing the value reset leaves pending - the next value write would carry it out. */
+  protected resetForAnotherRecord(): void {
+    super.resetForAnotherRecord();
+    const clearComment = (item: ItemValue): void => {
+      if ((<ChoiceItem>item).showCommentArea && !this.isOtherItemByValue(item))this.setCommentPropertyValue(item, undefined);
+    };
+    this.choices.forEach(clearComment);
+    this.visibleChoices.forEach(clearComment);
+    this.otherValueCore = "";
+    this.prevOtherErrorValue = undefined;
+    this.cachedValueForUrlRequests = undefined;
+    this.makeCommentEmpty = false;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true, updateComment: boolean = true): void {
     if (
       this.isLoadingFromJson ||

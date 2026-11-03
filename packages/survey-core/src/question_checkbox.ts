@@ -485,6 +485,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     super.updateValueFromSurvey(newValue, clearData);
     this.invisibleOldValues = {};
   }
+  // The values a hidden choice took from the old record would be restored into the new one (Question.resetForAnotherRecord).
+  protected resetForAnotherRecord(): void {
+    super.resetForAnotherRecord();
+    this.invisibleOldValues = {};
+  }
   onSurveyLoad(): void {
     this.onItemHasCommentChanged();
     super.onSurveyLoad();

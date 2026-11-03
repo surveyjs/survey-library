@@ -813,7 +813,8 @@ export class DynamicDataList {
     /* The page reset belongs to the filter: a different membership makes the page the respondent is
        on meaningless, while a sort keeps the same records and only reorders them. An assignment of
        the filter it already has changes neither. */
-    if (this.view.setView(newFilter, sort)) {
+    const isFilterChanged = this.view.setView(newFilter, sort);
+    if (isFilterChanged) {
       this.setPageIndexInternal(0, false);
       // Another filter is another set of records: what the old one reached says nothing about it.
       this.storageCount.forgetReach();
@@ -828,18 +829,21 @@ export class DynamicDataList {
       /* The read of the page is pending, or it failed or was refused: the whole storage stays in
          force, and the list runs the new view over it as it does for a source without paging. A page
          in force is left as it is: the list never filters or sorts one. */
-      if (isWholeStorageInForce && this.isWholeStorageInForce)this.applyLocalView();
+      if (isWholeStorageInForce && this.isWholeStorageInForce)this.applyLocalView(false);
       return;
     }
-    this.applyLocalView();
+    this.applyLocalView(!isFilterChanged);
   }
   private get isWholeStorageInForce(): boolean {
     return this.readState.isWholeStorageInForce;
   }
-  private applyLocalView(): void {
+  /* isSort: the filter stayed, so the reset only reorders the records and the owner may keep its
+     objects. A view run over the whole storage while a page read is pending is never one: the read
+     that commits replaces the window. */
+  private applyLocalView(isSort: boolean): void {
     this.membership.resetViews();
     this.membership.refreezeMembership();
-    this.raiseChanged({ type: "reset" });
+    this.raiseChanged(isSort ? { type: "reset", isSort: true } : { type: "reset" });
   }
   public get sort(): Array<ISortCriterion> {
     return this.view.sort.slice();

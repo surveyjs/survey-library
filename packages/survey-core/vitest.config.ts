@@ -11,6 +11,7 @@ export default defineConfig({
       "tests/typings/**",
       "tests/test-helpers.ts",
       "tests/test-baseline.ts",
+      "tests/dynamic-data/rebind-conformance.ts",
       "tests/oldTheme.ts",
       "tests/legacy-theme-vars.ts",
       "tests/linter/lint-test-helpers.ts",

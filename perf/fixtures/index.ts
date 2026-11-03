@@ -6,6 +6,7 @@ import { generateCalculations, calculationsDefaults } from "./calculations.ts";
 import { generateComplexLogic, complexLogicDefaults } from "./complex-logic.ts";
 import { generateManyPages, manyPagesDefaults } from "./many-pages.ts";
 import { generateRecords, recordsDefaults } from "./records.ts";
+import { generateRecordsPlain, recordsPlainDefaults } from "./records-plain.ts";
 import { countJson } from "./count.ts";
 
 export { FIXTURE_KEYS };
@@ -27,7 +28,8 @@ export const fixtureOptions: { [key: string]: any } = {
   "complexLogic": {},
   "manyPages": {},
   "records-1k": { records: 1000 },
-  "records-10k": { records: 10000 }
+  "records-10k": { records: 10000 },
+  "records-plain": {}
 };
 
 export function isFixtureKey(key: string): key is FixtureKey {
@@ -37,7 +39,8 @@ export function isFixtureKey(key: string): key is FixtureKey {
 export function getFixture(key: string, options?: any): Fixture {
   if (!isFixtureKey(key)) throw new Error("Unknown fixture: " + key);
   const defaults: { [key: string]: any } = { "large": largeDefaults, "expressions": expressionsDefaults, "calculations": calculationsDefaults,
-    "complexLogic": complexLogicDefaults, "manyPages": manyPagesDefaults, "records-1k": recordsDefaults, "records-10k": recordsDefaults };
+    "complexLogic": complexLogicDefaults, "manyPages": manyPagesDefaults, "records-1k": recordsDefaults, "records-10k": recordsDefaults,
+    "records-plain": recordsPlainDefaults };
   const o = Object.assign({}, defaults[key], fixtureOptions[key], options || {});
   let res: { json: any, data?: any, meta: any };
   if (key === "large") res = generateLarge(o);
@@ -45,6 +48,7 @@ export function getFixture(key: string, options?: any): Fixture {
   else if (key === "calculations") res = generateCalculations(o);
   else if (key === "complexLogic") res = generateComplexLogic(o);
   else if (key === "manyPages") res = generateManyPages(o);
+  else if (key === "records-plain") res = generateRecordsPlain(o);
   else res = generateRecords(o);
   // Every meta has the choice-question and expression counts of its JSON; a generator may plan its own.
   const counted = countJson(res.json);

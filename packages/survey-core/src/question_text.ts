@@ -797,6 +797,19 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     super.setNewValue(newValue);
   }
+  /* The text the input holds and its value-changed mark come with the record, as they do for a new
+     question: an incomplete masked entry goes, and the input shows the empty value - the empty mask. The
+     value-changed class setIsValueChanged put on the element itself goes too: a renderer that sees the
+     same class string as before does not touch it. */
+  protected resetForAnotherRecord(): void {
+    super.resetForAnotherRecord();
+    this._isValueChanged = false;
+    if (this.input && this.cssClasses.isValueChanged) {
+      this.input.classList.remove(this.cssClasses.isValueChanged);
+    }
+    this.updateInputValue();
+    this.dateValidationMessage = undefined;
+  }
   public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     super.updateValueFromSurvey(newValue, clearData);
     if (!this.isEmpty()) {

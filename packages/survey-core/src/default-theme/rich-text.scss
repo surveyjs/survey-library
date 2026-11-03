@@ -3,3 +3,26 @@
 //
 // base-theme.scss is deliberately not used here: it emits the whole --sjs2-* custom
 // property block, which survey-core.css already delivers to the same page.
+
+.sd-rich-text {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sd-rich-text__toolbar {
+  margin-bottom: var(--sjs2-spacing-x050, 4px);
+}
+
+.sd-rich-text__area {
+  width: 100%;
+  white-space: pre-wrap;
+  overflow: auto;
+  text-align: start;
+}
+
+.sd-rich-text__area ul,
+.sd-rich-text__area ol {
+  margin: 0.25em 0 0.25em 1.25em;
+  padding: 0;
+}

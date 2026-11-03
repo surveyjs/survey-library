@@ -99,7 +99,8 @@ export default (options = {}) => {
       external: [
         "react",
         "react-dom",
-        "survey-core"
+        "survey-core",
+        "survey-core/rich-text"
       ],
       dir: resolve(buildPath, "./fesm"),
       version: pkg.version,
@@ -113,7 +114,8 @@ export default (options = {}) => {
       external: [
         "react",
         "react-dom",
-        "survey-core"
+        "survey-core",
+        "survey-core/rich-text"
       ],
       declarationDir: resolve(buildPath, "./typings"),
       dir: resolve(buildPath),
@@ -122,7 +124,8 @@ export default (options = {}) => {
       globals: {
         "react": "React",
         "react-dom": "ReactDOM",
-        "survey-core": "Survey"
+        "survey-core": "Survey",
+        "survey-core/rich-text": "SurveyRichText"
       },
       version: pkg.version,
       noEmitOnError: !options.watch,

@@ -1,6 +1,7 @@
 import { SurveyModel, Model } from "survey-core";
 import { testQuestionMarkup } from "../../../tests/markup/helper";
 import { markupTests } from "../../../tests/markup/etalon";
+import "../../../tests/markup/etalon_rich_text";
 import { describe, it, expect, beforeAll } from "vitest";
 // eslint-disable-next-line surveyjs/no-imports-from-entries
 import { Survey as SurveyReact } from "../entries/index";

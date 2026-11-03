@@ -1,5 +1,6 @@
-import { ActionContainer, Base, IRichTextContext, IRichTextEditorHandle, IRichTextEditorOptions, IRichTextProvider, LocalizableString, RichTextEditMode, settings } from "survey-core";
+import { Base, IRichTextContext, IRichTextEditorHandle, IRichTextEditorOptions, IRichTextProvider, LocalizableString, RichTextEditMode, settings } from "survey-core";
 import { RichText } from "./api";
+import { RichTextEditorModel } from "./editor-model";
 import { getDefaultEditMode, getStringFormat } from "./edit-mode";
 
 function resolveFormat(context: IRichTextContext): "markdown" | "html" | "plain" {
@@ -51,12 +52,18 @@ export const richTextProvider: IRichTextProvider = {
       name: context.name
     });
   },
-  attachEditor(_element: HTMLElement, _options: IRichTextEditorOptions): IRichTextEditorHandle {
-    return {
-      toolbar: new ActionContainer(),
-      getSource: () => "",
-      detach: () => {}
-    };
+  attachEditor(element: HTMLElement, options: IRichTextEditorOptions): IRichTextEditorHandle {
+    const editor = new RichTextEditorModel({
+      getValue: () => "",
+      setValue: (value: string) => options.onChange?.(value),
+      isInputTextUpdate: false,
+      acceptCarriageReturn: options.mode !== "inline",
+      mode: options.mode === "inline" ? "inline" : "block",
+      format: options.format,
+      owner: undefined
+    });
+    editor.attach(element);
+    return { toolbar: editor.toolbar, getSource: () => editor.getSource(), detach: () => editor.detach() };
   }
 };
 

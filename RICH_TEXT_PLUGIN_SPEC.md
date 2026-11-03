@@ -605,16 +605,16 @@ Scope: `RichTextEditorModel` with the command adapter, toolbar (bold, italic, st
 Automated: corresponding `editor-model.tests.ts` cases; React markup etalons for edit mode.
 
 **CP3 — formatting a comment answer.** React demo page, page "Editor".
-- [ ] `c_md` shows a toolbar above the editing area; the toolbar uses the survey theme.
-- [ ] Bold/italic/strikethrough via buttons and via Ctrl/Cmd+B/I; the pressed state follows the caret.
-- [ ] Worked example of §3.3: data panel shows exactly `Please **read the** ***ter**ms* carefully`, then `Please **r**ead the *terms* carefully` after the second click.
-- [ ] Clicking a toolbar button keeps the selection.
-- [ ] Bulleted/numbered list; Enter adds an item; Enter on an empty item leaves the list.
-- [ ] Enter → `\n\n` in data; Shift+Enter → `\n`.
-- [ ] Ctrl/Cmd+U does nothing; Ctrl/Cmd+Z undoes the last formatting.
-- [ ] `c_md` updates the value on blur; `c_typing` updates while typing (event log).
-- [ ] Focus and leave `c_md` without typing → no new entry in the event log.
-- [ ] Clear formatting removes marks and turns list items into paragraphs.
+- [x] `c_md` shows a toolbar above the editing area; the toolbar uses the survey theme.
+- [x] Bold/italic/strikethrough via buttons and via Ctrl/Cmd+B/I; the pressed state follows the caret.
+- [x] Worked example of §3.3: data panel shows exactly `Please **read the** ***ter**ms* carefully`, then `Please **r**ead the *terms* carefully` after the second click.
+- [x] Clicking a toolbar button keeps the selection.
+- [x] Bulleted/numbered list; Enter adds an item; Enter on an empty item leaves the list.
+- [x] Enter → `\n\n` in data; Shift+Enter → `\n`.
+- [x] Ctrl/Cmd+U does nothing; Ctrl/Cmd+Z undoes the last formatting.
+- [x] `c_md` updates the value on blur; `c_typing` updates while typing (event log).
+- [x] Focus and leave `c_md` without typing → no new entry in the event log.
+- [x] Clear formatting removes marks and turns list items into paragraphs.
 
 #### M4 — Editor completeness in React (rest of §7, §5.4)
 

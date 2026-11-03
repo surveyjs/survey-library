@@ -1263,10 +1263,19 @@ export class Base implements IObjectValueContext {
         }
         info.isRunning = true;
         runner.onRunComplete = (value: any) => {
-          onExecute(value);
-          info.isRunning = false;
+          try {
+            onExecute(value);
+          } finally {
+            info.isRunning = false;
+          }
         };
-        doRun();
+        try {
+          doRun();
+        } catch(e) {
+          // An async run ends in onRunComplete, a synchronous throw never gets there
+          info.isRunning = false;
+          throw e;
+        }
       }
     }
     return true;

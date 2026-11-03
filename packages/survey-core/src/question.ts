@@ -3224,7 +3224,12 @@ export class Question extends SurveyElement<Question>
       context.removeElement(this.id);
     };
     context.addElement(this.id);
-    return this.validatorRunner.run(this);
+    try {
+      return this.validatorRunner.run(this);
+    } catch(e) {
+      this.validatorRunner = null;
+      throw e;
+    }
   }
   private doOnAsyncCompleted(fireCallback: boolean, errors: Array<SurveyError>): void {
     if (fireCallback) {

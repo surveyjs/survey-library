@@ -1,4 +1,4 @@
-import { SurveyElementBase } from "entries";
+import { SurveyElementBase } from "../reactquestion_element";
 import * as React from "react";
 import { Question, KeyboardHintItem } from "survey-core";
 

@@ -252,6 +252,7 @@ export var defaultCss = {
     keyboardHintItemHidden: "sd-question__keyboard-hint--hidden",
     keyboardHintKeyLabel: "sd-item__shortcut-key",
     keyboardHintSeparator: "sd-question__keyboard-hint-or",
+    keyboardHintSlot: "sd-question__keyboard-hint-slot",
     keyboardHintText: "sd-question__keyboard-hint-text",
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",

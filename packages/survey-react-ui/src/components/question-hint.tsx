@@ -3,6 +3,13 @@ import { Question, KeyboardHintItem } from "survey-core";
 
 export class QuestionHint extends React.Component<{ question: Question }, any> {
   private renderHint(hint: KeyboardHintItem, index: number): React.JSX.Element {
+    if (hint.alternatives.length > 0) {
+      return (
+        <span className={hint.className} key={index}>
+          {hint.alternatives.map((alternative, alternativeIndex) => this.renderHint(alternative, alternativeIndex))}
+        </span>
+      );
+    }
     return (
       <span className={hint.className} key={index}>
         {hint.parts.map((part, partIndex) => (

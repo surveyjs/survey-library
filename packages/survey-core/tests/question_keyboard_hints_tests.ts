@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
+import { KeyboardHintItem } from "../src/keyboard-hints";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionBooleanModel } from "../src/question_boolean";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
@@ -41,7 +42,11 @@ function hints(question: any, surveyExtra: any = {}): Array<{ text: string, keys
 }
 
 function shown(question: Question): Array<{ text: string, keys: string[] }> {
-  return question.getKeyboardHintModel().items.filter(item => !item.className.includes(hiddenClass)).map(rowOf);
+  const chips: KeyboardHintItem[] = [];
+  question.getKeyboardHintModel().items.forEach(item => {
+    chips.push(...(item.alternatives.length > 0 ? item.alternatives : [item]));
+  });
+  return chips.filter(item => !item.className.includes(hiddenClass)).map(rowOf);
 }
 
 function isToggleVisible(obj: any): boolean {
@@ -468,7 +473,7 @@ test("tagbox swaps enter to continue with space or enter to select", () => {
   expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to continue"]);
   q.dropdownListModel.popupModel.show();
   expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to select"]);
-  const select = q.getKeyboardHintModel().items[4];
+  const select = q.getKeyboardHintModel().items[3].alternatives[1];
   expect(rowOf(select)).toEqual(row("to select", [space, enter]));
   expect(select.parts.map(part => part.text)).toEqual([space, "or", enter, "to select"]);
   expect(select.parts.map(part => part.className)).toEqual(["sd-item__shortcut-key", "sd-question__keyboard-hint-or", "sd-item__shortcut-key", "sd-question__keyboard-hint-text"]);
@@ -947,12 +952,38 @@ test("a tagbox keeps both enter slots, so opening it does not resize the row", (
     ]
   });
   const q = survey.getQuestionByName("q") as any;
-  const slots = () => q.getKeyboardHintModel().items.slice(3).map(item => ({
-    text: rowOf(item).text, hidden: item.className.includes(hiddenClass)
-  }));
+  const slots = () => {
+    const items = q.getKeyboardHintModel().items;
+    expect(items.length).toBe(4);
+    expect(items[3].className).toBe("sd-question__keyboard-hint-slot");
+    expect(items[3].parts).toEqual([]);
+    return items[3].alternatives.map(item => ({ text: rowOf(item).text, hidden: item.className.includes(hiddenClass) }));
+  };
   expect(slots()).toEqual([{ text: "to continue", hidden: false }, { text: "to select", hidden: true }]);
   q.dropdownListModel.popupModel.show();
   expect(slots()).toEqual([{ text: "to continue", hidden: true }, { text: "to select", hidden: false }]);
+});
+
+test("only a tagbox with a closed enter chip shares a cell", () => {
+  const hasAlternatives = (question: any, surveyExtra: any = {}) => {
+    const survey = new SurveyModel(Object.assign({
+      showKeyboardHints: true,
+      pages: [
+        { elements: [Object.assign({ name: "q", choices: ["a", "b"] }, question)] },
+        { elements: [{ type: "text", name: "next" }] }
+      ]
+    }, surveyExtra));
+    const q = survey.getQuestionByName("q") as any;
+    const read = () => q.getKeyboardHintModel().items.some(item => item.alternatives.length > 0);
+    const closed = read();
+    q.dropdownListModel.popupModel.show();
+    expect(read()).toBe(closed);
+    return closed;
+  };
+  expect(hasAlternatives({ type: "tagbox" }, { autoAdvanceEnabled: true })).toBe(true);
+  expect(hasAlternatives({ type: "tagbox" })).toBe(false);
+  expect(hasAlternatives({ type: "dropdown" })).toBe(false);
+  expect(hasAlternatives({ type: "dropdown" }, { autoAdvanceEnabled: true })).toBe(false);
 });
 
 test("building hints does not walk the survey", () => {

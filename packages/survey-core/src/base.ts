@@ -196,6 +196,23 @@ export class Dependencies {
   // Keyed by property first: updaters read few property names from many objects
   // (e.g. survey width mode reads "elements"/"startWithNewLine"/"rows" of every element), so there are few sets.
   private dependencyKeys: Map<string, Set<Base>> = new Map<string, Set<Base>>();
+  // Subscriptions from the previous run. A re-run keeps the same handler id for a pair that is
+  // still read, so a property notification does not observe a newly added handler and run again.
+  private retainedKeys: Map<string, Set<Base>>;
+  public beginRecollect(): void {
+    this.retainedKeys = this.dependencyKeys;
+    this.dependencies = [];
+    this.dependencyKeys = new Map<string, Set<Base>>();
+  }
+  public endRecollect(): void {
+    const retained = this.retainedKeys;
+    this.retainedKeys = undefined;
+    retained?.forEach((objs, property) => {
+      objs.forEach(obj => {
+        obj.unregisterPropertyChangedHandlers([property], this.id);
+      });
+    });
+  }
   addDependency(target: Base, property: string): void {
     if (this.target === target && this.property === property)
       return;
@@ -213,10 +230,12 @@ export class Dependencies {
       prop: property,
       id: this.id
     });
+    if (this.retainedKeys?.get(property)?.delete(target))
+      return;
     target.registerPropertyChangedHandlers([property], this.currentDependency, this.id);
-
   }
   public dispose(): void {
+    this.endRecollect();
     this.dependencies.forEach(dependency => {
       dependency.obj.unregisterPropertyChangedHandlers([dependency.prop], dependency.id);
     });
@@ -236,6 +255,16 @@ export class ComputedUpdater<T = any> {
   public setDependencies(dependencies: Dependencies): void {
     this.clearDependencies();
     this.dependencies = dependencies;
+  }
+  public readDependencies(onChange: () => void, target: Base, property: string): T {
+    // A change notified while another updater collects its dependencies cannot start a nested collection.
+    if (Base.isCollectingDependencies) return this._updater?.();
+    Base.startCollectDependencies(onChange, target, property, this.dependencies);
+    try {
+      return this._updater?.();
+    } finally {
+      this.dependencies = Base.finishCollectDependencies();
+    }
   }
   protected getDependencies(): Dependencies {
     return this.dependencies;
@@ -266,16 +295,24 @@ export class Base implements IObjectValueContext {
     return Base.defaultIdGeneratorValue;
   }
   private static currentDependencis: Dependencies = undefined;
+  public static get isCollectingDependencies(): boolean {
+    return Base.currentDependencis !== undefined;
+  }
   public static finishCollectDependencies(): Dependencies {
     const deps = Base.currentDependencis;
     Base.currentDependencis = undefined;
+    if (deps) deps.endRecollect();
     return deps;
   }
-  public static startCollectDependencies(updater: () => void, target: Base, property: string): void {
+  public static startCollectDependencies(updater: () => void, target: Base, property: string, existing?: Dependencies): void {
     if (Base.currentDependencis !== undefined) {
       throw new Error("Attempt to collect nested dependencies. Nested dependencies are not supported.");
     }
-    Base.currentDependencis = new Dependencies(updater, target, property);
+    if (existing) {
+      existing.currentDependency = updater;
+      existing.beginRecollect();
+    }
+    Base.currentDependencis = existing || new Dependencies(updater, target, property);
   }
   protected static collectDependency(target: Base, property: string): void {
     if (Base.currentDependencis === undefined) return;

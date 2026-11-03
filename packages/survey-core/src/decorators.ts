@@ -22,15 +22,25 @@ export function property(options: IPropertyDecoratorOptions = {}) {
   return function (target: any, key: string): void {
     let processComputedUpdater = (obj: any, val: any) => {
       if (!!val && typeof val === "object" && val.type === ComputedUpdater.ComputedUpdaterType) {
-        Base.startCollectDependencies(() => obj[key] = val.updater(), obj, key);
-        const result = val.updater();
-        const dependencies = Base.finishCollectDependencies();
-        val.setDependencies(dependencies);
-        if (obj.dependencies[key]) {
+        // Re-collect on every run. The first run only saw the objects read then, so a later
+        // read of a different object (a replaced survey, a different branch) would never subscribe.
+        let running = false;
+        const onChange = () => {
+          if (running) return;
+          running = true;
+          let result: any;
+          try {
+            result = val.readDependencies(onChange, obj, key);
+          } finally {
+            running = false;
+          }
+          obj[key] = result;
+        };
+        if (obj.dependencies[key] && obj.dependencies[key] !== val) {
           obj.dependencies[key].dispose();
         }
         obj.dependencies[key] = val;
-        return result;
+        return val.readDependencies(onChange, obj, key);
       }
       return val;
     };

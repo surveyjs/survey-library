@@ -28,14 +28,28 @@
   }
 }
 
+// The icon has its own room in the box, as the input's icon slot in the mockup: the medium one in
+// the Filters dialog's 48px box...
 .sd-filter__search-icon {
   flex: 0 0 auto;
+  box-sizing: content-box;
   width: var(--sjs2-size-x300);
   height: var(--sjs2-size-x300);
+  padding: var(--sjs2-layout-component-input-medium-icon-padding-vertical)
+    var(--sjs2-layout-component-input-medium-icon-padding-right)
+    var(--sjs2-layout-component-input-medium-icon-padding-vertical)
+    var(--sjs2-layout-component-input-medium-icon-padding-left);
 
   use {
     fill: var(--sjs2-color-fg-basic-secondary);
   }
+}
+// ...the small one in the control's 40px box.
+.sd-filter__search .sd-filter__search-icon {
+  padding: var(--sjs2-layout-component-input-small-icon-padding-vertical)
+    var(--sjs2-layout-component-input-small-icon-padding-right)
+    var(--sjs2-layout-component-input-small-icon-padding-vertical)
+    var(--sjs2-layout-component-input-small-icon-padding-left);
 }
 
 .sd-filter__chips-row {

@@ -187,7 +187,9 @@
                 var(--sjs2-layout-component-panel-header-padding-bottom)
         );
     }
-    &:has(> .sd-panel .sd-panel__content > .sd-row:first-child .sd-question--title-top) > .sd-action-bar__item::after {
+    // :nth-child(1 of .sd-row) is the first row even when Angular inserts hidden hosts
+    // (sv-template-renderer, sv-ng-row) in front of it. :first-child misses the row there.
+    &:has(> .sd-panel .sd-panel__content > :nth-child(1 of .sd-row) .sd-question--title-top) > .sd-action-bar__item::after {
         content: "";
         font-size: var(--sjs2-typography-font-size-component-question-title);
         line-height: var(--sjs2-typography-line-height-component-question-title);

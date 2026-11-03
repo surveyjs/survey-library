@@ -1740,7 +1740,8 @@ describe("the focus kept for a re-read after a removal from the UI", () => {
     };
     return { source: source, release: (): void => { isHolding = true; pending.splice(0).forEach(answer => answer()); } };
   };
-  const flushAll = async (): Promise<void> => { for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0)); };
+  // setImmediate because setTimeout(0) takes about 12 ms on Windows.
+  const flushAll = async (): Promise<void> => { for (let i = 0; i < 20; i++) await new Promise(r => setImmediate(r)); };
   test("a cancelled removal while a read is pending keeps no focus position for that read", async () => {
     const matrixFocused = vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "focusItemAfterRead");
     const panelFocused = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "focusItemAfterRead");

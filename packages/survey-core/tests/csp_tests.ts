@@ -1,4 +1,4 @@
-import { describe, expect, it, afterEach, beforeEach } from "vitest";
+import { describe, expect, it, afterEach, beforeAll, beforeEach } from "vitest";
 import {
   buildBaseThemeCss,
   createBaseThemeStyle,
@@ -22,6 +22,12 @@ function createThemeRoot(): HTMLElement {
 }
 
 describe("CSP: base theme variables shipped as a stylesheet", () => {
+  // The test setup stubs replaceSync to keep other tests off the inline fallback, which these
+  // tests exercise. The setup runs again for each file, so other files keep the stub.
+  beforeAll(() => {
+    delete (<any>CSSStyleSheet.prototype).replaceSync;
+  });
+
   afterEach(() => {
     document.body.innerHTML = "";
     resetBaseThemeProbeCache();

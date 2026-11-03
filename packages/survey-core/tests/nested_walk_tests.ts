@@ -512,9 +512,9 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
   "locStrsChanged": {
     reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "md.total", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "mt.editor", "cu.content", "cp.content", "cp.nested"]
   },
-  // hidden rows, detail panel, total row: localeChanged() never reached them. choice panels: a select question does not forward it.
+  // choice panels: a select question does not forward localeChanged().
   "localeChanged": {
-    reached: ["md.cell", "mx.cell", "pd.item", "pd.hiddenItem", "pd.static", "mt.editor", "cu.content", "cp.content", "cp.nested"]
+    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "md.total", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "mt.editor", "cu.content", "cp.content", "cp.nested"]
   },
   // matrices and dynamic panel: the locales come from the definition (columns, template), not from the instances.
   "addUsedLocales": {
@@ -784,6 +784,145 @@ describe("Disposal and a locale change reach the instances a container owns", ()
     cu.contentQuestion.localeChangedCallback = () => calls.push("content");
     survey.locale = "de";
     expect(calls).toEqual(["wrapper", "content"]);
+  });
+
+  // The order of the sorted choices differs between the locales, not only their texts.
+  const localizedChoices = [{ value: "a", text: { default: "Apple", de: "Zebra" } }, { value: "b", text: { default: "Zebra", de: "Apfel" } }];
+  const sortedCheckbox = { type: "checkbox", name: "sorted", choicesOrder: "asc", choices: localizedChoices };
+  const numberMask = { maskType: "numeric", maskSettings: { precision: 2 } };
+  const savedMask = { maskType: "numeric", maskSettings: { saveMaskedValue: true, precision: 2 } };
+  const choiceValues = (q: any): Array<any> => q.visibleChoices.map((item: any) => item.value);
+  function createDetailPanelSurvey(detailElement: any, value: any, showPanel: boolean = true): { survey: SurveyModel, row: any, question: any } {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", columns: [{ name: "c", cellType: "text" }], detailPanelMode: "underRow", detailElements: [detailElement] }]
+    });
+    survey.data = { m: [{ c: "1", [detailElement.name]: value }] };
+    const row = (<any>survey.getQuestionByName("m")).visibleRows[0];
+    if (showPanel) row.showDetailPanel();
+    return { survey, row, question: row.detailPanel?.getQuestionByName(detailElement.name) };
+  }
+  test("the choices of a detail panel question follow the new locale's order", () => {
+    const { survey, question } = createDetailPanelSurvey(sortedCheckbox, undefined);
+    expect(choiceValues(question), "the default locale").toEqual(["a", "b"]);
+    survey.locale = "de";
+    expect(choiceValues(question), "de").toEqual(["b", "a"]);
+  });
+  test("a mask in a detail panel follows the new locale", () => {
+    const { survey, question } = createDetailPanelSurvey({ type: "text", name: "num", ...numberMask }, 1234.56);
+    expect(question.inputValue, "the default locale").toBe("1,234.56");
+    survey.locale = "de";
+    expect(question.value, "the stored value").toBe(1234.56);
+    expect(question.inputValue, "the shown value").toBe("1.234,56");
+  });
+
+  // A panel is created on first open, so its saved text may be in an older locale's format: it is never rewritten.
+  const savedDetailShapes: Array<{ name: string, element: any, value: any, stored: (value: any) => any }> = [
+    { name: "a text question", element: { type: "text", name: "saved", ...savedMask }, value: "1,234.56", stored: v => v },
+    { name: "a dynamic panel question", element: { type: "paneldynamic", name: "saved", templateElements: [{ type: "text", name: "i", ...savedMask }] }, value: [{ i: "1,234.56" }], stored: v => v[0].i },
+    { name: "a custom question", element: { type: "nwsaved", name: "saved" }, value: "1,234.56", stored: v => v },
+    { name: "a custom question over a multiple text", element: { type: "nwsavedmt", name: "saved" }, value: { i: "1,234.56" }, stored: v => v.i },
+    { name: "a custom question in a dynamic panel", element: { type: "paneldynamic", name: "saved", templateElements: [{ type: "nwsaved", name: "i" }] }, value: [{ i: "1,234.56" }], stored: v => v[0].i }
+  ];
+  function registerSavedComponents(): void {
+    ComponentCollection.Instance.add({ name: "nwsaved", questionJSON: { type: "text", ...savedMask } });
+    ComponentCollection.Instance.add({ name: "nwsavedmt", questionJSON: { type: "multipletext", items: [{ name: "i", ...savedMask }] } });
+  }
+  // A dynamic panel creates its panels when they are read.
+  function bindSavedQuestions(row: any): void {
+    const question: any = row.detailPanel.getQuestionByName("saved");
+    question.panels;
+  }
+  savedDetailShapes.forEach(shape => {
+    test("a saved masked value of " + shape.name + " in a detail panel opened before the switch keeps its text", () => {
+      registerSavedComponents();
+      const { survey, row } = createDetailPanelSurvey(shape.element, shape.value);
+      bindSavedQuestions(row);
+      const changes: Array<string> = [];
+      survey.onValueChanged.add((_, options) => changes.push(options.name));
+      survey.locale = "de";
+      expect(shape.stored(survey.data.m[0].saved), "de").toBe("1,234.56");
+      expect(changes, "no value change").toEqual([]);
+      survey.locale = "";
+      expect(shape.stored(survey.data.m[0].saved), "back").toBe("1,234.56");
+    });
+    test("a saved masked value of " + shape.name + " in a detail panel opened after the switch keeps its text", () => {
+      registerSavedComponents();
+      const { survey } = createDetailPanelSurvey(shape.element, shape.value, false);
+      const row = (<any>survey.getQuestionByName("m")).visibleRows[0];
+      survey.locale = "de";
+      row.showDetailPanel();
+      bindSavedQuestions(row);
+      const steps: Array<any> = [];
+      ["", "de", ""].forEach(locale => {
+        survey.locale = locale;
+        steps.push(shape.stored(survey.data.m[0].saved));
+      });
+      expect(steps).toEqual(["1,234.56", "1,234.56", "1,234.56"]);
+    });
+  });
+  test("an expression reads a saved masked value of a detail panel opened before the switch", () => {
+    const { survey, question } = createDetailPanelSurvey({ type: "text", name: "saved", ...savedMask }, "1,234.56");
+    survey.locale = "de";
+    expect(question.value).toBe("1,234.56");
+    expect(question.getFilteredValue()).toBe(1234.56);
+  });
+  test("a saved masked value converts in a visible cell and a custom cell, and keeps its text in a hidden row's cell", () => {
+    registerSavedComponents();
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "m", rowsVisibleIf: "{row.k} != 'h'",
+        columns: [{ name: "k", cellType: "text" }, { name: "s", cellType: "text", ...savedMask }, { name: "cu", cellType: "nwsaved" }]
+      }]
+    });
+    survey.data = { m: [{ k: "a", s: "1,234.56", cu: "1,234.56" }, { k: "h", s: "2,222.22", cu: "2,222.22" }] };
+    (<any>survey.getQuestionByName("m")).visibleRows;
+    survey.locale = "de";
+    expect(survey.data.m).toEqual([{ k: "a", s: "1.234,56", cu: "1.234,56" }, { k: "h", s: "2,222.22", cu: "2,222.22" }]);
+    survey.locale = "";
+    expect(survey.data.m).toEqual([{ k: "a", s: "1,234.56", cu: "1,234.56" }, { k: "h", s: "2,222.22", cu: "2,222.22" }]);
+  });
+  test("a regional format change converts a saved cell, keeps a saved detail text and updates a detail mask", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "m", detailPanelMode: "underRow",
+        columns: [{ name: "c", cellType: "text", ...savedMask }],
+        detailElements: [{ type: "text", name: "saved", ...savedMask }, { type: "text", name: "num", ...numberMask }]
+      }]
+    });
+    survey.data = { m: [{ c: "1,234.56", saved: "1,234.56", num: 1234.56 }] };
+    const row = (<any>survey.getQuestionByName("m")).visibleRows[0];
+    row.showDetailPanel();
+    survey.regionalFormat.decimalSeparator = ",";
+    survey.regionalFormat.thousandsSeparator = ".";
+    expect(survey.data.m).toEqual([{ c: "1.234,56", saved: "1,234.56", num: 1234.56 }]);
+    expect(row.detailPanel.getQuestionByName("num").inputValue, "the detail mask").toBe("1.234,56");
+    expect(row.detailPanel.getQuestionByName("saved").getFilteredValue(), "the saved detail text").toBe(1234.56);
+  });
+  test("a row hidden during the change shows the new locale once it is visible again", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdropdown", name: "m", rows: ["r1", "r2"], rowsVisibleIf: "{item} = 'r1' or {show} = 1",
+        columns: [{ name: "c", cellType: "checkbox", choicesOrder: "asc", choices: localizedChoices }]
+      }]
+    });
+    const row = (<any>survey.getQuestionByName("m")).allRows[1];
+    expect(row.isVisible, "hidden first").toBe(false);
+    survey.locale = "de";
+    survey.setValue("show", 1);
+    expect(row.isVisible, "visible again").toBe(true);
+    expect(choiceValues(row.cells[0].question)).toEqual(["b", "a"]);
+  });
+  test("a cell, a detail panel question and a total cell get one call, not two", () => {
+    const survey = createSurvey();
+    buildAll(survey);
+    const md: any = survey.getQuestionByName("md");
+    const row = md.visibleRows[0];
+    const calls: Array<string> = [];
+    row.cells[0].question.localeChangedCallback = () => calls.push("cell");
+    row.detailPanel.getQuestionByName("mdDetail").localeChangedCallback = () => calls.push("detail");
+    md.generatedTotalRow.cells[0].question.localeChangedCallback = () => calls.push("total");
+    survey.locale = "de";
+    expect(calls).toEqual(["cell", "detail", "total"]);
   });
 });
 

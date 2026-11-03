@@ -1663,6 +1663,15 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get isContainer(): boolean { return false; }
+  // A container that keeps the saved masked text of its nested question on a locale change (QuestionTextModel.localeChanged).
+  protected keepsSavedTextOnLocaleChange(question: Question): boolean { return false; }
+  // At any depth: through dynamic panels, composites and custom questions, whose content has no parentQuestion.
+  protected get isSavedTextKeptOnLocaleChange(): boolean {
+    for (let q: Question = this; !!q; q = q.parentQuestion || q.getCustomQuestionWrapper()) {
+      if (!!q.parentQuestion && q.parentQuestion.keepsSavedTextOnLocaleChange(q)) return true;
+    }
+    return false;
+  }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
       if (event.target) {

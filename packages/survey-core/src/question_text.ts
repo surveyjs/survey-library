@@ -130,6 +130,8 @@ export class QuestionTextModel extends QuestionTextBase {
   public localeChanged(): void {
     super.localeChanged();
     if (this.maskTypeIsEmpty || !this.maskSettings.isLocaleDependent) return;
+    // A saved text that may be in an older locale's format is never rewritten: the rewrite would lose digits.
+    if (this.maskSettings.saveMaskedValue && this.isSavedTextKeptOnLocaleChange) return;
     // While the element is focused, an entry may exist only in it - masked keystrokes are
     // written there directly and reach _inputValue on blur - so its text has to be captured
     // before localeChanged() below rebuilds the mask and rerenders the element. That text is

@@ -2023,7 +2023,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   public localeChanged(): void {
     super.localeChanged();
-    this.runFuncForCellQuestions((q: Question) => { q.localeChanged(); });
+    this.forEachNestedElement(info => info.element.localeChanged(), { build: "none", visibleOnly: false });
   }
   private runFuncForCellQuestions(func: (question: Question) => void): void {
     const rows = this.generatedVisibleRows;
@@ -3370,6 +3370,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         false
       );
     }
+  }
+  /* A detail panel question (a cell has no parent) and a hidden row's cell: localeChanged did not reach them
+     before, so their saved text may be in an older locale's format. A detail panel is created on first open. */
+  protected keepsSavedTextOnLocaleChange(question: Question): boolean {
+    if (!!question.parent) return true;
+    return question.data instanceof MatrixDropdownRowModelBase && !question.data.isVisible;
   }
   // One hook for the whole matrix, not one per cell: the cell questions read it (parentIsReadOnly).
   isMatrixReadOnly(): boolean { return this.areRecordsReadOnly; }

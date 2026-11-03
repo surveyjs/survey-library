@@ -230,8 +230,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     return this.hasTimePart ? "datetime-local" : "datetime";
   }
 
-  // The lexems are built on demand: fromJSON() runs before the mask is attached to a question,
-  // so the survey locale that a preset depends on is not known yet at that moment.
+  // The lexems are built on demand, but a question created inside a container reads them during
+  // its fromJSON(), before it has a survey, and so with the wrong locale for a preset. The question
+  // calls updateFormatFromSurvey() when it reaches the survey.
   private ensureLexems(): void {
     if (this.lexemsValue !== undefined) return;
     this.activePatternValue = this.calcActivePattern();
@@ -280,6 +281,16 @@ export class InputMaskDateTime extends InputMaskPattern {
     return this.activePatternValue;
   }
   public get isLocaleDependent(): boolean { return true; }
+  protected get isFormatOutdated(): boolean {
+    return this.lexemsValue !== undefined && this.calcActivePattern() !== this.activePatternValue;
+  }
+  // Unlike localeChanged() this converts nothing: a saved text is already in the survey's format,
+  // only the mask was wrong.
+  public updateFormatFromSurvey(): boolean {
+    if (!this.isFormatOutdated) return false;
+    this.updateLiterals();
+    return true;
+  }
   public localeChanged(state?: IMaskLocaleChange): void {
     super.localeChanged();
     const prevPattern = this.activePattern;

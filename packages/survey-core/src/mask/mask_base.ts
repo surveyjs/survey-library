@@ -51,7 +51,7 @@ export class InputMaskBase extends Base implements IInputMask {
     }
     this.unmaskedValueCore = isText ? this.getUnmaskedValue(val) : val;
     this.isUnmaskedValueFaithful = undefined;
-    this.isUnmaskedValueKept = this.isFormatKnown;
+    this.isUnmaskedValueKept = this.isFormatKnown && !this.isFormatOutdated;
   }
   // A value that renders back into its text survives a settings change: the text may be in the old
   // format then, and reading it again would misread it. Any other text is read again. The stored
@@ -86,6 +86,9 @@ export class InputMaskBase extends Base implements IInputMask {
   protected get isFormatKnown(): boolean {
     return !!this.getSurvey();
   }
+  // A composite hands its value to a nested question before that question reaches the survey,
+  // while the mask can already see the survey. A text read then is read again after the rebuild.
+  protected get isFormatOutdated(): boolean { return false; }
   // undefined when the mask can't read the text: an invalid date renders as the empty mask, which
   // is no text. null for a number outside min/max.
   private getUnmaskedValueText(): string {
@@ -126,6 +129,9 @@ export class InputMaskBase extends Base implements IInputMask {
 
   // Indicates that the displayed masked value depends on the survey locale.
   public get isLocaleDependent(): boolean { return false; }
+  // Called when the question reaches its survey. Returns true if the mask dropped a state that it
+  // built before it knew the survey, so the question renders its input anew.
+  public updateFormatFromSurvey(): boolean { return false; }
   // Rebuilds the locale dependent state of the mask. A locale dependent mask updates the passed
   // state with the text to display and the value to store.
   public localeChanged(state?: IMaskLocaleChange): void {

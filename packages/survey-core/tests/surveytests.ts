@@ -16474,69 +16474,72 @@ describe("Survey", () => {
     survey.locale = "";
   });
   test("hasDescription is isDesignMode", () => {
+    // getProperty clones the inherited property onto the comment class; the clone is removed in finally
+    // so that a failed expect does not leave the placeholder to later tests.
     Serializer.getProperty("comment", "description").placeholder = "Q placeholder";
-
-    const survey = new SurveyModel({});
-    survey["_isDesignMode"] = true;
-    survey.fromJSON({
-      pages: [{
-        name: "page1",
-        title: "Page title",
-        elements: [{
-          type: "text",
-          name: "q1",
-        }, {
-          type: "comment",
-          name: "q2",
+    try {
+      const survey = new SurveyModel({});
+      survey["_isDesignMode"] = true;
+      survey.fromJSON({
+        pages: [{
+          name: "page1",
+          title: "Page title",
+          elements: [{
+            type: "text",
+            name: "q1",
+          }, {
+            type: "comment",
+            name: "q2",
+          }]
         }]
-      }]
-    });
-    const q1 = survey.getQuestionByName("q1");
-    const q2 = survey.getQuestionByName("q2");
-    expect(q1.hasDescription, "text description is not shown").toBeFalsy();
-    expect(q2.hasDescription, "comment description is shown").toBeTruthy();
-    const q3 = survey.currentPage.addNewQuestion("text", "q3");
-    const q4 = survey.currentPage.addNewQuestion("comment", "q4");
-    expect(q3.hasDescription, "text description is not shown, on adding question").toBeFalsy();
-    expect(q4.hasDescription, "comment description is shown, on adding question").toBeTruthy();
-
-    // getProperty cloned the inherited property onto the comment class.
-    Serializer.removeProperty("comment", "description");
+      });
+      const q1 = survey.getQuestionByName("q1");
+      const q2 = survey.getQuestionByName("q2");
+      expect(q1.hasDescription, "text description is not shown").toBeFalsy();
+      expect(q2.hasDescription, "comment description is shown").toBeTruthy();
+      const q3 = survey.currentPage.addNewQuestion("text", "q3");
+      const q4 = survey.currentPage.addNewQuestion("comment", "q4");
+      expect(q3.hasDescription, "text description is not shown, on adding question").toBeFalsy();
+      expect(q4.hasDescription, "comment description is shown, on adding question").toBeTruthy();
+    } finally {
+      Serializer.removeProperty("comment", "description");
+    }
   });
   test("hasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide empty description in design mode", () => {
     Serializer.getProperty("comment", "description").placeholder = "Q placeholder";
-
-    const survey = new SurveyModel({});
-    survey["_isDesignMode"] = true;
-    const calls: Array<string> = [];
-    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
-      calls.push(element.name);
-      if (element.name === "q1") return false; // hide even though placeholder would show it
-      if (element.name === "q3") return true; // show even though no placeholder is defined
-      return show;
-    };
-    survey.fromJSON({
-      pages: [{
-        name: "page1",
-        elements: [
-          { type: "comment", name: "q1" },
-          { type: "comment", name: "q2" },
-          { type: "text", name: "q3" },
-          { type: "text", name: "q4" }
-        ]
-      }]
-    });
-    const q1 = survey.getQuestionByName("q1");
-    const q2 = survey.getQuestionByName("q2");
-    const q3 = survey.getQuestionByName("q3");
-    const q4 = survey.getQuestionByName("q4");
-    expect(q1.hasDescription, "q1 empty description hidden by callback").toBeFalsy();
-    expect(q2.hasDescription, "q2 empty description shown by default").toBeTruthy();
-    expect(q3.hasDescription, "q3 empty description shown by callback").toBeTruthy();
-    expect(q4.hasDescription, "q4 empty description hidden by default").toBeFalsy();
-    expect(calls.indexOf("q1") > -1, "callback is called for q1").toBeTruthy();
-
-    Serializer.removeProperty("comment", "description");
+    try {
+      const survey = new SurveyModel({});
+      survey["_isDesignMode"] = true;
+      const calls: Array<string> = [];
+      survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+        calls.push(element.name);
+        if (element.name === "q1") return false; // hide even though placeholder would show it
+        if (element.name === "q3") return true; // show even though no placeholder is defined
+        return show;
+      };
+      survey.fromJSON({
+        pages: [{
+          name: "page1",
+          elements: [
+            { type: "comment", name: "q1" },
+            { type: "comment", name: "q2" },
+            { type: "text", name: "q3" },
+            { type: "text", name: "q4" }
+          ]
+        }]
+      });
+      const q1 = survey.getQuestionByName("q1");
+      const q2 = survey.getQuestionByName("q2");
+      const q3 = survey.getQuestionByName("q3");
+      const q4 = survey.getQuestionByName("q4");
+      expect(q1.hasDescription, "q1 empty description hidden by callback").toBeFalsy();
+      expect(q2.hasDescription, "q2 empty description shown by default").toBeTruthy();
+      expect(q3.hasDescription, "q3 empty description shown by callback").toBeTruthy();
+      expect(q4.hasDescription, "q4 empty description hidden by default").toBeFalsy();
+      expect(calls.indexOf("q1") > -1, "callback is called for q1").toBeTruthy();
+    } finally {
+      Serializer.removeProperty("comment", "description");
+    }
   });
   test("beforeShowInplaceDescriptionEditorCallback is called for both empty and non-empty descriptions", () => {
     const survey = new SurveyModel({});

@@ -1,20 +1,13 @@
 import { describe, test, expect, afterEach, beforeEach } from "vitest";
 import { ComponentCollection, SurveyModel, Serializer } from "survey-core";
-import { CollaborationPlugin, ICollaborationOptions } from "../../src/plugins/collaboration/index";
+import { CollaborationPlugin } from "../../src/plugins/collaboration/index";
 import { ICollabOut } from "../../src/plugins/collaboration/collab-messages";
+import { createPlugin, disposePlugins } from "./collab-test-helpers";
 
 // Diagnostic suite: does collaboration behave correctly on COMPOSITE questions,
 // whose value is one object under the composite's own name?
 
-// A plugin left alive keeps its presence overlay ticking, and without a rendered survey the
-// overlay watches document.body: the body of whichever test file the worker runs next.
-const plugins: Array<CollaborationPlugin> = [];
-function createPlugin(survey: SurveyModel, options?: ICollaborationOptions): CollaborationPlugin {
-  const plugin = new CollaborationPlugin(survey, options);
-  plugins.push(plugin);
-  return plugin;
-}
-afterEach(() => plugins.splice(0).forEach(plugin => plugin.dispose()));
+afterEach(disposePlugins);
 
 function collect(plugin: CollaborationPlugin): Array<ICollabOut> {
   const sent: Array<ICollabOut> = [];

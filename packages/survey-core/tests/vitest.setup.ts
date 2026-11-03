@@ -1,6 +1,6 @@
 // Setup file for Vitest. Mirrors the side-effect imports and global settings
 // from the Karma+QUnit entry barrel at tests/entries/test.ts.
-import { afterAll, afterEach, expect } from "vitest";
+import { afterAll, afterEach, expect, vi } from "vitest";
 import "../src/localization/russian";
 import "../src/localization/french";
 import "../src/localization/finnish";
@@ -18,7 +18,8 @@ import { mediaQueries, restoreSettings, windowSize } from "./test-baseline";
 // render costs about 850 ms. Browsers do not take this path, so the stub lives here
 // and not in src. tests/csp_tests.ts removes it to test that fallback.
 (CSSStyleSheet.prototype as any).replaceSync = function () { /* no-op */ };
-const adopted = { configurable: true, get(this: any) { return this.__adopted || []; }, set(this: any, v: any) { this.__adopted = v; } };
+// The array is kept from the first read on, so a push() is not lost the way a fresh [] would lose it.
+const adopted = { configurable: true, get(this: any) { return this.__adopted || (this.__adopted = []); }, set(this: any, v: any) { this.__adopted = v; } };
 Object.defineProperty(Document.prototype, "adoptedStyleSheets", adopted);
 Object.defineProperty(ShadowRoot.prototype, "adoptedStyleSheets", adopted);
 
@@ -685,6 +686,9 @@ __sv_reanchorEnvironment();
 const __defaultLocale = surveyLocalization.defaultLocale;
 afterAll(() => restoreSettings());
 afterEach(() => {
+  // Tests install fake timers and restore real ones at the end of their body; a failed
+  // expect skips that line and would leave fake timers to every later test in the worker.
+  if (vi.isFakeTimers()) vi.useRealTimers();
   // ComponentCollection: registered custom question types (including internal:true)
   ComponentCollection.Instance.clear(true);
   // surveyLocalization: tests sometimes flip the default locale

@@ -236,10 +236,12 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.navigationBarValue.getActionById("sv-nav-complete").visible = false;
       });
+      await page.waitForTimeout(1000);
       expect(containerLocator).not.toBeVisible();
       await page.evaluate(() => {
         (window as any).survey.navigationBarValue.getActionById("sv-nav-complete").visible = true;
       });
+      await page.waitForTimeout(1000);
       expect(containerLocator).toBeVisible();
     });
   });

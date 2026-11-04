@@ -1093,7 +1093,7 @@ export var defaultCss = {
     popupSheet: "sd-filter-popup-sheet",
     popupHeader: "sd-filter-popup__header",
     popupTitle: "sd-filter-popup__title",
-    popupSearch: "sd-filter-popup__search",
+    popupSearch: "sd-formbox sd-filter-popup__search",
     popupSearchIcon: "sd-filter-popup__search-icon",
     popupSearchInput: "sd-filter-popup__search-input",
     popupBody: "sd-filter-popup__body",

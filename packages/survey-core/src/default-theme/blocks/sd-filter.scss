@@ -58,8 +58,10 @@
   gap: var(--sjs2-spacing-x100);
 
   // The chips, Show More and Clear All are small actions with the x-small text and icons: 12px text
-  // in a 32px chip, as in the mockup (a small action's text is the default size, 40px in all).
-  .sd-action {
+  // in a 32px chip, as in the mockup (a small action's text is the default size, 40px in all). A chip's
+  // popup is drawn inside the chip, and its actions - Apply, the title's link - keep their own size;
+  // :where keeps the rule's weight as it was.
+  .sd-action:not(:where(.sd-filter-popup *)) {
     --sd-action-title-font-size: var(--sjs2-typography-font-size-component-action-x-small-content);
     --sd-action-title-line-height: var(--sjs2-typography-line-height-component-action-x-small-content);
     --sd-action-icon-size: var(--sjs2-line-height-x200);
@@ -222,14 +224,12 @@
   color: var(--sjs2-color-fg-basic-secondary);
 }
 
+// The text question's box (sd-formbox): its fill, border and hover and focus states. Here is only the
+// room the mockup gives the icon - 8px around it and between it and the text.
 .sd-filter-popup__search {
-  display: flex;
-  align-items: center;
   gap: var(--sjs2-spacing-x100);
   margin-bottom: var(--sjs2-spacing-x150);
   padding: var(--sjs2-spacing-x100);
-  border-radius: var(--sjs2-radius-component-drop-item);
-  background: var(--sjs2-color-bg-basic-secondary);
 }
 
 .sd-filter-popup__search-icon {

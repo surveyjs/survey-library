@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
 // eslint-disable-next-line surveyjs/no-imports-from-entries
-import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterListItem } from "../entries/index";
+import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterListItem, SurveyFilterFieldPopup } from "../entries/index";
 import { describe, it, expect, beforeAll } from "vitest";
 
 beforeAll(() => {
@@ -131,5 +131,26 @@ describe("SurveyFilterListItem", () => {
     expect(!!container.querySelector(".sd-checkbox.sd-checkbox--readonly .sd-checkbox__decorator"), "#1").toBe(true);
     removeItem(container);
     popup.dispose();
+  });
+});
+
+describe("SurveyFilterFieldPopup", () => {
+  it("the search box of a badge's popup is drawn as the text question's formbox", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
+      { name: "product", fieldType: "dropdown", choices: ["a", "b", "c", "d", "e", "f", "g"] }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.fieldPopup = q.createFieldPopup("product", () => {});
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterFieldPopup, { holder: holder }), container);
+    });
+    expect(!!container.querySelector(".sd-filter-popup__search.sd-formbox input"), "#1").toBe(true);
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+    holder.fieldPopup.dispose();
   });
 });

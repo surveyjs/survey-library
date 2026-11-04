@@ -63,7 +63,8 @@ export class FilterFieldPopup extends Base {
     this.headerToolbarValue.setActionsAppearance({ style: "brand", mode: "tertiary", size: "small" });
     this.footerToolbarValue = new ActionContainer();
     this.footerToolbarValue.locOwner = owner;
-    this.footerToolbarValue.setActionsAppearance({ style: "brand", mode: "secondary", size: "medium" });
+    // Apply is a small action in the mockup: 8px around the default text, 40px in all.
+    this.footerToolbarValue.setActionsAppearance({ style: "brand", mode: "secondary", size: "small" });
     if (this.kind === "condition") {
       this.editorValue = owner.createFastModeEditor(key);
     } else {

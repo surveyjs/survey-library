@@ -55,6 +55,13 @@ describe("FilterFieldPopup: the title row's link", () => {
   });
 });
 
+describe("FilterFieldPopup: Apply", () => {
+  test("Apply is the mockup's small action: 8px around the default text, 40px in all", () => {
+    const apply = open(control(), "age").popup.footerToolbar.actions[0];
+    expect(apply.getActionBarItemCss().split(" "), "#1").toContain("sd-action--small");
+  });
+});
+
 describe("FilterFieldPopup: a condition", () => {
   test("the field's operator and value; nothing is written until Apply, which closes the popup", () => {
     const q = control();

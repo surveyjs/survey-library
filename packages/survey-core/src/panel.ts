@@ -1791,16 +1791,12 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     rows = rows || this.rows;
     // Searching must not make a rendered element depend on every row before its own
-    const listener = Base.currentPropertyAccessListener;
-    listener?.blockTracking();
-    try {
-      for (var i = 0; i < rows.length; i++) {
+    return Base.runUntracked(() => {
+      for (let i = 0; i < rows.length; i++) {
         if (rows[i].elements.indexOf(el) > -1) return { row: rows[i], index: i };
       }
-    } finally {
-      listener?.releaseTracking();
-    }
-    return { row: null, index: -1 };
+      return { row: null, index: -1 };
+    });
   }
   private forceRenderRow(row: QuestionRowModel): void {
     if (!!row && !row.isNeedRender) {

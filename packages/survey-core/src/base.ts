@@ -817,13 +817,8 @@ export class Base implements IObjectValueContext {
    */
   public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
-    const listener = Base.currentPropertyAccessListener;
-    listener?.blockTracking();
-    try {
-      return this.getPropertyValueOrDefault(name, res, defaultValue, calcFunc);
-    } finally {
-      listener?.releaseTracking();
-    }
+    // Kept small so that it inlines; the rarely taken branches live in getPropertyValueOrDefault
+    return this.getPropertyValueOrDefault(name, res, defaultValue, calcFunc);
   }
   private getPropertyValueOrDefault(name: string, res: any, defaultValue: any, calcFunc: ()=> any): any {
     if (!!calcFunc && this.isDisposedValue) {
@@ -831,7 +826,7 @@ export class Base implements IObjectValueContext {
     }
     if (!!calcFunc && Array.isArray(res) && res.length === 0 && (<any>res).isReset === true) {
       delete (<any>res).isReset;
-      this.setArrayPropertyDirectly(name, calcFunc(), false);
+      this.setArrayPropertyDirectly(name, Base.runUntracked(calcFunc), false);
       return res;
     }
     if (this.isValueUndefined(res)) {
@@ -839,7 +834,7 @@ export class Base implements IObjectValueContext {
       if (locStr) return locStr.text;
       if (!this.isValueUndefined(defaultValue)) return defaultValue;
       if (!!calcFunc) {
-        const newVal = calcFunc();
+        const newVal = Base.runUntracked(calcFunc);
         if (newVal !== undefined) {
           if (Array.isArray(newVal)) {
             const array = this.createNewArray(name);
@@ -855,6 +850,19 @@ export class Base implements IObjectValueContext {
       if (propDefaultValue !== undefined) return propDefaultValue;
     }
     return res;
+  }
+  // Runs func without recording the properties it reads into the current UI tracker, if any.
+  // A component that reads a calculated property depends on the property itself, not on what calcFunc reads;
+  // blocking only around calcFunc keeps plain reads during a render free of the block/release calls.
+  protected static runUntracked<T>(func: () => T): T {
+    const listener = Base.currentPropertyAccessListener;
+    if (!listener) return func();
+    listener.blockTracking();
+    try {
+      return func();
+    } finally {
+      listener.releaseTracking();
+    }
   }
   protected isValueUndefined(value: any): boolean {
     return Helpers.isValueUndefined(value);

@@ -1,5 +1,8 @@
 import { Base, PropertyAccessTracker, IPropertyArrayValueChangedEvent } from "../src/base";
-import { describe, test, expect, afterEach } from "vitest";
+import { SurveyModel } from "../src/survey";
+import { QuestionRowModel } from "../src/panel";
+import "../src/question_text";
+import { describe, test, expect, afterEach, vi } from "vitest";
 
 class TrackerTestModel extends Base {
   constructor() {
@@ -24,6 +27,9 @@ class TrackerTestModel extends Base {
       this.prop1;
       throw new Error("calcFunc error");
     });
+  }
+  public static runUntrackedForTest<T>(func: () => T): T {
+    return Base.runUntracked(func);
   }
 }
 
@@ -314,5 +320,112 @@ describe("PropertyAccessTracker", () => {
     const { tracker } = createTracker();
     model.calcProp;
     expect(tracker.isTrackingBlocked()).toBe(false);
+  });
+
+  test("A plain property read does not block tracking; only running calcFunc does", () => {
+    const model = new TrackerTestModel();
+    const { tracker } = createTracker();
+    const blockSpy = vi.spyOn(tracker, "blockTracking");
+    tracker.startTracking();
+    model.prop1;
+    model.items;
+    expect(blockSpy, "plain reads do not block").not.toHaveBeenCalled();
+    model.calcProp;
+    expect(blockSpy, "the first read runs calcFunc").toHaveBeenCalledTimes(1);
+    model.calcProp;
+    expect(blockSpy, "the cached value does not run calcFunc again").toHaveBeenCalledTimes(1);
+    tracker.stopTracking();
+  });
+
+  test("runUntracked returns the function's result and does not track what it reads", () => {
+    const model = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    tracker.startTracking();
+    const res = TrackerTestModel.runUntrackedForTest(() => model.prop1 + "!");
+    expect(res).toBe("undefined!");
+    expect(tracker.isTrackingBlocked(), "tracking is released").toBe(false);
+    model.prop2;
+    tracker.stopTracking();
+    tracker.subscribe();
+
+    model.prop1 = "a";
+    expect(log, "prop1 was read inside runUntracked").toHaveLength(0);
+    model.prop2 = "b";
+    expect(log.map(e => e.name)).toEqual(["prop2"]);
+  });
+
+  test("runUntracked releases tracking when the function throws", () => {
+    const { tracker } = createTracker();
+    tracker.startTracking();
+    expect(() => TrackerTestModel.runUntrackedForTest(() => { throw new Error("func error"); })).toThrow("func error");
+    expect(tracker.isTrackingBlocked()).toBe(false);
+    tracker.stopTracking();
+  });
+
+  test("runUntracked runs the function when no tracker is active", () => {
+    const model = new TrackerTestModel();
+    model.prop1 = "a";
+    expect(TrackerTestModel.runUntrackedForTest(() => model.prop1)).toBe("a");
+  });
+});
+
+describe("PropertyAccessTracker and finding an element's row", () => {
+  afterEach(() => {
+    Base.currentPropertyAccessListener = undefined as any;
+  });
+  function createSurvey(gridLayoutEnabled: boolean): SurveyModel {
+    return new SurveyModel({
+      gridLayoutEnabled,
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+        { type: "text", name: "q4" }
+      ]
+    });
+  }
+  function trackDuring(func: () => void): PropertyAccessTracker {
+    const { tracker } = createTracker();
+    tracker.startTracking();
+    func();
+    tracker.stopTracking();
+    tracker.subscribe();
+    return tracker;
+  }
+
+  test("findRowByElement does not subscribe to the rows it searches", () => {
+    const survey = createSurvey(false);
+    const page = survey.pages[0];
+    const q4 = survey.getQuestionByName("q4");
+    expect(page.rows.length, "one row per question").toBe(4);
+    let row: QuestionRowModel = undefined as any;
+    const tracker = trackDuring(() => { row = page.findRowByElement(q4); });
+    expect(row, "the row is found").toBe(page.rows[3]);
+    expect(page.rows.map(r => r.hasActiveUISubscribers), "no row is subscribed").toEqual([false, false, false, false]);
+    expect(page.hasActiveUISubscribers, "the page's rows are tracked").toBe(true);
+    tracker.unsubscribe();
+  });
+
+  test("getColumsForElement subscribes only to the element's own row", () => {
+    const survey = createSurvey(true);
+    const page = survey.pages[0];
+    const q4 = survey.getQuestionByName("q4");
+    // The first read of columns builds them from every row; components rendered after it reuse the cached columns
+    expect(page.columns.length, "columns are built").toBeGreaterThan(0);
+    const tracker = trackDuring(() => { page.getColumsForElement(q4); });
+    expect(page.rows.map(r => r.hasActiveUISubscribers)).toEqual([false, false, false, true]);
+    tracker.unsubscribe();
+  });
+
+  test("getColumsForElement does not search the rows when the grid layout is off", () => {
+    const survey = createSurvey(false);
+    const page = survey.pages[0];
+    const q4 = survey.getQuestionByName("q4");
+    let columns: Array<any> = undefined as any;
+    const tracker = trackDuring(() => { columns = page.getColumsForElement(q4); });
+    expect(columns).toEqual([]);
+    expect(page.hasActiveUISubscribers, "the page is not read").toBe(false);
+    expect(page.rows.map(r => r.hasActiveUISubscribers)).toEqual([false, false, false, false]);
+    tracker.unsubscribe();
   });
 });

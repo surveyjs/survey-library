@@ -975,7 +975,7 @@ export class Base implements IObjectValueContext {
         if (!isCalcValue && !!this.onPropertyValueCoreChanged) {
           reportError = this.isDisposedValue;
           if (!reportError) {
-            this.onPropertyValueCoreChanged.fire(this, { name, newValue: val });
+            Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue: val });
           }
         }
       }
@@ -1658,35 +1658,46 @@ export class Base implements IObjectValueContext {
     this.arraysInfo[name].isItemValues = true;
     return result;
   }
-  private onArrayChanged: EventBase<Base, IPropertyArrayValueChangedEvent>;
+  // UI components subscribe here, thousands per survey or page in a large survey.
+  // A Set keeps add and remove O(1); an EventBase scans its array on both.
+  private static fireUICallbacks<T>(getCallbacks: () => Set<(sender: Base, options: T) => void>, sender: Base, options: T): void {
+    // Iterate a copy, as EventBase.fire does: a callback that re-renders a component removes and re-adds
+    // itself, and a live Set iteration would call it again for this change.
+    const callbacks = Array.from(getCallbacks());
+    for (let i = 0; i < callbacks.length; i++) {
+      callbacks[i](sender, options);
+      if (!getCallbacks()) return;
+    }
+  }
+  private onArrayChanged: Set<(sender: Base, options: IPropertyArrayValueChangedEvent) => void>;
   public addOnArrayChangedCallback(callback: (sender: Base, options: IPropertyArrayValueChangedEvent) => void) {
     if (!this.onArrayChanged) {
-      this.onArrayChanged = new EventBase<Base, IPropertyArrayValueChangedEvent>();
+      this.onArrayChanged = new Set();
     }
     this.onArrayChanged.add(callback);
   }
   public removeOnArrayChangedCallback(callback: (sender: Base, options: IPropertyArrayValueChangedEvent) => void) {
     if (!!this.onArrayChanged) {
-      this.onArrayChanged.remove(callback);
-      if (this.onArrayChanged.isEmpty) {
+      this.onArrayChanged.delete(callback);
+      if (this.onArrayChanged.size === 0) {
         this.onArrayChanged = undefined;
       }
     }
   }
   private notifyArrayChanged(name: string, ar: any, arrayChanges: ArrayChanges) {
-    !!this.onArrayChanged && this.onArrayChanged.fire(this, { arrayChanges, name, newValue: ar, valueFromHash: this.propertyHash[name] });
+    !!this.onArrayChanged && Base.fireUICallbacks(() => this.onArrayChanged, this, { arrayChanges, name, newValue: ar, valueFromHash: this.propertyHash[name] });
   }
-  private onPropertyValueCoreChanged: EventBase<Base, IPropertyValueChangedEvent>;
+  private onPropertyValueCoreChanged: Set<(sender: Base, options: IPropertyValueChangedEvent) => void>;
   public addOnPropertyValueChangedCallback(callback: (sender: Base, options: IPropertyValueChangedEvent) => void) {
     if (!this.onPropertyValueCoreChanged) {
-      this.onPropertyValueCoreChanged = new EventBase<Base, IPropertyValueChangedEvent>();
+      this.onPropertyValueCoreChanged = new Set();
     }
     this.onPropertyValueCoreChanged.add(callback);
   }
   public removeOnPropertyValueChangedCallback(callback: (sender: Base, options: IPropertyValueChangedEvent) => void) {
     if (!!this.onPropertyValueCoreChanged) {
-      this.onPropertyValueCoreChanged.remove(callback);
-      if (this.onPropertyValueCoreChanged.isEmpty) {
+      this.onPropertyValueCoreChanged.delete(callback);
+      if (this.onPropertyValueCoreChanged.size === 0) {
         this.onPropertyValueCoreChanged = undefined;
       }
     }

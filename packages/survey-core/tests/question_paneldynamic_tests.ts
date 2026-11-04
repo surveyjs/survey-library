@@ -23,6 +23,7 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
+import { Base } from "../src/base";
 import { surveyLocalization } from "../src/surveyStrings";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 
@@ -11845,5 +11846,229 @@ describe("Question Panel Dynamic: item conditions of nested questions", () => {
     } finally {
       ComponentCollection.Instance.remove("matrixcomposite");
     }
+  });
+});
+describe("Dynamic panel: the template JSON of a batch of new panels", () => {
+  const getTemplateElements = (): Array<any> => [
+    { type: "text", name: "q1", title: { default: "Q1", de: "Q1 de" }, validators: [{ type: "numeric", minValue: 1, text: "Too small" }], defaultValueExpression: "1 + 1" },
+    { type: "panel", name: "inner", elements: [
+      { type: "dropdown", name: "q2", choices: [1, { value: 2, text: "Two", visibleIf: "{panel.q1} = 2" }, 3],
+        // The URL needs a value no panel has: nothing is requested.
+        choicesByUrl: { url: "https://example.com/{panel.none}", path: "items" } },
+      { type: "text", name: "q3", visibleIf: "{panel.q1} > 0" }
+    ] }
+  ];
+  const createQuestion = (props: any = {}, survey?: SurveyModel): QuestionPanelDynamicModel => {
+    survey = survey || new SurveyModel();
+    survey.fromJSON({ elements: [Object.assign({ type: "paneldynamic", name: "panel", templateElements: getTemplateElements() }, props)] });
+    return <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  };
+  // Counts the toJSON calls on the template of the question that getQuestion returns once it exists.
+  const countTemplateToJSON = (func: (getCount: (question: QuestionPanelDynamicModel) => number) => void): void => {
+    const spy = vi.spyOn(Base.prototype, "toJSON");
+    try {
+      func((question: QuestionPanelDynamicModel): number => spy.mock.contexts.filter((obj: any): boolean => obj === question.template).length);
+    } finally {
+      spy.mockRestore();
+    }
+  };
+  test("the template is serialized once for a batch", () => {
+    countTemplateToJSON((getCount) => {
+      const question = createQuestion({ panelCount: 10 });
+      expect(question.panels.length, "#1: the first build").toBe(10);
+      expect(getCount(question), "#2: the first build serialized the template once").toBe(1);
+      question.panelCount = 20;
+      expect(question.panels.length, "#3: a panel count change").toBe(20);
+      expect(getCount(question), "#4: the panel count change serialized it once more").toBe(2);
+    });
+  });
+  test("a value assignment, a data assignment and a page build serialize the template once", () => {
+    countTemplateToJSON((getCount) => {
+      const question = createQuestion();
+      question.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }, { q1: 4 }];
+      expect(question.panels.length, "#1: a value assignment").toBe(4);
+      expect(getCount(question), "#2: the value assignment").toBe(1);
+      question.survey.data = { panel: [{ q1: 1 }, { q1: 2 }, { q1: 3 }, { q1: 4 }, { q1: 5 }, { q1: 6 }, { q1: 7 }] };
+      expect(question.panels.length, "#3: a data assignment").toBe(7);
+      expect(getCount(question), "#4: the data assignment").toBe(2);
+      question.addPanel();
+      expect(getCount(question), "#5: a single addPanel serializes the template for its panel").toBe(3);
+
+      const paged = createQuestion({ pageSize: 3 });
+      paged.value = [1, 2, 3, 4, 5, 6, 7].map(i => ({ q1: i }));
+      const afterFirstPage = getCount(paged);
+      paged.pageIndex = 1;
+      expect(paged.panels.map(panel => panel.getQuestionByName("q1").value), "#6: the second page").toEqual([4, 5, 6]);
+      expect(getCount(paged) - afterFirstPage, "#7: a page build").toBe(1);
+    });
+  });
+  test("a survey event that fires with a handler while a batch runs: the next panel serializes the template again", () => {
+    countTemplateToJSON((getCount) => {
+      const survey = new SurveyModel();
+      survey.onQuestionCreated.add(() => { });
+      const question = createQuestion({ panelCount: 3 }, survey);
+      expect(getCount(question), "#1: onQuestionCreated has a handler").toBe(3);
+      const other = new SurveyModel();
+      other.onValueChanged.add(() => { });
+      expect(getCount(createQuestion({ panelCount: 3 }, other)), "#2: a handler of an event that does not fire while panels are created").toBe(1);
+    });
+  });
+  test.each([
+    { mode: "without paging", props: {}, isVisibleIfKept: true },
+    { mode: "on a page of a paged question", props: { pageSize: 10 }, isVisibleIfKept: false }
+  ])("a batch builds the same panels as panels added one by one: $mode", ({ props, isVisibleIfKept }) => {
+    const allProps = Object.assign({ templateVisibleIf: "{panel.q1} != 5" }, props);
+    const batch = createQuestion(Object.assign({ panelCount: 3 }, allProps));
+    const single = createQuestion(Object.assign({ panelCount: 0 }, allProps));
+    single.addPanel();
+    single.addPanel();
+    single.addPanel();
+    expect(batch.panels.length, "#1").toBe(3);
+    expect(single.panels.length, "#2").toBe(3);
+    for (let i = 0; i < 3; i++) {
+      expect(batch.panels[i].toJSON(), "#3: the JSON of panel " + i).toEqual(single.panels[i].toJSON());
+    }
+    // While the records decide the visibility, a panel has no templateVisibleIf of its own.
+    expect(batch.panels[2].toJSON().visibleIf, "#4: the visibleIf of a panel").toBe(isVisibleIfKept ? "{panel.q1} != 5" : undefined);
+    expect(batch.value, "#5: the values the panels wrote").toEqual(single.value);
+    expect(batch.value, "#6").toEqual([{ q1: 2 }, { q1: 2 }, { q1: 2 }]);
+  });
+  test("a template change between batches reaches the next batch", () => {
+    const question = createQuestion({ panelCount: 2 });
+    const q1 = <QuestionTextModel>question.template.getQuestionByName("q1");
+    const q2 = <QuestionDropdownModel>question.template.getQuestionByName("q2");
+    (<any>q1.validators[0]).minValue = 5;
+    q1.validators[0].text = "Changed text";
+    q2.choicesByUrl.path = "changedPath";
+    q2.choices[1].text = "Changed two";
+    question.panelCount = 4;
+    for (let i = 0; i < 4; i++) {
+      const isNew = i > 1;
+      const panel = question.panels[i];
+      const validator: any = (<QuestionTextModel>panel.getQuestionByName("q1")).validators[0];
+      const dropdown = <QuestionDropdownModel>panel.getQuestionByName("q2");
+      expect(validator.minValue, "#1: minValue of panel " + i).toBe(isNew ? 5 : 1);
+      expect(validator.text, "#2: the validator text of panel " + i).toBe(isNew ? "Changed text" : "Too small");
+      expect(dropdown.choicesByUrl.path, "#3: choicesByUrl.path of panel " + i).toBe(isNew ? "changedPath" : "items");
+      expect(dropdown.choices[1].text, "#4: the choice text of panel " + i).toBe(isNew ? "Changed two" : "Two");
+    }
+  });
+  /* Each event fires while the panels of a batch are created. Its handler changes a nested object of the
+     template - a validator property, which the template does not report - once "at" panels exist. Some
+     events fire after the next panel took its template JSON, others before it (the defaults of a panel,
+     a panel becoming the current one): the change reaches the panels whose JSON was taken after it. */
+  const nestedPanelJson = { type: "paneldynamic", name: "nested", panelCount: 1, templateElements: [{ type: "text", name: "n1", defaultValue: 3 }] };
+  test.each([
+    { eventName: "onQuestionCreated", props: {}, expected: [1, 1, 1, 9, 9] },
+    { eventName: "onMatrixCellCreating", props: {}, expected: [1, 1, 1, 9, 9] },
+    { eventName: "onMatrixCellCreated", props: {}, expected: [1, 1, 1, 9, 9] },
+    { eventName: "onExpressionRunning", props: {}, expected: [1, 1, 1, 9, 9] },
+    { eventName: "onDynamicPanelValueChanging", props: {}, expected: [1, 1, 9, 9, 9] },
+    { eventName: "onDynamicPanelValueChanged", props: {}, expected: [1, 1, 9, 9, 9] },
+    { eventName: "onDynamicPanelItemValueChanged", props: {}, expected: [1, 1, 9, 9, 9] },
+    { eventName: "onUpdateQuestionCssClasses", props: {}, isNested: true, expected: [1, 1, 9, 9, 9] },
+    { eventName: "onDynamicPanelAdded", props: {}, isNested: true, expected: [1, 1, 9, 9, 9] },
+    { eventName: "onDynamicPanelCurrentIndexChanged", props: { displayMode: "carousel", panelCount: 0 }, at: 1, expected: [1, 9, 9, 9, 9] },
+    { eventName: "onGetDynamicPanelTabTitle", props: { displayMode: "tab" }, expected: [1, 1, 9, 9, 9] },
+    { eventName: "onTextMarkdown", props: { displayMode: "tab" }, expected: [1, 1, 9, 9, 9] }
+  ])("a $eventName handler that changes a nested object of the template in a batch reaches the panels created after the change", ({ eventName, props, isNested, at, expected }: any) => {
+    const survey = new SurveyModel();
+    const templateElements = getTemplateElements().concat(isNested ? [nestedPanelJson] : []);
+    const question = createQuestion(Object.assign({ panelCount: 1, templateElements: templateElements }, props), survey);
+    question.template.addNewQuestion("matrixdynamic", "matrix").fromJSON({ rowCount: 1, columns: [{ name: "col1" }] });
+    let changedAt = -1;
+    (<any>survey)[eventName].add(() => {
+      const created = (<any>question).panelsCore.length;
+      if (changedAt > -1 || created < (at || 2)) return;
+      changedAt = created;
+      (<any>(<QuestionTextModel>question.template.getQuestionByName("q1")).validators[0]).minValue = 9;
+    });
+    question.panelCount = 5;
+    expect(changedAt, "#1: the panels created when the handler changed the template").toBe(at || 2);
+    const minValues = question.panels.map(panel => (<any>(<QuestionTextModel>panel.getQuestionByName("q1")).validators[0]).minValue);
+    expect(minValues, "#2: the validator").toEqual(expected);
+  });
+  test("a property of the template that other user code changes in a batch reaches the panels created after the change", () => {
+    const question = createQuestion({ panelCount: 1 });
+    let isChanged = false;
+    // A function is no survey event: the batch shares the template JSON, and the change the template reports drops it.
+    FunctionFactory.Instance.register("changeTemplateOnThirdPanel", (): number => {
+      // While the third panel is created, after it took its template JSON.
+      if (!isChanged && (<any>question).panelsCore.length === 2) {
+        isChanged = true;
+        question.template.getQuestionByName("q3").title = "Changed";
+      }
+      return 1;
+    });
+    try {
+      (<QuestionTextModel>question.template.getQuestionByName("q1")).defaultValueExpression = "changeTemplateOnThirdPanel()";
+      question.panelCount = 5;
+    } finally {
+      FunctionFactory.Instance.unregister("changeTemplateOnThirdPanel");
+    }
+    expect(isChanged, "#1: the function changed the template").toBe(true);
+    expect(question.panels.map(panel => panel.getQuestionByName("q3").title), "#2: the title").toEqual(["Changed", "Changed", "q3", "Changed", "Changed"]);
+  });
+  test("a property of the template itself that other user code changes in a batch reaches the panels created after the change", () => {
+    const question = createQuestion({ panelCount: 1 });
+    let isChanged = false;
+    FunctionFactory.Instance.register("changeTemplateItselfOnThirdPanel", (): number => {
+      if (!isChanged && (<any>question).panelsCore.length === 2) {
+        isChanged = true;
+        question.template.questionTitleLocation = "left";
+      }
+      return 1;
+    });
+    try {
+      (<QuestionTextModel>question.template.getQuestionByName("q1")).defaultValueExpression = "changeTemplateItselfOnThirdPanel()";
+      question.panelCount = 5;
+    } finally {
+      FunctionFactory.Instance.unregister("changeTemplateItselfOnThirdPanel");
+    }
+    expect(isChanged, "#1: the function changed the template").toBe(true);
+    expect(question.panels.map(panel => panel.questionTitleLocation), "#2: the panels created after the change have it").toEqual(["default", "default", "default", "left", "left"]);
+  });
+  test("a Date a template property holds reaches every panel of a batch as a Date", () => {
+    const date = new Date(2020, 1, 2);
+    const batch = createQuestion({ panelCount: 0 });
+    const single = createQuestion({ panelCount: 0 });
+    [batch, single].forEach(question => { question.template.getQuestionByName("q3").defaultValue = date; });
+    batch.panelCount = 3;
+    single.addPanel();
+    single.addPanel();
+    single.addPanel();
+    const getValues = (question: QuestionPanelDynamicModel): Array<any> => question.panels.map(panel => panel.getQuestionByName("q3").value);
+    expect(getValues(batch), "#1: the values").toEqual(getValues(single));
+    batch.panels.forEach((panel, index) => {
+      expect(panel.getQuestionByName("q3").defaultValue, "#2: the default value of panel " + index).toBe(date);
+    });
+  });
+  // The first panel loads the JSON the template gave; the next ones load copies of it.
+  test("the panels of a batch share no object", () => {
+    const question = createQuestion({ panelCount: 3 });
+    const getParts = (panel: PanelModel): Array<any> => {
+      const q1 = <QuestionTextModel>panel.getQuestionByName("q1");
+      const q2 = <QuestionDropdownModel>panel.getQuestionByName("q2");
+      return [q1, q2, panel.getElementByName("inner"), q1.validators[0], q2.choicesByUrl, q2.choices, ...q2.choices];
+    };
+    const parts = question.panels.map(panel => getParts(panel));
+    [[0, 1], [0, 2], [1, 2]].forEach(([a, b]) => {
+      parts[a].forEach((part: any, i: number) => {
+        expect(part, "#1: part " + i + " of panel " + a + " exists").toBeTruthy();
+        expect(part, "#2: part " + i + " of panels " + a + " and " + b).not.toBe(parts[b][i]);
+      });
+    });
+    [1, 2].forEach(index => {
+      (<any>parts[index][3]).minValue = 7;
+      parts[index][7].text = "Changed in panel " + index;
+      (<Question>parts[index][0]).locTitle.setLocaleText("de", "Changed in panel " + index);
+    });
+    [0, 1, 2].forEach(index => {
+      const isChanged = index > 0;
+      expect((<any>parts[index][3]).minValue, "#3: the validator of panel " + index).toBe(isChanged ? 7 : 1);
+      expect(parts[index][7].text, "#4: the choice of panel " + index).toBe(isChanged ? "Changed in panel " + index : "Two");
+      expect((<Question>parts[index][0]).locTitle.getLocaleText("de"), "#5: the localized title of panel " + index).toBe(isChanged ? "Changed in panel " + index : "Q1 de");
+    });
+    expect((<Question>question.template.getQuestionByName("q1")).locTitle.getLocaleText("de"), "#6: the template").toBe("Q1 de");
   });
 });

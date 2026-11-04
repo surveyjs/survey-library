@@ -1,5 +1,5 @@
-import { ComputedUpdater, Base, ArrayChanges, IPropertyArrayValueChangedEvent, IPropertyValueChangedEvent, EventAsync } from "../src/base";
-import { Event } from "../src/event";
+import { ComputedUpdater, Base, ArrayChanges, IPropertyArrayValueChangedEvent, IPropertyValueChangedEvent } from "../src/base";
+import { Event, EventAsync } from "../src/event";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { Serializer } from "../src/jsonobject";

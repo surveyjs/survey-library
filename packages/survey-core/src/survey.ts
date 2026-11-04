@@ -1,8 +1,8 @@
 import { HashTable, Helpers, ISurveyDateProvider } from "./helpers";
 import { JsonObject, JsonError, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Base, ComputedUpdater, EventAsync } from "./base";
-import { EventBase } from "./event";
+import { Base, ComputedUpdater } from "./base";
+import { EventBase, EventAsync } from "./event";
 import {
   ISurvey,
   ISurveyData,

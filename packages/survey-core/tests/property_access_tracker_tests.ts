@@ -11,6 +11,20 @@ class TrackerTestModel extends Base {
   public get prop2(): string { return this.getPropertyValue("prop2"); }
   public set prop2(val: string) { this.setPropertyValue("prop2", val); }
   public get items(): Array<any> { return this.getPropertyValue("items"); }
+  public calcFuncCallCount = 0;
+  public get calcProp(): string {
+    return this.getPropertyValue("calcProp", undefined, () => {
+      this.calcFuncCallCount++;
+      return this.prop1 + "-" + this.prop2;
+    });
+  }
+  public set calcProp(val: string) { this.setPropertyValue("calcProp", val); }
+  public get throwingCalcProp(): string {
+    return this.getPropertyValue("throwingCalcProp", undefined, () => {
+      this.prop1;
+      throw new Error("calcFunc error");
+    });
+  }
 }
 
 function createTracker() {
@@ -188,5 +202,117 @@ describe("PropertyAccessTracker", () => {
     model.prop2 = "b";
     expect(outerLog.map(e => e.name), "prop2 was accessed by the inner tracker only").toEqual(["prop1"]);
     expect(innerLog.map(e => e.name)).toEqual(["prop2"]);
+  });
+
+  test("blockTracking/releaseTracking stop and resume collecting accessed properties", () => {
+    const model = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    tracker.startTracking();
+    model.prop1;
+    tracker.blockTracking();
+    expect(tracker.isTrackingBlocked(), "tracking is blocked").toBe(true);
+    model.prop2;
+    tracker.releaseTracking();
+    expect(tracker.isTrackingBlocked(), "tracking is released").toBe(false);
+    model.items;
+    tracker.stopTracking();
+    tracker.subscribe();
+
+    model.prop2 = "b";
+    expect(log, "prop2 was accessed while tracking was blocked").toHaveLength(0);
+    model.prop1 = "a";
+    model.items.push(1);
+    expect(log.map(e => e.name)).toEqual(["prop1", "items"]);
+  });
+
+  test("blockTracking is reentrant: tracking resumes after the last releaseTracking", () => {
+    const model = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    tracker.startTracking();
+    tracker.blockTracking();
+    tracker.blockTracking();
+    tracker.releaseTracking();
+    expect(tracker.isTrackingBlocked(), "still blocked after the first release").toBe(true);
+    model.prop1;
+    tracker.releaseTracking();
+    expect(tracker.isTrackingBlocked(), "released after the second release").toBe(false);
+    model.prop2;
+    tracker.stopTracking();
+    tracker.subscribe();
+
+    model.prop1 = "a";
+    expect(log, "prop1 was accessed while tracking was blocked").toHaveLength(0);
+    model.prop2 = "b";
+    expect(log.map(e => e.name)).toEqual(["prop2"]);
+  });
+
+  test("getPropertyValue does not track properties accessed inside calcFunc", () => {
+    const model = new TrackerTestModel();
+    model.prop1 = "a";
+    model.prop2 = "b";
+    const { tracker, log } = createTracker();
+    tracker.startTracking();
+    expect(model.calcProp).toBe("a-b");
+    expect(model.calcFuncCallCount, "calcFunc is called").toBe(1);
+    expect(tracker.isTrackingBlocked(), "tracking is released after getPropertyValue").toBe(false);
+    tracker.stopTracking();
+    tracker.subscribe();
+
+    model.prop1 = "c";
+    model.prop2 = "d";
+    expect(log, "properties accessed in calcFunc are not tracked").toHaveLength(0);
+    model.calcProp = "e";
+    expect(log.map(e => e.name), "the property itself is tracked").toEqual(["calcProp"]);
+  });
+
+  test("getPropertyValue tracks properties accessed after calcFunc", () => {
+    const model = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    tracker.startTracking();
+    model.calcProp;
+    model.prop1;
+    tracker.stopTracking();
+    tracker.subscribe();
+
+    model.prop1 = "a";
+    expect(log.map(e => e.name), "prop1 is accessed after calcFunc and is tracked").toEqual(["prop1"]);
+  });
+
+  test("getPropertyValue releases tracking if calcFunc throws", () => {
+    const model = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    tracker.startTracking();
+    expect(() => model.throwingCalcProp).toThrow("calcFunc error");
+    expect(tracker.isTrackingBlocked(), "tracking is released after an exception").toBe(false);
+    model.prop2;
+    tracker.stopTracking();
+    tracker.subscribe();
+
+    model.prop1 = "a";
+    expect(log, "prop1 was accessed inside calcFunc").toHaveLength(0);
+    model.prop2 = "b";
+    expect(log.map(e => e.name)).toEqual(["prop2"]);
+  });
+
+  test("getPropertyValue releases the listener that was blocked even if calcFunc changes the current listener", () => {
+    const model = new TrackerTestModel();
+    const { tracker: outer } = createTracker();
+    const { tracker: inner } = createTracker();
+    outer.startTracking();
+    model.getPropertyValue("nestedProp", undefined, () => {
+      inner.startTracking();
+      return "value";
+    });
+    expect(outer.isTrackingBlocked(), "outer tracker is released").toBe(false);
+    expect(inner.isTrackingBlocked(), "inner tracker was not blocked").toBe(false);
+    inner.stopTracking();
+    outer.stopTracking();
+  });
+
+  test("getPropertyValue does not block tracking when there is no listener", () => {
+    const model = new TrackerTestModel();
+    const { tracker } = createTracker();
+    model.calcProp;
+    expect(tracker.isTrackingBlocked()).toBe(false);
   });
 });

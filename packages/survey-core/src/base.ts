@@ -254,6 +254,8 @@ export class ComputedUpdater<T = any> {
 
 export interface IPropertyAccessListener {
   onPropertyAccessed(model: Base, propertyName: string): void;
+  blockTracking(): void;
+  releaseTracking(): void;
 }
 
 export interface IPropertyAccessTracker {
@@ -276,6 +278,7 @@ export class PropertyAccessTracker implements IPropertyAccessListener, IProperty
     return !!Base.currentPropertyAccessListener;
   }
   public onPropertyAccessed(model: Base, propertyName: string) {
+    if (this.isTrackingBlocked()) return;
     if (!this.trackedProperties.has(model)) {
       this.trackedProperties.set(model, new Set());
     }
@@ -301,6 +304,16 @@ export class PropertyAccessTracker implements IPropertyAccessListener, IProperty
       model.removeOnPropertyValueChangedCallback(this.onPropertyChanged);
       model.removeOnArrayChangedCallback(this.onPropertyChanged);
     }
+  }
+  private trackingLock: number = 0;
+  isTrackingBlocked() {
+    return this.trackingLock > 0;
+  }
+  blockTracking() {
+    this.trackingLock++;
+  }
+  releaseTracking() {
+    this.trackingLock--;
   }
 }
 
@@ -804,6 +817,15 @@ export class Base implements IObjectValueContext {
    */
   public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
+    const listener = Base.currentPropertyAccessListener;
+    listener?.blockTracking();
+    try {
+      return this.getPropertyValueOrDefault(name, res, defaultValue, calcFunc);
+    } finally {
+      listener?.releaseTracking();
+    }
+  }
+  private getPropertyValueOrDefault(name: string, res: any, defaultValue: any, calcFunc: ()=> any): any {
     if (!!calcFunc && this.isDisposedValue) {
       calcFunc = undefined;
     }

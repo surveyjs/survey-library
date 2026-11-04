@@ -1,9 +1,9 @@
-import { FilterEditorHolder, SurveyModel, QuestionFilterModel } from "survey-core";
+import { Action, FilterEditorHolder, FilterFieldPopup, SurveyModel, QuestionFilterModel } from "survey-core";
 import React from "react";
 import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
 // eslint-disable-next-line surveyjs/no-imports-from-entries
-import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog } from "../entries/index";
+import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterListItem } from "../entries/index";
 import { describe, it, expect, beforeAll } from "vitest";
 
 beforeAll(() => {
@@ -87,5 +87,49 @@ describe("SurveyFilterPresetDialog", () => {
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);
     container.remove();
+  });
+});
+
+describe("SurveyFilterListItem", () => {
+  const fields = [{ name: "country", fieldType: "dropdown", choices: [{ value: "de", text: "Germany" }, { value: "fr", text: "France" }] }];
+  function renderItem(popup: FilterFieldPopup, title: string): HTMLElement {
+    const item = popup.list.actions.filter((a: Action) => a.title === title)[0];
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterListItem, { model: popup.list, item: item }), container);
+    });
+    return container;
+  }
+  function removeItem(container: HTMLElement): void {
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+  }
+  it("an entry of a checkbox list is drawn with the checkbox question's checkbox", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: fields }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    q.setFieldCondition("country", "anyof", ["de"]);
+    const popup = q.createFieldPopup("country", () => {});
+    const checked = renderItem(popup, "Germany");
+    const unchecked = renderItem(popup, "France");
+    expect(!!checked.querySelector(".sd-checkbox.sd-checkbox--checked .sd-checkbox__decorator .sd-checkbox__svg"), "#1: checked").toBe(true);
+    expect(!!unchecked.querySelector(".sd-checkbox:not(.sd-checkbox--checked) .sd-checkbox__decorator .sd-checkbox__svg"), "#2: unchecked").toBe(true);
+    expect(!!checked.querySelector(".sd-checkbox--readonly"), "#3: not read-only").toBe(false);
+    removeItem(checked);
+    removeItem(unchecked);
+    popup.dispose();
+  });
+  it("an entry of a read-only checkbox list is drawn with a read-only checkbox", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: fields }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const popup = q.createFieldPopup("country", () => {});
+    const container = renderItem(popup, "Germany");
+    expect(!!container.querySelector(".sd-checkbox.sd-checkbox--readonly .sd-checkbox__decorator"), "#1").toBe(true);
+    removeItem(container);
+    popup.dispose();
   });
 });

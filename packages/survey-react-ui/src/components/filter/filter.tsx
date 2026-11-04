@@ -255,8 +255,13 @@ export class SurveyFilterListItem extends SurveyElementBase<{ model: ListModel, 
     const css = popup.cssClasses;
     const text = <span className={css.listItemText}>{item.title}</span>;
     if (item.data.isAdd) return <div className={css.listItem}>{text}</div>;
-    const check = <span className={toCssClasses(css.listItemCheck, !!item.active && css.listItemCheckChecked)}>
-      {!!item.active ? <SvgIcon iconName="icon-check-16x16" size={"auto"}></SvgIcon> : null}
+    // The checkbox question's checkbox: its classes, so it is drawn the way the question draws one. The
+    // check is always there, transparent while the entry is not checked - as in the question.
+    const check = <span className={toCssClasses(css.listItemCheck, !!item.active && css.listItemCheckChecked,
+      popup.isReadOnly && css.listItemCheckReadOnly)} aria-hidden="true">
+      <span className={css.listItemCheckDecorator}>
+        <SvgIcon iconName="icon-check-16x16" size={"auto"} css={css.listItemCheckIcon}></SvgIcon>
+      </span>
     </span>;
     const remove = item.data.isCustom && !popup.isReadOnly
       ? <button type="button" className={css.listItemRemove} title={filterUIStrings.removeValue} aria-label={filterUIStrings.removeValue}

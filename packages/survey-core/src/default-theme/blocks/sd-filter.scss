@@ -164,17 +164,20 @@
 }
 
 // A badge's popup: an optional search box, the title row with its link, the list or the operator and
-// value, and Apply.
+// value, and Apply. No gap between them: as in the mockup, each part keeps its own space - 12px under
+// the search box, 12px over and 6px under the title, 12px rows, 12px around the editors, 12px over Apply.
 .sd-filter-popup {
   display: flex;
   flex-direction: column;
-  gap: var(--sjs2-spacing-x100);
   box-sizing: border-box;
   min-width: calc(40 * var(--sjs2-base-unit-size));
   padding: var(--sjs2-spacing-x100);
 
+  // The operator over the value, 16px apart.
   .sd-filter-editor {
+    --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs2-spacing-x200);
     min-width: 0;
+    padding: var(--sjs2-spacing-x150) 0;
   }
 }
 
@@ -211,7 +214,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sjs2-spacing-x100);
-  padding: 0 var(--sjs2-spacing-x150);
+  padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x150) var(--sjs2-spacing-x075);
 }
 
 .sd-filter-popup__title {
@@ -223,7 +226,8 @@
   display: flex;
   align-items: center;
   gap: var(--sjs2-spacing-x100);
-  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+  margin-bottom: var(--sjs2-spacing-x150);
+  padding: var(--sjs2-spacing-x100);
   border-radius: var(--sjs2-radius-component-drop-item);
   background: var(--sjs2-color-bg-basic-secondary);
 }
@@ -250,6 +254,22 @@
 }
 
 .sd-filter-popup__body {
+  // The rows take the list's whole width and are 48px tall: 12px around the text, as in the mockup.
+  .sv-list {
+    padding: 0;
+  }
+
+  .sv-list__item-body {
+    padding-block: var(--sjs2-spacing-x150);
+    padding-inline: var(--sjs2-spacing-x150);
+  }
+
+  // A focused row draws a 2px border inside the same box - see sv-list.
+  .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) .sv-list__item-body {
+    padding-block: calc(var(--sjs2-spacing-x150) - var(--sjs2-border-width-x200));
+    padding-inline: calc(var(--sjs2-spacing-x150) - var(--sjs2-border-width-x200));
+  }
+
   // A checkbox list shows its state with the checkbox, not with a selected row.
   .sv-list__item--selected .sv-list__item-body:has(.sd-filter-popup__item) {
     background: transparent;
@@ -264,24 +284,26 @@
   width: 100%;
 }
 
+// The checkbox question's checkbox (sd-checkbox): its look is the question's; here is only its place
+// in a list's row. The decorator's margins fit it to a question's row - the row here centers it.
 .sd-filter-popup__check {
   display: flex;
   flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: var(--sjs2-size-x300);
-  height: var(--sjs2-size-x300);
-  border-radius: var(--sjs2-radius-x050);
-  background: var(--sjs2-color-bg-basic-secondary);
 
-  use {
-    fill: var(--sjs2-color-fg-brand-on-primary);
+  .sd-checkbox__decorator {
+    margin: 0;
   }
 }
 
-.sd-filter-popup__check--checked {
-  background: var(--sjs2-color-bg-brand-primary);
+// The question's hover is on its label; a list's entry has none, so the row's hover does it.
+.sv-list__item:hover .sd-filter-popup__check:not(.sd-checkbox--readonly) .sd-checkbox__decorator {
+  background: var(--sjs2-color-component-checkbox-false-hovered-bg);
+  box-shadow: var(--sjs2-border-effect-component-checkbox-false-hovered);
+}
+
+.sv-list__item:hover .sd-filter-popup__check.sd-checkbox--checked:not(.sd-checkbox--readonly) .sd-checkbox__decorator {
+  background: var(--sjs2-color-component-checkbox-true-hovered-bg);
+  box-shadow: var(--sjs2-border-effect-component-checkbox-true-hovered);
 }
 
 .sd-filter-popup__item-text {
@@ -303,6 +325,10 @@
   use {
     fill: var(--sjs2-color-fg-basic-secondary);
   }
+}
+
+.sd-filter-popup__footer {
+  padding-top: var(--sjs2-spacing-x150);
 }
 
 .sd-filter-popup__footer .sd-action-bar {

@@ -1,4 +1,4 @@
-import { AIMessage, AIRequestEventBase, AIRequestIssue, AIResponse, AIResponseFormat } from "../interfaces/ai-interfaces";
+import { AIMessage, AIRequestEvent, AIRequestIssue, AIResponse, AIResponseFormat } from "../interfaces/ai-interfaces";
 import { isAIObject, readAIJson } from "./ai-response";
 
 // What a feature tells the request session: how its answers are read, shown back to the model and
@@ -42,7 +42,7 @@ export type AIRequestResult<TAnswer, TIssue extends AIRequestIssue = AIRequestIs
 // Whom the session asks: fire raises the product's AI request event (Survey Creator:
 // creator.onAIRequest) with the payload; getFixAttempts says how many rejected answers may be sent back.
 export interface IAIRequestOwner {
-  fire: (options: AIRequestEventBase) => void;
+  fire: (options: AIRequestEvent) => void;
   getFixAttempts: () => number;
 }
 
@@ -84,7 +84,7 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
     const controller = new AbortController();
     this.controller = controller;
     let isAnswered = false;
-    const base: AIRequestEventBase = {
+    const base: AIRequestEvent = {
       feature: request.feature.feature,
       action: request.action,
       userPrompt: request.userPrompt || "",
@@ -108,7 +108,7 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
         this.onResponse(request, attempt, instruction, response, done);
       }
     };
-    const options: AIRequestEventBase = Object.assign({}, !!request.getFields ? request.getFields(retryOf) : {}, base);
+    const options: AIRequestEvent = Object.assign({}, !!request.getFields ? request.getFields(retryOf) : {}, base);
     this.owner.fire(options);
   }
   private onResponse(request: IAIRequest<TAnswer, TIssue>, attempt: number, instruction: string, response: AIResponse,

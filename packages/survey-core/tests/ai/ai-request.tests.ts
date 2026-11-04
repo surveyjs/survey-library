@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { AIRequestEventBase, AIRequestIssue } from "../../src/interfaces/ai-interfaces";
+import { AIRequestEvent, AIRequestIssue } from "../../src/interfaces/ai-interfaces";
 import { AIRequestResult, AIRequestSession, IAIFeature, IAIRequest, IAIRequestOwner } from "../../src/ai/ai-request";
 import { readAIJson } from "../../src/ai/ai-response";
 
@@ -26,9 +26,9 @@ const fakeFeature: IAIFeature<IFakeAnswer> = {
 // as Survey Creator's aiFixAttempts default
 function createOwner(requests: Array<any>, options?: { aiFixAttempts?: number }): IAIRequestOwner {
   const fixAttempts = !!options && options.aiFixAttempts !== undefined ? options.aiFixAttempts : 1;
-  return { fire: (options: AIRequestEventBase) => { requests.push(options); }, getFixAttempts: () => fixAttempts };
+  return { fire: (options: AIRequestEvent) => { requests.push(options); }, getFixAttempts: () => fixAttempts };
 }
-function createSession(options?: { aiFixAttempts?: number }): { session: AIRequestSession<IFakeAnswer>, requests: Array<AIRequestEventBase & { [name: string]: any }> } {
+function createSession(options?: { aiFixAttempts?: number }): { session: AIRequestSession<IFakeAnswer>, requests: Array<AIRequestEvent & { [name: string]: any }> } {
   const requests: Array<any> = [];
   return { session: new AIRequestSession<IFakeAnswer>(createOwner(requests, options)), requests: requests };
 }
@@ -204,7 +204,7 @@ describe("AIRequestSession (ai-request)", () => {
   test("a handler that answers at once, inside fire", () => {
     let count = 0;
     const session = new AIRequestSession<IFakeAnswer>({
-      fire: (options: AIRequestEventBase) => { count++; options.callback({ text: count === 1 ? "bad1" : "good" }); },
+      fire: (options: AIRequestEvent) => { count++; options.callback({ text: count === 1 ? "bad1" : "good" }); },
       getFixAttempts: () => 1,
     });
     const results: Array<any> = [];

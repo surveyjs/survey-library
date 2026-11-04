@@ -258,7 +258,7 @@ export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/su
 export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export type {
-  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEventBase, AIRequestFeature, ExpressionAIRequestEvent,
+  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent,
 } from "../../src/interfaces/ai-interfaces";
 export { isAIObject, getAIFencedText, readAIJson } from "../../src/ai/ai-response";
 export { AIRequestSession } from "../../src/ai/ai-request";

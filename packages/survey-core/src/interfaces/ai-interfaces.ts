@@ -4,9 +4,9 @@ import type { IExpressionContext } from "../ai/expression-context";
 // The payload types of an AI request event. SurveyJS never calls a model: a product raises an event
 // with these fields, the application's handler sends systemPrompt and messages to a model and passes
 // the answer to callback. The product reads the answer, checks it, and may send a rejected answer
-// back with the problems it found (attempt > 0, issues). A handler written against
-// AIRequestEventBase works for every feature of every product. Survey Creator raises
-// creator.onAIRequest with them.
+// back with the problems it found (attempt > 0, issues). A product's event is typed with
+// AIRequestEvent, so a handler written against it works for every feature of every product, and a
+// new feature does not change the event's type. Survey Creator raises creator.onAIRequest with them.
 
 export interface AIMessage {
   role: "user" | "assistant";
@@ -36,9 +36,10 @@ export interface AIResponse {
   error?: string;
 }
 
-export interface AIRequestEventBase {
-  // which feature asks; each product's payload narrows it. A handler forwards a feature it does not
-  // know as it is, or answers it with an error.
+export interface AIRequestEvent {
+  // which feature asks, never empty: "expression" (ExpressionAIRequestEvent). A handler that reads a
+  // feature's own fields checks feature and casts the payload to that feature's type; a handler
+  // forwards a feature it does not know as it is, or answers it with an error.
   feature: string;
   // what the feature asks; each feature's payload narrows it
   action: string;
@@ -62,10 +63,6 @@ export interface AIRequestEventBase {
   callback: (response?: AIResponse) => void;
 }
 
-// Which Creator feature asks. The union is widened when a feature is added: a handler forwards a
-// feature it does not know as it is, or answers it with an error.
-export type AIRequestFeature = "expression";
-
 // The expression assistant:
 // - "generate": the target property is empty and the author describes a new expression.
 //   Example: userPrompt "show this question to adults only" -> "{age} >= 18".
@@ -76,7 +73,7 @@ export type AIRequestFeature = "expression";
 // A retry keeps the action: the AI answered "{Age} >= 18", the survey has no "Age", and Creator asks
 // again with attempt 1 and that issue; expression is then the rejected answer.
 // The answer is { expression, explanation } (responseFormat).
-export interface ExpressionAIRequestEvent extends AIRequestEventBase {
+export interface ExpressionAIRequestEvent extends AIRequestEvent {
   feature: "expression";
   action: "generate" | "modify" | "explain";
   context: IExpressionContext;

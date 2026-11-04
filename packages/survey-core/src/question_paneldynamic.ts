@@ -474,15 +474,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const oldPanels: Array<PanelModel> = [].concat(this.panelsCore);
     this.keepNestedPageStatesOfPanels(oldPanels);
     this.buildPanels((): void => {
-      this.isRebuildingPanels = true;
-      try {
+      this.rebuildingPanelsScope.run((): void => {
         this.panelsCore.splice(0, this.panelsCore.length);
         for (let i = 0; i < count; i++) {
           this.panelsCore.push(this.createNewPanel());
         }
-      } finally {
-        this.isRebuildingPanels = false;
-      }
+      });
     }, true);
     this.restoreNestedPageStates();
     this.setPanelsState();
@@ -494,7 +491,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updateTabbedMenuItems();
     this.disposePanels(oldPanels);
   }
-  private isRebuildingPanels: boolean;
+  private rebuildingPanelsScope: Scope = new Scope();
+  private get isRebuildingPanels(): boolean {
+    return this.rebuildingPanelsScope.isActive;
+  }
   /* The panels of the view are built for records the value holds: without a view the same records got
      their panels while the survey loaded its data, which writes no static default into them and
      clears no answer a first condition run hides. Their questions ask it (Question). */
@@ -1827,9 +1827,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
   }
   private updatePanelView() {
-    this.blockAnimations();
-    this.updateRenderedPanels();
-    this.releaseAnimations();
+    this.runWithoutAnimations(() => this.updateRenderedPanels());
     this.dynamicAnimation.resetPanelsAnimation();
     this.updateTabbedMenuItems();
   }
@@ -1975,12 +1973,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
           panels.push(this.createNewPanel());
         }
       }
-      this.isRebuildingPanels = true;
-      try {
+      this.rebuildingPanelsScope.run((): void => {
         this.panelsCore.splice(0, this.panelsCore.length, ...panels);
-      } finally {
-        this.isRebuildingPanels = false;
-      }
+      });
       this.setValueAfterPanelsCreating();
     } finally {
       this.clearPanelsCreating();
@@ -2430,7 +2425,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return visIndex;
   }
-  private isDetachingPanel: boolean = false;
+  private detachingPanelScope: Scope = new Scope();
+  private get isDetachingPanel(): boolean {
+    return this.detachingPanelScope.isActive;
+  }
   // QuestionRecordsModel hooks of a removal: the panels are the objects.
   protected getItemPosition(item: QuestionRecordItem): number {
     const panels = this.panelsCore;
@@ -2446,12 +2444,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      asks for. */
   protected detachItem(removal: IPanelRemoval): void {
     if (removal.position > -1) {
-      this.isDetachingPanel = true;
-      try {
+      this.detachingPanelScope.run((): void => {
         this.markPanelsLeft(this.panelsCore.splice(removal.position, 1));
-      } finally {
-        this.isDetachingPanel = false;
-      }
+      });
     }
     const successor = removal.successor;
     if (!!successor) {
@@ -2736,12 +2731,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private buildPanelsFirstTime(force: boolean = false): void {
     if (this.hasPanelBuildFirstTime) return;
     if (!force && this.wasNotRenderedInSurvey) return;
-    this.blockAnimations();
     try {
-      this.buildPanelsFirstTimeCore();
+      this.runWithoutAnimations(() => this.buildPanelsFirstTimeCore());
     } finally {
       this.isBuildingPanelsFirstTime = false;
-      this.releaseAnimations();
     }
   }
   private buildPanelsFirstTimeCore(): void {

@@ -2350,10 +2350,7 @@ export abstract class QuestionRecordsModel extends Question {
   public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
   public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
   private changePageWithoutAnimation(func: () => boolean) {
-    this.blockAnimations();
-    const res = func();
-    this.releaseAnimations();
-    return res;
+    return this.runWithoutAnimations(func);
   }
   /* The respondent's page moves: a move forward validates the page it leaves. false = an error was
      found at once; true = moved, or waiting for asynchronous validators (see isPageMovePending). */

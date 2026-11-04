@@ -181,16 +181,19 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   public updateCellQuestion() {
     const question = <QuestionExpressionModel>this.question;
     question.locCalculation();
-    this.column.updateCellQuestion(question, function (json) {
-      delete json["defaultValue"];
-    });
-    question.expression = this.getTotalExpression();
-    question.format = this.column.totalFormat;
-    question.currency = this.column.totalCurrency;
-    question.displayStyle = this.column.totalDisplayStyle;
-    question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
-    question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
-    question.unlocCalculation();
+    try {
+      this.column.updateCellQuestion(question, function (json) {
+        delete json["defaultValue"];
+      });
+      question.expression = this.getTotalExpression();
+      question.format = this.column.totalFormat;
+      question.currency = this.column.totalCurrency;
+      question.displayStyle = this.column.totalDisplayStyle;
+      question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
+      question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
+    } finally {
+      question.unlocCalculation();
+    }
     question.runIfReadOnly = true;
   }
   public getQuestionWrapperClassName(className: string): string {
@@ -2290,7 +2293,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected isColumnVisible(column: any): boolean {
     return column.isColumnVisible;
   }
-  private isGeneratingRows: boolean;
+  private generatingRowsScope = new Scope();
+  private get isGeneratingRows(): boolean {
+    return this.generatingRowsScope.isActive;
+  }
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {
     if (this.isUpdateLocked) return null;
     if (this.isGeneratingRows) return [];
@@ -2321,12 +2327,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return row.visibleIndex;
   }
   private generateVisibleRows(): void {
-    this.isGeneratingRows = true;
-    try {
+    this.generatingRowsScope.run((): void => {
       this.generatedVisibleRows = this.generateRows();
-    } finally {
-      this.isGeneratingRows = false;
-    }
+    });
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       const row = this.generatedVisibleRows[i];
       this.setRowVisibleIndex(row, i);

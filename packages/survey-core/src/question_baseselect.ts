@@ -520,16 +520,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return super.validateElementCore(context) && res;
   }
-  private isChoicePanelsValidationSuppressed: boolean;
+  private choicePanelsValidationSuppressingScope = new Scope();
+  private get isChoicePanelsValidationSuppressed(): boolean {
+    return this.choicePanelsValidationSuppressingScope.isActive;
+  }
   // Used by Next on the question's own step in inputPerPage mode: the nested choice elements are
   // not on screen yet and get validated on their own steps. Every other validation path checks them.
   public validateWithoutChoicePanels(): boolean {
-    this.isChoicePanelsValidationSuppressed = true;
-    try {
-      return this.validate(true, true);
-    } finally {
-      this.isChoicePanelsValidationSuppressed = false;
-    }
+    return this.choicePanelsValidationSuppressingScope.run(() => this.validate(true, true));
   }
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;
@@ -2074,9 +2072,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return super.getFirstErrorInputElementId();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    this.isRunningChoicesValue = true;
-    super.setSurveyImpl(value, isLight);
-    this.isRunningChoicesValue = false;
+    this.runningChoicesScope.run(() => super.setSurveyImpl(value, isLight));
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
@@ -2160,8 +2156,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     if (!!newComment) {
       this.isUpdatingValueFromSurvey = true;
-      this.setNewComment(newComment);
-      this.isUpdatingValueFromSurvey = false;
+      try {
+        this.setNewComment(newComment);
+      } finally {
+        this.isUpdatingValueFromSurvey = false;
+      }
     }
     this.updateValueForPanels(clearData, false);
   }
@@ -2204,7 +2203,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       target.value = val || "";
     }
   }
-  private isRunningChoicesValue: boolean = false;
+  private runningChoicesScope = new Scope();
+  private get isRunningChoicesValue(): boolean {
+    return this.runningChoicesScope.isActive;
+  }
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
     if (!this.choicesByUrlValue || this.isLoadingFromJson || this.isRunningChoicesValue || this.isInDesignMode || this.choicesLazyLoadEnabled)
@@ -2215,9 +2217,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!processor) processor = this.survey;
     if (!processor) return;
     this.updateIsReady();
-    this.isRunningChoicesValue = true;
-    this.choicesByUrl.run(processor);
-    this.isRunningChoicesValue = false;
+    this.runningChoicesScope.run(() => this.choicesByUrl.run(processor));
   }
   private get isRunningChoices(): boolean {
     return this.isRunningChoicesValue || this.choicesByUrlValue?.isRunning;

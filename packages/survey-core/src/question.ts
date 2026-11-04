@@ -1192,8 +1192,11 @@ export class Question extends SurveyElement<Question>
       doComplete: (res: any, properties: HashTable<any>): void => {
         if (res === true) {
           this.startSetValueOnExpression();
-          this.updateValueWithDefaultsOrClear();
-          this.finishSetValueOnExpression();
+          try {
+            this.updateValueWithDefaultsOrClear();
+          } finally {
+            this.finishSetValueOnExpression();
+          }
         }
       }
     });
@@ -2877,8 +2880,11 @@ export class Question extends SurveyElement<Question>
     this.runExpressionSetValueCore(val, (val: any): void => {
       if (!this.isTwoValueEquals(this.value, val)) {
         this.startSetValueOnExpression();
-        this.value = val;
-        this.finishSetValueOnExpression();
+        try {
+          this.value = val;
+        } finally {
+          this.finishSetValueOnExpression();
+        }
       }
     });
   }
@@ -3267,14 +3273,20 @@ export class Question extends SurveyElement<Question>
     if (!this.checkIsValueCorrect(newValue)) return;
     const oldValue = this.getOldValueOnSetNewValue();
     this.isOldAnswered = this.isAnswered;
-    this.isSettingQuestionValue = true;
-    this.setNewValueInData(newValue);
-    this.allowNotifyValueChanged && this.onValueChanged();
-    this.isSettingQuestionValue = false;
-    if (this.isAnswered !== this.isOldAnswered) {
-      this.updateQuestionCss();
+    try {
+      this.isSettingQuestionValue = true;
+      try {
+        this.setNewValueInData(newValue);
+        this.allowNotifyValueChanged && this.onValueChanged();
+      } finally {
+        this.isSettingQuestionValue = false;
+      }
+      if (this.isAnswered !== this.isOldAnswered) {
+        this.updateQuestionCss();
+      }
+    } finally {
+      this.isOldAnswered = undefined;
     }
-    this.isOldAnswered = undefined;
     if (this.survey) {
       this.survey.questionValueChanged(this, oldValue);
     }
@@ -3539,26 +3551,29 @@ export class Question extends SurveyElement<Question>
     if (!this.checkIsValueCorrect(newValue)) return;
     const isEmpty = this.isValueEmpty(newValue);
     this.isUpdatingValueFromSurvey = true;
-    if (!isEmpty && this.defaultValueExpression) {
-      this.setDefaultValueCore((val: any): void => {
-        const isDefault = this.isTwoValueEquals(newValue, val);
-        this.updateValueFromSurveyCore(newValue, isDefault);
-        // A value assigned via survey.data/mergeData that differs from the default one is set directly,
-        // even if the question already holds it (e.g. the initial default equals the loaded value).
-        if (!isDefault && this.survey?.isSettingData()) {
-          this.setValueChangedDirectly(true);
+    try {
+      if (!isEmpty && this.defaultValueExpression) {
+        this.setDefaultValueCore((val: any): void => {
+          const isDefault = this.isTwoValueEquals(newValue, val);
+          this.updateValueFromSurveyCore(newValue, isDefault);
+          // A value assigned via survey.data/mergeData that differs from the default one is set directly,
+          // even if the question already holds it (e.g. the initial default equals the loaded value).
+          if (!isDefault && this.survey?.isSettingData()) {
+            this.setValueChangedDirectly(true);
+          }
+        });
+      } else {
+        this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
+        if (clearData && isEmpty) {
+          this.isValueChangedDirectly = false;
         }
-      });
-    } else {
-      this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
-      if (clearData && isEmpty) {
-        this.isValueChangedDirectly = false;
+        if (isEmpty) {
+          this.updateBindingsOnClearFromSurveyCore();
+        }
       }
-      if (isEmpty) {
-        this.updateBindingsOnClearFromSurveyCore();
-      }
+    } finally {
+      this.isUpdatingValueFromSurvey = false;
     }
-    this.isUpdatingValueFromSurvey = false;
     this.updateDependedQuestions();
     this.updateIsAnswered();
   }

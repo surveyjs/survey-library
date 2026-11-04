@@ -1426,6 +1426,28 @@ describe("Base", () => {
     expect(question.animationAllowed).toBeTruthy();
     settings.animationEnabled = false;
   });
+  test("runWithoutAnimations blocks animations for the run and releases them, however it exits", () => {
+    const survey = new SurveyModel({ elements: [{ name: "q1", type: "text" }] });
+    const question = survey.getAllQuestions()[0];
+    settings.animationEnabled = true;
+    try {
+      question.supportOnElementRerenderedEvent = false;
+      const states: Array<boolean> = [];
+      const res = question.runWithoutAnimations(() => {
+        states.push(question.animationAllowed);
+        question.runWithoutAnimations(() => states.push(question.animationAllowed));
+        states.push(question.animationAllowed);
+        return "done";
+      });
+      expect(res, "the run's result is returned").toBe("done");
+      expect(states, "blocked inside the run and inside a nested run").toEqual([false, false, false]);
+      expect(question.animationAllowed, "released after the run").toBe(true);
+      expect(() => question.runWithoutAnimations(() => { throw new Error("user code"); })).toThrow("user code");
+      expect(question.animationAllowed, "released after a run that throws").toBe(true);
+    } finally {
+      settings.animationEnabled = false;
+    }
+  });
 
   test("check afterRerender function", () => {
     const survey = new SurveyModel({});

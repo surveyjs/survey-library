@@ -144,9 +144,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private updateRankingChoicesSync() {
-    this.blockAnimations();
-    this.updateRankingChoices();
-    this.releaseAnimations();
+    this.runWithoutAnimations(() => this.updateRankingChoices());
   }
 
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
@@ -165,12 +163,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.updateRankingChoices();
   }
   onSurveyLoad(): void {
-    this.blockAnimations();
-    super.onSurveyLoad();
-    this.syncDefaultValueWithVisibleChoices();
-    this.syncValueWithVisibleChoices();
-    this.updateRankingChoices();
-    this.releaseAnimations();
+    this.runWithoutAnimations(() => {
+      super.onSurveyLoad();
+      this.syncDefaultValueWithVisibleChoices();
+      this.syncValueWithVisibleChoices();
+      this.updateRankingChoices();
+    });
   }
   // onSurveyLoad syncs the value and defaultValue with the visible choices (Bug#7919), so they are built at load
   protected get canDeferVisibleChoicesOnLoad(): boolean {

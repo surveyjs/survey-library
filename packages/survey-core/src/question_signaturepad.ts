@@ -14,6 +14,7 @@ import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { ActionContainer } from "./actions/container";
 import { IVerifyDataContext } from "./question";
+import { Scope } from "./utils/scope";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -62,9 +63,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     if (this.signaturePad) {
 
       var data = this.signaturePad.toDataURL(this.getFormat());
-      this.valueIsUpdatingInternally = true;
-      this.value = data;
-      this.valueIsUpdatingInternally = false;
+      this.internalValueUpdateScope.run(() => { this.value = data; });
     }
   }
 
@@ -113,7 +112,10 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   private canvas: any;
   private element: any;
   private scale: number;
-  private valueIsUpdatingInternally: boolean = false;
+  private internalValueUpdateScope = new Scope();
+  private get valueIsUpdatingInternally(): boolean {
+    return this.internalValueUpdateScope.isActive;
+  }
   @property({ defaultValue: false }) valueWasChangedFromLastUpload: boolean;
 
   private resizeCanvas() {
@@ -443,9 +445,9 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     return r.content;
   }
   protected setValueFromResult(arg: any) {
-    this.valueIsUpdatingInternally = true;
-    this.value = arg?.length ? arg.map((r: any) => r.content)[0] : undefined;
-    this.valueIsUpdatingInternally = false;
+    this.internalValueUpdateScope.run(() => {
+      this.value = arg?.length ? arg.map((r: any) => r.content)[0] : undefined;
+    });
   }
   protected onClearValue(): void {
     super.onClearValue();

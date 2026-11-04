@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { PanelModel } from "../src/panel";
+import { Base } from "../src/base";
 import { AnimationGroup, AnimationTab } from "../src/utils/animation";
 import { IPanelDynamicAnimationOwner, PanelDynamicAnimation } from "../src/paneldynamic-animation";
 
@@ -26,6 +27,8 @@ class FakeQuestion {
   getWrapperElement(): HTMLElement { return undefined; }
   blockAnimations(): void { this.blocked++; }
   releaseAnimations(): void { this.released++; }
+  // The real helper, so it counts through the fake's own block and release.
+  runWithoutAnimations = Base.prototype.runWithoutAnimations;
 }
 class TestOwner implements IPanelDynamicAnimationOwner {
   public question: any = new FakeQuestion();

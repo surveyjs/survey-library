@@ -32,6 +32,7 @@ import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsModel
 import { DynamicDataSourceMethod, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { ArrayDynamicDataSource, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
 import { isRecordEmpty } from "./dynamic-data/dynamic-data-records";
+import { ValueScope } from "./utils/scope";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -1563,19 +1564,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* Clearing such records leaves the rows as they are, as they stayed while such a matrix had no value
      (onBeforeValueChanged). A live array Creator assigns over them - they were written on first
      rendering, before the edited object was set - is stored as it is, not copied into them. */
-  private isClearingEmptyRecords: boolean = false;
+  private clearingEmptyRecordsScope = new ValueScope<boolean>(false);
+  private get isClearingEmptyRecords(): boolean {
+    return this.clearingEmptyRecordsScope.value;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    const prev = this.isClearingEmptyRecords;
     const isEmptyRecords = this.isStoredValueEmptyRecords();
     if (isEmptyRecords && this.isEditingSurveyElement && Array.isArray(newValue)) {
       this.clearPropertyValue("value");
     }
-    this.isClearingEmptyRecords = isEmptyRecords && this.isValueEmpty(newValue);
-    try {
-      super.setQuestionValue(newValue, updateIsAnswered);
-    } finally {
-      this.isClearingEmptyRecords = prev;
-    }
+    this.clearingEmptyRecordsScope.run(isEmptyRecords && this.isValueEmpty(newValue), () => super.setQuestionValue(newValue, updateIsAnswered));
     /* A cleared value: Base.setPropertyValue empties the stored array in place and keeps it. It goes,
        so that question.value is undefined as survey.getValue is, and the next value - a live object
        array Creator assigns - becomes the stored one instead of being copied into it. */

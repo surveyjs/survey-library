@@ -1,12 +1,12 @@
 import type { Base } from "../base";
 import type { IExpressionContext } from "../ai/expression-context";
 
-// The payload types of an AI request event. SurveyJS never calls a model: a product raises an event
-// with these fields, the application's handler sends systemPrompt and messages to a model and passes
-// the answer to callback. The product reads the answer, checks it, and may send a rejected answer
-// back with the problems it found (attempt > 0, issues). A product's event is typed with
-// AIRequestEvent, so a handler written against it works for every feature of every product, and a
-// new feature does not change the event's type. Survey Creator raises creator.onAIRequest with them.
+// The payload types of AI request events. SurveyJS never calls a model. Each AI feature fires its
+// own event, whose payload extends AIRequestEvent; the feature is on when that event has a handler.
+// For example, Survey Creator's expression assistant fires creator.onAIExpressionRequest with an
+// ExpressionAIRequestEvent. The application's handler sends systemPrompt and messages to a model and
+// passes the answer to callback. The product reads the answer, checks it, and may send a rejected
+// answer back with the problems it found (attempt > 0, issues).
 
 export interface AIMessage {
   role: "user" | "assistant";
@@ -37,10 +37,6 @@ export interface AIResponse {
 }
 
 export interface AIRequestEvent {
-  // which feature asks, never empty: "expression" (ExpressionAIRequestEvent). A handler that reads a
-  // feature's own fields checks feature and casts the payload to that feature's type; a handler
-  // forwards a feature it does not know as it is, or answers it with an error.
-  feature: string;
   // what the feature asks; each feature's payload narrows it
   action: string;
   // what the author typed; empty when the author typed nothing
@@ -63,7 +59,7 @@ export interface AIRequestEvent {
   callback: (response?: AIResponse) => void;
 }
 
-// The expression assistant:
+// The payload of Survey Creator's onAIExpressionRequest, the expression assistant's event:
 // - "generate": the target property is empty and the author describes a new expression.
 //   Example: userPrompt "show this question to adults only" -> "{age} >= 18".
 // - "modify": the target already has an expression (or the assistant shows a suggestion the author
@@ -74,7 +70,6 @@ export interface AIRequestEvent {
 // again with attempt 1 and that issue; expression is then the rejected answer.
 // The answer is { expression, explanation } (responseFormat).
 export interface ExpressionAIRequestEvent extends AIRequestEvent {
-  feature: "expression";
   action: "generate" | "modify" | "explain";
   context: IExpressionContext;
   // empty for "generate"; the property value or the suggestion to revise for "modify"; the current

@@ -4,7 +4,6 @@ import { isAIObject, readAIJson } from "./ai-response";
 // What a feature tells the request session: how its answers are read, shown back to the model and
 // checked. The session knows nothing else about the feature.
 export interface IAIFeature<TAnswer, TIssue extends AIRequestIssue = AIRequestIssue> {
-  feature: string;
   responseFormat: AIResponseFormat;
   // data: the object of a structured output or the JSON object the text holds, undefined when there
   // is neither; text: the raw text. Always returns an answer - an empty one when nothing is usable.
@@ -39,10 +38,10 @@ export type AIRequestResult<TAnswer, TIssue extends AIRequestIssue = AIRequestIs
   { status: "empty", answer: TAnswer, attempts: number } |
   { status: "error", error: string };
 
-// Whom the session asks: fire raises the product's AI request event (Survey Creator:
-// creator.onAIRequest) with the payload; getFixAttempts says how many rejected answers may be sent back.
-export interface IAIRequestOwner {
-  fire: (options: AIRequestEvent) => void;
+// Whom the session asks: fire raises the feature's own AI request event with the payload (Survey
+// Creator: creator.onAIExpressionRequest); getFixAttempts says how many rejected answers may be sent back.
+export interface IAIRequestOwner<TEvent extends AIRequestEvent = AIRequestEvent> {
+  fire: (options: TEvent) => void;
   getFixAttempts: () => number;
 }
 
@@ -54,12 +53,12 @@ function clone<T>(value: T): T {
 // answer, checks it, and sends a rejected answer back while owner.getFixAttempts() allows.
 // A new request aborts the running one; an answer that comes late, twice, after an abort or after
 // dispose is ignored.
-export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequestIssue> {
+export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequestIssue, TEvent extends AIRequestEvent = AIRequestEvent> {
   private conversation: Array<AIMessage> = [];
   private controller: AbortController;
   private isDisposed: boolean = false;
 
-  constructor(public readonly owner: IAIRequestOwner) { }
+  constructor(public readonly owner: IAIRequestOwner<TEvent>) { }
   public send(request: IAIRequest<TAnswer, TIssue>, done: (result: AIRequestResult<TAnswer, TIssue>) => void): void {
     this.abort();
     if (this.isDisposed) return;
@@ -85,7 +84,6 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
     this.controller = controller;
     let isAnswered = false;
     const base: AIRequestEvent = {
-      feature: request.feature.feature,
       action: request.action,
       userPrompt: request.userPrompt || "",
       attempt: attempt,
@@ -108,7 +106,8 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
         this.onResponse(request, attempt, instruction, response, done);
       }
     };
-    const options: AIRequestEvent = Object.assign({}, !!request.getFields ? request.getFields(retryOf) : {}, base);
+    // getFields supplies the rest of TEvent, the feature's own fields; the base fields win
+    const options = <TEvent>Object.assign({}, !!request.getFields ? request.getFields(retryOf) : {}, base);
     this.owner.fire(options);
   }
   private onResponse(request: IAIRequest<TAnswer, TIssue>, attempt: number, instruction: string, response: AIResponse,

@@ -25,7 +25,6 @@ export const expressionResponseFormat: AIResponseFormat = {
 // The expression feature's part of an AI request. check returns the problems of an answer's
 // expression; without it, no answer has any. An explanation is never checked.
 export class ExpressionAIFeature<TFinding = any> implements IAIFeature<IExpressionResponse, IExpressionAIIssue<TFinding>> {
-  public readonly feature = "expression";
   public readonly responseFormat = expressionResponseFormat;
 
   constructor(private check?: (expression: string) => Array<IExpressionAIIssue<TFinding>>) { }

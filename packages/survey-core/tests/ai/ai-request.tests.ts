@@ -7,7 +7,6 @@ import { readAIJson } from "../../src/ai/ai-response";
 // is an error, one starting with "meh" a warning.
 interface IFakeAnswer { value: string }
 const fakeFeature: IAIFeature<IFakeAnswer> = {
-  feature: "fake",
   responseFormat: { name: "fake", schema: { type: "object", properties: { value: { type: "string" } } } },
   parse: (data: any, text: string): IFakeAnswer => ({ value: !!data && typeof data.value === "string" ? data.value : (text || "").trim() }),
   isEmpty: (answer: IFakeAnswer): boolean => !answer.value,
@@ -47,7 +46,7 @@ describe("AIRequestSession (ai-request)", () => {
     session.send(createRequest(), r => results.push(r));
     expect(requests).toHaveLength(1);
     const request = requests[0];
-    expect(request.feature).toBe("fake");
+    expect("feature" in request).toBe(false);
     expect(request.action).toBe("make");
     expect(request.userPrompt).toBe("a prompt");
     expect(request.attempt).toBe(0);
@@ -62,10 +61,10 @@ describe("AIRequestSession (ai-request)", () => {
   test("the feature's own fields are in the payload; a retry gets them for the rejected answer", () => {
     const { session, requests } = createSession();
     session.send(createRequest("make", "Make it", {
-      getFields: (retryOf?: IFakeAnswer) => ({ current: !!retryOf ? retryOf.value : "start", feature: "not overridden" }),
+      getFields: (retryOf?: IFakeAnswer) => ({ current: !!retryOf ? retryOf.value : "start", action: "not overridden" }),
     }), () => { });
     expect(requests[0].current).toBe("start");
-    expect(requests[0].feature).toBe("fake");
+    expect(requests[0].action).toBe("make");
     requests[0].callback({ text: "bad1" });
     expect(requests[1].current).toBe("bad1");
   });

@@ -1420,8 +1420,9 @@ export class PanelModelBase extends SurveyElement<Question>
     });
   }
   public getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
+    if (!this.survey || !this.survey.gridLayoutEnabled) return [];
     const row = this.findRowByElement(el);
-    if (!row || !this.survey || !this.survey.gridLayoutEnabled) return [];
+    if (!row) return [];
 
     let lastExpandableElementIndex = row.elements.length - 1;
     while(lastExpandableElementIndex >= 0) {
@@ -1789,8 +1790,15 @@ export class PanelModelBase extends SurveyElement<Question>
       return { row: undefined, index: this.rows.length - 1 };
     }
     rows = rows || this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].elements.indexOf(el) > -1) return { row: rows[i], index: i };
+    // Searching must not make a rendered element depend on every row before its own
+    const listener = Base.currentPropertyAccessListener;
+    listener?.blockTracking();
+    try {
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].elements.indexOf(el) > -1) return { row: rows[i], index: i };
+      }
+    } finally {
+      listener?.releaseTracking();
     }
     return { row: null, index: -1 };
   }

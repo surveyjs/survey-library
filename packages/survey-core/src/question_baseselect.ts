@@ -520,6 +520,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return super.validateElementCore(context) && res;
   }
+  // A select without choice panels walks nothing, see forEachNestedElementCore.
+  public getAllErrors(): Array<SurveyError> {
+    return super.getAllErrors().concat(this.getNestedErrors());
+  }
+  public clearErrors(): void {
+    super.clearErrors();
+    this.forEachNestedElement(info => info.element.clearErrors(), { build: "none", visibleOnly: false });
+  }
   private isChoicePanelsValidationSuppressed: boolean;
   // Used by Next on the question's own step in inputPerPage mode: the nested choice elements are
   // not on screen yet and get validated on their own steps. Every other validation path checks them.

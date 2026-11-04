@@ -328,6 +328,11 @@
 
 .sd-filter-modal--mobile {
   padding: 0;
+  // The popup is 100vh tall: the height with the browser's address bar hidden. While the bar shows,
+  // the bottom of the screen - the dialog's buttons - is under it. 100dvh is the height that is seen;
+  // 100vh stays for a browser without it.
+  height: 100vh;
+  height: 100dvh;
 
   // The popup gives the container an inline width and height (auto), which a width of 100% does not
   // beat: it is stretched over the screen as the flex item it is, however little the dialog holds.

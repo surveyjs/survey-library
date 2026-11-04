@@ -179,6 +179,13 @@ export class QuestionRowModel extends Base {
       this.onVisibleChangedCallback && this.onVisibleChangedCallback();
     }
   }
+  // The number of mounted UI components that render this row. Two components can render the same row (#10701),
+  // so the UI resets the row's lazy rendering and root element only when the last of them unmounts.
+  private uiMountCount: number = 0;
+  public changeUIMountCount(delta: number): number {
+    this.uiMountCount = Math.max(0, this.uiMountCount + delta);
+    return this.uiMountCount;
+  }
   private isLazyRenderingValue: boolean;
   public setIsLazyRendering(val: boolean) {
     this.isLazyRenderingValue = val;

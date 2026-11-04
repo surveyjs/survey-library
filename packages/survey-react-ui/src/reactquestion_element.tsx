@@ -77,11 +77,15 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   render(): React.JSX.Element | null {
     let res = null;
     this.propertyAccessTracker.startTracking();
-    if (this.canRender()) {
-      this.forceHiddenDependencies();
-      res = this.renderElement();
+    // A render that throws must restore the listener: while any tracker is the listener, every tracker ignores changes.
+    try {
+      if (this.canRender()) {
+        this.forceHiddenDependencies();
+        res = this.renderElement();
+      }
+    } finally {
+      this.propertyAccessTracker.stopTracking();
     }
-    this.propertyAccessTracker.stopTracking();
     if (!!res) {
       res = this.wrapElement(res);
     }

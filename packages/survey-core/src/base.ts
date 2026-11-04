@@ -265,12 +265,19 @@ export interface IPropertyAccessTracker {
   subscribe(): void;
 }
 
+// A render collects what it reads into pendingProperties; the commit (subscribe) swaps it in.
+// A render that React throws away (concurrent rendering, an error boundary) leaves the committed subscriptions working.
 export class PropertyAccessTracker implements IPropertyAccessListener, IPropertyAccessTracker {
+  // What the last committed render read. These models hold the tracker's callback while it is subscribed.
   private trackedProperties: Map<Base, Set<string>> = new Map();
+  // What the current or last render read, until it is committed.
+  private pendingProperties: Map<Base, Set<string>> | undefined;
   private prevListener: IPropertyAccessListener;
   constructor(private onTrackedPropertyChanged: (model: Base, options: IPropertyArrayValueChangedEvent) => void) {}
   private onPropertyChanged = (model: Base, options: IPropertyArrayValueChangedEvent) => {
-    if (!PropertyAccessTracker.isTracking && this.trackedProperties.get(model)?.has(options.name)) {
+    if (PropertyAccessTracker.isTracking) return;
+    // A render that is not committed yet may already show the new value of a property the committed one did not read.
+    if (this.trackedProperties.get(model)?.has(options.name) || this.pendingProperties?.get(model)?.has(options.name)) {
       this.onTrackedPropertyChanged(model, options);
     }
   };
@@ -278,28 +285,42 @@ export class PropertyAccessTracker implements IPropertyAccessListener, IProperty
     return !!Base.currentPropertyAccessListener;
   }
   public onPropertyAccessed(model: Base, propertyName: string) {
-    if (this.isTrackingBlocked()) return;
-    if (!this.trackedProperties.has(model)) {
-      this.trackedProperties.set(model, new Set());
+    if (this.isTrackingBlocked() || !this.pendingProperties) return;
+    let names = this.pendingProperties.get(model);
+    if (!names) {
+      names = new Set();
+      this.pendingProperties.set(model, names);
     }
-    this.trackedProperties.get(model).add(propertyName);
+    names.add(propertyName);
   }
   public startTracking() {
     this.prevListener = Base.currentPropertyAccessListener;
     Base.currentPropertyAccessListener = this;
-    this.unsubscribe();
-    this.trackedProperties.clear();
+    this.pendingProperties = new Map();
   }
   public stopTracking() {
     Base.currentPropertyAccessListener = this.prevListener;
   }
+  // Without a render since the last call, it subscribes to the committed models again:
+  // React StrictMode and <Activity> unmount and mount a component again without rendering it.
   public subscribe() {
+    const pending = this.pendingProperties;
+    if (!!pending) {
+      this.pendingProperties = undefined;
+      this.removeCallbacks();
+      this.trackedProperties = pending;
+    }
     for (const model of this.trackedProperties.keys()) {
       model.addOnArrayChangedCallback(this.onPropertyChanged);
       model.addOnPropertyValueChangedCallback(this.onPropertyChanged);
     }
   }
+  // Keeps the committed properties, so that a mount without a render subscribes to them again.
   public unsubscribe() {
+    this.pendingProperties = undefined;
+    this.removeCallbacks();
+  }
+  private removeCallbacks(): void {
     for (const model of this.trackedProperties.keys()) {
       model.removeOnPropertyValueChangedCallback(this.onPropertyChanged);
       model.removeOnArrayChangedCallback(this.onPropertyChanged);

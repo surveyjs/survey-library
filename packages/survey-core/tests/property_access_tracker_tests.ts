@@ -40,6 +40,21 @@ function createTracker() {
   });
   return { tracker, log };
 }
+function render(tracker: PropertyAccessTracker, read: () => void): void {
+  tracker.startTracking();
+  try {
+    read();
+  } finally {
+    tracker.stopTracking();
+  }
+}
+// Both UI callback sets: a model holds the tracker's callback in each while it is subscribed.
+function hasCallback(model: Base, tracker: PropertyAccessTracker): boolean {
+  const callback = (tracker as any).onPropertyChanged;
+  const valueCallbacks: Set<any> = (model as any).onPropertyValueCoreChanged;
+  const arrayCallbacks: Set<any> = (model as any).onArrayChanged;
+  return !!valueCallbacks?.has(callback) || !!arrayCallbacks?.has(callback);
+}
 
 describe("PropertyAccessTracker", () => {
   afterEach(() => {
@@ -143,26 +158,126 @@ describe("PropertyAccessTracker", () => {
     expect(log).toHaveLength(2);
   });
 
-  test("startTracking again resets tracked properties and unsubscribes", () => {
+  test("A commit swaps in what the last render read: a model it no longer reads is unsubscribed", () => {
     const model1 = new TrackerTestModel();
     const model2 = new TrackerTestModel();
     const { tracker, log } = createTracker();
-    tracker.startTracking();
-    model1.prop1;
-    tracker.stopTracking();
+    render(tracker, () => model1.prop1);
     tracker.subscribe();
 
-    tracker.startTracking();
-    model2.prop2;
-    tracker.stopTracking();
-    expect(model1.hasActiveUISubscribers, "unsubscribed from model1").toBe(false);
+    render(tracker, () => model2.prop2);
+    expect(hasCallback(model1, tracker), "model1 stays subscribed until the commit").toBe(true);
+    expect(hasCallback(model2, tracker), "model2 is not subscribed before the commit").toBe(false);
     tracker.subscribe();
+    expect(hasCallback(model1, tracker), "model1 is unsubscribed at the commit").toBe(false);
+    expect(hasCallback(model2, tracker), "model2 is subscribed at the commit").toBe(true);
 
     model1.prop1 = "a";
     expect(log, "model1.prop1 is not tracked anymore").toHaveLength(0);
     model2.prop2 = "b";
     expect(log).toHaveLength(1);
     expect(log[0].model).toBe(model2);
+  });
+
+  test("A re-render that reads one property fewer stops notifying about it, and one that reads one more starts", () => {
+    const model = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    render(tracker, () => { model.prop1; model.prop2; });
+    tracker.subscribe();
+
+    render(tracker, () => model.prop1);
+    tracker.subscribe();
+    model.prop2 = "a";
+    expect(log, "prop2 is not read anymore").toHaveLength(0);
+    model.prop1 = "b";
+    expect(log.map(e => e.name)).toEqual(["prop1"]);
+
+    render(tracker, () => { model.prop1; model.items; });
+    tracker.subscribe();
+    model.items.push(1);
+    expect(log.map(e => e.name), "items is read now").toEqual(["prop1", "items"]);
+  });
+
+  test("A render without a commit keeps the previous subscriptions working", () => {
+    const model1 = new TrackerTestModel();
+    const model2 = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    render(tracker, () => model1.prop1);
+    tracker.subscribe();
+
+    // React throws this render away and never commits it
+    render(tracker, () => model2.prop2);
+    model1.prop1 = "a";
+    expect(log.map(e => e.name), "the committed render is still notified").toEqual(["prop1"]);
+    expect(hasCallback(model2, tracker), "the thrown-away render subscribed to nothing").toBe(false);
+
+    // The next render is committed
+    render(tracker, () => model1.prop2);
+    tracker.subscribe();
+    model1.prop1 = "b";
+    model1.prop2 = "c";
+    expect(log.map(e => e.name), "the committed render replaced the previous one").toEqual(["prop1", "prop2"]);
+  });
+
+  test("A change between a render and its commit notifies about a property only that render read", () => {
+    const model = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    render(tracker, () => model.prop1);
+    tracker.subscribe();
+
+    render(tracker, () => { model.prop1; model.prop2; });
+    model.prop2 = "a";
+    expect(log.map(e => e.name), "the render shows the old prop2").toEqual(["prop2"]);
+    tracker.subscribe();
+    model.prop2 = "b";
+    expect(log.map(e => e.name)).toEqual(["prop2", "prop2"]);
+  });
+
+  test("A second subscribe() without a render in between keeps the subscriptions", () => {
+    const model = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    render(tracker, () => model.prop1);
+    tracker.subscribe();
+    tracker.subscribe();
+    expect(hasCallback(model, tracker), "the model is subscribed").toBe(true);
+
+    model.prop1 = "a";
+    expect(log, "notified once").toHaveLength(1);
+  });
+
+  test("subscribe() after unsubscribe() without a render subscribes again, as a StrictMode remount does", () => {
+    const model = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    render(tracker, () => model.prop1);
+    tracker.subscribe();
+
+    tracker.unsubscribe();
+    tracker.subscribe();
+    expect(hasCallback(model, tracker), "the model is subscribed again").toBe(true);
+    model.prop1 = "a";
+    expect(log.map(e => e.name)).toEqual(["prop1"]);
+  });
+
+  test("After unsubscribe(), no model holds a callback of the tracker", () => {
+    const model1 = new TrackerTestModel();
+    const model2 = new TrackerTestModel();
+    const { tracker, log } = createTracker();
+    render(tracker, () => { model1.prop1; model1.items; });
+    tracker.subscribe();
+    render(tracker, () => model2.prop1);
+
+    tracker.unsubscribe();
+    expect(hasCallback(model1, tracker), "the committed model").toBe(false);
+    expect(hasCallback(model2, tracker), "the model of the render that was not committed").toBe(false);
+    model1.prop1 = "a";
+    model1.items.push(1);
+    model2.prop1 = "b";
+    expect(log, "nothing is notified").toHaveLength(0);
+
+    tracker.subscribe();
+    expect(hasCallback(model2, tracker), "unsubscribe() dropped the render that was not committed").toBe(false);
+    expect(hasCallback(model1, tracker), "a mount without a render subscribes to the committed model").toBe(true);
+    tracker.unsubscribe();
   });
 
   test("Do not notify about changes made while any tracking is in progress", () => {

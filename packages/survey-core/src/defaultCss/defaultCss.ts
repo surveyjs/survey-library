@@ -1090,6 +1090,7 @@ export var defaultCss = {
     clear: "sd-filter__clear",
     editor: "sd-filter-editor",
     popup: "sd-filter-popup",
+    popupSheet: "sd-filter-popup-sheet",
     popupHeader: "sd-filter-popup__header",
     popupTitle: "sd-filter-popup__title",
     popupSearch: "sd-filter-popup__search",

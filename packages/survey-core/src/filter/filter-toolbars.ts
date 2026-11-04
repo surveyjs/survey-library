@@ -1,6 +1,6 @@
 import { Base, ComputedUpdater } from "../base";
 import { property } from "../decorators";
-import { Action } from "../actions/action";
+import { Action, IAction } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { getActionDropdownButtonTarget } from "../actions/dropdown-action";
 import { IDialogOptions, PopupModel } from "../popup";
@@ -421,6 +421,10 @@ export class FilterToolbars {
       const chip = new Action({ id: "sv-filter-field-" + key, component: filterChipComponentName, innerCss: this.cssClasses.chip,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.onFieldChipClick(key); } });
       chip.popupModel = popup;
+      // Apply is in the popup's content: the sheet's own footer would add a Cancel under it.
+      popup.onFooterActionsCreated.add((_: PopupModel, options: { actions: Array<IAction> }): void => {
+        options.actions = [];
+      });
       popup.onVisibilityChanged.add((_: PopupModel, options: { isVisible: boolean }): void => {
         this.release(holder);
         if (options.isVisible) {
@@ -437,7 +441,23 @@ export class FilterToolbars {
       this.owner.clearActiveItem();
       return;
     }
-    this.fieldChips[key].chip.popupModel.toggleVisibility();
+    const popup = this.fieldChips[key].chip.popupModel;
+    if (!popup.isVisible) {
+      this.updateFieldPopupMode(popup);
+    }
+    popup.toggleVisibility();
+  }
+  // Set on every open, so it opens in the mode the control is in now. On a phone it is a sheet at the
+  // bottom of the screen, as the other popups are there: a menu under the chip closes on any scroll -
+  // of the page under the phone's keyboard, of the chips row - and would close as it opens.
+  // The sheet opens without the keyboard: the search box is focused when the respondent taps it. It
+  // has no close button: its content has a title row of its own, and a tap on the dimmed page closes it.
+  private updateFieldPopupMode(popup: PopupModel): void {
+    const isSheet = this.owner.isMobile;
+    popup.displayMode = isSheet ? "overlay" : "popup";
+    popup.overlayDisplayMode = "dropdown-overlay";
+    popup.cssClass = isSheet ? toCssClasses("sv-popup--sheet", this.cssClasses.popupSheet) : "";
+    popup.isFocusedContent = !isSheet;
   }
   private updateFieldChip(state: IFilterFieldState): void {
     const chip = this.fieldChips[state.key].chip;

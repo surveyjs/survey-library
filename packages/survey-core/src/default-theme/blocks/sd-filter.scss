@@ -178,6 +178,18 @@
   }
 }
 
+// On a phone the popup is a sheet at the bottom of the screen (sv-popup--sheet), with the page's
+// sheet gutter. Apply is in the content, so the sheet's own footer - empty here - is not shown.
+.sv-popup--sheet.sd-filter-popup-sheet {
+  .sd-filter-popup {
+    min-width: 0;
+    padding: var(--sjs2-spacing-x200);
+  }
+  .sv-popup__body-footer {
+    display: none;
+  }
+}
+
 // A popup with a list, cut to the screen (the popup gives its container a height), scrolls the list
 // alone: the search box, the title row and Apply stay in sight. The list scrolls in its own box
 // (sv-list); the popup and its body only hand it the height the rest leaves. The operator and value

@@ -196,6 +196,28 @@ describe("FilterToolbars: a badge's popup", () => {
     q.dispose();
     expect(popup.isDisposed).toBe(true);
   });
+  test("a menu under the badge on a desktop, a sheet that does not raise the keyboard on a phone", () => {
+    const q = createFilter({ items: [] });
+    const badge = action(q.chipsToolbar, "sv-filter-field-country");
+    const model = badge.popupModel;
+    const mode = () => [model.displayMode, model.cssClass, model.isFocusedContent];
+    badge.action();
+    expect(mode(), "#1: desktop").toEqual(["popup", "", true]);
+    badge.action();
+    q.isMobile = true;
+    badge.action();
+    expect(mode(), "#2: phone").toEqual(["overlay", "sv-popup--sheet sd-filter-popup-sheet", false]);
+    expect(model.getDisplayMode(), "#3: at the bottom of the screen").toBe("menu-overlay");
+    badge.action();
+    q.isMobile = false;
+    badge.action();
+    expect(mode(), "#4: the mode is chosen on every open").toEqual(["popup", "", true]);
+  });
+  test("the sheet's footer has no Cancel: Apply is the popup's own", () => {
+    const q = createFilter({ items: [] });
+    const model = action(q.chipsToolbar, "sv-filter-field-country").popupModel;
+    expect(model.updateFooterActions([{ id: "cancel" }])).toEqual([]);
+  });
 });
 
 describe("FilterToolbars: Filters, Clear All and Save", () => {

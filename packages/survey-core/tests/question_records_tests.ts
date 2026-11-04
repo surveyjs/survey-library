@@ -153,8 +153,8 @@ describe("Records question: fixed matrix", () => {
     expect((<any>q).dataListValue, "#10: no record list").toBeUndefined();
   });
   /* The panel keeps the page states of the questions nested in its records while it rebuilds its
-     panels (the matrix that pages: page-window.test.ts). The fixed matrix next to it is walked as
-     well and has none. */
+     panels (the matrix that pages: page-window-touched-records.test.ts). The fixed matrix next to it
+     is walked as well and has none. */
   test("nested page state: a fixed matrix in a rebuilt dynamic panel has none and creates no list", () => {
     const survey = new SurveyModel({
       elements: [{

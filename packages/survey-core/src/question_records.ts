@@ -3475,7 +3475,9 @@ export abstract class QuestionRecordsModel extends Question {
         res = res.concat(item.getAllErrors());
       }
     });
-    return res;
+    /* A nested question sees its owner's own visibility only (isParentVisible), not the panels around the
+       owner, so a hidden owner is checked here, once, and only when there are errors. */
+    return res.length > 0 && !this.isVisibleInSurvey ? [] : res;
   }
   protected getIsRunningValidators(): boolean {
     return super.getIsRunningValidators() || this.someItem((item: QuestionRecordItem): boolean => item.isRunningValidators());
@@ -4347,13 +4349,16 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   private notifyRecordWritten(): void {
     this.onAnyValueChanged(this.getVariableName(), "");
   }
-  // The errors the item's questions show; the owner asks the visible items only.
+  /* The errors the item's questions show; the owner asks the visible items only. A question out of view
+     (in a hidden sub-panel, or in an owner its own visibleIf hides) keeps its errors and is not reported;
+     the owner checks the panels around it (getItemErrors). Its visibility is checked only when it has
+     errors: the walk runs on every value change while the owner holds an error. */
   public getAllErrors(): Array<SurveyError> {
     let res: Array<SurveyError> = [];
     const questions = this.questions;
     for (let i = 0; i < questions.length; i++) {
       const errors = questions[i].getAllErrors();
-      if (errors && errors.length > 0) {
+      if (errors && errors.length > 0 && questions[i].isVisibleInSurvey) {
         res = res.concat(errors);
       }
     }

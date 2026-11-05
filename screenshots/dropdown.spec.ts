@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, waitUntilAllImagesLoad } from "../e2e/helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, waitUntilAllImagesLoad, baseTest as test } from "../e2e/helper";
 import { registerCustomItemComponent } from "../e2e/registerCustomComponents";
 
 const title = "Dropdown Screenshot";

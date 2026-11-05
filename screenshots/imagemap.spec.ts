@@ -1,5 +1,4 @@
-import test from "playwright/test";
-import { compareScreenshot, frameworks, initSurvey, url } from "../e2e/helper";
+import { compareScreenshot, frameworks, initSurvey, url, baseTest as test } from "../e2e/helper";
 
 const title = "Imagemap Screenshot";
 

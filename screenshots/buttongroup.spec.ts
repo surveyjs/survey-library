@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { compareScreenshot, frameworks, initSurvey, resetFocusToBody, url } from "../e2e/helper";
+import { expect } from "@playwright/test";
+import { compareScreenshot, frameworks, initSurvey, resetFocusToBody, url, baseTest as test } from "../e2e/helper";
 
 const title = "ButtonGroup Screenshot";
 

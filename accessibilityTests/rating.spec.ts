@@ -1,6 +1,5 @@
-import { frameworks, url, initSurvey, axeOptions, axeContext } from "./helper";
+import { frameworks, url, initSurvey, axeOptions, axeContext, baseTest as test } from "./helper";
 import { checkA11y, injectAxe } from "axe-playwright";
-import { test } from "@playwright/test";
 const title = "rating";
 
 // Skip one minor case for listbox role in checkbox fieldset

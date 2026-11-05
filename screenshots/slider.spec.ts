@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, getVisibleListItemByText, applyTheme } from "../e2e/helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, getVisibleListItemByText, applyTheme, baseTest as test } from "../e2e/helper";
 import { Question } from "../e2e/questionHelper";
 import { Survey } from "../e2e/surveyHelper";
 

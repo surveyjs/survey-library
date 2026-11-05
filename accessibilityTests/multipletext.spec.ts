@@ -1,6 +1,5 @@
-import { frameworks, url, initSurvey, axeOptions, axeContext, getButtonByText } from "./helper";
+import { frameworks, url, initSurvey, axeOptions, axeContext, getButtonByText, baseTest as test } from "./helper";
 import { checkA11y, injectAxe } from "axe-playwright";
-import { test } from "@playwright/test";
 const title = "multipletextbox";
 frameworks.forEach((framework) => {
   test.describe(`${framework} a11y:${title}`, () => {

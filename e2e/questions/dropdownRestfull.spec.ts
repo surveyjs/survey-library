@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getVisibleListItemByText, getData, getButtonByText } from "../helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getVisibleListItemByText, getData, getButtonByText, baseTest as test } from "../helper";
 
 const title = "dropdownRestful";
 

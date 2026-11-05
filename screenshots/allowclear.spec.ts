@@ -1,5 +1,4 @@
-import { test } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, waitUntilAllImagesLoad } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, waitUntilAllImagesLoad, baseTest as test } from "../e2e/helper";
 
 const title = "Allow Clear Screenshot";
 

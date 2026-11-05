@@ -83,10 +83,7 @@ frameworks.forEach((framework) => {
           steps: 50
         }
       });
-      await page.waitForTimeout(300);
-
-      let data = await getData(page);
-      expect(data["smartphone-features"]).toEqual([
+      await expect.poll(async () => (await getData(page))["smartphone-features"]).toEqual([
         "Price",
         "Battery life",
         "Screen size",
@@ -122,10 +119,7 @@ frameworks.forEach((framework) => {
           elementPosition: { x: 5, y: 0 }
         }
       });
-      await page.waitForTimeout(300);
-
-      let data = await getData(page);
-      expect(data["smartphone-features"]).toEqual([
+      await expect.poll(async () => (await getData(page))["smartphone-features"]).toEqual([
         "Battery life",
         "Price",
         "Screen size",
@@ -144,10 +138,7 @@ frameworks.forEach((framework) => {
           steps: 50
         }
       });
-      await page.waitForTimeout(300);
-
-      data = await getData(page);
-      expect(data["smartphone-features"]).toEqual([
+      await expect.poll(async () => (await getData(page))["smartphone-features"]).toEqual([
         "Price",
         "Battery life",
         "Screen size",
@@ -252,10 +243,7 @@ frameworks.forEach((framework) => {
       const SecondItem = page.getByLabel(newName).getByText("two");
 
       await doDragDrop({ page, element: FirstItem, target: SecondItem });
-      await page.waitForTimeout(100);
-
-      let data = await getData(page);
-      expect(data[newName]).toEqual([
+      await expect.poll(async () => (await getData(page))[newName]).toEqual([
         "two",
         "one"
       ]);
@@ -276,10 +264,7 @@ frameworks.forEach((framework) => {
           targetPosition: { x: 5, y: -5 }
         }
       });
-      await page.waitForTimeout(300);
-
-      let data = await getData(page);
-      expect(data["smartphone-features"]).toEqual([
+      await expect.poll(async () => (await getData(page))["smartphone-features"]).toEqual([
         "Price",
         "Battery life",
         "Screen size",
@@ -379,10 +364,7 @@ frameworks.forEach((framework) => {
         await page.mouse.move(item1Box.x + 5, item1Box.y + 40, { steps: 50 });
         await page.mouse.up();
       }
-      await page.waitForTimeout(100);
-
-      const value = await getQuestionValue(page);
-      expect(value).toEqual(["Item1", "Item3", "other"]);
+      await expect.poll(() => getQuestionValue(page)).toEqual(["Item1", "Item3", "other"]);
     });
 
     test("Uncaught TypeError Bug#9438", async ({ page }) => {
@@ -418,6 +400,9 @@ frameworks.forEach((framework) => {
         await page.mouse.move(item2Box.x + 5, item2Box.y + 40, { steps: 20 });
         await page.mouse.up();
       }
+      // The test has no assertion of its own: it passes when the drop throws nothing. An error thrown
+      // asynchronously after mouse.up() reaches the page's error check in the fixture only if the test is
+      // still running, so it waits a little before it ends.
       await page.waitForTimeout(100);
     });
 
@@ -531,7 +516,6 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       await getButtonByText(page, "Next").click();
-      await page.waitForTimeout(500);
       await expect(page.locator(".sv-ranking-item").first()).toBeFocused();
     });
   });

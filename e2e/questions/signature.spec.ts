@@ -49,8 +49,10 @@ frameworks.forEach((framework) => {
         ],
         "showQuestionNumbers": false
       };
+      // The simulated upload's delay. The check below waits twice as long, so that a second upload would be counted too.
+      const uploadDelay = 100;
       await initSurvey(page, framework, {});
-      await page.evaluate((json) => {
+      await page.evaluate(({ json, uploadDelay }) => {
         (window as any).uploadFilesCallCount = 0;
 
         (window as any).survey.onUploadFiles.add((_, options) => {
@@ -66,10 +68,10 @@ frameworks.forEach((framework) => {
                   };
                 })
               );
-            }, 1000);
+            }, uploadDelay);
         });
         (window as any).survey.fromJSON(json);
-      }, json);
+      }, { json, uploadDelay });
 
       const QuestionNode = page.locator(".sd-question");
       const SignCanvas = QuestionNode.locator("canvas");
@@ -93,7 +95,7 @@ frameworks.forEach((framework) => {
       await expect(Placeholder).not.toBeVisible();
 
       await page.click("body", { position: { x: 0, y: 0 } });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(2 * uploadDelay);
       const uploadFilesCallCount = await page.evaluate(() => {
         return (window as any).uploadFilesCallCount;
       });

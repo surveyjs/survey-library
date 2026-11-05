@@ -224,7 +224,7 @@ Out of scope: the library's own in-place string editor (`SurveyLocStringEditor`,
 
 1. Make `textFormat` visible: `Serializer.findProperty("comment", "textFormat").visible = true`.
 2. Add a non-serializable, invisible property on `comment`: `{ name: "richTextEditMode", default: "block", choices: ["inline", "block"], visible: false, isSerializable: false }`. Used by Creator (§9.4, §9.5). The effective mode of a comment editor is `"inline"` when `acceptCarriageReturn === false`, otherwise `richTextEditMode`.
-   Also add `{ name: "richTextToolbarVisibility", default: "always", choices: ["always", "onFocus"], visible: false, isSerializable: false }` (§7.2). Used by Creator for dense layouts (property grid, translation tab).
+   Also add `{ name: "richTextToolbarVisibility", default: "always", choices: ["always", "onFocus"], visible: false, isSerializable: false }`. The question renderer does not read it: the comment toolbar is always the floating on-focus variant (§7.2). Creator still sets `"onFocus"` for the property grid and the translation tab.
    Also add `{ name: "richTextConverter", visible: false, isSerializable: false }` holding an `IRichTextConverter` or `undefined`. When set, the comment editor uses it instead of `RichText.getFormat(textFormat)` (rendering, serializing and the lossless check). Used by Creator to edit survey strings in comment cells through the customer's handlers (§9.4, §9.5).
 3. Register the renderer: `RendererFactory.Instance.registerRenderer("comment", "richtext", "sv-rich-text-comment")`.
 4. Register icons via `SvgRegistry.registerIcons(...)`.
@@ -273,8 +273,9 @@ The model is framework-agnostic and attaches to any `contenteditable` element (`
 
 ### 7.2 Toolbar and commands
 
-- Toolbar = `ActionContainer` rendered by the existing `sv-action-bar` (compact size), placed **above** the editing area and **before** it in tab order.
-- Toolbar visibility (comment question, `richTextToolbarVisibility`): `"always"` — the toolbar is part of the layout. `"onFocus"` — the toolbar is a floating overlay above the editing area, shown while focus is within the editor, its toolbar or its link dialog; it never changes the layout (no row height changes in grids). The Creator inline string editor always uses the floating variant (§9.2).
+- Toolbar = `ActionContainer` rendered by the existing `sv-action-bar` (compact size). On the comment question it is a floating overlay **below** the editing area and does not take space in the layout. It is shown only while focus is inside the editor, the toolbar, or the link dialog. In the DOM it follows the editing area, so Tab from the field reaches the buttons once they are shown. Clicking a button does not move focus (`mousedown` is cancelled), so the toolbar stays open.
+- The floating box uses the dropdown popup chrome: a 2px gap below the field (the same offset as `.sv-dropdown-popup.sv-popup--menu-popup.sv-popup--bottom`), `padding: var(--sjs2-spacing-x050)` (the popup list padding), and the border, radius, background and shadow of `.sv-popup--menu-popup > .sv-popup__container`. The action bar is the only content inside that box.
+- `richTextToolbarVisibility` is not read by the question renderer: the comment toolbar is always this floating on-focus variant. Creator still sets `"onFocus"` on grid cells (§9.4, §9.5); that matches the only behavior. The Creator inline string editor uses the same floating toolbar (§9.2).
 - Clicking a toolbar button must not lose the selection: the model saves the selection `Range` on every `selectionchange` inside the element and restores it (and focus) before executing a command.
 - Toggle state is computed by the model (not `queryCommandState`): walk text nodes in the selection → `all` / `none` / `mixed`. A button is pressed (`aria-pressed="true"`) only for `all`. Command semantics: `all` → remove; `none`/`mixed` → apply to the whole selection.
 - Collapsed selection: the command sets the typing style for subsequent input (native behavior); the button reflects it.
@@ -329,7 +330,7 @@ One component, registered as `sv-rich-text-comment`, in each UI package:
 
 Wrapper responsibilities only:
 
-1. Render the toolbar via `sv-action-bar` with the model's `toolbar`.
+1. Render the toolbar via `sv-action-bar` with the model's `toolbar`, after the editing host, inside the element that gets `:focus-within`. Visibility and the floating box are CSS only (§7.2).
 2. Render the editing host element (`div`, `contenteditable`) whose **content is not managed by the framework**; call `model.attach(el)` after mount and `model.detach()` before unmount.
 3. Render source mode by reusing the existing `TextAreaComponent` plus the notice/action.
 4. Render read-only/display mode as non-editable HTML.
@@ -635,7 +636,7 @@ Scope: `RichTextEditorModel` with the command adapter, toolbar (bold, italic, st
 Automated: corresponding `editor-model.tests.ts` cases; React markup etalons for edit mode.
 
 **CP3 — formatting a comment answer.** React demo page, page "Editor".
-- [x] `c_md` shows a toolbar above the editing area; the toolbar uses the survey theme.
+- [x] `c_md`: the toolbar is hidden until the editing area is focused; then it floats 2px below the field, in the dropdown-popup chrome, and does not change the layout. It uses the survey theme.
 - [x] Bold/italic/strikethrough via buttons and via Ctrl/Cmd+B/I; the pressed state follows the caret.
 - [x] Worked example of §3.3: data panel shows exactly `Please **read the** ***ter**ms* carefully`, then `Please **r**ead the *terms* carefully` after the second click.
 - [x] Clicking a toolbar button keeps the selection.

@@ -61,11 +61,11 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
     const block = this.editor.mode === "block";
     return (
       <div className="sd-rich-text">
-        <div className="sd-rich-text__toolbar" role="toolbar" aria-label={getRichTextString("richTextToolbar")} aria-controls={question.inputId}>
-          <SurveyActionBar model={this.editor.toolbar} />
-        </div>
         <div className="sd-comment sd-formbox">
           <RichTextSurface hostRef={this.hostRef} question={question} block={block} />
+        </div>
+        <div className="sd-rich-text__toolbar" role="toolbar" aria-label={getRichTextString("richTextToolbar")} aria-controls={question.inputId}>
+          <SurveyActionBar model={this.editor.toolbar} />
         </div>
       </div>
     );

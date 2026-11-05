@@ -5,13 +5,29 @@
 // property block, which survey-core.css already delivers to the same page.
 
 .sd-rich-text {
-  display: flex;
-  flex-direction: column;
+  position: relative;
   width: 100%;
 }
 
+// Same chrome as the dropdown popup: 2px offset of
+// .sv-dropdown-popup.sv-popup--menu-popup.sv-popup--bottom, list padding of .sv-list,
+// and the box of .sv-popup--menu-popup > .sv-popup__container.
 .sd-rich-text__toolbar {
-  margin-bottom: var(--sjs2-spacing-x050, 4px);
+  display: none;
+  position: absolute;
+  z-index: 1;
+  inset-inline-start: 0;
+  top: calc(100% + 2px);
+  box-sizing: border-box;
+  padding: var(--sjs2-spacing-x050);
+  border-radius: var(--sjs2-radius-component-drop);
+  border: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+  background: var(--sjs2-color-utility-sheet);
+  box-shadow: var(--sjs2-border-effect-floating-default);
+}
+
+.sd-rich-text:focus-within > .sd-rich-text__toolbar {
+  display: block;
 }
 
 .sd-rich-text__area {

@@ -100,7 +100,7 @@ describe.skipIf(!!process.env.PERF_CORE_DIR)("perf fixtures on the runner's buil
       expect(bound.isVisible, "with no orders it is hidden").toBe(false);
     });
   }
-  test("3. records-plain: two plain matrices, no calculated values, a distinct id the id header sorts ascending", () => {
+  test("3. records-plain: two plain matrices and two plain panels, no calculated values, a distinct id the id header sorts ascending", () => {
     const fixture = getFixture("records-plain");
     // What would make a sort rebuild the rows rather than rebind them, or measure more than the matrix.
     const text = JSON.stringify(fixture.json);
@@ -111,7 +111,7 @@ describe.skipIf(!!process.env.PERF_CORE_DIR)("perf fixtures on the runner's buil
     const cellTypes = ["text", "comment", "dropdown", "checkbox", "radiogroup", "boolean", "expression", "rating", "tagbox"];
     const { survey } = loadQuietly(Survey, fixture.json);
     survey.data = fixture.data;
-    expect(survey.getAllQuestions(false).map((q: any) => q.name)).toEqual(fixture.meta.matrices);
+    expect(survey.getAllQuestions(false).map((q: any) => q.name)).toEqual(fixture.meta.matrices.concat(fixture.meta.panelQuestions));
     const counts: any = { orders30: [fixture.meta.records, 1], ordersPaged: [fixture.meta.pagedRecords, fixture.meta.pagedRecords / fixture.meta.pageSize] };
     expect(counts.orders30[0]).toBe(30);
     expect(counts.ordersPaged).toEqual([1000, 100]);
@@ -136,6 +136,24 @@ describe.skipIf(!!process.env.PERF_CORE_DIR)("perf fixtures on the runner's buil
       const after = q.visibleRows.map((r: any) => r.getValue("id"));
       expect(after).toEqual(ids.slice().sort().slice(0, size));
       expect(after).not.toEqual(before);
+    }
+    // The panels: list mode, the same 9 fields, and nothing that makes a sort or a page move rebuild them.
+    const panelCounts: any = { panels30: [fixture.meta.records, 1], panelsPaged: [fixture.meta.pagedRecords, fixture.meta.pagedRecords / fixture.meta.pageSize] };
+    for (const name of fixture.meta.panelQuestions) {
+      const q = survey.getQuestionByName(name);
+      expect(q.getType()).toBe("paneldynamic");
+      expect(q.displayMode).toBe("list");
+      expect(q.allowSort).toBe(true);
+      expect(q.template.questions.length).toBe(9);
+      q.template.questions.forEach((t: any) => expect(cellTypes, t.name).toContain(t.getType()));
+      const ids = fixture.data[name].map((r: any) => r.id);
+      expect(new Set(ids).size, name + ": distinct ids").toBe(ids.length);
+      expect(q.panelCount).toBe(panelCounts[name][0]);
+      expect(q.pageCount).toBe(panelCounts[name][1]);
+      const size = q.pageSize > 0 ? q.pageSize : ids.length;
+      expect(q.panels.map((p: any) => p.getQuestionByName("id").value)).toEqual(ids.slice(0, size));
+      q.sortCriteria = [{ field: "id", direction: "asc" }];
+      expect(q.panels.map((p: any) => p.getQuestionByName("id").value)).toEqual(ids.slice().sort().slice(0, size));
     }
   });
   for (const key of ["expressions", "calculations", "complexLogic"]) {

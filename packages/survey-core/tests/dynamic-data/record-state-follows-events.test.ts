@@ -95,9 +95,13 @@ const matrixKind: IKind = {
   }
 };
 const kinds = [matrixKind, panelKind];
-/* A sort and a page move rebind the rows of a matrix (matrix-rebind-rows.test.ts); a cell-creation
-   handler keeps the rebuild these tests follow (RB01). */
-const keepRebuilding = (q: Question): void => { if (q.getType() === "matrixdynamic") (<SurveyModel>q.survey).onMatrixCellCreated.add(() => { }); };
+/* A sort and a page move rebind the rows of a matrix (matrix-rebind-rows.test.ts) and the panels of a
+   dynamic panel (panel-rebind.test.ts); a creation handler keeps the rebuild these tests follow. */
+const keepRebuilding = (q: Question): void => {
+  const survey = <SurveyModel>q.survey;
+  if (q.getType() === "matrixdynamic") survey.onMatrixCellCreated.add(() => { });
+  else survey.onQuestionCreated.add(() => { });
+};
 const panelItems = (q: QuestionPanelDynamicModel): Array<any> => panelKind.items(q).slice();
 
 // The states, read from the fields that hold them.

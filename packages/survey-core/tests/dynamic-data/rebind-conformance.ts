@@ -8,6 +8,9 @@ import { MatrixDropdownRowModelBase } from "../../src/question_matrixdropdownbas
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow } from "../../src/question_matrixdropdownrendered";
 import { ActionContainer } from "../../src/actions/container";
 import { Action } from "../../src/actions/action";
+import { Base } from "../../src/base";
+import { PanelModel } from "../../src/panel";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 
 /* What a question kept for another record has to look like: the state a question built for that record
    shows to the respondent, to a renderer and to the survey. A records question that rebinds its objects
@@ -82,7 +85,7 @@ function getFieldValue(val: any, depth: number): any {
 }
 /* A stored property as the question reads it: through its getter when it has one, which applies the
    default and recomputes what the hash caches (isVisible). */
-function readStoredProperty(q: Question, key: string): any {
+function readStoredProperty(q: Base, key: string): any {
   for (let proto = Object.getPrototypeOf(q); !!proto; proto = Object.getPrototypeOf(proto)) {
     const descriptor = Object.getOwnPropertyDescriptor(proto, key);
     if (!!descriptor) return !!descriptor.get ? q[key] : q.getPropertyValue(key);
@@ -90,7 +93,7 @@ function readStoredProperty(q: Question, key: string): any {
   return q.getPropertyValue(key);
 }
 // The stored properties of a question by name; a choice's comment is named by the instance id of its item, so it goes by the choice value.
-function getStoredProperties(q: Question): any {
+function getStoredProperties(q: Base): any {
   const res: any = {};
   const hash = q["propertyHash"];
   Object.keys(hash).forEach((key: string): void => { res[key] = key; });
@@ -107,22 +110,48 @@ function getStoredProperties(q: Question): any {
   return res;
 }
 // The fields that differ between a rebound question and the one a fresh build gives: { name: [rebound, fresh] }.
-export function getQuestionFieldDiffs(q: Question, fresh: Question): any {
+export function getQuestionFieldDiffs(q: Question, fresh: Question, ignoredFields?: { [name: string]: string }): any {
+  const ignored = Object.assign({}, ignoredQuestionFields, ignoredFields);
+  // A hidden element is not rendered: its width is what its row last gave it, which depends on the build path.
+  if (!q.isVisible && !fresh.isVisible) ignored["#renderWidth"] = "the element is hidden";
+  return getFieldDiffs(q, fresh, ignored);
+}
+/* The same for a panel a Dynamic Panel keeps for another record: its errors, its collapsed state and its
+   title are its own, not its questions'. The panel's elements are class instances, compared one by one. */
+const ignoredPanelFields: { [name: string]: string } = {
+  "#id": "the instance is kept, and with it its id",
+  "uniqueIdValue": "the instance number",
+  "asyncRunIdCounter": "counts the async runs of the instance"
+};
+export function getPanelFieldDiffs(panel: PanelModel, fresh: PanelModel): any {
+  // The question list is cached on the first read: read on both sides.
+  panel.questions;
+  fresh.questions;
+  const ignored = Object.assign({}, ignoredPanelFields);
+  if (!panel.isVisible && !fresh.isVisible) ignored["#renderWidth"] = "the element is hidden";
+  return getFieldDiffs(panel, fresh, ignored);
+}
+/* The questions of a panel a Dynamic Panel builds. A select question built while its choices run keeps
+   the value it was given for a request of choices from a URL; a template with such choices rebuilds. */
+const ignoredPanelQuestionFields: { [name: string]: string } = {
+  "cachedValueForUrlRequests": "read only by a load of choices from a URL, and such a template rebuilds"
+};
+function getFieldDiffs(q: Base, fresh: Base, ignoredFields: { [name: string]: string }): any {
   const res: any = {};
   const union = (a: any, b: any): Array<string> => Object.keys(a).concat(Object.keys(b).filter((key: string): boolean => !(key in a)));
-  const compare = (prefix: string, keys: Array<string>, read: (obj: Question, key: string) => any): void => {
+  const compare = (prefix: string, keys: Array<string>, read: (obj: Base, key: string) => any): void => {
     keys.forEach((key: string): void => {
       const name = prefix + key;
-      if (key === "propertyHash" || ignoredQuestionFields[name] !== undefined) return;
+      if (key === "propertyHash" || ignoredFields[name] !== undefined) return;
       const val = getFieldValue(read(q, key), 0);
       const freshVal = getFieldValue(read(fresh, key), 0);
       if (JSON.stringify(val) !== JSON.stringify(freshVal)) res[name] = [val, freshVal];
     });
   };
-  compare("", union(q, fresh), (obj: Question, key: string): any => obj[key]);
+  compare("", union(q, fresh), (obj: Base, key: string): any => obj[key]);
   const stored = getStoredProperties(q);
   const freshStored = getStoredProperties(fresh);
-  compare("#", union(stored, freshStored), (obj: Question, key: string): any => {
+  compare("#", union(stored, freshStored), (obj: Base, key: string): any => {
     const hashKey = (obj === q ? stored : freshStored)[key];
     // A property the other question has not stored is read with its default; a choice comment it has not stored is empty.
     if (hashKey === undefined) return key.indexOf("comment of ") === 0 ? undefined : readStoredProperty(obj, key);
@@ -161,4 +190,44 @@ export function getMatrixState(matrix: QuestionMatrixDynamicModel): any {
     res.totals = matrix.visibleTotalRow.cells.map((cell: any): any => cell.question.value);
   }
   return res;
+}
+/* A panel as a renderer and the respondent see it: its title with the panel number, its collapsed state,
+   its errors and classes, its footer actions, and every element - a nested panel as a panel. */
+export function getPanelState(panel: PanelModel): any {
+  return {
+    name: panel.name, title: panel.locTitle.renderedHtml, processedTitle: panel.processedTitle, no: panel.no,
+    state: panel.state, isCollapsed: panel.isCollapsed, isVisible: panel.isVisible, isReadOnly: panel.isReadOnly,
+    errors: panel.errors.map((error: any): string => error.getText()),
+    containerCss: panel.getContainerCss(), cssTitle: panel.cssTitle, cssHeader: panel.cssHeader,
+    // An action id holds the panel's instance id, which a fresh survey numbers on its own.
+    footer: panel.getFooterToolbar().actions.map((action: Action): any =>
+      [action.id.replace(panel.id, "#id"), action.visible, action.enabled, action.title]),
+    elements: panel.elements.map((el: any): any => el.isPanel ? getPanelState(el) : getQuestionState(el))
+  };
+}
+// The panels of a Dynamic Panel, the page it shows and what it renders.
+export function getPanelDynamicState(question: QuestionPanelDynamicModel): any {
+  const indexOf = (panel: PanelModel): number => question.panels.indexOf(panel);
+  return {
+    panels: question.panels.map((panel: PanelModel): any => getPanelState(panel)),
+    visiblePanels: question.visiblePanels.map(indexOf), renderedPanels: question.renderedPanels.map(indexOf),
+    pageIndex: question.pageIndex, pageCount: question.pageCount, panelCount: question.panelCount,
+    visiblePanelCount: question.visiblePanelCount, isAnswered: question.isAnswered, value: question.value,
+    footer: question.footerToolbar.actions.map((action: Action): any => [action.id, action.visible, action.enabled])
+  };
+}
+/* The questions of a panel and its nested panels in element order, paired with the same ones of another
+   panel: the field comparison runs on each pair. */
+export function getPanelPairs(panel: PanelModel, fresh: PanelModel): Array<[Base, Base, string]> {
+  const res: Array<[Base, Base, string]> = [[panel, fresh, panel.name]];
+  panel.elements.forEach((el: any, i: number): void => {
+    const freshEl: any = fresh.elements[i];
+    if (el.isPanel) res.push(...getPanelPairs(el, freshEl));
+    else res.push([el, freshEl, el.name]);
+  });
+  return res;
+}
+export function getElementFieldDiffs(el: Base, fresh: Base): any {
+  return el instanceof PanelModel ? getPanelFieldDiffs(el, <PanelModel>fresh) :
+    getQuestionFieldDiffs(<Question>el, <Question>fresh, ignoredPanelQuestionFields);
 }

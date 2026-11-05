@@ -7,7 +7,7 @@ import { SvgIcon } from "../svg-icon/svg-icon";
 import { IRatingItemProps, RatingItemBase } from "./rating-item";
 
 export class RatingItemSmiley extends RatingItemBase {
-  render(): React.JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     return (
       <label
         style={this.item.style}

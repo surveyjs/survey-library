@@ -13,7 +13,7 @@ export class SurveyFileChooseButton extends ReactSurveyElement {
   protected get question(): QuestionFileModel {
     return (this.props.item && this.props.item.data.question) || this.props.data.question;
   }
-  render() {
+  protected renderElement() {
     return attachKey2click(
       <label
         tabIndex={0}

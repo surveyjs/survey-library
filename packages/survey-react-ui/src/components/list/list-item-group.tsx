@@ -19,7 +19,7 @@ export class ListItemGroup extends SurveyElementBase<IListItemProps, any> {
   getStateElement() {
     return this.item;
   }
-  render(): React.JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     if (!this.item) return null;
 
     const newElement = ReactElementFactory.Instance.createElement("sv-list-item-content", { item: this.item, key: "content" + this.item.id, model: this.model });

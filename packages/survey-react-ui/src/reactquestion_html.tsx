@@ -11,12 +11,15 @@ export class SurveyQuestionHtml extends SurveyQuestionElementBase {
     return this.questionBase as QuestionHtmlModel;
   }
   componentDidMount() {
+    super.componentDidMount();
     this.reactOnStrChanged();
   }
   componentWillUnmount() {
+    super.componentWillUnmount();
     this.question.locHtml.onChanged = function () { };
   }
   componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
     this.reactOnStrChanged();
   }
   private reactOnStrChanged() {

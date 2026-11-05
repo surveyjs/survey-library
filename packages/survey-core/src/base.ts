@@ -252,6 +252,92 @@ export class ComputedUpdater<T = any> {
   }
 }
 
+export interface IPropertyAccessListener {
+  onPropertyAccessed(model: Base, propertyName: string): void;
+  blockTracking(): void;
+  releaseTracking(): void;
+}
+
+export interface IPropertyAccessTracker {
+  startTracking(): void;
+  stopTracking(): void;
+  unsubscribe(): void;
+  subscribe(): void;
+}
+
+// A render collects what it reads into pendingProperties; the commit (subscribe) swaps it in.
+// A render that React throws away (concurrent rendering, an error boundary) leaves the committed subscriptions working.
+export class PropertyAccessTracker implements IPropertyAccessListener, IPropertyAccessTracker {
+  // What the last committed render read. These models hold the tracker's callback while it is subscribed.
+  private trackedProperties: Map<Base, Set<string>> = new Map();
+  // What the current or last render read, until it is committed.
+  private pendingProperties: Map<Base, Set<string>> | undefined;
+  private prevListener: IPropertyAccessListener;
+  constructor(private onTrackedPropertyChanged: (model: Base, options: IPropertyArrayValueChangedEvent) => void) {}
+  private onPropertyChanged = (model: Base, options: IPropertyArrayValueChangedEvent) => {
+    if (PropertyAccessTracker.isTracking) return;
+    // A render that is not committed yet may already show the new value of a property the committed one did not read.
+    if (this.trackedProperties.get(model)?.has(options.name) || this.pendingProperties?.get(model)?.has(options.name)) {
+      this.onTrackedPropertyChanged(model, options);
+    }
+  };
+  private static get isTracking() {
+    return !!Base.currentPropertyAccessListener;
+  }
+  public onPropertyAccessed(model: Base, propertyName: string) {
+    if (this.isTrackingBlocked() || !this.pendingProperties) return;
+    let names = this.pendingProperties.get(model);
+    if (!names) {
+      names = new Set();
+      this.pendingProperties.set(model, names);
+    }
+    names.add(propertyName);
+  }
+  public startTracking() {
+    this.prevListener = Base.currentPropertyAccessListener;
+    Base.currentPropertyAccessListener = this;
+    this.pendingProperties = new Map();
+  }
+  public stopTracking() {
+    Base.currentPropertyAccessListener = this.prevListener;
+  }
+  // Without a render since the last call, it subscribes to the committed models again:
+  // React StrictMode and <Activity> unmount and mount a component again without rendering it.
+  public subscribe() {
+    const pending = this.pendingProperties;
+    if (!!pending) {
+      this.pendingProperties = undefined;
+      this.removeCallbacks();
+      this.trackedProperties = pending;
+    }
+    for (const model of this.trackedProperties.keys()) {
+      model.addOnArrayChangedCallback(this.onPropertyChanged);
+      model.addOnPropertyValueChangedCallback(this.onPropertyChanged);
+    }
+  }
+  // Keeps the committed properties, so that a mount without a render subscribes to them again.
+  public unsubscribe() {
+    this.pendingProperties = undefined;
+    this.removeCallbacks();
+  }
+  private removeCallbacks(): void {
+    for (const model of this.trackedProperties.keys()) {
+      model.removeOnPropertyValueChangedCallback(this.onPropertyChanged);
+      model.removeOnArrayChangedCallback(this.onPropertyChanged);
+    }
+  }
+  private trackingLock: number = 0;
+  isTrackingBlocked() {
+    return this.trackingLock > 0;
+  }
+  blockTracking() {
+    this.trackingLock++;
+  }
+  releaseTracking() {
+    this.trackingLock--;
+  }
+}
+
 /**
  * A base class for all SurveyJS objects.
  */
@@ -265,6 +351,7 @@ export class Base implements IObjectValueContext {
     }
     return Base.defaultIdGeneratorValue;
   }
+  public static currentPropertyAccessListener: IPropertyAccessListener;
   private static currentDependencis: Dependencies = undefined;
   public static finishCollectDependencies(): Dependencies {
     const deps = Base.currentDependencis;
@@ -342,7 +429,9 @@ export class Base implements IObjectValueContext {
     if (!this.propChangeHandlers) return undefined;
     const res = new Array<IPropChangeHandler>();
     this.propChangeHandlers.forEach(handlers => {
-      handlers.forEach(entry => res.push({ name: entry.name, func: entry.func, key: entry.key }));
+      handlers.forEach(entry => {
+        res.push({ name: entry.name, func: entry.func, key: entry.key });
+      });
     });
     return res;
   }
@@ -751,12 +840,16 @@ export class Base implements IObjectValueContext {
    */
   public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
+    // Kept small so that it inlines; the rarely taken branches live in getPropertyValueOrDefault
+    return this.getPropertyValueOrDefault(name, res, defaultValue, calcFunc);
+  }
+  private getPropertyValueOrDefault(name: string, res: any, defaultValue: any, calcFunc: ()=> any): any {
     if (!!calcFunc && this.isDisposedValue) {
       calcFunc = undefined;
     }
     if (!!calcFunc && Array.isArray(res) && res.length === 0 && (<any>res).isReset === true) {
       delete (<any>res).isReset;
-      this.setArrayPropertyDirectly(name, calcFunc(), false);
+      this.setArrayPropertyDirectly(name, Base.runUntracked(calcFunc), false);
       return res;
     }
     if (this.isValueUndefined(res)) {
@@ -764,7 +857,7 @@ export class Base implements IObjectValueContext {
       if (locStr) return locStr.text;
       if (!this.isValueUndefined(defaultValue)) return defaultValue;
       if (!!calcFunc) {
-        const newVal = calcFunc();
+        const newVal = Base.runUntracked(calcFunc);
         if (newVal !== undefined) {
           if (Array.isArray(newVal)) {
             const array = this.createNewArray(name);
@@ -780,6 +873,19 @@ export class Base implements IObjectValueContext {
       if (propDefaultValue !== undefined) return propDefaultValue;
     }
     return res;
+  }
+  // Runs func without recording the properties it reads into the current UI tracker, if any.
+  // A component that reads a calculated property depends on the property itself, not on what calcFunc reads;
+  // blocking only around calcFunc keeps plain reads during a render free of the block/release calls.
+  protected static runUntracked<T>(func: () => T): T {
+    const listener = Base.currentPropertyAccessListener;
+    if (!listener) return func();
+    listener.blockTracking();
+    try {
+      return func();
+    } finally {
+      listener.releaseTracking();
+    }
   }
   protected isValueUndefined(value: any): boolean {
     return Helpers.isValueUndefined(value);
@@ -877,6 +983,9 @@ export class Base implements IObjectValueContext {
     if (Base.currentDependencis !== undefined && !this.isLoadingFromJson) {
       Base.collectDependency(this, name);
     }
+    if (Base.currentPropertyAccessListener) {
+      Base.currentPropertyAccessListener.onPropertyAccessed(this, name);
+    }
     if (this.getPropertyValueCoreHandler)
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];
@@ -897,7 +1006,7 @@ export class Base implements IObjectValueContext {
         if (!isCalcValue && !!this.onPropertyValueCoreChanged) {
           reportError = this.isDisposedValue;
           if (!reportError) {
-            this.onPropertyValueCoreChanged.fire(this, { name, newValue: val });
+            Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue: val });
           }
         }
       }
@@ -1580,35 +1689,46 @@ export class Base implements IObjectValueContext {
     this.arraysInfo[name].isItemValues = true;
     return result;
   }
-  private onArrayChanged: EventBase<Base, IPropertyArrayValueChangedEvent>;
+  // UI components subscribe here, thousands per survey or page in a large survey.
+  // A Set keeps add and remove O(1); an EventBase scans its array on both.
+  private static fireUICallbacks<T>(getCallbacks: () => Set<(sender: Base, options: T) => void>, sender: Base, options: T): void {
+    // Iterate a copy, as EventBase.fire does: a callback that re-renders a component removes and re-adds
+    // itself, and a live Set iteration would call it again for this change.
+    const callbacks = Array.from(getCallbacks());
+    for (let i = 0; i < callbacks.length; i++) {
+      callbacks[i](sender, options);
+      if (!getCallbacks()) return;
+    }
+  }
+  private onArrayChanged: Set<(sender: Base, options: IPropertyArrayValueChangedEvent) => void>;
   public addOnArrayChangedCallback(callback: (sender: Base, options: IPropertyArrayValueChangedEvent) => void) {
     if (!this.onArrayChanged) {
-      this.onArrayChanged = new EventBase<Base, IPropertyArrayValueChangedEvent>();
+      this.onArrayChanged = new Set();
     }
     this.onArrayChanged.add(callback);
   }
   public removeOnArrayChangedCallback(callback: (sender: Base, options: IPropertyArrayValueChangedEvent) => void) {
     if (!!this.onArrayChanged) {
-      this.onArrayChanged.remove(callback);
-      if (this.onArrayChanged.isEmpty) {
+      this.onArrayChanged.delete(callback);
+      if (this.onArrayChanged.size === 0) {
         this.onArrayChanged = undefined;
       }
     }
   }
   private notifyArrayChanged(name: string, ar: any, arrayChanges: ArrayChanges) {
-    !!this.onArrayChanged && this.onArrayChanged.fire(this, { arrayChanges, name, newValue: ar, valueFromHash: this.propertyHash[name] });
+    !!this.onArrayChanged && Base.fireUICallbacks(() => this.onArrayChanged, this, { arrayChanges, name, newValue: ar, valueFromHash: this.propertyHash[name] });
   }
-  private onPropertyValueCoreChanged: EventBase<Base, IPropertyValueChangedEvent>;
+  private onPropertyValueCoreChanged: Set<(sender: Base, options: IPropertyValueChangedEvent) => void>;
   public addOnPropertyValueChangedCallback(callback: (sender: Base, options: IPropertyValueChangedEvent) => void) {
     if (!this.onPropertyValueCoreChanged) {
-      this.onPropertyValueCoreChanged = new EventBase<Base, IPropertyValueChangedEvent>();
+      this.onPropertyValueCoreChanged = new Set();
     }
     this.onPropertyValueCoreChanged.add(callback);
   }
   public removeOnPropertyValueChangedCallback(callback: (sender: Base, options: IPropertyValueChangedEvent) => void) {
     if (!!this.onPropertyValueCoreChanged) {
-      this.onPropertyValueCoreChanged.remove(callback);
-      if (this.onPropertyValueCoreChanged.isEmpty) {
+      this.onPropertyValueCoreChanged.delete(callback);
+      if (this.onPropertyValueCoreChanged.size === 0) {
         this.onPropertyValueCoreChanged = undefined;
       }
     }

@@ -3,8 +3,9 @@ import { SurveyElement, RendererFactory } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyActionBar } from "../action-bar/action-bar";
 import { TitleContent } from "./title-content";
+import { SurveyElementBase } from "../../reactquestion_element";
 
-export class TitleActions extends React.Component<any, any> {
+export class TitleActions extends SurveyElementBase<any, any> {
   protected get cssClasses() {
     return this.props.cssClasses;
   }
@@ -14,8 +15,7 @@ export class TitleActions extends React.Component<any, any> {
   private get renderActions(): boolean {
     return this.props.renderActions === undefined ? true : this.props.renderActions;
   }
-
-  render(): React.JSX.Element {
+  renderElement(): React.JSX.Element {
     const titleContent: React.JSX.Element = <TitleContent element={this.element} cssClasses={this.cssClasses}></TitleContent>;
     if (!this.element.hasVisibleTitleActions) return titleContent;
     return (

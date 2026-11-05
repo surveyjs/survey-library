@@ -7177,14 +7177,17 @@ export class SurveyModel extends SurveyElementCore
   }
   private updateVisibleIndexAfterBindings: boolean;
   private checkElementsBindings(valueName: string, newValue: any): void {
-    this.elementsBindingsScope.run(() => {
-      for (var i = 0; i < this.pages.length; i++) {
-        this.pages[i].checkBindings(valueName, newValue);
+    try {
+      this.elementsBindingsScope.run(() => {
+        for (var i = 0; i < this.pages.length; i++) {
+          this.pages[i].checkBindings(valueName, newValue);
+        }
+      });
+    } finally {
+      if (!this.elementsBindingsScope.isActive && this.updateVisibleIndexAfterBindings) {
+        this.updateVisibleIndexAfterBindings = false;
+        this.updateVisibleIndexes();
       }
-    });
-    if (this.updateVisibleIndexAfterBindings) {
-      this.updateVisibleIndexes();
-      this.updateVisibleIndexAfterBindings = false;
     }
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {

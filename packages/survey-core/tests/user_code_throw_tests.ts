@@ -278,6 +278,27 @@ describe("A throw from user code leaves the survey working", () => {
     survey.setValue("q2", "a");
     expect(survey.getQuestionByName("q3").isVisible, "#2").toBe(true);
   });
+  test("a property handler that hides a question and throws while value bindings update: the questions are numbered again", () => {
+    const survey = new SurveyModel({ showQuestionNumbers: "on", elements: [
+      { type: "text", name: "count" },
+      { type: "paneldynamic", name: "q1", bindings: { panelCount: "count" }, templateElements: [{ type: "text", name: "t" }] },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" }
+    ] });
+    const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+    expect(q3.no, "#1").toBe("4.");
+    const throwOnce = createThrowOnce("throwOnBindingIndexes");
+    q1.onPropertyChanged.add((_, options) => {
+      if (options.name !== "panels") return;
+      q2.visible = false;
+      throwOnce.check();
+    });
+    throwOnce.arm();
+    expect(() => survey.setValue("count", 2), "#2").toThrow("throwOnBindingIndexes");
+    expect(q3.no, "#3").toBe("3.");
+  });
   test("a custom function that throws while conditions run on a value change: a later data assignment runs every condition", () => {
     const fn = registerThrowOnceFunction("throwOnceOnValueChange");
     try {

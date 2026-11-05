@@ -25,6 +25,12 @@ function getId(id: string, isError: boolean, isDetail: boolean) {
 function getDynamicMatrix(matrix: QuestionMatrixDropdownModelBase): QuestionMatrixDynamicModel {
   return matrix.isRowsDynamic ? <QuestionMatrixDynamicModel>matrix : undefined;
 }
+// The same actions in the same cells: the ids and the locations, in order (an action without a location is a "start" one).
+function isSameActionIds(actions: Array<IAction>, oldActions: Array<IAction>): boolean {
+  if (!Array.isArray(actions) || !Array.isArray(oldActions) || actions.length !== oldActions.length) return false;
+  return actions.every((action: IAction, index: number): boolean => action.id === oldActions[index].id &&
+    (action.location || "start") === (oldActions[index].location || "start"));
+}
 
 export class QuestionMatrixDropdownRenderedCell {
   private idValue: string;
@@ -413,7 +419,6 @@ export class QuestionMatrixDropdownRenderedEmptyRow extends QuestionMatrixDropdo
 }
 
 export class QuestionMatrixDropdownRenderedTable extends Base {
-  private headerRowValue: QuestionMatrixDropdownRenderedRow;
   private footerRowValue: QuestionMatrixDropdownRenderedRow;
   private hasRemoveRowsValue: boolean;
   private rowsActions: Array<Array<IAction>>;
@@ -519,8 +524,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return !!this.isRequireResetValue;
   }
 
+  /* A stored property: a rebind of the rows builds the header again (updateAfterRowsRebound) in the table
+     the renderers keep, and they follow it. */
   public get headerRow(): QuestionMatrixDropdownRenderedRow {
-    return this.headerRowValue;
+    return this.getPropertyValue("headerRow");
   }
   public get footerRow(): QuestionMatrixDropdownRenderedRow {
     return this.footerRowValue;
@@ -659,6 +666,73 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.rowsActions.push(this.buildRowActions(rows[i]));
     }
   }
+  /* The rows were rebound to other records (MatrixRenderedTableHost.updateAfterRowsRebound): the table keeps
+     its rendered rows. What it built from the records and the view is built again - the row actions, and the
+     header, whose sort state a rebuild used to bring (an edit of a sort item re-sorts and changes no
+     question property); a column header keeps its id. Returns false when the table has to be reset. */
+  public updateAfterRowsRebound(): boolean {
+    if (!this.updateRowsActions()) return false;
+    this.buildHeader();
+    // What an action computes from its row's position (the drag handle's label) reads it, and follows.
+    this.setPropertyValue("rowsRebindCount", this.rowsRebindCount + 1);
+    return true;
+  }
+  public get rowsRebindCount(): number {
+    return this.getPropertyValue("rowsRebindCount", 0);
+  }
+  /* The actions of a row follow its record and its position - the remove button lockedRowCount and
+     onMatrixAllowRemoveRow decide, the drag handle the visible index locks, whatever an onGetMatrixRowActions
+     handler gives - so they are built again, and every row keeps its action cells: without a handler the
+     actions it has stay, with one its containers take the new ones. Returns false when a row's actions are
+     not the same ones by id: its cells change (an empty cell, the css class of each action), and only a new
+     table shows that. */
+  private updateRowsActions(): boolean {
+    const oldRowsActions = this.rowsActions;
+    // The supplied actions are listed per build: the list ends as the one of the actions the containers hold.
+    const oldSupplied = this.suppliedRowActions;
+    this.suppliedRowActions = [];
+    this.buildRowsActions();
+    const newRowsActions = this.rowsActions;
+    const newSupplied = this.suppliedRowActions;
+    this.suppliedRowActions = oldSupplied.concat(newSupplied);
+    const isSame = oldRowsActions.length === newRowsActions.length &&
+      newRowsActions.every((actions: Array<IAction>, index: number): boolean => isSameActionIds(actions, oldRowsActions[index]));
+    if (!isSame || !this.hasRowActionsHandler()) {
+      this.rowsActions = oldRowsActions;
+      newRowsActions.forEach((actions: Array<IAction>): void => { this.disposeBuiltActions(actions); });
+      this.suppliedRowActions = oldSupplied;
+      return isSame;
+    }
+    const positions = new Map<MatrixDropdownRowModelBase, number>();
+    this.matrix.visibleRows.forEach((row: MatrixDropdownRowModelBase, index: number): void => { positions.set(row, index); });
+    this.rows.forEach((renderedRow: QuestionMatrixDropdownRenderedRow): void => {
+      if (renderedRow.isErrorsRow || renderedRow.isDetailRow || !positions.has(renderedRow.row)) return;
+      const rowIndex = positions.get(renderedRow.row);
+      renderedRow.cells.forEach((cell: QuestionMatrixDropdownRenderedCell, cellIndex: number): void => {
+        if (!cell.isActionsCell || !cell.item) return;
+        const location = cellIndex === 0 && this.hasActionCellInRows("start") ? "start" : "end";
+        const container = <ActionContainer>cell.item.value;
+        const oldActions = [].concat(container.actions);
+        container.setItems(this.getRowActions(rowIndex, location));
+        this.disposeBuiltActions(oldActions);
+      });
+    });
+    this.suppliedRowActions = newSupplied;
+    return true;
+  }
+  // An onGetMatrixRowActions handler may give each record its own actions; a survey without the event is asked as one with a handler.
+  private hasRowActionsHandler(): boolean {
+    const survey: any = this.matrix.survey;
+    if (!survey) return false;
+    const event = survey.onGetMatrixRowActions;
+    return !event || !event.isEmpty;
+  }
+  // The actions the table created; an Action instance the application supplied stays usable (see dispose).
+  private disposeBuiltActions(actions: Array<IAction>): void {
+    (actions || []).forEach((action: IAction): void => {
+      if (action instanceof BaseAction && this.suppliedRowActions.indexOf(action) < 0) action.dispose();
+    });
+  }
   protected createRenderedRow(cssClasses: any, isDetailRow: boolean = false) {
     return new QuestionMatrixDropdownRenderedRow(cssClasses, isDetailRow);
   }
@@ -676,7 +750,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       (this.matrix.hasRowText && !this.matrix.isColumnLayoutHorizontal);
     this.setPropertyValue("showHeader", isShown);
     if (!isShown) return;
-    this.headerRowValue = this.createRenderedRow(this.cssClasses);
+    this.setPropertyValue("headerRow", this.createRenderedRow(this.cssClasses));
     if (this.hasActionCellInRows("start")) {
       this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }

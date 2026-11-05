@@ -1,7 +1,7 @@
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
 import { expectThat, expectEqual } from "../harness/scenario.ts";
 import { loadModel, outputScenarios } from "./common.ts";
-import { loadSurvey, releaseSurvey, sortRecords, filterRecords, sum, firstShown, renderedCell, showPageOf, expectSortedPage, recordsShown, shownIds } from "./helpers.ts";
+import { loadSurvey, cachedSurvey, releaseSurvey, sortRecords, filterRecords, sum, firstShown, renderedCell, showPageOf, expectSortedPage, recordsShown, shownIds } from "./helpers.ts";
 
 // Records on the matrix orders (1k and 10k) and a few on the bound panel ordersPanel (1k). One survey with the data
 // per process or page; setup restores the page, the sort and the filter instead of reloading (00, Budgets). Every
@@ -348,6 +348,92 @@ export function sortHeaderScenario(fixture: string): PerfScenario {
   });
 }
 
+// records-plain: a sort of a plain matrix (no calculated values, nothing that makes a sort rebuild the rows rather
+// than rebind them), 30 rows with no paging (orders30) and a page of 10 of 1,000 records (ordersPaged). A sample
+// starts unsorted on page 0 and sorts by id ascending: in core by sortCriteria, as sort-1 does; in a page by a click
+// on the sort button of the id header (sort-header; id is a text column, so the first click sorts ascending). The ids
+// are distinct, so the expected rows have no ties.
+const plainRequires = ["matrixdynamic.pageSize", "matrixdynamic.allowSort"];
+export const plainSort = [{ field: "id", direction: "asc" }];
+
+// The state every records-plain sample starts from: the matrix's page shown, page 0, no sort, the rendered table
+// built. In core nothing renders, so the table is read here and again in run: the sort keeps or rebuilds it there,
+// as it does in a page.
+export async function plainReady(ctx: PerfContext, name: string): Promise<any> {
+  const survey = await cachedSurvey(ctx, (sv: any) => { sv.data = ctx.fixture.data; });
+  const q = survey.getQuestionByName(name);
+  await showPageOf(ctx, survey, name);
+  await resetView(ctx, q, []);
+  q.renderedTable;
+  return { survey: survey, q: q, records: survey.getValue(name) || [], dom: undefined };
+}
+
+// The ids of the rows a matrix shows first under a sort: its first page, or every record when it does not page.
+export function plainPageIds(question: any, records: Array<any>, criteria: Array<any>): Array<string> {
+  const size = question.pageSize > 0 ? question.pageSize : records.length;
+  return sortRecords(records, criteria).slice(0, size).map((r: any) => r.id);
+}
+
+// Sorted by id ascending on page 0: the shown rows in id order, each cell showing its record (a kept row that kept a
+// value of the record it showed before fails); in a page also aria-sort, the first rendered id and every rendered id.
+export function expectPlainSorted(ctx: PerfContext, s: any): void {
+  const sort = s.q.sortCriteria.map((c: any) => ({ field: c.field, direction: c.direction }));
+  expectEqual(JSON.stringify(sort), JSON.stringify(plainSort), "the sort");
+  expectEqual(s.q.pageIndex, 0, "page index");
+  const expected = plainPageIds(s.q, s.records, plainSort);
+  expectThat(JSON.stringify(expected) !== JSON.stringify(plainPageIds(s.q, s.records, [])), "the sort changes the shown rows");
+  expectEqual(JSON.stringify(shownIds(s.q)), JSON.stringify(expected), "the shown rows in id order");
+  const byId: { [id: string]: any } = {};
+  s.records.forEach((r: any) => { byId[r.id] = r; });
+  s.q.visibleRows.forEach((row: any) => {
+    const record = byId[row.getValue("id")];
+    expectEqual(row.getQuestionByColumnName("title").value, record.title, "the title cell of " + record.id);
+    expectEqual(row.getQuestionByColumnName("qty").value, record.qty, "the qty cell of " + record.id);
+  });
+  if (!ctx.page) return;
+  expectEqual(s.dom.sort, "ascending", "aria-sort");
+  expectEqual(s.dom.first, expected[0], "the first rendered id");
+  expectEqual(JSON.stringify(s.dom.ids), JSON.stringify(expected), "the rendered ids");
+}
+
+function plainBase(op: string, name: string, uses: Array<string>): any {
+  return { id: "records-plain/records/" + op + "@" + name, rev: 1, fixture: "records-plain", kind: "action", requires: plainRequires,
+    uses: ["plainReady", "expectPlainSorted"].concat(uses), counters: recordsShown };
+}
+
+// Core: the sort from code, then the rendered table read, as a page reads it to render the sort.
+export function plainSortScenario(name: string): PerfScenario {
+  return Object.assign(plainBase("sort-1", name, []), {
+    setup: (ctx: PerfContext): Promise<any> => plainReady(ctx, name),
+    run: (ctx: PerfContext, s: any): void => {
+      s.q.sortCriteria = [{ field: "id", direction: "asc" }];
+      s.table = s.q.renderedTable;
+    },
+    check: (ctx: PerfContext, s: any): void => expectPlainSorted(ctx, s)
+  });
+}
+
+// Browser: a click on the sort button of the id header, as sortHeaderScenario clicks total's.
+export function plainSortHeaderScenario(name: string): PerfScenario {
+  return Object.assign(plainBase("sort-header", name, ["renderedFirst", "renderedIds"]), {
+    setup: async(ctx: PerfContext): Promise<any> => {
+      const s = await plainReady(ctx, name);
+      const index = s.q.renderedTable.headerRow.cells.map((c: any) => c.column && c.column.name).indexOf("id");
+      s.selector = "[data-name=\"" + name + "\"] thead th:nth-child(" + (index + 1) + ")";
+      expectThat(index > -1 && !!(ctx.page && ctx.page.query(s.selector + " button.sd-table__header-sort-button")), "the sort button of id");
+      return s;
+    },
+    run: async(ctx: PerfContext, s: any): Promise<void> => {
+      await (ctx.page as any).click(s.selector + " button.sd-table__header-sort-button");
+    },
+    record: (ctx: PerfContext, s: any): void => {
+      const th = (ctx.page as any).query(s.selector);
+      s.dom = { sort: th ? th.getAttribute("aria-sort") : null, first: renderedFirst(ctx, s.q, "id"), ids: renderedIds(ctx, s.q) };
+    },
+    check: (ctx: PerfContext, s: any): void => expectPlainSorted(ctx, s)
+  });
+}
+
 function panelScenarios(fixture: string): Array<PerfScenario> {
   const ready = panelReady;
   return [
@@ -408,6 +494,7 @@ export function recordsScenarios(): Array<PerfScenario> {
   }
   panelScenarios("records-1k").forEach((s: PerfScenario) => res.push(s));
   res.push(sortHeaderScenario("records-10k"));
+  ["orders30", "ordersPaged"].forEach((name: string) => res.push(plainSortScenario(name), plainSortHeaderScenario(name)));
   // toJSON of the small records JSON takes ~7 ms: two in a sample. dispose (~4 ms) cannot repeat: counterOnly.
   outputScenarios("records-10k", "answerRecords", answerRecords).forEach((s: PerfScenario) => {
     const extra: any = { requires: requires };

@@ -11537,6 +11537,8 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   });
   test("assigning the same sort or the same filter rebuilds nothing", () => {
     const matrix = createMatrix({ rowCount: 3 }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
+    // A cell-creation handler keeps the rebuild of a sort (RB01) that #3 checks.
+    (<SurveyModel>matrix.survey).onMatrixCellCreated.add(() => { });
     matrix.sort([{ field: "c1", direction: "asc" }]);
     matrix.filterExpression = "{c1} != 'z'";
     const rows = matrix.allRows.slice();

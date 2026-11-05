@@ -2382,6 +2382,21 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("comment", val);
     this.fireCallback(this.commentChangedCallback);
   }
+  /* A records question keeps this question for another record - a Dynamic Matrix row on a sort or a page
+     move (QuestionRecordItem.rebindToRecord) - and pushes that record in right after: what the
+     question holds for the old record goes first, so that the record arrives as it arrives in a new
+     question. The errors and the mark of the last validation (containsErrors, which the title classes
+     read), the value and the comment, whether they were changed directly, and the visit the empty-field
+     validation remembers. Nothing is written and the survey is not told. */
+  protected resetForAnotherRecord(): void {
+    this.clearErrors();
+    this.updateContainsErrors();
+    // Through the type's own setter: what a type derives from the value (a rendered value) follows.
+    this.setQuestionValue(undefined);
+    this.questionComment = "";
+    this.isValueChangedDirectly = false;
+    this.isFocusEmpty = false;
+  }
   public get isValueArray(): boolean { return false; }
   /**
    * Gets or sets the question value.

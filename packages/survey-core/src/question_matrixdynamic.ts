@@ -82,6 +82,11 @@ interface IRowRemoval extends IRecordRemoval {
 
 // The count properties of the dynamic matrix: getRecordCountNames and the Serializer entries read them.
 const rowCountNames = getRecordCountNamesOf("Row");
+/* RB01: the survey events a new row fires for its cells (canRebindOwnItems). onUpdateQuestionCssClasses
+   too: a cell keeps the classes a handler computed for its record. onAfterRenderQuestionInput fires once
+   per mounted cell editor, and a kept editor is not mounted again for the new record. */
+const rowCreationEvents = ["onQuestionCreated", "onMatrixCellCreating", "onMatrixCellCreated", "onMatrixRowAdded", "onAfterRenderMatrixCell",
+  "onAfterRenderQuestionInput", "onUpdateQuestionCssClasses"];
 
 /**
   * A class that describes the Dynamic Matrix question type.
@@ -155,6 +160,37 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase, position: number): void => {
       if (this.getBuiltRecordIndex(row) > -1 && position < indexes.length)this.setBuiltRecordIndex(row, indexes[position]);
     });
+  }
+  /* A sort, a cleared sort and a page move the list cuts keep the rows the way a move does: each row
+     takes the record its position holds now (rebindRows), and the rendered table keeps its rows - a
+     rebuild re-creates every cell and makes a renderer mount them again. Every other change, and every
+     case getRebindRecordIndexes refuses, is rebuilt as before. */
+  protected rebuildFromDataList(isPageMove: boolean, isSort: boolean = false): void {
+    const indexes = this.getRebindRecordIndexes(this.generatedVisibleRows, isPageMove, isSort);
+    if (!!indexes) {
+      this.rebindRows(indexes, (recordIndex: number): any => this.getNewRowValue(recordIndex));
+      return;
+    }
+    super.rebuildFromDataList(isPageMove);
+  }
+  // The matrix's own reasons to rebuild on a sort and a page move; the common ones are canRebindItems'.
+  protected canRebindOwnItems(): boolean {
+    // Under beginUpdate() the rows cannot be read.
+    if (this.isUpdateLocked) return false;
+    // A live-object value (Survey Creator's property grid) is never routed through the list.
+    if (this.isEditingObjectValue) return false;
+    // A detail panel is created for its record and keeps its nested questions' state under it.
+    if (this.detailPanelMode !== "none") return false;
+    /* RB01: the events and the callback a cell or a row is configured in for its record. The cell type
+       a row gets may vary by row too (getCustomCellType asks onMatrixCellCreating). */
+    if (!!this.onCellCreatedCallback || this.hasSurveyHandlers(rowCreationEvents)) return false;
+    // The vertical layout renders a row as a column.
+    if (!this.isColumnLayoutHorizontal) return false;
+    // A rebuild writes a record's defaults when its row is first built: a page visit or a sort may.
+    if (!this.isValueEmpty(this.defaultRowValue) || this.copyDefaultValueFromLastEntry) return false;
+    // Each choice of a column in showInMultipleColumns is a column of its own.
+    return this.columns.every((column: MatrixDropdownColumn): boolean =>
+      !column.isShowInMultipleColumns && this.canRebindTemplateQuestion(column.templateQuestion));
   }
   /* The records source reads question.value padded up to rowCount with copies of the default row
      value, as createNewValue() pads it. The padding is virtual - it reaches question.value only when a
@@ -1768,6 +1804,8 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
          follows the rows the table adds and removes in place; a keyboard move keeps every position. */
       const getRowNumber = (): number => {
         this.getPropertyValue("rows");
+        // A page move that keeps the rows renumbers them (updateAfterRowsRebound).
+        this.getPropertyValue("rowsRebindCount");
         return this.matrix.getRowNumberInView(row);
       };
       actions.push(new Action({

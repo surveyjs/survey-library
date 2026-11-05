@@ -6260,6 +6260,61 @@ describe("Survey", () => {
     survey.clear(true);
     expect(survey.getValue("q1"), "the value is set after clear, #1163").toBe("defValue");
   });
+  test("survey.clear() clears validation errors, Bug#12214", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1", isRequired: true }] },
+        { elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    survey.nextPage();
+    expect(q1.errors.length, "#1 q1 has a required error").toBe(1);
+    survey.clear(true, true);
+    expect(q1.errors.length, "#2 clear(true, true) removes the error").toBe(0);
+    survey.nextPage();
+    expect(q1.errors.length, "#3 the error comes back on the next validation").toBe(1);
+    survey.clear(false, false);
+    expect(q1.errors.length, "#4 clear(false, false) removes the error").toBe(0);
+    survey.dispose();
+  });
+  test("survey.clear() clears errors on all pages, panels and nested questions, Bug#12214", () => {
+    const survey = new SurveyModel({
+      checkErrorsMode: "onComplete",
+      pages: [
+        { elements: [{ type: "text", name: "q1", inputType: "email" }] },
+        { elements: [
+          { type: "panel", name: "panel1", isRequired: true, elements: [{ type: "text", name: "q2" }] },
+          { type: "paneldynamic", name: "q3", panelCount: 1, templateElements: [{ type: "text", name: "q3_1", isRequired: true }] },
+          { type: "matrixdynamic", name: "q4", rowCount: 1, columns: [{ name: "col1", cellType: "text", isRequired: true }] },
+          { type: "multipletext", name: "q5", items: [{ name: "item1", isRequired: true }] }
+        ] }
+      ]
+    });
+    survey.setValue("q1", "not-an-email");
+    survey.nextPage();
+    survey.tryComplete();
+    const q1 = survey.getQuestionByName("q1");
+    const panel1 = survey.getPanelByName("panel1");
+    const q3 = <QuestionPanelDynamicModel>survey.getQuestionByName("q3");
+    const q4 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q4");
+    const q5 = <QuestionMultipleTextModel>survey.getQuestionByName("q5");
+    const nested3 = q3.panels[0].getQuestionByName("q3_1");
+    const cell4 = q4.visibleRows[0].cells[0].question;
+    const item5 = q5.items[0].editor;
+    expect(q1.errors.length, "#1 q1").toBe(1);
+    expect(panel1.errors.length, "#1 panel1").toBe(1);
+    expect(nested3.errors.length, "#1 q3_1").toBe(1);
+    expect(cell4.errors.length, "#1 q4 cell").toBe(1);
+    expect(item5.errors.length, "#1 q5 item").toBe(1);
+    survey.clear(false, true);
+    expect(q1.errors.length, "#2 q1").toBe(0);
+    expect(panel1.errors.length, "#2 panel1").toBe(0);
+    expect(nested3.errors.length, "#2 q3_1").toBe(0);
+    expect(cell4.errors.length, "#2 q4 cell").toBe(0);
+    expect(item5.errors.length, "#2 q5 item").toBe(0);
+    survey.dispose();
+  });
 
   test("defaultValue + survey.clear() + 'other'", () => {
     var json = {

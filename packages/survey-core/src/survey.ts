@@ -4400,6 +4400,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].timeSpent = 0;
       this.pages[i].setWasShown(false);
       this.pages[i].passed = false;
+      this.pages[i].clearErrors();
     }
     this.onFirstPageIsStartedChanged();
     if (goToFirstPage) {

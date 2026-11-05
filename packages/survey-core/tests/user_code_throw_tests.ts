@@ -352,6 +352,27 @@ describe("A throw from user code leaves the survey working", () => {
       FunctionFactory.Instance.unregister("throwOnceInPanel");
     }
   });
+  test("a custom function that throws while a panel runs its conditions: the questions hidden before the throw still report the panel hidden", () => {
+    const fn = registerThrowOnceFunction("throwOnceInPanelRun");
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "p1", elements: [
+          { type: "text", name: "q2", visibleIf: "{q1} != 'a'" },
+          { type: "text", name: "q3", visibleIf: "throwOnceInPanelRun({q1}) = false" }
+        ] }
+      ] });
+      const hiddenPanels: Array<string> = [];
+      survey.onPanelVisibleChanged.add((_, options) => {
+        if (!options.visible) hiddenPanels.push(options.panel.name);
+      });
+      fn.arm();
+      expect(() => survey.setValue("q1", "a"), "#1").toThrow("throwOnceInPanelRun");
+      expect(hiddenPanels, "#2").toEqual(["p1"]);
+    } finally {
+      FunctionFactory.Instance.unregister("throwOnceInPanelRun");
+    }
+  });
   test("a css handler that throws while css classes are calculated: later calculations still call the handler", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
     const q1 = survey.getQuestionByName("q1");

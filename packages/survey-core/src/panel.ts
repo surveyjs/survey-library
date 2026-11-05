@@ -2159,19 +2159,19 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.isDesignMode || this.isLoadingFromJson) return;
     var elements = this.elements.slice();
     const prevContentVisibility = this.getIsPageVisible();
-    let newContentVisibility: boolean;
     this.isRunningConditions = true;
     try {
       for (var i = 0; i < elements.length; i++) {
         elements[i].runCondition(properties);
       }
       this.runConditionCore(properties);
-      newContentVisibility = this.getIsPageVisible();
     } finally {
+      // childVisibilityChanged of the elements hidden before a throw was skipped: the panel compares here.
+      const newContentVisibility = this.getIsPageVisible();
       this.isRunningConditions = false;
-    }
-    if (prevContentVisibility !== newContentVisibility) {
-      this.childVisibilityChanged();
+      if (prevContentVisibility !== newContentVisibility) {
+        this.childVisibilityChanged();
+      }
     }
   }
   onAnyValueChanged(name: string, questionName: string): void {

@@ -335,8 +335,8 @@ frameworks.forEach((framework) => {
       const colorInput = await page.locator('input[type="color"]');
       expect(await colorInput.inputValue()).toBe("#000000");
       await colorInput.click({ force: true });
-      expect(colorInput).not.toBeFocused();
-      expect(colorInput.getAttribute("readonly")).toBeTruthy();
+      await expect(colorInput).not.toBeFocused();
+      await expect(colorInput).toHaveAttribute("readonly");
       // await colorInput.evaluate(function(element) { element.value = "#ff0000"; });
       // await colorInput.press("Enter");
       await colorInput.fill("#ff0000", { timeout: 1 }).catch(() => { exceptionsCount++; });
@@ -345,8 +345,8 @@ frameworks.forEach((framework) => {
       const rangeInput = await page.locator('input[type="range"]');
       expect(await rangeInput.inputValue()).toBe("50");
       await rangeInput.click({ force: true });
-      expect(rangeInput).not.toBeFocused();
-      expect(rangeInput.getAttribute("readonly")).toBeTruthy();
+      await expect(rangeInput).not.toBeFocused();
+      await expect(rangeInput).toHaveAttribute("readonly");
       // await rangeInput.evaluate(function(element) { element.value = 10; });
       // await rangeInput.press("Enter");
       await rangeInput.fill("10", { timeout: 1 }).catch(() => { exceptionsCount++; });

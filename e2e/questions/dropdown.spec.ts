@@ -2237,21 +2237,21 @@ frameworks.forEach((framework) => {
 
       await dropdown.click();
       await item.filter({ hasText: "Item 1" }).filter({ visible: true }).click();
-      expect(filterInputString).toBeFocused();
+      await expect(filterInputString).toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Item 1");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
       await body.click({ position: { x: 0, y: 0 } });
-      expect(filterInputString).not.toBeFocused();
+      await expect(filterInputString).not.toBeFocused();
       expect(await filterInputString.inputValue()).toBe("");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("Item 1");
 
       await dropdown.click();
       await item.filter({ hasText: "Other (describe)" }).filter({ visible: true }).click();
-      expect(filterInputString).not.toBeFocused();
+      await expect(filterInputString).not.toBeFocused();
       await expect(filterInputString).toHaveValue("Other (describe)");
       await expect(page.locator(".sd-dropdown__input")).toHaveText("", { useInnerText: true });
       await dropdown.click();
-      expect(filterInputString).toBeFocused();
+      await expect(filterInputString).toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Other (describe)");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
 
@@ -2259,11 +2259,11 @@ frameworks.forEach((framework) => {
 
       await dropdown.click();
       await item.filter({ hasText: "Item 2" }).filter({ visible: true }).click();
-      expect(filterInputString).toBeFocused();
+      await expect(filterInputString).toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Item 2");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
       await body.click({ position: { x: 0, y: 0 } });
-      expect(filterInputString).not.toBeFocused();
+      await expect(filterInputString).not.toBeFocused();
       expect(await filterInputString.inputValue()).toBe("");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("Item 2");
     });

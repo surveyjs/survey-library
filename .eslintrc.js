@@ -145,6 +145,16 @@ module.exports = {
           }
         ]
       }
+    },
+    {
+      // The Playwright suites. An expect(locator) matcher without await checks nothing, and its late
+      // rejection can fail whichever test runs next in the same worker. Only this one rule of the
+      // plugin: the rest of its recommended set is not adopted here.
+      files: ["e2e/**", "screenshots/**", "accessibilityTests/**"],
+      plugins: ["playwright"],
+      rules: {
+        "playwright/missing-playwright-await": "error"
+      }
     }
   ]
 };

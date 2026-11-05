@@ -635,10 +635,15 @@ frameworks.forEach((framework) => {
         ]
       });
       await page.locator("button").filter({ hasText: "Add" }).click();
+      // Add focuses the new panel before it is rendered, so the input gets focus on a retry about 10 ms later.
+      // Keys typed before that go to the Add button and are lost.
+      await expect(page.getByRole("textbox", { name: "name" }).and(page.locator(":focus"))).toHaveValue("");
       await page.keyboard.type("123");
       await page.locator("button").filter({ hasText: "Add" }).click();
+      await expect(page.getByRole("textbox", { name: "name" }).and(page.locator(":focus"))).toHaveValue("");
       await page.keyboard.type("456");
       await page.locator("button").filter({ hasText: "Add" }).click();
+      await expect(page.getByRole("textbox", { name: "name" }).and(page.locator(":focus"))).toHaveValue("");
       await page.keyboard.type("789");
       await getButtonByText(page, "Complete").click();
 

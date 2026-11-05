@@ -38,6 +38,7 @@ import { ConversionResult, ReportBuilder } from "../report";
 import { UnparseableInputError, WrongFormatError } from "../errors";
 import { SurveyJSON, SurveyJSONElement, SurveyJSONPage } from "../types";
 import { formatLiteral } from "../expression";
+import { SurveyOperator, surveyEquals, surveyHolds, surveyLiteral, surveyNumber } from "./survey-values";
 import { FormioCodes } from "./codes";
 import { isKnownFormioType } from "./vendor/component-types";
 
@@ -158,6 +159,10 @@ interface Ctx {
   report: ReportBuilder;
   // The lower-cased names taken in the current name pool.
   usedNames: Set<string>;
+  // The lower-cased keys of the fields of the current pool outside its nested forms, see
+  // `collectFieldKeys`, and the names a field in a nested form avoids: those keys, inside one.
+  fieldKeys: Set<string>;
+  reservedNames?: Set<string>;
   // The keys of the data-nesting components around the walk, of every component around it, and
   // the data grids among them.
   dataPath: string[];
@@ -175,6 +180,8 @@ interface Ctx {
   urlSources: TemplateRecord[];
   // The radios and selects whose choice values were cast to their `dataType`, see `applyDataType`.
   valueTypes: Map<SurveyJSONElement, ValueType>;
+  // The choices of the radios and selects with choices in the definition, see `ChoiceSet`.
+  choiceSets: Map<SurveyJSONElement, ChoiceSet>;
   // The innermost nested `form` around the walk, see `FormRoot`.
   root?: FormRoot;
   // The elements of `hidden` components, which Form.io never shows, see `resolveConditions`.
@@ -184,8 +191,26 @@ interface Ctx {
   requiredMessages: { el: SurveyJSONElement, message: string, sourcePtr?: string, targetPath: string }[];
 }
 
-// The `dataType` a radio or select casts its values to, when the converter casts them too.
-type ValueType = "number" | "boolean";
+// The `dataType` a radio or select casts its values to, when the converter casts them too. `auto`,
+// Form.io's default, casts each value that reads as a number or a boolean, see `formioCast`.
+type ValueType = "number" | "boolean" | "auto";
+
+// A choice value of a radio or select as the converted question stores it, and as Form.io stores
+// it after its cast (see `formioCast`). The two differ where the converter keeps a value as
+// written; conditions compare with both, see `matchEquality`.
+interface ChoiceValue {
+  stored: unknown;
+  formio: unknown;
+}
+
+// The choices of a radio or select in the definition, with Form.io's empty value (`""`, `{}` for
+// a select from JSON items whose first value is not a text, `[]` when multiple). `opaque` when a
+// value is not a text, a number or a boolean: no comparison with a literal is modelled.
+interface ChoiceSet {
+  values: ChoiceValue[];
+  empty: unknown;
+  opaque: boolean;
+}
 
 // A data grid around a field or a condition, compared by identity: the chains of the two decide
 // how a condition can name the field.
@@ -213,8 +238,28 @@ interface FieldRecord {
   type: string;
   multiple: boolean;
   grids: GridScope[];
-  // Set when the stored values were cast, so that condition literals are cast the same way.
-  valueType?: ValueType;
+  // A `day`, `time` or `datetime` component and the `inputType` of its question: condition
+  // literals are read in its format, see `formatDateTimeLiteral`.
+  dateTime?: { comp: FormioComponent, inputType: unknown };
+  // The choices of a radio, a radio group or a select with choices in the definition.
+  choices?: ChoiceSet;
+  // What Form.io stores for any other field, when the converter knows it, see `formioStores`.
+  stores?: StoredValues;
+}
+
+// What Form.io stores for a field with no choices in the definition: numbers, booleans, texts, or a
+// mix of them. `text` tells which texts it keeps as written: a select casts a text that reads as a
+// number or a boolean (see `formioCast`). `empty` holds Form.io's empty values, for which the
+// converted question holds no value. `raw` is set when the converted question holds the source's
+// own value, which may be a number or a boolean as its text. `items` is set for an array of such
+// values, compared item by item.
+interface StoredValues {
+  number: boolean;
+  boolean: boolean;
+  text?: (value: string) => boolean;
+  empty: unknown[];
+  raw: boolean;
+  items: boolean;
 }
 
 // An element that holds data, with the containers around it, for `applyClearOnHide`.
@@ -257,7 +302,8 @@ interface LogicRecord {
   required: boolean;
   // A `customConditional` also decides whether the component is hidden.
   customConditional: boolean;
-  // `requiredIf` needs a question; a panel or a page has no required state in Form.io's sense.
+  // `requiredIf` needs a question that holds a value; a panel, a page or an HTML element has no
+  // required state in Form.io's sense.
   canRequire: boolean;
 }
 
@@ -330,12 +376,8 @@ function applyLogic(
   mapsLogic = true
 ): void {
   const entries = Array.isArray(comp.logic) ? comp.logic : [];
-  if (!mapsLogic) {
-    entries.forEach((_, i) => ctx.report.unsupported(FormioCodes.CUSTOM_LOGIC, `${sourcePtr}/logic/${i}`, targetPath));
-  }
-  for (const key of ["calculateValue", "customDefaultValue"]) {
-    if (holdsCode(comp[key])) ctx.report.unsupported(FormioCodes.CUSTOM_VALUE, `${sourcePtr}/${key}`, targetPath);
-  }
+  if (!mapsLogic) reportLogicEntries(comp, sourcePtr, targetPath, ctx);
+  reportCustomValues(comp, sourcePtr, targetPath, ctx);
   const customConditional = typeof comp.customConditional === "string" && comp.customConditional.trim().length > 0;
   if (customConditional) {
     ctx.report.unsupported(FormioCodes.CUSTOM_CONDITIONAL, `${sourcePtr}/customConditional`, targetPath);
@@ -349,10 +391,23 @@ function applyLogic(
     disabled: comp.disabled === true,
     required: comp.validate?.required === true,
     customConditional,
-    canRequire: typeof target.type === "string" && target.type !== "panel"
+    canRequire: typeof target.type === "string" && target.type !== "panel" && target.type !== "html"
   } : undefined;
   if (conditional || logic) {
     ctx.conditions.push({ conditional, logic, target, sourcePtr, targetPath, grids: [...ctx.grids], root: ctx.root });
+  }
+}
+
+// Each `logic` entry of a component, refused: one that gives no element (a button, a layout container
+// with no element in it), or whose entries could not act on its target as a whole.
+function reportLogicEntries(comp: FormioComponent, sourcePtr: string, targetPath: string, ctx: Ctx): void {
+  const entries = Array.isArray(comp.logic) ? comp.logic : [];
+  entries.forEach((_, i) => ctx.report.unsupported(FormioCodes.CUSTOM_LOGIC, `${sourcePtr}/logic/${i}`, targetPath));
+}
+
+function reportCustomValues(comp: FormioComponent, sourcePtr: string, targetPath: string, ctx: Ctx): void {
+  for (const key of ["calculateValue", "customDefaultValue"]) {
+    if (holdsCode(comp[key])) ctx.report.unsupported(FormioCodes.CUSTOM_VALUE, `${sourcePtr}/${key}`, targetPath);
   }
 }
 
@@ -362,7 +417,7 @@ function holdsCode(value: unknown): boolean {
   return !!value && typeof value === "object" && Object.keys(value).length > 0;
 }
 
-function recordField(comp: FormioComponent, name: string, ctx: Ctx, valueType?: ValueType): void {
+function recordField(comp: FormioComponent, name: string, ctx: Ctx, el?: SurveyJSONElement): void {
   if (typeof comp.key !== "string" || typeof comp.type !== "string") return;
   const field: FieldRecord = {
     key: comp.key,
@@ -373,8 +428,47 @@ function recordField(comp: FormioComponent, name: string, ctx: Ctx, valueType?: 
     multiple: comp.multiple === true,
     grids: [...ctx.grids]
   };
-  if (valueType) field.valueType = valueType;
+  if (el && (comp.type === "day" || comp.type === "time" || comp.type === "datetime")) field.dateTime = { comp, inputType: el.inputType };
+  const choices = el && ctx.choiceSets.get(el);
+  const stores = formioStores(comp);
+  if (choices) field.choices = choices;
+  else if (stores) field.stores = stores;
   ctx.fields.push(field);
+}
+
+// What Form.io stores for a component with no choices in the definition, or `undefined` when the
+// converter cannot tell, and a condition that compares its value is refused. A number or currency
+// field stores a number, and `null` when empty (`Component.emptyValue`); a checkbox stores a boolean;
+// a text field stores its text, and "" when empty; `tags` stores an array of texts; a `hidden`
+// component stores a number, a boolean or a text, and `null` when empty. A select from a
+// URL stores the item's `valueProperty` cast to its `dataType` (`Select.normalizeSingleValue`), and
+// "" when empty; with no `valueProperty` it stores the whole item, which is refused, as are other
+// sources and an unknown `dataType`. A field that holds several values is refused too.
+//
+// An untouched checkbox holds `false` in Form.io and no value in survey-core, which is not modelled.
+function formioStores(comp: FormioComponent): StoredValues | undefined {
+  const type = comp.type as string;
+  const single = comp.multiple !== true;
+  const none = { number: false, boolean: false, empty: [] as unknown[], raw: false, items: false };
+  if ((type === "number" || type === "currency") && single) return { ...none, number: true, empty: [null, undefined] };
+  if (type === "checkbox" && comp.inputType !== "radio") return { ...none, boolean: true };
+  if ((STRING_VALUED.has(type) || type === "textarea") && single) return { ...none, text: () => true, empty: [""] };
+  if (type === "tags") return { ...none, text: () => true, items: true };
+  // A `hidden` component holds whatever its default or the submission sets, and so does its question.
+  if (type === "hidden" && single) return { ...none, number: true, boolean: true, text: () => true, empty: [null, undefined] };
+  if (type !== "select" || comp.dataSrc !== "url" || typeof comp.valueProperty !== "string" || comp.valueProperty === "") {
+    return undefined;
+  }
+  const dataType = comp.dataType === undefined || comp.dataType === "" ? "auto" : comp.dataType;
+  if (dataType !== "auto" && dataType !== "number" && dataType !== "boolean" && dataType !== "string") return undefined;
+  return {
+    number: dataType === "auto" || dataType === "number",
+    boolean: dataType === "auto" || dataType === "boolean",
+    text: (value) => formioCast(value, dataType, "select") === value,
+    empty: single ? [""] : [],
+    raw: true,
+    items: !single
+  };
 }
 
 // An element that holds data. Its value is cleared when it is hidden, see `applyClearOnHide`.
@@ -440,7 +534,8 @@ function resolveConditions(ctx: Ctx): void {
 // Every `visibleIf` the converter writes goes through here, a conditional's or one derived from
 // another rule that hides the component, so that `applyClearOnHide` sees it. `clears` is false for
 // a statically hidden component that a rule shows: Form.io hides it again by its own `hidden`, and
-// keeps its value, so it stays statically hidden for `applyClearOnHide`.
+// keeps its value, so it stays statically hidden for `applyClearOnHide` (as an input, not as a
+// container).
 function setVisibleIf(target: Target, expression: string, ctx: Ctx, clears = true): void {
   target.visibleIf = expression;
   if (clears) ctx.conditionallyVisible.add(target);
@@ -568,25 +663,37 @@ function isObject(value: unknown): value is Record<string, unknown> {
 // * `none` when Form.io keeps it:
 //   - an input with `clearOnHide: false` whose chain holds any `visibleIf` or `visible: false`;
 //   - an input whose chain is statically hidden, that is `visible: false` without a `visibleIf`
-//     that clears: a static `hidden`, or one that logic only shows. Form.io keeps the values a
-//     static `hidden` hides, and any other setting would drop them, the default at load as well
-//     under `onHiddenContainer`. The trade-off: where a condition in that chain hides the input,
-//     the Form.io server clears its value, and the converted survey keeps it.
+//     that clears: a static `hidden`, or, on the input itself, one that logic only shows. Form.io
+//     keeps the values a static `hidden` hides. Any other setting drops them at completion, and
+//     `onHiddenContainer` drops a default value at load as well. The trade-off: where a condition
+//     in that chain hides the input, the Form.io server clears its value, and the converted survey
+//     keeps it.
 //   - a `hidden` component, always. It is never shown, so any other setting would drop its value at
 //     completion, and `onHiddenContainer` would also drop its default at load. The trade-off: when
 //     a condition hides a container around it, the Form.io server clears its value, and the
 //     converted survey keeps it.
+//   - an input in a container that logic only shows, with no converted condition anywhere in its
+//     chain.
 // * nothing for an input that can never be invisible, so ordinary forms are unchanged.
+//
+// A container that logic only shows is not hidden statically for the inputs in it: Form.io's
+// logic sets its `hidden` to false, and the server then clears an input that a converted condition
+// anywhere in its chain hides, inside or outside that container. The trade-off: while the container
+// is hidden by its own `hidden`, such an input loses its value, which Form.io keeps.
 function applyClearOnHide(ctx: Ctx): void {
   for (const input of ctx.inputs) {
     const chain = [input.el, ...input.containers];
-    const hiddenStatically = chain.some((t) => t.visible === false && !ctx.conditionallyVisible.has(t));
+    const hiddenStatically = chain.some((t) => t.visible === false && !ctx.conditionallyVisible.has(t)
+      && (t === input.el || t.visibleIf === undefined));
+    const canHide = chain.some((t) => t.visibleIf !== undefined || t.visible === false);
     if (ctx.neverShown.has(input.el) || hiddenStatically) {
       input.el.clearIfInvisible = "none";
     } else if (input.keepsValue) {
-      if (chain.some((t) => t.visibleIf !== undefined || t.visible === false)) input.el.clearIfInvisible = "none";
+      if (canHide) input.el.clearIfInvisible = "none";
     } else if (chain.some((t) => ctx.conditionallyVisible.has(t))) {
       input.el.clearIfInvisible = "onHiddenContainer";
+    } else if (canHide) {
+      input.el.clearIfInvisible = "none";
     }
   }
 }
@@ -661,7 +768,7 @@ function translateOperator(
   const target = ref.field;
   if (c.operator === "isEmpty") return { expression: `${ref.text} empty` };
   if (c.operator === "isNotEmpty") return { expression: `${ref.text} notempty` };
-  const lit = formatTypedLiteral(c.value, target);
+  const lit = simpleLiteral(c.operator, c.value, target);
   if (lit === undefined) return {};
   // A `selectboxes` value is `{ a: true }` in Form.io; `isEqual` reads the checked state of the
   // compared key, and `includes` looks at the object's values, which never match.
@@ -703,6 +810,244 @@ function translateOperator(
   }
 }
 
+const ORDER_OPERATORS = new Set(["lessThan", "lessThanOrEqual", "greaterThan", "greaterThanOrEqual"]);
+const DATE_OPERATORS = new Set(["dateGreaterThan", "dateGreaterThanOrEqual", "dateLessThan", "dateLessThanOrEqual", "isDateEqual", "isNotDateEqual"]);
+
+// The literal a simple condition compares its field with, or `undefined` when the comparison has no
+// exact equivalent. A `day`, `time` or `datetime` holds text, which Form.io's `lessThan` and its
+// kin never hold for (they need a number) and `includes` reads in Form.io's format, so only the
+// equality and date operators are kept. A `selectboxes` equality names one of its keys (see
+// `translateOperator`). Every other field is matched by what Form.io stores in it (see
+// `fieldWitnesses`).
+function simpleLiteral(operator: unknown, value: unknown, field: FieldRecord): string | undefined {
+  const op = String(operator);
+  const isEquality = op === "isEqual" || op === "isNotEqual";
+  if (field.dateTime) {
+    if (DATE_OPERATORS.has(op)) return formatDateTimeLiteral(value, field, true);
+    return isEquality ? formatDateTimeLiteral(value, field, false) : undefined;
+  }
+  if (field.type === "selectboxes") return isEquality && isPrimitive(value) ? formatLiteral(value) : undefined;
+  if (isEquality) return matchEquality(value, field, "isEqual");
+  if (ORDER_OPERATORS.has(op)) return matchOrder(value, field, op);
+  if (op === "includes" || op === "notIncludes") return matchIncludes(value, field, op);
+  return undefined;
+}
+
+// Form.io's comparisons of a stored value with a condition's literal: `isEqual` is the simple
+// operator (`IsEqualTo`), which reads a string compared with a value of another type as JSON first;
+// `legacy` compares the two as text; `loose` and `strict` are JSON logic's `==` and `===`.
+type Comparison = "isEqual" | "legacy" | "loose" | "strict";
+
+function formioEquals(value: unknown, literal: unknown, comparison: Comparison): boolean {
+  if (comparison === "legacy") return String(value) === String(literal);
+  // eslint-disable-next-line eqeqeq
+  if (comparison === "loose") return value == literal;
+  if (comparison === "strict") return value === literal;
+  let compared = literal;
+  // The parse is skipped for a falsy value other than `false`, such as 0 or "".
+  if ((value || value === false) && literal && typeof value !== typeof literal && typeof literal === "string") {
+    try {
+      compared = JSON.parse(literal);
+    } catch{
+      // kept as written
+    }
+  }
+  return isSameValue(compared, value);
+}
+
+// `_.isEqual` on the values a choice or a literal can hold: NaN equals NaN, and `{}` equals `{}`.
+function isSameValue(a: unknown, b: unknown): boolean {
+  if (a === b || (Number.isNaN(a) && Number.isNaN(b))) return true;
+  const isEmptyObject = (v: unknown) => isObject(v) && Object.getPrototypeOf(v) === Object.prototype && Object.keys(v).length === 0;
+  return isEmptyObject(a) && isEmptyObject(b);
+}
+
+// A value Form.io may hold for a field, with the values the converted question may hold then
+// (`undefined` for no value).
+interface Witness {
+  formio: unknown;
+  survey: unknown[];
+}
+
+// The values to check a literal against, or `undefined` when what Form.io stores is not known. A
+// radio or select with choices gives its choices, and its empty value unless it holds several. Any
+// other field gives the values that decide a comparison with `seed`, the condition's literal: its
+// empty values; for numbers, every reading of the literal as a number (`Number`, `parseFloat`,
+// `parseInt`, survey-core's), and the numbers next to them, so that an order is checked on both sides;
+// both booleans; and for texts, the literal's own text, a longer text that contains it, the texts of
+// those numbers and booleans, and "0", "1", "true" and "false", which survey-core reads as numbers
+// and booleans, each where Form.io keeps it as written. Texts that differ from the literal only in
+// case, in surrounding spaces, or in how they write a number are not checked: survey-core reads them
+// as equal, so checking them would refuse every condition on a text field.
+function fieldWitnesses(field: FieldRecord, seed: unknown): Witness[] | undefined {
+  if (field.choices) {
+    const set = field.choices;
+    if (set.opaque) return undefined;
+    const choices = set.values.map((c) => ({ formio: c.formio, survey: [c.stored] }));
+    return field.multiple ? choices : [...choices, { formio: set.empty, survey: [undefined] }];
+  }
+  const stores = field.stores;
+  if (!stores) return undefined;
+  const witnesses: Witness[] = stores.empty.map((formio) => ({ formio, survey: [undefined] }));
+  const texts = seed === null || seed === undefined ? [] : [String(seed), `#${String(seed)}`];
+  if (stores.number) {
+    const numbers = new Set([0, 1, -1, 2, 0.5, -0.5]);
+    for (const n of numberReadings(seed)) for (const step of [0, 1, -1, 0.5, -0.5]) numbers.add(n + step);
+    for (const n of numbers) {
+      if (!Number.isFinite(n)) continue;
+      witnesses.push({ formio: n, survey: stores.raw ? [n, String(n)] : [n] });
+      texts.push(String(n));
+    }
+  }
+  if (stores.boolean) {
+    for (const b of [true, false]) witnesses.push({ formio: b, survey: stores.raw ? [b, String(b), String(b).toUpperCase()] : [b] });
+    texts.push("true", "false");
+  }
+  // The texts of those numbers and booleans too, where Form.io keeps such a text as written, and texts
+  // survey-core reads as 0, 1 or a boolean. A source value that is a number or a boolean may reach
+  // the question as that value, where Form.io keeps its text.
+  const keepsText = stores.text;
+  if (keepsText) {
+    for (const t of new Set([...texts, "0", "1", "true", "false"])) {
+      if (t === "" || !keepsText(t)) continue;
+      const survey: unknown[] = [t];
+      if (stores.raw && t === String(Number(t))) survey.push(Number(t));
+      if (stores.raw && (t === "true" || t === "false")) survey.push(t === "true");
+      witnesses.push({ formio: t, survey });
+    }
+  }
+  return witnesses;
+}
+
+function numberReadings(value: unknown): number[] {
+  if (typeof value === "number") return [value];
+  if (typeof value === "boolean" || value === null) return [Number(value)];
+  if (typeof value !== "string") return [];
+  return [Number(value), parseFloat(value), parseInt(value), surveyNumber(value)];
+}
+
+// Whether the field's value is an array compared item by item: a multiple select, or `tags`.
+function holdsItems(field: FieldRecord): boolean {
+  return isArrayValued(field) && field.type !== "selectboxes";
+}
+
+// The first of `candidates` whose literal makes survey-core's `op` hold for exactly the witnesses
+// Form.io's comparison holds for. With `items`, a witness is one item of an array, and `op` is
+// `contains`; Form.io's comparison holds for an array when it holds for one of its items, and so does
+// survey-core's `contains`.
+function agreeingLiteral(
+  witnesses: Witness[],
+  candidates: unknown[],
+  op: SurveyOperator,
+  formio: (value: unknown) => boolean,
+  items: boolean
+): string | undefined {
+  for (const candidate of candidates) {
+    const literal = isPrimitive(candidate) ? formatLiteral(candidate) : undefined;
+    if (literal === undefined) continue;
+    const read = surveyLiteral(candidate);
+    const holds = (value: unknown) => surveyHolds(op, items && value !== undefined ? [value] : value, read);
+    if (witnesses.every((w) => w.survey.every((value) => holds(value) === formio(w.formio)))) return literal;
+  }
+  return undefined;
+}
+
+// The literal an equality compares with, so that survey-core's `=` (or `contains`, on an array) holds
+// for exactly the values Form.io's comparison holds for. The candidates are the values the question
+// stores where Form.io's comparison holds, and the literal as written. For example survey-core reads
+// "1.0", "01" and 1 as one number, "TRUE" as true, and "10,000" as 10, where Form.io's legacy check
+// compares texts, and its simple check parses "05" as no JSON at all. A legacy literal that Form.io
+// does not read as an item of an array is refused before this (see `misreadsArray`).
+function matchEquality(value: unknown, field: FieldRecord, comparison: Comparison): string | undefined {
+  const witnesses = isPrimitive(value) ? fieldWitnesses(field, value) : undefined;
+  if (!witnesses) return undefined;
+  const formio = (v: unknown) => formioEquals(v, value, comparison);
+  let candidates = [...witnesses.filter((w) => w.survey[0] !== undefined && formio(w.formio)).map((w) => w.survey[0]), value];
+  // A checkbox is compared with a boolean only: survey-core's linter reports a text compared with a
+  // boolean question as a condition that cannot hold.
+  if (field.type === "checkbox") candidates = candidates.filter((c) => typeof c === "boolean");
+  const items = holdsItems(field);
+  return agreeingLiteral(witnesses, candidates, items ? "contains" : "=", formio, items);
+}
+
+// `lessThan`, `greaterThan` and their `OrEqual` forms. Form.io holds them only for a number:
+// `_.isNumber(value) && (value < literal || _.isEqual(value, literal))`. survey-core holds `<` for two
+// set values by JavaScript's `<` on its reading of the question's value, and `<=` also when `=`
+// holds. The literal is written as compared, or as a number when it is a numeric text, and kept only
+// when survey-core holds for the same values: a value Form.io keeps as text, such as "1.0" with
+// `dataType: "number"`, is a number to survey-core. A field that may hold any text is refused, as
+// survey-core orders a text that reads as a number, and so is an array.
+function matchOrder(value: unknown, field: FieldRecord, operator: string): string | undefined {
+  if (holdsItems(field) || field.stores?.text || !isPrimitive(value) || value === null || value === "") return undefined;
+  const witnesses = fieldWitnesses(field, value);
+  if (!witnesses) return undefined;
+  const less = operator.startsWith("less");
+  const orEqual = operator.endsWith("OrEqual");
+  const formio = (v: unknown) => typeof v === "number"
+    && ((less ? v < (value as number) : v > (value as number)) || (orEqual && isSameValue(v, value)));
+  const op: SurveyOperator = less ? (orEqual ? "<=" : "<") : (orEqual ? ">=" : ">");
+  const candidates = typeof value === "string" && !Number.isNaN(surveyNumber(value)) ? [value, surveyNumber(value)] : [value];
+  return agreeingLiteral(witnesses, candidates, op, formio, false);
+}
+
+// `includes` and `notIncludes`: Form.io's `_.includes(value, literal)` holds for a text that contains
+// the literal's text, and never for a number or a boolean; on an array, Form.io holds when it holds
+// for one of its items. survey-core's `contains` reads a text without regard to case, and the items
+// of an array as equal or not, so an array is matched only with its choices, and `notIncludes`, which
+// holds in Form.io when one item does not contain the literal, is refused on it.
+function matchIncludes(value: unknown, field: FieldRecord, operator: string): string | undefined {
+  const items = holdsItems(field);
+  if (!isPrimitive(value) || value === null || (items && (operator === "notIncludes" || !field.choices))) return undefined;
+  const witnesses = fieldWitnesses(field, value);
+  if (!witnesses) return undefined;
+  const includes = (v: unknown) => typeof v === "string" && v.indexOf(String(value)) > -1;
+  const formio = operator === "includes" ? includes : (v: unknown) => !includes(v);
+  return agreeingLiteral(witnesses, [value], operator === "includes" || items ? "contains" : "notcontains", formio, items);
+}
+
+// The literal a condition on a `day`, `time` or `datetime` compares with, as the ISO text its input
+// stores, or `undefined` when no literal compares exactly. Form.io stores a day as `MM/DD/YYYY`
+// (`DD/MM/YYYY` with `dayFirst`), padded (`Day.getDate`); a time in its `dataFormat`, `HH:mm:ss` by
+// default (`Time.getStringAsValue`); a datetime as an instant in the viewer's zone. An equality
+// compares that text, so only a literal Form.io can store matches. The date operators
+// (`DateGreaterThan`) read both sides as moments, a day in its own format, so any literal that
+// parses does; a time does not parse as a moment, and a datetime literal in a zone, compared with a
+// local value, gives another result in every zone. A day with a hidden part, or read in the
+// viewer's locale, and seconds the input cannot hold, give no literal.
+function formatDateTimeLiteral(value: unknown, field: FieldRecord, asMoment: boolean): string | undefined {
+  if (typeof value !== "string" || !field.dateTime) return undefined;
+  const { comp, inputType } = field.dateTime;
+  // Form.io's empty value is "", which survey-core's `= ''` holds for too.
+  if (value === "" && !asMoment) return formatLiteral(value);
+  const text = asMoment ? value.trim() : value;
+  if (field.type === "day") {
+    const parts = isObject(comp.fields) ? comp.fields : {};
+    if (["day", "month", "year"].some((part) => {
+      const settings = parts[part];
+      return isObject(settings) && settings.hide === true;
+    })) return undefined;
+    if (asMoment && comp.useLocaleSettings === true) return undefined;
+    const iso = parseDateTime(comp, text);
+    if (iso === undefined) return undefined;
+    const [year, month, day] = iso.split("-");
+    if (!asMoment && text !== (comp.dayFirst === true ? `${day}/${month}/${year}` : `${month}/${day}/${year}`)) return undefined;
+    return formatLiteral(iso);
+  }
+  if (field.type === "time") {
+    const dataFormat = comp.dataFormat === undefined ? "HH:mm:ss" : comp.dataFormat;
+    if (asMoment || (dataFormat !== "HH:mm:ss" && dataFormat !== "HH:mm")) return undefined;
+    const iso = parseDateTime(comp, text);
+    return iso !== undefined && text === (dataFormat === "HH:mm" ? iso : `${iso}:00`) ? formatLiteral(iso) : undefined;
+  }
+  if (!asMoment) return undefined;
+  const seconds = /:\d{2}:(\d{2}(?:\.\d+)?)$/.exec(text);
+  if (seconds && Number(seconds[1]) !== 0) return undefined;
+  const iso = parseDateTime(comp, text);
+  if (iso === undefined) return undefined;
+  if (inputType === "date") return iso.endsWith("T00:00") ? formatLiteral(iso.slice(0, "YYYY-MM-DD".length)) : undefined;
+  return inputType === "datetime-local" ? formatLiteral(iso) : undefined;
+}
+
 // Form.io's legacy check: `(String(value) === String(eq)) === (String(show) === "true")`. An array
 // value, and a `selectboxes` object, compare by membership instead.
 function translateLegacy(cond: FormioConditional, record: ConditionRecord, ptr: string, ctx: Ctx): Translation {
@@ -713,13 +1058,42 @@ function translateLegacy(cond: FormioConditional, record: ConditionRecord, ptr: 
     // A `selectboxes` key is compared with `show` as a string, so a `show` other than "true" or
     // "false" never matches and hides the field whatever is checked.
     if (ref.field.type === "selectboxes" && !show && String(cond.show) !== "false") return { assumed: [ptr] };
-    const lit = formatTypedLiteral(cond.eq, ref.field);
+    if (ref.field.type !== "selectboxes" && misreadsArray(cond.eq)) return { assumed: [ptr] };
+    const lit = formatTypedLiteral(cond.eq, ref.field, "legacy");
     if (lit === undefined) return { assumed: [ptr] };
     return { expression: `${ref.text} ${show ? "contains" : "notcontains"} ${lit}`, assumed: [] };
   }
-  const lit = formatTypedLiteral(cond.eq, ref.field);
+  const lit = formatTypedLiteral(cond.eq, ref.field, "legacy");
   if (lit === undefined) return { assumed: [ptr] };
   return { expression: `${ref.text} ${show ? "=" : "<>"} ${lit}`, assumed: [] };
+}
+
+// Whether Form.io's legacy check reads an array value (a multiple select, `tags`) with `eq` other
+// than by membership. It reads the array as an object first, `isObject(value) && has(value, eq)`,
+// and then compares the item at `eq` with `show`. lodash's `has` holds only when the first key of
+// the path is an own key of the array, an index or `length`: "length", "0", and paths such as
+// "0.0", "[0]" or "0[0]" when the item there has the next key, as a text does. Last, it compares the
+// array's text, its items joined with commas, so an empty `eq` or one with a comma can hold for a
+// value no membership describes.
+function misreadsArray(eq: unknown): boolean {
+  const text = String(eq);
+  if (text === "" || text.includes(",")) return true;
+  const key = typeof eq === "string" ? lodashFirstKey(eq) : text;
+  return key === "length" || /^(0|[1-9]\d*)$/.test(key);
+}
+
+// The first key of a lodash path (`castPath`): a text that `isKey` accepts is one key; any other is
+// split by `stringToPath`, where a leading "." gives an empty key, and a key is a run of characters
+// other than ".", "[" and "]", or a bracketed number or quoted text. A path with no key gives "",
+// which `has` holds for on no array either.
+function lodashFirstKey(path: string): string {
+  const isDeep = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/;
+  if (/^\w*$/.test(path) || !isDeep.test(path)) return path;
+  if (path.charCodeAt(0) === 46) return "";
+  const m = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/.exec(path);
+  if (!m) return "";
+  if (m[2]) return m[3].replace(/\\(\\)?/g, "$1");
+  return m[1] || m[0];
 }
 
 // The provable subset of Form.io JSON logic: `==` and `!=` between a `var` and a literal, a bare
@@ -748,13 +1122,9 @@ function translateJsonLogic(node: unknown, record: ConditionRecord, ctx: Ctx): s
     const varIndex = readJsonLogicVar(args[0]) !== undefined ? 0 : 1;
     const ref = resolveReference(readJsonLogicVar(args[varIndex]), record, ctx);
     if (!ref || isArrayValued(ref.field)) return undefined;
-    const literal = args[1 - varIndex];
-    // A field that stores a number or a boolean never strictly equals a string, and a boolean
-    // loosely equals "1" but not "true" (`true == "true"` is false), so such a comparison with a
-    // string has no survey-core equivalent.
-    const stored = storedType(ref.field);
-    if (stored && typeof literal === "string" && (op === "===" || op === "!==" || stored === "boolean")) return undefined;
-    const lit = formatTypedLiteral(literal, ref.field);
+    // The literal is matched by what Form.io stores in the field: a number never strictly equals a
+    // string, and a boolean loosely equals "1" but not "true" (`true == "true"` is false).
+    const lit = formatTypedLiteral(args[1 - varIndex], ref.field, op === "===" || op === "!==" ? "strict" : "loose");
     if (lit === undefined) return undefined;
     const sqlOp = op.startsWith("!") ? "<>" : "=";
     return `${ref.text} ${sqlOp} ${lit}`;
@@ -791,31 +1161,20 @@ function translateTruthiness(path: string | undefined, record: ConditionRecord, 
   return undefined;
 }
 
-// The type of a field's value in Form.io when it is not a string: a number or currency field, a
-// checkbox, or a radio or select whose values were cast to its `dataType`.
-function storedType(field: FieldRecord): ValueType | undefined {
-  if (field.type === "number" || field.type === "currency") return "number";
-  if (field.type === "checkbox") return "boolean";
-  return field.valueType;
-}
-
 // A field whose SurveyJS value is an array: `selectboxes` (a checkbox), a multiple `select` (a
 // tagbox) and `tags`, which is mapped only when it stores an array.
 function isArrayValued(field: FieldRecord): boolean {
   return field.type === "selectboxes" || field.type === "tags" || (field.type === "select" && field.multiple);
 }
 
-// The literal the target holds. Form.io compares a checkbox with "true" and a number with "5" by
-// their parsed values, and survey-core's linter reports `{c} = 'true'` as impossible. A radio or
-// select whose values were cast to its `dataType` compares the same way. `undefined` when the
-// value cannot be written as a literal (see `formatLiteral`).
-function formatTypedLiteral(value: unknown, field: FieldRecord): string | undefined {
-  if ((field.type === "checkbox" || field.valueType === "boolean") && (value === "true" || value === "false")) return value;
-  const isNumeric = field.type === "number" || field.type === "currency" || field.valueType === "number";
-  if (isNumeric && typeof value === "string" && value.trim() !== "" && Number.isFinite(Number(value))) {
-    return String(Number(value));
-  }
-  return formatLiteral(value);
+// The literal an equality of the given kind compares with: a date or time is read in its format
+// (see `formatDateTimeLiteral`), a `selectboxes` condition names one of its keys, and any other field
+// is matched by what Form.io stores in it (see `matchEquality`). `undefined` when no literal compares
+// exactly.
+function formatTypedLiteral(value: unknown, field: FieldRecord, comparison: Comparison): string | undefined {
+  if (field.dateTime) return formatDateTimeLiteral(value, field, false);
+  if (field.type === "selectboxes") return isPrimitive(value) ? formatLiteral(value) : undefined;
+  return matchEquality(value, field, comparison);
 }
 
 // Resolve a Form.io reference to the output name of the field it reads, written as seen from the
@@ -866,13 +1225,43 @@ function referencePrefix(target: GridScope[], from: GridScope[]): string | undef
 }
 
 // A name not yet taken in the current pool. survey-core compares names without regard to case, so
-// the pool does too. A data grid's template is a pool of its own (see `mapDataGrid`).
+// the pool does too. A data grid's template is a pool of its own (see `mapDataGrid`). Inside a
+// nested form, a name is not one of the keys of the fields outside it, so that a field of the outer
+// form keeps its key when it follows a nested field with the same key; the nested field's data
+// moves anyway (see `ASSUMED_CONTAINER_DATA`).
 function uniqueName(base: string, ctx: Ctx): string {
   let name = base;
   let i = 1;
-  while(ctx.usedNames.has(name.toLowerCase())) name = `${base}_${i++}`;
+  const taken = (n: string) => ctx.usedNames.has(n.toLowerCase()) || !!ctx.reservedNames?.has(n.toLowerCase());
+  while(taken(name)) name = `${base}_${i++}`;
   ctx.usedNames.add(name.toLowerCase());
   return name;
+}
+
+// The lower-cased keys of the fields among `components`, through the layout around them: the
+// components that take a name of their own in the pool, a data grid included. A container is named
+// after its children, so it yields its key to them already. The fields of a nested form, and those
+// of a data grid, which is a pool of its own, are left out.
+function collectFieldKeys(components: unknown, keys = new Set<string>()): Set<string> {
+  if (!Array.isArray(components)) return keys;
+  for (const comp of components as unknown[]) {
+    if (!isObject(comp)) continue;
+    const c = comp as FormioComponent;
+    if (isRadioCheckbox(c)) {
+      keys.add((c.name as string).toLowerCase());
+      continue;
+    }
+    const type = c.type;
+    const isNestedForm = type === "form" && Array.isArray(c.components) && c.components.length > 0;
+    // A tab has no `type`.
+    const isContainer = typeof type !== "string" || PANEL_CONTAINERS.has(type) || LAYOUT_CONTAINERS.has(type) || type === "tabs";
+    if (isContainer) {
+      collectFieldKeys(collectLayoutChildren(c, "").map(({ child }) => child), keys);
+    } else if (!isNestedForm && type !== "button" && typeof c.key === "string") {
+      keys.add(c.key.toLowerCase());
+    }
+  }
+  return keys;
 }
 
 /**
@@ -917,8 +1306,11 @@ function mapComponent(
     return mapDataGrid(comp, sourcePtr, targetPath, ctx);
   }
   if (type === "button") {
-    // Submit/save is handled by SurveyJS navigation -- no target node.
+    // Submit/save is handled by SurveyJS navigation -- no target node. That drop is silent, and a
+    // condition or logic that hides or disables the button changes when the form can be submitted,
+    // so each is refused as well (see `reportDroppedLogic`).
     ctx.report.dropped(FormioCodes.DROPPED_VENDOR_META, sourcePtr, "");
+    reportDroppedLogic(comp, sourcePtr, ctx);
     return null;
   }
 
@@ -926,7 +1318,7 @@ function mapComponent(
   const el = mapLeaf(comp, type, sourcePtr, targetPath, ctx);
   if (!el) return null;
 
-  recordField(comp, el.name as string, ctx, ctx.valueTypes.get(el));
+  recordField(comp, el.name as string, ctx, el);
   if (el.type !== "html") recordInput(comp, el, ctx);
   applyCommon(comp, el, sourcePtr, targetPath, ctx);
   return el;
@@ -1434,41 +1826,106 @@ function applyDataSource(comp: FormioComponent, el: SurveyJSONElement, sourcePtr
   if (url.includes("{{")) ctx.urlSources.push({ el, sourcePtr: `${sourcePtr}/dataSrc`, targetPath, grids: [...ctx.grids], root: ctx.root });
 }
 
-// `dataType: "number"` or `"boolean"` casts each value a radio or select stores, so its choice
-// values are cast the same way, and the field's condition literals follow (see
-// `formatTypedLiteral`). Values that would not each give a distinct value of the type, and values
-// that come from a URL in the response's own types, are reported and kept as written.
+// Form.io casts each value a radio or select stores to its `dataType`, and with none to `auto` (see
+// `formioCast`), so the choice values are cast the same way for `number`, `boolean` and `auto`, and
+// so is the default (see `castDefault`). Values that would give no number, or that the cast would
+// make one value for survey-core, are reported and kept as written. Values from a URL come in the
+// response's own types; an explicit `dataType` on them is reported. The values of choices in the
+// definition are recorded, as stored and as Form.io stores them, for conditions (see
+// `matchEquality`).
 function applyDataType(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: string, targetPath: string, ctx: Ctx): void {
   const dataType = comp.dataType;
-  if (dataType !== "number" && dataType !== "boolean") return;
+  const valueType: ValueType | undefined = dataType === "number" || dataType === "boolean" ? dataType
+    : dataType === undefined || dataType === "" || dataType === "auto" ? "auto" : undefined;
   if (el.choicesByUrl) {
-    reportOption("dataType", sourcePtr, targetPath, ctx);
+    if (dataType === "number" || dataType === "boolean") reportOption("dataType", sourcePtr, targetPath, ctx);
     return;
   }
   // With no choices there is no value to cast; a refused source is reported as such.
   const choices = el.choices as { value: unknown }[] | undefined;
   if (!choices) return;
-  const values = choices.map((c) => castValue(c.value, dataType, comp.type));
-  if (values.some((v) => v === undefined) || new Set(values).size !== values.length) {
-    reportOption("dataType", sourcePtr, targetPath, ctx);
-    return;
+  const written = choices.map((c) => c.value);
+  if (valueType) {
+    const values = written.map((v) => castValue(v, valueType, comp.type));
+    // survey-core reads "01" and 1, or "true" and true, as one value, so a cast that leads two
+    // values written apart to that would merge two choices.
+    const merges = values.some((v, i) => v === undefined
+      || values.some((w, j) => j < i && (w === v || (surveyEquals(w, v) && !surveyEquals(written[j], written[i])))));
+    if (merges) {
+      reportOption("dataType", sourcePtr, targetPath, ctx);
+    } else {
+      choices.forEach((c, i) => (c.value = values[i]));
+      ctx.valueTypes.set(el, valueType);
+    }
   }
-  choices.forEach((c, i) => (c.value = values[i]));
-  ctx.valueTypes.set(el, dataType);
+  ctx.choiceSets.set(el, {
+    values: choices.map((c, i) => ({ stored: c.value, formio: formioCast(written[i], dataType, comp.type) })),
+    empty: comp.multiple === true ? [] : hasObjectEmptyValue(comp) ? {} : "",
+    opaque: !written.every(isPrimitive)
+  });
 }
 
-// Form.io's own cast. `Radio.normalizeValue` takes `+value` and `!(!value || value === "false")`;
-// `Select.normalizeSingleValue` casts only a string that reads back as the same number, or "true"
-// and "false" in any case, and keeps any other value. `undefined` when the cast gives no number.
-function castValue(value: unknown, dataType: ValueType, type: unknown): unknown {
+function isPrimitive(value: unknown): boolean {
+  return value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+}
+
+// Form.io's empty value of a single select from JSON items whose first value is not a text is `{}`
+// (`Select.emptyValue`).
+function hasObjectEmptyValue(comp: FormioComponent): boolean {
+  if (comp.type !== "select" || comp.multiple === true || comp.dataSrc !== "json" || !comp.data?.json) return false;
+  const first = (comp.data.json as ArrayLike<unknown>)[0];
+  const valueProperty = comp.valueProperty;
+  const value = typeof valueProperty === "string" && valueProperty !== "" ? readItemPath(first, valueProperty) : first;
+  return !(typeof value === "string" && value !== "");
+}
+
+// The value of a radio or select as Form.io stores it: `Radio.normalizeValue` and
+// `Select.normalizeSingleValue` (the server's `normalize` processor does the same). With no
+// `dataType` both use `auto`: a radio reads a value written as JavaScript writes a number as that
+// number, and "true" or "false" as a boolean; a select reads the value as text first, then the same
+// way, with "true" and "false" in any case. An unknown `dataType` keeps the value.
+function formioCast(value: unknown, dataType: unknown, type: unknown): unknown {
+  const mode = dataType || "auto";
   if (type === "radio") {
-    if (dataType === "boolean") return !(!value || String(value) === "false");
-    const n = Number(value);
-    return Number.isFinite(n) ? n : undefined;
+    switch(mode) {
+      case "auto": {
+        const text = typeof value === "number" && Object.is(value, -0) ? "-0" : value === null || value === undefined ? "" : String(value);
+        const cast = !Number.isNaN(parseFloat(text)) && isFinite(value as number) && text === String(Number(value)) ? Number(value) : value;
+        return cast === "true" ? true : cast === "false" ? false : cast;
+      }
+      case "number":
+        return Number(value);
+      case "string":
+        return value !== null && typeof value === "object" ? JSON.stringify(value) : String(value);
+      case "boolean":
+        return !(!value || String(value) === "false");
+      default:
+        return value;
+    }
   }
-  if (typeof value !== "string") return value;
-  if (dataType === "number") return value !== "" && Number.isFinite(Number(value)) && String(Number(value)) === value ? Number(value) : value;
-  return /^(true|false)$/i.test(value) ? value.toLowerCase() === "true" : value;
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === "object") return mode === "string" ? String(value) : value;
+  const toNumber = (current: unknown) => {
+    const n = Number(current);
+    return Number.isFinite(n) && value !== "" && String(value) === String(n) ? n : current;
+  };
+  const toBoolean = (current: unknown) =>
+    typeof current === "string" && /^(true|false)$/i.test(current) ? current.toLowerCase() === "true" : current;
+  switch(mode) {
+    case "auto": return toBoolean(toNumber(String(value)));
+    case "number": return toNumber(value);
+    case "boolean": return toBoolean(value);
+    case "string": return String(value);
+    default: return value;
+  }
+}
+
+// The value the converted question stores for a `dataType`: Form.io's, or `undefined` when that is
+// no number.
+function castValue(value: unknown, valueType: ValueType, type: unknown): unknown {
+  if (value === null || value === undefined) return value;
+  const cast = formioCast(value, valueType, type);
+  return typeof cast === "number" && !Number.isFinite(cast) ? undefined : cast;
 }
 
 // `{{ data.x }}` in a URL becomes `{x}` and `{{ row.x }}` becomes `{panel.x}`, which survey-core
@@ -1495,9 +1952,9 @@ function resolveUrlSources(ctx: Ctx): void {
   }
 }
 
-// `dataSrc: "json"`: the items are inline, as an array or a string that parses to one. A string
-// item is its own value; an object item takes its value from `valueProperty` and its text from the
-// item template. An object without a `valueProperty` gives no choice.
+// `dataSrc: "json"`: the items are inline, as an array or a string that parses to one. A string or
+// number item is its own value; an object item takes its value from `valueProperty` and its text
+// from the item template. An object without a `valueProperty` gives no choice.
 function applyJsonChoices(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: string, targetPath: string, ctx: Ctx): void {
   let items: unknown = comp.data?.json;
   if (typeof items === "string") {
@@ -1516,6 +1973,11 @@ function applyJsonChoices(comp: FormioComponent, el: SurveyJSONElement, sourcePt
     if (typeof item === "string") {
       // An empty string is no choice, as in `readChoices`; it is dropped without a report.
       if (item !== "") choices.push({ value: item });
+    } else if (typeof item === "number" && Number.isFinite(item)) {
+      // Form.io's option value is the item as text (`getOptionValue`), shown as its text, and cast to
+      // the `dataType` once chosen, so a number item is the string item of its text (see
+      // `applyDataType`): with no `dataType` it stores the number.
+      choices.push({ value: String(item) });
     } else if (item && typeof item === "object" && valueName !== undefined) {
       const value = readItemPath(item, valueName);
       // An object or array cannot be a choice value.
@@ -1575,6 +2037,9 @@ function mapRadioGroup(first: FormioComponent, sourcePtr: string, targetPath: st
   const el: SurveyJSONElement = { type: "radiogroup", name, choices: [] };
   applyState(first, el);
   recordInput(first, el, ctx);
+  // A checked member stores its `value` as written, and the group's empty value is "" (`Checkbox`).
+  const choices: ChoiceSet = { values: [], empty: "", opaque: false };
+  ctx.choiceSets.set(el, choices);
   ctx.fields.push({
     key: dataKey,
     dataPath: [...ctx.dataPath, dataKey].join("."),
@@ -1582,7 +2047,8 @@ function mapRadioGroup(first: FormioComponent, sourcePtr: string, targetPath: st
     name,
     type: "radio",
     multiple: false,
-    grids: [...ctx.grids]
+    grids: [...ctx.grids],
+    choices
   });
   addRadioMember(el, first, sourcePtr, targetPath, ctx);
   return el;
@@ -1593,6 +2059,12 @@ function addRadioMember(group: SurveyJSONElement, member: FormioComponent, sourc
   const choice: Record<string, unknown> = { value };
   if (typeof member.label === "string") choice.text = member.label;
   (group.choices as Record<string, unknown>[]).push(choice);
+  const set = ctx.choiceSets.get(group);
+  if (set) {
+    set.values.push({ stored: value, formio: member.value });
+    // A member with no value, or an empty one, stores what no choice describes.
+    if (!isPrimitive(member.value) || member.value === "" || member.value === null) set.opaque = true;
+  }
   if (member.validate?.required) group.isRequired = true;
   if (member.defaultValue === true) group.defaultValue = value;
   // A member's own condition would show or hide one option; the group carries none of them.
@@ -1808,6 +2280,55 @@ function readContainerTitle(comp: FormioComponent): string | undefined {
 // Layout containers that give no element when none of their children maps to one.
 const DROPPED_WHEN_EMPTY = new Set(["columns", "table", "well"]);
 
+// A component that gives no element, a button or a layout container with no element in it, leaves
+// its condition, logic and computed values no target, so each is refused with no target, as
+// `applyLogic` refuses them for any other component: a `customConditional`, or else a condition, then
+// each `logic` entry and each computed value. A button's condition, and that of a container around
+// buttons, decides when the form can be submitted.
+function reportDroppedLogic(comp: FormioComponent, sourcePtr: string, ctx: Ctx): void {
+  if (typeof comp.customConditional === "string" && comp.customConditional.trim().length > 0) {
+    ctx.report.unsupported(FormioCodes.CUSTOM_CONDITIONAL, `${sourcePtr}/customConditional`, "");
+  } else if (holdsCondition(comp.conditional)) {
+    ctx.report.assumed(FormioCodes.ASSUMED_CONDITIONAL, `${sourcePtr}/conditional`, "");
+  }
+  reportLogicEntries(comp, sourcePtr, "", ctx);
+  reportCustomValues(comp, sourcePtr, "", ctx);
+}
+
+// A conditional Form.io checks: JSON logic, the legacy format, or the simple format with at least
+// one condition that names a component (Form.io ignores the others).
+function holdsCondition(cond: unknown): boolean {
+  if (!isObject(cond)) return false;
+  const c = cond as FormioConditional;
+  if (isJsonConditional(c) || isLegacyConditional(c)) return true;
+  return isSimpleConditional(c) && Array.isArray(c.conditions) && c.conditions.some((x) => !!x && !!x.component);
+}
+
+// Walks a container's children with `walkChildren` and applies its logic to `target`. A layout
+// container in `DROPPED_WHEN_EMPTY` has its logic applied after the walk, and when none of its
+// children gives an element it gives none either: its logic is reported (see `reportDroppedLogic`)
+// and the result is `undefined`.
+function walkContainer(
+  comp: FormioComponent,
+  target: Target,
+  sourcePtr: string,
+  targetPath: string,
+  ctx: Ctx,
+  walkChildren: () => SurveyJSONElement[]
+): SurveyJSONElement[] | undefined {
+  const droppedWhenEmpty = DROPPED_WHEN_EMPTY.has(comp.type as string);
+  if (!droppedWhenEmpty) applyLogic(comp, target, sourcePtr, targetPath, ctx);
+  const elements = walkChildren();
+  if (droppedWhenEmpty) {
+    if (elements.length === 0) {
+      reportDroppedLogic(comp, sourcePtr, ctx);
+      return undefined;
+    }
+    applyLogic(comp, target, sourcePtr, targetPath, ctx);
+  }
+  return elements;
+}
+
 /** Map a container component to a SurveyJS `panel`, recursing into its children. */
 function mapPanel(
   comp: FormioComponent,
@@ -1821,18 +2342,20 @@ function mapPanel(
   const title = readContainerTitle(comp);
   if (title !== undefined) panel.title = title;
   applyState(comp, panel);
-  // A layout container may give no element, so its logic waits for its children.
-  const droppedWhenEmpty = DROPPED_WHEN_EMPTY.has(comp.type as string);
-  if (!droppedWhenEmpty) applyLogic(comp, panel, sourcePtr, targetPath, ctx);
 
   const children = childrenOverride ?? indexedChildren(comp.components, `${sourcePtr}/components`);
-  const exitScope = enterScope(comp, ctx, panel);
-  const elements = walk(children, `${targetPath}.elements`, ctx);
-  exitScope();
-  if (droppedWhenEmpty) {
-    if (elements.length === 0) return null;
-    applyLogic(comp, panel, sourcePtr, targetPath, ctx);
-  }
+  const elements = walkContainer(comp, panel, sourcePtr, targetPath, ctx, () => {
+    const reservedNames = ctx.reservedNames;
+    if (comp.type === "form") ctx.reservedNames = ctx.fieldKeys;
+    const exitScope = enterScope(comp, ctx, panel);
+    try {
+      return walk(children, `${targetPath}.elements`, ctx);
+    } finally {
+      exitScope();
+      ctx.reservedNames = reservedNames;
+    }
+  });
+  if (!elements) return null;
   // The tooltip's icon sits by the title.
   if (title !== undefined && isText(comp.tooltip)) reportStyling("tooltip", sourcePtr, targetPath, ctx);
   // Named after its children, so a field keeps a key the panel also has.
@@ -1884,12 +2407,20 @@ function mapDataGrid(comp: FormioComponent, sourcePtr: string, targetPath: strin
   // survey-core scopes template names to the dynamic panel, so the template is a name pool of its
   // own: a field keeps a key that a field outside the grid also has.
   const children = indexedChildren(comp.components, `${sourcePtr}/components`);
-  const outerNames = ctx.usedNames;
+  const { usedNames, fieldKeys, reservedNames } = ctx;
   ctx.usedNames = new Set<string>();
+  ctx.fieldKeys = collectFieldKeys(comp.components);
+  ctx.reservedNames = undefined;
   const exitScope = enterScope(comp, ctx, panel);
-  const template = walk(children, `${targetPath}.templateElements`, ctx);
-  exitScope();
-  ctx.usedNames = outerNames;
+  let template: SurveyJSONElement[];
+  try {
+    template = walk(children, `${targetPath}.templateElements`, ctx);
+  } finally {
+    exitScope();
+    ctx.usedNames = usedNames;
+    ctx.fieldKeys = fieldKeys;
+    ctx.reservedNames = reservedNames;
+  }
   if (template.length > 0) panel.templateElements = template;
 
   // Named after its template, in the outer pool. The grid is a field of its outer scope.
@@ -1984,9 +2515,11 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
   assertFormioForm(input);
   const report = new ReportBuilder(SOURCE);
   const ctx: Ctx = {
-    report, usedNames: new Set<string>(), dataPath: [], fullPath: [], grids: [], fields: [], conditions: [],
+    report, usedNames: new Set<string>(), fieldKeys: collectFieldKeys(input.components),
+    dataPath: [], fullPath: [], grids: [], fields: [], conditions: [],
     containers: [], inputs: [], conditionallyVisible: new Set<Target>(), templates: [], urlSources: [],
-    valueTypes: new Map<SurveyJSONElement, ValueType>(), requiredMessages: [], neverShown: new Set<Target>()
+    valueTypes: new Map<SurveyJSONElement, ValueType>(), choiceSets: new Map<SurveyJSONElement, ChoiceSet>(),
+    requiredMessages: [], neverShown: new Set<Target>()
   };
 
   const topLevel = indexedChildren(input.components, "/components");
@@ -2030,18 +2563,25 @@ function wizardPage(comp: FormioComponent, sourcePtr: string, pageIndex: number,
   // A wizard page is a container: its `components` become the page elements. A
   // non-container top-level component (rare) becomes the page's single element,
   // which carries the component's own state.
+  //
+  // A layout container that gives no element gives no page either, as a button does.
   const isContainer = typeof comp.type === "string" && (PANEL_CONTAINERS.has(comp.type) || comp.type === "panel");
   if (isContainer && Array.isArray(comp.components)) {
     if (comp.type === "container") ctx.report.assumed(FormioCodes.ASSUMED_CONTAINER_DATA, sourcePtr, targetPath);
     if (title !== undefined && isText(comp.tooltip)) reportStyling("tooltip", sourcePtr, targetPath, ctx);
     applyState(comp, page);
-    applyLogic(comp, page, sourcePtr, targetPath, ctx);
-    const exitScope = enterScope(comp, ctx, page);
-    page.elements = walk(indexedChildren(comp.components, `${sourcePtr}/components`), `${targetPath}.elements`, ctx);
-    exitScope();
+    const elements = walkContainer(comp, page, sourcePtr, targetPath, ctx, () => {
+      const exitScope = enterScope(comp, ctx, page);
+      const walked = walk(indexedChildren(comp.components, `${sourcePtr}/components`), `${targetPath}.elements`, ctx);
+      exitScope();
+      return walked;
+    });
+    if (!elements) return null;
+    page.elements = elements;
   } else {
     const el = mapComponent(comp, sourcePtr, `${targetPath}.elements[0]`, ctx);
     if (el) page.elements.push(el);
+    else if (DROPPED_WHEN_EMPTY.has(comp.type as string)) return null;
   }
   // Named after its elements, so a field keeps a key the page also has.
   page.name = uniqueName(comp.key ?? `page${pageIndex + 1}`, ctx);

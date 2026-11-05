@@ -271,6 +271,34 @@ describe("json-schema convert - condition literals", () => {
     expect(entry(report.entries, JsonSchemaCodes.ASSUMED_IF_THEN_ELSE)?.sourcePointer).toBe("#/if");
     assertConstructsCleanly(output, "if const trailing backslash");
   });
+
+  // JavaScript writes 1e-7 in exponent notation, which survey-core's expressions cannot parse.
+  for (const [what, cond] of [["const", { const: 1e-7 }], ["enum", { enum: [2, 1e-7] }]] as const) {
+    it(`does not express an if ${what} holding 1e-7, and reports it assumed`, () => {
+      const schema = {
+        type: "object",
+        properties: { a: { type: "number" }, b: { type: "string" } },
+        if: { properties: { a: cond } },
+        then: { properties: { b: { type: "string" } } }
+      };
+      const { output, report } = convert(schema);
+      expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+      expect(entry(report.entries, JsonSchemaCodes.ASSUMED_IF_THEN_ELSE)?.sourcePointer).toBe("#/if");
+      assertConstructsCleanly(output, `if ${what} 1e-7`);
+    });
+  }
+
+  it("does not express a JSONForms rule whose schema const is 1e-7, and reports it assumed", () => {
+    const schema = { type: "object", properties: { a: { type: "number" }, b: { type: "string" } } };
+    const uiSchema = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/a" },
+      { type: "Control", scope: "#/properties/b", rule: { effect: "SHOW", condition: { scope: "#/properties/a", schema: { const: 1e-7 } } } }
+    ] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    expect(entry(report.entries, JsonSchemaCodes.ASSUMED_UI_RULE)).toBeDefined();
+    assertConstructsCleanly(output, "rule const 1e-7");
+  });
 });
 
 describe("json-schema convert - references to renamed questions", () => {

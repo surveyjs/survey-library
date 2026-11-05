@@ -19,8 +19,9 @@ Two rules hold for both converters:
 * **Conditions.** A condition becomes an expression only when the translation is exact.
   Otherwise the element gets no condition and stays visible, and the report says `assumed`.
   A field that is always shown is a safer loss than one that shows or hides at the wrong time.
-  A value that ends in `\` or holds `\"` cannot be written as a survey-core string literal, so
-  a condition comparing with it is not translated either.
+  A value that ends in `\` or holds `\"` cannot be written as a survey-core string literal, and
+  survey-core's expressions have no exponent, so a number such as 1e-7 or 1e+21 cannot be
+  written either: a condition comparing with one of them is not translated.
 
 ## Form.io
 
@@ -30,7 +31,7 @@ Two rules hold for both converters:
 | --- | --- |
 | `title` | `title` |
 | `display: "form"` or `"pdf"` | One page, `page1`. It is named after the fields, so a field keyed `page1` keeps its key and the page becomes `page1_1`. |
-| `display: "wizard"` | One page per top-level component. A `panel`, `fieldset`, `well` or `container` gives its children to the page directly, with its title, `hidden`, `disabled` and condition. A top-level `button` gives no page. Any other component becomes the page's only element. |
+| `display: "wizard"` | One page per top-level component. A `panel`, `fieldset`, `well` or `container` gives its children to the page directly, with its title, `hidden`, `disabled` and condition. A top-level `button` gives no page, and nor does a `columns`, `table` or `well` whose components all give nothing. Any other component becomes the page's only element. |
 
 ### Components
 
@@ -56,7 +57,7 @@ Two rules hold for both converters:
 | `columns`, `table` | `panel` | No title. The column and table layout is reported `dropped-styling`, and the cells' components follow each other in order. |
 | `tabs` | `panel` | See [Containers](#containers) |
 | `datagrid`, `editgrid` | `paneldynamic` | See [Data grids](#data-grids) |
-| `button` | Nothing | SurveyJS navigation submits the survey. Reported `dropped-vendor-meta`. |
+| `button` | Nothing | SurveyJS navigation submits the survey. Reported `dropped-vendor-meta`. Its condition, `customConditional`, `logic` entries and computed values decide when the form can be submitted, and are reported (`assumed-conditional`, `custom-conditional`, `custom-logic`, `custom-value`) with no target. |
 
 Any other type in Form.io's builtin set (`address`, `recaptcha`, `resource`, `sketchpad`,
 `select2`, `nested`, `custom`, `datamap`, `tree`) is reported `unsupported-component` and
@@ -73,7 +74,7 @@ vendored in `src/formio/vendor/` and checked by `npm run corpus:refresh`.
 | `label` | `title` | Not on `html` |
 | `description` | `description` | |
 | `placeholder` | `placeholder` | `text` and `comment` only |
-| `defaultValue` | `defaultValue` | `null` and `""` give none. `null` items are removed from an array. A `selectboxes` object (`{ a: true, b: false }`) becomes the array of checked keys. A `day`, `time` or `datetime` default is read in Form.io's format, see [Date and time defaults](#date-and-time-defaults). A radio or select default is cast to its `dataType`. |
+| `defaultValue` | `defaultValue` | `null` and `""` give none. `null` items are removed from an array. A `selectboxes` object (`{ a: true, b: false }`) becomes the array of checked keys. A `day`, `time` or `datetime` default is read in Form.io's format, see [Date and time defaults](#date-and-time-defaults). A radio or select default is cast as its choices are, see `dataType` in [Options](#options). |
 | `hidden: true` | `visible: false` | A condition still overrides it, as in Form.io |
 | `disabled: true` | `readOnly: true` | |
 | `clearOnHide` | `clearIfInvisible` | See [Hidden values](#hidden-values) |
@@ -99,14 +100,16 @@ vendored in `src/formio/vendor/` and checked by `npm run corpus:refresh`.
   under `<key>.data`, so it is reported `assumed-container-data` too. A reference inside it
   reads the nested form's own data and cannot name a field outside it.
 * **`well`, `columns` and `table`** have no title. One whose components all give nothing,
-  such as only buttons, gives no element. A `panel`, `fieldset` or `container` stays even
+  such as only buttons, gives no element, and its condition, `logic` and computed values are
+  reported with no target, as a button's are. A `panel`, `fieldset` or `container` stays even
   when empty.
 * **`tabs`** becomes an untitled panel holding one panel per tab, titled with the tab's
   `label`, so every field stays on the same page. A tab with no fields produces nothing. The
   tab strip itself is reported `dropped-styling`.
 
 A container, a tab and a wizard page take their names after their children, so a field keeps
-a key its container also has.
+a key its container also has. A field of a nested `form` gives way to a field of the form
+around it with the same key: the nested field takes the suffix.
 
 ### Data grids
 
@@ -151,7 +154,7 @@ Only a value other than Form.io's default (its component `schema()`) counts. Pur
 | `datetime` | `datePicker.minDate`, `maxDate` (or under `widget`) | `min`, `max` | A date literal only. Anything else, such as a `moment()` expression, or any limit on a time input, is reported `unsupported-option`. |
 | `number` | `decimalLimit`, `requireDecimal` | A numeric mask: `precision`, `showTrailingZeros` | `precision` is 2 under `requireDecimal` alone, as in Form.io. Without `delimiter`, `thousandsSeparator: ""`. The input becomes a text input, which a mask needs. |
 | `textfield`, `phoneNumber` | `inputMask` | `maskType: "pattern"`, `saveMaskedValue: true` | `9` stays `9`, `A` becomes `a`, `*` becomes `#`, and a literal `#` is escaped. Form.io stores the value with the mask's literals, so the mask saves them too. A `phoneNumber` with no `inputMask` gets Form.io's default `(999) 999-9999`. Reported `unsupported-option`, with no mask: a lowercase `a` (a lowercase letter in Form.io, with no survey-core token), a `\` (survey-core cannot show one), and on a `textfield` a `#`, `&`, bracket or `\|`, which the Inputmask library Form.io types through reads as its own tokens. |
-| `radio`, `select` | `dataType: "number"`, `"boolean"` | Choice values and the default in that type | Cast as Form.io casts them, so condition literals that read the field are cast too. Values that do not each cast to a distinct value, and a URL source, are reported `unsupported-option` and kept as written. |
+| `radio`, `select` | `dataType: "number"`, `"boolean"`, or none (`"auto"`) | Choice values and the default in that type | Cast as Form.io casts them, so condition literals that read the field are cast too. With no `dataType`, a value written as JavaScript writes a number becomes that number, and `"true"` or `"false"` (any case on a select) a boolean. Values that survey-core would read as one value after the cast, such as `"01"` and `"1"`, are reported `unsupported-option` at `/dataType`, even when the key is absent, and kept as written. A URL source with `dataType` `"number"` or `"boolean"` is reported `unsupported-option`. |
 | `file` | `multiple`, `fileMaxSize`, `filePattern` | `allowMultiple`, `maxSize` in bytes, `acceptedTypes` | `acceptedTypes` takes `*.ext`, `.ext` and `type/sub` globs. A size or pattern that does not parse is reported `unsupported-option`. |
 | `signature` | `width`, `height`, `penColor`, `backgroundColor`, `minWidth`, `maxWidth` | `signatureWidth`, `signatureHeight`, `penColor`, `backgroundColor`, `penMinWidth`, `penMaxWidth` | A size not in pixels, or a pen width that is not a positive number, is reported `dropped-styling`. |
 | `textarea` | `rows` | `rows` | |
@@ -191,7 +194,7 @@ survey-core still reads the inner braces of what stays as piping.
 | `dataSrc` | SurveyJS |
 | --- | --- |
 | None, `""` or `"values"` | `choices` from `data.values` |
-| `"json"` | `choices` from `data.json`, an array or a string that parses to one. A string item is its own value. An object item takes its value from `valueProperty` and its text from the template, as `titleName` below. An object item with no `valueProperty` gives no choice, and the source is reported `unsupported-data-source`. |
+| `"json"` | `choices` from `data.json`, an array or a string that parses to one. A string item is its own value, and a number item is the string item of its text, cast by `dataType` (with none, it stores the number). An object item takes its value from `valueProperty` and its text from the template, as `titleName` below. An object item with no `valueProperty` gives no choice, and the source is reported `unsupported-data-source`. |
 | `"url"` | `choicesByUrl`: `url` from `data.url`, `path` from `selectValues`, `valueName` from `valueProperty`, `titleName` from `template` |
 | `"resource"`, `"custom"` and others | Nothing. Reported `unsupported-data-source`. |
 
@@ -236,14 +239,15 @@ as in Form.io: the simple format, then the legacy one, then JSON logic.
 | --- | --- |
 | `isEmpty`, `isNotEmpty` | `{q} empty`, `{q} notempty` |
 | `isEqual`, `isNotEqual` | `{q} = v`, `{q} <> v`. On a `selectboxes` field: `contains`, `notcontains`. Not translated on a multiple `select` or a `tags` field. |
-| `lessThan`, `lessThanOrEqual`, `greaterThan`, `greaterThanOrEqual` | `<`, `<=`, `>`, `>=` |
-| `includes`, `notIncludes` | `contains`, `notcontains`. Not translated on `selectboxes`, where Form.io never matches. |
-| `dateGreaterThan`, `dateGreaterThanOrEqual`, `dateLessThan`, `dateLessThanOrEqual`, `isDateEqual`, `isNotDateEqual` | The matching comparison, also reported `assumed-conditional`: Form.io compares moments, survey-core compares values. |
+| `lessThan`, `lessThanOrEqual`, `greaterThan`, `greaterThanOrEqual` | `<`, `<=`, `>`, `>=`. Form.io matches only a stored number, so they are not translated on a field that may hold text, nor on a multiple field. |
+| `includes`, `notIncludes` | `contains`, `notcontains`. Form.io matches a text that contains the literal, and never a number or a boolean. Not translated on `selectboxes`. On a field that may hold a number or a boolean, not translated when survey-core would find the literal in one of them (`5` in 5, `e` in true); a literal it finds in none is written, and holds for no number or boolean, as in Form.io. On a multiple `select`, `includes` is translated only when every choice contains the literal exactly when it equals it, and `notIncludes` is not translated. |
+| `dateGreaterThan`, `dateGreaterThanOrEqual`, `dateLessThan`, `dateLessThanOrEqual`, `isDateEqual`, `isNotDateEqual` | On a `day` or `datetime` field, the matching comparison, also reported `assumed-conditional`: Form.io compares moments, survey-core compares values. Not translated on other fields. |
 | `startsWith`, `endsWith`, anything else | Not translated. survey-core has no such operator. |
 
 **Legacy format** (`{ show, when, eq }`) gives `{when} = eq`, or `<>` when `show` is not
 `"true"`. A `selectboxes` field, a multiple `select` or a `tags` field uses `contains` and
-`notcontains`.
+`notcontains`; on the last two, an `eq` that Form.io reads as a path into the array (empty, with
+a comma, or whose first path key is an index or `length`) is not translated.
 
 **JSON logic** (`conditional.json`) is translated for `==`, `===`, `!=` and `!==` between a
 `var` and a literal, a bare `var` read for its truthiness, `!` and `!!`, and `and` and `or` of
@@ -252,14 +256,35 @@ those. `!` around any of them gives `!(…)`.
 * Truthiness depends on the field: a `checkbox` gives `{q} = true`, a text field `{q} notempty`,
   and a `number` `({q} notempty and {q} <> 0)`. Any other type, `selectboxes` included (its
   object is always truthy), or a multiple field, is not translated.
-* A string literal is not translated in `===` or `!==` with a field that stores a number or a
-  boolean, nor in any comparison with a field that stores a boolean (`true == "true"` is false).
+* The literal is matched as for the other formats, below, with JavaScript's `==` or `===`: a
+  string is not translated in `===` with a field that stores a number, nor `"true"` in `==`
+  with a field that stores a boolean (`true == "true"` is false).
 
 Anything else is reported `assumed-conditional`.
 
-**Literals** follow the field: `"true"` and `"false"` compared with a `checkbox` become
-booleans, and a numeric string compared with a `number` or `currency` field becomes a number.
-A radio or select cast by its `dataType` takes literals of that type.
+**Literals** are matched with what Form.io stores in the field, and written only when
+survey-core's comparison holds for exactly the values Form.io's does: the legacy format
+compares texts, the simple `isEqual` parses a string as JSON when the stored value has another
+type and is not falsy, and JSON logic uses `==` or `===`. A radio or select with choices is
+matched with its choices, cast by its `dataType`. Otherwise, a `number` or `currency` field
+stores a number (`null` when empty), a `checkbox` a boolean, a text field its text, a `hidden`
+field any of these, and a select from a URL its `valueProperty` cast by its `dataType`. So
+`"true"` compared with a `checkbox` becomes `true`, and `"5"` with a `number` field becomes
+`5`, while `"05"` (which Form.io never matches) or `""` (an empty number is `null`) is not
+translated. A comparison with any other field, a select from a URL with no `valueProperty` (it
+stores the whole item) or with an unknown `dataType`, or a `number` or text field that holds
+several values, is not translated. survey-core compares texts without regard to case or
+surrounding spaces, and a text that reads as a number as that number, also in `contains` (it
+reads `"5.0"` as 5, and a text that starts with `0x` as a hexadecimal number); the converter does
+not guard against that for a field that stores text, so `=` and `includes` can hold there where
+Form.io's comparison does not, or the reverse.
+
+A `day` or `time` equality is translated only when the literal is the text Form.io stores, a
+padded day in its order or a time in its `dataFormat` (`HH:mm:ss` or `HH:mm`), and it is written
+as the ISO value the input stores. The date operators take any `day` literal that parses, and a
+`datetime` literal with no time zone and zero seconds (and midnight, when the input reads only a
+date). An equality on a `datetime`, an order or
+`includes` on any of the three, and a day with a hidden part are not translated.
 
 #### References
 
@@ -294,7 +319,7 @@ A `simple` trigger is read in the legacy or the simple format, and `show: false`
 Anything else is reported `custom-logic` at `/logic/<i>`, with no partial output. That covers
 an `event` or `javascript` trigger, an empty `simple` trigger (it always fires), a trigger with
 an `assumed` part, a `value`, `customAction` or `mergeComponentSchema` action, `disabled: false`,
-`validate.required: false`, and `requiredIf` on a panel or page. An entry also stays reported
+`validate.required: false`, and `requiredIf` on a panel, a page or an `html` element. An entry also stays reported
 when another entry of the component sets the same property, or an action that may change
 anything, and a `hidden` entry stays reported on a component with a `customConditional`.
 
@@ -315,6 +340,11 @@ gets `clearIfInvisible`:
   input that is statically `hidden` or sits in a statically hidden container, and every
   `hidden` component;
 * nothing for an input that can never be invisible.
+
+A statically hidden container that logic only shows does not count as statically hidden for
+the inputs in it: an input with a converted condition anywhere in its chain gets
+`onHiddenContainer`, and one with none gets `none`. While the container's own `hidden` holds,
+the first kind loses its value, which Form.io keeps.
 
 This follows the Form.io server. Form.io's browser renderer keeps the values inside a hidden
 `panel`, `fieldset` or `columns`, whose own `clearOnHide` defaults to false. Where a condition
@@ -341,7 +371,7 @@ its path only, never its content, and the component still converts:
 | `formio.unsupported-component` | unsupported | A builtin type with no mapping |
 | `formio.unsupported-multiple` | unsupported | `multiple` on a text-like field |
 | `formio.unsupported-data-source` | unsupported | A `select` source the converter cannot carry |
-| `formio.unsupported-option` | unsupported | An option, set to something other than Form.io's default, that SurveyJS cannot express. The pointer names the option. |
+| `formio.unsupported-option` | unsupported | An option, set to something other than Form.io's default, that SurveyJS cannot express. The pointer names the option, also an absent `dataType` whose `auto` cast would merge two choices. |
 | `formio.custom-conditional` | unsupported | `customConditional` |
 | `formio.custom-validation` | unsupported | `validate.custom` |
 | `formio.custom-logic` | unsupported | A `logic` entry that does not map |

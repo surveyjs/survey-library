@@ -356,13 +356,14 @@ function resolveScopeIn(root, scope) {
 // Component types the Form.io converter has a mapping for (mirror of
 // src/formio/index.ts — a NEW type outside this set is exactly the drift the
 // refresh job exists to catch). Kept here, not imported, so refresh needs no
-// build of the TS sources.
+// build of the TS sources. `tags` (stored as an array) and `form` (with inline
+// components) are mapped in part; the converter reports their other forms.
 export const HANDLED_FORMIO_TYPES = new Set([
   "textfield", "email", "url", "phoneNumber", "number", "currency", "password",
   "datetime", "day", "time", "textarea", "checkbox", "selectboxes", "radio",
-  "select", "file", "signature", "content", "htmlelement",
-  "panel", "fieldset", "well", "container", "columns", "table", "tabs",
-  "datagrid", "editgrid", "button"
+  "select", "file", "signature", "content", "htmlelement", "survey", "hidden",
+  "tags", "panel", "fieldset", "well", "container", "columns", "table", "tabs",
+  "form", "datagrid", "editgrid", "button"
 ]);
 
 // JSON Schema keywords the converter reads, plus benign meta keywords it may

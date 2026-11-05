@@ -3,28 +3,28 @@
   "fieldsIn": 1557,
   "fieldsOut": 1903,
   "buckets": {
-    "unsupported": 290,
+    "unsupported": 294,
     "unknown": 3,
-    "assumed": 234,
+    "assumed": 242,
     "dropped": 434
   },
-  "weightedClean": 1469,
+  "weightedClean": 1513,
   "fidelityRatio": 1.2222,
-  "cleanPerField": 0.9435,
+  "cleanPerField": 0.9717,
   "perSource": {
     "formio": {
       "definitions": 522,
       "fieldsIn": 1129,
       "fieldsOut": 1100,
       "buckets": {
-        "unsupported": 250,
+        "unsupported": 254,
         "unknown": 3,
-        "assumed": 224,
+        "assumed": 232,
         "dropped": 374
       },
-      "weightedClean": 1379,
+      "weightedClean": 1423,
       "fidelityRatio": 0.9743,
-      "cleanPerField": 1.2214
+      "cleanPerField": 1.2604
     },
     "json-schema": {
       "definitions": 92,

@@ -2545,12 +2545,8 @@
     "type:custom",
     "type:datamap",
     "type:datasource",
-    "type:form",
-    "type:hidden",
     "type:location",
     "type:myOwnCustomType",
-    "type:recaptcha",
-    "type:survey",
-    "type:tags"
+    "type:recaptcha"
   ]
 }

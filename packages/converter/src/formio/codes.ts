@@ -49,8 +49,9 @@ export const FormioCodes = {
   // components under `<key>.data`; its panel keeps the fields at the level around it, so the data
   // has another shape.
   ASSUMED_CONTAINER_DATA: "formio.assumed-container-data",
-  // A date or time default in a format that does not parse to the input's ISO value, so the field
-  // gets no default.
+  // A default the field cannot take, so it gets none: a date or time in a format that does not parse
+  // to the input's ISO value, or a `survey` default that is neither an answer object nor one of its
+  // answer values.
   ASSUMED_DEFAULT_VALUE: "formio.assumed-default-value",
 
   // Knowingly discarded: presentation/layout/vendor metadata with no SurveyJS

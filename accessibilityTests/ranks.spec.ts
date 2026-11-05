@@ -1,5 +1,4 @@
-import { frameworks, url, initSurvey, axeContext, axeOptions } from "./helper";
-import { test } from "@playwright/test";
+import { frameworks, url, initSurvey, axeContext, axeOptions, baseTest as test } from "./helper";
 import { checkA11y, injectAxe } from "axe-playwright";
 const title = "ranks";
 

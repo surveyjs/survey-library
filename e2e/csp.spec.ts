@@ -9,14 +9,14 @@ const NONCE = "e2e-nonce";
 // Strict for everything the library is responsible for (style-src, font-src, img-src).
 // The script-src allowances cover the needs of the test pages themselves: the react
 // page loads jquery/showdown from cdnjs and react from esm.sh, and carries one inline
-// module script (stamped with the nonce by the route rewrite below). The font host is
-// the test pages' too - they supply Open Sans through their own fonts.css, while the
-// library itself requests no font at all.
+// module script (stamped with the nonce by the route rewrite below). The test pages
+// supply Open Sans from their own server through their fonts.css, while the library
+// itself requests no font at all.
 const CSP = [
   "default-src 'self'",
   `script-src 'self' 'nonce-${NONCE}' https://cdnjs.cloudflare.com https://esm.sh`,
   `style-src 'self' 'nonce-${NONCE}' 'report-sample'`,
-  "font-src 'self' https://fonts.gstatic.com",
+  "font-src 'self'",
   "img-src 'self'",
   "connect-src 'self' https://esm.sh",
 ].join("; ");

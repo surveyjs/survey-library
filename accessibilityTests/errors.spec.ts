@@ -1,5 +1,5 @@
-import { frameworks, url, initSurvey } from "./helper";
-import { test, expect } from "@playwright/test";
+import { frameworks, url, initSurvey, baseTest as test } from "./helper";
+import { expect } from "@playwright/test";
 const title = "errors";
 
 const json = {

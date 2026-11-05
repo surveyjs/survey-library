@@ -1,5 +1,4 @@
-import { frameworks, url, initSurvey, axeTags, axeContext, axeOptions } from "./helper";
-import { test } from "@playwright/test";
+import { frameworks, url, initSurvey, axeTags, axeContext, axeOptions, baseTest as test } from "./helper";
 import { injectAxe, checkA11y } from "axe-playwright";
 const title = "image";
 

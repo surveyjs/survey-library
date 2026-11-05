@@ -1,6 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { expect } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, baseTest as test } from "../e2e/helper";
 import * as hotelBookingForm from "./custom-theme-demos/hotel-booking-form-template-free";
 import * as orderForm from "./custom-theme-demos/order-form-template-free";
 import * as onlineCheckInForm from "./custom-theme-demos/online-check-in-form-template-free";

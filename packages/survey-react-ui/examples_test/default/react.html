@@ -7,10 +7,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.6.4/showdown.min.js"></script>
   <script src="../../node_modules/survey-core/themes/default-light-panelless.js"></script>
 
+  <!-- An exact version, so the tests do not change with every React release. The development
+       build stays: React reports its warnings only there, and the tests turn them into failures. -->
   <script defer type="module">
-    import React from "https://esm.sh/react@19/?dev";
-    import ReactDOMClient from "https://esm.sh/react-dom@19/client?dev";
-    import ReactDOM from "https://esm.sh/react-dom@19?dev";
+    import React from "https://esm.sh/react@19.3.1?dev";
+    import ReactDOMClient from "https://esm.sh/react-dom@19.3.1/client?dev";
+    import ReactDOM from "https://esm.sh/react-dom@19.3.1?dev";
     window.ReactDOMClient = ReactDOMClient;
     window.React = React;
     window.ReactDOM = ReactDOM;

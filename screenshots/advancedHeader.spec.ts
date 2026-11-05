@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, applyTheme } from "../e2e/helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, applyTheme, baseTest as test } from "../e2e/helper";
 import { upArrowImageLink } from "../visualRegressionTests/helper";
 
 const title = "Advanced header screenshot";

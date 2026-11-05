@@ -1,6 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { QuestionText } from "../e2e/questionHelper";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, setRowItemFlowDirection, getButtonByText } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, setRowItemFlowDirection, getButtonByText, baseTest as test } from "../e2e/helper";
 
 const title = "Question Screenshot";
 

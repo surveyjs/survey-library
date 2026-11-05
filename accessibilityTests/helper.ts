@@ -12,7 +12,7 @@ export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any) => {
-  await page.evaluate(([framework, json, isDesignMode, props]) => {
+  await page.evaluate(async ([framework, json, isDesignMode, props]) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
       throw new Error(msg);
@@ -41,12 +41,21 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
     if (framework === "survey-js-ui") {
       // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-      if (!document.querySelector("link[href*='survey-core.min.css']")) {
+      let link = document.querySelector("link[href*='survey-core.min.css']") as HTMLLinkElement;
+      if (!link) {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const link = document.createElement("link");
+        link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = "../../node_modules/survey-core/survey-core.min.css";
         document.head.appendChild(link);
+      }
+      // Render only once the stylesheet applies: until then elements with the sv-hidden class
+      // are visible, and axe checks them (a legend with role="presentation" fails aria-allowed-role).
+      if (!link.sheet) {
+        await new Promise((resolve) => {
+          link.addEventListener("load", resolve, { once: true });
+          link.addEventListener("error", resolve, { once: true });
+        });
       }
       surveyElement.innerHTML = "";
       self.SurveyUI.renderSurvey(model, surveyElement);

@@ -1,8 +1,8 @@
 // MERGE(V3): this import conflicts every merge. Keep BOTH sides' additions: `expect` from
 // @playwright/test (used by master-merged assertions) AND `applyTheme` from ../e2e/helper
 // (V3-only helper). i.e. take the union, not one side.
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, applyTheme } from "../e2e/helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, applyTheme, baseTest as test } from "../e2e/helper";
 
 const title = "Survey themes Screenshot";
 

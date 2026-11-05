@@ -241,7 +241,8 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await page.waitForTimeout(500);
+      // autoFocusFirstQuestion focuses "start" after the page renders; the first Tab moves on from there.
+      await expect(page.locator("div[data-name=start] input")).toBeFocused();
 
       await page.evaluate(() => {
         window["survey_focusedName"] = undefined;

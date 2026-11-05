@@ -1,6 +1,13 @@
+import type { Page } from "@playwright/test";
 import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
 
 const title = "autoNextPage";
+
+// Proves that the survey did not advance: an advance would happen settings.autoAdvanceDelay after the answer.
+const waitOutAutoAdvanceDelay = async (page: Page) => {
+  const delay = await page.evaluate(() => (window as any).Survey.settings.autoAdvanceDelay);
+  await page.waitForTimeout(delay + 200);
+};
 
 const json = {
   autoFocusFirstQuestion: true,
@@ -105,18 +112,14 @@ frameworks.forEach((framework) => {
 
       await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await firstRadioElement.click();
-      await page.waitForTimeout(500);
       await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
 
       await firstRadioElement.click();
-      await page.waitForTimeout(500);
       await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
 
       await firstRadioElement.click();
-      await page.waitForTimeout(500);
 
-      const surveyResult = await getSurveyResult(page);
-      expect(surveyResult).toEqual({
+      await expect.poll(() => getSurveyResult(page)).toEqual({
         civilwar: "1750-1800",
         libertyordeath: "John Hancock",
         magnacarta: "The foundation of the British parliamentary system"
@@ -135,7 +138,7 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sd-radio input").first()).toBeFocused();
 
       await page.keyboard.press("ArrowDown");
-      await page.waitForTimeout(500);
+      await waitOutAutoAdvanceDelay(page);
       await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await page.keyboard.press("Enter");
 
@@ -144,20 +147,18 @@ frameworks.forEach((framework) => {
       // wait for it to actually focus the first radio before pressing arrow keys.
       await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
-      await page.waitForTimeout(500);
+      await waitOutAutoAdvanceDelay(page);
       await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await page.keyboard.press("Enter");
 
       await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
-      await page.waitForTimeout(500);
+      await waitOutAutoAdvanceDelay(page);
       await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await page.keyboard.press("Enter");
-      await page.waitForTimeout(500);
 
-      const surveyResult = await getSurveyResult(page);
-      expect(surveyResult).toEqual({
+      await expect.poll(() => getSurveyResult(page)).toEqual({
         civilwar: "1800-1850",
         libertyordeath: "James Madison",
         magnacarta: "The Great Seal of the monarchs of England"
@@ -167,19 +168,18 @@ frameworks.forEach((framework) => {
     test("check auto next page with matrix", async ({ page }) => {
       await initSurvey(page, framework, json2);
       await page.locator("tr").filter({ hasText: "A" }).locator("span").nth(1).click();
-      await page.waitForTimeout(500);
       await page.locator("tr").filter({ hasText: "B" }).locator("span").nth(2).click();
-      await page.waitForTimeout(500);
+      // The matrix advances only when every row is answered: an advance after row A or B would complete the survey here.
+      await waitOutAutoAdvanceDelay(page);
       await page.locator("tr").filter({ hasText: "C" }).locator("span").nth(3).click();
-      await page.waitForTimeout(500);
 
-      const surveyResult = await getSurveyResult(page);
-      expect(surveyResult.q1).toEqual({ A: 1, B: 2, C: 3 });
+      await expect.poll(async () => (await getSurveyResult(page))?.q1).toEqual({ A: 1, B: 2, C: 3 });
     });
 
     test("check auto next page with matrix + keyboard", async ({ page }) => {
       await initSurvey(page, framework, json2);
-      await page.waitForTimeout(500);
+      // autoFocusFirstQuestion focuses the first cell after the page renders.
+      await expect(page.locator("table input").first()).toBeFocused();
       await page.keyboard.press("Space");
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowRight");
@@ -197,39 +197,36 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json3);
       const label3 = page.locator("label", { hasText: "3" });
       await label3.click();
-      await page.waitForTimeout(500);
 
-      const surveyResult = await getSurveyResult(page);
-      expect(surveyResult.q1).toBe(3);
+      await expect.poll(async () => (await getSurveyResult(page))?.q1).toBe(3);
     });
 
     test("check auto next page with rating + keyboard", async ({ page }) => {
       await initSurvey(page, framework, json3);
-      await page.waitForTimeout(500);
+      // autoFocusFirstQuestion focuses the first rating item after the page renders.
+      await expect(page.locator("fieldset input").first()).toBeFocused();
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("Enter");
-      await page.waitForTimeout(500);
 
-      const surveyResult = await getSurveyResult(page);
-      expect(surveyResult.q1).toBe(3);
+      await expect.poll(async () => (await getSurveyResult(page))?.q1).toBe(3);
     });
 
     test("check auto next page with rating + number key", async ({ page }) => {
       await initSurvey(page, framework, json3);
-      await page.waitForTimeout(500);
+      // autoFocusFirstQuestion focuses the first rating item after the page renders.
+      await expect(page.locator("fieldset input").first()).toBeFocused();
       await page.keyboard.press("4");
-      await page.waitForTimeout(500);
 
-      const surveyResult = await getSurveyResult(page);
-      expect(surveyResult.q1).toBe(4);
+      await expect.poll(async () => (await getSurveyResult(page))?.q1).toBe(4);
     });
 
     test("check rating arrow keys do not auto-advance", async ({ page }) => {
       await initSurvey(page, framework, json3);
-      await page.waitForTimeout(500);
+      // autoFocusFirstQuestion focuses the first rating item after the page renders.
+      await expect(page.locator("fieldset input").first()).toBeFocused();
       await page.keyboard.press("ArrowRight");
-      await page.waitForTimeout(500);
+      await waitOutAutoAdvanceDelay(page);
 
       expect(await getSurveyResult(page)).toBeUndefined();
       await expect(page.locator("fieldset").first()).toBeVisible();

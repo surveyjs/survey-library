@@ -27,7 +27,6 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await expect(rootSelector).toHaveClass(mobileClass);
       await page.setViewportSize({ width: 1000, height: 1000 });
-      await page.waitForTimeout(500);
       await expect(rootSelector).not.toHaveClass(mobileClass);
     });
 
@@ -83,20 +82,18 @@ frameworks.forEach((framework) => {
       await page.setViewportSize({ width: 500, height: 1080 });
       await page.click(".sd-navigation__next-btn");
 
-      await page.waitForTimeout(500);
-      const renderAs = await page.evaluate(() => {
+      // The rating switches to a dropdown in a ResizeObserver callback.
+      await expect.poll(() => page.evaluate(() => {
         return window["survey"].getAllQuestions()[1].renderAs;
-      });
-      expect(renderAs).toBe("dropdown");
+      })).toBe("dropdown");
 
       await page.click(".sd-navigation__next-btn");
       await page.click(".sd-navigation__prev-btn");
 
-      await page.waitForTimeout(500);
-      const renderAsAfter = await page.evaluate(() => {
+      // Leaving the page resets renderAs to the desktop value; the new markup's ResizeObserver switches it again.
+      await expect.poll(() => page.evaluate(() => {
         return window["survey"].getAllQuestions()[1].renderAs;
-      });
-      expect(renderAsAfter).toBe("dropdown");
+      })).toBe("dropdown");
     });
   });
 });

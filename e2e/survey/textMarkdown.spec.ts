@@ -43,7 +43,6 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(500);
 
       await page.locator(".markdownclass", { hasText: "*item 2*" }).click();
       await getButtonByText(page, "Complete").click();
@@ -62,21 +61,16 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(500);
 
       const questionValueText = page.locator(".sd-dropdown__input .sv-string-viewer");
       const questionDropdownSelect = page.locator(".sd-dropdown");
 
       await questionDropdownSelect.click();
-      await page.waitForTimeout(500);
       await page.locator(".markdownclass", { hasText: "*choice 3*" }).click();
-      await page.waitForTimeout(500);
       await expect(questionValueText).toHaveText("*choice 3*");
 
       await questionDropdownSelect.click();
-      await page.waitForTimeout(500);
       await page.locator(".markdownclass", { hasText: "*choice 2*" }).click();
-      await page.waitForTimeout(500);
       await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
@@ -101,7 +95,6 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json2);
-      await page.waitForTimeout(500);
 
       await page.locator(".test-link").click();
       expect(page.url()).toContain("/test");

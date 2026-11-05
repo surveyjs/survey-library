@@ -1,5 +1,5 @@
-import { test, expect, Page, Locator } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { expect, Page, Locator } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, baseTest as test } from "../e2e/helper";
 
 const title = "Single question centering";
 const root = ".sd-root-modern";

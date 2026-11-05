@@ -1,5 +1,4 @@
-import { test } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, doDrag, applyTheme } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, doDrag, applyTheme, baseTest as test } from "../e2e/helper";
 import { registerCustomItemContentComponent } from "../e2e/registerCustomComponents";
 
 const title = "Ranking Screenshot";

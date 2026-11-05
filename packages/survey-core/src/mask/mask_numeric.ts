@@ -1,5 +1,6 @@
 import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
+import { Helpers } from "../helpers";
 import { InputMaskBase } from "./mask_base";
 import { IMaskedInputResult, IMaskLocaleChange, ITextInputParams, numberDefinition } from "./mask_utils";
 
@@ -7,6 +8,8 @@ interface INumericalComposition {
   integralPart: string;
   fractionalPart: string;
   isNegative?: boolean;
+  // the number is negative, but the mask forbids negatives, so its minus sign was dropped
+  isNegativeDropped?: boolean;
   hasDecimalSeparator?: boolean;
 }
 
@@ -256,10 +259,15 @@ export class InputMaskNumeric extends InputMaskBase {
 
   public validateNumber(srcNumber: INumericalComposition, matchWholeMask: boolean): boolean {
     const number = this.removeTrailingZeros(srcNumber);
-    const min = this.min || Number.MIN_SAFE_INTEGER;
-    const max = this.max || Number.MAX_SAFE_INTEGER;
+    // 0 is a bound; an empty property (null or "" from JSON) is not
+    const min = !Helpers.isValueEmpty(this.min) ? this.min : Number.MIN_SAFE_INTEGER;
+    const max = !Helpers.isValueEmpty(this.max) ? this.max : Number.MAX_SAFE_INTEGER;
 
     if (this.numericalCompositionIsEmpty(number)) return true;
+    // A whole value that is negative where negatives are forbidden is out of range, as one beyond a
+    // bound is. A keystroke is not: typing a minus sign there does nothing.
+    // A value that is zero at this precision is zero, as the bounds read it.
+    if (matchWholeMask && number.isNegativeDropped && this.convertNumber(number) !== 0) return false;
 
     if (this.min !== undefined || this.max !== undefined) {
       let value = this.convertNumber(number);
@@ -327,9 +335,7 @@ export class InputMaskNumeric extends InputMaskBase {
       const currentChar = input[inputIndex];
       switch(currentChar) {
         case "-": {
-          if (this.allowNegativeValues && (this.min === undefined || this.min < 0)) {
-            minusCharCount++;
-          }
+          minusCharCount++;
           break;
         }
         case decimal: {
@@ -353,7 +359,12 @@ export class InputMaskNumeric extends InputMaskBase {
       }
     }
 
-    result.isNegative = minusCharCount % 2 !== 0;
+    const isNegative = minusCharCount % 2 !== 0;
+    if (this.allowNegativeValues && (Helpers.isValueEmpty(this.min) || this.min < 0)) {
+      result.isNegative = isNegative;
+    } else {
+      result.isNegativeDropped = isNegative;
+    }
 
     if (result.integralPart.length > 1 && result.integralPart[0] === "0") {
       result.integralPart = result.integralPart.slice(1);

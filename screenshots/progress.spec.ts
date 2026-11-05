@@ -1,5 +1,5 @@
-import { Page, test, Locator } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, getButtonByText } from "../e2e/helper";
+import { Page, Locator } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, getButtonByText, baseTest as test } from "../e2e/helper";
 
 const title = "Survey Progress Screenshot";
 

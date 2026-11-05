@@ -3119,6 +3119,14 @@ export class Question extends SurveyElement<Question>
       (visit: NestedElementVisit): void => this.forEachNestedElement(visit, { build: "none", visibleOnly: true }),
       (info: INestedElementInfo): boolean => info.element.isVisible && info.element.containsErrors);
   }
+  // The errors of the questions the question shows, see getContainsErrors.
+  protected getNestedErrors(): Array<SurveyError> {
+    const res: Array<SurveyError> = [];
+    this.forEachNestedElement(info => {
+      getNestedElementQuestions(info).forEach(q => { if (q.isVisibleInSurvey) res.push(...q.getAllErrors()); });
+    }, { build: "none", visibleOnly: true });
+    return res;
+  }
   /* A fix can come without a validation of the containers, so a nested question tells them. It does so
      on a change only: a validation without errors must not ask a container once per cell. */
   public updateContainsErrors(): void {
@@ -3202,8 +3210,11 @@ export class Question extends SurveyElement<Question>
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return true;
   }
+  /* On a value change, required is checked for the answer being cleared only. A question that already
+     shows its required error keeps it: a container re-validates every question it holds, and one answer
+     must not wipe the other required errors. */
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
-    if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {
+    if ((!isOnValueChanged || this.isOldAnswered || !!this.getErrorByType("required")) && this.hasRequiredError()) {
       const err = new AnswerRequiredError(this.requiredErrorText, this);
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
       errors.push(err);
@@ -3259,6 +3270,9 @@ export class Question extends SurveyElement<Question>
   public allowSpaceAsAnswer: boolean;
   private isValueChangedInSurvey = false;
   private isOldAnswered: boolean;
+  // Internal: true while the value of an answered question is being set, so that a value-change
+  // validation can tell the answer being cleared (see PanelModelBase.validateRequired).
+  public get isAnsweredBeforeValueChange(): boolean { return !!this.isOldAnswered; }
   private isSettingQuestionValue: boolean;
   protected allowNotifyValueChanged = true;
   /* The old value goes to survey.questionValueChanged, which hands it to onDynamicPanelValueChanged
@@ -3661,6 +3675,18 @@ export class Question extends SurveyElement<Question>
   public supportAutoAdvance(): boolean {
     return false;
   }
+  /**
+   * Specifies whether to display keyboard shortcut hints for this question.
+   *
+   * Default value: `undefined` (inherits the survey's [`showKeyboardHints`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showKeyboardHints) setting)
+   *
+   * Hints describe available keyboard actions, such as selecting choices or pressing Enter to continue. Displayed hints depend on the question type and settings.
+   *
+   * Keyboard hints are hidden on touch devices, in read-only or preview mode, for collapsed questions, and in matrix cells.
+   *
+   * [Demo: Keyboard Hints](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * @since 3.2.4
+   */
   @property() showKeyboardHints: boolean | undefined;
   public getKeyboardHintModel(): KeyboardHintModel {
     const hints = this.canShowKeyboardHints() ? this.getKeyboardHintsCore() : [];

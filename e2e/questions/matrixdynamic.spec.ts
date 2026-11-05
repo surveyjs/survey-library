@@ -201,15 +201,12 @@ frameworks.forEach((framework) => {
 
       expect(await matrixRowSelector.count()).toBe(2);
       await questionDropdownSelect.nth(0).click();
-      await page.waitForTimeout(500);
       await getVisibleSelectListItemByText(page, "Science: Physical Science").click();
 
       await questionDropdownSelect.nth(1).click();
-      await page.waitForTimeout(500);
       await getVisibleSelectListItemByText(page, "Science: Chemistry").click();
       await page.locator(".sd-matrixdynamic__btn[title='Remove']").nth(1).click();
-      await page.waitForTimeout(500);
-      expect(await matrixRowSelector.count()).toBe(1);
+      await expect(matrixRowSelector).toHaveCount(1);
 
       await getButtonByText(page, "Complete").click();
 
@@ -274,11 +271,14 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(2);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(1);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(0);
+      await expect(getButtonByText(page, "Add Row")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "row 1, column name" })).toBeFocused();
       await page.keyboard.press("1");
@@ -313,11 +313,14 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(2);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(1);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(0);
+      await expect(getButtonByText(page, "Add Row")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "row 1, column name" })).toBeFocused();
       await page.keyboard.press("1");
@@ -352,11 +355,14 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(2);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(1);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(0);
+      await expect(getButtonByText(page, "Add Row")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "row 1, column name" })).toBeFocused();
       await page.keyboard.press("1");
@@ -437,7 +443,6 @@ frameworks.forEach((framework) => {
         "showQuestionNumbers": "off"
       });
       await page.setViewportSize({ width: 600, height: 1080 });
-      await page.waitForTimeout(500);
       await page.locator("button").filter({ hasText: "Add Row" }).click();
       await expect(getButtonByText(page, "Show Details").filter({ visible: true }).first()).toContainText("Show Details");
       await expect(getButtonByText(page, "Hide Details").filter({ visible: true }).first()).toContainText("Hide Details");
@@ -668,7 +673,6 @@ frameworks.forEach((framework) => {
       await page.locator(".sd-matrixdynamic__btn[title='Entfernen']").nth(1).click();
       await page.locator("span").filter({ hasText: /^Abbrechen$/ }).click();
       expect(await matrixRowSelector.count()).toBe(3);
-      await page.waitForTimeout(100);
       await page.locator(".sd-matrixdynamic__btn[title='Entfernen']").nth(1).click();
       await page.locator("span").filter({ hasText: /^OK$/ }).click();
       expect(await matrixRowSelector.count()).toBe(2);
@@ -727,7 +731,7 @@ frameworks.forEach((framework) => {
         ]
       });
       await page.evaluate(() => (window as any).survey.setIsMobile(true));
-      await page.waitForTimeout(500);
+      await expect(page.locator(".sd-question--mobile")).toHaveCount(1);
 
       const textSelector = page.locator("input[type='text']").filter({ visible: true });
       expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(1);
@@ -808,8 +812,7 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         window.survey.getQuestionByName("matrix").value = [{ col1: "row1" }];
       });
-      await page.waitForTimeout(500);
-      expect(await page.getByRole("textbox", { name: "row 0, column col1" }).inputValue()).toBe("row1");
+      await expect(page.getByRole("textbox", { name: "row 0, column col1" })).toHaveValue("row1");
       await expect(removeButtons).toHaveCount(1);
 
       await getButtonByText(page, "Complete").click();
@@ -829,7 +832,7 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         window.survey.getQuestionByName("matrix").focus();
       });
-      await page.waitForTimeout(500);
+      await expect(page.locator("tbody input[type='text']").filter({ visible: true }).first()).toBeFocused();
       await page.keyboard.type("row1col2");
       await page.keyboard.press("Tab");
 
@@ -1008,7 +1011,9 @@ frameworks.forEach((framework) => {
       // A page is being read: canToggleSort is false.
       await priceButton.evaluate((el) => el.setAttribute("aria-disabled", "true"));
       await icon.hover();
-      await page.waitForTimeout(300);
+      // Proves the chip stays quiet: the hover style is a CSS rule, and its transition takes 0.01 ms under
+      // the emulated reduced motion, so a few frames of style recalc are all there is to wait out.
+      await page.waitForTimeout(100);
       expect(await background()).toBe(quiet);
       expect(await cursor()).toBe("default");
     });

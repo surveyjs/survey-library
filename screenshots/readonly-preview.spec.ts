@@ -1,5 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { expect, type Page } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, baseTest as test } from "../e2e/helper";
 
 const title = "ReadOnly and Preview";
 

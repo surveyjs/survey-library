@@ -1,9 +1,10 @@
 import * as React from "react";
 import { ISurveyLayoutElement } from "survey-core";
 import { ReactElementFactory } from "../element-factory";
+import { SurveyElementBase } from "../reactquestion_element";
 
-export class ComponentsContainer extends React.Component<any, any> {
-  render(): React.JSX.Element | null {
+export class ComponentsContainer extends SurveyElementBase<any, any> {
+  renderElement(): React.JSX.Element | null {
     const components: Array<ISurveyLayoutElement> = this.props.survey.getContainerContent(this.props.container);
     const needRenderWrapper = this.props.needRenderWrapper === false ? false : true;
     if (components.length == 0) {

@@ -520,6 +520,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return super.validateElementCore(context) && res;
   }
+  // A select without choice panels walks nothing, see forEachNestedElementCore.
+  public getAllErrors(): Array<SurveyError> {
+    return super.getAllErrors().concat(this.getNestedErrors());
+  }
+  public clearErrors(): void {
+    super.clearErrors();
+    this.forEachNestedElement(info => info.element.clearErrors(), { build: "none", visibleOnly: false });
+  }
   private choicePanelsValidationSuppressingScope = new Scope();
   private get isChoicePanelsValidationSuppressed(): boolean {
     return this.choicePanelsValidationSuppressingScope.isActive;
@@ -2970,6 +2978,8 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
    * When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that respondents can type while the question has focus. In questions that allow multiple selection, shortcuts toggle choice selection.
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   *
+   * [Demo: Letter Shortcuts](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @hidefor QuestionRankingModel
    * @since 3.2.2
    */

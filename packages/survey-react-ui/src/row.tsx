@@ -65,41 +65,57 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   private lazyRenderingTimeout: ReturnType<typeof setTimeout>;
   componentDidMount() {
     super.componentDidMount();
+    if (!this.row) return;
+    this.row.changeUIMountCount(1);
     var el = this.rootRef.current;
     if (this.rootRef.current) {
       this.row.setRootElement(this.rootRef.current);
     }
     if (!!el && !this.row.isNeedRender) {
+      var row = this.row;
       var rowContainerDiv = el;
       this.lazyRenderingTimeout = setTimeout(() => {
-        this.row.startLazyRendering(rowContainerDiv);
+        row.startLazyRendering(rowContainerDiv);
       }, 10);
     }
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     if (nextProps.row !== this.row) {
+      // The next render reads these from the new row. The previous row is released at commit, in componentDidUpdate.
       nextProps.row.isNeedRender = this.row.isNeedRender;
       nextProps.row.setRootElement(this.rootRef.current);
-      this.row.setRootElement(undefined);
-      this.stopLazyRendering();
     }
     this.recalculateCss();
     return true;
   }
-  private stopLazyRendering() {
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    const prevRow: QuestionRowModel = prevProps.row;
+    if (prevRow === this.row) return;
     clearTimeout(this.lazyRenderingTimeout);
-    this.row.stopLazyRendering();
-    this.row.isNeedRender = !this.row.isLazyRendering();
+    if (!!this.row) {
+      this.row.changeUIMountCount(1);
+    }
+    this.releaseRowIfUnmounted(prevRow);
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    if (!!this.row) {
-      if (!this.row.hasActiveUISubscribers) {
-        this.row.setRootElement(undefined);
-        this.stopLazyRendering();
+    clearTimeout(this.lazyRenderingTimeout);
+    this.releaseRowIfUnmounted(this.row);
+  }
+  // Another component may still render the row (#10701), so only the last one to unmount resets it.
+  private releaseRowIfUnmounted(row: QuestionRowModel): void {
+    if (!row) return;
+    if (row.changeUIMountCount(-1) > 0) {
+      if (row.getRootElement() === this.rootRef.current) {
+        row.setRootElement(undefined);
       }
+      return;
     }
+    row.setRootElement(undefined);
+    row.stopLazyRendering();
+    row.isNeedRender = !row.isLazyRendering();
   }
 
   protected createElement(element: IElement, elementIndex?: number): React.JSX.Element {

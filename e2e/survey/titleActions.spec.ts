@@ -266,17 +266,16 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(1000);
-      let hasResponsivityManager = await page.evaluate(() => {
-        return !!window["survey"].getQuestionByName("actions_question").titleToolbarValue.responsivityManager;
-      });
-      expect(hasResponsivityManager).toBe(true);
+      // The action bar creates its responsivity manager after it renders.
+      await expect.poll(() => page.evaluate(() => {
+        return !!window["survey"].getQuestionByName("actions_question").titleToolbarValue?.responsivityManager;
+      })).toBe(true);
 
       await page.evaluate(() => {
         window["survey"].getQuestionByName("actions_question").visible = false;
       });
 
-      hasResponsivityManager = await page.evaluate(() => {
+      let hasResponsivityManager = await page.evaluate(() => {
         return !!window["survey"].getQuestionByName("actions_question").titleToolbarValue.responsivityManager;
       });
       expect(hasResponsivityManager).toBe(false);
@@ -504,7 +503,6 @@ frameworks.forEach((framework) => {
       const action = page.locator(".sd-action-bar__item").first();
       const input = page.locator("input").first();
 
-      await page.waitForTimeout(1000);
       await action.click();
       await expect(input).toHaveValue("focus_mouse");
 

@@ -811,7 +811,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.getArrayPropertyValue("errors");
   }
   public set errors(val: Array<SurveyError>) {
+    const isEmptied = this.errors.length > 0 && val.length === 0;
     this.setArrayPropertyValue("errors", val);
+    if (isEmptied) {
+      this.updateContainsErrors();
+    }
   }
   public get renderedErrors(): Array<SurveyError> {
     return this.getArrayPropertyValue("renderedErrors");

@@ -290,9 +290,9 @@ frameworks.forEach((framework) => {
 
       await clickButton.click();
       await expect(popupModalSelector).toBeVisible();
-      await page.waitForTimeout(1000);
+      // The popup handles Escape on its own keydown, and it moves the focus inside in a timer after it opens.
+      await expect.poll(() => popupModalSelector.evaluate(el => el.contains((el.getRootNode() as Document | ShadowRoot).activeElement))).toBe(true);
       await page.keyboard.press("Escape");
-      await page.waitForTimeout(1000);
       await expect(popupModalSelector).not.toBeVisible();
     });
 
@@ -687,39 +687,33 @@ frameworks.forEach((framework) => {
       await expect(item6Subitems).not.toBeVisible();
 
       await item5.hover();
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).toBeVisible();
+      await expect(titlePopup).toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
       await item6.hover();
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
-      await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).toBeVisible();
+      await expect(item5Subitems).not.toBeVisible();
+      await expect(titlePopup).toBeVisible();
 
       await titlePopup.locator(".sd-menu-list").first().evaluate(el => el.scrollBy(0, 1000));
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
-      await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
+      await expect(item5Subitems).not.toBeVisible();
+      await expect(titlePopup).toBeVisible();
 
       await titlePopup.locator(".sd-menu-list").first().evaluate(el => el.scrollBy(0, -1000));
       await item5.hover();
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).toBeVisible();
+      await expect(titlePopup).toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
       await expect(page.locator(".sd-menu-item").getByText("inner item1")).toHaveCount(2);
       await page.locator(".sd-menu-item").getByText("inner item1").first().click();
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).not.toBeVisible();
+      await expect(titlePopup).toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
       await item6.click();
-      await page.waitForTimeout(300);
       await expect(titlePopup).not.toBeVisible();
       await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).not.toBeVisible();

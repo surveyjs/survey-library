@@ -1,5 +1,5 @@
-import type { Locator, Page } from "@playwright/test";
-import { expect, test as baseTest } from "@playwright/test";
+import type { Locator, Page, Route } from "@playwright/test";
+import { expect, test as playwrightTest } from "@playwright/test";
 
 const environment = process.env.env;
 
@@ -25,7 +25,7 @@ export async function mockChoicesByUrl(page: Page, requestUrl: string, response:
   }));
 }
 
-// The test pages load Open Sans from a CDN because survey-core ships no font. An
+// The test pages supply Open Sans through their fonts.css because survey-core ships no font. An
 // @font-face is fetched lazily, so anything that measures text - a popup sizing itself
 // to its content - would be laid out with the fallback font and keep that size once the
 // real font arrives. Requesting the faces explicitly (fonts.ready alone resolves before
@@ -311,6 +311,59 @@ export async function visibleInViewportForShadowDom (page: Page, selector: strin
     );
   }, { selector, nth });
 }
+
+// Every test gets a new browser context, and a context starts with an empty HTTP cache, so
+// each test downloaded the test pages' CDN scripts (jQuery, showdown, React from esm.sh) and
+// images again. The responses are kept in memory for the life of the worker process instead.
+// The pattern stays narrow on purpose: every request it matches makes a round trip to the
+// test process. Routes set by a test with page.route run first and still win.
+const cdnUrl = /^https:\/\/(?:cdnjs\.cloudflare\.com|esm\.sh|surveyjs\.io)\//;
+type CdnResponse = { status: number, headers: { [name: string]: string }, body: Buffer, cacheable: boolean };
+const cdnResponses = new Map<string, Promise<CdnResponse | undefined>>();
+
+async function fetchCdnResponse(route: Route): Promise<CdnResponse | undefined> {
+  try {
+    const response = await route.fetch();
+    const headers = { ...response.headers() };
+    // The body is stored decoded, so the encoding and length of the original transfer no longer apply.
+    delete headers["content-encoding"];
+    delete headers["content-length"];
+    return { status: response.status(), headers, body: await response.body(), cacheable: response.ok() };
+  } catch(e) {
+    return undefined;
+  }
+}
+
+async function serveFromCdnCache(route: Route): Promise<void> {
+  const request = route.request();
+  if (request.method() !== "GET") return route.fallback();
+  const url = request.url();
+  let response = cdnResponses.get(url);
+  if (!response) {
+    response = fetchCdnResponse(route);
+    cdnResponses.set(url, response);
+  }
+  const cached = await response;
+  if (!cached?.cacheable && cdnResponses.get(url) === response) {
+    // Only 2xx responses are kept. A non-2xx one (a test may use a broken image on purpose)
+    // still answers the requests that waited for it, so it is not requested twice.
+    cdnResponses.delete(url);
+  }
+  // The fetch itself failed: let the browser make the request and fail the usual way.
+  if (!cached) return route.fallback();
+  const { cacheable, ...fulfillOptions } = cached;
+  await route.fulfill(fulfillOptions);
+}
+
+// The CDN cache only. The VRT and accessibility suites use it as is; the e2e suite adds the
+// page error check below.
+export const baseTest = playwrightTest.extend({
+  context: async ({ context }, use) => {
+    await context.route(cdnUrl, serveFromCdnCache);
+    await use(context);
+  }
+});
+
 export const test = baseTest.extend<{page: void, skipJSErrors: boolean}>({
   skipJSErrors: [false, { option: false }],
   page: async ({ page, skipJSErrors }, use) => {

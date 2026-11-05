@@ -179,6 +179,13 @@ export class QuestionRowModel extends Base {
       this.onVisibleChangedCallback && this.onVisibleChangedCallback();
     }
   }
+  // The number of mounted UI components that render this row. Two components can render the same row (#10701),
+  // so the UI resets the row's lazy rendering and root element only when the last of them unmounts.
+  private uiMountCount: number = 0;
+  public changeUIMountCount(delta: number): number {
+    this.uiMountCount = Math.max(0, this.uiMountCount + delta);
+    return this.uiMountCount;
+  }
   private isLazyRenderingValue: boolean;
   public setIsLazyRendering(val: boolean) {
     this.isLazyRenderingValue = val;
@@ -1103,6 +1110,9 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < visQuestions.length; i++) {
       if (!visQuestions[i].isEmpty()) return;
     }
+    // On a value change, as for a question: the panel keeps the error it shows, and gets one when its answer is cleared.
+    if (context.isOnValueChanged && !this.errors.some(err => err.getErrorType() === "requireoneanswer") &&
+      !visQuestions.some(q => q.isAnsweredBeforeValueChange)) return;
     const error = new OneAnswerRequiredError(this.requiredErrorText, this);
     errors.push(error);
     context.setErrorElement(visQuestions[0], [error]);
@@ -1420,8 +1430,9 @@ export class PanelModelBase extends SurveyElement<Question>
     });
   }
   public getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
+    if (!this.survey || !this.survey.gridLayoutEnabled) return [];
     const row = this.findRowByElement(el);
-    if (!row || !this.survey || !this.survey.gridLayoutEnabled) return [];
+    if (!row) return [];
 
     let lastExpandableElementIndex = row.elements.length - 1;
     while(lastExpandableElementIndex >= 0) {
@@ -1781,10 +1792,13 @@ export class PanelModelBase extends SurveyElement<Question>
       return { row: undefined, index: this.rows.length - 1 };
     }
     rows = rows || this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].elements.indexOf(el) > -1) return { row: rows[i], index: i };
-    }
-    return { row: null, index: -1 };
+    // Searching must not make a rendered element depend on every row before its own
+    return Base.runUntracked(() => {
+      for (let i = 0; i < rows.length; i++) {
+        if (rows[i].elements.indexOf(el) > -1) return { row: rows[i], index: i };
+      }
+      return { row: null, index: -1 };
+    });
   }
   private forceRenderRow(row: QuestionRowModel): void {
     if (!!row && !row.isNeedRender) {

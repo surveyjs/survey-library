@@ -28,7 +28,8 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         window["survey"].uiState = { activeElementName: "q4" };
       });
-      await page.waitForTimeout(100);
+      // The survey switches the page and focuses the question after it renders.
+      await expect(page.locator("div[data-name=q4] input")).toBeFocused();
       await page.keyboard.type("abc");
       await getButtonByText(page, "Complete").click();
 
@@ -90,7 +91,8 @@ frameworks.forEach((framework) => {
           activeElementName: "q5"
         };
       });
-      await page.waitForTimeout(100);
+      // The survey switches the page and focuses the active panel's first input after it renders.
+      await expect(page.locator("div[data-name=q6] input").filter({ visible: true })).toBeFocused();
       const q3 = page.locator("div[data-name=q3] input");
       await expect(q3).toBeVisible();
       await page.keyboard.type("abc");

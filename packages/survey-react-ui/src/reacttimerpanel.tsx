@@ -18,7 +18,7 @@ export class SurveyTimerPanel extends ReactSurveyElement {
   private get progress(): number {
     return -this.timerModel.progress * this.circleLength;
   }
-  render(): React.JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     if (!this.timerModel.isRunning) {
       return null;
     }

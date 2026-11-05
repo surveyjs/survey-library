@@ -4645,4 +4645,14 @@ describe("Container visibility: childVisibilityChanged compares the stored isVis
     expect(page.isVisible, "isVisible, showInvisibleElements = true again").toBe(true);
     expect(events, "events after switching on").toEqual(["p2:false", "p2:true"]);
   });
+  test("A row counts the UI components that render it and never goes below zero", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const row = survey.currentPage.rows[0];
+    expect(row.changeUIMountCount(1), "the first component mounts").toBe(1);
+    expect(row.changeUIMountCount(1), "the second component mounts").toBe(2);
+    expect(row.changeUIMountCount(-1), "one component is left").toBe(1);
+    expect(row.changeUIMountCount(-1), "no component is left").toBe(0);
+    expect(row.changeUIMountCount(-1), "an extra unmount keeps zero").toBe(0);
+    expect(row.changeUIMountCount(1), "a new mount counts from zero").toBe(1);
+  });
 });

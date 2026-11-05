@@ -5,6 +5,8 @@ export class InputElementAdapter {
   private maskedEmptyValue : string;
 
   private setInputValue(value: string) {
+    // an out-of-range number has no masked text, so the element shows it as empty
+    if (value === null || value === undefined) value = "";
     if (this.inputElement.maxLength >= 0 && this.inputElement.maxLength < value.length) {
       value = value.slice(0, this.inputElement.maxLength);
     }

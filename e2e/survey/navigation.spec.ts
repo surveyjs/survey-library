@@ -232,17 +232,15 @@ frameworks.forEach(framework => {
     test("Navigation bar's container should be visible only if it has visible actions", async ({ page }) => {
       await initSurvey(page, framework, json);
       const containerLocator = page.locator(".sv-components-container-contentBottom");
-      expect(containerLocator).toBeVisible();
+      await expect(containerLocator).toBeVisible();
       await page.evaluate(() => {
         (window as any).survey.navigationBarValue.getActionById("sv-nav-complete").visible = false;
       });
-      await page.waitForTimeout(1000);
-      expect(containerLocator).not.toBeVisible();
+      await expect(containerLocator).not.toBeVisible();
       await page.evaluate(() => {
         (window as any).survey.navigationBarValue.getActionById("sv-nav-complete").visible = true;
       });
-      await page.waitForTimeout(1000);
-      expect(containerLocator).toBeVisible();
+      await expect(containerLocator).toBeVisible();
     });
   });
 });

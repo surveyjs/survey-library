@@ -17,7 +17,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
   protected getStateElement(): Base | null {
     return this.model;
   }
-  render(): React.JSX.Element {
+  renderElement(): React.JSX.Element {
     return (
       <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth }}
         role="tablist" aria-label={this.model.progressBarAriaLabel}

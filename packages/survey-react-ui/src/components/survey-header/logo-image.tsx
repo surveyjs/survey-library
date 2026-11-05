@@ -1,19 +1,35 @@
 import * as React from "react";
 import { SurveyModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
+import { SurveyElementBase } from "../../reactquestion_element";
 
 interface ILogoImageProps {
   data: SurveyModel;
 }
 
-export class LogoImage extends React.Component<ILogoImageProps, any> {
+export class LogoImage extends SurveyElementBase<ILogoImageProps, any> {
   constructor(props: ILogoImageProps) {
     super(props);
   }
   private get survey(): SurveyModel {
     return this.props.data;
   }
-  public render() {
+  private reactOnStrChanged = () => {
+    this.setState({ locLogoLinkchanged: !!this.state && this.state.locLogoLink ? this.state.locLogoLink + 1 : 1 });
+  };
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.survey.locLogo.onStringChanged.add(this.reactOnStrChanged);
+  }
+  componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    this.survey.locLogo.onStringChanged.add(this.reactOnStrChanged);
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    this.survey.locLogo.onStringChanged.remove(this.reactOnStrChanged);
+  }
+  public renderElement() {
     const content: React.JSX.Element[] = [];
     content.push(
       <div key={"logo-image"} className={this.survey.logoClassNames}>

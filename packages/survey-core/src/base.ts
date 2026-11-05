@@ -16,7 +16,7 @@ import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
-import { EventBase, Event } from "./event";
+import { EventBase, Event, EventAsync } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isAnimationEnabled } from "./utils/reduced-motion";
 import { Scope } from "./utils/scope";
@@ -460,11 +460,13 @@ export class Base implements IObjectValueContext {
     const res = new EventBase<T, Options>();
     this.eventList.push(res);
     res.onCallbacksChanged = onCallbacksChanged;
+    res.isFireCounted = this.isSurvey;
     return res;
   }
   protected addAsyncEvent<T, Options = any>(): EventAsync<T, Options> {
     const res = new EventAsync<T, Options>();
     this.eventList.push(res);
+    res.isFireCounted = this.isSurvey;
     return res;
   }
   protected onBaseCreating(): void { }
@@ -1812,31 +1814,4 @@ export class ArrayChanges<T = any> {
     public itemsToAdd: T[],
     public deletedItems: T[]
   ) { }
-}
-
-export class EventAsync<Sender, Options = any> extends EventBase <Sender, Options> {
-  public fire(sender: Sender, options: Options, onComplete?: () => void, onFirstAsync?: () => void): void {
-    onComplete = onComplete || (() => { });
-    if (!this.callbacks) {
-      onComplete();
-      return;
-    }
-    const promises: Array<Promise<any>> = [];
-    const callbacks = [].concat(this.callbacks);
-    for (var i = 0; i < callbacks.length; i++) {
-      const res = callbacks[i](sender, options);
-      if (res && res instanceof Promise) {
-        promises.push(res);
-      }
-      if (!this.callbacks) return;
-    }
-    if (promises.length > 0) {
-      onFirstAsync && onFirstAsync();
-      Promise.all(promises).then(() => {
-        onComplete();
-      });
-    } else {
-      onComplete();
-    }
-  }
 }

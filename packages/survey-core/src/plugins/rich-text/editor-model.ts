@@ -1,7 +1,8 @@
 import { ActionContainer, Base } from "survey-core";
 import { IRichTextConverter, RichText } from "./api";
 import { isRichTextBoldHidden } from "./edit-mode";
-import { createDetachedElement } from "./runs";
+import { showRichTextLinkDialog } from "./link-dialog";
+import { createDetachedElement, escapeHtml } from "./runs";
 import { createRichTextToolbar, IRichTextToolbarActions } from "./toolbar";
 
 export type RichTextMark = "bold" | "italic" | "strike";
@@ -21,9 +22,15 @@ export interface IRichTextEditorHost {
   readonly format: "markdown" | "html";
   readonly owner?: Base;
   readonly converter?: IRichTextConverter;
-  // false: toolbar and keys only. The caller owns the content (Creator string editor).
   readonly managesValue?: boolean;
+  readonly maxLength?: number | null;
+  readonly placeholder?: string;
+  readonly rows?: number;
+  readonly autoGrow?: boolean;
+  readonly allowResize?: boolean;
   onInput?(): void;
+  onDraft?(source: string): void;
+  onSourceMode?(sourceMode: boolean): void;
 }
 
 const MARK_TAGS: { [key: string]: string[] } = {
@@ -64,6 +71,9 @@ export class RichTextEditorModel {
   private silent = false;
   private timer = 0;
   private detachDom: (() => void) | undefined;
+  private lastSerialized = "";
+  private deferredValue: string | undefined;
+  private forcedRich = false;
 
   constructor(private host: IRichTextEditorHost, commands?: IRichTextCommands) {
     const built = createRichTextToolbar(this);
@@ -74,10 +84,15 @@ export class RichTextEditorModel {
       this.actions.bulleted.visible = false;
       this.actions.numbered.visible = false;
     }
+    if (this.managesValue) this.updateSourceMode(this.host.getValue() || "");
   }
 
   public get mode(): "inline" | "block" {
     return this.host.mode;
+  }
+
+  public get isAttached(): boolean {
+    return !!this.element;
   }
 
   public attach(element: HTMLElement, commands?: IRichTextCommands): void {
@@ -86,25 +101,35 @@ export class RichTextEditorModel {
     this.commands = commands || this.commands || createDocumentCommands(element.ownerDocument);
     this.commands.styleWithCSS(false);
     if (isRichTextBoldHidden(element))this.actions.bold.visible = false;
-    if (this.managesValue)this.renderValue(this.host.getValue());
+    if (this.host.placeholder) element.setAttribute("data-placeholder", this.host.placeholder);
+    if (this.managesValue) {
+      this.renderValue(this.host.getValue());
+      this.lastSerialized = this.host.getValue() || "";
+      this.keepPlaceholderEmpty();
+      this.applyBox();
+      this.reportDraft(this.lastSerialized);
+    }
     const doc = element.ownerDocument;
     const view = doc.defaultView;
     const onSelection = () => this.onSelectionChange();
     const onInput = () => this.onInput();
     const onKeyDown = (event: KeyboardEvent) => this.onKeyDown(event);
-    const onBlur = () => { if (this.managesValue)this.commit(); };
+    const onBlur = () => this.onBlur();
     const onPaste = (event: ClipboardEvent) => this.onPaste(event);
+    const onBeforeInput = (event: InputEvent) => this.onBeforeInput(event);
     doc.addEventListener("selectionchange", onSelection);
     element.addEventListener("input", onInput);
     element.addEventListener("keydown", onKeyDown);
     element.addEventListener("blur", onBlur);
-    if (!this.managesValue) element.addEventListener("paste", onPaste);
+    element.addEventListener("paste", onPaste);
+    element.addEventListener("beforeinput", onBeforeInput);
     this.detachDom = () => {
       doc.removeEventListener("selectionchange", onSelection);
       element.removeEventListener("input", onInput);
       element.removeEventListener("keydown", onKeyDown);
       element.removeEventListener("blur", onBlur);
-      if (!this.managesValue) element.removeEventListener("paste", onPaste);
+      element.removeEventListener("paste", onPaste);
+      element.removeEventListener("beforeinput", onBeforeInput);
       if (view && this.timer) view.clearTimeout(this.timer);
     };
     this.updateToolbar();
@@ -138,6 +163,7 @@ export class RichTextEditorModel {
     this.commands.exec(COMMANDS[mark]);
     if (state === "mixed" && this.markState(mark) !== "all")this.commands.exec(COMMANDS[mark]);
     this.noteInput();
+    this.guardLength();
     this.updateToolbar();
   }
 
@@ -146,6 +172,7 @@ export class RichTextEditorModel {
     this.restoreSelection();
     this.commands.exec(ordered ? "insertOrderedList" : "insertUnorderedList");
     this.noteInput();
+    this.guardLength();
     this.updateToolbar();
   }
 
@@ -155,7 +182,45 @@ export class RichTextEditorModel {
     this.commands.exec("unlink");
     this.unwrapLists();
     this.noteInput();
+    this.guardLength();
     this.updateToolbar();
+  }
+
+  public openLink(): void {
+    this.restoreSelection();
+    showRichTextLinkDialog(this.currentLinkHref(), (url) => this.applyLink(url), this.element || undefined);
+  }
+
+  public applyLink(url: string): void {
+    this.restoreSelection();
+    const collapsed = !this.savedRange || this.savedRange.collapsed;
+    if (!url) {
+      this.commands.exec("unlink");
+    } else if (collapsed) {
+      const safe = escapeHtml(url);
+      this.commands.exec("insertHTML", "<a href=\"" + safe + "\">" + safe + "</a>");
+    } else {
+      this.commands.exec("createLink", url);
+    }
+    this.noteInput();
+    this.guardLength();
+    this.updateToolbar();
+  }
+
+  public editAnyway(): void {
+    this.forcedRich = true;
+    this.setSourceMode(false);
+  }
+
+  public notifyExternalValue(value: string): void {
+    if (!this.element) return;
+    const next = value || "";
+    if (next === this.lastSerialized) return;
+    if (this.isFocused()) {
+      this.deferredValue = next;
+      return;
+    }
+    this.applyExternal(next);
   }
 
   public handleKeyDown(event: KeyboardEvent): void {
@@ -179,16 +244,36 @@ export class RichTextEditorModel {
     const html = value ? this.converter.toHtml(value, this.context) : "";
     this.silent = true;
     this.element.innerHTML = html || "";
+    this.keepPlaceholderEmpty();
     this.silent = false;
   }
 
   private onInput(): void {
     if (this.silent) return;
+    this.keepPlaceholderEmpty();
+    this.applyBox();
     if (!this.managesValue) {
       if (this.host.onInput)this.host.onInput();
       return;
     }
     this.noteInput();
+  }
+
+  private onBlur(): void {
+    if (this.managesValue)this.commit();
+    if (this.deferredValue === undefined) return;
+    const value = this.deferredValue;
+    this.deferredValue = undefined;
+    this.applyExternal(value);
+  }
+
+  private onBeforeInput(event: InputEvent): void {
+    const max = this.host.maxLength || 0;
+    if (!this.managesValue || max <= 0) return;
+    const type = event.inputType || "";
+    if (type.indexOf("insert") !== 0) return;
+    const adding = event.data ? event.data.length : 1;
+    if (this.getSource().length + adding > max) event.preventDefault();
   }
 
   private onPaste(event: ClipboardEvent): void {
@@ -198,14 +283,18 @@ export class RichTextEditorModel {
     const plain = data.getData("text/plain");
     event.preventDefault();
     this.restoreSelection();
+    const converter = this.managesValue ? this.converter : RichText.getFormat("html");
     if (html) {
-      const converter = RichText.getFormat("html");
       const fragment = createDetachedElement(html);
       const source = fragment ? converter.toSource(fragment, this.context) : "";
       this.commands.exec("insertHTML", converter.toHtml(source, this.context));
-      return;
+    } else {
+      this.commands.exec("insertText", plain || "");
     }
-    this.commands.exec("insertText", plain || "");
+    if (this.managesValue) {
+      this.noteInput();
+      this.guardLength();
+    }
   }
 
   private noteInput(): void {
@@ -227,7 +316,83 @@ export class RichTextEditorModel {
     if (!this.dirty) return;
     this.dirty = false;
     const source = this.getSource();
+    this.lastSerialized = source;
+    this.reportDraft(source);
     if (source !== (this.host.getValue() || ""))this.host.setValue(source);
+  }
+
+  private currentLinkHref(): string {
+    const range = this.savedRange;
+    if (!range || !this.element) return "";
+    let node: Node | null = range.startContainer;
+    while(node && node !== this.element) {
+      if (node.nodeType === 1 && (node as HTMLElement).tagName === "A") {
+        return (node as HTMLAnchorElement).getAttribute("href") || "";
+      }
+      node = node.parentNode;
+    }
+    return "";
+  }
+
+  private setSourceMode(sourceMode: boolean): void {
+    if (this.host.onSourceMode)this.host.onSourceMode(sourceMode);
+  }
+
+  private updateSourceMode(value: string): void {
+    if (!this.managesValue || this.forcedRich) {
+      this.setSourceMode(false);
+      return;
+    }
+    const format = this.host.format === "html" ? "html" : "markdown";
+    this.setSourceMode(!!value && !RichText.isLossless(value, format, this.context));
+  }
+
+  private applyExternal(value: string): void {
+    this.lastSerialized = value;
+    this.forcedRich = false;
+    this.renderValue(value);
+    this.applyBox();
+    this.reportDraft(value);
+    this.updateSourceMode(value);
+  }
+
+  private isFocused(): boolean {
+    return !!this.element && this.element.ownerDocument.activeElement === this.element;
+  }
+
+  private reportDraft(source: string): void {
+    if (this.host.onDraft)this.host.onDraft(source);
+  }
+
+  private guardLength(): void {
+    const max = this.host.maxLength || 0;
+    if (!this.managesValue || max <= 0 || !this.commands) return;
+    if (this.getSource().length > max)this.commands.exec("undo");
+  }
+
+  private keepPlaceholderEmpty(): void {
+    if (!this.element) return;
+    const text = (this.element.textContent || "").replace(/\u00a0/g, "");
+    if (text.trim()) return;
+    this.element.innerHTML = "";
+  }
+
+  private applyBox(): void {
+    const element = this.element;
+    if (!element || !this.managesValue) return;
+    const rows = this.host.rows || 4;
+    const height = "calc(" + rows + " * 1lh)";
+    element.style.minHeight = height;
+    if (this.host.autoGrow) {
+      element.style.height = "auto";
+      element.style.overflowY = "hidden";
+      element.style.height = element.scrollHeight + "px";
+      element.style.resize = "none";
+      return;
+    }
+    element.style.height = height;
+    element.style.overflowY = "auto";
+    element.style.resize = this.host.allowResize ? "vertical" : "none";
   }
 
   private onKeyDown(event: KeyboardEvent): void {

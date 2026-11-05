@@ -1,8 +1,10 @@
 import { QuestionCommentModel } from "../../src/question_comment";
 import { RichText } from "../../src/plugins/rich-text/index";
 import { IRichTextCommands, RichTextEditorModel } from "../../src/plugins/rich-text/editor-model";
+import { createRichTextLinkSurvey } from "../../src/plugins/rich-text/link-dialog";
 import { SurveyModel } from "../../src/survey";
 import { Serializer } from "../../src/jsonobject";
+import { settings } from "../../src/settings";
 
 import { describe, expect, test } from "vitest";
 
@@ -235,5 +237,182 @@ describe("rich text editor model", () => {
     expect(after.defaultPrevented).toBe(false);
     host.remove();
     blockHost.remove();
+  });
+
+  test("the link dialog rejects a bad scheme and an empty url unlinks", () => {
+    const bad = createRichTextLinkSurvey("javascript:alert(1)");
+    expect(bad.validate(false, false)).toBe(false);
+    bad.setValue("url", "https://surveyjs.io");
+    expect(bad.validate(false, false)).toBe(true);
+    bad.setValue("url", "");
+    expect(bad.validate(false, false)).toBe(true);
+
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const adapter = commands();
+    adapter.exec = (command: string, value?: string) => {
+      adapter.calls.push(value !== undefined ? command + ":" + value : command);
+    };
+    const editor = new RichTextEditorModel(hostOf(question), adapter);
+    editor.attach(host);
+    host.innerHTML = "x";
+    select(host, host.firstChild, 0, host.firstChild, 1);
+    editor.applyLink("https://surveyjs.io");
+    expect(adapter.calls[adapter.calls.length - 1]).toBe("createLink:https://surveyjs.io");
+    editor.applyLink("");
+    expect(adapter.calls[adapter.calls.length - 1]).toBe("unlink");
+    host.innerHTML = "";
+    editor.applyLink("https://surveyjs.io");
+    expect(adapter.calls[adapter.calls.length - 1]).toBe("insertHTML:<a href=\"https://surveyjs.io\">https://surveyjs.io</a>");
+    expect(editor.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(false);
+    settings.showDialog = () => ({}) as any;
+    const withDialog = new RichTextEditorModel(hostOf(question), commands());
+    expect(withDialog.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(true);
+    let opened = 0;
+    settings.showDialog = () => { opened += 1; return undefined as any; };
+    withDialog.openLink();
+    expect(opened).toBe(1);
+    settings.showDialog = undefined;
+    editor.detach();
+    host.remove();
+  });
+
+  test("external value updates immediately when blurred and waits while focused", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const editor = new RichTextEditorModel(hostOf(question), commands());
+    editor.attach(host);
+    host.contentEditable = "true";
+    host.tabIndex = 0;
+    editor.notifyExternalValue("**a**");
+    expect(host.querySelector("strong").textContent).toBe("a");
+    host.focus();
+    editor.notifyExternalValue("**b**");
+    expect(host.querySelector("strong").textContent).toBe("a");
+    host.dispatchEvent(new FocusEvent("blur"));
+    expect(host.querySelector("strong").textContent).toBe("b");
+    editor.detach();
+    host.remove();
+  });
+
+  test("maxLength blocks input and reverts a command that would exceed it", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown", maxLength: 4 }] });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    question.value = "abcd";
+    const drafts: string[] = [];
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const adapter = commands();
+    const editor = new RichTextEditorModel({
+      ...hostOf(question),
+      maxLength: 4,
+      onDraft: (source: string) => {
+        drafts.push(source);
+        question.updateRemainingCharacterCounter(source);
+      }
+    }, adapter);
+    editor.attach(host);
+    expect(question.characterCounter.remainingCharacterCounter).toBe("4/4");
+    expect(drafts[drafts.length - 1]).toBe("abcd");
+    const typing = new InputEvent("beforeinput", { cancelable: true, data: "e" });
+    Object.defineProperty(typing, "inputType", { value: "insertText" });
+    host.dispatchEvent(typing);
+    expect(typing.defaultPrevented).toBe(true);
+    host.innerHTML = "<strong>abcd</strong>";
+    editor.toggleMark("bold");
+    expect(adapter.calls).toContain("undo");
+    editor.detach();
+    host.remove();
+  });
+
+  test("an empty editor drops a lone break so the placeholder can show", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown", placeholder: "Type" }] });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const editor = new RichTextEditorModel({ ...hostOf(question), placeholder: "Type" }, commands());
+    editor.attach(host);
+    expect(host.getAttribute("data-placeholder")).toBe("Type");
+    expect(host.innerHTML).toBe("");
+    host.innerHTML = "<br>";
+    host.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    expect(host.innerHTML).toBe("");
+    editor.detach();
+    host.remove();
+  });
+
+  test("unsupported html opens in source mode until edit anyway", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "comment", name: "c", textFormat: "html", defaultValue: "<p style=\"color:red\">Red</p>" }]
+    });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    let sourceMode = false;
+    const editor = new RichTextEditorModel({
+      ...hostOf(question),
+      onSourceMode: (value: boolean) => { sourceMode = value; }
+    }, commands());
+    expect(sourceMode).toBe(true);
+    editor.editAnyway();
+    expect(sourceMode).toBe(false);
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    editor.attach(host);
+    host.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    host.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value.indexOf("style")).toBe(-1);
+    expect(question.value.indexOf("Red")).toBeGreaterThan(-1);
+    editor.detach();
+    host.remove();
+  });
+
+  test("html format stores canonical tags", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "html" }] });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const editor = new RichTextEditorModel(hostOf(question), commands());
+    editor.attach(host);
+    host.innerHTML = "<b>a</b><br><i>b</i>";
+    host.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    host.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("<strong>a</strong><br><em>b</em>");
+    editor.detach();
+    host.remove();
+  });
+
+  test("rows set the minimum height and allowResize enables vertical resize", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown", rows: 6, allowResize: true }] });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const editor = new RichTextEditorModel({
+      ...hostOf(question),
+      rows: 6,
+      allowResize: true,
+      autoGrow: false
+    }, commands());
+    editor.attach(host);
+    expect(host.style.minHeight).toBe("calc(6 * 1lh)");
+    expect(host.style.resize).toBe("vertical");
+    editor.detach();
+    const growing = document.createElement("div");
+    document.body.appendChild(growing);
+    const growEditor = new RichTextEditorModel({
+      ...hostOf(question),
+      rows: 6,
+      autoGrow: true,
+      allowResize: true
+    }, commands());
+    growEditor.attach(growing);
+    expect(growing.style.minHeight).toBe("calc(6 * 1lh)");
+    expect(growing.style.resize).toBe("none");
+    expect(growing.style.overflowY).toBe("hidden");
+    growEditor.detach();
+    host.remove();
+    growing.remove();
   });
 });

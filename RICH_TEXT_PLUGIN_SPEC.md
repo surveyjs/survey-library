@@ -666,17 +666,17 @@ Scope: link dialog, paste normalization, `maxLength` and counter, placeholder, `
 Automated: remaining `editor-model.tests.ts` cases; all React markup etalons.
 
 **CP4 — the comment editor is feature-complete in React.**
-- [ ] Link: dialog opens; `https://surveyjs.io` creates a link; `javascript:alert(1)` shows the validation error; empty URL removes the link; with no selection the URL is inserted as link text.
-- [ ] Paste formatted content from a web page or Word (colors, fonts, a table): only supported formatting remains; table text is kept as paragraphs/lines.
-- [ ] `c_max`: the counter counts source characters; typing stops at the limit; a formatting command that would exceed the limit is reverted.
-- [ ] Placeholder is visible when empty and disappears on typing; it reappears after deleting everything.
-- [ ] `c_rows`: initial height of 6 lines, grows with content, can be resized.
-- [ ] "Set value externally" updates `c_md` immediately when not focused; with the delayed button while typing in `c_md`, the content is updated only after blur and the caret is not disturbed.
-- [ ] Read-only, display and disabled modes show formatted, non-editable HTML without a toolbar; design mode shows the same.
-- [ ] `c_unsupported` opens in source mode with the notice; "edit anyway" switches to the rich editor; after editing, the stored HTML contains only allow-list tags.
-- [ ] `c_html` stores canonical HTML (`<strong>`, `<em>`, `<p>`, …) in the data panel.
-- [ ] `c_inline`: no list buttons; Enter does nothing.
-- [ ] Matrix `m1`: the comment cell has the rich editor; the cell value is Markdown.
+- [x] Link: dialog opens; `https://surveyjs.io` creates a link; `javascript:alert(1)` shows the validation error; empty URL removes the link; with no selection the URL is inserted as link text.
+- [x] Paste formatted content from a web page or Word (colors, fonts, a table): only supported formatting remains; table text is kept as paragraphs/lines.
+- [x] `c_max`: the counter counts source characters; typing stops at the limit; a formatting command that would exceed the limit is reverted.
+- [x] Placeholder is visible when empty and disappears on typing; it reappears after deleting everything.
+- [x] `c_rows`: initial height of 6 lines, grows with content, can be resized.
+- [x] "Set value externally" updates `c_md` immediately when not focused; with the delayed button while typing in `c_md`, the content is updated only after blur and the caret is not disturbed.
+- [x] Read-only, display and disabled modes show formatted, non-editable HTML without a toolbar; design mode shows the same.
+- [x] `c_unsupported` opens in source mode with the notice; "edit anyway" switches to the rich editor; after editing, the stored HTML contains only allow-list tags.
+- [x] `c_html` stores canonical HTML (`<strong>`, `<em>`, `<p>`, …) in the data panel.
+- [x] `c_inline`: no list buttons; Enter does nothing.
+- [x] Matrix `m1`: the comment cell has the rich editor; the cell value is Markdown.
 - [ ] Dark theme: toolbar, content, links, placeholder and source-mode notice are readable.
 - [ ] Narrow (mobile) width: the toolbar fits or wraps without overlapping the content.
 - [ ] Screen reader / devtools accessibility tree: textbox with the question title as name, toolbar with pressed states.

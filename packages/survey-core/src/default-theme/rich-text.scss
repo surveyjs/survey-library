@@ -30,6 +30,16 @@
   display: block;
 }
 
+.sd-rich-text__area:empty::before {
+  content: attr(data-placeholder);
+  color: var(--sjs2-color-component-input-default-placeholder);
+  pointer-events: none;
+}
+
+.sd-rich-text__notice {
+  margin-bottom: var(--sjs2-spacing-x100);
+}
+
 .sd-rich-text__area {
   width: 100%;
   white-space: pre-wrap;

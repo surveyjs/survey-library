@@ -840,16 +840,19 @@ export class QuestionMultipleTextModel extends Question
   }
   setMultipleTextValue(name: string, value: any) {
     this.isMultipleItemValueChanging = true;
-    if (this.isValueEmpty(value)) {
-      value = undefined;
+    try {
+      if (this.isValueEmpty(value)) {
+        value = undefined;
+      }
+      var newValue = this.value;
+      if (!newValue) {
+        newValue = {};
+      }
+      newValue[name] = value;
+      this.setNewValue(newValue);
+    } finally {
+      this.isMultipleItemValueChanging = false;
     }
-    var newValue = this.value;
-    if (!newValue) {
-      newValue = {};
-    }
-    newValue[name] = value;
-    this.setNewValue(newValue);
-    this.isMultipleItemValueChanging = false;
   }
   getItemDefaultValue(name: string): any {
     return !!this.defaultValue ? this.defaultValue[name] : null;

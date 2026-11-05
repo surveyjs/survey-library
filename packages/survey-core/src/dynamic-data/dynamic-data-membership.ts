@@ -3,7 +3,7 @@ import { applyFilter, applySort } from "./dynamic-data-filter";
 import { createIndexes } from "./dynamic-data-records";
 import { IDynamicDataField, ISortCriterion } from "./dynamic-data-interfaces";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
-import { Scope } from "../utils/scope";
+import { Scope, ValueScope } from "../utils/scope";
 
 // What the membership reads from DynamicDataList. Every member answers from the list's state when it
 // is called; nothing is cached on this side.
@@ -54,7 +54,10 @@ export class DynamicDataMembership {
   private touchedIndexes: Array<number> = [];
   private addScope = new Scope();
   // Set by rebuild for the one decision of the view that keeps the touched records.
-  private keptTouched: Array<{ index: number, position: number }> = undefined;
+  private keptTouchedScope = new ValueScope<Array<{ index: number, position: number }>>(undefined);
+  private get keptTouched(): Array<{ index: number, position: number }> {
+    return this.keptTouchedScope.value;
+  }
   // One slot per view: with no owner-hidden records the created and the visible views are one array,
   // and the materialized one may be a third. A shared slot would rebuild its map on every switch.
   private createdPositions: ViewPositions = new ViewPositions();
@@ -246,12 +249,7 @@ export class DynamicDataMembership {
     const kept = this.takeKeptTouched(remap, previousCreated || this.frozenCreatedIndexes);
     this.resetMembership();
     this.resetViews();
-    this.keptTouched = kept;
-    try {
-      this.refreezeMembership();
-    } finally {
-      this.keptTouched = undefined;
-    }
+    this.keptTouchedScope.run(kept, (): void => this.refreezeMembership());
   }
   /* The owner changed how many records its storage holds without writing through the list. The
      records that are new join the view (an added record is always in it) and the ones that are gone

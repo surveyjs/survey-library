@@ -542,9 +542,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.resetDescriptionVisibility();
       this.clearCssClasses();
     }
-    this.blockAnimations();
-    this.renderedIsExpanded = !this.isCollapsed;
-    this.releaseAnimations();
+    this.runWithoutAnimations(() => { this.renderedIsExpanded = !this.isCollapsed; });
   }
   public getValueGetterContext(): IValueGetterContext {
     const data = <IObjectValueContext><any>this.data;
@@ -709,13 +707,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private createCssClassesValue(): any {
     const callOnCalc = this.isCalculatingCssClasses;
     this.isCalculatingCssClasses = true;
-    const res = this.calcCssClasses(this.css);
-    if (!callOnCalc) {
-      this.onCalcCssClasses(res);
+    try {
+      const res = this.calcCssClasses(this.css);
+      if (!callOnCalc) {
+        this.onCalcCssClasses(res);
+      }
+      this.updateElementCssCore(res);
+      return res;
+    } finally {
+      this.isCalculatingCssClasses = false;
     }
-    this.updateElementCssCore(res);
-    this.isCalculatingCssClasses = false;
-    return res;
   }
   protected onCalcCssClasses(classes: any): void {}
   /**

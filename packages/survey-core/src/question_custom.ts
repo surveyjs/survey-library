@@ -677,11 +677,12 @@ export abstract class QuestionCustomModelBase extends Question
       this.customQuestion.onSetQuestionValue(this, newValue);
     }
   }
-  private isSettingNewValue: boolean;
+  private newValueScope = new Scope();
+  private get isSettingNewValue(): boolean {
+    return this.newValueScope.isActive;
+  }
   protected setNewValue(newValue: any) {
-    this.isSettingNewValue = true;
-    super.setNewValue(newValue);
-    this.isSettingNewValue = false;
+    this.newValueScope.run(() => super.setNewValue(newValue));
     this.updateElementCss();
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {

@@ -742,12 +742,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
   }
   protected buildRows() {
-    this.blockAnimations();
-    var rows = this.matrix.isColumnLayoutHorizontal
-      ? this.buildHorizontalRows()
-      : this.buildVerticalRows();
-    this.rows = rows;
-    this.releaseAnimations();
+    this.runWithoutAnimations(() => {
+      var rows = this.matrix.isColumnLayoutHorizontal
+        ? this.buildHorizontalRows()
+        : this.buildVerticalRows();
+      this.rows = rows;
+    });
   }
   private hasActionCellInRowsValues: any = {};
   private hasActionCellInRows(location: "start" | "end"): boolean {

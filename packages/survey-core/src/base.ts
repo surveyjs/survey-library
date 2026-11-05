@@ -1908,6 +1908,14 @@ export class Base implements IObjectValueContext {
   public releaseAnimations(): void {
     this.animationAllowedLock++;
   }
+  public runWithoutAnimations<T>(func: () => T): T {
+    this.blockAnimations();
+    try {
+      return func();
+    } finally {
+      this.releaseAnimations();
+    }
+  }
   //remove when knockout obsolete
   public supportOnElementRerenderedEvent = true;
   public onElementRerenderedEventEnabled = false;

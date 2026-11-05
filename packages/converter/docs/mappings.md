@@ -15,7 +15,7 @@ Two rules hold for both converters:
 
 * **Names.** A question, panel or page is named after its source key. A name that is already
   taken gets `_1`, `_2` and so on, and every expression the converter writes uses the final
-  name.
+  name. Names are compared without regard to case, as survey-core compares them.
 * **Conditions.** A condition becomes an expression only when the translation is exact.
   Otherwise the element gets no condition and stays visible, and the report says `assumed`.
   A field that is always shown is a safer loss than one that shows or hides at the wrong time.
@@ -29,16 +29,16 @@ Two rules hold for both converters:
 | Form.io | SurveyJS |
 | --- | --- |
 | `title` | `title` |
-| `display: "form"` or `"pdf"` | One page, `page1` |
-| `display: "wizard"` | One page per top-level component. A `panel`, `fieldset`, `well` or `container` gives its children to the page directly, with its title, `hidden`, `disabled` and condition. Any other component becomes the page's only element. |
+| `display: "form"` or `"pdf"` | One page, `page1`. It is named after the fields, so a field keyed `page1` keeps its key and the page becomes `page1_1`. |
+| `display: "wizard"` | One page per top-level component. A `panel`, `fieldset`, `well` or `container` gives its children to the page directly, with its title, `hidden`, `disabled` and condition. A top-level `button` gives no page. Any other component becomes the page's only element. |
 
 ### Components
 
 | Form.io `type` | SurveyJS | Notes |
 | --- | --- | --- |
-| `textfield` | `text` | |
-| `email`, `url`, `phoneNumber`, `number`, `password` | `text` | `inputType` `email`, `url`, `tel`, `number`, `password` |
-| `datetime`, `day`, `time` | `text` | `inputType` `datetime-local`, `date`, `time` |
+| `textfield` | `text` | `inputMask`, see [Options](#options) |
+| `email`, `url`, `phoneNumber`, `number`, `password` | `text` | `inputType` `email`, `url`, `tel`, `number`, `password`. A `number` with decimals and a `phoneNumber` get a mask, see [Options](#options). |
+| `datetime`, `day`, `time` | `text` | `inputType` `datetime-local`, `date`, `time`. A `datetime` without its time or its date is `date` or `time`, see [Options](#options). |
 | `currency` | `text` | Currency mask, see [Currency](#currency) |
 | `textarea` | `comment` | |
 | `checkbox` | `boolean` | With `inputType: "radio"` and a `name`, see [Radio-type checkboxes](#radio-type-checkboxes) |
@@ -47,16 +47,21 @@ Two rules hold for both converters:
 | `select` | `dropdown`, or `tagbox` when `multiple` | See [Select data sources](#select-data-sources) |
 | `file` | `file` | |
 | `signature` | `signaturepad` | |
-| `content`, `htmlelement` | `html` | `html` or `content` becomes the markup. `{{ … }}` in it is not translated and reads as SurveyJS piping. |
+| `content`, `htmlelement` | `html` | `html` or `content` becomes the markup. See [HTML templates](#html-templates). |
+| `hidden` | `text` | `visible: false` and `clearIfInvisible: "none"`, so its value stays in the data. Its own condition, or logic that hides it, is reported `assumed-conditional`: a `visibleIf` would show it. |
+| `survey` | `matrix` | `rows` from `questions`, `columns` from `values`. The value `{ question: value }` has the same shape. `validate.required` also sets `eachRowRequired`, as Form.io needs every question answered. A condition that reads it is reported `assumed-conditional`. |
+| `tags` with `storeas: "array"` | `tagbox` | `allowCustomChoices: true`. `maxTags` becomes `maxSelectedChoices`. A string default is split on `delimeter`. |
+| `form` with inline `components` | `panel` | See [Containers](#containers) |
 | `panel`, `fieldset`, `well`, `container` | `panel` | See [Containers](#containers) |
 | `columns`, `table` | `panel` | No title. The column and table layout is reported `dropped-styling`, and the cells' components follow each other in order. |
 | `tabs` | `panel` | See [Containers](#containers) |
 | `datagrid`, `editgrid` | `paneldynamic` | See [Data grids](#data-grids) |
 | `button` | Nothing | SurveyJS navigation submits the survey. Reported `dropped-vendor-meta`. |
 
-Any other type in Form.io's builtin set (`tags`, `address`, `survey`, `hidden`, `form`,
-`recaptcha`, `resource`, `sketchpad`, `select2`, `nested`, `custom`, `datamap`, `tree`) is
-reported `unsupported-component` and produces no element. A type outside that set, or a
+Any other type in Form.io's builtin set (`address`, `recaptcha`, `resource`, `sketchpad`,
+`select2`, `nested`, `custom`, `datamap`, `tree`) is reported `unsupported-component` and
+produces no element. So is a `tags` stored as a string (the default) and a `form` with no
+inline `components`, which only names a form stored elsewhere. A type outside that set, or a
 component with no `type`, is reported `unknown-component`, the drift alarm. The builtin set is
 vendored in `src/formio/vendor/` and checked by `npm run corpus:refresh`.
 
@@ -68,14 +73,18 @@ vendored in `src/formio/vendor/` and checked by `npm run corpus:refresh`.
 | `label` | `title` | Not on `html` |
 | `description` | `description` | |
 | `placeholder` | `placeholder` | `text` and `comment` only |
-| `defaultValue` | `defaultValue` | `null` and `""` give none. `null` items are removed from an array. A `selectboxes` object (`{ a: true, b: false }`) becomes the array of checked keys. |
+| `defaultValue` | `defaultValue` | `null` and `""` give none. `null` items are removed from an array. A `selectboxes` object (`{ a: true, b: false }`) becomes the array of checked keys. A `day`, `time` or `datetime` default is read in Form.io's format, see [Date and time defaults](#date-and-time-defaults). A radio or select default is cast to its `dataType`. |
 | `hidden: true` | `visible: false` | A condition still overrides it, as in Form.io |
 | `disabled: true` | `readOnly: true` | |
+| `clearOnHide` | `clearIfInvisible` | See [Hidden values](#hidden-values) |
 | `validate.required` | `isRequired` | |
 | `validate.minLength`, `maxLength` | `text` validator | |
 | `validate.min`, `max` | `numeric` validator | |
 | `validate.pattern` | `regex` validator | |
+| `validate.customMessage` | Each validator's `text`, and `requiredErrorText` | `requiredErrorText` only when the field is required, statically or by a converted `requiredIf` |
+| `validate.minSelectedCount`, `maxSelectedCount` (selectboxes) | `minSelectedChoices`, `maxSelectedChoices` | |
 | `data.values` (select), `values` (radio, selectboxes) | `choices` | `{ value, text }` from `value` and `label`. An empty value is skipped. |
+| `inline: true` (radio, selectboxes) | `colCount: 0` | |
 | `multiple` on a text-like field | Nothing | SurveyJS `text` and `comment` hold one value. Reported `unsupported-multiple`. A one-item default is kept as a single value. |
 
 ### Containers
@@ -83,11 +92,21 @@ vendored in `src/formio/vendor/` and checked by `npm run corpus:refresh`.
 * **`panel`** is titled with `title`, falling back to `label`.
 * **`fieldset`** is titled with `legend`.
 * **`container`** is titled with `label`, unless `hideLabel` is set. Its children's data
-  nests under its key, which matters for [references](#references).
-* **`well`, `columns` and `table`** have no title.
+  nests under its key, which matters for [references](#references). The panel keeps them at
+  the level around it, so the data has another shape, and each `container` is reported
+  `assumed-container-data`.
+* **`form` with inline `components`** (a nested form) has no title. Form.io nests its data
+  under `<key>.data`, so it is reported `assumed-container-data` too. A reference inside it
+  reads the nested form's own data and cannot name a field outside it.
+* **`well`, `columns` and `table`** have no title. One whose components all give nothing,
+  such as only buttons, gives no element. A `panel`, `fieldset` or `container` stays even
+  when empty.
 * **`tabs`** becomes an untitled panel holding one panel per tab, titled with the tab's
   `label`, so every field stays on the same page. A tab with no fields produces nothing. The
   tab strip itself is reported `dropped-styling`.
+
+A container, a tab and a wizard page take their names after their children, so a field keeps
+a key its container also has.
 
 ### Data grids
 
@@ -95,6 +114,19 @@ vendored in `src/formio/vendor/` and checked by `npm run corpus:refresh`.
 `templateElements`, `label` is the title, and `validate.required` sets `isRequired`. A grid
 can nest panels and containers that a matrix cannot hold, and the definition does not say
 whether a grid is tabular, so each one is reported `assumed-datagrid-model`.
+
+The template is a name pool of its own, as survey-core scopes template names, so a field in
+the grid keeps a key that a field outside it also has. survey-core's linter still reports such
+a pair as `name/duplicate`.
+
+| Form.io | `paneldynamic` | Notes |
+| --- | --- | --- |
+| `validate.minLength`, `maxLength` | `minPanelCount`, `maxPanelCount` | |
+| `addAnother` | `addPanelText` | |
+| `disableAddingRemovingRows: true` | `allowAddPanel: false`, `allowRemovePanel: false` | |
+| Initial rows | `panelCount` | A `datagrid` opens with one row, or `validate.minLength` rows, so it gets `panelCount`. With `initEmpty` (or `noFirstRow`) it opens with none, and so does an `editgrid`, which is `paneldynamic`'s default. `initEmpty` together with `minLength` is reported `unsupported-option`: `minPanelCount` would open that many rows. |
+| `validate.customMessage` | `requiredErrorText` | On a grid that is not required, statically or by a converted `requiredIf`, reported `unsupported-option` |
+| `reorder: true` | Nothing | Reported `unsupported-option` |
 
 ### Currency
 
@@ -108,19 +140,68 @@ as follows:
 | `decimalLimit` | `precision` | |
 | `prefix`, `suffix` | `currencyPattern` | Wraps the currency's own layout, such as `@#` or `@ #`. An affix that holds a digit, `#`, `@` or `-` cannot be written and is reported `assumed-currency-format`. |
 
+### Options
+
+Only a value other than Form.io's default (its component `schema()`) counts. Pure layout keys
+(`labelPosition`, `labelWidth`, `optionsLabelPosition`, `widget`, `customClass`) are ignored.
+
+| Type | Form.io | SurveyJS | Notes |
+| --- | --- | --- | --- |
+| `datetime` | `enableTime: false`, `enableDate: false` | `inputType: "date"`, `"time"` | The default keeps the part the input reads. |
+| `datetime` | `datePicker.minDate`, `maxDate` (or under `widget`) | `min`, `max` | A date literal only. Anything else, such as a `moment()` expression, or any limit on a time input, is reported `unsupported-option`. |
+| `number` | `decimalLimit`, `requireDecimal` | A numeric mask: `precision`, `showTrailingZeros` | `precision` is 2 under `requireDecimal` alone, as in Form.io. Without `delimiter`, `thousandsSeparator: ""`. The input becomes a text input, which a mask needs. |
+| `textfield`, `phoneNumber` | `inputMask` | `maskType: "pattern"`, `saveMaskedValue: true` | `9` stays `9`, `A` becomes `a`, `*` becomes `#`, and a literal `#` is escaped. Form.io stores the value with the mask's literals, so the mask saves them too. A `phoneNumber` with no `inputMask` gets Form.io's default `(999) 999-9999`. Reported `unsupported-option`, with no mask: a lowercase `a` (a lowercase letter in Form.io, with no survey-core token), a `\` (survey-core cannot show one), and on a `textfield` a `#`, `&`, bracket or `\|`, which the Inputmask library Form.io types through reads as its own tokens. |
+| `radio`, `select` | `dataType: "number"`, `"boolean"` | Choice values and the default in that type | Cast as Form.io casts them, so condition literals that read the field are cast too. Values that do not each cast to a distinct value, and a URL source, are reported `unsupported-option` and kept as written. |
+| `file` | `multiple`, `fileMaxSize`, `filePattern` | `allowMultiple`, `maxSize` in bytes, `acceptedTypes` | `acceptedTypes` takes `*.ext`, `.ext` and `type/sub` globs. A size or pattern that does not parse is reported `unsupported-option`. |
+| `signature` | `width`, `height`, `penColor`, `backgroundColor`, `minWidth`, `maxWidth` | `signatureWidth`, `signatureHeight`, `penColor`, `backgroundColor`, `penMinWidth`, `penMaxWidth` | A size not in pixels, or a pen width that is not a positive number, is reported `dropped-styling`. |
+| `textarea` | `rows` | `rows` | |
+
+Reported `unsupported-option`, at the option, with nothing written: `validate.minWords` and
+`maxWords`, `unique`, `kickbox.enabled`, `allowMultipleMasks` (no mask is written),
+`persistent` other than `true`, a textarea `editor` (the value is code or HTML), and a `file`
+`storage` other than base64, SurveyJS's default.
+
+Reported `dropped-styling`, as presentation the respondent reads: `tooltip`, `errorLabel`, and
+`prefix` and `suffix` outside `currency`. A `tooltip` on a titled panel or a wizard page is
+reported too.
+
+### Date and time defaults
+
+A default is written as the ISO value the input reads:
+
+* a `day` `MM/DD/YYYY`, or `DD/MM/YYYY` with `dayFirst`, gives `YYYY-MM-DD`. Form.io's empty
+  day, `00/00/0000`, gives none, silently;
+* a `time`, 24-hour or `h:mm AM`, with or without seconds, gives `HH:mm`;
+* a `datetime`, a local ISO date and time, gives `YYYY-MM-DDTHH:mm`. Without a `defaultValue`,
+  `defaultDate` is read the same way.
+
+Anything else, a value with a time zone included, gives no default and is reported
+`assumed-default-value`.
+
+### HTML templates
+
+Form.io renders `{{ … }}` in `html` and `content` as a template. `{{ data.x }}` and
+`{{ data.a.b }}` become `{name}` (or `{panel.name}` inside a grid) when the path names a field,
+and survey-core pipes the value. Any other template, a path that names no field, and a
+`{% … %}` code block stay as written and are reported `custom-template`, once per component.
+survey-core still reads the inner braces of what stays as piping.
+
 ### Select data sources
 
 | `dataSrc` | SurveyJS |
 | --- | --- |
 | None, `""` or `"values"` | `choices` from `data.values` |
+| `"json"` | `choices` from `data.json`, an array or a string that parses to one. A string item is its own value. An object item takes its value from `valueProperty` and its text from the template, as `titleName` below. An object item with no `valueProperty` gives no choice, and the source is reported `unsupported-data-source`. |
 | `"url"` | `choicesByUrl`: `url` from `data.url`, `path` from `selectValues`, `valueName` from `valueProperty`, `titleName` from `template` |
-| `"resource"`, `"custom"`, `"json"` and others | Nothing. Reported `unsupported-data-source`. |
+| `"resource"`, `"custom"` and others | Nothing. Reported `unsupported-data-source`. |
 
 For `titleName`, a `template` of exactly `<span>{{ item.x }}</span>` gives `x` (a dotted path
 is kept), and no template gives `label`, Form.io's default. Any other template is reported
-`assumed-data-source-title` and the default stays. A URL that interpolates form data
-(`{{ … }}`), or that needs `authenticate` or request `headers`, is reported
-`unsupported-data-source`, because SurveyJS would call it differently.
+`assumed-data-source-title` and the default stays. In a URL, `{{ data.x }}` becomes `{x}` and
+`{{ row.x }}` inside a grid becomes `{panel.x}`, which survey-core substitutes and reloads on.
+A URL with any other interpolation (`{{ limit }}`, say), a path that names no field, or a need
+for `authenticate` or request `headers`, is reported `unsupported-data-source`, because
+SurveyJS would call it differently.
 
 ### Radio-type checkboxes
 
@@ -132,7 +213,8 @@ one `radiogroup` named after `name`, at the first member's place and with no tit
 * any required member makes the group required;
 * a member with `defaultValue: true` gives the group its default;
 * a member's own condition would show or hide a single option, which a `radiogroup` choice
-  cannot carry here, so it is reported `assumed-conditional`.
+  cannot carry here, so it is reported `assumed-conditional`, and each of its `logic` entries
+  is reported `custom-logic`.
 
 A condition that names a member's `key` finds no field, because the data lives under `name`.
 
@@ -153,21 +235,31 @@ as in Form.io: the simple format, then the legacy one, then JSON logic.
 | Operator | Expression |
 | --- | --- |
 | `isEmpty`, `isNotEmpty` | `{q} empty`, `{q} notempty` |
-| `isEqual`, `isNotEqual` | `{q} = v`, `{q} <> v`. On a `selectboxes` field: `contains`, `notcontains`. Not translated on a multiple `select`. |
+| `isEqual`, `isNotEqual` | `{q} = v`, `{q} <> v`. On a `selectboxes` field: `contains`, `notcontains`. Not translated on a multiple `select` or a `tags` field. |
 | `lessThan`, `lessThanOrEqual`, `greaterThan`, `greaterThanOrEqual` | `<`, `<=`, `>`, `>=` |
 | `includes`, `notIncludes` | `contains`, `notcontains`. Not translated on `selectboxes`, where Form.io never matches. |
 | `dateGreaterThan`, `dateGreaterThanOrEqual`, `dateLessThan`, `dateLessThanOrEqual`, `isDateEqual`, `isNotDateEqual` | The matching comparison, also reported `assumed-conditional`: Form.io compares moments, survey-core compares values. |
 | `startsWith`, `endsWith`, anything else | Not translated. survey-core has no such operator. |
 
 **Legacy format** (`{ show, when, eq }`) gives `{when} = eq`, or `<>` when `show` is not
-`"true"`. A `selectboxes` field or a multiple `select` uses `contains` and `notcontains`.
+`"true"`. A `selectboxes` field, a multiple `select` or a `tags` field uses `contains` and
+`notcontains`.
 
 **JSON logic** (`conditional.json`) is translated for `==`, `===`, `!=` and `!==` between a
-`var` and a literal, and for `and` and `or` of those. Anything else is reported
-`assumed-conditional`.
+`var` and a literal, a bare `var` read for its truthiness, `!` and `!!`, and `and` and `or` of
+those. `!` around any of them gives `!(…)`.
+
+* Truthiness depends on the field: a `checkbox` gives `{q} = true`, a text field `{q} notempty`,
+  and a `number` `({q} notempty and {q} <> 0)`. Any other type, `selectboxes` included (its
+  object is always truthy), or a multiple field, is not translated.
+* A string literal is not translated in `===` or `!==` with a field that stores a number or a
+  boolean, nor in any comparison with a field that stores a boolean (`true == "true"` is false).
+
+Anything else is reported `assumed-conditional`.
 
 **Literals** follow the field: `"true"` and `"false"` compared with a `checkbox` become
 booleans, and a numeric string compared with a `number` or `currency` field becomes a number.
+A radio or select cast by its `dataType` takes literals of that type.
 
 #### References
 
@@ -175,12 +267,59 @@ A reference names a field by key. A leading `data.` is the form root. Otherwise 
 tries, in order, the field's data path (keys of the `container`, `datagrid` and `editgrid`
 around it), its full path (the keys of every component around it, layout included), and the
 bare key when exactly one field has it. A leading `row.` names a field in the condition's own
-grid.
+grid. Inside a nested `form`, the root is the nested form's data, and only its fields can be
+named. A `survey` field cannot be named: its `{}` is not empty in Form.io, so no comparison
+reads it as Form.io does.
 
 Seen from inside data grids, the reference is `{name}` for a field outside any grid,
 `{panel.name}` in the same grid, and `{parentPanel.name}` one grid up. A field inside a grid
 the condition is not in, or two or more grids up, cannot be named, and the condition is
 reported `assumed-conditional`.
+
+### Logic
+
+A `logic` entry holds while its trigger does, as a condition does: Form.io rebuilds the
+component from its definition on every check. An entry maps when its trigger is `simple` or
+`json` and translates exactly, and every action is a `property` action that sets `hidden`,
+`disabled` or `validate.required` to the state the component does not already have:
+
+| Action | SurveyJS |
+| --- | --- |
+| `hidden: true` | `visibleIf: !(cond)` |
+| `hidden: false` on a hidden component | `visibleIf: cond` |
+| `disabled: true` | `enableIf: !(cond)` |
+| `validate.required: true` on a question | `requiredIf: cond` |
+
+A `simple` trigger is read in the legacy or the simple format, and `show: false` inverts it.
+Anything else is reported `custom-logic` at `/logic/<i>`, with no partial output. That covers
+an `event` or `javascript` trigger, an empty `simple` trigger (it always fires), a trigger with
+an `assumed` part, a `value`, `customAction` or `mergeComponentSchema` action, `disabled: false`,
+`validate.required: false`, and `requiredIf` on a panel or page. An entry also stays reported
+when another entry of the component sets the same property, or an action that may change
+anything, and a `hidden` entry stays reported on a component with a `customConditional`.
+
+When a component has both a `conditional` and a mapped `hidden` entry, Form.io combines them in
+its own order. Neither is emitted, and both are reported `assumed-conditional`.
+
+### Hidden values
+
+Form.io clears a field's value when a condition hides it (`clearOnHide`, true by default), and
+its server also clears the fields of a hidden container. survey-core keeps a hidden value until
+completion, and then drops every value that is invisible. So each input that can be invisible
+gets `clearIfInvisible`:
+
+* `onHiddenContainer` when a converted condition or hiding logic is on the input or a container
+  around it, the input does not set `clearOnHide: false`, and nothing around it is statically
+  hidden;
+* `none` when Form.io keeps the value: an input with `clearOnHide: false` that can be hidden, an
+  input that is statically `hidden` or sits in a statically hidden container, and every
+  `hidden` component;
+* nothing for an input that can never be invisible.
+
+This follows the Form.io server. Form.io's browser renderer keeps the values inside a hidden
+`panel`, `fieldset` or `columns`, whose own `clearOnHide` defaults to false. Where a condition
+hides an input in a statically hidden chain, or a container around a `hidden` component, the
+server clears the value and the converted survey keeps it.
 
 ### Refused
 
@@ -191,8 +330,9 @@ its path only, never its content, and the component still converts:
 | --- | --- |
 | `customConditional` (any `conditional` on the same component is then ignored) | `custom-conditional` |
 | `validate.custom` | `custom-validation` |
-| `logic` | `custom-logic` |
+| A `logic` entry that does not map, see [Logic](#logic) | `custom-logic` |
 | `calculateValue`, `customDefaultValue` | `custom-value` |
+| A template in HTML other than a `data.` path, see [HTML templates](#html-templates) | `custom-template` |
 
 ### Form.io report codes
 
@@ -201,17 +341,21 @@ its path only, never its content, and the component still converts:
 | `formio.unsupported-component` | unsupported | A builtin type with no mapping |
 | `formio.unsupported-multiple` | unsupported | `multiple` on a text-like field |
 | `formio.unsupported-data-source` | unsupported | A `select` source the converter cannot carry |
+| `formio.unsupported-option` | unsupported | An option, set to something other than Form.io's default, that SurveyJS cannot express. The pointer names the option. |
 | `formio.custom-conditional` | unsupported | `customConditional` |
 | `formio.custom-validation` | unsupported | `validate.custom` |
-| `formio.custom-logic` | unsupported | `logic` |
+| `formio.custom-logic` | unsupported | A `logic` entry that does not map |
 | `formio.custom-value` | unsupported | `calculateValue`, `customDefaultValue` |
+| `formio.custom-template` | unsupported | A `{{ … }}` or `{% … %}` in HTML that is not a `data.` path to a field |
 | `formio.unknown-component` | unknown | A type outside the builtin set, or none |
 | `formio.unknown-key` | unknown | Defined, never emitted. `npm run corpus:refresh` catches a new component key instead. |
 | `formio.assumed-datagrid-model` | assumed | Every data grid |
 | `formio.assumed-conditional` | assumed | A condition dropped or approximated |
 | `formio.assumed-currency-format` | assumed | An unknown currency code, or an affix the pattern cannot hold |
-| `formio.assumed-data-source-title` | assumed | A URL source whose template is not one `{{ item.x }}` |
-| `formio.dropped-styling` | dropped | `tabs`, `columns` and `table` layout |
+| `formio.assumed-data-source-title` | assumed | A URL or `json` source whose template is not one `{{ item.x }}` |
+| `formio.assumed-container-data` | assumed | A `container`, or a nested `form` with inline components, whose data nests under its key |
+| `formio.assumed-default-value` | assumed | A date or time default that does not parse, or a `survey` default that is neither an object nor one of its values |
+| `formio.dropped-styling` | dropped | `tabs`, `columns` and `table` layout; `tooltip`, `errorLabel`, and `prefix` and `suffix` outside `currency`; a signature size not in pixels or a pen width that is not a number |
 | `formio.dropped-vendor-meta` | dropped | `button` |
 
 ## JSON Schema

@@ -4,12 +4,12 @@
     {
       "repo": "eclipsesource/jsonforms",
       "ref": "master",
-      "commit": "2c5fae62a8aace19970ac037d122fa6428cd0436"
+      "commit": "942b76f9eb0bcfcf771fe8193c19a39cbe5497f6"
     },
     {
       "repo": "rjsf-team/react-jsonschema-form",
       "ref": "main",
-      "commit": "c8b120c1bbb984a19a0599345aa54e85458804e2"
+      "commit": "ef52c9ef0116e1fb2455ab731910be3d36e4fcea"
     }
   ],
   "files": [

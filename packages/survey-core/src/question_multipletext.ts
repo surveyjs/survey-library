@@ -791,9 +791,7 @@ export class QuestionMultipleTextModel extends Question
     return super.validateElementCore(context) && res;
   }
   public getAllErrors(): Array<SurveyError> {
-    const res = super.getAllErrors();
-    this.forEachNestedElement(info => { res.push(...(<Question>info.element).getAllErrors()); }, allEditors);
-    return res;
+    return super.getAllErrors().concat(this.getNestedErrors());
   }
   public clearErrors() {
     super.clearErrors();

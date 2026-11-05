@@ -1103,6 +1103,9 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < visQuestions.length; i++) {
       if (!visQuestions[i].isEmpty()) return;
     }
+    // On a value change, as for a question: the panel keeps the error it shows, and gets one when its answer is cleared.
+    if (context.isOnValueChanged && !this.errors.some(err => err.getErrorType() === "requireoneanswer") &&
+      !visQuestions.some(q => q.isAnsweredBeforeValueChange)) return;
     const error = new OneAnswerRequiredError(this.requiredErrorText, this);
     errors.push(error);
     context.setErrorElement(visQuestions[0], [error]);

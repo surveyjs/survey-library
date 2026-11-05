@@ -3,6 +3,7 @@ import { Question } from "../src/question";
 import { PanelModel } from "../src/panel";
 import { ComponentCollection } from "../src/question_custom";
 import { SurveyElement } from "../src/survey-element";
+import { SurveyVariablePresets } from "../src/variablePresets";
 import { tryFocusPage } from "../src/surveyToc";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -465,15 +466,15 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
     reached: ["pd.item", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "rg.panel"],
     builds: ["md.cell", "md.detail", "md.detail.pd.item", "mx.cell"]
   },
-  // detail panel: getAllErrors() without paging reads the cells. total row and hidden item: not read. custom, composite and
-  // select questions do not override getAllErrors(): they report their own errors.
+  // detail panel: getAllErrors() without paging reads the cells. total row and hidden item: not read. panel of an unselected
+  // choice: not shown. custom questions do not override getAllErrors(): the wrapper copies the content question's errors.
   "getAllErrors": {
-    reached: ["md.cell", "md.hiddenRowCell", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.static", "mt.editor"]
+    reached: ["md.cell", "md.hiddenRowCell", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.static", "pd.choicePanel", "mt.editor", "cp.content", "cp.nested", "cb.shownPanel", "rg.panel"]
   },
-  // hidden rows, detail panel, total row: a matrix clears the errors of the cells of its visible rows. custom, composite
-  // and select questions do not override clearErrors().
+  // hidden rows, detail panel, total row: a matrix clears the errors of the cells of its visible rows. composite and select
+  // questions clear every element they created, the panel of an unselected choice included.
   "clearErrors": {
-    reached: ["md.cell", "mx.cell", "pd.item", "pd.hiddenItem", "pd.static", "mt.editor"]
+    reached: ["md.cell", "mx.cell", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
   },
   // choice panels: their questions are survey questions and get the change from the survey. multiple text: the editors
   // read the item values when the value changes.
@@ -1414,5 +1415,317 @@ describe("containsErrors of a question that holds nested elements", () => {
     const spy = vi.spyOn(m, "getContainsErrors");
     survey.validate(true);
     expect(spy).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("getAllErrors() and clearErrors() of composite and select questions", () => {
+  beforeEach(() => {
+    ComponentCollection.Instance.add(<any>{ name: "neCpOne", elementsJSON: [{ type: "text", name: "a", isRequired: true }] });
+    ComponentCollection.Instance.add(<any>{
+      name: "neCp",
+      elementsJSON: [
+        { type: "text", name: "a", isRequired: true },
+        { type: "text", name: "b", isRequired: true },
+        { type: "text", name: "c", inputType: "number", validators: [{ type: "numeric", minValue: 10 }] }
+      ]
+    });
+    ComponentCollection.Instance.add(<any>{
+      name: "neCpPanel",
+      elementsJSON: [
+        { type: "text", name: "hide" },
+        { type: "panel", name: "p", visibleIf: "{composite.hide} empty", elements: [{ type: "text", name: "inner", isRequired: true }] }
+      ]
+    });
+    ComponentCollection.Instance.add(<any>{
+      name: "neCpShow",
+      elementsJSON: [
+        { type: "text", name: "show" },
+        { type: "text", name: "r", isRequired: true, visibleIf: "{composite.show} notempty" },
+        { type: "text", name: "a", isRequired: true }
+      ]
+    });
+    ComponentCollection.Instance.add(<any>{
+      name: "neCpHide",
+      elementsJSON: [
+        { type: "text", name: "hide" },
+        { type: "text", name: "r", isRequired: true, visibleIf: "{composite.hide} empty" }
+      ]
+    });
+    ComponentCollection.Instance.add(<any>{
+      name: "neCpReqPanel",
+      elementsJSON: [
+        { type: "text", name: "show" },
+        { type: "text", name: "a", isRequired: true },
+        { type: "panel", name: "rp", isRequired: true, visibleIf: "{composite.show} notempty", elements: [{ type: "text", name: "rpq" }] }
+      ]
+    });
+    ComponentCollection.Instance.add(<any>{
+      name: "neCpReqPanelShown",
+      elementsJSON: [
+        { type: "text", name: "a", isRequired: true },
+        { type: "text", name: "z" },
+        { type: "panel", name: "rp", isRequired: true, elements: [{ type: "text", name: "rpq" }] }
+      ]
+    });
+    ComponentCollection.Instance.add(<any>{ name: "neCu", questionJSON: { type: "text", isRequired: true } });
+  });
+  const selectJson = (mode?: string): any => ({
+    checkErrorsMode: mode,
+    elements: [{
+      type: "checkbox", name: "sel",
+      choices: [{ value: 1, elements: [{ type: "text", name: "n1", isRequired: true }] }, 2]
+    }]
+  });
+  const nestedOf = (q: any, name: string): Question => q.contentPanel.getQuestionByName(name);
+  const modes = ["onNextPage", "onValueChanged"];
+
+  test("a composite reports its nested error, and a valid answer clears it in the default mode", () => {
+    const survey = new SurveyModel({ elements: [{ type: "neCpOne", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    const a = nestedOf(q, "a");
+    survey.validate(true);
+    expect(q.getAllErrors().length, "reported").toBe(1);
+    a.value = "x";
+    expect(a.errors.length, "the nested question").toBe(0);
+    expect(q.containsErrors, "containsErrors").toBe(false);
+    expect(q.getAllErrors().length, "nothing reported").toBe(0);
+  });
+  test("a composite reports a question of a panel inside it, and a valid answer clears it", () => {
+    const survey = new SurveyModel({ elements: [{ type: "neCpPanel", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    const inner = nestedOf(q, "inner");
+    survey.validate(true);
+    expect(q.getAllErrors().length, "reported").toBe(1);
+    inner.value = "x";
+    expect(inner.errors.length, "the nested question").toBe(0);
+    expect(q.containsErrors, "containsErrors").toBe(false);
+    expect(q.getAllErrors().length, "nothing reported").toBe(0);
+  });
+  test.each(modes)("a composite with two required errors: fixing one keeps the other, %s", (mode) => {
+    const survey = new SurveyModel({ checkErrorsMode: mode, elements: [{ type: "neCp", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    survey.validate(true);
+    expect(q.getAllErrors().length, "two errors").toBe(2);
+    nestedOf(q, "a").value = "x";
+    const b = nestedOf(q, "b");
+    expect(b.isEmpty(), "b is still empty").toBe(true);
+    expect(b.errors.length, "b keeps its error").toBe(1);
+    expect(nestedOf(q, "a").errors.length, "a is fixed").toBe(0);
+    expect(q.getAllErrors().length, "one reported").toBe(1);
+  });
+  test.each(modes)("a select: checking another choice keeps the error of a showing choice panel, %s", (mode) => {
+    const survey = new SurveyModel(selectJson(mode));
+    const sel: any = survey.getQuestionByName("sel");
+    sel.value = [1];
+    survey.validate(true);
+    const n1 = <Question>survey.getQuestionByName("n1");
+    expect(n1.errors.length, "n1 has the error").toBe(1);
+    sel.value = [1, 2];
+    expect(n1.isEmpty(), "n1 is still empty").toBe(true);
+    expect(n1.errors.length, "n1 keeps its error").toBe(1);
+  });
+  test("a composite in onValueChanged mode: clearing a nested answer gives its required error", () => {
+    const survey = new SurveyModel({ checkErrorsMode: "onValueChanged", elements: [{ type: "neCp", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    const a = nestedOf(q, "a");
+    a.value = "x";
+    nestedOf(q, "b").value = "y";
+    a.clearValue();
+    expect(a.errors.length, "a is required").toBe(1);
+    expect(nestedOf(q, "b").errors.length, "b has a value").toBe(0);
+  });
+  test("a composite: a bad value next to an existing error shows at once, and the other error stays", () => {
+    const survey = new SurveyModel({ elements: [{ type: "neCp", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    survey.validate(true);
+    const c = nestedOf(q, "c");
+    c.value = 5;
+    expect(c.errors.length, "the bad value").toBe(1);
+    expect(nestedOf(q, "b").errors.length, "b stays").toBe(1);
+    c.value = 15;
+    expect(c.errors.length, "the good value").toBe(0);
+  });
+  test("a composite: a question of a panel that a visibleIf hides keeps its error and is not reported", () => {
+    const survey = new SurveyModel({ elements: [{ type: "neCpPanel", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    const inner = nestedOf(q, "inner");
+    survey.validate(true);
+    expect(q.getAllErrors().length, "shown").toBe(1);
+    nestedOf(q, "hide").value = "x";
+    expect(q.contentPanel.getElementByName("p").isVisible, "the panel is hidden").toBe(false);
+    expect(inner.errors.length, "the question keeps its error").toBe(1);
+    expect(q.getAllErrors().length, "not reported").toBe(0);
+  });
+  test("a composite: an empty question that had no error gains none on a value change", () => {
+    const survey = new SurveyModel({ elements: [{ type: "neCpShow", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    survey.validate(true);
+    expect(q.getAllErrors().length, "a only").toBe(1);
+    nestedOf(q, "show").value = "x";
+    const r = nestedOf(q, "r");
+    expect(r.isVisible, "r is shown").toBe(true);
+    expect(r.errors.length, "r gains no error").toBe(0);
+    expect(nestedOf(q, "a").errors.length, "a keeps its error").toBe(1);
+  });
+  test("a select reports the error of a showing choice panel, and not once the choice is unselected", () => {
+    const survey = new SurveyModel(selectJson());
+    const sel: any = survey.getQuestionByName("sel");
+    sel.value = [1];
+    survey.validate(true);
+    expect(sel.getAllErrors().length, "showing").toBe(1);
+    sel.value = [2];
+    expect(sel.getAllErrors().length, "unselected").toBe(0);
+  });
+  test("clearErrors() on a composite clears what it reports", () => {
+    const survey = new SurveyModel({ elements: [{ type: "neCp", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    survey.validate(true);
+    expect(q.containsErrors, "before").toBe(true);
+    q.clearErrors();
+    expect(q.getAllErrors().length, "nothing reported").toBe(0);
+    expect(nestedOf(q, "a").errors.length, "a").toBe(0);
+    expect(nestedOf(q, "a").containsErrors, "a containsErrors").toBe(false);
+    expect(q.containsErrors, "q containsErrors").toBe(false);
+    expect(survey.pages[0].containsErrors, "the page").toBe(false);
+  });
+  test("clearErrors() on a select clears its choice panels, a hidden one included", () => {
+    const survey = new SurveyModel(selectJson());
+    const sel: any = survey.getQuestionByName("sel");
+    const n1 = <Question>survey.getQuestionByName("n1");
+    sel.value = [1];
+    survey.validate(true);
+    sel.value = [2];
+    expect(n1.errors.length, "the hidden panel keeps its error").toBe(1);
+    sel.clearErrors();
+    expect(n1.errors.length, "hidden").toBe(0);
+    sel.value = [1];
+    survey.validate(true);
+    expect(sel.containsErrors, "shown, before").toBe(true);
+    sel.clearErrors();
+    expect(n1.errors.length, "shown").toBe(0);
+    expect(n1.containsErrors, "n1 containsErrors").toBe(false);
+    expect(sel.containsErrors, "sel containsErrors").toBe(false);
+    expect(survey.pages[0].containsErrors, "the page").toBe(false);
+  });
+  test("a composite question that a visibleIf hides has its errors emptied, and containsErrors follows", () => {
+    const survey = new SurveyModel({ elements: [{ type: "neCpHide", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    const r = nestedOf(q, "r");
+    survey.validate(true);
+    expect(q.containsErrors, "before").toBe(true);
+    nestedOf(q, "hide").value = "x";
+    expect(r.errors.length, "emptied").toBe(0);
+    expect(r.containsErrors, "r").toBe(false);
+    expect(q.containsErrors, "q").toBe(false);
+  });
+  test("a custom question reports one error, not two", () => {
+    const survey = new SurveyModel({ elements: [{ type: "neCu", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    survey.validate(true);
+    expect(q.getAllErrors().length).toBe(1);
+  });
+  test("clearErrors() on a custom question clears its content question", () => {
+    const survey = new SurveyModel({ elements: [{ type: "neCu", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    survey.validate(true);
+    q.clearErrors();
+    expect(q.contentQuestion.errors.length, "content").toBe(0);
+    expect(q.contentQuestion.containsErrors, "content containsErrors").toBe(false);
+    expect(q.containsErrors, "q containsErrors").toBe(false);
+    expect(survey.pages[0].containsErrors, "the page").toBe(false);
+  });
+  test("a hidden multiple text reports no errors", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "hide" },
+        { type: "multipletext", name: "mt", visibleIf: "{hide} empty", items: [{ name: "i1", isRequired: true }] }
+      ]
+    });
+    const mt: any = survey.getQuestionByName("mt");
+    survey.validate(true);
+    expect(mt.getAllErrors().length, "shown").toBe(1);
+    survey.setValue("hide", "x");
+    expect(mt.items[0].editor.errors.length, "the editor keeps its error").toBe(1);
+    expect(mt.getAllErrors().length, "hidden").toBe(0);
+  });
+  test.each(modes)("a dynamic panel set from outside keeps the other required error and drops a stale validator error, %s", (mode) => {
+    const survey = new SurveyModel({
+      checkErrorsMode: mode,
+      elements: [{
+        type: "paneldynamic", name: "pd", panelCount: 1,
+        templateElements: [
+          { type: "text", name: "t1", isRequired: true },
+          { type: "text", name: "t2", isRequired: true },
+          { type: "text", name: "t3", inputType: "number", validators: [{ type: "numeric", minValue: 10 }] }
+        ]
+      }]
+    });
+    const pd: any = survey.getQuestionByName("pd");
+    survey.setValue("pd", [{ t3: 5 }]);
+    survey.validate(true);
+    const panel = pd.panels[0];
+    expect(panel.getQuestionByName("t2").errors.length, "t2 is required").toBe(1);
+    expect(panel.getQuestionByName("t3").errors.length, "t3 is too small").toBe(1);
+    pd.value = [{ t1: "x" }];
+    expect(panel.getQuestionByName("t2").errors.length, "t2 keeps its error").toBe(1);
+    expect(panel.getQuestionByName("t3").isEmpty(), "t3 is emptied").toBe(true);
+    expect(panel.getQuestionByName("t3").errors.length, "t3 has no stale error").toBe(0);
+  });
+  test("a page question re-checked by a dependent validator keeps its required error", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", isRequired: true, validators: [{ type: "expression", expression: "{q2} != 'bad'" }] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    survey.validate(true);
+    expect(q1.errors.length, "required").toBe(1);
+    survey.setValue("q2", "x");
+    expect(q1.errors.length, "keeps it").toBe(1);
+  });
+  test.each(modes)("a required panel of a composite that a visibleIf shows after the validation gains no error, %s", (mode) => {
+    const survey = new SurveyModel({ checkErrorsMode: mode, elements: [{ type: "neCpReqPanel", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    survey.validate(true);
+    nestedOf(q, "show").value = "x";
+    const rp = q.contentPanel.getElementByName("rp");
+    expect(rp.isVisible, "shown").toBe(true);
+    expect(rp.errors.length, "no error").toBe(0);
+    nestedOf(q, "a").value = "y";
+    expect(rp.errors.length, "still none").toBe(0);
+  });
+  test.each(modes)("a required panel of a composite keeps its error while empty, loses it once answered, gets it back when cleared, %s", (mode) => {
+    const survey = new SurveyModel({ checkErrorsMode: mode, elements: [{ type: "neCpReqPanelShown", name: "q" }] });
+    const q: any = survey.getQuestionByName("q");
+    survey.validate(true);
+    const rp = q.contentPanel.getElementByName("rp");
+    expect(rp.errors.length, "required").toBe(1);
+    // a keeps its error, so the composite is re-validated on each change: a panel error alone is not reported (NE17).
+    nestedOf(q, "z").value = "x";
+    expect(rp.errors.length, "kept while empty").toBe(1);
+    const rpq = nestedOf(q, "rpq");
+    rpq.value = "y";
+    expect(rp.errors.length, "answered").toBe(0);
+    rpq.clearValue();
+    expect(rp.errors.length, "cleared").toBe(1);
+  });
+  test("variablePresets: a composite's nested error appears once, a choice panel error under the select", () => {
+    const presets = new SurveyVariablePresets({
+      definition: {
+        elements: [
+          { type: "neCp", name: "cp" },
+          { type: "checkbox", name: "sel", choices: [{ value: 1, elements: [{ type: "text", name: "n1", isRequired: true }] }, 2] }
+        ]
+      }
+    });
+    const res = presets.validateVariables({ cp: { a: "x" }, sel: [1] });
+    const cp = res.errors.filter(e => e.variable === "cp");
+    expect(cp.length, "one entry for cp").toBe(1);
+    expect(cp[0].errors.length, "the b error, once").toBe(1);
+    const sel = res.errors.filter(e => e.variable === "sel");
+    expect(sel.length, "one entry for sel").toBe(1);
+    expect(sel[0].errors.length, "the n1 error").toBe(1);
+    presets.dispose();
   });
 });

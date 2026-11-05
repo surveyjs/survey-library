@@ -1,12 +1,13 @@
-import "../../src/plugins/rich-text/index";
+import { RichText } from "../../src/plugins/rich-text/index";
 import { markdownToHtml, parseMarkdown } from "../../src/plugins/rich-text/markdown";
 import { SurveyModel } from "../../src/survey";
 
 import { describe, expect, test } from "vitest";
 
 describe("markdown subset", () => {
-  test("renders inline marks, links and escapes plain text to empty through the provider", () => {
-    const survey = new SurveyModel({ stringFormat: "markdown", elements: [{ type: "text", name: "q", title: "Plain title" }] });
+  test("renders inline marks, links and leaves plain text empty through the handler", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q", title: "Plain title" }] });
+    survey.onTextMarkdown.add(RichText.textMarkdownHandler);
     expect(survey.getQuestionByName("q").locTitle.renderedHtml).toBe("Plain title");
     expect(survey.getQuestionByName("q").locTitle.hasHtml).toBe(false);
     survey.getQuestionByName("q").title = "Title with *italic*, **bold**, ~~strike~~ and [a link](https://surveyjs.io)";

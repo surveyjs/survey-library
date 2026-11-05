@@ -2,6 +2,7 @@ import { Serializer } from "../../src/jsonobject";
 import { RendererFactory } from "../../src/rendererFactory";
 import { QuestionCommentModel } from "../../src/question_comment";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
+import { settings } from "../../src/settings";
 import { SurveyModel } from "../../src/survey";
 
 import { afterEach, describe, expect, test } from "vitest";
@@ -12,7 +13,7 @@ class CommentChild extends QuestionCommentModel {
   }
 }
 
-describe("comment textFormat and survey stringFormat", () => {
+describe("comment textFormat", () => {
   afterEach(() => {
     if (RendererFactory.Instance.getRenderer("comment", "richtext") !== "default") {
       RendererFactory.Instance.unregisterRenderer("comment", "richtext");
@@ -49,25 +50,13 @@ describe("comment textFormat and survey stringFormat", () => {
     expect(loaded.toJSON().pages[0].elements[2].textFormat).toBeUndefined();
   });
 
-  test("stringFormat defaults to plain and a non-default value survives a load/save round trip", () => {
-    const empty = new SurveyModel();
-    expect(empty.stringFormat).toBe("plain");
-    expect(empty.toJSON().stringFormat).toBeUndefined();
-    const survey = new SurveyModel({ stringFormat: "markdown", elements: [{ type: "text", name: "q" }] });
-    expect(survey.stringFormat).toBe("markdown");
-    const json = survey.toJSON();
-    expect(json.stringFormat).toBe("markdown");
-    const loaded = new SurveyModel(json);
-    expect(loaded.stringFormat).toBe("markdown");
-    loaded.stringFormat = "html";
-    expect(new SurveyModel(loaded.toJSON()).stringFormat).toBe("html");
-    loaded.stringFormat = "plain";
-    expect(loaded.toJSON().stringFormat).toBeUndefined();
+  test("the survey has no stringFormat and settings has no richText slot", () => {
+    expect(Serializer.findProperty("survey", "stringFormat")).toBeFalsy();
+    expect(settings).not.toHaveProperty("richText");
   });
 
-  test("textFormat and stringFormat stay invisible without the plugin", () => {
+  test("textFormat stays invisible without the plugin", () => {
     expect(Serializer.findProperty("comment", "textFormat").visible).toBe(false);
-    expect(Serializer.findProperty("survey", "stringFormat").visible).toBe(false);
   });
 
   test("getComponentName stays on the default textarea until a rich renderer is registered", () => {
@@ -122,5 +111,41 @@ describe("comment textFormat and survey stringFormat", () => {
     expect(question.getComponentName()).toBe("sv-rich-text-comment");
     question.textFormat = "plain";
     expect(question.getComponentName()).toBe("sv-question-view");
+  });
+
+  test("richTextConverter is not serialized and replaces the format converter", async () => {
+    const rich = await import("../../src/plugins/rich-text/index");
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    question.value = "hello";
+    const converter = {
+      toHtml: () => "<b>custom</b>",
+      toSource: () => "from-converter"
+    };
+    (question as any).richTextConverter = converter;
+    expect(question.toJSON().richTextConverter).toBeUndefined();
+    expect(question.toJSON().richTextEditMode).toBeUndefined();
+    expect(question.toJSON().richTextToolbarVisibility).toBeUndefined();
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const editor = new rich.RichTextEditorModel({
+      getValue: () => question.value || "",
+      setValue: (value: string) => { question.value = value; },
+      isInputTextUpdate: false,
+      acceptCarriageReturn: true,
+      mode: "block",
+      format: "markdown",
+      converter: converter,
+      owner: question
+    });
+    editor.attach(host);
+    expect(host.innerHTML).toBe("<b>custom</b>");
+    expect(editor.getReadOnlyHtml("x")).toBe("<b>custom</b>");
+    host.innerHTML = "<strong>z</strong>";
+    host.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    host.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("from-converter");
+    editor.detach();
+    host.remove();
   });
 });

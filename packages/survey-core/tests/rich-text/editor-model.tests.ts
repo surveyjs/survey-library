@@ -1,5 +1,5 @@
 import { QuestionCommentModel } from "../../src/question_comment";
-import "../../src/plugins/rich-text/index";
+import { RichText } from "../../src/plugins/rich-text/index";
 import { IRichTextCommands, RichTextEditorModel } from "../../src/plugins/rich-text/editor-model";
 import { SurveyModel } from "../../src/survey";
 import { Serializer } from "../../src/jsonobject";
@@ -44,7 +44,7 @@ describe("rich text editor model", () => {
     (question as any).richTextEditMode = "inline";
     expect(question.toJSON().richTextEditMode).toBeUndefined();
     expect(Serializer.findProperty("comment", "textFormat").visible).toBe(true);
-    expect(Serializer.findProperty("survey", "stringFormat").visible).toBe(true);
+    expect(Serializer.findProperty("survey", "stringFormat")).toBeFalsy();
   });
 
   test("toggle state is all, none or mixed", () => {
@@ -160,5 +160,80 @@ describe("rich text editor model", () => {
     expect(adapter.calls).not.toContain("insertLineBreak");
     expect(adapter.calls).not.toContain("insertParagraph");
     host.remove();
+  });
+
+  test("a host converter replaces the format converter", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    question.value = "hello";
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const editor = new RichTextEditorModel({
+      ...hostOf(question),
+      converter: { toHtml: () => "<b>custom</b>", toSource: () => "from-converter" }
+    }, commands());
+    editor.attach(host);
+    expect(host.innerHTML).toBe("<b>custom</b>");
+    expect(editor.getReadOnlyHtml("x")).toBe("<b>custom</b>");
+    host.innerHTML = "<em>z</em>";
+    host.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    host.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("from-converter");
+    editor.detach();
+    host.remove();
+  });
+
+  test("attachEditor does not write a value, normalizes paste and detaches", () => {
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    let inputs = 0;
+    const inline = RichText.attachEditor(host, { mode: "inline", onInput: () => inputs++ });
+    const bulleted = inline.toolbar.actions.filter(action => action.id === "rich-text-bulleted")[0];
+    const numbered = inline.toolbar.actions.filter(action => action.id === "rich-text-numbered")[0];
+    expect(bulleted.visible).toBe(false);
+    expect(numbered.visible).toBe(false);
+    host.innerHTML = "<strong>a</strong>";
+    host.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    host.dispatchEvent(new FocusEvent("blur"));
+    expect(inputs).toBe(1);
+    expect(host.innerHTML).toBe("<strong>a</strong>");
+    inline.detach();
+    host.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    expect(inputs).toBe(1);
+
+    const blockHost = document.createElement("div");
+    document.body.appendChild(blockHost);
+    const recorded: string[] = [];
+    const block = new RichTextEditorModel({
+      getValue: () => "",
+      setValue: () => recorded.push("set"),
+      isInputTextUpdate: false,
+      acceptCarriageReturn: true,
+      mode: "block",
+      format: "markdown",
+      managesValue: false
+    }, {
+      styleWithCSS() {},
+      exec(command: string, value?: string) { recorded.push(value !== undefined ? command + ":" + value : command); }
+    });
+    block.attach(blockHost);
+    expect(block.toolbar.actions.filter(action => action.id === "rich-text-bulleted")[0].visible).toBe(true);
+    const paste = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", {
+      value: {
+        getData: (type: string) => type === "text/html" ? "<span style=\"color:red\"><b>a</b></span><script>alert(1)</script>" : "a"
+      }
+    });
+    blockHost.dispatchEvent(paste);
+    expect(paste.defaultPrevented).toBe(true);
+    expect(recorded[recorded.length - 1]).toBe("insertHTML:<strong>a</strong>");
+    expect(recorded).not.toContain("set");
+    block.detach();
+    const after = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(after, "clipboardData", { value: { getData: () => "<b>b</b>" } });
+    blockHost.dispatchEvent(after);
+    expect(after.defaultPrevented).toBe(false);
+    host.remove();
+    blockHost.remove();
   });
 });

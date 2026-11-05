@@ -3,7 +3,6 @@
 var EXTERNAL_VALUE = "Set externally: **bold** and *italic*";
 
 var demoSurveyJson = String.raw`{
-  "stringFormat": "markdown",
   "title": "Rich text **demo**",
   "description": "Survey description with *italic* text.\n\nSecond paragraph.",
   "pages": [
@@ -131,36 +130,43 @@ for (var t = 0; t < themeButtons.length; t++) {
 }
 setPressed("[data-theme]", "data-theme", "light");
 
-function applyStringFormat(format) {
-  survey.stringFormat = format;
-  if (typeof survey.locStrsChanged === "function") {
-    survey.locStrsChanged();
-  }
-  setPressed("[data-format]", "data-format", format);
-  showJson();
+var currentStringHandler = null;
+
+function builtinStringHandler(sender, options) {
+  SurveyRichText.RichText.textMarkdownHandler(sender, options);
 }
 
-var formatButtons = document.querySelectorAll("[data-format]");
-for (var f = 0; f < formatButtons.length; f++) {
-  formatButtons[f].addEventListener("click", function () {
-    applyStringFormat(this.getAttribute("data-format"));
-  });
+function rawHtmlStringHandler(sender, options) {
+  options.html = options.text;
 }
-setPressed("[data-format]", "data-format", survey.stringFormat || "");
 
-function titleHandler(sender, options) {
+function customStringHandler(sender, options) {
+  var api = SurveyRichText.RichText;
   if (options.name === "title") {
-    options.html = "[handler] " + options.text;
+    options.html = "[handler] " + api.markdownToHtml(options.text, { inline: true });
+    return;
   }
+  var html = api.markdownToHtml(options.text);
+  if (html) options.html = html;
 }
 
-document.getElementById("custom-handler").addEventListener("change", function () {
-  if (this.checked) {
-    survey.onTextMarkdown.add(titleHandler);
-  } else {
-    survey.onTextMarkdown.remove(titleHandler);
+function applyStringHandler(name) {
+  if (currentStringHandler) survey.onTextMarkdown.remove(currentStringHandler);
+  currentStringHandler = name === "builtin" ? builtinStringHandler : name === "html" ? rawHtmlStringHandler : name === "custom" ? customStringHandler : null;
+  if (currentStringHandler) survey.onTextMarkdown.add(currentStringHandler);
+  if (typeof survey.locStrsChanged === "function") survey.locStrsChanged();
+  setPressed("[data-handler]", "data-handler", name);
+}
+
+if (pluginLoaded) {
+  var handlerButtons = document.querySelectorAll("[data-handler]");
+  for (var h = 0; h < handlerButtons.length; h++) {
+    handlerButtons[h].addEventListener("click", function () {
+      applyStringHandler(this.getAttribute("data-handler"));
+    });
   }
-});
+  applyStringHandler("builtin");
+}
 
 function richTextApi() {
   if (!pluginLoaded || !SurveyRichText.RichText) return null;

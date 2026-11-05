@@ -24,7 +24,6 @@ describe("lossless and findUnsupported", () => {
 
   test("findUnsupported lists raw html, tables and html answers of the scanned format", () => {
     const survey = new SurveyModel({
-      stringFormat: "markdown",
       elements: [
         { type: "text", name: "s3", title: "Raw <b>html</b> and <script>alert(1)</script>" },
         { type: "text", name: "s5", title: "Table", description: "| a | b |\n|---|---|\n| 1 | 2 |" },

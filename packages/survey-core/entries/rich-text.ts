@@ -3,7 +3,7 @@
 // outside src/plugins/rich-text/ imports from here. entries/index.ts does not reference this file.
 
 export { RichText, RichTextEditorModel, getRichTextString, setRichTextStrings } from "../src/plugins/rich-text/index";
-export type { IRichTextConverter, IRichTextConverterContext, UnsupportedHit } from "../src/plugins/rich-text/index";
+export type { IRichTextConverter, IRichTextConverterContext, IRichTextEditorHandle, IRichTextEditorOptions, RichTextEditMode, UnsupportedHit } from "../src/plugins/rich-text/index";
 
 import { checkLibraryVersion } from "survey-core";
 export let Version: string;

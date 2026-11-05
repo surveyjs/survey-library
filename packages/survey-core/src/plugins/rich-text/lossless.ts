@@ -22,7 +22,7 @@ export function isLossless(source: string, format: RichTextFormat, context: IRic
 }
 
 export function findUnsupported(survey: SurveyModel, format?: RichTextFormat): UnsupportedHit[] {
-  const scanFormat: RichTextFormat = format || (survey.stringFormat === "html" ? "html" : survey.stringFormat === "markdown" ? "markdown" : RichText.defaultFormat);
+  const scanFormat: RichTextFormat = format || "markdown";
   const hits: UnsupportedHit[] = [];
   const seen = new Set<Base>();
   const visit = (element: Base) => {

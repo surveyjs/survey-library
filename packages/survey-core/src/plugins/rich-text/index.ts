@@ -1,20 +1,24 @@
 import { RendererFactory, Serializer, SvgRegistry } from "survey-core";
-import { installConverters } from "./api";
+import { installConverters, richTextBindings } from "./api";
 import { htmlConverter } from "./html-format";
 import { richTextIcons } from "./icons";
 import { markdownConverter } from "./markdown";
-import { activateRichTextProvider } from "./provider";
+import { attachEditor, getStringEditMode, htmlToMarkdown, htmlToMarkdownHandler, markdownToHtml, textMarkdownHandler } from "./survey-strings";
 
 export { RichText } from "./api";
 export { RichTextEditorModel } from "./editor-model";
 export type { IRichTextCommands, IRichTextEditorHost, RichTextMark, RichTextMarkState } from "./editor-model";
 export { getRichTextString, setRichTextStrings } from "./rich-text-strings";
-export type { IRichTextConverter, IRichTextConverterContext, UnsupportedHit } from "./api";
+export type { IRichTextConverter, IRichTextConverterContext, IRichTextEditorHandle, IRichTextEditorOptions, RichTextEditMode, UnsupportedHit } from "./api";
 
 installConverters(markdownConverter, htmlConverter);
-activateRichTextProvider();
+richTextBindings.markdownToHtml = markdownToHtml;
+richTextBindings.htmlToMarkdown = htmlToMarkdown;
+richTextBindings.textMarkdownHandler = textMarkdownHandler;
+richTextBindings.htmlToMarkdownHandler = htmlToMarkdownHandler;
+richTextBindings.getStringEditMode = getStringEditMode;
+richTextBindings.attachEditor = attachEditor;
 Serializer.findProperty("comment", "textFormat").visible = true;
-Serializer.findProperty("survey", "stringFormat").visible = true;
 Serializer.addProperty("comment", {
   name: "richTextEditMode",
   default: "block",
@@ -26,6 +30,12 @@ Serializer.addProperty("comment", {
   name: "richTextToolbarVisibility",
   default: "always",
   choices: ["always", "onFocus"],
+  visible: false,
+  isSerializable: false
+});
+// No type: the value is a converter object, stored as-is and never written to JSON.
+Serializer.addProperty("comment", {
+  name: "richTextConverter",
   visible: false,
   isSerializable: false
 });

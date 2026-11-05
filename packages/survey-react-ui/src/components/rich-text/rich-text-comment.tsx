@@ -1,6 +1,6 @@
 import * as React from "react";
 import { QuestionCommentModel } from "survey-core";
-import { getRichTextString, RichText, RichTextEditorModel } from "survey-core/rich-text";
+import { getRichTextString, RichTextEditorModel } from "survey-core/rich-text";
 import { SurveyQuestionUncontrolledElement } from "../../reactquestion_element";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
 import { SurveyActionBar } from "../action-bar/action-bar";
@@ -40,6 +40,7 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
       get acceptCarriageReturn() { return question.acceptCarriageReturn !== false; },
       get mode() { return question.acceptCarriageReturn === false ? "inline" : ((question as any).richTextEditMode === "inline" ? "inline" : "block"); },
       get format() { return question.textFormat === "html" ? "html" : "markdown"; },
+      get converter() { return (question as any).richTextConverter; },
       owner: question
     });
   }
@@ -73,8 +74,7 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   private renderReadOnly(): React.JSX.Element {
     const question = this.question;
     const value = question.value || "";
-    const format = question.textFormat === "html" ? "html" : "markdown";
-    const html = value ? RichText.getFormat(format).toHtml(value, { inline: this.editor.mode === "inline", element: question, name: "value" }) : "";
+    const html = this.editor.getReadOnlyHtml(value);
     if (!html) return <div className="sd-comment">{value}</div>;
     return <div className={"sd-comment " + (question.viewModeCssClass || "")} dangerouslySetInnerHTML={{ __html: html }} />;
   }

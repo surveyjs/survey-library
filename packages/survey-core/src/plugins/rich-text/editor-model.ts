@@ -1,6 +1,7 @@
 import { ActionContainer, Base } from "survey-core";
-import { RichText } from "./api";
+import { IRichTextConverter, RichText } from "./api";
 import { isRichTextBoldHidden } from "./edit-mode";
+import { createDetachedElement } from "./runs";
 import { createRichTextToolbar, IRichTextToolbarActions } from "./toolbar";
 
 export type RichTextMark = "bold" | "italic" | "strike";
@@ -19,6 +20,10 @@ export interface IRichTextEditorHost {
   readonly mode: "inline" | "block";
   readonly format: "markdown" | "html";
   readonly owner?: Base;
+  readonly converter?: IRichTextConverter;
+  // false: toolbar and keys only. The caller owns the content (Creator string editor).
+  readonly managesValue?: boolean;
+  onInput?(): void;
 }
 
 const MARK_TAGS: { [key: string]: string[] } = {
@@ -80,30 +85,33 @@ export class RichTextEditorModel {
     this.element = element;
     this.commands = commands || this.commands || createDocumentCommands(element.ownerDocument);
     this.commands.styleWithCSS(false);
-    if (isRichTextBoldHidden(element)) this.actions.bold.visible = false;
-    this.renderValue(this.host.getValue());
+    if (isRichTextBoldHidden(element))this.actions.bold.visible = false;
+    if (this.managesValue)this.renderValue(this.host.getValue());
     const doc = element.ownerDocument;
     const view = doc.defaultView;
     const onSelection = () => this.onSelectionChange();
     const onInput = () => this.onInput();
     const onKeyDown = (event: KeyboardEvent) => this.onKeyDown(event);
-    const onBlur = () => this.commit();
+    const onBlur = () => { if (this.managesValue)this.commit(); };
+    const onPaste = (event: ClipboardEvent) => this.onPaste(event);
     doc.addEventListener("selectionchange", onSelection);
     element.addEventListener("input", onInput);
     element.addEventListener("keydown", onKeyDown);
     element.addEventListener("blur", onBlur);
+    if (!this.managesValue) element.addEventListener("paste", onPaste);
     this.detachDom = () => {
       doc.removeEventListener("selectionchange", onSelection);
       element.removeEventListener("input", onInput);
       element.removeEventListener("keydown", onKeyDown);
       element.removeEventListener("blur", onBlur);
+      if (!this.managesValue) element.removeEventListener("paste", onPaste);
       if (view && this.timer) view.clearTimeout(this.timer);
     };
     this.updateToolbar();
   }
 
   public detach(): void {
-    if (this.detachDom) this.detachDom();
+    if (this.detachDom)this.detachDom();
     this.detachDom = undefined;
     this.element = null;
     this.savedRange = null;
@@ -111,7 +119,12 @@ export class RichTextEditorModel {
 
   public getSource(): string {
     if (!this.element) return this.host.getValue();
-    return RichText.getFormat(this.host.format).toSource(this.element, this.context);
+    return this.converter.toSource(this.element, this.context);
+  }
+
+  public getReadOnlyHtml(value: string): string {
+    if (!value) return "";
+    return this.converter.toHtml(value, this.context) || "";
   }
 
   public getMarkState(mark: RichTextMark): RichTextMarkState {
@@ -123,7 +136,7 @@ export class RichTextEditorModel {
     this.restoreSelection();
     const state = this.markState(mark);
     this.commands.exec(COMMANDS[mark]);
-    if (state === "mixed" && this.markState(mark) !== "all") this.commands.exec(COMMANDS[mark]);
+    if (state === "mixed" && this.markState(mark) !== "all")this.commands.exec(COMMANDS[mark]);
     this.noteInput();
     this.updateToolbar();
   }
@@ -149,13 +162,21 @@ export class RichTextEditorModel {
     this.onKeyDown(event);
   }
 
+  private get managesValue(): boolean {
+    return this.host.managesValue !== false;
+  }
+
+  private get converter(): IRichTextConverter {
+    return this.host.converter || RichText.getFormat(this.host.format);
+  }
+
   private get context() {
     return { inline: this.mode === "inline", element: this.host.owner, name: "value" };
   }
 
   private renderValue(value: string): void {
     if (!this.element) return;
-    const html = value ? RichText.getFormat(this.host.format).toHtml(value, this.context) : "";
+    const html = value ? this.converter.toHtml(value, this.context) : "";
     this.silent = true;
     this.element.innerHTML = html || "";
     this.silent = false;
@@ -163,7 +184,28 @@ export class RichTextEditorModel {
 
   private onInput(): void {
     if (this.silent) return;
+    if (!this.managesValue) {
+      if (this.host.onInput)this.host.onInput();
+      return;
+    }
     this.noteInput();
+  }
+
+  private onPaste(event: ClipboardEvent): void {
+    const data = event.clipboardData;
+    if (!data || !this.commands) return;
+    const html = data.getData("text/html");
+    const plain = data.getData("text/plain");
+    event.preventDefault();
+    this.restoreSelection();
+    if (html) {
+      const converter = RichText.getFormat("html");
+      const fragment = createDetachedElement(html);
+      const source = fragment ? converter.toSource(fragment, this.context) : "";
+      this.commands.exec("insertHTML", converter.toHtml(source, this.context));
+      return;
+    }
+    this.commands.exec("insertText", plain || "");
   }
 
   private noteInput(): void {
@@ -185,7 +227,7 @@ export class RichTextEditorModel {
     if (!this.dirty) return;
     this.dirty = false;
     const source = this.getSource();
-    if (source !== (this.host.getValue() || "")) this.host.setValue(source);
+    if (source !== (this.host.getValue() || ""))this.host.setValue(source);
   }
 
   private onKeyDown(event: KeyboardEvent): void {
@@ -223,7 +265,7 @@ export class RichTextEditorModel {
 
   private onSelectionChange(): void {
     const range = this.currentRange();
-    if (range) this.savedRange = range.cloneRange();
+    if (range)this.savedRange = range.cloneRange();
     this.updateToolbar();
   }
 
@@ -283,7 +325,7 @@ export class RichTextEditorModel {
       const list = li.parentElement;
       if (!list) return;
       const paragraph = li.ownerDocument.createElement("div");
-      while (li.firstChild) paragraph.appendChild(li.firstChild);
+      while(li.firstChild) paragraph.appendChild(li.firstChild);
       list.parentElement?.insertBefore(paragraph, list);
       li.remove();
       if (!list.querySelector("li")) list.remove();
@@ -296,7 +338,7 @@ function textNodesInRange(root: HTMLElement, range: Range): Text[] {
   const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const nodes: Text[] = [];
   let current = walker.nextNode();
-  while (current) {
+  while(current) {
     const text = current as Text;
     if (text.textContent && rangeIntersects(range, text)) nodes.push(text);
     current = walker.nextNode();
@@ -312,7 +354,7 @@ function rangeIntersects(range: Range, node: Text): boolean {
 function nodeHasMark(node: Node | null, root: HTMLElement, mark: RichTextMark): boolean {
   const tags = MARK_TAGS[mark];
   let current: Node | null = node;
-  while (current && current !== root) {
+  while(current && current !== root) {
     if (current.nodeType === 1) {
       const tag = (current as HTMLElement).tagName.toLowerCase();
       if (tags.indexOf(tag) >= 0) return true;

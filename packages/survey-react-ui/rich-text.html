@@ -91,15 +91,12 @@
             <button type="button" data-theme="light">Light</button>
             <button type="button" data-theme="dark">Dark</button>
 
-            <h2>String format</h2>
-            <button type="button" data-format="plain">plain</button>
-            <button type="button" data-format="markdown">markdown</button>
-            <button type="button" data-format="html">html</button>
-
-            <h2>Custom handler</h2>
-            <label><input type="checkbox" id="custom-handler" /> onTextMarkdown for titles</label>
-
             <div class="plugin-only">
+            <h2>String handler</h2>
+            <button type="button" data-handler="none">none</button>
+            <button type="button" data-handler="builtin">built-in</button>
+            <button type="button" data-handler="html">raw HTML</button>
+            <button type="button" data-handler="custom">custom</button>
                 <h2>External converter</h2>
                 <label><input type="checkbox" id="external-converter" /> markdown-it / turndown</label>
                 <p id="converter-status"></p>

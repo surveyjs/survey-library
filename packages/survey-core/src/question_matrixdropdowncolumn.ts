@@ -140,7 +140,8 @@ export class MatrixDropdownColumn extends Base
     return res;
   }
   private templateQuestionValue: Question;
-  private templateQuestionJsonValue: any;
+  private templateQuestionJsonValue: string;
+  private templateJsonNestedObjects: Array<Base>;
   private colOwnerValue: IMatrixColumnOwner;
   private indexValue = -1;
   private _hasVisibleCell = true;
@@ -198,6 +199,7 @@ export class MatrixDropdownColumn extends Base
     super.endLoadingFromJson();
     this.templateQuestion.autoOtherMode = this.isShowInMultipleColumns;
     this.templateQuestion.endLoadingFromJson();
+    this.resetTemplateQuestionJson();
     this.templateQuestion.onGetSurvey = () => {
       return this.getSurvey();
     };
@@ -767,7 +769,7 @@ export class MatrixDropdownColumn extends Base
     if (this.templateQuestion) {
       this.removeProperties(prevCellType);
     }
-    this.templateQuestionJsonValue = undefined;
+    this.resetTemplateQuestionJson();
     // The first cell that loads choices from the server gives them to the column: a new template starts over.
     this.previousChoicesId = undefined;
     // The new template copies the old one's properties (setQuestionProperties): the old one goes after that.
@@ -800,7 +802,7 @@ export class MatrixDropdownColumn extends Base
   }
   // The column's handlers on its template question: added to each new template, removed from the one it replaces.
   private onTemplatePropertyChanged = (sender: Base, options: any): void => {
-    this.templateQuestionJsonValue = undefined;
+    this.resetTemplateQuestionJson();
     this.propertyValueChanged(
       options.name,
       options.oldValue,
@@ -810,13 +812,13 @@ export class MatrixDropdownColumn extends Base
     );
   };
   private onTemplateNestedPropertyChanged = (sender: Base, options: any): void => {
-    this.templateQuestionJsonValue = undefined;
+    this.resetTemplateQuestionJson();
     if (this.colOwner && !this.isLoadingFromJson) {
       this.colOwner.onColumnNestedPropertyChanged(this, options.name, options.nestedName, options.newValue);
     }
   };
   private onTemplateItemValuePropertyChanged = (sender: Base, options: any): void => {
-    this.templateQuestionJsonValue = undefined;
+    this.resetTemplateQuestionJson();
     this.doItemValuePropertyChanged(
       options.propertyName,
       options.obj,
@@ -825,6 +827,43 @@ export class MatrixDropdownColumn extends Base
       options.oldValue
     );
   };
+  // The template question as JSON, serialized once for all the cells it creates or updates.
+  private getTemplateQuestionJson(): any {
+    // Loading fires no property changes, so nothing would reset a cache built now.
+    if (this.isLoadingFromJson || this.templateQuestion.isLoadingFromJson) {
+      return new JsonObject().toJsonObject(this.templateQuestion, true);
+    }
+    if (!this.templateQuestionJsonValue) {
+      this.templateQuestionJsonValue = JSON.stringify(new JsonObject().toJsonObject(this.templateQuestion, true));
+      this.templateJsonNestedObjects = [];
+      this.listenToNestedObjects(this.templateQuestion, new Set<Base>([this.templateQuestion]));
+    }
+    return JSON.parse(this.templateQuestionJsonValue);
+  }
+  private resetTemplateQuestionJson = (): void => {
+    this.templateQuestionJsonValue = undefined;
+    const nested = this.templateJsonNestedObjects;
+    this.templateJsonNestedObjects = undefined;
+    nested?.forEach(obj => obj.onPropertyChanged.remove(this.resetTemplateQuestionJson));
+  };
+  // A change inside a validator, choicesByUrl or another nested object fires no event on the template question,
+  // so the cache listens to each serialized object itself. Choices are walked, not listened to: the template's
+  // onItemValuePropertyChanged already reports their changes.
+  private listenToNestedObjects(obj: Base, visited: Set<Base>): void {
+    Serializer.getPropertiesByObj(obj).forEach(prop => {
+      if (!prop.isSerializable || !!prop.serializationProperty) return;
+      const val = (<any>obj)[prop.name];
+      (Array.isArray(val) ? val : [val]).forEach(item => {
+        if (!(item instanceof Base) || visited.has(item)) return;
+        visited.add(item);
+        if (!(item instanceof ItemValue)) {
+          this.templateJsonNestedObjects.push(item);
+          item.onPropertyChanged.add(this.resetTemplateQuestionJson);
+        }
+        this.listenToNestedObjects(item, visited);
+      });
+    });
+  }
   private disposeTemplateQuestion(question: Question): void {
     if (!question) return;
     question.onPropertyChanged.remove(this.onTemplatePropertyChanged);
@@ -860,14 +899,11 @@ export class MatrixDropdownColumn extends Base
       if (onUpdateJson) {
         json = new JsonObject().toJsonObject(this.templateQuestion, true);
         onUpdateJson(json);
-      } else if (useCache) {
-        if (!this.templateQuestionJsonValue) {
-          this.templateQuestionJsonValue = JSON.stringify(new JsonObject().toJsonObject(this.templateQuestion, true));
-        }
-        json = JSON.parse(this.templateQuestionJsonValue);
+      } else if (useCache || this.templateQuestion.getType() === question.getType()) {
+        // A cell of the template's type takes the template with its defaults: the JSON the cache holds.
+        json = this.getTemplateQuestionJson();
       } else {
-        const storeDefaults = this.templateQuestion.getType() === question.getType();
-        json = new JsonObject().toJsonObject(this.templateQuestion, storeDefaults);
+        json = new JsonObject().toJsonObject(this.templateQuestion, false);
       }
       json.type = question.getType();
       if (this.cellType === "default" && !!this.colOwner && this.colOwner.hasChoices()) {

@@ -6,8 +6,7 @@ import { PageModel } from "../src/page";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
-import { ComponentCollection, QuestionCompositeModel } from "../src/question_custom";
-import { QuestionCustomModel } from "../src/question_custom";
+import { ComponentCollection, QuestionCompositeModel, QuestionCustomModel } from "../src/question_custom";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
@@ -135,14 +134,18 @@ describe("A throw from user code leaves the survey working", () => {
   });
   test("a value-changed handler that throws while a composite question sets an inner value: later inner values still reach the survey", () => {
     ComponentCollection.Instance.add({ name: "throwingcomposite", elementsJSON: [{ type: "text", name: "a" }, { type: "text", name: "b" }] });
-    const survey = new SurveyModel({ elements: [{ type: "throwingcomposite", name: "q1" }] });
-    const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
-    const throwOnce = createThrowOnce("throwOnCompositeChange");
-    survey.onValueChanged.add(() => { throwOnce.check(); });
-    throwOnce.arm();
-    expect(() => { q1.contentPanel.getQuestionByName("a").value = 1; }, "#1").toThrow("throwOnCompositeChange");
-    q1.contentPanel.getQuestionByName("b").value = 2;
-    expect(survey.data, "#2").toEqual({ q1: { a: 1, b: 2 } });
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "throwingcomposite", name: "q1" }] });
+      const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+      const throwOnce = createThrowOnce("throwOnCompositeChange");
+      survey.onValueChanged.add(() => { throwOnce.check(); });
+      throwOnce.arm();
+      expect(() => { q1.contentPanel.getQuestionByName("a").value = 1; }, "#1").toThrow("throwOnCompositeChange");
+      q1.contentPanel.getQuestionByName("b").value = 2;
+      expect(survey.data, "#2").toEqual({ q1: { a: 1, b: 2 } });
+    } finally {
+      ComponentCollection.Instance.remove("throwingcomposite");
+    }
   });
   test("a value-changed handler that throws while a default value applies: a later answer stays an answer", () => {
     const survey = new SurveyModel({ elements: [
@@ -473,19 +476,23 @@ describe("A throw from user code leaves the survey working", () => {
   });
   test("a value-changed handler that throws while a custom question sets its value: later inner changes in a dynamic panel are reported", () => {
     ComponentCollection.Instance.add({ name: "throwingcustom", questionJSON: { type: "text" } });
-    const survey = new SurveyModel({ elements: [
-      { type: "paneldynamic", name: "q1", panelCount: 1, templateElements: [{ type: "throwingcustom", name: "c" }] }
-    ] });
-    const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
-    const c = <QuestionCustomModel>q1.panels[0].getQuestionByName("c");
-    const throwOnce = createThrowOnce("throwOnCustomValue");
-    survey.onValueChanged.add(() => { throwOnce.check(); });
-    throwOnce.arm();
-    expect(() => { c.value = "a"; }, "#1").toThrow("throwOnCustomValue");
-    let changes = 0;
-    survey.onDynamicPanelValueChanged.add(() => { changes++; });
-    c.contentQuestion.value = "b";
-    expect(changes, "#2").toBe(1);
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "paneldynamic", name: "q1", panelCount: 1, templateElements: [{ type: "throwingcustom", name: "c" }] }
+      ] });
+      const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+      const c = <QuestionCustomModel>q1.panels[0].getQuestionByName("c");
+      const throwOnce = createThrowOnce("throwOnCustomValue");
+      survey.onValueChanged.add(() => { throwOnce.check(); });
+      throwOnce.arm();
+      expect(() => { c.value = "a"; }, "#1").toThrow("throwOnCustomValue");
+      let changes = 0;
+      survey.onDynamicPanelValueChanged.add(() => { changes++; });
+      c.contentQuestion.value = "b";
+      expect(changes, "#2").toBe(1);
+    } finally {
+      ComponentCollection.Instance.remove("throwingcustom");
+    }
   });
   test("a value-changed handler that throws while hidden choices are cleared: a later answer drops the hidden ones", () => {
     const survey = new SurveyModel({ elements: [

@@ -181,7 +181,7 @@ For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.tx
 
 ## Build from Source
 
-Requires Node.js 20 or later — CI builds on Node 20.x and 22.x. This monorepo does **not** use npm workspaces: each package installs independently, but a root install is still required for the shared tooling (linting, Playwright).
+Requires Node.js 20 or later — CI builds on Node 22.x and 24.x. This monorepo does **not** use npm workspaces: each package installs independently, but a root install is still required for the shared tooling (linting, Playwright).
 
 1. **Clone the repo and install shared dependencies**
 

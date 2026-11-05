@@ -50,9 +50,8 @@ frameworks.forEach((framework) => {
         if (!scrollContainer) return;
         scrollContainer.scrollTop = 1000;
       });
-      await page.waitForTimeout(1000);
-      const count1 = await page.locator(".sv-skeleton-element").count();
-      expect(count1).toBeLessThan(44);
+      // The rows scrolled into view render on the scroll event.
+      await expect.poll(() => page.locator(".sv-skeleton-element").count()).toBeLessThan(44);
       // Disable lazy rendering
       await page.evaluate(() => {
         window["Survey"].settings.lazyRender.enabled = false;
@@ -203,7 +202,6 @@ frameworks.forEach((framework) => {
       // let count = await page.locator(".sv-skeleton-element").count();
       // expect(count).toBeGreaterThan(0);
       await focusCellButton.click();
-      await page.waitForTimeout(1000);
       // count = await page.locator(".sv-skeleton-element").count();
       await expect(cellTextbox).toBeVisible();
       await expect(cellTextbox).toBeFocused();
@@ -317,14 +315,14 @@ frameworks.forEach((framework) => {
         "headerView": "advanced"
       };
       await initSurvey(page, framework, json);
-      await page.waitForTimeout(50);
+      // Wait until the rows in view have rendered one by one: a row renders when it is within 50px of the view.
+      await expect.poll(async () => (await page.locator(".sv-skeleton-element").first().boundingBox())?.y).toBeGreaterThan(page.viewportSize()!.height + 50);
       const skeletonCount = await page.locator(".sv-skeleton-element").count();
       expect(skeletonCount).toBeGreaterThan(14);
       for (let i = 0; i < 7; i++) {
         await page.mouse.wheel(0, 500);
       }
-      await page.waitForTimeout(50);
-      expect(await page.locator(".sv-skeleton-element").count()).toBe(0);
+      await expect(page.locator(".sv-skeleton-element")).toHaveCount(0);
     });
     // survey-js-ui renders the survey into a shadow root whose host does not scroll, so no skeletons appear.
     (framework == "survey-js-ui" ? test.skip : test)("Check lazy rendering when no container with restricted height and questions above are removed", async ({ page }) => {
@@ -337,7 +335,10 @@ frameworks.forEach((framework) => {
         json.elements.push({ type: "text", name: "question" + (i + 1) });
       }
       await initSurvey(page, framework, json);
-      await page.waitForTimeout(500);
+      // Wait until the rows in view have rendered one by one, so the first skeleton is the first row below the view.
+      // A row renders when it is within 50px of the view.
+      const viewportHeight = page.viewportSize()!.height;
+      await expect.poll(async () => (await page.locator(".sv-skeleton-element").first().boundingBox())?.y).toBeGreaterThan(viewportHeight + 50);
       const firstSkeletonId = await page.locator(".sv-skeleton-element").first().getAttribute("id");
       expect(firstSkeletonId).toBeTruthy();
       const removedCount = await page.evaluate((skeletonId) => {
@@ -349,7 +350,6 @@ frameworks.forEach((framework) => {
       }, firstSkeletonId);
       expect(removedCount).toBeGreaterThan(0);
       expect(await page.evaluate(() => window.scrollY)).toBe(0);
-      await page.waitForTimeout(500);
       await expect(page.locator(`.sv-skeleton-element[id="${firstSkeletonId}"]`)).toHaveCount(0);
       await expect(page.locator(`[id="${firstSkeletonId}"]`)).toHaveCount(1);
     });

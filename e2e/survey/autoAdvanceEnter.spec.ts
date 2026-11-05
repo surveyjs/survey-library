@@ -244,6 +244,7 @@ frameworks.forEach((framework) => {
           await page.keyboard.press("Enter");
           await expect(input).toHaveValue("second");
           await expect(input).toBeFocused();
+          // Proves that the survey does not move a second step: that move would come autoAdvanceDelay after Enter.
           await page.waitForTimeout(delay + 100);
           await expect(input).toHaveValue("second");
           await expect(input).toBeFocused();
@@ -269,7 +270,9 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await page.keyboard.press("Enter");
       await expect(input).toHaveValue("second");
-      await page.waitForTimeout(400);
+      // Proves that the second Enter does not move on: that move would come settings.autoAdvanceDelay after it.
+      const delay = await page.evaluate(() => (window as any).Survey.settings.autoAdvanceDelay);
+      await page.waitForTimeout(delay + 100);
       await expect(input).toHaveValue("second");
     });
 
@@ -290,6 +293,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await expectSecondPage(page);
       await expect(page.locator("input[type=range]")).toBeFocused();
+      // Proves that the keyup the range takes stores no value and moves nowhere; there is no product delay to tie it to.
       await page.waitForTimeout(100);
       await expectSecondPage(page);
       expect(await getSurveyData(page)).toEqual({ q1: "first" });

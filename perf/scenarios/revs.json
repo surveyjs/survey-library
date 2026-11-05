@@ -3,9 +3,9 @@
     "rev": 1,
     "hash": "f8190c092cca5049eccd6d5a036747bbb7709ea1"
   },
-  "calculations/answer/next10": {
+  "calculations/answer/next3": {
     "rev": 1,
-    "hash": "a2ea3ad3819b440ebfeae263a1a8195d61b65466"
+    "hash": "26ae08c52edcb0b5404cecbe0398972483ed0b7d"
   },
   "calculations/load/model": {
     "rev": 1,
@@ -19,9 +19,9 @@
     "rev": 1,
     "hash": "6335abf1e909a43606155979969cef0bd62fc4e9"
   },
-  "complexLogic/answer/next10": {
+  "complexLogic/answer/next3": {
     "rev": 1,
-    "hash": "8748db4c62184ddc96b98fe328364b934f329b1d"
+    "hash": "ccae333e7d9384c2a5b69c5078cd69e6bda092b6"
   },
   "complexLogic/answer/type": {
     "rev": 1,
@@ -55,9 +55,9 @@
     "rev": 1,
     "hash": "8ac0a9f0e8f1ab9fa41f79eb9e5ee383987a51c0"
   },
-  "expressions/answer/next10": {
+  "expressions/answer/next3": {
     "rev": 1,
-    "hash": "8748db4c62184ddc96b98fe328364b934f329b1d"
+    "hash": "ccae333e7d9384c2a5b69c5078cd69e6bda092b6"
   },
   "expressions/load/model": {
     "rev": 1,
@@ -215,33 +215,9 @@
     "rev": 1,
     "hash": "41602b823f61a646affe1bc0574d722a1cfe91b4"
   },
-  "records-1k/records/add-row@orders": {
-    "rev": 1,
-    "hash": "a9f984e2b9b38a42d1a282bda9124eddd254ffd9"
-  },
-  "records-1k/records/edit-cell@orders": {
-    "rev": 1,
-    "hash": "72c1226cd7b4f52b8cdd3e2940491ae833cf1d99"
-  },
-  "records-1k/records/filter-change@orders": {
-    "rev": 1,
-    "hash": "02e50e14e756e8f1a5828b8e60a5ac652ba9f775"
-  },
-  "records-1k/records/filter-clear@orders": {
-    "rev": 1,
-    "hash": "6c83b9c22197a748f88eca320db7ec46a662d3ed"
-  },
   "records-1k/records/filter-set@orders": {
     "rev": 1,
     "hash": "5b051f47629c3c2708976db46a031c84e16d84b4"
-  },
-  "records-1k/records/first-visit@orders": {
-    "rev": 1,
-    "hash": "1337b59c24e0bc1b52c37aa9c9f9f19eeec5f463"
-  },
-  "records-1k/records/last@orders": {
-    "rev": 1,
-    "hash": "759912f2edd7d4df8fa38baa2196ef0ff874ad44"
   },
   "records-1k/records/next@orders": {
     "rev": 1,
@@ -251,14 +227,6 @@
     "rev": 1,
     "hash": "81d481f9a31ae3e8cfcfa9d91b311c3ccdff6bbc"
   },
-  "records-1k/records/prev@orders": {
-    "rev": 1,
-    "hash": "c1a31251d4b9cc834439dbc9f99ddd921d78b066"
-  },
-  "records-1k/records/remove-row@orders": {
-    "rev": 1,
-    "hash": "3b1310b1fae0e8ee5012e0539853d18df81fa06b"
-  },
   "records-1k/records/sort-1@orders": {
     "rev": 1,
     "hash": "3bad2b9210ccbcc3bbb6962308694660385edcae"
@@ -266,14 +234,6 @@
   "records-1k/records/sort-1@ordersPanel": {
     "rev": 1,
     "hash": "2b505572f013aa9a4acd70c2f75195b5b8388eaf"
-  },
-  "records-1k/records/sort-3@orders": {
-    "rev": 1,
-    "hash": "9438c22b636c265270ac4d344cd123160449bb41"
-  },
-  "records-1k/records/sort-reverse@orders": {
-    "rev": 1,
-    "hash": "1da94aaf596fdb19986033f36e09d5f9d42aba5c"
   },
   "records-plain/records/sort-1@orders30": {
     "rev": 1,

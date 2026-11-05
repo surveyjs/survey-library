@@ -5,7 +5,7 @@ import { scenarioById } from "../scenarios/index.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { readEnv } from "../harness/node/env.ts";
 import { summarize, median } from "../harness/stats.ts";
-import { calibrationResult } from "../harness/calibration.ts";
+import { calibrationReadings, calibrationResult } from "../harness/calibration.ts";
 import { sampleLoop } from "../harness/sample.ts";
 import type { ResultEntry } from "../harness/node/result.ts";
 import { suiteOf, resolveUrl, uiPackage } from "./paths.ts";
@@ -19,7 +19,8 @@ const env = readEnv();
 const calibrationOnly = isCalibrationOnly(env.only);
 const split = calibrationOnly ? { run: [], notInSuite: [] } : splitOnly(env.only, suite);
 const pageUrl = "http://perf.local/page/" + uiPackage[suite].page;
-const loadOptions = { samples: 7, maxMs: 8000, minSamples: 5 };
+// maxMs 5 s (8 s before 2026-11-05), for action scenarios too: see scenario-process.ts.
+const loadOptions = { samples: 7, maxMs: 5000, minSamples: 5 };
 let browser: Browser;
 const failedRequests: Array<string> = [];
 
@@ -87,36 +88,45 @@ async function runAction(id: string, fixture: any): Promise<any> {
   }
 }
 
-// A load scenario: Node runs the sample loop; each sample is a new context, a page and one evaluate. Calibration
-// runs in a fresh page of its own before the first sample and after the last.
+// A load scenario: Node runs the sample loop; each sample is a new context, a page and one evaluate. The 3 readings
+// before the first sample and the 3 after the counter run are taken in a fresh page of its own, after a gc and a
+// settle there; it is closed before the first sample. The reading before each sample is taken in the sample's own
+// page, right before its setup (loadSample): an idle page kept open can run at another speed than the fresh pages.
 async function runLoad(id: string, fixture: any): Promise<any> {
   let calibrationPage: { context: BrowserContext, page: Page } | undefined;
   let skipped = "";
   let last: any = {};
   const longTasks: Array<number> = [];
+  const calibration = async(): Promise<Page> => {
+    if (!calibrationPage) calibrationPage = await openPage();
+    return calibrationPage.page;
+  };
   const closeCalibration = async(): Promise<void> => {
     if (calibrationPage) await calibrationPage.context.close();
     calibrationPage = undefined;
   };
+  const loadSample = async(withReading: boolean): Promise<any> => {
+    await closeCalibration();
+    if (skipped) return { ms: 0, reading: 0, readingMs: 0 };
+    const { context, page } = await openPage();
+    try {
+      const r = await page.evaluate((arg: any) => (window as any).PerfPage.loadSample(arg.id, arg.fixture, arg.withReading),
+        { id: id, fixture: fixture, withReading: withReading });
+      if (r.skipped) skipped = r.skipped;
+      last = r;
+      if (typeof r.longTaskMs === "number") longTasks.push(r.longTaskMs);
+      return { ms: r.ms || 0, phases: r.phases, reading: r.reading || 0, readingMs: r.readingMs || 0 };
+    } finally {
+      await context.close();
+    }
+  };
   const res = await sampleLoop({
-    calibrate: async(): Promise<number> => {
-      if (!calibrationPage) calibrationPage = await openPage();
-      return calibrationPage.page.evaluate(() => (window as any).PerfPage.calibrate());
+    beforeCalibration: async(): Promise<void> => {
+      await (await calibration()).evaluate(() => (window as any).PerfPage.settleForCalibration());
     },
-    sample: async(): Promise<any> => {
-      await closeCalibration();
-      if (skipped) return { ms: 0 };
-      const { context, page } = await openPage();
-      try {
-        const r = await page.evaluate((arg: any) => (window as any).PerfPage.loadSample(arg.id, arg.fixture), { id: id, fixture: fixture });
-        if (r.skipped) skipped = r.skipped;
-        last = r;
-        if (typeof r.longTaskMs === "number") longTasks.push(r.longTaskMs);
-        return { ms: r.ms || 0, phases: r.phases };
-      } finally {
-        await context.close();
-      }
-    },
+    calibrate: async(): Promise<number> => (await calibration()).evaluate(() => (window as any).PerfPage.calibrate()),
+    sample: async(): Promise<any> => loadSample(false),
+    sampleWithReading: async(): Promise<any> => loadSample(true),
     counterRun: async(): Promise<any> => {
       if (skipped) return {};
       const { context, page } = await openPage();
@@ -131,8 +141,10 @@ async function runLoad(id: string, fixture: any): Promise<any> {
   }, { warmup: 0, samples: loadOptions.samples, maxMs: loadOptions.maxMs, minSamples: loadOptions.minSamples, now: () => performance.now() });
   await closeCalibration();
   if (skipped) return { skipped: skipped };
-  const r = Object.assign({}, last, { calibration: calibrationResult(res.calibrationBefore, res.calibrationAfter), counters: res.counters,
-    info: { kept: res.samples.length, warmups: 0, wallMs: Math.round(res.wallMs), longTaskMs: longTasks.length ? median(longTasks) : 0, heapMB: last.heapMB } });
+  const readings = calibrationReadings(res.calibrationBefore, res.calibrationDuring, res.calibrationAfter);
+  const r = Object.assign({}, last, { calibration: calibrationResult(readings), counters: res.counters,
+    info: { kept: res.samples.length, warmups: 0, wallMs: Math.round(res.wallMs), longTaskMs: longTasks.length ? median(longTasks) : 0, heapMB: last.heapMB,
+      calibrationReadings: readings } });
   return { entry: entryOf(id, r, res.samples, res.phases) };
 }
 

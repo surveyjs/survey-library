@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import type { Counters } from "../counters.ts";
-import type { CalibrationResult } from "../calibration.ts";
+import type { CalibrationResult, CalibrationReadings } from "../calibration.ts";
 import type { PerfEnv } from "./env.ts";
 import type { MachineInfo } from "./machine.ts";
 import type { DepsInfo } from "./deps.ts";
@@ -21,7 +21,8 @@ export interface ResultEntry {
   calibration: CalibrationResult;
   phases?: { [phase: string]: { median: number, min: number } };
   counters: Counters;
-  info: { [name: string]: any };
+  // Free-form (CONTRACT.md); calibrationReadings holds every reading calibration is computed from.
+  info: { calibrationReadings?: CalibrationReadings, [name: string]: any };
   jsonErrors: number;
   tolerance: number | null;
   local: boolean;

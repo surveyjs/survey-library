@@ -1619,6 +1619,41 @@ describe("Panel", () => {
       SurveyElement.ScrollElementToTop = oldScrollElementToTop;
     }
   });
+  test("scrollElementToTop does not dispatch the lazy rendering check without lazy rendering", () => {
+    const oldScrollElementToTop = SurveyElement.ScrollElementToTop;
+    vi.useFakeTimers();
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] });
+    const q1 = survey.getQuestionByName("q1");
+    const root = document.createElement("div");
+    const questionDiv = document.createElement("div");
+    questionDiv.id = q1.id;
+    root.appendChild(questionDiv);
+    document.body.appendChild(root);
+    let scrollEvents = 0;
+    const onScroll = () => scrollEvents++;
+    window.addEventListener("scroll", onScroll);
+    try {
+      expect(survey.isLazyRendering, "lazy rendering is off").toBe(false);
+      survey.rootElement = root;
+      let scrolledCallbacks = 0;
+      SurveyElement.ScrollElementToTop = ((el, _, __, doneCallback) => { doneCallback(); }) as any;
+      survey.scrollElementToTop(q1, q1, null, q1.id, false, undefined, undefined, () => scrolledCallbacks++);
+      vi.advanceTimersByTime(20);
+      expect(scrollEvents, "no synthetic scroll after scrolling to the element").toBe(0);
+
+      survey.autoCenterFocusedQuestion = true;
+      survey.scrollElementToTop(q1, q1, null, q1.id, false, undefined, undefined, () => scrolledCallbacks++);
+      vi.advanceTimersByTime(20);
+      expect(scrollEvents, "no synthetic scroll after centering the element").toBe(0);
+      expect(scrolledCallbacks, "both scrolls call back").toBe(2);
+    } finally {
+      SurveyElement.ScrollElementToTop = oldScrollElementToTop;
+      window.removeEventListener("scroll", onScroll);
+      vi.useRealTimers();
+      survey.dispose();
+      root.remove();
+    }
+  });
   test("row.isNeedRender & settings.lazyRowsRenderingStartRow", () => {
     const json = {
       pages: [

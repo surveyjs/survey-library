@@ -18919,6 +18919,32 @@ describe("Survey", () => {
     expect(model["onScrollCallback"]).toBeFalsy();
     model.onScroll();
   });
+  test("SurveyModel: a scroll event dispatched by script does not close a popup inside survey", () => {
+    const survey = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] }] });
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const root = document.createElement("div");
+    const scroller = document.createElement("div");
+    scroller.className = "sv-scroll__scroller";
+    root.appendChild(scroller);
+    document.body.appendChild(root);
+    try {
+      survey["rootElement"] = root;
+      survey["scrollerElement"] = scroller;
+      survey.addScrollEventListener();
+      question.dropdownListModel.popupModel.toggleVisibility();
+      expect(question.dropdownListModel.popupModel.isVisible, "the popup is open").toBe(true);
+
+      scroller.dispatchEvent(new CustomEvent("scroll"));
+      expect(question.dropdownListModel.popupModel.isVisible, "an untrusted scroll event does not close the popup").toBe(true);
+
+      survey.onScroll();
+      expect(question.dropdownListModel.popupModel.isVisible, "onScroll without an event closes the popup").toBe(false);
+    } finally {
+      survey.removeScrollEventListener();
+      survey.dispose();
+      root.remove();
+    }
+  });
   test("Do not create dropdownListModel for disposed questions", (assert): any => {
     const survey = new SurveyModel({ elements: [
       { type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] },

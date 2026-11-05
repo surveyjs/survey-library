@@ -74,7 +74,7 @@ export interface PerfScenario<S = any> {
   browser?: { counterOnly?: boolean, repeat?: number, samples?: number, warmup?: number, maxMs?: number };
 }
 
-export const scenarioIdPattern = /^((?:records-1k|records-10k|large|expressions|expressions-x2|calculations|complexLogic|manyPages)|extra\/[^/]+)\/(load|answer|pages|records|output)\/([A-Za-z0-9-]+)(@[A-Za-z0-9_]+)?$/;
+export const scenarioIdPattern = /^((?:records-1k|records-10k|records-plain|large|expressions|expressions-x2|calculations|complexLogic|manyPages)|extra\/[^/]+)\/(load|answer|pages|records|output)\/([A-Za-z0-9-]+)(@[A-Za-z0-9_]+)?$/;
 
 export function fixtureOfId(id: string): string {
   const m = scenarioIdPattern.exec(id);

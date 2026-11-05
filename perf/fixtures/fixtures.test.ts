@@ -100,6 +100,44 @@ describe.skipIf(!!process.env.PERF_CORE_DIR)("perf fixtures on the runner's buil
       expect(bound.isVisible, "with no orders it is hidden").toBe(false);
     });
   }
+  test("3. records-plain: two plain matrices, no calculated values, a distinct id the id header sorts ascending", () => {
+    const fixture = getFixture("records-plain");
+    // What would make a sort rebuild the rows rather than rebind them, or measure more than the matrix.
+    const text = JSON.stringify(fixture.json);
+    ["calculatedValues", "detailPanelMode", "detailElements", "defaultValue", "defaultValueExpression", "defaultRowValue",
+      "copyDefaultValueFromLastEntry", "showInMultipleColumns", "transposeData", "allowRowReorder"].forEach((key: string) => {
+      expect(text, key).not.toContain("\"" + key + "\"");
+    });
+    const cellTypes = ["text", "comment", "dropdown", "checkbox", "radiogroup", "boolean", "expression", "rating", "tagbox"];
+    const { survey } = loadQuietly(Survey, fixture.json);
+    survey.data = fixture.data;
+    expect(survey.getAllQuestions(false).map((q: any) => q.name)).toEqual(fixture.meta.matrices);
+    const counts: any = { orders30: [fixture.meta.records, 1], ordersPaged: [fixture.meta.pagedRecords, fixture.meta.pagedRecords / fixture.meta.pageSize] };
+    expect(counts.orders30[0]).toBe(30);
+    expect(counts.ordersPaged).toEqual([1000, 100]);
+    for (const name of fixture.meta.matrices) {
+      const q = survey.getQuestionByName(name);
+      expect(q.getType()).toBe("matrixdynamic");
+      expect(q.allowSort).toBe(true);
+      expect(q.columns.length).toBe(9);
+      q.columns.forEach((c: any) => expect(cellTypes, c.name).toContain(c.cellType));
+      const ids = fixture.data[name].map((r: any) => r.id);
+      expect(new Set(ids).size, name + ": distinct ids").toBe(ids.length);
+      expect(q.rowCount).toBe(counts[name][0]);
+      expect(q.pageCount).toBe(counts[name][1]);
+      const size = q.pageSize > 0 ? q.pageSize : ids.length;
+      const before = q.visibleRows.map((r: any) => r.getValue("id"));
+      expect(before).toEqual(ids.slice(0, size));
+      // A click on the id header: ascending first, and the shown rows change.
+      const cell = q.renderedTable.headerRow.cells.filter((c: any) => c.column && c.column.name === "id")[0];
+      expect(cell.isSortable).toBe(true);
+      cell.toggleSort();
+      expect(q.sortCriteria.map((c: any) => c.field + " " + c.direction)).toEqual(["id asc"]);
+      const after = q.visibleRows.map((r: any) => r.getValue("id"));
+      expect(after).toEqual(ids.slice().sort().slice(0, size));
+      expect(after).not.toEqual(before);
+    }
+  });
   for (const key of ["expressions", "calculations", "complexLogic"]) {
     test("4. " + key + ": every expression parses and the linter finds nothing unplanned", () => {
       const fixture = getFixture(key);

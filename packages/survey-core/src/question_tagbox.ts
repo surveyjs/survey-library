@@ -22,6 +22,11 @@ import { questionDropdownMixin } from "./question_dropdown_mixin";
  */
 export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxModel) {
   private itemDisplayNameMap: { [key: string]: string} = {};
+  // The texts the old record's values were shown with go (Question.resetForAnotherRecord).
+  protected resetForAnotherRecord(): void {
+    super.resetForAnotherRecord();
+    this.itemDisplayNameMap = {};
+  }
 
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);

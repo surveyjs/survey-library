@@ -533,18 +533,18 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
   }
   private updatePages() {
-    this.blockAnimations();
-    let currentPage: QuestionFilePage;
-    this.pages = [];
-    this.renderedPages = [];
-    this.previewValue.forEach((val, index) => {
-      if (index % this.pageSize == 0) {
-        currentPage = new QuestionFilePage(this, this.pages.length);
-        this.pages.push(currentPage);
-      }
-      currentPage.items.push(val);
+    this.runWithoutAnimations(() => {
+      let currentPage: QuestionFilePage;
+      this.pages = [];
+      this.renderedPages = [];
+      this.previewValue.forEach((val, index) => {
+        if (index % this.pageSize == 0) {
+          currentPage = new QuestionFilePage(this, this.pages.length);
+          this.pages.push(currentPage);
+        }
+        currentPage.items.push(val);
+      });
     });
-    this.releaseAnimations();
     this.updateRenderedPages();
   }
   private prevPreviewLength = 0;

@@ -181,16 +181,19 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   public updateCellQuestion() {
     const question = <QuestionExpressionModel>this.question;
     question.locCalculation();
-    this.column.updateCellQuestion(question, function (json) {
-      delete json["defaultValue"];
-    });
-    question.expression = this.getTotalExpression();
-    question.format = this.column.totalFormat;
-    question.currency = this.column.totalCurrency;
-    question.displayStyle = this.column.totalDisplayStyle;
-    question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
-    question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
-    question.unlocCalculation();
+    try {
+      this.column.updateCellQuestion(question, function (json) {
+        delete json["defaultValue"];
+      });
+      question.expression = this.getTotalExpression();
+      question.format = this.column.totalFormat;
+      question.currency = this.column.totalCurrency;
+      question.displayStyle = this.column.totalDisplayStyle;
+      question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
+      question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
+    } finally {
+      question.unlocCalculation();
+    }
     question.runIfReadOnly = true;
   }
   public getQuestionWrapperClassName(className: string): string {
@@ -366,13 +369,33 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       super.updateFromRecord(record);
     });
   }
+  /* The row is kept for another record (QuestionMatrixDropdownModelBase.rebindRows): it follows the
+     record's object first, as a new row does. The conditions - visibility, read-only state,
+     expressions - run after every row is rebound. */
+  public rebindToRecord(record: any): void {
+    this.runSettingValue((): void => {
+      this.subscribeToChanges(record);
+      super.rebindToRecord(record);
+    });
+  }
+  /* A question takes its record the way a new row fills it: a cell as buildCells does, by the column
+     name - not by a column's valueName, which an update reads - and a detail panel question as
+     ensureDetailPanel does, without the comment. */
+  protected fillQuestionFromRecord(question: Question, record: any): void {
+    const cell = this.getCellByColumnName(question.name);
+    if (!!cell && cell.question === question) {
+      this.assignQuestionFromRecord(question, cell.column.name, record, true);
+    } else {
+      this.assignQuestionFromRecord(question, question.getValueName(), record, false);
+    }
+  }
   /* The row notifies each question right after updating it, and it keeps a comment the question
      typed while the record has none, unless the question's comment was the record's. A cell gets a copy
      of its value: a question may adjust the value it is given in place (a checkbox puts its other item
      in), and the record keeps the stored answer, as released. A survey element the row edits in place is
      not copied. */
   protected updateQuestionFromRecord(question: Question, record: any): void {
-    const cellValue = this.getCellValue(record, question.getValueName());
+    const cellValue = this.getRecordFieldValue(record, question.getValueName());
     const val = !this.editingObj ? Helpers.getUnbindValue(cellValue) : cellValue;
     const oldComment = question.comment;
     let comment = !!record ? record[Helpers.getCommentKey(question.getValueName())] : "";
@@ -488,11 +511,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       var value = this.getDataRowValue();
       if (!Helpers.isValueEmpty(value)) {
         for (var i = 0; i < questions.length; i++) {
-          const key = questions[i].getValueName();
-          const val = !!this.editingObj ? Serializer.getObjPropertyValue(this.editingObj, key) : value[key];
-          if (!Helpers.isValueEmpty(val)) {
-            questions[i].value = val;
-          }
+          this.assignQuestionFromRecord(questions[i], questions[i].getValueName(), value, false);
         }
       }
       this.detailPanelValue.setSurveyImpl(this);
@@ -898,27 +917,20 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     this.runSettingValue((): void => {
       var columns = this.data.columns;
       for (var i = 0; i < columns.length; i++) {
-        var column = columns[i];
-        var cell = this.createCell(column);
+        var cell = this.createCell(columns[i]);
         this.cells.push(cell);
-        var cellValue = this.getCellValue(value, column.name);
-        if (!Helpers.isValueEmpty(cellValue)) {
-          cell.question.value = cellValue;
-          var commentKey = Helpers.getCommentKey(column.name);
-          if (!!value && !Helpers.isValueEmpty(value[commentKey])) {
-            cell.question.comment = value[commentKey];
-          }
-        }
+        this.assignQuestionFromRecord(cell.question, cell.column.name, value, true);
       }
     });
   }
   protected isTwoValueEquals(val1: any, val2: any): boolean {
     return Helpers.isTwoValueEquals(val1, val2, false, true, false);
   }
-  private getCellValue(value: any, name: string): any {
+  // A row that edits a survey element reads the element's property, not the record.
+  protected getRecordFieldValue(record: any, name: string): any {
     if (!!this.editingObj)
       return Serializer.getObjPropertyValue(this.editingObj, name);
-    return !!value ? value[name] : undefined;
+    return super.getRecordFieldValue(record, name);
   }
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
     return new MatrixDropdownCell(column, this, this.data);
@@ -2290,7 +2302,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected isColumnVisible(column: any): boolean {
     return column.isColumnVisible;
   }
-  private isGeneratingRows: boolean;
+  private generatingRowsScope = new Scope();
+  private get isGeneratingRows(): boolean {
+    return this.generatingRowsScope.isActive;
+  }
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {
     if (this.isUpdateLocked) return null;
     if (this.isGeneratingRows) return [];
@@ -2321,12 +2336,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return row.visibleIndex;
   }
   private generateVisibleRows(): void {
-    this.isGeneratingRows = true;
-    try {
+    this.generatingRowsScope.run((): void => {
       this.generatedVisibleRows = this.generateRows();
-    } finally {
-      this.isGeneratingRows = false;
-    }
+    });
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       const row = this.generatedVisibleRows[i];
       this.setRowVisibleIndex(row, i);
@@ -2825,6 +2837,29 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       if (!hasRows) {
         this.getVisibleRows();
       }
+      this.runTotalsCondition(this.getDataFilteredProperties());
+    }
+  }
+  /* The rows follow a view change by rebinding (rebindItems), for the changes the Dynamic Matrix allows
+     it for (getRebindRecordIndexes), the way a row move keeps them (followRecordMove). The rendered table
+     keeps its rows and builds their actions and its header again; it is reset when a row's actions
+     change - a sort adds or removes the drag handle, lockedRowCount locks another record - or a row is
+     hidden or shown. Without a reset onRenderedTableResetCallback does not fire;
+     visibleRowsChangedCallback fires once, as for a rebuild. */
+  protected rebindRows(indexes: Array<number>, getRecord: (recordIndex: number) => any): void {
+    this.rebindItems(this.generatedVisibleRows, indexes, getRecord,
+      (row: MatrixDropdownRowModelBase, position: number): void => { this.setRowVisibleIndex(row, position); });
+    this.clearVisibleRows();
+    if (this.data) {
+      this.runCellsCondition(this.data.getFilteredProperties());
+    }
+    this.renderedTableHost.updateAfterRowsRebound();
+    this.updateVisibilityBasedOnRows();
+    this.fireCallback(this.visibleRowsChangedCallback);
+    this.updateRowsVisibleIndexes();
+    this.resetSurveyProgressTotal();
+    this.updateIsAnswered();
+    if (this.hasTotal) {
       this.runTotalsCondition(this.getDataFilteredProperties());
     }
   }

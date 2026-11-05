@@ -101,7 +101,7 @@ describe("ids", () => {
     SCENARIO_IDS.forEach((s: any) => expect(s.suites.length).toBeGreaterThan(0));
     expect(allScenarios().map((s: any) => s.id).sort()).toEqual(ids.slice().sort());
     expect(idsOfSuite("react")).toEqual(idsOfSuite("survey-js-ui"));
-    expect(idsOfSuite("react").length).toBe(19);
+    expect(idsOfSuite("react").length).toBe(21);
     DROP_LIST.forEach((id: string) => expect(ids).toContain(id));
   });
   test("the PERF_ONLY split", () => {

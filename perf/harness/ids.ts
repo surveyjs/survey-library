@@ -1,7 +1,10 @@
 // The fixture keys and every scenario id with the suites that run it (00, Ids). The same operation has the same id
 // in core and in the browser. 03 adds the browser suites.
-export const FIXTURE_KEYS = ["large", "expressions", "calculations", "complexLogic", "manyPages", "records-1k", "records-10k"] as const;
+export const FIXTURE_KEYS = ["large", "expressions", "calculations", "complexLogic", "manyPages", "records-1k", "records-10k", "records-plain"] as const;
 export type FixtureKey = typeof FIXTURE_KEYS[number];
+// records-plain serves the plain-matrix sorts only: no load/model or load/paint of it, which would add suite time and
+// measure a load the records fixtures measure already.
+const loadKeys = FIXTURE_KEYS.filter((key: string) => key !== "records-plain");
 
 export type Suite = "core" | "react" | "survey-js-ui";
 export const SUITES: ReadonlyArray<Suite> = ["core", "react", "survey-js-ui"];
@@ -15,7 +18,7 @@ const core: Array<string> = [];
 const add = (fixture: string, group: string, ops: Array<string>, question?: string): void => {
   ops.forEach((op: string) => core.push(fixture + "/" + group + "/" + op + (question ? "@" + question : "")));
 };
-FIXTURE_KEYS.forEach((key: string) => add(key, "load", ["model"]));
+loadKeys.forEach((key: string) => add(key, "load", ["model"]));
 add("large", "load", ["design"]);
 add("complexLogic", "load", ["design"]);
 add("records-1k", "load", ["data"]);
@@ -28,14 +31,19 @@ add("records-1k", "records", recordOps, "orders");
 add("records-10k", "records", recordOps, "orders");
 add("records-1k", "records", ["next", "sort-1"], "ordersPanel");
 ["large", "complexLogic", "records-10k"].forEach((key: string) => add(key, "output", ["data", "toJSON", "dispose"]));
+// A sort of a plain matrix, rows kept (rebound) where the rows allow it: 30 rows with no paging, and a page of 10 of
+// 1,000 records. In the browser the same sort is a header click (sort-header).
+const plainMatrices = ["orders30", "ordersPaged"];
+plainMatrices.forEach((question: string) => add("records-plain", "records", ["sort-1"], question));
 
 // The browser column (03): React 19 and survey-js-ui run the same ids.
 const browser: Array<string> = [];
-FIXTURE_KEYS.forEach((key: string) => browser.push(key + "/load/paint"));
+loadKeys.forEach((key: string) => browser.push(key + "/load/paint"));
 browser.push("complexLogic/answer/first", "complexLogic/answer/type");
 ["next10", "preview", "locale"].forEach((op: string) => browser.push("manyPages/pages/" + op));
 ["next", "last", "sort-header", "filter-set", "edit-cell", "add-row"].forEach((op: string) => browser.push("records-10k/records/" + op + "@orders"));
 browser.push("records-1k/records/next@ordersPanel");
+plainMatrices.forEach((question: string) => browser.push("records-plain/records/sort-header@" + question));
 
 // The fixture x operation matrix of phase 1.
 export const SCENARIO_IDS: ReadonlyArray<ScenarioIdInfo> = Array.from(new Set(core.concat(browser))).sort().map((id: string): ScenarioIdInfo => {

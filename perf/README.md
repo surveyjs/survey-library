@@ -10,7 +10,7 @@ contract in [CONTRACT.md](CONTRACT.md).
 
 | path | what |
 |---|---|
-| `fixtures/` | generated survey JSON and data (`large`, `expressions`, `calculations`, `complexLogic`, `manyPages`, `records-1k`, `records-10k`) |
+| `fixtures/` | generated survey JSON and data (`large`, `expressions`, `calculations`, `complexLogic`, `manyPages`, `records-1k`, `records-10k`, `records-plain`) |
 | `scenarios/` | the operations measured on them; `revs.json` holds each scenario's `rev` and hash |
 | `harness/` | sample loop, stats, counters, calibration, ids; `harness/node/`: build checks, environment, machine key, dependency fingerprint, the result file |
 | `core/` | the core suite: one fresh `node --expose-gc` process per scenario |

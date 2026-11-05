@@ -3589,7 +3589,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].randomSeedChanged();
     }
   }
-  private isSettingDataValue: boolean;
+  private settingDataScope = new Scope();
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
       this.resetValuesHash();
@@ -3600,15 +3600,15 @@ export class SurveyModel extends SurveyElementCore
         this.setDataValueCore(this.valuesHash, dataKey, data[key]);
       }
     }
-    this.isSettingDataValue = true;
-    this.updateAllQuestionsValue(clearData);
-    this.notifyAllQuestionsOnValueChanged();
-    this.notifyElementsOnAnyValueOrVariableChanged("");
-    this.isSettingDataValue = false;
+    this.settingDataScope.run(() => {
+      this.updateAllQuestionsValue(clearData);
+      this.notifyAllQuestionsOnValueChanged();
+      this.notifyElementsOnAnyValueOrVariableChanged("");
+    });
     this.runConditions();
     this.updateAllQuestionsValue(clearData);
   }
-  public isSettingData(): boolean { return this.isSettingDataValue === true; }
+  public isSettingData(): boolean { return this.settingDataScope.isActive; }
   private resetValuesHash(): void {
     this.valuesHash = createHash();
     this.valuesKeyIndex.reset();
@@ -4495,7 +4495,7 @@ export class SurveyModel extends SurveyElementCore
       isPrevPage: diff === -1,
       isGoingForward: qDiff > 0,
       isGoingBackward: qDiff < 0,
-      isAfterPreview: this.changeCurrentPageFromPreview === true
+      isAfterPreview: this.pageChangeFromPreviewScope.isActive
     };
   }
   public getProgress(): number {
@@ -5364,9 +5364,7 @@ export class SurveyModel extends SurveyElementCore
       }
       if (!!curPage) {
         isCurrentPageSet = true;
-        this.changeCurrentPageFromPreview = true;
-        this.currentPage = curPage;
-        this.changeCurrentPageFromPreview = false;
+        this.pageChangeFromPreviewScope.run(() => { this.currentPage = curPage; });
       }
     }
     if (!this.currentPage && this.visiblePageCount > 0 && !isCurrentPageSet) {
@@ -5472,7 +5470,7 @@ export class SurveyModel extends SurveyElementCore
     const newEl = (index > 0) ? els[index - 1] : (index < els.length - 1 ? els[index + 1] : undefined);
     this.currentSingleElement = newEl;
   }
-  private changeCurrentPageFromPreview: boolean;
+  private pageChangeFromPreviewScope = new Scope();
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview || this.isDesignMode) return;
     this.skippedPages = [];
@@ -7173,17 +7171,23 @@ export class SurveyModel extends SurveyElementCore
     this.checkElementsBindings(valueName, newValue);
     this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName);
   }
-  private isRunningElementsBindings: boolean;
+  private elementsBindingsScope = new Scope();
+  private get isRunningElementsBindings(): boolean {
+    return this.elementsBindingsScope.isActive;
+  }
   private updateVisibleIndexAfterBindings: boolean;
   private checkElementsBindings(valueName: string, newValue: any): void {
-    this.isRunningElementsBindings = true;
-    for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].checkBindings(valueName, newValue);
-    }
-    this.isRunningElementsBindings = false;
-    if (this.updateVisibleIndexAfterBindings) {
-      this.updateVisibleIndexes();
-      this.updateVisibleIndexAfterBindings = false;
+    try {
+      this.elementsBindingsScope.run(() => {
+        for (var i = 0; i < this.pages.length; i++) {
+          this.pages[i].checkBindings(valueName, newValue);
+        }
+      });
+    } finally {
+      if (!this.elementsBindingsScope.isActive && this.updateVisibleIndexAfterBindings) {
+        this.updateVisibleIndexAfterBindings = false;
+        this.updateVisibleIndexes();
+      }
     }
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
@@ -7379,7 +7383,10 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private questionTriggersKeys: any;
-  private isRunningConditionOnValueChanged: boolean;
+  private conditionOnValueChangedScope = new Scope();
+  private get isRunningConditionOnValueChanged(): boolean {
+    return this.conditionOnValueChangedScope.isActive;
+  }
   public getValueChangedKeys(): any {
     if (!this.isRunningConditionOnValueChanged) return undefined;
     // An onExpressionRunning subscriber can rewrite expressions on the fly, so static
@@ -7423,9 +7430,7 @@ export class SurveyModel extends SurveyElementCore
         this.isValueChangedOnRunningCondition = true;
       }
     } else {
-      this.isRunningConditionOnValueChanged = true;
-      this.runConditions();
-      this.isRunningConditionOnValueChanged = false;
+      this.conditionOnValueChangedScope.run(() => this.runConditions());
       this.runQuestionsTriggers(name, !!name ? values[name] : undefined);
       this.questionTriggersKeys = undefined;
     }
@@ -7777,15 +7782,18 @@ export class SurveyModel extends SurveyElementCore
       textValue.value = res.value;
     }
   }
-  private isClearingUnsedValues: boolean;
+  private clearingUnusedValuesScope = new Scope();
+  private get isClearingUnsedValues(): boolean {
+    return this.clearingUnusedValuesScope.isActive;
+  }
   private clearUnusedValues() {
-    this.isClearingUnsedValues = true;
-    var questions = this.getAllQuestions();
-    for (var i: number = 0; i < questions.length; i++) {
-      questions[i].clearUnusedValues();
-    }
-    this.clearInvisibleQuestionValues();
-    this.isClearingUnsedValues = false;
+    this.clearingUnusedValuesScope.run(() => {
+      var questions = this.getAllQuestions();
+      for (var i: number = 0; i < questions.length; i++) {
+        questions[i].clearUnusedValues();
+      }
+      this.clearInvisibleQuestionValues();
+    });
   }
   hasVisibleQuestionByValueName(question: IQuestion): boolean {
     const checkQ = <Question>question;
@@ -9080,16 +9088,16 @@ export class SurveyModel extends SurveyElementCore
     if (isVariable) {
       this.setVariable(name, value);
     } else {
-      this.startSetValueFromTrigger();
-      const info = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext(), createObjects: true });
-      if (info.isFound && info.question) {
-        info.question.value = value;
-      } else {
-        if (name.indexOf(".") < 0) {
-          this.setValue(name, value);
+      this.valueFromTriggerScope.run(() => {
+        const info = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext(), createObjects: true });
+        if (info.isFound && info.question) {
+          info.question.value = value;
+        } else {
+          if (name.indexOf(".") < 0) {
+            this.setValue(name, value);
+          }
         }
-      }
-      this.finishSetValueFromTrigger();
+      });
     }
   }
   copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {
@@ -9103,14 +9111,8 @@ export class SurveyModel extends SurveyElementCore
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });
   }
-  private setValueFromTriggerCounter: number = 0;
-  public get isSettingValueFromTrigger(): boolean { return this.setValueFromTriggerCounter > 0; }
-  private startSetValueFromTrigger(): void {
-    this.setValueFromTriggerCounter ++;
-  }
-  private finishSetValueFromTrigger(): void {
-    this.setValueFromTriggerCounter --;
-  }
+  private valueFromTriggerScope = new Scope();
+  public get isSettingValueFromTrigger(): boolean { return this.valueFromTriggerScope.isActive; }
   private focusingQuestionInfo: any;
   private isMovingQuestion: boolean;
   public startMovingQuestion(): void {

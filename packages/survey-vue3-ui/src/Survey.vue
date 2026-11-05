@@ -18,7 +18,7 @@
           :class="css.rootBackgroundImage"
           :style="vueSurvey.backgroundImageStyle"
         ></div>
-        <form onsubmit="return false;">
+        <form @submit.prevent>
           <SvComponent
             :is="'sv-scroll'"
             :disabled="vueSurvey.formScrollDisabled"

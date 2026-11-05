@@ -138,12 +138,15 @@ describe("MatrixRenderedTableHost", () => {
 
 // A matrixdynamic of 30 records, 10 per page, and the counts the tests read: the reset and created
 // callbacks, and onGetMatrixRowActions, which fires once per row whose actions a table build makes.
-function createPagedMatrix(): { matrix: QuestionMatrixDynamicModel, counts: any } {
+/* isRebuilt: a cell-creation handler keeps the rebuild of a page move (RB01); without one the rows are
+   rebound and the table is kept. */
+function createPagedMatrix(isRebuilt: boolean = false): { matrix: QuestionMatrixDynamicModel, counts: any } {
   const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 10, columns: [{ name: "id", cellType: "text" }] }] });
   const data: Array<any> = [];
   for (let i = 1; i <= 30; i++) data.push({ id: i });
   survey.data = { m: data };
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+  if (isRebuilt) survey.onMatrixCellCreated.add(() => { });
   const counts: any = { resets: 0, created: 0, rowActions: 0, createdTables: [] };
   survey.onGetMatrixRowActions.add(() => { counts.rowActions++; });
   matrix.onRenderedTableResetCallback = () => { counts.resets++; };
@@ -164,14 +167,28 @@ function idsFrom(from: number, to: number): Array<number> {
 
 describe("The rendered table of a matrix that pages: one reset per page move, and a created callback", () => {
   test("a page move with a table built fires onRenderedTableResetCallback once", () => {
-    const { matrix, counts } = createPagedMatrix();
+    const { matrix, counts } = createPagedMatrix(true);
     expect(renderedIds(matrix.renderedTable), "#1: page 1").toEqual(idsFrom(1, 10));
     counts.resets = 0;
     matrix.goToPage(1);
     expect(counts.resets, "#2: one reset").toBe(1);
   });
-  test("a reset callback that reads renderedTable during a page move builds the new page once and keeps it", () => {
+  test("a page move that rebinds the rows resets nothing: the table keeps its rows and asks for their actions again", () => {
     const { matrix, counts } = createPagedMatrix();
+    const table = matrix.renderedTable;
+    const rows = dataRows(table).slice();
+    counts.resets = 0;
+    counts.created = 0;
+    counts.rowActions = 0;
+    matrix.goToPage(1);
+    expect([counts.resets, counts.created], "#1: no reset, no new table").toEqual([0, 0]);
+    expect(matrix.renderedTable === table, "#2: the same table").toBe(true);
+    expect(dataRows(table).every((row: any, i: number) => row === rows[i]), "#3: the same rendered rows").toBe(true);
+    expect(renderedIds(table), "#4: rows 11-20").toEqual(idsFrom(11, 20));
+    expect(counts.rowActions, "#5: the handler gets each row of the new page").toBe(10);
+  });
+  test("a reset callback that reads renderedTable during a page move builds the new page once and keeps it", () => {
+    const { matrix, counts } = createPagedMatrix(true);
     matrix.renderedTable;
     let readTable: any = undefined;
     counts.rowActions = 0;
@@ -183,7 +200,7 @@ describe("The rendered table of a matrix that pages: one reset per page move, an
     expect(renderedIds(readTable), "#4: rows 11-20").toEqual(idsFrom(11, 20));
   });
   test("created callback: the first read after a page move fires it once, with the new page's table", () => {
-    const { matrix, counts } = createPagedMatrix();
+    const { matrix, counts } = createPagedMatrix(true);
     matrix.renderedTable;
     counts.created = 0;
     counts.createdTables = [];

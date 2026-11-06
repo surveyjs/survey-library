@@ -135,26 +135,21 @@ export function toExpressionChoices(items: Array<ItemValue>): Array<IExpressionC
   return items.map(item => ({ value: item.value, text: item.text }));
 }
 
-// The values a question can hold, as a condition compares them: the listed choices plus the
+// The values a question can hold, as a condition compares them: what the question offers -
+// generated, copied from another question, loaded by URL or wrapped by a component - with the
 // built-in items it shows (none, other, ...).
 export function getExpressionChoices(question: Question): Array<IExpressionContextChoice> {
   if (!question || !question.getType) return undefined;
   const q: any = question;
-  const type = question.getType();
-  if (Serializer.isDescendantOf(type, "selectbase")) {
-    const items: Array<ItemValue> = [].concat(q.choices || []);
-    [["showNoneItem", "noneItem"], ["showOtherItem", "otherItem"], ["showRefuseItem", "refuseItem"], ["showDontKnowItem", "dontKnowItem"]]
-      .forEach(([flag, item]) => { if (!!q[flag] && !!q[item]) items.push(q[item]); });
+  if (question.isSelectQuestion() && typeof q.getValueChoices === "function") {
+    // In Creator's design mode the visible items also hold the "new item" placeholder and the
+    // special items that are off; the question that owns the list knows which it really shows.
+    const owner = q.contentQuestion || q;
+    const items: Array<ItemValue> = (q.getValueChoices() || [])
+      .filter((item: ItemValue) => typeof owner.isItemInList !== "function" || owner.isItemInList(item));
     return items.length > 0 ? toExpressionChoices(items) : undefined;
   }
-  if (type === "rating" && Array.isArray(q.visibleRateValues)) return toExpressionChoices(q.visibleRateValues);
-  if (type === "boolean") {
-    return [
-      { value: q.getValueTrue ? q.getValueTrue() : true, text: q.labelTrue || q.locLabelTrue?.renderedHtml },
-      { value: q.getValueFalse ? q.getValueFalse() : false, text: q.labelFalse || q.locLabelFalse?.renderedHtml },
-    ];
-  }
-  if (type === "matrix") return toExpressionChoices(q.columns);
+  if (question.getType() === "matrix") return toExpressionChoices(q.columns);
   return undefined;
 }
 

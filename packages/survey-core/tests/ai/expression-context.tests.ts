@@ -7,7 +7,7 @@ import { Question } from "../../src/question";
 import { ComponentCollection } from "../../src/question_custom";
 import {
   buildExpressionSystemPrompt, describeExpressionQuestion, expressionOperatorSpellings, getExpressionFunctions, getExpressionOperators,
-  getExpressionValueType, IExpressionContext, IExpressionVariable,
+  getExpressionChoices, getExpressionValueType, IExpressionContext, IExpressionVariable,
 } from "../../src/ai/expression-context";
 import { expressionGuideVersion } from "../../src/ai/expression-guide";
 
@@ -170,5 +170,40 @@ describe("Question descriptors of the AI context (ai-expressions)", () => {
     } finally {
       ComponentCollection.Instance.clear();
     }
+  });
+  test("the choices are the values the question offers: generated, copied or wrapped", () => {
+    ComponentCollection.Instance.add({ name: "aiexgrade", questionJSON: { type: "dropdown", choices: [1, 2, 3], showNoneItem: true } });
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "dropdown", name: "d1", choicesMin: 1, choicesMax: 3 },
+        { type: "checkbox", name: "c1", choices: ["a", "b"] },
+        { type: "checkbox", name: "c2", choicesFromQuestion: "c1" },
+        { type: "aiexgrade", name: "g1" },
+        { type: "boolean", name: "b1", valueTrue: "yes", valueFalse: "no", labelTrue: "Sure", labelFalse: "Nope" },
+      ] });
+      const choices = (name: string) => getExpressionChoices(<Question>survey.getQuestionByName(name)) || [];
+      expect(choices("d1").map(c => c.value)).toEqual([1, 2, 3]);
+      expect(choices("c2").map(c => c.value)).toEqual(["a", "b"]);
+      expect(choices("g1").map(c => c.value)).toEqual([1, 2, 3, "none"]);
+      // the order the question renders
+      expect(choices("b1")).toEqual([{ value: "no", text: "Nope" }, { value: "yes", text: "Sure" }]);
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
+  test("the choices loaded by choicesByUrl", () => {
+    let respond: (response: any) => void = undefined;
+    const survey = new SurveyModel();
+    survey.webProvider = { sendRequest: (request: any, onResponse: any): void => { respond = onResponse; } };
+    survey.fromJSON({ elements: [{ type: "dropdown", name: "country", choicesByUrl: { url: "https://api.example.com/countries", valueName: "id" } }] });
+    respond({ status: 200, response: [{ id: "de" }, { id: "fr" }] });
+    // loaded into choicesFromUrl; q.choices stays empty
+    expect((getExpressionChoices(<Question>survey.getQuestionByName("country")) || []).map(c => c.value)).toEqual(["de", "fr"]);
+  });
+  test("in the design mode: no new-item placeholder, no disabled special items, no choice hidden by choicesVisibleIf", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [{ type: "dropdown", name: "q1", choices: ["a", "b"], showOtherItem: true, choicesVisibleIf: "{item} != 'b'" }] });
+    expect(getExpressionChoices(<Question>survey.getQuestionByName("q1")).map(c => c.value)).toEqual(["a", "b", "other"]);
   });
 });

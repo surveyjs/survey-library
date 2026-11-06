@@ -1,0 +1,17 @@
+<ng-template #template>
+  <div *ngIf="!!popup && model.data.isAdd" [class]="css.listItem">
+    <span [class]="css.listItemText">{{ model.title }}</span>
+  </div>
+  <div *ngIf="!!popup && !model.data.isAdd" [class]="css.listItem">
+    <span [class]="checkCss" aria-hidden="true">
+      <span [class]="css.listItemCheckDecorator">
+        <svg [iconName]="'icon-check-16x16'" [size]="'auto'" [css]="css.listItemCheckIcon" sv-ng-svg-icon></svg>
+      </span>
+    </span>
+    <span [class]="css.listItemText">{{ model.title }}</span>
+    <button *ngIf="model.data.isCustom && !popup.isReadOnly" type="button" [class]="css.listItemRemove"
+      [attr.title]="removeTitle" [attr.aria-label]="removeTitle" (click)="remove($event)">
+      <svg [iconName]="'icon-delete-16x16'" [size]="'auto'" sv-ng-svg-icon></svg>
+    </button>
+  </div>
+</ng-template>

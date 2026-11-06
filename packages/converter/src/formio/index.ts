@@ -178,6 +178,9 @@ interface Ctx {
   templates: TemplateRecord[];
   // The selects whose URL interpolates form data, resolved after the walk like `templates`.
   urlSources: TemplateRecord[];
+  // The selects from a URL whose response values Form.io casts, reported once the URL is resolved,
+  // see `applyDataType`.
+  castUrlValues: { el: SurveyJSONElement, sourcePtr: string, targetPath: string }[];
   // The radios and selects whose choice values were cast to their `dataType`, see `applyDataType`.
   valueTypes: Map<SurveyJSONElement, ValueType>;
   // The choices of the radios and selects with choices in the definition, see `ChoiceSet`.
@@ -238,6 +241,10 @@ interface FieldRecord {
   type: string;
   multiple: boolean;
   grids: GridScope[];
+  // The row values of a `survey` field whose columns show the value they hold (see `surveyRowValues`).
+  rows?: string[];
+  // The innermost nested `form` around the field, compared by identity, see `resolveReference`.
+  root?: FormRoot;
   // A `day`, `time` or `datetime` component and the `inputType` of its question: condition
   // literals are read in its format, see `formatDateTimeLiteral`.
   dateTime?: { comp: FormioComponent, inputType: unknown };
@@ -417,6 +424,14 @@ function holdsCode(value: unknown): boolean {
   return !!value && typeof value === "object" && Object.keys(value).length > 0;
 }
 
+// The row values of a `survey` field, or `undefined` when a column's text is not its value: Form.io
+// prints the selected value, and survey-core pipes the text of the selected column.
+function surveyRowValues(comp: FormioComponent): string[] | undefined {
+  const columns = readItems(comp.values) ?? [];
+  if (columns.some((c) => c.text !== undefined && c.text !== String(c.value))) return undefined;
+  return (readItems(comp.questions) ?? []).map((row) => String(row.value));
+}
+
 function recordField(comp: FormioComponent, name: string, ctx: Ctx, el?: SurveyJSONElement): void {
   if (typeof comp.key !== "string" || typeof comp.type !== "string") return;
   const field: FieldRecord = {
@@ -426,8 +441,10 @@ function recordField(comp: FormioComponent, name: string, ctx: Ctx, el?: SurveyJ
     name,
     type: comp.type,
     multiple: comp.multiple === true,
-    grids: [...ctx.grids]
+    grids: [...ctx.grids],
+    root: ctx.root
   };
+  if (comp.type === "survey") field.rows = surveyRowValues(comp);
   if (el && (comp.type === "day" || comp.type === "time" || comp.type === "datetime")) field.dateTime = { comp, inputType: el.inputType };
   const choices = el && ctx.choiceSets.get(el);
   const stores = formioStores(comp);
@@ -705,10 +722,16 @@ interface Translation {
   assumed: string[];
 }
 
+// In the order of the renderer's `checkCondition`: a legacy `when` first, then the simple format
+// when one of its conditions names a component and an operator, then JSON logic. With none of
+// them the component shows.
 function translateConditional(cond: FormioConditional, record: ConditionRecord, ctx: Ctx): Translation {
   const ptr = `${record.sourcePtr}/conditional`;
-  if (isSimpleConditional(cond)) return translateSimple(cond, record, ptr, ctx);
   if (isLegacyConditional(cond)) return translateLegacy(cond, record, `${ptr}/when`, ctx);
+  if (isSimpleConditional(cond) && Array.isArray(cond.conditions) && cond.conditions.some((c) => !!c && !!c.component && !!c.operator)) {
+    return translateSimple(cond, record, ptr, ctx);
+  }
+  if (!isJsonConditional(cond)) return { assumed: [] };
   const expression = translateJsonLogic(cond.json, record, ctx);
   return expression !== undefined ? { expression, assumed: [] } : { assumed: [`${ptr}/json`] };
 }
@@ -731,11 +754,21 @@ function translateSimple(cond: FormioConditional, record: ConditionRecord, ptr: 
   const conditions = Array.isArray(cond.conditions) ? cond.conditions : [];
   // Form.io treats an empty list as no condition at all.
   if (conditions.length === 0) return { assumed: [] };
+  const any = cond.conjunction === "any";
+  const show = readSimpleShow(cond.show);
+  if (any && conditions.some((c) => !c || !c.component)) {
+    // The renderer's `checkSimpleConditional` counts a condition with no component as true, so
+    // under `any` the result is true whatever the others hold. The component hides for good when
+    // `show` is false, and the renderer checks the condition at all (`hasCondition`) only when
+    // `show` is a boolean or truthy. (`@formio/core` ignores such a condition instead.)
+    const hides = !show && (typeof cond.show === "boolean" || !!cond.show);
+    return { expression: hides ? "false" : undefined, assumed: [] };
+  }
   const parts: string[] = [];
   const failed: string[] = [];
   const assumed: string[] = [];
   conditions.forEach((c, i) => {
-    // Form.io ignores a condition with no component.
+    // Under `all`, a condition with no component, true for the renderer, changes nothing.
     if (!c || !c.component) return;
     const part = translateOperator(c, record, ctx);
     if (part.expression === undefined) failed.push(`${ptr}/conditions/${i}`);
@@ -743,14 +776,8 @@ function translateSimple(cond: FormioConditional, record: ConditionRecord, ptr: 
     if (part.assumed) assumed.push(`${ptr}/conditions/${i}`);
   });
   if (failed.length > 0) return { assumed: failed };
-
-  const any = cond.conjunction === "any";
-  const show = readSimpleShow(cond.show);
-  if (parts.length === 0) {
-    // Every condition was ignored, so Form.io's result is constant: `every([])` is true and
-    // `some([])` is false.
-    return { expression: show !== any ? undefined : "false", assumed };
-  }
+  // Not reached: `translateConditional` and `translateTrigger` pass a condition that names a component.
+  if (parts.length === 0) return { assumed };
   const joined = `(${parts.join(any ? " or " : " and ")})`;
   // `!` and not `not`: survey-core reads `not ({a} = 1)` as true when `a` is 1.
   return { expression: show ? joined : `!${joined}`, assumed };
@@ -770,6 +797,8 @@ function translateOperator(
   if (c.operator === "isNotEmpty") return { expression: `${ref.text} notempty` };
   const lit = simpleLiteral(c.operator, c.value, target);
   if (lit === undefined) return {};
+  // Only an equality gives a constant.
+  if (lit === NEVER_EQUAL) return { expression: equalityExpression(ref.text, c.operator === "isNotEqual", lit) };
   // A `selectboxes` value is `{ a: true }` in Form.io; `isEqual` reads the checked state of the
   // compared key, and `includes` looks at the object's values, which never match.
   const isSelectboxes = target.type === "selectboxes";
@@ -819,7 +848,7 @@ const DATE_OPERATORS = new Set(["dateGreaterThan", "dateGreaterThanOrEqual", "da
 // equality and date operators are kept. A `selectboxes` equality names one of its keys (see
 // `translateOperator`). Every other field is matched by what Form.io stores in it (see
 // `fieldWitnesses`).
-function simpleLiteral(operator: unknown, value: unknown, field: FieldRecord): string | undefined {
+function simpleLiteral(operator: unknown, value: unknown, field: FieldRecord): string | typeof NEVER_EQUAL | undefined {
   const op = String(operator);
   const isEquality = op === "isEqual" || op === "isNotEqual";
   if (field.dateTime) {
@@ -952,13 +981,24 @@ function agreeingLiteral(
   return undefined;
 }
 
+// What `matchEquality` gives when Form.io's equality holds for none of the values the field may hold:
+// the comparison is constant, and is written as `false` (`true` for `<>`) rather than as a literal
+// the linter reads as a type mismatch.
+const NEVER_EQUAL = Symbol("never equal");
+
+// `ref = lit` or `ref <> lit`; a literal that never matches gives the constant.
+function equalityExpression(ref: string, notEqual: boolean, lit: string | typeof NEVER_EQUAL): string {
+  if (lit === NEVER_EQUAL) return notEqual ? "true" : "false";
+  return `${ref} ${notEqual ? "<>" : "="} ${lit}`;
+}
+
 // The literal an equality compares with, so that survey-core's `=` (or `contains`, on an array) holds
 // for exactly the values Form.io's comparison holds for. The candidates are the values the question
 // stores where Form.io's comparison holds, and the literal as written. For example survey-core reads
 // "1.0", "01" and 1 as one number, "TRUE" as true, and "10,000" as 10, where Form.io's legacy check
 // compares texts, and its simple check parses "05" as no JSON at all. A legacy literal that Form.io
 // does not read as an item of an array is refused before this (see `misreadsArray`).
-function matchEquality(value: unknown, field: FieldRecord, comparison: Comparison): string | undefined {
+function matchEquality(value: unknown, field: FieldRecord, comparison: Comparison): string | typeof NEVER_EQUAL | undefined {
   const witnesses = isPrimitive(value) ? fieldWitnesses(field, value) : undefined;
   if (!witnesses) return undefined;
   const formio = (v: unknown) => formioEquals(v, value, comparison);
@@ -967,7 +1007,12 @@ function matchEquality(value: unknown, field: FieldRecord, comparison: Compariso
   // boolean question as a condition that cannot hold.
   if (field.type === "checkbox") candidates = candidates.filter((c) => typeof c === "boolean");
   const items = holdsItems(field);
-  return agreeingLiteral(witnesses, candidates, items ? "contains" : "=", formio, items);
+  const literal = agreeingLiteral(witnesses, candidates, items ? "contains" : "=", formio, items);
+  // The literal agrees with every value checked, and Form.io holds for none of them. A field with
+  // choices may hold a value outside them (a default, prefilled data), so only a field whose type
+  // excludes the literal gives the constant.
+  if (literal !== undefined && !items && !field.choices && witnesses.every((w) => !formio(w.formio))) return NEVER_EQUAL;
+  return literal;
 }
 
 // `lessThan`, `greaterThan` and their `OrEqual` forms. Form.io holds them only for a number:
@@ -1060,12 +1105,12 @@ function translateLegacy(cond: FormioConditional, record: ConditionRecord, ptr: 
     if (ref.field.type === "selectboxes" && !show && String(cond.show) !== "false") return { assumed: [ptr] };
     if (ref.field.type !== "selectboxes" && misreadsArray(cond.eq)) return { assumed: [ptr] };
     const lit = formatTypedLiteral(cond.eq, ref.field, "legacy");
-    if (lit === undefined) return { assumed: [ptr] };
+    if (lit === undefined || lit === NEVER_EQUAL) return { assumed: [ptr] };
     return { expression: `${ref.text} ${show ? "contains" : "notcontains"} ${lit}`, assumed: [] };
   }
   const lit = formatTypedLiteral(cond.eq, ref.field, "legacy");
   if (lit === undefined) return { assumed: [ptr] };
-  return { expression: `${ref.text} ${show ? "=" : "<>"} ${lit}`, assumed: [] };
+  return { expression: equalityExpression(ref.text, !show, lit), assumed: [] };
 }
 
 // Whether Form.io's legacy check reads an array value (a multiple select, `tags`) with `eq` other
@@ -1120,14 +1165,13 @@ function translateJsonLogic(node: unknown, record: ConditionRecord, ctx: Ctx): s
 
   if ((op === "==" || op === "===" || op === "!=" || op === "!==") && args.length === 2) {
     const varIndex = readJsonLogicVar(args[0]) !== undefined ? 0 : 1;
-    const ref = resolveReference(readJsonLogicVar(args[varIndex]), record, ctx);
+    const ref = resolveReference(readJsonLogicVar(args[varIndex]), record, ctx, true);
     if (!ref || isArrayValued(ref.field)) return undefined;
     // The literal is matched by what Form.io stores in the field: a number never strictly equals a
     // string, and a boolean loosely equals "1" but not "true" (`true == "true"` is false).
     const lit = formatTypedLiteral(args[1 - varIndex], ref.field, op === "===" || op === "!==" ? "strict" : "loose");
     if (lit === undefined) return undefined;
-    const sqlOp = op.startsWith("!") ? "<>" : "=";
-    return `${ref.text} ${sqlOp} ${lit}`;
+    return equalityExpression(ref.text, op.startsWith("!"), lit);
   }
   if ((op === "and" || op === "or") && args.length >= 2) {
     const parts = args.map((a) => translateJsonLogic(a, record, ctx));
@@ -1152,7 +1196,7 @@ const STRING_VALUED = new Set(["textfield", "textarea", "email", "url", "phoneNu
 // `selectboxes` value, is always truthy, and other types hold values whose truthiness depends on
 // their format, so they give `undefined`.
 function translateTruthiness(path: string | undefined, record: ConditionRecord, ctx: Ctx): string | undefined {
-  const ref = resolveReference(path, record, ctx);
+  const ref = resolveReference(path, record, ctx, true);
   if (!ref || ref.field.multiple) return undefined;
   const { text, field } = ref;
   if (field.type === "checkbox") return `${text} = true`;
@@ -1171,7 +1215,7 @@ function isArrayValued(field: FieldRecord): boolean {
 // (see `formatDateTimeLiteral`), a `selectboxes` condition names one of its keys, and any other field
 // is matched by what Form.io stores in it (see `matchEquality`). `undefined` when no literal compares
 // exactly.
-function formatTypedLiteral(value: unknown, field: FieldRecord, comparison: Comparison): string | undefined {
+function formatTypedLiteral(value: unknown, field: FieldRecord, comparison: Comparison): string | typeof NEVER_EQUAL | undefined {
   if (field.dateTime) return formatDateTimeLiteral(value, field, false);
   if (field.type === "selectboxes") return isPrimitive(value) ? formatLiteral(value) : undefined;
   return matchEquality(value, field, comparison);
@@ -1183,11 +1227,19 @@ function formatTypedLiteral(value: unknown, field: FieldRecord, comparison: Comp
 // `row.` is a sibling in the condition's own grid. Inside a nested form, the root is the nested
 // form's data, and only its fields can be named (see `FormRoot`). A `survey` field holds an object
 // that no comparison, truthiness or text reads as Form.io does (its `{}` is not empty there), so
-// a reference to it is refused.
+// a reference to it is refused (see `resolveSurveyRow` for one of its rows).
+//
+// `strict` is for JSON logic, `{{ ... }}` templates and URLs, which read the path from the root as
+// written: the full-path and bare-key fallbacks then stay in the condition's own form, and a field
+// of a nested form is named only by its data path. A legacy `when` and a simple condition read the
+// value with `getValue`, which searches nested objects for the key, so their fallbacks reach into
+// nested forms.
 function resolveReference(
   path: unknown,
   from: { grids: GridScope[], root?: FormRoot },
-  ctx: Ctx
+  ctx: Ctx,
+  strict = false,
+  survey = false
 ): { text: string, field: FieldRecord } | undefined {
   if (typeof path !== "string" || path.length === 0) return undefined;
   const ref = path.startsWith("data.") ? path.slice("data.".length) : path;
@@ -1203,13 +1255,28 @@ function resolveReference(
     if (!grid || relative(grid.dataPath, root?.dataPath) === undefined) return undefined;
     field = only(fields.filter((f) => f.dataPath === `${grid.dataPath}.${ref.slice("row.".length)}`));
   } else {
+    // A strict fallback that names a field of another form is refused. Uniqueness is still judged
+    // over every field, so that refusing one never makes another fallback unique.
+    const fallback = (list: FieldRecord[]) => (strict && list.length === 1 && list[0].root !== root ? [] : list);
     field = only(fields.filter((f) => relative(f.dataPath, root?.dataPath) === ref))
-      ?? only(fields.filter((f) => relative(f.fullPath, root?.fullPath) === ref))
-      ?? only(fields.filter((f) => f.key === ref));
+      ?? only(fallback(fields.filter((f) => relative(f.fullPath, root?.fullPath) === ref)))
+      ?? only(fallback(fields.filter((f) => f.key === ref)));
   }
-  if (!field || field.type === "survey") return undefined;
+  if (!field || (field.type === "survey") !== survey) return undefined;
   const prefix = referencePrefix(field.grids, from.grids);
   return prefix === undefined ? undefined : { text: `{${prefix}${field.name}}`, field };
+}
+
+// `data.s.<row>` in a template or a URL, where `s` is a `survey` field and `<row>` one of its rows: the
+// row's selected value, which survey-core pipes as `{s.<row>}`. A row key with a dot, a name that is
+// not a row, and the field itself are not resolved.
+function resolveSurveyRow(path: string, from: { grids: GridScope[], root?: FormRoot }, ctx: Ctx): { text: string } | undefined {
+  const dot = path.lastIndexOf(".");
+  if (dot < 0) return undefined;
+  const row = path.slice(dot + 1);
+  const ref = resolveReference(path.slice(0, dot), from, ctx, true, true);
+  if (!ref || !ref.field.rows?.includes(row) || row.includes(".")) return undefined;
+  return { text: `${ref.text.slice(0, -1)}.${row}}` };
 }
 
 // How a condition inside the grids `from` names a field inside the grids `target`: bare outside
@@ -1453,7 +1520,7 @@ function resolveTemplates(ctx: Ctx): void {
     let unresolved = open >= 0 && html.indexOf("%}", open + 2) >= 0;
     record.el.html = replaceTemplates(html, (template, inner) => {
       const path = /^\s*(data\.[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*$/.exec(inner)?.[1];
-      const ref = path !== undefined ? resolveReference(path, record, ctx) : undefined;
+      const ref = path !== undefined ? resolveReference(path, record, ctx, true) ?? resolveSurveyRow(path, record, ctx) : undefined;
       if (ref) return ref.text;
       unresolved = true;
       return template;
@@ -1830,15 +1897,17 @@ function applyDataSource(comp: FormioComponent, el: SurveyJSONElement, sourcePtr
 // `formioCast`), so the choice values are cast the same way for `number`, `boolean` and `auto`, and
 // so is the default (see `castDefault`). Values that would give no number, or that the cast would
 // make one value for survey-core, are reported and kept as written. Values from a URL come in the
-// response's own types; an explicit `dataType` on them is reported. The values of choices in the
-// definition are recorded, as stored and as Form.io stores them, for conditions (see
-// `matchEquality`).
+// response's own types: an explicit `dataType` that casts them is reported, and so is `auto` or none,
+// which Form.io casts too (`Select.normalizeSingleValue`); `object` or an unknown one keeps them. The
+// values of choices in the definition are recorded, as stored and as Form.io stores them, for
+// conditions (see `matchEquality`).
 function applyDataType(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: string, targetPath: string, ctx: Ctx): void {
   const dataType = comp.dataType;
   const valueType: ValueType | undefined = dataType === "number" || dataType === "boolean" ? dataType
     : dataType === undefined || dataType === "" || dataType === "auto" ? "auto" : undefined;
   if (el.choicesByUrl) {
-    if (dataType === "number" || dataType === "boolean") reportOption("dataType", sourcePtr, targetPath, ctx);
+    if (dataType === "number" || dataType === "boolean" || dataType === "string") reportOption("dataType", sourcePtr, targetPath, ctx);
+    else if (valueType === "auto") ctx.castUrlValues.push({ el, sourcePtr: `${sourcePtr}/dataSrc`, targetPath });
     return;
   }
   // With no choices there is no value to cast; a refused source is reported as such.
@@ -1849,10 +1918,11 @@ function applyDataType(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: 
     const values = written.map((v) => castValue(v, valueType, comp.type));
     // survey-core reads "01" and 1, or "true" and true, as one value, so a cast that leads two
     // values written apart to that would merge two choices.
-    const merges = values.some((v, i) => v === undefined
+    const merging = values.findIndex((v, i) => v === undefined
       || values.some((w, j) => j < i && (w === v || (surveyEquals(w, v) && !surveyEquals(written[j], written[i])))));
-    if (merges) {
-      reportOption("dataType", sourcePtr, targetPath, ctx);
+    if (merging >= 0) {
+      if (dataType !== undefined) reportOption("dataType", sourcePtr, targetPath, ctx);
+      else ctx.report.unsupported(FormioCodes.UNSUPPORTED_OPTION, itemValuePointer(comp, merging, sourcePtr), targetPath);
     } else {
       choices.forEach((c, i) => (c.value = values[i]));
       ctx.valueTypes.set(el, valueType);
@@ -1863,6 +1933,19 @@ function applyDataType(comp: FormioComponent, el: SurveyJSONElement, sourcePtr: 
     empty: comp.multiple === true ? [] : hasObjectEmptyValue(comp) ? {} : "",
     opaque: !written.every(isPrimitive)
   });
+}
+
+// The pointer of the `value` of the `index`th item `readChoices` kept: items with no value are skipped.
+function itemValuePointer(comp: FormioComponent, index: number, sourcePtr: string): string {
+  const inData = comp.data?.values !== undefined;
+  const raw = (comp.data?.values ?? comp.values) as { value?: unknown }[];
+  let sourceIndex = -1;
+  for (let kept = -1; kept < index && sourceIndex + 1 < raw.length;) {
+    sourceIndex++;
+    const item = raw[sourceIndex];
+    if (item && item.value !== undefined && item.value !== "") kept++;
+  }
+  return `${sourcePtr}${inData ? "/data" : ""}/values/${sourceIndex}/value`;
 }
 
 function isPrimitive(value: unknown): boolean {
@@ -1937,7 +2020,7 @@ function resolveUrlSources(ctx: Ctx): void {
     let resolved = true;
     const url = replaceTemplates(byUrl.url as string, (template, inner) => {
       const path = /^\s*((?:data|row)\.[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*$/.exec(inner)?.[1];
-      const ref = path !== undefined ? resolveReference(path, record, ctx) : undefined;
+      const ref = path !== undefined ? resolveReference(path, record, ctx, true) ?? resolveSurveyRow(path, record, ctx) : undefined;
       if (ref) return ref.text;
       resolved = false;
       return template;
@@ -2329,6 +2412,11 @@ function walkContainer(
   return elements;
 }
 
+// A container or nested form keeps its fields' data under its own key; the panel does not.
+function reportContainerData(comp: FormioComponent, sourcePtr: string, targetPath: string, ctx: Ctx): void {
+  if (comp.type === "container" || comp.type === "form") ctx.report.assumed(FormioCodes.ASSUMED_CONTAINER_DATA, sourcePtr, targetPath);
+}
+
 /** Map a container component to a SurveyJS `panel`, recursing into its children. */
 function mapPanel(
   comp: FormioComponent,
@@ -2338,21 +2426,26 @@ function mapPanel(
   childrenOverride?: { child: FormioComponent, ptr: string }[]
 ): SurveyJSONElement | null {
   const panel: SurveyJSONElement = { type: "panel", name: "" };
-  if (comp.type === "container" || comp.type === "form") ctx.report.assumed(FormioCodes.ASSUMED_CONTAINER_DATA, sourcePtr, targetPath);
+  reportContainerData(comp, sourcePtr, targetPath, ctx);
   const title = readContainerTitle(comp);
   if (title !== undefined) panel.title = title;
   applyState(comp, panel);
 
   const children = childrenOverride ?? indexedChildren(comp.components, `${sourcePtr}/components`);
   const elements = walkContainer(comp, panel, sourcePtr, targetPath, ctx, () => {
-    const reservedNames = ctx.reservedNames;
-    if (comp.type === "form") ctx.reservedNames = ctx.fieldKeys;
+    const { reservedNames, fieldKeys } = ctx;
+    // The keys of every enclosing form stay free, so a field of a middle form keeps its key too.
+    if (comp.type === "form") {
+      ctx.reservedNames = new Set([...(reservedNames ?? []), ...fieldKeys]);
+      ctx.fieldKeys = collectFieldKeys(comp.components);
+    }
     const exitScope = enterScope(comp, ctx, panel);
     try {
       return walk(children, `${targetPath}.elements`, ctx);
     } finally {
       exitScope();
       ctx.reservedNames = reservedNames;
+      ctx.fieldKeys = fieldKeys;
     }
   });
   if (!elements) return null;
@@ -2517,7 +2610,7 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
   const ctx: Ctx = {
     report, usedNames: new Set<string>(), fieldKeys: collectFieldKeys(input.components),
     dataPath: [], fullPath: [], grids: [], fields: [], conditions: [],
-    containers: [], inputs: [], conditionallyVisible: new Set<Target>(), templates: [], urlSources: [],
+    containers: [], inputs: [], conditionallyVisible: new Set<Target>(), templates: [], urlSources: [], castUrlValues: [],
     valueTypes: new Map<SurveyJSONElement, ValueType>(), choiceSets: new Map<SurveyJSONElement, ChoiceSet>(),
     requiredMessages: [], neverShown: new Set<Target>()
   };
@@ -2545,6 +2638,10 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
   applyClearOnHide(ctx);
   resolveTemplates(ctx);
   resolveUrlSources(ctx);
+  // A URL refused while it was resolved holds no response value.
+  for (const record of ctx.castUrlValues) {
+    if (record.el.choicesByUrl) ctx.report.assumed(FormioCodes.ASSUMED_DATA_SOURCE_VALUE, record.sourcePtr, record.targetPath);
+  }
   return { output, report: report.build() };
 }
 
@@ -2567,14 +2664,16 @@ function wizardPage(comp: FormioComponent, sourcePtr: string, pageIndex: number,
   // A layout container that gives no element gives no page either, as a button does.
   const isContainer = typeof comp.type === "string" && (PANEL_CONTAINERS.has(comp.type) || comp.type === "panel");
   if (isContainer && Array.isArray(comp.components)) {
-    if (comp.type === "container") ctx.report.assumed(FormioCodes.ASSUMED_CONTAINER_DATA, sourcePtr, targetPath);
+    reportContainerData(comp, sourcePtr, targetPath, ctx);
     if (title !== undefined && isText(comp.tooltip)) reportStyling("tooltip", sourcePtr, targetPath, ctx);
     applyState(comp, page);
     const elements = walkContainer(comp, page, sourcePtr, targetPath, ctx, () => {
       const exitScope = enterScope(comp, ctx, page);
-      const walked = walk(indexedChildren(comp.components, `${sourcePtr}/components`), `${targetPath}.elements`, ctx);
-      exitScope();
-      return walked;
+      try {
+        return walk(indexedChildren(comp.components, `${sourcePtr}/components`), `${targetPath}.elements`, ctx);
+      } finally {
+        exitScope();
+      }
     });
     if (!elements) return null;
     page.elements = elements;

@@ -45,6 +45,10 @@ export const FormioCodes = {
   // A URL or inline JSON data source whose item template is not a single `{{ item.x }}`, so the
   // choice text is a guess.
   ASSUMED_DATA_SOURCE_TITLE: "formio.assumed-data-source-title",
+  // A URL source with `dataType` `auto` or none: Form.io casts the value it reads from each response
+  // item (a text that reads as a number or a boolean becomes one), and survey-core keeps it as the
+  // response gives it, so a stored value may have another type.
+  ASSUMED_DATA_SOURCE_VALUE: "formio.assumed-data-source-value",
   // A `container` stores its fields' data under its own key, and a nested `form` with inline
   // components under `<key>.data`; its panel keeps the fields at the level around it, so the data
   // has another shape.

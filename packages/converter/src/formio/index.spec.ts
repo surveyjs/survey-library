@@ -436,6 +436,76 @@ describe("formio convert - simple conditions", () => {
     expect(convert(form).report.entries.some((e) => e.code === FormioCodes.ASSUMED_CONDITIONAL)).toBe(false);
   });
 
+  const withNoComponent = (show: unknown, conjunction: string, real: boolean) => ({ components: [
+    { type: "textfield", key: "a" },
+    { type: "textfield", key: "b", conditional: simpleConditional(show, [
+      ...(real ? [{ component: "a", operator: "isEqual", value: "x" }] : []),
+      { component: "", operator: "isEqual", value: "y" }
+    ], conjunction) }
+  ] });
+
+  for (const conjunction of ["all", "any"]) {
+    for (const show of [true, false]) {
+      it(`shows the field whatever the data when no condition names a component, with ${conjunction} and show: ${show}`, () => {
+        const form = withNoComponent(show, conjunction, false);
+        const { output, report } = convert(form);
+        expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+        expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)).toBeUndefined();
+        expect(isVisible(form, { a: "x" }, "b")).toBe(true);
+        expect(isVisible(form, { a: "w" }, "b")).toBe(true);
+      });
+    }
+  }
+
+  it("shows the field whatever the data when a condition names no component under any, with show: true", () => {
+    const form = withNoComponent(true, "any", true);
+    const { output, report } = convert(form);
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)).toBeUndefined();
+    expect(isVisible(form, { a: "x" }, "b")).toBe(true);
+    expect(isVisible(form, { a: "w" }, "b")).toBe(true);
+  });
+
+  it("hides the field whatever the data when a condition names no component under any, with show: false", () => {
+    const form = withNoComponent(false, "any", true);
+    expect(findElement(convert(form).output, "b")?.visibleIf).toBe("false");
+    expect(isVisible(form, { a: "x" }, "b")).toBe(false);
+    expect(isVisible(form, { a: "w" }, "b")).toBe(false);
+  });
+
+  it("shows the field when a condition names no component under any and show is null, as Form.io then checks no condition", () => {
+    const form = withNoComponent(null, "any", true);
+    expect(findElement(convert(form).output, "b")?.visibleIf).toBeUndefined();
+    expect(isVisible(form, { a: "x" }, "b")).toBe(true);
+    expect(isVisible(form, { a: "w" }, "b")).toBe(true);
+  });
+
+  it("reads JSON logic beside simple conditions that name no component", () => {
+    const form = { components: [
+      { type: "textfield", key: "a" },
+      { type: "textfield", key: "b", conditional: {
+        ...simpleConditional(true, [{ component: "", operator: "isEqual", value: "y" }]),
+        json: { "==": [{ var: "data.a" }, "x"] }
+      } }
+    ] };
+    expect(isVisible(form, { a: "x" }, "b")).toBe(true);
+    expect(isVisible(form, { a: "w" }, "b")).toBe(false);
+  });
+
+  it("reads a legacy when before simple conditions, as Form.io does", () => {
+    const form = { components: [
+      { type: "textfield", key: "a" },
+      { type: "textfield", key: "c" },
+      { type: "textfield", key: "b", conditional: {
+        ...simpleConditional(true, [{ component: "c", operator: "isEqual", value: "y" }]),
+        when: "a",
+        eq: "x"
+      } }
+    ] };
+    expect(isVisible(form, { a: "x", c: "z" }, "b")).toBe(true);
+    expect(isVisible(form, { a: "w", c: "y" }, "b")).toBe(false);
+  });
+
   it("reads show: \"true\" as true and show: null as false", () => {
     const form = (show: unknown) => ({ components: [
       { type: "textfield", key: "a" },
@@ -807,6 +877,7 @@ describe("formio convert - conditions on fields with no choices", () => {
     ["isEqual 0 on a number field", number, simple("isEqual", 0), "({n} = 0)", [[0, true], [1, false], [undefined, false]]],
     ["=== 0 on a number field", number, json("===", 0), "{n} = 0", [[0, true], [1, false], [undefined, false]]],
     ["== \"\" on a number field, which holds only for 0", number, json("==", ""), "{n} = 0", [[0, true], [1, false], [undefined, false]]],
+    ["== \"  \" on a number field, which holds only for 0", number, json("==", "  "), "{n} = 0", [[0, true], [1, false], [undefined, false]]],
     ["lessThanOrEqual 100 on a number field", number, simple("lessThanOrEqual", 100), "({n} <= 100)", [[100, true], [50, true], [150, false], [undefined, false]]],
     ["isEqual \"true\" on a checkbox", checkbox, simple("isEqual", "true"), "({n} = true)", [[true, true], [false, false]]],
     ["== \"1\" on a checkbox", checkbox, json("==", "1"), "{n} = true", [[true, true], [false, false]]],
@@ -994,6 +1065,82 @@ describe("formio convert - condition references", () => {
   }
 });
 
+describe("formio convert - equality that holds for no value", () => {
+  // A text that is no number never equals a number's value, so the comparison is constant.
+  const numbers: [string, Record<string, unknown>][] = [
+    ["a number field", { type: "number", key: "n" }],
+    ["a currency field", { type: "currency", key: "n" }]
+  ];
+  const visible = (form: object, data: Record<string, unknown>) => isVisible(form, data, "b");
+  const noTypeMismatch = (form: object) =>
+    expect(lintOutput(convert(form).output).filter((f) => f.ruleId === "expression/type-mismatch")).toEqual([]);
+  const legacy = (comp: object, show: boolean, eq: string) =>
+    ({ components: [comp, { type: "textfield", key: "b", conditional: { show, when: "n", eq } }] });
+  const simple = (comp: object, operator: string, value: string) =>
+    ({ components: [comp, { type: "textfield", key: "b", conditional: simpleConditional(true, [{ component: "n", operator, value }]) }] });
+  const jsonLogic = (comp: object, op: string, value: string) =>
+    ({ components: [comp, { type: "textfield", key: "b", conditional: { json: { [op]: [{ var: "data.n" }, value] } } }] });
+
+  // A radio may hold a value outside its choices (a default, prefilled data), so its literal is kept.
+  it("keeps the literal on a radio compared with a value outside its choices", () => {
+    const radio = { type: "radio", key: "n", values: [{ label: "A", value: "a" }, { label: "B", value: "b" }] };
+    for (const comp of [radio, { ...radio, defaultValue: "zzz" }]) {
+      for (const show of [true, false]) {
+        const form = legacy(comp, show, "zzz");
+        expect(findElement(convert(form).output, "b")?.visibleIf).toBe(show ? "{n} = 'zzz'" : "{n} <> 'zzz'");
+        expect(visible(form, { n: "zzz" })).toBe(show);
+        expect(visible(form, { n: "a" })).toBe(!show);
+      }
+    }
+  });
+
+  for (const [what, comp] of numbers) {
+    for (const eq of ["abc", "true", "false"]) {
+      it(`hides a field shown when ${what} equals ${JSON.stringify(eq)}, and shows one hidden then`, () => {
+        const shown = legacy(comp, true, eq);
+        expect(findElement(convert(shown).output, "b")?.visibleIf).toBe("false");
+        for (const data of [{ n: 5 }, { n: 0 }, {}]) expect(visible(shown, data)).toBe(false);
+        noTypeMismatch(shown);
+        const hidden = legacy(comp, false, eq);
+        expect(findElement(convert(hidden).output, "b")?.visibleIf).toBe("true");
+        for (const data of [{ n: 5 }, { n: 0 }, {}]) expect(visible(hidden, data)).toBe(true);
+        noTypeMismatch(hidden);
+      });
+    }
+
+    it(`reads the simple operators isEqual and isNotEqual as constants on ${what}`, () => {
+      const equal = simple(comp, "isEqual", "abc");
+      expect(findElement(convert(equal).output, "b")?.visibleIf).toBe("(false)");
+      expect(visible(equal, { n: 5 })).toBe(false);
+      expect(visible(equal, {})).toBe(false);
+      noTypeMismatch(equal);
+      const notEqual = simple(comp, "isNotEqual", "abc");
+      expect(findElement(convert(notEqual).output, "b")?.visibleIf).toBe("(true)");
+      expect(visible(notEqual, { n: 5 })).toBe(true);
+      expect(visible(notEqual, {})).toBe(true);
+      noTypeMismatch(notEqual);
+    });
+
+    it(`reads JSON logic == and != as constants on ${what}`, () => {
+      const equal = jsonLogic(comp, "==", "abc");
+      expect(visible(equal, { n: 5 })).toBe(false);
+      expect(visible(equal, {})).toBe(false);
+      noTypeMismatch(equal);
+      const notEqual = jsonLogic(comp, "!=", "abc");
+      expect(visible(notEqual, { n: 5 })).toBe(true);
+      expect(visible(notEqual, {})).toBe(true);
+      noTypeMismatch(notEqual);
+    });
+
+    it(`still compares a number text with the number on ${what}`, () => {
+      const form = legacy(comp, true, "5");
+      expect(findElement(convert(form).output, "b")?.visibleIf).toBe("{n} = 5");
+      expect(visible(form, { n: 5 })).toBe(true);
+      expect(visible(form, { n: 6 })).toBe(false);
+    });
+  }
+});
+
 describe("formio convert - condition literals", () => {
   const compareWith = (eq: string) => ({ components: [
     { type: "textfield", key: "a" },
@@ -1130,7 +1277,8 @@ describe("formio convert - select data sources", () => {
   it("maps a URL source to choicesByUrl", () => {
     const { output, report } = convert(urlSelect({ selectValues: "results", valueProperty: "id", template: "<span>{{ item.name }}</span>" }));
     expect(findElement(output, "s")?.choicesByUrl).toEqual({ url: "https://example.com/items", path: "results", valueName: "id", titleName: "name" });
-    expect(report.entries).toEqual([]);
+    // With no `dataType`, Form.io casts each response value and survey-core keeps it.
+    expect(report.entries.map((e) => e.code)).toEqual([FormioCodes.ASSUMED_DATA_SOURCE_VALUE]);
     assertConstructsCleanly(output, "url select");
   });
 
@@ -1786,6 +1934,8 @@ describe("formio convert - clearOnHide", () => {
     expect(survey.data).toEqual({ g: [{ x: "0", h: "d", k: "2" }], s: [{ y: "4" }] });
   });
 
+  // The grid's own setting is "none"; its fields do not inherit it, so `x` clears with the grid
+  // (onHiddenContainer) and `k`, which sets clearOnHide: false itself, keeps its value.
   it("keeps a data grid with clearOnHide: false that its condition hides, and lets its fields follow their own rule", () => {
     const { output } = convert({ components: [
       gate,
@@ -2054,6 +2204,51 @@ describe("formio convert - HTML templates", () => {
     survey.data = { x: "Ann", x_1: "Bob" };
     expect(html("note", survey)).toBe("<p>Ann and Bob</p>");
     expect(html("text", survey)).toBe("<b>Ann</b>");
+  });
+
+  describe("a survey field", () => {
+    const survey = { type: "survey", key: "s", questions: [{ label: "Q1", value: "q1" }, { label: "Q2", value: "q2" }, { label: "Q3", value: "q.3" }],
+      values: [{ label: "yes", value: "yes" }, { value: "no" }] };
+
+    it("pipes the value of one of its rows for {{ data.s.<row> }}", () => {
+      const { output, report } = convert({ components: [survey, { type: "htmlelement", key: "note", html: "<p>{{ data.s.q1 }} / {{data.s.q2}}</p>" }] });
+      expect(findElement(output, "note")?.html).toBe("<p>{s.q1} / {s.q2}</p>");
+      expect(report.entries).toEqual([]);
+      const model = assertConstructsCleanly(output, "survey row template");
+      model.data = { s: { q1: "yes", q2: "no" } };
+      expect(html("note", model)).toBe("<p>yes / no</p>");
+    });
+
+    it("reads one of its rows in a URL", () => {
+      const { output, report } = convert({ components: [survey,
+        { type: "select", key: "c", dataSrc: "url", data: { url: "https://x.test/api?a={{ data.s.q1 }}" } }] });
+      expect((findElement(output, "c")?.choicesByUrl as Record<string, string>).url).toBe("https://x.test/api?a={s.q1}");
+      expect(report.entries.filter((e) => e.code === FormioCodes.UNSUPPORTED_DATA_SOURCE)).toEqual([]);
+      assertConstructsCleanly(output, "survey row url");
+    });
+
+    it("refuses a row of a field whose column text is not its value, which survey-core would pipe instead", () => {
+      const labelled = { ...survey, values: [{ label: "Yes", value: "yes" }, { label: "No", value: "no" }] };
+      const { output, report } = convert({ components: [labelled, { type: "htmlelement", key: "note", html: "{{ data.s.q1 }}" }] });
+      expect(findElement(output, "note")?.html).toBe("{{ data.s.q1 }}");
+      expect(entry(report.entries, FormioCodes.CUSTOM_TEMPLATE)).toBeDefined();
+    });
+
+    for (const [what, text] of [
+      ["the field itself", "{{ data.s }}"],
+      ["a name that is not a row", "{{ data.s.q9 }}"],
+      ["a row below a row", "{{ data.s.q1.deeper }}"],
+      ["a row key with a dot", "{{ data.s.q.3 }}"]
+    ]) {
+      it(`still refuses ${what} in a template and in a URL`, () => {
+        const { output, report } = convert({ components: [survey, { type: "htmlelement", key: "note", html: text },
+          { type: "select", key: "c", dataSrc: "url", data: { url: `https://x.test/api?a=${text}` } }] });
+        expect(findElement(output, "note")?.html).toBe(text);
+        expect(findElement(output, "c")?.choicesByUrl).toBeUndefined();
+        expect(entry(report.entries, FormioCodes.CUSTOM_TEMPLATE)).toBeDefined();
+        expect(entry(report.entries, FormioCodes.UNSUPPORTED_DATA_SOURCE)).toBeDefined();
+      });
+    }
   });
 
   it("pipes an outer field's value in a data grid", () => {
@@ -2340,8 +2535,9 @@ describe("formio convert - logic", () => {
   it("still reports a value action, without its content", () => {
     const f = withLogic({}, { name: "l", trigger: whenA(), actions: [valueAction] });
     expect(customLogic(f)).toEqual(["/components/1/logic/0"]);
-    expect(JSON.stringify(convert(f).report)).not.toContain("secretValue");
-    assertConstructsCleanly(convert(f).output, "value action");
+    const { output, report } = convert(f);
+    expect(JSON.stringify(report)).not.toContain("secretValue");
+    assertConstructsCleanly(output, "value action");
   });
 
   it("gives no partial output for an entry that does not translate fully", () => {
@@ -2377,15 +2573,17 @@ describe("formio convert - logic", () => {
   it("reports hidden logic on a field with a customConditional", () => {
     const f = withLogic({ customConditional: "show = true;" }, { name: "l", trigger: whenA(), actions: [action("hidden", true)] });
     expect(customLogic(f)).toEqual(["/components/1/logic/0"]);
-    expect(findElement(convert(f).output, "b")?.visibleIf).toBeUndefined();
-    assertConstructsCleanly(convert(f).output, "logic with customConditional");
+    const { output } = convert(f);
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    assertConstructsCleanly(output, "logic with customConditional");
   });
 
   it("reports validate.required logic on a panel", () => {
     const f = { components: [gate, { type: "panel", key: "p", logic: [{ name: "l", trigger: whenA(), actions: [action("validate.required", true)] }], components: [{ type: "textfield", key: "b" }] }] };
     expect(customLogic(f)).toEqual(["/components/1/logic/0"]);
-    expect(findElement(convert(f).output, "p")?.requiredIf).toBeUndefined();
-    assertConstructsCleanly(convert(f).output, "required logic on panel");
+    const { output } = convert(f);
+    expect(findElement(output, "p")?.requiredIf).toBeUndefined();
+    assertConstructsCleanly(output, "required logic on panel");
   });
 
   for (const type of ["htmlelement", "content"]) {
@@ -2452,8 +2650,9 @@ describe("formio convert - logic", () => {
       { name: "l1", trigger: whenA(), actions: [action("hidden", true)] },
       { name: "l2", trigger: legacyWhenA, actions: [action("hidden", true)] });
     expect(customLogic(f)).toEqual(["/components/1/logic/0", "/components/1/logic/1"]);
-    expect(findElement(convert(f).output, "b")?.visibleIf).toBeUndefined();
-    assertConstructsCleanly(convert(f).output, "logic same property");
+    const { output } = convert(f);
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    assertConstructsCleanly(output, "logic same property");
   });
 
   for (const type of ["customAction", "mergeComponentSchema"]) {
@@ -2785,6 +2984,43 @@ describe("formio convert - options", () => {
       expect(codesAt(report, FormioCodes.UNSUPPORTED_OPTION)).toEqual(["/components/0/dataType"]);
     });
 
+    it("reports dataType string on choices from a URL, which Form.io casts to text", () => {
+      const { report } = convertOne({ type: "select", dataType: "string", dataSrc: "url", valueProperty: "id", data: { url: "https://example.com/items" } });
+      expect(codesAt(report, FormioCodes.UNSUPPORTED_OPTION)).toEqual(["/components/0/dataType"]);
+      expect(codesAt(report, FormioCodes.ASSUMED_DATA_SOURCE_VALUE)).toEqual([]);
+    });
+
+    for (const dataType of [undefined, "", "auto"]) {
+      it(`reports that a select from a URL with dataType ${JSON.stringify(dataType)} keeps the response value, which Form.io casts`, () => {
+        const { report, el } = convertOne({ type: "select", dataType, dataSrc: "url", valueProperty: "id", data: { url: "https://example.com/items" } });
+        expect(el.choicesByUrl).toBeDefined();
+        expect(codesAt(report, FormioCodes.ASSUMED_DATA_SOURCE_VALUE)).toEqual(["/components/0/dataSrc"]);
+        expect(report.entries.find((e) => e.code === FormioCodes.ASSUMED_DATA_SOURCE_VALUE)?.bucket).toBe("assumed");
+        expect(codesAt(report, FormioCodes.UNSUPPORTED_OPTION)).toEqual([]);
+      });
+    }
+
+    it("does not report the response value of a select from a URL whose dataType keeps it", () => {
+      const { report } = convertOne({ type: "select", dataType: "object", dataSrc: "url", valueProperty: "id", data: { url: "https://example.com/items" } });
+      expect(codesAt(report, FormioCodes.ASSUMED_DATA_SOURCE_VALUE)).toEqual([]);
+      expect(codesAt(report, FormioCodes.UNSUPPORTED_OPTION)).toEqual([]);
+    });
+
+    it("reports the response value of a select from a URL that interpolates a field", () => {
+      const { output, report } = convert({ components: [
+        { type: "textfield", key: "country" },
+        { type: "select", key: "q", dataSrc: "url", valueProperty: "id", data: { url: "https://example.com/items?c={{ data.country }}" } }
+      ] });
+      expect((findElement(output, "q")?.choicesByUrl as Record<string, unknown>).url).toBe("https://example.com/items?c={country}");
+      expect(codesAt(report, FormioCodes.ASSUMED_DATA_SOURCE_VALUE)).toEqual(["/components/1/dataSrc"]);
+    });
+
+    it("does not report the response value of a URL source it refuses", () => {
+      const { report } = convertOne({ type: "select", dataSrc: "url", authenticate: true, data: { url: "https://example.com/items" } });
+      expect(codesAt(report, FormioCodes.UNSUPPORTED_DATA_SOURCE)).toEqual(["/components/0/dataSrc"]);
+      expect(codesAt(report, FormioCodes.ASSUMED_DATA_SOURCE_VALUE)).toEqual([]);
+    });
+
     const auto = [{ label: "Two", value: "2" }, { label: "Yes", value: "true" }, { label: "Odd", value: "1.5x" }];
     for (const type of ["radio", "select"]) {
       for (const dataType of [undefined, "auto"]) {
@@ -2825,9 +3061,20 @@ describe("formio convert - options", () => {
       it(`reports values ${JSON.stringify(written)} whose cast would make survey-core read two choices as one, and keeps them as written`, () => {
         const { el, report } = convertOne({ type: "radio", values: written.map((value) => ({ label: value, value })) });
         expect(choiceValues(el)).toEqual(written);
-        expect(codesAt(report, FormioCodes.UNSUPPORTED_OPTION)).toEqual(["/components/0/dataType"]);
+        expect(codesAt(report, FormioCodes.UNSUPPORTED_OPTION)).toEqual(["/components/0/values/1/value"]);
       });
     }
+
+    it("reports the value of a select, past an item with no value, when no dataType is set", () => {
+      const { el, report } = convertOne({ type: "select", data: { values: [{ label: "none", value: "" }, { label: "A", value: "01" }, { label: "B", value: "1" }] } });
+      expect(choiceValues(el)).toEqual(["01", "1"]);
+      expect(codesAt(report, FormioCodes.UNSUPPORTED_OPTION)).toEqual(["/components/0/data/values/2/value"]);
+    });
+
+    it("reports the dataType when one is set and the values merge", () => {
+      const { report } = convertOne({ type: "radio", dataType: "auto", values: [{ label: "A", value: "01" }, { label: "B", value: "1" }] });
+      expect(codesAt(report, FormioCodes.UNSUPPORTED_OPTION)).toEqual(["/components/0/dataType"]);
+    });
 
     it("compares a value that Form.io keeps as written as written", () => {
       const form = { components: [
@@ -3157,7 +3404,10 @@ describe("formio convert - typed comparisons in JSON logic", () => {
           const form = { components: [{ key: "a", ...target }, { type: "textfield", key: "b", conditional: { json: { [op]: [{ var: "data.a" }, literal] } } }] };
           const { output, report } = convert(form);
           const assumed = report.entries.filter((e) => e.code === FormioCodes.ASSUMED_CONDITIONAL).map((e) => e.sourcePointer);
-          if (findElement(output, "b")?.visibleIf === undefined) {
+          // Survey-core holds for the same values only for these four literals.
+          const kept = [true, 1, "1", "0"].includes(literal as never);
+          expect(findElement(output, "b")?.visibleIf !== undefined).toBe(kept);
+          if (!kept) {
             expect(assumed).toEqual(["/components/1/conditional/json"]);
             for (const [, , data] of states) expect(isVisible(form, data, "b")).toBe(true);
             return;
@@ -3493,6 +3743,17 @@ describe("formio convert - survey, hidden, tags and nested form types", () => {
       assertConstructsCleanly(output, "grid in nested form");
     });
 
+    it("keeps the key of a field of a middle form when a form nested in it holds the same key", () => {
+      const inner = { type: "form", key: "g", label: "Inner", components: [{ type: "textfield", key: "x" }] };
+      const { output } = convert({ components: [
+        { type: "form", key: "f", label: "Middle", components: [inner, { type: "textfield", key: "x" }] }
+      ] });
+      const middle = findElement(output, "f")?.elements as SurveyJSONElement[];
+      expect(middle.map((e) => e.name)).toEqual(["g", "x"]);
+      expect((middle[0].elements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["x_1"]);
+      assertConstructsCleanly(output, "doubly nested form");
+    });
+
     it("does not resolve a condition inside it to a field of the outer form", () => {
       const form = { components: [
         { type: "textfield", key: "y" },
@@ -3502,6 +3763,84 @@ describe("formio convert - survey, hidden, tags and nested form types", () => {
       expect(findElement(output, "inner")?.visibleIf).toBeUndefined();
       expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)).toMatchObject({ sourcePointer: "/components/1/components/0/conditional/when" });
       assertConstructsCleanly(output, "nested form outer reference");
+    });
+
+    it("does not resolve a JSON logic path from the outer form to a field inside a nested form", () => {
+      const form = { components: [
+        nested([{ type: "textfield", key: "inner" }]),
+        { type: "textfield", key: "byKey", conditional: { json: { "==": [{ var: "data.inner" }, "1"] } } },
+        { type: "textfield", key: "byLayout", conditional: { json: { "==": [{ var: "data.f.inner" }, "1"] } } },
+        { type: "textfield", key: "byTruthiness", conditional: { json: { var: "data.inner" } } },
+        { type: "textfield", key: "byData", conditional: { json: { "==": [{ var: "data.f.data.inner" }, "1"] } } }
+      ] };
+      const { output, report } = convert(form);
+      for (const name of ["byKey", "byLayout", "byTruthiness"]) expect(findElement(output, name)?.visibleIf).toBeUndefined();
+      expect(report.entries.filter((e) => e.code === FormioCodes.ASSUMED_CONDITIONAL).map((e) => e.sourcePointer)).toEqual([
+        "/components/1/conditional/json", "/components/2/conditional/json", "/components/3/conditional/json"
+      ]);
+      expect(findElement(output, "byData")?.visibleIf).toBe("{inner} = '1'");
+      for (const name of ["byKey", "byLayout", "byTruthiness"]) {
+        expect(isVisible(form, { inner: "1" }, name)).toBe(true);
+        expect(isVisible(form, { inner: "0" }, name)).toBe(true);
+      }
+      expect(isVisible(form, { inner: "1" }, "byData")).toBe(true);
+      expect(isVisible(form, { inner: "0" }, "byData")).toBe(false);
+    });
+
+    it("resolves a legacy or simple condition from the outer form to a field inside a nested form by its key", () => {
+      const form = { components: [
+        nested([{ type: "textfield", key: "inner" }]),
+        { type: "textfield", key: "byWhen", conditional: { show: true, when: "inner", eq: "1" } },
+        { type: "textfield", key: "bySimple", conditional: simpleConditional(true, [{ component: "inner", operator: "isEqual", value: "1" }]) }
+      ] };
+      const { output, report } = convert(form);
+      expect(findElement(output, "byWhen")?.visibleIf).toBe("{inner} = '1'");
+      expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)).toBeUndefined();
+      for (const name of ["byWhen", "bySimple"]) {
+        expect(isVisible(form, { inner: "1" }, name)).toBe(true);
+        expect(isVisible(form, { inner: "0" }, name)).toBe(false);
+      }
+    });
+
+    it("does not resolve a JSON logic path inside a nested form to a field of a form nested in it", () => {
+      const form = { components: [nested([
+        { type: "form", key: "g", components: [{ type: "textfield", key: "deep" }] },
+        { type: "textfield", key: "byKey", conditional: { json: { "==": [{ var: "data.deep" }, "1"] } } },
+        { type: "textfield", key: "byData", conditional: { json: { "==": [{ var: "data.g.data.deep" }, "1"] } } }
+      ])] };
+      const { output, report } = convert(form);
+      expect(findElement(output, "byKey")?.visibleIf).toBeUndefined();
+      expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)).toMatchObject({ sourcePointer: "/components/0/components/1/conditional/json" });
+      expect(isVisible(form, { deep: "1" }, "byKey")).toBe(true);
+      expect(isVisible(form, { deep: "0" }, "byKey")).toBe(true);
+      expect(isVisible(form, { deep: "1" }, "byData")).toBe(true);
+      expect(isVisible(form, { deep: "0" }, "byData")).toBe(false);
+    });
+
+    it("does not pipe {{ data.<key> }} from the outer form to a field inside a nested form", () => {
+      const { output, report } = convert({ components: [
+        nested([{ type: "textfield", key: "inner" }]),
+        { type: "htmlelement", key: "note", html: "<p>{{ data.inner }} / {{ data.f.data.inner }}</p>" }
+      ] });
+      expect(findElement(output, "note")?.html).toBe("<p>{{ data.inner }} / {inner}</p>");
+      expect(entry(report.entries, FormioCodes.CUSTOM_TEMPLATE)).toMatchObject({ bucket: "unsupported", sourcePointer: "/components/1/html" });
+      const survey = assertConstructsCleanly(output, "nested form template");
+      survey.data = { inner: "Ann" };
+      expect((survey.getQuestionByName("note") as unknown as { processedHtml: string }).processedHtml).toContain("/ Ann</p>");
+    });
+
+    it("does not substitute {{ data.<key> }} in a URL from the outer form with a field inside a nested form", () => {
+      const select = (url: string) => ({ components: [
+        nested([{ type: "textfield", key: "inner" }]),
+        { type: "select", key: "s", dataSrc: "url", valueProperty: "id", data: { url } }
+      ] });
+      const refused = convert(select("https://x.test/api?c={{ data.inner }}"));
+      expect(findElement(refused.output, "s")?.choicesByUrl).toBeUndefined();
+      expect(entry(refused.report.entries, FormioCodes.UNSUPPORTED_DATA_SOURCE)).toMatchObject({ sourcePointer: "/components/1/dataSrc" });
+      assertConstructsCleanly(refused.output, "nested form URL refused");
+      const resolved = convert(select("https://x.test/api?c={{ data.f.data.inner }}"));
+      expect((findElement(resolved.output, "s")?.choicesByUrl as Record<string, string>).url).toBe("https://x.test/api?c={inner}");
+      assertConstructsCleanly(resolved.output, "nested form URL resolved");
     });
 
     it("stays reported without inline components", () => {

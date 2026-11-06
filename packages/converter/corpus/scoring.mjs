@@ -103,7 +103,8 @@ function schemaEffectiveType(s) {
 // items recurse into the item template; scalars, enums and arrays-of-primitives each count as one.
 // `allOf` subschemas are merged, an entry's own `allOf` too, and an item schema's `allOf` is merged
 // before its type is read; a property several entries declare is counted once, from its first
-// declaration. Bounded by depth to survive recursive schemas.
+// declaration. A key that only a `then` or `else` branch, `dependentSchemas` or a schema
+// `dependencies` declares counts once too. Bounded by depth to survive recursive schemas.
 export function countJsonSchemaLeafProps(input) {
   const root = input && typeof input === "object" && input.schema && typeof input.schema === "object" ? input.schema : input;
   if (!root || typeof root !== "object") return 0;
@@ -139,6 +140,35 @@ export function countJsonSchemaLeafProps(input) {
     return hasProperties ? { ...s, properties: props } : s;
   };
 
+  // The properties only a conditional branch declares: `then`, `else`, `dependentSchemas` and the
+  // schema form of `dependencies`, of the schema and of its `allOf` entries, each key once, from
+  // its first declaration. A key the schema's own `properties` declare is not added again.
+  const branchProperties = (s, own) => {
+    const found = {};
+    const seenSchemas = new Set();
+    const take = (schema, depth) => {
+      const r = resolve(schema);
+      if (!r || typeof r !== "object" || Array.isArray(r) || seenSchemas.has(r) || depth > 32) return;
+      seenSchemas.add(r);
+      const merged = mergeAllOf(r);
+      for (const [k, v] of Object.entries(merged.properties || {})) if (!(k in own) && !(k in found)) found[k] = v;
+      collect(r, depth + 1);
+    };
+    const collect = (node, depth) => {
+      for (const key of ["then", "else"]) if (node[key] && typeof node[key] === "object") take(node[key], depth);
+      for (const key of ["dependentSchemas", "dependencies"]) {
+        const bag = node[key];
+        if (bag && typeof bag === "object" && !Array.isArray(bag)) {
+          for (const v of Object.values(bag)) if (v && typeof v === "object" && !Array.isArray(v)) take(v, depth);
+        }
+      }
+      if (Array.isArray(node.allOf)) for (const entry of node.allOf) take(entry, depth);
+    };
+    seenSchemas.add(s);
+    collect(s, 0);
+    return found;
+  };
+
   let n = 0;
   const visit = (schema, depth) => {
     if (depth > 32) { n++; return; }
@@ -146,6 +176,7 @@ export function countJsonSchemaLeafProps(input) {
     const type = schemaEffectiveType(s);
     if (type === "object" || (type === undefined && s.properties)) {
       for (const sub of Object.values(s.properties || {})) visit(sub, depth + 1);
+      for (const sub of Object.values(branchProperties(s, s.properties || {}))) visit(sub, depth + 1);
       // Discriminated oneOf variants contribute their own leaves.
       if (Array.isArray(s.oneOf)) for (const b of s.oneOf) visit(resolve(b), depth + 1);
       return;

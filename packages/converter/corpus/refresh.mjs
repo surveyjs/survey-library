@@ -375,8 +375,19 @@ function selfTest() {
   check("A $ref resolved through an $id is handled", bundled.tokens.has("ref:bundled") && !bundled.tokens.has("ref:remote"));
   const remote = constructTokens("json-schema", { ...bundle, properties: { other: { $ref: "https://example.com/schemas/other" },
     lost: { $ref: "https://example.com/schemas/root#/$defs/nothing" } } });
-  check("A $ref no $id declares, or whose fragment names nothing, is remote and unhandled",
-    remote.unhandled.has("ref:remote") && !remote.tokens.has("ref:bundled"));
+  check("A $ref no $id declares is remote and unhandled", remote.unhandled.has("ref:remote") && !remote.tokens.has("ref:bundled"));
+  const dangling = constructTokens("json-schema", { ...bundle, properties: { lost: { $ref: "https://example.com/schemas/root#/$defs/nothing" } } });
+  check("A $ref whose fragment names nothing is unresolved, not remote",
+    dangling.unhandled.has("ref:unresolved") && !dangling.tokens.has("ref:remote") && !dangling.tokens.has("ref:bundled"));
+  const chained = constructTokens("json-schema", { ...bundle, $defs: { ...bundle.$defs,
+    a: { $ref: "https://example.com/schemas/root#/$defs/b" }, b: { $ref: "https://example.com/schemas/root#/$defs/a" },
+    c: { $ref: "https://example.com/schemas/root#/$defs/nothing" } },
+    properties: { cycle: { $ref: "https://example.com/schemas/root#/$defs/a" }, viaChain: { $ref: "https://example.com/schemas/root#/$defs/c" } } });
+  check("A $ref chain that returns to itself or ends at nothing is unresolved",
+    chained.unhandled.has("ref:unresolved") && !chained.tokens.has("ref:bundled"));
+  const okChain = constructTokens("json-schema", { ...bundle, $defs: { ...bundle.$defs, link: { $ref: "https://example.com/schemas/count" } },
+    properties: { ok: { $ref: "https://example.com/schemas/root#/$defs/link" } } });
+  check("A $ref chain that ends at a schema is bundled", okChain.tokens.has("ref:bundled") && !okChain.tokens.has("ref:unresolved"));
 
   // 2a. Classification: a single Form.io component is wrapped as a form.
   const single = classifyDefinitions("formio", [{ name: "comp", value: { type: "textfield", key: "a" } }]);

@@ -109,7 +109,7 @@ vendored in `src/formio/vendor/` and checked by `npm run corpus:refresh`.
 
 A container, a tab and a wizard page take their names after their children, so a field keeps
 a key its container also has. A field of a nested `form` gives way to a field of the form
-around it with the same key: the nested field takes the suffix.
+around it, and of every form between, with the same key: the nested field takes the suffix.
 
 ### Data grids
 
@@ -154,7 +154,7 @@ Only a value other than Form.io's default (its component `schema()`) counts. Pur
 | `datetime` | `datePicker.minDate`, `maxDate` (or under `widget`) | `min`, `max` | A date literal only. Anything else, such as a `moment()` expression, or any limit on a time input, is reported `unsupported-option`. |
 | `number` | `decimalLimit`, `requireDecimal` | A numeric mask: `precision`, `showTrailingZeros` | `precision` is 2 under `requireDecimal` alone, as in Form.io. Without `delimiter`, `thousandsSeparator: ""`. The input becomes a text input, which a mask needs. |
 | `textfield`, `phoneNumber` | `inputMask` | `maskType: "pattern"`, `saveMaskedValue: true` | `9` stays `9`, `A` becomes `a`, `*` becomes `#`, and a literal `#` is escaped. Form.io stores the value with the mask's literals, so the mask saves them too. A `phoneNumber` with no `inputMask` gets Form.io's default `(999) 999-9999`. Reported `unsupported-option`, with no mask: a lowercase `a` (a lowercase letter in Form.io, with no survey-core token), a `\` (survey-core cannot show one), and on a `textfield` a `#`, `&`, bracket or `\|`, which the Inputmask library Form.io types through reads as its own tokens. |
-| `radio`, `select` | `dataType: "number"`, `"boolean"`, or none (`"auto"`) | Choice values and the default in that type | Cast as Form.io casts them, so condition literals that read the field are cast too. With no `dataType`, a value written as JavaScript writes a number becomes that number, and `"true"` or `"false"` (any case on a select) a boolean. Values that survey-core would read as one value after the cast, such as `"01"` and `"1"`, are reported `unsupported-option` at `/dataType`, even when the key is absent, and kept as written. A URL source with `dataType` `"number"` or `"boolean"` is reported `unsupported-option`. |
+| `radio`, `select` | `dataType: "number"`, `"boolean"`, or none (`"auto"`) | Choice values and the default in that type | Cast as Form.io casts them, so condition literals that read the field are cast too. With no `dataType`, a value written as JavaScript writes a number becomes that number, and `"true"` or `"false"` (any case on a select) a boolean. Values that survey-core would read as one value after the cast, such as `"01"` and `"1"`, are reported `unsupported-option` at `/dataType`, even when the key is absent, and kept as written. A URL source with `dataType` `"number"`, `"boolean"` or `"string"` is reported `unsupported-option`, and one with `"auto"` or none `assumed-data-source-value`. |
 | `file` | `multiple`, `fileMaxSize`, `filePattern` | `allowMultiple`, `maxSize` in bytes, `acceptedTypes` | `acceptedTypes` takes `*.ext`, `.ext` and `type/sub` globs. A size or pattern that does not parse is reported `unsupported-option`. |
 | `signature` | `width`, `height`, `penColor`, `backgroundColor`, `minWidth`, `maxWidth` | `signatureWidth`, `signatureHeight`, `penColor`, `backgroundColor`, `penMinWidth`, `penMaxWidth` | A size not in pixels, or a pen width that is not a positive number, is reported `dropped-styling`. |
 | `textarea` | `rows` | `rows` | |
@@ -205,6 +205,10 @@ is kept), and no template gives `label`, Form.io's default. Any other template i
 A URL with any other interpolation (`{{ limit }}`, say), a path that names no field, or a need
 for `authenticate` or request `headers`, is reported `unsupported-data-source`, because
 SurveyJS would call it differently.
+survey-core stores each response value as the response gives it, and Form.io casts it to the
+select's `dataType`. A URL source with `dataType` `auto` or none is reported
+`assumed-data-source-value`, and one with `number`, `boolean` or `string` is reported
+`unsupported-option` at `dataType`.
 
 ### Radio-type checkboxes
 
@@ -225,13 +229,18 @@ A condition that names a member's `key` finds no field, because the data lives u
 
 `conditional` becomes `visibleIf` on a field, panel, data grid, tab set or wizard page. All
 three Form.io formats are read. When a component carries more than one, the same one decides
-as in Form.io: the simple format, then the legacy one, then JSON logic.
+as in Form.io: the legacy one, then the simple format (when a condition names a component and
+an operator), then JSON logic.
 
 **Simple format** (`{ show, conjunction, conditions }`):
 
 * `conjunction: "all"` joins with `and`, and `"any"` with `or`.
 * `show: false` negates the whole expression. A string `show` is parsed as Form.io does.
-* An empty `conditions` list means no condition. A condition with no `component` is ignored.
+* An empty `conditions` list means no condition. When no condition names a component, Form.io
+  checks none, so the field shows whatever `conjunction` and `show` say. Next to a condition that
+  does, a condition with no `component` makes `any` hold always: the field shows, or is hidden
+  (`visibleIf: "false"`) when `show` reads false and is a boolean or truthy (`false`, `"false"`),
+  and not when it is `null`, `""` or absent. `all` is unaffected: such a condition changes nothing.
 * If one condition cannot be translated, the whole conditional is dropped, and each failed
   condition is reported `assumed-conditional`.
 
@@ -261,6 +270,10 @@ those. `!` around any of them gives `!(…)`.
   with a field that stores a boolean (`true == "true"` is false).
 
 Anything else is reported `assumed-conditional`.
+
+When Form.io's equality holds for none of a `number` or `currency` field's values, such as `'abc'`
+or `'true'`, the condition is written as the constant `false` (`true` for a not-equal), as a
+literal there would be flagged by the linter as a type mismatch.
 
 **Literals** are matched with what Form.io stores in the field, and written only when
 survey-core's comparison holds for exactly the values Form.io's does: the legacy format
@@ -293,8 +306,11 @@ tries, in order, the field's data path (keys of the `container`, `datagrid` and 
 around it), its full path (the keys of every component around it, layout included), and the
 bare key when exactly one field has it. A leading `row.` names a field in the condition's own
 grid. Inside a nested `form`, the root is the nested form's data, and only its fields can be
-named. A `survey` field cannot be named: its `{}` is not empty in Form.io, so no comparison
-reads it as Form.io does.
+named. JSON logic, templates and URLs read the path exactly as written, so they cannot name a
+field of another form by its bare key or its layout path; a legacy or simple condition can, as
+Form.io finds a key anywhere in the data. A `survey` field cannot be named: its `{}` is not
+empty in Form.io, so no comparison reads it as Form.io does. In a template or a URL,
+`{{ data.s.<row> }}` becomes `{s.<row>}` when the text of every column equals its value.
 
 Seen from inside data grids, the reference is `{name}` for a field outside any grid,
 `{panel.name}` in the same grid, and `{parentPanel.name}` one grid up. A field inside a grid
@@ -383,6 +399,7 @@ its path only, never its content, and the component still converts:
 | `formio.assumed-conditional` | assumed | A condition dropped or approximated |
 | `formio.assumed-currency-format` | assumed | An unknown currency code, or an affix the pattern cannot hold |
 | `formio.assumed-data-source-title` | assumed | A URL or `json` source whose template is not one `{{ item.x }}` |
+| `formio.assumed-data-source-value` | assumed | A URL source with `dataType` `auto` or none, whose response values Form.io casts and survey-core keeps as given |
 | `formio.assumed-container-data` | assumed | A `container`, or a nested `form` with inline components, whose data nests under its key |
 | `formio.assumed-default-value` | assumed | A date or time default that does not parse, or a `survey` default that is neither an object nor one of its values |
 | `formio.dropped-styling` | dropped | `tabs`, `columns` and `table` layout; `tooltip`, `errorLabel`, and `prefix` and `suffix` outside `currency`; a signature size not in pixels or a pen width that is not a number |
@@ -425,6 +442,19 @@ fields are only in `anyOf` variants of objects gives no question, and is reporte
 A `type` array ignores `"null"`. With no `type`, `properties` means an object, `items` an array
 and `enum` a string.
 
+A required array of choices or free items gets `minItems` as `minSelectedChoices`; an optional one
+does not, because survey-core checks it on an empty question too, where JSON Schema checks it only
+on an array that is there. A checkbox or tagbox of choices gets a `maxItems` above 0 as
+`maxSelectedChoices`. Each other keyword a question cannot hold is reported `unsupported-keyword`
+at its own pointer: `not`; a field's `const`, `multipleOf` (unless every integer meets it),
+`type: "null"`, and a `oneOf` or `anyOf` that is not a set of `const` choices; an array's
+`contains`, and its `minItems`, `maxItems` and `uniqueItems` that the question does not hold (a
+dynamic panel holds none, and a tagbox of free items no `maxItems` or `uniqueItems`); an object's
+`propertyNames`, a `minProperties` its required keys do not meet, and a `maxProperties` below its
+number of properties. Under JSONForms, what an `anyOf` or `oneOf` entry of an object declares for
+a key a Control names is reported at the entry's `properties/<key>`, and, unless it is the only
+entry, at its `required/<i>`.
+
 | `format` | `inputType` |
 | --- | --- |
 | `date` | `date` |
@@ -445,6 +475,7 @@ and `enum` a string.
 | `minimum`, `maximum` | `numeric` validator | |
 | `exclusiveMinimum`, `exclusiveMaximum` | `numeric` validator | Both the draft-04 boolean and the later numeric form; the stricter bound wins. On an `integer` the bound moves one step inside, which is exact. On a `number` the bound is kept, and since the validator accepts a value equal to it, it is reported `assumed-exclusive-bound`. |
 | `pattern` | `regex` validator | |
+| `prefixItems` | Nothing | Reported `unsupported-keyword` at the keyword; the array stays a `tagbox` |
 
 #### Optional objects
 
@@ -470,7 +501,15 @@ is reported at the keyword.
 #### `$ref`
 
 A local reference (`#/definitions/…`, `#/$defs/…`, any pointer into the same document) is
-resolved. Any other reference is looked up among the document's `$id`s (a bundled schema),
+resolved, also at the root of the schema. A keyword that constrains beside a `$ref` applies, as
+in AJV 8: it is merged as an `allOf` of the reference and its siblings, and what the merge cannot
+express is reported `assumed-allof-merge`. Annotations beside a `$ref` (`title`, `description`,
+`default`, `readOnly`, ...) apply and win over the target's in plain JSON Schema and RJSF; under a
+JSONForms UI schema they are not read, and the target's annotations stand. A JSONForms app whose
+AJV runs with `useDefaults` fills in the `default` written beside the `$ref`, while the converter
+takes the target's. A loss inside a `$ref`'s target is reported at the pointer of the schema that
+holds the `$ref`, in one entry, even when the same keyword is also lost beside the `$ref`.
+Any other reference is looked up among the document's `$id`s (a bundled schema),
 against the base URI it sits under, and the JSON Pointer in its fragment is followed. Where the
 converter cannot follow a reference, the property becomes a `text` question:
 
@@ -495,6 +534,7 @@ Their `properties` and `required` are added, and a keyword the parent does not s
 * **`true` and `false`.** A `true` declaration adds nothing. A `false` one allows no value, so the
   property gets no question, and each declaration it outweighs is reported at the `false` one. A
   `false` entry is reported.
+* **A loss under a `$ref`** that two `allOf` parents reach is reported once, at its first route.
 * **Conditionals.** Each entry's `if`/`then`/`else`, dependencies and `required` apply on their
   own, as written at the entry's pointer.
 
@@ -623,7 +663,7 @@ so it is reported `unsupported-keyword`.
 
 | UI node | SurveyJS | Notes |
 | --- | --- | --- |
-| `Control` | A question, from the property its `scope` names | The scope resolves as JSONForms' `resolveSchema` resolves it: through `$ref`, and through `oneOf`, `allOf`, `anyOf`, `then` and `else` in that order, the first match winning; `required` is read from the scope's parent path. A scope that resolves to nothing is reported `unresolved-scope`. A Control with no scope is reported `unsupported-ui-hint`. |
+| `Control` | A question, from the property its `scope` names | The scope resolves as JSONForms' `resolveSchema` resolves it: through `$ref`, and through `oneOf`, `allOf`, `anyOf`, `then` and `else` in that order, the first match winning; `required` is read from the scope's parent path. A scope that resolves to nothing is reported `unresolved-scope`; one that resolves to `true` is mapped from the property's declaration when it has one, and otherwise reported `unsupported-keyword`. A scalar Control that merges several declarations gives a dropdown where JSONForms gives a text; both accept the same values, and only the widget differs. A Control with no scope is reported `unsupported-ui-hint`. |
 | `ListWithDetail` | As a `Control` on an array | The master list beside the detail is reported `dropped-styling`. On an object or a scalar, nothing, reported `unsupported-ui-hint`: no JSONForms renderer lists them. |
 | `VerticalLayout`, `HorizontalLayout` | `panel` with no title | The root layout is flattened into the survey. Horizontal arrangement is not kept. |
 | `Group` | `panel` titled with `label` | |
@@ -764,9 +804,11 @@ Every other key is reported:
 
 ### JSON Schema report codes
 
+A pointer escapes a key as JSON Pointer does: `~` as `~0` and `/` as `~1`.
+
 | Code | Bucket | Meaning |
 | --- | --- | --- |
-| `json-schema.unsupported-keyword` | unsupported | A `oneOf` of objects with no discriminator; `items`, or a root, whose fields are only in an `anyOf` or `oneOf` of objects; `items: false`; an `items` keyword a `tagbox` cannot hold; nesting past the depth limit |
+| `json-schema.unsupported-keyword` | unsupported | A `oneOf` of objects with no discriminator; `items`, or a root, whose fields are only in an `anyOf` or `oneOf` of objects; `items: false`; an `items` keyword a `tagbox` cannot hold; a keyword the question cannot hold (`not`, `const`, `multipleOf`, `prefixItems`, item and property counts, ...); under JSONForms, an `anyOf` or `oneOf` entry's declaration for a key a Control names; nesting past the depth limit |
 | `json-schema.unsupported-ui-hint` | unsupported | A JSONForms node or option, or an RJSF key or widget, with no mapping or that cannot apply where it is written; a `ListWithDetail` on an object or a scalar |
 | `json-schema.unsupported-free-form-object` | unsupported | Keys a schema leaves free, which no question holds: an object with no `properties`, an `additionalProperties` or `patternProperties` beside them, and a required key no schema of the object declares (in a JSONForms object Control's walk, one only a branch declares) |
 | `json-schema.unresolved-scope` | unsupported | A JSONForms scope that resolves to nothing |

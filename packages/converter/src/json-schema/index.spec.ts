@@ -1481,6 +1481,20 @@ describe("json-schema convert - bundled schema references", () => {
     expect(merged.hasErrors()).toBe(false);
   });
 
+  it("resolves a $ref beside a constraint against the base it sits under, and applies both", () => {
+    const schema = bundle({ c: { $ref: "https://other.example/forms/form" } });
+    (schema.$defs as Record<string, object>).form = { $id: "https://other.example/forms/form", type: "object",
+      properties: { n: { $ref: "counter", maximum: 5 } }, $defs: { counter: { $id: "https://other.example/forms/counter", type: "integer", minimum: 0 } } };
+    const { output, report } = convert(schema);
+    expect(report.entries).toEqual([]);
+    const q = assertConstructsCleanly(output, "relative $ref beside a constraint").getQuestionByName("n");
+    expect(q.inputType).toBe("number");
+    for (const [value, fails] of [[-1, true], [6, true], [3, false]] as const) {
+      q.value = value;
+      expect(q.hasErrors(), String(value)).toBe(fails);
+    }
+  });
+
   it("resolves a JSON Pointer fragment after an $id", () => {
     const schema = bundle({ p: { $ref: "https://example.com/schemas/root#/$defs/nested/definitions/flag" } });
     const { output, report } = convert(schema);
@@ -1780,6 +1794,25 @@ describe("json-schema convert - JSONForms schema conditionals", () => {
       [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/anyOf/1/dependentRequired/kind"],
       [JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/anyOf/0/if"]
     ]);
+  });
+
+  it("requires a field a then and an else both require, whatever the value of the if", () => {
+    const schema = { type: "object", properties, if: { properties: { kind: { const: "x" } }, required: ["kind"] },
+      then: { required: ["note"] }, else: { required: ["note"] } };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(report.entries).toEqual([]);
+    expect(findElement(output, "note")?.isRequired).toBe(true);
+    expect(findElement(output, "note")?.requiredIf).toBeUndefined();
+    for (const data of [{ kind: "x" }, { kind: "y" }, {}]) expect(note(schema, data).isRequired).toBe(true);
+  });
+
+  it("keeps a requiredIf when the then and else require different fields", () => {
+    const schema = { type: "object", properties, if: { properties: { kind: { const: "x" } }, required: ["kind"] },
+      then: { required: ["note"] }, else: { required: ["kind"] } };
+    const { output } = convert({ schema, uiSchema });
+    expect(findElement(output, "note")?.requiredIf).toBe("{kind} = 'x'");
+    expect(note(schema, { kind: "x" }).isRequired).toBe(true);
+    expect(note(schema, { kind: "y" }).isRequired).toBe(false);
   });
 
   it("reads the condition from the data key of a Control shared with a second Control", () => {
@@ -3003,6 +3036,27 @@ describe("json-schema convert - a required key only a branch shows", () => {
     ]);
   });
 
+  const own = { x: { type: "string" } };
+  const readsY = { required: ["y"] };
+  for (const [what, schema] of [
+    ["an if that reads it shows only in an allOf entry of its then",
+      { type: "object", properties: own, required: ["y"], if: readsY, then: { allOf: [{ properties: { y: { type: "string" } } }] } }],
+    ["an if that reads it shows only in a nested if's then",
+      { type: "object", properties: own, required: ["y"], if: readsY, then: { if: { required: ["x"] }, then: { properties: { y: { type: "string" } } } } }],
+    ["its own dependency shows only in an allOf entry",
+      { type: "object", properties: own, required: ["y"], dependencies: { y: { allOf: [{ properties: { y: { type: "string" } } }] } } }],
+    ["its own dependency shows only in an anyOf entry",
+      { type: "object", properties: own, required: ["y"], dependentSchemas: { y: { anyOf: [{ properties: { y: { type: "string" } } }] } } }]
+  ] as [string, object][]) {
+    it(`reports a required key that ${what}, and makes no question`, () => {
+      const { output, report } = convert(schema);
+      const survey = assertConstructsCleanly(output, "required key a branch cannot show");
+      expect(survey.getQuestionByName("y")).toBeFalsy();
+      expect(survey.getQuestionByName("x")).toBeTruthy();
+      expect(report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT).map((e) => e.sourcePointer)).toEqual(["#/required/0"]);
+    });
+  }
+
   it("shows a key then shows and else shows too always", () => {
     const schema = { type: "object", properties: base, if: { properties: { k: { const: "a" } }, required: ["k"] },
       then: { properties: { x: { type: "string" } } }, else: { properties: { x: { type: "string" } } } };
@@ -3268,20 +3322,21 @@ describe("json-schema convert - a JSONForms Control on a property whose key hold
   };
 
   for (const key of ["x/y", "x~y"]) {
-    const scope = `#/properties/${key.replace(/~/g, "~0").replace(/\//g, "~1")}`;
+    const escaped = key.replace(/~/g, "~0").replace(/\//g, "~1");
+    const scope = `#/properties/${escaped}`;
 
     it(`makes no question for a Control on ${key}, which an allOf entry declares false, and reports the entry`, () => {
       const schema = { type: "object", properties: { a: { type: "string" }, [key]: { type: "string" } }, allOf: [{ properties: { [key]: false } }] };
-      expect(result(schema, ui("#/properties/a", scope))).toEqual([["a"], [[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `#/allOf/0/properties/${key}`, 1]]]);
+      expect(result(schema, ui("#/properties/a", scope))).toEqual([["a"], [[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `#/allOf/0/properties/${escaped}`, 1]]]);
     });
 
     it(`reports a declaration of ${key} whose type conflicts with the one a Control maps`, () => {
       const schema = { type: "object", properties: { [key]: { type: "string" } }, allOf: [{ properties: { [key]: { type: "number" } } }] };
       const [names, entries] = result(schema, ui(scope));
       expect(names).toEqual([key]);
-      expect(entries).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `#/allOf/0/properties/${key}`, 1]]);
+      expect(entries).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `#/allOf/0/properties/${escaped}`, 1]]);
       // The data walk reports the same declaration.
-      expect(convert(schema).report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `#/allOf/0/properties/${key}`]]);
+      expect(convert(schema).report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `#/allOf/0/properties/${escaped}`]]);
     });
   }
 });
@@ -3406,9 +3461,17 @@ describe("json-schema convert - a branch given as a $ref, an allOf, a nested if 
     expect(run(outer, { k: "b", x: "1" }, "x")).toEqual([true, false, { k: "b", x: "1" }]);
   });
 
-  it("reports a keyword beside a branch's $ref, which the $ref's target replaces", () => {
+  // AJV 8 applies the keywords beside a $ref with its target's: y is required while k is "a".
+  it("applies a required beside a branch's $ref with the $ref's target", () => {
     const schema = { type: "object", properties: { k, y }, if: kIsA, then: { $ref: "#/$defs/d", required: ["y"], title: "t" }, $defs: { d: { required: ["k"] } } };
-    expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/required"]]);
+    expect(pointers(schema)).toEqual([]);
+    expect(run(schema, { k: "a" }, "y")).toEqual([true, true, { k: "a" }]);
+    expect(run(schema, { k: "b" }, "y")).toEqual([true, false, { k: "b" }]);
+  });
+
+  it("reports a keyword beside a branch's $ref that the branch cannot apply, once", () => {
+    const schema = { type: "object", properties: { k, y }, if: kIsA, then: { $ref: "#/$defs/d", minProperties: 2 }, $defs: { d: { required: ["y"] } } };
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/minProperties"]]);
   });
 
   it("reports a branch given as a remote $ref", () => {
@@ -3474,6 +3537,54 @@ describe("json-schema convert - branches and allOf entries shared along many pat
     expect(survey.getQuestionByName("y").isRequired).toBe(true);
     survey.data = Object.fromEntries(Array.from({ length: 14 }, (_, i) => [`k${i}`, "b"]));
     expect(survey.getQuestionByName("y").isRequired).toBe(false);
+  });
+
+  // A chain of `depth` nested ifs, one key each, each continuing in its `else` and with no `then`; the
+  // last requires y. AJV requires y while no key is "a".
+  const elseChain = (depth: number) => {
+    const properties: Record<string, object> = { y: { type: "string" } };
+    const isA = (i: number) => ({ properties: { [`k${i}`]: { const: "a" } }, required: [`k${i}`] });
+    for (let i = 0; i < depth; i++) properties[`k${i}`] = { type: "string", enum: ["a", "b"] };
+    let branch: object = { required: ["y"] };
+    for (let i = depth - 1; i >= 1; i--) branch = { if: isA(i), else: branch };
+    return { type: "object", properties, if: isA(0), else: branch };
+  };
+  const keys = (depth: number, value: string) => Object.fromEntries(Array.from({ length: depth }, (_, i) => [`k${i}`, value]));
+
+  it("expresses a chain of else-only ifs well past the number of branches an if with both would allow", () => {
+    const { output, report } = convert(elseChain(50));
+    expect(report.entries).toEqual([]);
+    const survey = assertConstructsCleanly(output, "else chain");
+    survey.data = keys(50, "b");
+    expect(survey.getQuestionByName("y").isRequired).toBe(true);
+    survey.data = { ...keys(50, "b"), k30: "a" };
+    expect(survey.getQuestionByName("y").isRequired).toBe(false);
+  });
+
+  it("still reports a chain of else-only ifs past the branch limit, and applies nothing of the if it stops at", () => {
+    const { output, report } = convert(elseChain(80));
+    expect(report.entries.length).toBeGreaterThan(0);
+    expect(report.entries.every((e) => e.code === JsonSchemaCodes.ASSUMED_IF_THEN_ELSE && e.sourcePointer.endsWith("/if"))).toBe(true);
+    const survey = assertConstructsCleanly(output, "long else chain");
+    survey.data = keys(80, "b");
+    expect(survey.getQuestionByName("y").isRequired).toBe(false);
+  });
+
+  it("expresses more than 32 side-by-side ifs that have a then only", () => {
+    const properties: Record<string, object> = { y: { type: "string" } };
+    const allOf: object[] = [];
+    for (let i = 0; i < 40; i++) {
+      properties[`k${i}`] = { type: "string", enum: ["a", "b"] };
+      properties[`y${i}`] = { type: "string" };
+      allOf.push({ if: { properties: { [`k${i}`]: { const: "a" } }, required: [`k${i}`] }, then: { required: [`y${i}`] } });
+    }
+    const schema = { type: "object", properties, if: { properties: { y: { const: "go" } }, required: ["y"] }, then: { allOf } };
+    const { output, report } = convert(schema);
+    expect(report.entries).toEqual([]);
+    const survey = assertConstructsCleanly(output, "side by side");
+    survey.data = { y: "go", k39: "a" };
+    expect(survey.getQuestionByName("y39").isRequired).toBe(true);
+    expect(survey.getQuestionByName("y38").isRequired).toBe(false);
   });
 
   it("applies a branch a $ref names along a few paths exactly", () => {
@@ -3585,6 +3696,19 @@ describe("json-schema convert - the tagbox of an array of primitives", () => {
     expect(tagbox(input)).toMatchObject({ type: "tagbox", allowCustomChoices: true });
     expect(pointers(input)).toEqual([[JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/t/items"]]);
     assertConstructsCleanly(convert(input).output, "tuple");
+  });
+
+  it("reports a prefixItems, with or without items, and keeps the tagbox", () => {
+    const prefixItems = [{ type: "string" }, { type: "string", maxLength: 2 }];
+    const without = { type: "object", required: ["t"], properties: { t: { type: "array", prefixItems } } };
+    const withItems = { type: "object", required: ["t"], properties: { t: { type: "array", prefixItems, items: { type: "string" } } } };
+    const closed = { type: "object", required: ["t"], properties: { t: { type: "array", prefixItems, items: false } } };
+    const untyped = { type: "object", required: ["t"], properties: { t: { prefixItems } } };
+    for (const input of [without, withItems, closed, untyped]) {
+      expect(tagbox(input)).toMatchObject({ type: "tagbox", allowCustomChoices: true });
+      expect(pointers(input)).toEqual([[JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/t/prefixItems"]]);
+      expect(completeWith(input, { t: ["a", "bcd"] })).toEqual([[], { t: ["a", "bcd"] }]);
+    }
   });
 });
 
@@ -3734,6 +3858,54 @@ describe("json-schema convert - a JSONForms object Control and a required key on
   });
 });
 
+describe("json-schema convert - a JSONForms oneOf or anyOf entry that constrains a Control's property", () => {
+  const ui = (keys: string[]) => ({ type: "VerticalLayout", elements: keys.map((k) => ({ type: "Control", scope: `#/properties/${k}` })) });
+  const properties = { x: { type: "string" }, k: { type: "string" } };
+  const pointers = (input: object) => convert(input).report.entries.map((e) => [e.code, e.sourcePointer]);
+
+  for (const key of ["oneOf", "anyOf"]) {
+    it(`reports each property and required key of a ${key} entry that a Control names, and applies none`, () => {
+      const schema = { type: "object", properties, [key]: [
+        { properties: { x: { maxLength: 3 }, z: { type: "number" } }, required: ["x", "z"] },
+        { properties: { k: { const: "a" } } }
+      ] };
+      const input = { schema, uiSchema: ui(["x", "k"]) };
+      expect(pointers(input)).toEqual([
+        [JsonSchemaCodes.UNSUPPORTED_KEYWORD, `#/${key}/0/properties/x`],
+        [JsonSchemaCodes.UNSUPPORTED_KEYWORD, `#/${key}/0/required/0`],
+        [JsonSchemaCodes.UNSUPPORTED_KEYWORD, `#/${key}/1/properties/k`]
+      ]);
+      // Neither entry is known to hold, so neither constrains the questions.
+      expect(completeWith(input, {})).toEqual([[], {}]);
+      expect(completeWith(input, { x: "abcd", k: "b" })).toEqual([[], { x: "abcd", k: "b" }]);
+    });
+  }
+
+  it("reports an entry's properties in an allOf inside it", () => {
+    const schema = { type: "object", properties, oneOf: [{ allOf: [{ properties: { x: { maxLength: 3 } } }] }, { required: ["k"] }] };
+    expect(pointers({ schema, uiSchema: ui(["x", "k"]) })).toEqual([
+      [JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/oneOf/0/allOf/0/properties/x"],
+      [JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/oneOf/1/required/0"]
+    ]);
+  });
+
+  it("does not report what constrains nothing more than the object", () => {
+    const schema = { type: "object", properties, required: ["x"], anyOf: [
+      { properties: { x: { type: "string", title: "X" }, k: true }, required: ["x"] },
+      { properties: { k: {} } }
+    ] };
+    expect(pointers({ schema, uiSchema: ui(["x", "k"]) })).toEqual([]);
+  });
+
+  it("reports the properties of the only entry, and applies its required", () => {
+    const schema = { type: "object", properties, anyOf: [{ properties: { x: { maxLength: 3 } }, required: ["x"] }] };
+    const input = { schema, uiSchema: ui(["x", "k"]) };
+    expect(pointers(input)).toEqual([[JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/anyOf/0/properties/x"]]);
+    expect(completeWith(input, {})[0]).toEqual(["x"]);
+    expect(completeWith(input, { x: "abcd" })).toEqual([[], { x: "abcd" }]);
+  });
+});
+
 describe("json-schema convert - an if literal the field's type excludes", () => {
   const x = { type: "string" };
   const run = (k: object, ifK: object, required = true) => {
@@ -3810,5 +3982,499 @@ describe("json-schema convert - schemas that allow no value or no field", () => 
       [JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/t/items/pattern"],
       [JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/u/items/allOf/1/minLength"]
     ]);
+  });
+});
+
+describe("json-schema convert - keywords beside a $ref", () => {
+  const S = { type: "string" };
+  const pointers = (input: object) => convert(input).report.entries.map((e) => [e.code, e.sourcePointer]);
+  const names = (input: object) => assertConstructsCleanly(convert(input).output, "beside a $ref").getAllQuestions().map((q) => q.name);
+
+  // AJV 8, which JSONForms and RJSF use, applies the keywords beside a $ref with its target's.
+  it("applies a constraint beside a property's $ref", () => {
+    const schema = { type: "object", $defs: { S }, properties: { s: { $ref: "#/$defs/S", maxLength: 3 } } };
+    expect(pointers(schema)).toEqual([]);
+    expect(completeWith(schema, { s: "abc" })).toEqual([[], { s: "abc" }]);
+    expect(completeWith(schema, { s: "abcd" })[0]).toEqual(["s"]);
+  });
+
+  it("applies a constraint beside a $ref under a JSONForms Control", () => {
+    const schema = { type: "object", $defs: { S }, properties: { s: { $ref: "#/$defs/S", maxLength: 3 } } };
+    const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/s" }] };
+    expect(pointers({ schema, uiSchema: ui })).toEqual([]);
+    expect(loadJsonForms(schema, ui, { s: "abcd" }).getQuestionByName("s").hasErrors(false)).toBe(true);
+    expect(loadJsonForms(schema, ui, { s: "abc" }).getQuestionByName("s").hasErrors(false)).toBe(false);
+  });
+
+  it("adds the properties and the required beside a $ref in an allOf entry", () => {
+    const schema = { type: "object", $defs: { base: { type: "object", properties: { x: S } } },
+      allOf: [{ $ref: "#/$defs/base", properties: { y: S }, required: ["y"] }] };
+    expect(pointers(schema)).toEqual([]);
+    expect(names(schema)).toEqual(["x", "y"]);
+    expect(completeWith(schema, { x: "1" })).toEqual([["y"], { x: "1" }]);
+    expect(completeWith(schema, { y: "1" })).toEqual([[], { y: "1" }]);
+  });
+
+  it("adds the properties and the required beside a nested object's $ref", () => {
+    const schema = { type: "object", required: ["o"], $defs: { base: { type: "object", properties: { x: S } } },
+      properties: { o: { $ref: "#/$defs/base", properties: { y: S }, required: ["y"] } } };
+    expect(pointers(schema)).toEqual([]);
+    expect(names(schema)).toEqual(["x", "y"]);
+    expect(completeWith(schema, { x: "1" })).toEqual([["y"], { x: "1" }]);
+  });
+
+  it("applies the required beside the $ref of an array's items in each row", () => {
+    const schema = { type: "object", $defs: { row: { type: "object", properties: { y: S } } },
+      properties: { rows: { type: "array", items: { $ref: "#/$defs/row", required: ["y"] } } } };
+    const { output, report } = convert(schema);
+    expect(report.entries).toEqual([]);
+    expect(findElement(output, "y")?.isRequired).toBe(true);
+    const survey = assertConstructsCleanly(output, "rows");
+    survey.data = { rows: [{}] };
+    expect((survey.getQuestionByName("rows") as any).panels[0].getQuestionByName("y").hasErrors(false)).toBe(true);
+  });
+
+  it("applies the keywords beside each $ref of a chain", () => {
+    const schema = { type: "object", $defs: { a: { $ref: "#/$defs/b", minLength: 2 }, b: { type: "string", maxLength: 3 } },
+      properties: { s: { $ref: "#/$defs/a", pattern: "^a" } } };
+    expect(pointers(schema)).toEqual([]);
+    expect(completeWith(schema, { s: "ab" })).toEqual([[], { s: "ab" }]);
+    for (const s of ["a", "abcd", "bc"]) expect(completeWith(schema, { s })[0]).toEqual(["s"]);
+  });
+
+  it("keeps the target's value of a keyword set beside its $ref otherwise, and reports the other", () => {
+    const schema = { type: "object", $defs: { S5: { type: "string", maxLength: 5 } }, properties: { s: { $ref: "#/$defs/S5", maxLength: 3 } } };
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/properties/s/maxLength"]]);
+    expect(completeWith(schema, { s: "abcd" })).toEqual([[], { s: "abcd" }]);
+  });
+
+  // RJSF reads a property `{ ...target, ...beside }`: the annotations beside the $ref win.
+  it("applies the annotations beside a $ref over the target's, with or without a constraint", () => {
+    const $defs = { T: { type: "string", title: "Target", default: "t" } };
+    for (const extra of [{}, { maxLength: 3 }]) {
+      const schema = { type: "object", $defs, properties: { s: { $ref: "#/$defs/T", title: "Beside", description: "d", default: "b", readOnly: true, ...extra } } };
+      expect(pointers(schema)).toEqual([]);
+      const survey = assertConstructsCleanly(convert(schema).output, "annotations beside a $ref");
+      const q = survey.getQuestionByName("s");
+      expect([q.title, q.description, q.readOnly, q.value]).toEqual(["Beside", "d", true, "b"]);
+      survey.doComplete();
+      expect(survey.data).toEqual({ s: "b" });
+    }
+  });
+
+  // JSONForms takes a Control's label, default and readonly from the $ref's resolved target; AJV still
+  // validates the constraint beside it.
+  it("reads the annotations of a $ref's target under a JSONForms UI schema, and applies a constraint beside it", () => {
+    const $defs = { T: { type: "string", title: "Target", default: "t" } };
+    const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/s" }] };
+    for (const extra of [{}, { maxLength: 3 }]) {
+      const schema = { type: "object", $defs, properties: { s: { $ref: "#/$defs/T", title: "Beside", description: "d", default: "b", readOnly: true, ...extra } } };
+      expect(pointers({ schema, uiSchema: ui })).toEqual([]);
+      const survey = assertConstructsCleanly(convert({ schema, uiSchema: ui }).output, "annotations beside a $ref under JSONForms");
+      const q = survey.getQuestionByName("s");
+      expect([q.title, q.description, q.readOnly, q.value]).toEqual(["Target", "", false, "t"]);
+      q.value = "abcd";
+      expect(q.hasErrors(false)).toBe("maxLength" in extra);
+    }
+    const bare = { type: "object", $defs: { T: { type: "string" } }, properties: { s: { $ref: "#/$defs/T", title: "Beside", default: "b" } } };
+    expect(findElement(convert({ schema: bare, uiSchema: ui }).output, "s")).toEqual({ type: "text", name: "s" });
+  });
+
+  it("titles a discriminated variant by the title beside its $ref", () => {
+    const $defs = { Cat: { type: "object", title: "Cat", properties: { kind: { const: "cat" }, meow: S } }, Dog: { type: "object", properties: { kind: { const: "dog" }, bark: S } } };
+    const schema = { type: "object", $defs, discriminator: { propertyName: "kind" }, oneOf: [{ $ref: "#/$defs/Cat", title: "Kitty" }, { $ref: "#/$defs/Dog" }] };
+    expect(pointers(schema)).toEqual([]);
+    expect(convert(schema).output.pages?.map((p) => p.title)).toEqual([undefined, "Kitty", undefined]);
+  });
+
+  it("still reports a remote or a cyclic $ref beside a constraint", () => {
+    const remote = { type: "object", properties: { s: { $ref: "https://example.com/s.json", maxLength: 3 } } };
+    expect(pointers(remote)).toEqual([[JsonSchemaCodes.DROPPED_REMOTE_REF, "#/properties/s"]]);
+    const cycle = { type: "object", $defs: { a: { $ref: "#/$defs/a", maxLength: 3 } }, properties: { s: { $ref: "#/$defs/a" } } };
+    expect(pointers(cycle)).toEqual([[JsonSchemaCodes.UNRESOLVED_REF, "#/properties/s"]]);
+  });
+
+  it("applies the required beside the $ref of a discriminated oneOf variant", () => {
+    const $defs = { Cat: { type: "object", properties: { kind: { const: "cat" }, meow: S } }, Dog: { type: "object", properties: { kind: { const: "dog" }, bark: S } } };
+    const oneOf = [{ $ref: "#/$defs/Cat", required: ["meow"] }, { $ref: "#/$defs/Dog" }];
+    const top = { type: "object", $defs, discriminator: { propertyName: "kind" }, oneOf };
+    const nested = { type: "object", $defs, required: ["pet"], properties: { pet: { type: "object", discriminator: { propertyName: "kind" }, oneOf } } };
+    for (const schema of [top, nested]) {
+      expect(pointers(schema)).toEqual([]);
+      expect(completeWith(schema, { kind: "cat" })[0]).toContain("meow");
+      expect(completeWith(schema, { kind: "cat", meow: "m" })[0]).not.toContain("meow");
+      expect(completeWith(schema, { kind: "dog" })[0]).not.toContain("meow");
+    }
+  });
+
+  it("reads the keywords beside a $ref anew when the same schema object is edited and converted again", () => {
+    const s: Record<string, unknown> = { $ref: "#/$defs/S", maxLength: 3 };
+    const schema = { type: "object", $defs: { S }, properties: { s } };
+    expect(completeWith(schema, { s: "abcd" })[0]).toEqual(["s"]);
+    s.maxLength = 10;
+    expect(completeWith(schema, { s: "abcd" })).toEqual([[], { s: "abcd" }]);
+    delete s.maxLength;
+    s.minLength = 2;
+    expect(completeWith(schema, { s: "a" })[0]).toEqual(["s"]);
+    expect(completeWith(schema, { s: "abcdefghijkl" })).toEqual([[], { s: "abcdefghijkl" }]);
+    const o: Record<string, unknown> = { $ref: "#/$defs/base", required: ["x"] };
+    const nested = { type: "object", required: ["o"], $defs: { base: { type: "object", properties: { x: S, y: S } } }, properties: { o } };
+    expect(completeWith(nested, { y: "1" })[0]).toEqual(["x"]);
+    o.required = ["y"];
+    expect(completeWith(nested, { y: "1" })).toEqual([[], { y: "1" }]);
+    expect(completeWith(nested, { x: "1" })[0]).toEqual(["y"]);
+  });
+
+  it("merges a $ref beside a constraint whose target leads back to it once", () => {
+    const schema = { type: "object", $defs: { a: { $ref: "#/$defs/b", maxLength: 3 }, b: { type: "string", allOf: [{ $ref: "#/$defs/a" }] } },
+      properties: { s: { $ref: "#/$defs/a" } } };
+    expect(() => convert(schema)).not.toThrow();
+    expect(pointers(schema)).toEqual([]);
+    expect(completeWith(schema, { s: "abcd" })[0]).toEqual(["s"]);
+  });
+});
+
+describe("json-schema convert - a root $ref", () => {
+  const S = { type: "string" };
+  const definitions = { A: { type: "object", properties: { x: S }, required: ["x"] } };
+  const pointers = (input: object) => convert(input).report.entries.map((e) => [e.code, e.sourcePointer]);
+  const names = (input: object) => assertConstructsCleanly(convert(input).output, "root $ref").getAllQuestions().map((q) => q.name);
+
+  // AJV: the root is the object A names, whose x is required.
+  it("walks the object a root $ref names as the form, its required kept", () => {
+    const schema = { definitions, $ref: "#/definitions/A" };
+    expect(pointers(schema)).toEqual([]);
+    expect(convert(schema).output.elements).toEqual([{ type: "text", name: "x", isRequired: true }]);
+    expect(completeWith(schema, {})[0]).toEqual(["x"]);
+    expect(completeWith(schema, { x: "1" })).toEqual([[], { x: "1" }]);
+  });
+
+  // AJV: the root holds A's x, required, and its own y beside the $ref.
+  it("keeps the fields of a root $ref's target beside the root's own properties", () => {
+    const schema = { definitions, $ref: "#/definitions/A", properties: { y: S }, required: ["y"] };
+    expect(pointers(schema)).toEqual([]);
+    expect(names(schema)).toEqual(["x", "y"]);
+    expect(completeWith(schema, {})[0]).toEqual(["x", "y"]);
+    expect(completeWith(schema, { x: "1", y: "2" })).toEqual([[], { x: "1", y: "2" }]);
+  });
+
+  it("still gives one question for a root $ref to a scalar", () => {
+    const schema = { definitions: { S: { type: "string", maxLength: 2 } }, $ref: "#/definitions/S", title: "Name" };
+    expect(pointers(schema)).toEqual([]);
+    expect(names(schema)).toEqual(["Name"]);
+  });
+
+  it("reports a keyword beside a scalar root's $ref that its target sets otherwise once", () => {
+    const schema = { $defs: { S: { type: "string", maxLength: 5 } }, $ref: "#/$defs/S", maxLength: 3 };
+    expect(convert(schema).report.entries.map((e) => [e.code, e.sourcePointer, e.count])).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/maxLength", 1]]);
+    expect(completeWith(schema, { value: "abcd" })).toEqual([[], { value: "abcd" }]);
+  });
+
+  it("reports a remote root $ref beside the root's own properties", () => {
+    const schema = { $ref: "https://example.com/root.json", properties: { y: S } };
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.DROPPED_REMOTE_REF, "#"]]);
+    expect(names(schema)).toEqual(["y"]);
+  });
+});
+
+describe("json-schema convert - a JSONForms Control on a property several schemas declare", () => {
+  const S = { type: "string" };
+  const ui = (scope: string) => ({ type: "VerticalLayout", elements: [{ type: "Control", scope }] });
+  const pointers = (input: object) => convert(input).report.entries.map((e) => [e.code, e.sourcePointer]);
+  const fails = (schema: object, scope: string, x: string) => loadJsonForms(schema, ui(scope), { x }).getQuestionByName("x").hasErrors(false);
+
+  // AJV: x is at most 3 long, as the second allOf entry says.
+  it("merges every declaration of the property under a scope through an allOf entry", () => {
+    const schema = { type: "object", allOf: [{ properties: { x: S } }, { properties: { x: { maxLength: 3 } } }] };
+    expect(pointers({ schema, uiSchema: ui("#/allOf/0/properties/x") })).toEqual([]);
+    expect(fails(schema, "#/allOf/0/properties/x", "abcd")).toBe(true);
+    expect(fails(schema, "#/allOf/0/properties/x", "abc")).toBe(false);
+  });
+
+  // JSONForms finds x in the oneOf, and AJV validates it with the allOf's maxLength too. The data walk's
+  // pointer of the merged object's property names the declaration.
+  it("reports a declaration the schema the scope found does not hold", () => {
+    const schema = { type: "object", oneOf: [{ properties: { x: S } }], allOf: [{ properties: { x: { maxLength: 3 } } }] };
+    expect(pointers({ schema, uiSchema: ui("#/properties/x") })).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/properties/x"]]);
+    const two = { type: "object", oneOf: [{ properties: { x: S } }], allOf: [{ properties: { x: { maxLength: 3 } } }, { properties: { x: { minLength: 1 } } }] };
+    expect(pointers({ schema: two, uiSchema: ui("#/properties/x") })).toEqual([
+      [JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/0/properties/x"],
+      [JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/1/properties/x"]
+    ]);
+    expect(fails(schema, "#/properties/x", "abcd")).toBe(false);
+  });
+
+  // The data path JSONForms binds drops a then/ inside the property name; the declaration is the property's.
+  it("merges every declaration of a property under an object whose name ends in then", () => {
+    const schema = { type: "object", properties: { strengthen: { type: "object", properties: { x: S }, allOf: [{ properties: { x: { maxLength: 3 } } }] } } };
+    expect(fails(schema, "#/properties/strengthen/properties/x", "abcd")).toBe(true);
+    expect(fails(schema, "#/properties/strengthen/properties/x", "abc")).toBe(false);
+  });
+
+  // AJV validates x with the maxLength beside its $ref, whichever schema the scope finds it in.
+  it("applies a constraint beside the $ref of the schema a scope finds through a combinator", () => {
+    const schema = { type: "object", $defs: { S }, oneOf: [{ properties: { x: { $ref: "#/$defs/S", maxLength: 3 } } }] };
+    const withAllOf = { ...schema, allOf: [{ properties: { x: { type: "string" } } }] };
+    for (const s of [schema, withAllOf]) {
+      for (const scope of ["#/oneOf/0/properties/x", "#/properties/x"]) {
+        expect(pointers({ schema: s, uiSchema: ui(scope) }), scope).toEqual([]);
+        expect(fails(s, scope, "abcd"), scope).toBe(true);
+        expect(fails(s, scope, "abc"), scope).toBe(false);
+      }
+    }
+  });
+
+  it("reports nothing for a declaration that sets nothing the found schema does not", () => {
+    const schema = { type: "object", properties: { x: S }, anyOf: [{ then: { properties: { x: { type: "string", title: "X" } } } }] };
+    expect(pointers({ schema, uiSchema: ui("#/anyOf/0/then/properties/x") })).toEqual([]);
+  });
+});
+
+describe("json-schema convert - keywords a question cannot hold", () => {
+  const pointers = (input: object) => convert(input).report.entries.map((e) => [e.code, e.sourcePointer]);
+  const unsupported = (...ptrs: string[]) => ptrs.map((ptr) => [JsonSchemaCodes.UNSUPPORTED_KEYWORD, ptr]);
+  const one = (p: object, required = false) => ({ type: "object", properties: { p }, ...(required ? { required: ["p"] } : {}) });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const question = (input: object) => assertConstructsCleanly(convert(input).output, "keywords").getQuestionByName("p") as any;
+
+  it("reports multipleOf, unless every integer meets it", () => {
+    expect(pointers(one({ type: "number", multipleOf: 0.5 }))).toEqual(unsupported("#/properties/p/multipleOf"));
+    expect(pointers(one({ type: "integer", multipleOf: 3 }))).toEqual(unsupported("#/properties/p/multipleOf"));
+    expect(pointers(one({ type: "integer", multipleOf: 1 }))).toEqual([]);
+    expect(pointers(one({ type: "number", allOf: [{ multipleOf: 2 }] }))).toEqual(unsupported("#/properties/p/allOf/0/multipleOf"));
+    expect(completeWith(one({ type: "number", multipleOf: 0.5 }), { p: 0.3 })).toEqual([[], { p: 0.3 }]);
+  });
+
+  it("reports not on a field, an array and an object", () => {
+    expect(pointers(one({ type: "string", not: { const: "a" } }))).toEqual(unsupported("#/properties/p/not"));
+    expect(pointers(one({ type: "array", items: { enum: ["a", "b"] }, not: { maxItems: 0 } }))).toEqual(unsupported("#/properties/p/not"));
+    expect(pointers(one({ type: "object", properties: { a: { type: "string" } }, not: { required: ["a"] } }))).toEqual(unsupported("#/properties/p/not"));
+    expect(pointers({ type: "object", properties: { a: { type: "string" } }, not: { required: ["a"] } })).toEqual(unsupported("#/not"));
+  });
+
+  it("reports a keyword an allOf merge already reported once, as the merge's", () => {
+    const { report } = convert(one({ type: "number", multipleOf: 3, allOf: [{ multipleOf: 5 }] }));
+    expect(report.entries.filter((e) => e.sourcePointer === "#/properties/p/allOf/0/multipleOf").map((e) => e.code)).toEqual([JsonSchemaCodes.ASSUMED_ALLOF_MERGE]);
+  });
+
+  it("reports nothing for a not false, which constrains nothing", () => {
+    const properties = { a: { type: "string" } };
+    expect(pointers(one({ type: "string", not: false }))).toEqual([]);
+    expect(pointers(one({ type: "array", items: { enum: ["a", "b"] }, not: false }))).toEqual([]);
+    expect(pointers(one({ type: "object", properties, not: false }))).toEqual([]);
+    expect(pointers({ type: "object", properties, not: false })).toEqual([]);
+  });
+
+  // Pydantic v2 and OpenAPI 3.1 write an optional string so: a text question holds exactly that.
+  it("reports nothing for a text field's anyOf or oneOf of a string and null", () => {
+    for (const key of ["anyOf", "oneOf"]) {
+      for (const branches of [[{ type: "string" }, { type: "null" }], [{ type: "null" }, { type: "string" }]]) {
+        const schema = one({ [key]: branches, title: "P" });
+        expect(pointers(schema), key).toEqual([]);
+        expect(question(schema).getType()).toBe("text");
+      }
+    }
+  });
+
+  it("reports an anyOf or oneOf of another type and null on a field that does not hold it", () => {
+    expect(pointers(one({ anyOf: [{ type: "integer" }, { type: "null" }] }))).toEqual(unsupported("#/properties/p/anyOf"));
+    expect(pointers(one({ oneOf: [{ type: "null" }, { type: "integer" }] }))).toEqual(unsupported("#/properties/p/oneOf"));
+    expect(pointers(one({ anyOf: [{ type: "string", format: "date" }, { type: "null" }] }))).toEqual(unsupported("#/properties/p/anyOf"));
+    expect(pointers(one({ type: "integer", anyOf: [{ type: "string" }, { type: "null" }] }))).toEqual(unsupported("#/properties/p/anyOf"));
+  });
+
+  it("reports a const on a field, which takes any value", () => {
+    expect(pointers(one({ type: "string", const: "a" }))).toEqual(unsupported("#/properties/p/const"));
+    expect(pointers(one({ type: "boolean", const: true }))).toEqual(unsupported("#/properties/p/const"));
+    expect(question(one({ const: "a" })).getType()).toBe("text");
+  });
+
+  it("reports type null, which no question holds", () => {
+    expect(pointers(one({ type: "null" }))).toEqual(unsupported("#/properties/p/type"));
+  });
+
+  it("reports a field's oneOf or anyOf that is not a set of choices", () => {
+    expect(pointers(one({ anyOf: [{ type: "string", maxLength: 3 }, { type: "null" }] }))).toEqual(unsupported("#/properties/p/anyOf"));
+    expect(pointers(one({ anyOf: [{ type: "array", items: { type: "string" } }, { type: "null" }] }))).toEqual(unsupported("#/properties/p/anyOf"));
+    expect(pointers(one({ oneOf: [{ type: "object", properties: { a: { type: "string" } } }, { type: "object", properties: { b: { type: "string" } } }] })))
+      .toEqual(unsupported("#/properties/p/oneOf"));
+    expect(pointers(one({ type: "array", items: { type: "string" }, anyOf: [{ maxItems: 1 }, { minItems: 3 }] }))).toEqual(unsupported("#/properties/p/anyOf"));
+    expect(pointers(one({ oneOf: [{ const: "a" }, { const: "b" }] }))).toEqual([]);
+    expect(pointers(one({ enum: ["a", "b"], oneOf: [{ const: "a" }, { const: "b" }] }))).toEqual(unsupported("#/properties/p/oneOf"));
+  });
+
+  const choices = { type: "array", items: { enum: ["a", "b", "c"] } };
+
+  it("limits a checkbox to maxItems choices", () => {
+    const schema = one({ ...choices, maxItems: 2 });
+    expect(pointers(schema)).toEqual([]);
+    const q = question(schema);
+    expect(q.maxSelectedChoices).toBe(2);
+    q.value = ["a", "b"];
+    expect(q.visibleChoices.map((c: { isEnabled: boolean }) => c.isEnabled)).toEqual([true, true, false]);
+  });
+
+  it("limits a tagbox of choices to maxItems choices", () => {
+    const schema = { schema: one({ ...choices, maxItems: 2 }), uiSchema: { p: { "ui:widget": "tagbox" } } };
+    expect(pointers(schema)).toEqual([]);
+    expect(question(schema).getType()).toBe("tagbox");
+    expect(question(schema).maxSelectedChoices).toBe(2);
+  });
+
+  it("reports maxItems 0, which allows only an empty array", () => {
+    expect(pointers(one({ ...choices, maxItems: 0 }))).toEqual(unsupported("#/properties/p/maxItems"));
+    expect(question(one({ ...choices, maxItems: 0 })).maxSelectedChoices).toBe(0);
+  });
+
+  // survey-core checks minSelectedChoices on an empty question too, where AJV checks minItems only on
+  // an array that is there: only a required array is there whenever the data is valid.
+  it("checks minSelectedChoices on an empty question, as survey-core does", () => {
+    const survey = assertConstructsCleanly({ elements: [{ type: "checkbox", name: "p", choices: ["a", "b", "c"], minSelectedChoices: 2 }] }, "min");
+    expect(survey.getQuestionByName("p").hasErrors(false)).toBe(true);
+  });
+
+  it("asks a required array for minItems choices", () => {
+    const schema = one({ ...choices, minItems: 2 }, true);
+    expect(pointers(schema)).toEqual([]);
+    expect(question(schema).minSelectedChoices).toBe(2);
+    expect(completeWith(schema, {})[0]).toEqual(["p"]);
+    expect(completeWith(schema, { p: ["a"] })[0]).toEqual(["p"]);
+    expect(completeWith(schema, { p: ["a", "b"] })).toEqual([[], { p: ["a", "b"] }]);
+  });
+
+  it("reports minItems on an optional array, which may be absent", () => {
+    const schema = one({ ...choices, minItems: 2 });
+    expect(pointers(schema)).toEqual(unsupported("#/properties/p/minItems"));
+    expect(question(schema).minSelectedChoices).toBe(0);
+    expect(completeWith(schema, {})).toEqual([[], {}]);
+  });
+
+  it("reports minItems on a required array of an optional object, which may be absent", () => {
+    const schema = { type: "object", properties: { o: { type: "object", properties: { p: { ...choices, minItems: 2 }, t: { type: "string" } }, required: ["p"] } } };
+    expect(pointers(schema)).toEqual(unsupported("#/properties/o/properties/p/minItems"));
+    expect(completeWith(schema, {})).toEqual([[], {}]);
+    expect(completeWith(schema, { t: "x" })[0]).toEqual(["p"]);
+  });
+
+  it("holds minItems 0 and uniqueItems on a checkbox without a report", () => {
+    expect(pointers(one({ ...choices, minItems: 0, uniqueItems: true }))).toEqual([]);
+  });
+
+  it("reports contains on an array", () => {
+    expect(pointers(one({ ...choices, contains: { const: "a" } }))).toEqual(unsupported("#/properties/p/contains"));
+  });
+
+  it("asks a required tagbox of free items for minItems, and reports what custom items can exceed", () => {
+    const free = { type: "array", items: { type: "string" } };
+    const required = one({ ...free, minItems: 2 }, true);
+    expect(pointers(required)).toEqual([]);
+    expect(question(required).minSelectedChoices).toBe(2);
+    expect(completeWith(required, { p: ["x"] })[0]).toEqual(["p"]);
+    expect(completeWith(required, { p: ["x", "y"] })).toEqual([[], { p: ["x", "y"] }]);
+    expect(pointers(one({ ...free, maxItems: 2, uniqueItems: true }))).toEqual(unsupported("#/properties/p/maxItems", "#/properties/p/uniqueItems"));
+  });
+
+  it("reports the item counts of a dynamic panel, and sets no panel count", () => {
+    const rows = { type: "array", items: { type: "object", properties: { a: { type: "string" } } } };
+    const schema = one({ ...rows, minItems: 1, maxItems: 3, uniqueItems: true, contains: { required: ["a"] } }, true);
+    expect(pointers(schema)).toEqual(unsupported("#/properties/p/contains", "#/properties/p/maxItems", "#/properties/p/minItems", "#/properties/p/uniqueItems"));
+    const q = question(schema);
+    expect([q.getType(), q.minPanelCount, q.maxPanelCount]).toEqual(["paneldynamic", 0, 100]);
+  });
+
+  it("reports propertyNames, and minProperties and maxProperties that its required keys do not meet", () => {
+    const properties = { a: { type: "string" }, b: { type: "string" } };
+    expect(pointers(one({ type: "object", properties, propertyNames: { maxLength: 3 } }))).toEqual(unsupported("#/properties/p/propertyNames"));
+    expect(pointers(one({ type: "object", properties, minProperties: 1 }))).toEqual(unsupported("#/properties/p/minProperties"));
+    expect(pointers(one({ type: "object", properties, required: ["a"], minProperties: 1 }))).toEqual([]);
+    expect(pointers(one({ type: "object", properties, maxProperties: 1 }))).toEqual(unsupported("#/properties/p/maxProperties"));
+    expect(pointers(one({ type: "object", properties, maxProperties: 2 }))).toEqual([]);
+    expect(pointers({ type: "object", properties, minProperties: 1 })).toEqual(unsupported("#/minProperties"));
+  });
+
+  it("reports them on a JSONForms form too", () => {
+    const schema = { type: "object", properties: { p: { type: "number", multipleOf: 2 } }, minProperties: 1 };
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/p" }] };
+    expect(pointers({ schema, uiSchema })).toEqual(unsupported("#/minProperties", "#/properties/p/multipleOf"));
+  });
+});
+
+describe("json-schema convert - report accuracy", () => {
+  const where = (report: { entries: ReportEntry[] }, code: string) => report.entries.filter((e) => e.code === code).map((e) => [e.sourcePointer, e.targetPath]);
+  const jf = (schema: unknown, scope: string) => convert({ schema, uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope }] } });
+
+  it("targets no element for a oneOf of object shapes it cannot model", () => {
+    const shape = (k: string) => ({ type: "object", properties: { [k]: { type: "string" } }, required: [k] });
+    const root = convert({ type: "object", properties: { a: { type: "string" } }, oneOf: [shape("x"), shape("y")] });
+    assertConstructsCleanly(root.output, "oneof-root");
+    expect(where(root.report, JsonSchemaCodes.UNSUPPORTED_KEYWORD)).toEqual([["#/oneOf", ""]]);
+    const nested = convert({ type: "object", properties: { o: { type: "object", properties: { a: { type: "string" } }, oneOf: [shape("x"), shape("y")] } } });
+    assertConstructsCleanly(nested.output, "oneof-nested");
+    expect(where(nested.report, JsonSchemaCodes.UNSUPPORTED_KEYWORD)).toEqual([["#/properties/o/oneOf", ""]]);
+  });
+
+  it("targets no element for a root anyOf", () => {
+    const { output, report } = convert({ type: "object", anyOf: [{ properties: { a: { type: "string" } } }, { properties: { b: { type: "string" } } }] });
+    assertConstructsCleanly(output, "anyof-root");
+    expect(where(report, JsonSchemaCodes.UNSUPPORTED_KEYWORD)).toEqual([["#/anyOf", ""]]);
+  });
+
+  it("targets the selector for an inferred discriminator", () => {
+    const variant = (k: string, extra: string) => ({ type: "object", properties: { kind: { const: k }, [extra]: { type: "string" } } });
+    const nested = convert({ type: "object", properties: { first: { type: "string" }, o: { type: "object", oneOf: [variant("a", "x"), variant("b", "y")] } } });
+    assertConstructsCleanly(nested.output, "inferred-nested");
+    expect(where(nested.report, JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR)).toEqual([["#/properties/o/oneOf", "elements[1].elements[0]"]]);
+    const root = convert({ type: "object", oneOf: [variant("a", "x"), variant("b", "y")] });
+    assertConstructsCleanly(root.output, "inferred-root");
+    expect(where(root.report, JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR)).toEqual([["#/oneOf", "pages[0].elements[0]"]]);
+  });
+
+  it("reports a Control on a true property as an unsupported keyword at the property", () => {
+    const root = jf({ type: "object", properties: { a: true } }, "#/properties/a");
+    assertConstructsCleanly(root.output, "true-root");
+    expect(where(root.report, JsonSchemaCodes.UNRESOLVED_SCOPE)).toEqual([]);
+    expect(where(root.report, JsonSchemaCodes.UNSUPPORTED_KEYWORD)).toEqual([["#/properties/a", ""]]);
+    const nested = jf({ type: "object", properties: { o: { type: "object", properties: { a: true } } } }, "#/properties/o/properties/a");
+    assertConstructsCleanly(nested.output, "true-nested");
+    expect(where(nested.report, JsonSchemaCodes.UNRESOLVED_SCOPE)).toEqual([]);
+    expect(where(nested.report, JsonSchemaCodes.UNSUPPORTED_KEYWORD)).toEqual([["#/properties/o/properties/a", ""]]);
+  });
+
+  it("maps a Control on a true property from the declaration that constrains it", () => {
+    const { output, report } = jf({ type: "object", allOf: [{ properties: { a: true } }, { properties: { a: { type: "string", maxLength: 3 } } }] }, "#/properties/a");
+    const survey = assertConstructsCleanly(output, "true-declared");
+    expect(where(report, JsonSchemaCodes.UNRESOLVED_SCOPE)).toEqual([]);
+    const q = survey.getQuestionByName("a");
+    expect(q.getType()).toBe("text");
+    q.value = "abcd";
+    expect(q.hasErrors()).toBe(true);
+    q.value = "abc";
+    expect(q.hasErrors()).toBe(false);
+  });
+
+  it("writes the same escaped pointer for a key holding a slash or a tilde in the data walk and the JSONForms walk", () => {
+    for (const key of ["a/b", "e~f"]) {
+      const escaped = key.replace(/~/g, "~0").replace(/\//g, "~1");
+      const schema = { type: "object", properties: { [key]: { type: "number", multipleOf: 2 } } };
+      const data = convert(schema);
+      assertConstructsCleanly(data.output, "escaped-data");
+      const form = jf(schema, `#/properties/${escaped}`);
+      assertConstructsCleanly(form.output, "escaped-forms");
+      expect(where(data.report, JsonSchemaCodes.UNSUPPORTED_KEYWORD).map((p) => p[0])).toEqual([`#/properties/${escaped}/multipleOf`]);
+      expect(where(form.report, JsonSchemaCodes.UNSUPPORTED_KEYWORD).map((p) => p[0])).toEqual([`#/properties/${escaped}/multipleOf`]);
+    }
+  });
+
+  it("escapes keys in dependency, allOf merge and branch pointers", () => {
+    const { output, report } = convert({
+      type: "object",
+      properties: { "a/b": { type: "string" }, c: { type: "string" } },
+      dependencies: { "a/b": { properties: { c: { type: "number" } } } },
+      allOf: [{ properties: { "e~f": { type: "string", minLength: 1 } } }, { properties: { "e~f": { type: "string", minLength: 2 } } }]
+    });
+    assertConstructsCleanly(output, "escaped-more");
+    const pointers = report.entries.map((e) => e.sourcePointer);
+    expect(pointers.filter((p) => p.includes("a/b") || p.includes("e~f"))).toEqual([]);
+    expect(pointers.some((p) => p.includes("a~1b") || p.includes("e~0f"))).toBe(true);
   });
 });

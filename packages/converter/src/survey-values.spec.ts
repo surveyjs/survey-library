@@ -28,12 +28,14 @@ describe("survey-core value model", () => {
     const random = generator(20241105);
     const pick = <T>(list: T[]): T => list[Math.floor(random() * list.length)];
     const text = () => Array.from({ length: Math.floor(random() * 5) }, () => pick(CHARS)).join("");
-    const value = () => (random() < 0.6 ? pick(EDGE_VALUES) : text());
+    const scalar = () => (random() < 0.6 ? pick(EDGE_VALUES) : text());
+    // About one value in seven is an array of 0 to 3 values.
+    const value = (): unknown => (random() < 0.15 ? Array.from({ length: Math.floor(random() * 4) }, scalar) : scalar());
     const mismatches: string[] = [];
     let checked = 0;
     while(checked < 4000) {
       const questionValue = random() < 0.05 ? undefined : value();
-      const raw = value();
+      const raw = scalar();
       const op = pick(OPERATORS);
       const literal = formatLiteral(raw);
       if (literal === undefined) continue;

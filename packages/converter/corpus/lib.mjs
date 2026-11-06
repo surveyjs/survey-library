@@ -389,26 +389,33 @@ function resolveUri(ref, base) {
   }
 }
 
-// Whether the non-local `$ref` of `node` names a schema in the document: an `$id` match, then the
-// JSON Pointer in its fragment, if any, as the converter's `resolveBundledRef` follows it. A ref this
-// cannot follow is one the converter reports as remote.
-function resolvesThroughId(node, ref, index, root) {
+// How the converter treats the non-local `$ref` of `node`: "bundled" when an `$id` match and the JSON
+// Pointer in its fragment, if any, lead to a schema, following a chain of refs as `resolveRef` does;
+// "unresolved" when the chain reaches nothing or comes back on itself, which the converter reports as
+// `unresolved-ref`; "remote" when no `$id` matches or the fragment is not a pointer.
+function resolvesThroughId(node, ref, index, root, seen = new Set()) {
   const base = index.base.get(node) ?? index.base.get(root) ?? "";
   const uri = resolveUri(ref, base);
   const hashAt = uri.indexOf("#");
   const resource = index.byUri.get(hashAt < 0 ? uri : uri.slice(0, hashAt));
-  if (!resource) return false;
+  if (!resource) return "remote";
   const fragment = hashAt < 0 ? "" : uri.slice(hashAt + 1);
-  if (fragment === "") return true;
-  if (!fragment.startsWith("/")) return false;
-  let pointer = fragment;
-  try { pointer = decodeURIComponent(fragment); } catch { /* keep the fragment as written */ }
+  if (fragment !== "" && !fragment.startsWith("/")) return "remote";
+  if (seen.has(uri)) return "unresolved";
+  seen.add(uri);
   let target = resource;
-  for (const part of pointer.split("/").filter((p) => p.length > 0).map((p) => p.replace(/~1/g, "/").replace(/~0/g, "~"))) {
-    if (target === null || typeof target !== "object") return false;
-    target = target[part];
+  if (fragment !== "") {
+    let pointer = fragment;
+    try { pointer = decodeURIComponent(fragment); } catch { /* keep the fragment as written */ }
+    for (const part of pointer.split("/").filter((p) => p.length > 0).map((p) => p.replace(/~1/g, "/").replace(/~0/g, "~"))) {
+      if (target === null || typeof target !== "object") return "unresolved";
+      target = target[part];
+    }
   }
-  return !!target && typeof target === "object";
+  if (!target || typeof target !== "object") return "unresolved";
+  // A target that is itself a non-local ref is followed; a local one is left to the converter's own pointer walk.
+  if (typeof target.$ref === "string" && !target.$ref.startsWith("#")) return resolvesThroughId(target, target.$ref, index, root, seen);
+  return "bundled";
 }
 
 // --- construct tokens (the drift signal) ------------------------------------
@@ -433,14 +440,15 @@ const HANDLED_JSONSCHEMA_KEYWORDS = new Set([
   "enum", "const", "format", "readOnly", "minimum", "maximum",
   "exclusiveMinimum", "exclusiveMaximum", "minLength", "maxLength", "pattern",
   "$ref", "allOf", "oneOf", "anyOf", "if", "then", "else", "dependencies",
-  "dependentRequired", "dependentSchemas", "discriminator", "definitions", "$defs"
+  "dependentRequired", "dependentSchemas", "discriminator", "definitions", "$defs",
+  // Mapped where exact (`minItems`, `maxItems` on a choice question), reported otherwise.
+  "uniqueItems", "multipleOf", "minItems", "maxItems", "minProperties", "maxProperties",
+  "propertyNames", "contains", "not", "prefixItems"
 ]);
 const BENIGN_JSONSCHEMA_KEYWORDS = new Set([
   "$schema", "$id", "$comment", "$anchor", "examples", "additionalProperties",
-  "additionalItems", "uniqueItems", "multipleOf", "minItems", "maxItems",
-  "minProperties", "maxProperties", "propertyNames", "patternProperties",
-  "contains", "not", "contentMediaType", "contentEncoding", "writeOnly",
-  "deprecated", "nullable", "prefixItems"
+  "additionalItems", "patternProperties", "contentMediaType", "contentEncoding", "writeOnly",
+  "deprecated", "nullable"
 ]);
 const HANDLED_FORMATS = new Set(["date", "date-time", "time", "email", "idn-email", "uri", "iri", "uri-reference"]);
 const HANDLED_UI_TYPES = new Set(["VerticalLayout", "HorizontalLayout", "Group", "Categorization", "Category", "Control", "ListWithDetail", "Label"]);
@@ -453,7 +461,8 @@ const HANDLED_UI_WIDGETS = new Set(["hidden", "radio", "textarea", "tagbox", "pa
  * new-construct alarm keys off changes to it.
  */
 // A non-local `$ref` is `ref:bundled` when it resolves through an `$id` of the document, which the
-// converter follows, and `ref:remote`, unhandled, otherwise.
+// converter follows; `ref:unresolved`, unhandled, when it leads to nothing or round in a cycle; and
+// `ref:remote`, unhandled, otherwise.
 export function constructTokens(source, def) {
   const tokens = new Set();
   const unhandled = new Set();
@@ -505,8 +514,9 @@ export function constructTokens(source, def) {
     }
     if (typeof s.$ref === "string" && !s.$ref.startsWith("#")) {
       ids ??= buildIdIndex(schema);
-      if (resolvesThroughId(s, s.$ref, ids, schema)) mark("ref:bundled", true);
-      else mark("ref:remote", false);
+      const how = resolvesThroughId(s, s.$ref, ids, schema);
+      if (how === "bundled") mark("ref:bundled", true);
+      else mark(how === "unresolved" ? "ref:unresolved" : "ref:remote", false);
     }
     if (typeof s.format === "string") mark(`format:${s.format}`, HANDLED_FORMATS.has(s.format));
     for (const v of Object.values(s.properties || {})) visitSchema(v, depth + 1);

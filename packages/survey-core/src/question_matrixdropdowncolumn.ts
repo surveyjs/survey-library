@@ -1142,8 +1142,15 @@ Serializer.addClass(
         return !!q && !!q.isFilterable;
       } },
     // The column's own, for the same reason as allowFiltering above: a cell question's copy would
-    // not survive a cellType change. Hidden like question.filterOperators.
-    { name: "filterOperators:string[]", visible: false },
+    // not survive a cellType change. visibleIf is handed the cell question here too; the cell
+    // question's locOwner is the column, and only the column's allowFiltering counts.
+    { name: "filterOperators:string[]", dependsOn: ["allowFiltering", "cellType"],
+      choices: (): Array<string> => Object.keys(settings.logic.operators),
+      visibleIf: (obj: any): boolean => {
+        const column = !!obj && !!obj.templateQuestion ? obj : (!!obj ? obj.locOwner : undefined);
+        const q = !!column && !!column.templateQuestion ? column.templateQuestion : obj;
+        return !!q && !!q.isFilterable && (!column || column.allowFiltering !== false);
+      } },
     { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],
   function () {

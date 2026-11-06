@@ -40,6 +40,28 @@ describe("isFilterable and allowFiltering", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     expect(colProp.isVisible("", matrix.columns[0]), "#3").toBe(true);
   });
+  test("filterOperators is shown where allowFiltering is on and offers every operator", () => {
+    const survey = new SurveyModel({ elements: [{ type: "file", name: "f" }, { type: "text", name: "t" }] });
+    const prop = Serializer.findProperty("question", "filterOperators");
+    const t = survey.getQuestionByName("t");
+    expect(prop.isVisible("", t), "#1").toBe(true);
+    expect(prop.isVisible("", survey.getQuestionByName("f")), "#2: a file is never a field").toBe(false);
+    t.allowFiltering = false;
+    expect(prop.isVisible("", t), "#3: opted out").toBe(false);
+    expect(prop.getChoices(t), "#4").toEqual(["empty", "notempty", "equal", "notequal", "contains", "notcontains",
+      "anyof", "noneof", "allof", "greater", "less", "greaterorequal", "lessorequal"]);
+  });
+  test("a column's filterOperators follows the column's allowFiltering", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [
+      { name: "c1", cellType: "dropdown" }, { name: "c2", cellType: "file" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const prop = Serializer.findProperty("matrixdropdowncolumn", "filterOperators");
+    expect(prop.isVisible("", matrix.columns[0]), "#1").toBe(true);
+    expect(prop.isVisible("", matrix.columns[1]), "#2: a file cell is never a field").toBe(false);
+    matrix.columns[0].allowFiltering = false;
+    expect(prop.isVisible("", matrix.columns[0]), "#3: the column opted out").toBe(false);
+    expect(prop.getChoices(matrix.columns[0]).length, "#4").toBe(13);
+  });
 });
 
 describe("getFilterFields", () => {

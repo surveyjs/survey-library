@@ -4313,8 +4313,10 @@ Serializer.addClass("question", [
      through isFilterable and the property does not apply to it. */
   { name: "allowFiltering:boolean", default: true,
     visibleIf: (obj: any): boolean => !!obj && !!obj.isFilterable },
-  // Hidden until Creator has an editor for it, like the Filter Control's own properties.
-  { name: "filterOperators:string[]", visible: false },
+  // Applies only where the question is a filter field: filterable and not opted out.
+  { name: "filterOperators:string[]", dependsOn: "allowFiltering",
+    choices: (): Array<string> => Object.keys(settings.logic.operators),
+    visibleIf: (obj: any): boolean => !!obj && !!obj.isFilterable && obj.allowFiltering !== false },
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

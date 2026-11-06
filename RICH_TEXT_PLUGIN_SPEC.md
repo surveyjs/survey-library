@@ -677,7 +677,7 @@ Automated: remaining `editor-model.tests.ts` cases; all React markup etalons.
 - [x] `c_html` stores canonical HTML (`<strong>`, `<em>`, `<p>`, …) in the data panel.
 - [x] `c_inline`: no list buttons; Enter does nothing.
 - [x] Matrix `m1`: the comment cell has the rich editor; the cell value is Markdown.
-- [ ] Dark theme: toolbar, content, links, placeholder and source-mode notice are readable.
+- [x] Dark theme: toolbar, content, links, placeholder and source-mode notice are readable.
 - [ ] Narrow (mobile) width: the toolbar fits or wraps without overlapping the content.
 - [ ] Screen reader / devtools accessibility tree: textbox with the question title as name, toolbar with pressed states.
 

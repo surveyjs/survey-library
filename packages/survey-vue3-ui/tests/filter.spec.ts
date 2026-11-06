@@ -1,5 +1,5 @@
 import { Action, FilterEditorHolder, FilterFieldPopup, SurveyModel, QuestionFilterModel } from "survey-core";
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import { mount, config, type VueWrapper } from "@vue/test-utils";
 import { markRaw, nextTick } from "vue";
 import { surveyPlugin } from "../src/index";
@@ -40,6 +40,20 @@ function cleanup(wrapper: VueWrapper<any>): void {
 }
 
 describe("Filter question", () => {
+  it("a change of the chips measures the row again", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }],
+      items: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const wrapper = mount(Survey, { attachTo: attach(), props: { model: survey } });
+    await nextTick();
+    const update = vi.spyOn(q.chipsLayout, "update");
+    q.items.splice(1, 1);
+    await nextTick();
+    await nextTick();
+    expect(update).toHaveBeenCalled();
+    cleanup(wrapper);
+    survey.dispose();
+  });
   it("unmounting after the survey was disposed builds no toolbars anew", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;

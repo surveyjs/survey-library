@@ -31,6 +31,8 @@ const chipsRef = ref<HTMLElement>();
 useQuestion(props, root);
 // A disposed question has released its layout, and asking for it would build a new one.
 useBase(() => props.question.isDisposed ? undefined as any : props.question.chipsLayout);
+// The chips are drawn by the action bar; the row watches them to measure itself again.
+useBase(() => props.question.isDisposed ? undefined as any : props.question.chipsToolbar);
 
 // Plain functions, not computed: the question builds its classes and toolbars on first use, which a
 // computed would take for a change of its own dependency.
@@ -45,7 +47,8 @@ const onSearchInput = (event: any) => {
 };
 
 // The chips row is measured once it is drawn: FilterChipsLayout cuts it to one row. The chips are
-// drawn by the action bar, so a change of the chips is watched here too.
+// drawn by the action bar, so a change of the chips is watched here too - by their ids: the array of
+// the rendered actions is changed in place, and the same array would not count as a change.
 const updateLayout = () => {
   const q = props.question;
   if (!chipsRef.value || !q || q.isDisposed) return;
@@ -54,7 +57,8 @@ const updateLayout = () => {
 };
 onMounted(updateLayout);
 onUpdated(updateLayout);
-watch(() => props.question.isDisposed ? undefined : props.question.chipsToolbar.renderedActions, updateLayout, { flush: "post" });
+watch(() => props.question.isDisposed ? "" : props.question.chipsToolbar.renderedActions.map(action => action.id).join(","),
+  updateLayout, { flush: "post" });
 onBeforeUnmount(() => {
   if (!!props.question && !props.question.isDisposed) {
     props.question.chipsLayout.detach();

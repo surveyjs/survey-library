@@ -314,7 +314,9 @@ export class Helpers {
       value = value.trim();
       if (!value) return NaN;
       if (value.indexOf("0x") == 0) {
-        if (value.length > 32) return NaN;
+        // parseInt stops at the first non-hex character, so "0xa hello" would be read as 10:
+        // the whole text must be a hex literal.
+        if (value.length > 32 || !/^0x[0-9a-f]+$/i.test(value)) return NaN;
         return parseInt(value);
       }
       if (value.length > 15 && Helpers.isDigitsOnly(value)) return NaN;

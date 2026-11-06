@@ -30,7 +30,8 @@ export class ExpressionAIFeature<TFinding = any> implements IAIFeature<IExpressi
   constructor(private check?: (expression: string) => Array<IExpressionAIIssue<TFinding>>) { }
 
   public parse(data: any, text: string): IExpressionResponse {
-    const res = data !== undefined ? readExpressionData(data) : parseExpressionResponse(text);
+    // data is the first object the text holds; one that is no answer (context the model quoted) leaves the text to read
+    const res = (data !== undefined ? readExpressionData(data) : undefined) || parseExpressionResponse(text);
     return { expression: (!!res && res.expression || "").trim(), explanation: !!res && res.explanation || "" };
   }
   public isEmpty(answer: IExpressionResponse): boolean {

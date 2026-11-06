@@ -6,7 +6,9 @@ const fenceRegex = new RegExp("^" + fenceOpen + "([\\s\\S]*?)\\r?\\n?```$");
 export function isAIObject(data: any): boolean {
   return !!data && typeof data === "object" && !Array.isArray(data);
 }
-function parseObject(text: string): any {
+
+// The object a text is, exactly; undefined for any other text
+export function parseAIObject(text: string): any {
   if (!text || text[0] !== "{") return undefined;
   let data: any;
   try {
@@ -42,14 +44,14 @@ export function getAIFencedBlocks(text: string): Array<string> {
 // text in looser ways of its own.
 export function readAIJson(text: string): any {
   if (typeof text !== "string") return undefined;
-  const res = parseObject(text.trim());
+  const res = parseAIObject(text.trim());
   if (res !== undefined) return res;
   // a text that is one block first: its JSON may hold ``` inside a string, where a block search stops
-  const whole = parseObject(getAIFencedText(text));
+  const whole = parseAIObject(getAIFencedText(text));
   if (whole !== undefined) return whole;
   const blocks = getAIFencedBlocks(text);
   for (let i = 0; i < blocks.length; i++) {
-    const data = parseObject(blocks[i]);
+    const data = parseAIObject(blocks[i]);
     if (data !== undefined) return data;
   }
   return undefined;

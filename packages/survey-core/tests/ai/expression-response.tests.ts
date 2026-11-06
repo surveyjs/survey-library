@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { parseExpressionResponse } from "../../src/ai/expression-response";
+import { ExpressionAIFeature } from "../../src/ai/expression-ai-feature";
 
 describe("Parsing the AI answer (ai-expressions)", () => {
   test("the JSON the system prompt asks for", () => {
@@ -24,6 +25,15 @@ describe("Parsing the AI answer (ai-expressions)", () => {
     expect(parseExpressionResponse("Try this:\n```\n{age} >= 18\n```\nIt checks the age.")).toEqual({ expression: "{age} >= 18" });
     // a multi-line block does not hide an Expression: line
     expect(parseExpressionResponse("Expression: {a} = 1\n```\nline one\nline two\n```")).toEqual({ expression: "{a} = 1" });
+  });
+  test("in prose, an Expression: line wins over other blocks, and a block that is no answer is skipped", () => {
+    expect(parseExpressionResponse("Expression: {age} >= 18\nUse ```{age}``` to read the age.")).toEqual({ expression: "{age} >= 18" });
+    const withContext = "Expression: {a} = 1\n\nThe context:\n```json\n{\"q1\": 1}\n```";
+    expect(parseExpressionResponse(withContext)).toEqual({ expression: "{a} = 1" });
+    expect(parseExpressionResponse("The values:\n```json\n{\"q1\": 1}\n```\nThe answer:\n```json\n{\"expression\": \"{q1} = 1\"}\n```"))
+      .toEqual({ expression: "{q1} = 1" });
+    // the session passes the first object it finds as data; one that is no answer leaves the text to read
+    expect(new ExpressionAIFeature().parse({ q1: 1 }, withContext)).toEqual({ expression: "{a} = 1", explanation: "" });
   });
   test("a line starting with Expression:", () => {
     expect(parseExpressionResponse("Here it is.\nExpression: {age} >= 18\nIt checks the age.")).toEqual({ expression: "{age} >= 18" });

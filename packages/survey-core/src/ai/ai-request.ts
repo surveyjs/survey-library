@@ -49,6 +49,13 @@ function clone<T>(value: T): T {
   return value === undefined ? value : JSON.parse(JSON.stringify(value));
 }
 
+// One send: the request and its done, which is called once.
+interface IAIRequestRun<TAnswer, TIssue extends AIRequestIssue> {
+  request: IAIRequest<TAnswer, TIssue>;
+  done: (result: AIRequestResult<TAnswer, TIssue>) => void;
+  isDone: boolean;
+}
+
 // One conversation with the application's model through owner.fire: it sends a request, reads the
 // answer, checks it, and sends a rejected answer back while owner.getFixAttempts() allows.
 // A new request aborts the running one; an answer that comes late, twice, after an abort or after
@@ -62,7 +69,7 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
   public send(request: IAIRequest<TAnswer, TIssue>, done: (result: AIRequestResult<TAnswer, TIssue>) => void): void {
     this.abort();
     if (this.isDisposed) return;
-    this.fire(request, 0, request.instruction, undefined, [], done);
+    this.fire({ request: request, done: done, isDone: false }, 0, request.instruction, undefined, []);
   }
   public cancel(): void {
     this.abort();
@@ -78,11 +85,12 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
       this.controller = undefined;
     }
   }
-  private fire(request: IAIRequest<TAnswer, TIssue>, attempt: number, instruction: string, retryOf: TAnswer,
-    issues: Array<TIssue>, done: (result: AIRequestResult<TAnswer, TIssue>) => void): void {
+  private fire(run: IAIRequestRun<TAnswer, TIssue>, attempt: number, instruction: string, retryOf: TAnswer, issues: Array<TIssue>): void {
+    const request = run.request;
     const controller = new AbortController();
     this.controller = controller;
     let isAnswered = false;
+    let options: TEvent;
     const base: AIRequestEvent = {
       action: request.action,
       userPrompt: request.userPrompt || "",
@@ -103,25 +111,46 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
         if (isAnswered || controller.signal.aborted || this.controller !== controller || this.isDisposed) return;
         isAnswered = true;
         // the request stays the running one until its outcome: a cancel() or send() meanwhile ends it
-        this.onResponse(request, controller, attempt, instruction, response, done);
+        try {
+          this.onResponse(run, controller, attempt, instruction, response);
+        } catch(e) {
+          this.fail(run, controller, e);
+        }
       }
     };
-    // getFields supplies the rest of TEvent, the feature's own fields; the base fields win
-    const options = <TEvent>Object.assign({}, !!request.getFields ? request.getFields(retryOf) : {}, base);
-    this.owner.fire(options);
+    try {
+      // getFields supplies the rest of TEvent, the feature's own fields; the base fields win
+      options = <TEvent>Object.assign({}, !!request.getFields ? request.getFields(retryOf) : {}, base);
+      this.owner.fire(options);
+    } catch(e) {
+      this.fail(run, controller, e);
+    }
+  }
+  private finish(run: IAIRequestRun<TAnswer, TIssue>, controller: AbortController, result: AIRequestResult<TAnswer, TIssue>): void {
+    if (run.isDone) return;
+    run.isDone = true;
+    this.release(controller);
+    run.done(result);
+  }
+  // An exception thrown while the request waits for its outcome (by the check, onRetry or the handler)
+  // ends it with an "error" result, so the UI does not wait forever. Once the result is delivered, or
+  // after the request was cancelled or replaced, the exception goes on to the caller.
+  private fail(run: IAIRequestRun<TAnswer, TIssue>, controller: AbortController, error: any): void {
+    if (run.isDone || controller.signal.aborted || this.controller !== controller || this.isDisposed) throw error;
+    this.finish(run, controller, { status: "error", error: error instanceof Error ? error.message : String(error) });
   }
   private release(controller: AbortController): void {
     if (this.controller === controller) {
       this.controller = undefined;
     }
   }
-  private onResponse(request: IAIRequest<TAnswer, TIssue>, controller: AbortController, attempt: number, instruction: string,
-    response: AIResponse, done: (result: AIRequestResult<TAnswer, TIssue>) => void): void {
+  private onResponse(run: IAIRequestRun<TAnswer, TIssue>, controller: AbortController, attempt: number, instruction: string,
+    response: AIResponse): void {
     if (!!response && !!response.error) {
-      this.release(controller);
-      done({ status: "error", error: String(response.error) });
+      this.finish(run, controller, { status: "error", error: String(response.error) });
       return;
     }
+    const request = run.request;
     const feature = request.feature;
     const text = !!response && typeof response.text === "string" ? response.text : undefined;
     const data = !!response && isAIObject(response.data) ? response.data : readAIJson(text);
@@ -132,8 +161,7 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
       this.conversation.push({ role: "assistant", content: feature.serialize(answer) });
     }
     if (feature.isEmpty(answer)) {
-      this.release(controller);
-      done({ status: "empty", answer: answer, attempts: attempt });
+      this.finish(run, controller, { status: "empty", answer: answer, attempts: attempt });
       return;
     }
     const issues = feature.validate(answer, request.action) || [];
@@ -142,10 +170,9 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
       if (!!request.onRetry) request.onRetry(answer, issues, attempt + 1);
       // onRetry may have cancelled the request, sent a new one or disposed the session
       if (this.isDisposed || this.controller !== controller) return;
-      this.fire(request, attempt + 1, feature.buildFixInstruction(answer, issues), answer, issues, done);
+      this.fire(run, attempt + 1, feature.buildFixInstruction(answer, issues), answer, issues);
       return;
     }
-    this.release(controller);
-    done({ status: "answer", answer: answer, issues: issues, attempts: attempt });
+    this.finish(run, controller, { status: "answer", answer: answer, issues: issues, attempts: attempt });
   }
 }

@@ -166,6 +166,53 @@ describe("AIRequestSession (ai-request)", () => {
     expect(newer.map(r => r.status)).toEqual(["answer"]);
     expect(results).toEqual([]);
   });
+  test("a check, onRetry or a handler that throws ends the request with an error", () => {
+    const throwing = Object.assign({}, fakeFeature, { validate: () => { throw new Error("check failed"); } });
+    let { session, requests } = createSession();
+    const results: Array<any> = [];
+    session.send(createRequest("make", "Make it", { feature: throwing }), r => results.push(r));
+    expect(() => requests[0].callback({ text: "good" })).not.toThrow();
+    expect(results).toEqual([{ status: "error", error: "check failed" }]);
+    session.send(createRequest(), r => results.push(r));
+    requests[1].callback({ text: "good" });
+    expect(results[1].status).toBe("answer");
+
+    ({ session, requests } = createSession());
+    session.send(createRequest("make", "Make it", { onRetry: () => { throw new Error("ui failed"); } }), r => results.push(r));
+    requests[0].callback({ text: "bad1" });
+    expect(requests).toHaveLength(1);
+    expect(results[2]).toEqual({ status: "error", error: "ui failed" });
+
+    const fired: Array<any> = [];
+    const failing = new AIRequestSession<IFakeAnswer>({
+      fire: (o: AIRequestEvent) => {
+        fired.push(o);
+        if (o.attempt === 0 && fired.length === 1) throw new Error("handler failed");
+        if (o.attempt === 1) throw new Error("retry failed");
+      },
+      getFixAttempts: () => 1,
+    });
+    expect(() => failing.send(createRequest(), r => results.push(r))).not.toThrow();
+    expect(results[3]).toEqual({ status: "error", error: "handler failed" });
+    failing.send(createRequest(), r => results.push(r));
+    fired[1].callback({ text: "bad1" });
+    expect(results[4]).toEqual({ status: "error", error: "retry failed" });
+  });
+  test("done is called once; an exception after it reaches the caller", () => {
+    const results: Array<any> = [];
+    const session = new AIRequestSession<IFakeAnswer>({
+      fire: (o: AIRequestEvent) => { o.callback({ text: "good" }); throw new Error("after answer"); },
+      getFixAttempts: () => 1,
+    });
+    expect(() => session.send(createRequest(), r => results.push(r))).toThrow("after answer");
+    expect(results.map(r => r.status)).toEqual(["answer"]);
+
+    const { session: s2, requests } = createSession();
+    let calls = 0;
+    s2.send(createRequest(), () => { calls++; throw new Error("ui"); });
+    expect(() => requests[0].callback({ text: "good" })).toThrow("ui");
+    expect(calls).toBe(1);
+  });
   test("aiFixAttempts: 0 sends none back, 2 sends two; a warning sends none", () => {
     let { session, requests } = createSession({ aiFixAttempts: 0 });
     const results: Array<any> = [];

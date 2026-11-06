@@ -19,6 +19,19 @@ function createRow(available: number, chipWidths: Array<number>, moreWidth: numb
   });
   return container;
 }
+// The same row as Angular draws it: an empty host element, hidden, before the bar and before every item.
+function createAngularRow(available: number, chipWidths: Array<number>, moreWidth: number): HTMLElement {
+  const container = createRow(available, chipWidths, moreWidth);
+  const createHost = (): HTMLElement => {
+    const host = document.createElement("div");
+    host.style.display = "none";
+    return host;
+  };
+  const bar = <HTMLElement>container.firstElementChild;
+  Array.prototype.slice.call(bar.children).forEach((item: HTMLElement) => { bar.insertBefore(createHost(), item); });
+  container.insertBefore(createHost(), bar);
+  return container;
+}
 
 describe("fitFilterChips", () => {
   test("everything fits: no link", () => {
@@ -41,6 +54,12 @@ describe("FilterChipsLayout", () => {
     expect([layout.fitCount, layout.hasOverflow], "#2").toEqual([2, true]);
     layout.attach(createRow(500, [100, 100, 100], 80));
     expect(layout.fitCount, "#3: a new row is measured at once").toBe(-1);
+    layout.dispose();
+  });
+  test("Angular host elements around the bar and the chips are not measured", () => {
+    const layout = new TestLayout();
+    layout.attach(createAngularRow(300, [100, 100, 100], 80));
+    expect([layout.fitCount, layout.hasOverflow]).toEqual([2, true]);
     layout.dispose();
   });
   test("on a phone nothing is measured: the row scrolls instead", () => {

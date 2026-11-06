@@ -25,9 +25,9 @@ export function fitFilterChips(widths: Array<number>, available: number, gap: nu
 // measured the way ResponsivityManager measures an adaptive action bar, but by rows: every chip is
 // always rendered - one the collapsed row does not show is taken out of the flow and stays
 // measurable (see FilterToolbars) - so its width is known without a separate measuring pass. The
-// renderer attaches the element that holds the action bar of the chips (the bar is its first child;
-// its last item is "Show More") and calls update() after it has drawn changed chips; a resize is
-// observed here. On a phone the row scrolls sideways instead, and nothing is measured.
+// renderer attaches the element that holds the action bar of the chips (the bar is its first displayed
+// child; its last displayed item is "Show More") and calls update() after it has drawn changed chips;
+// a resize is observed here. On a phone the row scrolls sideways instead, and nothing is measured.
 export class FilterChipsLayout extends Base {
   private container: HTMLElement;
   private resizeObserver: ResizeObserver;
@@ -57,12 +57,12 @@ export class FilterChipsLayout extends Base {
     this.container = undefined;
   }
   public update(): void {
-    const bar = !!this.container ? <HTMLElement>this.container.firstElementChild : undefined;
+    const bar = !!this.container ? this.getRenderedChildren(this.container)[0] : undefined;
     if (!bar || this.isMobile) {
       this.fitCount = -1;
       return;
     }
-    const items: Array<HTMLElement> = Array.prototype.slice.call(bar.children);
+    const items: Array<HTMLElement> = this.getRenderedChildren(bar);
     if (items.length < 2) {
       this.fitCount = -1;
       return;
@@ -75,6 +75,16 @@ export class FilterChipsLayout extends Base {
   public dispose(): void {
     this.detach();
     super.dispose();
+  }
+  // Angular puts an empty host element, hidden, before the bar and before every item, so the children
+  // that are not displayed are skipped. A chip taken out of the collapsed row is hidden by visibility,
+  // not by display, and is still measured.
+  private getRenderedChildren(el: HTMLElement): Array<HTMLElement> {
+    return Array.prototype.slice.call(el.children).filter((child: HTMLElement): boolean => this.isRendered(child));
+  }
+  private isRendered(el: HTMLElement): boolean {
+    const style = DomDocumentHelper.getComputedStyle(el);
+    return !style || style.display !== "none";
   }
   // A chip whose text changes changes its width without resizing the row: each chip is observed too.
   // Observing an element twice is a no-op, and a removed one reports nothing.

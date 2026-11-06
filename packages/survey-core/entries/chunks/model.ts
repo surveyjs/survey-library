@@ -250,6 +250,8 @@ export {
 export type {
   IFilterAIField, IFilterAIContext, IFilterAIContextOwner, IFilterAIResponse, FilterAIResult, IFilterAIRequestOwner
 } from "../../src/filter/filter-ai";
+export { FilterAIDialog, FilterAIPrompt, makeFilterAITitle, filterAIPromptMaxLength } from "../../src/filter/filter-ai-dialog";
+export type { IFilterAIDialogOwner, IFilterAIPromptOptions } from "../../src/filter/filter-ai-dialog";
 export {
   FilterPresetDialog, FilterEditPresetsDialog, IFilterPresetDialogOwner, IFilterEditPresetsDialogOwner, IFilterPresetBuffer,
   filterPresetTitleMaxLength

@@ -15,6 +15,7 @@ import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter/filter-pre
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { FilterAIRequest } from "./filter/filter-ai";
+import { FilterAIDialog } from "./filter/filter-ai-dialog";
 import { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 import { ActionContainer } from "./actions/container";
 import { buildSearchFragment } from "./filter/filter-expression";
@@ -308,6 +309,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The caller disposes it.
   public createAIRequest(): FilterAIRequest {
     return new FilterAIRequest(this, this);
+  }
+  // The Create custom filter dialog - see FilterAIDialog. The caller owns it and disposes it.
+  public createAIDialog(): FilterAIDialog {
+    return new FilterAIDialog(this);
   }
   public get canReorderItems(): boolean { return this.allowMultipleItems && this.allowReorderItems; }
   // The spec's rule: what may be done to an item is its own permission AND the control-level

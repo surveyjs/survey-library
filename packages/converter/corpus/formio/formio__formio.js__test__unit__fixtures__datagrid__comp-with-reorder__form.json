@@ -1,0 +1,63 @@
+{
+  "_id": "66742f4146717b98a9fa280f",
+  "title": "test reorder",
+  "name": "testReorder",
+  "path": "testreorder",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Data Grid",
+      "reorder": true,
+      "addAnotherPosition": "bottom",
+      "layoutFixed": false,
+      "enableRowGroups": false,
+      "initEmpty": false,
+      "tableView": false,
+      "defaultValue": [
+        {
+          "select": ""
+        }
+      ],
+      "key": "dataGrid",
+      "type": "datagrid",
+      "input": true,
+      "components": [
+        {
+          "label": "Select",
+          "widget": "choicesjs",
+          "tableView": true,
+          "dataSrc": "resource",
+          "data": {
+            "resource": "66742ee946717b98a9fa1b0b"
+          },
+          "dataType": "string",
+          "valueProperty": "data.textField",
+          "template": "<span>{{ item.data.number }}</span>",
+          "validate": {
+            "select": false
+          },
+          "key": "select",
+          "type": "select",
+          "searchField": "data.textField__regex",
+          "limit": 10,
+          "noRefreshOnScroll": false,
+          "addResource": false,
+          "reference": false,
+          "input": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "created": "2024-06-20T13:31:45.177Z",
+  "modified": "2024-06-25T10:32:46.577Z",
+  "machineName": "tifwklexhyrgxbr:testReorder"
+}

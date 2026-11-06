@@ -1,0 +1,104 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Data Grid",
+      "reorder": false,
+      "addAnotherPosition": "bottom",
+      "defaultOpen": false,
+      "layoutFixed": false,
+      "enableRowGroups": false,
+      "initEmpty": true,
+      "tableView": false,
+      "defaultValue": [
+        {
+          "textField": ""
+        }
+      ],
+      "key": "dataGrid",
+      "type": "datagrid",
+      "input": true,
+      "components": [
+        {
+          "collapsible": false,
+          "key": "panel",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Text Field",
+              "tableView": true,
+              "key": "textField",
+              "type": "textfield",
+              "input": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Data Grid",
+      "reorder": false,
+      "addAnotherPosition": "bottom",
+      "defaultOpen": false,
+      "layoutFixed": false,
+      "enableRowGroups": false,
+      "initEmpty": true,
+      "tableView": false,
+      "defaultValue": [
+        {
+          "textArea": "",
+          "number": 1
+        },
+        {
+          "textArea": "",
+          "number": 2
+        },
+        {
+          "textArea": "",
+          "number": 3
+        }
+      ],
+      "key": "dataGrid1",
+      "type": "datagrid",
+      "input": true,
+      "components": [
+        {
+          "label": "Number",
+          "mask": false,
+          "spellcheck": true,
+          "tableView": false,
+          "delimiter": false,
+          "requireDecimal": false,
+          "inputFormat": "plain",
+          "key": "number",
+          "type": "number",
+          "input": true
+        },
+        {
+          "label": "Text Area",
+          "autoExpand": false,
+          "tableView": true,
+          "key": "textArea",
+          "type": "textarea",
+          "input": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "3242",
+  "display": "form",
+  "name": "3242",
+  "path": "3242",
+  "machineName": "lkjqkdpewpfvste:3242"
+}

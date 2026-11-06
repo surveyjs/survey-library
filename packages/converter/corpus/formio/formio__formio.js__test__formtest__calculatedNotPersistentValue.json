@@ -1,0 +1,38 @@
+{
+  "type": "form",
+  "owner": "5e39236b2bf5349fa47e70ef",
+  "components": [
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "key": "a",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "calculateValue": "value = data.a;",
+      "key": "textField",
+      "type": "textfield",
+      "input": true,
+      "persistent": false
+    }
+  ],
+  "revisions": "",
+  "_vid": 0,
+  "title": "Test Calculated Value",
+  "display": "form",
+  "access": [
+    {
+      "roles": [
+        "5ebb002541fe5bae34e9fd0c",
+        "5ebb002541fe5b081de9fd0d",
+        "5ebb002541fe5b6664e9fd0e"
+      ],
+      "type": "read_all"
+    }
+  ],
+  "name": "testCalculatedValue",
+  "path": "testcalculatedvalue"
+}

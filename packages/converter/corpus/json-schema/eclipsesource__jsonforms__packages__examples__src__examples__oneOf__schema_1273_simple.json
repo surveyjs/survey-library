@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "quantity": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    }
+  }
+}

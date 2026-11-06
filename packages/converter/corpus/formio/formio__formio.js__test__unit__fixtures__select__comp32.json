@@ -1,0 +1,47 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Select - JSON",
+      "widget": "html5",
+      "tableView": true,
+      "dataSrc": "json",
+      "data": {
+        "json": [
+          {
+            "value": "Apple",
+            "label": "A"
+          },
+          {
+            "value": "Banana",
+            "label": "B"
+          },
+          {
+            "value": "Cat",
+            "label": "C"
+          },
+          {
+            "value": "Dog",
+            "label": "D"
+          }
+        ]
+      },
+      "validateWhenHidden": false,
+      "key": "select",
+      "type": "select",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "Select JSON Test",
+  "display": "form",
+  "name": "selectJsonTest",
+  "path": "selectJsonTest"
+}

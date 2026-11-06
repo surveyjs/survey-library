@@ -1,0 +1,20 @@
+{
+  "display": "wizard",
+  "components": [
+    {
+      "title": "Page 1",
+      "key": "page1",
+      "type": "panel",
+      "label": "Page 1",
+      "input": false,
+      "components": [
+        {
+          "label": "Text Field",
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        }
+      ]
+    }
+  ]
+}

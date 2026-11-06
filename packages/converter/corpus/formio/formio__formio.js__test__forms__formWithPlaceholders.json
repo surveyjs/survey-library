@@ -1,0 +1,122 @@
+{
+  "_id": "698c42d7a34a96e1fe24cc3a",
+  "title": "test placeholder",
+  "name": "testPlaceholder",
+  "path": "testplaceholder",
+  "type": "form",
+  "display": "form",
+  "owner": "637b2e6b48c1227e60b1f910",
+  "components": [
+    {
+      "label": "Select",
+      "placeholder": "test placeholder",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "select",
+      "type": "select",
+      "input": true
+    },
+    {
+      "label": "Select",
+      "widget": "html5",
+      "placeholder": "test placeholder",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "select1",
+      "type": "select",
+      "input": true
+    },
+    {
+      "label": "Tags",
+      "placeholder": "test placeholder",
+      "tableView": false,
+      "validateWhenHidden": false,
+      "key": "tags",
+      "type": "tags",
+      "input": true
+    },
+    {
+      "label": "Address",
+      "placeholder": "test placeholder",
+      "tableView": false,
+      "provider": "nominatim",
+      "validateWhenHidden": false,
+      "key": "address",
+      "type": "address",
+      "input": true,
+      "components": [
+        {
+          "label": "Address 1",
+          "tableView": false,
+          "key": "address1",
+          "type": "textfield",
+          "input": true,
+          "customConditional": "show = _.get(instance, 'parent.manualMode', false);"
+        },
+        {
+          "label": "Address 2",
+          "tableView": false,
+          "key": "address2",
+          "type": "textfield",
+          "input": true,
+          "customConditional": "show = _.get(instance, 'parent.manualMode', false);"
+        },
+        {
+          "label": "City",
+          "tableView": false,
+          "key": "city",
+          "type": "textfield",
+          "input": true,
+          "customConditional": "show = _.get(instance, 'parent.manualMode', false);"
+        },
+        {
+          "label": "State",
+          "tableView": false,
+          "key": "state",
+          "type": "textfield",
+          "input": true,
+          "customConditional": "show = _.get(instance, 'parent.manualMode', false);"
+        },
+        {
+          "label": "Country",
+          "tableView": false,
+          "key": "country",
+          "type": "textfield",
+          "input": true,
+          "customConditional": "show = _.get(instance, 'parent.manualMode', false);"
+        },
+        {
+          "label": "Zip Code",
+          "tableView": false,
+          "key": "zip",
+          "type": "textfield",
+          "input": true,
+          "customConditional": "show = _.get(instance, 'parent.manualMode', false);"
+        }
+      ]
+    },
+    {
+      "label": "Text Field",
+      "placeholder": "test placeholder",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true,
+      "widget.type": "input"
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "project": "6983135338b1cbfa7471e015",
+  "created": "2026-02-11T08:50:31.033Z",
+  "modified": "2026-02-11T09:10:08.467Z",
+  "machineName": "tlfhcnqchlscwdb:testPlaceholder"
+}

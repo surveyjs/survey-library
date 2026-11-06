@@ -1,0 +1,12 @@
+{
+  "components": [
+    {
+      "label": "basis",
+      "tableView": true,
+      "defaultValue": "base value",
+      "key": "basis",
+      "type": "textfield",
+      "input": true
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Address",
+      "tableView": false,
+      "provider": "google",
+      "enableNewPlacesApi": true,
+      "apiKey": "testApiKey",
+      "autocompleteOptions": {},
+      "key": "address",
+      "type": "address",
+      "input": true,
+      "components": []
+    }
+  ]
+}

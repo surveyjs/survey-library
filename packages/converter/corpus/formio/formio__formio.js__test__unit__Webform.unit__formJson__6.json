@@ -1,0 +1,28 @@
+{
+  "components": [
+    {
+      "label": "Number",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "validate": {
+        "required": true
+      },
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "saveOnEnter": false
+    }
+  ]
+}

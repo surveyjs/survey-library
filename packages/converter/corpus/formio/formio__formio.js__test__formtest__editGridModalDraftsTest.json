@@ -1,0 +1,54 @@
+{
+  "type": "form",
+  "tags": [],
+  "components": [
+    {
+      "label": "Edit Grid",
+      "tableView": false,
+      "modal": true,
+      "rowDrafts": true,
+      "key": "editGrid",
+      "type": "editgrid",
+      "input": true,
+      "components": [
+        {
+          "label": "Text Field",
+          "tableView": true,
+          "validate": {
+            "required": true
+          },
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "label": "Number",
+          "mask": false,
+          "spellcheck": true,
+          "tableView": false,
+          "delimiter": false,
+          "requireDecimal": false,
+          "inputFormat": "plain",
+          "validate": {
+            "required": true
+          },
+          "key": "number",
+          "type": "number",
+          "input": true
+        }
+      ]
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "title": "editGridDraftsTest",
+  "display": "form",
+  "name": "editGridDraftsTest",
+  "path": "editgriddraftstest"
+}

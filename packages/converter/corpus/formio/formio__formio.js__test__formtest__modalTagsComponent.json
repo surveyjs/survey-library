@@ -1,0 +1,33 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Tags",
+      "labelPosition": "top",
+      "modalEdit": true,
+      "delimeter": ",",
+      "maxTags": 0,
+      "storeas": "array",
+      "key": "tags",
+      "type": "tags",
+      "input": true
+    },
+    {
+      "label": "Tags",
+      "modalEdit": true,
+      "storeas": "string",
+      "type": "tags",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "action": "submit",
+      "disableOnInvalid": true,
+      "theme": "primary",
+      "input": true
+    }
+  ],
+  "display": "form"
+}

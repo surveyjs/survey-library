@@ -1,0 +1,31 @@
+{
+  "components": [
+    {
+      "label": "A",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "key": "a",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "B",
+      "mask": false,
+      "disabled": true,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "calculateValue": "value = data.a + 1;",
+      "validate": {
+        "custom": "valid = input <= 10 ? true : 'B should be less or equal to 10';"
+      },
+      "key": "b",
+      "type": "number",
+      "input": true
+    }
+  ]
+}

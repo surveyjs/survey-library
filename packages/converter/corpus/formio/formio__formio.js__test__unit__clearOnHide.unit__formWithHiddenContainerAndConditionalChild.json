@@ -1,0 +1,30 @@
+{
+  "components": [
+    {
+      "type": "checkbox",
+      "input": true,
+      "label": "Checkbox",
+      "key": "checkbox"
+    },
+    {
+      "type": "container",
+      "key": "container",
+      "components": [
+        {
+          "type": "textfield",
+          "key": "childTextField",
+          "label": "Text Field",
+          "input": true,
+          "conditional": {
+            "json": {
+              "!": {
+                "var": "data.checkbox"
+              }
+            }
+          }
+        }
+      ],
+      "hidden": true
+    }
+  ]
+}

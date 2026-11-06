@@ -1,0 +1,52 @@
+{
+  "_id": "669e1c88a40e327e67e7d1c5",
+  "title": "editGrid test",
+  "name": "editGridTest",
+  "path": "editgridtest",
+  "type": "form",
+  "display": "form",
+  "owner": "637b2e6b48c1227e60b1f910",
+  "components": [
+    {
+      "label": "Edit Grid",
+      "tableView": false,
+      "modal": false,
+      "validateWhenHidden": false,
+      "rowDrafts": false,
+      "key": "editGrid",
+      "type": "editgrid",
+      "displayAsTable": false,
+      "input": true,
+      "components": [
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validateWhenHidden": false,
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "pdfComponents": [],
+  "settings": {},
+  "properties": {},
+  "project": "669e1c68a40e327e67e7cedd",
+  "controller": "",
+  "revisions": "",
+  "submissionRevisions": "",
+  "_vid": 0,
+  "created": "2024-07-22T08:47:04.399Z",
+  "modified": "2024-07-22T10:04:23.474Z",
+  "machineName": "authoring-qzdhayddccjauyr:editGridTest"
+}

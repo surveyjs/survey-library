@@ -1,0 +1,31 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Some Field",
+      "type": "textfield",
+      "input": true,
+      "key": "someField"
+    },
+    {
+      "label": "Header",
+      "type": "textfield",
+      "input": true,
+      "key": "header"
+    },
+    {
+      "label": "POST to URL",
+      "action": "url",
+      "url": "someUrl",
+      "headers": [
+        {
+          "header": "testHeader",
+          "value": "Value {{data.header}}"
+        }
+      ],
+      "type": "button",
+      "input": true,
+      "key": "postToUrl"
+    }
+  ]
+}

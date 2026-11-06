@@ -1,0 +1,596 @@
+{
+  "type": "form",
+  "tags": [],
+  "owner": "55673dc04f0405dd28205bb7",
+  "components": [
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "inputType": "text",
+      "inputMask": "",
+      "label": "Text",
+      "key": "text",
+      "placeholder": "",
+      "prefix": "",
+      "suffix": "",
+      "multiple": false,
+      "defaultValue": "",
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "spellcheck": true,
+      "validate": {
+        "required": true,
+        "minLength": "",
+        "maxLength": "",
+        "pattern": "",
+        "custom": "",
+        "customPrivate": false
+      },
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "type": "textfield",
+      "labelPosition": "top",
+      "tags": [],
+      "properties": {},
+      "inputFormat": "plain",
+      "disabled": false
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "inputType": "text",
+      "inputMask": "",
+      "label": "Multiple",
+      "key": "multiple",
+      "placeholder": "",
+      "prefix": "",
+      "suffix": "",
+      "multiple": true,
+      "defaultValue": "",
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "spellcheck": true,
+      "validate": {
+        "required": false,
+        "minLength": "",
+        "maxLength": "",
+        "pattern": "",
+        "custom": "",
+        "customPrivate": false
+      },
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "type": "textfield",
+      "labelPosition": "top",
+      "tags": [],
+      "properties": {}
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "inputType": "text",
+      "inputMask": "AAAAA",
+      "label": "Everything",
+      "key": "everything",
+      "placeholder": "Placeholder",
+      "prefix": "Prefix",
+      "suffix": "Suffix",
+      "multiple": true,
+      "defaultValue": "",
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "spellcheck": true,
+      "validate": {
+        "required": true,
+        "minLength": "",
+        "maxLength": "",
+        "pattern": "",
+        "custom": "",
+        "customPrivate": false
+      },
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "type": "textfield",
+      "labelPosition": "top",
+      "tags": [],
+      "properties": {},
+      "description": "Description",
+      "tooltip": "Tooltip",
+      "errorLabel": "Error Label",
+      "customClass": "CustomCssClass",
+      "tabindex": "1"
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "inputType": "number",
+      "label": "Number",
+      "key": "number",
+      "placeholder": "",
+      "prefix": "",
+      "suffix": "",
+      "defaultValue": "",
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "validate": {
+        "required": false,
+        "min": "",
+        "max": "",
+        "step": "any",
+        "integer": "",
+        "multiple": "",
+        "custom": ""
+      },
+      "type": "number",
+      "labelPosition": "top",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": false,
+      "inputType": "password",
+      "label": "Password",
+      "key": "password",
+      "placeholder": "",
+      "prefix": "",
+      "suffix": "",
+      "protected": true,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "type": "password",
+      "labelPosition": "top",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "label": "Text Area",
+      "key": "textArea",
+      "placeholder": "",
+      "prefix": "",
+      "suffix": "",
+      "rows": 3,
+      "multiple": false,
+      "defaultValue": "",
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "wysiwyg": false,
+      "clearOnHide": true,
+      "spellcheck": true,
+      "validate": {
+        "required": false,
+        "minLength": "",
+        "maxLength": "",
+        "pattern": "",
+        "custom": ""
+      },
+      "type": "textarea",
+      "labelPosition": "top",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "inputType": "checkbox",
+      "tableView": true,
+      "label": "Checkbox",
+      "dataGridLabel": false,
+      "key": "checkbox",
+      "defaultValue": false,
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "name": "",
+      "value": "",
+      "clearOnHide": true,
+      "validate": {
+        "required": false
+      },
+      "type": "checkbox",
+      "labelPosition": "right",
+      "hideLabel": false,
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "label": "Select Boxes",
+      "key": "selectBoxes",
+      "values": [
+        {
+          "value": "one",
+          "label": "One",
+          "shortcut": ""
+        },
+        {
+          "value": "two",
+          "label": "Two",
+          "shortcut": ""
+        },
+        {
+          "value": "three",
+          "label": "Three",
+          "shortcut": ""
+        }
+      ],
+      "inline": false,
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "validate": {
+        "required": false
+      },
+      "type": "selectboxes",
+      "labelPosition": "top",
+      "optionsLabelPosition": "right",
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      }
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "label": "Select",
+      "key": "select",
+      "placeholder": "",
+      "data": {
+        "values": [
+          {
+            "value": "one",
+            "label": "One"
+          },
+          {
+            "value": "two",
+            "label": "Two"
+          },
+          {
+            "value": "three",
+            "label": "Three"
+          }
+        ],
+        "json": "",
+        "url": "",
+        "resource": "",
+        "custom": ""
+      },
+      "dataSrc": "values",
+      "valueProperty": "",
+      "defaultValue": "",
+      "refreshOn": "",
+      "filter": "",
+      "authenticate": false,
+      "template": "<span>{{ item.label }}</span>",
+      "multiple": false,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "validate": {
+        "required": false
+      },
+      "type": "select",
+      "labelPosition": "top",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "inputType": "radio",
+      "label": "Radio",
+      "key": "radio",
+      "values": [
+        {
+          "value": "one",
+          "label": "One",
+          "shortcut": ""
+        },
+        {
+          "value": "two",
+          "label": "Two",
+          "shortcut": ""
+        },
+        {
+          "value": "three",
+          "label": "Three",
+          "shortcut": ""
+        }
+      ],
+      "defaultValue": "",
+      "protected": false,
+      "fieldSet": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false
+      },
+      "type": "radio",
+      "labelPosition": "top",
+      "optionsLabelPosition": "right",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "inputType": "radio",
+      "label": "Radio Inline",
+      "key": "radioInline",
+      "values": [
+        {
+          "value": "one",
+          "label": "One",
+          "shortcut": ""
+        },
+        {
+          "value": "two",
+          "label": "Two",
+          "shortcut": ""
+        },
+        {
+          "value": "three",
+          "label": "Three",
+          "shortcut": ""
+        }
+      ],
+      "defaultValue": "",
+      "protected": false,
+      "fieldSet": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false
+      },
+      "type": "radio",
+      "labelPosition": "top",
+      "optionsLabelPosition": "right",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "inline": true
+    },
+    {
+      "key": "content",
+      "label": "Content",
+      "input": false,
+      "tag": "p",
+      "attrs": [
+        {
+          "value": "value",
+          "attr": "attribute"
+        }
+      ],
+      "className": "cssclass",
+      "content": "HTML Content",
+      "type": "htmlelement",
+      "hideLabel": true,
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "key": "content2",
+      "input": false,
+      "html": "<p>Content <strong>Bold</strong></p>\n",
+      "type": "content",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "label": "content2",
+      "hideLabel": true
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "label": "Submit",
+      "tableView": false,
+      "key": "submit",
+      "size": "md",
+      "leftIcon": "",
+      "rightIcon": "",
+      "block": false,
+      "action": "submit",
+      "disableOnInvalid": false,
+      "theme": "primary",
+      "type": "button"
+    }
+  ],
+  "revisions": "",
+  "_vid": 0,
+  "_id": "5b197df9bf4cd0c648ae0bcc",
+  "title": "Basic",
+  "display": "form",
+  "access": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [
+        "5692b920d1028f01000407e4",
+        "5692b920d1028f01000407e5",
+        "5692b920d1028f01000407e6"
+      ],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "submissionAccess": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [
+        "5692b920d1028f01000407e6"
+      ],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "settings": {},
+  "name": "basic",
+  "path": "basic",
+  "project": "5692b91fd1028f01000407e3",
+  "created": "2018-06-07T18:48:25.460Z",
+  "modified": "2018-06-19T20:44:06.984Z",
+  "machineName": "examples:basic1"
+}

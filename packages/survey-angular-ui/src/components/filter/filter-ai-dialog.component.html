@@ -1,0 +1,6 @@
+<ng-template #template>
+  <div *ngIf="!!dialog" [class]="contentCss">
+    <sv-ng-filter-editor-page *ngIf="!!dialog.editor" [survey]="dialog.editor.survey" [disposed]="dialog.editor.isDisposed" [className]="editorCss"></sv-ng-filter-editor-page>
+    <sv-ng-filter-ai-prompt [prompt]="dialog.aiPrompt" [css]="css"></sv-ng-filter-ai-prompt>
+  </div>
+</ng-template>

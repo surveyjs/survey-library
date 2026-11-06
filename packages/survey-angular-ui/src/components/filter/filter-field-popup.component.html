@@ -1,0 +1,22 @@
+<ng-template #template>
+  <div *ngIf="!!popup" [class]="popup.cssClasses.popup">
+    <div *ngIf="!!popup.list && popup.showSearch" [class]="popup.cssClasses.popupSearch">
+      <svg [iconName]="'icon-search-24x24'" [size]="'auto'" [partCss]="popup.cssClasses.popupSearchIcon" sv-ng-svg-icon></svg>
+      <input type="text" [class]="popup.cssClasses.popupSearchInput" [value]="popup.list.filterString || ''"
+        [attr.placeholder]="popup.list.filterStringPlaceholder" [attr.aria-label]="popup.list.filterStringPlaceholder"
+        (input)="onSearchInput($event)" (keydown)="popup.onSearchKeyDown($event)" />
+    </div>
+    <div [class]="popup.cssClasses.popupHeader">
+      <div [class]="popup.cssClasses.popupTitle">{{ popup.title }}</div>
+      <sv-ng-action-bar [model]="popup.headerToolbar"></sv-ng-action-bar>
+    </div>
+    <div [class]="popup.cssClasses.popupBody">
+      <sv-ng-list *ngIf="!!popup.list" [model]="popup.list"></sv-ng-list>
+      <sv-ng-filter-editor-page *ngIf="!popup.list && !!popup.editor" [survey]="popup.editor.survey" [disposed]="popup.editor.isDisposed"
+        [className]="popup.cssClasses.editor"></sv-ng-filter-editor-page>
+    </div>
+    <div *ngIf="popup.footerToolbar.hasActions" [class]="popup.cssClasses.popupFooter">
+      <sv-ng-action-bar [model]="popup.footerToolbar"></sv-ng-action-bar>
+    </div>
+  </div>
+</ng-template>

@@ -2,6 +2,7 @@ import { describe, test, expect } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { Serializer } from "../../src/jsonobject";
 import { QuestionFilterModel } from "../../src/question_filter";
+import { lintSurvey } from "../../src/linter/index";
 
 describe("QuestionFilterModel", () => {
   test("the control is a non-value question that still has a title", () => {
@@ -56,14 +57,13 @@ describe("QuestionFilterModel", () => {
     const choices = Serializer.findProperty("filter", "defaultItem").getChoices(q);
     expect(choices, "#1: none, then the presets").toEqual(["", { value: "adults", text: "Adults" }, { value: "kids", text: "kids" }]);
   });
-  test("renaming a preset keeps it the default one", () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", defaultItem: "a",
-      items: [{ name: "a", expression: "{x} > 1" }, { name: "c", expression: "{x} > 2" }] }] });
-    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    q.items[1].name = "d";
-    expect(q.defaultItem, "#1: another preset").toBe("a");
-    q.items[0].name = "b";
-    expect(q.defaultItem, "#2").toBe("b");
+  test("the empty choice of defaultItem is the designer's only: no linter finding, no schema enum", () => {
+    expect(Serializer.findProperty("filter", "defaultItem").getChoices(null), "#1").toEqual([]);
+    const result = lintSurvey({ elements: [{ type: "filter", name: "f1", defaultItem: "adults",
+      items: [{ name: "adults", expression: "{age} > 18" }] }] });
+    expect(result.findings.filter(f => f.ruleId === "property/invalid-value").map(f => f.message), "#2").toEqual([]);
+    const schema = Serializer.generateSchema("filter");
+    expect(JSON.stringify(schema).indexOf("\"enum\":[\"\"]"), "#3").toBe(-1);
   });
   test("searchFields offers the source's columns in the designer", () => {
     const survey = new SurveyModel();
@@ -74,6 +74,24 @@ describe("QuestionFilterModel", () => {
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     const choices = Serializer.findProperty("filter", "searchFields").getChoices(q);
     expect(choices, "#1").toEqual([{ value: "country", text: "Country" }, { value: "age", text: "age" }]);
+  });
+  test("searchFields tells nested fields of one name apart and keeps the paths the control resolves", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "filter", name: "f1", source: "p", showSearch: true, searchFields: ["work.city"] },
+      { type: "paneldynamic", name: "p", templateElements: [
+        { type: "multipletext", name: "home", items: [{ name: "city", title: "City" }] },
+        { type: "multipletext", name: "work", items: [{ name: "city", title: "City" }] },
+        { type: "text", name: "zip" }] }] });
+    const prop = Serializer.findProperty("filter", "searchFields");
+    const choices = prop.getChoices(survey.getQuestionByName("f1"));
+    expect(choices.map((c: any) => c.value), "#1").toEqual(["home.city", "work.city", "zip"]);
+    expect(choices.map((c: any) => c.text), "#2").toEqual(["City (home.city)", "City (work.city)", "zip"]);
+    const survey2 = new SurveyModel({ elements: [
+      { type: "filter", name: "f1", source: "m", showSearch: true, searchFields: ["x", "nosuch"] },
+      { type: "matrixdynamic", name: "m", columns: [{ name: "c", title: "Code", valueName: "x" }] }] });
+    const choices2 = prop.getChoices(survey2.getQuestionByName("f1"));
+    expect(choices2, "#3: a valueName from the JSON stays, a name of no field does not")
+      .toEqual([{ value: "c", text: "Code" }, { value: "x", text: "Code (x)" }]);
   });
   test("allowAddItems is shown only with multiple presets; searchFields only with search", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1" }] });

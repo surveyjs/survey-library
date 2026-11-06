@@ -55,12 +55,9 @@ export class QuestionFilterModel extends QuestionNonValue {
   private pendingConditions: Array<IFilterCondition>;
   private pendingItems: FilterSavedItems;
   private pendingUserItems: Array<IFilterUserItemState>;
-  private onItemPropertyChanged = (sender: FilterItem, options: any): void => {
-    // defaultItem names a preset: a renamed preset stays the default one.
-    if (!!options && options.name === "name" && !this.isLoadingFromJson && !!options.oldValue
-      && this.defaultItem === options.oldValue) {
-      this.defaultItem = options.newValue;
-    }
+  // A renamed preset does not move defaultItem here: Creator does it inside the rename's undo step,
+  // and a change made from this handler would be an undo step of its own.
+  private onItemPropertyChanged = (): void => {
     this.updateFilterExpression();
     this.updateToolbars();
   };
@@ -1747,6 +1744,29 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
 }
 
+// The choices of searchFields: a field by its name, or by its path ("home.city") when nested fields
+// share a name - the name finds only the first of them (getFieldByName). A value the control resolves
+// although no choice names it (a path or a valueName authored in JSON) is a choice too, so a designer
+// that keeps only listed values does not drop it.
+function getSearchFieldChoices(obj: any): Array<any> {
+  if (!obj || typeof obj.getFilterFields !== "function") return [];
+  const fields: Array<IDynamicDataFilterField> = obj.getFilterFields();
+  const titleOf = (field: IDynamicDataFilterField): string => (!!field.locTitle && field.locTitle.calculatedText) || field.name;
+  const counts: { [name: string]: number } = {};
+  fields.forEach((field: IDynamicDataFilterField): void => { counts[field.name] = (counts[field.name] || 0) + 1; });
+  const res: Array<any> = fields.map((field: IDynamicDataFilterField): any => counts[field.name] > 1
+    ? { value: field.valueName, text: titleOf(field) + " (" + field.valueName + ")" }
+    : { value: field.name, text: titleOf(field) });
+  const current = obj.searchFields;
+  if (Array.isArray(current)) {
+    current.forEach((val: string): void => {
+      if (res.some((item: any): boolean => item.value === val)) return;
+      const field: IDynamicDataFilterField = obj.getFieldByName(val);
+      if (!!field) res.push({ value: val, text: titleOf(field) + " (" + val + ")" });
+    });
+  }
+  return res;
+}
 // The property types question_filtersource, dropdown and text only pick the Creator editor (a list of
 // the questions that can be a source, a dropdown that never turns into a button group, a multi-line
 // box); each of them is stored as a plain string.
@@ -1757,11 +1777,12 @@ Serializer.addClass("filter", [
   // bound control takes its fields from the source and ignores these, so the designer hides them.
   { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name", visible: false },
   { name: "items:filteritem[]", className: "filteritem", uniqueProperty: "name" },
-  // "" first: no default preset. It also keeps the list non-empty, so a designer that skips an empty
-  // list of choices still drops the presets that are gone.
+  // For a control: "" first (no default preset), which also keeps the list non-empty, so a designer
+  // that skips an empty list of choices still drops the presets that are gone. Without a control
+  // (the linter, the JSON schema) there is no list: a lone "" would read as the only allowed value.
   { name: "defaultItem:dropdown", dependsOn: "items",
-    choices: (obj: any): Array<any> => [""].concat(!!obj && Array.isArray(obj.items)
-      ? obj.items.map((item: FilterItem): any => ({ value: item.name, text: item.title })) : []) },
+    choices: (obj: any): Array<any> => !obj || !Array.isArray(obj.items) ? []
+      : [""].concat(obj.items.map((item: FilterItem): any => ({ value: item.name, text: item.title }))) },
   { name: "allowMultipleItems:boolean", default: true },
   { name: "allowAddItems:boolean", default: true, dependsOn: "allowMultipleItems",
     visibleIf: (obj: any): boolean => !!obj && obj.allowMultipleItems },
@@ -1770,9 +1791,7 @@ Serializer.addClass("filter", [
   { name: "showSearch:boolean", default: false },
   { name: "searchFields:string[]", dependsOn: ["showSearch", "source"],
     visibleIf: (obj: any): boolean => !!obj && obj.showSearch,
-    choices: (obj: any): Array<any> => !!obj && typeof obj.getFilterFields === "function"
-      ? obj.getFilterFields().map((field: IDynamicDataFilterField): any =>
-        ({ value: field.name, text: (!!field.locTitle && field.locTitle.calculatedText) || field.name })) : [] },
+    choices: (obj: any): Array<any> => getSearchFieldChoices(obj) },
   // Guards setSearchFields() only, which no UI calls yet: hidden until a respondent can pick the fields.
   { name: "allowChangeSearchFields:boolean", default: true, visible: false },
   { name: "allowFastMode:boolean", default: true },

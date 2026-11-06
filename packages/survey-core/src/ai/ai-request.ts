@@ -102,17 +102,23 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
       callback: (response?: AIResponse) => {
         if (isAnswered || controller.signal.aborted || this.controller !== controller || this.isDisposed) return;
         isAnswered = true;
-        this.controller = undefined;
-        this.onResponse(request, attempt, instruction, response, done);
+        // the request stays the running one until its outcome: a cancel() or send() meanwhile ends it
+        this.onResponse(request, controller, attempt, instruction, response, done);
       }
     };
     // getFields supplies the rest of TEvent, the feature's own fields; the base fields win
     const options = <TEvent>Object.assign({}, !!request.getFields ? request.getFields(retryOf) : {}, base);
     this.owner.fire(options);
   }
-  private onResponse(request: IAIRequest<TAnswer, TIssue>, attempt: number, instruction: string, response: AIResponse,
-    done: (result: AIRequestResult<TAnswer, TIssue>) => void): void {
+  private release(controller: AbortController): void {
+    if (this.controller === controller) {
+      this.controller = undefined;
+    }
+  }
+  private onResponse(request: IAIRequest<TAnswer, TIssue>, controller: AbortController, attempt: number, instruction: string,
+    response: AIResponse, done: (result: AIRequestResult<TAnswer, TIssue>) => void): void {
     if (!!response && !!response.error) {
+      this.release(controller);
       done({ status: "error", error: String(response.error) });
       return;
     }
@@ -126,6 +132,7 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
       this.conversation.push({ role: "assistant", content: feature.serialize(answer) });
     }
     if (feature.isEmpty(answer)) {
+      this.release(controller);
       done({ status: "empty", answer: answer, attempts: attempt });
       return;
     }
@@ -133,10 +140,12 @@ export class AIRequestSession<TAnswer, TIssue extends AIRequestIssue = AIRequest
     const hasErrors = issues.some(issue => issue.severity === "error");
     if (hasErrors && attempt < Math.max(0, this.owner.getFixAttempts() || 0)) {
       if (!!request.onRetry) request.onRetry(answer, issues, attempt + 1);
-      if (this.isDisposed) return;
+      // onRetry may have cancelled the request, sent a new one or disposed the session
+      if (this.isDisposed || this.controller !== controller) return;
       this.fire(request, attempt + 1, feature.buildFixInstruction(answer, issues), answer, issues, done);
       return;
     }
+    this.release(controller);
     done({ status: "answer", answer: answer, issues: issues, attempts: attempt });
   }
 }

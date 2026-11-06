@@ -144,6 +144,28 @@ describe("AIRequestSession (ai-request)", () => {
     retry.callback({ text: "good" });
     expect(results).toEqual([{ status: "answer", answer: { value: "good" }, issues: [], attempts: 1 }]);
   });
+  test("cancel() from onRetry stops the retry", () => {
+    const { session, requests } = createSession();
+    const results: Array<any> = [];
+    session.send(createRequest("make", "Make it", { onRetry: () => session.cancel() }), r => results.push(r));
+    requests[0].callback({ text: "bad1" });
+    expect(requests).toHaveLength(1);
+    expect(results).toEqual([]);
+  });
+  test("send() from onRetry replaces the retry", () => {
+    const { session, requests } = createSession();
+    const results: Array<any> = [];
+    const newer: Array<any> = [];
+    session.send(createRequest("make", "Make it", {
+      onRetry: () => session.send(createRequest("make", "other"), r => newer.push(r)),
+    }), r => results.push(r));
+    requests[0].callback({ text: "bad1" });
+    expect(requests.map(r => r.attempt)).toEqual([0, 0]);
+    expect(requests[1].messages[requests[1].messages.length - 1].content).toBe("other");
+    requests[1].callback({ text: "good" });
+    expect(newer.map(r => r.status)).toEqual(["answer"]);
+    expect(results).toEqual([]);
+  });
   test("aiFixAttempts: 0 sends none back, 2 sends two; a warning sends none", () => {
     let { session, requests } = createSession({ aiFixAttempts: 0 });
     const results: Array<any> = [];

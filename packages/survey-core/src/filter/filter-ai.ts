@@ -1,12 +1,16 @@
 import { ItemValue } from "../itemvalue";
 import { surveyLocalization } from "../surveyStrings";
+import type { Question } from "../question";
 import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
-import { AIRequestIssue, AIResponseFormat } from "../interfaces/ai-interfaces";
-import { IAIFeature } from "../ai/ai-request";
+import { AIRequestIssue, AIResponseFormat, FilterAIRequestEvent } from "../interfaces/ai-interfaces";
+import { AIRequestResult, AIRequestSession, IAIFeature, IAIRequest } from "../ai/ai-request";
 import { isAIObject } from "../ai/ai-response";
 import { parseExpressionResponse, readExpressionData } from "../ai/expression-response";
-import { analyzeFilterExpression, FilterExpressionProblem, getFieldsByValueName, getFilterFieldOperators, normalizeFilterCondition } from "./filter-conditions";
+import {
+  analyzeFilterExpression, conditionsToExpression, FilterExpressionProblem, getFieldsByValueName, getFilterFieldOperators,
+  normalizeFilterCondition, normalizeFilterConditions
+} from "./filter-conditions";
 import { getFieldChoiceItems } from "./filter-expression";
 import { FilterFieldEditorKind, getFilterFieldListItems } from "./filter-field-kinds";
 import { filterPresetTitleMaxLength } from "./filter-preset-dialog";
@@ -232,5 +236,76 @@ export class FilterAIFeature implements IAIFeature<IFilterAIResponse, AIRequestI
   }
   public buildFixInstruction(answer: IFilterAIResponse, issues: Array<AIRequestIssue>): string {
     return buildFilterAIInstruction("fix", "", answer.expression, issues);
+  }
+}
+
+// How many rejected answers a request sends back to the model before it gives up.
+export const filterAIFixAttempts = 2;
+// What a request ends with: the filter as the control's conditions and the title the model gave it;
+// no filter and the model's reason; or an error - the handler's, or the problem an answer still had
+// after every attempt.
+export type FilterAIResult =
+  { status: "answer", conditions: Array<IFilterCondition>, title: string } |
+  { status: "empty", explanation: string } |
+  { status: "error", error: string };
+// What a request reads from the control and calls on it.
+export interface IFilterAIRequestOwner extends IFilterAIContextOwner {
+  getFilterFields(): Array<IDynamicDataFilterField>;
+  fireAIRequest(options: FilterAIRequestEvent): void;
+}
+
+// One conversation of a dialog with the application's model (survey.onAIFilterRequest): a new
+// request aborts the running one, and an answer that comes late or after dispose() is ignored - see
+// AIRequestSession. The caller disposes it.
+export class FilterAIRequest {
+  private feature: FilterAIFeature;
+  private session: AIRequestSession<IFilterAIResponse, AIRequestIssue, FilterAIRequestEvent>;
+
+  constructor(private owner: IFilterAIRequestOwner, private question: Question) {
+    this.feature = new FilterAIFeature((): Array<IDynamicDataFilterField> => owner.getFilterFields());
+    this.session = new AIRequestSession<IFilterAIResponse, AIRequestIssue, FilterAIRequestEvent>({
+      fire: (options: FilterAIRequestEvent): void => { owner.fireAIRequest(options); },
+      getFixAttempts: (): number => filterAIFixAttempts
+    });
+  }
+  public generate(prompt: string, done: (res: FilterAIResult) => void): void {
+    this.send("generate", prompt, "", done);
+  }
+  // conditions: the filter as it is now; prompt: its description now
+  public modify(prompt: string, conditions: Array<IFilterCondition>, done: (res: FilterAIResult) => void): void {
+    this.send("modify", prompt, conditionsToExpression(conditions, this.owner.getFilterFields()), done);
+  }
+  public cancel(): void {
+    this.session.cancel();
+  }
+  public dispose(): void {
+    this.session.dispose();
+  }
+
+  private send(action: "generate" | "modify", prompt: string, expression: string, done: (res: FilterAIResult) => void): void {
+    const context = buildFilterAIContext(this.owner);
+    const request: IAIRequest<IFilterAIResponse, AIRequestIssue> = {
+      feature: this.feature,
+      action: action,
+      userPrompt: prompt,
+      instruction: buildFilterAIInstruction(action, prompt, expression),
+      context: context,
+      systemPrompt: buildFilterAISystemPrompt(context),
+      buildSystemPrompt: (ctx: IFilterAIContext): string => buildFilterAISystemPrompt(ctx),
+      getFields: (retryOf?: IFilterAIResponse): { [name: string]: any } =>
+        ({ expression: !!retryOf ? retryOf.expression : expression, question: this.question })
+    };
+    this.session.send(request, (result: AIRequestResult<IFilterAIResponse, AIRequestIssue>): void => { done(this.toResult(result)); });
+  }
+  private toResult(result: AIRequestResult<IFilterAIResponse, AIRequestIssue>): FilterAIResult {
+    if (result.status === "error") return { status: "error", error: result.error };
+    if (result.status === "empty") return { status: "empty", explanation: result.answer.explanation || "" };
+    const error = result.issues.filter((issue: AIRequestIssue): boolean => issue.severity === "error")[0];
+    if (!!error) return { status: "error", error: error.message };
+    const fields = this.owner.getFilterFields();
+    const parsed = analyzeFilterExpression(result.answer.expression, fields);
+    // validate() let it through, so it decomposes; the fields may have changed while the model answered
+    if (!("conditions" in parsed)) return { status: "error", error: getProblemMessage(parsed.problem, getFieldsByValueName(fields)) };
+    return { status: "answer", conditions: normalizeFilterConditions(parsed.conditions, fields), title: result.answer.title };
   }
 }

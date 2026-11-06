@@ -14,6 +14,8 @@ import { FilterModal } from "./filter/filter-modal";
 import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter/filter-preset-dialog";
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
+import { FilterAIRequest } from "./filter/filter-ai";
+import { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 import { ActionContainer } from "./actions/container";
 import { buildSearchFragment } from "./filter/filter-expression";
 import {
@@ -288,6 +290,23 @@ export class QuestionFilterModel extends QuestionNonValue {
     return this.items.filter((item: FilterItem): boolean => this.deletedItemNames.indexOf(item.name) < 0).concat(this.userItemsValue);
   }
   public get canAddItems(): boolean { return this.allowMultipleItems && this.allowAddItems; }
+  // Whether the application answers AI requests (survey.onAIFilterRequest has a handler): an AI
+  // preset may be asked about again (Make Changes). Never in the designer. Read when a dialog opens.
+  public get canRequestAI(): boolean {
+    const survey: any = this.survey;
+    return !this.isDesignMode && !!survey && typeof survey.isAIFilterRequestAvailable === "function" && survey.isAIFilterRequestAvailable();
+  }
+  // Create with AI: a new preset from a description, where presets may be added.
+  public get canCreateAIItems(): boolean { return this.canRequestAI && this.canAddItems; }
+  public fireAIRequest(options: FilterAIRequestEvent): void {
+    const survey: any = this.survey;
+    if (!!survey && typeof survey.aiFilterRequest === "function") survey.aiFilterRequest(options);
+  }
+  // A conversation with the application's model about this control's filter - see FilterAIRequest.
+  // The caller disposes it.
+  public createAIRequest(): FilterAIRequest {
+    return new FilterAIRequest(this, this);
+  }
   public get canReorderItems(): boolean { return this.allowMultipleItems && this.allowReorderItems; }
   // The spec's rule: what may be done to an item is its own permission AND the control-level
   // setting. Single mode has no list, so nothing may be added to it or reordered in it, but the one

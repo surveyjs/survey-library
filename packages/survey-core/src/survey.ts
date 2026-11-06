@@ -116,6 +116,7 @@ import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
+import type { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 
 export var DefaultTheme = DefaultLightTheme;
 
@@ -1073,6 +1074,11 @@ export class SurveyModel extends SurveyElementCore
   // after a handler was added: with new SurveyModel(json) the load is over before there is anything
   // to raise it to.
   public onFilterChanged: EventBase<SurveyModel, FilterChangedEvent> = this.addEvent<SurveyModel, FilterChangedEvent>();
+  // Raised when a Filter Control asks the application's model for a filter (Create with AI, Make
+  // Changes) - see FilterAIRequestEvent. SurveyJS never calls a model: the handler sends systemPrompt
+  // and messages to one and passes the answer to callback. The control offers AI only while this
+  // event has a handler.
+  public onAIFilterRequest: EventBase<SurveyModel, FilterAIRequestEvent> = this.addEvent<SurveyModel, FilterAIRequestEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
    * @hidden
@@ -6420,6 +6426,12 @@ export class SurveyModel extends SurveyElementCore
   filterChanged(question: IQuestion, filterExpression: string, sourceQuestion: IQuestion): void {
     this.onFilterChanged.fire(this, { question: <Question>question,
       filterExpression: filterExpression, sourceQuestion: <Question>sourceQuestion });
+  }
+  isAIFilterRequestAvailable(): boolean {
+    return !this.onAIFilterRequest.isEmpty;
+  }
+  aiFilterRequest(options: FilterAIRequestEvent): void {
+    this.onAIFilterRequest.fire(this, options);
   }
   // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
   // console for an error an application is expected to handle, the way onServerValidateQuestions

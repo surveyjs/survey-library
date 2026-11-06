@@ -244,6 +244,13 @@ export { FilterFieldPopup, IFilterFieldPopupOwner, filterPopupSearchMinItemCount
 export { FilterChipsLayout, fitFilterChips } from "../../src/filter/filter-chips-layout";
 export { FilterModal, IFilterModalOwner, filterModalCountDelay } from "../../src/filter/filter-modal";
 export {
+  FilterAIRequest, FilterAIFeature, buildFilterAIContext, buildFilterAISystemPrompt, buildFilterAIInstruction, filterAIResponseFormat,
+  filterAIGuideExamples, filterAIGuideVersion, filterAIMaxChoices, filterAIFixAttempts
+} from "../../src/filter/filter-ai";
+export type {
+  IFilterAIField, IFilterAIContext, IFilterAIContextOwner, IFilterAIResponse, FilterAIResult, IFilterAIRequestOwner
+} from "../../src/filter/filter-ai";
+export {
   FilterPresetDialog, FilterEditPresetsDialog, IFilterPresetDialogOwner, IFilterEditPresetsDialogOwner, IFilterPresetBuffer,
   filterPresetTitleMaxLength
 } from "../../src/filter/filter-preset-dialog";
@@ -289,7 +296,7 @@ export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/su
 export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export type {
-  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent,
+  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent, FilterAIRequestEvent,
 } from "../../src/interfaces/ai-interfaces";
 export { isAIObject, getAIFencedText, getAIFencedBlocks, readAIJson } from "../../src/ai/ai-response";
 export { AIRequestSession } from "../../src/ai/ai-request";

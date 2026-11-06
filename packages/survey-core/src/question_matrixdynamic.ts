@@ -609,7 +609,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isEditingObjectValue) {
       const value = this.createNewValue();
       value.splice(toIndex, 0, rowData);
-      this.setRecordCountCore(this.rowCount + 1);
+      // The length, not rowCount + 1: rowCount lags behind a plain array that was pushed to outside the matrix.
+      this.setRecordCountCore(value.length);
       this.value = value;
       return;
     }
@@ -653,7 +654,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isEditingObjectValue) {
       const value = this.createNewValue();
       value.splice(fromIndex, 1);
-      this.setRecordCountCore(this.rowCount - 1);
+      // A live array has notified: that notification brought the rows and rowCount up to date.
+      if (this.isLiveRecords(value)) return;
+      // The length, not rowCount - 1: rowCount lags behind a plain array that was pushed to outside the matrix.
+      this.setRecordCountCore(value.length);
       this.value = value;
       return;
     }
@@ -751,6 +755,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         var qVal = this.value;
         this.truncateRecords(qVal, val);
         this.value = qVal;
+        // The empty splice of a live array has notified and put rowCount back to its length: the rows follow that count.
+        val = this.rowCountValue;
       } else {
         this.dataList.batch((): void => { this.dataList.truncate(val); });
       }
@@ -1440,6 +1446,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.keyName;
   }
   protected generateRows(): Array<MatrixDynamicRowModel> {
+    this.followPlainEditedArrayLength();
     if (this.rowCount === 0) return [];
     const indexes = this.getRecordIndexesForRows();
     /* The default write-back needs the whole padded value, and a live-object value is not copied at
@@ -1454,6 +1461,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.setOwnRecordsValue(val);
     }
     return result;
+  }
+  /* A plain array of an edited object does not notify, so rowCount lags behind records pushed to it
+     outside the matrix: a row rebuild catches up with them, before the indexes of the rows are taken. */
+  private followPlainEditedArrayLength(): void {
+    if (!this.isEditingObjectValue) return;
+    const val = this.value;
+    if (Array.isArray(val) && !this.isLiveRecords(val) && val.length > this.rowCountValue) {
+      this.setPropertyValueDirectly("rowCount", val.length);
+    }
   }
   /* The defaults reach question.value when rows are built for records it does not hold yet: the
      value is shorter than rowCount (the padded records get the defaults) or longer (it is truncated).
@@ -1683,7 +1699,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     /* The window of a data source is neither truncated nor padded to rowCount: rowCount is the server
        total and the records beyond the window are on the server, not missing from the value. */
     if (this.isRemoteData) return result;
-    if (result.length > this.rowCount) {
+    /* The array of an edited object is not truncated here: rowCount lags behind a plain array that was
+       pushed to outside the matrix, and a write would drop the pushed records. A lowered rowCount still
+       truncates it (setRowCountCore). */
+    if (result.length > this.rowCount && !this.isEditingObjectValue) {
       this.truncateRecords(result, this.rowCount);
     }
     return this.arrayRecordsSource["padRecordsToMinCount"](result);
@@ -1692,11 +1711,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      and rowCount can lag behind it: it keeps its items. Its empty splice only notifies, and that
      notification brings rowCount back to the length of the array. A plain array is truncated. */
   private truncateRecords(records: Array<any>, count: number): void {
-    if (Object.prototype.hasOwnProperty.call(records, "splice")) {
+    if (this.isLiveRecords(records)) {
       records.splice(count, 0);
     } else {
       records.splice(count);
     }
+  }
+  // A Base live array (Base.createNewArray) has its own splice, which notifies the object that owns it.
+  private isLiveRecords(records: Array<any>): boolean {
+    return Object.prototype.hasOwnProperty.call(records, "splice");
   }
   // The lookup is the own source's (readRecordInAnswer); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {

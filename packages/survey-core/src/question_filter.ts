@@ -254,6 +254,17 @@ export class QuestionFilterModel extends QuestionNonValue {
     return this.getItemByName(this.activeItemName);
   }
   public set activeItem(val: FilterItem) { this.activeItemName = !!val ? val.name : ""; }
+  // In the designer a preset's chip turns nothing on: it calls this callback instead. Creator sets it
+  // to open the preset's settings, the way it sets setCanShowOptionItemCallback on a select question.
+  private designItemClickCallback: (item: FilterItem) => void;
+  public setDesignItemClickCallback(callback: (item: FilterItem) => void): void {
+    this.designItemClickCallback = callback;
+  }
+  public onDesignItemClick(item: FilterItem): void {
+    if (!!this.designItemClickCallback) {
+      this.designItemClickCallback(item);
+    }
+  }
   // Clicking an item applies it; clicking the item that is already applied removes the filter.
   public toggleItem(item: FilterItem | string): void {
     if (!this.allowMultipleItems) return;

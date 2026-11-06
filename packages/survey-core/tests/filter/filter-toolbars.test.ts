@@ -454,3 +454,51 @@ describe("QuestionFilterModel: what the renderer shows besides the toolbars", ()
     expect(calls <= 4, "#2: calls = " + calls).toBe(true);
   });
 });
+
+describe("FilterToolbars: in the designer", () => {
+  const json = { type: "filter", name: "f1", fields: [{ name: "age" }, { name: "country" }],
+    items: [{ name: "adults", expression: "{age} > 18" }, { name: "kids", expression: "{age} < 12" }] };
+  function createDesigned(): QuestionFilterModel {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [json] });
+    return <QuestionFilterModel>survey.getQuestionByName("f1");
+  }
+  test("a badge and Filters open nothing; Show More still works", () => {
+    const saved = settings.showDialog;
+    let dialogs = 0;
+    settings.showDialog = (): any => { dialogs++; return undefined; };
+    try {
+      const q = createDesigned();
+      const age = action(q.chipsToolbar, "sv-filter-field-age");
+      age.action();
+      expect(age.popupModel.isVisible, "#1: no popup").toBe(false);
+      action(q.chipsToolbar, "sv-filter-filters").action();
+      expect(dialogs, "#2: no dialog").toBe(0);
+      q.chipsLayout.fitCount = 1;
+      action(q.chipsToolbar, "sv-filter-more").action();
+      expect(q.chipsLayout.isExpanded, "#3").toBe(true);
+    } finally {
+      settings.showDialog = saved;
+    }
+  });
+  test("a preset's chip reports the click and turns nothing on", () => {
+    const q = createDesigned();
+    const clicked: Array<FilterItem> = [];
+    q.setDesignItemClickCallback((item: FilterItem): void => { clicked.push(item); });
+    action(q.chipsToolbar, "sv-filter-item-kids").action();
+    expect(clicked.map(item => item.name), "#1").toEqual(["kids"]);
+    expect(q.activeItemName, "#2").toBe("");
+    q.setDesignItemClickCallback(undefined);
+    action(q.chipsToolbar, "sv-filter-item-adults").action();
+    expect([clicked.length, q.activeItemName], "#3: no callback, nothing happens").toEqual([1, ""]);
+  });
+  test("out of the designer a preset's chip turns it on and reports nothing", () => {
+    const survey = new SurveyModel({ elements: [json] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const clicked: Array<FilterItem> = [];
+    q.setDesignItemClickCallback((item: FilterItem): void => { clicked.push(item); });
+    action(q.chipsToolbar, "sv-filter-item-kids").action();
+    expect([q.activeItemName, clicked.length]).toEqual(["kids", 0]);
+  });
+});

@@ -38,6 +38,8 @@ export interface IFilterToolbarsOwner {
   visibleItems: Array<FilterItem>;
   activeItem: FilterItem;
   toggleItem(item: FilterItem | string): void;
+  // A preset's chip clicked in the designer, where it turns nothing on.
+  onDesignItemClick(item: FilterItem): void;
   canSaveActiveItem: boolean;
   saveActiveItem(): void;
   canClearActiveItem: boolean;
@@ -407,8 +409,14 @@ export class FilterToolbars {
 
   private getFiltersAction(): Action {
     if (!this.filtersAction) {
+      // In the designer the button is a picture of itself: a click selects the question, the way a
+      // dropdown's does. showAdvancedEditor() itself still opens the dialog read-only there.
       this.filtersAction = new Action({ id: "sv-filter-filters", iconName: "icon-filter-24x24", iconSize: "auto",
-        action: (): void => { this.showAdvancedEditor(); } });
+        action: (): void => {
+          if (!this.owner.isDesignMode) {
+            this.showAdvancedEditor();
+          }
+        } });
     }
     return this.filtersAction;
   }
@@ -478,6 +486,8 @@ export class FilterToolbars {
     return entry.chip;
   }
   private onFieldChipClick(key: string): void {
+    // No popup in the designer: its styles are the survey's, and nothing in it would work there.
+    if (this.owner.isDesignMode) return;
     if (this.owner.isLocked) {
       this.owner.clearActiveItem();
       return;
@@ -521,7 +531,13 @@ export class FilterToolbars {
         id = base + "-" + n;
       }
       const chip = new Action({ id: id, innerCss: this.cssClasses.chip,
-        activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.owner.toggleItem(item); } });
+        activeAppearance: { style: "brand", mode: "primary" }, action: (): void => {
+          if (this.owner.isDesignMode) {
+            this.owner.onDesignItemClick(item);
+          } else {
+            this.owner.toggleItem(item);
+          }
+        } });
       // Borrowed after the constructor, so a retitled preset and a locale change reach the chip
       // without an update.
       chip.locTitle = item.locTitle;

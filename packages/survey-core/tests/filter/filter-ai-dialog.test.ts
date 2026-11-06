@@ -55,6 +55,7 @@ describe("FilterAIDialog: the answer", () => {
     prompt.request();
     expect([calls.length, calls[0].action, calls[0].userPrompt, prompt.isBusy, prompt.requestAction.enabled, dialog.canApply], "#1")
       .toEqual([1, "generate", "adults", true, false, false]);
+    expect(prompt.requestAction.title, "#1a: the button says it is busy").toBe("Creating filter...");
     calls[0].callback(answer("{age} > 18 and {country} anyof ['de']", "Adults"));
     expect([prompt.isBusy, prompt.isModify, prompt.errorText], "#2").toEqual([false, true, ""]);
     expect(dialog.editor.fieldNames, "#3").toEqual(["country", "age"]);
@@ -73,6 +74,7 @@ describe("FilterAIDialog: the answer", () => {
     const editor = dialog.editor;
     prompt.form.setValue("prompt", "adults from France");
     prompt.request();
+    expect(prompt.requestAction.title, "#0: busy").toBe("Making changes...");
     expect([calls[1].action, calls[1].userPrompt, calls[1].expression], "#1")
       .toEqual(["modify", "adults from France", conditionsToExpression(before, q.getFilterFields())]);
     calls[1].callback(answer("{age} > 18 and {country} anyof ['fr']", "Adults from France"));

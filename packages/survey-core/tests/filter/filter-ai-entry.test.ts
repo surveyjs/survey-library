@@ -113,6 +113,25 @@ describe("FilterModal: Create with AI", () => {
       dialogs.restore();
     }
   });
+  test("Edit Presets: its Apply is off while Make Changes waits for the model", () => {
+    const dialogs = stubDialogs();
+    try {
+      const { q, calls } = control({ items: [{ name: "a1", title: "Adults", type: "ai", prompt: "adults", expression: "{age} > 18" }] });
+      const modal = q.createFilterModal();
+      modal.presetsTitleToolbar.actions[0].action();
+      const edit = dialogs.calls[0].options.data.holder.presetDialog;
+      const apply: Action = dialogs.calls[0].footerToolbar.actions[1];
+      expect(apply.enabled, "#1").toBe(true);
+      edit.aiPrompt.request();
+      expect(apply.enabled, "#2").toBe(false);
+      calls[0].callback(answer("{age} > 21"));
+      expect(apply.enabled, "#3").toBe(true);
+      dialogs.calls[0].cancel();
+      modal.dispose();
+    } finally {
+      dialogs.restore();
+    }
+  });
   test("closed while the model is answering: the dialog is gone and the answer changes nothing", () => {
     const dialogs = stubDialogs();
     try {

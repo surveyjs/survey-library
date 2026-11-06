@@ -114,7 +114,12 @@ export class FilterAIPrompt extends Base {
   private updateAction(): void {
     const action = this.requestActionValue;
     if (!action) return;
-    action.title = this.isModify ? filterUIStrings.aiMakeChanges : filterUIStrings.aiCreate;
+    // While the model answers, the button says so: the answer may take seconds.
+    if (this.isBusy) {
+      action.title = this.isModify ? filterUIStrings.aiMakingChanges : filterUIStrings.aiCreating;
+    } else {
+      action.title = this.isModify ? filterUIStrings.aiMakeChanges : filterUIStrings.aiCreate;
+    }
     action.enabled = !this.isBusy && !!this.prompt.trim();
   }
 }

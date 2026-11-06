@@ -243,3 +243,35 @@ describe("FilterEditPresetsDialog: Make Changes of an AI preset", () => {
     dialog.dispose();
   });
 });
+
+describe("FilterEditPresetsDialog: while Make Changes waits for the model", () => {
+  const aiPresets = [{ name: "a1", title: "Adults", type: "ai", prompt: "adults", expression: "{age} > 18" }];
+  function open(): { q: QuestionFilterModel, dialog: FilterEditPresetsDialog, calls: Array<any> } {
+    const q = createFilter({ items: aiPresets });
+    const calls: Array<any> = [];
+    (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
+    return { q: q, dialog: q.createEditPresetsDialog("a1"), calls: calls };
+  }
+  const answer = (expression: string) => ({ data: { expression: expression, title: "", explanation: "" } });
+  test("Apply writes nothing: the description and the filter would not match", () => {
+    const { q, dialog, calls } = open();
+    dialog.aiPrompt.form.setValue("prompt", "adults from France");
+    dialog.aiPrompt.request();
+    expect([dialog.canApply, dialog.apply()], "#1").toEqual([false, false]);
+    expect(q.getItemByName("a1").prompt, "#2").toBe("adults");
+    calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']"));
+    expect(dialog.canApply, "#3").toBe(true);
+    dialog.dispose();
+  });
+  test("Reset stops the request: an answer after it does not undo the reset", () => {
+    const { dialog, calls } = open();
+    dialog.aiPrompt.form.setValue("prompt", "kids");
+    dialog.aiPrompt.request();
+    dialog.resetSelected();
+    expect(dialog.aiPrompt.isBusy, "#1").toBe(false);
+    calls[0].callback(answer("{age} < 10"));
+    expect([dialog.editor.getConditions(), dialog.aiPrompt.form.getValue("prompt")], "#2")
+      .toEqual([[{ field: "age", operator: "greater", value: 18 }], "adults"]);
+    dialog.dispose();
+  });
+});

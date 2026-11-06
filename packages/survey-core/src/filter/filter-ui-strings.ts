@@ -36,6 +36,8 @@ export const filterUIStrings = {
   aiPromptEdit: "Describe what to change - AI will do the rest.",
   aiCreate: "Create new filter",
   aiMakeChanges: "Make Changes",
+  aiCreating: "Creating filter...",
+  aiMakingChanges: "Making changes...",
   aiRemoveField: "Remove",
   aiError: "AI could not make a filter. Try again.",
   aiEmpty: "AI could not make a filter of this description."

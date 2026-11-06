@@ -366,6 +366,10 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
   public resetSelected(): void {
     const tab = <IFilterPresetTab>this.buffer;
     if (!tab || this.editOwner.isUserItem(tab.item)) return;
+    // An answer that comes after the reset would undo it.
+    if (!!this.aiPrompt && this.aiPrompt.isBusy) {
+      this.aiPrompt.cancel();
+    }
     const original = this.editOwner.getOriginalItemState(tab.item.name);
     tab.title = original.title;
     tab.conditions = original.conditions;
@@ -380,8 +384,13 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
   }
   // Checks every tab the respondent changed and writes all of them as one change. false keeps the
   // dialog open on the first tab with an error.
+  // Not while Make Changes waits for the model: the tab's description would be saved with a filter
+  // that is not its answer.
+  public get canApply(): boolean {
+    return !this.aiPrompt || !this.aiPrompt.isBusy;
+  }
   public apply(): boolean {
-    if (this.isDisposed) return false;
+    if (this.isDisposed || !this.canApply) return false;
     this.saveBuffer();
     const owner = this.editOwner;
     const invalid = this.liveTabs.filter((tab: IFilterPresetTab): boolean => tab.isTouched && owner.canEditItem(tab.item) && this.hasError(tab))[0];

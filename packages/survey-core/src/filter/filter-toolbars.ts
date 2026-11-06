@@ -253,7 +253,7 @@ export class FilterToolbars {
       displayMode: "popup"
     };
     this.presetDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
-    this.setPresetDialogFooter(this.presetDialog);
+    this.setPresetDialogFooter(this.presetDialog, dialogModel instanceof FilterEditPresetsDialog ? (): boolean => dialogModel.canApply : undefined);
   }
   // Create custom filter (FilterAIDialog), over the Filters dialog that opened it, in the place of a
   // preset dialog: one of them at a time. Its Apply adds the AI preset, refreshes that dialog's

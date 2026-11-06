@@ -16,6 +16,7 @@ describe("Parsing the AI answer (ai-expressions)", () => {
   test("a fenced block holding only the expression", () => {
     expect(parseExpressionResponse("```\n{age} >= 18\n```")).toEqual({ expression: "{age} >= 18" });
     expect(parseExpressionResponse("```surveyjs\n{age} >= 18\n```")).toEqual({ expression: "{age} >= 18" });
+    expect(parseExpressionResponse("```age({birthdate}) >= 18```")).toEqual({ expression: "age({birthdate}) >= 18" });
   });
   test("a line starting with Expression:", () => {
     expect(parseExpressionResponse("Here it is.\nExpression: {age} >= 18\nIt checks the age.")).toEqual({ expression: "{age} >= 18" });

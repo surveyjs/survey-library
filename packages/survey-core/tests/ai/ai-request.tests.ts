@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { AIRequestEvent, AIRequestIssue } from "../../src/interfaces/ai-interfaces";
 import { AIRequestResult, AIRequestSession, IAIFeature, IAIRequest, IAIRequestOwner } from "../../src/ai/ai-request";
-import { readAIJson } from "../../src/ai/ai-response";
+import { getAIFencedText, readAIJson } from "../../src/ai/ai-response";
 
 // A feature that is not the expression one: its answer is { value }, and a value starting with "bad"
 // is an error, one starting with "meh" a warning.
@@ -100,6 +100,15 @@ describe("AIRequestSession (ai-request)", () => {
     expect(readAIJson("{not json")).toBeUndefined();
     expect(readAIJson("say {\"a\": 1}")).toBeUndefined();
     expect(readAIJson(undefined)).toBeUndefined();
+  });
+  test("a fence's language tag is a word followed by a line break or a space, never the start of a one-line block", () => {
+    expect(getAIFencedText("```age({birthdate}) >= 18```")).toBe("age({birthdate}) >= 18");
+    expect(getAIFencedText("```iif({a} > 1, 'x', 'y')```")).toBe("iif({a} > 1, 'x', 'y')");
+    expect(readAIJson("```json5\n{\"a\": 1}\n```")).toEqual({ a: 1 });
+    // kept
+    expect(getAIFencedText("```surveyjs\n{age} >= 18\n```")).toBe("{age} >= 18");
+    expect(getAIFencedText("```\n{age} >= 18\n```")).toBe("{age} >= 18");
+    expect(readAIJson("```json {\"a\": 1}```")).toEqual({ a: 1 });
   });
   test("an error issue sends the answer back with attempt 1, the English issues, the answer and the fix instruction", () => {
     const { session, requests } = createSession();

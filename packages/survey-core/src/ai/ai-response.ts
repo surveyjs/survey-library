@@ -1,4 +1,6 @@
-const fenceRegex = /^```[a-zA-Z]*[ \t]*\r?\n?([\s\S]*?)\r?\n?```$/;
+// ``` and an optional language tag: a word followed by a line break or spaces; "```age({b}) >= 18```" has none
+const fenceOpen = "```(?:[a-zA-Z][\\w+-]*(?:[ \\t]*\\r?\\n|[ \\t]+))?";
+const fenceRegex = new RegExp("^" + fenceOpen + "([\\s\\S]*?)\\r?\\n?```$");
 
 export function isAIObject(data: any): boolean {
   return !!data && typeof data === "object" && !Array.isArray(data);

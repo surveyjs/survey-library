@@ -23,5 +23,5 @@ concurrency:
 jobs:
   ci:
     name: CI
-    uses: surveyjs/azure-pipelines/.github/workflows/library.yml@converter-ci-gha-test
+    uses: surveyjs/azure-pipelines/.github/workflows/library.yml@gha-migration
     secrets: inherit

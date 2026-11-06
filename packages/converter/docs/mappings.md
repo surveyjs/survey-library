@@ -403,20 +403,24 @@ how the form is laid out:
 
 The schema's `title` and `description` become the survey's. Without JSONForms, the root's
 properties become the survey's elements; a root with no properties becomes a single question,
-and a [discriminated `oneOf`](#oneof) at the root with no properties becomes pages.
+and a [discriminated `oneOf`](#oneof) at the root with no properties becomes pages. A root whose
+fields are only in `anyOf` variants of objects gives no question, and is reported
+`unsupported-keyword`.
 
 ### Types
 
 | Schema | SurveyJS | Notes |
 | --- | --- | --- |
-| `object` | `panel` | Properties become its elements. Required in its parent gives `isRequired`. |
+| `object` | `panel` | Properties become its elements. Required in its parent gives `isRequired`. See [optional objects](#optional-objects) and [free-form objects](#free-form-objects). |
 | `boolean` | `boolean` | |
 | `integer`, `number` | `text`, `inputType: "number"` | |
 | `enum`, or `oneOf` / `anyOf` whose every branch is a `const` | `dropdown` | `null` members are skipped. A `const` branch's `title` is the choice text. `radiogroup` with RJSF `ui:widget: "radio"` or JSONForms `format: "radio"`. |
 | `string` | `text` | `inputType` from `format`, see below. `comment` with RJSF `ui:widget: "textarea"` or JSONForms `multi`. |
 | `array` of `enum` items | `checkbox` | `tagbox` with JSONForms `multi`, `format: "combo"` or `"multiselect"`, or RJSF `ui:widget: "tagbox"` |
 | `array` of objects | `paneldynamic` | Item properties form `templateElements`. An expression inside reads a sibling as `{panel.name}`. |
-| `array` of anything else | `tagbox` | No choices |
+| `array` of anything else | `tagbox` | No choices, `allowCustomChoices: true` (the respondent types the items, and survey-core keeps them, also when the question is required). A tagbox stores text, so each `items` keyword that constrains more (`maxLength`, `format`, a `type` that allows no text such as `number`, `integer` or `boolean`, …) is reported `unsupported-keyword` at its own pointer. A tuple-form `items` (an array of schemas) is reported `unsupported-keyword` at `items`. |
+| `items: false` | Nothing | Only an empty array is valid. Reported `unsupported-keyword`. |
+| A property declared `false` | Nothing | No value is valid, so nothing is lost and nothing is reported (but see [`allOf`](#allof) and [`if`](#if--then--else)) |
 
 A `type` array ignores `"null"`. With no `type`, `properties` means an object, `items` an array
 and `enum` a string.
@@ -435,49 +439,166 @@ and `enum` a string.
 | --- | --- | --- |
 | `title`, `description` | `title`, `description` | A UI schema's label wins |
 | `default` | `defaultValue` | `null` gives none. Arrays included. |
-| `required` | `isRequired` | On the listed properties |
+| `required` | `isRequired` | On the listed properties. A listed key that no schema of the object declares has no question, and is reported `unsupported-free-form-object` at `…/required/<i>`. |
 | `readOnly` | `readOnly` | |
 | `minLength`, `maxLength` | `text` validator | |
 | `minimum`, `maximum` | `numeric` validator | |
 | `exclusiveMinimum`, `exclusiveMaximum` | `numeric` validator | Both the draft-04 boolean and the later numeric form; the stricter bound wins. On an `integer` the bound moves one step inside, which is exact. On a `number` the bound is kept, and since the validator accepts a value equal to it, it is reported `assumed-exclusive-bound`. |
 | `pattern` | `regex` validator | |
 
+#### Optional objects
+
+AJV checks nothing inside an object that is absent, and survey-core leaves an object out of the
+data when all its fields are empty. So inside a nested object its parent does not list in
+`required`, every requirement holds only while the object is present: `isRequired` becomes
+`requiredIf: {f1} notempty or {f2} notempty …` over the object's other fields, and a
+`requiredIf: c` becomes `(<presence>) and (c)`. A field's own question is left out of its
+presence, as its requirement is met while it holds a value, so an object's only field is not
+required at all. Nested optional objects carry the innermost one's presence, which implies the
+outer ones. A dependency's `{trigger} notempty` already implies presence and is kept as it is.
+
+#### Free-form objects
+
+An object with no `properties` (free-form, or keys only from `additionalProperties` or
+`patternProperties`) keeps a titled empty panel, as JSONForms and RJSF render an empty group, and
+is reported `unsupported-free-form-object`; for an array of them, at `…/items`. Beside
+`properties`, an `additionalProperties` (other than `false`) or a non-empty `patternProperties`
+is reported at the keyword.
+
 ### Composition
 
 #### `$ref`
 
 A local reference (`#/definitions/…`, `#/$defs/…`, any pointer into the same document) is
-resolved. A remote one is not fetched: the property becomes a `text` question and is reported
-`dropped-remote-ref`. A reference cycle, a local reference that resolves to nothing, or nesting
-deeper than 24 levels also gives a `text` question; the last is reported `unsupported-keyword`.
+resolved. Any other reference is looked up among the document's `$id`s (a bundled schema),
+against the base URI it sits under, and the JSON Pointer in its fragment is followed. Where the
+converter cannot follow a reference, the property becomes a `text` question:
+
+* a URI no `$id` in the document declares is remote, not fetched, and reported
+  `dropped-remote-ref`;
+* a pointer, or an `$id`'s fragment, that names nothing, and a reference cycle, are reported
+  `unresolved-ref`;
+* nesting deeper than 24 levels is reported `unsupported-keyword`.
 
 #### `allOf`
 
-Each subschema's `properties` and `required` merge into the parent, along with `if`, `then`,
-`else`, `oneOf`, `discriminator` and the dependency keywords. When two subschemas give the same
-property incompatible types, the first wins and the conflict is reported `assumed-allof-merge`.
+The entries merge into the parent, each one's `$ref` followed and its own `allOf` merged first.
+Their `properties` and `required` are added, and a keyword the parent does not set (`type`,
+`format`, bounds, `oneOf`, `discriminator`, `items`, …) is taken from the first entry that sets it.
+`anyOf` is not merged.
+
+* **A keyword two entries set differently** (annotations aside) keeps the first value, and the
+  later one is reported `assumed-allof-merge`. Two `items` merge as their `allOf`.
+* **A property several entries declare** is the `allOf` of its declarations, merged the same way
+  where it is read, so the constraints of each apply. Incompatible `type`s keep the first
+  declaration and report the other.
+* **`true` and `false`.** A `true` declaration adds nothing. A `false` one allows no value, so the
+  property gets no question, and each declaration it outweighs is reported at the `false` one. A
+  `false` entry is reported.
+* **Conditionals.** Each entry's `if`/`then`/`else`, dependencies and `required` apply on their
+  own, as written at the entry's pointer.
 
 #### `if` / `then` / `else`
 
-The `if` is translated when it holds `properties` whose every entry is a `const` or an `enum`.
-The entries join with `and`; an `enum` gives an `or` of equalities.
+The `if` is translated when it holds only `properties`, `required`, annotations and a `type` that
+allows `"object"`, and each of its `properties` is a `const` or a non-empty `enum` (with
+annotations, and a `type` every value has). Any other keyword (`not`, `minProperties`, `anyOf`, …)
+is not read, so such an `if` is not translated. Each key gives one term, and the terms join with
+`and`; an `enum` gives an `or` of equalities:
+
+| The `if` names the key in | Term |
+| --- | --- |
+| `properties` only | `({k} empty or {k} = v)`: `properties` constrains only the keys present, so the `if` holds while the key is empty |
+| `properties` and `required` | `{k} = v` |
+| `required` only | `{k} notempty` |
+
+An `if` that holds for every value (`true`, `{}`, annotations only, a `type` that allows
+`"object"`, `properties` that each hold for any value, `required: []`, `not: false`) applies `then`
+always, as AJV does; one that holds for none (`false`, a `not` of the former, a `type` without
+`"object"`) applies `else` always. That branch's properties are shown with no `visibleIf`, and its
+`required` gives `isRequired`.
+
+**Literals.** survey-core's `=` is lenient: it trims texts and ignores case, reads a numeric text
+as a number and `"true"` as a boolean, and does not even read the text "1,000" as equal to
+`'1,000'`. JSON Schema's `const` and `enum` compare strictly. A literal is written only when
+survey-core's `=` holds for exactly the values JSON Schema's does. The values checked are the
+literals themselves, no value, and the values the field is known to hold: its `const`, its
+`enum`, a `oneOf`/`anyOf` of `const`s, a boolean's two, and `null` when its `type` allows it. A
+value the field's `type` excludes is not compared: a required key left with none is not
+translated, and an optional one gives `{k} empty`. The values of a free text are not known, so
+there survey-core still reads a text that differs from the literal only in case, in surrounding
+spaces or in how it writes a number, or a `"1"` / `"0"` against `true` / `false`, as equal.
+
+**`null` and `""`** are values to JSON Schema and empty to survey-core. On a field that can hold
+either (an `enum` member, or a `type` that allows `null`), no `empty` or `notempty` term is
+written, so an optional key's term and a required-only key's presence test are not translated.
+An object's panel holds no value, so an `if` that reads an object key is not translated either.
+
+**Branches:**
 
 * Each property in `then` gets `visibleIf: <if>`, created as a new question when the object
-  does not declare it.
+  does not declare it. A property the object declares keeps its own schema, and one the `if`
+  itself reads gets no `visibleIf`.
 * Each name in `then.required` gets `requiredIf: <if>`.
 * `else` does the same with the negated condition.
 
+Conditionals that show one property, or require it, join with `or`: it is shown, or required,
+when any of them holds. A question that is required anyway takes no `requiredIf`. A property one
+branch made, which a later branch gives a different schema, is not shown by the later branch, and
+that branch's property is reported: one question cannot be both.
+
+**Order.** An object's conditionals (its `if`s, dependencies, and the `required` of the object and
+of each `allOf` entry) apply in three steps: every branch shows its properties, then the
+conditions that read them are written, then the requirements. A condition that reads a key a
+branch shows waits until it is shown. A question a branch shows is also shown while another
+branch requires it, and always when a `required` that always holds lists it, as JSON Schema then
+demands a value. The order of the conditionals in the schema does not change the result.
+
+**A branch's `false` property.** While the branch holds, the property allows no value: its
+`visibleIf` is ANDed with the negation of the branch's condition, so it is hidden then, and
+survey-core clears its value when the survey completes. It is reported instead when the condition
+does not translate, when the `if` itself reads the key, or when a branch requires the key under
+the same condition, always, or under a condition one of them is nested in: then no value is
+valid, which a form cannot say. A branch that applies always and declares `false` is a `false`
+declaration: no question.
+
+**Branch shapes.** A `then`, `else` or schema dependency can be a `$ref`, which is followed, or
+an `allOf`, which is merged as above. An `if` nested in it applies while both conditions hold. A
+`not`, a `false` branch or `allOf` entry, a keyword beside the branch's `$ref`, and any other
+keyword are not translated, and each is reported with the branch's code at its own pointer. One
+top-level branch reads at most 64 branch schemas, nested ones included (`MAX_BRANCH_SHAPES`): past
+that, a nested `if` is reported at its `/if`, and nothing of it applies. A key a branch requires
+that no schema of the object declares has no question, and is reported at `…/required/<i>`.
+
 An `if` that cannot be translated is reported `assumed-if-then-else`, and nothing is gated.
+Under a JSONForms UI schema, branches give `requiredIf` only (see
+[JSONForms](#jsonforms-ui-schema)).
 
 #### Dependencies
 
 | Schema | SurveyJS |
 | --- | --- |
 | `dependencies` with an array, `dependentRequired` | `requiredIf: "{trigger} notempty"` on each dependent |
-| `dependencies` with a schema, `dependentSchemas` | Like `then`, with `{trigger} notempty` as the condition |
+| `dependencies` with a schema, `dependentSchemas` | Like `then`, with `{trigger} notempty` as the condition. The trigger itself is not hidden by its own presence. |
 
 Every dependency is reported `assumed-dependencies`, because the granularity of the result is
-inferred.
+inferred. A trigger that can hold `null` or `""`, or that is an object, has no exact presence
+test, so its dependency gives no condition.
+
+#### Known gaps
+
+These are not reported:
+
+* A free text compared with a literal: see **Literals** above.
+* A requirement and a `false` under two different conditions that can hold together: no value
+  is valid there, and the form hides the key and does not require it.
+* survey-core clears the values of hidden questions in one pass when the survey completes, and
+  does not check visibility again. A `false` property whose condition reads a question that is
+  itself hidden with a value can keep its value.
+* A field that holds `null` or `""` does not make its [optional object](#optional-objects)
+  present.
+* Under JSONForms, an object `detail`'s presence reads only the detail's own Controls, not
+  another Control on the same object.
 
 #### `oneOf`
 
@@ -502,7 +623,8 @@ so it is reported `unsupported-keyword`.
 
 | UI node | SurveyJS | Notes |
 | --- | --- | --- |
-| `Control` | A question, from the property its `scope` names | A scope that resolves to nothing is reported `dropped-remote-ref`. A Control with no scope is reported `unsupported-ui-hint`. |
+| `Control` | A question, from the property its `scope` names | The scope resolves as JSONForms' `resolveSchema` resolves it: through `$ref`, and through `oneOf`, `allOf`, `anyOf`, `then` and `else` in that order, the first match winning; `required` is read from the scope's parent path. A scope that resolves to nothing is reported `unresolved-scope`. A Control with no scope is reported `unsupported-ui-hint`. |
+| `ListWithDetail` | As a `Control` on an array | The master list beside the detail is reported `dropped-styling`. On an object or a scalar, nothing, reported `unsupported-ui-hint`: no JSONForms renderer lists them. |
 | `VerticalLayout`, `HorizontalLayout` | `panel` with no title | The root layout is flattened into the survey. Horizontal arrangement is not kept. |
 | `Group` | `panel` titled with `label` | |
 | `Categorization` at the root, or as the root layout's only child | Pages | A `Category` child's elements go on its page. A nested `Categorization` child becomes a page with one panel per `Category`. |
@@ -512,13 +634,35 @@ so it is reported `unsupported-keyword`.
 | Any other `type` | Nothing | Reported `unsupported-ui-hint` |
 
 The data schema walk still applies inside each Control: an object Control becomes a panel whose
-properties, `if`/`then`, dependencies and `oneOf` convert as above. JSONForms itself shows and
-hides only by `rule` and uses those keywords to validate, so a question hidden this way is one
-JSONForms would show. The root schema's own `if`/`then`, dependencies and `oneOf` are not read
-and not reported, since no Control maps the root.
+properties and `oneOf` convert as above.
+
+**Schema conditionals.** JSONForms shows and hides only by `rule`, and reads schema conditionals
+only to validate. So under a JSONForms UI schema, `if`/`then`/`else`, dependencies and `required`
+give `requiredIf` (or `isRequired`) only: never `visibleIf`, and no question for a branch's
+property. They are read inside an object Control, and, once the layout is walked, for the root
+schema, for each `detail`'s object or items, and for each object a nested scope goes through, on
+the Controls that name each property. A key with no Control has nothing to read or require: a
+condition on it is reported, and a requirement is left out, as the UI schema leaves the key out.
+A branch's `false` property keeps its Control, and is reported. A conditional inside a root
+`anyOf` or `oneOf` of several entries is reported, since the entry that holds is unknown. A
+Control on a property several `allOf` entries declare reads every declaration; what the merge
+drops is reported as on the data walk, and a `false` declaration gives no question.
+
+**Scopes and data paths.** A scope names the data path JSONForms' `toDataPathSegments` gives it,
+with the combinator steps dropped: `#/anyOf/0/then/properties/x` and `#/properties/x` are one
+value. Two Controls on one data path edit one value: the second gets `valueName` naming the first.
+A Control on a nested scope (`#/properties/a/properties/b`) outside its object's own `detail`
+gives a question at the layout's level. survey-core keeps a value under one key of the form (or
+of the row), and a `valueName` cannot hold a path, so the value is stored under the question's
+name, not at `a.b`; this is reported `assumed-nested-scope`. The object's conditionals and
+`required` still apply to the Controls on its fields, and while the object is optional, only when
+it is [present](#optional-objects), judged by those Controls.
 
 **Labels.** A string `label`, or `{ text }`, is the title. `label: false` or `{ show: false }`
 hides it: `titleLocation: "hidden"` on a question, no title on a Group, Category or page.
+
+**Names.** A Group, Category, page, `layout` panel or `label` element is not named after any
+property key of the schema (compared without case), so a question keeps its property's name.
 
 **Control `options`:**
 
@@ -528,12 +672,17 @@ hides it: `titleLocation: "hidden"` on a question, no title on a Group, Category
 | `format: "combo"`, `"multiselect"` | `tagbox` on an `enum` array |
 | `multi: true` | `comment` on a string, `tagbox` on an `enum` array |
 | `readonly` / `readOnly` | `readOnly`. A boolean here overrides the schema's `readOnly`. |
-| `detail` as a layout | The `paneldynamic` template, walked with scopes relative to the item schema |
+| `restrict: true` | `maxLength` from the schema's `maxLength`, on `text` and `comment` |
+| `step` | `step` on a number input or a slider |
+| `slider: true` | `slider` with `min` and `max`, when the schema has `minimum`, `maximum` and `default` (JSONForms' `isRangeControl`). Otherwise the number input stays. |
+| `toggle: true` | Nothing on a `boolean`, which is a switch already |
+| `elementLabelProp` (a dotted path), `labelRef` (a pointer into the items) | `templateTitle: "{panel.<name>}"`, from the row's question on that full path |
+| `detail` as a layout on an array | The `paneldynamic` template, walked with scopes relative to the item schema |
+| `detail` as a layout on an object | The panel's elements, walked with scopes relative to the object schema |
 | `detail: "GENERATED"` or `"DEFAULT"` | The default template |
-| `detail: "REGISTERED"`, or `detail` on a non-array | The default template, reported `unsupported-ui-hint` |
-| Anything else | Reported `unsupported-ui-hint` |
-
-Two Controls on the same scope edit one value: the second gets `valueName` naming the first.
+| `detail: "REGISTERED"`, or `detail` on anything but an array or an object | The default template, reported `unsupported-ui-hint` |
+| `trim`, `showUnfocusedDescription`, `hideRequiredAsterisk`, `autocomplete`, `clearable`, `orientation`, `ampm`, `okLabel`, `cancelLabel`, `clearLabel`, `dateFormat`, `dateTimeFormat`, `views` | Presentation, reported `dropped-styling` |
+| A mapped option that cannot apply to the question, or anything else (`dateSaveFormat`, `dateTimeSaveFormat`, `showSortButtons`, …) | Reported `unsupported-ui-hint` |
 
 #### Rules
 
@@ -559,16 +708,21 @@ An enablement rule decides alone, as in JSONForms, so it removes `readOnly` from
 | `failWhenUndefined: true` | Adds `{q} notempty` |
 | `{ type: "AND" \| "OR", conditions }` | `and` / `or` of the parts |
 
-The scope a condition reads must have a Control. A condition that cannot be translated, an
-unknown effect, or a rule on the root layout or root Categorization (no element carries it) is
-reported `assumed-ui-rule`; the element stays visible and enabled.
+The scope a condition reads must have a Control. A literal is written only when survey-core
+compares it exactly, and an `empty` or `notempty` term only on a field that cannot hold `null` or
+`""`, as for [`if`](#if--then--else). A rule on a `detail` layout's root hides or disables the whole
+detail: that layout becomes a panel, which carries it. A condition that cannot be translated, an
+unknown effect, or a rule on the form's root layout or root Categorization (no element carries
+it) is reported `assumed-ui-rule`; the element stays visible and enabled.
 
 ### RJSF uiSchema
 
 The uiSchema is read per property, down any depth: an object's node holds its properties' nodes,
 an array's `items` node applies to its template, and a `oneOf` variant or a question created by
 `then` reads its object's node. `ui:options` is read like the matching `ui:` keys, and the later
-key wins, as in RJSF's `getUiOptions`. Each node is reported once, however many times it is read.
+key wins, as in RJSF's `getUiOptions`. Each read is for one question and reports what that
+question loses: on a node `oneOf` variants share, an option every variant loses is counted once
+per variant, and one a variant applies is reported only where it is lost.
 
 | Key | SurveyJS | Notes |
 | --- | --- | --- |
@@ -576,7 +730,15 @@ key wins, as in RJSF's `getUiOptions`. Each node is reported once, however many 
 | `ui:placeholder` | `placeholder` | `text` and `comment` only |
 | `ui:order` | Element order | `"*"` places the rest. Keys it does not list are kept. |
 | `ui:disabled`, `ui:readonly` | `readOnly` | On questions and panels |
+| `ui:inputType` | `inputType` | A text input type survey-core has, on a `text` question |
+| `ui:addable: false`, `ui:removable: false` | `allowAddPanel: false`, `allowRemovePanel: false` | On a `paneldynamic`. `true` is the default and changes nothing. |
+| `ui:enumNames` | Choice texts | An array by index (a `null` keeps its index), or an object by value |
+| `ui:enumDisabled` | `enableIf: "false"` on the listed choices | |
+| `ui:help` | `description` | Only on a field, or a form, that has none |
 | `ui:widget` | See below | |
+
+A mapped key that cannot apply where it is written (`ui:inputType` on a number, `ui:addable` on a
+list with no add button, `ui:help` beside a description, …) is reported `unsupported-ui-hint`.
 
 | `ui:widget` | SurveyJS |
 | --- | --- |
@@ -598,21 +760,25 @@ Every other key is reported:
 | Presentation: `classNames`, `className`, `style`, `rows`, `autocomplete`, `autocapitalize`, `autofocus`, `inline`, `label`, `submitButtonOptions`, `hideError`, `filePreview`, `enableMarkdownInDescription`, `enableMarkdownInHelp`, `allowClearTextInputs` | `dropped-styling` |
 | `ui:field`, any `…Template`, a `ui:widget` that is a function | `dropped-custom-renderer` |
 | A `ui:widget` that is an object (RJSF refuses it) | `unsupported-ui-hint` |
-| Anything else, such as `help`, `emptyValue`, `enumDisabled`, `addable`, `removable`, `orderable`, `inputType`, or a key RJSF adds later | `unsupported-ui-hint` |
+| Anything else, such as `emptyValue`, `orderable` (survey-core cannot reorder dynamic panels), or a key RJSF adds later | `unsupported-ui-hint` |
 
 ### JSON Schema report codes
 
 | Code | Bucket | Meaning |
 | --- | --- | --- |
-| `json-schema.unsupported-keyword` | unsupported | A `oneOf` of objects with no discriminator, or nesting past the depth limit |
-| `json-schema.unsupported-ui-hint` | unsupported | A JSONForms node or option, or an RJSF key or widget, with no mapping |
+| `json-schema.unsupported-keyword` | unsupported | A `oneOf` of objects with no discriminator; `items`, or a root, whose fields are only in an `anyOf` or `oneOf` of objects; `items: false`; an `items` keyword a `tagbox` cannot hold; nesting past the depth limit |
+| `json-schema.unsupported-ui-hint` | unsupported | A JSONForms node or option, or an RJSF key or widget, with no mapping or that cannot apply where it is written; a `ListWithDetail` on an object or a scalar |
+| `json-schema.unsupported-free-form-object` | unsupported | Keys a schema leaves free, which no question holds: an object with no `properties`, an `additionalProperties` or `patternProperties` beside them, and a required key no schema of the object declares (in a JSONForms object Control's walk, one only a branch declares) |
+| `json-schema.unresolved-scope` | unsupported | A JSONForms scope that resolves to nothing |
+| `json-schema.unresolved-ref` | unsupported | A `$ref` that names nothing in the document, or a reference cycle |
 | `json-schema.unknown-keyword` | unknown | Defined, never emitted. `npm run corpus:refresh` catches a new keyword or UI key instead. |
-| `json-schema.assumed-if-then-else` | assumed | An `if` that cannot be translated |
+| `json-schema.assumed-if-then-else` | assumed | An `if` that cannot be translated; what a branch does not translate: a keyword, a property given another schema, a `false` property that cannot be hidden exactly, a required key no schema declares, a nested `if` past the branch budget |
 | `json-schema.assumed-oneof-discriminator` | assumed | An inferred discriminator, or a variant value that cannot be written |
-| `json-schema.assumed-dependencies` | assumed | Every dependency |
-| `json-schema.assumed-allof-merge` | assumed | Conflicting property types across `allOf` |
+| `json-schema.assumed-dependencies` | assumed | Every dependency, and what a schema dependency's branch does not translate |
+| `json-schema.assumed-allof-merge` | assumed | A declaration an `allOf` merge drops: an incompatible `type`, a keyword set differently, one a `false` declaration outweighs, a `false` entry; under JSONForms, a declaration that constrains the object and that the schema a Control's scope found leaves unread |
 | `json-schema.assumed-exclusive-bound` | assumed | An exclusive bound on a `number` |
 | `json-schema.assumed-ui-rule` | assumed | A JSONForms rule that cannot be translated or carried |
-| `json-schema.dropped-remote-ref` | dropped | A remote `$ref`, or a JSONForms scope that resolves to nothing |
+| `json-schema.assumed-nested-scope` | assumed | A JSONForms Control on a nested scope, whose value is stored under the question's name |
+| `json-schema.dropped-remote-ref` | dropped | A `$ref` to a URI no `$id` in the document declares |
 | `json-schema.dropped-custom-renderer` | dropped | RJSF custom fields, templates and widget functions |
-| `json-schema.dropped-styling` | dropped | RJSF presentation options |
+| `json-schema.dropped-styling` | dropped | RJSF and JSONForms presentation options, and a `ListWithDetail`'s master list |

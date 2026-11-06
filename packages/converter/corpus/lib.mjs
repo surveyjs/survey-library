@@ -250,7 +250,7 @@ function pairSchemas(literals) {
 // The scopes a JSONForms UI schema reads from the root schema: every `scope` string in its layout
 // and rule conditions, leaving out `options.detail` subtrees, whose scopes are relative to an
 // array's items.
-function collectUiScopes(ui, out = []) {
+export function collectUiScopes(ui, out = []) {
   if (Array.isArray(ui)) { for (const item of ui) collectUiScopes(item, out); return out; }
   if (!ui || typeof ui !== "object") return out;
   if (typeof ui.scope === "string") out.push(ui.scope);
@@ -278,9 +278,10 @@ function uiSchemaFitsSchema(ui, schema) {
 // entry's `$ref` followed), first match wins; a path asked again from the same schema while it is
 // being resolved is a cycle and resolves to nothing, and so is a combinator entry that leads back to
 // a schema the same rest of the path is being searched from. Duplicated here, not imported, so refresh
-// needs no build of the TS sources.
+// needs no build of the TS sources, and the converter publishes no resolver; `scope-resolver.spec.ts`
+// checks that the two agree on every scope of the corpus.
 const SCOPE_COMBINATORS = ["oneOf", "allOf", "anyOf", "then", "else"];
-function resolveScopeIn(root, scope) {
+export function resolveScopeIn(root, scope) {
   const walk = { root, visited: new Map() };
   const decode = (s) => s.replace(/~1/g, "/").replace(/~0/g, "~");
   const isEmpty = (v) => (typeof v === "string" || Array.isArray(v)) ? v.length === 0
@@ -351,6 +352,65 @@ function resolveScopeIn(root, scope) {
   return target && typeof target === "object" && !Array.isArray(target) ? target : undefined;
 }
 
+// --- bundled `$id` resources --------------------------------------------------
+
+// Keywords whose values are data, not schemas: an `$id` inside them declares nothing.
+const DATA_KEYWORDS = new Set(["enum", "const", "default", "examples"]);
+
+// Every `$id` of a document, resolved against the base URI it is declared under, and the base URI of
+// every schema object, as the converter's `buildIdIndex` reads them.
+function buildIdIndex(root) {
+  const byUri = new Map();
+  const base = new Map();
+  const seen = new Set();
+  const visit = (node, parentBase) => {
+    if (!node || typeof node !== "object" || seen.has(node)) return;
+    seen.add(node);
+    if (Array.isArray(node)) { for (const child of node) visit(child, parentBase); return; }
+    let own = parentBase;
+    const id = node.$id;
+    // An `$id` starting with `#` is a draft-06 anchor, not a resource.
+    if (typeof id === "string" && id.length > 0 && !id.startsWith("#")) {
+      own = resolveUri(id, parentBase).replace(/#$/, "");
+      if (!byUri.has(own)) byUri.set(own, node);
+    }
+    base.set(node, own);
+    for (const [key, value] of Object.entries(node)) if (!DATA_KEYWORDS.has(key)) visit(value, own);
+  };
+  visit(root, "");
+  return { byUri, base };
+}
+
+function resolveUri(ref, base) {
+  try {
+    return new URL(ref, base.length > 0 ? base : undefined).href;
+  } catch {
+    return ref;
+  }
+}
+
+// Whether the non-local `$ref` of `node` names a schema in the document: an `$id` match, then the
+// JSON Pointer in its fragment, if any, as the converter's `resolveBundledRef` follows it. A ref this
+// cannot follow is one the converter reports as remote.
+function resolvesThroughId(node, ref, index, root) {
+  const base = index.base.get(node) ?? index.base.get(root) ?? "";
+  const uri = resolveUri(ref, base);
+  const hashAt = uri.indexOf("#");
+  const resource = index.byUri.get(hashAt < 0 ? uri : uri.slice(0, hashAt));
+  if (!resource) return false;
+  const fragment = hashAt < 0 ? "" : uri.slice(hashAt + 1);
+  if (fragment === "") return true;
+  if (!fragment.startsWith("/")) return false;
+  let pointer = fragment;
+  try { pointer = decodeURIComponent(fragment); } catch { /* keep the fragment as written */ }
+  let target = resource;
+  for (const part of pointer.split("/").filter((p) => p.length > 0).map((p) => p.replace(/~1/g, "/").replace(/~0/g, "~"))) {
+    if (target === null || typeof target !== "object") return false;
+    target = target[part];
+  }
+  return !!target && typeof target === "object";
+}
+
 // --- construct tokens (the drift signal) ------------------------------------
 
 // Component types the Form.io converter has a mapping for (mirror of
@@ -392,6 +452,8 @@ const HANDLED_UI_WIDGETS = new Set(["hidden", "radio", "textarea", "tagbox", "pa
  * `ui-widget:color`). `unhandled` is the subset with no converter rule — the
  * new-construct alarm keys off changes to it.
  */
+// A non-local `$ref` is `ref:bundled` when it resolves through an `$id` of the document, which the
+// converter follows, and `ref:remote`, unhandled, otherwise.
 export function constructTokens(source, def) {
   const tokens = new Set();
   const unhandled = new Set();
@@ -426,6 +488,7 @@ export function constructTokens(source, def) {
   // json-schema family
   const schema = def && def.schema ? def.schema : def;
   const seen = new Set();
+  let ids;
   // A node is a schema only if it declares at least one schema keyword. This
   // stops us from walking arbitrary objects (a `default` value, an enum member)
   // and emitting their keys as phantom "unknown keywords".
@@ -440,7 +503,11 @@ export function constructTokens(source, def) {
       else if (BENIGN_JSONSCHEMA_KEYWORDS.has(key)) { /* ignored, not a token */ }
       else if (!key.startsWith("ui:") && !key.startsWith("$")) mark(`keyword-unknown:${key}`, false);
     }
-    if (typeof s.$ref === "string" && !s.$ref.startsWith("#")) mark("ref:remote", false);
+    if (typeof s.$ref === "string" && !s.$ref.startsWith("#")) {
+      ids ??= buildIdIndex(schema);
+      if (resolvesThroughId(s, s.$ref, ids, schema)) mark("ref:bundled", true);
+      else mark("ref:remote", false);
+    }
     if (typeof s.format === "string") mark(`format:${s.format}`, HANDLED_FORMATS.has(s.format));
     for (const v of Object.values(s.properties || {})) visitSchema(v, depth + 1);
     for (const container of [s.allOf, s.oneOf, s.anyOf]) if (Array.isArray(container)) container.forEach((x) => visitSchema(x, depth + 1));

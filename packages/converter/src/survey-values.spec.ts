@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { ConditionRunner } from "survey-core";
-import { formatLiteral } from "../expression";
-import { SurveyOperator, surveyHolds, surveyLiteral } from "./survey-values";
+import { formatLiteral } from "./expression";
+import { SurveyOperator, surveyEmpty, surveyHolds, surveyLiteral } from "./survey-values";
 
 // A seeded generator, so that every run checks the same cases.
 function generator(seed: number): () => number {
@@ -41,6 +41,22 @@ describe("survey-core value model", () => {
       const expected = new ConditionRunner(`{q} ${op} ${literal}`).runValues({ q: questionValue });
       const modelled = surveyHolds(op, questionValue, surveyLiteral(raw));
       if (modelled !== expected) mismatches.push(`${JSON.stringify(questionValue)} ${op} ${literal}: survey-core ${expected}`);
+    }
+    expect(mismatches).toEqual([]);
+  });
+
+  it("agrees with survey-core's ConditionRunner on empty and notempty", () => {
+    const random = generator(20261105);
+    const pick = <T>(list: T[]): T => list[Math.floor(random() * list.length)];
+    const text = () => Array.from({ length: Math.floor(random() * 4) }, () => pick(CHARS)).join("");
+    const values: unknown[] = [undefined, "''", "\"\"", ...EDGE_VALUES, [], [""], {}, { a: "" }, { a: "''" }, { a: 0 }];
+    for (let i = 0; i < 500; i++) values.push(text());
+    const mismatches: string[] = [];
+    for (const value of values) {
+      for (const op of ["empty", "notempty"]) {
+        const expected = new ConditionRunner(`{q} ${op}`).runValues({ q: value });
+        if ((op === "empty" ? surveyEmpty(value) : !surveyEmpty(value)) !== expected) mismatches.push(`${JSON.stringify(value)} ${op}: survey-core ${expected}`);
+      }
     }
     expect(mismatches).toEqual([]);
   });

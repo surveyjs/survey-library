@@ -20,11 +20,17 @@
 //
 //   * if/then/else -> `visibleIf`/`requiredIf` on the AFFECTED QUESTIONS (the
 //     finest granularity that round-trips). The condition is computed from the
-//     `if` subschema (`properties[k].const`/`enum`). `then` properties get
-//     `visibleIf: <cond>`; `then.required` -> `requiredIf: <cond>`; `else` gets
-//     the negated condition. When the `if` cannot be expressed as a SurveyJS
-//     expression we do NOT guess a branch -> ASSUMED_IF_THEN_ELSE, questions
-//     stay visible.
+//     `if` subschema (`properties[k].const`/`enum`, `required`); a key the `if`
+//     does not require satisfies it while empty. `then` properties get
+//     `visibleIf: <cond>`; `then.required` -> `requiredIf: <cond>`, several of
+//     either joined with `or`; `else` gets the negated condition. An `if` that
+//     holds for every value (`true`, `{}`) or none (`false`) applies its branch
+//     always, as AJV does. A property two branches give different schemas is
+//     shown by the first only, and reported. When the `if` cannot
+//     be expressed as a SurveyJS expression (another keyword in it, or a literal
+//     survey-core's lenient `=` does not compare exactly -- it even reads some
+//     comma numbers, `'1,000'`, as unequal to themselves) we do NOT guess a
+//     branch -> ASSUMED_IF_THEN_ELSE, questions stay visible.
 //
 //   * oneOf + discriminator: a discriminated `oneOf` (explicit OpenAPI
 //     `discriminator`, or a property carrying a `const` in every branch) becomes
@@ -45,10 +51,15 @@
 //     `rule`, and reads schema conditionals only to validate. The root schema's
 //     are read after the UI walk, on the Controls that name each property.
 //
-//   * allOf: shallow-merge each subschema's `properties`/`required` into the
-//     parent before walking (we build a form, not a validator). A genuine
-//     conflict (same key, incompatible `type`) keeps the FIRST and emits
-//     ASSUMED_ALLOF_MERGE.
+//   * allOf: merge the subschemas into the parent before walking (we build a
+//     form, not a validator), each one's `$ref` followed and its own `allOf`
+//     merged first: their `properties` and `required` are added to the
+//     parent's. A property several of them declare is the `allOf` of its
+//     declarations, merged the same way where it is read; `true` adds nothing,
+//     and `false` outweighs the others. A genuine conflict (same key,
+//     incompatible `type`), or a keyword two of them set differently
+//     (annotations aside), keeps the first and emits ASSUMED_ALLOF_MERGE. Each
+//     subschema's conditionals are applied apart.
 //
 //   * $ref: LOCAL refs (`#/definitions/...`, `#/$defs/...`, `#/properties/...`)
 //     are resolved. REMOTE refs (`http(s)://...`, or a `$ref` into another doc)
@@ -62,6 +73,7 @@ import { ConversionResult, ReportBuilder } from "../report";
 import { UnparseableInputError, WrongFormatError } from "../errors";
 import { SurveyJSON, SurveyJSONElement, SurveyJSONPage } from "../types";
 import { formatLiteral } from "../expression";
+import { surveyEmpty, surveyHolds, surveyLiteral } from "../survey-values";
 import { JsonSchemaCodes } from "./codes";
 
 const SOURCE = "json-schema";
@@ -91,7 +103,7 @@ interface JsonSchemaDoc {
   allOf?: JsonSchemaDoc[];
   oneOf?: JsonSchemaDoc[];
   anyOf?: JsonSchemaDoc[];
-  if?: JsonSchemaDoc;
+  if?: JsonSchemaDoc | boolean;
   then?: JsonSchemaDoc;
   else?: JsonSchemaDoc;
   dependencies?: Record<string, string[] | JsonSchemaDoc>;
@@ -192,8 +204,14 @@ interface UiHint {
   // JSONForms `options.detail` as a layout: builds an array's item template, or an object's panel
   // elements, in place of the default walk of the items or object schema.
   template?: (schema: JsonSchemaDoc, targetPath: string) => SurveyJSONElement[];
+  // JSONForms: the data key of the question on a data path of an array's row, for a label option.
+  // The detail layout's frame sets it, or the walk of the items.
+  rowKey?: (path: string[]) => string | undefined;
   // RJSF `ui:disabled` / `ui:readonly`.
   readOnly?: boolean;
+  // JSONForms: the Control names the data the frame's scopes resolve in (`#`), the form or a row,
+  // which is always there: an object Control on it is not an optional object.
+  present?: boolean;
   // RJSF: where `widget` came from, for a report on a widget the converter does not honour.
   widgetPtr?: string;
   // RJSF: the uiSchema node the hint was read from. An object's properties and an array's
@@ -241,7 +259,7 @@ interface Ctx {
   // schema names does not take, so that the question made for the property keeps its name.
   reservedNames: Set<string>;
   uiKind: UiKind;
-  // The source pointers a remote `$ref` was reported at.
+  // The source pointers a `$ref` the converter cannot follow (remote, or naming nothing) was reported at.
   remoteRefs: Set<string>;
   root: JsonSchemaDoc;
   // JSONForms: the frame scopes resolve in, and the rules waiting for the end of the walk.
@@ -250,11 +268,35 @@ interface Ctx {
   // For each panel an object's data walk made, the question made for each property. JSONForms reads
   // it to put the fields of an object Control in the scope map.
   objectFields: WeakMap<SurveyJSONElement, Map<string, SurveyJSONElement>>;
-  // RJSF: uiSchema nodes whose keys were reported, so a node read twice (a property shared by
-  // `oneOf` variants) reports once.
-  reportedUi: Set<string>;
   // The document's `$id` declarations, indexed on the first non-local `$ref`.
   ids?: IdIndex;
+  // The merged schema each scalar question was made from, for the values it can hold.
+  schemaOf: WeakMap<SurveyJSONElement, JsonSchemaDoc>;
+  // JSONForms: the source pointer of an object whose conditionals an earlier Control read and
+  // reported, so that a data walk on it applies them to its own fields without reporting them again.
+  quietConditionalsAt?: string;
+  // The source pointers of the objects whose conditionals were read and reported: a JSONForms detail
+  // layout and a data walk on one object (or a nested one) report them once, whichever comes first.
+  readConditionals: Set<string>;
+  // For a source pointer, the schema there with every declaration merged in (see `declaredAt`).
+  declared: Map<string, JsonSchemaDoc | undefined>;
+  // For such a pointer below the root, the property's (or the items') declaration before the merge.
+  declaredNodes: Map<string, JsonSchemaDoc>;
+  // The negation of each `if` condition written, to find a visibility that holds always.
+  complements: Map<string, string>;
+  // For a property's pointer (`<object>/properties/<key>`, the key escaped, see `lossKey`), the
+  // pointers of the declarations of it an `allOf` merge of the object dropped: a type conflict, or one
+  // a `false` declaration outweighs. Every merge records them, a quiet one too, so that a JSONForms
+  // Control on the property reports them.
+  mergeLosses: Map<string, Set<string>>;
+  // The dropped declarations reported, each once.
+  mergeReported: Set<string>;
+  // The elements whose requirement holds only while an optional object they belong to holds a value,
+  // and the panels whose fields' requirements do: the object's own presence implies that of every
+  // object around it, as its fields are theirs too, so an enclosing object adds nothing to them (see
+  // `requireWhilePresent`).
+  presenceElements: WeakSet<SurveyJSONElement>;
+  presencePanels: WeakSet<SurveyJSONElement>;
 }
 
 // --- $ref resolution --------------------------------------------------------
@@ -275,9 +317,11 @@ function resolvePointer(root: JsonSchemaDoc, ref: string): JsonSchemaDoc | undef
 // Resolve `$ref` chains. A `#` ref is a JSON Pointer into the root. Any other ref is looked up
 // among the document's `$id` declarations (a bundled schema), against the base URI it sits under,
 // and followed by the pointer in its fragment, if any. A ref no `$id` declares is remote, out of
-// scope for a client-side converter -> `{ remote: true }`. A cycle or a dangling ref gives an
-// empty schema. Returns the effective schema otherwise.
-function resolveRef(schema: JsonSchemaDoc, ctx: Ctx): { schema: JsonSchemaDoc, remote?: boolean } {
+// scope for a client-side converter -> `{ remote: true }`. One that names nothing in the document (a
+// pointer or an `$id` fragment that resolves nowhere, or a cycle of refs) cannot be followed either
+// -> `{ remote: true, unresolved: true }`. `remote` marks both for the callers, which treat them
+// alike; `reportRemoteRef` reports each with its own code. Returns the effective schema otherwise.
+function resolveRef(schema: JsonSchemaDoc, ctx: Ctx): { schema: JsonSchemaDoc, remote?: boolean, unresolved?: boolean } {
   let s = schema;
   const seen = new Set<string>();
   while(s && typeof s.$ref === "string") {
@@ -293,19 +337,20 @@ function resolveRef(schema: JsonSchemaDoc, ctx: Ctx): { schema: JsonSchemaDoc, r
       key = bundled.uri;
       target = bundled.schema;
     }
-    if (seen.has(key)) return { schema: {} }; // direct cycle
+    if (seen.has(key) || !target) return { schema: s, remote: true, unresolved: true }; // a cycle, or a ref naming nothing
     seen.add(key);
-    if (!target) return { schema: {} }; // dangling local ref
     s = target;
   }
   return { schema: s ?? {} };
 }
 
-// Report a remote `$ref` at `sourcePtr`, and remember the pointer for a later read of the same
-// schema that must not report it again.
-function reportRemoteRef(sourcePtr: string, targetPath: string, ctx: Ctx): void {
+// Report a `$ref` the converter cannot follow at `sourcePtr`: a remote one, or, when `unresolved`, one
+// that names nothing in the document. Remember the pointer for a later read of the same schema that
+// must not report it again.
+function reportRemoteRef(sourcePtr: string, targetPath: string, ctx: Ctx, unresolved = false): void {
   ctx.remoteRefs.add(sourcePtr);
-  ctx.report.dropped(JsonSchemaCodes.DROPPED_REMOTE_REF, sourcePtr, targetPath);
+  if (unresolved) ctx.report.unsupported(JsonSchemaCodes.UNRESOLVED_REF, sourcePtr, targetPath);
+  else ctx.report.dropped(JsonSchemaCodes.DROPPED_REMOTE_REF, sourcePtr, targetPath);
 }
 
 // --- bundled `$id` resources ----------------------------------------------------
@@ -357,7 +402,9 @@ function resolveUri(ref: string, base: string): string {
 }
 
 // The schema a non-local `$ref` names in this document: an `$id` match, then the JSON Pointer in its
-// fragment, if any. `undefined` when no `$id` matches, or the fragment is not a pointer.
+// fragment, if any. `undefined` when no `$id` matches, or the fragment is not a pointer: the reference
+// is then remote. A pointer that names nothing in the resource gives no `schema`: the reference names
+// nothing in the document.
 function resolveBundledRef(node: JsonSchemaDoc, ref: string, ctx: Ctx): { schema: JsonSchemaDoc | undefined, uri: string } | undefined {
   ctx.ids ??= buildIdIndex(ctx.root);
   const base = ctx.ids.base.get(node) ?? ctx.ids.base.get(ctx.root) ?? "";
@@ -379,54 +426,308 @@ function resolveBundledRef(node: JsonSchemaDoc, ref: string, ctx: Ctx): { schema
 
 // --- allOf merge ------------------------------------------------------------
 
-/**
- * Shallow-merge `allOf` subschemas' `properties`/`required` (and scalar
- * keywords) into a copy of the parent. On a genuine per-property conflict (same
- * key, incompatible `type`) the first wins and we flag ASSUMED_ALLOF_MERGE. We
- * deliberately do NOT implement full allOf validation semantics -- we build a
- * form, not a validator.
- */
-function mergeAllOf(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx): JsonSchemaDoc {
+// Keywords that only annotate a schema, and constrain no value.
+const ANNOTATIONS = new Set(["title", "description", "$comment", "examples", "default", "deprecated", "readOnly", "writeOnly"]);
+
+// Merge the `allOf` entries of `schema` into a copy of it, each entry's `$ref` followed and its own
+// `allOf` merged first: their `properties` and `required` are added, and a scalar keyword the parent
+// does not set is taken from the first entry that sets it. A property several entries declare is the
+// `allOf` of its declarations (`declarations`), merged where the property is read. On a genuine
+// per-property conflict (same key, incompatible `type`) the first declaration wins and the other is
+// flagged ASSUMED_ALLOF_MERGE, as is a keyword two entries set differently. We deliberately do NOT
+// implement full allOf validation semantics -- we build a form, not a validator.
+// `merging` holds the schemas this merge has taken in already: an entry that names one of them again
+// (a schema several entries name, or one that leads back to a schema being merged) adds nothing, as
+// `allOf` holds a schema once however often it is named, so the merge is taken once.
+function mergeAllOf(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, merging: Set<object> = new Set()): JsonSchemaDoc {
   if (!Array.isArray(schema.allOf) || schema.allOf.length === 0) return schema;
+  merging.add(schema);
   const merged: JsonSchemaDoc = { ...schema };
   delete merged.allOf;
-  const props: Record<string, JsonSchemaDoc> = { ...(schema.properties ?? {}) };
+  const props: Record<string, JsonSchemaDoc | boolean> = { ...(schema.properties ?? {}) };
   const required = new Set<string>(schema.required ?? []);
   let hasProperties = schema.properties !== undefined;
+  const sources: ConditionalSource[] = [...conditionalSourcesOf(schema, sourcePtr)];
+  // Where each property was first declared.
+  const propPtr = new Map(Object.keys(props).map((k) => [k, `${sourcePtr}/properties/${k}`]));
 
+  let itemsPtr = `${sourcePtr}/items`;
   schema.allOf.forEach((sub, i) => {
+    const ptr = allOfPointers.get(schema)?.[i] ?? `${sourcePtr}/allOf/${i}`;
     const resolved = resolveRef(sub, ctx);
     if (resolved.remote) {
-      reportRemoteRef(`${sourcePtr}/allOf/${i}`, "", ctx);
+      reportRemoteRef(ptr, "", ctx, resolved.unresolved);
       return;
     }
-    const part = mergeAllOf(resolved.schema, `${sourcePtr}/allOf/${i}`, ctx);
-    for (const [k, v] of Object.entries(part.properties ?? {})) {
+    if (isPlainObject(resolved.schema) && merging.has(resolved.schema)) return;
+    if (isPlainObject(resolved.schema)) merging.add(resolved.schema);
+    const part = mergeAllOf(resolved.schema, ptr, ctx, merging);
+    for (const source of conditionalSourcesOf(part, ptr)) sources.push(source);
+    for (const [k, declared] of Object.entries(part.properties ?? {})) {
       const existing = props[k];
-      if (existing && typesConflict(existing, v)) {
-        ctx.report.assumed(JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `${sourcePtr}/allOf/${i}/properties/${k}`, "");
+      const v = declared as JsonSchemaDoc | boolean;
+      if (isPlainObject(existing) && isPlainObject(v) && typesConflict(existing, v)) {
+        dropDeclaration(lossKey(sourcePtr, k), `${ptr}/properties/${k}`, ctx);
         continue; // keep the first
       }
-      props[k] = existing ? { ...v, ...existing } : v;
+      const vPtr = `${ptr}/properties/${k}`;
+      // `true` allows every value and adds nothing: the other declaration stands as it is.
+      if (existing === undefined || existing === true) {
+        props[k] = v;
+        propPtr.set(k, vPtr);
+        continue;
+      }
+      if (v === true) continue;
+      // `false` allows no value, whatever the other declaration says: the property takes none, and
+      // the declaration it drops is reported at the `false` one.
+      if (existing === false || v === false) {
+        if (existing !== v) dropDeclaration(lossKey(sourcePtr, k), existing === false ? propPtr.get(k)! : vPtr, ctx);
+        if (existing !== false) {
+          props[k] = false;
+          propPtr.set(k, vPtr);
+        }
+        continue;
+      }
+      if (!isPlainObject(existing) || !isPlainObject(v)) continue;
+      // Both declarations hold: the property is their `allOf`, which `mergeAllOf` merges where the
+      // property is read, each entry from its own pointer and with its `$ref` followed.
+      props[k] = declarations(existing, propPtr.get(k)!, v, vPtr);
     }
     if (part.properties !== undefined) hasProperties = true;
     for (const r of part.required ?? []) required.add(r);
     // Carry through composition keywords a subschema may add, and the scalar keywords (`type`,
     // `format`, bounds, `title`, ...) the parent does not set: the first subschema that sets one wins.
+    // Both hold in JSON Schema, so a keyword set otherwise by a later one is reported; an annotation
+    // only describes, and each schema's conditionals are applied apart (`conditionalSourcesOf`).
     for (const [key, value] of Object.entries(part)) {
-      if (!ALLOF_NOT_MERGED.has(key) && merged[key] === undefined && value !== undefined) (merged as Record<string, unknown>)[key] = value;
+      if (ALLOF_NOT_MERGED.has(key) || value === undefined) continue;
+      if (merged[key] === undefined) {
+        (merged as Record<string, unknown>)[key] = value;
+        if (key === "items") itemsPtr = `${ptr}/items`;
+      } else if (key === "items" && isPlainObject(merged.items) && isPlainObject(value)) {
+        // Both `items` hold for every item, as their `allOf`.
+        merged.items = declarations(merged.items, itemsPtr, value, `${ptr}/items`);
+      } else if (!ALLOF_UNCHECKED.has(key) && !sameKeyword(key, merged[key], value)) ctx.report.assumed(JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `${ptr}/${key}`, "");
     }
   });
 
   // A merge with no `properties` anywhere stays a scalar schema, not an empty object.
-  if (hasProperties) merged.properties = props;
+  if (hasProperties) merged.properties = props as Record<string, JsonSchemaDoc>;
   if (required.size > 0) merged.required = [...required];
+  conditionalSources.set(merged, sources);
   return merged;
+}
+
+// The key of `Ctx.mergeLosses` for the property `key` of the object at `sourcePtr`: the property's
+// pointer with the key escaped, as a JSONForms scope writes it (`x/y` is `x~1y`), so that a Control
+// finds the losses by its scope's pointer.
+function lossKey(sourcePtr: string, key: string): string {
+  return `${sourcePtr}/properties/${escapeSegment(key)}`;
+}
+
+// A key as a JSON Pointer segment: `~` is `~0` and `/` is `~1` (RFC 6901). `decodeSegment` reads it back.
+function escapeSegment(key: string): string {
+  return key.replace(/~/g, "~0").replace(/\//g, "~1");
+}
+
+// A declaration of the property at `propertyPtr` that a merge drops, at `ptr`: recorded for the
+// property (see `Ctx.mergeLosses`), and reported once, unless `ctx` is quiet.
+function dropDeclaration(propertyPtr: string, ptr: string, ctx: Ctx): void {
+  let losses = ctx.mergeLosses.get(propertyPtr);
+  if (!losses) ctx.mergeLosses.set(propertyPtr, losses = new Set());
+  losses.add(ptr);
+  reportDropped(ptr, ctx);
+}
+
+// Report each `false` entry of the `allOf` the schema `merged` at `sourcePtr` was made from: no
+// instance meets it, and the merge drops it.
+function reportFalseEntries(merged: JsonSchemaDoc, sourcePtr: string, ctx: Ctx): void {
+  for (const source of conditionalSourcesOf(merged, sourcePtr)) if ((source.schema as unknown) === false) reportDropped(source.ptr, ctx);
+}
+
+// Report a declaration a merge drops, at `ptr`, once.
+function reportDropped(ptr: string, ctx: Ctx): void {
+  if (ctx.report === quietReport || ctx.mergeReported.has(ptr)) return;
+  ctx.mergeReported.add(ptr);
+  ctx.report.assumed(JsonSchemaCodes.ASSUMED_ALLOF_MERGE, ptr, "");
 }
 
 // Keywords an `allOf` subschema does not copy onto the parent: merged above, a resource's own
 // identity and definitions, or `anyOf`, which the walk does not model.
 const ALLOF_NOT_MERGED = new Set(["properties", "required", "allOf", "anyOf", "$ref", "$id", "$schema", "$defs", "definitions"]);
+
+// The schema conditionals, which every `allOf` entry applies on its own.
+const CONDITIONAL_KEYWORDS = ["if", "then", "else", "dependencies", "dependentRequired", "dependentSchemas"];
+
+// Keywords two `allOf` entries may set differently without a loss: the annotations, and the
+// conditionals, each of which is applied.
+const ALLOF_UNCHECKED = new Set<string>([...ANNOTATIONS, ...CONDITIONAL_KEYWORDS]);
+
+// A schema whose conditionals hold for an object, and its pointer.
+interface ConditionalSource {
+  schema: JsonSchemaDoc;
+  ptr: string;
+}
+
+// For each `allOf` the merge makes of two declarations of one schema (`declarations`), the pointer
+// of each entry in the document.
+const allOfPointers = new WeakMap<JsonSchemaDoc, string[]>();
+
+// The `allOf` of a schema declared at `existingPtr` (already such an `allOf`, or one schema) and one
+// declared at `ptr`, each read from its own pointer.
+function declarations(existing: JsonSchemaDoc, existingPtr: string, schema: JsonSchemaDoc, ptr: string): JsonSchemaDoc {
+  const prior = allOfPointers.get(existing);
+  const both: JsonSchemaDoc = { allOf: prior ? [...existing.allOf!, schema] : [existing, schema] };
+  allOfPointers.set(both, prior ? [...prior, ptr] : [existingPtr, ptr]);
+  return both;
+}
+
+// For each schema `mergeAllOf` made, the schemas whose conditionals hold for it: the schema it was
+// made from and each `allOf` entry, in order, as each is a constraint of its own.
+const conditionalSources = new WeakMap<JsonSchemaDoc, ConditionalSource[]>();
+
+// The schemas whose conditionals hold for `schema`, found at `sourcePtr`.
+function conditionalSourcesOf(schema: JsonSchemaDoc, sourcePtr: string): ConditionalSource[] {
+  return conditionalSources.get(schema) ?? [{ schema, ptr: sourcePtr }];
+}
+
+// The schemas whose conditionals hold for the object `merged` at `sourcePtr`. Under JSONForms a
+// scope resolves to one schema, as JSONForms' `resolveSchema` does, while AJV validates the data with
+// every `allOf` entry: a property several entries declare takes the conditionals of each (see
+// `declaredAt`), when they include the schema the scope found.
+function objectSources(merged: JsonSchemaDoc, sourcePtr: string, ctx: Ctx): ConditionalSource[] {
+  const own = conditionalSourcesOf(merged, sourcePtr);
+  if (ctx.uiKind !== "jsonforms") return own;
+  return declaredSources(own, sourcePtr, ctx) ?? own;
+}
+
+// Every declaration of the object at `sourcePtr` (see `declaredAt`), when they include the schemas
+// `own` the scope found. Otherwise `undefined`, and each other declaration that constrains the object
+// (a conditional or a `required`) is reported, as it is not read.
+function declaredSources(own: ConditionalSource[], sourcePtr: string, ctx: Ctx): ConditionalSource[] | undefined {
+  const declared = declaredAt(sourcePtr, ctx);
+  if (!declared || own.length === 0) return undefined;
+  const all = conditionalSourcesOf(declared, sourcePtr);
+  if (holdsSources(own, all)) return all;
+  for (const other of all) {
+    if (own.some((source) => source.schema === other.schema)) continue;
+    const constrains = CONDITIONAL_KEYWORDS.some((key) => other.schema[key] !== undefined) || (Array.isArray(other.schema.required) && other.schema.required.length > 0);
+    if (constrains) ctx.report.assumed(JsonSchemaCodes.ASSUMED_ALLOF_MERGE, other.ptr, "");
+  }
+  return undefined;
+}
+
+// `keys` without those the merged object `merged` declares `false`: a declaration that allows no
+// value outweighs another's.
+function withoutFalse(keys: Set<string>, merged: JsonSchemaDoc): Set<string> {
+  for (const [key, sub] of Object.entries(merged.properties ?? {})) if ((sub as unknown) === false) keys.delete(key);
+  return keys;
+}
+
+// The schema at `ptr`, a pointer of `properties` and `items` steps from the root, with the `allOf` of
+// each schema on the way merged, so that a property several entries declare carries the
+// conditionals of each. `undefined` for any other pointer, or one that leads nowhere.
+function declaredAt(ptr: string, ctx: Ctx): JsonSchemaDoc | undefined {
+  if (ctx.declared.has(ptr)) return ctx.declared.get(ptr);
+  let found: JsonSchemaDoc | undefined;
+  const quiet = quietCtx(ctx);
+  if (ptr === "#") {
+    const root = resolveRef(ctx.root, quiet);
+    found = root.remote ? undefined : mergeAllOf(root.schema, "#", quiet);
+  } else {
+    const property = /^(.*)\/properties\/([^/]+)$/.exec(ptr);
+    const items = property ? undefined : /^(.*)\/items$/.exec(ptr);
+    const parent = property || items ? declaredAt((property ?? items)![1], ctx) : undefined;
+    const next = !parent ? undefined : property ? parent.properties?.[decodeSegment(property[2])] : parent.items;
+    const resolved = isPlainObject(next) ? resolveRef(next, quiet) : undefined;
+    found = resolved && !resolved.remote ? mergeAllOf(resolved.schema, ptr, quiet) : undefined;
+    if (found) ctx.declaredNodes.set(ptr, resolved!.schema);
+  }
+  ctx.declared.set(ptr, found);
+  return found;
+}
+
+// The schema a JSONForms Control at `schemaPtr` maps: the property's declaration (every one, as an
+// `allOf`, see `declarations`), when it holds the schema the scope found, `found`, so that another
+// declaration's constraint is merged as the data walk merges it; `found` otherwise. A `true` found
+// schema constrains nothing, and is held by any. The declarations of the property the merge of its
+// object drops are reported, as on the data walk; `undefined`, for no question, when one of them is
+// `false`, which allows no value.
+function controlSchema(found: JsonSchemaDoc, schemaPtr: string, ctx: Ctx): JsonSchemaDoc | undefined {
+  const declared = declaredAt(schemaPtr, ctx);
+  for (const ptr of ctx.mergeLosses.get(schemaPtr) ?? []) reportDropped(ptr, ctx);
+  const property = /^(.*)\/properties\/([^/]+)$/.exec(schemaPtr);
+  if (property && (declaredAt(property[1], ctx)?.properties?.[decodeSegment(property[2])] as unknown) === false) return undefined;
+  const node = ctx.declaredNodes.get(schemaPtr);
+  if (!declared || node === undefined) return found;
+  const target = resolveRef(found, quietCtx(ctx));
+  if (target.remote) return found;
+  const own = conditionalSourcesOf(mergeAllOf(target.schema, schemaPtr, quietCtx(ctx)), schemaPtr);
+  return holdsSources(own, conditionalSourcesOf(declared, schemaPtr)) ? node : found;
+}
+
+// Whether `all` holds every schema of `own` that constrains anything.
+function holdsSources(own: ConditionalSource[], all: ConditionalSource[]): boolean {
+  return own.every((source) => !isPlainObject(source.schema) || all.some((other) => other.schema === source.schema));
+}
+
+// The property keys `schemas` declare so that a question can be made for them: in `properties`, in a
+// branch or a schema dependency, and in their `allOf`, `anyOf` and `oneOf` entries, local `$ref`s
+// followed. A `false` property allows no value, a branch's property its own `if` reads is not shown,
+// and neither is a schema dependency's own trigger. A branch no `if` gives (with no `if`, or the `then`
+// of an `if` that never holds, the `else` of one that always holds) declares nothing.
+function declaredKeys(schemas: JsonSchemaDoc[], ctx: Ctx): Set<string> {
+  const keys = new Set<string>();
+  const seen = new Set<object>();
+  const visit = (raw: unknown, exclude?: Set<string>): void => {
+    if (!isPlainObject(raw)) return;
+    const resolved = resolveRef(raw as JsonSchemaDoc, quietCtx(ctx));
+    const s = resolved.schema;
+    if (resolved.remote || seen.has(s)) return;
+    seen.add(s);
+    if (isPlainObject(s.properties)) {
+      for (const [key, sub] of Object.entries(s.properties)) if ((sub as unknown) !== false && !exclude?.has(key)) keys.add(key);
+    }
+    // A branch applies only under an `if`, and only when the `if` can give it.
+    if (s.if !== undefined) {
+      const always = constantIf(s.if);
+      if (always !== false) visit(s.then, ifReads(s.if));
+      if (always !== true) visit(s.else, ifReads(s.if));
+    }
+    for (const [trigger, dep] of Object.entries(s.dependentSchemas ?? {})) visit(dep, new Set([trigger]));
+    for (const [trigger, dep] of Object.entries(s.dependencies ?? {})) if (!Array.isArray(dep)) visit(dep, new Set([trigger]));
+    for (const sub of [...(s.allOf ?? []), ...(s.anyOf ?? []), ...(s.oneOf ?? [])]) visit(sub);
+  };
+  schemas.forEach((schema) => visit(schema));
+  return keys;
+}
+
+// Whether two values of the keyword `key` say the same: equal JSON, and `type`s that list the same
+// types (`["string"]` is `"string"`).
+function sameKeyword(key: string, a: unknown, b: unknown): boolean {
+  if (key !== "type") return sameJson(a, b);
+  const types = (t: unknown) => (Array.isArray(t) ? [...new Set(t.map(String))].sort() : [String(t)]);
+  return sameJson(types(a), types(b));
+}
+
+// Whether two schemas constrain alike: every keyword says the same, the annotations aside.
+function sameSchema(a: unknown, b: unknown): boolean {
+  if (!isPlainObject(a) || !isPlainObject(b)) return sameJson(a, b);
+  const keys = (s: Record<string, unknown>) => Object.keys(s).filter((k) => !ANNOTATIONS.has(k));
+  const ka = keys(a);
+  return ka.length === keys(b).length && ka.every((k) => Object.prototype.hasOwnProperty.call(b, k) && sameKeyword(k, a[k], b[k]));
+}
+
+// Whether two JSON values are equal.
+function sameJson(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((x, i) => sameJson(x, b[i]));
+  }
+  if (!isPlainObject(a) || !isPlainObject(b)) return false;
+  const keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every((k) => Object.prototype.hasOwnProperty.call(b, k) && sameJson(a[k], b[k]));
+}
 
 function typesConflict(a: JsonSchemaDoc, b: JsonSchemaDoc): boolean {
   const ta = effectiveType(a);
@@ -445,6 +746,12 @@ function effectiveType(s: JsonSchemaDoc): string | undefined {
   if (s.items) return "array";
   if (Array.isArray(s.enum) || hasConstComposition(s)) return "string";
   return undefined;
+}
+
+// Whether a schema is an object's, as `mapProperty` reads it.
+function isObjectSchema(s: JsonSchemaDoc): boolean {
+  const type = effectiveType(s);
+  return type === "object" || (type === undefined && !!s.properties);
 }
 
 function hasConstComposition(s: JsonSchemaDoc): boolean {
@@ -493,41 +800,165 @@ function readChoices(schema: JsonSchemaDoc, hint?: UiHint): { value: unknown, te
 
 // --- expression helpers -----------------------------------------------------
 
-function combineAnd(existing: string | undefined, cond: string): string {
-  return existing ? `(${existing}) and (${cond})` : cond;
-}
-
-/**
- * Build positive and negated SurveyJS expressions from an `if` subschema. Only
- * the provable subset is handled (`properties[k].const` and `properties[k].enum`,
- * ANDed across keys). Returns `undefined` when the `if` cannot be expressed --
- * the caller then flags ASSUMED_IF_THEN_ELSE instead of guessing a branch.
- */
+// Build positive and negated SurveyJS expressions from an `if` subschema. Only the provable subset
+// is handled: `properties[k].const` and `properties[k].enum`, and `required`, ANDed across keys.
+// `properties` constrains only the keys present (JSON Schema's `properties` keyword), so a key's
+// term holds while it is empty, unless the `if` lists it in `required`; a required key the `if`
+// does not constrain only has to be present. Returns `undefined` when the `if` cannot be expressed
+// -- the caller then flags ASSUMED_IF_THEN_ELSE instead of guessing a branch.
 function ifToExpression(ifSchema: JsonSchemaDoc, fields: ObjectFields): { pos: string, neg: string } | undefined {
-  const props = ifSchema.properties;
-  if (!props || Object.keys(props).length === 0) return undefined;
+  // Any other keyword constrains the object too, and is not read: such an `if` is not expressed.
+  // `type: "object"` holds for the form's data, which is an object.
+  for (const [key, value] of Object.entries(ifSchema)) {
+    if (key === "properties" || key === "required" || ANNOTATIONS.has(key)) continue;
+    if (key === "type" && (value === "object" || (Array.isArray(value) && value.includes("object")))) continue;
+    return undefined;
+  }
+  const props = isPlainObject(ifSchema.properties) ? ifSchema.properties as Record<string, JsonSchemaDoc> : {};
+  const required = new Set(Array.isArray(ifSchema.required) ? ifSchema.required.filter((k): k is string => typeof k === "string") : []);
+  const keys = new Set([...Object.keys(props), ...required]);
+  if (keys.size === 0) return undefined;
   const pos: string[] = [];
   const neg: string[] = [];
-  for (const [k, cond] of Object.entries(props)) {
-    // A property with no question has nothing to read, and a value that cannot be written as a
-    // literal cannot be compared: either makes the whole `if` inexpressible.
+  for (const k of keys) {
+    // A property with no question has nothing to read, and a value that cannot be compared exactly
+    // makes the whole `if` inexpressible.
     const ref = fields.ref(k);
     if (ref === undefined) return undefined;
-    if (cond && cond.const !== undefined) {
-      const lit = formatLiteral(cond.const);
-      if (lit === undefined) return undefined;
-      pos.push(`${ref} = ${lit}`);
-      neg.push(`${ref} <> ${lit}`);
-    } else if (cond && Array.isArray(cond.enum)) {
-      const lits = cond.enum.map((v) => formatLiteral(v));
-      if (lits.some((lit) => lit === undefined)) return undefined;
-      pos.push("(" + lits.map((lit) => `${ref} = ${lit}`).join(" or ") + ")");
-      neg.push("(" + lits.map((lit) => `${ref} <> ${lit}`).join(" and ") + ")");
-    } else {
-      return undefined;
+    if (!Object.prototype.hasOwnProperty.call(props, k)) {
+      if (!readsPresence(fields.values(k))) return undefined;
+      pos.push(`${ref} notempty`);
+      neg.push(`${ref} empty`);
+      continue;
     }
+    // A value the field's `type` excludes is never the value of valid data: it is not compared.
+    const allowed = ofType(propertyValues(props[k]), fields.type(k));
+    const optional = !required.has(k);
+    const lits = allowed && equalityLiterals(allowed, optional, fields.values(k));
+    if (!lits || (lits.length === 0 && !optional)) return undefined;
+    const eq = lits.map((lit) => `${ref} = ${lit}`);
+    const ne = lits.map((lit) => `${ref} <> ${lit}`);
+    if (optional) {
+      eq.unshift(`${ref} empty`);
+      ne.unshift(`${ref} notempty`);
+    }
+    pos.push(eq.length === 1 ? eq[0] : `(${eq.join(" or ")})`);
+    neg.push(ne.length === 1 ? ne[0] : `(${ne.join(" and ")})`);
   }
   return { pos: pos.join(" and "), neg: neg.join(" or ") };
+}
+
+// Whether survey-core's `{q} notempty` holds for exactly the values JSON Schema reads as present,
+// for a question that can hold `known`: no known value may be one survey-core reads as empty, such
+// as null or the empty text, which are values in JSON Schema. A question whose values are not
+// known is taken to hold no such value, as a cleared input holds no value in both; a type that
+// allows null makes null a known value (see `schemaValues`).
+function readsPresence(known: unknown[] | undefined): boolean {
+  return !(known ?? []).some((value) => surveyEmpty(value));
+}
+
+// The values an `if`'s property schema accepts when it is present, or `undefined` when it is not a
+// `const` or a non-empty `enum` alone: another keyword would be ignored, and `enum: []` accepts no
+// value, which a schema should not write (AJV's meta-schema refuses it). A `type` every value has
+// adds nothing.
+function propertyValues(cond: JsonSchemaDoc | undefined): unknown[] | undefined {
+  if (!isPlainObject(cond)) return undefined;
+  const values = cond.const !== undefined ? [cond.const] : Array.isArray(cond.enum) && cond.enum.length > 0 ? cond.enum : undefined;
+  if (!values || (cond.const !== undefined && cond.enum !== undefined)) return undefined;
+  for (const [key, value] of Object.entries(cond)) {
+    if (key === "const" || key === "enum" || ANNOTATIONS.has(key)) continue;
+    if (key === "type" && values.every((v) => hasJsonType(v, value))) continue;
+    return undefined;
+  }
+  return values;
+}
+
+// The `values` of a JSON Schema `type` (all of them with no `type`).
+function ofType(values: unknown[] | undefined, type: unknown): unknown[] | undefined {
+  return values && type !== undefined ? values.filter((value) => hasJsonType(value, type)) : values;
+}
+
+// Whether `value` has one of the JSON Schema `type`s in `type`.
+function hasJsonType(value: unknown, type: unknown): boolean {
+  const types = Array.isArray(type) ? type : [type];
+  return types.some((t) => {
+    if (t === "null") return value === null;
+    if (t === "integer") return Number.isInteger(value);
+    if (t === "number") return typeof value === "number";
+    if (t === "string" || t === "boolean") return typeof value === t;
+    return false;
+  });
+}
+
+// The values a property's schema allows, when they are known: its `const`, its `enum` (a null
+// included), a `oneOf`/`anyOf` of `const`s, or a boolean's two (and null, when the type allows it).
+// Of any other type that allows null, null is the one value known: survey-core reads it as empty,
+// where JSON Schema reads it as present, so a presence test or an `empty` term is not written on it.
+function schemaValues(schema: JsonSchemaDoc): unknown[] | undefined {
+  if (schema.const !== undefined) return [schema.const];
+  if (Array.isArray(schema.enum)) return [...schema.enum];
+  if (hasConstComposition(schema)) return (schema.oneOf ?? schema.anyOf)!.map((b) => b.const);
+  const nullable = schema.type === "null" || (Array.isArray(schema.type) && schema.type.includes("null"));
+  if (effectiveType(schema) === "boolean") return nullable ? [true, false, null] : [true, false];
+  return nullable ? [null] : undefined;
+}
+
+// The values the questions made on one value can hold, when they are known: each question's schema
+// (see `schemaValues`), or a selector's choices, together. A question whose values are not known (a
+// free text, a number) adds none. `undefined` when none is known.
+function knownValues(elements: SurveyJSONElement[], schemaOf: WeakMap<SurveyJSONElement, JsonSchemaDoc>): unknown[] | undefined {
+  const values: unknown[] = [];
+  for (const el of elements) {
+    const schema = schemaOf.get(el);
+    const own = schema ? schemaValues(schema)
+      : el.type === "boolean" ? [true, false]
+        : (el.type === "dropdown" || el.type === "radiogroup") && Array.isArray(el.choices)
+          ? el.choices.map((c) => (isPlainObject(c) && "value" in c ? c.value : c)) : undefined;
+    if (own) values.push(...own);
+  }
+  return values.length > 0 ? values : undefined;
+}
+
+// The `type` of the schema the first of `elements` that has one was made from.
+function schemaType(elements: SurveyJSONElement[], schemaOf: WeakMap<SurveyJSONElement, JsonSchemaDoc>): unknown {
+  for (const el of elements) {
+    const schema = schemaOf.get(el);
+    if (schema) return schema.type;
+  }
+  return undefined;
+}
+
+// The literals of a comparison of a question with the `allowed` values, one `{q} = <literal>` each,
+// so that survey-core's `=` holds for exactly the values JSON Schema's equality holds for: `const`
+// and `enum` compare strictly (AJV's `const` and `enum`), and survey-core reads texts trimmed and
+// without regard to case, a numeric text as a number, and "true" as a boolean. The values checked
+// are the question's `known` values, the `allowed` values themselves, and no value, which matches
+// when `optional` (and reads as `{q} empty` then) and does not otherwise. `undefined` when they
+// disagree, or a value cannot be written as a literal. survey-core does not read every text as
+// equal to itself: `{q} = '1,000'` is false when q is "1,000", as it reads the literal as text and
+// the value as a number, and so are '1,5' and '12,345'; checking the `allowed` values refuses
+// those. A null or an empty text is a value in JSON Schema and empty to survey-core. A question
+// whose values are not known (a free text, a number) is checked with no value and the `allowed`
+// values only (and null, when its type allows it), so survey-core still reads a text that differs
+// from a literal only in case, in surrounding spaces, or in how it writes a number, as equal to it,
+// and a text "1" or "0" as equal to `true` or `false` on a field whose type allows both texts and
+// booleans. An `allowed` value the field's `type` excludes is dropped before (see `ofType`).
+function equalityLiterals(allowed: unknown[], optional: boolean, known: unknown[] | undefined): string[] | undefined {
+  const literals: string[] = [];
+  const reads: unknown[] = [];
+  for (const value of allowed) {
+    const literal = isPrimitive(value) ? formatLiteral(value) : undefined;
+    if (literal === undefined) return undefined;
+    literals.push(literal);
+    reads.push(surveyLiteral(value));
+  }
+  for (const value of [undefined, ...(known ?? []), ...allowed]) {
+    if (value !== undefined && !isPrimitive(value)) return undefined;
+    const matches = value === undefined ? optional : allowed.some((a) => a === value);
+    const holds = (optional && surveyEmpty(value)) || reads.some((read) => surveyHolds("=", value, read));
+    if (matches !== holds) return undefined;
+  }
+  return literals;
 }
 
 // --- object walk ------------------------------------------------------------
@@ -555,35 +986,96 @@ function questionRef(key: string, state: WalkState): string | undefined {
 interface ObjectFields {
   // The expression reference to the question holding the property's value.
   ref(key: string): string | undefined;
+  // The values that question can hold, when they are known (see `knownValues`).
+  values(key: string): unknown[] | undefined;
   // The elements made for the property, which a branch's `required` marks.
   elements(key: string): SurveyJSONElement[];
-  // The element a branch's property shows, made when the object does not declare the property.
-  // Absent under JSONForms, which renders what its UI schema names and reads schema conditionals
-  // only to validate: a branch there gives `requiredIf` only.
-  shown?(key: string, sub: JsonSchemaDoc, sourcePtr: string): SurveyJSONElement | undefined;
+  // The `type` of the schema the property's question was made from, when it has one.
+  type(key: string): unknown;
+  // Whether a schema of the object declares the property: its `properties`, or a branch's. A key a
+  // JSONForms UI schema has no Control for is declared, as the UI schema leaves it out; under
+  // JSONForms an object Control's walk makes a question for every key its `properties` declare, and
+  // no branch makes one, so there a key is declared only when it has a question.
+  declares(key: string): boolean;
+  // Show the question of a branch's property when `cond` holds, or always with no `cond`: it is
+  // made when the object does not declare the property. A property several branches give is shown
+  // when any of them holds. False when another branch made the question from a different schema:
+  // one question cannot be both, so this branch's is not shown. Absent under JSONForms, which
+  // renders what its UI schema names and reads schema conditionals only to validate: a branch there
+  // gives `requiredIf` only.
+  show?(key: string, sub: JsonSchemaDoc, sourcePtr: string, cond: string | undefined): boolean;
+  // Show a question a branch shows also when `cond` holds (always, with no `cond`), as a branch
+  // requires it then. A question no branch shows is visible already.
+  reveal?(key: string, cond: string | undefined): void;
+  // Hide the question while a branch that declares the property `false` holds: it is visible only
+  // while each of `negations`, the negation of each such branch's condition, holds too. survey-core
+  // clears a hidden question's value when the survey completes. Absent under JSONForms, as `show` is.
+  forbid?(key: string, negations: string[]): void;
 }
 
 // The data walk's fields of an object: the questions in `state`.
-function walkFields(state: WalkState, targetPath: string, ctx: Ctx, depth: number): ObjectFields {
+function walkFields(state: WalkState, targetPath: string, ctx: Ctx, depth: number, declared: Set<string>, forbidden: Set<string>): ObjectFields {
   const fields: ObjectFields = {
-    ref: (key) => questionRef(key, state),
+    declares: (key) => (ctx.uiKind === "jsonforms" ? state.byProp.has(key) : declared.has(key)),
+    // A panel holds no value: `{panel} notempty` never holds, and `{panel} empty` always does, where
+    // an object is a value to JSON Schema. A condition on it is not written.
+    ref: (key) => (state.byProp.get(key)?.type === "panel" ? undefined : questionRef(key, state)),
+    values: (key) => {
+      const el = state.byProp.get(key);
+      return knownValues(el ? [el] : [], ctx.schemaOf);
+    },
     elements: (key) => {
       const el = state.byProp.get(key);
       return el ? [el] : [];
-    }
+    },
+    type: (key) => schemaType(state.byProp.has(key) ? [state.byProp.get(key)!] : [], ctx.schemaOf)
   };
   if (ctx.uiKind === "jsonforms") return fields;
-  fields.shown = (key, sub, sourcePtr) => {
+  // The branch schema each question a branch made was made from, the properties a branch shows, and
+  // those shown always.
+  const madeFrom = new Map<string, JsonSchemaDoc>();
+  const shown = new Set<string>();
+  const always = new Set<string>();
+  fields.show = (key, sub, sourcePtr, cond) => {
+    // A key a declaration makes `false` allows no value, whatever a branch declares.
+    if (forbidden.has(key)) return false;
     let el = state.byProp.get(key);
     if (!el) {
       // Branch introduces a property not in the base object -- materialise it.
       const created = mapProperty(key, sub, sourcePtr, `${targetPath}[${state.elements.length}]`, ctx, false, rjsfHint(childUi(state.ui, key), ctx), depth, state.refPrefix);
-      if (!created) return undefined;
+      if (!created) return true;
       el = created;
       state.elements.push(el);
       state.byProp.set(key, el);
+      madeFrom.set(key, sub);
+    } else if (madeFrom.has(key) && !sameSchema(madeFrom.get(key), sub)) {
+      return false;
     }
-    return el;
+    shown.add(key);
+    showWhen(el, key, cond);
+    return true;
+  };
+  fields.reveal = (key, cond) => {
+    const el = state.byProp.get(key);
+    if (el && shown.has(key)) showWhen(el, key, cond);
+  };
+  fields.forbid = (key, negations) => {
+    const el = state.byProp.get(key);
+    if (!el) return;
+    const terms = [...(typeof el.visibleIf === "string" ? [el.visibleIf] : []), ...new Set(negations)];
+    el.visibleIf = terms.length === 1 ? terms[0] : terms.map((term) => `(${term})`).join(" and ");
+  };
+  // The question is visible when `cond` holds, or always.
+  const showWhen = (el: SurveyJSONElement, key: string, cond: string | undefined) => {
+    if (always.has(key)) return;
+    if (cond !== undefined) {
+      addTerm(el, "visibleIf", cond);
+      // An `if` and its negation together hold always.
+      const terms = conditionTerms.get(el)?.get("visibleIf") ?? [];
+      if (!terms.some((term) => terms.includes(ctx.complements.get(term) ?? ""))) return;
+    }
+    always.add(key);
+    delete el.visibleIf;
   };
   return fields;
 }
@@ -616,12 +1108,26 @@ function walkObjectState(
   refPrefix: string
 ): WalkState {
   const merged = mergeAllOf(schema, sourcePtr, ctx);
+  reportFalseEntries(merged, sourcePtr, ctx);
   const state: WalkState = { elements: [], byProp: new Map(), refPrefix, ui: rjsfUi };
   const requiredSet = new Set(merged.required ?? []);
   const order = orderKeys(Object.keys(merged.properties ?? {}), rjsfUi ? rjsfOptions(rjsfUi).options.get("order")?.value : undefined);
+  // The conditionals of the schema and of each `allOf` entry, read once at each pointer (a JSONForms
+  // detail layout on the object may have read them).
+  const quiet = ctx.quietConditionalsAt === sourcePtr || ctx.readConditionals.has(sourcePtr);
+  const conditionals = quiet ? { ...ctx, report: quietReport } : ctx;
+  // A branch that applies always and declares a property `false` allows it no value, as a `false`
+  // declaration does; a declaration of the property it outweighs is reported at it.
+  const alwaysFalse = ctx.uiKind === "jsonforms" ? new Map<string, string>() : falseAlways(conditionalSourcesOf(merged, sourcePtr), ctx);
 
   for (const key of order) {
     const sub = merged.properties![key];
+    // `false` allows no value: no question can hold one.
+    if ((sub as unknown) === false) continue;
+    if (alwaysFalse.has(key)) {
+      conditionals.report.assumed(JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, alwaysFalse.get(key)!, "");
+      continue;
+    }
     const hint = rjsfHint(childUi(rjsfUi, key), ctx);
     const el = mapProperty(key, sub, `${sourcePtr}/properties/${key}`, `${targetPath}[${state.elements.length}]`, ctx, requiredSet.has(key), hint, depth, refPrefix);
     if (el) {
@@ -630,9 +1136,15 @@ function walkObjectState(
     }
   }
 
-  const fields = walkFields(state, targetPath, ctx, depth);
-  applyIfThenElse(merged, sourcePtr, ctx, fields);
-  applyDependencies(merged, sourcePtr, ctx, fields);
+  ctx.readConditionals.add(sourcePtr);
+  const sources = objectSources(merged, sourcePtr, conditionals);
+  // The keys a declaration makes `false`: no branch shows them, and a `required` on one is reported.
+  const forbidden = new Set([...Object.keys(merged.properties ?? {}).filter((key) => (merged.properties![key] as unknown) === false), ...alwaysFalse.keys()]);
+  const declared = declaredKeys(sources.map((source) => source.schema), ctx);
+  forbidden.forEach((key) => declared.delete(key));
+  const fields = walkFields(state, targetPath, ctx, depth, declared, forbidden);
+  reportFreeKeys(merged, sourcePtr, conditionals);
+  applyConditionals(sources.flatMap((source) => conditionalsOf(source.schema, source.ptr, conditionals, fields, true)), conditionals, fields);
   appendOneOfVariants(merged, sourcePtr, targetPath, ctx, state, "panel", depth);
 
   return state;
@@ -695,7 +1207,7 @@ function mapPropertyOptions(
   if (resolved.remote) {
     // Client-side converter does not fetch -- emit a bare text so the form still
     // builds, and raise the drop alarm.
-    reportRemoteRef(sourcePtr, targetPath, ctx);
+    reportRemoteRef(sourcePtr, targetPath, ctx, resolved.unresolved);
     const el: SurveyJSONElement = { type: "text", name: uniqueName(name, ctx) };
     applyTitleDesc(rawSchema, el, hint, ctx);
     if (required) el.isRequired = true;
@@ -707,6 +1219,7 @@ function mapPropertyOptions(
     return { type: "text", name: uniqueName(name, ctx) };
   }
   const schema = mergeAllOf(resolved.schema, sourcePtr, ctx);
+  reportFalseEntries(schema, sourcePtr, ctx);
   const type = effectiveType(schema);
 
   // Nested object -> panel (recurse). A discriminated oneOf inside is handled by
@@ -748,6 +1261,7 @@ function mapPropertyOptions(
   applyScalarMeta(schema, el, required, ctx, sourcePtr);
   if (hint.hidden) el.visible = false;
   if (schema.readOnly || hint.readOnly) el.readOnly = true;
+  ctx.schemaOf.set(el, schema);
   return el;
 }
 
@@ -818,10 +1332,63 @@ function mapObjectPanel(
     const state = walkObjectState(schema, sourcePtr, `${targetPath}.elements`, ctx, hint.ui, depth + 1, refPrefix);
     ctx.objectFields.set(panel, state.byProp);
     elements = state.elements;
+    if (elements.length === 0 && declaresNoKeys(schema)) ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, sourcePtr, targetPath);
   }
   if (elements.length > 0) panel.elements = elements;
   if (required) panel.isRequired = true;
+  // An optional object may be absent, and AJV checks nothing inside it then: each requirement of its
+  // fields holds only while it holds a value. A required one is there whenever the parent is.
+  else if (!hint.present) {
+    const refs = fieldRefs(elements, refPrefix);
+    if (refs.length > 0) {
+      requireWhilePresent(elements, refs, refPrefix, ctx);
+      ctx.presencePanels.add(panel);
+    }
+  }
   return panel;
+}
+
+// --- presence of an optional object -----------------------------------------------
+
+// The condition that an object holds a value: the question of one of its fields, `refs`, is not
+// empty. survey-core leaves a value out of the data when it is empty, so an object whose fields are
+// all empty is absent, as JSON Schema reads a missing key. `undefined` with no field.
+function presenceOf(refs: string[]): string | undefined {
+  const unique = [...new Set(refs)];
+  return unique.length === 0 ? undefined : unique.map((ref) => `${ref} notempty`).join(" or ");
+}
+
+// The references of the questions among `elements` and in the static panels among them. A dynamic
+// panel's rows are its own value.
+function fieldRefs(elements: SurveyJSONElement[], refPrefix: string, refs: string[] = []): string[] {
+  for (const el of elements) {
+    if (el.type === "panel") fieldRefs(Array.isArray(el.elements) ? el.elements as SurveyJSONElement[] : [], refPrefix, refs);
+    else if (el.type !== "html") refs.push(`{${refPrefix}${el.valueName ?? el.name}}`);
+  }
+  return refs;
+}
+
+// Hold the requirement of each of `elements`, and of the elements of the static panels among them, to
+// the presence of the object whose fields' questions `refs` name (see `presenceOf`): `isRequired`
+// becomes `requiredIf: <presence>`, and a `requiredIf` holds only while the presence does too. A
+// question's own value is left out of its presence: while it holds one, its requirement is met
+// anyway, so a field that is the object's only one is not required at all. An element or a panel's
+// fields already held to a presence that implies this one (see `Ctx.presenceElements`) are left as
+// they are.
+function requireWhilePresent(elements: SurveyJSONElement[], refs: string[], refPrefix: string, ctx: Ctx): void {
+  for (const el of elements) {
+    if (!ctx.presenceElements.has(el) && (el.isRequired === true || typeof el.requiredIf === "string")) {
+      const own = el.type === "panel" ? undefined : `{${refPrefix}${el.valueName ?? el.name}}`;
+      const presence = presenceOf(refs.filter((ref) => ref !== own));
+      if (el.isRequired === true) {
+        delete el.isRequired;
+        if (presence !== undefined) el.requiredIf = presence;
+      } else if (presence === undefined) delete el.requiredIf;
+      // A condition that a field of the object holds a value (a dependency's) implies the presence.
+      else if (!refs.some((ref) => el.requiredIf === `${ref} notempty`)) el.requiredIf = `(${presence}) and (${el.requiredIf})`;
+    }
+    if (el.type === "panel" && !ctx.presencePanels.has(el) && Array.isArray(el.elements)) requireWhilePresent(el.elements as SurveyJSONElement[], refs, refPrefix, ctx);
+  }
 }
 
 /** Map an array schema: enum items -> checkbox/tagbox; object items -> paneldynamic. */
@@ -834,10 +1401,20 @@ function mapArray(
   required: boolean,
   hint: UiHint,
   depth: number
-): SurveyJSONElement {
-  const itemsResolved = schema.items ? resolveRef(schema.items, ctx) : { schema: {} as JsonSchemaDoc };
+): SurveyJSONElement | null {
+  // `items: false` allows no item: the array can only be empty, and no question is made for it.
+  if ((schema.items as unknown) === false) {
+    ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_KEYWORD, `${sourcePtr}/items`, "");
+    return null;
+  }
+  // A tuple-form `items` (an array of schemas) types each position on its own. JSONForms leaves it to
+  // no array renderer (`isObjectArray`: "we don't care about tuples") and RJSF renders fixed fields
+  // (`ArrayField`, `isFixedItems`); the tagbox takes any text at any position.
+  const tuple = Array.isArray(schema.items);
+  if (tuple) ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_KEYWORD, `${sourcePtr}/items`, targetPath);
+  const itemsResolved = schema.items && !tuple ? resolveRef(schema.items, ctx) : { schema: {} as JsonSchemaDoc };
   const items = itemsResolved.remote ? {} : mergeAllOf(itemsResolved.schema, `${sourcePtr}/items`, ctx);
-  if (itemsResolved.remote) reportRemoteRef(`${sourcePtr}/items`, targetPath, ctx);
+  if (itemsResolved.remote) reportRemoteRef(`${sourcePtr}/items`, targetPath, ctx, itemsResolved.unresolved);
 
   const itemChoices = readChoices(items, hint);
   const qname = uniqueName(name, ctx);
@@ -859,10 +1436,26 @@ function mapArray(
     // template is read from its own row, as `{panel.k}`; a nested array starts its own rows.
     const el: SurveyJSONElement = { type: "paneldynamic", name: qname };
     applyTitleDesc(schema, el, hint, ctx);
-    const template = hint.template
-      ? hint.template(items, `${targetPath}.templateElements`)
-      : walkObject(items, `${sourcePtr}/items`, `${targetPath}.templateElements`, ctx, childUi(hint.ui, "items"), depth + 1, "panel.");
+    let template: SurveyJSONElement[];
+    if (hint.template) {
+      template = hint.template(items, `${targetPath}.templateElements`);
+    } else {
+      const state = walkObjectState(items, `${sourcePtr}/items`, `${targetPath}.templateElements`, ctx, childUi(hint.ui, "items"), depth + 1, "panel.");
+      template = state.elements;
+      // A data path in the row goes through the questions the walk made, and a nested object's panel.
+      hint.rowKey = (path) => {
+        let el: SurveyJSONElement | undefined;
+        let fields: Map<string, SurveyJSONElement> | undefined = state.byProp;
+        for (const key of path) {
+          el = fields?.get(key);
+          if (!el) return undefined;
+          fields = ctx.objectFields.get(el);
+        }
+        return el && el.type !== "panel" ? (el.valueName ?? el.name) as string : undefined;
+      };
+    }
     if (template.length > 0) el.templateElements = template;
+    else if (!hint.template && declaresNoKeys(items)) ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, `${sourcePtr}/items`, targetPath);
     if (hint.addable === false) {
       el.allowAddPanel = false;
       consumeOption(hint, "addable");
@@ -879,12 +1472,56 @@ function mapArray(
   }
 
   for (const key of composed) ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_KEYWORD, `${sourcePtr}/items/${key}`, targetPath);
-  // Array of primitives without an enum -> tagbox (free-form multi value). No
-  // predefined choices; the user can add them after import.
-  const el: SurveyJSONElement = { type: "tagbox", name: qname };
+  reportItemConstraints(items, `${sourcePtr}/items`, composed, targetPath, ctx);
+  // Array of primitives without an enum -> tagbox (free-form multi value). No predefined choices; the
+  // respondent types the items, so custom choices are allowed (without them survey-core takes the items
+  // as unknown values: a required tagbox shows an error and completion clears them). It stores the
+  // items as text; `reportItemConstraints` reports an item `type` that allows none (JSONForms'
+  // `MaterialTableControl` cells and RJSF's `NumberField` / `asNumber` store numbers).
+  const el: SurveyJSONElement = { type: "tagbox", name: qname, allowCustomChoices: true };
   applyTitleDesc(schema, el, hint, ctx);
   applyArrayMeta(schema, el, required, hint);
   return el;
+}
+
+// Report what the items schema `items` at `itemsPtr` constrains beyond a text, each keyword at its own
+// pointer (an `allOf` entry's, for one an entry sets): a tagbox takes any text as an item. Annotations
+// and a `type` that allows a text constrain nothing a tagbox loses, and the `composed` keywords are
+// reported already.
+function reportItemConstraints(items: JsonSchemaDoc, itemsPtr: string, composed: string[], targetPath: string, ctx: Ctx): void {
+  for (const source of conditionalSourcesOf(items, itemsPtr)) {
+    if (!isPlainObject(source.schema)) continue;
+    for (const [key, value] of Object.entries(source.schema)) {
+      if (UNCONSTRAINING.has(key) || key === "allOf" || key === "$ref" || composed.includes(key)) continue;
+      if (key === "type" && (value === "string" || (Array.isArray(value) && value.includes("string")))) continue;
+      ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_KEYWORD, `${source.ptr}/${key}`, targetPath);
+    }
+  }
+}
+
+// Whether an object schema declares none of its keys: no `properties`, and no `oneOf` or `anyOf`
+// whose branches could. Its keys are free (`additionalProperties`, `patternProperties`, or any), and
+// no question holds them; JSONForms (`generateUISchema`) and RJSF (`ObjectField`) render an empty
+// group, RJSF with an "Add" button when either keyword is set (`canExpand`).
+function declaresNoKeys(schema: JsonSchemaDoc): boolean {
+  return !(isPlainObject(schema.properties) && Object.keys(schema.properties).length > 0) && !schema.oneOf && !schema.anyOf;
+}
+
+// Report the `additionalProperties` and `patternProperties` that let an object with `properties`
+// hold keys it does not declare, at each schema (the object, or an `allOf` entry) that sets them: no
+// question holds those keys. RJSF lets them be added (`canExpand`). An object that declares no keys
+// is reported as a whole (`declaresNoKeys`).
+function reportFreeKeys(merged: JsonSchemaDoc, sourcePtr: string, ctx: Ctx): void {
+  if (declaresNoKeys(merged)) return;
+  for (const source of conditionalSourcesOf(merged, sourcePtr)) {
+    const { additionalProperties, patternProperties } = source.schema;
+    if (additionalProperties !== undefined && additionalProperties !== false) {
+      ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, `${source.ptr}/additionalProperties`, "");
+    }
+    if (isPlainObject(patternProperties) && Object.keys(patternProperties).length > 0) {
+      ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, `${source.ptr}/patternProperties`, "");
+    }
+  }
 }
 
 // The composition keywords (`anyOf`, `oneOf`) through which array items with no properties of their
@@ -983,77 +1620,520 @@ function readBound(
 
 // --- if/then/else -----------------------------------------------------------
 
-function applyIfThenElse(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, fields: ObjectFields): void {
-  if (!schema.if) return;
-  if (!fields.shown && !branchRequires(schema)) return;
-  const expr = ifToExpression(schema.if, fields);
-  if (!expr) {
-    // Cannot express the condition -- do not guess a branch.
-    ctx.report.assumed(JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, `${sourcePtr}/if`, "");
-    return;
+// A branch of a schema conditional, which holds when `cond` does (always, with no `cond`): a `then`
+// or `else`, a schema dependency, a property dependency's `required`, or a schema's own `required`.
+// `read` holds the keys its condition reads, which its `properties` do not hide; `code` reports a
+// property it cannot show, and `undeclared` a key it requires that no schema declares.
+interface Branch {
+  schema: JsonSchemaDoc;
+  cond: string | undefined;
+  // The negation of `cond`.
+  neg?: string;
+  ptr: string;
+  code: string;
+  read?: Set<string>;
+  // Where the `required` list is: `<ptr>/required`, or the property dependency's own pointer.
+  requiredPtr?: string;
+  // The pointer of each property's and each required key's declaration, when the branch was merged
+  // from several schemas (see `BranchShape`).
+  pointers?: Map<string, string>;
+  requiredPointers?: Map<string, string>;
+  // The conditions of the branches a nested branch sits in: it holds only while each of them does.
+  within?: string[];
+  undeclared?: (ptr: string) => void;
+}
+
+// A schema conditional (an `if`, a dependency, or a schema's own `required`): the keys its condition
+// reads, the keys its branches show, and `resolve`, which reads the condition and gives the branches.
+// The condition is read once the questions it reads are made, as a branch can show one.
+interface Conditional {
+  reads: string[];
+  shows: Set<string>;
+  resolve(): Branch[];
+}
+
+// The conditionals of `schema`, found at `sourcePtr`: its `if`/`then`/`else` and dependencies, and,
+// with `required`, its own `required`.
+function conditionalsOf(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, fields: ObjectFields, required: boolean): Conditional[] {
+  const units = [...ifConditionals(schema, sourcePtr, ctx, fields), ...dependencyConditionals(schema, sourcePtr, ctx, fields)];
+  if (required) units.push(...requiredConditionals(schema, sourcePtr, ctx));
+  return units;
+}
+
+// The keys an `if` reads: those its `properties` constrain and its `required` lists.
+function ifReads(ifSchema: unknown): Set<string> {
+  if (!isPlainObject(ifSchema)) return new Set();
+  return new Set([...Object.keys(isPlainObject(ifSchema.properties) ? ifSchema.properties : {}),
+    ...(Array.isArray(ifSchema.required) ? ifSchema.required.filter((k): k is string => typeof k === "string") : [])]);
+}
+
+// The conditional of `schema`'s `if`, which reports the `if` when it cannot be expressed. Its branches
+// are read quietly for the keys they read and show, and again when the conditional is resolved, so
+// that what they lose is reported only when they apply.
+function ifConditionals(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, fields: ObjectFields): Conditional[] {
+  if (schema.if === undefined) return [];
+  const code = JsonSchemaCodes.ASSUMED_IF_THEN_ELSE;
+  // AJV takes `then` for every value when the `if` holds for every value (`true`, or a schema that
+  // constrains nothing), and `else` when it holds for none (`false`): that branch applies always.
+  const always = constantIf(schema.if);
+  const shapes = (c: Ctx) => ({
+    then: always === false ? undefined : branchShape(schema.then, `${sourcePtr}/then`, c),
+    else: always === true ? undefined : branchShape(schema.else, `${sourcePtr}/else`, c)
+  });
+  const quiet = shapes(quietCtx(ctx));
+  if (!fields.show && !shapeMatters(quiet.then) && !shapeMatters(quiet.else)) return [];
+  if (always !== undefined) {
+    const key = always ? "then" : "else";
+    return [{ reads: [...shapeReads(quiet[key])], shows: shapeShows(quiet[key], new Set()), resolve: () => {
+      const shape = shapes(ctx)[key];
+      return shape ? shapeBranches(shape, undefined, undefined, new Set(), code, ctx, fields) : [];
+    } }];
   }
-  applyBranch(schema.then, expr.pos, `${sourcePtr}/then`, fields);
-  applyBranch(schema.else, expr.neg, `${sourcePtr}/else`, fields);
+  const ifSchema = schema.if;
+  // A branch's `properties` only constrains a key the `if` reads: it is not hidden by its own value.
+  const read = ifReads(ifSchema);
+  return [{
+    reads: [...new Set([...read, ...shapeReads(quiet.then), ...shapeReads(quiet.else)])],
+    shows: shapeShows(quiet.else, read, shapeShows(quiet.then, read)),
+    resolve: () => {
+      const expr = isPlainObject(ifSchema) ? ifToExpression(ifSchema, fields) : undefined;
+      if (!expr) {
+        // Cannot express the condition -- do not guess a branch.
+        ctx.report.assumed(code, `${sourcePtr}/if`, "");
+        return [];
+      }
+      ctx.complements.set(expr.pos, expr.neg);
+      ctx.complements.set(expr.neg, expr.pos);
+      const real = shapes(ctx);
+      return [...(real.then ? shapeBranches(real.then, expr.pos, expr.neg, read, code, ctx, fields) : []),
+        ...(real.else ? shapeBranches(real.else, expr.neg, expr.pos, read, code, ctx, fields) : [])];
+    }
+  }];
 }
 
-// Whether `then` or `else` requires a property. Under JSONForms a branch gives only its `required`,
-// so an `if` whose branches require nothing has nothing to express, and loses nothing.
-function branchRequires(schema: JsonSchemaDoc): boolean {
-  return [schema.then, schema.else].some((branch) => Array.isArray(branch?.required) && branch.required.length > 0);
+// --- branch shapes ----------------------------------------------------------
+
+// Keywords that constrain no object: the annotations, and a resource's identity and definitions.
+const UNCONSTRAINING = new Set<string>(["$id", "$schema", "$anchor", "$defs", "definitions", ...ANNOTATIONS]);
+// The keywords of a branch the conditionals read, or that constrain nothing: `properties` and
+// `required`, an `allOf`, which is merged, a nested `if` with its `then` and `else`, the annotations,
+// and a resource's identity and definitions. A `type` that allows an object holds for the form's data.
+const BRANCH_KEYWORDS = new Set<string>(["properties", "required", "allOf", "if", "then", "else", ...UNCONSTRAINING]);
+
+// A then/else/dependency branch as the conditionals read it. `schema` is the branch with its `$ref`
+// followed and its `allOf` merged, as an object's own schema is (`mergeAllOf`), for its `properties`
+// and `required`; `properties` and `required` map each key to the pointer of its first declaration (of
+// a `false` one, when a declaration is `false`). `nested` holds the `if`s of the branch and of its
+// `allOf` entries, which apply while the branch holds. `lost` holds the pointers of what is not
+// translated: a keyword outside `BRANCH_KEYWORDS` or beside the branch's `$ref`, and a `false` branch
+// or `allOf` entry, which no object meets while the branch holds; `remote`, those of a `$ref` the
+// converter cannot follow, and whether it names nothing in the document (see `resolveRef`).
+interface BranchShape {
+  schema: JsonSchemaDoc;
+  ptr: string;
+  properties: Map<string, string>;
+  required: Map<string, string>;
+  nested: NestedIf[];
+  lost: string[];
+  remote: { ptr: string, unresolved: boolean }[];
 }
 
-// Apply a `then`/`else` branch: its `properties` become `visibleIf: <cond>` on the matching
-// questions (creating them if the branch introduces new ones), except under JSONForms, and its
-// `required` become `requiredIf: <cond>`.
-function applyBranch(branch: JsonSchemaDoc | undefined, cond: string, sourcePtr: string, fields: ObjectFields): void {
-  if (!branch) return;
-  if (fields.shown) {
-    for (const [key, sub] of Object.entries(branch.properties ?? {})) {
-      const el = fields.shown(key, sub, `${sourcePtr}/properties/${key}`);
-      if (el) el.visibleIf = combineAnd(typeof el.visibleIf === "string" ? el.visibleIf : undefined, cond);
+// An `if` inside a branch, in the schema at `ptr`: the keys it reads, and the shapes of its branches.
+// `unread` marks one past the branch budget (see `MAX_BRANCH_SHAPES`), whose branches are not read.
+interface NestedIf {
+  ifSchema: unknown;
+  ptr: string;
+  read: Set<string>;
+  then?: BranchShape;
+  else?: BranchShape;
+  unread?: boolean;
+}
+
+// How many branch schemas one top-level branch reads, nested ones included. Branches that name a
+// schema along many paths (`then` and `else` both a `$ref` to the next `if`) double at each level;
+// past the budget a nested `if` is reported, and nothing of it is applied.
+// Each branch schema read costs one: a chain of `then`s one per level, but an `if` with both a `then` and
+// an `else` two, so a branch holding more than 32 such `if`s side by side is reported past the 32nd.
+const MAX_BRANCH_SHAPES = 64;
+
+// The shape of the branch `raw` at `ptr`; `undefined` for a branch that constrains nothing: absent,
+// `true`, or one that leads back to a branch `path` holds, as that branch applies already whenever
+// this one does.
+function branchShape(raw: unknown, ptr: string, ctx: Ctx, path: Set<object> = new Set(), budget = { left: MAX_BRANCH_SHAPES }): BranchShape | undefined {
+  const shape: BranchShape = { schema: {}, ptr, properties: new Map(), required: new Map(), nested: [], lost: [], remote: [] };
+  budget.left--;
+  if (raw === false) {
+    shape.lost.push(ptr);
+    return shape;
+  }
+  if (!isPlainObject(raw)) return undefined;
+  // The `$ref` is followed, and a keyword beside it that constrains the object is not read.
+  if (typeof raw.$ref === "string") for (const key of Object.keys(raw)) if (key !== "$ref" && !UNCONSTRAINING.has(key)) shape.lost.push(`${ptr}/${key}`);
+  const resolved = resolveRef(raw as JsonSchemaDoc, ctx);
+  if (resolved.remote) {
+    shape.remote.push({ ptr, unresolved: !!resolved.unresolved });
+    return shape;
+  }
+  if (path.has(resolved.schema)) return undefined;
+  const inner = new Set(path).add(resolved.schema);
+  shape.schema = mergeAllOf(resolved.schema, ptr, ctx);
+  const forbidden = new Set<string>();
+  for (const source of conditionalSourcesOf(shape.schema, ptr)) {
+    const s = source.schema;
+    // A `false` entry of the branch's `allOf` allows no object.
+    if (!isPlainObject(s)) {
+      if ((s as unknown) === false) shape.lost.push(source.ptr);
+      continue;
+    }
+    for (const [key, value] of Object.entries(s)) {
+      if (!BRANCH_KEYWORDS.has(key) && !(key === "type" && allowsObject(value))) shape.lost.push(`${source.ptr}/${key}`);
+    }
+    for (const [key, sub] of Object.entries(isPlainObject(s.properties) ? s.properties : {})) {
+      const isFalse = (sub as unknown) === false;
+      if (!shape.properties.has(key) || (isFalse && !forbidden.has(key))) shape.properties.set(key, `${source.ptr}/properties/${key}`);
+      if (isFalse) forbidden.add(key);
+    }
+    (Array.isArray(s.required) ? s.required : []).forEach((key, i) => {
+      if (typeof key === "string" && !shape.required.has(key)) shape.required.set(key, `${source.ptr}/required/${i}`);
+    });
+    if (s.if === undefined) continue;
+    if (budget.left <= 0) {
+      shape.nested.push({ ifSchema: s.if, ptr: source.ptr, read: ifReads(s.if), unread: true });
+      continue;
+    }
+    shape.nested.push({ ifSchema: s.if, ptr: source.ptr, read: ifReads(s.if),
+      then: branchShape(s.then, `${source.ptr}/then`, ctx, inner, budget), else: branchShape(s.else, `${source.ptr}/else`, ctx, inner, budget) });
+  }
+  return shape;
+}
+
+// The branches of a nested `if` that can apply: both, or the one a constant `if` gives (see `constantIf`).
+function nestedBranches(nested: NestedIf): (BranchShape | undefined)[] {
+  const always = constantIf(nested.ifSchema);
+  return always === undefined ? [nested.then, nested.else] : [always ? nested.then : nested.else];
+}
+
+// Whether a branch gives anything under JSONForms, where a branch gives only its `required`: a
+// required key, a `false` property, or a loss to report; itself or a nested branch.
+function shapeMatters(shape: BranchShape | undefined): boolean {
+  if (!shape) return false;
+  return shape.required.size > 0 || shape.lost.length > 0 || shape.remote.length > 0
+    || Object.values(shape.schema.properties ?? {}).some((sub) => (sub as unknown) === false)
+    || shape.nested.some((nested) => nested.unread || nestedBranches(nested).some(shapeMatters));
+}
+
+// The keys the nested `if`s of `shape` read.
+function shapeReads(shape: BranchShape | undefined, keys = new Set<string>()): Set<string> {
+  for (const nested of shape?.nested ?? []) {
+    if (constantIf(nested.ifSchema) === undefined) nested.read.forEach((key) => keys.add(key));
+    nestedBranches(nested).forEach((branch) => shapeReads(branch, keys));
+  }
+  return keys;
+}
+
+// The keys the `properties` of `shape` and of its nested branches show, but those their conditions read.
+function shapeShows(shape: BranchShape | undefined, read: Set<string>, keys = new Set<string>()): Set<string> {
+  if (!shape) return keys;
+  for (const key of Object.keys(shape.schema.properties ?? {})) if (!read.has(key)) keys.add(key);
+  for (const nested of shape.nested) {
+    const both = constantIf(nested.ifSchema) === undefined ? new Set([...read, ...nested.read]) : read;
+    nestedBranches(nested).forEach((branch) => shapeShows(branch, both, keys));
+  }
+  return keys;
+}
+
+// The branches `shape` gives while `cond` holds (always, with no `cond`); `neg` is its negation, and
+// `read` holds the keys the conditions read. They are the shape itself, and the branches of each
+// nested `if`, which hold while both its condition and `cond` do. What the shape does not translate
+// is reported with `code`, and so is a nested `if` that cannot be expressed, of which nothing is
+// applied. Under JSONForms such an `if` is reported only when its branches give anything there.
+function shapeBranches(shape: BranchShape, cond: string | undefined, neg: string | undefined, read: Set<string>, code: string, ctx: Ctx, fields: ObjectFields,
+  within: string[] = []): Branch[] {
+  for (const ptr of shape.lost) ctx.report.assumed(code, ptr, "");
+  for (const { ptr, unresolved } of shape.remote) if (!ctx.remoteRefs.has(ptr)) reportRemoteRef(ptr, "", ctx, unresolved);
+  const branches: Branch[] = [{ schema: shape.schema, cond, neg, ptr: shape.ptr, code, read, pointers: shape.properties, requiredPointers: shape.required, within }];
+  const inner = cond === undefined ? within : [...within, cond];
+  for (const nested of shape.nested) {
+    if (nested.unread) {
+      ctx.report.assumed(code, `${nested.ptr}/if`, "");
+      continue;
+    }
+    if (constantIf(nested.ifSchema) !== undefined) {
+      for (const branch of nestedBranches(nested)) if (branch) branches.push(...shapeBranches(branch, cond, neg, read, code, ctx, fields, within));
+      continue;
+    }
+    if (fields.show ? !nested.then && !nested.else : !nestedBranches(nested).some(shapeMatters)) continue;
+    const expr = isPlainObject(nested.ifSchema) ? ifToExpression(nested.ifSchema, fields) : undefined;
+    if (!expr) {
+      ctx.report.assumed(code, `${nested.ptr}/if`, "");
+      continue;
+    }
+    const both = new Set([...read, ...nested.read]);
+    for (const [branch, pos, negation] of [[nested.then, expr.pos, expr.neg], [nested.else, expr.neg, expr.pos]] as const) {
+      if (!branch) continue;
+      // Both conditions hold, or either negation does.
+      const c = cond === undefined ? pos : `(${cond}) and (${pos})`;
+      const n = cond === undefined ? negation : neg === undefined ? undefined : `(${neg}) or (${negation})`;
+      if (n !== undefined) {
+        ctx.complements.set(c, n);
+        ctx.complements.set(n, c);
+      }
+      branches.push(...shapeBranches(branch, c, n, both, code, ctx, fields, inner));
     }
   }
-  requireWhen(cond, branch.required ?? [], fields);
+  return branches;
+}
+
+// What an `if` gives for every value: true when it holds for every value, false when for none,
+// `undefined` otherwise. AJV reads `true`, a schema with only annotations, `type: "object"` (which
+// the form's data has), `properties` each of which holds for every value, and an empty `required`,
+// as holding always, and `false`, a `not` of a schema that always holds, or a `type` the form's
+// data does not have, as never.
+function constantIf(ifSchema: unknown): boolean | undefined {
+  if (holdsAlways(ifSchema, true)) return true;
+  if (holdsNever(ifSchema, true)) return false;
+  return undefined;
+}
+
+// Whether a schema holds for every value; for every object, when `object`.
+function holdsAlways(schema: unknown, object: boolean): boolean {
+  if (schema === true) return true;
+  if (!isPlainObject(schema)) return false;
+  return Object.entries(schema).every(([key, value]) => ANNOTATIONS.has(key)
+    || (key === "type" && object && allowsObject(value))
+    || (key === "properties" && isPlainObject(value) && Object.values(value).every((sub) => holdsAlways(sub, false)))
+    || (key === "required" && Array.isArray(value) && value.length === 0)
+    || (key === "not" && holdsNever(value, object)));
+}
+
+// Whether a schema holds for no value; for no object, when `object`: a `type` without "object".
+function holdsNever(schema: unknown, object: boolean): boolean {
+  if (schema === false) return true;
+  if (!isPlainObject(schema)) return false;
+  return (schema.not !== undefined && holdsAlways(schema.not, object)) || (object && schema.type !== undefined && !allowsObject(schema.type));
+}
+
+// Whether a `type` keyword allows an object.
+function allowsObject(type: unknown): boolean {
+  return type === "object" || (Array.isArray(type) && type.includes("object"));
+}
+
+// The properties a branch that applies always (of an `if` that holds for every value or for none)
+// declares `false` in `sources`, itself or a nested branch that applies always too, each with the
+// pointer of the first such declaration.
+function falseAlways(sources: ConditionalSource[], ctx: Ctx): Map<string, string> {
+  const keys = new Map<string, string>();
+  const collect = (shape: BranchShape | undefined): void => {
+    if (!shape) return;
+    for (const [key, sub] of Object.entries(shape.schema.properties ?? {})) {
+      if ((sub as unknown) === false && !keys.has(key)) keys.set(key, shape.properties.get(key) ?? `${shape.ptr}/properties/${key}`);
+    }
+    for (const nested of shape.nested) if (constantIf(nested.ifSchema) !== undefined) nestedBranches(nested).forEach(collect);
+  };
+  for (const { schema, ptr } of sources) {
+    const always = schema.if === undefined ? undefined : constantIf(schema.if);
+    if (always === undefined) continue;
+    collect(branchShape(always ? schema.then : schema.else, `${ptr}/${always ? "then" : "else"}`, quietCtx(ctx)));
+  }
+  return keys;
+}
+
+// A schema's own `required`, a branch that holds always: a key only a branch shows is shown always,
+// as JSON Schema demands it always. A key no schema declares has no question, and is reported.
+function requiredConditionals(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx): Conditional[] {
+  if (!Array.isArray(schema.required) || schema.required.length === 0) return [];
+  const branch: Branch = { schema: { required: schema.required }, cond: undefined, ptr: sourcePtr, code: JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT,
+    undeclared: (ptr) => ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, ptr, "") };
+  return [{ reads: [], shows: new Set(), resolve: () => [branch] }];
+}
+
+// Apply `units`. Each condition is read once the questions it reads are made: a unit waits while a
+// key it reads has no question and another unit can still show it (a cycle is read as it stands).
+// A unit's branches show their `properties` when it is read (see `ObjectFields.show`), except under
+// JSONForms. Then every branch's `required` become `requiredIf: <cond>`, or `isRequired` with no
+// condition. JSON Schema demands a value whenever a key is required, so a question a branch shows is
+// also shown when another branch requires it. The order of the conditionals does not change the
+// result. A property one question cannot show for its branch, as another branch made it from a
+// different schema, is reported with the branch's code, and is not shown by a branch that requires
+// it either.
+function applyConditionals(units: Conditional[], ctx: Ctx, fields: ObjectFields): void {
+  const branches: Branch[] = [];
+  const refused = new Map<Branch, Set<string>>();
+  // For each key a branch declares `false`, the branches that do (`self`: a key the branch's own
+  // condition reads); and the branches each key is required by.
+  const forbids = new Map<string, { branch: Branch, self: boolean }[]>();
+  const requiredBy = new Map<string, Branch[]>();
+  let pending = [...units];
+  const waits = (unit: Conditional) => !!fields.show
+    && unit.reads.some((key) => fields.elements(key).length === 0 && pending.some((other) => other !== unit && other.shows.has(key)));
+  while(pending.length > 0) {
+    const unit = pending.find((u) => !waits(u)) ?? pending[0];
+    pending = pending.filter((u) => u !== unit);
+    for (const branch of unit.resolve()) {
+      branches.push(branch);
+      for (const [key, sub] of Object.entries(isPlainObject(branch.schema.properties) ? branch.schema.properties : {})) {
+        const self = !!branch.read?.has(key);
+        // On the data walk a branch that applies always outweighs the property's declarations (see
+        // `falseAlways`); under JSONForms it is reported with the others.
+        if ((sub as unknown) === false) {
+          if (branch.cond !== undefined || !fields.forbid) {
+            if (!forbids.has(key)) forbids.set(key, []);
+            forbids.get(key)!.push({ branch, self });
+          }
+          continue;
+        }
+        if (self || !fields.show) continue;
+        const ptr = propertyPointer(branch, key);
+        if (fields.show(key, sub, ptr, branch.cond)) continue;
+        ctx.report.assumed(branch.code, ptr, "");
+        if (!refused.has(branch)) refused.set(branch, new Set());
+        refused.get(branch)!.add(key);
+      }
+    }
+  }
+  for (const branch of branches) {
+    const keys = Array.isArray(branch.schema.required) ? branch.schema.required.filter((k): k is string => typeof k === "string") : [];
+    // A key no schema of the object declares has no question to require, and none is made for it.
+    keys.forEach((key, i) => {
+      if (fields.elements(key).length > 0 || fields.declares(key)) return;
+      const ptr = branch.requiredPointers?.get(key) ?? `${branch.requiredPtr ?? `${branch.ptr}/required`}/${i}`;
+      if (branch.undeclared) branch.undeclared(ptr);
+      else ctx.report.assumed(branch.code, ptr, "");
+    });
+    if (branch.cond === undefined) requireAlways(keys, fields);
+    else requireWhen(branch.cond, keys, fields);
+    for (const key of keys) {
+      if (!refused.get(branch)?.has(key)) fields.reveal?.(key, branch.cond);
+      if (!requiredBy.has(key)) requiredBy.set(key, []);
+      requiredBy.get(key)!.push(branch);
+    }
+  }
+  // A key a branch declares `false` may have no value while the branch holds: its question is hidden
+  // then, and survey-core clears it. Under JSONForms the Control stays, and the branch is reported.
+  // While a branch that forbids the key holds, one that requires it under the same condition, always,
+  // or under a condition one of them is nested in, cannot be met: no value is valid, which the form
+  // cannot say, and the branch is reported.
+  // A key the branch's own condition reads would hide on its own value, and is reported too.
+  for (const [key, list] of forbids) {
+    if (fields.elements(key).length === 0) continue;
+    const required = requiredBy.get(key) ?? [];
+    const hides: string[] = [];
+    for (const { branch, self } of list) {
+      const exact = !!fields.forbid && !self && branch.neg !== undefined;
+      if (exact) hides.push(branch.neg!);
+      if (!exact || required.some((other) => holdTogether(branch, other))) ctx.report.assumed(branch.code, propertyPointer(branch, key), "");
+    }
+    if (hides.length > 0) fields.forbid?.(key, hides);
+  }
+}
+
+// Whether two branches hold together whenever one of them holds: one holds always, both under one
+// condition, or one is nested in a branch of the other's condition.
+function holdTogether(a: Branch, b: Branch): boolean {
+  if (a.cond === undefined || b.cond === undefined || a.cond === b.cond) return true;
+  return !!a.within?.includes(b.cond) || !!b.within?.includes(a.cond);
+}
+
+// The pointer of the declaration of the property `key` in `branch`.
+function propertyPointer(branch: Branch, key: string): string {
+  return branch.pointers?.get(key) ?? `${branch.ptr}/properties/${key}`;
 }
 
 // --- dependencies -----------------------------------------------------------
 
-// Every dependency is reported `assumed`. One whose trigger has no question has nothing to read,
-// so it also adds no condition, and a schema dependency's properties are not created.
-function applyDependencies(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, fields: ObjectFields): void {
+// The conditionals of `schema`'s dependencies. Every dependency is reported `assumed`. One whose
+// trigger has no question has nothing to read, so it gives no branch, and a schema dependency's
+// properties are not created. A schema dependency's properties only constrain its trigger, which is
+// not hidden by its own presence.
+function dependencyConditionals(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, fields: ObjectFields): Conditional[] {
+  const units: Conditional[] = [];
+  const code = JsonSchemaCodes.ASSUMED_DEPENDENCIES;
+  // A property dependency: the keys it lists are required while the trigger is there.
+  const listed = (trigger: string, keys: unknown[], ptr: string) => {
+    const read = new Set([trigger]);
+    units.push({ reads: [trigger], shows: new Set(), resolve: () => {
+      const ref = presenceRef(trigger, fields);
+      return ref === undefined ? [] : [{ schema: { required: keys as string[] }, cond: `${ref} notempty`, neg: `${ref} empty`, ptr, code, read, requiredPtr: ptr }];
+    } });
+    ctx.report.assumed(code, ptr, "");
+  };
+  // A schema dependency, read as a branch (see `branchShape`). A `false` one, which no object with the
+  // trigger meets, gives no branch: the dependency's report names it.
+  const add = (trigger: string, dep: unknown, ptr: string) => {
+    const read = new Set([trigger]);
+    const quiet = dep === false ? undefined : branchShape(dep, ptr, quietCtx(ctx));
+    if (quiet) {
+      units.push({ reads: [...new Set([trigger, ...shapeReads(quiet)])], shows: shapeShows(quiet, read), resolve: () => {
+        const ref = presenceRef(trigger, fields);
+        const shape = ref === undefined ? undefined : branchShape(dep, ptr, ctx);
+        return shape ? shapeBranches(shape, `${ref} notempty`, `${ref} empty`, read, code, ctx, fields) : [];
+      } });
+    }
+    if (quiet || dep === false) ctx.report.assumed(code, ptr, "");
+  };
   // draft-07 `dependencies`: value is either an array (property dependency) or a
   // schema (schema dependency).
   for (const [trigger, dep] of Object.entries(schema.dependencies ?? {})) {
-    if (Array.isArray(dep)) {
-      requireWhenPresent(trigger, dep, fields);
-      ctx.report.assumed(JsonSchemaCodes.ASSUMED_DEPENDENCIES, `${sourcePtr}/dependencies/${trigger}`, "");
-    } else if (dep && typeof dep === "object") {
-      const ref = fields.ref(trigger);
-      if (ref !== undefined) applyBranch(dep, `${ref} notempty`, `${sourcePtr}/dependencies/${trigger}`, fields);
-      ctx.report.assumed(JsonSchemaCodes.ASSUMED_DEPENDENCIES, `${sourcePtr}/dependencies/${trigger}`, "");
-    }
+    if (Array.isArray(dep)) listed(trigger, dep, `${sourcePtr}/dependencies/${trigger}`);
+    else add(trigger, dep, `${sourcePtr}/dependencies/${trigger}`);
   }
   // draft 2019-09+ split forms.
   for (const [trigger, keys] of Object.entries(schema.dependentRequired ?? {})) {
-    requireWhenPresent(trigger, keys, fields);
-    ctx.report.assumed(JsonSchemaCodes.ASSUMED_DEPENDENCIES, `${sourcePtr}/dependentRequired/${trigger}`, "");
+    if (Array.isArray(keys)) listed(trigger, keys, `${sourcePtr}/dependentRequired/${trigger}`);
   }
   for (const [trigger, dep] of Object.entries(schema.dependentSchemas ?? {})) {
-    const ref = fields.ref(trigger);
-    if (ref !== undefined) applyBranch(dep, `${ref} notempty`, `${sourcePtr}/dependentSchemas/${trigger}`, fields);
-    ctx.report.assumed(JsonSchemaCodes.ASSUMED_DEPENDENCIES, `${sourcePtr}/dependentSchemas/${trigger}`, "");
+    add(trigger, dep, `${sourcePtr}/dependentSchemas/${trigger}`);
+  }
+  return units;
+}
+
+// The reference to a dependency's trigger, when `{trigger} notempty` reads its presence exactly (see
+// `readsPresence`); `undefined` gives no condition, and the dependency stays reported.
+function presenceRef(trigger: string, fields: ObjectFields): string | undefined {
+  return readsPresence(fields.values(trigger)) ? fields.ref(trigger) : undefined;
+}
+
+// The terms an element's `visibleIf` or `requiredIf` was joined from, so that a condition two
+// conditionals give alike (the same `$ref` listed twice) is written once.
+const conditionTerms = new WeakMap<SurveyJSONElement, Map<string, string[]>>();
+
+// Join `term` into `el[prop]` with `or`, unless it is there already.
+function addTerm(el: SurveyJSONElement, prop: "visibleIf" | "requiredIf", term: string): void {
+  let byProp = conditionTerms.get(el);
+  if (!byProp) conditionTerms.set(el, byProp = new Map());
+  const current = typeof el[prop] === "string" ? el[prop] as string : undefined;
+  let terms = byProp.get(prop);
+  // A condition written elsewhere, or renamed since, starts the list again.
+  if (!terms || joinTerms(terms) !== current) terms = current === undefined ? [] : [current];
+  byProp.set(prop, terms);
+  if (terms.includes(term)) return;
+  terms.push(term);
+  el[prop] = joinTerms(terms);
+}
+
+function joinTerms(terms: string[]): string | undefined {
+  return terms.length === 0 ? undefined : terms.length === 1 ? terms[0] : terms.map((t) => `(${t})`).join(" or ");
+}
+
+// `requiredIf: <cond>` on the elements made for each of `keys`. A key is required when any
+// conditional that holds requires it, so the conditions are joined with `or`. A question that is
+// required anyway takes none: survey-core's `requiredIf` overrides `isRequired`.
+function requireWhen(cond: string, keys: string[], fields: ObjectFields): void {
+  for (const key of keys) {
+    for (const el of fields.elements(key)) {
+      if (el.isRequired !== true) addTerm(el, "requiredIf", cond);
+    }
   }
 }
 
-function requireWhenPresent(trigger: string, keys: string[], fields: ObjectFields): void {
-  const ref = fields.ref(trigger);
-  if (ref !== undefined) requireWhen(`${ref} notempty`, keys, fields);
-}
-
-// `requiredIf: <cond>` on the elements made for each of `keys`.
-function requireWhen(cond: string, keys: string[], fields: ObjectFields): void {
+// `isRequired` on the elements made for each of `keys`, which a branch that holds for every value
+// requires. A `requiredIf` would override it, and any it had is weaker.
+function requireAlways(keys: string[], fields: ObjectFields): void {
   for (const key of keys) {
-    for (const el of fields.elements(key)) el.requiredIf = combineAnd(typeof el.requiredIf === "string" ? el.requiredIf : undefined, cond);
+    for (const el of fields.elements(key)) {
+      el.isRequired = true;
+      delete el.requiredIf;
+    }
   }
 }
 
@@ -1140,14 +2220,15 @@ function appendOneOfVariants(
     state.byProp.set(d.disc, selector);
   }
   const discRef = questionRef(d.disc, state)!;
+  const discValues = [...(knownValues([state.byProp.get(d.disc)!], ctx.schemaOf) ?? []), ...d.variants.map((v) => v.value)];
 
   for (const variant of d.variants) {
     const panel: SurveyJSONElement = {
       type: "panel",
       name: uniqueName(`${d.disc}_${String(variant.value)}`, ctx)
     };
-    // A variant whose value cannot be written as a literal stays visible, reported.
-    const lit = formatLiteral(variant.value);
+    // A variant whose value cannot be compared exactly stays visible, reported.
+    const lit = equalityLiterals([variant.value], false, discValues)?.[0];
     if (lit !== undefined) panel.visibleIf = `${discRef} = ${lit}`;
     else ctx.report.assumed(JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR, `${sourcePtr}/oneOf/${variant.index}`, `${targetPath}[${state.elements.length}]`);
     if (variant.schema.title !== undefined) panel.title = String(variant.schema.title);
@@ -1218,7 +2299,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 function childUi(ui: RjsfNode | undefined, key: string): RjsfNode | undefined {
   const node = ui?.node[key];
   if (!ui || !isPlainObject(node)) return undefined;
-  return { node, ptr: `${ui.ptr}/${key.replace(/~/g, "~0").replace(/\//g, "~1")}` };
+  return { node, ptr: `${ui.ptr}/${escapeSegment(key)}` };
 }
 
 // RJSF's `getUiOptions`: every `ui:` key without its prefix, with the keys of `ui:options` spread
@@ -1262,13 +2343,13 @@ const RJSF_PRESENTATION = new Set([
 
 // Read an RJSF uiSchema node into the shared UiHint shape, and report each option the converter
 // does not map: presentation is `DROPPED_STYLING`, a custom field, template or widget component is
-// `DROPPED_CUSTOM_RENDERER`, and anything else, a new key included, is `UNSUPPORTED_UI_HINT`.
+// `DROPPED_CUSTOM_RENDERER`, and anything else, a new key included, is `UNSUPPORTED_UI_HINT`. Each
+// read is for one question, which reports what it loses: a node that `oneOf` variants share reports
+// an option every variant loses once per variant, and one a variant applies only where it is lost.
 function rjsfHint(ui: RjsfNode | undefined, ctx: Ctx): UiHint {
   if (!ui) return {};
   const { options, objectWidgetPtr } = rjsfOptions(ui);
-  const report = !ctx.reportedUi.has(ui.ptr);
-  ctx.reportedUi.add(ui.ptr);
-  if (report && objectWidgetPtr) ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, objectWidgetPtr, "");
+  if (objectWidgetPtr) ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, objectWidgetPtr, "");
 
   const hint: UiHint = { ui };
   const text = (name: string) => {
@@ -1278,8 +2359,8 @@ function rjsfHint(ui: RjsfNode | undefined, ctx: Ctx): UiHint {
   const widget = options.get("widget");
   if (typeof widget?.value === "string") {
     hint.widget = widget.value;
-    // `checkWidget` reports an unhonoured widget once, where the field's type is known.
-    if (report) hint.widgetPtr = widget.ptr;
+    // `checkWidget` reports an unhonoured widget, where the field's type is known.
+    hint.widgetPtr = widget.ptr;
     if (widget.value === "hidden") hint.hidden = true;
   }
   hint.title = text("title");
@@ -1289,7 +2370,7 @@ function rjsfHint(ui: RjsfNode | undefined, ctx: Ctx): UiHint {
   // An option whose value is usable is read into the hint and held in `pending` until a question
   // applies it; an unusable one is reported below.
   const hold = (name: string) => {
-    if (report) (hint.pending ??= new Map()).set(name, options.get(name)!.ptr);
+    (hint.pending ??= new Map()).set(name, options.get(name)!.ptr);
   };
   const inputType = text("inputType");
   if (inputType !== undefined && TEXT_INPUT_TYPES.has(inputType)) {
@@ -1318,7 +2399,6 @@ function rjsfHint(ui: RjsfNode | undefined, ctx: Ctx): UiHint {
   hint.help = text("help");
   if (hint.help !== undefined) hold("help");
 
-  if (!report) return hint;
   for (const [name, { value, ptr }] of options) {
     if (name === "widget" && typeof value === "function") ctx.report.dropped(JsonSchemaCodes.DROPPED_CUSTOM_RENDERER, ptr, "");
     else if (name === "inputType") {
@@ -1388,10 +2468,10 @@ function decodeSegment(segment: string): string {
 // reference cycle and resolves to nothing.
 //
 // Two differences. A scope's last segment holding a non-local `$ref` returns that node as is, where
-// JSONForms finds nothing, so the question is built and the reference is reported as remote (or
-// resolved through a bundled `$id`) like any other. And a combinator entry that leads back to a
-// schema the same rest of the path is already being searched from is skipped, so the next entry
-// is tried; JSONForms recurses into it until the stack overflows.
+// JSONForms finds nothing, so the question is built and the reference is reported as remote or as
+// unresolved (or resolved through a bundled `$id`) like any other. And a combinator entry that leads
+// back to a schema the same rest of the path is already being searched from is skipped, so the next
+// entry is tried; JSONForms recurses into it until the stack overflows.
 
 interface PathWalk {
   root: JsonSchemaDoc;
@@ -1497,40 +2577,105 @@ function resolveSegments(schema: unknown, segments: string[], walk: PathWalk): u
 
 // Where a UI node's scopes resolve. The root frame resolves against the root schema; an array's
 // `options.detail` opens a frame on the items schema, whose scopes are relative to the row.
-// `names` maps a scope to the data key of the first Control on it, so a rule reads that key; a
-// second Control on the same scope shares the value through `valueName`, as both edit one value in
+// `names` maps a data path to the data key of the first Control on it, so a rule reads that key; a
+// second Control on the same data shares the value through `valueName`, as both edit one value in
 // JSONForms. An object's `options.detail` opens a frame on the object schema, whose scopes are
 // relative to the object; its questions sit in a static panel, in the enclosing frame's data, so it
-// shares that frame's names and reference prefix, and `base` is the object's scope there.
-// `elements` keeps every element made on a scope, panels included, for a schema conditional's
-// `required` to mark; it is shared like `names`.
+// shares that frame's names and reference prefix, and `base` is the object's data path there.
+// `elements` keeps every element made on a data path, panels included, for a schema conditional's
+// `required` to mark; it is shared like `names`. `read` holds the data paths of the objects whose
+// conditionals were read and reported, and `marked` the elements each object's conditionals were
+// applied to, so that every Control on an object gets them once, and they are reported once.
 interface UiFrame {
   root: JsonSchemaDoc;
   names: Map<string, string>;
   elements: Map<string, SurveyJSONElement[]>;
   refPrefix: string;
-  base?: string;
+  base?: string[];
+  read: Set<string>;
+  marked: Map<string, Set<SurveyJSONElement>>;
+  // The conversion's `Ctx.schemaOf`, for the values a Control can hold.
+  schemaOf: WeakMap<SurveyJSONElement, JsonSchemaDoc>;
+  // The pointer of the frame's schema from the schema root (`#`), which a report pointer of one of
+  // its scopes starts from: a detail's scopes are relative to the items or the object schema.
+  schemaPtr: string;
+  // The pointer of the schema of the data the maps' paths start from: the root schema, or an array's
+  // items schema. An object's detail shares it with its enclosing frame, as it shares the maps.
+  dataPtr: string;
+  // The Controls this frame's layout made on a scope through an object's `properties`, each with its
+  // data path. Their objects are read when the layout is walked (see `finishNestedScopes`).
+  nested: { el: SurveyJSONElement, path: string[] }[];
 }
 
-// A scope of `frame` as a key of its `names`: an object frame's scope is rewritten onto the
-// object's scope in the enclosing frame (`#/properties/x` -> `#/properties/obj/properties/x`).
-function frameScope(scope: string, frame: UiFrame): string {
-  if (frame.base === undefined) return scope;
-  if (scope === "#") return frame.base;
-  return scope.startsWith("#/") ? `${frame.base}${scope.slice(1)}` : scope;
+function newFrame(root: JsonSchemaDoc, refPrefix: string, schemaOf: WeakMap<SurveyJSONElement, JsonSchemaDoc>, schemaPtr: string): UiFrame {
+  return { root, names: new Map(), elements: new Map(), refPrefix, read: new Set(), marked: new Map(), schemaOf, schemaPtr, dataPtr: schemaPtr, nested: [] };
 }
 
-// Put the question a Control made on `scope` into the frame's names. A scope already there is a
-// second Control on one value, which shares it. A panel has no value, so it is not put in: a rule
-// naming an object scope has nothing to compare, and is reported. True when `el` took a `valueName`.
-function registerScope(scope: string, el: SurveyJSONElement, frame: UiFrame): boolean {
-  const onScope = frame.elements.get(scope);
+// The report pointer of a scope of `frame`, from the schema root. `#/`, which JSONForms resolves to
+// the schema itself, is the frame's schema.
+function scopePointer(scope: string, frame: UiFrame): string {
+  const rest = scope.replace(/^#/, "").replace(/^\/$/, "");
+  if (rest === "") return frame.schemaPtr;
+  if (frame.schemaPtr === "#") return scope;
+  return `${frame.schemaPtr}${rest.startsWith("/") ? "" : "/"}${rest}`;
+}
+
+// The data path JSONForms binds a scope to: `toDataPathSegments` in @jsonforms/core
+// (`packages/core/src/util/path.ts`), which drops each combinator step (`anyOf/0/`, `then/`) from
+// the scope and keeps every second segment after `#`. So `#/anyOf/0/then/properties/x` and
+// `#/properties/x` are the same value. As there, the rewrite also applies inside a property name
+// ending in `then` or `else` (`strengthen/` loses `then/`). Unlike there, every `~0` is decoded,
+// not only the first.
+function dataPathSegments(scope: string): string[] {
+  const segments = scope.replace(/(anyOf|allOf|oneOf)\/[\d]+\//g, "").replace(/(then|else)\//g, "").split("/").map(decodeSegment);
+  const out: string[] = [];
+  for (let i = segments[0] === "#" || segments[0] === "" ? 2 : 1; i < segments.length; i += 2) out.push(segments[i]);
+  return out;
+}
+
+// The number of `properties` steps in a scope: the depth of the value it names, read from the scope
+// itself rather than from `dataPathSegments`, which drops a `then/` inside a property name too. A
+// combinator step (`allOf/0`, `then`, `else`) or an `items` step adds none.
+function propertySteps(scope: string): number {
+  const segments = scope.split("/");
+  let steps = 0;
+  for (let i = segments[0] === "#" || segments[0] === "" ? 1 : 0; i < segments.length;) {
+    const segment = segments[i];
+    if (segment === "properties") {
+      steps++;
+      i += 2;
+    } else i += segment === "allOf" || segment === "anyOf" || segment === "oneOf" ? 2 : 1;
+  }
+  return steps;
+}
+
+// A data path as a key of a frame's maps.
+function pathKey(path: string[]): string {
+  return JSON.stringify(path);
+}
+
+// The data path of a scope of `frame`, from the frame's data: an object frame's scope is put under
+// the object's data path in the enclosing frame.
+function framePath(scope: string, frame: UiFrame): string[] {
+  return [...(frame.base ?? []), ...dataPathSegments(scope)];
+}
+
+function frameKey(scope: string, frame: UiFrame): string {
+  return pathKey(framePath(scope, frame));
+}
+
+// Put the question a Control made on the data path `key` into the frame's names. A path already
+// there is a second Control on one value, which shares it. A panel has no value, so it is not put
+// in: a rule naming an object scope has nothing to compare, and is reported. True when `el` took a
+// `valueName`.
+function registerScope(key: string, el: SurveyJSONElement, frame: UiFrame): boolean {
+  const onScope = frame.elements.get(key);
   if (onScope) onScope.push(el);
-  else frame.elements.set(scope, [el]);
+  else frame.elements.set(key, [el]);
   if (el.type === "panel") return false;
-  const shared = frame.names.get(scope);
+  const shared = frame.names.get(key);
   if (shared === undefined) {
-    frame.names.set(scope, el.name as string);
+    frame.names.set(key, el.name as string);
     return false;
   }
   el.valueName = shared;
@@ -1540,20 +2685,26 @@ function registerScope(scope: string, el: SurveyJSONElement, frame: UiFrame): bo
 // Put the questions an object Control's data walk made into the frame's names. survey-core reads
 // an expression's `{name}` by data key, so a field that takes a `valueName` is renamed in the
 // expressions the walk wrote under the panel.
-function shareObjectFields(scope: string, panel: SurveyJSONElement, frame: UiFrame, ctx: Ctx): void {
+function shareObjectFields(path: string[], panel: SurveyJSONElement, frame: UiFrame, ctx: Ctx): void {
   const renames = new Map<string, string>();
-  registerObjectFields(scope, panel, frame, ctx, renames);
+  registerObjectFields(path, panel, frame, ctx, renames);
   if (renames.size > 0) renameRefs(panel, renames);
 }
 
-// The fields go under `<scope>/properties/<key>`, and those of each nested object under its own
-// scope. `renames` maps each reference to a field that took a `valueName` to its data key's.
-function registerObjectFields(scope: string, panel: SurveyJSONElement, frame: UiFrame, ctx: Ctx, renames: Map<string, string>): void {
+// The fields go under the object's data path and their key, and those of each nested object under
+// its own. `renames` maps each reference to a field that took a `valueName` to its data key's. The
+// walk read and applied each object's conditionals to its own fields.
+function registerObjectFields(path: string[], panel: SurveyJSONElement, frame: UiFrame, ctx: Ctx, renames: Map<string, string>): void {
   const fields = ctx.objectFields.get(panel);
   if (!fields) return;
+  const objectKey = pathKey(path);
+  frame.read.add(objectKey);
+  const marked = frame.marked.get(objectKey) ?? new Set<SurveyJSONElement>();
+  frame.marked.set(objectKey, marked);
   for (const [key, el] of fields) {
-    const sub = `${scope}/properties/${key}`;
-    if (registerScope(sub, el, frame)) renames.set(`{${frame.refPrefix}${el.name}}`, `{${frame.refPrefix}${el.valueName}}`);
+    marked.add(el);
+    const sub = [...path, key];
+    if (registerScope(pathKey(sub), el, frame)) renames.set(`{${frame.refPrefix}${el.name}}`, `{${frame.refPrefix}${el.valueName}}`);
     if (el.type === "panel") registerObjectFields(sub, el, frame, ctx, renames);
   }
 }
@@ -1566,15 +2717,38 @@ function renameRefs(el: SurveyJSONElement, renames: Map<string, string>): void {
   const node = el as Record<string, unknown>;
   for (const prop of WALK_EXPRESSIONS) {
     const expr = node[prop];
-    if (typeof expr !== "string") continue;
-    let out = expr;
-    for (const [from, to] of renames) out = out.split(from).join(to);
-    node[prop] = out;
+    if (typeof expr === "string") node[prop] = renameTokens(expr, renames);
   }
   for (const key of ["elements", "templateElements"]) {
     const children = node[key];
     if (Array.isArray(children)) for (const child of children) renameRefs(child as SurveyJSONElement, renames);
   }
+}
+
+// `expr` with each `{name}` reference in `renames` replaced, and its text literals kept as written.
+// A literal is read as survey-core's parser reads it (`parseString`): it ends at its own quote, and
+// a backslash before either quote escapes it.
+function renameTokens(expr: string, renames: Map<string, string>): string {
+  let out = "";
+  let i = 0;
+  while(i < expr.length) {
+    const c = expr[i];
+    if (c === "'" || c === "\"") {
+      let end = i + 1;
+      while(end < expr.length && expr[end] !== c) end += expr[end] === "\\" && (expr[end + 1] === "'" || expr[end + 1] === "\"") ? 2 : 1;
+      out += expr.slice(i, end + 1);
+      i = end + 1;
+    } else if (c === "{") {
+      const close = expr.indexOf("}", i);
+      const token = close < 0 ? expr.slice(i) : expr.slice(i, close + 1);
+      out += renames.get(token) ?? token;
+      i += token.length;
+    } else {
+      out += c;
+      i++;
+    }
+  }
+  return out;
 }
 
 // A JSONForms `rule`, resolved after the walk because its scope can name a Control further down.
@@ -1636,33 +2810,33 @@ function applyReadonlyOption(node: UiNode, el: SurveyJSONElement): void {
   else delete el.readOnly;
 }
 
-// The question inside a dynamic panel's template that a JSONForms label option names, as the
-// reference an expression in the row writes. `labelRef` is a pointer into the items schema
-// (`#/items/properties/name`); the property it ends on names the question.
-function templateLabelRef(panel: SurveyJSONElement, property: string): string | undefined {
-  const search = (elements: unknown, exact: boolean): SurveyJSONElement | undefined => {
-    if (!Array.isArray(elements)) return undefined;
-    for (const child of elements as SurveyJSONElement[]) {
-      const name = child.name as string;
-      // `uniqueName` may have renamed the question to `<property>_<n>`.
-      const renamed = name.startsWith(`${property}_`) && /^\d+$/.test(name.slice(property.length + 1));
-      if (child.type !== "panel" && (exact ? name === property || child.valueName === property : renamed)) return child;
-      const found = search(child.elements, exact);
-      if (found) return found;
-    }
-    return undefined;
-  };
-  const found = search(panel.templateElements, true) ?? search(panel.templateElements, false);
-  return found ? `{panel.${found.valueName ?? found.name}}` : undefined;
+// The data path in a row that a JSONForms label option names. `elementLabelProp` is a dotted path,
+// read with lodash's `get` (`computeChildLabel`, @jsonforms/core `packages/core/src/mappers/
+// renderer.ts`). `labelRef` is a pointer into the items schema (`#/items/properties/a/properties/
+// b`), read as `removeSchemaKeywords` reads it (@jsonforms/angular-material `master-detail/
+// master.ts`): without the `#`, `properties` and `items` segments.
+function labelPath(key: string, value: unknown): string[] | undefined {
+  if (typeof value !== "string" || value.length === 0) return undefined;
+  const path = key === "labelRef"
+    ? value.split("/").filter((s) => s !== "#" && s !== "properties" && s !== "items").map(decodeSegment)
+    : value.split(".");
+  return path.length > 0 && path.every((s) => s.length > 0) ? path : undefined;
 }
 
 // A report that records nothing, for reading a schema a second time.
 const quietReport = { unsupported() { /* none */ }, dropped() { /* none */ }, assumed() { /* none */ } } as unknown as Ctx["report"];
 
+// `ctx` for reading a schema ahead of the walk that reports it: nothing is recorded, and a remote
+// `$ref` it meets is not taken as reported.
+function quietCtx(ctx: Ctx): Ctx {
+  return { ...ctx, report: quietReport, remoteRefs: new Set(ctx.remoteRefs) };
+}
+
 // Map the `options` of a Control that need the question: `restrict` and `step`, `slider`, and the
-// label of a dynamic panel's items. `toggle` asks for a switch, which a `boolean` already is. An
+// label of a dynamic panel's items. `toggle` asks for a switch, which a `boolean` already is;
+// JSONForms applies it to a boolean only (`isBooleanControl` in its toggle renderer's tester). An
 // option that cannot be applied to the question is reported, as one with no rule is.
-function applyControlOptions(ui: UiNode, el: SurveyJSONElement, schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx): void {
+function applyControlOptions(ui: UiNode, el: SurveyJSONElement, schema: JsonSchemaDoc, hint: UiHint, sourcePtr: string, ctx: Ctx): void {
   const opts = ui.options;
   if (!opts || typeof opts !== "object") return;
   const unapplied = (key: string) => ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, `${sourcePtr}/options/${key}`, "");
@@ -1688,12 +2862,15 @@ function applyControlOptions(ui: UiNode, el: SurveyJSONElement, schema: JsonSche
     if (el.type === "text" || el.type === "comment") el.maxLength = schema.maxLength;
     else unapplied("restrict");
   }
+  if (opts.toggle === true && el.type !== "boolean") unapplied("toggle");
+  // The row's question on the label's full path: a property of a nested object is not taken for a
+  // question of the row with the same name.
   for (const key of ["elementLabelProp", "labelRef"]) {
     const value = opts[key];
     if (value === undefined) continue;
-    const property = typeof value === "string" ? value.split("/").filter((p) => p.length > 0).map(decodeSegment).pop() : undefined;
-    const ref = el.type === "paneldynamic" && property && property !== "#" ? templateLabelRef(el, property) : undefined;
-    if (ref) el.templateTitle = ref;
+    const path = labelPath(key, value);
+    const dataKey = el.type === "paneldynamic" && path ? hint.rowKey?.(path) : undefined;
+    if (dataKey !== undefined) el.templateTitle = `{panel.${dataKey}}`;
     else unapplied(key);
   }
 }
@@ -1707,26 +2884,40 @@ function recordUiRule(node: UiNode, target: SurveyJSONElement | SurveyJSONPage, 
 // the items schema, or the object's fields with scopes relative to the object schema; "GENERATED",
 // "DEFAULT" or none is the default walk; "REGISTERED" names a detail layout registered in the
 // application, which a definition cannot carry, so it is the default walk and reported.
-function readDetail(node: UiNode, scope: string, schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, depth: number): UiHint["template"] {
+function readDetail(node: UiNode, scope: string, schemaPtr: string, schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, depth: number, hint: UiHint): UiHint["template"] {
   const detail = node.options?.detail;
   if (detail === undefined || detail === "GENERATED" || detail === "DEFAULT") return undefined;
+  // The object or the array is read as `mapProperty` reads it: its `allOf` merged.
   const target = resolveRef(schema, ctx).schema;
-  const type = effectiveType(target);
-  const isObject = type === "object" || (type === undefined && !!target.properties);
-  if (!detail || typeof detail !== "object" || (type !== "array" && !isObject)) {
+  const merged = mergeAllOf(target, schemaPtr, quietCtx(ctx));
+  const isObject = isObjectSchema(merged);
+  if (!detail || typeof detail !== "object" || (effectiveType(merged) !== "array" && !isObject)) {
     ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, `${sourcePtr}/options/detail`, "");
     return undefined;
   }
   return (inner, targetPath) => {
     const outer = ctx.uiFrame;
     ctx.uiFrame = isObject
-      ? { root: inner, names: outer.names, elements: outer.elements, refPrefix: outer.refPrefix, base: frameScope(scope, outer) }
-      : { root: inner, names: new Map(), elements: new Map(), refPrefix: "panel." };
-    const elements = walkUiNode(detail, `${sourcePtr}/options/detail`, targetPath, ctx, depth + 1, true);
+      ? { ...outer, root: inner, base: framePath(scope, outer), schemaPtr, nested: [] }
+      : newFrame(inner, "panel.", ctx.schemaOf, `${schemaPtr}/items`);
+    if (!isObject) {
+      const rowFrame = ctx.uiFrame;
+      hint.rowKey = (path) => rowFrame.names.get(pathKey(path));
+    }
+    // JSONForms renders the layout at the row's (or the object's) data path, and evaluates a rule on
+    // its root there (`mapStateToLayoutProps`): the rule hides or disables the whole detail. A root
+    // layout with a rule is then not flattened: it becomes the detail's panel, which carries it.
+    const layout = detail as UiNode;
+    const ruled = (layout.type === "VerticalLayout" || layout.type === "HorizontalLayout") && !!layout.rule;
+    const elements = ruled
+      ? walkUiNode(detail, `${sourcePtr}/options/detail`, `${targetPath}[0]`, ctx, depth + 1, false)
+      : walkUiNode(detail, `${sourcePtr}/options/detail`, targetPath, ctx, depth + 1, true);
     // The layout replaces the data walk, so the object's (or the items') conditionals are read here,
-    // through the Controls it made. A pointer is the scope, as `mapProperty`'s are.
-    if (isObject) applyFrameConditionals(target, scope, ctx);
-    else if (target.items) applyFrameConditionals(target.items, `${scope}/items`, ctx);
+    // through the Controls it made. A pointer is the scope's from the schema root, as `mapProperty`'s
+    // are.
+    if (isObject) applyFrameConditionals(target, schemaPtr, ctx);
+    else if (merged.items) applyFrameConditionals(merged.items, `${schemaPtr}/items`, ctx);
+    finishNestedScopes(ctx.uiFrame, ctx);
     ctx.uiFrame = outer;
     return elements;
   };
@@ -1754,17 +2945,42 @@ function walkUiNode(node: unknown, sourcePtr: string, targetPath: string, ctx: C
         ctx.report.unsupported(JsonSchemaCodes.UNRESOLVED_SCOPE, `${sourcePtr}/scope`, "");
         return [];
       }
+      const schemaPtr = scopePointer(ui.scope, frame);
+      // Every declaration of the property, as on the data walk.
+      const declaration = controlSchema(resolved.schema, schemaPtr, ctx);
+      if (!declaration) return [];
+      resolved.schema = declaration;
+      const target = resolveRef(resolved.schema, quietCtx(ctx));
+      const merged = mergeAllOf(target.schema, schemaPtr, quietCtx(ctx));
+      // A remote target's type is not known: it is a Control's, reported as remote by `mapProperty`.
+      if (ui.type === "ListWithDetail" && !target.remote && effectiveType(merged) !== "array") {
+        // The Material and Vuetify ListWithDetail renderers take an array of objects only
+        // (`isObjectArray`). Angular's master-detail takes any ListWithDetail, and lists the scope's
+        // data as an array (`(data || []).map`), so it renders nothing for an object or a scalar
+        // either; an array of primitives it lists, which a dynamic panel keeps.
+        ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_UI_HINT, `${sourcePtr}/type`, "");
+        return [];
+      }
       const hint = jsonFormsHint(ui, ctx, sourcePtr);
-      hint.template = readDetail(ui, ui.scope, resolved.schema, sourcePtr, ctx, depth);
-      const el = mapProperty(resolved.name, resolved.schema, ui.scope, targetPath, ctx, resolved.required, hint, depth, frame.refPrefix);
+      hint.template = readDetail(ui, ui.scope, schemaPtr, resolved.schema, sourcePtr, ctx, depth, hint);
+      const path = framePath(ui.scope, frame);
+      hint.present = path.length === 0;
+      // An earlier Control on this object read and reported its conditionals.
+      const quiet = ctx.quietConditionalsAt;
+      if (frame.read.has(pathKey(path))) ctx.quietConditionalsAt = schemaPtr;
+      const el = mapProperty(resolved.name, resolved.schema, schemaPtr, targetPath, ctx, resolved.required, hint, depth, frame.refPrefix);
+      ctx.quietConditionalsAt = quiet;
       if (!el) return [];
       if (ui.type === "ListWithDetail") ctx.report.dropped(JsonSchemaCodes.DROPPED_STYLING, `${sourcePtr}/type`, targetPath);
+      // JSONForms keeps the value at the scope's data path; survey-core keeps it under one key of the
+      // form (or the row), which a scope through an object's properties changes.
+      if (propertySteps(ui.scope) > 1) ctx.report.assumed(JsonSchemaCodes.ASSUMED_NESTED_SCOPE, `${sourcePtr}/scope`, targetPath);
       if (!readLabel(ui.label).show) el.titleLocation = "hidden";
       applyReadonlyOption(ui, el);
-      applyControlOptions(ui, el, mergeAllOf(resolveRef(resolved.schema, ctx).schema, sourcePtr, { ...ctx, report: quietReport }), sourcePtr, ctx);
-      const scope = frameScope(ui.scope, frame);
-      registerScope(scope, el, frame);
-      if (el.type === "panel") shareObjectFields(scope, el, frame, ctx);
+      applyControlOptions(ui, el, merged, hint, sourcePtr, ctx);
+      registerScope(pathKey(path), el, frame);
+      if (dataPathSegments(ui.scope).length > 1) frame.nested.push({ el, path });
+      if (el.type === "panel") shareObjectFields(path, el, frame, ctx);
       recordUiRule(ui, el, sourcePtr, targetPath, ctx);
       return [el];
     }
@@ -1899,16 +3115,12 @@ function translateUiCondition(cond: unknown, frame: UiFrame): string | undefined
     return `(${parts.join(c.type === "AND" ? " and " : " or ")})`;
   }
   if (typeof c.scope !== "string") return undefined;
-  if (c.type === "LEAF") {
-    const ref = scopeRef(c.scope, frame);
-    const lit = isPrimitive(c.expectedValue) ? formatLiteral(c.expectedValue) : undefined;
-    return ref !== undefined && lit !== undefined ? `${ref} = ${lit}` : undefined;
-  }
+  if (c.type === "LEAF") return equalityTerm(c.scope, [c.expectedValue], frame);
   if ("schema" in c) {
     const term = schemaTerm(c.scope, c.schema, frame);
     if (term === undefined || c.failWhenUndefined !== true) return term;
     // With failWhenUndefined, an absent value fails before the schema is checked.
-    const ref = scopeRef(c.scope, frame);
+    const ref = readsPresence(scopeValues(c.scope, frame)) ? scopeRef(c.scope, frame) : undefined;
     return ref === undefined ? undefined : `(${ref} notempty and ${term})`;
   }
   return undefined;
@@ -1924,17 +3136,8 @@ function schemaTerm(scope: string, schema: unknown, frame: UiFrame): string | un
   if (!schema || typeof schema !== "object" || Array.isArray(schema)) return undefined;
   const s = schema as JsonSchemaDoc & { not?: unknown };
   const keys = Object.keys(s).filter((k) => k !== "type");
-  if (keys.length === 1 && keys[0] === "const") {
-    const ref = scopeRef(scope, frame);
-    const lit = formatLiteral(s.const);
-    return ref !== undefined && lit !== undefined ? `${ref} = ${lit}` : undefined;
-  }
-  if (keys.length === 1 && keys[0] === "enum" && Array.isArray(s.enum) && s.enum.length > 0) {
-    const ref = scopeRef(scope, frame);
-    const lits = s.enum.map((v) => formatLiteral(v));
-    if (ref === undefined || lits.some((lit) => lit === undefined)) return undefined;
-    return `(${lits.map((lit) => `${ref} = ${lit}`).join(" or ")})`;
-  }
+  if (keys.length === 1 && keys[0] === "const") return equalityTerm(scope, [s.const], frame);
+  if (keys.length === 1 && keys[0] === "enum" && Array.isArray(s.enum) && s.enum.length > 0) return equalityTerm(scope, s.enum, frame);
   if (keys.length === 1 && keys[0] === "not") {
     const inner = schemaTerm(scope, s.not, frame);
     return inner === undefined ? undefined : `!(${inner})`;
@@ -1949,7 +3152,7 @@ function schemaTerm(scope: string, schema: unknown, frame: UiFrame): string | un
     const terms: string[] = [];
     for (const name of names) {
       const sub = `${base}/properties/${name}`;
-      const ref = scopeRef(sub, frame);
+      const ref = readsPresence(scopeValues(sub, frame)) ? scopeRef(sub, frame) : undefined;
       if (ref === undefined) return undefined;
       const propSchema = s.properties?.[name];
       const term = propSchema === undefined ? undefined : schemaTerm(sub, propSchema, frame);
@@ -1964,8 +3167,22 @@ function schemaTerm(scope: string, schema: unknown, frame: UiFrame): string | un
 
 // The expression reference to the Control on `scope`, or `undefined` when no Control has it.
 function scopeRef(scope: string, frame: UiFrame): string | undefined {
-  const name = frame.names.get(frameScope(scope, frame));
+  const name = frame.names.get(frameKey(scope, frame));
   return name === undefined ? undefined : `{${frame.refPrefix}${name}}`;
+}
+
+// The values the Controls on `scope` can hold, when they are known (see `knownValues`).
+function scopeValues(scope: string, frame: UiFrame): unknown[] | undefined {
+  return knownValues(frame.elements.get(frameKey(scope, frame)) ?? [], frame.schemaOf);
+}
+
+// `{q} = <literal>` for a JSONForms condition that holds when the value at `scope` is one of
+// `allowed`, as a LEAF's `===` and AJV's `const` and `enum` hold, and never with no value.
+function equalityTerm(scope: string, allowed: unknown[], frame: UiFrame): string | undefined {
+  const ref = scopeRef(scope, frame);
+  const lits = ref === undefined ? undefined : equalityLiterals(allowed, false, scopeValues(scope, frame));
+  if (!lits || lits.length === 0) return undefined;
+  return lits.length === 1 ? `${ref} = ${lits[0]}` : `(${lits.map((lit) => `${ref} = ${lit}`).join(" or ")})`;
 }
 
 // --- JSONForms schema conditionals ------------------------------------------------
@@ -1975,37 +3192,126 @@ function scopeRef(scope: string, frame: UiFrame): string | undefined {
 // shows and hides only by `rule` and reads these only to validate, so a branch gives `requiredIf`
 // only. A key is the Control on `#/properties/<key>` in the frame, read by its data key (from the
 // row, in an array's detail); a key with no Control has nothing to read or mark, and an `if` or a
-// trigger on it is reported as the data walk reports it. A Control on the frame's object itself
-// (`#`) walked its data, and its conditionals with it, so they are not read again.
+// trigger on it is reported as the data walk reports it. Every Control on the object reads them: an
+// object's second Control, or a data walk on it, marks only the elements no earlier one marked, and
+// reports nothing again.
 function applyFrameConditionals(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx): void {
   const frame = ctx.uiFrame;
-  if (frame.elements.has(frameScope("#", frame))) return;
-  const scope = (key: string) => `#/properties/${key.replace(/~/g, "~0").replace(/\//g, "~1")}`;
+  const objectKey = frameKey("#", frame);
+  const prior = frame.marked.get(objectKey) ?? new Set<SurveyJSONElement>();
+  const marked = new Set(prior);
+  const scope = (key: string) => `#/properties/${escapeSegment(key)}`;
+  // Read and reported already by an earlier Control on the object, or by a data walk on it.
+  const read = frame.read.has(objectKey) || ctx.readConditionals.has(sourcePtr) ? { ...ctx, report: quietReport } : ctx;
+  frame.read.add(objectKey);
+  ctx.readConditionals.add(sourcePtr);
+  // Every declaration of the object, when they include the schema the scope found (see `objectSources`).
+  const target = resolveRef(schema, ctx);
+  const merged = target.remote ? undefined : mergeAllOf(target.schema, sourcePtr, quietCtx(ctx));
+  const own = merged ? conditionalSourcesOf(merged, sourcePtr) : [];
+  const sources = declaredSources(own, sourcePtr, read);
+  const keys = withoutFalse(declaredKeys(sources ? sources.map((source) => source.schema) : [schema], ctx), declaredAt(sourcePtr, ctx) ?? merged ?? {});
   const fields: ObjectFields = {
+    declares: (key) => keys.has(key),
     ref: (key) => scopeRef(scope(key), frame),
-    elements: (key) => frame.elements.get(frameScope(scope(key), frame)) ?? []
+    values: (key) => scopeValues(scope(key), frame),
+    elements: (key) => {
+      const fresh = (frame.elements.get(frameKey(scope(key), frame)) ?? []).filter((el) => !prior.has(el));
+      for (const el of fresh) marked.add(el);
+      return fresh;
+    },
+    type: (key) => schemaType(frame.elements.get(frameKey(scope(key), frame)) ?? [], frame.schemaOf)
   };
-  readFrameConditionals(schema, sourcePtr, ctx, fields, new Set());
+  reportFreeKeys(merged ?? mergeAllOf(target.schema, sourcePtr, quietCtx(ctx)), sourcePtr, read);
+  const seen = new Set<object>();
+  if (sources) for (const source of sources) readFrameConditionals(source.schema, source.ptr, read, fields, seen);
+  else readFrameConditionals(schema, sourcePtr, read, fields, seen);
+  frame.marked.set(objectKey, marked);
+}
+
+// Read the objects that the frame's Controls on nested scopes (`frame.nested`) go through, once its
+// layout is walked. An object no Control walked, and no detail read, has its conditionals and its
+// `required` read here, on the Controls on its fields, as AJV validates them. Then each such Control's
+// requirement holds only while the innermost optional object on its path holds a value (see
+// `mapObjectPanel`): one of the Controls on that object's fields is not empty. An object a scope does
+// not reach through `properties` steps of declared objects is passed over.
+function finishNestedScopes(frame: UiFrame, ctx: Ctx): void {
+  const from = frame.base?.length ?? 0;
+  const objects = new Map<string, string[]>();
+  for (const { path } of frame.nested) {
+    for (let n = from + 1; n < path.length; n++) objects.set(pathKey(path.slice(0, n)), path.slice(0, n));
+  }
+  for (const [key, path] of objects) {
+    if (frame.read.has(key)) continue;
+    const ptr = dataPointer(path, frame);
+    const declared = declaredAt(ptr, ctx);
+    if (!declared || !isObjectSchema(declared)) continue;
+    const outer = ctx.uiFrame;
+    ctx.uiFrame = { ...frame, root: declared, base: path, schemaPtr: ptr, nested: [] };
+    applyFrameConditionals(declared, ptr, ctx);
+    ctx.uiFrame = outer;
+  }
+  const presences = new Map<string, string[]>();
+  for (const { el, path } of frame.nested) {
+    for (let n = path.length - 1; n > from; n--) {
+      const object = path.slice(0, n);
+      if (!isOptionalObject(object, frame, ctx)) continue;
+      const key = pathKey(object);
+      if (!presences.has(key)) presences.set(key, registeredRefs(object, frame));
+      requireWhilePresent([el], presences.get(key)!, frame.refPrefix, ctx);
+      ctx.presenceElements.add(el);
+      if (el.type === "panel") ctx.presencePanels.add(el);
+      break;
+    }
+  }
+  frame.nested = [];
+}
+
+// The schema pointer of the data path `path` of `frame`: a `properties` step for each key.
+function dataPointer(path: string[], frame: UiFrame): string {
+  return frame.dataPtr + path.map((key) => `/properties/${escapeSegment(key)}`).join("");
+}
+
+// Whether the data path `path` of `frame` names an object its parent does not list in `required`.
+function isOptionalObject(path: string[], frame: UiFrame, ctx: Ctx): boolean {
+  const own = declaredAt(dataPointer(path, frame), ctx);
+  const parent = declaredAt(dataPointer(path.slice(0, -1), frame), ctx);
+  if (!own || !parent || !isObjectSchema(own)) return false;
+  return !(Array.isArray(parent.required) && parent.required.includes(path[path.length - 1]));
+}
+
+// The references of the questions the frame's Controls made on the fields of the object at `path`,
+// nested ones included.
+function registeredRefs(path: string[], frame: UiFrame): string[] {
+  const prefix = `${pathKey(path).slice(0, -1)},`;
+  const refs: string[] = [];
+  for (const [key, name] of frame.names) if (key.startsWith(prefix)) refs.push(`{${frame.refPrefix}${name}}`);
+  return refs;
 }
 
 // The conditionals of `raw`, its `$ref` followed, and of its `allOf`, `anyOf` and `oneOf` entries.
-// An `allOf` entry holds as the schema does, and so does the only entry of an `anyOf` or `oneOf`.
+// An `allOf` entry holds as the schema does, and so does the only entry of an `anyOf` or `oneOf`. A
+// `false` one is reported (see `reportFalseEntries`).
 // With several entries the one that must hold is not known: their conditionals are reported
 // (`fields` is undefined), not applied. A remote `$ref` is reported unless the walk already did.
 function readFrameConditionals(raw: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, fields: ObjectFields | undefined, seen: Set<object>): void {
+  // A `false` entry allows no object.
+  if ((raw as unknown) === false) {
+    reportDropped(sourcePtr, ctx);
+    return;
+  }
   const resolved = resolveRef(raw, ctx);
   if (resolved.remote) {
-    if (!ctx.remoteRefs.has(sourcePtr)) reportRemoteRef(sourcePtr, "", ctx);
+    if (!ctx.remoteRefs.has(sourcePtr)) reportRemoteRef(sourcePtr, "", ctx, resolved.unresolved);
     return;
   }
   const schema = resolved.schema;
   if (seen.has(schema)) return;
   seen.add(schema);
   if (fields) {
-    applyIfThenElse(schema, sourcePtr, ctx, fields);
-    applyDependencies(schema, sourcePtr, ctx, fields);
+    applyConditionals(conditionalsOf(schema, sourcePtr, ctx, fields, true), ctx, fields);
   } else {
-    if (schema.if && branchRequires(schema)) ctx.report.assumed(JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, `${sourcePtr}/if`, "");
+    if (schema.if !== undefined && ifMatters(schema, sourcePtr, ctx)) ctx.report.assumed(JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, `${sourcePtr}/if`, "");
     for (const key of ["dependencies", "dependentRequired", "dependentSchemas"] as const) {
       for (const trigger of Object.keys(schema[key] ?? {})) ctx.report.assumed(JsonSchemaCodes.ASSUMED_DEPENDENCIES, `${sourcePtr}/${key}/${trigger}`, "");
     }
@@ -2014,11 +3320,21 @@ function readFrameConditionals(raw: JsonSchemaDoc, sourcePtr: string, ctx: Ctx, 
     const entries = schema[key];
     if (!Array.isArray(entries)) continue;
     entries.forEach((entry, i) => {
-      if (!isPlainObject(entry)) return;
+      if (!isPlainObject(entry) && (entry as unknown) !== false) return;
       const holds = key === "allOf" || entries.length === 1;
-      readFrameConditionals(entry, `${sourcePtr}/${key}/${i}`, ctx, holds ? fields : undefined, seen);
+      const ptr = (key === "allOf" ? allOfPointers.get(schema)?.[i] : undefined) ?? `${sourcePtr}/${key}/${i}`;
+      readFrameConditionals(entry, ptr, ctx, holds ? fields : undefined, seen);
     });
   }
+}
+
+// Whether the branches of `schema`'s `if` that can apply give anything under JSONForms (see
+// `shapeMatters`).
+function ifMatters(schema: JsonSchemaDoc, sourcePtr: string, ctx: Ctx): boolean {
+  const always = constantIf(schema.if);
+  const quiet = quietCtx(ctx);
+  return (always !== false && shapeMatters(branchShape(schema.then, `${sourcePtr}/then`, quiet)))
+    || (always !== true && shapeMatters(branchShape(schema.else, `${sourcePtr}/else`, quiet)));
 }
 
 // --- entry point ------------------------------------------------------------
@@ -2033,6 +3349,7 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
   const { schema, uiSchema } = normalizeInput(input);
   const report = new ReportBuilder(SOURCE);
   const uiKind = detectUiKind(uiSchema);
+  const schemaOf = new WeakMap<SurveyJSONElement, JsonSchemaDoc>();
   const ctx: Ctx = {
     report,
     usedNames: new Set<string>(),
@@ -2040,10 +3357,18 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
     uiKind,
     remoteRefs: new Set<string>(),
     root: schema,
-    uiFrame: { root: schema, names: new Map(), elements: new Map(), refPrefix: "" },
+    uiFrame: newFrame(schema, "", schemaOf, "#"),
     uiRules: [],
     objectFields: new WeakMap(),
-    reportedUi: new Set<string>()
+    readConditionals: new Set<string>(),
+    declared: new Map(),
+    declaredNodes: new Map(),
+    complements: new Map(),
+    mergeLosses: new Map(),
+    mergeReported: new Set<string>(),
+    presenceElements: new WeakSet(),
+    presencePanels: new WeakSet(),
+    schemaOf
   };
 
   const output: SurveyJSON = {};
@@ -2061,9 +3386,11 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
       reportRootRule(ui, "#/uiSchema", ctx);
       output.pages = buildCategorization(onlyChild, "#/uiSchema/elements/0", ctx);
     } else {
-      output.elements = walkUiNode(ui, "#/uiSchema", "elements", ctx, 0, true);
+      // A root layout is flattened into the form's elements; any other node is the first of them.
+      output.elements = walkUiNode(ui, "#/uiSchema", isRootLayout ? "elements" : "elements[0]", ctx, 0, true);
     }
     applyFrameConditionals(ctx.root, "#", ctx);
+    finishNestedScopes(ctx.uiFrame, ctx);
     resolveUiRules(ctx);
     return { output, report: report.build() };
   }
@@ -2081,8 +3408,11 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
   const merged = mergeAllOf(schema, "#", ctx);
   const topDiscriminator = detectDiscriminator(merged, ctx);
   const hasProperties = !!merged.properties && Object.keys(merged.properties).length > 0;
+  // A root whose fields are only in `anyOf` variants: the walk does not model `anyOf`, and a question
+  // for the whole form would hold no field of it.
+  const anyOfVariants = !hasProperties && !merged.oneOf && objectCompositions(merged, ctx).includes("anyOf");
   // `help` describes the form when it has no description. A lone scalar root takes it as its own.
-  if (topDiscriminator || hasProperties || merged.oneOf || merged.if || merged.dependencies) {
+  if (topDiscriminator || hasProperties || merged.oneOf || merged.if !== undefined || merged.dependencies || anyOfVariants) {
     if (rootHint.help !== undefined && output.description === undefined) {
       output.description = rootHint.help;
       consumeOption(rootHint, "help");
@@ -2094,8 +3424,12 @@ export function convert(input: unknown): ConversionResult<SurveyJSON> {
     return { output, report: report.build() };
   }
 
-  if (hasProperties || merged.oneOf || merged.if || merged.dependencies) {
-    output.elements = walkObject(schema, "#", "elements", ctx, rjsfUi, 0);
+  if (hasProperties || merged.oneOf || merged.if !== undefined || merged.dependencies) {
+    // The merged root, so that its `allOf` is merged and reported once.
+    output.elements = walkObject(merged, "#", "elements", ctx, rjsfUi, 0);
+  } else if (anyOfVariants) {
+    ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/anyOf", "elements");
+    output.elements = [];
   } else {
     // Root is a single scalar/array schema -> one question.
     const el = mapProperty(String(schema.title ?? "value"), schema, "#", "elements[0]", ctx, false, rootHint, 0);
@@ -2132,8 +3466,8 @@ function buildDiscriminatorPages(
       name: uniqueName(`${d.disc}_${String(variant.value)}`, ctx),
       elements: walkObject(variantSchema, `#/oneOf/${variant.index}`, `pages[${variant.index + 1}].elements`, ctx, rjsfUi, 1)
     };
-    // A variant whose value cannot be written as a literal stays visible, reported.
-    const lit = formatLiteral(variant.value);
+    // A variant whose value cannot be compared exactly stays visible, reported.
+    const lit = equalityLiterals([variant.value], false, d.variants.map((v) => v.value))?.[0];
     if (lit !== undefined) page.visibleIf = `{${selectorName}} = ${lit}`;
     else ctx.report.assumed(JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR, `#/oneOf/${variant.index}`, `pages[${variant.index + 1}]`);
     if (variant.schema.title !== undefined) page.title = String(variant.schema.title);

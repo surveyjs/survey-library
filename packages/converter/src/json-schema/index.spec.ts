@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { PanelModel } from "survey-core";
 import { convert, JsonSchemaCodes } from "./index";
 import { UnparseableInputError, WrongFormatError } from "../errors";
 import { ReportEntry } from "../report";
@@ -123,7 +124,8 @@ describe("json-schema convert - data walk (baseline type table)", () => {
     const address = findElement(convert(dataTypes).output, "address");
     expect(address?.type).toBe("panel");
     expect((address?.elements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["street", "city", "zip"]);
-    expect(findElement(address, "city")?.isRequired).toBe(true);
+    // `address` is optional: its required city is required while the address holds a value.
+    expect(findElement(address, "city")?.requiredIf).toBe("{street} notempty or {zip} notempty");
     expect(findElement(address, "zip")?.validators).toEqual([{ type: "regex", regex: "^[0-9]{5}$" }]);
   });
 });
@@ -203,9 +205,10 @@ describe("json-schema convert - composition (allOf / if-then-else / deps / $ref)
   it("models if/then/else as visibleIf/requiredIf on affected questions", () => {
     const { output } = convert(composition);
     const ssn = findElement(output, "ssn");
-    expect(ssn?.visibleIf).toBe("{country} = 'us'");
-    expect(ssn?.requiredIf).toBe("{country} = 'us'");
-    expect(findElement(output, "postalCode")?.visibleIf).toBe("{country} <> 'us'");
+    // The `if` holds while `country` is empty: it does not require it.
+    expect(ssn?.visibleIf).toBe("({country} empty or {country} = 'us')");
+    expect(ssn?.requiredIf).toBe("({country} empty or {country} = 'us')");
+    expect(findElement(output, "postalCode")?.visibleIf).toBe("({country} notempty and {country} <> 'us')");
   });
 
   it("resolves a local $ref and drops a remote $ref with the alarm", () => {
@@ -301,6 +304,261 @@ describe("json-schema convert - condition literals", () => {
   });
 });
 
+describe("json-schema convert - an if on an empty key", () => {
+  // `properties` constrains only the keys present, so an `if` holds while its keys are empty, unless
+  // its `required` lists them.
+  const properties = { a: { type: "string" }, d: { type: "string" }, b: { type: "string" }, c: { type: "string" } };
+  const branches = { then: { properties: { b: { type: "string" } }, required: ["b"] }, else: { properties: { c: { type: "string" } } } };
+  // [b shown, b required, c shown] for each data set.
+  const state = (ifSchema: object, ...data: Record<string, unknown>[]) => {
+    const survey = assertConstructsCleanly(convert({ type: "object", properties, if: ifSchema, ...branches }).output, "if on an empty key");
+    return data.map((d) => {
+      survey.data = d;
+      return [survey.getQuestionByName("b").isVisible, survey.getQuestionByName("b").isRequired, survey.getQuestionByName("c").isVisible];
+    });
+  };
+  const thenHolds = [true, true, false];
+  const elseHolds = [false, false, true];
+
+  it("takes then while a const's key is empty", () => {
+    expect(state({ properties: { a: { const: "x" } } }, {}, { a: "x" }, { a: "y" })).toEqual([thenHolds, thenHolds, elseHolds]);
+  });
+
+  it("takes then while an enum's key is empty", () => {
+    expect(state({ properties: { a: { enum: ["x", "z"] } } }, {}, { a: "z" }, { a: "y" })).toEqual([thenHolds, thenHolds, elseHolds]);
+  });
+
+  it("takes else while a key the if requires is empty", () => {
+    expect(state({ properties: { a: { const: "x" } }, required: ["a"] }, {}, { a: "x" }, { a: "y" })).toEqual([elseHolds, thenHolds, elseHolds]);
+  });
+
+  it("takes else while a required key the if does not constrain is empty", () => {
+    expect(state({ properties: { a: { const: "x" } }, required: ["d"] }, { a: "x" }, { a: "x", d: "1" }, { d: "1" }, { a: "y", d: "1" }))
+      .toEqual([elseHolds, thenHolds, thenHolds, elseHolds]);
+  });
+
+  const reported = (schema: object) => {
+    const { output, report } = convert(schema);
+    return { conditions: JSON.stringify(output).match(/"(visibleIf|requiredIf)"/g) ?? [], codes: report.entries.map((e) => [e.code, e.sourcePointer]) };
+  };
+  const refusedIf = { conditions: [], codes: [[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/if"]] };
+
+  const untranslated: [string, object][] = [
+    ["not", { properties: { a: { const: "x" } }, not: { required: ["d"] } }],
+    ["minProperties", { properties: { a: { const: "x" } }, minProperties: 2 }],
+    ["anyOf", { properties: { a: { const: "x" } }, anyOf: [{ required: ["d"] }] }],
+    ["an if-level const", { properties: { a: { const: "x" } }, const: {} }],
+    ["dependentRequired", { properties: { a: { const: "x" } }, dependentRequired: { a: ["d"] } }],
+    ["a property keyword besides const", { properties: { a: { const: "x", minLength: 2 } } }],
+    ["a property type the const does not have", { properties: { a: { const: "x", type: "number" } } }],
+    ["an empty enum", { properties: { a: { enum: [] } } }]
+  ];
+  for (const [what, ifSchema] of untranslated) {
+    it(`does not express an if with ${what}, and reports it`, () => {
+      expect(reported({ type: "object", properties, if: ifSchema, ...branches })).toEqual(refusedIf);
+      expect(state(ifSchema, {}, { a: "x" }, { a: "y" })).toEqual([[true, false, true], [true, false, true], [true, false, true]]);
+    });
+  }
+
+  it("expresses an if with annotations, type object, and a property type its const has", () => {
+    const ifSchema = { title: "T", description: "D", $comment: "C", type: "object", properties: { a: { const: "x", type: "string", title: "A" } }, required: ["a"] };
+    expect(reported({ type: "object", properties, if: ifSchema, ...branches }).codes).toEqual([]);
+    expect(state(ifSchema, {}, { a: "x" }, { a: "y" })).toEqual([elseHolds, thenHolds, elseHolds]);
+  });
+
+  it("does not hide a branch property the if reads by its own value, and keeps its requiredIf", () => {
+    const schema = { type: "object", properties: { a: { type: "string" }, b: { type: "string" } },
+      if: { properties: { a: { const: "x" } }, required: ["a"] }, then: { properties: { b: {} } }, else: { properties: { a: { minLength: 1 } }, required: ["a"] } };
+    const { output } = convert(schema);
+    expect(findElement(output, "a")?.visibleIf).toBeUndefined();
+    const survey = assertConstructsCleanly(output, "branch on the if's own key");
+    for (const [data, required] of [[{ a: "y" }, true], [{ a: "x" }, false]] as const) {
+      survey.data = data;
+      expect(survey.getQuestionByName("a").isVisible).toBe(true);
+      expect(survey.getQuestionByName("a").isRequired).toBe(required);
+    }
+    survey.data = { a: "y" };
+    survey.doComplete();
+    expect(survey.data).toEqual({ a: "y" });
+  });
+
+  it("requires a field both branches require, whatever the if gives", () => {
+    const schema = { type: "object", properties, if: { properties: { a: { const: "x" } }, required: ["a"] }, then: { required: ["b"] }, else: { required: ["b"] } };
+    const survey = assertConstructsCleanly(convert(schema).output, "both branches require");
+    for (const data of [{}, { a: "x" }, { a: "y" }]) {
+      survey.data = data;
+      expect(survey.getQuestionByName("b").isRequired).toBe(true);
+    }
+  });
+
+  it("requires a field when either of two conditionals requires it", () => {
+    const schema = { type: "object", properties, dependentRequired: { a: ["b"], d: ["b"] } };
+    const survey = assertConstructsCleanly(convert(schema).output, "either conditional");
+    for (const [data, required] of [[{}, false], [{ a: "1" }, true], [{ d: "1" }, true], [{ a: "1", d: "1" }, true]] as const) {
+      survey.data = data;
+      expect(survey.getQuestionByName("b").isRequired, JSON.stringify(data)).toBe(required);
+    }
+  });
+
+  it("gives no condition for a presence survey-core reads as empty, an if key or a dependency trigger holding null", () => {
+    const nullable = { ...properties, a: { enum: [null, "x"] } };
+    const ifOnly = { type: "object", properties: nullable, if: { required: ["a"] }, then: { required: ["b"] } };
+    expect(reported(ifOnly)).toEqual(refusedIf);
+    const dependency = { type: "object", properties: nullable, dependentRequired: { a: ["b"] } };
+    const { output } = convert(dependency);
+    expect(findElement(output, "b")?.requiredIf).toBeUndefined();
+    for (const schema of [ifOnly, dependency]) {
+      const survey = assertConstructsCleanly(convert(schema).output, "presence of null");
+      survey.data = { a: null };
+      expect(survey.getQuestionByName("b").isRequired).toBe(false);
+    }
+  });
+
+  it("keeps a field the object requires required when a conditional also requires it", () => {
+    const schema = { type: "object", properties, required: ["b"], if: { properties: { a: { const: "x" } }, required: ["a"] }, then: { required: ["b"] } };
+    const { output } = convert(schema);
+    expect(findElement(output, "b")).toMatchObject({ isRequired: true });
+    expect(findElement(output, "b")?.requiredIf).toBeUndefined();
+    const survey = assertConstructsCleanly(output, "required anyway");
+    for (const data of [{ a: "x" }, { a: "y" }]) {
+      survey.data = data;
+      expect(survey.getQuestionByName("b").isRequired).toBe(true);
+    }
+  });
+
+  it("requires a then field at a JSONForms root while the key is empty, unless the if requires it", () => {
+    const uiSchema = { type: "VerticalLayout", elements: ["a", "b", "c"].map((k) => ({ type: "Control", scope: `#/properties/${k}` })) };
+    const required = (ifSchema: object, data: Record<string, unknown>) => {
+      const schema = { type: "object", properties, if: ifSchema, then: { required: ["b"] }, else: { required: ["c"] } };
+      const survey = loadJsonForms(schema, uiSchema, data);
+      return [survey.getQuestionByName("b").isRequired, survey.getQuestionByName("c").isRequired];
+    };
+    expect(required({ properties: { a: { const: "x" } } }, {})).toEqual([true, false]);
+    expect(required({ properties: { a: { const: "x" } } }, { a: "y" })).toEqual([false, true]);
+    expect(required({ properties: { a: { const: "x" } }, required: ["a"] }, {})).toEqual([false, true]);
+    expect(required({ properties: { a: { const: "x" } }, required: ["a"] }, { a: "x" })).toEqual([true, false]);
+  });
+});
+
+describe("json-schema convert - literals survey-core reads like other values", () => {
+  // survey-core's `=` compares texts trimmed and without case, a numeric text as a number, and
+  // "true" as a boolean; JSON Schema's `const` and `enum` are strict.
+  const ifOn = (k: object, cond: object) => ({ type: "object", properties: { k, b: { type: "string" } },
+    if: { properties: { k: cond }, required: ["k"] }, then: { properties: { b: { type: "string" } } } });
+  const shown = (schema: object, ...values: unknown[]) => {
+    const survey = assertConstructsCleanly(convert(schema).output, "literal");
+    return values.map((v) => {
+      survey.data = v === undefined ? {} : { k: v };
+      return survey.getQuestionByName("b").isVisible;
+    });
+  };
+
+  const refused: [string, object, object, unknown[]][] = [
+    ["a const that matches another choice without case", { type: "string", enum: ["a", "A"] }, { const: "a" }, ["A"]],
+    ["a const that matches another choice once trimmed", { type: "string", enum: ["a", " a"] }, { const: "a" }, [" a"]],
+    ["a number const beside its text", { enum: [1, "1"] }, { const: 1 }, ["1"]],
+    ["a text const on a boolean", { type: "boolean" }, { const: "true" }, [true]],
+    ["an enum that matches another choice without case", { type: "string", enum: ["a", "B", "b"] }, { enum: ["a", "b"] }, ["B"]],
+    ["an empty text const", { type: "string" }, { const: "" }, [undefined]],
+    ["an object const", { type: "object", properties: { x: { type: "string" } } }, { const: { x: "1" } }, []]
+  ];
+  for (const [what, k, cond, misread] of refused) {
+    it(`does not express ${what}, and reports it assumed`, () => {
+      const schema = ifOn(k, cond);
+      const { output, report } = convert(schema);
+      expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+      expect(entry(report.entries, JsonSchemaCodes.ASSUMED_IF_THEN_ELSE)?.sourcePointer).toBe("#/if");
+      // The question stays visible, where survey-core would have shown it for these values too.
+      expect(shown(schema, ...misread)).toEqual(misread.map(() => true));
+    });
+  }
+
+  it("does not express a const survey-core does not read as equal to itself, and reports it", () => {
+    // survey-core reads the literal '1,000' as text and the value "1,000" as the number 1.
+    const schema = ifOn({ const: "1,000" }, { const: "1,000" });
+    const { output, report } = convert(schema);
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    expect(entry(report.entries, JsonSchemaCodes.ASSUMED_IF_THEN_ELSE)?.sourcePointer).toBe("#/if");
+    expect(shown(schema, "1,000")).toEqual([true]);
+  });
+
+  it("does not express an if on a field whose enum holds null, which survey-core reads as empty", () => {
+    const schema = { type: "object", properties: { k: { enum: [null, "x"] }, b: { type: "string" } },
+      if: { properties: { k: { const: "x" } } }, then: { properties: { b: { type: "string" } } } };
+    const { output, report } = convert(schema);
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    expect(entry(report.entries, JsonSchemaCodes.ASSUMED_IF_THEN_ELSE)?.sourcePointer).toBe("#/if");
+    expect(shown(schema, null, "x")).toEqual([true, true]);
+  });
+
+  const kept: [string, object, object, unknown[], boolean[]][] = [
+    ["a const among choices survey-core tells apart", { type: "string", enum: ["a", "b"] }, { const: "a" }, ["a", "b", undefined], [true, false, false]],
+    ["a boolean const", { type: "boolean" }, { const: true }, [true, false, undefined], [true, false, false]],
+    ["a numeric choice", { type: "integer", enum: [1, 2, 10] }, { const: 1 }, [1, 2, 10], [true, false, false]],
+    ["a const on a free text", { type: "string" }, { const: "a" }, ["a", "b"], [true, false]]
+  ];
+  for (const [what, k, cond, values, expected] of kept) {
+    it(`expresses ${what}`, () => {
+      const schema = ifOn(k, cond);
+      expect(findElement(convert(schema).output, "b")?.visibleIf).toBeDefined();
+      expect(shown(schema, ...values)).toEqual(expected);
+    });
+  }
+
+  describe("in JSONForms rules", () => {
+    const schema = { type: "object", properties: { k: { type: "string", enum: ["x", "X"] }, t: { type: "string" }, a: { type: "string" } } };
+    const ui = (condition: object) => ({ type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/k" }, { type: "Control", scope: "#/properties/t" },
+      { type: "Control", scope: "#/properties/a", rule: { effect: "SHOW", condition } }] });
+    const conditions: [string, object][] = [
+      ["a LEAF", { type: "LEAF", scope: "#/properties/k", expectedValue: "x" }],
+      ["a const schema", { scope: "#/properties/k", schema: { const: "x" } }],
+      ["an enum schema", { scope: "#/properties/k", schema: { enum: ["x"] } }],
+      ["a LEAF on an empty text", { type: "LEAF", scope: "#/properties/t", expectedValue: "" }]
+    ];
+    for (const [what, condition] of conditions) {
+      it(`does not express ${what} survey-core reads like another value, and reports it`, () => {
+        const { output, report } = convert({ schema, uiSchema: ui(condition) });
+        expect(findElement(output, "a")?.visibleIf).toBeUndefined();
+        expect(entry(report.entries, JsonSchemaCodes.ASSUMED_UI_RULE)?.sourcePointer).toBe("#/uiSchema/elements/2/rule");
+        expect(loadJsonForms(schema, ui(condition), { k: "X" }).getQuestionByName("a").isVisible).toBe(true);
+      });
+    }
+
+    it("does not express failWhenUndefined on a field that can hold null, which JSONForms reads as a value", () => {
+      const s = { type: "object", properties: { k: { enum: [null, "x", "y"] }, a: { type: "string" } } };
+      const u = ui({ scope: "#/properties/k", schema: { not: { const: "x" } }, failWhenUndefined: true });
+      const { output, report } = convert({ schema: s, uiSchema: u });
+      expect(findElement(output, "a")?.visibleIf).toBeUndefined();
+      expect(entry(report.entries, JsonSchemaCodes.ASSUMED_UI_RULE)?.sourcePointer).toBe("#/uiSchema/elements/2/rule");
+      expect(loadJsonForms(s, u, { k: null }).getQuestionByName("a").isVisible).toBe(true);
+    });
+
+    it("expresses a LEAF on choices survey-core tells apart", () => {
+      const s = { type: "object", properties: { k: { type: "string", enum: ["x", "y"] }, a: { type: "string" } } };
+      const u = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/k" },
+        { type: "Control", scope: "#/properties/a", rule: { effect: "SHOW", condition: { type: "LEAF", scope: "#/properties/k", expectedValue: "x" } } }] };
+      expect(loadJsonForms(s, u, { k: "x" }).getQuestionByName("a").isVisible).toBe(true);
+      expect(loadJsonForms(s, u, { k: "y" }).getQuestionByName("a").isVisible).toBe(false);
+      expect(loadJsonForms(s, u, {}).getQuestionByName("a").isVisible).toBe(false);
+    });
+  });
+
+  it("does not gate discriminated variants survey-core reads alike, and reports each", () => {
+    const schema = { type: "object", properties: { pet: { type: "object", oneOf: [
+      { properties: { kind: { const: "a" }, onlyA: { type: "string" } } },
+      { properties: { kind: { const: "A" }, onlyB: { type: "string" } } }
+    ] } } };
+    const { output, report } = convert(schema);
+    const panels = (findElement(output, "pet")?.elements as SurveyJSONElement[]).filter((e) => e.type === "panel");
+    expect(panels.map((p) => p.visibleIf)).toEqual([undefined, undefined]);
+    expect(report.entries.filter((e) => e.code === JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR).map((e) => e.sourcePointer))
+      .toEqual(["#/properties/pet/oneOf", "#/properties/pet/oneOf/0", "#/properties/pet/oneOf/1"]);
+    const survey = assertConstructsCleanly(output, "variants read alike");
+    survey.data = { kind: "A" };
+    expect(survey.getQuestionByName("onlyA").isParentVisible).toBe(true);
+  });
+});
+
 describe("json-schema convert - references to renamed questions", () => {
   // `home` and `work` each hold `c` and `s`; the second pair is renamed `c_1` and `s_1`.
   const twoObjects = (rules: Record<string, unknown>) => {
@@ -316,15 +574,16 @@ describe("json-schema convert - references to renamed questions", () => {
 
   it("drives work's s from work's c in an if/then required", () => {
     const schema = twoObjects({ if: { properties: { c: { const: "y" } } }, then: { required: ["s"] } });
-    expect(findElement(convert(schema).output, "s_1")?.requiredIf).toBe("{c_1} = 'y'");
+    // `work` is optional: the condition holds while it holds a value.
+    expect(findElement(convert(schema).output, "s_1")?.requiredIf).toBe("({c_1} notempty) and (({c_1} empty or {c_1} = 'y'))");
     expect(question(schema, { c_1: "y" }, "s_1").isRequired).toBe(true);
-    expect(question(schema, { c: "y" }, "s_1").isRequired).toBe(false);
+    expect(question(schema, { c: "y", c_1: "n" }, "s_1").isRequired).toBe(false);
   });
 
   it("drives work's s from work's c in if/then properties", () => {
     const schema = twoObjects({ if: { properties: { c: { const: "y" } } }, then: { properties: { s: { type: "string" } } } });
     expect(question(schema, { c_1: "y" }, "s_1").isVisible).toBe(true);
-    expect(question(schema, { c: "y" }, "s_1").isVisible).toBe(false);
+    expect(question(schema, { c: "y", c_1: "n" }, "s_1").isVisible).toBe(false);
   });
 
   it("drives work's s from work's c in dependentRequired", () => {
@@ -374,7 +633,7 @@ describe("json-schema convert - references inside array items", () => {
     const schema = { type: "object", properties: { rows: { type: "array", items: {
       type: "object", properties: { c: { type: "string" }, s: { type: "string" } }, ...ifThen
     } } } };
-    expect(findElement(convert(schema).output, "s")?.visibleIf).toBe("{panel.c} = 'y'");
+    expect(findElement(convert(schema).output, "s")?.visibleIf).toBe("({panel.c} empty or {panel.c} = 'y')");
     const data = { rows: [{ c: "y" }, { c: "n" }] };
     expect(rowQuestion(schema, data, [["rows", 0]], "s").isVisible).toBe(true);
     expect(rowQuestion(schema, data, [["rows", 1]], "s").isVisible).toBe(false);
@@ -780,6 +1039,40 @@ describe("json-schema convert - JSONForms detail", () => {
     expect((row.elements as SurveyJSONElement[])[0]).toMatchObject({ name: "message", isRequired: true });
   });
 
+  describe("a rule on the detail layout's root", () => {
+    const s = { type: "object", properties: {
+      rows: { type: "array", items: { type: "object", properties: { kind: { type: "string" }, note: { type: "string" } } } },
+      user: { type: "object", properties: { kind: { type: "string" }, note: { type: "string" } } }
+    } };
+    const detailUi = (scope: string, rule: object) => ({ type: "VerticalLayout", elements: [
+      { type: "Control", scope, options: { detail: { type: "VerticalLayout", rule, elements: [
+        { type: "Control", scope: "#/properties/kind" }, { type: "Control", scope: "#/properties/note" }
+      ] } } }
+    ] });
+    const condition = { scope: "#/properties/kind", schema: { const: "x" } };
+
+    it("hides each row's detail whose own value matches", () => {
+      const u = detailUi("#/properties/rows", { effect: "HIDE", condition });
+      expect(convert({ schema: s, uiSchema: u }).report.entries).toEqual([]);
+      const panels = (loadJsonForms(s, u, { rows: [{ kind: "x" }, { kind: "y" }] }).getQuestionByName("rows") as any).panels;
+      expect(panels.map((p: any) => p.getQuestionByName("note").isVisible && p.getQuestionByName("note").isParentVisible)).toEqual([false, true]);
+    });
+
+    it("disables an object's detail by the object's own value", () => {
+      const u = detailUi("#/properties/user", { effect: "DISABLE", condition });
+      expect(convert({ schema: s, uiSchema: u }).report.entries).toEqual([]);
+      expect(loadJsonForms(s, u, { kind: "x" }).getQuestionByName("note").isReadOnly).toBe(true);
+      expect(loadJsonForms(s, u, { kind: "y" }).getQuestionByName("note").isReadOnly).toBe(false);
+    });
+
+    it("still reports a rule whose condition cannot be expressed, and keeps the detail visible", () => {
+      const u = detailUi("#/properties/user", { effect: "HIDE", condition: { scope: "#/properties/missing", schema: { const: "x" } } });
+      const { report } = convert({ schema: s, uiSchema: u });
+      expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_UI_RULE, "#/uiSchema/elements/0/options/detail/rule"]]);
+      expect(loadJsonForms(s, u, { kind: "x" }).getQuestionByName("note").isVisible).toBe(true);
+    });
+  });
+
   it("walks the items schema for REGISTERED, and reports it", () => {
     const { names, report } = template("REGISTERED");
     expect(names).toEqual(["message", "extra"]);
@@ -827,7 +1120,7 @@ describe("json-schema convert - RJSF nested uiSchema", () => {
     const schema = { type: "object", properties: { c: { type: "string" } },
       if: { properties: { c: { const: "y" } } }, then: { properties: { note: { type: "string" } } } };
     const { output } = convert({ schema, uiSchema: { note: { "ui:widget": "textarea" } } });
-    expect(findElement(output, "note")).toMatchObject({ type: "comment", visibleIf: "{c} = 'y'" });
+    expect(findElement(output, "note")).toMatchObject({ type: "comment", visibleIf: "({c} empty or {c} = 'y')" });
   });
 });
 
@@ -915,7 +1208,7 @@ describe("json-schema convert - RJSF report", () => {
     expect(report.entries).toHaveLength(1);
   });
 
-  it("reports a node shared by oneOf variants once", () => {
+  it("reports a node shared by oneOf variants under its one pointer", () => {
     const shared = { type: "object", properties: { kind: { type: "string" } }, oneOf: [
       { properties: { kind: { const: "a" }, note: { type: "string" } } },
       { properties: { kind: { const: "b" }, note: { type: "string" } } }
@@ -973,7 +1266,7 @@ describe("json-schema convert - JSONForms scopes", () => {
   it("follows a $ref in the middle of a scope, and reads required from the referenced object", () => {
     const schema = { type: "object",
       definitions: { order: { type: "object", properties: { id: { type: "string" } }, required: ["id"] } },
-      properties: { order: { $ref: "#/definitions/order" } } };
+      properties: { order: { $ref: "#/definitions/order" } }, required: ["order"] };
     const q = question(schema, "#/properties/order/properties/id");
     expect(q?.name).toBe("id");
     expect(q?.isRequired).toBe(true);
@@ -1039,12 +1332,53 @@ describe("json-schema convert - JSONForms scopes", () => {
     expect(question(schema, "#/anyOf/0/then/properties/last")?.name).toBe("last");
   });
 
+  describe("a scope written through a combinator path", () => {
+    const schema = { type: "object", properties: { x: { type: "string" }, y: { type: "string" } },
+      anyOf: [{ then: { properties: { x: { type: "string" } } } }] };
+
+    it("shares one value with a Control on the same data written directly", () => {
+      const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/x" }, { type: "Control", scope: "#/anyOf/0/then/properties/x" }] };
+      expect(findElement(convert({ schema, uiSchema: ui }).output, "x_1")?.valueName).toBe("x");
+      const survey = loadJsonForms(schema, ui);
+      survey.getQuestionByName("x_1").value = "a";
+      expect(survey.getQuestionByName("x").value).toBe("a");
+    });
+
+    it("is read by a rule that names the data directly", () => {
+      const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/anyOf/0/then/properties/x" },
+        { type: "Control", scope: "#/properties/y", rule: { effect: "SHOW", condition: { scope: "#/properties/x", schema: { const: "a" } } } }] };
+      const { report } = convert({ schema, uiSchema: ui });
+      expect(entry(report.entries, JsonSchemaCodes.ASSUMED_UI_RULE)).toBeUndefined();
+      expect(loadJsonForms(schema, ui, { x: "a" }).getQuestionByName("y").isVisible).toBe(true);
+      expect(loadJsonForms(schema, ui, { x: "b" }).getQuestionByName("y").isVisible).toBe(false);
+    });
+
+    it("is found by the root's conditionals", () => {
+      const s = { type: "object", allOf: [{ properties: { x: { type: "string" }, y: { type: "string" } } }],
+        if: { properties: { x: { const: "a" } }, required: ["x"] }, then: { required: ["y"] } };
+      const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/allOf/0/properties/x" }, { type: "Control", scope: "#/allOf/0/properties/y" }] };
+      const { report } = convert({ schema: s, uiSchema: ui });
+      expect(report.entries).toEqual([]);
+      expect(loadJsonForms(s, ui, { x: "a" }).getQuestionByName("y").isRequired).toBe(true);
+      expect(loadJsonForms(s, ui, { x: "b" }).getQuestionByName("y").isRequired).toBe(false);
+    });
+  });
+
   it("still reports a remote $ref on the scope's target as a remote reference", () => {
     const schema = { type: "object", properties: { r: { $ref: "https://example.com/r.json" } } };
     const { output, report } = convert({ schema, uiSchema: control("#/properties/r") });
     expect(entry(report.entries, JsonSchemaCodes.DROPPED_REMOTE_REF)?.bucket).toBe("dropped");
     expect(entry(report.entries, JsonSchemaCodes.UNRESOLVED_SCOPE)).toBeUndefined();
     expect(findElement(output, "r")?.type).toBe("text");
+    expect(assertConstructsCleanly(output, "remote target").getQuestionByName("r").getType()).toBe("text");
+  });
+
+  it("reports a scope through a remote $ref in the middle of its path as unresolved", () => {
+    const schema = { type: "object", properties: { a: { type: "string" }, r: { $ref: "https://example.com/r.json" } } };
+    const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a" }, { type: "Control", scope: "#/properties/r/properties/z" }] };
+    const { output, report } = convert({ schema, uiSchema: ui });
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNRESOLVED_SCOPE, "#/uiSchema/elements/1/scope"]]);
+    expect(assertConstructsCleanly(output, "remote mid-path").getAllQuestions().map((q) => q.name)).toEqual(["a"]);
   });
 
   describe("a combinator that leads back to a schema being searched", () => {
@@ -1067,6 +1401,7 @@ describe("json-schema convert - JSONForms scopes", () => {
       const run = () => convert({ schema: pets, uiSchema: control("#/properties/pet/properties/nope") });
       expect(run).not.toThrow();
       expect(entry(run().report.entries, JsonSchemaCodes.UNRESOLVED_SCOPE)?.sourcePointer).toBe("#/uiSchema/elements/0/scope");
+      expect(assertConstructsCleanly(run().output, "never found").getAllQuestions()).toHaveLength(0);
     });
 
     it("reports an unresolved scope under a root anyOf that names the root", () => {
@@ -1136,8 +1471,14 @@ describe("json-schema convert - bundled schema references", () => {
       expect(q.hasErrors(), name).toBe(false);
     }
     expect(survey.getQuestionByName("urn").getType()).toBe("boolean");
-    // allOf merges properties and required only, so the merged reference gives a plain question.
-    expect(survey.getQuestionByName("merged")).toBeTruthy();
+    // The allOf of two references to one resource gives its question once, bounds included.
+    const merged = survey.getQuestionByName("merged");
+    expect(merged.getType()).toBe("text");
+    expect(merged.inputType).toBe("number");
+    merged.value = -1;
+    expect(merged.hasErrors()).toBe(true);
+    merged.value = 1;
+    expect(merged.hasErrors()).toBe(false);
   });
 
   it("resolves a JSON Pointer fragment after an $id", () => {
@@ -1145,12 +1486,14 @@ describe("json-schema convert - bundled schema references", () => {
     const { output, report } = convert(schema);
     expect(report.entries).toEqual([]);
     expect(findElement(output, "p")?.type).toBe("boolean");
+    expect(assertConstructsCleanly(output, "fragment after $id").getQuestionByName("p").getType()).toBe("boolean");
   });
 
   it("still reports a $ref to a URI no $id declares as a remote reference", () => {
     const { output, report } = convert(bundle({ other: { $ref: "https://example.com/schemas/unknown" } }));
     expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.DROPPED_REMOTE_REF, "#/properties/other"]]);
     expect(findElement(output, "other")?.type).toBe("text");
+    expect(assertConstructsCleanly(output, "unknown $id").getQuestionByName("other").getType()).toBe("text");
   });
 });
 
@@ -1220,7 +1563,8 @@ describe("json-schema convert - JSONForms detail on an object Control", () => {
     const group = (panel?.elements as SurveyJSONElement[])[0];
     expect(group).toMatchObject({ type: "panel", title: "User data" });
     expect((group.elements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["kind", "note"]);
-    expect(findElement(output, "kind")?.isRequired).toBe(true);
+    // `user` is optional: kind is required while the user holds a value.
+    expect(findElement(output, "kind")?.requiredIf).toBe("{note} notempty");
     expect(loadJsonForms(schema, uiSchema, { kind: "x" }).getQuestionByName("note").isVisible).toBe(true);
     expect(loadJsonForms(schema, uiSchema, { kind: "y" }).getQuestionByName("note").isVisible).toBe(false);
   });
@@ -1298,6 +1642,19 @@ describe("json-schema convert - JSONForms object Control fields", () => {
     expect(loadJsonForms(s, uiSchema, { state: "NY" }).getQuestionByName("zip").isRequired).toBe(false);
   });
 
+  it("renames a shared field's references, and leaves a literal holding the same text", () => {
+    const zoned = { type: "object", properties: { state: { type: "string" }, zip: { type: "string" } },
+      if: { properties: { zip: { const: "{state_1}" }, state: { const: "it's {state_1}" } }, required: ["zip", "state"] }, then: { required: ["zip"] } };
+    const s = { type: "object", properties: { address: zoned } };
+    const uiSchema = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/address/properties/state" }, { type: "Control", scope: "#/properties/address" }
+    ] };
+    expect(findElement(convert({ schema: s, uiSchema }).output, "zip")?.requiredIf)
+      .toBe("({state} notempty) and ({zip} = '{state_1}' and {state} = 'it\\'s {state_1}')");
+    expect(loadJsonForms(s, uiSchema, { zip: "{state_1}", state: "it's {state_1}" }).getQuestionByName("zip").isRequired).toBe(true);
+    expect(loadJsonForms(s, uiSchema, { zip: "{state}", state: "it's {state}" }).getQuestionByName("zip").isRequired).toBe(false);
+  });
+
   it("keeps the object's discriminated oneOf working on a selector shared with an earlier Control", () => {
     const pet = { type: "object", properties: { kind: { type: "string", enum: ["cat", "dog"] } },
       oneOf: [{ properties: { kind: { const: "cat" }, purr: { type: "string" } } }, { properties: { kind: { const: "dog" }, bark: { type: "string" } } }] };
@@ -1351,6 +1708,25 @@ describe("json-schema convert - JSONForms container names", () => {
     const survey = loadJsonForms(schema, uiSchema, { rows: "r", sourceItems: "s", street: "t" });
     expect(["rows", "sourceItems", "street"].map((n) => survey.getQuestionByName(n).value)).toEqual(["r", "s", "t"]);
   });
+
+  it("keeps the names of properties declared inline in a nested object, in array items and in a branch", () => {
+    const schema = { type: "object",
+      properties: { home: { type: "object", properties: { street: { type: "string" } } },
+        rows: { type: "array", items: { type: "object", properties: { city: { type: "string" } } } }, zip: { type: "string" } },
+      if: { properties: { zip: { const: "0" } } }, then: { properties: { country: { type: "string" } } } };
+    const uiSchema = { type: "Categorization", elements: [
+      { type: "Category", label: "Street", elements: [{ type: "Group", label: "City", elements: [{ type: "Control", scope: "#/properties/home/properties/street" }] }] },
+      { type: "Category", label: "Country", elements: [{ type: "Control", scope: "#/properties/rows" }, { type: "Control", scope: "#/properties/zip" }] }
+    ] };
+    const { output } = convert({ schema, uiSchema });
+    expect(output.pages?.map((p) => p.name)).toEqual(["street_1", "country_1"]);
+    expect(findElement(output, "city_1")?.type).toBe("panel");
+    expect(["street", "rows", "city", "zip"].map((n) => findElement(output, n)?.type)).toEqual(["text", "paneldynamic", "text", "text"]);
+    expect(lintOutput(output).filter((f) => f.ruleId === "name/duplicate")).toHaveLength(0);
+    const survey = loadJsonForms(schema, uiSchema, { street: "s", rows: [{ city: "c" }], zip: "1" });
+    expect(survey.getQuestionByName("street").value).toBe("s");
+    expect(survey.getQuestionByName("rows").value).toEqual([{ city: "c" }]);
+  });
 });
 
 describe("json-schema convert - JSONForms schema conditionals", () => {
@@ -1375,10 +1751,21 @@ describe("json-schema convert - JSONForms schema conditionals", () => {
     expect(loadJsonForms(schema, uiSchema, { kind: "x" }).getQuestionByName("kind").isRequired).toBe(false);
   });
 
+  it("requires a field under a root else.required while the if does not hold", () => {
+    const schema = { type: "object", properties, if: { properties: { kind: { const: "x" } }, required: ["kind"] }, else: { required: ["note"] } };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(report.entries).toEqual([]);
+    expect(findElement(output, "note")?.requiredIf).toBe("{kind} <> 'x'");
+    expect(note(schema, { kind: "y" }).isRequired).toBe(true);
+    expect(note(schema, {}).isRequired).toBe(true);
+    expect(note(schema, { kind: "x" }).isRequired).toBe(false);
+    expect(note(schema, { kind: "y" }).isVisible).toBe(true);
+  });
+
   it("reads a root conditional from an allOf entry and a single anyOf or oneOf entry", () => {
     for (const key of ["allOf", "anyOf", "oneOf"]) {
       const schema = { type: "object", properties, [key]: [{ ...ifKindX, then: { required: ["note"] } }] };
-      expect(findElement(convert({ schema, uiSchema }).output, "note")?.requiredIf).toBe("{kind} = 'x'");
+      expect(findElement(convert({ schema, uiSchema }).output, "note")?.requiredIf).toBe("({kind} empty or {kind} = 'x')");
       expect(note(schema, { kind: "x" }).isRequired).toBe(true);
       expect(note(schema, { kind: "y" }).isRequired).toBe(false);
     }
@@ -1473,19 +1860,50 @@ describe("json-schema convert - JSONForms schema conditionals", () => {
     expect(note(schema, { kind: "y" }, ui).isRequired).toBe(false);
   });
 
+  describe("every Control on the same object scope", () => {
+    const schema = { type: "object", properties: { user: nested } };
+    const detailed = { type: "Control", scope: "#/properties/user", options: { detail: { type: "VerticalLayout", elements: controls } } };
+    const walked = { type: "Control", scope: "#/properties/user" };
+    // Whether each question made on `note` is required, with `kind` set to x and to y.
+    const notes = (elements: readonly object[]) => ["x", "y"].map((kind) => {
+      const survey = loadJsonForms(schema, { type: "VerticalLayout", elements }, { kind });
+      return survey.getAllQuestions().filter((q) => q.name.startsWith("note")).map((q) => q.isRequired);
+    });
+
+    for (const [what, elements] of [["two detail layouts", [detailed, detailed]], ["a data walk, then a detail layout", [walked, detailed]],
+      ["a detail layout, then a data walk", [detailed, walked]]] as const) {
+      it(`requires the field in ${what}`, () => {
+        const { output, report } = convert({ schema, uiSchema: { type: "VerticalLayout", elements } });
+        expect(report.entries).toEqual([]);
+        expect(notes(elements)).toEqual([[true, true], [false, false]]);
+        // Each question carries the condition once, while the optional user holds a value.
+        for (const name of ["note", "note_1"]) expect((findElement(output, name)?.requiredIf as string).split("{kind} = 'x'")).toHaveLength(2);
+      });
+    }
+
+    for (const [what, elements] of [["two detail layouts", [detailed, detailed]], ["a detail layout, then a data walk", [detailed, walked]],
+      ["a data walk, then a detail layout", [walked, detailed]]] as const) {
+      it(`reports the object's conditionals once for ${what}`, () => {
+        const s = { type: "object", properties: { user: { ...nested, dependentRequired: { missing: ["note"] } } } };
+        const { report } = convert({ schema: s, uiSchema: { type: "VerticalLayout", elements } });
+        expect(report.entries.map((e) => [e.code, e.count])).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, 1]]);
+      });
+    }
+  });
+
   it("requires a field under the items' if/then in each row of an array Control's detail layout", () => {
     const schema = { type: "object", properties: { rows: { type: "array", items: nested } } };
     const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/rows", options: { detail: { type: "VerticalLayout", elements: controls } } }] };
     const { output, report } = convert({ schema, uiSchema: ui });
     expect(report.entries).toEqual([]);
-    expect(findElement(output, "note")?.requiredIf).toBe("{panel.kind} = 'x'");
+    expect(findElement(output, "note")?.requiredIf).toBe("({panel.kind} empty or {panel.kind} = 'x')");
     const panels = (loadJsonForms(schema, ui, { rows: [{ kind: "x" }, { kind: "y" }] }).getQuestionByName("rows") as any).panels;
     expect(panels.map((p: any) => p.getQuestionByName("note").isRequired)).toEqual([true, false]);
   });
 
   it("follows the root schema's own $ref to its conditionals", () => {
     const schema = { $ref: "#/definitions/u", definitions: { u: { type: "object", properties, ...ifKindX, then: { required: ["note"] } } } };
-    expect(findElement(convert({ schema, uiSchema }).output, "note")?.requiredIf).toBe("{kind} = 'x'");
+    expect(findElement(convert({ schema, uiSchema }).output, "note")?.requiredIf).toBe("({kind} empty or {kind} = 'x')");
     expect(note(schema, { kind: "x" }).isRequired).toBe(true);
     expect(note(schema, { kind: "y" }).isRequired).toBe(false);
   });
@@ -1494,7 +1912,7 @@ describe("json-schema convert - JSONForms schema conditionals", () => {
     const schema = { type: "object", properties, ...ifKindX, then: { required: ["note"] }, dependentRequired: { missing: ["note"] } };
     const ui = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#" }] };
     const { output, report } = convert({ schema, uiSchema: ui });
-    expect(findElement(output, "note")?.requiredIf).toBe("{kind} = 'x'");
+    expect(findElement(output, "note")?.requiredIf).toBe("({kind} empty or {kind} = 'x')");
     expect(report.entries.map((e) => [e.code, e.count])).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, 1]]);
     expect(note(schema, { kind: "x" }, ui).isRequired).toBe(true);
     expect(note(schema, { kind: "y" }, ui).isRequired).toBe(false);
@@ -1793,5 +2211,1604 @@ describe("json-schema convert - option review fixes", () => {
   it("reports enumNames on a oneOf of consts, which carries its own titles", () => {
     const { report } = rjsfConvert({ type: "object", properties: { a: { oneOf: [{ const: "x", title: "X" }] } } }, { a: { "ui:enumNames": ["Ex"] } });
     expect(pointers(report)).toEqual(["#/uiSchema/a/ui:enumNames"]);
+  });
+});
+
+describe("json-schema convert - nested scopes outside their object", () => {
+  const schema = { type: "object", properties: {
+    element: { type: "object", properties: { width: { type: "number" } } },
+    rows: { type: "array", items: { type: "object", properties: { customer: { type: "object", properties: { id: { type: "string" } } } } } }
+  } };
+
+  it("reports a Control on a nested scope, whose value survey-core keeps under its own key", () => {
+    const uiSchema = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/element/properties/width" },
+      { type: "Control", scope: "#/properties/rows", options: { detail: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/customer/properties/id" }] } } }
+    ] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(report.entries.map((e) => [e.code, e.bucket, e.sourcePointer, e.targetPath])).toEqual([
+      [JsonSchemaCodes.ASSUMED_NESTED_SCOPE, "assumed", "#/uiSchema/elements/0/scope", "elements[0]"],
+      [JsonSchemaCodes.ASSUMED_NESTED_SCOPE, "assumed", "#/uiSchema/elements/1/options/detail/elements/0/scope", "elements[1].templateElements[0]"]
+    ]);
+    const survey = assertConstructsCleanly(output, "nested scope");
+    survey.getQuestionByName("width").value = 3;
+    // The change the entry reports: JSONForms writes { element: { width: 3 } }.
+    expect(survey.data).toEqual({ width: 3 });
+  });
+
+  it("does not report a Control on a direct property, or one inside its object's detail", () => {
+    const uiSchema = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/element", options: { detail: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/width" }] } } },
+      { type: "Control", scope: "#/properties/rows" }
+    ] };
+    const { output, report } = convert({ schema, uiSchema });
+    assertConstructsCleanly(output, "direct scopes");
+    expect(report.entries).toEqual([]);
+  });
+});
+
+describe("json-schema convert - objects with no properties", () => {
+  const shapes: [string, object][] = [
+    ["a free-form object", { type: "object", title: "Ids" }],
+    ["an object with additionalProperties only", { type: "object", title: "Ids", additionalProperties: { type: "string" } }],
+    ["an object with patternProperties only", { type: "object", title: "Ids", patternProperties: { "^x": { type: "string" } } }]
+  ];
+  for (const [what, ids] of shapes) {
+    it(`keeps the titled panel of ${what}, as JSONForms and RJSF render an empty group, and reports it`, () => {
+      const { output, report } = convert({ type: "object", properties: { ids, a: { type: "string" } } });
+      expect(findElement(output, "ids")).toEqual({ type: "panel", name: "ids", title: "Ids" });
+      expect(report.entries.map((e) => [e.code, e.bucket, e.sourcePointer, e.targetPath]))
+        .toEqual([[JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "unsupported", "#/properties/ids", "elements[0]"]]);
+      assertConstructsCleanly(output, what);
+    });
+  }
+
+  it("reports the items of an array of free-form objects", () => {
+    const { output, report } = convert({ type: "object", properties: { list: { type: "array", items: { $ref: "#/definitions/id" } } }, definitions: { id: { type: "object" } } });
+    assertConstructsCleanly(output, "free-form items");
+    expect(findElement(output, "list")).toEqual({ type: "paneldynamic", name: "list" });
+    expect(report.entries.map((e) => [e.code, e.sourcePointer, e.targetPath])).toEqual([[JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/properties/list/items", "elements[0]"]]);
+  });
+
+  it("reports a free-form object in a row a ListWithDetail generates", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object", properties: { a: { type: "string" }, ids: { type: "object" } } } } } };
+    const { output, report } = convert({ schema, uiSchema: { type: "ListWithDetail", scope: "#/properties/rows" } });
+    assertConstructsCleanly(output, "free-form in a row");
+    expect(report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT).map((e) => [e.sourcePointer, e.targetPath]))
+      .toEqual([["#/properties/rows/items/properties/ids", "elements[0].templateElements[1]"]]);
+  });
+
+  it("does not report an object whose properties come from allOf, or a variant", () => {
+    const { output, report } = convert({ type: "object", properties: {
+      merged: { type: "object", allOf: [{ properties: { a: { type: "string" } } }] },
+      variants: { type: "object", oneOf: [{ properties: { k: { const: "x" }, a: { type: "string" } } }, { properties: { k: { const: "y" } } }] }
+    } });
+    assertConstructsCleanly(output, "declared keys");
+    expect(report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT)).toEqual([]);
+  });
+});
+
+describe("json-schema convert - allOf conflicts", () => {
+  const codes = (schema: object) => {
+    const { output, report } = convert(schema);
+    assertConstructsCleanly(output, "allOf conflict");
+    return report.entries.map((e) => [e.code, e.bucket, e.sourcePointer]);
+  };
+
+  it("reports a keyword two entries set differently, and keeps the first", () => {
+    const schema = { type: "object", properties: { n: { allOf: [{ type: "integer", minimum: 1 }, { minimum: 5 }] } } };
+    expect(codes(schema)).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "assumed", "#/properties/n/allOf/1/minimum"]]);
+    expect(findElement(convert(schema).output, "n")?.validators).toEqual([{ type: "numeric", minValue: 1 }]);
+  });
+
+  it("reports a keyword an entry sets differently from the schema itself", () => {
+    expect(codes({ type: "object", properties: { x: { type: "string", format: "email", allOf: [{ format: "uri" }] } } }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "assumed", "#/properties/x/allOf/0/format"]]);
+  });
+
+  it("reports a keyword two entries set differently on one property", () => {
+    expect(codes({ type: "object", allOf: [{ properties: { a: { type: "string", maxLength: 3 } } }, { properties: { a: { maxLength: 5 } } }] }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "assumed", "#/allOf/1/properties/a/maxLength"]]);
+  });
+
+  it("does not report a keyword set alike, or an annotation set differently", () => {
+    expect(codes({ type: "object", properties: { x: { allOf: [{ type: "string", title: "A", minLength: 1 }, { type: "string", title: "B", description: "D", minLength: 1 }] } } })).toEqual([]);
+  });
+});
+
+describe("json-schema convert - conditionals in allOf entries", () => {
+  const animal = (cat: object, fish: object) => ({ type: "object", properties: { animal: { enum: ["Cat", "Fish", "Dog"] } }, required: ["animal"],
+    allOf: [{ if: { properties: { animal: { const: "Cat" } } }, then: cat }, { if: { properties: { animal: { const: "Fish" } } }, then: fish }] });
+  // [visible, required] of each question, for each animal.
+  const states = (schema: object, names: string[]) => {
+    const survey = assertConstructsCleanly(convert(schema).output, "allOf conditionals");
+    return ["Cat", "Fish", "Dog"].map((value) => {
+      survey.data = { animal: value };
+      return names.map((name) => [survey.getQuestionByName(name).isVisible, survey.getQuestionByName(name).isRequired]);
+    });
+  };
+
+  it("applies the if/then of every entry", () => {
+    const schema = animal({ properties: { food: { type: "string" } }, required: ["food"] }, { properties: { water: { type: "string" } }, required: ["water"] });
+    expect(convert(schema).report.entries).toEqual([]);
+    expect(states(schema, ["food", "water"])).toEqual([
+      [[true, true], [false, false]],
+      [[false, false], [true, true]],
+      [[false, false], [false, false]]
+    ]);
+  });
+
+  it("shows a property two entries' branches give alike under either", () => {
+    const branch = { properties: { note: { type: "string" } } };
+    const schema = animal(branch, branch);
+    expect(convert(schema).report.entries).toEqual([]);
+    expect(states(schema, ["note"])).toEqual([[[true, false]], [[true, false]], [[false, false]]]);
+  });
+
+  it("does not show a property under a second branch that gives it another schema, and reports it", () => {
+    const schema = animal({ properties: { food: { enum: ["meat"] } }, required: ["food"] }, { properties: { food: { enum: ["worms"] } }, required: ["food"] });
+    expect(convert(schema).report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/allOf/1/then/properties/food"]]);
+    expect(findElement(convert(schema).output, "food")?.choices).toEqual([{ value: "meat" }]);
+    expect(states(schema, ["food"]).map(([[visible]]) => visible)).toEqual([true, false, false]);
+  });
+
+  it("requires a field under each entry's if/then in an object Control under JSONForms", () => {
+    const user = { type: "object", properties: { kind: { type: "string" }, a: { type: "string" }, b: { type: "string" } },
+      allOf: [{ if: { properties: { kind: { const: "x" } }, required: ["kind"] }, then: { required: ["a"] } },
+        { if: { properties: { kind: { const: "y" } }, required: ["kind"] }, then: { required: ["b"] } }] };
+    const schema = { type: "object", properties: { user } };
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/user" }] };
+    expect(convert({ schema, uiSchema }).report.entries).toEqual([]);
+    expect(["x", "y", "z"].map((kind) => {
+      const survey = loadJsonForms(schema, uiSchema, { kind });
+      return [survey.getQuestionByName("a").isRequired, survey.getQuestionByName("b").isRequired];
+    })).toEqual([[true, false], [false, true], [false, false]]);
+  });
+});
+
+describe("json-schema convert - an unresolved $id fragment", () => {
+  const schema = (properties: object) => ({ $id: "https://example.com/schemas/root", type: "object", $defs: { a: { type: "string" } }, properties });
+
+  it("reports a $ref whose $id matches and whose fragment names nothing as unresolved", () => {
+    const { output, report } = convert(schema({ bad: { $ref: "https://example.com/schemas/root#/$defs/missing" } }));
+    assertConstructsCleanly(output, "unresolved fragment");
+    expect(report.entries.map((e) => [e.code, e.bucket, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNRESOLVED_REF, "unsupported", "#/properties/bad"]]);
+    expect(findElement(output, "bad")?.type).toBe("text");
+  });
+
+  it("reports such a $ref on a JSONForms scope's target, and a scope through it as unresolved", () => {
+    const s = schema({ bad: { $ref: "https://example.com/schemas/root#/$defs/missing" } });
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/bad" }, { type: "Control", scope: "#/properties/bad/properties/x" }] };
+    const { output, report } = convert({ schema: s, uiSchema });
+    assertConstructsCleanly(output, "unresolved fragment scope");
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([
+      [JsonSchemaCodes.UNRESOLVED_REF, "#/properties/bad"],
+      [JsonSchemaCodes.UNRESOLVED_SCOPE, "#/uiSchema/elements/1/scope"]
+    ]);
+  });
+});
+
+describe("json-schema convert - JSONForms ListWithDetail on objects, detail layouts through allOf, row labels and toggle", () => {
+  const user = { type: "object", properties: { kind: { type: "string" }, note: { type: "string" } } };
+
+  for (const [what, scoped] of [["an object", user], ["an object given through allOf", { allOf: [user] }]] as const) {
+    it(`gives no element for a ListWithDetail on ${what}, as no JSONForms renderer takes it, and reports it`, () => {
+      const schema = { type: "object", properties: { user: scoped, b: { type: "string" } } };
+      const uiSchema = { type: "VerticalLayout", elements: [{ type: "ListWithDetail", scope: "#/properties/user" }, { type: "Control", scope: "#/properties/b" }] };
+      const { output, report } = convert({ schema, uiSchema });
+      expect(assertConstructsCleanly(output, what).getAllQuestions().map((q) => q.name)).toEqual(["b"]);
+      expect(report.entries.map((e) => [e.code, e.bucket, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNSUPPORTED_UI_HINT, "unsupported", "#/uiSchema/elements/0/type"]]);
+    });
+  }
+
+  it("walks a detail layout on an object or an array given through allOf", () => {
+    const schema = { type: "object", properties: { user: { allOf: [user] }, rows: { allOf: [{ type: "array", items: user }] } } };
+    const detail = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/note" }] };
+    const uiSchema = { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/user", options: { detail } }, { type: "Control", scope: "#/properties/rows", options: { detail } }] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(report.entries).toEqual([]);
+    expect((findElement(output, "user")?.elements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["note"]);
+    expect((findElement(output, "rows")?.templateElements as SurveyJSONElement[]).map((e) => e.name)).toEqual(["note_1"]);
+  });
+
+  const rows = { type: "array", items: { type: "object", properties: { name: { type: "string" }, customer: { type: "object", properties: { name: { type: "string" } } } } } };
+  const titles = (uiSchema: object, data: unknown[]) => {
+    const { output, report } = convert({ schema: { type: "object", properties: { rows } }, uiSchema });
+    const survey = assertConstructsCleanly(output, "row titles");
+    const q = survey.getQuestionByName("rows");
+    survey.data = { rows: data };
+    return { templateTitle: q.templateTitle, titles: q.panels.map((p: { locTitle: { renderedHtml: string } }) => p.locTitle.renderedHtml),
+      hints: report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_UI_HINT).map((e) => e.sourcePointer) };
+  };
+
+  it("titles the rows from a nested labelRef by its full path", () => {
+    const detail = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/name" }, { type: "Control", scope: "#/properties/customer/properties/name" }] };
+    for (const options of [{ labelRef: "#/items/properties/customer/properties/name", detail }, { labelRef: "#/items/properties/customer/properties/name" }, { elementLabelProp: "customer.name" }]) {
+      expect(titles({ type: "ListWithDetail", scope: "#/properties/rows", options }, [{ name: "Row", name_1: "Customer" }]), JSON.stringify(options))
+        .toEqual({ templateTitle: "{panel.name_1}", titles: ["Customer"], hints: [] });
+    }
+  });
+
+  it("does not take an unrelated renamed question for a label property the rows do not have, and reports it", () => {
+    const { output, report } = convert({ schema: { type: "object", properties: { rows: { type: "array", items: { type: "object", properties: { name_1: { type: "string" } } } } } },
+      uiSchema: { type: "Control", scope: "#/properties/rows", options: { elementLabelProp: "name" } } });
+    assertConstructsCleanly(output, "unrelated label");
+    expect(findElement(output, "rows")?.templateTitle).toBeUndefined();
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNSUPPORTED_UI_HINT, "#/uiSchema/options/elementLabelProp"]]);
+  });
+
+  it("reports toggle on a question that is not a boolean, as JSONForms applies it to booleans only", () => {
+    const { output, report } = convert({ schema: { type: "object", properties: { a: { type: "string" }, t: { type: "boolean" } } },
+      uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a", options: { toggle: true } }, { type: "Control", scope: "#/properties/t", options: { toggle: true } }] } });
+    expect(assertConstructsCleanly(output, "toggle").getQuestionByName("t").getType()).toBe("boolean");
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNSUPPORTED_UI_HINT, "#/uiSchema/elements/0/options/toggle"]]);
+  });
+
+  it("reports a detail's schema entries at their pointer from the schema root", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object",
+      properties: { r: { $ref: "https://remote.example/r" }, obj: { type: "object", properties: { s: { $ref: "https://remote.example/s" } }, dependentRequired: { s: ["t"] } } },
+      dependentRequired: { r: ["x"] } } } } };
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/rows", options: { detail: { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/r" },
+      { type: "Control", scope: "#/properties/obj", options: { detail: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/s" }] } } }
+    ] } } }] };
+    const { output, report } = convert({ schema, uiSchema });
+    assertConstructsCleanly(output, "detail pointers");
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([
+      [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/properties/rows/items/dependentRequired/r"],
+      // `x` and `t` are declared nowhere: required, they have no question.
+      [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/properties/rows/items/dependentRequired/r/0"],
+      [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/properties/rows/items/properties/obj/dependentRequired/s"],
+      [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/properties/rows/items/properties/obj/dependentRequired/s/0"],
+      [JsonSchemaCodes.DROPPED_REMOTE_REF, "#/properties/rows/items/properties/obj/properties/s"],
+      [JsonSchemaCodes.DROPPED_REMOTE_REF, "#/properties/rows/items/properties/r"]
+    ]);
+  });
+
+  it("reports a nested object's conditionals once, whichever of its detail layout and the data walk comes first", () => {
+    const addr = { type: "object", properties: { street: { type: "string" }, zip: { type: "string" } }, dependentRequired: { street: ["zip"] } };
+    const schema = { type: "object", properties: { user: { type: "object", properties: { name: { type: "string" }, note: { type: "string" }, addr }, dependentRequired: { name: ["note"] } } } };
+    const addrDetail = { type: "Control", scope: "#/properties/addr", options: { detail: { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/street" }, { type: "Control", scope: "#/properties/zip" }] } } };
+    const detailed = { type: "Control", scope: "#/properties/user", options: { detail: { type: "VerticalLayout", elements: [
+      { type: "Control", scope: "#/properties/name" }, { type: "Control", scope: "#/properties/note" }, addrDetail] } } };
+    const walked = { type: "Control", scope: "#/properties/user" };
+    for (const elements of [[detailed, walked], [walked, detailed], [detailed, detailed]]) {
+      const { output, report } = convert({ schema, uiSchema: { type: "VerticalLayout", elements } });
+      assertConstructsCleanly(output, "nested once");
+      expect(report.entries.map((e) => [e.code, e.sourcePointer, e.count])).toEqual([
+        [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/properties/user/dependentRequired/name", 1],
+        [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/properties/user/properties/addr/dependentRequired/street", 1]
+      ]);
+    }
+  });
+});
+
+describe("json-schema convert - a uiSchema node shared by oneOf variants", () => {
+  const variants = (a: object, b: object) => ({ type: "object", properties: { kind: { type: "string" } }, oneOf: [
+    { properties: { kind: { const: "a" }, note: a } }, { properties: { kind: { const: "b" }, note: b } }] });
+  const hints = (schema: object, uiSchema: object) => {
+    const { output, report } = convert({ schema, uiSchema });
+    assertConstructsCleanly(output, "shared node");
+    return report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_UI_HINT).map((e) => [e.sourcePointer, e.count]);
+  };
+
+  it("reports an option every variant loses once for each variant", () => {
+    expect(hints(variants({ type: "string" }, { type: "string" }), { note: { "ui:orderable": false } })).toEqual([["#/uiSchema/note/ui:orderable", 2]]);
+  });
+
+  it("makes help the description of every variant's field that has none, and reports it for the one that has", () => {
+    const descriptions = (schema: object) => {
+      const { output, report } = convert({ schema, uiSchema: { note: { "ui:help": "h" } } });
+      const survey = assertConstructsCleanly(output, "shared help");
+      return [["note", "note_1"].map((n) => survey.getQuestionByName(n).description),
+        report.entries.filter((e) => e.code === JsonSchemaCodes.UNSUPPORTED_UI_HINT).map((e) => [e.sourcePointer, e.count])];
+    };
+    expect(descriptions(variants({ type: "string" }, { type: "string" }))).toEqual([["h", "h"], []]);
+    expect(descriptions(variants({ type: "string" }, { type: "string", description: "d" }))).toEqual([["h", "d"], [["#/uiSchema/note/ui:help", 1]]]);
+  });
+
+  it("reports an option only for the variant that cannot apply it", () => {
+    const schema = variants({ type: "string" }, { type: "number" });
+    expect(hints(schema, { note: { "ui:inputType": "email" } })).toEqual([["#/uiSchema/note/ui:inputType", 1]]);
+    expect(findElement(convert({ schema, uiSchema: { note: { "ui:inputType": "email" } } }).output, "note")?.inputType).toBe("email");
+  });
+});
+
+describe("json-schema convert - a dependency on its own trigger", () => {
+  for (const key of ["dependentSchemas", "dependencies"]) {
+    it(`does not hide the trigger of ${key} by its own presence, and keeps its requiredIf`, () => {
+      const schema = { type: "object", properties: { a: { type: "string" }, b: { type: "string" } },
+        [key]: { a: { properties: { a: { minLength: 1 }, b: { type: "string" } }, required: ["a", "b"] } } };
+      const { output } = convert(schema);
+      expect(findElement(output, "a")?.visibleIf).toBeUndefined();
+      expect(findElement(output, "a")?.requiredIf).toBe("{a} notempty");
+      const survey = assertConstructsCleanly(output, key);
+      for (const [data, shown] of [[{}, false], [{ a: "x" }, true]] as const) {
+        survey.data = data;
+        expect(survey.getQuestionByName("a").isVisible).toBe(true);
+        expect([survey.getQuestionByName("b").isVisible, survey.getQuestionByName("b").isRequired]).toEqual([shown, shown]);
+      }
+      survey.data = { a: "x", b: "y" };
+      survey.doComplete();
+      expect(survey.data).toEqual({ a: "x", b: "y" });
+    });
+  }
+});
+
+describe("json-schema convert - a boolean if", () => {
+  const properties = { a: { type: "string" }, b: { type: "string" }, c: { type: "string" } };
+  const branches = { then: { properties: { b: { type: "string" } }, required: ["b"] }, else: { properties: { c: { type: "string" }, d: { type: "string" } }, required: ["c"] } };
+  // [visible, required] of b, c and d for each data set.
+  const states = (schema: object) => {
+    const { output, report } = convert(schema);
+    const survey = assertConstructsCleanly(output, "boolean if");
+    return { report: report.entries, states: [{}, { a: "x" }].map((data) => {
+      survey.data = data;
+      return ["b", "c", "d"].map((name) => {
+        const q = survey.getQuestionByName(name);
+        return q ? [q.isVisible, q.isRequired] : null;
+      });
+    }) };
+  };
+
+  it("applies else to every value when if is false", () => {
+    const always = [[true, false], [true, true], [true, false]];
+    expect(states({ type: "object", properties, if: false, ...branches })).toEqual({ report: [], states: [always, always] });
+  });
+
+  for (const ifSchema of [true, {}, { title: "Always" }]) {
+    it(`applies then to every value when if is ${JSON.stringify(ifSchema)}`, () => {
+      const always = [[true, true], [true, false], null];
+      expect(states({ type: "object", properties, if: ifSchema, ...branches })).toEqual({ report: [], states: [always, always] });
+    });
+  }
+
+  it("keeps a field required for every value when a conditional also requires it, in either order", () => {
+    const conditional = { if: { properties: { a: { const: "x" } }, required: ["a"] }, then: { required: ["b"] } };
+    const always = { if: true, then: { properties: { b: { type: "string" } }, required: ["b"] } };
+    for (const allOf of [[conditional, always], [always, conditional]]) {
+      const { output } = convert({ type: "object", properties, allOf });
+      expect(findElement(output, "b")).toMatchObject({ isRequired: true });
+      expect(findElement(output, "b")?.requiredIf).toBeUndefined();
+      expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+      const survey = assertConstructsCleanly(output, "required always");
+      for (const data of [{}, { a: "x" }, { a: "y" }]) {
+        survey.data = data;
+        expect([survey.getQuestionByName("b").isVisible, survey.getQuestionByName("b").isRequired]).toEqual([true, true]);
+      }
+    }
+  });
+
+  it("requires an else field under a JSONForms root when if is false", () => {
+    const uiSchema = { type: "VerticalLayout", elements: ["a", "b", "c"].map((k) => ({ type: "Control", scope: `#/properties/${k}` })) };
+    const survey = loadJsonForms({ type: "object", properties, if: false, ...branches }, uiSchema, { a: "x" });
+    expect([survey.getQuestionByName("b").isRequired, survey.getQuestionByName("c").isRequired]).toEqual([false, true]);
+  });
+
+  it("reports an else under an anyOf of several entries when if is false", () => {
+    const { output, report } = convert({ schema: { type: "object", properties, anyOf: [{ if: false, else: { required: ["c"] } }, { required: ["a"] }] },
+      uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/c" }] } });
+    expect(assertConstructsCleanly(output, "if false in anyOf").getQuestionByName("c").isRequired).toBe(false);
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/anyOf/0/if"]]);
+  });
+});
+
+describe("json-schema convert - a presence test on a field whose type allows null", () => {
+  const properties = { a: { type: ["string", "null"] }, b: { type: "string" } };
+  const required = (schema: object, data: Record<string, unknown>) => {
+    const survey = assertConstructsCleanly(convert(schema).output, "nullable");
+    survey.data = data;
+    return survey.getQuestionByName("b").isRequired;
+  };
+
+  it("does not express an if that requires the key, or reads it while empty, and reports it", () => {
+    for (const ifSchema of [{ required: ["a"] }, { properties: { a: { const: "x" } } }]) {
+      const schema = { type: "object", properties, if: ifSchema, then: { required: ["b"] } };
+      expect(convert(schema).report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/if"]]);
+      expect(required(schema, { a: null })).toBe(false);
+    }
+  });
+
+  it("still expresses an if that requires the key and compares its value", () => {
+    const schema = { type: "object", properties, if: { properties: { a: { const: "x" } }, required: ["a"] }, then: { required: ["b"] } };
+    expect(convert(schema).report.entries).toEqual([]);
+    expect([required(schema, { a: null }), required(schema, { a: "x" })]).toEqual([false, true]);
+  });
+
+  it("gives a dependency on the key no condition", () => {
+    const schema = { type: "object", properties, dependentRequired: { a: ["b"] } };
+    expect(findElement(convert(schema).output, "b")?.requiredIf).toBeUndefined();
+    expect(required(schema, { a: null })).toBe(false);
+  });
+
+  it("does not express failWhenUndefined on the key, and reports it", () => {
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a" },
+      { type: "Control", scope: "#/properties/b", rule: { effect: "SHOW", condition: { scope: "#/properties/a", schema: { not: { const: "x" } }, failWhenUndefined: true } } }] };
+    const { output, report } = convert({ schema: { type: "object", properties }, uiSchema });
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_UI_RULE, "#/uiSchema/elements/1/rule"]]);
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    const survey = assertConstructsCleanly(output, "nullable rule");
+    survey.data = { a: null };
+    expect(survey.getQuestionByName("b").isVisible).toBe(true);
+  });
+});
+
+describe("json-schema convert - conditionals that require and show one property", () => {
+  const A = { properties: { k: { const: "a" } }, required: ["k"] };
+  const B = { properties: { j: { const: "b" } }, required: ["j"] };
+  const base = { k: { type: "string", enum: ["a", "z"] }, j: { type: "string", enum: ["b", "y"] } };
+  const datas = [{}, { k: "a" }, { j: "b" }, { k: "a", j: "b" }, { k: "z", j: "y" }];
+  // [visible, required] of x for each data set.
+  const states = (schema: object) => {
+    const { output, report } = convert(schema);
+    const survey = assertConstructsCleanly(output, "require and show");
+    return { report: report.entries, states: datas.map((data) => {
+      survey.data = data;
+      const x = survey.getQuestionByName("x");
+      return [x.isVisible, x.isRequired];
+    }) };
+  };
+  // JSON Schema requires x for k = a; a branch shows it for j = b.
+  const expected = [[false, false], [true, true], [true, false], [true, true], [false, false]];
+
+  it("shows a field one entry requires and another shows whenever it is required, in either order", () => {
+    const requires = { if: A, then: { required: ["x"] } };
+    const shows = { if: B, then: { properties: { x: { type: "string" } } } };
+    for (const allOf of [[requires, shows], [shows, requires]]) {
+      expect(states({ type: "object", properties: base, allOf })).toEqual({ report: [], states: expected });
+    }
+  });
+
+  it("shows a declared field one entry requires and another shows whenever it is required", () => {
+    const schema = { type: "object", properties: { ...base, x: { type: "string" } },
+      allOf: [{ if: A, then: { required: ["x"] } }, { if: B, then: { properties: { x: {} } } }] };
+    expect(states(schema)).toEqual({ report: [], states: expected });
+  });
+
+  it("shows a field then shows and else requires for every value", () => {
+    const schema = { type: "object", properties: { ...base, x: { type: "string" } }, if: A, then: { properties: { x: {} } }, else: { required: ["x"] } };
+    // JSON Schema requires x unless k = a, where then shows it.
+    expect(states(schema)).toEqual({ report: [], states: [[true, true], [true, false], [true, true], [true, false], [true, true]] });
+  });
+
+  it("requires a field an if requires and a dependency shows, whichever comes first", () => {
+    const schema = { type: "object", properties: base, if: A, then: { required: ["x"] }, dependencies: { j: { properties: { x: { type: "string" } } } } };
+    const { output, report } = convert(schema);
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependencies/j"]]);
+    const survey = assertConstructsCleanly(output, "if and dependency");
+    expect([{}, { k: "a" }, { j: "y" }].map((data) => {
+      survey.data = data;
+      return [survey.getQuestionByName("x").isVisible, survey.getQuestionByName("x").isRequired];
+    })).toEqual([[false, false], [true, true], [true, false]]);
+  });
+
+  it("writes a condition two entries give alike once", () => {
+    const schema = { type: "object", properties: base, definitions: { D: { if: A, then: { properties: { x: { type: "string" } }, required: ["x"] } } },
+      allOf: [{ $ref: "#/definitions/D" }, { $ref: "#/definitions/D" }] };
+    expect(findElement(convert(schema).output, "x")).toMatchObject({ visibleIf: "{k} = 'a'", requiredIf: "{k} = 'a'" });
+  });
+
+  it("shows a property two branches give with different annotations under either", () => {
+    const schema = { type: "object", properties: base,
+      allOf: [{ if: A, then: { properties: { x: { type: "string", title: "X" } } } }, { if: B, then: { properties: { x: { type: "string", title: "Other" } } } }] };
+    const { output, report } = convert(schema);
+    expect(report.entries).toEqual([]);
+    expect(findElement(output, "x")).toMatchObject({ title: "X", visibleIf: "({k} = 'a') or ({j} = 'b')" });
+  });
+});
+
+describe("json-schema convert - conditionals of a property several allOf entries declare", () => {
+  const ab = { k: { enum: ["a", "b"] } };
+  const A = { properties: { k: { const: "a" } }, required: ["k"] };
+  const B = { properties: { k: { const: "b" } }, required: ["k"] };
+  // [visible, required] of each question, for each data set.
+  const states = (schema: object, names: string[], datas: object[]) => {
+    const { output, report } = convert(schema);
+    const survey = assertConstructsCleanly(output, "property conditionals");
+    return { report: report.entries.map((e) => [e.code, e.sourcePointer]), states: datas.map((data) => {
+      survey.data = data;
+      return names.map((name) => [survey.getQuestionByName(name).isVisible, survey.getQuestionByName(name).isRequired]);
+    }) };
+  };
+
+  it("applies the if/then of each declaration", () => {
+    const schema = { type: "object", allOf: [
+      { properties: { o: { type: "object", properties: ab, if: A, then: { properties: { x: { type: "string" } }, required: ["x"] } } } },
+      { properties: { o: { type: "object", if: B, then: { properties: { y: { type: "string" } }, required: ["y"] } } } }] };
+    expect(states(schema, ["x", "y"], [{ k: "a" }, { k: "b" }])).toEqual({ report: [], states: [[[true, true], [false, false]], [[false, false], [true, true]]] });
+  });
+
+  it("applies the dependencies of each declaration, and reports each at its own pointer", () => {
+    const schema = { type: "object", allOf: [
+      { properties: { o: { type: "object", properties: { k: { type: "string" }, x: { type: "string" } }, dependentRequired: { k: ["x"] } } } },
+      { properties: { o: { type: "object", dependentRequired: { x: ["k"] } } } }] };
+    expect(states(schema, ["k", "x"], [{}, { k: "1" }, { x: "1" }])).toEqual({
+      report: [[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/allOf/0/properties/o/dependentRequired/k"], [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/allOf/1/properties/o/dependentRequired/x"]],
+      states: [[[true, false], [true, false]], [[true, false], [true, true]], [[true, true], [true, false]]]
+    });
+  });
+
+  it("applies the parent's if and an entry's if on one property", () => {
+    const schema = { type: "object", properties: { o: { type: "object", properties: { ...ab, z: { type: "string" } }, if: A, then: { required: ["z"] } } },
+      allOf: [{ properties: { o: { if: B, then: { properties: { y: { type: "string" } } } } } }] };
+    expect(states(schema, ["z", "y"], [{ k: "a" }, { k: "b" }])).toEqual({ report: [], states: [[[true, true], [false, false]], [[true, false], [true, false]]] });
+  });
+
+  for (const [what, first, second] of [["a $ref first", "ref", "cond"], ["a $ref second", "cond", "ref"]] as const) {
+    it(`follows a declaration that is a $ref, with ${what}`, () => {
+      const decl = { ref: { $ref: "#/definitions/D" }, cond: { if: A, then: { required: ["x"] } } };
+      const schema = { type: "object", definitions: { D: { type: "object", properties: { ...ab, x: { type: "string" } } } },
+        allOf: [{ properties: { o: decl[first] } }, { properties: { o: decl[second] } }] };
+      expect(states(schema, ["x"], [{ k: "a" }, { k: "b" }])).toEqual({ report: [], states: [[[true, true]], [[true, false]]] });
+    });
+  }
+
+  it("does not report a type written as a one-item list against the same type", () => {
+    const { output, report } = convert({ type: "object", properties: { n: { type: ["string"], allOf: [{ type: "string" }] } } });
+    assertConstructsCleanly(output, "type list");
+    expect(report.entries).toEqual([]);
+  });
+});
+
+describe("json-schema convert - free keys beside properties", () => {
+  const props = { a: { type: "string" } };
+  const pointers = (input: unknown) => {
+    const { output, report } = convert(input);
+    assertConstructsCleanly(output, "free keys");
+    return report.entries.map((e) => [e.code, e.sourcePointer]);
+  };
+
+  it("reports additionalProperties and patternProperties at their pointer", () => {
+    expect(pointers({ type: "object", properties: { o: { type: "object", properties: props, additionalProperties: { type: "string" }, patternProperties: { "^x": {} } } } })).toEqual([
+      [JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/properties/o/additionalProperties"],
+      [JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/properties/o/patternProperties"]
+    ]);
+  });
+
+  it("does not report additionalProperties false, which allows no other key", () => {
+    expect(pointers({ type: "object", properties: props, additionalProperties: false })).toEqual([]);
+  });
+
+  it("reports them at the allOf entry that sets them, and at a JSONForms root", () => {
+    expect(pointers({ type: "object", properties: props, allOf: [{ additionalProperties: true }] }))
+      .toEqual([[JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/allOf/0/additionalProperties"]]);
+    expect(pointers({ schema: { type: "object", properties: props, additionalProperties: true },
+      uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a" }] } }))
+      .toEqual([[JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/additionalProperties"]]);
+  });
+
+  it("reports them once for an object a detail layout and a data walk both read", () => {
+    const schema = { type: "object", properties: { o: { type: "object", properties: props, additionalProperties: true } } };
+    const detailed = { type: "Control", scope: "#/properties/o", options: { detail: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a" }] } } };
+    const walked = { type: "Control", scope: "#/properties/o" };
+    for (const elements of [[detailed, walked], [walked, detailed]]) {
+      const { report } = convert({ schema, uiSchema: { type: "VerticalLayout", elements } });
+      expect(report.entries.map((e) => [e.code, e.sourcePointer, e.count])).toEqual([[JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/properties/o/additionalProperties", 1]]);
+    }
+  });
+});
+
+describe("json-schema convert - a $ref that names nothing", () => {
+  for (const [what, ref, definitions] of [["a pointer to nothing", "#/definitions/missing", {}], ["a cycle", "#/definitions/a", { a: { $ref: "#/definitions/b" }, b: { $ref: "#/definitions/a" } }]] as const) {
+    it(`reports ${what} as an unresolved reference, and gives a text question`, () => {
+      const { output, report } = convert({ type: "object", definitions, properties: { p: { $ref: ref } } });
+      assertConstructsCleanly(output, what);
+      expect(report.entries.map((e) => [e.code, e.bucket, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNRESOLVED_REF, "unsupported", "#/properties/p"]]);
+      expect(findElement(output, "p")?.type).toBe("text");
+    });
+  }
+});
+
+describe("json-schema convert - a ListWithDetail on a scalar", () => {
+  it("gives no element, as no JSONForms renderer lists a scalar, and reports it", () => {
+    const schema = { type: "object", properties: { s: { type: "string" }, b: { type: "string" } } };
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "ListWithDetail", scope: "#/properties/s" }, { type: "Control", scope: "#/properties/b" }] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(assertConstructsCleanly(output, "scalar list").getAllQuestions().map((q) => q.name)).toEqual(["b"]);
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNSUPPORTED_UI_HINT, "#/uiSchema/elements/0/type"]]);
+  });
+});
+
+describe("json-schema convert - a presence test on an object", () => {
+  const properties = { o: { type: "object", properties: { z: { type: "string" } } }, x: { type: "string" } };
+  const required = (schema: object, data: Record<string, unknown>) => {
+    const survey = assertConstructsCleanly(convert(schema).output, "object trigger");
+    survey.data = data;
+    return survey.getQuestionByName("x").isRequired;
+  };
+
+  it("gives a dependency on an object no condition, as a panel holds no value", () => {
+    const schema = { type: "object", properties, dependentRequired: { o: ["x"] } };
+    expect(findElement(convert(schema).output, "x")?.requiredIf).toBeUndefined();
+    expect(convert(schema).report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentRequired/o"]]);
+    expect(required(schema, { z: "filled" })).toBe(false);
+  });
+
+  it("does not express an if that requires an object, and reports it", () => {
+    const schema = { type: "object", properties, if: { required: ["o"] }, then: { required: ["x"] } };
+    expect(convert(schema).report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/if"]]);
+    expect(findElement(convert(schema).output, "x")?.requiredIf).toBeUndefined();
+  });
+});
+
+describe("json-schema convert - an if that gives one branch for every object", () => {
+  const properties = { a: { type: "string" }, b: { type: "string" }, c: { type: "string" } };
+  const branches = { then: { required: ["b"] }, else: { required: ["c"] } };
+  const required = (ifSchema: unknown) => {
+    const { output, report } = convert({ type: "object", properties, if: ifSchema, ...branches });
+    const survey = assertConstructsCleanly(output, "constant if");
+    survey.data = { a: "x" };
+    return { report: report.entries, required: [survey.getQuestionByName("b").isRequired, survey.getQuestionByName("c").isRequired] };
+  };
+
+  for (const ifSchema of [{ properties: {} }, { required: [] }, { properties: { a: true } }, { properties: { a: {} } }, { not: false }]) {
+    it(`takes then for ${JSON.stringify(ifSchema)}`, () => {
+      expect(required(ifSchema)).toEqual({ report: [], required: [true, false] });
+    });
+  }
+
+  for (const ifSchema of [{ not: {} }, { not: true }, { type: "string" }, { properties: { a: { const: "x" } }, type: "string" }]) {
+    it(`takes else for ${JSON.stringify(ifSchema)}`, () => {
+      expect(required(ifSchema)).toEqual({ report: [], required: [false, true] });
+    });
+  }
+});
+
+describe("json-schema convert - a Control on the whole form", () => {
+  it("reports the root's entries at the root's pointer for scope #/", () => {
+    const { output, report } = convert({ schema: { type: "object", properties: { a: { type: "string" } }, additionalProperties: true }, uiSchema: { type: "Control", scope: "#/" } });
+    assertConstructsCleanly(output, "root scope");
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/additionalProperties"]]);
+  });
+});
+
+describe("json-schema convert - a JSONForms Control on a property several allOf entries declare", () => {
+  const o = (more: object) => ({ properties: { o: more } });
+  const schema = { type: "object", allOf: [
+    o({ type: "object", properties: { k: { type: "string", enum: ["a", "b", "c"] }, x: { type: "string" }, y: { type: "string" }, z: { type: "string" } },
+      if: { properties: { k: { const: "a" } }, required: ["k"] }, then: { required: ["x"] } }),
+    o({ if: { properties: { k: { const: "b" } }, required: ["k"] }, then: { required: ["y"] }, dependentRequired: { x: ["z"] } })
+  ] };
+  const detail = { type: "VerticalLayout", elements: ["k", "x", "y", "z"].map((p) => ({ type: "Control", scope: `#/properties/${p}` })) };
+  const uis: [string, object][] = [
+    ["a data walk", { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/o" }] }],
+    ["a detail layout", { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/o", options: { detail } }] }]
+  ];
+  // Whether x, y and z are required, as AJV reads every entry: x when k = a, y when k = b, z when x is there.
+  const datas: [object, boolean[]][] = [[{ k: "a" }, [true, false, false]], [{ k: "b" }, [false, true, false]], [{ k: "c", x: "1" }, [false, false, true]], [{}, [false, false, false]]];
+
+  for (const [what, uiSchema] of uis) {
+    it(`applies the conditionals of every declaration through ${what}`, () => {
+      const { report } = convert({ schema, uiSchema });
+      expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/allOf/1/properties/o/dependentRequired/x"]]);
+      for (const [data, required] of datas) {
+        const survey = loadJsonForms(schema, uiSchema, data as Record<string, unknown>);
+        expect(["x", "y", "z"].map((name) => survey.getQuestionByName(name).isRequired), JSON.stringify(data)).toEqual(required);
+      }
+    });
+  }
+});
+
+describe("json-schema convert - a required key no schema declares", () => {
+  const properties = { a: { type: "string" }, b: { type: "string" } };
+  const read = (input: unknown) => {
+    const { output, report } = convert(input);
+    const survey = assertConstructsCleanly(output, "undeclared key");
+    return { names: survey.getAllQuestions().map((q) => q.name), report: report.entries.map((e) => [e.code, e.sourcePointer]) };
+  };
+
+  it("reports a then or else that requires it, and makes no question", () => {
+    expect(read({ type: "object", properties, if: { properties: { a: { const: "x" } } }, then: { required: ["b", "x"] }, else: { required: ["y"] } })).toEqual({
+      names: ["a", "b"],
+      report: [[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/else/required/0"], [JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/required/1"]]
+    });
+  });
+
+  it("reports a dependency that requires it, at the key's place in the list", () => {
+    expect(read({ type: "object", properties, dependentRequired: { a: ["b", "x"] }, dependentSchemas: { b: { required: ["y"] } } })).toEqual({
+      names: ["a", "b"],
+      report: [
+        [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentRequired/a"],
+        [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentRequired/a/1"],
+        [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentSchemas/b"],
+        [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentSchemas/b/required/0"]
+      ]
+    });
+  });
+
+  it("does not report a key another branch declares, or one a JSONForms UI schema has no Control for", () => {
+    expect(read({ type: "object", properties, if: { properties: { a: { const: "x" } } }, then: { properties: { c: { type: "string" } } }, else: { required: ["c"] } }).report).toEqual([]);
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a" }] };
+    expect(read({ schema: { type: "object", properties, if: { properties: { a: { const: "x" } } }, then: { required: ["b"] } }, uiSchema }).report).toEqual([]);
+    expect(read({ schema: { type: "object", properties, if: { properties: { a: { const: "x" } } }, then: { required: ["x"] } }, uiSchema }).report)
+      .toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/required/0"]]);
+  });
+});
+
+describe("json-schema convert - a ListWithDetail on a remote $ref", () => {
+  it("is mapped as a Control on it is, and the reference reported", () => {
+    const { output, report } = convert({ schema: { type: "object", properties: { p: { $ref: "https://remote.example/p" } } },
+      uiSchema: { type: "VerticalLayout", elements: [{ type: "ListWithDetail", scope: "#/properties/p" }] } });
+    assertConstructsCleanly(output, "remote list");
+    expect(findElement(output, "p")?.type).toBe("text");
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.DROPPED_REMOTE_REF, "#/properties/p"], [JsonSchemaCodes.DROPPED_STYLING, "#/uiSchema/elements/0/type"]]);
+  });
+});
+
+describe("json-schema convert - a condition on a key a branch shows", () => {
+  const base = { k: { type: "string", enum: ["a", "b"] }, j: { type: "string", enum: ["a", "b"] } };
+  const showsX = { if: { properties: { j: { const: "a" } }, required: ["j"] }, then: { properties: { x: { type: "string", enum: ["p", "q"] } } } };
+  // [visible, required] of each question for each data set.
+  const states = (schema: object, names: string[], datas: object[]) => {
+    const { output, report } = convert(schema);
+    const survey = assertConstructsCleanly(output, "condition on a shown key");
+    return { report: report.entries.map((e) => [e.code, e.sourcePointer]), states: datas.map((data) => {
+      survey.data = data;
+      return names.map((name) => [survey.getQuestionByName(name).isVisible, survey.getQuestionByName(name).isRequired]);
+    }) };
+  };
+
+  it("requires a dependency's key when the trigger a branch shows is there", () => {
+    const schema = { type: "object", properties: base, ...showsX, dependentRequired: { x: ["k"] } };
+    expect(states(schema, ["k"], [{ j: "a" }, { j: "a", x: "p" }])).toEqual({ report: [[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentRequired/x"]], states: [[[true, false]], [[true, true]]] });
+  });
+
+  it("shows a schema dependency's property when the trigger a branch shows is there", () => {
+    const schema = { type: "object", properties: base, ...showsX, dependencies: { x: { properties: { y: { type: "string" } }, required: ["y"] } } };
+    expect(states(schema, ["y"], [{ j: "a" }, { j: "a", x: "p" }])).toEqual({ report: [[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependencies/x"]], states: [[[false, false]], [[true, true]]] });
+  });
+
+  it("reads an if on a key another entry's branch shows, in either order", () => {
+    const reads = { if: { properties: { x: { const: "p" } }, required: ["x"] }, then: { required: ["k"] } };
+    for (const allOf of [[showsX, reads], [reads, showsX]]) {
+      expect(states({ type: "object", properties: base, allOf }, ["k"], [{ j: "a", x: "q" }, { j: "a", x: "p" }])).toEqual({ report: [], states: [[[true, false]], [[true, true]]] });
+    }
+  });
+});
+
+describe("json-schema convert - a required key only a branch shows", () => {
+  const base = { k: { type: "string", enum: ["a", "b"] } };
+  const showsX = { if: { properties: { k: { const: "a" } }, required: ["k"] }, then: { properties: { x: { type: "string" } } } };
+  const x = (schema: object) => {
+    const { output, report } = convert(schema);
+    const survey = assertConstructsCleanly(output, "required and shown");
+    return { report: report.entries, states: [{}, { k: "a" }, { k: "b" }].map((data) => {
+      survey.data = data;
+      return [survey.getQuestionByName("x").isVisible, survey.getQuestionByName("x").isRequired];
+    }) };
+  };
+  const always = { report: [], states: [[true, true], [true, true], [true, true]] };
+
+  it("shows and requires it always, for the object's required", () => {
+    expect(x({ type: "object", properties: base, required: ["x"], ...showsX })).toEqual(always);
+  });
+
+  it("shows and requires it always, for an allOf entry's required", () => {
+    expect(x({ type: "object", properties: base, allOf: [{ required: ["x"] }, showsX] })).toEqual(always);
+  });
+
+  it("shows a declared required key a branch also shows always", () => {
+    expect(x({ type: "object", properties: { ...base, x: { type: "string" } }, required: ["x"], ...showsX })).toEqual(always);
+  });
+
+  it("reports a required key no schema declares, at the object or the allOf entry", () => {
+    const { output, report } = convert({ type: "object", properties: base, required: ["x"], allOf: [{ required: ["y"] }] });
+    assertConstructsCleanly(output, "required undeclared");
+    expect(findElement(output, "x")).toBeUndefined();
+    expect(report.entries.map((e) => [e.code, e.bucket, e.sourcePointer])).toEqual([
+      [JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "unsupported", "#/allOf/0/required/0"],
+      [JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "unsupported", "#/required/0"]
+    ]);
+  });
+
+  it("shows a key then shows and else shows too always", () => {
+    const schema = { type: "object", properties: base, if: { properties: { k: { const: "a" } }, required: ["k"] },
+      then: { properties: { x: { type: "string" } } }, else: { properties: { x: { type: "string" } } } };
+    expect(findElement(convert(schema).output, "x")?.visibleIf).toBeUndefined();
+    expect(x(schema).states.map(([visible]) => visible)).toEqual([true, true, true]);
+  });
+});
+
+describe("json-schema convert - JSONForms and every allOf entry's required", () => {
+  const properties = { k: { type: "string", enum: ["a", "b"] }, x: { type: "string" }, y: { type: "string" } };
+  const ui = (keys: string[]) => ({ type: "VerticalLayout", elements: keys.map((p) => ({ type: "Control", scope: `#/properties/${p}` })) });
+
+  it("requires a Control's key an allOf entry requires", () => {
+    const schema = { type: "object", properties, allOf: [{ required: ["x"] }] };
+    const survey = loadJsonForms(schema, ui(["k", "x", "y"]));
+    expect([survey.getQuestionByName("x").isRequired, survey.getQuestionByName("y").isRequired]).toEqual([true, false]);
+  });
+
+  it("reports a key an allOf entry requires that no schema declares", () => {
+    const { report } = convert({ schema: { type: "object", properties, allOf: [{ required: ["z"] }] }, uiSchema: ui(["k"]) });
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/allOf/0/required/0"]]);
+  });
+
+  const o = (more: object) => ({ properties: { o: more } });
+  const kx = { k: { type: "string", enum: ["a", "b"] }, x: { type: "string" } };
+  const cond = { if: { properties: { k: { const: "a" } }, required: ["k"] }, then: { required: ["x"] } };
+  const xAt = (schema: object, uiSchema: object, data: Record<string, unknown>) => loadJsonForms(schema, uiSchema, data).getQuestionByName("x").isRequired;
+  const control = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/o" }] };
+
+  // AJV: x is required once the optional o holds a value.
+  it("requires a key another declaration of the object requires", () => {
+    const schema = { type: "object", allOf: [o({ type: "object", properties: kx }), o({ required: ["x"] })] };
+    expect([xAt(schema, control, { k: "b" }), xAt(schema, control, {})]).toEqual([true, false]);
+  });
+
+  it("applies the conditionals of a declaration that is a $ref, either first or second", () => {
+    for (const [first, second] of [[{ $ref: "#/definitions/D" }, cond], [{ type: "object", properties: kx }, { $ref: "#/definitions/C" }]]) {
+      const schema = { type: "object", definitions: { D: { type: "object", properties: kx }, C: cond }, allOf: [o(first), o(second)] };
+      expect(convert({ schema, uiSchema: control }).report.entries).toEqual([]);
+      expect([xAt(schema, control, { k: "a" }), xAt(schema, control, { k: "b" })]).toEqual([true, false]);
+    }
+  });
+
+  it("applies the conditionals one level down: a nested property, and array items", () => {
+    const deeper = { type: "object", allOf: [o({ type: "object", properties: { p: { type: "object", properties: kx } } }), o({ properties: { p: cond } })] };
+    expect([xAt(deeper, control, { k: "a" }), xAt(deeper, control, { k: "b" })]).toEqual([true, false]);
+    const rows = { type: "object", allOf: [{ properties: { rows: { type: "array", items: { type: "object", properties: kx } } } }, { properties: { rows: { items: cond } } }] };
+    const detail = { type: "VerticalLayout", elements: ["k", "x"].map((p) => ({ type: "Control", scope: `#/properties/${p}` })) };
+    for (const options of [undefined, { detail }]) {
+      const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/rows", ...(options ? { options } : {}) }] };
+      expect(convert({ schema: rows, uiSchema }).report.entries).toEqual([]);
+      const panels = (loadJsonForms(rows, uiSchema, { rows: [{ k: "a" }, { k: "b" }] }).getQuestionByName("rows") as any).panels;
+      expect(panels.map((p: any) => p.getQuestionByName("x").isRequired)).toEqual([true, false]);
+    }
+  });
+});
+
+describe("json-schema convert - a boolean declaration of a property", () => {
+  const age = (schema: object, data: Record<string, unknown>) => {
+    const { output, report } = convert(schema);
+    const survey = assertConstructsCleanly(output, "boolean declaration");
+    survey.data = data;
+    const q = survey.getQuestionByName("age");
+    return { report: report.entries, inputType: q.inputType, required: q.isRequired, errors: q.hasErrors() };
+  };
+
+  it("takes the other declaration as it is beside true, with additionalProperties false", () => {
+    const schema = { type: "object", additionalProperties: false, properties: { age: true, mail: true },
+      allOf: [{ properties: { age: { type: "integer", minimum: 18 }, mail: { type: "string", format: "email" } }, required: ["age"] }] };
+    expect(age(schema, { age: 17 })).toEqual({ report: [], inputType: "number", required: true, errors: true });
+    expect(age(schema, { age: 18 }).errors).toBe(false);
+    expect(findElement(convert(schema).output, "mail")?.inputType).toBe("email");
+  });
+
+  it("keeps a declaration that another declares true, in either place", () => {
+    const constrained = { type: "integer", minimum: 18 };
+    for (const schema of [{ type: "object", properties: { age: constrained }, allOf: [{ properties: { age: true } }] },
+      { type: "object", allOf: [{ properties: { age: true } }, { properties: { age: constrained } }] }]) {
+      expect(age(schema, { age: 17 })).toMatchObject({ report: [], inputType: "number", errors: true });
+    }
+  });
+
+  it("makes no question for a property one declaration makes false, and reports the dropped one", () => {
+    const { output, report } = convert({ type: "object", properties: { a: { type: "string" }, x: { type: "string" } }, allOf: [{ properties: { x: false } }] });
+    expect(assertConstructsCleanly(output, "false declaration").getAllQuestions().map((q) => q.name)).toEqual(["a"]);
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/0/properties/x"]]);
+  });
+
+  it("makes no question for a false property, and reports a key that requires it", () => {
+    const { output, report } = convert({ type: "object", properties: { a: { type: "string" }, x: false }, required: ["x"] });
+    expect(assertConstructsCleanly(output, "false property").getAllQuestions().map((q) => q.name)).toEqual(["a"]);
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/required/0"]]);
+  });
+
+  it("merges another declaration's constraint under a JSONForms Control on the object", () => {
+    const schema = { type: "object", properties: { o: { type: "object", properties: { age: true } } },
+      allOf: [{ properties: { o: { properties: { age: { type: "integer", minimum: 18 } } } } }] };
+    const uiSchema = { type: "Control", scope: "#/properties/o" };
+    expect(convert({ schema, uiSchema }).report.entries).toEqual([]);
+    const q = loadJsonForms(schema, uiSchema, { age: 17 }).getQuestionByName("age");
+    expect([q.inputType, q.hasErrors()]).toEqual(["number", true]);
+  });
+});
+
+describe("json-schema convert - a required key whose only declaration makes no question", () => {
+  const base = { k: { type: "string", enum: ["a", "b"] } };
+  const pointers = (schema: object) => {
+    const { output, report } = convert(schema);
+    assertConstructsCleanly(output, "never declared");
+    expect(findElement(output, "y")).toBeUndefined();
+    return report.entries.map((e) => [e.code, e.sourcePointer]);
+  };
+
+  it("reports the key where its own dependency declares it", () => {
+    expect(pointers({ type: "object", properties: base, required: ["y"], dependencies: { y: { properties: { y: { type: "string" } } } } }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependencies/y"], [JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/required/0"]]);
+  });
+
+  it("reports the key where a branch of an if that reads it declares it", () => {
+    expect(pointers({ type: "object", properties: base, required: ["y"], if: { required: ["y"] }, then: { properties: { y: { type: "string" } } } }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/if"], [JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/required/0"]]);
+    expect(pointers({ type: "object", properties: base, if: { properties: { k: { const: "a" } }, required: ["k"] }, then: { required: ["y"] },
+      allOf: [{ if: { required: ["y"] }, then: { properties: { y: { type: "string" } } } }] }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/allOf/0/if"], [JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/required/0"]]);
+  });
+});
+
+describe("json-schema convert - a property a branch declares false", () => {
+  const k = { type: "string", enum: ["a", "b"] };
+  const kIsA = { properties: { k: { const: "a" } }, required: ["k"] };
+  const pointers = (schema: object) => convert(schema).report.entries.map((e) => [e.code, e.sourcePointer]);
+  // Whether x is visible with `data`, and the data the survey completes with.
+  const run = (schema: object, data: Record<string, unknown>) => {
+    const survey = assertConstructsCleanly(convert(schema).output, "branch false");
+    survey.data = data;
+    const visible = survey.getQuestionByName("x").isVisible;
+    survey.doComplete();
+    return [visible, survey.data];
+  };
+
+  // AJV: x may not be there while the branch holds, and may otherwise.
+  it("hides the property while a then holds, and completes without it", () => {
+    const schema = { type: "object", properties: { k, x: { type: "string" } }, if: kIsA, then: { properties: { x: false } } };
+    expect(pointers(schema)).toEqual([]);
+    expect(run(schema, { k: "a", x: "1" })).toEqual([false, { k: "a" }]);
+    expect(run(schema, { k: "b", x: "1" })).toEqual([true, { k: "b", x: "1" }]);
+    expect(run(schema, { x: "1" })).toEqual([true, { x: "1" }]);
+  });
+
+  it("hides the property while an else holds", () => {
+    const schema = { type: "object", properties: { k, x: { type: "string" } }, if: kIsA, else: { properties: { x: false } } };
+    expect(pointers(schema)).toEqual([]);
+    expect(run(schema, { k: "a", x: "1" })).toEqual([true, { k: "a", x: "1" }]);
+    expect(run(schema, { k: "b", x: "1" })).toEqual([false, { k: "b" }]);
+    expect(run(schema, { x: "1" })).toEqual([false, {}]);
+  });
+
+  it("hides the property while a schema dependency's trigger is there", () => {
+    for (const keyword of ["dependentSchemas", "dependencies"]) {
+      const schema = { type: "object", properties: { k, x: { type: "string" } }, [keyword]: { k: { properties: { x: false } } } };
+      expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, `#/${keyword}/k`]]);
+      expect(run(schema, { k: "b", x: "1" })).toEqual([false, { k: "b" }]);
+      expect(run(schema, { x: "1" })).toEqual([true, { x: "1" }]);
+    }
+  });
+
+  it("hides the property while an allOf entry's then holds", () => {
+    const schema = { type: "object", properties: { k, x: { type: "string" } }, allOf: [{ if: kIsA, then: { properties: { x: false } } }] };
+    expect(pointers(schema)).toEqual([]);
+    expect(run(schema, { k: "a", x: "1" })).toEqual([false, { k: "a" }]);
+    expect(run(schema, { k: "b", x: "1" })).toEqual([true, { k: "b", x: "1" }]);
+  });
+
+  it("shows a property one branch shows only while another does not forbid it", () => {
+    const schema = { type: "object", properties: { k, j: k }, if: kIsA, then: { properties: { x: { type: "string" } } },
+      allOf: [{ if: { properties: { j: { const: "a" } }, required: ["j"] }, then: { properties: { x: false } } }] };
+    expect(pointers(schema)).toEqual([]);
+    expect(run(schema, { k: "a", x: "1" })).toEqual([true, { k: "a", x: "1" }]);
+    expect(run(schema, { k: "a", j: "a", x: "1" })).toEqual([false, { k: "a", j: "a" }]);
+    expect(run(schema, { k: "b", j: "b", x: "1" })).toEqual([false, { k: "b", j: "b" }]);
+  });
+
+  it("reports a key one branch both requires and forbids", () => {
+    const schema = { type: "object", properties: { k, x: { type: "string" } }, if: kIsA, then: { properties: { x: false }, required: ["x"] } };
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/properties/x"]]);
+    expect(run(schema, { k: "a", x: "1" })[0]).toBe(false);
+  });
+
+  it("reports a key the branch's own condition reads, which would hide on its own value", () => {
+    const schema = { type: "object", properties: { k, x: { type: "string" } }, if: { required: ["x"] }, then: { properties: { x: false } } };
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/properties/x"]]);
+    expect(findElement(convert(schema).output, "x")?.visibleIf).toBeUndefined();
+  });
+
+  it("reports the property under JSONForms, which shows a Control while the branch forbids its value", () => {
+    const schema = { type: "object", properties: { k, x: { type: "string" } }, if: kIsA, then: { properties: { x: false } } };
+    const uiSchema = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/k" }, { type: "Control", scope: "#/properties/x" }] };
+    const { output, report } = convert({ schema, uiSchema });
+    expect(findElement(output, "x")?.visibleIf).toBeUndefined();
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/properties/x"]]);
+  });
+});
+
+describe("json-schema convert - a false declaration and a branch that declares the key", () => {
+  const k = { type: "string", enum: ["a", "b"] };
+  const kIsA = { properties: { k: { const: "a" } }, required: ["k"] };
+  const questions = (schema: object) => {
+    const { output, report } = convert(schema);
+    const survey = assertConstructsCleanly(output, "false and a branch");
+    survey.data = { k: "a" };
+    return [survey.getAllQuestions().map((q) => q.name), report.entries.map((e) => [e.code, e.sourcePointer])];
+  };
+
+  it("makes no question for a key the object declares false, and reports the branch's declaration", () => {
+    expect(questions({ type: "object", properties: { k, x: false }, if: kIsA, then: { properties: { x: { type: "string" } } } }))
+      .toEqual([["k"], [[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/properties/x"]]]);
+    expect(questions({ type: "object", properties: { k, x: false }, dependentSchemas: { k: { properties: { x: { type: "string" } } } } }))
+      .toEqual([["k"], [[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentSchemas/k"], [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentSchemas/k/properties/x"]]]);
+  });
+
+  it("makes no question for a key an allOf entry declares false, and reports both dropped declarations", () => {
+    expect(questions({ type: "object", properties: { k, x: { type: "string" } }, allOf: [{ properties: { x: false } }], if: kIsA, then: { properties: { x: { type: "string" } } } }))
+      .toEqual([["k"], [[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/0/properties/x"], [JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/properties/x"]]]);
+  });
+
+  it("makes no question for a key a branch that applies always declares false", () => {
+    expect(questions({ type: "object", properties: { k, x: { type: "string" } }, if: true, then: { properties: { x: false } } }))
+      .toEqual([["k"], [[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/properties/x"]]]);
+  });
+});
+
+describe("json-schema convert - a JSONForms Control on a property another declaration makes false or conflicts with", () => {
+  const ui = (...scopes: string[]) => ({ type: "VerticalLayout", elements: scopes.map((scope) => ({ type: "Control", scope })) });
+  const result = (schema: object, uiSchema: object) => {
+    const { output, report } = convert({ schema, uiSchema });
+    return [assertConstructsCleanly(output, "jsonforms false").getAllQuestions().map((q) => q.name), report.entries.map((e) => [e.code, e.sourcePointer, e.count])];
+  };
+
+  it("makes no question for a Control on a property an allOf entry declares false, and reports the entry", () => {
+    const schema = { type: "object", properties: { a: { type: "string" }, x: { type: "string" } }, allOf: [{ properties: { x: false } }] };
+    expect(result(schema, ui("#/properties/a", "#/properties/x"))).toEqual([["a"], [[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/0/properties/x", 1]]]);
+  });
+
+  it("makes no question for a nested scope on such a property, and reports the entry once", () => {
+    const schema = { type: "object", properties: { o: { type: "object", properties: { a: { type: "string" }, x: { type: "string" } } } },
+      allOf: [{ properties: { o: { properties: { x: false } } } }] };
+    expect(result(schema, ui("#/properties/o/properties/a", "#/properties/o/properties/x"))).toEqual([["a"], [
+      [JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/0/properties/o/properties/x", 1], [JsonSchemaCodes.ASSUMED_NESTED_SCOPE, "#/uiSchema/elements/0/scope", 1]]]);
+    expect(result(schema, ui("#/properties/o", "#/properties/o/properties/x"))).toEqual([["a"], [[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/0/properties/o/properties/x", 1]]]);
+  });
+
+  it("reports a declaration whose type conflicts with the one a Control maps", () => {
+    const schema = { type: "object", properties: { o: { type: "object", properties: { age: true } } }, allOf: [{ properties: { o: { type: "string" } } }] };
+    expect(result(schema, ui("#/properties/o"))).toEqual([["age"], [[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/0/properties/o", 1]]]);
+  });
+});
+
+describe("json-schema convert - a JSONForms Control on a property whose key holds / or ~", () => {
+  const ui = (...scopes: string[]) => ({ type: "VerticalLayout", elements: scopes.map((scope) => ({ type: "Control", scope })) });
+  const result = (schema: object, uiSchema: object) => {
+    const { output, report } = convert({ schema, uiSchema });
+    return [assertConstructsCleanly(output, "escaped key").getAllQuestions().map((q) => q.name), report.entries.map((e) => [e.code, e.sourcePointer, e.count])];
+  };
+
+  for (const key of ["x/y", "x~y"]) {
+    const scope = `#/properties/${key.replace(/~/g, "~0").replace(/\//g, "~1")}`;
+
+    it(`makes no question for a Control on ${key}, which an allOf entry declares false, and reports the entry`, () => {
+      const schema = { type: "object", properties: { a: { type: "string" }, [key]: { type: "string" } }, allOf: [{ properties: { [key]: false } }] };
+      expect(result(schema, ui("#/properties/a", scope))).toEqual([["a"], [[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `#/allOf/0/properties/${key}`, 1]]]);
+    });
+
+    it(`reports a declaration of ${key} whose type conflicts with the one a Control maps`, () => {
+      const schema = { type: "object", properties: { [key]: { type: "string" } }, allOf: [{ properties: { [key]: { type: "number" } } }] };
+      const [names, entries] = result(schema, ui(scope));
+      expect(names).toEqual([key]);
+      expect(entries).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `#/allOf/0/properties/${key}`, 1]]);
+      // The data walk reports the same declaration.
+      expect(convert(schema).report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, `#/allOf/0/properties/${key}`]]);
+    });
+  }
+});
+
+describe("json-schema convert - a branch given as a $ref, an allOf, a nested if or a not", () => {
+  const k = { type: "string", enum: ["a", "b"] };
+  const kIsA = { properties: { k: { const: "a" } }, required: ["k"] };
+  const jIsA = { properties: { j: { const: "a" } }, required: ["j"] };
+  const y = { type: "string" };
+  const pointers = (input: object) => convert(input).report.entries.map((e) => [e.code, e.sourcePointer]);
+  // Whether `name` is visible and has a required error with `data`, and the data the survey completes with.
+  const run = (input: object, data: Record<string, unknown>, name: string) => {
+    const survey = assertConstructsCleanly(convert(input).output, "branch shape");
+    survey.data = data;
+    const q = survey.getQuestionByName(name);
+    const state = [q?.isVisible ?? false, q ? q.isVisible && q.hasErrors(false) : false];
+    survey.doComplete();
+    return [...state, survey.data];
+  };
+
+  // AJV: y is required while k is "a", and is not otherwise.
+  const requiresY: [string, object][] = [
+    ["then $ref", { type: "object", properties: { k }, if: kIsA, then: { $ref: "#/$defs/d" }, $defs: { d: { properties: { y }, required: ["y"] } } }],
+    ["then allOf", { type: "object", properties: { k }, if: kIsA, then: { allOf: [{ properties: { y } }, { required: ["y"] }] } }],
+    ["then allOf of a $ref", { type: "object", properties: { k }, if: kIsA, then: { allOf: [{ $ref: "#/$defs/d" }] }, $defs: { d: { properties: { y }, required: ["y"] } } }],
+    ["else $ref", { type: "object", properties: { k }, if: { properties: { k: { const: "b" } }, required: ["k"] }, else: { $ref: "#/$defs/d" },
+      $defs: { d: { properties: { y }, required: ["y"] } } }]
+  ];
+  for (const [where, schema] of requiresY) {
+    it(`shows and requires a property a ${where} branch declares and requires`, () => {
+      expect(pointers(schema)).toEqual([]);
+      expect(run(schema, { k: "a" }, "y")).toEqual([true, true, { k: "a" }]);
+      expect(run(schema, { k: "a", y: "1" }, "y")).toEqual([true, false, { k: "a", y: "1" }]);
+      expect(run(schema, { k: "b", y: "1" }, "y")).toEqual([false, false, { k: "b" }]);
+    });
+  }
+
+  it("requires a property a dependency given as a $ref or an allOf requires", () => {
+    for (const dep of [{ $ref: "#/$defs/d" }, { allOf: [{ $ref: "#/$defs/d" }] }]) {
+      const schema = { type: "object", properties: { k }, dependentSchemas: { k: dep }, $defs: { d: { properties: { y }, required: ["y"] } } };
+      expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentSchemas/k"]]);
+      expect(run(schema, { k: "b" }, "y")).toEqual([true, true, { k: "b" }]);
+      expect(run(schema, {}, "y")).toEqual([false, false, {}]);
+    }
+  });
+
+  // AJV: x may not be there while the branch holds.
+  it("hides a property a $ref or an allOf branch declares false while it holds", () => {
+    const base = { type: "object", properties: { k, x: { type: "string" } }, $defs: { d: { properties: { x: false } } } };
+    for (const branch of [{ $ref: "#/$defs/d" }, { allOf: [{ $ref: "#/$defs/d" }] }, { allOf: [{ properties: { x: false } }] }]) {
+      const schema = { ...base, if: kIsA, then: branch };
+      expect(pointers(schema)).toEqual([]);
+      expect(run(schema, { k: "a", x: "1" }, "x")).toEqual([false, false, { k: "a" }]);
+      expect(run(schema, { k: "b", x: "1" }, "x")).toEqual([true, false, { k: "b", x: "1" }]);
+    }
+    const dep = { ...base, dependentSchemas: { k: { $ref: "#/$defs/d" } } };
+    expect(pointers(dep)).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentSchemas/k"]]);
+    expect(run(dep, { k: "b", x: "1" }, "x")).toEqual([false, false, { k: "b" }]);
+    expect(run(dep, { x: "1" }, "x")).toEqual([true, false, { x: "1" }]);
+  });
+
+  // AJV: y is required while both k and j are "a"; x may not be there while k is "a" and j is not.
+  it("applies a nested if under both conditions", () => {
+    const schema = { type: "object", properties: { k, j: k, x: { type: "string" } }, if: kIsA,
+      then: { if: jIsA, then: { properties: { y }, required: ["y"] }, else: { properties: { x: false } } } };
+    expect(pointers(schema)).toEqual([]);
+    expect(run(schema, { k: "a", j: "a" }, "y")).toEqual([true, true, { k: "a", j: "a" }]);
+    expect(run(schema, { k: "a", j: "b", y: "1" }, "y")).toEqual([false, false, { k: "a", j: "b" }]);
+    expect(run(schema, { k: "b", j: "a", y: "1" }, "y")).toEqual([false, false, { k: "b", j: "a" }]);
+    expect(run(schema, { k: "a", j: "b", x: "1" }, "x")).toEqual([false, false, { k: "a", j: "b" }]);
+    expect(run(schema, { k: "a", j: "a", x: "1" }, "x")).toEqual([true, false, { k: "a", j: "a", x: "1" }]);
+    expect(run(schema, { k: "b", j: "b", x: "1" }, "x")).toEqual([true, false, { k: "b", j: "b", x: "1" }]);
+  });
+
+  it("applies an if nested in an allOf branch and in a dependency", () => {
+    const allOf = { type: "object", properties: { k, j: k }, if: kIsA, then: { allOf: [{ if: jIsA, then: { properties: { y }, required: ["y"] } }] } };
+    expect(pointers(allOf)).toEqual([]);
+    expect(run(allOf, { k: "a", j: "a" }, "y")).toEqual([true, true, { k: "a", j: "a" }]);
+    expect(run(allOf, { k: "a", j: "b", y: "1" }, "y")).toEqual([false, false, { k: "a", j: "b" }]);
+    const dep = { type: "object", properties: { k, j: k }, dependentSchemas: { k: { if: jIsA, then: { properties: { y }, required: ["y"] } } } };
+    expect(pointers(dep)).toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentSchemas/k"]]);
+    expect(run(dep, { k: "b", j: "a" }, "y")).toEqual([true, true, { k: "b", j: "a" }]);
+    expect(run(dep, { j: "a", y: "1" }, "y")).toEqual([false, false, { j: "a" }]);
+  });
+
+  it("reports a nested if that cannot be expressed, and applies nothing of it", () => {
+    const schema = { type: "object", properties: { k, j: { type: "string" }, y }, if: kIsA, then: { if: { properties: { j: { minLength: 2 } } }, then: { required: ["y"] } } };
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/if"]]);
+    expect(run(schema, { k: "a", j: "abc" }, "y")).toEqual([true, false, { k: "a", j: "abc" }]);
+  });
+
+  it("reports a not branch and any other keyword a branch holds, and applies the rest", () => {
+    const schema = { type: "object", properties: { k, x: { type: "string" } }, if: kIsA,
+      then: { not: { required: ["x"] }, minProperties: 2, required: ["x"] }, else: { anyOf: [{ required: ["x"] }] } };
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/else/anyOf"], [JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/minProperties"],
+      [JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/not"]]);
+    expect(run(schema, { k: "a" }, "x")).toEqual([true, true, { k: "a" }]);
+    expect(pointers({ type: "object", properties: { k, x: { type: "string" } }, dependentSchemas: { k: { not: { required: ["x"] } } } }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentSchemas/k"], [JsonSchemaCodes.ASSUMED_DEPENDENCIES, "#/dependentSchemas/k/not"]]);
+  });
+
+  it("reports a false branch, which no object meets while it holds", () => {
+    expect(pointers({ type: "object", properties: { k }, if: kIsA, then: false })).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then"]]);
+    expect(pointers({ type: "object", properties: { k }, if: kIsA, then: true })).toEqual([]);
+  });
+
+  it("reports a false allOf entry of a branch", () => {
+    expect(pointers({ type: "object", properties: { k }, if: kIsA, then: { allOf: [{ required: ["k"] }, false] } }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/allOf/1"]]);
+  });
+
+  // AJV: no object with k "a" and j "a" is valid, as x is both required and forbidden there.
+  it("reports a key a nested branch forbids while the branch it sits in requires it, and the other way round", () => {
+    const base = { type: "object", properties: { k, j: k, x: { type: "string" } }, if: kIsA };
+    const inner = { ...base, then: { required: ["x"], if: jIsA, then: { properties: { x: false } } } };
+    expect(pointers(inner)).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/then/properties/x"]]);
+    expect(run(inner, { k: "a", j: "a", x: "1" }, "x")).toEqual([false, false, { k: "a", j: "a" }]);
+    expect(run(inner, { k: "a", j: "b" }, "x")).toEqual([true, true, { k: "a", j: "b" }]);
+    const outer = { ...base, then: { properties: { x: false }, if: jIsA, then: { required: ["x"] } } };
+    expect(pointers(outer)).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/properties/x"]]);
+    expect(run(outer, { k: "a", j: "b", x: "1" }, "x")).toEqual([false, false, { k: "a", j: "b" }]);
+    expect(run(outer, { k: "b", x: "1" }, "x")).toEqual([true, false, { k: "b", x: "1" }]);
+  });
+
+  it("reports a keyword beside a branch's $ref, which the $ref's target replaces", () => {
+    const schema = { type: "object", properties: { k, y }, if: kIsA, then: { $ref: "#/$defs/d", required: ["y"], title: "t" }, $defs: { d: { required: ["k"] } } };
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/required"]]);
+  });
+
+  it("reports a branch given as a remote $ref", () => {
+    const schema = { type: "object", properties: { k }, if: kIsA, then: { $ref: "https://example.com/d.json" } };
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.DROPPED_REMOTE_REF, "#/then"]]);
+  });
+
+  it("stops at a branch whose $ref leads back to it", () => {
+    const schema = { type: "object", properties: { k, j: k, y }, if: kIsA, then: { $ref: "#/$defs/d" },
+      $defs: { d: { required: ["y"], if: jIsA, then: { $ref: "#/$defs/d" }, else: { $ref: "#/$defs/d" } } } };
+    expect(() => convert(schema)).not.toThrow();
+    expect(run(schema, { k: "a" }, "y")).toEqual([true, true, { k: "a" }]);
+  });
+
+  it("requires a property a $ref branch or a nested if requires under JSONForms", () => {
+    const ui = { type: "VerticalLayout", elements: ["k", "j", "y"].map((key) => ({ type: "Control", scope: `#/properties/${key}` })) };
+    const refSchema = { type: "object", properties: { k, j: k, y }, if: kIsA, then: { $ref: "#/$defs/d" }, $defs: { d: { required: ["y"] } } };
+    expect(pointers({ schema: refSchema, uiSchema: ui })).toEqual([]);
+    expect(loadJsonForms(refSchema, ui, { k: "a" }).getQuestionByName("y").isRequired).toBe(true);
+    expect(loadJsonForms(refSchema, ui, { k: "b" }).getQuestionByName("y").isRequired).toBe(false);
+    const nested = { type: "object", properties: { k, j: k, y }, if: kIsA, then: { if: jIsA, then: { required: ["y"] } } };
+    expect(pointers({ schema: nested, uiSchema: ui })).toEqual([]);
+    expect(loadJsonForms(nested, ui, { k: "a", j: "a" }).getQuestionByName("y").isRequired).toBe(true);
+    expect(loadJsonForms(nested, ui, { k: "a", j: "b" }).getQuestionByName("y").isRequired).toBe(false);
+    expect(loadJsonForms(nested, ui, { k: "b", j: "a" }).getQuestionByName("y").isRequired).toBe(false);
+    // A not branch is reported there too: JSONForms validates it.
+    const not = { type: "object", properties: { k, j: k, y }, if: kIsA, then: { not: { required: ["y"] } } };
+    expect(pointers({ schema: not, uiSchema: ui })).toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/not"]]);
+  });
+});
+
+describe("json-schema convert - branches and allOf entries shared along many paths", () => {
+  const k = { type: "string", enum: ["a", "b"] };
+  // d_i: an if on k_i whose then and else both name d_{i+1}; the last one requires y.
+  const branchDag = (depth: number) => {
+    const $defs: Record<string, object> = {};
+    const properties: Record<string, object> = { y: { type: "string" } };
+    for (let i = 0; i < depth; i++) {
+      properties[`k${i}`] = k;
+      $defs[`d${i}`] = { if: { properties: { [`k${i}`]: { const: "a" } }, required: [`k${i}`] }, then: { $ref: `#/$defs/d${i + 1}` }, else: { $ref: `#/$defs/d${i + 1}` } };
+    }
+    $defs[`d${depth}`] = { required: ["y"] };
+    return { type: "object", properties, if: true, then: { $ref: "#/$defs/d0" }, $defs };
+  };
+  // d_i: an allOf naming d_{i+1} twice, beside a property of its own.
+  const allOfDag = (depth: number) => {
+    const $defs: Record<string, object> = {};
+    for (let i = 0; i < depth; i++) $defs[`d${i}`] = { allOf: [{ $ref: `#/$defs/d${i + 1}` }, { $ref: `#/$defs/d${i + 1}` }], properties: { [`p${i}`]: { type: "string" } } };
+    $defs[`d${depth}`] = { properties: { y: { type: "string" } } };
+    return { type: "object", allOf: [{ $ref: "#/$defs/d0" }], $defs };
+  };
+
+  it("stops expanding branches a $ref names along many paths, and reports the if it stops at", () => {
+    const { output, report } = convert(branchDag(14));
+    // Read along every path, the branches give a requiredIf of some 4.5 MB; the budget bounds them.
+    expect(JSON.stringify(output).length).toBeLessThan(16000);
+    expect(report.entries.length).toBeGreaterThan(0);
+    expect(report.entries.every((e) => e.code === JsonSchemaCodes.ASSUMED_IF_THEN_ELSE && e.sourcePointer.endsWith("/if"))).toBe(true);
+    const survey = assertConstructsCleanly(output, "branch DAG");
+    // Every path ends in d14, so AJV requires y always. The paths read before the stop require it;
+    // nothing of a branch past the stop applies, so y is not required on the last path.
+    survey.data = Object.fromEntries(Array.from({ length: 14 }, (_, i) => [`k${i}`, "a"]));
+    expect(survey.getQuestionByName("y").isRequired).toBe(true);
+    survey.data = Object.fromEntries(Array.from({ length: 14 }, (_, i) => [`k${i}`, "b"]));
+    expect(survey.getQuestionByName("y").isRequired).toBe(false);
+  });
+
+  it("applies a branch a $ref names along a few paths exactly", () => {
+    const { output, report } = convert(branchDag(3));
+    expect(report.entries).toEqual([]);
+    const survey = assertConstructsCleanly(output, "small branch DAG");
+    survey.data = { k0: "a", k1: "b" };
+    expect(survey.getQuestionByName("y").isRequired).toBe(true);
+  });
+
+  it("merges an allOf entry named along many paths once, and does not throw", () => {
+    const run = () => convert(allOfDag(16));
+    expect(run).not.toThrow();
+    const { output, report } = run();
+    // One question per property, each once.
+    expect(JSON.stringify(output).length).toBeLessThan(1000);
+    expect(report.entries).toEqual([]);
+    expect(assertConstructsCleanly(output, "allOf DAG").getAllQuestions().map((q) => q.name).sort())
+      .toEqual([...Array.from({ length: 16 }, (_, i) => `p${i}`), "y"].sort());
+  });
+});
+
+describe("json-schema convert - a branch that never applies", () => {
+  const k = { type: "string", enum: ["a", "b"] };
+  const x = { type: "string" };
+  const y = { type: "string" };
+  const kIsA = { properties: { k: { const: "a" } }, required: ["k"] };
+  const pointers = (schema: object) => convert(schema).report.entries.map((e) => [e.code, e.sourcePointer]);
+
+  it("does not count a key only a dead branch declares as declared, and reports a required on it", () => {
+    expect(pointers({ type: "object", properties: { k, x }, if: kIsA, then: { required: ["x", "y"], if: false, then: { properties: { y } } } }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/required/1"]]);
+    expect(pointers({ type: "object", properties: { k, x }, if: kIsA, then: { $ref: "#/$defs/d" }, $defs: { d: { required: ["x", "y"], if: false, then: { properties: { y } } } } }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/then/required/1"]]);
+    expect(pointers({ type: "object", properties: { k }, allOf: [{ if: false, then: { properties: { y } } }, { if: kIsA, then: { required: ["y"] } }] }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/allOf/1/then/required/0"]]);
+    expect(pointers({ type: "object", properties: { k }, allOf: [{ if: true, else: { properties: { y } } }, { if: kIsA, then: { required: ["y"] } }] }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/allOf/1/then/required/0"]]);
+  });
+
+  it("still shows a key a branch that applies always declares", () => {
+    const schema = { type: "object", properties: { k }, allOf: [{ if: true, then: { properties: { y } } }, { if: kIsA, then: { required: ["y"] } }] };
+    expect(pointers(schema)).toEqual([]);
+    const survey = assertConstructsCleanly(convert(schema).output, "live branch");
+    survey.data = { k: "a" };
+    expect(survey.getQuestionByName("y").isRequired).toBe(true);
+  });
+
+  it("reads definitions beside a branch's $ref as constraining nothing", () => {
+    expect(pointers({ type: "object", properties: { k }, if: kIsA, then: { $ref: "#/then/$defs/d", $defs: { d: { required: ["k"] } } } })).toEqual([]);
+  });
+});
+
+// The visible questions and panels with an error of their own for `data` (questions first), and the data
+// the survey completes with. A dynamic panel's rows list their questions' errors.
+function completeWith(input: object, data: Record<string, unknown>): [string[], Record<string, unknown>] {
+  const survey = assertConstructsCleanly(convert(input).output, "complete");
+  survey.data = data;
+  const errors: string[] = [];
+  for (const q of survey.getAllQuestions(true, false, true)) {
+    if (q.getType() !== "paneldynamic" && q.isVisible && q.isParentVisible && q.hasErrors(false)) errors.push(q.name);
+  }
+  for (const p of survey.getAllPanels(true) as PanelModel[]) {
+    p.hasErrors(true);
+    if (p.isVisible && p.errors.length > 0) errors.push(p.name);
+  }
+  survey.doComplete();
+  return [errors, survey.data];
+}
+
+describe("json-schema convert - the tagbox of an array of primitives", () => {
+  const req = (items: object) => ({ type: "object", required: ["t"], properties: { t: { type: "array", items } } });
+  const tagbox = (input: object) => findElement(convert(input).output, "t");
+  const pointers = (input: object) => {
+    const { output, report } = convert(input);
+    assertConstructsCleanly(output, "tagbox");
+    return report.entries.map((e) => [e.code, e.sourcePointer]);
+  };
+
+  it("allows custom choices, so a required one keeps the items it holds", () => {
+    const input = req({ type: "string" });
+    expect(tagbox(input)).toMatchObject({ type: "tagbox", allowCustomChoices: true, isRequired: true });
+    expect(completeWith(input, { t: ["a", "b"] })).toEqual([[], { t: ["a", "b"] }]);
+    expect(completeWith(input, {})[0]).toEqual(["t"]);
+  });
+
+  it("keeps the fixed choices of a tagbox on an enum array", () => {
+    const input = req({ type: "string", enum: ["a", "b"] });
+    const el = findElement(convert({ schema: input, uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/t", options: { multi: true } }] } }).output, "t");
+    expect(el?.type).toBe("tagbox");
+    expect(el?.allowCustomChoices).toBeUndefined();
+    expect(tagbox(input)?.type).toBe("checkbox");
+    expect(completeWith(input, { t: ["a"] })).toEqual([[], { t: ["a"] }]);
+  });
+
+  it("reports number, integer and boolean items, whose values the tagbox stores as text", () => {
+    for (const type of ["number", "integer", "boolean"]) {
+      const input = req({ type });
+      expect(tagbox(input)).toMatchObject({ type: "tagbox", allowCustomChoices: true });
+      expect(pointers(input)).toEqual([[JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/t/items/type"]]);
+    }
+    expect(pointers(req({ type: ["number", "null"] }))).toEqual([[JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/t/items/type"]]);
+    expect(pointers(req({ type: ["string", "number"] }))).toEqual([]);
+    expect(pointers(req({}))).toEqual([]);
+  });
+
+  it("reports a tuple-form items and keeps the tagbox", () => {
+    const input = req([{ type: "string" }, { type: "number" }]);
+    expect(tagbox(input)).toMatchObject({ type: "tagbox", allowCustomChoices: true });
+    expect(pointers(input)).toEqual([[JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/t/items"]]);
+    assertConstructsCleanly(convert(input).output, "tuple");
+  });
+});
+
+describe("json-schema convert - JSONForms Controls on the fields of an object no Control walks", () => {
+  const ui = (...scopes: string[]) => ({ type: "VerticalLayout", elements: scopes.map((scope) => ({ type: "Control", scope })) });
+  const p = { type: "string", enum: ["a", "b"] };
+  const q = { type: "string" };
+  const o = { type: "object", properties: { p, q }, if: { properties: { p: { const: "a" } }, required: ["p"] }, then: { required: ["q"] } };
+  const codes = (input: object) => convert(input).report.entries.map((e) => [e.code, e.sourcePointer]);
+
+  // AJV: q is required while p is "a".
+  it("applies the object's if/then to the Controls on its fields", () => {
+    const input = { schema: { type: "object", properties: { o }, required: ["o"] }, uiSchema: ui("#/properties/o/properties/p", "#/properties/o/properties/q") };
+    expect(completeWith(input, { p: "a" })[0]).toEqual(["q"]);
+    expect(completeWith(input, { p: "b" })[0]).toEqual([]);
+    expect(completeWith(input, { p: "a", q: "1" })[0]).toEqual([]);
+    expect(codes(input)).toEqual([
+      [JsonSchemaCodes.ASSUMED_NESTED_SCOPE, "#/uiSchema/elements/0/scope"],
+      [JsonSchemaCodes.ASSUMED_NESTED_SCOPE, "#/uiSchema/elements/1/scope"]
+    ]);
+  });
+
+  // AJV: p is required whenever o is there.
+  it("applies the object's allOf required to a Control on its field", () => {
+    const required = { type: "object", properties: { p: { type: "string" } }, allOf: [{ required: ["p"] }] };
+    const input = { schema: { type: "object", properties: { o: required }, required: ["o"] }, uiSchema: ui("#/properties/o/properties/p") };
+    expect(completeWith(input, {})[0]).toEqual(["p"]);
+    expect(completeWith(input, { p: "1" })[0]).toEqual([]);
+  });
+
+  it("reports the object's if once, when it cannot be expressed", () => {
+    const unread = { ...o, if: { properties: { p: { const: "a" } }, required: ["p"], minProperties: 1 } };
+    const input = { schema: { type: "object", properties: { o: unread }, required: ["o"] }, uiSchema: ui("#/properties/o/properties/p", "#/properties/o/properties/q") };
+    expect(convert(input).report.entries.map((e) => [e.code, e.sourcePointer, e.count])).toEqual([
+      [JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/properties/o/if", 1],
+      [JsonSchemaCodes.ASSUMED_NESTED_SCOPE, "#/uiSchema/elements/0/scope", 1],
+      [JsonSchemaCodes.ASSUMED_NESTED_SCOPE, "#/uiSchema/elements/1/scope", 1]
+    ]);
+  });
+
+  it("applies them in an array's detail", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object", properties: { o }, required: ["o"] } } } };
+    const detail = ui("#/properties/o/properties/p", "#/properties/o/properties/q");
+    const input = { schema, uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/rows", options: { detail } }] } };
+    expect(completeWith(input, { rows: [{ p: "a" }] })[0]).toEqual(["q"]);
+    expect(completeWith(input, { rows: [{ p: "b" }] })[0]).toEqual([]);
+  });
+
+  it("applies them in an object's detail", () => {
+    const schema = { type: "object", properties: { outer: { type: "object", properties: { o }, required: ["o"] } }, required: ["outer"] };
+    const detail = ui("#/properties/o/properties/p", "#/properties/o/properties/q");
+    const input = { schema, uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/outer", options: { detail } }] } };
+    expect(completeWith(input, { p: "a" })[0]).toEqual(["q"]);
+    expect(completeWith(input, { p: "b" })[0]).toEqual([]);
+  });
+});
+
+describe("json-schema convert - requirements inside an optional nested object", () => {
+  const country = { type: "string", enum: ["US", "CA"] };
+  const zip = { type: "string" };
+  const name = { type: "string" };
+  const address = { type: "object", properties: { country, zip }, if: { properties: { country: { const: "US" } } }, then: { required: ["zip"] } };
+
+  // AJV: an absent address is valid; one that is there requires zip while its country is absent or "US".
+  it("requires a branch's key only while the object holds a value", () => {
+    const schema = { type: "object", properties: { address, name } };
+    expect(completeWith(schema, {})).toEqual([[], {}]);
+    expect(completeWith(schema, { name: "n" })[0]).toEqual([]);
+    expect(completeWith(schema, { country: "US" })[0]).toEqual(["zip"]);
+    expect(completeWith(schema, { country: "CA" })[0]).toEqual([]);
+    expect(completeWith(schema, { zip: "1" })[0]).toEqual([]);
+    const survey = assertConstructsCleanly(convert(schema).output, "optional object");
+    expect(["country", "zip"].map((n) => survey.getQuestionByName(n).isVisible)).toEqual([true, true]);
+  });
+
+  // AJV: country is required once address is there.
+  it("requires the object's own required keys only while it holds a value", () => {
+    const schema = { type: "object", properties: { address: { type: "object", properties: { country, zip }, required: ["country"] } } };
+    expect(completeWith(schema, {})[0]).toEqual([]);
+    expect(completeWith(schema, { zip: "1" })[0]).toEqual(["country"]);
+    expect(completeWith(schema, { country: "US" })[0]).toEqual([]);
+  });
+
+  it("gates a dependency's and an allOf entry's required too", () => {
+    const schema = { type: "object", properties: { address: { type: "object", properties: { country, zip },
+      dependentRequired: { country: ["zip"] }, allOf: [{ required: ["country"] }] } } };
+    expect(completeWith(schema, {})[0]).toEqual([]);
+    expect(completeWith(schema, { zip: "1" })[0]).toEqual(["country"]);
+    expect(completeWith(schema, { country: "US" })[0]).toEqual(["zip"]);
+    expect(completeWith(schema, { country: "US", zip: "1" })[0]).toEqual([]);
+  });
+
+  it("leaves a required object's requirements as they are", () => {
+    const schema = { type: "object", properties: { address: { ...address, required: ["country"] } }, required: ["address"] };
+    const { output } = convert(schema);
+    expect(findElement(output, "address")?.isRequired).toBe(true);
+    expect(findElement(output, "country")?.isRequired).toBe(true);
+    expect(findElement(output, "zip")?.requiredIf).toBe("({country} empty or {country} = 'US')");
+  });
+
+  // AJV: b is required once p is there; p is required once o is there, when o requires it.
+  it("composes the presence of nested optional objects", () => {
+    const p = { type: "object", properties: { b: name, c: name }, required: ["b"] };
+    const optional = { type: "object", properties: { o: { type: "object", properties: { a: name, p } } } };
+    expect(completeWith(optional, {})[0]).toEqual([]);
+    expect(completeWith(optional, { a: "1" })[0]).toEqual([]);
+    expect(completeWith(optional, { c: "1" })[0]).toEqual(["b"]);
+    expect(completeWith(optional, { b: "1" })[0]).toEqual([]);
+    const requiredInner = { type: "object", properties: { o: { type: "object", properties: { a: name, p }, required: ["p"] } } };
+    expect(completeWith(requiredInner, {})[0]).toEqual([]);
+    expect(completeWith(requiredInner, { a: "1" })[0]).toEqual(["b", "p"]);
+    expect(completeWith(requiredInner, { a: "1", c: "1" })[0]).toEqual(["b"]);
+    expect(completeWith(requiredInner, { a: "1", b: "1" })[0]).toEqual([]);
+  });
+
+  it("gates them inside an array's rows", () => {
+    const schema = { type: "object", properties: { rows: { type: "array", items: { type: "object",
+      properties: { o: { type: "object", properties: { a: name, b: name }, required: ["a"] } } } } } };
+    expect(completeWith(schema, { rows: [{}] })[0]).toEqual([]);
+    expect(completeWith(schema, { rows: [{ b: "1" }] })[0]).toEqual(["a"]);
+  });
+
+  it("gates them under JSONForms, for an object Control and for Controls on the object's fields", () => {
+    const o = { type: "object", properties: { p: { type: "string", enum: ["a", "b"] }, q: name, r: name }, required: ["r"],
+      if: { properties: { p: { const: "a" } }, required: ["p"] }, then: { required: ["q"] } };
+    const schema = { type: "object", properties: { o } };
+    const object = { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/o" }] };
+    const fields = { type: "VerticalLayout", elements: ["p", "q", "r"].map((k) => ({ type: "Control", scope: `#/properties/o/properties/${k}` })) };
+    for (const uiSchema of [object, fields]) {
+      const input = { schema, uiSchema };
+      expect(completeWith(input, {})[0]).toEqual([]);
+      expect(completeWith(input, { q: "1" })[0]).toEqual(["r"]);
+      expect(completeWith(input, { p: "a", r: "1" })[0]).toEqual(["q"]);
+      expect(completeWith(input, { p: "b", r: "1" })[0]).toEqual([]);
+    }
+  });
+});
+
+describe("json-schema convert - a JSONForms object Control and a required key only a branch declares", () => {
+  it("reports the key, which no Control holds", () => {
+    const o = { type: "object", properties: { k: { type: "string", enum: ["a", "b"] } }, required: ["y"],
+      if: { properties: { k: { const: "a" } }, required: ["k"] }, then: { properties: { y: { type: "string" } } } };
+    const { output, report } = convert({ schema: { type: "object", properties: { o }, required: ["o"] },
+      uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/o" }] } });
+    assertConstructsCleanly(output, "branch-only required key");
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.UNSUPPORTED_FREE_FORM_OBJECT, "#/properties/o/required/0"]]);
+  });
+});
+
+describe("json-schema convert - an if literal the field's type excludes", () => {
+  const x = { type: "string" };
+  const run = (k: object, ifK: object, required = true) => {
+    const schema = { type: "object", properties: { k, x }, if: { properties: { k: ifK }, ...(required ? { required: ["k"] } : {}) }, then: { required: ["x"] } };
+    const { output, report } = convert(schema);
+    return { requiredIf: findElement(output, "x")?.requiredIf, entries: report.entries.map((e) => [e.code, e.sourcePointer]), schema };
+  };
+
+  // AJV: a valid k is a text, which never equals the number 1 or the boolean true.
+  it("refuses an if left with no value of the field's type, and reports it", () => {
+    for (const ifK of [{ const: 1 }, { const: true }, { enum: [1, false] }]) {
+      expect(run({ type: "string" }, ifK), JSON.stringify(ifK)).toMatchObject({ requiredIf: undefined, entries: [[JsonSchemaCodes.ASSUMED_IF_THEN_ELSE, "#/if"]] });
+    }
+  });
+
+  it("drops the values the type excludes", () => {
+    const { requiredIf, entries, schema } = run({ type: "string" }, { enum: ["true", true] });
+    expect([requiredIf, entries]).toEqual(["{k} = 'true'", []]);
+    expect(completeWith(schema, { k: "1" })[0]).toEqual([]);
+    expect(completeWith(schema, { k: "true" })[0]).toEqual(["x"]);
+  });
+
+  // AJV: an absent k meets the if; a text k never does.
+  it("reads an optional key left with no value as absent", () => {
+    expect(run({ type: "string" }, { const: 1 }, false)).toMatchObject({ requiredIf: "{k} empty", entries: [] });
+  });
+
+  it("keeps a value of a type the field allows", () => {
+    expect(run({ type: ["string", "number"] }, { const: 1 })).toMatchObject({ requiredIf: "{k} = 1", entries: [] });
+  });
+});
+
+describe("json-schema convert - a nested scope whose property name ends in then or else", () => {
+  it("is reported as a nested scope", () => {
+    const { report } = convert({ schema: { type: "object", properties: { strengthen: { type: "object", properties: { x: { type: "string" } } } } },
+      uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/strengthen/properties/x" }] } });
+    expect(report.entries.map((e) => [e.code, e.sourcePointer])).toEqual([[JsonSchemaCodes.ASSUMED_NESTED_SCOPE, "#/uiSchema/elements/0/scope"]]);
+  });
+});
+
+describe("json-schema convert - schemas that allow no value or no field", () => {
+  const pointers = (input: object) => convert(input).report.entries.map((e) => [e.code, e.sourcePointer]);
+  const names = (input: object) => assertConstructsCleanly(convert(input).output, "no value").getAllQuestions().map((q) => q.name);
+
+  it("gives no question for a root anyOf of object variants, and reports the anyOf", () => {
+    for (const schema of [{ anyOf: [{ properties: { a: { type: "string" } } }, { properties: { b: { type: "string" } } }] },
+      { type: "object", anyOf: [{ properties: { a: { type: "string" } } }, { properties: { b: { type: "string" } } }] }]) {
+      expect(names(schema)).toEqual([]);
+      expect(pointers(schema)).toEqual([[JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/anyOf"]]);
+    }
+  });
+
+  it("reports a false allOf entry of an object, which no instance meets", () => {
+    const nested = { type: "object", properties: { o: { type: "object", properties: { a: { type: "string" } }, allOf: [false] } } };
+    expect(pointers(nested)).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/properties/o/allOf/0"]]);
+    const root = { type: "object", properties: { a: { type: "string" } }, allOf: [{ required: ["a"] }, false] };
+    expect(pointers(root)).toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/1"]]);
+    expect(pointers({ schema: root, uiSchema: { type: "VerticalLayout", elements: [{ type: "Control", scope: "#/properties/a" }] } }))
+      .toEqual([[JsonSchemaCodes.ASSUMED_ALLOF_MERGE, "#/allOf/1"]]);
+  });
+
+  it("gives no question for an array whose items are false, and reports them", () => {
+    const schema = { type: "object", properties: { t: { type: "array", items: false }, a: { type: "string" } } };
+    expect(names(schema)).toEqual(["a"]);
+    expect(pointers(schema)).toEqual([[JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/t/items"]]);
+  });
+
+  it("reports the constraints of an array's primitive items, which its tagbox does not keep", () => {
+    const schema = { type: "object", properties: { t: { type: "array", items: { type: "string", maxLength: 3, pattern: "^a", title: "T" } },
+      u: { type: "array", items: { allOf: [{ type: "string" }, { minLength: 1 }] } }, v: { type: "array", items: { type: "string" } } } };
+    expect(names(schema)).toEqual(["t", "u", "v"]);
+    expect(pointers(schema)).toEqual([
+      [JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/t/items/maxLength"],
+      [JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/t/items/pattern"],
+      [JsonSchemaCodes.UNSUPPORTED_KEYWORD, "#/properties/u/items/allOf/1/minLength"]
+    ]);
   });
 });

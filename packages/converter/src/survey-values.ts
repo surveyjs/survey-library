@@ -1,7 +1,7 @@
 // How survey-core compares a question's value with a literal in a condition such as `{q} = 5`.
 //
-// The Form.io converter writes a literal only when survey-core's comparison holds for exactly the
-// values Form.io's own comparison holds for, and decides that with this model. The model follows
+// The Form.io and JSON Schema converters write a literal only when survey-core's comparison holds
+// for exactly the values the source's own comparison holds for, and decide that with this model. The model follows
 // survey-core's source (`expressions/expressions.ts`, `helpers.ts`) and does not import it: the
 // converter has no runtime dependency. `survey-values.spec.ts` checks it against survey-core's
 // `ConditionRunner`, so a change in survey-core shows up there.
@@ -62,6 +62,21 @@ export function surveyEquals(x: unknown, y: unknown): boolean {
   if ((y === true || y === false) && typeof x === "string") return y.toString() === x.toLocaleLowerCase();
   // eslint-disable-next-line eqeqeq
   return x == y;
+}
+
+// survey-core's `{q} empty` when the question holds `value` (`undefined` for no value):
+// `Helpers.isValueEmpty` on the value as an expression reads it (`surveyVariable`), so no value, the
+// empty text, an empty array, or an object whose values are all empty. `notempty` is its negation.
+export function surveyEmpty(value: unknown): boolean {
+  return isValueEmpty(surveyVariable(value));
+}
+
+function isValueEmpty(value: unknown): boolean {
+  if (Array.isArray(value)) return value.length === 0;
+  if (value && typeof value === "object" && (value as object).constructor === Object) {
+    return Object.values(value as Record<string, unknown>).every((v) => isValueEmpty(v));
+  }
+  return !value && value !== 0 && value !== false;
 }
 
 // The operators of a condition on a question's value.

@@ -99,12 +99,11 @@ function schemaEffectiveType(s) {
   return undefined;
 }
 
-/**
- * Count leaf value-bearing properties in a JSON Schema. Object properties
- * recurse; array-of-object items recurse into the item template; scalars, enums
- * and arrays-of-primitives each count as one. `allOf` subschemas are merged
- * shallowly. Bounded by depth to survive recursive schemas.
- */
+// Count leaf value-bearing properties in a JSON Schema. Object properties recurse; array-of-object
+// items recurse into the item template; scalars, enums and arrays-of-primitives each count as one.
+// `allOf` subschemas are merged, an entry's own `allOf` too, and an item schema's `allOf` is merged
+// before its type is read; a property several entries declare is counted once, from its first
+// declaration. Bounded by depth to survive recursive schemas.
 export function countJsonSchemaLeafProps(input) {
   const root = input && typeof input === "object" && input.schema && typeof input.schema === "object" ? input.schema : input;
   if (!root || typeof root !== "object") return 0;
@@ -123,14 +122,21 @@ export function countJsonSchemaLeafProps(input) {
     }
     return cur || {};
   };
-  const mergeAllOf = (s) => {
-    if (!Array.isArray(s.allOf)) return s;
+  // An `allOf` entry's own `allOf` is merged too, so a chain of entries (`person` -> `subject` ->
+  // `conclusion`) gives every property once. A merge with no `properties` anywhere stays a scalar
+  // schema, as the converter's merge does, and an entry that leads back to a schema being merged
+  // adds nothing.
+  const mergeAllOf = (s, merging = new Set()) => {
+    if (!Array.isArray(s.allOf) || merging.has(s)) return s;
+    const inner = new Set(merging).add(s);
     const props = { ...(s.properties || {}) };
+    let hasProperties = s.properties !== undefined;
     for (const sub of s.allOf) {
-      const r = resolve(sub);
+      const r = mergeAllOf(resolve(sub), inner);
+      if (r.properties !== undefined) hasProperties = true;
       for (const [k, v] of Object.entries(r.properties || {})) if (!(k in props)) props[k] = v;
     }
-    return { ...s, properties: props };
+    return hasProperties ? { ...s, properties: props } : s;
   };
 
   let n = 0;
@@ -145,7 +151,7 @@ export function countJsonSchemaLeafProps(input) {
       return;
     }
     if (type === "array") {
-      const items = resolve(s.items || {});
+      const items = mergeAllOf(resolve(s.items || {}));
       if (schemaEffectiveType(items) === "object") { visit(items, depth + 1); return; }
       n++; // array of primitives / enum -> one multi-select
       return;

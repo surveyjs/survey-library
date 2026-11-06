@@ -1,16 +1,16 @@
 {
   "definitions": 614,
-  "fieldsIn": 1557,
-  "fieldsOut": 1903,
+  "fieldsIn": 2006,
+  "fieldsOut": 1904,
   "buckets": {
-    "unsupported": 294,
+    "unsupported": 316,
     "unknown": 3,
-    "assumed": 242,
+    "assumed": 283,
     "dropped": 434
   },
-  "weightedClean": 1513,
-  "fidelityRatio": 1.2222,
-  "cleanPerField": 0.9717,
+  "weightedClean": 1740,
+  "fidelityRatio": 0.9492,
+  "cleanPerField": 0.8674,
   "perSource": {
     "formio": {
       "definitions": 522,
@@ -28,17 +28,17 @@
     },
     "json-schema": {
       "definitions": 92,
-      "fieldsIn": 428,
-      "fieldsOut": 803,
+      "fieldsIn": 877,
+      "fieldsOut": 804,
       "buckets": {
-        "unsupported": 40,
+        "unsupported": 62,
         "unknown": 0,
-        "assumed": 10,
+        "assumed": 51,
         "dropped": 60
       },
-      "weightedClean": 90,
-      "fidelityRatio": 1.8762,
-      "cleanPerField": 0.2103
+      "weightedClean": 317,
+      "fidelityRatio": 0.9168,
+      "cleanPerField": 0.3615
     }
   },
   "lint": {

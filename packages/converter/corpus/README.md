@@ -72,6 +72,7 @@ corpus/
   scoring.mjs           # pure fidelity metric (shared by the spec)
   sources.json          # upstream repos/paths to scrape, per converter
   fidelity.spec.ts      # oracle + fidelity gate (npm run corpus:score)
+  scope-resolver.spec.ts# lib.mjs's scope resolver agrees with the converter's
   fidelity-baseline.json# committed aggregate baseline (regression gate)
   formio/               # scraped Form.io definitions + _manifest.json (committed)
   json-schema/          # scraped JSON Schema (+ UI schema) defs + _manifest.json

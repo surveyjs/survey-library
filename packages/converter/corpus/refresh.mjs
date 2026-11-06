@@ -367,6 +367,17 @@ function selfTest() {
   const js = constructTokens("json-schema", { type: "object", properties: { x: { type: "string", "x-vendor-widget": "slider" } } });
   check("Job A flags a vendor JSON Schema keyword", js.unhandled.has("keyword-unknown:x-vendor-widget"));
 
+  // 2'. A non-local `$ref` is unhandled only when no `$id` of the document declares what it names.
+  const bundle = { $id: "https://example.com/schemas/root", type: "object",
+    $defs: { count: { $id: "https://example.com/schemas/count", type: "integer" }, flag: { type: "boolean" } },
+    properties: { rel: { $ref: "/schemas/count" }, frag: { $ref: "https://example.com/schemas/root#/$defs/flag" } } };
+  const bundled = constructTokens("json-schema", bundle);
+  check("A $ref resolved through an $id is handled", bundled.tokens.has("ref:bundled") && !bundled.tokens.has("ref:remote"));
+  const remote = constructTokens("json-schema", { ...bundle, properties: { other: { $ref: "https://example.com/schemas/other" },
+    lost: { $ref: "https://example.com/schemas/root#/$defs/nothing" } } });
+  check("A $ref no $id declares, or whose fragment names nothing, is remote and unhandled",
+    remote.unhandled.has("ref:remote") && !remote.tokens.has("ref:bundled"));
+
   // 2a. Classification: a single Form.io component is wrapped as a form.
   const single = classifyDefinitions("formio", [{ name: "comp", value: { type: "textfield", key: "a" } }]);
   check("A single Form.io component is wrapped as a form",

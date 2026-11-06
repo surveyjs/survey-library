@@ -38,7 +38,7 @@ import { ConversionResult, ReportBuilder } from "../report";
 import { UnparseableInputError, WrongFormatError } from "../errors";
 import { SurveyJSON, SurveyJSONElement, SurveyJSONPage } from "../types";
 import { formatLiteral } from "../expression";
-import { SurveyOperator, surveyEquals, surveyHolds, surveyLiteral, surveyNumber } from "./survey-values";
+import { SurveyOperator, surveyEquals, surveyHolds, surveyLiteral, surveyNumber } from "../survey-values";
 import { FormioCodes } from "./codes";
 import { isKnownFormioType } from "./vendor/component-types";
 

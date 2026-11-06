@@ -87,6 +87,9 @@ import ActionBarItemDropdown from "./components/action-bar/ActionBarItemDropdown
 import ActionBarSeparator from "./components/action-bar/ActionBarSeparator.vue";
 
 import SortBarLevel from "./components/records-bar/SortBarLevel.vue";
+import Filter from "./Filter.vue";
+import FilterChip from "./components/filter/FilterChip.vue";
+import FilterListItem from "./components/filter/FilterListItem.vue";
 import List from "./components/list/List.vue";
 import ListItem from "./components/list/ListItem.vue";
 import ListItemContent from "./components/list/ListItemContent.vue";
@@ -125,7 +128,7 @@ import Element from "./Element.vue";
 
 import TemplateRenderer from "./TemplateRenderer.vue";
 
-import { RendererFactory, SurveyModel } from "survey-core";
+import { RendererFactory, SurveyModel, filterChipComponentName, filterListItemComponentName } from "survey-core";
 import type { App } from "vue";
 import FileCleanButton from "./FileCleanButton.vue";
 import FileVideo from "./FileVideo.vue";
@@ -272,6 +275,9 @@ function registerComponents(
   registerComponent("sv-action-bar-item-dropdown", ActionBarItemDropdown);
   registerComponent("sv-action-bar-separator", ActionBarSeparator);
   registerComponent("sv-sort-bar-level", SortBarLevel);
+  registerComponent("survey-filter", Filter);
+  registerComponent(filterChipComponentName, FilterChip);
+  registerComponent(filterListItemComponentName, FilterListItem);
 
   registerComponent("sv-list", List);
   registerComponent("sv-list-item-content", ListItemContent);

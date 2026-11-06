@@ -1353,9 +1353,17 @@ export abstract class QuestionRecordsModel extends Question {
     const records = this.dataList.getMaterializedIndexes();
     let count = 0;
     while(!!this.getItem(count)) count++;
-    for (let i = count; i < records.length; i++) {
-      append(records[i]);
-    }
+    if (count >= records.length) return;
+    this.runObjectsAppend((): void => {
+      for (let i = count; i < records.length; i++) {
+        /* The held conditions keep the page from being rebuilt under the loop. Anything else that
+           builds the objects for these positions meanwhile - a handler of a new object that reads
+           the objects - leaves nothing to append there: an object appended past the page would
+           address a record that does not exist, and its write would add one. */
+        if (!!this.getItem(i)) continue;
+        append(records[i]);
+      }
+    });
   }
   /* The record count changed outside a list write - the matrix pads its value up to rowCount, an
      assignment the list did not make: the records that appeared join the view, the ones that are gone
@@ -1867,7 +1875,7 @@ export abstract class QuestionRecordsModel extends Question {
   private recordCountScope: Scope = new Scope();
   private get isRecordsOperationOpen(): boolean {
     return this.valueAssignmentScope.isActive || this.recordAddScope.isActive || this.recordCountScope.isActive || this.isOwnWriteOpen ||
-      this.structuralStoreScope.isActive || this.followingWriteScope.isActive;
+      this.structuralStoreScope.isActive || this.followingWriteScope.isActive || this.objectsAppendScope.isActive;
   }
   private runRecordsOperation<T>(scope: Scope, func: () => T): T {
     try {
@@ -3238,6 +3246,11 @@ export abstract class QuestionRecordsModel extends Question {
       ? list.hasView && this.isPageStale()
       : !!created && !Helpers.isTwoValueEquals(created, list.getCreatedIndexes());
     if (isMembershipChanged) {
+      /* The page is a slice of the visible records, and the assigned records have no flags yet: they
+         are decided before the page is read, as a rebuild decides them. Otherwise objects are appended
+         for a page the held run then finds stale, and the page is built twice. An own write needs no
+         decision here: the condition run that follows it decides the flags. */
+      this.decideRecordsVisibility();
       this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex, true); });
     }
     if (!this.isPagedByList) return;
@@ -3426,7 +3439,7 @@ export abstract class QuestionRecordsModel extends Question {
   }
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
-    if (this.structuralStoreScope.isActive) {
+    if (this.structuralStoreScope.isActive || this.objectsAppendScope.isActive) {
       this.heldItemsCondition = { properties: properties };
     } else {
       this.runItemsCondition(properties);
@@ -3447,11 +3460,34 @@ export abstract class QuestionRecordsModel extends Question {
       this.runOwedExpressionFields();
     }
   }
+  /* The objects are appended for the records of the page that have none (followRecordsWithObjects).
+     The objects' conditions wait until the last one exists: the page names records the objects do
+     not hold yet, so a run in between - a new object computes a value and writes it, the write runs
+     the conditions, and a flag the records decide changes - would find the page stale and rebuild it
+     under the loop, which then appends past the page. The held run runs the conditions of every
+     object once they all exist. An append that threw drops it: the objects appended before ran their
+     own conditions while they were built, and a run here would call the handlers again while the
+     error unwinds. The next condition run completes the page. */
+  private objectsAppendScope: Scope = new Scope();
+  private runObjectsAppend(func: () => void): void {
+    let isAppended = false;
+    try {
+      this.objectsAppendScope.run((): void => {
+        func();
+        isAppended = true;
+      });
+    } finally {
+      // Inside a write the objects follow (runObjectsFollowingWrite), that write runs the held run.
+      if (!isAppended && !this.followingWriteScope.isActive)this.heldItemsCondition = undefined;
+      this.runHeldItemsCondition();
+      this.runOwedExpressionFields();
+    }
+  }
   /* An object's write during the held run can change how many records are stored - a padded record
      it fills in. The run that write makes skips the object that is still computing, so a record count
      that object read before is stale: the objects compute once more when the count changed. */
   private runHeldItemsCondition(): void {
-    if (this.followingWriteScope.isActive) return;
+    if (this.followingWriteScope.isActive || this.objectsAppendScope.isActive) return;
     const held = this.heldItemsCondition;
     this.heldItemsCondition = undefined;
     if (!held || this.isDisposed) return;

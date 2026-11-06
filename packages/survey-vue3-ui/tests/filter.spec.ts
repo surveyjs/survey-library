@@ -1,7 +1,7 @@
-import { Action, FilterFieldPopup, SurveyModel, QuestionFilterModel } from "survey-core";
+import { Action, FilterEditorHolder, FilterFieldPopup, SurveyModel, QuestionFilterModel } from "survey-core";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mount, config, type VueWrapper } from "@vue/test-utils";
-import { nextTick } from "vue";
+import { markRaw, nextTick } from "vue";
 import { surveyPlugin } from "../src/index";
 import Survey from "@/Survey.vue";
 import SvComponent from "@/SvComponent.vue";
@@ -25,8 +25,13 @@ function attach(): HTMLElement {
   document.body.appendChild(container);
   return container;
 }
+// The models arrive the way a popup hands them over (contentComponentData, a plain object): not as the
+// deep reactive proxies @vue/test-utils makes of mount props, which survey-core's own reactivity
+// bridge would then write through and re-render in a loop.
 function mountComponent(name: string, props: any): VueWrapper<any> {
-  return mount(SvComponent, { attachTo: attach(), props: Object.assign({ is: name }, props) });
+  const rawProps: any = { is: name };
+  Object.keys(props).forEach((key: string) => { rawProps[key] = markRaw(props[key]); });
+  return mount(SvComponent, { attachTo: attach(), props: rawProps });
 }
 function cleanup(wrapper: VueWrapper<any>): void {
   const container = wrapper.element.parentElement;
@@ -88,5 +93,141 @@ describe("Filter list item", () => {
     expect(!!wrapper.element.parentElement.querySelector(".sd-checkbox.sd-checkbox--readonly .sd-checkbox__decorator")).toBe(true);
     cleanup(wrapper);
     popup.dispose();
+  });
+});
+
+describe("Filter dialogs", () => {
+  it("the Filters dialog shows the search box, the presets and the fields", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true,
+      fields: [{ name: "age" }], items: [{ name: "p", title: "Adults", expression: "{age} > 18" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    const wrapper = mountComponent("sv-filter-modal", { holder: holder });
+    await nextTick();
+    const container = wrapper.element.parentElement;
+    expect(container.querySelector(".sd-filter-modal__section-title").textContent, "#1").toBe("Filter Presets");
+    expect(container.textContent, "#2").toContain("Adults");
+    expect(!!container.querySelector(".sd-filter-modal__section input"), "#3: the search box").toBe(true);
+    expect(!!container.querySelector(".sd-filter-modal__editor"), "#4: the fields").toBe(true);
+    expect(container.textContent, "#4a: Add Preset").toContain("Add Preset");
+    expect(!!container.querySelector(".sd-filter-modal__section-header [title='Edit Presets']"), "#4b: the pencil").toBe(true);
+    const modal = holder.modal;
+    holder.modal = undefined;
+    await nextTick();
+    modal.dispose();
+    expect(container.textContent, "#5: an emptied holder unmounts the content").toBe("");
+    expect(container.querySelector(".sd-filter-modal__content"), "#5a").toBe(null);
+    cleanup(wrapper);
+  });
+  it("Edit Presets shows the tabs, the form, the fields in a frame and the actions; another tab redraws them", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }],
+      items: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    const dialog = q.createEditPresetsDialog("a");
+    holder.presetDialog = dialog;
+    const wrapper = mountComponent("sv-filter-preset-dialog", { holder: holder });
+    await nextTick();
+    const container = wrapper.element.parentElement;
+    expect(container.querySelector(".sd-filter-preset-dialog__tabs").textContent, "#1").toBe("AdultsKids");
+    expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#2").toBe("Adults");
+    expect(!!container.querySelector(".sd-filter-preset-dialog__fields .sd-filter-modal__editor"), "#3: the fields").toBe(true);
+    expect(container.textContent, "#4").toContain("Preset Actions");
+    const input = container.querySelector(".sd-filter-preset-dialog__form input");
+    dialog.selectTab("k");
+    await nextTick();
+    expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#5").toBe("Kids");
+    expect(container.querySelector(".sd-filter-preset-dialog__form input") !== input, "#5a: a new form is drawn anew, not over the old one").toBe(true);
+    holder.presetDialog = undefined;
+    await nextTick();
+    dialog.dispose();
+    expect(container.querySelector(".sd-filter-preset-dialog__content"), "#6: an emptied holder unmounts the content").toBe(null);
+    cleanup(wrapper);
+  });
+  it("the search box of a badge's popup is drawn as the text question's formbox", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
+      { name: "product", fieldType: "dropdown", choices: ["a", "b", "c", "d", "e", "f", "g"] }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.fieldPopup = q.createFieldPopup("product", () => {});
+    const wrapper = mountComponent("sv-filter-field-popup", { holder: holder });
+    await nextTick();
+    expect(!!wrapper.element.parentElement.querySelector(".sd-filter-popup__search.sd-formbox input")).toBe(true);
+    cleanup(wrapper);
+    holder.fieldPopup.dispose();
+  });
+});
+
+describe("Filter AI dialog", () => {
+  function setup(json: any = {}): { q: QuestionFilterModel, calls: Array<any> } {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "filter", name: "f1",
+      fields: [{ name: "age", fieldType: "text", inputType: "number" }] }, json)] });
+    const calls: Array<any> = [];
+    survey.onAIFilterRequest.add((_, options) => { calls.push(options); });
+    return { q: survey.getQuestionByName("f1") as QuestionFilterModel, calls: calls };
+  }
+  it("Create custom filter: the description and its button; the fields' editors once the model answered", async () => {
+    const { q, calls } = setup();
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    const dialog = q.createAIDialog();
+    holder.aiDialog = dialog;
+    const wrapper = mountComponent("sv-filter-ai-dialog", { holder: holder });
+    await nextTick();
+    const content = wrapper.element.parentElement.querySelector(".sd-filter-ai-dialog__content");
+    expect(content.querySelector(".sd-filter-ai-prompt__title").textContent, "#1").toBe("Describe what you need - AI will do the rest.");
+    expect(!!content.querySelector(".sd-filter-ai-prompt__form textarea"), "#2: the description").toBe(true);
+    expect(content.querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Create new filter");
+    expect(!!content.querySelector(".sd-filter-modal__editor"), "#4: no fields yet").toBe(false);
+    dialog.aiPrompt.form.setValue("prompt", "adults");
+    dialog.aiPrompt.request();
+    await nextTick();
+    calls[0].callback({ data: { expression: "{age} > 18", title: "Adults", explanation: "" } });
+    await nextTick();
+    expect(!!content.querySelector(".sd-filter-modal__editor"), "#5: the fields").toBe(true);
+    expect(content.querySelector(".sd-filter-ai-prompt__request").textContent, "#6").toContain("Make Changes");
+    expect(content.querySelector(".sd-filter-ai-prompt__title").textContent, "#7").toBe("Describe what to change - if needed.");
+    dialog.aiPrompt.errorText = "Something went wrong";
+    await nextTick();
+    expect(content.querySelector(".sd-filter-ai-prompt__error").textContent, "#8").toBe("Something went wrong");
+    holder.aiDialog = undefined;
+    await nextTick();
+    dialog.dispose();
+    expect(wrapper.element.parentElement.querySelector(".sd-filter-ai-dialog__content"), "#9: an emptied holder unmounts the content").toBe(null);
+    cleanup(wrapper);
+  });
+  it("the Filters dialog shows Create with AI while the application answers AI requests", async () => {
+    const { q } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    const wrapper = mountComponent("sv-filter-modal", { holder: holder });
+    await nextTick();
+    expect(wrapper.element.parentElement.textContent).toContain("Create with AI...");
+    const modal = holder.modal;
+    holder.modal = undefined;
+    await nextTick();
+    modal.dispose();
+    cleanup(wrapper);
+  });
+  it("Edit Presets shows the description and Make Changes in the tab of an AI preset", async () => {
+    const { q } = setup({ items: [{ name: "a", title: "Adults", type: "ai", prompt: "grown-ups", expression: "{age} > 18" }] });
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    const dialog = q.createEditPresetsDialog("a");
+    holder.presetDialog = dialog;
+    const wrapper = mountComponent("sv-filter-preset-dialog", { holder: holder });
+    await nextTick();
+    const block = wrapper.element.parentElement.querySelector(".sd-filter-preset-dialog__content .sd-filter-ai-prompt");
+    expect(!!block, "#1").toBe(true);
+    expect((block.querySelector("textarea") as HTMLTextAreaElement).value, "#2").toBe("grown-ups");
+    expect(block.querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Make Changes");
+    holder.presetDialog = undefined;
+    await nextTick();
+    dialog.dispose();
+    cleanup(wrapper);
   });
 });

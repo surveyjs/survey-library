@@ -206,4 +206,22 @@ describe("Question descriptors of the AI context (ai-expressions)", () => {
     survey.fromJSON({ elements: [{ type: "dropdown", name: "q1", choices: ["a", "b"], showOtherItem: true, choicesVisibleIf: "{item} != 'b'" }] });
     expect(getExpressionChoices(<Question>survey.getQuestionByName("q1")).map(c => c.value)).toEqual(["a", "b", "other"]);
   });
+  test("in the design mode: carried-forward choices are the source's values; with choicesByUrl the static choices stay", () => {
+    const survey = new SurveyModel();
+    survey.webProvider = { sendRequest: (): void => { } };
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [
+      { type: "checkbox", name: "c1", choices: ["a", "b"], showOtherItem: true },
+      { type: "checkbox", name: "c2", choicesFromQuestion: "c1", showNoneItem: true },
+      { type: "dropdown", name: "d1", choices: ["x", "y"], choicesByUrl: { url: "https://api.example.com/items" } },
+      { type: "checkbox", name: "c3", choicesFromQuestion: "c4", showNoneItem: true },
+      { type: "checkbox", name: "c4", choicesFromQuestion: "c3" },
+    ] });
+    const values = (name: string) => (getExpressionChoices(<Question>survey.getQuestionByName(name)) || []).map(c => c.value);
+    // the source's Other is its own item, not a carried value
+    expect(values("c2")).toEqual(["a", "b", "none"]);
+    expect(values("d1")).toEqual(["x", "y"]);
+    // a choicesFromQuestion cycle ends
+    expect(values("c3")).toEqual(["none"]);
+  });
 });

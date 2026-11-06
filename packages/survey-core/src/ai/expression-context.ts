@@ -135,6 +135,26 @@ export function toExpressionChoices(items: Array<ItemValue>): Array<IExpressionC
   return items.map(item => ({ value: item.value, text: item.text }));
 }
 
+// The items a select question offers as values. In Creator's design mode the visible items also hold
+// the "new item" placeholder and the special items that are off - the question that owns the list
+// knows which it really shows - and they leave out carried-forward and URL-loaded choices: there the
+// source question's values or the static choices stand in for them. visited stops a choicesFromQuestion cycle.
+function getValueItems(question: any, visited: Array<any>): Array<ItemValue> {
+  const owner = question.contentQuestion || question;
+  const items: Array<ItemValue> = (question.getValueChoices() || [])
+    .filter((item: ItemValue) => typeof owner.isItemInList !== "function" || owner.isItemInList(item));
+  if (!owner.isInDesignMode || typeof owner.isBuiltInChoice !== "function" || visited.indexOf(owner) > -1) return items;
+  visited.push(owner);
+  let choices: Array<ItemValue>;
+  const source = !!owner.choicesFromQuestion ? owner.getCarryForwardQuestion() : null;
+  if (!!source && owner.carryForwardQuestionType === "select") {
+    choices = getValueItems(source, visited).filter(item => !source.isBuiltInChoice(item));
+  } else if (!!owner.choicesByUrl && !!owner.choicesByUrl.url) {
+    choices = owner.choices || [];
+  }
+  return !!choices ? choices.concat(items.filter(item => owner.isBuiltInChoice(item))) : items;
+}
+
 // The values a question can hold, as a condition compares them: what the question offers -
 // generated, copied from another question, loaded by URL or wrapped by a component - with the
 // built-in items it shows (none, other, ...).
@@ -142,11 +162,7 @@ export function getExpressionChoices(question: Question): Array<IExpressionConte
   if (!question || !question.getType) return undefined;
   const q: any = question;
   if (question.isSelectQuestion() && typeof q.getValueChoices === "function") {
-    // In Creator's design mode the visible items also hold the "new item" placeholder and the
-    // special items that are off; the question that owns the list knows which it really shows.
-    const owner = q.contentQuestion || q;
-    const items: Array<ItemValue> = (q.getValueChoices() || [])
-      .filter((item: ItemValue) => typeof owner.isItemInList !== "function" || owner.isItemInList(item));
+    const items = getValueItems(q, []);
     return items.length > 0 ? toExpressionChoices(items) : undefined;
   }
   if (question.getType() === "matrix") return toExpressionChoices(q.columns);

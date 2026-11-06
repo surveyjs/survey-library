@@ -9,6 +9,8 @@ import { getLocaleString } from "../surveyStrings";
 import { IFilterCondition, IFilterItemEdit } from "../interfaces/ui-interfaces";
 import { FilterItem } from "./filter-item";
 import { FilterConditionsEditor, IFilterConditionsEditorOwner } from "./filter-conditions-editor";
+import { FilterAIRequest } from "./filter-ai";
+import { FilterAIPrompt } from "./filter-ai-dialog";
 import { filterUIStrings } from "./filter-ui-strings";
 // The question types the form is made of; imported here, as FilterConditionsEditor imports its own.
 import "../question_text";
@@ -30,6 +32,8 @@ export interface IFilterPresetBuffer {
   item?: FilterItem;
   title: string;
   conditions: Array<IFilterCondition> | null;
+  // the description of an AI preset (Edit Presets)
+  prompt?: string;
 }
 
 // The Add New Preset dialog: the preset's title and what it contains - a dropdown per field, "+ Add"
@@ -262,8 +266,11 @@ export class FilterPresetDialog extends Base {
 export interface IFilterEditPresetsDialogOwner extends IFilterPresetDialogOwner {
   getEditableItems(): Array<FilterItem>;
   getItemConditions(name: string): Array<IFilterCondition> | null;
-  getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null };
-  isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null): boolean;
+  getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null, prompt?: string };
+  isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null, prompt?: string): boolean;
+  // an AI preset may be asked about again (Make Changes)
+  canRequestAI: boolean;
+  createAIRequest(): FilterAIRequest;
   canEditItem(item: FilterItem): boolean;
   canDeleteItem(item: FilterItem): boolean;
   isUserItem(item: FilterItem): boolean;
@@ -289,6 +296,10 @@ interface IFilterPresetTab extends IFilterPresetBuffer {
 // does not hold the others back. A preset that may not be edited shows read-only; one that does not
 // decompose has its title only, and no Contains.
 export class FilterEditPresetsDialog extends FilterPresetDialog {
+  // The description and Make Changes of the selected tab's AI preset (see canAskAI); undefined for
+  // any other tab. Made anew for another tab: an answer for the tab left is ignored.
+  @property() aiPrompt: FilterAIPrompt;
+  private aiPromptTab: IFilterPresetTab;
   private tabs: Array<IFilterPresetTab>;
   private tabsToolbarValue: ActionContainer;
   private actionsToolbarValue: ActionContainer;
@@ -316,8 +327,8 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
       }
       used[id] = true;
       const conditions = owner.getItemConditions(item.name);
-      const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions, isDeleted: false, isReset: false,
-        isTouched: false, chip: undefined };
+      const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions, prompt: item.prompt, isDeleted: false,
+        isReset: false, isTouched: false, chip: undefined };
       tab.chip = new Action({ id: id, title: item.title, activeAppearance: { style: "neutral", mode: "primary" },
         action: (): void => { this.showTab(tab); } });
       return tab;
@@ -358,9 +369,13 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     const original = this.editOwner.getOriginalItemState(tab.item.name);
     tab.title = original.title;
     tab.conditions = original.conditions;
+    tab.prompt = original.prompt || "";
     tab.isReset = true;
     tab.isTouched = true;
     this.showBuffer(tab);
+    if (!!this.aiPrompt) {
+      this.aiPrompt.form.setValue("prompt", tab.prompt);
+    }
     this.updateTabs();
   }
   // Checks every tab the respondent changed and writes all of them as one change. false keeps the
@@ -381,7 +396,12 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
       if (tab.isDeleted) {
         edits.push({ name: name, isDeleted: true });
       } else if (tab.isTouched && owner.canEditItem(tab.item)) {
-        edits.push({ name: name, isReset: tab.isReset, title: tab.title.trim(), conditions: tab.conditions === null ? undefined : tab.conditions });
+        const edit: IFilterItemEdit = { name: name, isReset: tab.isReset, title: tab.title.trim(), conditions: tab.conditions === null ? undefined : tab.conditions };
+        const prompt = (tab.prompt || "").trim();
+        if (!!prompt && prompt !== tab.item.prompt) {
+          edit.prompt = prompt;
+        }
+        edits.push(edit);
       } else if (tab.isReset) {
         edits.push({ name: name, isReset: true });
       }
@@ -390,11 +410,20 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     return true;
   }
   public dispose(): void {
+    this.setAIPrompt(undefined, undefined);
     this.tabsToolbarValue.dispose();
     this.actionsToolbarValue.dispose();
     super.dispose();
   }
 
+  // Another tab gets its own description and Make Changes; the same tab drawn anew (Make Changes'
+  // answer, Reset) keeps them - and a request it may be waiting for.
+  protected showBuffer(buffer: IFilterPresetBuffer): void {
+    super.showBuffer(buffer);
+    const tab = <IFilterPresetTab>buffer;
+    if (tab === this.aiPromptTab && !!this.aiPrompt) return;
+    this.setAIPrompt(tab, this.canAskAI(tab) ? this.createAIPrompt(tab) : undefined);
+  }
   protected getOtherTitles(): Array<string> {
     return this.getTitlesExcept(<IFilterPresetTab>this.buffer);
   }
@@ -418,6 +447,40 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
 
   private get editOwner(): IFilterEditPresetsDialogOwner { return <IFilterEditPresetsDialogOwner>this.owner; }
   private get liveTabs(): Array<IFilterPresetTab> { return this.tabs.filter((tab: IFilterPresetTab): boolean => !tab.isDeleted); }
+  // An AI preset whose filter the tab shows as conditions, which the respondent may change, while
+  // the application answers AI requests.
+  private canAskAI(tab: IFilterPresetTab): boolean {
+    const owner = this.editOwner;
+    return !!tab && !!tab.item && tab.item.type === "ai" && tab.conditions !== null && owner.canEditItem(tab.item) && owner.canRequestAI;
+  }
+  private createAIPrompt(tab: IFilterPresetTab): FilterAIPrompt {
+    const prompt = new FilterAIPrompt(this.editOwner.createAIRequest(), { prompt: tab.prompt, isModify: true,
+      modifyTitle: filterUIStrings.aiPromptEdit, locale: this.owner.getLocale(),
+      getConditions: (): Array<IFilterCondition> => !!this.editor ? this.editor.getConditions() : (tab.conditions || []),
+      onAnswer: (conditions: Array<IFilterCondition>): void => { this.onAIAnswer(tab, conditions); } });
+    prompt.form.onValueChanged.add((): void => {
+      if (tab.prompt === prompt.prompt) return;
+      tab.prompt = prompt.prompt;
+      tab.isTouched = true;
+      this.updateTabs();
+    });
+    return prompt;
+  }
+  private setAIPrompt(tab: IFilterPresetTab, prompt: FilterAIPrompt): void {
+    const old = this.aiPrompt;
+    this.aiPromptTab = tab;
+    this.aiPrompt = prompt;
+    if (!!old) old.dispose();
+  }
+  // The model's filter is the tab's now: its rows and editors are made anew, the title kept.
+  private onAIAnswer(tab: IFilterPresetTab, conditions: Array<IFilterCondition>): void {
+    if (this.isDisposed || tab !== this.buffer) return;
+    this.saveBuffer();
+    tab.conditions = conditions;
+    tab.isTouched = true;
+    this.showBuffer(tab);
+    this.updateTabs();
+  }
   private showTab(tab: IFilterPresetTab): void {
     if (!tab || tab.isDeleted || tab === this.buffer) return;
     this.saveBuffer();
@@ -435,6 +498,6 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     });
     const owner = this.editOwner;
     this.deleteAction.visible = !!tab && owner.canDeleteItem(tab.item);
-    this.resetAction.visible = !!tab && !owner.isUserItem(tab.item) && !owner.isOriginalItemState(tab.item.name, tab.title, tab.conditions);
+    this.resetAction.visible = !!tab && !owner.isUserItem(tab.item) && !owner.isOriginalItemState(tab.item.name, tab.title, tab.conditions, tab.prompt);
   }
 }

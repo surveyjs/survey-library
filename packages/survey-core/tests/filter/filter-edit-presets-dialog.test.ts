@@ -167,3 +167,79 @@ describe("FilterEditPresetsDialog: Apply", () => {
     expect([q.getItemByName("adults").title, dialog.apply()], "#1").toEqual(["Adults", false]);
   });
 });
+
+describe("FilterEditPresetsDialog: Make Changes of an AI preset", () => {
+  const aiPresets = [
+    { name: "a1", title: "Adults", type: "ai", prompt: "adults", expression: "{age} > 18" },
+    { name: "raw", type: "ai", expression: "{age} > 1 or {age} < 0" },
+    { name: "adults2", expression: "{age} > 20" }];
+  function open(withHandler: boolean = true, selected: string = "a1"): { q: QuestionFilterModel, dialog: FilterEditPresetsDialog, calls: Array<any> } {
+    const q = createFilter({ items: aiPresets });
+    const calls: Array<any> = [];
+    if (withHandler) {
+      (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
+    }
+    return { q: q, dialog: q.createEditPresetsDialog(selected), calls: calls };
+  }
+  const answer = (expression: string) => ({ data: { expression: expression, title: "", explanation: "" } });
+  test("the tab of an AI preset has its description and Make Changes", () => {
+    const { dialog } = open();
+    const prompt = dialog.aiPrompt;
+    expect([prompt.form.getValue("prompt"), prompt.promptTitle, prompt.requestAction.title, prompt.isModify])
+      .toEqual(["adults", "Describe what to change - AI will do the rest.", "Make Changes", true]);
+    dialog.dispose();
+  });
+  test("none for a preset that does not decompose, a preset not made with AI, or with no handler", () => {
+    const raw = open(true, "raw");
+    expect(raw.dialog.aiPrompt, "#1").toBeUndefined();
+    raw.dialog.selectTab("adults2");
+    expect(raw.dialog.aiPrompt, "#2").toBeUndefined();
+    raw.dialog.selectTab("a1");
+    expect(!!raw.dialog.aiPrompt, "#3").toBe(true);
+    raw.dialog.dispose();
+    const noHandler = open(false);
+    expect(noHandler.dialog.aiPrompt, "#4").toBeUndefined();
+    noHandler.dialog.dispose();
+  });
+  test("Make Changes sends the tab's filter with the new description; the answer is the tab's filter", () => {
+    const { dialog, calls } = open();
+    dialog.aiPrompt.form.setValue("prompt", "adults from France");
+    dialog.aiPrompt.request();
+    expect([calls[0].action, calls[0].userPrompt, calls[0].expression], "#1").toEqual(["modify", "adults from France", "{age} > 18"]);
+    calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']"));
+    expect(dialog.editor.getConditions(), "#2").toEqual([{ field: "country", operator: "anyof", value: ["fr"] }, { field: "age", operator: "greater", value: 18 }]);
+    expect([rows(dialog), dialog.form.getValue("presetTitle"), dialog.aiPrompt.form.getValue("prompt")], "#3")
+      .toEqual([["country", "age"], "Adults", "adults from France"]);
+    dialog.dispose();
+  });
+  test("Apply writes the new description and filter", () => {
+    const { q, dialog, calls } = open();
+    dialog.aiPrompt.form.setValue("prompt", "adults from France");
+    dialog.aiPrompt.request();
+    calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']"));
+    expect(dialog.apply(), "#1").toBe(true);
+    expect([q.getItemByName("a1").prompt, q.getItemConditions("a1")], "#2").toEqual(["adults from France",
+      [{ field: "country", operator: "anyof", value: ["fr"] }, { field: "age", operator: "greater", value: 18 }]]);
+    dialog.dispose();
+  });
+  test("a new description alone is a change, and Reset brings the JSON's back", () => {
+    const { dialog } = open();
+    dialog.aiPrompt.form.setValue("prompt", "grown-ups");
+    expect(actions(dialog), "#1").toEqual(["Delete", "Reset"]);
+    dialog.resetSelected();
+    expect([dialog.aiPrompt.form.getValue("prompt"), dialog.editor.getConditions()], "#2")
+      .toEqual(["adults", [{ field: "age", operator: "greater", value: 18 }]]);
+    expect(actions(dialog), "#3").toEqual(["Delete"]);
+    dialog.dispose();
+  });
+  test("another tab while the model answers: the answer is ignored", () => {
+    const { dialog, calls } = open();
+    dialog.aiPrompt.request();
+    dialog.selectTab("adults2");
+    calls[0].callback(answer("{age} < 5"));
+    expect(dialog.editor.getConditions(), "#1").toEqual([{ field: "age", operator: "greater", value: 20 }]);
+    dialog.selectTab("a1");
+    expect(dialog.editor.getConditions(), "#2").toEqual([{ field: "age", operator: "greater", value: 18 }]);
+    dialog.dispose();
+  });
+});

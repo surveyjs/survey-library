@@ -910,6 +910,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   public showAdvancedEditor(): void { this.toolbars.showAdvancedEditor(); }
   // Add New Preset (isEdit false) or Edit Presets over the Filters dialog - see FilterToolbars.
   public showPresetDialog(modal: FilterModal, isEdit: boolean): void { this.toolbars.showPresetDialog(modal, isEdit); }
+  public showAIDialog(modal: FilterModal): void { this.toolbars.showAIDialog(modal); }
   private updateToolbars(): void {
     if (!!this.toolbarsValue && !this.isDisposed) {
       this.toolbarsValue.update();

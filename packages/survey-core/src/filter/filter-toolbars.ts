@@ -14,6 +14,7 @@ import { FilterFieldPopup } from "./filter-field-popup";
 import { FilterChipsLayout } from "./filter-chips-layout";
 import { FilterModal } from "./filter-modal";
 import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter-preset-dialog";
+import { FilterAIDialog } from "./filter-ai-dialog";
 import { filterUIStrings } from "./filter-ui-strings";
 export { filterUIStrings } from "./filter-ui-strings";
 
@@ -27,6 +28,7 @@ export class FilterEditorHolder extends Base {
   @property() fieldPopup: FilterFieldPopup;
   @property() modal: FilterModal;
   @property() presetDialog: FilterPresetDialog;
+  @property() aiDialog: FilterAIDialog;
   public cssClasses: any;
 }
 
@@ -53,6 +55,7 @@ export interface IFilterToolbarsOwner {
   createFilterModal(): FilterModal;
   createAddPresetDialog(conditions: Array<IFilterCondition>): FilterPresetDialog;
   createEditPresetsDialog(activeItemName?: string): FilterEditPresetsDialog;
+  createAIDialog(): FilterAIDialog;
   getSurveyRootElement(): HTMLElement;
   getLocale(): string;
 }
@@ -69,6 +72,7 @@ export const filterModalComponentName = "sv-filter-modal";
 export const filterFieldPopupComponentName = "sv-filter-field-popup";
 export const filterChipComponentName = "sv-filter-chip";
 export const filterPresetDialogComponentName = "sv-filter-preset-dialog";
+export const filterAIDialogComponentName = "sv-filter-ai-dialog";
 
 // The control's UI as standard action bars the question owns, drawn with sv-action-bar:
 // - the chips row: Filters (when there is no search box to stand next to), a badge per fast mode
@@ -251,16 +255,53 @@ export class FilterToolbars {
     this.presetDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
     this.setPresetDialogFooter(this.presetDialog);
   }
-  // Cancel on the left and Apply on the right, as in the mockup.
-  private setPresetDialogFooter(dialog: any): void {
+  // Create custom filter (FilterAIDialog), over the Filters dialog that opened it, in the place of a
+  // preset dialog: one of them at a time. Its Apply adds the AI preset, refreshes that dialog's
+  // presets and turns the new one on there, so its count says what the preset leaves; any other way
+  // it closes writes nothing, and an answer that comes after is ignored.
+  public showAIDialog(modal: FilterModal): void {
+    if (!settings.showDialog || !!this.presetDialog || !modal || modal.isDisposed) return;
+    const dialogModel = this.owner.createAIDialog();
+    const holder = this.createHolder();
+    holder.aiDialog = dialogModel;
+    this.presetHolder = holder;
+    const options: IDialogOptions = {
+      componentName: filterAIDialogComponentName,
+      data: { holder: holder },
+      onApply: (): boolean => {
+        if (!dialogModel.apply()) return false;
+        modal.refreshPresets();
+        modal.togglePreset(dialogModel.createdItem);
+        return true;
+      },
+      onCancel: (): void => { },
+      onHide: (): void => {
+        this.release(holder);
+        this.presetDialog = undefined;
+        this.presetHolder = undefined;
+      },
+      title: dialogModel.title,
+      showCloseButton: true,
+      cssClass: toCssClasses(this.cssClasses.modal, this.cssClasses.presetDialog, this.owner.isMobile && this.cssClasses.modalMobile),
+      displayMode: "popup"
+    };
+    this.presetDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
+    this.setPresetDialogFooter(this.presetDialog, (): boolean => dialogModel.canApply);
+  }
+  // Cancel on the left and Apply on the right, as in the mockup. canApply: Apply is off while it is false.
+  private setPresetDialogFooter(dialog: any, canApply?: () => boolean): void {
     const footer: ActionContainer = !!dialog ? dialog.footerToolbar : undefined;
     if (!footer) return;
     const locale = this.owner.getLocale();
+    const apply: IAction = { id: "sv-filter-preset-apply", title: getLocaleString("modalApplyButtonText", locale), needSpace: true,
+      appearance: { style: "brand", mode: "primary" }, action: (): void => { dialog.apply(); } };
+    if (!!canApply) {
+      apply.enabled = <any>new ComputedUpdater<boolean>((): boolean => canApply());
+    }
     footer.setItems([
       new Action({ id: "sv-filter-preset-cancel", title: getLocaleString("modalCancelButtonText", locale), appearance: { style: "brand", mode: "secondary" },
         action: (): void => { dialog.cancel(); } }),
-      new Action({ id: "sv-filter-preset-apply", title: getLocaleString("modalApplyButtonText", locale), needSpace: true,
-        appearance: { style: "brand", mode: "primary" }, action: (): void => { dialog.apply(); } })
+      new Action(apply)
     ]);
   }
   public dispose(): void {
@@ -523,12 +564,15 @@ export class FilterToolbars {
     const modal = holder.modal;
     const fieldPopup = holder.fieldPopup;
     const presetDialog = holder.presetDialog;
+    const aiDialog = holder.aiDialog;
     holder.modal = undefined;
     holder.fieldPopup = undefined;
     holder.presetDialog = undefined;
+    holder.aiDialog = undefined;
     if (!!modal) modal.dispose();
     if (!!fieldPopup) fieldPopup.dispose();
     if (!!presetDialog) presetDialog.dispose();
+    if (!!aiDialog) aiDialog.dispose();
   }
   private isSameList(a: Array<string>, b: Array<string>): boolean {
     return !!a && a.length === b.length && a.every((v: string, i: number): boolean => v === b[i]);

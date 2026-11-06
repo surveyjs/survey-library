@@ -33,6 +33,12 @@ describe("FilterAIDialog: before the first answer", () => {
     expect([dialog.editor, dialog.canApply, dialog.apply()], "#6").toEqual([undefined, false, false]);
     dialog.dispose();
   });
+  test("the description is in a panel of its own: a question outside a panel gets a frame, the mockup has none", () => {
+    const { dialog } = open();
+    const question = dialog.aiPrompt.form.getQuestionByName("prompt");
+    expect([question.parent.isPanel, question.parent.name]).toEqual([true, "promptPanel"]);
+    dialog.dispose();
+  });
   test("the request button is drawn as an action bar of its own", () => {
     const { dialog } = open();
     const prompt = dialog.aiPrompt;
@@ -98,6 +104,17 @@ describe("FilterAIDialog: the answer", () => {
     expect([item.type, item.prompt, item.title, item.expression], "#2")
       .toEqual(["ai", "adults from France", "French adults", "{country} anyof ['fr'] and {age} > 18"]);
     expect(q.visibleItems[q.visibleItems.length - 1], "#3").toBe(item);
+    dialog.dispose();
+  });
+  test("an answer to Make Changes with no title keeps the title the model gave before", () => {
+    const { dialog, calls } = open();
+    dialog.aiPrompt.form.setValue("prompt", "countries");
+    dialog.aiPrompt.request();
+    calls[0].callback(answer("{country} anyof ['de']", "Country"));
+    dialog.aiPrompt.request();
+    calls[1].callback(answer("{country} anyof ['de'] and {age} > 18", ""));
+    dialog.apply();
+    expect(dialog.createdItem.title).toBe("Country");
     dialog.dispose();
   });
   test("a title the model gives that is taken gets a number", () => {

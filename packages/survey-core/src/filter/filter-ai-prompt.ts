@@ -42,8 +42,11 @@ export class FilterAIPrompt extends Base {
   constructor(private aiRequest: FilterAIRequest, private options: IFilterAIPromptOptions) {
     super();
     this.isModify = !!options.isModify;
+    // In a panel of its own, as the preset dialogs' title is: a question that is not in a panel gets a
+    // frame, and the mockup has none.
     this.formValue = new SurveyModel({ showNavigationButtons: false, showQuestionNumbers: "off",
-      elements: [{ type: "comment", name: "prompt", titleLocation: "hidden", maxLength: filterAIPromptMaxLength, textUpdateMode: "onTyping" }] });
+      elements: [{ type: "panel", name: "promptPanel", elements: [
+        { type: "comment", name: "prompt", titleLocation: "hidden", maxLength: filterAIPromptMaxLength, textUpdateMode: "onTyping" }] }] });
     this.formValue.locale = options.locale;
     // Inside the dialog with no frames of its own, as the fields' editors are.
     this.formValue.isCompact = true;

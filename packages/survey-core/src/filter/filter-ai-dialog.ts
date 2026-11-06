@@ -56,7 +56,10 @@ export class FilterAIDialog extends Base {
     this.aiPromptValue = new FilterAIPrompt(owner.createAIRequest(), { locale: owner.getLocale(),
       getConditions: (): Array<IFilterCondition> => this.conditions,
       onAnswer: (conditions: Array<IFilterCondition>, title: string): void => {
-        this.aiTitle = title || "";
+        // An answer to Make Changes that names no title keeps the one the model gave before.
+        if (!!title) {
+          this.aiTitle = title;
+        }
         this.showConditions(conditions);
       } });
   }

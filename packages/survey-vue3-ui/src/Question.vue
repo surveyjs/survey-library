@@ -99,6 +99,11 @@
       />
     </div>
   </div>
+  <SvComponent
+    :is="'sv-question-hint'"
+    v-if="element.canShowKeyboardHints()"
+    :question="element"
+  />
 </template>
 
 <script lang="ts">

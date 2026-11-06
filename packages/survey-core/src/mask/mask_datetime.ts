@@ -230,8 +230,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     return this.hasTimePart ? "datetime-local" : "datetime";
   }
 
-  // The lexems are built on demand: fromJSON() runs before the mask is attached to a question,
-  // so the survey locale that a preset depends on is not known yet at that moment.
+  // The lexems are built on demand, but a question created inside a container reads them during
+  // its fromJSON(), before it has a survey, and so with the wrong locale for a preset. The question
+  // calls updateFormatFromSurvey() when it reaches the survey.
   private ensureLexems(): void {
     if (this.lexemsValue !== undefined) return;
     this.activePatternValue = this.calcActivePattern();
@@ -246,10 +247,10 @@ export class InputMaskDateTime extends InputMaskPattern {
     this.activePatternValue = undefined;
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
-    super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "patternPreset") {
       this.updateLiterals();
     }
+    super.onPropertyValueChanged(name, oldValue, newValue);
   }
   private calcActivePattern(): string {
     if (!!this.pattern) return this.pattern;
@@ -280,13 +281,22 @@ export class InputMaskDateTime extends InputMaskPattern {
     return this.activePatternValue;
   }
   public get isLocaleDependent(): boolean { return true; }
+  protected get isFormatOutdated(): boolean {
+    return this.lexemsValue !== undefined && this.calcActivePattern() !== this.activePatternValue;
+  }
+  // Unlike localeChanged() this converts nothing: a saved text is already in the survey's format,
+  // only the mask was wrong.
+  public updateFormatFromSurvey(): boolean {
+    if (!this.isFormatOutdated) return false;
+    this.updateLiterals();
+    return true;
+  }
   public localeChanged(state?: IMaskLocaleChange): void {
     super.localeChanged();
     const prevPattern = this.activePattern;
     // captured with the lexems of the previous locale, before they are rebuilt
     const fragments = !!state && !!state.enteredText ? this.getInputFragments(state.enteredText) : undefined;
     const prevIs12Hours = this.is12Hours;
-    const savedValue = !!state && !!state.value ? this.getUnmaskedValue(state.value) : undefined;
     this.updateLiterals();
     // The empty mask, every unfilled part and the field order are locale dependent. Notify the
     // owner question and the input element adapter the same way a property change does.
@@ -294,8 +304,8 @@ export class InputMaskDateTime extends InputMaskPattern {
     if (!!fragments) {
       state.enteredText = this.getMaskedValueByFragments(fragments, prevIs12Hours);
     }
-    if (!!savedValue && this.activePattern !== prevPattern) {
-      state.value = this.getMaskedValue(savedValue);
+    if (this.activePattern !== prevPattern) {
+      this.updateSavedText(state);
     }
   }
   // Entered characters by semantic role, so that they can be restored into another field order.

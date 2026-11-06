@@ -1,4 +1,4 @@
-import { Serializer } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
@@ -15,6 +15,7 @@ import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessVal
 import { describe, test, expect, vi } from "vitest";
 import { FunctionFactory } from "../src/functionsfactory";
 import { germanSurveyStrings } from "../src/localization/german";
+import { NumericValidator } from "../src/validator";
 export * from "../src/localization/german";
 
 describe("Survey_QuestionMatrixDropdownBase", () => {
@@ -2717,6 +2718,23 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     expect(result.pages[0].elements[0].columns[1].name, "name is generated for column 2").toBe("question1");
     expect(result.pages[0].elements[0].columns[2].name, "name is generated for column 3").toBe("question3");
   });
+  test("matrixdropdown: a splice whose deleteCount runs past the end removes the last row incrementally", () => {
+    const matrix = new QuestionMatrixDropdownModel("q1");
+    matrix.addColumn("col1");
+    matrix.rows = ["row1", "row2", "row3"];
+    const firstRow = matrix.visibleRows[0];
+    const renderedTable = matrix.renderedTable;
+
+    const removed = matrix.rows.splice(2, 5);
+
+    expect(removed.map((item: ItemValue) => item.value), "#1: one row is removed").toEqual(["row3"]);
+    expect(matrix.visibleRows.map(row => row.rowName), "#2: visible rows").toEqual(["row1", "row2"]);
+    expect(matrix.visibleRows[0] === firstRow, "#3: the other rows are kept").toBe(true);
+    expect(matrix.renderedTable === renderedTable, "#4: the rendered table is kept").toBe(true);
+    // Data rows are at odd indices (each data row is preceded by an error row).
+    const renderedRows = matrix.renderedTable.rows.filter((_, index: number) => index % 2 === 1);
+    expect(renderedRows.map(row => row.row.rowName), "#5: rendered rows match visible rows").toEqual(["row1", "row2"]);
+  });
   test("matrixdropdown: removing or adding a single row updates renderedTable incrementally, Bug#11212", () => {
     const matrix = new QuestionMatrixDropdownModel("q1");
     matrix.addColumn("col1");
@@ -4144,5 +4162,105 @@ describe("Matrix dropdown: row lookup by name", () => {
       itemValueGetter.mockRestore();
       rowNameGetter.mockRestore();
     }
+  });
+});
+
+describe("Matrix cells copy the template question of their column", () => {
+  const createMatrix = (columns: Array<any>, rowCount: number = 1): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", rowCount: rowCount, columns: columns }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.visibleRows;
+    return matrix;
+  };
+  const addRowAndGetCell = (matrix: QuestionMatrixDynamicModel, columnName: string): any => {
+    matrix.addRow();
+    const rows = matrix.visibleRows;
+    return rows[rows.length - 1].getQuestionByColumnName(columnName);
+  };
+
+  test("A column serializes its template question once for all the cells of that type", () => {
+    const toJsonObject = vi.spyOn(JsonObject.prototype, "toJsonObject");
+    try {
+      const matrix = createMatrix([{ name: "col1", cellType: "text" }, { name: "col2", cellType: "dropdown", choices: [1, 2] }], 10);
+      const [col1, col2] = matrix.columns;
+      const countFor = (column: MatrixDropdownColumn): number => toJsonObject.mock.calls.filter(call => call[0] === column.templateQuestion).length;
+      expect(matrix.visibleRows.length, "rows").toBe(10);
+      expect(countFor(col1), "col1, 10 rows").toBe(1);
+      expect(countFor(col2), "col2, 10 rows").toBe(1);
+      matrix.addRow();
+      matrix.visibleRows;
+      expect(countFor(col1), "col1, a row added").toBe(1);
+      col1.isRequired = true;
+      expect(addRowAndGetCell(matrix, "col1").isRequired, "the new cell is required").toBe(true);
+      expect(countFor(col1), "col1, after a change of the column").toBe(2);
+      expect(countFor(col2), "col2 is not serialized again").toBe(1);
+    } finally {
+      toJsonObject.mockRestore();
+    }
+  });
+  test("A new row gets every change of the column's template question", () => {
+    const matrix = createMatrix([
+      { name: "text", cellType: "text", validators: [{ type: "numeric", minValue: 1 }], maskType: "pattern", maskSettings: { pattern: "999" } },
+      { name: "dropdown", cellType: "dropdown", choices: [{ value: 1, text: "one" }], choicesByUrl: { url: "http://localhost/choices" } },
+      { name: "rating", cellType: "rating", rateValues: [1, 2] }
+    ]);
+    const [textCol, dropdownCol, ratingCol] = matrix.columns;
+    const template = (column: MatrixDropdownColumn): any => column.templateQuestion;
+
+    textCol.validators[0]["minValue"] = 5;
+    expect(addRowAndGetCell(matrix, "text").validators[0].minValue, "a property of a validator").toBe(5);
+    (<NumericValidator>textCol.validators[0]).text = "Enter a number";
+    expect(addRowAndGetCell(matrix, "text").validators[0].text, "the text of a validator").toBe("Enter a number");
+    textCol.validators.push(new NumericValidator());
+    expect(addRowAndGetCell(matrix, "text").validators.length, "a validator added").toBe(2);
+    template(textCol).maskSettings.pattern = "9999";
+    expect(addRowAndGetCell(matrix, "text").maskSettings.pattern, "a mask setting").toBe("9999");
+    textCol.locTitle.setLocaleText("de", "Text");
+    expect(addRowAndGetCell(matrix, "text").locTitle.getLocaleText("de"), "a title in another locale").toBe("Text");
+
+    dropdownCol.choices[0].text = "uno";
+    expect(addRowAndGetCell(matrix, "dropdown").choices[0].text, "the text of a choice").toBe("uno");
+    template(dropdownCol).choicesByUrl.path = "items";
+    expect(addRowAndGetCell(matrix, "dropdown").choicesByUrl.path, "a property of choicesByUrl").toBe("items");
+
+    template(ratingCol).rateValues[0].text = "low";
+    expect(addRowAndGetCell(matrix, "rating").rateValues[0].text, "the text of a rate value").toBe("low");
+  });
+  test("A column loaded from JSON again gives the new properties to a new row", () => {
+    const matrix = createMatrix([{ name: "col1", cellType: "text", placeholder: "old", validators: [{ type: "numeric", minValue: 1 }] }]);
+    const column = matrix.columns[0];
+    expect(addRowAndGetCell(matrix, "col1").placeholder, "before loading").toBe("old");
+    column.fromJSON({ name: "col1", cellType: "text", placeholder: "new", validators: [{ type: "numeric", minValue: 3 }] });
+    const cell = addRowAndGetCell(matrix, "col1");
+    expect(cell.placeholder, "placeholder after loading").toBe("new");
+    expect(cell.validators[0].minValue, "a validator after loading").toBe(3);
+  });
+  test("Cells do not share objects with each other or with the template question", () => {
+    const matrix = createMatrix([{ name: "col1", cellType: "dropdown", choices: [1, 2], validators: [{ type: "expression", expression: "{row.col1} > 0" }] }], 2);
+    const column = matrix.columns[0];
+    const cell1 = <QuestionDropdownModel>matrix.visibleRows[0].getQuestionByColumnName("col1");
+    const cell2 = <QuestionDropdownModel>matrix.visibleRows[1].getQuestionByColumnName("col1");
+    expect(cell1.choices[0] === cell2.choices[0], "choices").toBe(false);
+    expect(cell1.validators[0] === cell2.validators[0], "validators").toBe(false);
+    cell1.choices[0].text = "changed";
+    expect(cell2.choices[0].text, "the other cell").toBe("1");
+    expect(column.templateQuestion.choices[0].text, "the template question").toBe("1");
+  });
+  test("A cell of another type than the column copies the column's properties", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 2,
+      columns: [{ name: "col1", cellType: "text", title: "Column", isRequired: true }] }] });
+    // The cells of the first row are created first.
+    let created = 0;
+    survey.onMatrixCellCreating.add((_, options) => {
+      if (++created === 2) options.cellType = "dropdown";
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const rows = matrix.visibleRows;
+    const textCell = rows[0].getQuestionByColumnName("col1");
+    const dropdownCell = rows[1].getQuestionByColumnName("col1");
+    expect(textCell.getType(), "row 1").toBe("text");
+    expect(dropdownCell.getType(), "row 2").toBe("dropdown");
+    expect(dropdownCell.isRequired, "isRequired of the dropdown cell").toBe(true);
+    expect(dropdownCell.title, "title of the dropdown cell").toBe("Column");
   });
 });

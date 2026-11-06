@@ -53,8 +53,6 @@ export var norwegianSurveyStrings = {
   sortMoreAriaLabel: "Vis alle sorteringsnivåer",
   // [Auto-translated] "Add New"
   sortAddNewText: "Legg til nytt",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Flytt sorteringsnivå {0}",
   // "Complete"
@@ -326,7 +324,29 @@ export var norwegianSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "f",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "F"
+  maskPlaceholderTimeMarkerUpper: "F",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "For å velge",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "for å veksle",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "For å navigere",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "for å fortsette",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "å underkaste seg",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "eller",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "For en ny linje",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Til neste alternativ",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "Å flytte",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "å åpne",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "for å avslutte"
 };
 
 setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "norsk", englishName: "Norwegian" });

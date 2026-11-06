@@ -395,9 +395,7 @@ frameworks.forEach((framework) => {
       await page.evaluate((data) => {
         window["survey"].data = data;
       }, surveyData);
-      await page.waitForTimeout(500);
-
-      expect(await isSelectAllChecked()).toBeTruthy();
+      await expect.poll(isSelectAllChecked).toBeTruthy();
 
       await page.locator("span").getByText("Select All").click();
       expect(await getData(page)).toEqual({});

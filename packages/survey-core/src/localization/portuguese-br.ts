@@ -55,8 +55,6 @@ export var portugueseBrSurveyStrings = {
   sortMoreAriaLabel: "Mostrar todos os níveis de tipo",
   // [Auto-translated] "Add New"
   sortAddNewText: "Adicionar Novo",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Nível de ordenação de movimentos {0}",
   // [Auto-translated] "Complete"
@@ -310,7 +308,29 @@ export var portugueseBrSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Barra de progresso",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Página {0}"
+  progressbarPage: "Página {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "para selecionar",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "para alternar",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "para navegar",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Continuar",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "para submeter",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "ou",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "para uma nova linha",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "para a próxima opção",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "para se mover",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "abrir",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "para fechar"
 };
 
 setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeName: "português brasileiro", englishName: "Brazilian Portuguese" });

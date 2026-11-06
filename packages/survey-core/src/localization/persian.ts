@@ -53,8 +53,6 @@ export var persianSurveyStrings = {
   sortMoreAriaLabel: "نمایش همه سطوح مرتب سازی",
   // [Auto-translated] "Add New"
   sortAddNewText: "افزودن جدید",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "سطح مرتب سازی حرکت {0}",
   // "Complete"
@@ -308,7 +306,29 @@ export var persianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "نوار پیشرفت",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "صفحه {0}"
+  progressbarPage: "صفحه {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "برای انتخاب",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "برای تغییر وضعیت",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "برای هدایت",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "ادامه دادن",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "برای ارسال",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "یا",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "برای یک خط جدید",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "به گزینه بعدی",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "برای جابجایی",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "برای افتتاح",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "برای پایان دادن"
 };
 
 setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فارْسِى", englishName: "Persian", rtl: true });

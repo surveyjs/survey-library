@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDrag, doDragDrop, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDrag, doDragDrop, getButtonByText, resetFocusToBody } from "../helper";
 
 const title = "matrixdynamic";
 
@@ -201,15 +201,12 @@ frameworks.forEach((framework) => {
 
       expect(await matrixRowSelector.count()).toBe(2);
       await questionDropdownSelect.nth(0).click();
-      await page.waitForTimeout(500);
       await getVisibleSelectListItemByText(page, "Science: Physical Science").click();
 
       await questionDropdownSelect.nth(1).click();
-      await page.waitForTimeout(500);
       await getVisibleSelectListItemByText(page, "Science: Chemistry").click();
       await page.locator(".sd-matrixdynamic__btn[title='Remove']").nth(1).click();
-      await page.waitForTimeout(500);
-      expect(await matrixRowSelector.count()).toBe(1);
+      await expect(matrixRowSelector).toHaveCount(1);
 
       await getButtonByText(page, "Complete").click();
 
@@ -274,11 +271,14 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(2);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(1);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(0);
+      await expect(getButtonByText(page, "Add Row")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "row 1, column name" })).toBeFocused();
       await page.keyboard.press("1");
@@ -313,11 +313,14 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(2);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(1);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(0);
+      await expect(getButtonByText(page, "Add Row")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "row 1, column name" })).toBeFocused();
       await page.keyboard.press("1");
@@ -352,11 +355,14 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(2);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(1);
+      await expect(page.locator(".sd-matrixdynamic__btn[title='Remove']:focus")).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox")).toHaveCount(0);
+      await expect(getButtonByText(page, "Add Row")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "row 1, column name" })).toBeFocused();
       await page.keyboard.press("1");
@@ -437,7 +443,6 @@ frameworks.forEach((framework) => {
         "showQuestionNumbers": "off"
       });
       await page.setViewportSize({ width: 600, height: 1080 });
-      await page.waitForTimeout(500);
       await page.locator("button").filter({ hasText: "Add Row" }).click();
       await expect(getButtonByText(page, "Show Details").filter({ visible: true }).first()).toContainText("Show Details");
       await expect(getButtonByText(page, "Hide Details").filter({ visible: true }).first()).toContainText("Hide Details");
@@ -668,7 +673,6 @@ frameworks.forEach((framework) => {
       await page.locator(".sd-matrixdynamic__btn[title='Entfernen']").nth(1).click();
       await page.locator("span").filter({ hasText: /^Abbrechen$/ }).click();
       expect(await matrixRowSelector.count()).toBe(3);
-      await page.waitForTimeout(100);
       await page.locator(".sd-matrixdynamic__btn[title='Entfernen']").nth(1).click();
       await page.locator("span").filter({ hasText: /^OK$/ }).click();
       expect(await matrixRowSelector.count()).toBe(2);
@@ -727,7 +731,7 @@ frameworks.forEach((framework) => {
         ]
       });
       await page.evaluate(() => (window as any).survey.setIsMobile(true));
-      await page.waitForTimeout(500);
+      await expect(page.locator(".sd-question--mobile")).toHaveCount(1);
 
       const textSelector = page.locator("input[type='text']").filter({ visible: true });
       expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(1);
@@ -808,8 +812,7 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         window.survey.getQuestionByName("matrix").value = [{ col1: "row1" }];
       });
-      await page.waitForTimeout(500);
-      expect(await page.getByRole("textbox", { name: "row 0, column col1" }).inputValue()).toBe("row1");
+      await expect(page.getByRole("textbox", { name: "row 0, column col1" })).toHaveValue("row1");
       await expect(removeButtons).toHaveCount(1);
 
       await getButtonByText(page, "Complete").click();
@@ -829,7 +832,7 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         window.survey.getQuestionByName("matrix").focus();
       });
-      await page.waitForTimeout(500);
+      await expect(page.locator("tbody input[type='text']").filter({ visible: true }).first()).toBeFocused();
       await page.keyboard.type("row1col2");
       await page.keyboard.press("Tab");
 
@@ -976,6 +979,45 @@ frameworks.forEach((framework) => {
       expect(await dragHandles.count()).toBe(3);
     });
 
+    test("a click on the sort icon and on the edge of the cell sorts as well", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      const priceHeader = page.locator("thead th").nth(1);
+
+      await priceHeader.locator(".sd-table__header-sort").click();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+
+      await priceHeader.click({ position: { x: 2, y: 2 } });
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+    });
+
+    test("the sort icon gets the hovered chip under the cursor only, and not while a click does nothing", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      const priceHeader = page.locator("thead th").nth(1);
+      const priceButton = priceHeader.locator("button");
+      const icon = priceHeader.locator(".sd-table__header-sort");
+      const background = (): Promise<string> => icon.evaluate((el) => getComputedStyle(el).backgroundColor);
+      const cursor = (): Promise<string> => priceButton.evaluate((el) => getComputedStyle(el).cursor);
+      const quiet = await background();
+      expect(await cursor()).toBe("pointer");
+
+      await icon.hover();
+      await expect.poll(background).not.toBe(quiet);
+
+      // The rest of the cell is the click target, but the chip stays quiet: the third click of the design.
+      await priceHeader.hover({ position: { x: 2, y: 2 } });
+      await expect.poll(background).toBe(quiet);
+      expect(await cursor()).toBe("pointer");
+
+      // A page is being read: canToggleSort is false.
+      await priceButton.evaluate((el) => el.setAttribute("aria-disabled", "true"));
+      await icon.hover();
+      // Proves the chip stays quiet: the hover style is a CSS rule, and its transition takes 0.01 ms under
+      // the emulated reduced motion, so a few frames of style recalc are all there is to wait out.
+      await page.waitForTimeout(100);
+      expect(await background()).toBe(quiet);
+      expect(await cursor()).toBe("default");
+    });
+
     for (const key of ["Enter", "Space"]) {
       test(`${key} on a focused header sorts and keeps the focus on its button`, async ({ page }) => {
         await initSurvey(page, framework, sortJson());
@@ -1076,6 +1118,102 @@ frameworks.forEach((framework) => {
       await expect(productHeader.locator(".sd-table__header-sort--none")).toHaveCount(1);
       await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
     });
+
+    // The rest state: no pointer over the table and no focus in it.
+    const leaveHeaders = async (page): Promise<void> => {
+      await resetFocusToBody(page);
+      await page.mouse.move(0, 0);
+    };
+    const headerBoxes = async (header): Promise<any> => ({
+      button: await header.locator("button").boundingBox(),
+      title: await header.locator(".sd-table__header-sort-title").boundingBox(),
+      icon: await header.locator(".sd-table__header-sort").boundingBox(),
+    });
+    const expectIconAfterTitle = ({ title, icon }): void => {
+      expect(Math.abs(icon.x - (title.x + title.width) - 4), "a 4px gap between the title and the icon").toBeLessThan(0.5);
+    };
+
+    test("an unsorted column shows the sort icon at rest", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      await leaveHeaders(page);
+      // Not toBeVisible(): Playwright treats opacity: 0 as visible.
+      await expect(page.locator("thead th").nth(1).locator(".sd-table__header-sort--none")).toHaveCSS("opacity", "1");
+    });
+
+    test("the sort icon follows the title, and the two are centered in the cell as one group", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      await leaveHeaders(page);
+      const boxes = await headerBoxes(page.locator("thead th").nth(1));
+      expectIconAfterTitle(boxes);
+      const groupCenter = (boxes.title.x + boxes.icon.x + boxes.icon.width) / 2;
+      const buttonCenter = boxes.button.x + boxes.button.width / 2;
+      expect(Math.abs(groupCenter - buttonCenter), "the group is centered").toBeLessThanOrEqual(1);
+    });
+
+    test("in the first and the last column the group is centered over the cells below it", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({ allowRowReorder: false, allowRemoveRows: false }));
+      await leaveHeaders(page);
+      const inputs = page.locator(".sd-table__row input");
+      for (const index of [0, 1]) {
+        const { title, icon } = await headerBoxes(page.locator("thead th").nth(index));
+        const input = await inputs.nth(index).boundingBox();
+        const groupCenter = (title.x + icon.x + icon.width) / 2;
+        expect(Math.abs(groupCenter - (input.x + input.width / 2)), `column ${index}`).toBeLessThanOrEqual(1);
+      }
+    });
+
+    test("the sort icon stays through the whole click cycle", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      const priceHeader = page.locator("thead th").nth(1);
+      for (const state of ["desc", "asc", "none"]) {
+        await priceHeader.locator("button").click();
+        await leaveHeaders(page);
+        await expect(priceHeader.locator(`.sd-table__header-sort--${state}`)).toHaveCSS("opacity", "1");
+      }
+    });
+
+    test("a column with allowSort: false has no button and no sort icon", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({
+        columns: [
+          { name: "product", cellType: "text", allowSort: false },
+          { name: "price", cellType: "text", inputType: "number" },
+        ],
+      }));
+      const productHeader = page.locator("thead th").nth(0);
+      await expect(page.locator("thead th").nth(1).locator(".sd-table__header-sort--none")).toHaveCount(1);
+      await expect(productHeader.locator("button")).toHaveCount(0);
+      await expect(productHeader.locator(".sd-table__header-sort")).toHaveCount(0);
+    });
+
+    test("in view mode the title and the sort icon start at the inline start of the cell, and sorting stays", async ({ page }) => {
+      await initSurvey(page, framework, Object.assign(sortJson(), { readOnly: true, readOnlyMode: "view" }));
+      await leaveHeaders(page);
+      const priceHeader = page.locator("thead th").nth(1);
+      await expect(priceHeader.locator("button")).toHaveCount(1);
+      const boxes = await headerBoxes(priceHeader);
+      const paddingStart = await priceHeader.locator("button").evaluate((el) => parseFloat(getComputedStyle(el).paddingInlineStart));
+      expect(Math.abs(boxes.title.x - (boxes.button.x + paddingStart)), "the group starts at the content start").toBeLessThan(0.5);
+      expectIconAfterTitle(boxes);
+
+      await priceHeader.locator("button").click();
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+    });
+
+    test("in view mode the title of the first column starts where the text of its cells does", async ({ page }) => {
+      await initSurvey(page, framework, Object.assign(sortJson(), { readOnly: true, readOnlyMode: "view" }));
+      await leaveHeaders(page);
+      const { title } = await headerBoxes(page.locator("thead th").nth(0));
+      const textStart = await page.locator(".sd-table__row .sd-table__cell").first()
+        .evaluate((el) => el.getBoundingClientRect().left + parseFloat(getComputedStyle(el).paddingInlineStart));
+      expect(Math.abs(title.x - textStart)).toBeLessThan(0.5);
+    });
+
+    test("a mobile layout has no sort icon", async ({ page }) => {
+      await page.setViewportSize({ width: 420, height: 900 });
+      await initSurvey(page, framework, sortJson());
+      await expect(page.locator(".sd-table__row input[type=number]")).toHaveCount(3);
+      await expect(page.locator(".sd-table__header-sort")).toHaveCount(0);
+    });
   });
 });
 
@@ -1175,6 +1313,27 @@ frameworks.forEach((framework) => {
       await fieldButton(page).click();
       await listItem(page, "Price").click();
       expect(await prices(page)).toEqual(["30", "20", "10"]);
+    });
+
+    test("the default bar offers a detail panel question: a pick sorts the rows and the opened panel shows the value", async ({ page }) => {
+      await page.setViewportSize({ width: 1024, height: 768 });
+      await initSurvey(page, framework, barJson({
+        showSortBar: "auto",
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "qty", title: "Quantity", inputType: "number" }],
+        defaultValue: [
+          { product: "b", price: 20, qty: 5 },
+          { product: "a", price: 30, qty: 30 },
+          { product: "c", price: 10, qty: 10 },
+        ],
+      }));
+      await expect(headerBar(page)).toBeVisible();
+      await fieldButton(page).click();
+      await listItem(page, "Quantity").click();
+      expect(await prices(page)).toEqual(["30", "10", "20"]);
+      await expect(directionButton(page).locator(".sd-action__title")).toHaveText("High - Low");
+      await page.locator(".sd-table__cell--detail-button").first().click();
+      await expect(page.locator(".sd-table__cell--detail-panel input[type=number]")).toHaveValue("30");
     });
     // Several levels: four rows whose product order inside a category differs from the stored order.
     const levelsJson = (extra?: any): any => barJson(Object.assign({
@@ -1427,7 +1586,7 @@ frameworks.forEach((framework) => {
       await expect(dialog(page)).toBeVisible();
       await dialogButton(page, "Add New").click();
       await expect(dialogRows(page)).toHaveCount(4);
-      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, A - Z"], ["3", "Price, USD", "Low - High"], ["4", "Quantity per Unit", "\u2014"]]);
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, A - Z"], ["3", "Price, USD", "Low - High"], ["4", "Quantity per Unit", "Alphabet, A - Z"]]);
       await expect(dialogButton(page, "Add New")).toBeDisabled();
       await rowDirection(page, 4).click();
       await optionItem(page, "Alphabet, Z - A").click();
@@ -1462,11 +1621,11 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await expect(rowField(page, 1)).toBeFocused();
       const tabOrder: Array<string> = [];
-      for (let i = 0; i < 14; i++) {
+      for (let i = 0; i < 13; i++) {
         await page.keyboard.press("Tab");
         tabOrder.push(await focusedName(page));
       }
-      expect(tabOrder).toEqual(["Sort order", "Remove sort level 1", "Move sort level 2", "Sort field 2", "Sort order 2", "Remove sort level 2",
+      expect(tabOrder).toEqual(["Sort order", "Move sort level 2", "Sort field 2", "Sort order 2", "Remove sort level 2",
         "Move sort level 3", "Sort field 3", "Sort order 3", "Remove sort level 3", "Add New", "Apply", "Move sort level 1", "Sort field"]);
       await rowDirection(page, 1).focus();
       // A dropdown editor opens its list with Space or ArrowDown.
@@ -1674,23 +1833,79 @@ frameworks.forEach((framework) => {
       await expect(dialogButton(page, "Add New")).toBeDisabled();
       await expect(rowField(page, 5)).toBeFocused();
       expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, Z - A"], ["3", "Price, USD", "Low - High"],
-        ["4", "Quantity per Unit", "\u2014"], ["5", "In Stock", "\u2014"]]);
+        ["4", "Quantity per Unit", "Alphabet, A - Z"], ["5", "In Stock", "High - Low"]]);
     });
 
-    test("the remove button of row 1: row 2 becomes row 1 and shows Default instead of the dash; the focus goes to the new row 1's field", async ({ page }) => {
+    test("row 1 has no remove button: removing row 2 keeps row 1 and sends the focus to row 1's field", async ({ page }) => {
       await initSurvey(page, framework, moreJson({ maxSortLevel: 5 }));
       await openDialog(page);
-      await rowDirection(page, 2).click();
-      await optionItem(page, "\u2014").click();
-      expect((await rowsShown(page))[1]).toEqual(["2", "Product", "\u2014"]);
-      await rowRemove(page, 1).click();
+      await expect(rowRemove(page, 1)).toHaveCount(0);
+      await rowRemove(page, 2).click();
       await expect(dialogRows(page)).toHaveCount(2);
-      expect(await rowsShown(page)).toEqual([["1", "Product", "Default"], ["2", "Price, USD", "Low - High"]]);
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Price, USD", "Low - High"]]);
       await expect(rowField(page, 1)).toBeFocused();
       await rowRemove(page, 2).click();
       await expect(dialogRows(page)).toHaveCount(1);
-      await expect(rowRemove(page, 1), "the single row's remove button").toBeDisabled();
+      await expect(rowRemove(page, 1), "the single row").toHaveCount(0);
       await expect(rowField(page, 1)).toBeFocused();
+    });
+
+    test("a row dragged above row 1 offers Default, the old row 1 no longer does, and row 1 has no remove button", async ({ page }) => {
+      await initSurvey(page, framework, moreJson({ maxSortLevel: 5 }));
+      await openDialog(page);
+      await doDrag({ page, element: rowHandle(page, 3), target: dialogRows(page).nth(0), options: { targetPosition: { x: 200, y: 2 } } });
+      await page.mouse.up();
+      await expect.poll(() => rowsShown(page)).toEqual([["1", "Price, USD", "Low - High"], ["2", "Category", "Alphabet, A - Z"], ["3", "Product", "Alphabet, Z - A"]]);
+      await expect(rowRemove(page, 1)).toHaveCount(0);
+      await expect(rowRemove(page, 2)).toHaveCount(1);
+      await rowDirection(page, 1).click();
+      await expect(optionItem(page, "Default")).toBeVisible();
+      await page.keyboard.press("Escape");
+      await rowDirection(page, 2).click();
+      await expect(optionItem(page, "Alphabet, Z - A")).toBeVisible();
+      await expect(optionItem(page, "Default")).toHaveCount(0);
+    });
+
+    test("Default in row 1 of three rows leaves one row, disables Add New and keeps the focus on row 1's direction; Apply clears the sort", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await openDialog(page);
+      await rowDirection(page, 1).click();
+      await optionItem(page, "Default").click();
+      await expect(dialogRows(page)).toHaveCount(1);
+      await expect(dialogButton(page, "Add New")).toBeDisabled();
+      await expect(rowDirection(page, 1)).toBeFocused();
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Default"]]);
+      await dialogButton(page, "Apply").click();
+      await expect(dialog(page)).toHaveCount(0);
+      expect(await sortOf(page)).toEqual([]);
+      await expect(levelDirection(page, 1).locator(".sd-action__title")).toHaveText("Default");
+    });
+
+    test("Delete and Backspace clear no dropdown of a row", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await openDialog(page);
+      const rows = await rowsShown(page);
+      await rowDirection(page, 2).focus();
+      await page.keyboard.press("Delete");
+      await rowField(page, 1).focus();
+      await page.keyboard.press("Backspace");
+      expect(await rowsShown(page)).toEqual(rows);
+    });
+
+    test("the dropdowns of row 1 and row 2 have the same edges, and a single row keeps that width", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await openDialog(page);
+      const edges = async (row: number): Promise<Array<number>> => {
+        const field = await rowField(page, row).boundingBox();
+        const direction = await rowDirection(page, row).boundingBox();
+        return [field!.x, field!.x + field!.width, direction!.x, direction!.x + direction!.width].map((value: number): number => Math.round(value));
+      };
+      const row2 = await edges(2);
+      expect(await edges(1)).toEqual(row2);
+      await rowRemove(page, 3).click();
+      await rowRemove(page, 2).click();
+      await expect(dialogRows(page)).toHaveCount(1);
+      expect(await edges(1)).toEqual(row2);
     });
   });
 });
@@ -1766,6 +1981,125 @@ frameworks.forEach((framework) => {
       await modal.locator(".sd-table__row input[type=text]").first().focus();
       await page.keyboard.press("Escape");
       await expect(modal, "without a drag Escape closes the modal").not.toBeVisible();
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} comment area`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1200, height: 900 });
+    });
+
+    test("Comment area keeps the same inset as a single-select matrix", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "off",
+        autoFocusFirstQuestion: false,
+        pages: [{
+          name: "page1",
+          elements: [
+            {
+              type: "matrix",
+              name: "question1",
+              titleLocation: "bottom",
+              showCommentArea: true,
+              columns: ["Column 1", "Column 2", "Column 3"],
+              rows: ["Row 1", "Row 2"]
+            },
+            {
+              type: "matrixdynamic",
+              name: "question2",
+              titleLocation: "bottom",
+              showCommentArea: true,
+              columns: [
+                { name: "column1" },
+                { name: "column2" },
+                { name: "column3" }
+              ],
+              choices: [1, 2, 3, 4, 5]
+            }
+          ]
+        }]
+      });
+
+      const measure = async (question) => {
+        const field = question.locator(".sd-question__comment-area .sd-comment");
+        const title = question.locator(".sd-question__title");
+        const questionBox = await question.boundingBox();
+        const fieldBox = await field.boundingBox();
+        const titleBox = await title.boundingBox();
+        return {
+          titleLeft: titleBox.x - questionBox.x,
+          fieldLeft: fieldBox.x - questionBox.x,
+          fieldRight: questionBox.x + questionBox.width - (fieldBox.x + fieldBox.width),
+          fieldBottom: questionBox.y + questionBox.height - (fieldBox.y + fieldBox.height)
+        };
+      };
+      const gaps = {
+        matrix: await measure(page.locator(".sd-question--table:not(.sd-question--matrixdynamic)")),
+        dynamic: await measure(page.locator(".sd-question--matrixdynamic"))
+      };
+
+      expect(gaps.dynamic.fieldLeft).toBeGreaterThan(16);
+      expect(gaps.dynamic.fieldRight).toBeGreaterThan(16);
+      expect(gaps.dynamic.fieldBottom).toBeGreaterThan(8);
+      expect(Math.abs(gaps.dynamic.fieldLeft - gaps.dynamic.titleLeft)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.fieldLeft - gaps.matrix.fieldLeft)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.fieldRight - gaps.matrix.fieldRight)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.fieldBottom - gaps.matrix.fieldBottom)).toBeLessThan(1);
+    });
+
+    test("Description under the matrix keeps the same inset as a single-select matrix", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "off",
+        autoFocusFirstQuestion: false,
+        elements: [
+          {
+            type: "matrix",
+            name: "question1",
+            description: "A note under the matrix",
+            descriptionLocation: "underInput",
+            columns: ["Column 1", "Column 2", "Column 3"],
+            rows: ["Row 1", "Row 2"]
+          },
+          {
+            type: "matrixdynamic",
+            name: "question2",
+            description: "A note under the matrix",
+            descriptionLocation: "underInput",
+            columns: [
+              { name: "column1" },
+              { name: "column2" },
+              { name: "column3" }
+            ],
+            choices: [1, 2, 3, 4, 5]
+          }
+        ]
+      });
+
+      const measure = async (question) => {
+        const text = question.locator(".sd-question__description--under-input .sv-string-viewer");
+        const title = question.locator(".sd-question__title");
+        const questionBox = await question.boundingBox();
+        const textBox = await text.boundingBox();
+        const titleBox = await title.boundingBox();
+        return {
+          titleLeft: titleBox.x - questionBox.x,
+          textLeft: textBox.x - questionBox.x,
+          textBottom: questionBox.y + questionBox.height - (textBox.y + textBox.height)
+        };
+      };
+      const gaps = {
+        matrix: await measure(page.locator(".sd-question--table:not(.sd-question--matrixdynamic)")),
+        dynamic: await measure(page.locator(".sd-question--matrixdynamic"))
+      };
+
+      expect(gaps.dynamic.textLeft).toBeGreaterThan(16);
+      expect(gaps.dynamic.textBottom).toBeGreaterThan(8);
+      expect(Math.abs(gaps.dynamic.textLeft - gaps.dynamic.titleLeft)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.textLeft - gaps.matrix.textLeft)).toBeLessThan(1);
+      expect(Math.abs(gaps.dynamic.textBottom - gaps.matrix.textBottom)).toBeLessThan(1);
     });
   });
 });

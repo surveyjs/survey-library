@@ -53,8 +53,6 @@ export var georgianSurveyStrings = {
   sortMoreAriaLabel: "ყველა დალაგების დონის ჩვენება",
   // [Auto-translated] "Add New"
   sortAddNewText: "ახლის დამატება",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "დალაგების დონის {0} გადატანა",
   // "Complete"
@@ -308,7 +306,29 @@ export var georgianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "პროგრესის ბარი",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "გვერდი {0}"
+  progressbarPage: "გვერდი {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "ასარჩევად",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "გადართვა",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "ნავიგაცია",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "გაგრძელება",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "წარადგინა",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "ან",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "ახალი ხაზისთვის",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "შემდეგ ვარიანტზე",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "გადაადგილება",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "გახსნა",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "დახურვა"
 };
 
 setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქართული", englishName: "Georgian" });

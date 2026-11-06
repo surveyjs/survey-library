@@ -23,6 +23,7 @@ import { QuestionFactory } from "./questionfactory";
 import { settings } from "./settings";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { Scope, ValueScope } from "./utils/scope";
+import { Event } from "./event";
 import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
@@ -180,6 +181,16 @@ interface IPanelRemoval extends IRecordRemoval {
 
 // The count properties of the dynamic panel: getRecordCountNames and the Serializer entries read them.
 const panelCountNames = getRecordCountNamesOf("Panel");
+/* A copy of the plain objects and arrays of a JSON. Any other value - a Date or a class instance a property
+   holds - stays the same reference, as toJSON hands it to every panel: a JSON.stringify round trip would
+   turn a Date into a string. */
+function copyPlainJson(value: any): any {
+  if (Array.isArray(value)) return value.map(copyPlainJson);
+  if (!value || typeof value !== "object" || Object.getPrototypeOf(value) !== Object.prototype) return value;
+  const res: any = {};
+  Object.keys(value).forEach((key: string): void => { res[key] = copyPlainJson(value[key]); });
+  return res;
+}
 
 /**
   * A class that describes the Dynamic Panel question type.
@@ -211,16 +222,18 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.template.selectedElementInDesign = this;
 
     this.template.addElementCallback = (element) => {
-      this.addOnPropertyChangedCallback(<SurveyElement><any>element);
+      this.watchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();
     };
     this.template.removeElementCallback = (element) => {
-      this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
+      this.unwatchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();
     };
     this.template.onPropertyChanged.add((sender: Base, options: any) => {
+      // Its elements added or removed too: the panels a batch creates after the change have it.
+      this.dropNewPanelsJson();
       if (options.name === "title") {
         this.propertyValueChanged("templateTitle", options.oldValue, options.newValue);
       }
@@ -257,7 +270,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public dispose(): void {
     super.dispose();
-    this.template.elements.forEach((element: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>element); });
+    this.template.elements.forEach((element: IElement): void => { this.unwatchRecordTemplateElement(<SurveyElement><any>element); });
     this.templateValue.dispose();
   }
   /* The panels go with the question, before the list: the ones kept for a later dispose (still animated
@@ -338,14 +351,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.setPanelsSurveyImpl();
     this.syncPageSizeWithSurvey();
   }
-  /* The data the survey and the expressions see: the records that have a panel. A record the list
-     filter excluded has no panel and is not part of it - the same answer a source that filters on
-     its own side gives. */
-  getFilteredData(): any {
-    if (!this.hasDataListView) return this.value;
-    const list = this.dataList;
-    // The view, not the page: a question that pages still answers for every record it shows.
-    return list.getCreatedIndexes().map((index: number): any => list.getRecord(index));
+  // A hidden panel keeps its record at completion: only the questions inside it are cleared.
+  protected isHiddenRecordInFilteredData(): boolean {
+    return true;
+  }
+  // The stored record, whether or not it has a panel and empty or not.
+  protected addFilteredRecordValue(index: number, item: QuestionRecordItem, add: (value: any) => void): void {
+    add(this.getListRecordAt(index));
   }
   protected getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof QuestionPanelDynamicItem) return this.getPanelVisibleIndex(item.panel);
@@ -397,8 +409,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.template.questions);
   }
-  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
-    return this.getTemplateSortFieldCandidates(this.template);
+  protected getRecordSortTemplate(): PanelModelBase {
+    return this.template;
   }
   protected refreshRenderedPage(): void {
     this.updateRenderedPanels();
@@ -475,15 +487,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const oldPanels: Array<PanelModel> = [].concat(this.panelsCore);
     this.keepNestedPageStatesOfPanels(oldPanels);
     this.buildPanels((): void => {
-      this.isRebuildingPanels = true;
-      try {
+      this.rebuildingPanelsScope.run((): void => {
         this.panelsCore.splice(0, this.panelsCore.length);
-        for (let i = 0; i < count; i++) {
-          this.panelsCore.push(this.createNewPanel());
-        }
-      } finally {
-        this.isRebuildingPanels = false;
-      }
+        this.runCreatingPanels(count, (): void => {
+          for (let i = 0; i < count; i++) {
+            this.panelsCore.push(this.createNewPanel());
+          }
+        });
+      });
     }, true);
     this.restoreNestedPageStates();
     this.setPanelsState();
@@ -495,7 +506,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updateTabbedMenuItems();
     this.disposePanels(oldPanels);
   }
-  private isRebuildingPanels: boolean;
+  private rebuildingPanelsScope: Scope = new Scope();
+  private get isRebuildingPanels(): boolean {
+    return this.rebuildingPanelsScope.isActive;
+  }
   /* The panels of the view are built for records the value holds: without a view the same records got
      their panels while the survey loaded its data, which writes no static default into them and
      clears no answer a first condition run hides. Their questions ask it (Question). */
@@ -609,45 +623,18 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
     for (var i = 0; i < elements.length; i++) {
-      this.addOnPropertyChangedCallback(<SurveyElement><any>elements[i]);
+      this.watchRecordTemplateElement(<SurveyElement><any>elements[i]);
     }
   }
-  /* One handler for every template element, so that the element is subscribed once however often the
-     panels are built (assignOnPropertyChangedToTemplate): onPropertyChanged.add skips a callback it
-     holds. It is removed when the element leaves the template, and with the question. */
-  private onTemplateElementPropertyChangedHandler = (element: any, options: any): void => {
-    this.onTemplateElementPropertyChanged(element, options);
-  };
-  private onNestedTemplateElementAdded = (element: IElement): void => {
-    this.addOnPropertyChangedCallback(<SurveyElement><any>element);
-    this.updateRecordsBar();
-  };
-  private onNestedTemplateElementRemoved = (element: IElement): void => {
-    this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
-    this.updateRecordsBar();
-  };
-  private addOnPropertyChangedCallback(element: SurveyElement) {
+  protected onRecordTemplateElementWatched(element: SurveyElement): void {
     if (element.isQuestion) {
       (<Question>element).setParentQuestion(this);
     }
-    element.onPropertyChanged.add(this.onTemplateElementPropertyChangedHandler);
-    if (element.isPanel) {
-      (<PanelModel>element).addElementCallback = this.onNestedTemplateElementAdded;
-      (<PanelModel>element).removeElementCallback = this.onNestedTemplateElementRemoved;
-    }
   }
-  private removeOnPropertyChangedCallback(element: SurveyElement): void {
-    element.onPropertyChanged.remove(this.onTemplateElementPropertyChangedHandler);
-    if (element.isPanel) {
-      const panel = <PanelModel>element;
-      if (panel.addElementCallback === this.onNestedTemplateElementAdded) panel.addElementCallback = undefined;
-      if (panel.removeElementCallback === this.onNestedTemplateElementRemoved) panel.removeElementCallback = undefined;
-      panel.elements.forEach((el: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>el); });
-    }
-  }
-  private onTemplateElementPropertyChanged(element: any, options: any) {
+  protected onTemplateElementPropertyChanged(element: any, options: any): void {
     // Before the return below: the sort bar offers the template questions without any panel too.
-    this.updateRecordsBar();
+    super.onTemplateElementPropertyChanged(element, options);
+    this.dropNewPanelsJson();
     if (this.isLoadingFromJson || this.useTemplatePanel || this.panelsCore.length == 0)
       return;
     var property = Serializer.findProperty(element.getType(), options.name);
@@ -1431,11 +1418,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const isAddingOnePanel = val - this.panelCount === 1;
     const firstAddedIndex = this.panelCount;
     try {
-      for (let i = this.panelCount; i < val; i++) {
-        const panel = this.createNewPanel();
-        this.panelsCore.push(panel);
-        this.setPanelState(panel, this.panelsCore.length - 1);
-      }
+      this.runCreatingPanels(val - this.panelCount, (): void => {
+        for (let i = this.panelCount; i < val; i++) {
+          const panel = this.createNewPanel();
+          this.panelsCore.push(panel);
+          this.setPanelState(panel, this.panelsCore.length - 1);
+        }
+      });
       if (isAddingOnePanel) {
         this.singleInputOnAddItem(this.panelCountByValueScope.value);
       }
@@ -1856,9 +1845,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
   }
   private updatePanelView() {
-    this.blockAnimations();
-    this.updateRenderedPanels();
-    this.releaseAnimations();
+    this.runWithoutAnimations(() => this.updateRenderedPanels());
     this.dynamicAnimation.resetPanelsAnimation();
     this.updateTabbedMenuItems();
   }
@@ -2000,16 +1987,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         new QuestionPanelDynamicItem(this, this.template);
         panels.push(this.template);
       } else {
-        for (var i = 0; i < this.panelCount; i++) {
-          panels.push(this.createNewPanel());
-        }
+        this.runCreatingPanels(this.panelCount, (): void => {
+          for (var i = 0; i < this.panelCount; i++) {
+            panels.push(this.createNewPanel());
+          }
+        });
       }
-      this.isRebuildingPanels = true;
-      try {
+      this.rebuildingPanelsScope.run((): void => {
         this.panelsCore.splice(0, this.panelsCore.length, ...panels);
-      } finally {
-        this.isRebuildingPanels = false;
-      }
+      });
       this.setValueAfterPanelsCreating();
     } finally {
       this.clearPanelsCreating();
@@ -2459,7 +2445,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return visIndex;
   }
-  private isDetachingPanel: boolean = false;
+  private detachingPanelScope: Scope = new Scope();
+  private get isDetachingPanel(): boolean {
+    return this.detachingPanelScope.isActive;
+  }
   // QuestionRecordsModel hooks of a removal: the panels are the objects.
   protected getItemPosition(item: QuestionRecordItem): number {
     const panels = this.panelsCore;
@@ -2475,12 +2464,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      asks for. */
   protected detachItem(removal: IPanelRemoval): void {
     if (removal.position > -1) {
-      this.isDetachingPanel = true;
-      try {
+      this.detachingPanelScope.run((): void => {
         this.markPanelsLeft(this.panelsCore.splice(removal.position, 1));
-      } finally {
-        this.isDetachingPanel = false;
-      }
+      });
     }
     const successor = removal.successor;
     if (!!successor) {
@@ -2765,12 +2751,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private buildPanelsFirstTime(force: boolean = false): void {
     if (this.hasPanelBuildFirstTime) return;
     if (!force && this.wasNotRenderedInSurvey) return;
-    this.blockAnimations();
     try {
-      this.buildPanelsFirstTimeCore();
+      this.runWithoutAnimations(() => this.buildPanelsFirstTimeCore());
     } finally {
       this.isBuildingPanelsFirstTime = false;
-      this.releaseAnimations();
     }
   }
   private buildPanelsFirstTimeCore(): void {
@@ -3135,13 +3119,47 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public canRenderRemovePanelOnRight(panel: PanelModel): boolean {
     return this.dynamicActions.canRenderRemovePanelOnRight(panel);
   }
+  /* The template JSON one batch of new panels shares: serialized for the first panel, copied for each
+     next one, so every panel gets objects of its own (toObject keeps references into the JSON - a
+     localizable string keeps its values object - and visibleIf is deleted from it). It lives for the batch
+     only: a change inside a nested object of the template - a validator, choicesByUrl, a choice - notifies
+     nothing, so a cache kept longer would go stale, and design mode and Creator edit the template while
+     panels exist. Within the batch it is dropped when:
+     - a survey event fired with a handler since it was taken (Event.getHandledFireCount): a handler is user
+       code that can reach the template, and many events fire while a panel is created;
+     - the template reports a change - a property of the template or of an element in it, elements added
+       or removed (dropNewPanelsJson).
+     A single panel takes no copy. User code that is not a survey event (a custom function, a component's
+     onCreated, a custom widget) is not seen: a change it makes in a nested object of the template reaches
+     the next batch. */
+  private newPanelsJsonScope: ValueScope<{ json: any, fireCount: number }> = new ValueScope<{ json: any, fireCount: number }>();
+  private runCreatingPanels(count: number, func: () => void): void {
+    // A batch inside another one (a template change rebuilds the panels) has a JSON of its own or none.
+    this.newPanelsJsonScope.run(count > 1 ? { json: undefined, fireCount: 0 } : undefined, func);
+  }
+  private getNewPanelJson(): any {
+    const batch = this.newPanelsJsonScope.value;
+    if (!batch) return this.template.toJSON();
+    if (batch.json !== undefined && batch.fireCount === Event.getHandledFireCount()) return copyPlainJson(batch.json);
+    const json = this.template.toJSON();
+    // Copied before the panel loads it.
+    batch.json = copyPlainJson(json);
+    batch.fireCount = Event.getHandledFireCount();
+    return json;
+  }
+  private dropNewPanelsJson(): void {
+    const batch = this.newPanelsJsonScope.value;
+    if (!!batch) {
+      batch.json = undefined;
+    }
+  }
   // The values a new panel writes while it is attached - its defaults - are computed (runComputedWrites).
   protected createNewPanel(): PanelModel {
     return this.runComputedWrites((): PanelModel => this.createNewPanelCore());
   }
   private createNewPanelCore(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
-    var json = this.template.toJSON();
+    var json = this.getNewPanelJson();
     // The panel runs no templateVisibleIf of its own while the records decide it (areRecordsDecidingVisibility).
     if (this.areRecordsDecidingVisibility) {
       delete json.visibleIf;

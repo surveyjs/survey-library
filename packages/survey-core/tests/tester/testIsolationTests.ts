@@ -53,7 +53,9 @@ function getTypeScriptFiles(dir: string): Array<string> {
 
 interface IImportRecord {
   file: string;
-  line: number;
+  // The offset of the specifier in the file. The line is derived from it only when a record is
+  // reported: counting it for every import made a long file with many imports quadratic to scan.
+  position: number;
   source: string;
   // The names of a named import; empty for a side-effect or a namespace import. An inline "type"
   // name is left out: it is erased before a bundle exists.
@@ -66,19 +68,33 @@ interface IImportRecord {
 // text after it and report a word out of a comment as a module.
 const IMPORT_REGEX = /(?:^|\n)[ \t]*(?:import|export)\s+(?:type\s+)?(?:([\w$*{},\s]+?)\s+from\s+)?["']([^"']+)["']/g;
 
+// The sources do not change while the tests run, and the checks walk the same files again and
+// again: every file of src/ is scanned by one test and reached by the graph walk of each entry point.
+// So a file is scanned once and a specifier is resolved once per directory, for the life of the module.
+const importsCache = new Map<string, Array<IImportRecord>>();
+const resolveCache = new Map<string, string>();
+
+function getImports(file: string): Array<IImportRecord> {
+  let res = importsCache.get(file);
+  if (!res) {
+    res = scanImports(file);
+    importsCache.set(file, res);
+  }
+  return res;
+}
+
 // A single-pass scan of the import and re-export statements of a file. It reads the specifier and,
 // for a named import, the names: a report that says only "this file imports too much" would leave
 // whoever trips it to find the line themselves.
-function getImports(file: string): Array<IImportRecord> {
+function scanImports(file: string): Array<IImportRecord> {
   const text = readFileSync(file, "utf-8");
   const res: Array<IImportRecord> = [];
   let match = IMPORT_REGEX.exec(text);
   while(!!match) {
     const clause = match[1] || "";
-    const start = match.index + match[0].indexOf(match[2]);
     res.push({
       file: file,
-      line: text.substring(0, start).split("\n").length,
+      position: match.index + match[0].indexOf(match[2]),
       source: match[2],
       names: getImportedNames(clause),
       isTypeOnly: /\b(?:import|export)\s+type\b/.test(match[0]),
@@ -118,7 +134,17 @@ function isInsideTests(path: string): boolean {
 
 function resolveImport(record: IImportRecord): string {
   if (record.source.charAt(0) !== ".") return undefined;
-  const base = resolve(dirname(record.file), record.source);
+  const dir = dirname(record.file);
+  const key = dir + "|" + record.source;
+  // An unresolved specifier is cached as undefined too, so has() and not the value tells a miss.
+  if (!resolveCache.has(key)) {
+    resolveCache.set(key, resolveFromDirectory(dir, record.source));
+  }
+  return resolveCache.get(key);
+}
+
+function resolveFromDirectory(dir: string, source: string): string {
+  const base = resolve(dir, source);
   const candidates = [base + ".ts", base + ".tsx", join(base, "index.ts")];
   for (let i = 0; i < candidates.length; i++) {
     if (existsSync(candidates[i])) return candidates[i];
@@ -126,8 +152,12 @@ function resolveImport(record: IImportRecord): string {
   return undefined;
 }
 
+function getLine(record: IImportRecord): number {
+  return readFileSync(record.file, "utf-8").substring(0, record.position).split("\n").length;
+}
+
 function formatRecord(record: IImportRecord): string {
-  return getRelativePath(record.file) + ":" + record.line + " imports \"" + record.source + "\"";
+  return getRelativePath(record.file) + ":" + getLine(record) + " imports \"" + record.source + "\"";
 }
 
 describe("The tester is isolated from the rest of the library", () => {

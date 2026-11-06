@@ -107,7 +107,7 @@ Returns `true` if the survey element or its parent element is read-only.
 
 If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Related APIs:** [`readOnly`](#readOnly)
+**Related APIs:** [`readOnly`](#readOnly), [`readOnlyMode`](#readOnlyMode)
 
 ### `maxWidth`
 
@@ -152,6 +152,24 @@ This property is `null` for standalone questions.
 Makes the survey element read-only.
 
 If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+
+**Related APIs:** [`readOnlyMode`](#readOnlyMode), [`isReadOnly`](#isReadOnly)
+
+### `readOnlyMode`
+
+**Type**: `"default" | "readonly" | "view"`
+
+Specifies how the survey element is displayed when it is read-only.
+
+Possible values:
+
+- `"default"` (default) - Inherits the mode from the parent panel, page, or survey, in this order.
+- `"readonly"` - Displays the usual input controls, but disabled for editing.
+- `"view"` - Displays answers as plain text or other non-interactive visuals.
+
+This property applies only when the survey element is read-only, including when this state is inherited from a parent element or the survey.
+
+To make the element read-only, set its [`readOnly`](#readOnly) property to `true` or specify an [`enableIf`](#enableIf) condition that evaluates to `false`.
 
 **Related APIs:** [`isReadOnly`](#isReadOnly)
 

@@ -4923,16 +4923,6 @@ describe("Survey", () => {
         return question["renderAs"] === "testwidget";
       },
     });
-    const oldMartixDropdownRenderAsProperty = Serializer.getProperty("matrixdropdowncolumn", "renderAs");
-    const oldDropdownRenderAsProperty = Serializer.getProperty("dropdown", "renderAs");
-
-    Serializer.addProperty("matrixdropdowncolumn", "renderAs");
-    Serializer.addProperty("dropdown", {
-      name: "renderAs",
-      default: "standard",
-      choices: ["standard", "chosen"],
-    });
-
     var survey = new SurveyModel({
       elements: [
         {
@@ -4949,9 +4939,6 @@ describe("Survey", () => {
     var rows = q.visibleRows;
     expect(rows[0].cells[0].question.customWidget.name, "the first cell has custom widget").toBe("first");
     expect(rows[0].cells[1].question.customWidget, "the second cell has no custom widget").toBeNull();
-
-    Serializer.addProperty("matrixdropdowncolumn", oldMartixDropdownRenderAsProperty);
-    Serializer.addProperty("dropdown", oldDropdownRenderAsProperty);
 
     CustomWidgetCollection.Instance.clear();
   });
@@ -6174,11 +6161,6 @@ describe("Survey", () => {
   });
 
   test("Pass custom properties to cell question", () => {
-    Serializer.addProperty("matrixdropdowncolumn", {
-      name: "renderAs",
-      default: "default",
-      choices: ["default", "select2tagbox"],
-    });
     var survey = new SurveyModel({
       elements: [
         {
@@ -6277,6 +6259,61 @@ describe("Survey", () => {
     survey.doComplete();
     survey.clear(true);
     expect(survey.getValue("q1"), "the value is set after clear, #1163").toBe("defValue");
+  });
+  test("survey.clear() clears validation errors, Bug#12214", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1", isRequired: true }] },
+        { elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    survey.nextPage();
+    expect(q1.errors.length, "#1 q1 has a required error").toBe(1);
+    survey.clear(true, true);
+    expect(q1.errors.length, "#2 clear(true, true) removes the error").toBe(0);
+    survey.nextPage();
+    expect(q1.errors.length, "#3 the error comes back on the next validation").toBe(1);
+    survey.clear(false, false);
+    expect(q1.errors.length, "#4 clear(false, false) removes the error").toBe(0);
+    survey.dispose();
+  });
+  test("survey.clear() clears errors on all pages, panels and nested questions, Bug#12214", () => {
+    const survey = new SurveyModel({
+      checkErrorsMode: "onComplete",
+      pages: [
+        { elements: [{ type: "text", name: "q1", inputType: "email" }] },
+        { elements: [
+          { type: "panel", name: "panel1", isRequired: true, elements: [{ type: "text", name: "q2" }] },
+          { type: "paneldynamic", name: "q3", panelCount: 1, templateElements: [{ type: "text", name: "q3_1", isRequired: true }] },
+          { type: "matrixdynamic", name: "q4", rowCount: 1, columns: [{ name: "col1", cellType: "text", isRequired: true }] },
+          { type: "multipletext", name: "q5", items: [{ name: "item1", isRequired: true }] }
+        ] }
+      ]
+    });
+    survey.setValue("q1", "not-an-email");
+    survey.nextPage();
+    survey.tryComplete();
+    const q1 = survey.getQuestionByName("q1");
+    const panel1 = survey.getPanelByName("panel1");
+    const q3 = <QuestionPanelDynamicModel>survey.getQuestionByName("q3");
+    const q4 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q4");
+    const q5 = <QuestionMultipleTextModel>survey.getQuestionByName("q5");
+    const nested3 = q3.panels[0].getQuestionByName("q3_1");
+    const cell4 = q4.visibleRows[0].cells[0].question;
+    const item5 = q5.items[0].editor;
+    expect(q1.errors.length, "#1 q1").toBe(1);
+    expect(panel1.errors.length, "#1 panel1").toBe(1);
+    expect(nested3.errors.length, "#1 q3_1").toBe(1);
+    expect(cell4.errors.length, "#1 q4 cell").toBe(1);
+    expect(item5.errors.length, "#1 q5 item").toBe(1);
+    survey.clear(false, true);
+    expect(q1.errors.length, "#2 q1").toBe(0);
+    expect(panel1.errors.length, "#2 panel1").toBe(0);
+    expect(nested3.errors.length, "#2 q3_1").toBe(0);
+    expect(cell4.errors.length, "#2 q4 cell").toBe(0);
+    expect(item5.errors.length, "#2 q5 item").toBe(0);
+    survey.dispose();
   });
 
   test("defaultValue + survey.clear() + 'other'", () => {
@@ -16492,72 +16529,72 @@ describe("Survey", () => {
     survey.locale = "";
   });
   test("hasDescription is isDesignMode", () => {
-    const commentDescriptionProperty = Serializer.getProperty("comment", "description");
-    const oldValue = commentDescriptionProperty.placeholder;
-    commentDescriptionProperty.placeholder = "Q placeholder";
-
-    const survey = new SurveyModel({});
-    survey["_isDesignMode"] = true;
-    survey.fromJSON({
-      pages: [{
-        name: "page1",
-        title: "Page title",
-        elements: [{
-          type: "text",
-          name: "q1",
-        }, {
-          type: "comment",
-          name: "q2",
+    // getProperty clones the inherited property onto the comment class; the clone is removed in finally
+    // so that a failed expect does not leave the placeholder to later tests.
+    Serializer.getProperty("comment", "description").placeholder = "Q placeholder";
+    try {
+      const survey = new SurveyModel({});
+      survey["_isDesignMode"] = true;
+      survey.fromJSON({
+        pages: [{
+          name: "page1",
+          title: "Page title",
+          elements: [{
+            type: "text",
+            name: "q1",
+          }, {
+            type: "comment",
+            name: "q2",
+          }]
         }]
-      }]
-    });
-    const q1 = survey.getQuestionByName("q1");
-    const q2 = survey.getQuestionByName("q2");
-    expect(q1.hasDescription, "text description is not shown").toBeFalsy();
-    expect(q2.hasDescription, "comment description is shown").toBeTruthy();
-    const q3 = survey.currentPage.addNewQuestion("text", "q3");
-    const q4 = survey.currentPage.addNewQuestion("comment", "q4");
-    expect(q3.hasDescription, "text description is not shown, on adding question").toBeFalsy();
-    expect(q4.hasDescription, "comment description is shown, on adding question").toBeTruthy();
-
-    commentDescriptionProperty.placeholder = oldValue;
+      });
+      const q1 = survey.getQuestionByName("q1");
+      const q2 = survey.getQuestionByName("q2");
+      expect(q1.hasDescription, "text description is not shown").toBeFalsy();
+      expect(q2.hasDescription, "comment description is shown").toBeTruthy();
+      const q3 = survey.currentPage.addNewQuestion("text", "q3");
+      const q4 = survey.currentPage.addNewQuestion("comment", "q4");
+      expect(q3.hasDescription, "text description is not shown, on adding question").toBeFalsy();
+      expect(q4.hasDescription, "comment description is shown, on adding question").toBeTruthy();
+    } finally {
+      Serializer.removeProperty("comment", "description");
+    }
   });
   test("hasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide empty description in design mode", () => {
-    const commentDescriptionProperty = Serializer.getProperty("comment", "description");
-    const oldValue = commentDescriptionProperty.placeholder;
-    commentDescriptionProperty.placeholder = "Q placeholder";
-
-    const survey = new SurveyModel({});
-    survey["_isDesignMode"] = true;
-    const calls: Array<string> = [];
-    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
-      calls.push(element.name);
-      if (element.name === "q1") return false; // hide even though placeholder would show it
-      if (element.name === "q3") return true; // show even though no placeholder is defined
-      return show;
-    };
-    survey.fromJSON({
-      pages: [{
-        name: "page1",
-        elements: [
-          { type: "comment", name: "q1" },
-          { type: "comment", name: "q2" },
-          { type: "text", name: "q3" },
-          { type: "text", name: "q4" }
-        ]
-      }]
-    });
-    const q1 = survey.getQuestionByName("q1");
-    const q2 = survey.getQuestionByName("q2");
-    const q3 = survey.getQuestionByName("q3");
-    const q4 = survey.getQuestionByName("q4");
-    expect(q1.hasDescription, "q1 empty description hidden by callback").toBeFalsy();
-    expect(q2.hasDescription, "q2 empty description shown by default").toBeTruthy();
-    expect(q3.hasDescription, "q3 empty description shown by callback").toBeTruthy();
-    expect(q4.hasDescription, "q4 empty description hidden by default").toBeFalsy();
-    expect(calls.indexOf("q1") > -1, "callback is called for q1").toBeTruthy();
-
-    commentDescriptionProperty.placeholder = oldValue;
+    Serializer.getProperty("comment", "description").placeholder = "Q placeholder";
+    try {
+      const survey = new SurveyModel({});
+      survey["_isDesignMode"] = true;
+      const calls: Array<string> = [];
+      survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+        calls.push(element.name);
+        if (element.name === "q1") return false; // hide even though placeholder would show it
+        if (element.name === "q3") return true; // show even though no placeholder is defined
+        return show;
+      };
+      survey.fromJSON({
+        pages: [{
+          name: "page1",
+          elements: [
+            { type: "comment", name: "q1" },
+            { type: "comment", name: "q2" },
+            { type: "text", name: "q3" },
+            { type: "text", name: "q4" }
+          ]
+        }]
+      });
+      const q1 = survey.getQuestionByName("q1");
+      const q2 = survey.getQuestionByName("q2");
+      const q3 = survey.getQuestionByName("q3");
+      const q4 = survey.getQuestionByName("q4");
+      expect(q1.hasDescription, "q1 empty description hidden by callback").toBeFalsy();
+      expect(q2.hasDescription, "q2 empty description shown by default").toBeTruthy();
+      expect(q3.hasDescription, "q3 empty description shown by callback").toBeTruthy();
+      expect(q4.hasDescription, "q4 empty description hidden by default").toBeFalsy();
+      expect(calls.indexOf("q1") > -1, "callback is called for q1").toBeTruthy();
+    } finally {
+      Serializer.removeProperty("comment", "description");
+    }
   });
   test("beforeShowInplaceDescriptionEditorCallback is called for both empty and non-empty descriptions", () => {
     const survey = new SurveyModel({});
@@ -19444,6 +19481,332 @@ describe("Survey", () => {
     expect(survey.currentSingleQuestion.name, "survey.currentSingleQuestion.name #3").toBe("q3");
     survey.setValue("q3", "A");
     expect(survey.state, "survey.state #4").toBe("completed");
+  });
+
+  function runWithAutoAdvanceDelay(func: () => void): void {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 5;
+    vi.useFakeTimers();
+    try {
+      func();
+    } finally {
+      vi.useRealTimers();
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  }
+  function pressEnter(question: Question): void {
+    (<any>question).onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+    vi.runAllTimers();
+  }
+  function createRadiogroups(...names: Array<string>): Array<any> {
+    return names.map(name => ({ type: "radiogroup", name: name, choices: [1, 2] }));
+  }
+
+  test("questionPerPage: Enter on a filled question moves one question", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: createRadiogroups("q1", "q2", "q3"),
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q1: 1, q2: 1, q3: 1 };
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q1").toBe("q2");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q2").toBe("q3");
+      expect(survey.state, "Enter on q2 does not complete the survey").toBe("running");
+    });
+  });
+  test("questionPerPage: autoAdvanceAllowComplete: false keeps the survey running on the last question", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: createRadiogroups("q1", "q2", "q3"),
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+        autoAdvanceAllowComplete: false,
+      });
+      survey.data = { q1: 1, q2: 1, q3: 1 };
+      survey.currentSingleQuestion = survey.getQuestionByName("q2");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.state, "Enter on q2").toBe("running");
+      expect(survey.currentSingleQuestion.name, "Enter on q2").toBe("q3");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.state, "Enter on q3").toBe("running");
+      expect(survey.currentSingleQuestion.name, "Enter on q3").toBe("q3");
+    });
+  });
+  test("questionPerPage: changing a filled question moves one question", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "dropdown", name: "q1", choices: ["A", "B"] },
+          { type: "dropdown", name: "q2", choices: ["A", "B"] },
+          { type: "dropdown", name: "q3", choices: ["A", "B"] }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q1: "A", q2: "A", q3: "A" };
+      survey.setValue("q1", "B");
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q2");
+    });
+  });
+  test("questionPerPage: Enter walks two filled pages one question at a time", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        pages: [
+          { elements: createRadiogroups("q1", "q2") },
+          { elements: createRadiogroups("q3", "q4") }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q1: 1, q2: 1, q3: 1, q4: 1 };
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q1").toBe("q2");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q2 crosses the page").toBe("q3");
+      pressEnter(survey.currentSingleQuestion);
+      expect(survey.currentSingleQuestion.name, "Enter on q3").toBe("q4");
+    });
+  });
+  test("questionPerPage: setting another question's value in code does not move", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: createRadiogroups("q1", "q2").concat([{ type: "text", name: "q3" }]),
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.setValue("q3", 1);
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q1");
+    });
+  });
+  test("inputPerPage: setting another question's value in code does not move", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "b" }] },
+          { type: "text", name: "q2" }
+        ],
+        questionsOnPageMode: "inputPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.setValue("q2", 1);
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("mt");
+      expect(survey.currentSingleQuestion.singleInputQuestion.name).toBe("a");
+    });
+  });
+  test("questionPerPage: a panel as one element waits for its last visible input, then moves once", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "panel", name: "panel",
+            elements: [
+              { type: "text", name: "a" },
+              { type: "text", name: "b" },
+              { type: "text", name: "hidden", visible: false }
+            ]
+          },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q2: 1, q3: 1 };
+      survey.setValue("a", 1);
+      vi.runAllTimers();
+      expect((<any>survey.currentSingleElement).name, "b is empty").toBe("panel");
+      survey.setValue("b", 1);
+      vi.runAllTimers();
+      expect((<any>survey.currentSingleElement).name, "the panel is filled").toBe("q2");
+    });
+  });
+  test("questionPerPage: nothing is scheduled on the last element with autoAdvanceAllowComplete: false", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      questionsOnPageMode: "questionPerPage",
+      autoAdvanceEnabled: true,
+      autoAdvanceAllowComplete: false,
+    });
+    survey.data = { q1: 1, q2: 1 };
+    survey.currentSingleQuestion = survey.getQuestionByName("q2");
+    expect(survey.tryGoNextPageAutomaticCore("q2")).toBe(false);
+  });
+  test("questionPerPage: Enter keeps its line break in the last comment with autoAdvanceAllowComplete: false", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "comment", name: "q1" }, { type: "comment", name: "q2" }],
+      questionsOnPageMode: "questionPerPage",
+      autoAdvanceEnabled: true,
+      autoAdvanceAllowComplete: false,
+    });
+    survey.data = { q1: "text", q2: "text" };
+    survey.currentSingleQuestion = survey.getQuestionByName("q2");
+    const preventDefault = vi.fn();
+    (<QuestionCommentModel>survey.currentSingleQuestion).onKeyDown({ key: "Enter", keyCode: 13, target: { value: "text" }, preventDefault: preventDefault });
+    expect(preventDefault).not.toHaveBeenCalled();
+  });
+  test("questionPerPage: the last question fires onShowingPreview once with no delay", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "dropdown", name: "q1", choices: ["A", "B"] }, { type: "dropdown", name: "q2", choices: ["A", "B"] }],
+      questionsOnPageMode: "questionPerPage",
+      autoAdvanceEnabled: true,
+      showPreviewBeforeComplete: true,
+    });
+    let counter = 0;
+    survey.onShowingPreview.add(() => counter++);
+    survey.setValue("q1", "A");
+    survey.setValue("q2", "A");
+    expect(counter).toBe(1);
+    expect(survey.state).toBe("preview");
+  });
+  test("inputPerPage: Enter walks a filled multipletext one input at a time", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "b" }] },
+          { type: "text", name: "q2" }
+        ],
+        questionsOnPageMode: "inputPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { mt: { a: "1", b: "2" }, q2: "3" };
+      const commitInput = (value: string) => {
+        (<any>survey.currentSingleQuestion.singleInputQuestion).onKeyUp({ keyCode: 13, target: { value: value } });
+        vi.runAllTimers();
+      };
+      commitInput("10");
+      expect(survey.currentSingleQuestion.name, "Enter on a").toBe("mt");
+      expect(survey.currentSingleQuestion.singleInputQuestion.name, "Enter on a").toBe("b");
+      commitInput("20");
+      expect(survey.currentSingleQuestion.name, "Enter on b").toBe("q2");
+    });
+  });
+
+  test("questionPerPage: a change does not move once another question is on screen", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "dropdown", name: "q1", choices: ["A", "B"] },
+          { type: "dropdown", name: "q2", choices: ["A", "B"] },
+          { type: "dropdown", name: "q3", choices: ["A", "B"] }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.setValue("q1", "A");
+      survey.performNext();
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q2");
+    });
+  });
+  test("questionPerPage: the second question with a shared valueName moves on", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "dropdown", name: "q1", valueName: "shared", choices: ["A", "B"] },
+          { type: "dropdown", name: "q2", valueName: "shared", choices: ["A", "B"] },
+          { type: "dropdown", name: "q3", choices: ["A", "B"] }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.currentSingleQuestion = survey.getQuestionByName("q2");
+      survey.currentSingleQuestion.value = "B";
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q3");
+    });
+  });
+  test("questionPerPage: a panel moves on when its empty question is in a hidden nested panel", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "panel", name: "panel",
+            elements: [
+              { type: "dropdown", name: "a", choices: ["A", "B"] },
+              {
+                type: "panel", name: "nested", visibleIf: "{a} = 'A'",
+                elements: [{ type: "text", name: "detail" }]
+              }
+            ]
+          },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ],
+        questionsOnPageMode: "questionPerPage",
+        autoAdvanceEnabled: true,
+      });
+      survey.data = { q2: 1, q3: 1 };
+      survey.setValue("a", "A");
+      vi.runAllTimers();
+      expect((<any>survey.currentSingleElement).name, "detail is visible and empty").toBe("panel");
+      survey.setValue("a", "B");
+      vi.runAllTimers();
+      expect((<any>survey.currentSingleElement).name, "detail is hidden").toBe("q2");
+    });
+  });
+  function createChoiceWithNestedDropdowns(questionsOnPageMode: string): SurveyModel {
+    return new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup", name: "q1",
+          choices: [
+            {
+              value: 1,
+              elements: [
+                { type: "dropdown", name: "nested1", choices: ["A", "B"] },
+                { type: "dropdown", name: "nested2", choices: ["A", "B"] }
+              ]
+            },
+            2
+          ]
+        },
+        { type: "text", name: "q2" }
+      ],
+      questionsOnPageMode: questionsOnPageMode,
+      autoAdvanceEnabled: true,
+    });
+  }
+  test("inputPerPage: questions nested in a choice item move one step at a time", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = createChoiceWithNestedDropdowns("inputPerPage");
+      const q1 = survey.currentSingleQuestion;
+      q1.value = 1;
+      survey.performNext();
+      expect(q1.singleInputQuestion.name, "the first nested step").toBe("nested1");
+      q1.singleInputQuestion.value = "A";
+      vi.runAllTimers();
+      expect(q1.singleInputQuestion.name, "the second nested step").toBe("nested2");
+      q1.singleInputQuestion.value = "A";
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name, "after the last nested step").toBe("q2");
+    });
+  });
+  test("inputPerPage: setting a nested question that is not on screen in code does not move", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = createChoiceWithNestedDropdowns("inputPerPage");
+      const q1 = survey.currentSingleQuestion;
+      q1.value = 1;
+      survey.performNext();
+      survey.setValue("nested2", "A");
+      vi.runAllTimers();
+      expect(q1.singleInputQuestion.name).toBe("nested1");
+    });
+  });
+  test("questionPerPage: a question nested in a choice item does not move", () => {
+    runWithAutoAdvanceDelay(() => {
+      const survey = createChoiceWithNestedDropdowns("questionPerPage");
+      const q1 = survey.currentSingleQuestion;
+      q1.value = 1;
+      survey.setValue("nested1", "A");
+      vi.runAllTimers();
+      expect(survey.currentSingleQuestion.name).toBe("q1");
+    });
   });
 
   test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", () => {

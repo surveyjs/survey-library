@@ -1,9 +1,7 @@
 import { FunctionFactory, registerFunction, unregisterFunction } from "../../src/functionsfactory";
+import { coreFunctionNames } from "../test-baseline";
 
 import { describe, test, expect } from "vitest";
-
-// Before any test registers a function: what survey-core itself registers
-const registeredByCore = FunctionFactory.Instance.getAll();
 
 describe("Function metadata", () => {
   test("a registration keeps its description, parameters and return type", () => {
@@ -61,9 +59,9 @@ describe("Function metadata", () => {
     unregisterFunction("aiexDepends");
   });
   test("every function survey-core registers says what its result depends on", () => {
-    expect(registeredByCore.length > 0, "survey-core registers functions").toBe(true);
-    const regs = FunctionFactory.Instance.getRegistrations().filter(r => registeredByCore.indexOf(r.name) > -1);
-    expect(regs.map(r => r.name)).toEqual(registeredByCore);
+    expect(coreFunctionNames.length > 0, "survey-core registers functions").toBe(true);
+    const regs = FunctionFactory.Instance.getRegistrations().filter(r => coreFunctionNames.indexOf(r.name) > -1);
+    expect(regs.map(r => r.name)).toEqual(coreFunctionNames);
     regs.forEach(r => {
       expect(["parameters", "survey", "elements"].indexOf(r.resultDependsOn) > -1, r.name + ": " + r.resultDependsOn).toBe(true);
     });

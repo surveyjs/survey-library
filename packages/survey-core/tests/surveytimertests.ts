@@ -3,8 +3,10 @@ import { SurveyTimer, surveyTimerFunctions, SurveyTimerEvent } from "../src/surv
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { setOldTheme } from "./oldTheme";
 
-import { describe, test, expect, vi } from "vitest";
+import { afterAll, describe, test, expect, vi } from "vitest";
 describe("SurveyTimer", () => {
+  const realFunctions = { ...surveyTimerFunctions };
+  afterAll(() => { Object.assign(surveyTimerFunctions, realFunctions); });
   surveyTimerFunctions.setTimeout = function(func: () => any): number {
     return 1;
   };
@@ -42,6 +44,7 @@ describe("SurveyTimer", () => {
     expect(seconds, "#1").toBe(5);
     doTimer(1, 7);
     expect(seconds, "#2").toBe(5 + 1 + 7);
+    SurveyTimer.instance.stop(func);
   });
 
   test("Spent time on survey", () => {

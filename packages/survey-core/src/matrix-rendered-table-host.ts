@@ -60,6 +60,17 @@ export class MatrixRenderedTableHost {
     this.owner.clearRows();
     this.reset();
   }
+  /* The rows the table holds were rebound to other records (QuestionMatrixDropdownModelBase.rebindRows):
+     the table keeps them and builds their actions and its header again; it is reset when it cannot. A
+     table a row visibility change already dropped is built on the next read. */
+  public updateAfterRowsRebound(): void {
+    if (!this.isCreated) return;
+    const table = this.owner.getStoredTable();
+    // Under a reset lock the table is marked: the release resets it (releaseResetLock).
+    if (table.isRequireReset() || !table.updateAfterRowsRebound()) {
+      this.reset(true);
+    }
+  }
   public updateShowTable(): void {
     if (this.isCreated) {
       this.table.updateShowTable();

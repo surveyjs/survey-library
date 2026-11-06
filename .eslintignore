@@ -14,3 +14,4 @@ packages/survey-core/tests/bundle/*
 packages/converter/corpus/
 packages/survey-core/prompts/
 packages/survey-core/promts/
+perf/results/

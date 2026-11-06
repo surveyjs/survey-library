@@ -228,10 +228,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     // No record changes: the touched rows keep their places (createAssignmentRemap), and the edited set stays.
     this.decideViewAgain(this.dataListValue.getCreatedIndexes(), undefined, false, false);
   }
-  /* The record fields: the columns', and the row itself, which the answer never stores - item, rowName
-     and rowValue are the row value, rowTitle its text, under the names the row context answers in
-     rowsVisibleIf. A virtual field wins over a column of the same value name, as the row context does:
-     that column is left out of the fields, so it can be neither sorted nor filtered by. */
+  /* The record fields: the columns' and the detail panel's, and the row itself, which the answer never
+     stores - item, rowName and rowValue are the row value, rowTitle its text, under the names the row
+     context answers in rowsVisibleIf. A virtual field wins over a column or a detail question of the same
+     value name, as the row context does: its name sorts and filters by the row, not by its own value. */
   protected getFields(): Array<IDynamicDataField> {
     const vars = settings.expressionVariables;
     const readItem = (index: number): ItemValue => this.getRecordItems()[index];

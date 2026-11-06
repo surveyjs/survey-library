@@ -3,7 +3,7 @@
   flex-grow: 1;
   --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 }
-.sd-matrixdynamic__content > div {
+.sd-matrixdynamic__content > div:not(.sd-question__comment-area):not(.sd-question__description) {
   display: contents;
 }
 

@@ -53,8 +53,6 @@ export var greekSurveyStrings = {
   sortMoreAriaLabel: "Εμφάνιση όλων των επιπέδων ταξινόμησης",
   // [Auto-translated] "Add New"
   sortAddNewText: "Προσθήκη νέου",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Μετακίνηση επιπέδου ταξινόμησης {0}",
   // "Complete"
@@ -308,7 +306,29 @@ export var greekSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Γραμμή προόδου",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Σελίδα {0}"
+  progressbarPage: "Σελίδα {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "για να επιλέξετε",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "για εναλλαγή",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "για πλοήγηση",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "για να συνεχίσω",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "για να υποβάλετε",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "ή",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "για μια νέα γραμμή",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "στην επόμενη επιλογή",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "να μετακινηθείς",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "να ανοίξει",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "να κλείσω"
 };
 
 setupLocale({ localeCode: "el", strings: greekSurveyStrings, nativeName: "ελληνικά", englishName: "Greek" });

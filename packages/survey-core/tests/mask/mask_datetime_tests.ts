@@ -11,6 +11,8 @@ import { settings } from "../../src/settings";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { germanSurveyStrings } from "../../src/localization/german";
 import "../../src/localization/hungarian";
+// The month and year placeholders of a czech mask come from these strings.
+import "../../src/localization/czech";
 
 import { describe, test, expect, afterEach } from "vitest";
 describe("Datetime mask", () => {
@@ -1903,10 +1905,10 @@ describe("Datetime mask: locale date preset", () => {
     const q = createPresetQuestion({}, "cs");
     const maskInstance = <InputMaskDateTime>q.maskSettings;
     expect(maskInstance.activePattern, "the czech active pattern").toBe("dd. mm. yyyy");
-    expect(maskInstance.getMaskedValue(""), "the czech empty mask").toBe("dd. mm. yyyy");
+    expect(maskInstance.getMaskedValue(""), "the czech empty mask").toBe("dd. mm. rrrr");
     expect(maskInstance.getMaskedValue("2000-12-25"), "a complete value").toBe("25. 12. 2000");
     expect(maskInstance.getUnmaskedValue("25. 12. 2000"), "the unmasked value").toBe("2000-12-25");
-    expect(maskInstance._getMaskedValue("25. mm. yyyy"), "an entered day").toBe("25. mm. yyyy");
+    expect(maskInstance._getMaskedValue("25. mm. rrrr"), "an entered day").toBe("25. mm. rrrr");
 
     q.inputValue = "25. 12. 2000";
     expect(q.value, "the stored value").toBe("2000-12-25");

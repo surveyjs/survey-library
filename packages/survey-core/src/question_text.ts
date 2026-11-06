@@ -1,4 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
+import { advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
@@ -115,15 +116,22 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!val) return;
     const oldValue = this.maskSettings;
     if (oldValue) {
+      this.updateUnmaskedValue();
       oldValue.dispose();
     }
     this.setNewMaskSettingsProperty();
     this.maskSettings.fromJSON(val.toJSON());
+    if (oldValue) {
+      this.maskSettings.copyUnmaskedValue(oldValue);
+      this.updateUnmaskedValue();
+    }
     this.updateMaskAdapter();
   }
   public localeChanged(): void {
     super.localeChanged();
     if (this.maskTypeIsEmpty || !this.maskSettings.isLocaleDependent) return;
+    // A saved text that may be in an older locale's format is never rewritten: the rewrite would lose digits.
+    if (this.maskSettings.saveMaskedValue && this.isSavedTextKeptOnLocaleChange) return;
     // While the element is focused, an entry may exist only in it - masked keystrokes are
     // written there directly and reach _inputValue on blur - so its text has to be captured
     // before localeChanged() below rebuilds the mask and rerenders the element. That text is
@@ -134,10 +142,12 @@ export class QuestionTextModel extends QuestionTextBase {
     // not stored in the question value - has to be carried across.
     const isEditing = !!this.maskInputAdapter && this.maskInputAdapter.isInputElementFocused;
     const state: IMaskLocaleChange = {
-      enteredText: isEditing ? this.maskInputAdapter.inputElementText : (this.isEmpty() ? this._inputValue : undefined),
-      // a masked value is stored in the format of the previous locale
-      value: this.maskSettings.saveMaskedValue ? this.value : undefined
+      enteredText: isEditing ? this.maskInputAdapter.inputElementText : (this.isEmpty() ? this._inputValue : undefined)
     };
+    // without a survey nothing is kept, so this would parse the old text in the new format
+    if (!!this.survey) {
+      this.updateUnmaskedValue();
+    }
     // Base.localeChanged() does not descend into the maskSettings property. The mask notifies
     // this question and the input element adapter about the change via onPropertyChanged.
     this.maskSettings.localeChanged(state);
@@ -462,9 +472,18 @@ export class QuestionTextModel extends QuestionTextBase {
       this.doNotUpdateInputValue = false;
     }
   }
-  public getFilteredValue(): any {
-    return this.getExpressionValue(this.value);
+  private updateUnmaskedValue(): void {
+    if (!this.maskTypeIsEmpty) {
+      this.maskSettings.updateUnmaskedValue(this.value);
+    }
   }
+  public getFilteredValue(): any {
+    if (this.maskTypeIsEmpty) return this.value;
+    // a write that skips onChangeQuestionValue reaches the mask here
+    this.updateUnmaskedValue();
+    return this.maskSettings.unmaskedValue;
+  }
+  // Converts a value that is not this question's own: a record's value through a column's template.
   getExpressionValue(val: any): any {
     if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue)
       return this.maskInstance.getUnmaskedValue(val);
@@ -499,7 +518,19 @@ export class QuestionTextModel extends QuestionTextBase {
 
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
+    this.updateUnmaskedValue();
     this.updateInputValue();
+  }
+  // The survey can bring other formats, and a text that stays the same is not a value change.
+  protected onSetData(): void {
+    // before the value arrives: localeChanged() is not for this, it would convert a saved text
+    if (!this.maskTypeIsEmpty && this.maskSettings.updateFormatFromSurvey()) {
+      this.updateInputValue();
+    }
+    super.onSetData();
+    if (!this.isEmpty()) {
+      this.updateUnmaskedValue();
+    }
   }
 
   private updateInputValue() {
@@ -723,6 +754,12 @@ export class QuestionTextModel extends QuestionTextBase {
   supportAutoAdvance(): boolean {
     return !this.getIsInputTextUpdate() && !this.isDateInputType;
   }
+  public supportsKeyboardHints(): boolean {
+    return this.supportAutoAdvance();
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    return this.supportAutoAdvance() ? advanceKeyboardHints(this) : [];
+  }
   public supportGoNextPageError(): boolean {
     return !this.isDateInputType;
   }
@@ -759,6 +796,19 @@ export class QuestionTextModel extends QuestionTextBase {
       this.dateValidationMessage = undefined;
     }
     super.setNewValue(newValue);
+  }
+  /* The text the input holds and its value-changed mark come with the record, as they do for a new
+     question: an incomplete masked entry goes, and the input shows the empty value - the empty mask. The
+     value-changed class setIsValueChanged put on the element itself goes too: a renderer that sees the
+     same class string as before does not touch it. */
+  protected resetForAnotherRecord(): void {
+    super.resetForAnotherRecord();
+    this._isValueChanged = false;
+    if (this.input && this.cssClasses.isValueChanged) {
+      this.input.classList.remove(this.cssClasses.isValueChanged);
+    }
+    this.updateInputValue();
+    this.dateValidationMessage = undefined;
   }
   public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     super.updateValueFromSurvey(newValue, clearData);
@@ -869,7 +919,9 @@ export class QuestionTextModel extends QuestionTextBase {
         this._isWaitingForEnter = false;
       }
     } else {
-      if (event.keyCode === 13) {
+      // Enter can move the survey on keydown, so its keyup lands on the next input. A range always
+      // holds a number, and one nobody touched has no answer to store.
+      if (event.keyCode === 13 && (this.inputType !== "range" || this._isValueChanged)) {
         this.updateValueOnEvent(event);
       }
     }
@@ -900,8 +952,20 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
+    // Read before the key action. It can blur the input, and that write advances by itself, so a
+    // second request here would skip a multiple text item.
+    const canAdvance = this.canCommitAutoAdvanceOnEnter(event) && this.supportAutoAdvance() && !this.hasUncommittedInput(event);
     this.onTextKeyDownHandler(event);
+    if (canAdvance) {
+      this.commitAutoAdvance(event);
+    }
   };
+  // New text reaches the value on keyup, and that value change advances. The input is compared with
+  // inputValue because value holds a masked text unmasked, and the way the inputValue setter compares:
+  // a number input holds a string.
+  private hasUncommittedInput(event: any): boolean {
+    return !Helpers.isTwoValueEquals(this.inputValue, event.target?.value, false, true, false);
+  }
   private shouldPreventNumberInput(event: any): boolean {
     const key = event.key;
 

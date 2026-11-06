@@ -520,16 +520,22 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return super.validateElementCore(context) && res;
   }
-  private isChoicePanelsValidationSuppressed: boolean;
+  // A select without choice panels walks nothing, see forEachNestedElementCore.
+  public getAllErrors(): Array<SurveyError> {
+    return super.getAllErrors().concat(this.getNestedErrors());
+  }
+  public clearErrors(): void {
+    super.clearErrors();
+    this.forEachNestedElement(info => info.element.clearErrors(), { build: "none", visibleOnly: false });
+  }
+  private choicePanelsValidationSuppressingScope = new Scope();
+  private get isChoicePanelsValidationSuppressed(): boolean {
+    return this.choicePanelsValidationSuppressingScope.isActive;
+  }
   // Used by Next on the question's own step in inputPerPage mode: the nested choice elements are
   // not on screen yet and get validated on their own steps. Every other validation path checks them.
   public validateWithoutChoicePanels(): boolean {
-    this.isChoicePanelsValidationSuppressed = true;
-    try {
-      return this.validate(true, true);
-    } finally {
-      this.isChoicePanelsValidationSuppressed = false;
-    }
+    return this.choicePanelsValidationSuppressingScope.run(() => this.validate(true, true));
   }
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;
@@ -1144,6 +1150,25 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   private makeCommentEmpty: boolean;
+  /* What a question holds for the old record goes with it (Question.resetForAnotherRecord):
+     - the comment typed for a choice - of the visible choices too, which are copies under choicesFromQuestion;
+     - the "other" text: with showCommentArea the value reset does not clear it, and the next "other"
+       answer would write it into the new record;
+     - the "other" text typed before it, which would show the empty "other" error on a value change;
+     - the old value kept for a choices request;
+     - the comment clearing the value reset leaves pending - the next value write would carry it out. */
+  protected resetForAnotherRecord(): void {
+    super.resetForAnotherRecord();
+    const clearComment = (item: ItemValue): void => {
+      if ((<ChoiceItem>item).showCommentArea && !this.isOtherItemByValue(item))this.setCommentPropertyValue(item, undefined);
+    };
+    this.choices.forEach(clearComment);
+    this.visibleChoices.forEach(clearComment);
+    this.otherValueCore = "";
+    this.prevOtherErrorValue = undefined;
+    this.cachedValueForUrlRequests = undefined;
+    this.makeCommentEmpty = false;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true, updateComment: boolean = true): void {
     if (
       this.isLoadingFromJson ||
@@ -2074,9 +2099,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return super.getFirstErrorInputElementId();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    this.isRunningChoicesValue = true;
-    super.setSurveyImpl(value, isLight);
-    this.isRunningChoicesValue = false;
+    this.runningChoicesScope.run(() => super.setSurveyImpl(value, isLight));
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
@@ -2160,8 +2183,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     if (!!newComment) {
       this.isUpdatingValueFromSurvey = true;
-      this.setNewComment(newComment);
-      this.isUpdatingValueFromSurvey = false;
+      try {
+        this.setNewComment(newComment);
+      } finally {
+        this.isUpdatingValueFromSurvey = false;
+      }
     }
     this.updateValueForPanels(clearData, false);
   }
@@ -2204,7 +2230,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       target.value = val || "";
     }
   }
-  private isRunningChoicesValue: boolean = false;
+  private runningChoicesScope = new Scope();
+  private get isRunningChoicesValue(): boolean {
+    return this.runningChoicesScope.isActive;
+  }
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
     if (!this.choicesByUrlValue || this.isLoadingFromJson || this.isRunningChoicesValue || this.isInDesignMode || this.choicesLazyLoadEnabled)
@@ -2215,9 +2244,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!processor) processor = this.survey;
     if (!processor) return;
     this.updateIsReady();
-    this.isRunningChoicesValue = true;
-    this.choicesByUrl.run(processor);
-    this.isRunningChoicesValue = false;
+    this.runningChoicesScope.run(() => this.choicesByUrl.run(processor));
   }
   private get isRunningChoices(): boolean {
     return this.isRunningChoicesValue || this.choicesByUrlValue?.isRunning;
@@ -2970,50 +2997,34 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
    * When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that respondents can type while the question has focus. In questions that allow multiple selection, shortcuts toggle choice selection.
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   *
+   * [Demo: Letter Shortcuts](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @hidefor QuestionRankingModel
    * @since 3.2.2
    */
-  public get choiceShortcutsEnabled(): boolean | undefined {
-    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
-    if (own === true || own === false) return own;
-    return undefined;
-  }
-  public set choiceShortcutsEnabled(val: boolean | undefined) {
-    const prev = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
-    const next = val === true ? true : val === false ? false : undefined;
-    if (prev === next) return;
-    if (next === undefined) {
-      this.clearPropertyValue("choiceShortcutsEnabled");
-    } else {
-      this.setPropertyValueDirectly("choiceShortcutsEnabled", next);
+  @property({
+    onSet: (_val, target: QuestionCheckboxBase) => {
+      if (!target.isLoadingFromJson) target.updateChoiceKeyBinding(false);
     }
-    this.propertyValueChanged("choiceShortcutsEnabled", prev, next);
-    if (!this.isLoadingFromJson) {
-      this.updateChoiceKeyBinding(false);
-    }
-  }
+  }) choiceShortcutsEnabled: boolean | undefined;
   public supportsChoiceKeyboardSelection(): boolean {
     return false;
   }
   public get isChoiceKeyboardSelectionEnabled(): boolean {
     if (!this.supportsChoiceKeyboardSelection()) return false;
-    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
-    if (own === true || own === false) return own;
-    return this.survey?.choiceShortcutsEnabled === true;
+    return this.choiceShortcutsEnabled ?? this.survey?.choiceShortcutsEnabled === true;
   }
   // Badges and the key handler share this gate. Design mode is the one exception:
   // badges stay visible there, but canUseChoiceKeys keeps the keys inert.
   // isReadOnly covers readonly and preview. isInputReadOnly also includes design mode,
   // which would hide the badges in Creator.
   public get canShowChoiceKeys(): boolean {
-    const surveyShortcut = !!this.survey && this.survey.choiceShortcutsEnabled === true;
+    const surveyShortcut = this.survey?.choiceShortcutsEnabled === true;
     const supported = this.supportsChoiceKeyboardSelection();
     const isMobile = this.isMobile;
     const isReadOnly = this.isReadOnly;
-    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
-    if (!supported || isMobile || isReadOnly) return false;
-    if (own === true || own === false) return own;
-    return surveyShortcut;
+    const own = this.choiceShortcutsEnabled;
+    return supported && !isMobile && !isReadOnly && (own ?? surveyShortcut);
   }
   private choiceShortcuts = new ChoiceShortcuts(this);
   private get canUseChoiceKeys(): boolean {
@@ -3283,8 +3294,7 @@ Serializer.addClass(
     {
       name: "choiceShortcutsEnabled:boolean",
       defaultFunc: () => undefined,
-      visibleIf: (obj: any): boolean => !!obj.supportsChoiceKeyboardSelection && obj.supportsChoiceKeyboardSelection(),
-      onSerializeValue: (obj: any) => obj.getPropertyValueWithoutDefault("choiceShortcutsEnabled")
+      visibleIf: (obj: any): boolean => !!obj.supportsChoiceKeyboardSelection && obj.supportsChoiceKeyboardSelection()
     }
   ],
   null,

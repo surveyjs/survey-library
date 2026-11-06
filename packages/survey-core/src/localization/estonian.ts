@@ -53,8 +53,6 @@ export var estonianSurveyStrings = {
   sortMoreAriaLabel: "Näita kõiki sorteerimistasemeid",
   // [Auto-translated] "Add New"
   sortAddNewText: "Lisa uus",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Liigutuste sorteerimise tase {0}",
   // "Complete"
@@ -308,7 +306,29 @@ export var estonianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Edenemisriba",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Lehekülg {0}"
+  progressbarPage: "Lehekülg {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "valida",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "et lülituda",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "navigeerimiseks",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "jätkama",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "alluda",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "või",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "uue liini jaoks",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Järgmisele valikule",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "liikuma",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "avada",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "et lõpetada"
 };
 
 setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "eesti keel", englishName: "Estonian" });

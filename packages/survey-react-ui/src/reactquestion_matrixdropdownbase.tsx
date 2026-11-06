@@ -232,27 +232,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     super(props);
     //Create rendered table in contructor and not on rendering
     const table = this.question.renderedTable;
-    this.state = this.getState();
   }
   protected get question(): QuestionMatrixDropdownModelBase {
     return this.questionBase as QuestionMatrixDropdownModelBase;
-  }
-  private getState(prevState: any = null) {
-    return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
-  }
-  private updateStateOnCallback() {
-    if (this.isRendering) return;
-    this.setState(this.getState(this.state));
-  }
-  componentDidMount(): void {
-    super.componentDidMount();
-    this.question.onRenderedTableResetCallback = () => {
-      this.updateStateOnCallback();
-    };
-  }
-  componentWillUnmount(): void {
-    super.componentWillUnmount();
-    this.question.onRenderedTableResetCallback = () => { };
   }
   protected renderElement(): React.JSX.Element {
     return this.renderTableDiv();

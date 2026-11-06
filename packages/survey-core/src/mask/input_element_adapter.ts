@@ -2,10 +2,11 @@ import { InputMaskBase } from "./mask_base";
 import { ITextInputParams, normalizeInputDigits } from "./mask_utils";
 
 export class InputElementAdapter {
-  private prevUnmaskedValue: string = undefined;
   private maskedEmptyValue : string;
 
   private setInputValue(value: string) {
+    // an out-of-range number has no masked text, so the element shows it as empty
+    if (value === null || value === undefined) value = "";
     if (this.inputElement.maxLength >= 0 && this.inputElement.maxLength < value.length) {
       value = value.slice(0, this.inputElement.maxLength);
     }
@@ -17,6 +18,7 @@ export class InputElementAdapter {
     }
   }
   constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value?: any) {
+    inputMaskInstance.updateUnmaskedValue(value);
     let _value: any = value;
     if (_value === null || _value === undefined) {
       _value = "";
@@ -24,7 +26,6 @@ export class InputElementAdapter {
     this.updateMaskedEmptyValue();
     this.setInputValue(inputMaskInstance.getMaskedValueBySaveMode(_value));
     this.updateInputValue();
-    this.prevUnmaskedValue = _value;
 
     inputMaskInstance.onPropertyChanged.add(this.inputMaskInstancePropertyChangedHandler);
     this.addInputEventListener();
@@ -38,8 +39,7 @@ export class InputElementAdapter {
       // the empty mask depends on mask settings and on the locale, so the cache used for
       // empty-value detection has to be refreshed together with the displayed value
       this.updateMaskedEmptyValue();
-      const maskedValue = this.inputMaskInstance.getMaskedValue(this.prevUnmaskedValue);
-      this.setInputValue(maskedValue);
+      this.setInputValue(this.inputMaskInstance.getKeptValueText());
       this.updateInputValue();
     }
   };
@@ -62,6 +62,7 @@ export class InputElementAdapter {
     this.updateInputValue();
   }
   public updateInputElementValue(value: any): void {
+    this.inputMaskInstance.updateUnmaskedValue(value);
     if (value === null || value === undefined) {
       value = "";
     }
@@ -70,7 +71,6 @@ export class InputElementAdapter {
       this.setInputValue(maskedValue);
       this.updateInputValue();
     }
-    this.prevUnmaskedValue = value;
   }
   clickHandler = (event: any) => {
     if (this.inputElement.value == this.maskedEmptyValue) {

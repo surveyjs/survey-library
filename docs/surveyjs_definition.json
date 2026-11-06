@@ -395,6 +395,13 @@
     "readOnly": {
       "type": "boolean"
     },
+    "readOnlyMode": {
+      "type": "string",
+      "enum": [
+        "readonly",
+        "view"
+      ]
+    },
     "storeOthersAsComment": {
       "type": "boolean"
     },
@@ -411,6 +418,9 @@
       "type": "boolean"
     },
     "choiceShortcutsEnabled": {
+      "type": "boolean"
+    },
+    "showKeyboardHints": {
       "type": "boolean"
     },
     "clearInvisibleValues": {
@@ -789,6 +799,14 @@
         "readOnly": {
           "type": "boolean"
         },
+        "readOnlyMode": {
+          "type": "string",
+          "enum": [
+            "default",
+            "readonly",
+            "view"
+          ]
+        },
         "visibleIf": {
           "type": "string"
         },
@@ -1009,6 +1027,14 @@
         "readOnly": {
           "type": "boolean"
         },
+        "readOnlyMode": {
+          "type": "string",
+          "enum": [
+            "default",
+            "readonly",
+            "view"
+          ]
+        },
         "validators": {
           "type": "array",
           "items": {
@@ -1078,6 +1104,9 @@
         },
         "randomizeCategory": {
           "type": "string"
+        },
+        "showKeyboardHints": {
+          "type": "boolean"
         },
         "allowClear": {
           "type": "boolean"
@@ -2671,6 +2700,9 @@
             "closeOnSelect": {
               "type": "boolean"
             },
+            "loadingComponent": {
+              "type": "string"
+            },
             "searchMode": {
               "type": "string",
               "enum": [
@@ -2935,6 +2967,9 @@
               "type": "string"
             },
             "itemComponent": {
+              "type": "string"
+            },
+            "loadingComponent": {
               "type": "string"
             }
           }

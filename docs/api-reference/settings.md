@@ -238,7 +238,7 @@ Default value: 500
 
 ### `enterKeyAction`
 
-**Type**: `"moveToNextEditor" | "loseFocus" | "default"`
+**Type**: `"default" | "moveToNextEditor" | "loseFocus"`
 
 Specifies an action to perform when users press the Enter key within a survey.
 

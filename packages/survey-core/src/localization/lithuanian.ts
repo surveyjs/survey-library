@@ -53,8 +53,6 @@ export var lithuaniaSurveyStrings = {
   sortMoreAriaLabel: "Rodyti įvairius lygius",
   // [Auto-translated] "Add New"
   sortAddNewText: "Pridėti naują",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Move sort level {0}",
   // "Complete"
@@ -308,7 +306,29 @@ export var lithuaniaSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Eigos juosta",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Puslapio {0}"
+  progressbarPage: "Puslapio {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "Pasirinkti",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "perjungti",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "orientuotis",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "tęsti",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "pateikti",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "arba",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "naujai linijai",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Prie kito varianto",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "kad persikeltų",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "atidaryti",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "uždaryti"
 };
 
 setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "lietuvių", englishName: "Lithuanian" });

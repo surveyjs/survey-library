@@ -137,6 +137,31 @@ describe("filtered data and progress of a matrix with a filter, before and after
     const matrix = createMatrix({ columns: [{ name: "a", cellType: "text" }] }, [{ a: 1 }, {}]);
     expect(matrix.getFilteredData(), "#1").toEqual([{ a: 1 }, {}]);
   });
+  test("a row reads {matrix} from the rows at completion, when the record of a hidden row is removed", () => {
+    const columns = [{ name: "a", cellType: "text" }, { name: "t", cellType: "expression", expression: "sumInArray({matrix}, 'a')" }];
+    const complete = (view: any): Array<any> => {
+      const matrix = createMatrix(Object.assign({ rowsVisibleIf: "{row.a} != 7", columns: columns }, view), [{ a: 4 }, { a: 7 }, { a: 3 }, { a: 2 }]);
+      const survey = <SurveyModel>matrix.survey;
+      matrix.visibleRows;
+      survey.tryComplete();
+      return survey.data.m;
+    };
+    expect(complete({}), "#1: no view").toEqual([{ a: 4, t: 9 }, { a: 3, t: 9 }, { a: 2, t: 9 }]);
+    expect(complete({ sortCriteria: [{ field: "a", direction: "asc" }] }), "#2: a sort").toEqual([{ a: 4, t: 9 }, { a: 3, t: 9 }, { a: 2, t: 9 }]);
+    expect(complete({ filterExpression: "{a} != 2" }), "#3: a filter").toEqual([{ a: 4, t: 7 }, { a: 3, t: 7 }, { a: 2, t: 7 }]);
+  });
+  test("the answer of an invisible cell stays, whether or not its record has a row", () => {
+    const columns = [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", visibleIf: "{row.a} != 1" }];
+    const records = [{ a: 2, b: "y" }, { a: 1, b: "x" }, { a: 3, b: "z" }];
+    const unpaged = createMatrix({ columns: columns }, records);
+    expect(unpaged.visibleRows[1].cells[1].question.isVisible, "#1: the cell is invisible").toBe(false);
+    expect(unpaged.getFilteredData(), "#2: without paging").toEqual(records);
+    const paged = createMatrix({ columns: columns, pageSize: 2 }, records);
+    paged.visibleRows;
+    expect(paged.getFilteredData(), "#3: the row is on the page").toEqual(records);
+    paged.pageIndex = 1;
+    expect(paged.getFilteredData(), "#4: the record has no row on the other page").toEqual(records);
+  });
 });
 
 describe("the Next button on the last known record of a source without a total", () => {

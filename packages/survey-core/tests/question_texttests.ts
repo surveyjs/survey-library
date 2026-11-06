@@ -461,6 +461,19 @@ describe("question text tests", () => {
     expect(q2.inputActionsContainer.visibleActions.length, "q2 visibleActions after maxLength").toBe(1);
     expect(q2.hasVisibleInputActions, "q2 hasVisibleInputActions after maxLength").toBe(true);
   });
+  test("a disposed question leaves no character counter subscribed to the survey", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }, { type: "comment", name: "q2" }] });
+    const countHandlers = (): number =>
+      (<any>survey).onPropChangeFunctions.filter((item: any): boolean => item.name === "maxTextLength").length;
+    const questions = survey.getAllQuestions();
+    const unrendered = countHandlers();
+    questions.forEach((q: any): void => { q.inputActionsContainer; });
+    expect(countHandlers(), "#1: the rendered counters watch survey.maxTextLength").toBe(unrendered + 2);
+    questions.forEach((q: any): void => { q.dispose(); });
+    expect(countHandlers(), "#2: dispose ends the subscriptions").toBe(unrendered);
+    questions.forEach((q: any): void => { q.inputActionsContainer; });
+    expect(countHandlers(), "#3: a read after dispose does not subscribe again").toBe(unrendered);
+  });
   test("settings.storeUtcDates = true, #8542", () => {
     const survey = new SurveyModel({
       "elements": [

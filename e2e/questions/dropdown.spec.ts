@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, checkSurveyWithEmptyQuestion, test, expect, getVisibleSelectListItemByText, getButtonByText } from "../helper";
-import { registerCustomItemComponent } from "../registerCustomComponents";
+import { registerCustomItemComponent, registerCustomListLoadingComponent } from "../registerCustomComponents";
 
 const title = "Dropdown question";
 
@@ -660,6 +660,57 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sd-dropdown__input").locator(".sv-svg-icon")).toHaveCount(1);
     });
 
+    test("Check dropdown custom loading component", async ({ page }) => {
+      await registerCustomListLoadingComponent(page, framework);
+
+      const json = {
+        elements: [
+          {
+            type: "dropdown",
+            name: "withItems",
+            choicesLazyLoadEnabled: true,
+            loadingComponent: "my-list-loading"
+          }, {
+            type: "dropdown",
+            name: "noItems",
+            choicesLazyLoadEnabled: true,
+            loadingComponent: "my-list-loading"
+          }
+        ]
+      };
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onChoicesLazyLoad.add((_, opt) => {
+          setTimeout(() => {
+            if (opt.question.name === "noItems") {
+              opt.setItems([], 0);
+            } else {
+              opt.setItems(["Ford", "Audi", "BMW"], 3);
+            }
+          }, 500);
+        });
+        window["survey"].fromJSON(json);
+      }, json);
+
+      const customLoading = page.locator(".my-list-loading");
+      const visiblePopup = page.locator(".sv-popup.sv-dropdown-popup").filter({ visible: true });
+
+      await page.locator(".sd-dropdown").nth(0).click();
+      await expect(customLoading).toHaveCount(1);
+      await expect(customLoading).toHaveAttribute("data-state", "loading");
+      await expect(customLoading).toHaveText("Custom loading");
+      await expect(visiblePopup.locator(".sd-selectlist__empty-container")).toHaveCount(0);
+
+      await expect(customLoading).toHaveCount(0);
+      await expect(getVisibleSelectListItemByText(page, "Ford")).toBeVisible();
+      await page.keyboard.press("Escape");
+
+      await page.locator(".sd-dropdown").nth(1).click();
+      await expect(customLoading).toHaveAttribute("data-state", "loading");
+      await expect(customLoading).toHaveCount(0);
+      await expect(page.locator(".sd-selectlist__empty-text").filter({ visible: true })).toHaveText("No data to display");
+    });
+
     test("Check dropdown key press with searchEnabled", async ({ page }) => {
       const json = {
         elements: [
@@ -700,7 +751,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await expect(page.locator(".sd-dropdown__input input").first()).toHaveValue("Nissan");
 
-      await page.waitForTimeout(100);
+      await expect(popupContainer).not.toBeVisible();
       await page.keyboard.press("ArrowDown");
       await expect(popupContainer).toBeVisible();
       await page.keyboard.press("ArrowUp");
@@ -715,7 +766,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await expect(page.locator(".sd-dropdown__input input").nth(1)).toHaveValue("item20");
 
-      await page.waitForTimeout(100);
+      await expect(popupContainer).not.toBeVisible();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
@@ -860,7 +911,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await expect(page.locator(".sd-dropdown__input .sv-string-viewer")).toHaveText("Nissan");
 
-      await page.waitForTimeout(100);
+      await expect(popupContainer).not.toBeVisible();
       await page.keyboard.press(" ");
       await expect(popupContainer).toBeVisible();
       await page.keyboard.press("ArrowUp");
@@ -1156,10 +1207,8 @@ frameworks.forEach((framework) => {
       const scrollTop1 = await popupContainer.nth(0).locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop1).toEqual(0);
       await page.keyboard.press("ArrowUp");
-      await page.waitForTimeout(1000);
       await expect(focusedItem).toHaveText("item27");
-      const scrollTop2 = await popupContainer.nth(0).locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
-      expect(scrollTop2).toBeGreaterThan(400);
+      await expect.poll(() => popupContainer.nth(0).locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop)).toBeGreaterThan(400);
 
       await page.keyboard.press("Tab");
       await page.keyboard.press(" ");
@@ -1171,10 +1220,8 @@ frameworks.forEach((framework) => {
       expect(scrollTop3).toEqual(0);
 
       await page.keyboard.press("ArrowUp");
-      await page.waitForTimeout(1000);
       await expect(focusedItem).toHaveText("item30");
-      const scrollTop4 = await popupContainer.nth(1).locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
-      expect(scrollTop4).toBeGreaterThan(400);
+      await expect.poll(() => popupContainer.nth(1).locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop)).toBeGreaterThan(400);
 
       await page.setViewportSize({ width: 1280, height: 1100 });
     });
@@ -1280,13 +1327,14 @@ frameworks.forEach((framework) => {
           };
 
           const total = 55;
+          // The first page is late enough for the test to see the empty list; nothing watches the later pages load.
           setTimeout(() => {
             if (opt.skip + opt.take < total) {
               opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
             } else {
               opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);
             }
-          }, 500);
+          }, opt.skip === 0 ? 500 : 100);
         });
         window["survey"].fromJSON(json);
       }, json);
@@ -1304,51 +1352,52 @@ frameworks.forEach((framework) => {
       expect(offsetHeight1).toEqual(emptyContainerHeigth);
       await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(0);
 
-      await page.waitForTimeout(500);
       await expect(dropdown1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
-      const offsetTop1 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop1).toBeLessThan(200);
-      const offsetHeight2 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight2).toBeGreaterThanOrEqual(688);
-      expect(offsetHeight2).toBeLessThanOrEqual(722);
-      const scrollTop1 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
-      expect(scrollTop1).toEqual(0);
-      const scrollHeight1 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
-      expect(scrollHeight1).toBeGreaterThanOrEqual(1208);
-      expect(scrollHeight1).toBeLessThanOrEqual(1308);
       await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(26);
+      await expect(async () => {
+        const offsetTop1 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop1).toBeLessThan(200);
+        const offsetHeight2 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight2).toBeGreaterThanOrEqual(688);
+        expect(offsetHeight2).toBeLessThanOrEqual(722);
+        const scrollTop1 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
+        expect(scrollTop1).toEqual(0);
+        const scrollHeight1 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
+        expect(scrollHeight1).toBeGreaterThanOrEqual(1208);
+        expect(scrollHeight1).toBeLessThanOrEqual(1308);
+      }).toPass();
 
       await dropdown1.locator(".sd-selectlist").evaluate((el, y) => { (el as HTMLElement).scrollBy(0, y); }, 1000);
-      await page.waitForTimeout(500);
-      const offsetTop2 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop2).toBeLessThan(200);
-      const offsetHeight3 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight3).toBeGreaterThanOrEqual(688);
-      expect(offsetHeight3).toBeLessThanOrEqual(722);
-      const scrollTop2 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
-      expect(scrollTop2).toBeGreaterThanOrEqual(542);
-      expect(scrollTop2).toBeLessThanOrEqual(558);
-      await page.waitForTimeout(500);
-      const scrollHeight2 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
-      expect(scrollHeight2).toBeGreaterThanOrEqual(2408);
-      expect(scrollHeight2).toBeLessThanOrEqual(2508);
       await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(51);
+      await expect(async () => {
+        const offsetTop2 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop2).toBeLessThan(200);
+        const offsetHeight3 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight3).toBeGreaterThanOrEqual(688);
+        expect(offsetHeight3).toBeLessThanOrEqual(722);
+        const scrollTop2 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
+        expect(scrollTop2).toBeGreaterThanOrEqual(542);
+        expect(scrollTop2).toBeLessThanOrEqual(558);
+        const scrollHeight2 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
+        expect(scrollHeight2).toBeGreaterThanOrEqual(2408);
+        expect(scrollHeight2).toBeLessThanOrEqual(2508);
+      }).toPass();
 
       await dropdown1.locator(".sd-selectlist").evaluate((el, y) => { (el as HTMLElement).scrollBy(0, y); }, 2300);
-      await page.waitForTimeout(500);
-      const offsetTop3 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop3).toBeLessThan(200);
-      const offsetHeight4 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight4).toBeGreaterThanOrEqual(688);
-      expect(offsetHeight4).toBeLessThanOrEqual(722);
-      const scrollTop3 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
-      expect(scrollTop3).toBeGreaterThanOrEqual(1696);
-      expect(scrollTop3).toBeLessThanOrEqual(1796);
-      await page.waitForTimeout(500);
-      const scrollHeight3 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
-      expect(scrollHeight3).toBeGreaterThanOrEqual(2608);
-      expect(scrollHeight3).toBeLessThanOrEqual(2708);
       await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(55);
+      await expect(async () => {
+        const offsetTop3 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop3).toBeLessThan(200);
+        const offsetHeight4 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight4).toBeGreaterThanOrEqual(688);
+        expect(offsetHeight4).toBeLessThanOrEqual(722);
+        const scrollTop3 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
+        expect(scrollTop3).toBeGreaterThanOrEqual(1696);
+        expect(scrollTop3).toBeLessThanOrEqual(1796);
+        const scrollHeight3 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
+        expect(scrollHeight3).toBeGreaterThanOrEqual(2608);
+        expect(scrollHeight3).toBeLessThanOrEqual(2708);
+      }).toPass();
 
       await getVisibleSelectListItemByText(page, "55").click();
       await page.locator(".sd-dropdown").nth(1).click();
@@ -1357,36 +1406,37 @@ frameworks.forEach((framework) => {
       expect(offsetHeight5).toEqual(emptyContainerHeigth);
       await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(0);
 
-      await page.waitForTimeout(500);
       await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
-      const offsetTop4 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop4).toEqual(0);
-      const offsetHeight6 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight6).toBeGreaterThanOrEqual(670);
-      expect(offsetHeight6).toBeLessThanOrEqual(726);
-      const scrollTop4 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
-      expect(scrollTop4).toEqual(0);
-      const scrollHeight4 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
-      expect(scrollHeight4).toBeGreaterThanOrEqual(1358);
-      expect(scrollHeight4).toBeLessThanOrEqual(1508);
       await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(31);
+      await expect(async () => {
+        const offsetTop4 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop4).toEqual(0);
+        const offsetHeight6 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight6).toBeGreaterThanOrEqual(670);
+        expect(offsetHeight6).toBeLessThanOrEqual(726);
+        const scrollTop4 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
+        expect(scrollTop4).toEqual(0);
+        const scrollHeight4 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
+        expect(scrollHeight4).toBeGreaterThanOrEqual(1358);
+        expect(scrollHeight4).toBeLessThanOrEqual(1508);
+      }).toPass();
 
       await dropdown2.locator(".sd-selectlist").evaluate((el, y) => { (el as HTMLElement).scrollBy(0, y); }, 1000);
-      await page.waitForTimeout(500);
       await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
-      const offsetTop5 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop5).toEqual(0);
-      const offsetHeight7 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight7).toBeGreaterThanOrEqual(670);
-      expect(offsetHeight7).toBeLessThanOrEqual(726);
-      const scrollTop5 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
-      expect(scrollTop5).toBeGreaterThanOrEqual(746);
-      expect(scrollTop5).toBeLessThanOrEqual(846);
-      await page.waitForTimeout(500);
-      const scrollHeight5 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
-      expect(scrollHeight5).toBeGreaterThanOrEqual(2608);
-      expect(scrollHeight5).toBeLessThanOrEqual(2658);
       await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(55);
+      await expect(async () => {
+        const offsetTop5 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop5).toEqual(0);
+        const offsetHeight7 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight7).toBeGreaterThanOrEqual(670);
+        expect(offsetHeight7).toBeLessThanOrEqual(726);
+        const scrollTop5 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
+        expect(scrollTop5).toBeGreaterThanOrEqual(746);
+        expect(scrollTop5).toBeLessThanOrEqual(846);
+        const scrollHeight5 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
+        expect(scrollHeight5).toBeGreaterThanOrEqual(2608);
+        expect(scrollHeight5).toBeLessThanOrEqual(2658);
+      }).toPass();
       await getVisibleSelectListItemByText(page, "55").click();
 
       await page.setViewportSize({ width: 1280, height: 1100 });
@@ -1423,15 +1473,16 @@ frameworks.forEach((framework) => {
 
       await expect(page.locator(".sd-dropdown__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
-      await page.waitForTimeout(500);
       await expect(dropdown1).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
       await expect(dropdown1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
-      const offsetTop1 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop1).toEqual(questionOffsetTopConst);
-      const offsetHeight1 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight1).toBeGreaterThanOrEqual(485);
-      expect(offsetHeight1).toBeLessThanOrEqual(496);
+      await expect(async () => {
+        const offsetTop1 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop1).toEqual(questionOffsetTopConst);
+        const offsetHeight1 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight1).toBeGreaterThanOrEqual(485);
+        expect(offsetHeight1).toBeLessThanOrEqual(496);
+      }).toPass();
 
       await page.keyboard.press("3");
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
@@ -2186,22 +2237,21 @@ frameworks.forEach((framework) => {
 
       await dropdown.click();
       await item.filter({ hasText: "Item 1" }).filter({ visible: true }).click();
-      expect(filterInputString).toBeFocused();
+      await expect(filterInputString).toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Item 1");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
       await body.click({ position: { x: 0, y: 0 } });
-      expect(filterInputString).not.toBeFocused();
+      await expect(filterInputString).not.toBeFocused();
       expect(await filterInputString.inputValue()).toBe("");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("Item 1");
 
       await dropdown.click();
       await item.filter({ hasText: "Other (describe)" }).filter({ visible: true }).click();
-      await page.waitForTimeout(1000);
-      expect(filterInputString).not.toBeFocused();
-      expect(await filterInputString.inputValue()).toBe("Other (describe)");
-      expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
+      await expect(filterInputString).not.toBeFocused();
+      await expect(filterInputString).toHaveValue("Other (describe)");
+      await expect(page.locator(".sd-dropdown__input")).toHaveText("", { useInnerText: true });
       await dropdown.click();
-      expect(filterInputString).toBeFocused();
+      await expect(filterInputString).toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Other (describe)");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
 
@@ -2209,13 +2259,144 @@ frameworks.forEach((framework) => {
 
       await dropdown.click();
       await item.filter({ hasText: "Item 2" }).filter({ visible: true }).click();
-      expect(filterInputString).toBeFocused();
+      await expect(filterInputString).toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Item 2");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
       await body.click({ position: { x: 0, y: 0 } });
-      expect(filterInputString).not.toBeFocused();
+      await expect(filterInputString).not.toBeFocused();
       expect(await filterInputString.inputValue()).toBe("");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("Item 2");
+    });
+
+    [true, false].forEach((searchEnabled) => {
+      test(`touch: a long list opens with the selected item in view, search ${searchEnabled ? "on" : "off"}`, async ({ page }) => {
+        await page.evaluate(() => {
+          window["Survey"]._setIsTouch(true);
+        });
+        await page.setViewportSize({ width: 750, height: 900 });
+        await initSurvey(page, framework, {
+          elements: [{
+            type: "dropdown",
+            name: "q1",
+            searchEnabled: searchEnabled,
+            defaultValue: "item80",
+            choices: Array.from({ length: 100 }, (_, i) => `item${i + 1}`)
+          }]
+        });
+        await page.locator(".sd-dropdown").click();
+        await expect(page.locator(".sd-selectlist__item--selected")).toBeInViewport();
+      });
+    });
+
+    test("keyboard: a long list opens with the selected item in view", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{
+          type: "dropdown",
+          name: "q1",
+          searchEnabled: false,
+          defaultValue: "item80",
+          choices: Array.from({ length: 100 }, (_, i) => `item${i + 1}`)
+        }]
+      });
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("ArrowDown");
+      await expect(page.getByRole("option", { name: "item80", exact: true })).toBeInViewport();
+    });
+
+    test("dropdown with search: the select chip follows the input, and Enter on an erased input clears the value", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        elements: [{ type: "dropdown", name: "q1", choices: ["item1", "item2", "item3"], defaultValue: "item2" }]
+      });
+      const selectHint = page.locator(".sd-question__keyboard-hints").getByText("to select");
+      const input = page.locator(".sd-dropdown__filter-string-input");
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+
+      await input.fill("");
+      await expect(selectHint).toBeHidden();
+      await input.pressSequentially("item");
+      await expect(selectHint).toBeVisible();
+
+      await input.fill("");
+      await expect(selectHint).toBeHidden();
+      await page.keyboard.press("Enter");
+      expect(await page.evaluate(() => (window as any).survey.data)).toEqual({});
+    });
+
+    ["dropdown", "tagbox"].forEach((type) => {
+      test(`${type}: opening keeps the height of a hint row that has no room to spare`, async ({ page }) => {
+        await initSurvey(page, framework, {
+          showKeyboardHints: true,
+          elements: [{ type: type, name: "q1", choices: ["item1", "item2", "item3"] }]
+        });
+        const hintRow = page.locator(".sd-question__keyboard-hints");
+        const selectHint = hintRow.getByText("to select");
+        await expect(selectHint).toBeHidden();
+        // Narrow the row to the always visible chips, so anything wider wraps at every viewport and font.
+        await hintRow.evaluate((row: HTMLElement) => {
+          const lastChip = row.children[2].getBoundingClientRect();
+          row.style.width = `${Math.ceil(lastChip.right - row.getBoundingClientRect().left)}px`;
+        });
+        const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+        await page.locator(".sd-dropdown").click();
+        await expect(selectHint).toBeVisible();
+        expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+      });
+    });
+
+    test("tagbox: opening keeps the height of a hint row that wraps the shared enter cell", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] }
+        ]
+      });
+      const hintRow = page.locator(".sd-question__keyboard-hints");
+      const closedHint = hintRow.getByText("to continue");
+      const selectHint = hintRow.getByText("to select");
+      await expect(closedHint).toBeVisible();
+      // One pixel short of the cell wraps it. "to select" alone is narrower, so the cell has to keep the hidden "to continue".
+      await hintRow.evaluate((row: HTMLElement) => {
+        const enterCell = row.children[3].getBoundingClientRect();
+        row.style.width = `${Math.floor(enterCell.right - row.getBoundingClientRect().left) - 1}px`;
+      });
+      const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+      expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+    });
+
+    test("tagbox: the hint row stays on one line and Enter stays in place when the popup opens", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] }
+        ]
+      });
+      const hintRow = page.locator(".sd-question__keyboard-hints");
+      const enterKey = hintRow.getByText("Enter", { exact: true }).locator("visible=true");
+      const selectHint = hintRow.getByText("to select");
+      await expect(hintRow.getByText("to continue")).toBeVisible();
+      await hintRow.evaluate((row: HTMLElement) => {
+        const enterChip = row.children[3].getBoundingClientRect();
+        row.style.width = `${Math.ceil(enterChip.right - row.getBoundingClientRect().left)}px`;
+      });
+      const isOneLine = () => hintRow.evaluate((row) => {
+        return row.firstElementChild?.getBoundingClientRect().top === row.lastElementChild?.getBoundingClientRect().top;
+      });
+      expect(await isOneLine()).toBe(true);
+      const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+      const closedEnterLeft = await enterKey.evaluate((key) => key.getBoundingClientRect().left);
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+      expect(await isOneLine()).toBe(true);
+      expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+      expect(await enterKey.evaluate((key) => key.getBoundingClientRect().left)).toBe(closedEnterLeft);
     });
   });
 });

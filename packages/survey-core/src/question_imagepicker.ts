@@ -1,4 +1,5 @@
 import { Serializer } from "./jsonobject";
+import { singleChoiceKeyboardHints, multiChoiceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase, ChoiceItem } from "./question_baseselect";
@@ -301,6 +302,13 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public get inputType() {
     return this.multiSelect ? "checkbox" : "radio";
+  }
+  public supportsKeyboardHints(): boolean {
+    return true;
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    if (this.multiSelect) return multiChoiceKeyboardHints(this);
+    return singleChoiceKeyboardHints(this);
   }
   protected applyChoiceKeyboardSelection(item: ItemValue): void {
     if (!this.multiSelect) {

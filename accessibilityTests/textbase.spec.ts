@@ -1,6 +1,5 @@
-import { frameworks, url, initSurvey, axeContext, axeOptions } from "./helper";
+import { frameworks, url, initSurvey, axeContext, axeOptions, baseTest as test } from "./helper";
 import { checkA11y, injectAxe } from "axe-playwright";
-import { test } from "@playwright/test";
 const title = "text";
 
 frameworks.forEach((framework) => {

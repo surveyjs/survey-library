@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, doDrag, setData, doDragDrop } from "../e2e/helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, doDrag, setData, doDragDrop, baseTest as test } from "../e2e/helper";
 
 const title = "Matrixdynamic Screenshot";
 
@@ -58,7 +58,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-empty.png");
     });
 
-    // The sortable headers: an unsorted column under the pointer (the quiet sort icon), an ascending
+    // The sortable headers: an unsorted column at rest (the quiet sort icon after the title), an ascending
     // and a descending column (arrows in the hovered chip).
     test("Matrixdynamic sortable headers", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
@@ -85,7 +85,6 @@ frameworks.forEach(framework => {
         }]
       });
       await resetFocusToBody(page);
-      await page.locator("thead th").nth(0).hover();
       await compareScreenshot(page, page.locator(".sd-question--matrixdynamic thead"), "matrixdynamic-sortable-headers.png");
     });
 
@@ -709,7 +708,7 @@ frameworks.forEach(framework => {
       await page.mouse.move(0, 0);
       await compareScreenshot(page, ".sd-question", "matrixdynamic-sort-bar-more-desktop.png");
     });
-    // The dialog with five rows, as in the design: two levels and three rows added with Add New, disabled at maxSortLevel 5.
+    // The dialog with five rows: two levels and three rows added with Add New, each in its field's first direction; Add New is disabled at maxSortLevel 5.
     const openDialogWithFiveRows = async (page) => {
       await page.setViewportSize({ width: 1000, height: 800 });
       await initSurvey(page, framework, moreJson([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }], 5));

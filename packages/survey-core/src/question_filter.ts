@@ -28,7 +28,9 @@ import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 
 // What uiState keeps of the authored presets the respondent changed, by name.
-type FilterSavedItems = { [name: string]: { conditions?: Array<IFilterCondition>, title?: string } };
+type FilterSavedItems = { [name: string]: { conditions?: Array<IFilterCondition>, title?: string, prompt?: string } };
+// How a preset is made: type "ai" and the description it was made of, for one made with AI.
+type FilterItemOrigin = { type?: string, prompt?: string };
 // The operators whose value is a set of values - see isSameConditionSet().
 const multiValueOperators: { [operator: string]: boolean } = { anyof: true, noneof: true, allof: true };
 
@@ -333,36 +335,38 @@ export class QuestionFilterModel extends QuestionNonValue {
   // What a preset is in the JSON - its title and its conditions, null for a preset that does not
   // decompose - whatever the respondent changed since: what Reset brings back. A preset of the
   // respondent's own is what it is.
-  public getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null } {
+  public getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null, prompt: string } {
     const item = this.getItemByName(name);
     if (!item) return undefined;
-    if (!this.isItemModified(item)) return { title: item.title, conditions: this.parseItemConditions(item) };
+    if (!this.isItemModified(item)) return { title: item.title, conditions: this.parseItemConditions(item), prompt: item.prompt };
     const original = this.createOriginalItem(item.name);
-    const res = { title: original.title, conditions: this.parseItemConditions(original) };
+    const res = { title: original.title, conditions: this.parseItemConditions(original), prompt: original.prompt };
     original.dispose();
     return res;
   }
   // Whether a title and conditions are what the JSON made the preset: the Edit Presets dialog offers
   // Reset while they are not. conditions null - a preset that does not decompose - compares only with
   // an original that does not decompose either. A preset of the respondent's own is compared with
-  // what it is.
-  public isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null): boolean {
+  // what it is. prompt undefined is not compared.
+  public isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null, prompt?: string): boolean {
     const original = this.getOriginalItemState(name);
     if (!original) return true;
     if ((title || "").trim() !== original.title) return false;
+    if (prompt !== undefined && prompt.trim() !== original.prompt) return false;
     if (conditions === null || original.conditions === null) return conditions === original.conditions;
     return this.isSameConditionSet(normalizeFilterConditions(conditions, this.getFilterFields()), original.conditions);
   }
   // A preset of the respondent's own (the Filters dialog's Add Preset): the conditions it filters by,
   // normalized as an edit is, and a title. It goes after every other preset and is not turned on.
   // Nothing is added where presets cannot be added, in the designer, or for conditions none of which
-  // the fields can hold: a preset that filters by nothing is no preset.
-  public addItem(title: string, conditions: Array<IFilterCondition>): FilterItem {
+  // the fields can hold: a preset that filters by nothing is no preset. options: type "ai" and its
+  // prompt for a preset made with AI (Create with AI).
+  public addItem(title: string, conditions: Array<IFilterCondition>, options?: FilterItemOrigin): FilterItem {
     if (!this.canAddItems || this.isDesignMode) return undefined;
     const fields = this.getFilterFields();
     const normalized = normalizeFilterConditions(conditions || [], fields);
     if (normalized.length === 0) return undefined;
-    const item = this.createUserItem(this.getNewItemName(), title, normalized);
+    const item = this.createUserItem(this.getNewItemName(), title, normalized, options);
     this.updateToolbars();
     this.raiseUIStateChanged();
     return item;
@@ -373,17 +377,20 @@ export class QuestionFilterModel extends QuestionNonValue {
   // An authored preset remembers what the JSON made it before its first change - resetItem() puts
   // that back - and a change that brings it back to that is a reset. A preset that is on filters by
   // its new conditions at once: one write, one onFilterChanged and one onUIStateChanged, none of
-  // them for a change that changes nothing.
-  public updateItem(name: string, title: string, conditions?: Array<IFilterCondition>): void {
+  // them for a change that changes nothing. prompt: the new description of an AI preset; undefined or
+  // empty keeps the one it has, and a new one alone writes no filter.
+  public updateItem(name: string, title: string, conditions?: Array<IFilterCondition>, prompt?: string): void {
     const item = this.getItemByName(name);
     if (!item || this.isDesignMode || !this.canEditItem(item)) return;
     const fields = this.getFilterFields();
     const text = (title || "").trim();
+    const promptText = (prompt || "").trim();
     const normalized = conditions !== undefined ? normalizeFilterConditions(conditions, fields) : [];
     const current = this.parseItemConditions(item);
     const isTitleChanged = !!text && text !== item.title;
     const isConditionsChanged = normalized.length > 0 && (current === null || !this.isSameConditionSet(normalized, current));
-    if (!isTitleChanged && !isConditionsChanged) return;
+    const isPromptChanged = !!promptText && promptText !== item.prompt;
+    if (!isTitleChanged && !isConditionsChanged && !isPromptChanged) return;
     this.runBatch((): void => {
       const isUser = this.isUserItem(item);
       if (!isUser) {
@@ -401,6 +408,12 @@ export class QuestionFilterModel extends QuestionNonValue {
           this.userItemConditions[item.name] = normalized;
         } else {
           this.savedItemConditions[item.name] = normalized;
+        }
+      }
+      if (isPromptChanged) {
+        this.setItemPrompt(item, promptText);
+        if (!isUser) {
+          this.savedItemPrompts[item.name] = promptText;
         }
       }
       if (!isUser && this.isSameAsOriginal(item)) {
@@ -459,8 +472,8 @@ export class QuestionFilterModel extends QuestionNonValue {
         if (edit.isReset) {
           this.resetItem(edit.name);
         }
-        if (edit.title !== undefined || edit.conditions !== undefined) {
-          this.updateItem(edit.name, edit.title, edit.conditions);
+        if (edit.title !== undefined || edit.conditions !== undefined || edit.prompt !== undefined) {
+          this.updateItem(edit.name, edit.title, edit.conditions, edit.prompt);
         }
       });
     }, true);
@@ -1015,10 +1028,12 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The titles the respondent gave authored presets (updateItem), by name; their conditions are in
   // savedItemConditions.
   private savedItemTitles: HashTable<string> = {};
-  // What an authored preset was in the JSON before the respondent first changed it - its expression
-  // and its title as JSON (a localized title stays localized) - by name. A preset with an entry here
-  // is modified (isItemModified); resetItem() puts it back and drops the entry.
-  private originalItems: HashTable<{ expression: string, title: any }> = {};
+  // The descriptions the respondent gave authored AI presets (updateItem), by name.
+  private savedItemPrompts: HashTable<string> = {};
+  // What an authored preset was in the JSON before the respondent first changed it - its expression,
+  // and its title and prompt as JSON (a localized text stays localized) - by name. A preset with an
+  // entry here is modified (isItemModified); resetItem() puts it back and drops the entry.
+  private originalItems: HashTable<{ expression: string, title: any, prompt: any }> = {};
   // The respondent's own presets (addItem), in the order they were added. FilterItems like the
   // authored ones, but kept out of items: items is the survey JSON, and these are the respondent's
   // state, not the author's.
@@ -1028,9 +1043,13 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The authored presets the respondent deleted, by name: hidden from everything that looks presets
   // up, while items - the JSON - keeps them.
   private deletedItemNames: Array<string> = [];
-  private createUserItem(name: string, title: string, conditions: Array<IFilterCondition>): FilterItem {
+  private createUserItem(name: string, title: string, conditions: Array<IFilterCondition>, origin?: FilterItemOrigin): FilterItem {
     const item = new FilterItem(name);
     this.setItemTitle(item, (title || "").trim());
+    if (!!origin && origin.type === "ai") {
+      item.type = "ai";
+      this.setItemPrompt(item, (origin.prompt || "").trim());
+    }
     item.expression = conditionsToExpression(conditions, this.getFilterFields());
     this.userItemConditions[name] = conditions;
     this.userItemsValue.push(item);
@@ -1051,9 +1070,14 @@ export class QuestionFilterModel extends QuestionNonValue {
     item.locTitle.setJson(!!title && typeof title === "object" ? Object.assign({}, title) : (title || null), true);
     item.locTitle.strChanged();
   }
+  // The same for a prompt: what the respondent typed is the prompt in every locale.
+  private setItemPrompt(item: FilterItem, prompt: any): void {
+    item.locPrompt.setJson(!!prompt && typeof prompt === "object" ? Object.assign({}, prompt) : (prompt || null), true);
+    item.locPrompt.strChanged();
+  }
   private rememberOriginal(item: FilterItem): void {
     if (!this.originalItems[item.name]) {
-      this.originalItems[item.name] = { expression: item.expression, title: item.locTitle.getJson() };
+      this.originalItems[item.name] = { expression: item.expression, title: item.locTitle.getJson(), prompt: item.locPrompt.getJson() };
     }
   }
   // The preset as the JSON made it, as a FilterItem of its own, for comparing and reading its title
@@ -1063,6 +1087,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const item = new FilterItem(name);
     item.itemOwner = this;
     item.locTitle.setJson(original.title, true);
+    item.locPrompt.setJson(original.prompt, true);
     item.expression = original.expression;
     return item;
   }
@@ -1072,7 +1097,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const b = this.parseItemConditions(item);
     const isSameConditions = a === null || b === null
       ? (original.expression || "").trim() === (item.expression || "").trim() : this.isSameConditionSet(a, b);
-    const res = isSameConditions && original.title === item.title;
+    const res = isSameConditions && original.title === item.title && original.prompt === item.prompt;
     original.dispose();
     return res;
   }
@@ -1081,8 +1106,10 @@ export class QuestionFilterModel extends QuestionNonValue {
     delete this.originalItems[item.name];
     delete this.savedItemConditions[item.name];
     delete this.savedItemTitles[item.name];
+    delete this.savedItemPrompts[item.name];
     if (!original) return;
     this.setItemTitle(item, original.title);
+    this.setItemPrompt(item, original.prompt);
     item.expression = original.expression;
   }
   // An array value is copied both ways: the caller's array must not be able to change the filter
@@ -1248,14 +1275,17 @@ export class QuestionFilterModel extends QuestionNonValue {
   // Only presets that still exist and may still be edited: restoreItems() would ignore any other.
   private getUIStateItems(): FilterSavedItems {
     let res: FilterSavedItems = undefined;
-    const add = (name: string, conditions: Array<IFilterCondition>, title: string): void => {
+    const add = (name: string, conditions: Array<IFilterCondition>, title: string, prompt: string): void => {
       if (!this.canRestoreSavedItem(name)) return;
-      const entry: { conditions?: Array<IFilterCondition>, title?: string } = {};
+      const entry: { conditions?: Array<IFilterCondition>, title?: string, prompt?: string } = {};
       if (Array.isArray(conditions)) {
         entry.conditions = conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
       }
       if (typeof title === "string") {
         entry.title = title;
+      }
+      if (typeof prompt === "string") {
+        entry.prompt = prompt;
       }
       if (Object.keys(entry).length === 0) return;
       res = res || {};
@@ -1263,14 +1293,16 @@ export class QuestionFilterModel extends QuestionNonValue {
     };
     const pending = this.pendingItems || {};
     Object.keys(pending).forEach((name: string): void => {
-      if (!!pending[name]) add(name, pending[name].conditions, pending[name].title);
+      if (!!pending[name]) add(name, pending[name].conditions, pending[name].title, pending[name].prompt);
     });
     // A preset changed in this session wins over one still waiting for its source: it is newer.
     const names = Object.keys(this.savedItemConditions);
-    Object.keys(this.savedItemTitles).forEach((name: string): void => {
+    Object.keys(this.savedItemTitles).concat(Object.keys(this.savedItemPrompts)).forEach((name: string): void => {
       if (names.indexOf(name) < 0) names.push(name);
     });
-    names.forEach((name: string): void => { add(name, this.getSavedItemConditions(name), this.savedItemTitles[name]); });
+    names.forEach((name: string): void => {
+      add(name, this.getSavedItemConditions(name), this.savedItemTitles[name], this.savedItemPrompts[name]);
+    });
     return res;
   }
   // The respondent's presets in their order; those restored before the source attached are passed on
@@ -1280,8 +1312,13 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (this.userItemsValue.length === 0) return undefined;
     return this.userItemsValue.map((item: FilterItem): IFilterUserItemState => {
       const title = item.locTitle.getJson();
-      return { name: item.name, title: typeof title === "string" ? title : "",
+      const res: IFilterUserItemState = { name: item.name, title: typeof title === "string" ? title : "",
         conditions: this.userItemConditions[item.name].map((c: IFilterCondition): IFilterCondition => this.copyCondition(c)) };
+      if (item.type === "ai") {
+        res.type = "ai";
+        res.prompt = item.prompt;
+      }
+      return res;
     });
   }
   // The order is load-bearing. Deleted, saved and the respondent's own presets first: activeItemName
@@ -1362,6 +1399,12 @@ export class QuestionFilterModel extends QuestionNonValue {
         this.setItemTitle(item, title);
         this.savedItemTitles[name] = title;
       }
+      const prompt = typeof entry.prompt === "string" ? entry.prompt.trim() : "";
+      if (!!prompt) {
+        this.rememberOriginal(item);
+        this.setItemPrompt(item, prompt);
+        this.savedItemPrompts[name] = prompt;
+      }
       if (!Array.isArray(entry.conditions)) return;
       const conditions = normalizeFilterConditions(entry.conditions, fields);
       if (conditions.length === 0 && entry.conditions.length > 0) return;
@@ -1402,7 +1445,8 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (name !== entry.name) {
         renamed[entry.name] = name;
       }
-      this.createUserItem(name, typeof entry.title === "string" ? entry.title : "", conditions);
+      this.createUserItem(name, typeof entry.title === "string" ? entry.title : "", conditions,
+        { type: entry.type, prompt: typeof entry.prompt === "string" ? entry.prompt : "" });
     });
     return renamed;
   }
@@ -1418,9 +1462,12 @@ export class QuestionFilterModel extends QuestionNonValue {
     Object.keys(items).forEach((name: string): void => {
       const entry = items[name];
       if (!entry) return;
-      const copy: { conditions?: Array<IFilterCondition>, title?: string } = {};
+      const copy: { conditions?: Array<IFilterCondition>, title?: string, prompt?: string } = {};
       if (typeof entry.title === "string") {
         copy.title = entry.title;
+      }
+      if (typeof entry.prompt === "string") {
+        copy.prompt = entry.prompt;
       }
       if (Array.isArray(entry.conditions)) {
         const conditions = this.copyConditionList(entry.conditions);
@@ -1437,8 +1484,14 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   private copyUserItems(list: Array<IFilterUserItemState>): Array<IFilterUserItemState> {
     return list.filter((entry: IFilterUserItemState): boolean => !!entry && typeof entry === "object" && Array.isArray(entry.conditions))
-      .map((entry: IFilterUserItemState): IFilterUserItemState =>
-        ({ name: entry.name, title: entry.title, conditions: this.copyConditionList(entry.conditions) }));
+      .map((entry: IFilterUserItemState): IFilterUserItemState => {
+        const res: IFilterUserItemState = { name: entry.name, title: entry.title, conditions: this.copyConditionList(entry.conditions) };
+        if (entry.type === "ai") {
+          res.type = "ai";
+          res.prompt = typeof entry.prompt === "string" ? entry.prompt : "";
+        }
+        return res;
+      });
   }
   // A restored list is not trusted to hold only objects; normalizeFilterConditions() would drop
   // anything else later anyway, so it is dropped here, before copyCondition() would trip on it.
@@ -1576,7 +1629,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const news = Array.isArray(newItems) ? newItems : [];
     const isKept = (name: string): boolean => olds.some((item: FilterItem): boolean =>
       !!item && item.name === name && news.indexOf(item) > -1);
-    [this.savedItemConditions, this.savedItemTitles, this.originalItems].forEach((saved: HashTable<any>): void => {
+    [this.savedItemConditions, this.savedItemTitles, this.savedItemPrompts, this.originalItems].forEach((saved: HashTable<any>): void => {
       Object.keys(saved).forEach((name: string): void => {
         if (!isKept(name)) delete saved[name];
       });

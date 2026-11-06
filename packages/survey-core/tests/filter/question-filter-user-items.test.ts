@@ -77,7 +77,7 @@ describe("QuestionFilterModel.updateItem", () => {
     q.updateItem("adults", "Grown-ups", [{ field: "age", operator: "greater", value: 21 }]);
     expect([item.title, item.expression, q.isItemModified(item), q.canResetItem(item)], "#1")
       .toEqual(["Grown-ups", "{age} > 21", true, true]);
-    expect(q.getOriginalItemState("adults"), "#2").toEqual({ title: "Adults", conditions: [{ field: "age", operator: "greater", value: 18 }] });
+    expect(q.getOriginalItemState("adults"), "#2").toEqual({ title: "Adults", conditions: [{ field: "age", operator: "greater", value: 18 }], prompt: "" });
     q.updateItem("adults", "Adults", [{ field: "age", operator: "greater", value: 18 }]);
     expect([item.title, item.expression, q.isItemModified(item)], "#3: changed back is a reset").toEqual(["Adults", "{age} > 18", false]);
   });

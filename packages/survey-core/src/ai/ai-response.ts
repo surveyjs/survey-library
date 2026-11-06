@@ -1,5 +1,6 @@
-// ``` and an optional language tag: a word followed by a line break or spaces; "```age({b}) >= 18```" has none
-const fenceOpen = "```(?:[a-zA-Z][\\w+-]*(?:[ \\t]*\\r?\\n|[ \\t]+))?";
+// ``` and an optional language tag: a word followed by a line break, spaces or the JSON it tags
+// ("```json{...}```"); "```age({b}) >= 18```" has none - a function name is never followed by { or [
+const fenceOpen = "```(?:[a-zA-Z][\\w+-]*(?:[ \\t]*\\r?\\n|[ \\t]+|(?=[{\\[])))?";
 const fenceRegex = new RegExp("^" + fenceOpen + "([\\s\\S]*?)\\r?\\n?```$");
 
 export function isAIObject(data: any): boolean {
@@ -43,6 +44,9 @@ export function readAIJson(text: string): any {
   if (typeof text !== "string") return undefined;
   const res = parseObject(text.trim());
   if (res !== undefined) return res;
+  // a text that is one block first: its JSON may hold ``` inside a string, where a block search stops
+  const whole = parseObject(getAIFencedText(text));
+  if (whole !== undefined) return whole;
   const blocks = getAIFencedBlocks(text);
   for (let i = 0; i < blocks.length; i++) {
     const data = parseObject(blocks[i]);

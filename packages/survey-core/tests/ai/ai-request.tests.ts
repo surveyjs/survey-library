@@ -110,6 +110,11 @@ describe("AIRequestSession (ai-request)", () => {
     expect(getAIFencedText("```\n{age} >= 18\n```")).toBe("{age} >= 18");
     expect(readAIJson("```json {\"a\": 1}```")).toEqual({ a: 1 });
   });
+  test("a fence whose tag runs into the JSON, and a whole-text fence whose JSON holds ``` in a string", () => {
+    expect(readAIJson("```json{\"a\": 1}```")).toEqual({ a: 1 });
+    expect(readAIJson("```json{\n\"a\": 1\n}\n```")).toEqual({ a: 1 });
+    expect(readAIJson("```json\n{\"a\": \"wrap code in ``` marks\"}\n```")).toEqual({ a: "wrap code in ``` marks" });
+  });
   test("an answer fenced inside prose", () => {
     expect(getAIFencedBlocks("a\n```json\n{}\n```\nb ```x``` c")).toEqual(["{}", "x"]);
     expect(getAIFencedBlocks("no fence")).toEqual([]);

@@ -78,7 +78,8 @@ export class FilterModal extends Base {
       iconSize: "auto", appearance: { style: "brand", mode: "secondary" }, action: (): void => { this.owner.showAIDialog(this); } });
     this.creationToolbarValue = new ActionContainer();
     this.creationToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
-    this.creationToolbarValue.setItems([this.addPresetAction, this.createAIAction], false);
+    // Create with AI first, then Add Preset, as in the mockup.
+    this.creationToolbarValue.setItems([this.createAIAction, this.addPresetAction], false);
     this.editPresetsAction = new Action({ id: "sv-filter-modal-edit-presets", title: filterUIStrings.editPresets, showTitle: false,
       tooltip: filterUIStrings.editPresets, iconName: "icon-edit-16x16", iconSize: "auto",
       action: (): void => { this.owner.showPresetDialog(this, true); } });

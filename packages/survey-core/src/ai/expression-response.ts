@@ -1,4 +1,4 @@
-import { getAIFencedText, isAIObject, readAIJson } from "./ai-response";
+import { getAIFencedBlocks, isAIObject, readAIJson } from "./ai-response";
 
 export interface IExpressionResponse {
   expression: string;
@@ -23,18 +23,19 @@ function isOneLine(text: string): boolean {
 }
 
 // Reads the answer of a model: the JSON the system prompt asks for (also inside a ```json fence,
-// extra keys ignored); a fenced block holding only the expression; a line "Expression: ..."; or a
-// bare one-line expression. Anything else is undefined - an empty result; so is JSON whose expression
-// is empty, except that its explanation is kept (expression ""). The expression is trimmed and never
-// "repaired": the check judges it as it came.
+// alone or between lines of prose, extra keys ignored); a fenced block holding only a one-line
+// expression; a line "Expression: ..."; or a bare one-line expression. Anything else is undefined -
+// an empty result; so is JSON whose expression is empty, except that its explanation is kept
+// (expression ""). The expression is trimmed and never "repaired": the check judges it as it came.
 export function parseExpressionResponse(text: string): IExpressionResponse | undefined {
   if (typeof text !== "string") return undefined;
   const trimmed = text.trim();
   if (!trimmed) return undefined;
   const json = readAIJson(trimmed);
   if (json !== undefined) return readExpressionData(json);
-  const fenced = getAIFencedText(trimmed);
-  if (fenced !== undefined) return isOneLine(fenced) ? { expression: fenced } : undefined;
+  // a multi-line block is no expression; an "Expression:" line may still name one
+  const fenced = getAIFencedBlocks(trimmed).filter(block => isOneLine(block))[0];
+  if (fenced !== undefined) return { expression: fenced };
   const lines = trimmed.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
     const match = lines[i].trim().match(/^expression\s*:\s*(.+)$/i);

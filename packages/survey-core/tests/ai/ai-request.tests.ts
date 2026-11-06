@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { AIRequestEvent, AIRequestIssue } from "../../src/interfaces/ai-interfaces";
 import { AIRequestResult, AIRequestSession, IAIFeature, IAIRequest, IAIRequestOwner } from "../../src/ai/ai-request";
-import { getAIFencedText, readAIJson } from "../../src/ai/ai-response";
+import { getAIFencedBlocks, getAIFencedText, readAIJson } from "../../src/ai/ai-response";
 
 // A feature that is not the expression one: its answer is { value }, and a value starting with "bad"
 // is an error, one starting with "meh" a warning.
@@ -109,6 +109,18 @@ describe("AIRequestSession (ai-request)", () => {
     expect(getAIFencedText("```surveyjs\n{age} >= 18\n```")).toBe("{age} >= 18");
     expect(getAIFencedText("```\n{age} >= 18\n```")).toBe("{age} >= 18");
     expect(readAIJson("```json {\"a\": 1}```")).toEqual({ a: 1 });
+  });
+  test("an answer fenced inside prose", () => {
+    expect(getAIFencedBlocks("a\n```json\n{}\n```\nb ```x``` c")).toEqual(["{}", "x"]);
+    expect(getAIFencedBlocks("no fence")).toEqual([]);
+    expect(getAIFencedBlocks(undefined)).toEqual([]);
+    expect(readAIJson("Sure:\n```json\n{\"a\": 1}\n```\nDone.")).toEqual({ a: 1 });
+    expect(readAIJson("say {\"a\": 1}")).toBeUndefined();
+    const { session, requests } = createSession();
+    const results: Array<any> = [];
+    session.send(createRequest(), r => results.push(r));
+    requests[0].callback({ text: "Here it is:\n```json\n{\"value\": \"from prose\"}\n```" });
+    expect(results).toEqual([{ status: "answer", answer: { value: "from prose" }, issues: [], attempts: 0 }]);
   });
   test("an error issue sends the answer back with attempt 1, the English issues, the answer and the fix instruction", () => {
     const { session, requests } = createSession();

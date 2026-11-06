@@ -260,7 +260,7 @@ export * from "../../src/survey-events-api";
 export type {
   AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent,
 } from "../../src/interfaces/ai-interfaces";
-export { isAIObject, getAIFencedText, readAIJson } from "../../src/ai/ai-response";
+export { isAIObject, getAIFencedText, getAIFencedBlocks, readAIJson } from "../../src/ai/ai-response";
 export { AIRequestSession } from "../../src/ai/ai-request";
 export type { IAIFeature, IAIRequest, AIRequestResult, IAIRequestOwner } from "../../src/ai/ai-request";
 export { readExpressionData, parseExpressionResponse } from "../../src/ai/expression-response";

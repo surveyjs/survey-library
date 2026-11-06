@@ -18,6 +18,13 @@ describe("Parsing the AI answer (ai-expressions)", () => {
     expect(parseExpressionResponse("```surveyjs\n{age} >= 18\n```")).toEqual({ expression: "{age} >= 18" });
     expect(parseExpressionResponse("```age({birthdate}) >= 18```")).toEqual({ expression: "age({birthdate}) >= 18" });
   });
+  test("an answer inside prose: a JSON fence or a one-line fence", () => {
+    expect(parseExpressionResponse("Here is the expression:\n```json\n{\"expression\": \"{age} >= 18\", \"explanation\": \"Adults only.\"}\n```"))
+      .toEqual({ expression: "{age} >= 18", explanation: "Adults only." });
+    expect(parseExpressionResponse("Try this:\n```\n{age} >= 18\n```\nIt checks the age.")).toEqual({ expression: "{age} >= 18" });
+    // a multi-line block does not hide an Expression: line
+    expect(parseExpressionResponse("Expression: {a} = 1\n```\nline one\nline two\n```")).toEqual({ expression: "{a} = 1" });
+  });
   test("a line starting with Expression:", () => {
     expect(parseExpressionResponse("Here it is.\nExpression: {age} >= 18\nIt checks the age.")).toEqual({ expression: "{age} >= 18" });
     expect(parseExpressionResponse("expression: `{age} >= 18`")).toEqual({ expression: "{age} >= 18" });

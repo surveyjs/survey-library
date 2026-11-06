@@ -9,7 +9,7 @@ export function getDefaultEditMode(owner: Base, name: string, locStr: Localizabl
   return blockProperties.indexOf(name) > -1 ? "block" : "inline";
 }
 
-export function isRichTextBoldHidden(element: HTMLElement): boolean {
+export function isRichTextBoldDisabled(element: HTMLElement): boolean {
   const style = DomDocumentHelper.getComputedStyle(element);
   if (!style) return false;
   const weight = style.fontWeight;

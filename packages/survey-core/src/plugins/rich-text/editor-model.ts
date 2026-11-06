@@ -1,9 +1,9 @@
 import { ActionContainer, Base } from "survey-core";
 import { IRichTextConverter, RichText } from "./api";
-import { isRichTextBoldHidden } from "./edit-mode";
+import { isRichTextBoldDisabled } from "./edit-mode";
 import { showRichTextLinkDialog } from "./link-dialog";
 import { createDetachedElement, escapeHtml } from "./runs";
-import { createRichTextToolbar, IRichTextToolbarActions } from "./toolbar";
+import { createRichTextToolbar, IRichTextToolbarActions, syncRichTextLinkVisibility } from "./toolbar";
 
 export type RichTextMark = "bold" | "italic" | "strike";
 export type RichTextMarkState = "all" | "none" | "mixed";
@@ -28,6 +28,7 @@ export interface IRichTextEditorHost {
   readonly rows?: number;
   readonly autoGrow?: boolean;
   readonly allowResize?: boolean;
+  readonly disableBold?: boolean;
   onInput?(): void;
   onDraft?(source: string): void;
   onSourceMode?(sourceMode: boolean): void;
@@ -84,7 +85,8 @@ export class RichTextEditorModel {
       this.actions.bulleted.visible = false;
       this.actions.numbered.visible = false;
     }
-    if (this.managesValue) this.updateSourceMode(this.host.getValue() || "");
+    this.disableBoldIfNeeded();
+    if (this.managesValue)this.updateSourceMode(this.host.getValue() || "");
   }
 
   public get mode(): "inline" | "block" {
@@ -100,7 +102,8 @@ export class RichTextEditorModel {
     this.element = element;
     this.commands = commands || this.commands || createDocumentCommands(element.ownerDocument);
     this.commands.styleWithCSS(false);
-    if (isRichTextBoldHidden(element))this.actions.bold.visible = false;
+    syncRichTextLinkVisibility(this.actions.link);
+    this.disableBoldIfNeeded(element);
     if (this.host.placeholder) element.setAttribute("data-placeholder", this.host.placeholder);
     if (this.managesValue) {
       this.renderValue(this.host.getValue());
@@ -157,7 +160,7 @@ export class RichTextEditorModel {
   }
 
   public toggleMark(mark: RichTextMark): void {
-    if (mark === "bold" && this.actions.bold.visible === false) return;
+    if (mark === "bold" && (this.actions.bold.visible === false || this.actions.bold.enabled === false)) return;
     this.restoreSelection();
     const state = this.markState(mark);
     this.commands.exec(COMMANDS[mark]);
@@ -468,6 +471,10 @@ export class RichTextEditorModel {
     if (marked === 0) return "none";
     if (marked === nodes.length) return "all";
     return "mixed";
+  }
+
+  private disableBoldIfNeeded(element?: HTMLElement): void {
+    if (this.host.disableBold || (!!element && isRichTextBoldDisabled(element)))this.actions.bold.enabled = false;
   }
 
   private updateToolbar(): void {

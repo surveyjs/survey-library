@@ -52,6 +52,7 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
       get rows() { return question.rows || 4; },
       get autoGrow() { return question.renderedAutoGrow; },
       get allowResize() { return question.renderedAllowResize; },
+      get disableBold() { return !!(question as any).richTextDisableBold; },
       onDraft: (source: string) => question.updateRemainingCharacterCounter(source),
       onSourceMode: (sourceMode: boolean) => question.setPropertyValue("richTextSourceMode", sourceMode),
       owner: question
@@ -75,8 +76,8 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
 
   private syncHost(): void {
     const host = this.hostRef.current;
-    if (host && !this.editor.isAttached) this.editor.attach(host);
-    if (!host && this.editor.isAttached) this.editor.detach();
+    if (host && !this.editor.isAttached)this.editor.attach(host);
+    if (!host && this.editor.isAttached)this.editor.detach();
   }
 
   protected renderElement(): React.JSX.Element {

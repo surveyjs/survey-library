@@ -42,9 +42,14 @@ export function createRichTextToolbar(editor: IRichTextToolbarTarget): { toolbar
     numbered: make("rich-text-numbered", "icon-rich-text-numbered-list", "richTextNumberedList", () => editor.applyList(true)),
     clear: make("rich-text-clear", "icon-rich-text-clear", "richTextClearFormatting", () => editor.clearFormatting())
   };
-  if (!settings.showDialog) actions.link.visible = false;
+  // The dialog hook is installed when the modal host mounts, which is after the first toolbars are built.
+  syncRichTextLinkVisibility(actions.link);
   const toolbar = new ActionContainer();
   toolbar.sizeMode = "small";
   toolbar.actions = [actions.bold, actions.italic, actions.strike, actions.link, actions.bulleted, actions.numbered, actions.clear];
   return { toolbar, actions };
+}
+
+export function syncRichTextLinkVisibility(link: Action): void {
+  link.visible = !!settings.showDialog;
 }

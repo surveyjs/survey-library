@@ -1,5 +1,5 @@
 import { RichText } from "../../src/plugins/rich-text/index";
-import { isRichTextBoldHidden } from "../../src/plugins/rich-text/edit-mode";
+import { isRichTextBoldDisabled } from "../../src/plugins/rich-text/edit-mode";
 import { SurveyModel } from "../../src/survey";
 import { QuestionHtmlModel } from "../../src/question_html";
 import { LocalizableString } from "../../src/localizablestring";
@@ -27,7 +27,7 @@ describe("edit mode", () => {
     expect(RichText.getStringEditMode(question, "title", null)).toBe("none");
   });
 
-  test("RichText.getEditMode can override the default and bold hides at font-weight 600", () => {
+  test("RichText.getEditMode can override the default and bold is disabled at font-weight 600", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q", title: "Hello" }] });
     const question = survey.getQuestionByName("q");
     const previous = RichText.getEditMode;
@@ -37,9 +37,9 @@ describe("edit mode", () => {
     const element = document.createElement("div");
     document.body.appendChild(element);
     element.style.fontWeight = "400";
-    expect(isRichTextBoldHidden(element)).toBe(false);
+    expect(isRichTextBoldDisabled(element)).toBe(false);
     element.style.fontWeight = "700";
-    expect(isRichTextBoldHidden(element)).toBe(true);
+    expect(isRichTextBoldDisabled(element)).toBe(true);
     element.remove();
   });
 });

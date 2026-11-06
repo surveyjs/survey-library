@@ -185,6 +185,37 @@ describe("rich text editor model", () => {
     host.remove();
   });
 
+  test("bold stays visible and does nothing when the text is already bold or the host disables it", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    const boldHost = document.createElement("div");
+    document.body.appendChild(boldHost);
+    boldHost.style.fontWeight = "700";
+    const styled = new RichTextEditorModel(hostOf(question), commands());
+    styled.attach(boldHost);
+    const styledBold = styled.toolbar.actions.filter(action => action.id === "rich-text-bold")[0];
+    expect(styledBold.visible).toBe(true);
+    expect(styledBold.enabled).toBe(false);
+    styled.toggleMark("bold");
+    expect((styled as any).commands.calls).not.toContain("bold");
+    styled.detach();
+    boldHost.remove();
+
+    const adapter = commands();
+    const flagged = new RichTextEditorModel({ ...hostOf(question), disableBold: true }, adapter);
+    const plain = document.createElement("div");
+    document.body.appendChild(plain);
+    plain.style.fontWeight = "400";
+    const flaggedBold = flagged.toolbar.actions.filter(action => action.id === "rich-text-bold")[0];
+    expect(flaggedBold.visible).toBe(true);
+    expect(flaggedBold.enabled).toBe(false);
+    flagged.attach(plain);
+    flagged.toggleMark("bold");
+    expect(adapter.calls).not.toContain("bold");
+    flagged.detach();
+    plain.remove();
+  });
+
   test("attachEditor does not write a value, normalizes paste and detaches", () => {
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -267,7 +298,12 @@ describe("rich text editor model", () => {
     editor.applyLink("https://surveyjs.io");
     expect(adapter.calls[adapter.calls.length - 1]).toBe("insertHTML:<a href=\"https://surveyjs.io\">https://surveyjs.io</a>");
     expect(editor.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(false);
+    const early = new RichTextEditorModel(hostOf(question), commands());
+    expect(early.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(false);
     settings.showDialog = () => ({}) as any;
+    early.attach(host);
+    expect(early.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(true);
+    early.detach();
     const withDialog = new RichTextEditorModel(hostOf(question), commands());
     expect(withDialog.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(true);
     let opened = 0;

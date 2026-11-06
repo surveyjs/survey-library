@@ -39,5 +39,10 @@ Serializer.addProperty("comment", {
   visible: false,
   isSerializable: false
 });
+Serializer.addProperty("comment", {
+  name: "richTextDisableBold",
+  visible: false,
+  isSerializable: false
+});
 RendererFactory.Instance.registerRenderer("comment", "richtext", "sv-rich-text-comment");
 SvgRegistry.registerIcons(richTextIcons);

@@ -126,6 +126,7 @@ describe("comment textFormat", () => {
     expect(question.toJSON().richTextConverter).toBeUndefined();
     expect(question.toJSON().richTextEditMode).toBeUndefined();
     expect(question.toJSON().richTextToolbarVisibility).toBeUndefined();
+    expect(question.toJSON().richTextDisableBold).toBeUndefined();
     const host = document.createElement("div");
     document.body.appendChild(host);
     const editor = new rich.RichTextEditorModel({

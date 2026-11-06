@@ -342,29 +342,42 @@ function buildFilterExpressionItems(text: string): Array<ConditionEditorItem> {
   return items;
 }
 
-// A preset's expression as the conditions it edits with, or null when it is not that kind of text:
-// an "or", a comparison of two fields, a function call, a condition naming a field the control does
-// not have, two conditions on the same field, or a condition whose operator that field does not
-// offer. null (not []) tells the caller the text is raw and has to stay raw - a "" text is the one
-// case that legitimately means "no conditions", so it is answered before the parser ever runs.
-export function parseFilterExpression(text: string, fields: Array<IDynamicDataFilterField>): Array<IFilterCondition> | null {
-  if (!text) return [];
+// Why a text is not the conditions a control edits with - what an AI answer is sent back with.
+// "unsupported": the text does not break into rows at all (an "or" inside an "and", a function
+// call, arithmetic, a negation, a comparison of two fields); "not-and": rows joined by anything but
+// "and".
+export type FilterExpressionProblem =
+  { code: "unsupported" } |
+  { code: "not-and" } |
+  { code: "unknown-field", field: string } |
+  { code: "duplicate-field", field: string } |
+  { code: "operator", field: string, operator: string };
+
+// A preset's expression as the conditions it edits with, or the first reason it is not that kind of
+// text, checked in this order per row: the conjunction, a field named twice, a field the control
+// does not have, an operator that field does not offer. A "" text is the one case that
+// legitimately means "no conditions", so it is answered before the parser ever runs.
+export function analyzeFilterExpression(text: string, fields: Array<IDynamicDataFilterField>):
+  { conditions: Array<IFilterCondition> } | { problem: FilterExpressionProblem } {
+  if (!text) return { conditions: [] };
   const items = buildFilterExpressionItems(text);
   // build() also answers [] for a non-empty text it cannot decompose (an "or", a function call) -
   // text is non-empty here, so an empty result can only be that case.
-  if (items.length === 0) return null;
+  if (items.length === 0) return { problem: { code: "unsupported" } };
   const fieldsByValueName = getFieldsByValueName(fields);
   const seenValueNames: { [valueName: string]: boolean } = {};
   const res: Array<IFilterCondition> = [];
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    if (i > 0 && item.conjunction !== "and") return null;
+    if (i > 0 && item.conjunction !== "and") return { problem: { code: "not-and" } };
     const valueName = item.questionName;
-    if (Object.prototype.hasOwnProperty.call(seenValueNames, valueName)) return null;
+    if (Object.prototype.hasOwnProperty.call(seenValueNames, valueName)) return { problem: { code: "duplicate-field", field: valueName } };
     seenValueNames[valueName] = true;
     const field = fieldsByValueName[valueName];
-    if (!field) return null;
-    if (getFilterFieldOperators(field).indexOf(item.operator) === -1) return null;
+    if (!field) return { problem: { code: "unknown-field", field: valueName } };
+    if (getFilterFieldOperators(field).indexOf(item.operator) === -1) {
+      return { problem: { code: "operator", field: valueName, operator: item.operator } };
+    }
     // item.value is read straight off the cached, module-wide parse (buildFilterExpressionItems):
     // an array value must be copied out, or a caller that mutates its own condition's value (T7/T8
     // keep parse results as their own conditions) would corrupt every later parse of this same text,
@@ -372,5 +385,11 @@ export function parseFilterExpression(text: string, fields: Array<IDynamicDataFi
     const value = Array.isArray(item.value) ? item.value.slice() : item.value;
     res.push({ field: valueName, operator: item.operator, value });
   }
-  return res;
+  return { conditions: res };
+}
+// A preset's expression as the conditions it edits with, or null when it is not that kind of text
+// (see analyzeFilterExpression). null (not []) tells the caller the text is raw and has to stay raw.
+export function parseFilterExpression(text: string, fields: Array<IDynamicDataFilterField>): Array<IFilterCondition> | null {
+  const res = analyzeFilterExpression(text, fields);
+  return "conditions" in res ? res.conditions : null;
 }

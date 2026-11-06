@@ -55,7 +55,12 @@ export class QuestionFilterModel extends QuestionNonValue {
   private pendingConditions: Array<IFilterCondition>;
   private pendingItems: FilterSavedItems;
   private pendingUserItems: Array<IFilterUserItemState>;
-  private onItemPropertyChanged = (): void => {
+  private onItemPropertyChanged = (sender: FilterItem, options: any): void => {
+    // defaultItem names a preset: a renamed preset stays the default one.
+    if (!!options && options.name === "name" && !this.isLoadingFromJson && !!options.oldValue
+      && this.defaultItem === options.oldValue) {
+      this.defaultItem = options.newValue;
+    }
     this.updateFilterExpression();
     this.updateToolbars();
   };
@@ -1752,9 +1757,11 @@ Serializer.addClass("filter", [
   // bound control takes its fields from the source and ignores these, so the designer hides them.
   { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name", visible: false },
   { name: "items:filteritem[]", className: "filteritem", uniqueProperty: "name" },
+  // "" first: no default preset. It also keeps the list non-empty, so a designer that skips an empty
+  // list of choices still drops the presets that are gone.
   { name: "defaultItem:dropdown", dependsOn: "items",
-    choices: (obj: any): Array<any> => !!obj && Array.isArray(obj.items)
-      ? obj.items.map((item: FilterItem): any => ({ value: item.name, text: item.title })) : [] },
+    choices: (obj: any): Array<any> => [""].concat(!!obj && Array.isArray(obj.items)
+      ? obj.items.map((item: FilterItem): any => ({ value: item.name, text: item.title })) : []) },
   { name: "allowMultipleItems:boolean", default: true },
   { name: "allowAddItems:boolean", default: true, dependsOn: "allowMultipleItems",
     visibleIf: (obj: any): boolean => !!obj && obj.allowMultipleItems },

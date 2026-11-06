@@ -54,7 +54,16 @@ describe("QuestionFilterModel", () => {
       items: [{ name: "adults", title: "Adults", expression: "{age} > 18" }, { name: "kids", expression: "{age} < 12" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     const choices = Serializer.findProperty("filter", "defaultItem").getChoices(q);
-    expect(choices, "#1").toEqual([{ value: "adults", text: "Adults" }, { value: "kids", text: "kids" }]);
+    expect(choices, "#1: none, then the presets").toEqual(["", { value: "adults", text: "Adults" }, { value: "kids", text: "kids" }]);
+  });
+  test("renaming a preset keeps it the default one", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", defaultItem: "a",
+      items: [{ name: "a", expression: "{x} > 1" }, { name: "c", expression: "{x} > 2" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    q.items[1].name = "d";
+    expect(q.defaultItem, "#1: another preset").toBe("a");
+    q.items[0].name = "b";
+    expect(q.defaultItem, "#2").toBe("b");
   });
   test("searchFields offers the source's columns in the designer", () => {
     const survey = new SurveyModel();

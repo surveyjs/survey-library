@@ -2625,9 +2625,11 @@ function scopePointer(scope: string, frame: UiFrame): string {
 // the scope and keeps every second segment after `#`. So `#/anyOf/0/then/properties/x` and
 // `#/properties/x` are the same value. As there, the rewrite also applies inside a property name
 // ending in `then` or `else` (`strengthen/` loses `then/`). Unlike there, every `~0` is decoded,
-// not only the first.
+// not only the first. Each step is removed in one left-to-right pass, as the global replace there
+// does; this is path rewriting, not sanitizing.
 function dataPathSegments(scope: string): string[] {
-  const segments = scope.replace(/(anyOf|allOf|oneOf)\/[\d]+\//g, "").replace(/(then|else)\//g, "").split("/").map(decodeSegment);
+  const rewritten = scope.split(/(?:anyOf|allOf|oneOf)\/\d+\//).join("").split(/(?:then|else)\//).join("");
+  const segments = rewritten.split("/").map(decodeSegment);
   const out: string[] = [];
   for (let i = segments[0] === "#" || segments[0] === "" ? 2 : 1; i < segments.length; i += 2) out.push(segments[i]);
   return out;

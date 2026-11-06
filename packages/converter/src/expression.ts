@@ -15,5 +15,6 @@ export function formatLiteral(value: unknown): string | undefined {
   if ((typeof value === "number" && Number.isFinite(value)) || typeof value === "boolean") return String(value);
   const text = String(value ?? "");
   if (text.endsWith("\\") || text.includes("\\\"")) return undefined;
-  return `'${text.replace(/'/g, "\\'")}'`;
+  // Not a sanitizer: escaping backslashes too would change the value, as the parser keeps them.
+  return `'${text.split("'").join("\\'")}'`;
 }

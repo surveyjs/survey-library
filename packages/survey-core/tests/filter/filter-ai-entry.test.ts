@@ -43,6 +43,9 @@ describe("FilterModal: Create with AI", () => {
     expect([createAI(withAI).title, createAI(withAI).iconName, createAI(withAI).visible], "#1")
       .toEqual(["Create with AI...", "icon-sparkle-24x24", true]);
     expect(withAI.creationToolbar.actions.map((a: Action): string => a.id), "#2").toEqual(["sv-filter-modal-add-preset", "sv-filter-modal-create-ai"]);
+    const css = createAI(withAI).getActionBarItemCss();
+    expect([css.indexOf("sd-action--brand") > -1, css.indexOf("sd-action--secondary") > -1, css.indexOf("sd-action--small") > -1],
+      "#2a: the mockup's light brand button, small as the row").toEqual([true, true, true]);
     withAI.dispose();
     const noHandler = control({}, false).q.createFilterModal();
     expect(createAI(noHandler).visible, "#3").toBe(false);

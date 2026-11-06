@@ -73,8 +73,9 @@ export class FilterModal extends Base {
     this.updatePresetChips();
     this.addPresetAction = new Action({ id: "sv-filter-modal-add-preset", title: filterUIStrings.addPreset, iconName: "icon-plus-24x24",
       iconSize: "auto", action: (): void => { this.owner.showPresetDialog(this, false); } });
+    // The mockup's light brand button (6435:19989), not the neutral one of Add Preset next to it.
     this.createAIAction = new Action({ id: "sv-filter-modal-create-ai", title: filterUIStrings.createWithAI, iconName: "icon-sparkle-24x24",
-      iconSize: "auto", action: (): void => { this.owner.showAIDialog(this); } });
+      iconSize: "auto", appearance: { style: "brand", mode: "secondary" }, action: (): void => { this.owner.showAIDialog(this); } });
     this.creationToolbarValue = new ActionContainer();
     this.creationToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
     this.creationToolbarValue.setItems([this.addPresetAction, this.createAIAction], false);

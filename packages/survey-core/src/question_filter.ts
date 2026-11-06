@@ -254,13 +254,15 @@ export class QuestionFilterModel extends QuestionNonValue {
     return this.getItemByName(this.activeItemName);
   }
   public set activeItem(val: FilterItem) { this.activeItemName = !!val ? val.name : ""; }
-  // In the designer a preset's chip turns nothing on: it calls this callback instead. Creator sets it
-  // to open the preset's settings, the way it sets setCanShowOptionItemCallback on a select question.
-  private designItemClickCallback: (item: FilterItem) => void;
-  public setDesignItemClickCallback(callback: (item: FilterItem) => void): void {
+  // In the designer the buttons do nothing of their own: they call this callback instead - with the
+  // preset for a preset's chip, with no item for any other button. Creator sets it to select the
+  // control or open the preset's settings, the way it sets setCanShowOptionItemCallback on a select
+  // question; the buttons stop the click event, so the designer's own click handler never runs.
+  private designItemClickCallback: (item?: FilterItem) => void;
+  public setDesignItemClickCallback(callback: (item?: FilterItem) => void): void {
     this.designItemClickCallback = callback;
   }
-  public onDesignItemClick(item: FilterItem): void {
+  public onDesignItemClick(item?: FilterItem): void {
     if (!!this.designItemClickCallback) {
       this.designItemClickCallback(item);
     }

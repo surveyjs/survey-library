@@ -493,6 +493,22 @@ describe("FilterToolbars: in the designer", () => {
     action(q.chipsToolbar, "sv-filter-item-adults").action();
     expect([clicked.length, q.activeItemName], "#3: no callback, nothing happens").toEqual([1, ""]);
   });
+  test("a badge, Filters and Show More report a click on the control itself", () => {
+    const saved = settings.showDialog;
+    settings.showDialog = (): any => undefined;
+    try {
+      const q = createDesigned();
+      const clicked: Array<any> = [];
+      q.setDesignItemClickCallback((item?: FilterItem): void => { clicked.push(item); });
+      action(q.chipsToolbar, "sv-filter-field-age").action();
+      action(q.chipsToolbar, "sv-filter-filters").action();
+      action(q.chipsToolbar, "sv-filter-more").action();
+      expect(clicked, "#1: the designer selects the control").toEqual([undefined, undefined, undefined]);
+      expect(q.chipsLayout.isExpanded, "#2: Show More still works").toBe(true);
+    } finally {
+      settings.showDialog = saved;
+    }
+  });
   test("out of the designer a preset's chip turns it on and reports nothing", () => {
     const survey = new SurveyModel({ elements: [json] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");

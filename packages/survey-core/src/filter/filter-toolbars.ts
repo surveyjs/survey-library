@@ -38,8 +38,9 @@ export interface IFilterToolbarsOwner {
   visibleItems: Array<FilterItem>;
   activeItem: FilterItem;
   toggleItem(item: FilterItem | string): void;
-  // A preset's chip clicked in the designer, where it turns nothing on.
-  onDesignItemClick(item: FilterItem): void;
+  // A button clicked in the designer, where it does nothing of its own: a preset's chip names its
+  // preset, every other button the control itself (item undefined).
+  onDesignItemClick(item?: FilterItem): void;
   canSaveActiveItem: boolean;
   saveActiveItem(): void;
   canClearActiveItem: boolean;
@@ -409,11 +410,14 @@ export class FilterToolbars {
 
   private getFiltersAction(): Action {
     if (!this.filtersAction) {
-      // In the designer the button is a picture of itself: a click selects the question, the way a
-      // dropdown's does. showAdvancedEditor() itself still opens the dialog read-only there.
+      // In the designer the button is a picture of itself and reports the click, so the designer can
+      // select the control: an action stops the click event, the designer would never see it.
+      // showAdvancedEditor() itself still opens the dialog read-only there.
       this.filtersAction = new Action({ id: "sv-filter-filters", iconName: "icon-filter-24x24", iconSize: "auto",
         action: (): void => {
-          if (!this.owner.isDesignMode) {
+          if (this.owner.isDesignMode) {
+            this.owner.onDesignItemClick();
+          } else {
             this.showAdvancedEditor();
           }
         } });
@@ -436,7 +440,13 @@ export class FilterToolbars {
   private getMoreAction(): Action {
     if (!this.moreAction) {
       this.moreAction = new Action({ id: "sv-filter-more", innerCss: this.cssClasses.showMore,
-        appearance: { mode: "tertiary" }, action: (): void => { this.layout.isExpanded = !this.layout.isExpanded; } });
+        appearance: { mode: "tertiary" }, action: (): void => {
+          this.layout.isExpanded = !this.layout.isExpanded;
+          // It works in the designer too, and reports the click there like the other buttons
+          if (this.owner.isDesignMode) {
+            this.owner.onDesignItemClick();
+          }
+        } });
     }
     return this.moreAction;
   }
@@ -487,7 +497,10 @@ export class FilterToolbars {
   }
   private onFieldChipClick(key: string): void {
     // No popup in the designer: its styles are the survey's, and nothing in it would work there.
-    if (this.owner.isDesignMode) return;
+    if (this.owner.isDesignMode) {
+      this.owner.onDesignItemClick();
+      return;
+    }
     if (this.owner.isLocked) {
       this.owner.clearActiveItem();
       return;

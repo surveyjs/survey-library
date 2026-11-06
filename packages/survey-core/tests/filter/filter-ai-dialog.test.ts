@@ -33,6 +33,12 @@ describe("FilterAIDialog: before the first answer", () => {
     expect([dialog.editor, dialog.canApply, dialog.apply()], "#6").toEqual([undefined, false, false]);
     dialog.dispose();
   });
+  test("the request button is drawn as an action bar of its own", () => {
+    const { dialog } = open();
+    const prompt = dialog.aiPrompt;
+    expect([prompt.requestToolbar.actions.length, prompt.requestToolbar.actions[0] === prompt.requestAction]).toEqual([1, true]);
+    dialog.dispose();
+  });
 });
 
 describe("FilterAIDialog: the answer", () => {
@@ -75,7 +81,7 @@ describe("FilterAIDialog: the answer", () => {
     calls[0].callback(answer("{age} > 18 and {country} anyof ['de']"));
     const panel = <PanelModel>dialog.editor.survey.getPanelByName("f0");
     const trash = panel.getTitleActions().filter((a: any): boolean => a.id === "sv-filter-ai-remove")[0];
-    expect([!!trash, trash.iconName], "#1").toEqual([true, "icon-delete-24x24"]);
+    expect([!!trash, trash.iconName], "#1: the mockup's 16px bin").toEqual([true, "icon-delete-16x16"]);
     trash.action();
     expect([dialog.editor.fieldNames, dialog.conditions], "#2").toEqual([["age"], [{ field: "age", operator: "greater", value: 18 }]]);
     dialog.removeField("age");

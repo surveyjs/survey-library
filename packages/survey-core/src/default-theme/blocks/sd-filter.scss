@@ -485,3 +485,50 @@
   border: 1px solid var(--sjs2-color-border-basic-secondary);
   border-radius: var(--sjs2-radius-x150);
 }
+
+// Create custom filter (FilterAIDialog): the model's filter as the fields' editors over the
+// description in a frame - its caption, the description and its button across - 24px apart, as in
+// the mockup. The same description in the tab of an AI preset in Edit Presets (FilterAIPrompt).
+.sd-filter-ai-dialog__content {
+  gap: var(--sjs2-spacing-x300);
+}
+
+.sd-filter-ai-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x300);
+  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x500);
+  border: 1px solid var(--sjs2-color-border-basic-secondary);
+  border-radius: var(--sjs2-radius-x150);
+}
+
+.sd-filter-ai-prompt__title {
+  @include sjs2--typography--default-strong;
+  color: var(--sjs2-color-fg-basic-primary);
+}
+
+// The button is the frame's width, its icon and label in the middle.
+.sd-filter-ai-prompt__request {
+  .sd-action-bar {
+    width: 100%;
+  }
+
+  .sd-action-bar__item {
+    flex: 1 1 auto;
+  }
+
+  .sd-action {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.sd-filter-ai-prompt__error {
+  @include sjs2--typography--default;
+  color: var(--sjs2-color-fg-alert-primary);
+}
+
+// A phone keeps the narrower gutter of the fields' frame.
+.sd-filter-modal--mobile .sd-filter-ai-prompt {
+  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x200);
+}

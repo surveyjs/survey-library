@@ -9,8 +9,8 @@ import { getLocaleString } from "../surveyStrings";
 import { IFilterCondition, IFilterItemEdit } from "../interfaces/ui-interfaces";
 import { FilterItem } from "./filter-item";
 import { FilterConditionsEditor, IFilterConditionsEditorOwner } from "./filter-conditions-editor";
-import { FilterAIRequest } from "./filter-ai";
-import { FilterAIPrompt } from "./filter-ai-dialog";
+import type { FilterAIRequest } from "./filter-ai";
+import { FilterAIPrompt } from "./filter-ai-prompt";
 import { filterUIStrings } from "./filter-ui-strings";
 // The question types the form is made of; imported here, as FilterConditionsEditor imports its own.
 import "../question_text";

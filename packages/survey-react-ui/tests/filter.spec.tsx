@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
 // eslint-disable-next-line surveyjs/no-imports-from-entries
-import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterListItem, SurveyFilterFieldPopup } from "../entries/index";
+import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterListItem, SurveyFilterFieldPopup, SurveyFilterAIDialog } from "../entries/index";
 import { describe, it, expect, beforeAll } from "vitest";
 
 beforeAll(() => {
@@ -152,5 +152,85 @@ describe("SurveyFilterFieldPopup", () => {
     ReactDOM.unmountComponentAtNode(container);
     container.remove();
     holder.fieldPopup.dispose();
+  });
+});
+
+describe("SurveyFilterAIDialog", () => {
+  function setup(json: any = {}): { q: QuestionFilterModel, calls: Array<any>, container: HTMLElement } {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "filter", name: "f1",
+      fields: [{ name: "age", fieldType: "text", inputType: "number" }] }, json)] });
+    const calls: Array<any> = [];
+    survey.onAIFilterRequest.add((_, options) => { calls.push(options); });
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    return { q: survey.getQuestionByName("f1") as QuestionFilterModel, calls: calls, container: container };
+  }
+  function cleanup(container: HTMLElement): void {
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+  }
+  it("Create custom filter: the description and its button; the fields' editors once the model answered", () => {
+    const { q, calls, container } = setup();
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    const dialog = q.createAIDialog();
+    holder.aiDialog = dialog;
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterAIDialog, { holder: holder }), container);
+    });
+    const content = container.querySelector(".sd-filter-ai-dialog__content");
+    expect(content.querySelector(".sd-filter-ai-prompt__title").textContent, "#1").toBe("Describe what you need - AI will do the rest.");
+    expect(!!content.querySelector(".sd-filter-ai-prompt__form textarea"), "#2: the description").toBe(true);
+    expect(content.querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Create new filter");
+    expect(!!content.querySelector(".sd-filter-modal__editor"), "#4: no fields yet").toBe(false);
+    act(() => {
+      dialog.aiPrompt.form.setValue("prompt", "adults");
+      dialog.aiPrompt.request();
+    });
+    act(() => { calls[0].callback({ data: { expression: "{age} > 18", title: "Adults", explanation: "" } }); });
+    expect(!!content.querySelector(".sd-filter-modal__editor"), "#5: the fields").toBe(true);
+    expect(content.querySelector(".sd-filter-ai-prompt__request").textContent, "#6").toContain("Make Changes");
+    expect(content.querySelector(".sd-filter-ai-prompt__title").textContent, "#7").toBe("Describe what to change - if needed.");
+    act(() => { dialog.aiPrompt.errorText = "Something went wrong"; });
+    expect(content.querySelector(".sd-filter-ai-prompt__error").textContent, "#8").toBe("Something went wrong");
+    act(() => { holder.aiDialog = undefined; });
+    dialog.dispose();
+    expect(container.innerHTML, "#9: an emptied holder unmounts the content").toBe("");
+    cleanup(container);
+  });
+  it("the Filters dialog shows Create with AI while the application answers AI requests", () => {
+    const { q, container } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterModal, { holder: holder }), container);
+    });
+    expect(container.textContent).toContain("Create with AI...");
+    const modal = holder.modal;
+    act(() => { holder.modal = undefined; });
+    modal.dispose();
+    cleanup(container);
+  });
+  it("Edit Presets shows the description and Make Changes in the tab of an AI preset", () => {
+    const { q, container } = setup({ items: [{ name: "a", title: "Adults", type: "ai", prompt: "grown-ups", expression: "{age} > 18" }] });
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    const dialog = q.createEditPresetsDialog("a");
+    holder.presetDialog = dialog;
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterPresetDialog, { holder: holder }), container);
+    });
+    const block = container.querySelector(".sd-filter-preset-dialog__content .sd-filter-ai-prompt");
+    expect(!!block, "#1").toBe(true);
+    expect((block.querySelector("textarea") as HTMLTextAreaElement).value, "#2").toBe("grown-ups");
+    expect(block.querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Make Changes");
+    act(() => { holder.presetDialog = undefined; });
+    dialog.dispose();
+    cleanup(container);
   });
 });

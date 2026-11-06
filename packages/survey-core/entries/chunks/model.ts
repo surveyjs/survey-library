@@ -250,8 +250,10 @@ export {
 export type {
   IFilterAIField, IFilterAIContext, IFilterAIContextOwner, IFilterAIResponse, FilterAIResult, IFilterAIRequestOwner
 } from "../../src/filter/filter-ai";
-export { FilterAIDialog, FilterAIPrompt, makeFilterAITitle, filterAIPromptMaxLength } from "../../src/filter/filter-ai-dialog";
-export type { IFilterAIDialogOwner, IFilterAIPromptOptions } from "../../src/filter/filter-ai-dialog";
+export { FilterAIDialog, makeFilterAITitle } from "../../src/filter/filter-ai-dialog";
+export type { IFilterAIDialogOwner } from "../../src/filter/filter-ai-dialog";
+export { FilterAIPrompt, filterAIPromptMaxLength } from "../../src/filter/filter-ai-prompt";
+export type { IFilterAIPromptOptions } from "../../src/filter/filter-ai-prompt";
 export {
   FilterPresetDialog, FilterEditPresetsDialog, IFilterPresetDialogOwner, IFilterEditPresetsDialogOwner, IFilterPresetBuffer,
   filterPresetTitleMaxLength

@@ -37,13 +37,49 @@ describe("QuestionFilterModel", () => {
     expect([q.cssClasses.root, q.cssClasses.chips, q.cssClasses.chipOverflow, q.cssClasses.popup])
       .toEqual(["sd-filter", "sd-filter__chips", "sd-filter__chip--overflow", "sd-filter-popup"]);
   });
-  test("the new properties are registered but invisible in the property grid", () => {
-    ["source", "fields", "items", "defaultItem", "allowMultipleItems", "allowAddItems",
-      "allowReorderItems", "showSearch", "searchFields", "allowChangeSearchFields",
-      "allowFastMode", "allowAdvancedMode"].forEach((name) => {
-      const prop = Serializer.findProperty("filter", name);
-      expect(prop, name).toBeTruthy();
-      expect(prop.visible, name).toBe(false);
-    });
+  test("the authoring properties are visible; standalone-only and inert ones stay hidden", () => {
+    const visibility = (className: string, names: Array<string>): Array<boolean> =>
+      names.map((name: string): boolean => Serializer.findProperty(className, name).visible);
+    const filterShown = ["source", "items", "defaultItem", "allowMultipleItems", "allowAddItems",
+      "showSearch", "searchFields", "allowFastMode", "allowAdvancedMode"];
+    const filterHidden = ["fields", "allowReorderItems", "allowChangeSearchFields"];
+    expect(visibility("filter", filterShown), "#1").toEqual(filterShown.map(() => true));
+    expect(visibility("filter", filterHidden), "#2").toEqual(filterHidden.map(() => false));
+    const itemShown = ["name", "title", "type", "expression", "prompt", "allowEdit", "allowDelete"];
+    expect(visibility("filteritem", itemShown), "#3").toEqual(itemShown.map(() => true));
+    expect(visibility("filteritem", ["allowCopy"]), "#4").toEqual([false]);
+  });
+  test("defaultItem offers the presets by name", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1",
+      items: [{ name: "adults", title: "Adults", expression: "{age} > 18" }, { name: "kids", expression: "{age} < 12" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const choices = Serializer.findProperty("filter", "defaultItem").getChoices(q);
+    expect(choices, "#1").toEqual([{ value: "adults", text: "Adults" }, { value: "kids", text: "kids" }]);
+  });
+  test("searchFields offers the source's columns in the designer", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [
+      { type: "filter", name: "f1", source: "m", showSearch: true },
+      { type: "matrixdynamic", name: "m", columns: [{ name: "country", title: "Country", cellType: "dropdown" }, { name: "age", cellType: "text" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const choices = Serializer.findProperty("filter", "searchFields").getChoices(q);
+    expect(choices, "#1").toEqual([{ value: "country", text: "Country" }, { value: "age", text: "age" }]);
+  });
+  test("allowAddItems is shown only with multiple presets; searchFields only with search", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1" }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const allowAddItems = Serializer.findProperty("filter", "allowAddItems");
+    const searchFields = Serializer.findProperty("filter", "searchFields");
+    expect([allowAddItems.isVisible("", q), searchFields.isVisible("", q)], "#1").toEqual([true, false]);
+    q.allowMultipleItems = false;
+    q.showSearch = true;
+    expect([allowAddItems.isVisible("", q), searchFields.isVisible("", q)], "#2").toEqual([false, true]);
+  });
+  test("the new property types keep the JSON", () => {
+    const json = { type: "filter", name: "f1", source: "m", defaultItem: "adults", searchFields: ["age"],
+      items: [{ name: "adults", expression: "{age} > 18\nand {age} < 99" }] };
+    const survey = new SurveyModel({ elements: [json] });
+    expect(survey.toJSON().pages[0].elements[0], "#1").toEqual(json);
   });
 });

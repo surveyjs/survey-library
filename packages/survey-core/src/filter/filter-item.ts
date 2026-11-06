@@ -8,14 +8,14 @@ export interface IFilterItemOwner {
   getSurvey(live?: boolean): ISurvey;
 }
 
-// A preset: one saved filter the survey author defines in JSON, that the end user applies to the
-// data with a single click by picking it in the Filter Control, and can then edit over (see
-// ownConditions/saveActiveItem in question_filter.ts). type names which editor authored the
-// expression - "fields" (built from field/operator/value conditions, edited through the control's
-// own condition API and its fast/advanced mode editors) or "ai" (a natural-language prompt, with
-// no editor yet - it can only be authored in JSON and canEditConditions refuses it). Whichever
-// type an item carries, its expression is applied identically as a filter expression string;
-// prompt is storage only until a future task wires an "ai" editor to it.
+// A preset: one saved filter the survey author defines (in JSON or in Creator's property grid), that
+// the end user applies to the data with a single click by picking it in the Filter Control, and can
+// then edit over (see ownConditions/saveActiveItem in question_filter.ts). type names which editor
+// authored the expression - "fields" (built from field/operator/value conditions, edited through the
+// control's own condition API and its fast/advanced mode editors) or "ai" (a natural-language
+// prompt; canEditConditions refuses it). Whichever type an item carries, its expression is applied
+// identically as a filter expression string; prompt is what Make Changes in Edit Presets sends to
+// survey.onAIFilterRequest.
 export class FilterItem extends Base {
   constructor(name: string) {
     super();
@@ -80,15 +80,17 @@ export class FilterItem extends Base {
 
 Serializer.addClass("filteritem", [
   { name: "!name", isUnique: true },
-  { name: "title:text", serializationProperty: "locTitle", dependsOn: "name", visible: false },
-  { name: "type", default: "fields", choices: ["fields", "ai"], visible: false },
-  // A plain string and not ":condition": ":condition" makes JsonObjectProperty.isExpression true and
-  // everything that discovers expressions by type - Base.validateExpressions(), the linter - would
-  // read it with the survey as the variable context, while its variables are record fields.
-  { name: "expression", visible: false },
-  { name: "prompt:text", serializationProperty: "locPrompt", visible: false,
+  { name: "title:text", serializationProperty: "locTitle", dependsOn: "name" },
+  { name: "type", default: "fields", choices: ["fields", "ai"] },
+  // Not ":condition": ":condition" makes JsonObjectProperty.isExpression true and everything that
+  // discovers expressions by type - Base.validateExpressions(), the linter - would read it with the
+  // survey as the variable context, while its variables are record fields. ":text" is a plain string
+  // too; it only gives the expression a multi-line box in Creator.
+  { name: "expression:text" },
+  { name: "prompt:text", serializationProperty: "locPrompt",
     dependsOn: "type", visibleIf: (obj: any): boolean => obj.type === "ai" },
-  { name: "allowEdit:boolean", default: true, visible: false },
-  { name: "allowDelete:boolean", default: true, visible: false },
+  { name: "allowEdit:boolean", default: true },
+  { name: "allowDelete:boolean", default: true },
+  // No UI reads canCopyItem yet: hidden until a preset can be copied.
   { name: "allowCopy:boolean", default: true, visible: false },
 ], () => new FilterItem(""));

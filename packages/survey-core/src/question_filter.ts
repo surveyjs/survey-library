@@ -1742,19 +1742,33 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
 }
 
+// The property types question_filtersource, dropdown and text only pick the Creator editor (a list of
+// the questions that can be a source, a dropdown that never turns into a button group, a multi-line
+// box); each of them is stored as a plain string.
 Serializer.addClass("filter", [
   { name: "title", visible: true },
-  { name: "source", visible: false },
+  { name: "source:question_filtersource" },
+  // Needed only by a control with no source (the host filters through survey.onFilterChanged): a
+  // bound control takes its fields from the source and ignores these, so the designer hides them.
   { name: "fields:filterfield[]", className: "filterfield", uniqueProperty: "name", visible: false },
-  { name: "items:filteritem[]", className: "filteritem", uniqueProperty: "name", visible: false },
-  { name: "defaultItem", visible: false },
-  { name: "allowMultipleItems:boolean", default: true, visible: false },
-  { name: "allowAddItems:boolean", default: true, visible: false },
+  { name: "items:filteritem[]", className: "filteritem", uniqueProperty: "name" },
+  { name: "defaultItem:dropdown", dependsOn: "items",
+    choices: (obj: any): Array<any> => !!obj && Array.isArray(obj.items)
+      ? obj.items.map((item: FilterItem): any => ({ value: item.name, text: item.title })) : [] },
+  { name: "allowMultipleItems:boolean", default: true },
+  { name: "allowAddItems:boolean", default: true, dependsOn: "allowMultipleItems",
+    visibleIf: (obj: any): boolean => !!obj && obj.allowMultipleItems },
+  // No UI reads canReorderItems yet: hidden until the presets row can be reordered.
   { name: "allowReorderItems:boolean", default: true, visible: false },
-  { name: "showSearch:boolean", default: false, visible: false },
-  { name: "searchFields:string[]", visible: false },
+  { name: "showSearch:boolean", default: false },
+  { name: "searchFields:string[]", dependsOn: ["showSearch", "source"],
+    visibleIf: (obj: any): boolean => !!obj && obj.showSearch,
+    choices: (obj: any): Array<any> => !!obj && typeof obj.getFilterFields === "function"
+      ? obj.getFilterFields().map((field: IDynamicDataFilterField): any =>
+        ({ value: field.name, text: (!!field.locTitle && field.locTitle.calculatedText) || field.name })) : [] },
+  // Guards setSearchFields() only, which no UI calls yet: hidden until a respondent can pick the fields.
   { name: "allowChangeSearchFields:boolean", default: true, visible: false },
-  { name: "allowFastMode:boolean", default: true, visible: false },
-  { name: "allowAdvancedMode:boolean", default: true, visible: false },
+  { name: "allowFastMode:boolean", default: true },
+  { name: "allowAdvancedMode:boolean", default: true },
 ], () => new QuestionFilterModel(""), "nonvalue");
 QuestionFactory.Instance.registerQuestion("filter", (name) => new QuestionFilterModel(name));

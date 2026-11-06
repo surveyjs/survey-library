@@ -18,7 +18,7 @@ richTextBindings.textMarkdownHandler = textMarkdownHandler;
 richTextBindings.htmlToMarkdownHandler = htmlToMarkdownHandler;
 richTextBindings.getStringEditMode = getStringEditMode;
 richTextBindings.attachEditor = attachEditor;
-Serializer.findProperty("comment", "textFormat").visible = true;
+Serializer.findProperty("comment", "allowRichText").visible = true;
 Serializer.addProperty("comment", {
   name: "richTextEditMode",
   default: "block",

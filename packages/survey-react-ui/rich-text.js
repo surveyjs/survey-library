@@ -33,19 +33,19 @@ var demoSurveyJson = String.raw`{
       "name": "editor",
       "title": "Editor",
       "elements": [
-        { "type": "comment", "name": "c_md", "title": "Markdown answer", "textFormat": "markdown", "placeholder": "Type and format text" },
-        { "type": "comment", "name": "c_typing", "title": "Updates while typing", "textFormat": "markdown", "textUpdateMode": "onTyping" },
-        { "type": "comment", "name": "c_html", "title": "HTML answer", "textFormat": "html" },
-        { "type": "comment", "name": "c_inline", "title": "Inline mode", "textFormat": "markdown", "acceptCarriageReturn": false },
-        { "type": "comment", "name": "c_max", "title": "Max length 50", "textFormat": "markdown", "maxLength": 50 },
-        { "type": "comment", "name": "c_rows", "title": "Rows, autoGrow, resize", "textFormat": "markdown", "rows": 6, "autoGrow": true, "allowResize": true },
+        { "type": "comment", "name": "c_md", "title": "Markdown answer", "allowRichText": true, "placeholder": "Type and format text" },
+        { "type": "comment", "name": "c_typing", "title": "Updates while typing", "allowRichText": true, "textUpdateMode": "onTyping" },
+        { "type": "comment", "name": "c_html", "title": "HTML answer", "allowRichText": true },
+        { "type": "comment", "name": "c_inline", "title": "Inline mode", "allowRichText": true, "acceptCarriageReturn": false },
+        { "type": "comment", "name": "c_max", "title": "Max length 50", "allowRichText": true, "maxLength": 50 },
+        { "type": "comment", "name": "c_rows", "title": "Rows, autoGrow, resize", "allowRichText": true, "rows": 6, "autoGrow": true, "allowResize": true },
         {
-          "type": "comment", "name": "c_unsupported", "title": "Unsupported stored content", "textFormat": "html",
+          "type": "comment", "name": "c_unsupported", "title": "Unsupported stored content", "allowRichText": true,
           "defaultValue": "<p style=\"color:red\">Red</p><table><tr><td>cell</td></tr></table>"
         },
         {
           "type": "matrixdropdown", "name": "m1", "title": "Matrix with a rich comment cell",
-          "columns": [{ "name": "notes", "cellType": "comment", "textFormat": "markdown" }],
+          "columns": [{ "name": "notes", "cellType": "comment", "allowRichText": true }],
           "rows": ["Row 1"]
         }
       ]
@@ -130,17 +130,59 @@ for (var t = 0; t < themeButtons.length; t++) {
 }
 setPressed("[data-theme]", "data-theme", "light");
 
-var currentStringHandler = null;
+var currentForward = null;
+var currentReverse = null;
+var mountKey = 0;
+var reverseHandlerOn = true;
 
-function builtinStringHandler(sender, options) {
+function isRawAnswer(options) {
+  var name = options.element && options.element.name;
+  return options.name === "value" && (name === "c_html" || name === "c_unsupported");
+}
+
+function renderSurvey() {
+  // The demo page loads React 16, where ReactDOM.render is the supported API.
+  // eslint-disable-next-line react/no-deprecated
+  ReactDOM.render(
+    React.createElement(SurveyReact.Survey, { key: "survey-" + mountKey, model: survey }),
+    document.getElementById("surveyElement")
+  );
+}
+
+function remountSurvey() {
+  mountKey += 1;
+  renderSurvey();
+}
+
+function builtinForward(sender, options) {
+  if (isRawAnswer(options)) {
+    options.html = options.text;
+    return;
+  }
   SurveyRichText.RichText.textMarkdownHandler(sender, options);
 }
 
-function rawHtmlStringHandler(sender, options) {
+function builtinReverse(sender, options) {
+  if (isRawAnswer(options)) {
+    options.text = options.html;
+    return;
+  }
+  SurveyRichText.RichText.htmlToMarkdownHandler(sender, options);
+}
+
+function rawForward(sender, options) {
   options.html = options.text;
 }
 
-function customStringHandler(sender, options) {
+function rawReverse(sender, options) {
+  options.text = options.html;
+}
+
+function customForward(sender, options) {
+  if (isRawAnswer(options)) {
+    options.html = options.text;
+    return;
+  }
   var api = SurveyRichText.RichText;
   if (options.name === "title") {
     options.html = "[handler] " + api.markdownToHtml(options.text, { inline: true });
@@ -150,12 +192,24 @@ function customStringHandler(sender, options) {
   if (html) options.html = html;
 }
 
+function customReverse(sender, options) {
+  if (isRawAnswer(options)) {
+    options.text = options.html;
+    return;
+  }
+  SurveyRichText.RichText.htmlToMarkdownHandler(sender, options);
+}
+
 function applyStringHandler(name) {
-  if (currentStringHandler) survey.onTextMarkdown.remove(currentStringHandler);
-  currentStringHandler = name === "builtin" ? builtinStringHandler : name === "html" ? rawHtmlStringHandler : name === "custom" ? customStringHandler : null;
-  if (currentStringHandler) survey.onTextMarkdown.add(currentStringHandler);
+  if (currentForward) survey.onTextMarkdown.remove(currentForward);
+  if (currentReverse) survey.onHtmlToMarkdown.remove(currentReverse);
+  currentForward = name === "builtin" ? builtinForward : name === "html" ? rawForward : name === "custom" ? customForward : null;
+  currentReverse = name === "builtin" ? builtinReverse : name === "html" ? rawReverse : name === "custom" ? customReverse : null;
+  if (currentForward) survey.onTextMarkdown.add(currentForward);
+  if (currentReverse && reverseHandlerOn) survey.onHtmlToMarkdown.add(currentReverse);
   if (typeof survey.locStrsChanged === "function") survey.locStrsChanged();
   setPressed("[data-handler]", "data-handler", name);
+  remountSurvey();
 }
 
 if (pluginLoaded) {
@@ -166,6 +220,12 @@ if (pluginLoaded) {
     });
   }
   applyStringHandler("builtin");
+  document.getElementById("reverse-handler").addEventListener("change", function () {
+    reverseHandlerOn = this.checked;
+    if (currentReverse) survey.onHtmlToMarkdown.remove(currentReverse);
+    if (reverseHandlerOn && currentReverse) survey.onHtmlToMarkdown.add(currentReverse);
+    remountSurvey();
+  });
 }
 
 function richTextApi() {
@@ -174,13 +234,8 @@ function richTextApi() {
 }
 
 document.getElementById("external-converter").addEventListener("change", function () {
-  var api = richTextApi();
-  if (!api || typeof api.registerFormat !== "function") {
-    this.checked = false;
-    text("converter-status", "The external converter sample is not included yet.");
-    return;
-  }
-  text("converter-status", "");
+  this.checked = false;
+  text("converter-status", "The external converter sample is not included yet.");
 });
 
 function updatePlayground() {
@@ -227,9 +282,4 @@ document.getElementById("find-unsupported").addEventListener("click", function (
   }).join("\n"));
 });
 
-// The demo page loads React 16, where ReactDOM.render is the supported API.
-// eslint-disable-next-line react/no-deprecated
-ReactDOM.render(
-  React.createElement(SurveyReact.Survey, { model: survey }),
-  document.getElementById("surveyElement")
-);
+if (!pluginLoaded) renderSurvey();

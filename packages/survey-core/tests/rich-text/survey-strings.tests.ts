@@ -1,6 +1,7 @@
 import { settings } from "../../src/settings";
 import { Serializer } from "../../src/jsonobject";
 import { Question } from "../../src/question";
+import { QuestionCommentModel } from "../../src/question_comment";
 import { SurveyModel } from "../../src/survey";
 import { DomDocumentHelper } from "../../src/global_variables_utils";
 import { RichText } from "../../src/plugins/rich-text/index";
@@ -100,22 +101,24 @@ describe("survey strings through handlers", () => {
     }
   });
 
-  test("a registered markdown converter is used by the string functions and the handler", () => {
-    const builtIn = RichText.getFormat("markdown");
-    RichText.registerFormat("markdown", {
-      toHtml: (source: string) => source.indexOf("*") < 0 ? "plain" : "<i>" + source + "</i>",
-      toSource: (root: HTMLElement) => "src:" + (root.textContent || "")
+  test("a customer handler renders its own html and registerFormat is gone", () => {
+    expect(RichText.registerFormat).toBeUndefined();
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q", title: "**a**" }] });
+    survey.onTextMarkdown.add((_sender, options) => { options.html = "<i>" + options.text + "</i>"; });
+    expect(survey.getQuestionByName("q").locTitle.renderedHtml).toBe("<i>**a**</i>");
+  });
+
+  test("a comment answer is inline only when it does not accept a carriage return", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "comment", name: "block", allowRichText: true },
+        { type: "comment", name: "inline", allowRichText: true, acceptCarriageReturn: false }
+      ]
     });
-    try {
-      expect(RichText.markdownToHtml("**a**")).toBe("<i>**a**</i>");
-      expect(RichText.markdownToHtml("plain")).toBe("");
-      expect(RichText.htmlToMarkdown("<b>a</b>")).toBe("src:a");
-      const survey = new SurveyModel({ elements: [{ type: "text", name: "q", title: "**a**" }] });
-      survey.onTextMarkdown.add(RichText.textMarkdownHandler);
-      expect(survey.getQuestionByName("q").locTitle.renderedHtml).toBe("<i>**a**</i>");
-    } finally {
-      RichText.registerFormat("markdown", builtIn);
-    }
+    const block = <QuestionCommentModel>survey.getQuestionByName("block");
+    const inline = <QuestionCommentModel>survey.getQuestionByName("inline");
+    expect(RichText.markdownToHtml("- item", { element: block, name: "value" })).toBe("<ul><li>item</li></ul>");
+    expect(RichText.markdownToHtml("- item", { element: inline, name: "value" })).toBe("");
   });
 
   test("findUnsupported defaults to markdown", () => {

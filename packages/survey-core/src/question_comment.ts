@@ -109,9 +109,9 @@ export class QuestionCommentModel extends QuestionTextBase {
   public getType(): string {
     return "comment";
   }
-  @property() textFormat: string;
+  @property() allowRichText: boolean;
   public getComponentName(): string {
-    if (this.textFormat !== "plain") {
+    if (this.allowRichText) {
       // "comment", not getType(): a class that inherits comment still uses the one rich renderer.
       const richName = RendererFactory.Instance.getRenderer("comment", "richtext");
       if (richName !== "default") return richName;
@@ -211,7 +211,7 @@ Serializer.addClass(
     { name: "autoGrow:boolean", defaultFunc: () => undefined },
     { name: "allowResize:boolean", defaultFunc: () => undefined },
     { name: "acceptCarriageReturn:boolean", default: true, visible: false },
-    { name: "textFormat", default: "plain", choices: ["plain", "markdown", "html"], visible: false }
+    { name: "allowRichText:boolean", default: false, visible: false }
   ],
   function () {
     return new QuestionCommentModel("");

@@ -23,10 +23,22 @@ function hostOf(question: QuestionCommentModel) {
     setValue: (value: string) => { question.value = value; },
     get isInputTextUpdate() { return question.isInputTextUpdate; },
     get acceptCarriageReturn() { return question.acceptCarriageReturn !== false; },
-    get mode(): "inline" | "block" { return question.acceptCarriageReturn === false ? "inline" : "block"; },
-    get format(): "markdown" | "html" { return question.textFormat === "html" ? "html" : "markdown"; },
     owner: question
   };
+}
+
+function commentSurvey(extra?: { [key: string]: any }): SurveyModel {
+  const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true, ...(extra || {}) }] });
+  survey.onTextMarkdown.add(RichText.textMarkdownHandler);
+  survey.onHtmlToMarkdown.add(RichText.htmlToMarkdownHandler);
+  return survey;
+}
+
+function rawHtmlSurvey(extra?: { [key: string]: any }): SurveyModel {
+  const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true, ...(extra || {}) }] });
+  survey.onTextMarkdown.add((_sender: SurveyModel, options: { html: string, text: string }) => { options.html = options.text; });
+  survey.onHtmlToMarkdown.add((_sender: SurveyModel, options: { html: string, text: string }) => { options.text = options.html; });
+  return survey;
 }
 
 function select(host: HTMLElement, start: Node, startOffset: number, end: Node, endOffset: number): void {
@@ -45,12 +57,12 @@ describe("rich text editor model", () => {
     expect((question as any).richTextEditMode).toBe("block");
     (question as any).richTextEditMode = "inline";
     expect(question.toJSON().richTextEditMode).toBeUndefined();
-    expect(Serializer.findProperty("comment", "textFormat").visible).toBe(true);
+    expect(Serializer.findProperty("comment", "allowRichText").visible).toBe(true);
     expect(Serializer.findProperty("survey", "stringFormat")).toBeFalsy();
   });
 
   test("toggle state is all, none or mixed", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const survey = commentSurvey();
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -70,7 +82,7 @@ describe("rich text editor model", () => {
   });
 
   test("buttons and shortcuts dispatch commands and keep the saved selection", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const survey = commentSurvey();
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -100,7 +112,7 @@ describe("rich text editor model", () => {
   });
 
   test("clear formatting removes list items", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const survey = commentSurvey();
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -120,7 +132,7 @@ describe("rich text editor model", () => {
   });
 
   test("commits on blur and on input when typing updates, and not without input", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const survey = commentSurvey();
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -133,7 +145,7 @@ describe("rich text editor model", () => {
     host.dispatchEvent(new FocusEvent("blur"));
     expect(question.value).toBe("**a**");
 
-    const typing = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown", textUpdateMode: "onTyping" }] });
+    const typing = commentSurvey({ textUpdateMode: "onTyping" });
     const typingQuestion = <QuestionCommentModel>typing.getQuestionByName("c");
     const typingHost = document.createElement("div");
     document.body.appendChild(typingHost);
@@ -148,7 +160,7 @@ describe("rich text editor model", () => {
   });
 
   test("inline mode blocks Enter when carriage return is not accepted", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown", acceptCarriageReturn: false }] });
+    const survey = commentSurvey({ acceptCarriageReturn: false });
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -165,7 +177,7 @@ describe("rich text editor model", () => {
   });
 
   test("a host converter replaces the format converter", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const survey = commentSurvey();
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     question.value = "hello";
     const host = document.createElement("div");
@@ -186,7 +198,7 @@ describe("rich text editor model", () => {
   });
 
   test("bold stays visible and does nothing when the text is already bold or the host disables it", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const survey = commentSurvey();
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const boldHost = document.createElement("div");
     document.body.appendChild(boldHost);
@@ -243,7 +255,6 @@ describe("rich text editor model", () => {
       isInputTextUpdate: false,
       acceptCarriageReturn: true,
       mode: "block",
-      format: "markdown",
       managesValue: false
     }, {
       styleWithCSS() {},
@@ -278,7 +289,7 @@ describe("rich text editor model", () => {
     bad.setValue("url", "");
     expect(bad.validate(false, false)).toBe(true);
 
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const survey = commentSurvey();
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -316,7 +327,7 @@ describe("rich text editor model", () => {
   });
 
   test("external value updates immediately when blurred and waits while focused", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown" }] });
+    const survey = commentSurvey();
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -336,7 +347,7 @@ describe("rich text editor model", () => {
   });
 
   test("maxLength blocks input and reverts a command that would exceed it", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown", maxLength: 4 }] });
+    const survey = commentSurvey({ maxLength: 4 });
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     question.value = "abcd";
     const drafts: string[] = [];
@@ -366,7 +377,7 @@ describe("rich text editor model", () => {
   });
 
   test("an empty editor drops a lone break so the placeholder can show", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown", placeholder: "Type" }] });
+    const survey = commentSurvey({ placeholder: "Type" });
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -382,9 +393,7 @@ describe("rich text editor model", () => {
   });
 
   test("unsupported html opens in source mode until edit anyway", () => {
-    const survey = new SurveyModel({
-      elements: [{ type: "comment", name: "c", textFormat: "html", defaultValue: "<p style=\"color:red\">Red</p>" }]
-    });
+    const survey = rawHtmlSurvey({ defaultValue: "<p style=\"color:red\">Red</p>" });
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     let sourceMode = false;
     const editor = new RichTextEditorModel({
@@ -405,8 +414,8 @@ describe("rich text editor model", () => {
     host.remove();
   });
 
-  test("html format stores canonical tags", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "html" }] });
+  test("a raw html handler pair stores the editor html", () => {
+    const survey = rawHtmlSurvey();
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -415,13 +424,13 @@ describe("rich text editor model", () => {
     host.innerHTML = "<b>a</b><br><i>b</i>";
     host.dispatchEvent(new InputEvent("input", { bubbles: true }));
     host.dispatchEvent(new FocusEvent("blur"));
-    expect(question.value).toBe("<strong>a</strong><br><em>b</em>");
+    expect(question.value).toBe("<b>a</b><br><i>b</i>");
     editor.detach();
     host.remove();
   });
 
   test("rows set the minimum height and allowResize enables vertical resize", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", textFormat: "markdown", rows: 6, allowResize: true }] });
+    const survey = commentSurvey({ rows: 6, allowResize: true });
     const question = <QuestionCommentModel>survey.getQuestionByName("c");
     const host = document.createElement("div");
     document.body.appendChild(host);
@@ -450,5 +459,15 @@ describe("rich text editor model", () => {
     growEditor.detach();
     host.remove();
     growing.remove();
+  });
+
+  test("without a reverse handler the question cannot be edited as rich text", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
+    survey.onTextMarkdown.add(RichText.textMarkdownHandler);
+    const question = <QuestionCommentModel>survey.getQuestionByName("c");
+    const editor = new RichTextEditorModel(hostOf(question), commands());
+    expect(editor.canEditRich).toBe(false);
+    survey.onHtmlToMarkdown.add(RichText.htmlToMarkdownHandler);
+    expect(editor.canEditRich).toBe(true);
   });
 });

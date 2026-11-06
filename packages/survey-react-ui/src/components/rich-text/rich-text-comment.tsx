@@ -44,8 +44,6 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
       setValue: (value: string) => { question.value = value; },
       get isInputTextUpdate() { return question.isInputTextUpdate; },
       get acceptCarriageReturn() { return question.acceptCarriageReturn !== false; },
-      get mode() { return question.acceptCarriageReturn === false ? "inline" : ((question as any).richTextEditMode === "inline" ? "inline" : "block"); },
-      get format() { return question.textFormat === "html" ? "html" : "markdown"; },
       get converter() { return (question as any).richTextConverter; },
       get maxLength() { return question.getMaxLength(); },
       get placeholder() { return question.renderedPlaceholder || ""; },
@@ -83,6 +81,7 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   protected renderElement(): React.JSX.Element {
     const question = this.question;
     if (question.isInputReadOnly) return this.renderReadOnly();
+    if (!this.editor.canEditRich) return <TextAreaComponent viewModel={question.textAreaModel} />;
     if (question.getPropertyValue("richTextSourceMode")) return this.renderSource();
     const block = this.editor.mode === "block";
     return (

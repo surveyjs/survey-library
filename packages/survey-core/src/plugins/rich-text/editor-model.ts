@@ -1,6 +1,8 @@
-import { ActionContainer, Base } from "survey-core";
+import { ActionContainer, Base, Question } from "survey-core";
+import { canEditRichAnswer, createAnswerConverter } from "./answer-format";
 import { IRichTextConverter, RichText } from "./api";
-import { isRichTextBoldDisabled } from "./edit-mode";
+import { getAnswerEditMode, isRichTextBoldDisabled } from "./edit-mode";
+import { isConverterLossless } from "./lossless";
 import { showRichTextLinkDialog } from "./link-dialog";
 import { createDetachedElement, escapeHtml } from "./runs";
 import { createRichTextToolbar, IRichTextToolbarActions, syncRichTextLinkVisibility } from "./toolbar";
@@ -18,8 +20,7 @@ export interface IRichTextEditorHost {
   setValue(value: string): void;
   readonly isInputTextUpdate: boolean;
   readonly acceptCarriageReturn: boolean;
-  readonly mode: "inline" | "block";
-  readonly format: "markdown" | "html";
+  readonly mode?: "inline" | "block";
   readonly owner?: Base;
   readonly converter?: IRichTextConverter;
   readonly managesValue?: boolean;
@@ -75,13 +76,14 @@ export class RichTextEditorModel {
   private lastSerialized = "";
   private deferredValue: string | undefined;
   private forcedRich = false;
+  private cachedConverter: IRichTextConverter;
 
   constructor(private host: IRichTextEditorHost, commands?: IRichTextCommands) {
     const built = createRichTextToolbar(this);
     this.toolbar = built.toolbar;
     this.actions = built.actions;
     this.commands = commands;
-    if (this.host.mode === "inline") {
+    if (this.mode === "inline") {
       this.actions.bulleted.visible = false;
       this.actions.numbered.visible = false;
     }
@@ -90,7 +92,14 @@ export class RichTextEditorModel {
   }
 
   public get mode(): "inline" | "block" {
-    return this.host.mode;
+    const owner = this.host.owner;
+    if (owner && owner.isDescendantOf("comment")) return getAnswerEditMode(owner);
+    return this.host.mode === "inline" ? "inline" : "block";
+  }
+
+  public get canEditRich(): boolean {
+    if (this.host.converter || !this.host.owner) return true;
+    return canEditRichAnswer(this.host.owner as Question);
   }
 
   public get isAttached(): boolean {
@@ -235,7 +244,12 @@ export class RichTextEditorModel {
   }
 
   private get converter(): IRichTextConverter {
-    return this.host.converter || RichText.getFormat(this.host.format);
+    if (this.host.converter) return this.host.converter;
+    if (this.host.owner) {
+      if (!this.cachedConverter)this.cachedConverter = createAnswerConverter(this.host.owner as Question);
+      return this.cachedConverter;
+    }
+    return RichText.getFormat("markdown");
   }
 
   private get context() {
@@ -346,8 +360,7 @@ export class RichTextEditorModel {
       this.setSourceMode(false);
       return;
     }
-    const format = this.host.format === "html" ? "html" : "markdown";
-    this.setSourceMode(!!value && !RichText.isLossless(value, format, this.context));
+    this.setSourceMode(!!value && !isConverterLossless(this.converter, value, this.context));
   }
 
   private applyExternal(value: string): void {

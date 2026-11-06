@@ -3,6 +3,11 @@ import type { RichTextEditMode } from "./api";
 
 const blockProperties = ["description"];
 
+export function getAnswerEditMode(question: Base): "inline" | "block" {
+  if ((question as any).acceptCarriageReturn === false) return "inline";
+  return (question as any).richTextEditMode === "inline" ? "inline" : "block";
+}
+
 export function getDefaultEditMode(owner: Base, name: string, locStr: LocalizableString): RichTextEditMode {
   if (!locStr || !locStr.useMarkdown) return "none";
   if (Serializer.findProperty(owner.getType?.(), name)?.type === "html") return "none";

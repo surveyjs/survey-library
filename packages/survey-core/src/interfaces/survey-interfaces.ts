@@ -128,6 +128,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   getCss(): any;
   processHtml(html: string, reason: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string, item?: any): string;
+  getSurveyHtmlToMarkdown(element: Base, html: string, name: string): string;
   getRendererForString(element: Base, name: string, item?: ItemValue): string;
   getRendererContextForString(element: Base, locStr: LocalizableString, item?: ItemValue): any;
   gridLayoutEnabled: boolean;

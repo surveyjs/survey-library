@@ -23,6 +23,10 @@ describe("html allow-list", () => {
     expect(anchor.getAttribute("onclick")).toBeNull();
     expect(anchor.getAttribute("target")).toBe("_blank");
     expect(html.getUnsupported("<span style=\"color:red\">x</span>")).toEqual(["style", "span"]);
+    expect(html.getUnsupported("<a href=\"https://x\" target=\"_blank\" rel=\"noopener\">x</a>")).toEqual([]);
+    expect(html.toHtml("<a href=\"https://x\" target=\"_blank\" rel=\"noopener\">x</a>", block)).toBe(
+      "<a href=\"https://x\" target=\"_blank\" rel=\"noopener noreferrer\">x</a>"
+    );
     expect(html.checkLossless("<b>a</b>", block)).toBe(true);
     expect(html.checkLossless("<span style=\"color:red\">x</span>", block)).toBe(false);
   });

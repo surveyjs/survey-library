@@ -41,10 +41,6 @@ export const richTextBindings = {
 export class RichText {
   public static getEditMode: (owner: Base, name: string, locStr: LocalizableString, defaultMode: RichTextEditMode) => RichTextEditMode = (_owner, _name, _locStr, defaultMode) => defaultMode;
 
-  public static registerFormat(format: RichTextFormat, converter: IRichTextConverter): void {
-    converters[format] = converter;
-  }
-
   public static getFormat(format: RichTextFormat): IRichTextConverter {
     return converters[format];
   }

@@ -78,7 +78,7 @@ import {
   QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, CreateRegexValidatorEvent,
   ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
   ErrorCustomTextEvent, ValidatePageEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent,
-  GetPanelNumberEvent, GetProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent,
+  GetPanelNumberEvent, GetProgressTextEvent, TextMarkdownEvent, HtmlToMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent,
   ChoicesLoadedEvent, ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
@@ -709,6 +709,8 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/ (linkStyle))
    */
   public onTextMarkdown: EventBase<SurveyModel, TextMarkdownEvent> = this.addEvent<SurveyModel, TextMarkdownEvent>(() => this.locStrsChanged());
+  // Fired only by the rich text plugin, when a comment answer is saved. Not a rendering event.
+  public onHtmlToMarkdown: EventBase<SurveyModel, HtmlToMarkdownEvent> = this.addEvent<SurveyModel, HtmlToMarkdownEvent>();
 
   public onTextRenderAs: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   /**
@@ -8568,6 +8570,16 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onTextMarkdown.fire(this, options);
     return options.html;
+  }
+  getSurveyHtmlToMarkdown(element: Base, html: string, name: string): string {
+    const options: HtmlToMarkdownEvent = {
+      element: element as Question,
+      name: name,
+      html: html,
+      text: null
+    };
+    this.onHtmlToMarkdown.fire(this, options);
+    return options.text;
   }
   public getCorrectedAnswerCount(): number {
     return this.getCorrectAnswerCount();

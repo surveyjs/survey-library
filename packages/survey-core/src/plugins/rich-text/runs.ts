@@ -45,7 +45,13 @@ export function escapeHtml(text: string): string {
 }
 
 export function linkScheme(url: string): string {
-  const trimmed = url.trim().replace(/[\u0000-\u001F\s]+/g, "");
+  // C0 controls and whitespace are removed before the scheme is read, so "java\nscript:" is not a scheme.
+  let trimmed = "";
+  for (let i = 0; i < url.length; i++) {
+    const code = url.charCodeAt(i);
+    if (code <= 0x1f || /\s/.test(url[i])) continue;
+    trimmed += url[i];
+  }
   const match = /^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(trimmed);
   return match ? match[1].toLowerCase() : "";
 }
@@ -104,9 +110,11 @@ export function flattenElement(root: HTMLElement, options?: FlattenOptions): Ric
     if (options?.report) {
       for (let i = 0; i < el.attributes.length; i++) {
         const attr = el.attributes[i];
-        if (tag === "a" && attr.name === "href") {
-          const href = attr.value || "";
-          if (href && !isAllowedLink(href)) options.report(linkScheme(href) || "href");
+        if (tag === "a" && (attr.name === "href" || attr.name === "target" || attr.name === "rel")) {
+          if (attr.name === "href") {
+            const href = attr.value || "";
+            if (href && !isAllowedLink(href)) options.report(linkScheme(href) || "href");
+          }
           continue;
         }
         options.report(attr.name);
@@ -257,27 +265,27 @@ function hasMark(ch: RichChar, mark: "bold" | "italic" | "strike" | "link"): boo
 function relaxWhitespace(chars: RichChar[]): void {
   const marks: Array<"bold" | "italic" | "strike" | "link"> = ["bold", "italic", "strike", "link"];
   let changed = true;
-  while (changed) {
+  while(changed) {
     changed = false;
     for (let m = 0; m < marks.length; m++) {
       const mark = marks[m];
       let i = 0;
-      while (i < chars.length) {
+      while(i < chars.length) {
         if (!hasMark(chars[i], mark)) {
           i++;
           continue;
         }
         const link = chars[i].link;
         let j = i;
-        while (j < chars.length && hasMark(chars[j], mark) && (mark !== "link" || chars[j].link === link)) j++;
+        while(j < chars.length && hasMark(chars[j], mark) && (mark !== "link" || chars[j].link === link)) j++;
         let start = i;
-        while (start < j && isEdgeSpace(chars[start].ch)) {
+        while(start < j && isEdgeSpace(chars[start].ch)) {
           clearMark(chars[start], mark);
           start++;
           changed = true;
         }
         let end = j - 1;
-        while (end >= start && isEdgeSpace(chars[end].ch)) {
+        while(end >= start && isEdgeSpace(chars[end].ch)) {
           clearMark(chars[end], mark);
           end--;
           changed = true;
@@ -302,7 +310,7 @@ function marksAt(ch: RichChar): MarkName[] {
 function spanEnd(chars: RichChar[], index: number, mark: MarkName): number {
   const link = chars[index].link;
   let i = index;
-  while (i < chars.length && hasMark(chars[i], mark) && (mark !== "link" || chars[i].link === link)) i++;
+  while(i < chars.length && hasMark(chars[i], mark) && (mark !== "link" || chars[i].link === link)) i++;
   return i;
 }
 
@@ -383,24 +391,24 @@ function emitChars(chars: RichChar[], asHtml: boolean, displayLinks: boolean, es
   const stack: Array<{ mark: MarkName, link: string }> = [];
   let atLineStart = lineStart;
   let i = 0;
-  while (i < chars.length) {
+  while(i < chars.length) {
     const target = targetStack(chars, i);
     let prefix = 0;
-    while (prefix < stack.length && prefix < target.length && stack[prefix].mark === target[prefix] && (target[prefix] !== "link" || stack[prefix].link === chars[i].link)) {
+    while(prefix < stack.length && prefix < target.length && stack[prefix].mark === target[prefix] && (target[prefix] !== "link" || stack[prefix].link === chars[i].link)) {
       prefix++;
     }
-    while (stack.length > prefix) {
+    while(stack.length > prefix) {
       const closed = stack.pop();
       out += closeMarker(closed.mark, closed.link, asHtml, displayLinks);
     }
-    while (stack.length < target.length) {
+    while(stack.length < target.length) {
       const mark = target[stack.length];
       const link = mark === "link" ? chars[i].link : "";
       out += openMarker(mark, link, asHtml, displayLinks);
       stack.push({ mark: mark, link: link });
     }
     let j = i + 1;
-    while (j < chars.length && sameCharMarks(chars[i], chars[j])) j++;
+    while(j < chars.length && sameCharMarks(chars[i], chars[j])) j++;
     const raw = chars.slice(i, j).map(ch => ch.ch).join("");
     if (escapeText) {
       const escaped = escapeMarkdownText(raw, atLineStart);
@@ -412,9 +420,9 @@ function emitChars(chars: RichChar[], asHtml: boolean, displayLinks: boolean, es
     }
     i = j;
   }
-  while (stack.length > 0) {
+  while(stack.length > 0) {
     const closed = stack.pop();
-      out += closeMarker(closed.mark, closed.link, asHtml, displayLinks);
+    out += closeMarker(closed.mark, closed.link, asHtml, displayLinks);
   }
   return { text: out, lineStart: atLineStart };
 }

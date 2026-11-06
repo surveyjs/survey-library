@@ -1,11 +1,14 @@
 import { Base, LocalizableString } from "survey-core";
 import { IRichTextConverterContext, IRichTextEditorHandle, IRichTextEditorOptions, RichText, RichTextEditMode } from "./api";
-import { getDefaultEditMode } from "./edit-mode";
+import { getAnswerEditMode, getDefaultEditMode } from "./edit-mode";
 import { RichTextEditorModel } from "./editor-model";
 import { createDetachedElement } from "./runs";
 
 function resolveInline(context?: Partial<IRichTextConverterContext>): boolean {
   if (context && context.inline !== undefined) return context.inline;
+  if (context && context.name === "value" && context.element && context.element.isDescendantOf("comment")) {
+    return getAnswerEditMode(context.element) === "inline";
+  }
   if (!context || !context.element) return true;
   const loc = context.element.getLocalizableString(context.name || "");
   return getStringEditMode(context.element, context.name || "", loc) !== "block";
@@ -51,7 +54,6 @@ export function attachEditor(element: HTMLElement, options: IRichTextEditorOptio
     isInputTextUpdate: false,
     acceptCarriageReturn: options.mode !== "inline",
     mode: options.mode,
-    format: "markdown",
     managesValue: false,
     onInput: options.onInput
   });

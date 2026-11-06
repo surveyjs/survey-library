@@ -1,8 +1,9 @@
 import { RichText } from "../../src/plugins/rich-text/index";
-import { isRichTextBoldDisabled } from "../../src/plugins/rich-text/edit-mode";
+import { getAnswerEditMode, isRichTextBoldDisabled } from "../../src/plugins/rich-text/edit-mode";
 import { SurveyModel } from "../../src/survey";
 import { QuestionHtmlModel } from "../../src/question_html";
 import { LocalizableString } from "../../src/localizablestring";
+import { QuestionCommentModel } from "../../src/question_comment";
 import { QuestionTextModel } from "../../src/question_text";
 
 import { describe, expect, test } from "vitest";
@@ -25,6 +26,13 @@ describe("edit mode", () => {
     detached.title = "Hello";
     expect(RichText.getStringEditMode(detached, "title", detached.locTitle)).toBe("inline");
     expect(RichText.getStringEditMode(question, "title", null)).toBe("none");
+    const comment = new QuestionCommentModel("c");
+    expect(getAnswerEditMode(comment)).toBe("block");
+    comment.acceptCarriageReturn = false;
+    expect(getAnswerEditMode(comment)).toBe("inline");
+    comment.acceptCarriageReturn = true;
+    (comment as any).richTextEditMode = "inline";
+    expect(getAnswerEditMode(comment)).toBe("inline");
   });
 
   test("RichText.getEditMode can override the default and bold is disabled at font-weight 600", () => {

@@ -1,5 +1,7 @@
-import { Base, Serializer, SurveyModel, DomDocumentHelper } from "survey-core";
-import { IRichTextConverterContext, RichText, RichTextFormat } from "./api";
+import { Base, Question, Serializer, SurveyModel, DomDocumentHelper } from "survey-core";
+import { createAnswerConverter } from "./answer-format";
+import { IRichTextConverter, IRichTextConverterContext, RichText, RichTextFormat } from "./api";
+import { getAnswerEditMode } from "./edit-mode";
 import { createDetachedElement } from "./runs";
 
 export interface UnsupportedHit {
@@ -9,8 +11,7 @@ export interface UnsupportedHit {
   text: string;
 }
 
-export function isLossless(source: string, format: RichTextFormat, context: IRichTextConverterContext): boolean {
-  const converter = RichText.getFormat(format);
+export function isConverterLossless(converter: IRichTextConverter, source: string, context: IRichTextConverterContext): boolean {
   if (converter.lossless) return true;
   if (converter.checkLossless) return converter.checkLossless(source, context);
   if (!DomDocumentHelper.isAvailable()) return true;
@@ -19,6 +20,10 @@ export function isLossless(source: string, format: RichTextFormat, context: IRic
   if (!element) return true;
   const roundTrip = converter.toHtml(converter.toSource(element, context), context);
   return roundTrip === html;
+}
+
+export function isLossless(source: string, format: RichTextFormat, context: IRichTextConverterContext): boolean {
+  return isConverterLossless(RichText.getFormat(format), source, context);
 }
 
 export function findUnsupported(survey: SurveyModel, format?: RichTextFormat): UnsupportedHit[] {
@@ -49,11 +54,14 @@ export function findUnsupported(survey: SurveyModel, format?: RichTextFormat): U
     if (Array.isArray(holder.choices)) holder.choices.forEach(visit);
     if (Array.isArray(holder.rows)) holder.rows.forEach(visit);
     if (Array.isArray(holder.columns)) holder.columns.forEach(visit);
-    if (question.getType() === "comment") {
-      const textFormat = (question as any).textFormat;
+    if (question.isDescendantOf("comment") && (question as any).allowRichText) {
       const value = question.value;
-      if ((textFormat === "markdown" || textFormat === "html") && textFormat === scanFormat && typeof value === "string" && value) {
-        consider(question, "value", "", value, textFormat);
+      if (typeof value === "string" && value) {
+        const converter = (question as any).richTextConverter || createAnswerConverter(question as Question);
+        const context = { inline: getAnswerEditMode(question) === "inline", element: question, name: "value" };
+        if (!isConverterLossless(converter, value, context)) {
+          hits.push({ element: question, name: "value", locale: "", text: value });
+        }
       }
     }
   });

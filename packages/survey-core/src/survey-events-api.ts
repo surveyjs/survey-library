@@ -520,6 +520,11 @@ export interface TextMarkdownEvent extends TextProcessingEvent {
    */
   html?: string;
 }
+export interface HtmlToMarkdownEvent extends TextProcessingEvent {
+  html: string;
+  // null until a handler assigns the converted source
+  text: string;
+}
 export interface TextRenderAsEvent extends TextProcessingEvent {
   /**
    * a component name used for text rendering

@@ -383,7 +383,7 @@ frameworks.forEach((framework) => {
       const addNewSelector = page.getByRole("button", { name: "Add new" });
       await expect(addNewSelector).toHaveCount(1);
       await expect(page.locator("span").filter({ hasText: "#1-2" })).not.toBeVisible();
-      await page.waitForTimeout(500);
+      await expect(page.getByRole("textbox").first()).toBeFocused();
       await page.keyboard.press("b");
       await page.keyboard.press("Tab");
       await expect(addNewSelector).toHaveCount(1);
@@ -635,10 +635,15 @@ frameworks.forEach((framework) => {
         ]
       });
       await page.locator("button").filter({ hasText: "Add" }).click();
+      // Add focuses the new panel before it is rendered, so the input gets focus on a retry about 10 ms later.
+      // Keys typed before that go to the Add button and are lost.
+      await expect(page.getByRole("textbox", { name: "name" }).and(page.locator(":focus"))).toHaveValue("");
       await page.keyboard.type("123");
       await page.locator("button").filter({ hasText: "Add" }).click();
+      await expect(page.getByRole("textbox", { name: "name" }).and(page.locator(":focus"))).toHaveValue("");
       await page.keyboard.type("456");
       await page.locator("button").filter({ hasText: "Add" }).click();
+      await expect(page.getByRole("textbox", { name: "name" }).and(page.locator(":focus"))).toHaveValue("");
       await page.keyboard.type("789");
       await getButtonByText(page, "Complete").click();
 
@@ -666,13 +671,13 @@ frameworks.forEach((framework) => {
         ]
       });
       await page.locator("button").filter({ hasText: "Add" }).click();
-      await page.waitForTimeout(1000);
+      await expect(page.getByRole("textbox", { name: "name" }).and(page.locator(":focus"))).toHaveValue("");
       await page.keyboard.type("123");
       await page.locator("button").filter({ hasText: "Add" }).click();
-      await page.waitForTimeout(1000);
+      await expect(page.getByRole("textbox", { name: "name" }).and(page.locator(":focus"))).toHaveValue("");
       await page.keyboard.type("456");
       await page.locator("button").filter({ hasText: "Add" }).click();
-      await page.waitForTimeout(1000);
+      await expect(page.getByRole("textbox", { name: "name" }).and(page.locator(":focus"))).toHaveValue("");
       await page.keyboard.type("789");
       await getButtonByText(page, "Complete").click();
 
@@ -758,9 +763,11 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox", { name: "name" })).toHaveCount(2);
+      await expect(page.getByRole("button", { name: "Remove" }).and(page.locator(":focus"))).toHaveCount(1);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("textbox", { name: "name" })).toHaveCount(1);
+      await expect(page.getByRole("button", { name: "Remove" }).and(page.locator(":focus"))).toHaveCount(1);
       await page.keyboard.press("Space");
       await expect(getButtonByText(page, "Add new")).toBeFocused();
       await page.keyboard.press("Space");
@@ -856,7 +863,7 @@ frameworks.forEach((framework) => {
       });
       const priceInput = page.locator(".sd-paneldynamic__panel-wrapper input[type=number]").first();
       await expect(priceInput).toHaveValue("20");
-      await expect(page.locator(".sd-question__header .sd-paneldynamic__sort-bar")).toBeVisible();
+      await expect(page.locator(".sd-question__header .sd-question__sort-bar")).toBeVisible();
       await page.getByRole("button", { name: /^Sort field/ }).click();
       await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Price", exact: true }).click();
       await expect(priceInput).toHaveValue("30");

@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, baseTest as test } from "../e2e/helper";
 
 const title = "Paneldynamic Screenshot";
 
@@ -668,7 +668,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       // Sorted after loading: a sortCriteria in the JSON together with defaultValue shows no panels (a separate bug).
       await page.evaluate(() => { (window as any).survey.getQuestionByName("products").sort([{ field: "product", direction: "asc" }, { field: "added", direction: "desc" }]); });
-      const bar = page.locator(".sd-question__header .sd-paneldynamic__sort-bar");
+      const bar = page.locator(".sd-question__header .sd-question__sort-bar");
       await expect(bar).toBeVisible();
       expect(await bar.evaluate((el: HTMLElement) => el.scrollLeft)).toBe(0);
       await page.mouse.move(0, 0);

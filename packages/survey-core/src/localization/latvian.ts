@@ -53,8 +53,8 @@ export var latvianSurveyStrings = {
   sortMoreAriaLabel: "Rādīt visdažādākos līmeņus",
   // [Auto-translated] "Add New"
   sortAddNewText: "Pievienot jaunu",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Move sort level {0}",
   // "Complete"
   completeText: "Iesniegt",
   // "Preview"
@@ -189,6 +189,8 @@ export var latvianSurveyStrings = {
   addRow: "Pievienot rindu",
   // "Remove"
   removeRow: "Noņemt",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Pārvietojiet rindu {0}",
   // "There are no rows."
   noRowsText: "Nav rindu.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var latvianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Progresa josla",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Lapa {0}"
+  progressbarPage: "Lapa {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "lai izvēlētos",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "pārslēgt",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "lai orientētos",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Turpināt",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "iesniegt",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "vai",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "Jaunai līnijai",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Uz nākamo variantu",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "pārvietoties",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "atvērt",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "lai aizvērtu"
 };
 
 setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latviešu", englishName: "Latvian" });

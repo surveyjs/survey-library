@@ -1,5 +1,6 @@
 import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
+import { Helpers } from "../helpers";
 import { InputMaskBase } from "./mask_base";
 import { IMaskedInputResult, IMaskLocaleChange, ITextInputParams, numberDefinition } from "./mask_utils";
 
@@ -7,6 +8,8 @@ interface INumericalComposition {
   integralPart: string;
   fractionalPart: string;
   isNegative?: boolean;
+  // the number is negative, but the mask forbids negatives, so its minus sign was dropped
+  isNegativeDropped?: boolean;
   hasDecimalSeparator?: boolean;
 }
 
@@ -65,7 +68,28 @@ export function isValidThousandsSeparator(value: string): boolean {
 export class InputMaskNumeric extends InputMaskBase {
   // Keep the format used for text separate from the default lookup cache: callbacks may read
   // the new locale's defaults before localeChanged() converts text from the previous locale.
+  // So a read does not move it. The format changes only through localeChanged() or a mask property.
   private textSeparators: { decimal: string, thousands: string };
+  private isTextFormatKept: boolean = false;
+  protected updateTextFormat(decimal: string = this.decimalSeparator, thousands: string = this.thousandsSeparator): void {
+    this.textSeparators = { decimal, thousands };
+  }
+  private ensureTextFormat(decimal: string, thousands: string): void {
+    if (this.isTextFormatKept) return;
+    this.updateTextFormat(decimal, thousands);
+    this.isTextFormatKept = this.isFormatKnown;
+  }
+  protected isTextFormatChanged(): boolean {
+    const text = this.textSeparators;
+    return !text || text.decimal !== this.decimalSeparator || text.thousands !== this.thousandsSeparator;
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    this.isTextFormatKept = false;
+  }
+  protected onTextArriving(): void {
+    this.isTextFormatKept = false;
+  }
   /**
    * Specifies whether respondents can enter negative values.
    *
@@ -201,7 +225,6 @@ export class InputMaskNumeric extends InputMaskBase {
   }
 
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
-    this.textSeparators = { decimal: this.decimalSeparator, thousands: this.thousandsSeparator };
     let displayIntegralPart = parsedNumber.integralPart;
     // two authored separators that are the same character would render a number that parses back
     // as something else, so grouping yields there as well
@@ -236,10 +259,15 @@ export class InputMaskNumeric extends InputMaskBase {
 
   public validateNumber(srcNumber: INumericalComposition, matchWholeMask: boolean): boolean {
     const number = this.removeTrailingZeros(srcNumber);
-    const min = this.min || Number.MIN_SAFE_INTEGER;
-    const max = this.max || Number.MAX_SAFE_INTEGER;
+    // 0 is a bound; an empty property (null or "" from JSON) is not
+    const min = !Helpers.isValueEmpty(this.min) ? this.min : Number.MIN_SAFE_INTEGER;
+    const max = !Helpers.isValueEmpty(this.max) ? this.max : Number.MAX_SAFE_INTEGER;
 
     if (this.numericalCompositionIsEmpty(number)) return true;
+    // A whole value that is negative where negatives are forbidden is out of range, as one beyond a
+    // bound is. A keystroke is not: typing a minus sign there does nothing.
+    // A value that is zero at this precision is zero, as the bounds read it.
+    if (matchWholeMask && number.isNegativeDropped && this.convertNumber(number) !== 0) return false;
 
     if (this.min !== undefined || this.max !== undefined) {
       let value = this.convertNumber(number);
@@ -299,7 +327,7 @@ export class InputMaskNumeric extends InputMaskBase {
     const decimal = decimalSeparator !== undefined ? decimalSeparator : this.decimalSeparator;
     const thousands = thousandsSeparator !== undefined ? thousandsSeparator : this.thousandsSeparator;
     if (decimalSeparator === undefined && thousandsSeparator === undefined) {
-      this.textSeparators = { decimal, thousands };
+      this.ensureTextFormat(decimal, thousands);
     }
     let minusCharCount = 0;
 
@@ -307,9 +335,7 @@ export class InputMaskNumeric extends InputMaskBase {
       const currentChar = input[inputIndex];
       switch(currentChar) {
         case "-": {
-          if (this.allowNegativeValues && (this.min === undefined || this.min < 0)) {
-            minusCharCount++;
-          }
+          minusCharCount++;
           break;
         }
         case decimal: {
@@ -333,7 +359,12 @@ export class InputMaskNumeric extends InputMaskBase {
       }
     }
 
-    result.isNegative = minusCharCount % 2 !== 0;
+    const isNegative = minusCharCount % 2 !== 0;
+    if (this.allowNegativeValues && (Helpers.isValueEmpty(this.min) || this.min < 0)) {
+      result.isNegative = isNegative;
+    } else {
+      result.isNegativeDropped = isNegative;
+    }
 
     if (result.integralPart.length > 1 && result.integralPart[0] === "0") {
       result.integralPart = result.integralPart.slice(1);
@@ -361,8 +392,8 @@ export class InputMaskNumeric extends InputMaskBase {
     return this.displayNumber(this.addTrailingZeros(parsedNumber), true, matchWholeMask);
   }
 
-  private getNumberUnmaskedValue(str: string, decimalSeparator?: string, thousandsSeparator?: string): number | undefined {
-    const parsedNumber = this.parseNumber(str, decimalSeparator, thousandsSeparator);
+  private getNumberUnmaskedValue(str: string): number | undefined {
+    const parsedNumber = this.parseNumber(str);
     if (this.numericalCompositionIsEmpty(parsedNumber)) return undefined;
     return this.convertNumber(parsedNumber);
   }
@@ -393,9 +424,6 @@ export class InputMaskNumeric extends InputMaskBase {
     const prevDecimal = !!prev ? prev.decimal : undefined;
     const enteredNumber = !!prev && !!state && !!state.enteredText
       ? this.parseNumber(this.getLocaleChangeInput(state.enteredText), prev.decimal, prev.thousands) : undefined;
-    // a masked value is stored as text in the previous locale's format
-    const savedNumber = !!prev && !!state && !!state.value
-      ? this.getNumberUnmaskedValue(this.getLocaleChangeInput(state.value), prev.decimal, prev.thousands) : undefined;
     super.localeChanged();
     // Only the rendered text is locale dependent - a stored number is not - but the empty mask
     // and every displayed value change. Notify the owner question and the input element adapter
@@ -404,12 +432,17 @@ export class InputMaskNumeric extends InputMaskBase {
     if (!!enteredNumber && !this.numericalCompositionIsEmpty(enteredNumber)) {
       state.enteredText = this.getLocaleChangeOutput(this.displayNumber(enteredNumber));
     }
-    if (savedNumber !== undefined) {
-      state.value = this.getMaskedValue(savedNumber);
+    if (this.isTextFormatChanged()) {
+      this.updateSavedText(state);
     }
+    this.updateTextFormat();
   }
   public getMaskedValue(src: any): string {
     let input: string = (src === undefined || src === null) ? "" : src.toString();
+    // a number this small or this large prints with an exponent, whose digits are not the number's
+    if (typeof src === "number" && input.indexOf("e") > -1) {
+      input = src.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 20 });
+    }
     input = input.replace(".", this.decimalSeparator);
     return this.getNumberMaskedValue(input, true);
   }
@@ -417,6 +450,8 @@ export class InputMaskNumeric extends InputMaskBase {
     return this.getNumberUnmaskedValue(src);
   }
   public processInput(args: ITextInputParams): IMaskedInputResult {
+    // typed text is in the current format, also in a mask that a locale change did not reach
+    this.updateTextFormat();
     const result = { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
     const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedChars || "");
     const rightPart = args.prevValue.slice(args.selectionEnd);

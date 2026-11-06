@@ -1,5 +1,5 @@
-import { test, expect, Page } from "@playwright/test";
-import { frameworks, url, compareScreenshot } from "../e2e/helper";
+import { expect, Page } from "@playwright/test";
+import { frameworks, url, compareScreenshot, baseTest as test } from "../e2e/helper";
 
 const title = "Survey Popup Screenshot";
 

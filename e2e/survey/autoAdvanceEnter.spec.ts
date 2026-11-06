@@ -216,5 +216,87 @@ frameworks.forEach((framework) => {
       await expectSecondPage(page);
       expect(await getSurveyData(page)).toEqual({ q1: ["b", "a", "c"] });
     });
+
+    const textQuestions = [
+      { type: "text", name: "q1", defaultValue: "first" },
+      { type: "text", name: "q2", defaultValue: "second" },
+      { type: "text", name: "q3", defaultValue: "third" },
+    ];
+    const layouts = [
+      { name: "pages", json: { pages: textQuestions.map((question) => ({ elements: [question] })) } },
+      { name: "questionPerPage", json: { questionsOnPageMode: "questionPerPage", elements: textQuestions } },
+    ];
+    // With no delay the survey moves on keydown, so the keyup lands on the next question.
+    [0, 300].forEach((delay) => {
+      layouts.forEach(({ name, json }) => {
+        test(`Text Enter on an unchanged value moves one step after going back: ${name}, delay ${delay}`, async ({ page }) => {
+          await initSurvey(page, framework, { autoFocusFirstQuestion: true, autoAdvanceEnabled: true, ...json });
+          await page.evaluate((delay) => {
+            (window as any).Survey.settings.autoAdvanceDelay = delay;
+          }, delay);
+          const input = page.locator("input[type=text]");
+          await page.getByRole("button", { name: "Next" }).click();
+          await expect(input).toHaveValue("second");
+          await page.getByRole("button", { name: "Previous" }).click();
+          await expect(input).toHaveValue("first");
+          await expect(input).toBeFocused();
+
+          await page.keyboard.press("Enter");
+          await expect(input).toHaveValue("second");
+          await expect(input).toBeFocused();
+          // Proves that the survey does not move a second step: that move would come autoAdvanceDelay after Enter.
+          await page.waitForTimeout(delay + 100);
+          await expect(input).toHaveValue("second");
+          await expect(input).toBeFocused();
+          expect(await getSurveyData(page)).toEqual({ q1: "first", q2: "second", q3: "third" });
+        });
+      });
+    });
+
+    test("Enter twice on a multipletext item moves one input", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        autoAdvanceEnabled: true,
+        questionsOnPageMode: "inputPerPage",
+        elements: [{
+          type: "multipletext",
+          name: "q1",
+          items: [{ name: "a" }, { name: "b" }, { name: "c" }],
+          defaultValue: { a: "first", b: "second", c: "third" },
+        }],
+      });
+      const input = page.locator("input[type=text]");
+      await expect(input).toBeFocused();
+      await page.keyboard.press("Enter");
+      await page.keyboard.press("Enter");
+      await expect(input).toHaveValue("second");
+      // Proves that the second Enter does not move on: that move would come settings.autoAdvanceDelay after it.
+      const delay = await page.evaluate(() => (window as any).Survey.settings.autoAdvanceDelay);
+      await page.waitForTimeout(delay + 100);
+      await expect(input).toHaveValue("second");
+    });
+
+    test("Text Enter does not store the default of an empty range that takes the keyup", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "text", name: "q1", title: "First page", defaultValue: "first" }] },
+          { elements: [{ type: "text", name: "q2", title: "Second page", inputType: "range" }] },
+          { elements: [{ type: "text", name: "q3", title: "Third page" }] },
+        ],
+      });
+      await page.evaluate(() => {
+        (window as any).Survey.settings.autoAdvanceDelay = 0;
+      });
+      await expect(page.locator("input[type=text]")).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expectSecondPage(page);
+      await expect(page.locator("input[type=range]")).toBeFocused();
+      // Proves that the keyup the range takes stores no value and moves nowhere; there is no product delay to tie it to.
+      await page.waitForTimeout(100);
+      await expectSecondPage(page);
+      expect(await getSurveyData(page)).toEqual({ q1: "first" });
+    });
   });
 });

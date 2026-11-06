@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText, applyTheme } from "../e2e/helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText, applyTheme, baseTest as test } from "../e2e/helper";
 
 frameworks.forEach(framework => {
   test.beforeEach(async ({ page }) => {

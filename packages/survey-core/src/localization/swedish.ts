@@ -53,8 +53,8 @@ export var swedishSurveyStrings = {
   sortMoreAriaLabel: "Visa alla sorteringsnivåer",
   // [Auto-translated] "Add New"
   sortAddNewText: "Lägg till Nytt",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flytta sorteringsnivå {0}",
   // "Complete"
   completeText: "Slutför",
   // "Preview"
@@ -189,6 +189,8 @@ export var swedishSurveyStrings = {
   addRow: "Lägg till rad",
   // "Remove"
   removeRow: "Ta bort",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Flytta rad {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Det finns inga rader.",
   // [Auto-translated] "Row {rowIndex}"
@@ -322,7 +324,29 @@ export var swedishSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "f",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "F"
+  maskPlaceholderTimeMarkerUpper: "F",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "att välja",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "att växla",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Att navigera",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Att fortsätta",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "att underkasta sig",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "eller",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "för en ny linje",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Till nästa alternativ",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "att flytta",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "att öppna",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "För att stänga"
 };
 
 setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "svenska", englishName: "Swedish" });

@@ -10,6 +10,7 @@ import {
   MatrixSingleInputLocOwner
 } from "./question_matrixdropdownbase";
 import { SurveyError } from "./survey-error";
+import { SurveyElement } from "./survey-element";
 import { MinRowCountError } from "./error";
 import { Action, IAction } from "./actions/action";
 import { settings } from "./settings";
@@ -31,6 +32,7 @@ import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsModel
 import { DynamicDataSourceMethod, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { ArrayDynamicDataSource, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
 import { isRecordEmpty } from "./dynamic-data/dynamic-data-records";
+import { ValueScope } from "./utils/scope";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -80,6 +82,11 @@ interface IRowRemoval extends IRecordRemoval {
 
 // The count properties of the dynamic matrix: getRecordCountNames and the Serializer entries read them.
 const rowCountNames = getRecordCountNamesOf("Row");
+/* RB01: the survey events a new row fires for its cells (canRebindOwnItems). onUpdateQuestionCssClasses
+   too: a cell keeps the classes a handler computed for its record. onAfterRenderQuestionInput fires once
+   per mounted cell editor, and a kept editor is not mounted again for the new record. */
+const rowCreationEvents = ["onQuestionCreated", "onMatrixCellCreating", "onMatrixCellCreated", "onMatrixRowAdded", "onAfterRenderMatrixCell",
+  "onAfterRenderQuestionInput", "onUpdateQuestionCssClasses"];
 
 /**
   * A class that describes the Dynamic Matrix question type.
@@ -154,6 +161,37 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (this.getBuiltRecordIndex(row) > -1 && position < indexes.length)this.setBuiltRecordIndex(row, indexes[position]);
     });
   }
+  /* A sort, a cleared sort and a page move the list cuts keep the rows the way a move does: each row
+     takes the record its position holds now (rebindRows), and the rendered table keeps its rows - a
+     rebuild re-creates every cell and makes a renderer mount them again. Every other change, and every
+     case getRebindRecordIndexes refuses, is rebuilt as before. */
+  protected rebuildFromDataList(isPageMove: boolean, isSort: boolean = false): void {
+    const indexes = this.getRebindRecordIndexes(this.generatedVisibleRows, isPageMove, isSort);
+    if (!!indexes) {
+      this.rebindRows(indexes, (recordIndex: number): any => this.getNewRowValue(recordIndex));
+      return;
+    }
+    super.rebuildFromDataList(isPageMove);
+  }
+  // The matrix's own reasons to rebuild on a sort and a page move; the common ones are canRebindItems'.
+  protected canRebindOwnItems(): boolean {
+    // Under beginUpdate() the rows cannot be read.
+    if (this.isUpdateLocked) return false;
+    // A live-object value (Survey Creator's property grid) is never routed through the list.
+    if (this.isEditingObjectValue) return false;
+    // A detail panel is created for its record and keeps its nested questions' state under it.
+    if (this.detailPanelMode !== "none") return false;
+    /* RB01: the events and the callback a cell or a row is configured in for its record. The cell type
+       a row gets may vary by row too (getCustomCellType asks onMatrixCellCreating). */
+    if (!!this.onCellCreatedCallback || this.hasSurveyHandlers(rowCreationEvents)) return false;
+    // The vertical layout renders a row as a column.
+    if (!this.isColumnLayoutHorizontal) return false;
+    // A rebuild writes a record's defaults when its row is first built: a page visit or a sort may.
+    if (!this.isValueEmpty(this.defaultRowValue) || this.copyDefaultValueFromLastEntry) return false;
+    // Each choice of a column in showInMultipleColumns is a column of its own.
+    return this.columns.every((column: MatrixDropdownColumn): boolean =>
+      !column.isShowInMultipleColumns && this.canRebindTemplateQuestion(column.templateQuestion));
+  }
   /* The records source reads question.value padded up to rowCount with copies of the default row
      value, as createNewValue() pads it. The padding is virtual - it reaches question.value only when a
      write materializes it - and the array is never truncated: the rowCount setter needs the records
@@ -173,7 +211,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         records = records.slice(0, length);
       }
     }
-    this.setOwnRecordsValue(this.normalizeRecords(records, operations));
+    this.storeOwnListRecords(this.normalizeRecords(records, operations));
   }
   /* A record of a value the caller passes - the records of an assignment -, not of the storage, so it
      is padded here and not by the records source: a row past the value reads the default row value, as
@@ -301,6 +339,35 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public startDragMatrixRow = (event: PointerEvent, targets: ITargets): void => {
     this.dragDropMatrixRows.startDrag(event, this.draggedRow, this, targets.target);
   };
+  /* The drag handle's keys: ArrowUp and ArrowDown move the row one step on the page, as a drop on its
+     neighbour would (DragDropMatrixRows.moveRowByKeyboard). The row objects keep their positions, so
+     the focus goes to the handle of the row now shown at the new position. */
+  public onDragHandleKeyDown(event: KeyboardEvent, row: MatrixDropdownRowModelBase): void {
+    if (!row || !this.isRowsDragAndDrop || this.isDesignMode) return;
+    const delta = event.key === "ArrowUp" ? -1 : (event.key === "ArrowDown" ? 1 : 0);
+    if (delta === 0) return;
+    const toPosition = this.visibleRows.indexOf(row) + delta;
+    if (!this.dragDropMatrixRows.moveRowByKeyboard(this, row, toPosition)) return;
+    event.preventDefault();
+    this.focusDragHandle(toPosition);
+  }
+  /* The handle is the button inside the element of the row's "drag-drop" action (its renderedId). A keyboard
+     move keeps the table, so it is rendered already; it is looked up in the survey's root element, as the
+     survey can be in a shadow root. */
+  private focusDragHandle(position: number): void {
+    SurveyElement.FocusElement((): HTMLElement => {
+      const row = this.visibleRows[position];
+      const action = !!row ? this.renderedTable.getRowAction(row, "drag-drop") : undefined;
+      const root: HTMLElement = !!this.survey ? (<any>this.survey).rootElement : undefined;
+      if (!action || !root) return null;
+      return root.querySelector("#" + CSS.escape(action.renderedId) + " [role='button']");
+    }, false);
+  }
+  // The drag handle's row number (moveRowAriaLabel): the row's position among the visible rows of the whole view, 1-based.
+  public getRowNumberInView(row: MatrixDropdownRowModelBase): number {
+    if (!this.generatedVisibleRows) return row.visibleIndex + 1;
+    return this.getItemVisibleIndex(row) + 1;
+  }
 
   public getType(): string {
     return "matrixdynamic";
@@ -682,7 +749,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.value && this.value.length > val) {
       if (this.isEditingObjectValue) {
         var qVal = this.value;
-        qVal.splice(val);
+        this.truncateRecords(qVal, val);
         this.value = qVal;
       } else {
         this.dataList.batch((): void => { this.dataList.truncate(val); });
@@ -912,7 +979,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onStartRowAddingRemoving();
     let newRow: MatrixDropdownRowModelBase;
     try {
-      newRow = this.addRowCore();
+      newRow = this.runAddOperation((): MatrixDropdownRowModelBase => this.addRowCore());
     } finally {
       this.unlockResetRenderedTable();
     }
@@ -1533,19 +1600,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* Clearing such records leaves the rows as they are, as they stayed while such a matrix had no value
      (onBeforeValueChanged). A live array Creator assigns over them - they were written on first
      rendering, before the edited object was set - is stored as it is, not copied into them. */
-  private isClearingEmptyRecords: boolean = false;
+  private clearingEmptyRecordsScope = new ValueScope<boolean>(false);
+  private get isClearingEmptyRecords(): boolean {
+    return this.clearingEmptyRecordsScope.value;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    const prev = this.isClearingEmptyRecords;
     const isEmptyRecords = this.isStoredValueEmptyRecords();
     if (isEmptyRecords && this.isEditingSurveyElement && Array.isArray(newValue)) {
       this.clearPropertyValue("value");
     }
-    this.isClearingEmptyRecords = isEmptyRecords && this.isValueEmpty(newValue);
-    try {
-      super.setQuestionValue(newValue, updateIsAnswered);
-    } finally {
-      this.isClearingEmptyRecords = prev;
-    }
+    this.clearingEmptyRecordsScope.run(isEmptyRecords && this.isValueEmpty(newValue), () => super.setQuestionValue(newValue, updateIsAnswered));
     /* A cleared value: Base.setPropertyValue empties the stored array in place and keeps it. It goes,
        so that question.value is undefined as survey.getValue is, and the next value - a live object
        array Creator assigns - becomes the stored one instead of being copied into it. */
@@ -1619,8 +1683,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     /* The window of a data source is neither truncated nor padded to rowCount: rowCount is the server
        total and the records beyond the window are on the server, not missing from the value. */
     if (this.isRemoteData) return result;
-    if (result.length > this.rowCount) result.splice(this.rowCount);
+    if (result.length > this.rowCount) {
+      this.truncateRecords(result, this.rowCount);
+    }
     return this.arrayRecordsSource["padRecordsToMinCount"](result);
+  }
+  /* The value of an edited object is not copied, so a Base live array here is that object's own array,
+     and rowCount can lag behind it: it keeps its items. Its empty splice only notifies, and that
+     notification brings rowCount back to the length of the array. A plain array is truncated. */
+  private truncateRecords(records: Array<any>, count: number): void {
+    if (Object.prototype.hasOwnProperty.call(records, "splice")) {
+      records.splice(count, 0);
+    } else {
+      records.splice(count);
+    }
   }
   // The lookup is the own source's (readRecordInAnswer); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {
@@ -1723,11 +1799,21 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
     const visibleIndex = row.visibleIndex > -1 ? row.visibleIndex : this.matrix.visibleRows.indexOf(row);
     const lockedRows = this.matrix.lockedRowCount;
     if (this.isRowsDragAndDrop && (lockedRows < 1 || visibleIndex >= lockedRows)) {
+      /* The handle's name carries the row's number in the view. getRowNumber reads the rendered rows,
+         so a label computed from it (this one, or a host's ComputedUpdater set in onGetMatrixRowActions)
+         follows the rows the table adds and removes in place; a keyboard move keeps every position. */
+      const getRowNumber = (): number => {
+        this.getPropertyValue("rows");
+        // A page move that keeps the rows renumbers them (updateAfterRowsRebound).
+        this.getPropertyValue("rowsRebindCount");
+        return this.matrix.getRowNumberInView(row);
+      };
       actions.push(new Action({
         id: "drag-drop",
         action: () => {},
-        data: { row, question: this.matrix },
+        data: { row, question: this.matrix, getRowNumber },
         iconName: new ComputedUpdater(() => this.matrix.cssClasses.iconDragElement) as unknown as string,
+        ariaLabel: new ComputedUpdater(() => this.matrix.getLocalizationFormatString("moveRowAriaLabel", getRowNumber())) as unknown as string,
         component: "sv-matrix-drag-drop-icon"
       }));
     }

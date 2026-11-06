@@ -282,7 +282,7 @@ async function flush(times: number = 30): Promise<void> {
     await Promise.resolve();
   }
 }
-// A source that pages itself (the shape of page-window.test.ts's PagedSource): one read per page.
+// A source that pages itself (the shape of the PagedSource in page-window-helpers.ts): one read per page.
 class PagedSource implements IDynamicDataSource {
   public capabilities = { paging: true, filtering: true, sorting: true };
   constructor(public data: Array<any>) { }

@@ -53,8 +53,8 @@ export var italianSurveyStrings = {
   sortMoreAriaLabel: "Mostra tutti i livelli di sortaggio",
   // [Auto-translated] "Add New"
   sortAddNewText: "Aggiungi nuovi",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Livello di ordinamento {0}",
   // "Complete"
   completeText: "Salva",
   // "Preview"
@@ -189,6 +189,8 @@ export var italianSurveyStrings = {
   addRow: "Aggiungi riga",
   // "Remove"
   removeRow: "Rimuovi riga",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Sposta la fila {0}",
   // "There are no rows."
   noRowsText: "Non ci sono righe.",
   // [Auto-translated] "Row {rowIndex}"
@@ -322,7 +324,29 @@ export var italianSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "per selezionare",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "per commutare",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "per navigare",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Continuare",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "per inviare",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "oppure",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "per una nuova linea",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "all'opzione successiva",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "per muoversi",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "per aprire",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "A chiudere"
 };
 
 setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });

@@ -200,9 +200,11 @@ export interface IDynamicDataField {
   getValue?(record: any, index: number): any;
 }
 /* isInsertAnswer: the change is the answer of an insert, which may bring fields the client did not
-   send (a server default, a computed column). */
+   send (a server default, a computed column). isSort: the reset of a view the list ran itself with
+   the filter it had - a sort, a cleared sort, or the same view assigned again: the records are the ones
+   the filter passed, only reordered (see DynamicDataList.setView). */
 export type IDynamicDataListChange =
-  { type: "reset" } |
+  { type: "reset", isSort?: boolean } |
   { type: "recordChanged", index: number, field: string, isInsertAnswer?: boolean } |
   { type: "recordAdded", index: number } |
   { type: "recordRemoved", index: number } |

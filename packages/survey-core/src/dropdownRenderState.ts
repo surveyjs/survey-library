@@ -300,6 +300,14 @@ export function dropdownQuestionMixin<TBase extends Constructor<Question>>(Base:
         this.dropdownListModelValue = this.createDropdownListModel();
       }
     }
+    // A list opened or filtered for the old record closes and drops the text typed into it (Question.resetForAnotherRecord).
+    protected resetForAnotherRecord(): void {
+      super.resetForAnotherRecord();
+      const model = this.dropdownListModelValue;
+      if (!model) return;
+      model.popupModel.hide();
+      model.clear();
+    }
     protected canCreateDropdownListModel(): boolean { return true; }
     protected createDropdownListModel(): DropdownListModel { return undefined; }
     protected onDropdownListModelAssigned(): void { }

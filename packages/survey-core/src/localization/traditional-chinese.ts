@@ -53,8 +53,8 @@ export var traditionalChineseSurveyStrings = {
   sortMoreAriaLabel: "顯示各種等級",
   // [Auto-translated] "Add New"
   sortAddNewText: "新增",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "移動排序等級{0}",
   // "Complete"
   completeText: "提交問卷",
   // [Auto-translated] "Preview"
@@ -189,6 +189,8 @@ export var traditionalChineseSurveyStrings = {
   addRow: "添加答案",
   // "Remove"
   removeRow: "刪除答案",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "往{0}行移動",
   // [Auto-translated] "There are no rows."
   noRowsText: "沒有行。",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var traditionalChineseSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "進度條",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "頁{0}"
+  progressbarPage: "頁{0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "選擇",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "切換",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "導航",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "繼續",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "服從",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "或",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "新線路",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "下一個選項",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "搬家",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "開場",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "結束"
 };
 
 setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nativeName: "繁體中文", englishName: "Tranditional Chinese" });

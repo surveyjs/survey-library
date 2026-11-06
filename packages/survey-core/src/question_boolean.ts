@@ -2,6 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
+import { keyboardHint, advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
@@ -44,6 +45,20 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     if (this.canCommitAutoAdvanceOnEnter(event)) {
       this.commitAutoAdvance(event);
     }
+  }
+  public supportsKeyboardHints(): boolean {
+    return this.displayMode !== "custom";
+  }
+  // The chips read displayMode, not the rendered mode, so a resize does not swap them.
+  // Only radio's native group moves on all four arrows. A switch has no arrow handling, and both Space and Enter toggle it.
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    const displayMode = this.displayMode;
+    if (displayMode === "checkbox") {
+      return [keyboardHint(this, "keyboardHintToggleText", ["space"]), ...advanceKeyboardHints(this)];
+    }
+    if (displayMode === "custom") return [];
+    if (displayMode === "switch") return [keyboardHint(this, "keyboardHintToggleText", ["space"])];
+    return [keyboardHint(this, "keyboardHintSelectText", [displayMode === "radio" ? "arrowsAll" : "arrowsHorizontal"])];
   }
   private isCheckboxAutoAdvanceTarget(event: any): boolean {
     const target = event?.target;

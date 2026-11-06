@@ -53,8 +53,8 @@ export var teluguStrings = {
   sortMoreAriaLabel: "అన్ని సార్ట్ లెవల్స్ చూపించు",
   // [Auto-translated] "Add New"
   sortAddNewText: "క్రొత్తదాన్ని జోడించండి",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "క్రమబద్ధీకరణ స్థాయిని {0} తరలించండి",
   // "Complete"
   completeText: "పూర్తి చేయండి",
   // "Preview"
@@ -189,6 +189,8 @@ export var teluguStrings = {
   addRow: "వరుసలు చేర్పించండి",
   // "Remove"
   removeRow: "తీసేయండి",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "వరుస {0} తరలించు",
   // [Auto-translated] "There are no rows."
   noRowsText: "వరుసలు లేవు.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var teluguStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "పురోగతి బార్",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "పేజీ {0}"
+  progressbarPage: "పేజీ {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "ఎంచుకోవడానికి",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "టోగుల్ చేయడానికి",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "నావిగేట్ చేయడానికి",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "కొనసాగడానికి",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "సమర్పించడానికి",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "లేదా",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "కొత్త లైన్ కోసం",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "తరువాత ఆప్షన్ కు",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "తరలించడానికి",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "తెరవడానికి",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "మూసివేయడానికి"
 };
 
 setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "తెలుగు", englishName: "Telugu" });

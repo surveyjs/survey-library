@@ -53,8 +53,8 @@ export var indonesianStrings = {
   sortMoreAriaLabel: "Tampilkan semua tingkat pengurutan",
   // [Auto-translated] "Add New"
   sortAddNewText: "Tambah Baru",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Pindahkan level urut {0}",
   // "Complete"
   completeText: "Selesai",
   // "Preview"
@@ -189,6 +189,8 @@ export var indonesianStrings = {
   addRow: "Tambah baris",
   // "Remove"
   removeRow: "Hapus",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Pindahkan baris {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Tidak ada baris.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var indonesianStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Bilah kemajuan",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Halaman {0}"
+  progressbarPage: "Halaman {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "memilih",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "untuk beralih",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "untuk menavigasi",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "melanjutkan",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "mengajukan",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "atau",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "untuk lini baru",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "ke opsi berikutnya",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "memindahkan",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "membuka",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "menutup"
 };
 
 setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa indonesia", englishName: "Indonesian" });

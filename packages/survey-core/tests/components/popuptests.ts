@@ -547,8 +547,46 @@ describe("Popup", () => {
     model.isVisible = true;
     viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#nested"), preventDefault: () => { } });
     expect([model.isVisible, cancelCount], "#1: the nested list's Escape").toEqual([true, 0]);
+    // The nested list has closed.
+    (<HTMLElement>container.querySelector("#nested").closest(".sv-popup")).style.display = "none";
     viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#own"), preventDefault: () => { } });
     expect([model.isVisible, cancelCount], "#2: the modal's own Escape").toEqual([false, 1]);
+    container.remove();
+    viewModel.dispose();
+  });
+  test("Escape on a dropdown editor in a modal whose list is shown closes the list only: the editor keeps the focus", () => {
+    const model: PopupModel = new PopupModel("survey", {});
+    model.isModal = true;
+    let cancelCount = 0;
+    model.onCancel = () => { cancelCount++; };
+    const viewModel: PopupModalViewModel = createPopupViewModel(model) as PopupModalViewModel;
+    const container = document.createElement("div");
+    container.innerHTML = "<div class=\"sv-popup\"><div id=\"editor\" tabindex=\"0\"></div><div class=\"sv-popup\" id=\"list\"><ul><li></li></ul></div></div>";
+    document.body.appendChild(container);
+    viewModel.setComponentElement(container);
+    model.isVisible = true;
+    viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#editor"), preventDefault: () => { } });
+    expect([model.isVisible, cancelCount], "#1: the list is shown").toEqual([true, 0]);
+    (<HTMLElement>container.querySelector("#list")).style.display = "none";
+    viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#editor"), preventDefault: () => { } });
+    expect([model.isVisible, cancelCount], "#2: the list is hidden: the modal closes").toEqual([false, 1]);
+    model.isVisible = true;
+    // A renderer calls it once the modal is shown.
+    viewModel.updateOnShowing();
+    const list = <HTMLElement>container.querySelector("#list");
+    list.style.display = "";
+    // A renderer that hides the list in the editor's own handler: the modal reads the list as the key went down.
+    const editor = container.querySelector("#editor");
+    const onEditorKey = (): void => { list.style.display = "none"; };
+    const onModalKey = (event: any): void => { viewModel.onKeyDown(event); };
+    editor.addEventListener("keydown", onEditorKey);
+    container.addEventListener("keydown", onModalKey);
+    editor.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect([model.isVisible, cancelCount], "#3: the list was shown as the key went down").toEqual([true, 1]);
+    editor.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect([model.isVisible, cancelCount], "#4: the next Escape closes the modal").toEqual([false, 2]);
+    editor.removeEventListener("keydown", onEditorKey);
+    container.removeEventListener("keydown", onModalKey);
     container.remove();
     viewModel.dispose();
   });
@@ -1420,6 +1458,151 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
+  test("Fixed PopupModel width is taken from the width target and the vertical position stays on the input", () => {
+    const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
+    model.positionMode = "fixed";
+    model.setWidthByTarget = true;
+    const targetElement: HTMLElement = document.createElement("button");
+    const widthTarget: HTMLElement = document.createElement("div");
+
+    targetElement.style.position = "absolute";
+    targetElement.style.top = "130px";
+    targetElement.style.left = "200px";
+    targetElement.style.width = "120px";
+    targetElement.style.height = "48px";
+    widthTarget.style.position = "absolute";
+    widthTarget.style.top = "120px";
+    widthTarget.style.left = "40px";
+    widthTarget.style.width = "560px";
+    widthTarget.style.height = "80px";
+    addElementIntoBody(targetElement);
+    addElementIntoBody(widthTarget);
+    stubFromInlineStyle(targetElement);
+    stubFromInlineStyle(widthTarget);
+
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    model.getWidthTargetCallback = () => widthTarget;
+    viewModel.initializePopupContainer();
+    viewModel.container.innerHTML = popupTemplate;
+    let popupContainer = getPopupContainer(viewModel.container);
+    popupContainer.style.width = "120px";
+    popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 120, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 120, height: 400 });
+
+    (<any>window).innerWidth = 1000;
+    (<any>window).innerHeight = 800;
+    model.toggleVisibility();
+    viewModel.updateOnShowing();
+    expect(viewModel.minWidth, "minWidth").toBe("560px");
+    expect(viewModel.width, "width").toBe("560px");
+    expect(viewModel.left, "left").toBe("40px");
+    expect(viewModel.top, "top").toBe("178px");
+
+    viewModel.dispose();
+    targetElement.remove();
+    widthTarget.remove();
+  });
+
+  test("Popup width falls back to the input when the width target is missing or has no width", () => {
+    const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
+    model.positionMode = "fixed";
+    model.setWidthByTarget = true;
+    const targetElement: HTMLElement = document.createElement("button");
+    const widthTarget: HTMLElement = document.createElement("div");
+
+    targetElement.style.position = "absolute";
+    targetElement.style.top = "130px";
+    targetElement.style.left = "200px";
+    targetElement.style.width = "120px";
+    targetElement.style.height = "48px";
+    widthTarget.style.position = "absolute";
+    widthTarget.style.left = "40px";
+    widthTarget.style.width = "0px";
+    widthTarget.style.height = "80px";
+    addElementIntoBody(targetElement);
+    addElementIntoBody(widthTarget);
+    stubFromInlineStyle(targetElement);
+    stubFromInlineStyle(widthTarget);
+
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    model.getWidthTargetCallback = () => undefined;
+    viewModel.initializePopupContainer();
+    viewModel.container.innerHTML = popupTemplate;
+    let popupContainer = getPopupContainer(viewModel.container);
+    popupContainer.style.width = "700px";
+    popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 700, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 700, height: 400 });
+
+    (<any>window).innerWidth = 1000;
+    (<any>window).innerHeight = 800;
+    model.toggleVisibility();
+    viewModel.updateOnShowing();
+    expect(viewModel.minWidth, "missing target minWidth").toBe("120px");
+    expect(viewModel.width, "missing target width").toBe("120px");
+    expect(viewModel.left, "missing target left").toBe("200px");
+
+    model.getWidthTargetCallback = () => widthTarget;
+    viewModel.updateOnShowing();
+    expect(viewModel.minWidth, "zero width minWidth").toBe("120px");
+    expect(viewModel.width, "zero width width").toBe("120px");
+    expect(viewModel.left, "zero width left").toBe("200px");
+
+    viewModel.dispose();
+    targetElement.remove();
+    widthTarget.remove();
+  });
+
+  test("Popup width ignores the width target when setWidthByTarget is false", () => {
+    const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
+    model.positionMode = "fixed";
+    model.setWidthByTarget = false;
+    const targetElement: HTMLElement = document.createElement("button");
+    const widthTarget: HTMLElement = document.createElement("div");
+
+    targetElement.style.position = "absolute";
+    targetElement.style.top = "130px";
+    targetElement.style.left = "200px";
+    targetElement.style.width = "120px";
+    targetElement.style.height = "48px";
+    widthTarget.style.position = "absolute";
+    widthTarget.style.left = "40px";
+    widthTarget.style.width = "560px";
+    widthTarget.style.height = "80px";
+    addElementIntoBody(targetElement);
+    addElementIntoBody(widthTarget);
+    stubFromInlineStyle(targetElement);
+    stubFromInlineStyle(widthTarget);
+
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    const widthTargetCallback = vi.fn(() => widthTarget);
+    model.getWidthTargetCallback = widthTargetCallback;
+    viewModel.initializePopupContainer();
+    viewModel.container.innerHTML = popupTemplate;
+    let popupContainer = getPopupContainer(viewModel.container);
+    popupContainer.style.width = "1500px";
+    popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 1500, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 1500, height: 400 });
+
+    (<any>window).innerWidth = 1000;
+    (<any>window).innerHeight = 800;
+    model.toggleVisibility();
+    viewModel.updateOnShowing();
+    expect(widthTargetCallback, "callback is not used").not.toHaveBeenCalled();
+    expect(viewModel.minWidth, "minWidth").toBe("auto");
+    expect(viewModel.width, "width").toBe("800px");
+    expect(viewModel.left, "left").toBe("200px");
+
+    viewModel.dispose();
+    targetElement.remove();
+    widthTarget.remove();
+  });
+
   test("Fixed PopupModel width calculate if short content", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
@@ -1634,14 +1817,15 @@ describe("Popup", () => {
     };
     const wrapContainer = (element) => {
       const oldAddEventListener = element.addEventListener;
-      element.addEventListener = function (name, callback) {
-        oldAddEventListener.call(element, name, callback);
-        subscribeLog += "->subscribed";
+      // The wheel listener only: the modal listens to keydown too.
+      element.addEventListener = function (name, callback, options) {
+        oldAddEventListener.call(element, name, callback, options);
+        if (name === "wheel") subscribeLog += "->subscribed";
       };
       const oldRemoveEventListener = element.removeEventListener;
-      element.removeEventListener = function (name, callback) {
-        oldRemoveEventListener.call(element, name, callback);
-        subscribeLog += "->unsubscribed";
+      element.removeEventListener = function (name, callback, options) {
+        oldRemoveEventListener.call(element, name, callback, options);
+        if (name === "wheel") subscribeLog += "->unsubscribed";
       };
     };
 

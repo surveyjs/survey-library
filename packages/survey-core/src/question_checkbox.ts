@@ -1,4 +1,5 @@
 import { Serializer } from "./jsonobject";
+import { multiChoiceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import {
@@ -17,6 +18,7 @@ import { CustomError } from "./error";
 import { settings } from "./settings";
 import { PropertyNameArray } from "./propertyNameArray";
 import { QuestionValueType } from "./question";
+import { Scope } from "./utils/scope";
 
 // True when no choice but "Other" shows a comment area: the comment of "Other" lives next to the
 // question value, any other choice comment needs the object of its selected item. isOtherValue tells
@@ -95,6 +97,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.canCommitAutoAdvanceOnEnter(event)) {
       this.commitAutoAdvance(event);
     }
+  }
+  public supportsKeyboardHints(): boolean {
+    return true;
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    return multiChoiceKeyboardHints(this);
   }
   private isAutoAdvanceTextInputTarget(target: any): boolean {
     if (!target) return false;
@@ -478,6 +486,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     super.updateValueFromSurvey(newValue, clearData);
     this.invisibleOldValues = {};
   }
+  // The values a hidden choice took from the old record would be restored into the new one (Question.resetForAnotherRecord).
+  protected resetForAnotherRecord(): void {
+    super.resetForAnotherRecord();
+    this.invisibleOldValues = {};
+  }
   onSurveyLoad(): void {
     this.onItemHasCommentChanged();
     super.onSurveyLoad();
@@ -629,22 +642,25 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected clearDisabledValuesCore(): void {
     this.clearIncorrectAndDisabledValues(true);
   }
-  private isChangingValueOnClearIncorrect: boolean = false;
+  private changingValueOnClearIncorrectScope = new Scope();
+  private get isChangingValueOnClearIncorrect(): boolean {
+    return this.changingValueOnClearIncorrectScope.isActive;
+  }
   private clearIncorrectAndDisabledValues(clearDisabled: boolean) {
     var val = this.value;
     var hasChanged = false;
     var restoredValues = this.restoreValuesFromInvisible();
     if (!val && restoredValues.length == 0) return;
     if (!Array.isArray(val) || val.length == 0) {
-      this.isChangingValueOnClearIncorrect = true;
       if (!clearDisabled) {
-        if (this.showCommentArea) {
-          this.value = null;
-        } else {
-          this.clearValue(true);
-        }
+        this.changingValueOnClearIncorrectScope.run(() => {
+          if (this.showCommentArea) {
+            this.value = null;
+          } else {
+            this.clearValue(true);
+          }
+        });
       }
-      this.isChangingValueOnClearIncorrect = false;
       if (restoredValues.length == 0) return;
       val = [];
     }
@@ -670,13 +686,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       hasChanged = true;
     }
     if (!hasChanged) return;
-    this.isChangingValueOnClearIncorrect = true;
-    if (newValue.length == 0) {
-      this.clearValue(true);
-    } else {
-      this.value = newValue;
-    }
-    this.isChangingValueOnClearIncorrect = false;
+    this.changingValueOnClearIncorrectScope.run(() => {
+      if (newValue.length == 0) {
+        this.clearValue(true);
+      } else {
+        this.value = newValue;
+      }
+    });
   }
   private restoreValuesFromInvisible(): Array<any> {
     var res = [];

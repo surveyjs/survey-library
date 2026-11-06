@@ -33,7 +33,8 @@ import {
      (refuseOperationOfSource). */
 
 async function flush(): Promise<void> {
-  for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0));
+  // setTimeout(0) takes about 12 ms on Windows; 125 tests of 20 turns each add up to 20 s.
+  for (let i = 0; i < 20; i++) await new Promise(r => setImmediate(r));
 }
 function records(count: number): Array<any> {
   const res: Array<any> = [];
@@ -94,6 +95,9 @@ const matrixKind: IKind = {
   }
 };
 const kinds = [matrixKind, panelKind];
+/* A sort and a page move rebind the rows of a matrix (matrix-rebind-rows.test.ts); a cell-creation
+   handler keeps the rebuild these tests follow (RB01). */
+const keepRebuilding = (q: Question): void => { if (q.getType() === "matrixdynamic") (<SurveyModel>q.survey).onMatrixCellCreated.add(() => { }); };
 const panelItems = (q: QuestionPanelDynamicModel): Array<any> => panelKind.items(q).slice();
 
 // The states, read from the fields that hold them.
@@ -264,6 +268,7 @@ describe("the records the objects were built for", () => {
     });
     test(kind.name + ": a page change", () => {
       const q = kind.create({ pageSize: 2 }, records(4));
+      keepRebuilding(q);
       const items = kind.items(q).slice();
       q["pageIndex"] = 1;
       expect(items.map(item => builtIndex(q, item)), "#1: the left objects keep their records").toEqual([0, 1]);
@@ -284,6 +289,7 @@ describe("the records the objects were built for", () => {
     });
     test(kind.name + ": a sort change", () => {
       const q = kind.create({ pageSize: 10 }, records(3));
+      keepRebuilding(q);
       const items = kind.items(q).slice();
       q.sort([{ field: "id", direction: "desc" }]);
       expect(items.map(item => builtIndex(q, item)), "#1: the old objects keep their records").toEqual([0, 1, 2]);

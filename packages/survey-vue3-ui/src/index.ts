@@ -87,10 +87,10 @@ import ActionBarItemDropdown from "./components/action-bar/ActionBarItemDropdown
 import ActionBarSeparator from "./components/action-bar/ActionBarSeparator.vue";
 
 import SortBarLevel from "./components/records-bar/SortBarLevel.vue";
-import RecordsSortDialog from "./components/records-bar/RecordsSortDialog.vue";
 import List from "./components/list/List.vue";
 import ListItem from "./components/list/ListItem.vue";
 import ListItemContent from "./components/list/ListItemContent.vue";
+import ListLoading from "./components/list/ListLoading.vue";
 import ListItemGroup from "./components/list/ListItemGroup.vue";
 
 import Popup from "./components/popup/Popup.vue";
@@ -111,6 +111,7 @@ import CustomWidget from "./CustomWidget.vue";
 import PopupModal from "./components/popup/PopupModal.vue";
 import TextAreaComponent from "./components/TextArea.vue";
 import CharacterCounterComponent from "./components/CharacterCounter.vue";
+import QuestionHint from "./components/QuestionHint.vue";
 import Composite from "./Composite.vue";
 import Custom from "./Custom.vue";
 import TimerPanel from "./TimerPanel.vue";
@@ -271,10 +272,10 @@ function registerComponents(
   registerComponent("sv-action-bar-item-dropdown", ActionBarItemDropdown);
   registerComponent("sv-action-bar-separator", ActionBarSeparator);
   registerComponent("sv-sort-bar-level", SortBarLevel);
-  registerComponent("sv-records-sort-dialog", RecordsSortDialog);
 
   registerComponent("sv-list", List);
   registerComponent("sv-list-item-content", ListItemContent);
+  registerComponent("sv-list-loading", ListLoading);
   registerComponent("sv-list-item-group", ListItemGroup);
   registerComponent("sv-list-item", ListItem);
 
@@ -297,6 +298,7 @@ function registerComponents(
   registerComponent("sv-header-mobile", HeaderMobile);
   registerComponent("sv-template-renderer", TemplateRenderer);
   registerComponent("sv-character-counter", CharacterCounterComponent);
+  registerComponent("sv-question-hint", QuestionHint);
   registerComponent("sv-text-area", TextAreaComponent);
   registerComponent("survey-element", Element);
 

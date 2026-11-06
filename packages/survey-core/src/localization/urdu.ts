@@ -53,8 +53,8 @@ export var urduSurveyStrings = {
   sortMoreAriaLabel: "تمام سورت لیولز دکھائیں",
   // [Auto-translated] "Add New"
   sortAddNewText: "نیا شامل کریں",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "موو سورت لیول {0}",
   // "Complete"
   completeText: "مکمل",
   // "Preview"
@@ -189,6 +189,8 @@ export var urduSurveyStrings = {
   addRow: "قطار شامل کریں۔",
   // "Remove"
   removeRow: "مٹائے",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "قطار {0} منتقل کریں",
   // "There are no rows."
   noRowsText: "کوئی قطار نہیں ہیں۔ ",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var urduSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Progress bar",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "صفحہ {0}"
+  progressbarPage: "صفحہ {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "منتخب کرنے کے لیے",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "ٹو ٹوگل کرنا",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "نیویگیٹ کرنا",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "جاری رکھنے کے لیے",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "جمع کروانے کے لیے",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "یا",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "ایک نئی لائن کے لیے",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "اگلے آپشن کی طرف",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "منتقل ہونے کے لیے",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "کھولنے کے لیے",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "اختتام کے لیے"
 };
 
 setupLocale({ localeCode: "ur", strings: urduSurveyStrings, nativeName: "urdu", englishName: "Urdu" });

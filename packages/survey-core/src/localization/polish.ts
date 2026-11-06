@@ -53,8 +53,8 @@ export var polishSurveyStrings = {
   sortMoreAriaLabel: "Pokaż wszystkie poziomy sortowania",
   // [Auto-translated] "Add New"
   sortAddNewText: "Dodaj Nowe",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Przesuń sortowanie poziomu {0}",
   // "Complete"
   completeText: "Gotowe",
   // "Preview"
@@ -189,6 +189,8 @@ export var polishSurveyStrings = {
   addRow: "Dodaj wiersz",
   // "Remove"
   removeRow: "Usuń",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Przesuń rząd {0}",
   // "There are no rows."
   noRowsText: "Nie ma rzędów.",
   // [Auto-translated] "Row {rowIndex}"
@@ -322,7 +324,29 @@ export var polishSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "T"
+  maskPlaceholderTimeMarkerUpper: "T",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "aby wybrać",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "to toggle",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "żeby nawigować",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "ciąg dalszy",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "do zgłoszenia",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "lub",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "dla nowej linii",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "Do następnej opcji",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "Do ruchu",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "Otworzyć",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "do zamknięcia"
 };
 
 setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });

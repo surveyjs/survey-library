@@ -228,5 +228,19 @@ frameworks.forEach(framework => {
       });
       expect(headingY).toBeGreaterThanOrEqual(0);
     });
+
+    test("Navigation bar's container should be visible only if it has visible actions", async ({ page }) => {
+      await initSurvey(page, framework, json);
+      const containerLocator = page.locator(".sv-components-container-contentBottom");
+      await expect(containerLocator).toBeVisible();
+      await page.evaluate(() => {
+        (window as any).survey.navigationBarValue.getActionById("sv-nav-complete").visible = false;
+      });
+      await expect(containerLocator).not.toBeVisible();
+      await page.evaluate(() => {
+        (window as any).survey.navigationBarValue.getActionById("sv-nav-complete").visible = true;
+      });
+      await expect(containerLocator).toBeVisible();
+    });
   });
 });

@@ -9,7 +9,7 @@ export interface ILayoutElementProps<T = Base> {
   model: T;
 }
 
-export class HeaderMobile extends React.Component<any, any> {
+export class HeaderMobile extends SurveyElementBase<any, any> {
   get model(): Cover {
     return this.props.model;
   }
@@ -27,7 +27,7 @@ export class HeaderMobile extends React.Component<any, any> {
     });
   }
 
-  render(): React.JSX.Element | null {
+  renderElement(): React.JSX.Element | null {
     return (<div className="sv-header--mobile">
       {this.model.survey.hasLogo ? (<div className="sv-header__logo">
         {this.renderLogoImage()}
@@ -45,7 +45,7 @@ export class HeaderMobile extends React.Component<any, any> {
   }
 }
 
-export class HeaderCell extends React.Component<any, any> {
+export class HeaderCell extends SurveyElementBase<any, any> {
   get model(): CoverCell {
     return this.props.model;
   }
@@ -63,7 +63,7 @@ export class HeaderCell extends React.Component<any, any> {
     });
   }
 
-  render(): React.JSX.Element | null {
+  renderElement(): React.JSX.Element | null {
     return (<div className={this.model.css} style={this.model.style}>
       <div className="sv-header__cell-content" style={this.model.contentStyle}>
         {this.model.showLogo ? (<div className="sv-header__logo">
@@ -114,7 +114,9 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
       </div>
     );
   }
-
+  protected forceHiddenDependencies(): void {
+    this.model.width;
+  }
   componentDidMount() {
     super.componentDidMount();
     this.model.processResponsiveness();

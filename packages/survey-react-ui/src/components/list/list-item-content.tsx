@@ -19,7 +19,7 @@ export class ListItemContent extends SurveyElementBase<IListItemProps, any> {
   getStateElement() {
     return this.item;
   }
-  render(): React.JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     if (!this.item) return null;
 
     const text = this.renderLocString(this.item.locTitle, undefined, "locString");

@@ -1,10 +1,13 @@
-import { describe, test, expect, beforeEach } from "vitest";
+import { describe, test, expect, afterEach, beforeEach } from "vitest";
 import { ComponentCollection, SurveyModel, Serializer } from "survey-core";
 import { CollaborationPlugin } from "../../src/plugins/collaboration/index";
 import { ICollabOut } from "../../src/plugins/collaboration/collab-messages";
+import { createPlugin, disposePlugins } from "./collab-test-helpers";
 
 // Diagnostic suite: does collaboration behave correctly on COMPOSITE questions,
 // whose value is one object under the composite's own name?
+
+afterEach(disposePlugins);
 
 function collect(plugin: CollaborationPlugin): Array<ICollabOut> {
   const sent: Array<ICollabOut> = [];
@@ -115,7 +118,7 @@ const shippingJson = { elements: [{ type: SHIPPING, name: "shipping" }] };
 describe("composite: outgoing", () => {
   test("a nested edit is emitted under the composite's own key", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     const composite: any = survey.getQuestionByName("shipping");
     composite.contentPanel.getQuestionByName("businessAddress").value = "1 Main St";
@@ -126,7 +129,7 @@ describe("composite: outgoing", () => {
 
   test("the last emitted object carries the cascade, not just the edited field", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     const composite: any = survey.getQuestionByName("shipping");
     composite.contentPanel.getQuestionByName("businessAddress").value = "1 Main St";
@@ -138,7 +141,7 @@ describe("composite: outgoing", () => {
 
   test("toggling the boolean emits the cleared shipping address", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const composite: any = survey.getQuestionByName("shipping");
     composite.contentPanel.getQuestionByName("businessAddress").value = "1 Main St";
     const sent = collect(plugin);
@@ -153,7 +156,7 @@ describe("composite: outgoing", () => {
 describe("composite: incoming", () => {
   test("a peer object lands in every nested question", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     plugin.apply({
       type: "value", key: "shipping",
       value: { businessAddress: "9 Oak Rd", shippingSameAsBusiness: false, shippingAddress: "5 Pine Ave" },
@@ -166,7 +169,7 @@ describe("composite: incoming", () => {
 
   test("an applied composite value does not echo back", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     plugin.apply({ type: "value", key: "shipping", value: { businessAddress: "9 Oak Rd" } });
     expect(values(sent)).toHaveLength(0);
@@ -174,7 +177,7 @@ describe("composite: incoming", () => {
 
   test("onValueChanged does not run on the receiver, onValueSet does", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     authorValueChanged = [];
     authorValueSet = [];
     plugin.apply({ type: "value", key: "shipping", value: { businessAddress: "9 Oak Rd" } });
@@ -187,7 +190,7 @@ describe("composite: incoming", () => {
 
   test("enableIf {composite.x} is re-evaluated on the receiver", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const composite: any = survey.getQuestionByName("shipping");
     const nested = composite.contentPanel.getQuestionByName("shippingAddress");
     // defaultValue true -> the nested field starts read-only
@@ -202,7 +205,7 @@ describe("composite: incoming", () => {
 
   test("an applied value raises no required error the receiver did not cause", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     plugin.apply({ type: "value", key: "shipping", value: { businessAddress: "9 Oak Rd" } });
     const composite: any = survey.getQuestionByName("shipping");
     expect(composite.errors.length).toBe(0);
@@ -212,8 +215,8 @@ describe("composite: incoming", () => {
     const json = { clearInvisibleValues: "onHidden", elements: [{ type: SELFCLEAR, name: "sc" }] };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     link(pluginA, pluginB);
     link(pluginB, pluginA);
 
@@ -232,7 +235,7 @@ describe("composite: incoming", () => {
 describe("composite: init and defaults", () => {
   test("init with an empty state emits nothing", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     plugin.apply({ type: "init", values: {} });
     expect(values(sent)).toHaveLength(0);
@@ -240,7 +243,7 @@ describe("composite: init and defaults", () => {
 
   test("an empty init erases a NESTED default that the schema declares", () => {
     const survey = new SurveyModel(shippingJson);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     expect(survey.getValue("shipping")).toEqual({ shippingSameAsBusiness: true });
     plugin.apply({ type: "init", values: {} });
     // The schema says the box is ticked; after joining an empty room it is not.
@@ -251,7 +254,7 @@ describe("composite: init and defaults", () => {
     const survey = new SurveyModel({
       elements: [{ type: "boolean", name: "flag", defaultValue: true }],
     });
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     expect(survey.getValue("flag")).toBe(true);
     plugin.apply({ type: "init", values: {} });
     expect(survey.getValue("flag")).toBeUndefined();
@@ -259,14 +262,14 @@ describe("composite: init and defaults", () => {
 
   test("a late joiner adopts the room state instead of its own nested defaults", () => {
     const author = new SurveyModel(shippingJson);
-    const authorPlugin = new CollaborationPlugin(author);
+    const authorPlugin = createPlugin(author);
     const composite: any = author.getQuestionByName("shipping");
     composite.contentPanel.getQuestionByName("shippingSameAsBusiness").value = false;
     composite.contentPanel.getQuestionByName("businessAddress").value = "9 Oak Rd";
     composite.contentPanel.getQuestionByName("shippingAddress").value = "5 Pine Ave";
 
     const joiner = new SurveyModel(shippingJson);
-    const joinerPlugin = new CollaborationPlugin(joiner);
+    const joinerPlugin = createPlugin(joiner);
     const sent = collect(joinerPlugin);
     joinerPlugin.apply({ type: "init", values: authorPlugin.getSnapshot() });
 
@@ -277,13 +280,13 @@ describe("composite: init and defaults", () => {
   test("getSnapshot round-trips a composite with a nested comment", () => {
     const json = { elements: [{ type: WITHCOMMENT, name: "wc" }] };
     const source = new SurveyModel(json);
-    const sourcePlugin = new CollaborationPlugin(source);
+    const sourcePlugin = createPlugin(source);
     const sc: any = source.getQuestionByName("wc");
     sc.contentPanel.getQuestionByName("picks").value = [1, "other"];
     sc.contentPanel.getQuestionByName("picks").comment = "why";
 
     const target = new SurveyModel(json);
-    const targetPlugin = new CollaborationPlugin(target);
+    const targetPlugin = createPlugin(target);
     targetPlugin.apply({ type: "init", values: sourcePlugin.getSnapshot() });
 
     expect(target.data).toEqual(source.data);
@@ -296,7 +299,7 @@ describe("composite: matrixdynamic inside a composite", () => {
   test("a row event inside a composite is keyed by the composite, not the nested matrix", () => {
     const json = { elements: [{ type: WITHMATRIX, name: "wm" }] };
     const survey = new SurveyModel(json);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     const composite: any = survey.getQuestionByName("wm");
     const matrix: any = composite.contentPanel.getQuestionByName("rows");
@@ -316,8 +319,8 @@ describe("composite: matrixdynamic inside a composite", () => {
     const json = { elements: [{ type: WITHMATRIX, name: "wm" }] };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     link(pluginA, pluginB);
 
     const ca: any = a.getQuestionByName("wm");
@@ -334,8 +337,8 @@ describe("composite: matrixdynamic inside a composite", () => {
     const json = { elements: [{ type: WITHMATRIX, name: "wm" }] };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     link(pluginA, pluginB);
 
     const ca: any = a.getQuestionByName("wm");
@@ -357,8 +360,8 @@ describe("composite: matrixdynamic inside a composite", () => {
     const json = { elements: [{ type: WITHMATRIX, name: "wm" }] };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     link(pluginA, pluginB);
 
     const ca: any = a.getQuestionByName("wm");
@@ -380,8 +383,8 @@ describe("composite: matrixdynamic inside a composite", () => {
     const json = { elements: [{ type: WITHMATRIX, name: "wm" }] };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     link(pluginA, pluginB);
 
     const ca: any = a.getQuestionByName("wm");
@@ -400,8 +403,8 @@ describe("composite: two models through a fake relay", () => {
   test("sequential edits to different fields converge and keep both", () => {
     const a = new SurveyModel(shippingJson);
     const b = new SurveyModel(shippingJson);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     link(pluginA, pluginB);
     link(pluginB, pluginA);
 
@@ -420,8 +423,8 @@ describe("composite: two models through a fake relay", () => {
     // A deferred relay: both sides edit before either message is delivered.
     const a = new SurveyModel(shippingJson);
     const b = new SurveyModel(shippingJson);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     const queue: Array<() => void> = [];
     pluginA.onEvent.add((_s, o) => {
       if (o.message.type === "value") queue.push(() => pluginB.apply(o.message as any));
@@ -445,8 +448,8 @@ describe("composite: two models through a fake relay", () => {
     const json = { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     const queue: Array<() => void> = [];
     pluginA.onEvent.add((_s, o) => {
       if (o.message.type === "value") queue.push(() => pluginB.apply(o.message as any));
@@ -466,8 +469,8 @@ describe("composite: two models through a fake relay", () => {
     const json = { elements: [{ type: "text", name: "q1" }] };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     const queue: Array<() => void> = [];
     pluginA.onEvent.add((_s, o) => {
       if (o.message.type === "value") queue.push(() => pluginB.apply(o.message as any));
@@ -490,8 +493,8 @@ describe("composite: the caret's own field", () => {
     const json = { elements: [{ type: "text", name: "q1" }] };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a, { presence: false, bar: false });
-    const pluginB = new CollaborationPlugin(b, { presence: false, bar: false });
+    const pluginA = createPlugin(a, { presence: false, bar: false });
+    const pluginB = createPlugin(b, { presence: false, bar: false });
     const clientA = attachFocusedInput(a, "q1", "AAA");
     const clientB = attachFocusedInput(b, "q1", "BBB");
 
@@ -529,8 +532,8 @@ describe("composite: containers that are not composites", () => {
     };
     const a = new SurveyModel(json);
     const b = new SurveyModel(json);
-    const pluginA = new CollaborationPlugin(a);
-    const pluginB = new CollaborationPlugin(b);
+    const pluginA = createPlugin(a);
+    const pluginB = createPlugin(b);
     link(pluginA, pluginB);
 
     a.setValue("md", { r1: { col1: { label: "x" } } });
@@ -546,7 +549,7 @@ describe("composite: containers that are not composites", () => {
       }],
     };
     const survey = new SurveyModel(json);
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     const panel: any = survey.getQuestionByName("p");
     panel.panels[0].getQuestionByName("rows").addRow();
@@ -561,7 +564,7 @@ describe("composite: containers that are not composites", () => {
       questionJSON: { type: "matrixdynamic", name: "inner", rowCount: 1, columns: [{ name: "c1", cellType: "text" }] },
     });
     const survey = new SurveyModel({ elements: [{ type: SINGLE, name: "s1" }] });
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     (survey.getQuestionByName("s1") as any).contentQuestion.addRow();
 
@@ -574,7 +577,7 @@ describe("composite: containers that are not composites", () => {
 
   test("a composite with valueName travels under the value name", () => {
     const survey = new SurveyModel({ elements: [{ type: SHIPPING, name: "shipName", valueName: "shipValue" }] });
-    const plugin = new CollaborationPlugin(survey);
+    const plugin = createPlugin(survey);
     const sent = collect(plugin);
     const composite: any = survey.getQuestionByName("shipName");
     composite.contentPanel.getQuestionByName("businessAddress").value = "1 Main St";

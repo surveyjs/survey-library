@@ -57,6 +57,9 @@ export {
 export { ItemValue } from "../../src/itemvalue";
 export {
   Base,
+  PropertyAccessTracker,
+  IPropertyAccessListener,
+  IPropertyAccessTracker,
   ArrayChanges,
   ComputedUpdater,
   IPropertyValueChangedEvent,
@@ -159,7 +162,7 @@ export {
   Serializer,
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
-export { QuestionRecordsModel, IRecordsDesignSortDialogOptions } from "../../src/question_records";
+export { QuestionRecordsModel } from "../../src/question_records";
 export { QuestionRecordsBar } from "../../src/question_records_bar";
 export { RecordsSortDialogModel } from "../../src/records/records-sort-dialog";
 export { IRecordsSortField } from "../../src/records/records-sort-bar";
@@ -202,6 +205,8 @@ export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
 export { Question, QuestionValueType, ValidationContext } from "../../src/question";
 export type { IValidationContextParams } from "../../src/question";
+export { KeyboardHintItem, KeyboardHintModel } from "../../src/keyboard-hints";
+export type { IKeyboardHintData, IKeyboardHintPart, IKeyboardHintCss } from "../../src/keyboard-hints";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";
@@ -283,6 +288,27 @@ export * from "../../src/themes";
 export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
 export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
 export * from "../../src/survey-events-api";
+export type {
+  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent,
+} from "../../src/interfaces/ai-interfaces";
+export { isAIObject, getAIFencedText, getAIFencedBlocks, readAIJson } from "../../src/ai/ai-response";
+export { AIRequestSession } from "../../src/ai/ai-request";
+export type { IAIFeature, IAIRequest, AIRequestResult, IAIRequestOwner } from "../../src/ai/ai-request";
+export { readExpressionData, parseExpressionResponse } from "../../src/ai/expression-response";
+export type { IExpressionResponse } from "../../src/ai/expression-response";
+export { expressionGuideVersion, expressionGuideSections, getExpressionGuideText } from "../../src/ai/expression-guide";
+export type { IExpressionGuideSection, IExpressionGuideExample } from "../../src/ai/expression-guide";
+export { expressionResponseFormat, ExpressionAIFeature } from "../../src/ai/expression-ai-feature";
+export type { IExpressionAIIssue } from "../../src/ai/expression-ai-feature";
+export {
+  expressionOperatorSpellings, expressionPanelScope, expressionRowScope, expressionItemScope, getExpressionScopePrefix,
+  getExpressionValueType, toExpressionChoices, getExpressionChoices, getExpressionPageName, describeExpressionQuestion,
+  getExpressionFunctions, getExpressionOperators, buildExpressionInstruction, buildExpressionSystemPrompt,
+} from "../../src/ai/expression-context";
+export type {
+  IExpressionContext, IExpressionVariable, IExpressionContextChoice, IExpressionContextFunction, IExpressionContextOperator,
+  IExpressionScopeEntry, IExpressionSystemPromptTexts,
+} from "../../src/ai/expression-context";
 export {
   SurveyTrigger,
   SurveyTriggerComplete,

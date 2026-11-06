@@ -2832,4 +2832,40 @@ describe("Survey_QuestionFile", () => {
     expect(q2.previewValue[0].content, "the detail preview has the downloaded content").toBe("data:image2.png");
     expect(q2.isReady, "the detail question is ready").toBe(true);
   });
+  test("storeDataAsText: the value keeps the order of the chosen files when their reads finish in another order", () => {
+    const readers: Array<any> = [];
+    class FileReaderMock {
+      public result: any;
+      public onload: (e: any) => void;
+      public file: any;
+      readAsDataURL(file: any) { this.file = file; readers.push(this); }
+      finish() { this.result = "data:" + this.file.name; this.onload({}); }
+    }
+    vi.stubGlobal("FileReader", FileReaderMock);
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "file", name: "q1", allowMultiple: true, storeDataAsText: true }]
+      });
+      const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+      q1.loadFiles([<any>{ name: "f1", type: "t1" }, <any>{ name: "f2", type: "t2" }, <any>{ name: "f3", type: "t3" }]);
+      expect(readers.length, "one reader per file").toBe(3);
+      readers[2].finish();
+      readers[0].finish();
+      expect(q1.isEmpty(), "no value until every file is read").toBe(true);
+      readers[1].finish();
+      expect(q1.value).toEqual([
+        { name: "f1", type: "t1", content: "data:f1" },
+        { name: "f2", type: "t2", content: "data:f2" },
+        { name: "f3", type: "t3", content: "data:f3" }
+      ]);
+
+      readers.length = 0;
+      q1.loadFiles([<any>{ name: "f4", type: "t4" }, <any>{ name: "f5", type: "t5" }]);
+      readers[1].finish();
+      readers[0].finish();
+      expect(q1.value.map((f: any) => f.name), "files added later go after the ones already there, in their own order").toEqual(["f1", "f2", "f3", "f4", "f5"]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });

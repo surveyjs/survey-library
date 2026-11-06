@@ -62,9 +62,7 @@ export class PanelDynamicAnimation {
   public syncRenderedPanels(val: Array<PanelModel>): void {
     const question = this.owner.question;
     if (this.owner.renderedPanels.length == 0 || val.length == 0) {
-      question.blockAnimations();
-      this.panelsAnimation.sync(val);
-      question.releaseAnimations();
+      question.runWithoutAnimations(() => this.panelsAnimation.sync(val));
     } else {
       this.isRunning = true;
       this.panelsAnimation.sync(val);

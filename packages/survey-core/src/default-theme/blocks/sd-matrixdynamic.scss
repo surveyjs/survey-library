@@ -3,7 +3,7 @@
   flex-grow: 1;
   --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 }
-.sd-matrixdynamic__content > div {
+.sd-matrixdynamic__content > div:not(.sd-question__comment-area):not(.sd-question__description) {
   display: contents;
 }
 
@@ -23,6 +23,15 @@
     box-sizing: border-box;
     border-radius: calc(var(--sjs2-base-unit-radius) * 1.25);
   }
+}
+
+// The row's drag handle is a keyboard stop: the focus ring of an action.
+.sd-matrixdynamic__drag-handle {
+  border-radius: var(--sjs2-radius-component-action);
+  outline: none;
+}
+.sd-matrixdynamic__drag-handle:focus-visible {
+  box-shadow: var(--sjs2-border-effect-component-action-a11y);
 }
 
 .sd-matrixdynamic__placeholder {

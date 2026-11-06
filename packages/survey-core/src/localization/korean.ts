@@ -53,8 +53,8 @@ export var koreanStrings = {
   sortMoreAriaLabel: "모든 종류의 레벨 표시",
   // [Auto-translated] "Add New"
   sortAddNewText: "새 항목 추가하기",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "이동 정렬 레벨 {0}",
   // "Complete"
   completeText: "완료",
   // "Preview"
@@ -189,6 +189,8 @@ export var koreanStrings = {
   addRow: "행 추가",
   // "Remove"
   removeRow: "제거",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "{0}행 이동",
   // "There are no rows."
   noRowsText: "행이 없습니다.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var koreanStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "진행률 표시줄",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "페이지 {0}"
+  progressbarPage: "페이지 {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "선택하기",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "토글하기",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "항해하기 위해",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "계속하기",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "제출하기",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "또는",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "새로운 노선을 위해",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "다음 옵션으로",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "이동하기 위해",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "개봉",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "마무리"
 };
 
 setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어", englishName: "Korean" });

@@ -33,6 +33,7 @@
     "cssnano": "^7.1.7",
     "devextreme-screenshot-comparer": "^2.0.11",
     "eslint": "^8.57.0",
+    "eslint-plugin-playwright": "2.12.1",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-surveyjs": "git+https://github.com/surveyjs/eslint-surveyjs.git",
     "eslint-plugin-vue": "^9.3.0",

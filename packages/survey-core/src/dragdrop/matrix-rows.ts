@@ -259,6 +259,42 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return rows.length > 0 ? matrix.getRowViewIndex(rows[rows.length - 1]) + 1 : 0;
   }
 
+  /* A keyboard move: the row goes to toPosition on the page, as a drop on the row shown there (above
+     it moving up, below it moving down). The events are a drag's: onDragStart, onMatrixRowDragOver,
+     and on its allow the drop with onDragEnd; onDragClear always. There is no ghost and no shortcut, so
+     the table is not reset: the row objects keep their positions and take the moved records, and the
+     handles stay rendered for the focus to move at once. False when nothing moves. */
+  public moveRowByKeyboard(matrix: QuestionMatrixDynamicModel, row: MatrixDropdownRowModelBase, toPosition: number): boolean {
+    const rows = matrix.visibleRows;
+    const fromPosition = rows.indexOf(row);
+    const target = <MatrixDynamicRowModel>rows[toPosition];
+    if (fromPosition < 0 || !target || target === row) return false;
+    this.parentElement = matrix;
+    // Nothing crosses the locked rows: neither the row nor the one it passes may be locked, as for a drop.
+    if (!this.canInsertIntoThisRow(<MatrixDynamicRowModel>row) || !this.canInsertIntoThisRow(target)) {
+      this.parentElement = null;
+      return false;
+    }
+    this.draggedElement = row;
+    this.onDragStart.fire(this, { fromElement: (<any>row).parent, draggedElement: row });
+    const options: MatrixRowDragOverEvent = { allow: true, row: target, fromMatrix: matrix, toMatrix: matrix } as any;
+    this.survey?.onMatrixRowDragOver.fire(this.survey, options);
+    if (options.allow) {
+      this.fromIndex = fromPosition;
+      this.toIndex = toPosition > fromPosition ? toPosition + 1 : toPosition;
+      this.toMatrix = matrix;
+      this.dropTarget = target;
+      this.allowDropHere = true;
+      this.drop();
+    }
+    this.fromIndex = null;
+    this.toIndex = null;
+    this.toMatrix = null;
+    this.allowDropHere = false;
+    super.clear();
+    return options.allow;
+  }
+
   public clear(): void {
     this.matrixRowMap = {};
     const renderedRows = this.parentElement.renderedTable.rows;

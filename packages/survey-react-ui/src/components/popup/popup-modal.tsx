@@ -56,9 +56,11 @@ export class PopupModal extends SurveyElementBase<{}, any> {
     }
   };
   componentDidMount(): void {
+    super.componentDidMount();
     PopupModal.addModalDescriptor(this.descriptor);
   }
   componentWillUnmount(): void {
+    super.componentWillUnmount();
     this.modalManager.clear();
     PopupModal.removeModalDescriptor(this.descriptor);
   }

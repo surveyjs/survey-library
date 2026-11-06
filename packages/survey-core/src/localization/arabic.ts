@@ -53,8 +53,8 @@ export var arabicSurveyStrings = {
   sortMoreAriaLabel: "عرض جميع مستويات الترتيب",
   // [Auto-translated] "Add New"
   sortAddNewText: "إضافة جديد",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "الانتقال في ترتيب {0}",
   // "Complete"
   completeText: "إرسال البيانات",
   // "Preview"
@@ -189,6 +189,8 @@ export var arabicSurveyStrings = {
   addRow: "اضافة صف",
   // "Remove"
   removeRow: "إزالة صف",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "نقل الصف {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "لا توجد صفوف.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var arabicSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "شريط التقدم",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "صفحة {0}"
+  progressbarPage: "صفحة {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "للاختيار",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "التبديل",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "للتنقل",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "للاستمرار",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "للتقديم",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "أو",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "لخط جديد",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "إلى الخيار التالي",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "للانتقال",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "لافتتح",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "لإنهاء الباب"
 };
 
 setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "العربية", englishName: "Arabic", rtl: true });

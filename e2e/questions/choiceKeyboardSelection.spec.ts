@@ -258,7 +258,9 @@ frameworks.forEach((framework) => {
       await radios.first().focus();
       await page.keyboard.press("b");
       expect(await questionValue(page)).toBe("Item 2");
-      await page.waitForTimeout(500);
+      // Proves that the letter does not auto-advance: wait past settings.autoAdvanceDelay, after which it would have.
+      const autoAdvanceDelay = await page.evaluate(() => (window as any).Survey.settings.autoAdvanceDelay);
+      await page.waitForTimeout(autoAdvanceDelay + 100);
       expect(await pageNo(page)).toBe(0);
       await page.keyboard.press("Enter");
       await expect.poll(async () => pageNo(page), { timeout: 3000 }).toBe(1);

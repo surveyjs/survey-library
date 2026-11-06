@@ -28,7 +28,7 @@ export var englishStrings = {
   sortLevelDirectionAriaLabel: "Sort order {0}",
   sortMoreAriaLabel: "Show all sort levels",
   sortAddNewText: "Add New",
-  sortNoDirectionText: "—",
+  sortMoveLevelAriaLabel: "Move sort level {0}",
   completeText: "Complete",
   previewText: "Preview",
   editText: "Edit",
@@ -96,6 +96,7 @@ export var englishStrings = {
   addColumn: "Add Column",
   addRow: "Add Row",
   removeRow: "Remove",
+  moveRowAriaLabel: "Move row {0}",
   noRowsText: "There are no rows.",
   rowIndexTemplateTitle: "Row {rowIndex}",
   rowNameTemplateTitle: "{rowTitle}",
@@ -175,7 +176,18 @@ export var englishStrings = {
   maskPlaceholderMinute: "M", // [Do not translate]
   maskPlaceholderSecond: "s", // [Do not translate]
   maskPlaceholderTimeMarkerLower: "t", // [Do not translate]
-  maskPlaceholderTimeMarkerUpper: "T" // [Do not translate]
+  maskPlaceholderTimeMarkerUpper: "T", // [Do not translate]
+  keyboardHintSelectText: "to select",
+  keyboardHintToggleText: "to toggle",
+  keyboardHintNavigateText: "to navigate",
+  keyboardHintContinueText: "to continue",
+  keyboardHintSubmitText: "to submit",
+  keyboardHintOrText: "or",
+  keyboardHintNewLineText: "for a new line",
+  keyboardHintNextItemText: "to next option",
+  keyboardHintMoveText: "to move",
+  keyboardHintOpenText: "to open",
+  keyboardHintCloseText: "to close"
 };
 
 /*

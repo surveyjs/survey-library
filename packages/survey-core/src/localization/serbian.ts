@@ -53,8 +53,8 @@ export var serbianStrings = {
   sortMoreAriaLabel: "Pokaži sve nivoe sortiranja",
   // [Auto-translated] "Add New"
   sortAddNewText: "Dodaj novi",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Premesti nivo sortiranja {0}",
   // "Complete"
   completeText: "Završi",
   // "Preview"
@@ -189,6 +189,8 @@ export var serbianStrings = {
   addRow: "Dodaj red",
   // "Remove"
   removeRow: "Ukloni",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Premesti red {0}",
   // "There are no rows."
   noRowsText: "Nema redova.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var serbianStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Traka napretka",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Stranica {0}"
+  progressbarPage: "Stranica {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "da izaberete",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "Da biste se prebacili",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "za navigaciju",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Da nastavi",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Da podnese",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "ili",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "za novu liniju",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "na sledeću opciju",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "da se kreće",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "otvoriti",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "zatvoriti"
 };
 
 setupLocale({ localeCode: "sr", strings: serbianStrings, nativeName: "srpski", englishName: "Serbian" });

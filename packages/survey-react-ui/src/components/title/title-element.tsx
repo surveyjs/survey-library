@@ -2,8 +2,9 @@ import * as React from "react";
 import { SurveyElement, SurveyElementCore, doKey2ClickUp } from "survey-core";
 import { TitleActions } from "./title-actions";
 import { SvgIcon } from "../svg-icon/svg-icon";
+import { SurveyElementBase } from "../../reactquestion_element";
 
-export class TitleElement extends React.Component<any, any> {
+export class TitleElement extends SurveyElementBase<any, any> {
   constructor(props: any) {
     super(props);
   }
@@ -19,7 +20,7 @@ export class TitleElement extends React.Component<any, any> {
       size={"auto"}
     ></SvgIcon></span>;
   }
-  render(): React.JSX.Element | any {
+  renderElement(): React.JSX.Element | any {
     const element = this.element;
     if (!element || !element.hasTitle) return null;
     const ariaLabel = element.titleAriaLabel || undefined;

@@ -53,8 +53,8 @@ export var kazakhStrings = {
   sortMoreAriaLabel: "Барлық сұрыптау деңгейлерін көрсету",
   // [Auto-translated] "Add New"
   sortAddNewText: "Жаңа қосу",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Сұрыптау деңгейіне жылжытыңыз {0}",
   // "Complete"
   completeText: "Дайын",
   // "Preview"
@@ -189,6 +189,8 @@ export var kazakhStrings = {
   addRow: "Жолды қосу",
   // "Remove"
   removeRow: "Өшіру",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Қатарға жылжы {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Қатарлар жоқ.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var kazakhStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Прогресс тақтасы",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "{0}-бет"
+  progressbarPage: "{0}-бет",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "таңдау үшін",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "ауыстыру",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "Навигация",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "жалғастыру",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Тапсыру",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "немесе",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "жаңа желі үшін",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "келесі опцияға",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "қозғалу",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "Ашылу",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "жабу үшін"
 };
 
 setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });

@@ -53,8 +53,8 @@ export var basqueSurveyStrings = {
   sortMoreAriaLabel: "Mota maila guztiak erakutsi",
   // [Auto-translated] "Add New"
   sortAddNewText: "Gehitu Berria",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Mugimendu ordenatze maila {0}",
   // "Complete"
   completeText: "Bukatu",
   // "Preview"
@@ -189,6 +189,8 @@ export var basqueSurveyStrings = {
   addRow: "Errenkada bat gehitu",
   // "Remove"
   removeRow: "Errenkada bat kendu",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mugitu ilara {0}",
   // "There are no rows."
   noRowsText: "Ez dago errenkadarik.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var basqueSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Aurrerapen barra",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Orrialde {0}"
+  progressbarPage: "Orrialde {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "hautatzeko",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "Toggle",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "nabigatzeko",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "Jarraitu",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "Aurkezteko",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "edo",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "Lerro berri baterako",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "hurrengo aukerara",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "Mugitzeko",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "irekitzea",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "Itxiera"
 };
 
 setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euskara", englishName: "Basque" });

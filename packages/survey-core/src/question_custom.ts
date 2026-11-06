@@ -1,4 +1,4 @@
-import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, INestedElementInfo, NestedWalkBuild } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, INestedElementInfo, NestedElementVisit, NestedWalkBuild } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -677,11 +677,12 @@ export abstract class QuestionCustomModelBase extends Question
       this.customQuestion.onSetQuestionValue(this, newValue);
     }
   }
-  private isSettingNewValue: boolean;
+  private newValueScope = new Scope();
+  private get isSettingNewValue(): boolean {
+    return this.newValueScope.isActive;
+  }
   protected setNewValue(newValue: any) {
-    this.isSettingNewValue = true;
-    super.setNewValue(newValue);
-    this.isSettingNewValue = false;
+    this.newValueScope.run(() => super.setNewValue(newValue));
     this.updateElementCss();
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
@@ -910,9 +911,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   // The content question stores the value of the custom question, so it reports at the same
   // location: its getDataSegment() is undefined and verifyDataCore() adds no key for it.
   // The content question holds the wrapper's value.
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
     const question = this.contentQuestion;
-    if (!!question) visit({ element: question, role: "content", segment: undefined, location: "same", visible: true });
+    return !!question && visit({ element: question, role: "content", segment: undefined, location: "same", visible: true });
   }
   protected getDefaultTitle(): string {
     if (this.hasJSONTitle && this.contentQuestion) {
@@ -950,6 +951,11 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     res = res && super.validateElementCore(context);
     this.updateElementCss();
     return res;
+  }
+  // getAllErrors() is not extended: validateElementCore copies the content question's errors into the wrapper's own.
+  public clearErrors(): void {
+    super.clearErrors();
+    this.contentQuestion?.clearErrors();
   }
   public focus(onError = false): void {
     if (!!this.contentQuestion) {
@@ -1245,12 +1251,22 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     const pnl = this.contentPanel;
     return !!pnl ? pnl.validateElement(context) && res : res;
   }
+  public getAllErrors(): Array<SurveyError> {
+    return super.getAllErrors().concat(this.getNestedErrors());
+  }
+  public clearErrors(): void {
+    super.clearErrors();
+    this.forEachNestedElement(info => info.element.clearErrors(), { build: "none", visibleOnly: false });
+  }
   // The questions of the content panel keep their values one segment deeper, under the key of the
   // composite question. A key of the composite value that none of them owns is not reported: the
   // composite question does not check its keys today and clearing one would drop the whole value.
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
     const panel = this.contentPanel;
-    if (!!panel) visit({ element: panel, role: "content", segment: undefined, location: "nested", visible: true });
+    return !!panel && visit({ element: panel, role: "content", segment: undefined, location: "nested", visible: true });
+  }
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    return this.getFirstNestedQuestionToFocus(withError) || super.getFirstQuestionToFocus(withError);
   }
   public updateElementCss(reNew?: boolean) {
     super.updateElementCss(reNew);

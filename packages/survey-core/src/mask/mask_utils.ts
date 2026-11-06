@@ -45,11 +45,11 @@ export interface ITextInputParams {
 }
 
 // Carries the question state that a locale change may have to re-render. The mask reads the
-// values that apply to it and writes back what the question should display and store.
+// entered text and writes back what the question should display and store.
 export interface IMaskLocaleChange {
   // an incomplete entry, which is displayed but not stored in the question value
   enteredText?: string;
-  // the stored value, passed only when saveMaskedValue is enabled
+  // output only: the saved text the mask regenerated from its unmasked value
   value?: any;
 }
 

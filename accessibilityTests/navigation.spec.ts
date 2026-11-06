@@ -1,6 +1,6 @@
 import { checkA11y, injectAxe } from "axe-playwright";
-import { axeOptions, frameworks, initSurvey, url } from "./helper";
-import { test, expect } from "@playwright/test";
+import { axeOptions, frameworks, initSurvey, url, baseTest as test } from "./helper";
+import { expect } from "@playwright/test";
 const title = "navigation";
 
 const json = {

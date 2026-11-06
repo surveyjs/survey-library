@@ -93,6 +93,7 @@ export { SurveyQuestionCustom, SurveyQuestionComposite } from "../src/reactquest
 
 export { Popup } from "../src/components/popup/popup";
 export { ListItemContent } from "../src/components/list/list-item-content";
+export { ListLoading } from "../src/components/list/list-loading";
 export { ListItemGroup } from "../src/components/list/list-item-group";
 export { List } from "../src/components/list/list";
 export { TitleActions } from "../src/components/title/title-actions";
@@ -101,7 +102,6 @@ export { SurveyActionBar } from "../src/components/action-bar/action-bar";
 export { SurveyActionBarItemDropdown } from "../src/components/action-bar/action-bar-item-dropdown";
 export { SurveyActionBarSeparator } from "../src/components/action-bar/action-bar-separator";
 export { SurveySortBarLevel } from "../src/components/sort-bar-level";
-export { SurveyRecordsSortDialog } from "../src/components/records-sort-dialog";
 export { LogoImage } from "../src/components/survey-header/logo-image";
 export { SurveyHeader } from "../src/components/survey-header/survey-header";
 export { SvgIcon } from "../src/components/svg-icon/svg-icon";

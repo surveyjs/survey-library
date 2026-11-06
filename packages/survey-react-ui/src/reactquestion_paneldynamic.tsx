@@ -1,12 +1,13 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { SurveyModel, Question, QuestionPanelDynamicModel } from "survey-core";
+import { SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_element";
+import { SurveyModel, Question, QuestionPanelDynamicModel, Base, PanelModel } from "survey-core";
 import { SurveyPanel } from "./panel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
 import { SurveyAction } from "./components/action-bar/action-bar-item";
+import { ISurveyCreator } from "./reactquestion";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -14,6 +15,9 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   protected get question(): QuestionPanelDynamicModel {
     return this.questionBase as QuestionPanelDynamicModel;
+  }
+  protected getStateElement(): Base | null {
+    return this.question;
   }
   componentDidMount() {
     super.componentDidMount();
@@ -46,7 +50,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     this.question.renderedPanels.forEach((panel, index) => {
       panels.push(<SurveyQuestionPanelDynamicItem
         key={panel.id}
-        element={panel}
+        panel={panel}
         question={this.question}
         index={index}
         cssClasses={cssClasses}
@@ -113,12 +117,15 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
 }
 
-export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
+export class SurveyQuestionPanelDynamicItem extends SurveyElementBase<{ question: QuestionPanelDynamicModel, index: number, panel: PanelModel, cssClasses: any, isDisplayMode: boolean, creator: ISurveyCreator }, any> {
   private get question(): QuestionPanelDynamicModel {
     return this.props.question;
   }
   private get index(): number {
     return this.props.index;
+  }
+  private get panel() {
+    return this.props.panel;
   }
   protected getSurvey(): SurveyModel | null {
     return !!this.question ? (this.question.survey as SurveyModel) : null;
@@ -127,15 +134,19 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
     const survey = this.getSurvey();
     return !!survey ? survey.getCss() : {};
   }
-  public render() {
-    const panel = super.render();
+  protected renderElement(): React.JSX.Element {
     const removeButton = this.renderButton();
     const separator: React.JSX.Element | null = this.question.showSeparator(this.index) ?
       (<hr className={this.question.cssClasses.separator} />) : null;
     return (
       <>
         <div className={this.question.getPanelWrapperCss(this.panel)}>
-          {panel}
+          <SurveyPanel
+            element={this.panel}
+            cssClasses={this.props.cssClasses}
+            isDisplayMode={this.isDisplayMode}
+            creator={this.props.creator}>
+          </SurveyPanel>
           {removeButton}
         </div>
         {separator}

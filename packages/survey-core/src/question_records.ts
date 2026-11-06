@@ -1,8 +1,8 @@
 import { Base } from "./base";
-import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
+import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, getNestedElementQuestions } from "./question";
+import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
@@ -41,26 +41,18 @@ import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/record
 import { IRecordRemoval, IRecordTarget, IRecordTargetResolverOwner, RecordTargetResolver } from "./records/records-target-resolver";
 import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, QuestionRecordsBar } from "./question_records_bar";
 import { IRecordsSortField } from "./records/records-sort-bar";
-import { RecordsSortDialogModel, showRecordsSortDialog } from "./records/records-sort-dialog";
-import { getLocaleString } from "./surveyStrings";
-import type { PopupBaseViewModel } from "./popup-view-model";
 import type { PanelModelBase } from "./panel";
+import type { SurveyElement } from "./survey-element";
+import type { QuestionExpressionModel } from "./question_expression";
+import { ExpressionRunner } from "./expressions/expressionRunner";
 
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
    QuestionPanelDynamicItem: in design mode the panel shown is the template, which has none. */
 export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
+// Answers true to stop the walk, as a NestedElementVisit does.
+export type NestedWalkItemVisit = (item: NestedWalkItem, position: number, visible: boolean) => boolean | void;
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyOldValueReads } from "./interfaces/survey-callbacks";
-
-// What Creator passes to QuestionRecordsModel.showSortDialog.
-export interface IRecordsDesignSortDialogOptions {
-  // Apply with a changed draft: the caller writes sortCriteria (Creator does it for undo/redo).
-  onApply: (criteria: Array<ISortCriterion>) => void;
-  // Where the modal is placed; the survey's root element when omitted.
-  rootElement?: HTMLElement;
-  // The locale of the dialog's own texts for as long as it is open; the question's locale when omitted.
-  locale?: string;
-}
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -101,6 +93,14 @@ export interface IRecordItemWrite {
   ownerValue: any;
   isDeleting: boolean;
 }
+/* One question of the expression-field pass (QuestionRecordsModel.updateRecordsExpressionFields): its
+   expression questions, the records it built objects for, and its record scope, created on first use. */
+interface IRecordExpressionFields {
+  question: QuestionRecordsModel;
+  questions: Array<QuestionExpressionModel>;
+  built: Set<number>;
+  scope?: IDynamicDataRecordScope;
+}
 // The types of the removal flow keep importing these from here.
 export type { IRecordTarget, IRecordRemoval } from "./records/records-target-resolver";
 /* A field is used for sorting only (the filter is an expression and needs no typing), so a value type
@@ -120,6 +120,8 @@ type RecordsHelperOwner = IDynamicDataOwner & IRecordsPageValidationOwner & IRec
 function getRecordNumberOf(item: QuestionRecordItem): number {
   return item.getIndex() + (!!item.data ? item.data.getRecordNumberOffset() : 0);
 }
+// The question types an object rebinds with (canRebindTemplateQuestion): the ones the conformance tests pass.
+const rebindableQuestionTypes = ["text", "comment", "dropdown", "checkbox", "radiogroup", "boolean", "expression", "rating", "tagbox"];
 
 /**
  * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
@@ -376,8 +378,8 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   private getQuestionsSharingValue(name: string): Array<IQuestion> {
     return this.survey.getQuestionsByValueName(name) || [];
   }
-  /* The record fields the template questions of a dynamic panel or the column questions of a matrix
-     contribute to the list: one per question, under its value name, and one more for a comment,
+  /* The record fields the template questions of a dynamic panel, or the column and detail panel questions
+     of a matrix, contribute to the list: one per question, under its value name, and one more for a comment,
      which is stored under an ordinary key of the same record. A question with an "other" item and no
      comment stores the other text under the same comment key (storeOthersAsComment): a string field,
      declared after the others. */
@@ -430,7 +432,8 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     // A list that pages in memory creates the edited set on every change it raises here. An edit
     // renumbers nothing: it marks the record edited.
     const validation = this.isPagedByList ? this.pageValidation : this._pageValidation;
-    if (change.type === "recordChanged" && !!validation) validation.markEdited(change.index);
+    // The fields the expression-field pass computes are not an edit (updateRecordsExpressionFields).
+    if (change.type === "recordChanged" && !!validation && !this.expressionFieldsWriteScope.isActive) validation.markEdited(change.index);
     const listChange = getRecordListChangeEvent(change);
     if (!!listChange)this.followRecordIndexEvent(listChange);
     /* A write the list pushed to a data source: with the array source over question.value the push
@@ -456,7 +459,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     if (isRemote) {
       this.commitLoadedRecords();
     } else {
-      this.rebuildFromDataList(false);
+      this.rebuildFromDataList(false, change.isSort === true);
     }
   }
   /* An insert answer brought the record the source stored: the merged record reaches the object of
@@ -838,8 +841,14 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     }
   }
   /* The records of the view in view order, each with its object (undefined for a record without one):
-     visibleOnly walks the visible records, otherwise every record the view creates. */
+     visibleOnly walks the visible records, otherwise every record the view creates. The built objects
+     of a question the list does not page are what is shown, with or without a view: visibleOnly walks
+     them all, in created order, func checks each one's visibility, and the list is not created. */
   protected forEachViewRecord(visibleOnly: boolean, func: (index: number, item: QuestionRecordItem) => void): void {
+    if (visibleOnly && !this.isPagedByList && this.areObjectsBuilt()) {
+      this.forEachItem((item: QuestionRecordItem): void => { func(this.getBuiltRecordIndex(item), item); });
+      return;
+    }
     this.forEachRecordItem(this.getViewIndexes(visibleOnly), (index: number, item: QuestionRecordItem): void => { func(index, item); });
   }
   protected getViewIndexes(visibleOnly: boolean): Array<number> {
@@ -856,6 +865,37 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     for (let i = 0; i < count; i++) {
       func(i, this.getItem(i) || undefined);
     }
+  }
+  /* The data of the view, what a row reads as {matrix}: the records of the view, not of the page, in the
+     answer's shape. A record the list filter excluded is not part of it - the same answer a source that
+     filters on its own side gives. The type's hooks decide when the value is the answer, which records
+     take part and what each gives. */
+  public getFilteredData(): any {
+    if (this.isValueFilteredData()) return this.value;
+    const visibleOnly = !this.isHiddenRecordInFilteredData();
+    return this.collectRecordValues((func: (index: number, item: QuestionRecordItem) => void): void => this.forEachViewRecord(visibleOnly, func),
+      (index: number, item: QuestionRecordItem, add: (value: any) => void): void => this.addFilteredRecordValue(index, item, add));
+  }
+  // There is nothing to walk: without a view every record is in the value.
+  protected isValueFilteredData(): boolean {
+    return !this.hasDataListView;
+  }
+  // Whether a record the owner hides (rowsVisibleIf, templateVisibleIf) takes part: it does when its completed value keeps it.
+  protected isHiddenRecordInFilteredData(): boolean {
+    return false;
+  }
+  // What a record of the walk gives to the filtered data, through add; item is undefined for a record without an object.
+  protected abstract addFilteredRecordValue(index: number, item: QuestionRecordItem, add: (value: any) => void): void;
+  /* One walk, the result in the answer's shape, which the own source decides: an array in walk order,
+     or keyed by the row value. forEachRecord is the walk, func adds what a record contributes. */
+  protected collectRecordValues(forEachRecord: (func: (index: number, item: QuestionRecordItem) => void) => void,
+    func: (index: number, item: QuestionRecordItem, add: (value: any) => void) => void): any {
+    const source = this.recordsSource;
+    const res = source["createEmptyAnswer"]();
+    forEachRecord((index: number, item: QuestionRecordItem): void => {
+      func(index, item, (value: any): void => { source["addRecordToAnswer"](res, index, value); });
+    });
+    return res;
   }
   /* The display values of a records value, in record order: getRecordDisplayValue formats each record
      with the object that holds it, or with the question's templates. This is a live path - text piping
@@ -1086,8 +1126,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      write (the limits, the count expression) is silent. */
   private writeRecordCount(val: number, origin: "code" | "authored" | "internal"): void {
     if (!this.isRemoteData) {
-      this.setRecordCountCore(val);
-      this.storeRecordsToCount();
+      this.runRecordsOperation(this.recordCountScope, (): void => {
+        this.setRecordCountCore(val);
+        this.storeRecordsToCount();
+      });
     } else if (origin === "authored") {
       this.setPropertyValue(this.getRecordCountNames().count, Helpers.getNumber(val));
     } else if (origin === "code" && Helpers.getNumber(val) !== this.recordCount) {
@@ -1185,18 +1227,17 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     return Math.min(this.pageSize, maxPageSize);
   }
   // The nested elements of the rows or panels a build mode reads, item by item.
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
-    this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): void => {
-      this.forEachNestedElementOfItem(item, position, visible, build, visit);
-    });
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
+    return this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): boolean | void =>
+      this.forEachNestedElementOfItem(item, position, visible, build, visit));
   }
   /* The items a build mode reads, each with its position in the list of created items - never an index
      in a visible-only list, so that the segment of the record it holds can be computed - and whether the
      question shows it. */
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void { }
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: NestedWalkItemVisit): boolean | void { }
   // The nested elements of one item at a position in the list of created items.
   protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
-    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void { }
+    build: NestedWalkBuild, visit: NestedElementVisit): boolean | void { }
   protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
     return includeItSelf;
   }
@@ -1262,8 +1303,9 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      and the page is not the one the objects hold, the objects are rebuilt - the rebuild runs the
      conditions of the new objects itself. Returns whether a flag changed and whether it rebuilt. */
   protected rebuildStalePage(properties: HashTable<any>): { isChanged: boolean, isRebuilt: boolean } {
+    const isViewChanged = this.updateRecordsExpressionFields(properties);
     const isChanged = this.updatePagedRecordsVisibility(properties);
-    const isRebuilt = isChanged && this.isPageStale();
+    const isRebuilt = isViewChanged || isChanged && this.isPageStale();
     if (isRebuilt) {
       this.rebuildFromDataList(false);
     }
@@ -1694,6 +1736,158 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     return !this.survey || !this.validationCallbacks.canLeavePageWithErrors;
   }
 
+  /* Bug#12156: an expression column of a matrix and an expression question of a panel template are
+     computed by an object - a row or a panel - while sumInArray, the totals, the filter and the sort
+     read the stored records. A question that pages builds the objects of one page, and a filter builds
+     none for the records it excludes, so the records without an object compute their expression fields
+     here, value-only, in the record visibility scope (createRecordVisibilityScope), and the changed
+     records are written in one batch as a computed write. It runs with the conditions of the question
+     (rebuildStalePage), before the records decide their visibility: a survey value, a record written
+     from outside and an earlier computed field are seen there. The value is the one the object computes,
+     so an object built later writes nothing. The fields are computed in template order, up to three
+     passes per record, so a field that reads another one of the record sees its new value. Not computed:
+     an async expression, a question that does not run while read-only (runIfReadOnly), a record that is
+     not an object, a question that does not page and has no filter or sort - every record gets an object
+     there - and a source that pages itself. Cost: one expression run per expression field per record
+     without an object, per condition run; one runner per expression text.
+     Questions that share the value (Andrew, 2026-10-29): the first of them that computes fields computes
+     them for all - each one's expression questions over the records it has no object for - and writes
+     once; the others compute nothing and receive the write as an update in place (storeOwnListRecords).
+     Returns whether the view - the records with an object, in their order - changed. */
+  private recordExpressionRunners: Map<string, ExpressionRunner> = new Map<string, ExpressionRunner>();
+  private updateRecordsExpressionFields(properties: HashTable<any>): boolean {
+    if (!this.isExpressionFieldsComputed()) return false;
+    const group = this.getExpressionFieldsQuestions();
+    if (group.some((question: QuestionRecordsModel): boolean => question.isRecordsOperationOpen)) {
+      group.forEach((question: QuestionRecordsModel): void => { question.owedExpressionFields = properties; });
+      return false;
+    }
+    if (group[0] !== this) return false;
+    const parts = group.map((question: QuestionRecordsModel): IRecordExpressionFields => {
+      const built = new Set<number>();
+      question.forEachItem((item: QuestionRecordItem): void => {
+        if (isRecordItem(item)) built.add(question.getBuiltRecordIndex(item));
+      });
+      return { question: question, questions: question.getRecordExpressionFieldQuestions(), built: built };
+    });
+    const runners = new Map<string, ExpressionRunner>();
+    const getRunner = (text: string): ExpressionRunner => {
+      if (!text) return undefined;
+      let runner = runners.get(text) || this.recordExpressionRunners.get(text);
+      if (!runner) runner = new ExpressionRunner(text);
+      runners.set(text, runner);
+      return runner.isAsync ? undefined : runner;
+    };
+    const changes: Array<{ index: number, record: any }> = [];
+    const count = this._dataList.loadedCount;
+    for (let index = 0; index < count; index++) {
+      const record = this.getListRecordAt(index);
+      if (!Helpers.isValueObject(record, true)) continue;
+      const computed = this.computeRecordExpressionFields(index, record, parts, getRunner, properties);
+      if (!!computed) changes.push({ index: index, record: computed });
+    }
+    this.recordExpressionRunners = runners;
+    if (changes.length === 0) return false;
+    const views = group.filter((question: QuestionRecordsModel): boolean => question._dataList.hasView)
+      .map((question: QuestionRecordsModel) => ({ question: question, created: question._dataList.getCreatedIndexes().slice() }));
+    this.expressionFieldsWriteScope.run((): void => this.runComputedWrites((): void => this.writeRecordChanges(changes)));
+    let isChanged = false;
+    views.forEach((view: { question: QuestionRecordsModel, created: Array<number> }): void => {
+      const list = view.question._dataList;
+      if (!list || view.question.isDisposed) return;
+      // A same-length write is not seen by the list: the filter and the sort read the new fields.
+      list.invalidateViews(list.hasTouchedRecords ? (index: number): number => index : undefined);
+      if (Helpers.isArraysEqual(view.created, list.getCreatedIndexes())) return;
+      if (view.question === this) {
+        isChanged = true;
+      } else {
+        view.question.rebuildFromDataList(false);
+      }
+    });
+    return isChanged;
+  }
+  // The record with the fields recomputed, or undefined when none changed.
+  private computeRecordExpressionFields(index: number, record: any, parts: Array<IRecordExpressionFields>,
+    getRunner: (text: string) => ExpressionRunner, properties: HashTable<any>): any {
+    let res: any;
+    for (let pass = 0; pass < 3; pass++) {
+      let isChanged = false;
+      parts.forEach((part: IRecordExpressionFields): void => {
+        if (part.built.has(index)) return;
+        part.questions.forEach((q: QuestionExpressionModel): void => {
+          const runner = getRunner(q.expression);
+          if (!runner) return;
+          if (!part.scope) part.scope = part.question.createRecordVisibilityScope(properties);
+          const current = res || record;
+          part.scope.item.reset(index, current);
+          const value = q["roundValue"](runner.runContext(part.scope.item.getValueGetterContext(), part.scope.properties));
+          const name = q.getValueName();
+          const isEmpty = Helpers.isValueEmpty(value);
+          if (isEmpty ? Helpers.isValueEmpty(current[name]) : Helpers.isTwoValueEquals(current[name], value)) return;
+          if (!res) res = Object.assign({}, record);
+          if (isEmpty) {
+            delete res[name];
+          } else {
+            res[name] = value;
+          }
+          isChanged = true;
+        });
+      });
+      if (!isChanged) break;
+    }
+    return res;
+  }
+  private isExpressionFieldsComputed(): boolean {
+    const list = this._dataList;
+    return !!list && !this.isDesignMode && !this.isRemoteData && !!this.survey && (this.isPagingActive || list.hasView) &&
+      this.getRecordExpressionFieldQuestions().length > 0;
+  }
+  private getRecordExpressionFieldQuestions(): Array<QuestionExpressionModel> {
+    return this.getRecordExpressionQuestions().filter((q: QuestionExpressionModel): boolean => !this.isReadOnly || q.runIfReadOnly);
+  }
+  // The questions sharing the value that compute fields, in survey order: the first one computes them for all.
+  private getExpressionFieldsQuestions(): Array<QuestionRecordsModel> {
+    const res: Array<QuestionRecordsModel> = [];
+    const add = (question: IQuestion): void => {
+      if (question instanceof QuestionRecordsModel && res.indexOf(question) < 0 && question.isExpressionFieldsComputed()) res.push(question);
+    };
+    if (!!this.survey) {
+      this.getQuestionsSharingValue(this.getValueName()).forEach(add);
+    }
+    add(this);
+    return res;
+  }
+  /* The pass writes the records, so it does not run inside an operation of the question's own, nor of
+     a question sharing the value (Andrew, option A, 2026-10-29): an assignment of the value, an add, a
+     count change, a write of the question's own or of the list, a structural store and the objects
+     that follow it - the objects are built or written there. A condition run inside one owes the pass,
+     with its properties; it runs once, with the latest ones, when the last such operation has ended
+     (runOwedExpressionFields). */
+  private owedExpressionFields: HashTable<any>;
+  private expressionFieldsWriteScope: Scope = new Scope();
+  private recordCountScope: Scope = new Scope();
+  private get isRecordsOperationOpen(): boolean {
+    return this.valueAssignmentScope.isActive || this.recordAddScope.isActive || this.recordCountScope.isActive || this.isOwnWriteOpen ||
+      this.structuralStoreScope.isActive || this.followingWriteScope.isActive;
+  }
+  private runRecordsOperation<T>(scope: Scope, func: () => T): T {
+    try {
+      return scope.run(func);
+    } finally {
+      this.runOwedExpressionFields();
+    }
+  }
+  private runOwedExpressionFields(): void {
+    const properties = this.owedExpressionFields;
+    if (!properties || this.isDisposed) return;
+    const group = this.getExpressionFieldsQuestions();
+    if (group.some((question: QuestionRecordsModel): boolean => question.isRecordsOperationOpen)) return;
+    this.owedExpressionFields = undefined;
+    group.forEach((question: QuestionRecordsModel): void => { question.owedExpressionFields = undefined; });
+    if (group.length > 0) group[0].rebuildStalePage(properties);
+  }
+  // The expression questions of a record: the expression columns, the expression questions of the template.
+  protected abstract getRecordExpressionQuestions(): Array<QuestionExpressionModel>;
   /* rowsVisibleIf / templateVisibleIf under paging (Andrew's decision 2026-09-25): a page is a slice
      of the VISIBLE records, so the condition is evaluated over every record without an object and
      the list's hidden flags are written from it (DynamicDataRecordVisibility), without building a
@@ -1702,8 +1896,8 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      as usual - and the record item is the {row} / {panel} variable of a copy of the run's
      properties, as a built row or panel is, so a custom function sees it as this.row / this.panel.
      A built object runs no visibility condition of its own (getRowsVisibleIfForRows, createNewPanel):
-     a hidden record gets none, and the two cannot disagree. Limitation: an expression cell or an
-     expression question the condition reads contributes its stored value.
+     a hidden record gets none, and the two cannot disagree. An expression cell or an expression
+     question the condition reads is computed before it (updateRecordsExpressionFields).
      The expression is read only past the guards, and before areInvisibleElementsShowing is applied:
      the survey's onExpressionRunning fires in that mode too. A flag that changed changes the page
      count, which the list does not announce: the question syncs it. Returns whether a flag changed. */
@@ -2025,7 +2219,13 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       const visibleIndex = this.dataList.getGlobalVisibleIndex(recordIndex);
       if (visibleIndex > -1)this.keepPendingVisibleIndex(visibleIndex);
     }
-    return this.showPageOfRecord(recordIndex);
+    return this.insertedRecordPageScope.run((): boolean => this.showPageOfRecord(recordIndex));
+  }
+  /* The page move of an add is under way: the page holds a record no object was built for, and its
+     object has to be a new one - a type that rebinds its objects on a page move rebuilds them. */
+  private insertedRecordPageScope: Scope = new Scope();
+  protected get isShowingInsertedRecordPage(): boolean {
+    return this.insertedRecordPageScope.isActive;
   }
   /* The add of a question whose count setter builds the objects (setRecordCountCore in grow):
      the grow appends the new record at the end, and the record then moves to getIndex() and takes
@@ -2159,10 +2359,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
   public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
   private changePageWithoutAnimation(func: () => boolean) {
-    this.blockAnimations();
-    const res = func();
-    this.releaseAnimations();
-    return res;
+    return this.runWithoutAnimations(func);
   }
   /* The respondent's page moves: a move forward validates the page it leaves. false = an error was
      found at once; true = moved, or waiting for asynchronous validators (see isPageMovePending). */
@@ -2262,7 +2459,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     return this.allowSort === true;
   }
   /* Whether the rendered column headers sort. The dynamic panel has no headers, so its sort bar is the only
-     sort UI; the matrix's showSortBar "auto" shows the bar only while this is false. */
+     sort UI; the matrix's showSortBar "auto" shows the bar while this is false or a detail field is offered. */
   public get canSortByHeaders(): boolean { return false; }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value
@@ -2331,13 +2528,11 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   protected getAdditionalTitleToolbar(): ActionContainer | null {
     return this.recordsBar.sortActions;
   }
-  protected getCssHeader(cssClasses: any): string {
-    return toCssClasses(super.getCssHeader(cssClasses), this.sortBarLocation === "header" && cssClasses.headerWithSortBar);
-  }
   /* The fields the sort bar offers, in the order the question shows them: the sortable columns of a
-     matrix, the value-sortable template questions of a dynamic panel. Computed on every read from the
-     columns or the template, which notify the bar through updateRecordsBar(). The data type is the
-     one the list registered (getFields), so the bar and the list agree. */
+     matrix and then the questions of its detail panel, the value-sortable template questions of a
+     dynamic panel. Computed on every read from the columns or the template, which notify the bar
+     through updateRecordsBar(). The data type is the one the list registered (getFields), so the bar
+     and the list agree. */
   protected get sortFields(): Array<IRecordsSortField> {
     return this.toSortFields(this.getSortFieldCandidates());
   }
@@ -2351,7 +2546,13 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     return res;
   }
   protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
-    return [];
+    const template = this.getRecordSortTemplate();
+    return !!template ? this.getTemplateSortFieldCandidates(template) : [];
+  }
+  /* The panel whose questions fill a record and are offered by the sort bar: the template of a dynamic
+     panel, the detail panel of a matrix. */
+  protected getRecordSortTemplate(): PanelModelBase {
+    return undefined;
   }
   /* The fields a designer can sort by (getDesignSortFields): every field whose values sort, whatever allowSort
      and a column's allowSort say - they gate the respondent, not sortCriteria. The dynamic panel offers what its
@@ -2363,13 +2564,54 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      the same record), under the value name the list knows it by (getFieldsOfQuestions). A question
      hidden in the template is left out; one a visibleIf hides in some records is not: the sort covers
      those records too. */
-  protected getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
+  private getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
     const res: Array<{ field: string, title: string }> = [];
     template.questions.forEach((q: Question): void => {
-      if (!q.isValueSortable || !isVisibleInTemplate(q, template)) return;
-      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q) });
+      if (!this.isTemplateQuestionSortable(q) || !isVisibleInTemplate(q, template)) return;
+      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q, this) });
     });
     return res;
+  }
+  protected isTemplateQuestionSortable(q: Question): boolean {
+    return q.isValueSortable;
+  }
+  /* The watch of a record template. One handler for every template element, so that an element is
+     subscribed once however often it is walked: onPropertyChanged.add skips a callback it holds. A
+     panel brings its elements, and its later ones through the nested callbacks. It ends when the
+     element leaves the template, and with the question. */
+  private onTemplateElementPropertyChangedHandler = (element: any, options: any): void => {
+    this.onTemplateElementPropertyChanged(element, options);
+  };
+  private onNestedTemplateElementAdded = (element: IElement): void => {
+    this.watchRecordTemplateElement(<SurveyElement><any>element);
+    this.updateRecordsBar();
+  };
+  private onNestedTemplateElementRemoved = (element: IElement): void => {
+    this.unwatchRecordTemplateElement(<SurveyElement><any>element);
+    this.updateRecordsBar();
+  };
+  protected watchRecordTemplateElement(element: SurveyElement): void {
+    this.onRecordTemplateElementWatched(element);
+    element.onPropertyChanged.add(this.onTemplateElementPropertyChangedHandler);
+    if (element.isPanel) {
+      const panel = <PanelModelBase><any>element;
+      panel.addElementCallback = this.onNestedTemplateElementAdded;
+      panel.removeElementCallback = this.onNestedTemplateElementRemoved;
+      panel.elements.forEach((el: IElement): void => { this.watchRecordTemplateElement(<SurveyElement><any>el); });
+    }
+  }
+  protected unwatchRecordTemplateElement(element: SurveyElement): void {
+    element.onPropertyChanged.remove(this.onTemplateElementPropertyChangedHandler);
+    if (element.isPanel) {
+      const panel = <PanelModelBase><any>element;
+      if (panel.addElementCallback === this.onNestedTemplateElementAdded) panel.addElementCallback = undefined;
+      if (panel.removeElementCallback === this.onNestedTemplateElementRemoved) panel.removeElementCallback = undefined;
+      panel.elements.forEach((el: IElement): void => { this.unwatchRecordTemplateElement(<SurveyElement><any>el); });
+    }
+  }
+  protected onRecordTemplateElementWatched(element: SurveyElement): void { }
+  protected onTemplateElementPropertyChanged(element: any, options: any): void {
+    this.updateRecordsBar();
   }
   // A locale change changes no sort and no property; the bar's texts and the field titles follow it.
   public locStrsChanged(): void {
@@ -2442,8 +2684,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       getCssClasses: (): IRecordsBarCssClasses => {
         const css = question.cssClasses;
         return { root: css.recordsBar, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
-          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel,
-          sortDialog: css.sortDialog, sortDialogRow: css.sortDialogRow };
+          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel };
       },
       createActionContainer: <T extends ActionContainer>(container?: T): T => {
         return !!container ? question.initActionContainer(container) : <T>question.createActionContainer();
@@ -2452,83 +2693,9 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     };
   }
   /* The fields a designer can sort by, computed on every call: Creator's property grid offers them as the choices
-     of a sortCriteria item's field (SortCriterion.getFieldChoices), and the designer's dialog (showSortDialog)
-     offers the same ones, so the two never disagree. */
+     of a sortCriteria item's field (SortCriterion.getFieldChoices). */
   public getDesignSortFields(): Array<IRecordsSortField> {
     return this.toSortFields(this.getDesignSortFieldCandidates());
-  }
-  /* Creator's entry to the "Sort by" dialog, an alternative to editing the sortCriteria items in place in the
-     property grid (each item reports this question's survey, so an edit is an undo step). Not for respondents.
-     The dialog offers every value-sortable field (getDesignSortFieldCandidates) and as many rows as fields:
-     allowSort, a column's allowSort and maxSortLevel limit the respondent only. Its Apply neither sorts nor
-     validates the page: a changed draft goes to options.onApply. The dialog reads its texts again on every
-     change, so options.locale holds for its whole life. A second call closes the dialog of the first, and so does
-     the question's dispose(). Returns the modal, so the caller can wait for its onHide; undefined without
-     settings.showDialog. Design mode does not matter: the dialog does not read it. */
-  public showSortDialog(options: IRecordsDesignSortDialogOptions): PopupBaseViewModel {
-    this.closeDesignSortDialog();
-    if (!settings.showDialog) return undefined;
-    const owner = this.createDesignSortDialogOwner(options);
-    const fields = owner.sortFields;
-    const dialog = new RecordsSortDialogModel(owner, {
-      shownField: fields.length > 0 ? fields[0].field : undefined,
-      sortByUser: (criteria: Array<ISortCriterion>): boolean => {
-        options.onApply(criteria);
-        return true;
-      },
-      onApplied: (): void => { }
-    });
-    this.designSortDialog = dialog;
-    const popup = showRecordsSortDialog(dialog, owner, (): void => { this.onDesignSortDialogClosed(dialog); });
-    if (!popup) {
-      this.onDesignSortDialogClosed(dialog);
-    }
-    return popup;
-  }
-  private designSortDialog: RecordsSortDialogModel;
-  private onDesignSortDialogClosed(dialog: RecordsSortDialogModel): void {
-    if (this.designSortDialog !== dialog) return;
-    this.designSortDialog = undefined;
-    dialog.dispose();
-  }
-  // The bar owns the respondent's dialog (RecordsSortBar.closeDialog); the question owns the designer's.
-  private closeDesignSortDialog(): void {
-    const dialog = this.designSortDialog;
-    if (!dialog) return;
-    this.designSortDialog = undefined;
-    dialog.close();
-    dialog.dispose();
-  }
-  /* The bar's owner with the designer's fields, a row per field, no waiting state (the designer's Apply reads
-     no page) and, with options.locale, the dialog's own locale for its texts and lists. */
-  private createDesignSortDialogOwner(options: IRecordsDesignSortDialogOptions): IQuestionRecordsBarOwner {
-    const question = this;
-    const locale = options.locale;
-    const fields = (): Array<IRecordsSortField> => question.getDesignSortFields();
-    const owner: IQuestionRecordsBarOwner = Object.create(this.createRecordsBarOwner());
-    Object.defineProperties(owner, {
-      sortFields: { get: fields },
-      maxSortLevel: { get: (): number => Math.max(1, fields().length) },
-      isDataLoading: { value: false },
-      isPageMovePending: { value: false }
-    });
-    owner.getRootElement = (): HTMLElement => options.rootElement || question.survey?.rootElement;
-    if (!!locale) {
-      owner.getLocalizationString = (strName: string): string => getLocaleString(strName, locale);
-      owner.getLocalizationFormatString = (strName: string, ...args: any[]): string => {
-        const str: any = getLocaleString(strName, locale);
-        return !!str && !!str.format ? str.format(...args) : "";
-      };
-      const locOwner: ILocalizableOwner = {
-        getLocale: (): string => locale,
-        getMarkdownHtml: (text: string, name: string, item?: any): string => question.getMarkdownHtml(text, name, item),
-        getProcessedText: (text: string): string => question.getProcessedText(text),
-        getRenderer: (name: string): string => question.getRenderer(name),
-        getRendererContext: (locStr: LocalizableString): any => question.getRendererContext(locStr)
-      };
-      owner.getLocOwner = (): ILocalizableOwner => locOwner;
-    }
-    return owner;
   }
   /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar
      mirrors it (QuestionRecordsBar.showPager). */
@@ -2681,6 +2848,93 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   }
   protected runRecordRemoval(target: IRecordTarget, isConfirmed: boolean, message: string, remove: (current: IRecordTarget) => void): void {
     this.recordTargets.runRecordRemoval(target, isConfirmed, message, remove);
+  }
+  /* The other way to follow a view change (a sort, a page move): the objects stay, and the object at
+     each position takes the record indexes names there, read by getRecord - the way a move keeps them.
+     An object keeps nothing it held for its old record (QuestionRecordItem.rebindToRecord); the copies
+     and the computed writes are a rebuild's. onRebound runs for each object inside the same scopes. A
+     confirmation open about one of the objects removes nothing. The owner runs the conditions after. */
+  protected rebindItems<T extends QuestionRecordItem>(items: Array<T>, indexes: Array<number>,
+    getRecord: (recordIndex: number) => any, onRebound?: (item: T, position: number) => void): void {
+    this.recordTargets.onItemsRebound();
+    this.runComputedWrites((): void => {
+      this.runShowingRecords((): void => {
+        items.forEach((item: T, position: number): void => {
+          const recordIndex = indexes[position];
+          this.setBuiltRecordIndex(item, recordIndex);
+          item.rebindToRecord(getRecord(recordIndex));
+          if (!!onRebound) {
+            onRebound(item, position);
+          }
+        });
+      });
+    });
+  }
+  /* A sort, a cleared sort and a page move the list cuts may keep the objects: the records the objects
+     would be built for, when the objects can be rebound to them (rebindItems). undefined: rebuild - for
+     any other change, a case canRebindItems refuses, or a record that became visible or hidden ahead of
+     the page, which needs another number of objects than there are. */
+  protected getRebindRecordIndexes(items: Array<QuestionRecordItem>, isPageMove: boolean, isSort: boolean): Array<number> {
+    if (!isPageMove && !isSort || !this.canRebindItems(items, isPageMove)) return undefined;
+    this.decideRecordsVisibility();
+    const indexes = this.getObjectRecordIndexes();
+    return indexes.length === items.length ? indexes : undefined;
+  }
+  /* Whether objects rebound to other records look as objects built for them would. A rebuild stays the
+     path wherever a rebound object would keep, write or announce something a new one would not; the
+     owner adds its own reasons (canRebindOwnItems). */
+  private canRebindItems(items: Array<QuestionRecordItem>, isPageMove: boolean): boolean {
+    if (!Array.isArray(items)) return false;
+    // The objects of a remote window are built when its read commits.
+    if (this.isRemoteData) return false;
+    // An add shows the page of its new record: the record has no object, and a new object is what the add announces.
+    if (isPageMove && this.isShowingInsertedRecordPage) return false;
+    // Single-input mode walks the objects one input at a time.
+    if (!!this.survey && this.survey.isSingleVisibleInput) return false;
+    if (!this.canRebindOwnItems()) return false;
+    for (let i = 0; i < items.length; i++) {
+      // A late validator result would mark the record the object shows when it arrives.
+      if (items[i].isRunningValidators()) return false;
+      const questions = items[i].questions;
+      for (let j = 0; j < questions.length; j++) {
+        /* An async expression or condition still running (an expression cell, a visibleIf): its result
+           would land in the record the question shows when it arrives, and the question would start no
+           new run for that record while the old one is pending. */
+        if (questions[j].isAsyncExpressionRunning) return false;
+        /* clearInvisibleValues: "onHidden": a rebound question a condition hides clears its record's
+           answer, while a question built for a stored record keeps it (isBuildingChildrenForStoredRecords). */
+        if (questions[j]["isClearValueOnHidden"]) return false;
+      }
+    }
+    return true;
+  }
+  // The reasons of the owner's own to rebuild on a sort or a page move: its options, its layout, its template.
+  protected canRebindOwnItems(): boolean {
+    return true;
+  }
+  // A template question whose objects' questions look, rebound, as built ones would.
+  protected canRebindTemplateQuestion(question: Question): boolean {
+    if (!question) return false;
+    // The types the conformance tests check (matrix-rebind-rows.test.ts); a records question keeps its
+    // nested page state under its outer record, and an upload that finishes after a rebind would write a
+    // file into another record.
+    if (rebindableQuestionTypes.indexOf(question.getType()) < 0) return false;
+    /* Choices loaded from a URL or on demand: a load the old record started, and the value it keeps
+       for the next load, would reach the record the object shows now. */
+    if (!!question["hasChoicesUrl"] || question["choicesLazyLoadEnabled"]) return false;
+    // A custom widget is set up on its element when the element is mounted, for the record shown then.
+    if (!!question.customWidget) return false;
+    // A choice with elements: the questions of its panel keep their state under the old record.
+    if (Array.isArray(question["choices"]) && question["choices"].some((item: any): boolean => !!item.hasElements)) return false;
+    // A default is written into a record when its object is first built.
+    return this.isValueEmpty(question.defaultValue) && !question.defaultValueExpression;
+  }
+  /* A survey event with a handler, among events: what a handler configures for the record an object
+     was created for would stay with the object. A survey without an event is asked as one with a handler. */
+  protected hasSurveyHandlers(events: Array<string>): boolean {
+    const survey: any = this.survey;
+    if (!survey) return false;
+    return events.some((name: string): boolean => !survey[name] || !survey[name].isEmpty);
   }
   /* The visible position a move from code goes to while the objects of its page do not exist yet,
      and the move it belongs to: a move made from inside another one - an event handler - supersedes
@@ -2891,6 +3145,11 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      (onRecordsValueStored) and after it (onRecordsValueAssigned) - and update isAnswered there, after
      that work: the value is stored with updateIsAnswered = false, whatever the caller passed. */
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    this.runRecordsOperation(this.valueAssignmentScope, (): void => this.setQuestionValueCore(newValue));
+  }
+  // The objects follow the assignment inside it: their condition runs owe the expression-field pass (runOwedExpressionFields).
+  private valueAssignmentScope: Scope = new Scope();
+  private setQuestionValueCore(newValue: any): void {
     const oldRecords = copyRecords(this.getStoredRecords());
     const assignment = this.beginValueAssignment(newValue, oldRecords);
     super.setQuestionValue(newValue, false);
@@ -3052,8 +3311,14 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   // for it: without a list there is no view to keep them in.
   protected runRecordAdd<T>(func: () => T): T {
     const list = this.dataListValue;
-    return !!list ? list.runAddScope(func) : func();
+    return this.runAddOperation((): T => !!list ? list.runAddScope(func) : func());
   }
+  // A type's whole add - the insert, the objects that follow it and the values they write back: the
+  // expression-field pass waits for its end (runOwedExpressionFields).
+  protected runAddOperation<T>(func: () => T): T {
+    return this.runRecordsOperation(this.recordAddScope, func);
+  }
+  private recordAddScope: Scope = new Scope();
   /* Writes that only show the records a data source holds: the values the objects compute while they are
      built go with a record's next update (DynamicDataList.runShowingRecords). Nothing is created for it:
      without a list there is nothing to send. */
@@ -3124,6 +3389,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       if (!this.ownRecordsChangeScope.isActive && !!this.owedAssignment && !(!!this._dataList && this._dataList.isWriteOpen)) {
         this.followOwedAssignment();
       }
+      this.runOwedExpressionFields();
     }
   }
   private get isOwnWriteOpen(): boolean {
@@ -3151,6 +3417,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   private onListWriteEnded(): void {
     if (!this.ownRecordsChangeScope.isActive && !!this.owedAssignment)this.followOwedAssignment();
     this.runHeldItemsCondition();
+    this.runOwedExpressionFields();
   }
   /* An insert, a removal or a move of the list stores the value before the objects follow it: an
      in-memory source stores it inside the push, and the list notifies the owner after the push. Under
@@ -3168,7 +3435,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     const isStructural = this.hasDataListView && (operations || []).some((operation: DynamicDataSourceMethod): boolean => operation !== "update");
     const store = (): void => this.setListRecords(records, operations);
     if (isStructural) {
-      this.structuralStoreScope.run(store);
+      this.runRecordsOperation(this.structuralStoreScope, store);
     } else {
       store();
     }
@@ -3193,6 +3460,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       // have them write into the records their positions held before, so it is dropped.
       if (!isFollowed && !this.followingWriteScope.isActive)this.heldItemsCondition = undefined;
       this.runHeldItemsCondition();
+      this.runOwedExpressionFields();
     }
   }
   /* An object's write during the held run can change how many records are stored - a padded record
@@ -3373,7 +3641,6 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       this.recordsBarValue.dispose();
       this.recordsBarValue = undefined;
     }
-    this.closeDesignSortDialog();
     if (!!this._dataList) {
       this._dataList.dispose();
     }
@@ -3507,8 +3774,10 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   protected abstract runItemsCondition(properties: HashTable<any>): void;
   // The record fields the list knows (see getFieldsOfQuestions).
   protected abstract getFields(): Array<IDynamicDataField>;
-  // The objects are re-created for the records the view - under paging, the page - holds now.
-  protected abstract rebuildFromDataList(isPageMove: boolean): void;
+  /* The objects are re-created for the records the view - under paging, the page - holds now.
+     isSort: the reset of a sort or a cleared sort (onDataListChanged); with isPageMove the only
+     changes a type may answer by rebinding the objects it has instead of re-creating them. */
+  protected abstract rebuildFromDataList(isPageMove: boolean, isSort?: boolean): void;
   // A page of a source that pages itself was asked for: its objects arrive when the read commits.
   protected abstract refreshRenderedPage(): void;
   // The objects exist: generated rows, panels built for the first time. Objects that do not exist
@@ -3593,8 +3862,6 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   protected getRecordIndexOfUnknownItem(): number {
     return -1;
   }
-  // The value an item's {matrix} / {panel} variable reads.
-  public abstract getFilteredData(): any;
   /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
      matrix row (see QuestionRecordItem.prepareRecordWrite). A refused or ignored write never reaches it
      (writeItemValue). A temporary object of the records clean-up writes its copy; every other write is
@@ -3704,10 +3971,9 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      read-only (Question.focus refuses a read-only one). position: as forEachNestedWalkItem gives it. */
   protected focusNewRecord(item: NestedWalkItem, position: number, visible: boolean): void {
     if (!item) return;
-    let res: Question = null;
-    this.forEachNestedElementOfItem(item, position, visible, "none", (info: INestedElementInfo): void => {
-      if (!!res || !this.isNestedElementShown(item, info)) return;
-      res = getNestedElementQuestions(info).filter(q => q.isVisible && q.isParentVisible && q.hasInput && !q.isReadOnly)[0] || null;
+    const res = findInNestedWalk((visit: NestedElementVisit): void => { this.forEachNestedElementOfItem(item, position, visible, "none", visit); }, (info: INestedElementInfo): Question => {
+      if (!this.isNestedElementShown(item, info)) return null;
+      return getNestedElementQuestions(info).filter(q => q.isVisible && q.isParentVisible && q.hasInput && !q.isReadOnly)[0];
     });
     if (!!res) {
       res.focus();
@@ -3716,6 +3982,12 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   // Does the question render a nested element of an item? The default: whenever it shows the item.
   protected isNestedElementShown(item: NestedWalkItem, info: INestedElementInfo): boolean {
     return info.visible;
+  }
+  // Item by item: a detail panel is shown by its row, and the total row is outside the items.
+  protected forEachNestedElementToFocus(visit: NestedElementVisit): void {
+    this.forEachNestedWalkItem("none", (item: NestedWalkItem, position: number, visible: boolean): boolean | void =>
+      this.forEachNestedElementOfItem(item, position, visible, "none", (info: INestedElementInfo): boolean | void =>
+        this.isNestedElementShown(item, info) && visit(info)));
   }
   /* The question defines which records exist and in what order (the rows of the fixed matrix) when its
      own source has no insert: the list it creates refuses to insert, remove or move one. */
@@ -3753,7 +4025,16 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   /* The write of the default records source, as a type stores it. operations: the writes the source
      made (DynamicDataSourceMethod names), in order. */
   protected setListRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): void {
-    this.setOwnRecordsValue(records);
+    this.storeOwnListRecords(records);
+  }
+  /* The store of a list write. The write of the expression-field pass only updates records in place:
+     the siblings bound to the same value keep their objects (setOwnRecordsValueInPlace). */
+  protected storeOwnListRecords(value: any): void {
+    if (this.expressionFieldsWriteScope.isActive) {
+      this.setOwnRecordsValueInPlace(value);
+    } else {
+      this.setOwnRecordsValue(value);
+    }
   }
   /* A full validation visits every page of the view, not only the pages of the edited records: the
      records exist whether or not the respondent opened their page (the rows of the fixed matrix).
@@ -4139,6 +4420,37 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     question.updateValueFromSurvey(!!record ? record[name] : undefined);
     question.updateCommentFromSurvey(!!record ? record[Helpers.getCommentKey(name)] : undefined);
   }
+  /* The object is kept for another record (QuestionRecordsModel.rebindItems) and has to look like one
+     built for it: each of its questions drops what it held for the old record
+     (Question.resetForAnotherRecord) and takes the new one the way the owner fills the question of a new
+     object (fillQuestionFromRecord). The questions write nothing back. */
+  public rebindToRecord(record: any): void {
+    this.runSettingValue((): void => {
+      const questions = this.questions;
+      for (let i = 0; i < questions.length; i++) {
+        questions[i]["resetForAnotherRecord"]();
+        this.fillQuestionFromRecord(questions[i], record);
+      }
+    });
+  }
+  // How a question of a new object takes its record: by its value name, with the comment.
+  protected fillQuestionFromRecord(question: Question, record: any): void {
+    this.assignQuestionFromRecord(question, question.getValueName(), record, true);
+  }
+  /* A question takes the record's field name: an empty field leaves it as it is, and the comment comes
+     with a value only. The question writes nothing back while it has no data or the item sets values. */
+  protected assignQuestionFromRecord(question: Question, name: string, record: any, withComment: boolean): void {
+    const val = this.getRecordFieldValue(record, name);
+    if (Helpers.isValueEmpty(val)) return;
+    question.value = val;
+    const commentKey = Helpers.getCommentKey(name);
+    if (withComment && !!record && !Helpers.isValueEmpty(record[commentKey])) {
+      question.comment = record[commentKey];
+    }
+  }
+  protected getRecordFieldValue(record: any, name: string): any {
+    return !!record ? record[name] : undefined;
+  }
   // The questions receive values the item does not write back; the flag nests.
   protected runSettingValue(func: () => void): void {
     this.settingValueScope.run(func);
@@ -4364,7 +4676,7 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
    sortCriteria shows there too, whatever allowSort says - a designer's initial sort applies without
    letting respondents re-sort. Creator edits its items in place, a row per item with field and direction
    (SortCriterion: the survey and the field choices); uniqueProperty marks field as the column whose
-   values must not repeat. The "Sort by" dialog (showSortDialog) is the other way to edit it.
+   values must not repeat.
    filterExpression stays hidden and only loads from and saves to JSON.
    sortCriteria is an array of sortcriterion objects (the shape of calculatedValues); an element that
    is a plain string is not a criterion and has no shorthand.
@@ -4403,9 +4715,12 @@ function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
 }
 /* The title the sort bar shows for a template question. The template belongs to no record, so the
    record piping ({panel.x}, {panelIndex}, {row.x}, {rowIndex}) has nothing to resolve: the unprocessed
-   title is taken with every placeholder stripped, and the name when nothing is left. */
-function getTemplateQuestionSortTitle(q: Question): string {
-  const res = (q.locTitle.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
+   title is taken with every placeholder stripped, and the name when nothing is left. The title is read
+   in the owner's locale: the detail panel of a matrix belongs to no survey, so its questions have none. */
+function getTemplateQuestionSortTitle(q: Question, owner: ILocalizableOwner): string {
+  const title = new LocalizableString(owner);
+  title.sharedData = q.locTitle;
+  const res = (title.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
   return res || q.name;
 }
 /* The count properties of a type with a record count, named after its entity: rowCount, minRowCount,

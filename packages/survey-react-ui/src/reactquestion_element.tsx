@@ -3,6 +3,7 @@ import { Base, SurveyModel, Helpers, PanelModel, LocalizableString, Question, IP
 import { ISurveyCreator } from "./reactquestion";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
+import { PropertyAccessTracker, IPropertyAccessTracker } from "survey-core";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -16,6 +17,18 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       key: key
     });
   }
+  private allowUpdate: boolean = false;
+  private update = (stateElement: Base, options: IPropertyValueChangedEvent) => {
+    const key = options.name;
+    if (!this.canUsePropInState(key) || !this.allowUpdate) return;
+    this.changedStatePropNameValue = key;
+    this.setState((state: any) => {
+      var newState: { [index: string]: any } = {};
+      newState[key] = options.newValue;
+      return newState as S;
+    });
+  };
+  private propertyAccessTracker: IPropertyAccessTracker = new PropertyAccessTracker(this.update);
   public static renderQuestionDescription(question: Question | PanelModel): React.JSX.Element {
     var descriptionText = SurveyElementBase.renderLocString(question.locDescription);
     return <div style={question.hasDescription ? undefined : { display: "none" }} id={question.ariaDescriptionId} className={question.cssDescription}>{descriptionText}</div>;
@@ -25,14 +38,18 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     super(props);
   }
   componentDidMount() {
-    this.makeBaseElementsReact();
+    this.enableStateElementsRerenderEvent(this.getStateElements());
+    this.allowUpdate = true;
+    this.propertyAccessTracker.subscribe();
   }
   componentWillUnmount() {
-    this.unMakeBaseElementsReact();
     this.disableStateElementsRerenderEvent(this.getStateElements());
+    this.allowUpdate = false;
+    this.propertyAccessTracker.unsubscribe();
   }
   componentDidUpdate(prevProps: any, prevState: any) {
-    this.makeBaseElementsReact();
+    this.propertyAccessTracker.subscribe();
+    this.enableStateElementsRerenderEvent(this.getStateElements());
     const stateElements = this.getStateElements();
     this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.find(stateElement => stateElement == el)));
     this.prevStateElements = [];
@@ -50,47 +67,36 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   private prevStateElements: Array<Base> = [];
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    if (this._allowComponentUpdate) {
-      this.unMakeBaseElementsReact();
+    const res = this._allowComponentUpdate && (this.state !== nextState || Object.keys(this.props).some(key => nextProps[key] !== this.props[key]));
+    if (res) {
       this.prevStateElements = this.getStateElements();
     }
-    return this._allowComponentUpdate;
+    return res;
   }
+  protected forceHiddenDependencies() {}
   render(): React.JSX.Element | null {
-    if (!this.canRender()) {
-      return null;
+    let res = null;
+    this.propertyAccessTracker.startTracking();
+    // A render that throws must restore the listener: while any tracker is the listener, every tracker ignores changes.
+    try {
+      if (this.canRender()) {
+        this.forceHiddenDependencies();
+        res = this.renderElement();
+      }
+    } finally {
+      this.propertyAccessTracker.stopTracking();
     }
-
-    this.startEndRendering(1);
-    var res = this.renderElement();
-    this.startEndRendering(-1);
-
     if (!!res) {
       res = this.wrapElement(res);
     }
-
     this.changedStatePropNameValue = undefined;
     return res;
   }
   protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     return element;
   }
-  protected get isRendering(): boolean {
-    var stateEls: Array<any> = this.getRenderedElements();
-    for (let stateEl of stateEls) {
-      if (stateEl.reactRendering > 0) return true;
-    }
-    return false;
-  }
   protected getRenderedElements(): Base[] {
     return this.getStateElements();
-  }
-  private startEndRendering(val: number) {
-    var stateEls: Array<any> = this.getRenderedElements();
-    for (let stateEl of stateEls) {
-      if (!stateEl.reactRendering) stateEl.reactRendering = 0;
-      stateEl.reactRendering += val;
-    }
   }
   protected canRender(): boolean {
     return true;
@@ -101,25 +107,14 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   protected get changedStatePropName(): string | undefined {
     return this.changedStatePropNameValue;
   }
-  private makeBaseElementsReact() {
-    var els = this.getStateElements();
-    for (var i = 0; i < els.length; i++) {
-      els[i].enableOnElementRerenderedEvent();
-      this.makeBaseElementReact(els[i]);
-    }
-  }
-  private unMakeBaseElementsReact() {
-    var els = this.getStateElements();
-    this.unMakeBaseElementsReactive(els);
-  }
-  private unMakeBaseElementsReactive(els: Array<Base>) {
-    for (var i = 0; i < els.length; i++) {
-      this.unMakeBaseElementReact(els[i]);
-    }
-  }
   protected disableStateElementsRerenderEvent(els: Array<Base>): void {
     els.forEach(el => {
       el.disableOnElementRerenderedEvent();
+    });
+  }
+  protected enableStateElementsRerenderEvent(els: Array<Base>): void {
+    els.forEach(el => {
+      el.enableOnElementRerenderedEvent();
     });
   }
   protected getStateElements(): Array<Base> {
@@ -140,40 +135,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   ): React.JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style, key);
   }
-  private canMakeReact(stateElement: Base): boolean {
-    return !!stateElement && !!stateElement.iteratePropertiesHash;
-  }
-  private propertyValueChangedHandler = (stateElement: Base, options: IPropertyValueChangedEvent) => {
-    const key = options.name;
-    if (!this.canUsePropInState(key) || this.isRendering) return;
-    this.changedStatePropNameValue = key;
-    this.setState((state: any) => {
-      var newState: { [index: string]: any } = {};
-      newState[key] = options.newValue;
-      return newState as S;
-    });
-  };
-  private onArrayChangedCallback = (stateElement: Base, options: IPropertyArrayValueChangedEvent) => {
-    if (this.isRendering) return;
-    this.changedStatePropNameValue = options.name;
-    this.setState((state: any) => {
-      var newState: { [index: string]: any } = {};
-      newState[options.name] = options.newValue;
-      return newState as S;
-    });
-  };
-  private makeBaseElementReact(stateElement: Base) {
-    if (!this.canMakeReact(stateElement)) return;
-    stateElement.addOnArrayChangedCallback(this.onArrayChangedCallback);
-    stateElement.addOnPropertyValueChangedCallback(this.propertyValueChangedHandler);
-  }
   protected canUsePropInState(key: string): boolean {
     return true;
-  }
-  private unMakeBaseElementReact(stateElement: Base) {
-    if (!this.canMakeReact(stateElement)) return;
-    stateElement.removeOnPropertyValueChangedCallback(this.propertyValueChangedHandler);
-    stateElement.removeOnArrayChangedCallback(this.onArrayChangedCallback);
   }
 }
 
@@ -289,6 +252,9 @@ export class SurveyQuestionUncontrolledElement<
   }
   protected get question(): T {
     return this.questionBase as T;
+  }
+  protected forceHiddenDependencies(): void {
+    this.getValueCore();
   }
   updateValueOnEvent = (event: any) => {
     if (

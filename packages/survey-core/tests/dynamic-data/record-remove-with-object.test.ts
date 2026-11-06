@@ -49,12 +49,17 @@ class Source implements IDynamicDataSource {
   public isAsync = false;
   public removes = 0;
   public reads = 0;
+  /* The answer of the last asynchronous read. A test awaits it rather than a timer: the list subscribed to
+     it first, so the read has committed when the await returns. A longer timer may fire first. */
+  public lastRead: Promise<IDynamicDataReadResult>;
   constructor(public records: Array<any>, public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: false, sorting: false }) { }
   public read(request: IDynamicDataReadRequest): IDynamicDataReadResult | Promise<IDynamicDataReadResult> {
     this.reads++;
     const take = request.take > 0 ? request.take : this.records.length;
     const res = { records: this.records.slice(request.skip, request.skip + take).map(r => Object.assign({}, r)), total: this.records.length };
-    return this.isAsync ? new Promise(resolve => setTimeout(() => resolve(res), 0)) : res;
+    if (!this.isAsync) return res;
+    this.lastRead = new Promise(resolve => setTimeout(() => resolve(res), 0));
+    return this.lastRead;
   }
   public update(key: any, record: any): void {
     const at = this.records.map(r => r.id).indexOf(key);
@@ -210,15 +215,16 @@ describe("what a removed-event handler sees under paging", () => {
     source.isAsync = true;
     const panel = createPanel({ pageSize: 2 });
     panel.dataSource = source;
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await source.lastRead;
     expect(panelValues(panel), "#1").toEqual([0, 1]);
     const seen: Array<any> = [];
     (<SurveyModel>panel.survey).onDynamicPanelRemoved.add(() => { seen.push(panelValues(panel)); });
     panel.removePanel(0);
     expect(seen, "#2: the page one short").toEqual([[1]]);
-    await new Promise(resolve => setTimeout(resolve, 10));
-    expect(panelValues(panel), "#3: refilled when the read commits").toEqual([1, 2]);
-    expect(seen.length, "#4").toBe(1);
+    expect(source.reads, "#3: the refill is read").toBe(2);
+    await source.lastRead;
+    expect(panelValues(panel), "#4: refilled when the read commits").toEqual([1, 2]);
+    expect(seen.length, "#5").toBe(1);
   });
 });
 

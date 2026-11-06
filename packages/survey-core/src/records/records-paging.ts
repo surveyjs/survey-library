@@ -377,9 +377,9 @@ export class RecordsPagingController implements ISortCriterionOwner {
      and the matrix's rows hold that very object. Anything else - a plain object, another question's
      item, or the second copy of an item added twice - is replaced in place by a new SortCriterion.
      The plain index assignment is not wrapped, so it raises no second change.
-     The item is found by identity and not by the index Base passes: that index is wrong for a
-     negative splice start and missing for an assignment. When one call adds the same object twice,
-     the first slot already holds its converted item by the time the second one is looked for. */
+     The item is found by identity and not by the index Base passes: an assignment passes no index.
+     When one call adds the same object twice, the first slot already holds its converted item by the
+     time the second one is looked for. */
   private toOwnSortCriterion(item: any): SortCriterion {
     const items = this.owner.getPropertyValue(pagingStateKeys.sortCriteria);
     if (item instanceof SortCriterion && (!item.hasOwner || item.isOwnedBy(this) && isInArrayOnce(items, item))) return item;

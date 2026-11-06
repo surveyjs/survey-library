@@ -18,9 +18,6 @@
       "survey-core": [
         "./src/entries/core.ts"
       ],
-      "@coreIconsV1": [
-        "packages/survey-core/src/iconsV1"
-      ],
       "@coreIconsV2": [
         "packages/survey-core/src/iconsV2"
       ]

@@ -53,8 +53,8 @@ export var malaySurveyStrings = {
   sortMoreAriaLabel: "Paparkan semua tahap susunan",
   // [Auto-translated] "Add New"
   sortAddNewText: "Tambah Baru",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Pindahkan tahap susun {0}",
   // "Complete"
   completeText: "Selesai",
   // "Preview"
@@ -189,6 +189,8 @@ export var malaySurveyStrings = {
   addRow: "Tambahkan baris",
   // "Remove"
   removeRow: "Alih keluar",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Gerakkan baris {0}",
   // "There are no rows."
   noRowsText: "Tiada baris.",
   // [Auto-translated] "Row {rowIndex}"
@@ -304,7 +306,29 @@ export var malaySurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Bar kemajuan",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Halaman {0}"
+  progressbarPage: "Halaman {0}",
+  // [Auto-translated] "to select"
+  keyboardHintSelectText: "untuk memilih",
+  // [Auto-translated] "to toggle"
+  keyboardHintToggleText: "untuk togol",
+  // [Auto-translated] "to navigate"
+  keyboardHintNavigateText: "untuk menavigasi",
+  // [Auto-translated] "to continue"
+  keyboardHintContinueText: "untuk meneruskan",
+  // [Auto-translated] "to submit"
+  keyboardHintSubmitText: "untuk menghantar",
+  // [Auto-translated] "or"
+  keyboardHintOrText: "atau",
+  // [Auto-translated] "for a new line"
+  keyboardHintNewLineText: "untuk barisan baru",
+  // [Auto-translated] "to next option"
+  keyboardHintNextItemText: "ke pilihan seterusnya",
+  // [Auto-translated] "to move"
+  keyboardHintMoveText: "untuk bergerak",
+  // [Auto-translated] "to open"
+  keyboardHintOpenText: "membuka",
+  // [Auto-translated] "to close"
+  keyboardHintCloseText: "menutup"
 };
 
 setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu", englishName: "Malay" });

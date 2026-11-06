@@ -59,7 +59,9 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   public onKeyDown(event: any): void {
     if (event.key === "Escape" || event.keyCode === 27) {
       // A popup opened inside the modal - the list of a dropdown - closes on its own Escape: the modal stays.
-      if (this.isInNestedPopup(event.target)) return;
+      const isNestedPopupShown = this.isNestedPopupShownOnKey !== undefined ? this.isNestedPopupShownOnKey : this.hasShownNestedPopup();
+      this.isNestedPopupShownOnKey = undefined;
+      if (this.isInNestedPopup(event.target) || isNestedPopupShown) return;
       this.model.onCancel();
     }
     super.onKeyDown(event);
@@ -70,6 +72,20 @@ export class PopupModalViewModel extends PopupBaseViewModel {
     const ownPopup = this.container.querySelector(this.popupSelector);
     return !!popup && !!ownPopup && popup !== ownPopup;
   }
+  /* A dropdown editor of a survey in the modal keeps the focus while its list is open, and closes the list on
+     Escape without stopping the key. Whether a list was shown is read as the key goes down (in the capture phase):
+     a renderer may hide the list before the key reaches the modal. */
+  private isNestedPopupShownOnKey: boolean;
+  private onKeyDownCapture = (): void => {
+    this.isNestedPopupShownOnKey = this.hasShownNestedPopup();
+  };
+  private hasShownNestedPopup(): boolean {
+    if (!this.container) return false;
+    const ownPopup = this.container.querySelector(this.popupSelector);
+    if (!ownPopup) return false;
+    const popups: Array<HTMLElement> = Array.prototype.slice.call(ownPopup.querySelectorAll(this.popupSelector));
+    return popups.some((popup: HTMLElement): boolean => popup.style.display !== "none");
+  }
 
   private onScrollOutsideCallback = (event: WheelEvent) => {
     this.preventScrollOuside(event, event.deltaY);
@@ -78,12 +94,14 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   public updateOnShowing(): void {
     if (this.container) {
       this.container.addEventListener("wheel", this.onScrollOutsideCallback, { passive: false });
+      this.container.addEventListener("keydown", this.onKeyDownCapture, true);
     }
     super.updateOnShowing();
   }
   public updateOnHiding(): void {
     if (this.container) {
       this.container.removeEventListener("wheel", this.onScrollOutsideCallback);
+      this.container.removeEventListener("keydown", this.onKeyDownCapture, true);
     }
     super.updateOnHiding();
   }

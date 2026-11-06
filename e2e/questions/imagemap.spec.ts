@@ -60,14 +60,12 @@ frameworks.forEach((framework) => {
       await page.waitForLoadState("load");
 
       await page.locator("span").filter({ hasText: "Yes" }).first().click();
-      await page.waitForTimeout(500);
       await expect(page.locator(".sd-imagemap-bg")).toBeVisible();
 
-      let ok = await page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelectorAll(".sd-imagemap-svg rect").length === 2);
-      expect(ok).toBeTruthy();
+      await expect.poll(() => page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelectorAll(".sd-imagemap-svg rect").length === 2)).toBeTruthy();
 
       await page.locator(".sd-imagemap-svg").click({ position: { x: 30, y: 30 } });
-      ok = await page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelectorAll(".sd-row").length === 3);
+      let ok = await page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelectorAll(".sd-row").length === 3);
       expect(ok).toBeTruthy();
 
       await page.locator(".sd-imagemap-svg").click({ position: { x: 130, y: 30 } });

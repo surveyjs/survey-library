@@ -538,18 +538,18 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
   }
   private updatePages() {
-    this.blockAnimations();
-    let currentPage: QuestionFilePage;
-    this.pages = [];
-    this.renderedPages = [];
-    this.previewValue.forEach((val, index) => {
-      if (index % this.pageSize == 0) {
-        currentPage = new QuestionFilePage(this, this.pages.length);
-        this.pages.push(currentPage);
-      }
-      currentPage.items.push(val);
+    this.runWithoutAnimations(() => {
+      let currentPage: QuestionFilePage;
+      this.pages = [];
+      this.renderedPages = [];
+      this.previewValue.forEach((val, index) => {
+        if (index % this.pageSize == 0) {
+          currentPage = new QuestionFilePage(this, this.pages.length);
+          this.pages.push(currentPage);
+        }
+        currentPage.items.push(val);
+      });
     });
-    this.releaseAnimations();
     this.updateRenderedPages();
   }
   private prevPreviewLength = 0;
@@ -953,15 +953,17 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
     var loadFilesProc = () => {
       this.stateChanged("loading");
-      var content = <Array<any>>[];
       if (this.storeDataAsText) {
-        files.forEach((file) => {
+        // Each result goes to its file's index: the reads can finish in any order, and the value keeps the
+        // order the files were chosen in.
+        const content = <Array<any>>new Array(files.length);
+        let loadedCount = 0;
+        files.forEach((file, index) => {
           let fileReader = new FileReader();
           fileReader.onload = (e) => {
-            content = content.concat([
-              { name: file.name, type: file.type, content: fileReader.result },
-            ]);
-            if (content.length === files.length) {
+            content[index] = { name: file.name, type: file.type, content: fileReader.result };
+            loadedCount++;
+            if (loadedCount === files.length) {
               this.value = (this.value || []).concat(content);
             }
           };

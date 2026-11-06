@@ -151,7 +151,7 @@ Refer to the following help topic for more information: [Conditional Visibility]
 
 [View Demo](https://surveyjs.io/form-library/examples/how-to-conditionally-make-input-field-read-only/ (linkStyle))
 
-**Related APIs:** [`readOnly`](#readOnly), [`isReadOnly`](#isReadOnly)
+**Related APIs:** [`readOnly`](#readOnly), [`readOnlyMode`](#readOnlyMode), [`isReadOnly`](#isReadOnly)
 
 ### `errorLocation`
 

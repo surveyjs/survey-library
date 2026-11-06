@@ -44,28 +44,28 @@ it("check model is subscribed correctly for multiple components", () => {
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(true);
-  expect(q["onPropertyValueCoreChanged"].length).toBe(4);
+  expect(q["onPropertyValueCoreChanged"].size).toBe(4);
 
   fixture1.destroy();
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(true);
-  expect(q["onPropertyValueCoreChanged"].length).toBe(3);
+  expect(q["onPropertyValueCoreChanged"].size).toBe(3);
 
   fixture2.destroy();
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(true);
-  expect(q["onPropertyValueCoreChanged"].length).toBe(2);
+  expect(q["onPropertyValueCoreChanged"].size).toBe(2);
 
   fixture4.destroy();
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
-  expect(q["onPropertyValueCoreChanged"].length).toBe(1);
+  expect(q["onPropertyValueCoreChanged"].size).toBe(1);
 
   fixture3.destroy();
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
@@ -105,8 +105,8 @@ it("check model is not subcribed for nested components", async () => {
   const q = new QuestionTextModel("q1");
   fixture.componentInstance.model = q;
   fixture.detectChanges();
-  expect(q["onPropertyValueCoreChanged"].length).toBe(1);
-  expect(q["onPropertyValueCoreChanged"].hasFunc(fixture.componentInstance["onPropertyChangedCallback"]));
+  expect(q["onPropertyValueCoreChanged"].size).toBe(1);
+  expect(q["onPropertyValueCoreChanged"].has(fixture.componentInstance["onPropertyChangedCallback"]));
   fixture.destroy();
   expect(q["onPropertyValueCoreChanged"]).toBe(undefined);
 });

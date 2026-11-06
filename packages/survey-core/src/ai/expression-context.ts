@@ -123,24 +123,11 @@ export function getExpressionScopePrefix(key: string): string {
 }
 
 // The type of the value a question holds, as an expression reads it: "array", "object", "boolean",
-// "number", "date" or "string"; undefined when it is none of them.
+// "number", "date" or "string". The question reports it itself (a boolean with valueTrue "yes" holds a
+// string, a range slider an array); a question nobody types into (an expression, html) has none.
 export function getExpressionValueType(question: Question): string {
-  if (!question || !question.getType) return undefined;
-  const type = question.getType();
-  const is = (name: string) => Serializer.isDescendantOf(type, name);
-  if (is("checkbox") || is("ranking") || is("tagbox") || is("imagepicker") && (<any>question).multiSelect) return "array";
-  if (is("matrixdynamic") || is("paneldynamic") || is("file")) return "array";
-  if (is("matrix") || is("matrixdropdown") || is("multipletext")) return "object";
-  if (is("boolean")) return "boolean";
-  if (is("rating") || is("slider")) return "number";
-  if (is("text")) {
-    const inputType = (<any>question).inputType;
-    if (inputType === "number" || inputType === "range") return "number";
-    if (inputType === "date" || inputType === "datetime-local" || inputType === "month" || inputType === "week") return "date";
-    return "string";
-  }
-  if (is("comment") || is("dropdown") || is("radiogroup") || is("imagepicker") || is("buttongroup")) return "string";
-  return undefined;
+  if (!question || !question.getValueType) return undefined;
+  return question.hasInput ? question.getValueType() : undefined;
 }
 
 export function toExpressionChoices(items: Array<ItemValue>): Array<IExpressionContextChoice> {

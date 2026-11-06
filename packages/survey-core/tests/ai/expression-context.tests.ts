@@ -4,9 +4,10 @@ import { FunctionFactory } from "../../src/functionsfactory";
 import { settings as surveySettings } from "../../src/settings";
 import { SurveyModel } from "../../src/survey";
 import { Question } from "../../src/question";
+import { ComponentCollection } from "../../src/question_custom";
 import {
   buildExpressionSystemPrompt, describeExpressionQuestion, expressionOperatorSpellings, getExpressionFunctions, getExpressionOperators,
-  IExpressionContext, IExpressionVariable,
+  getExpressionValueType, IExpressionContext, IExpressionVariable,
 } from "../../src/ai/expression-context";
 import { expressionGuideVersion } from "../../src/ai/expression-guide";
 
@@ -147,5 +148,27 @@ describe("Question descriptors of the AI context (ai-expressions)", () => {
       name: "q3", kind: "question", type: "matrixdropdown", valueType: "object", page: "p1",
       rows: [{ value: "r1", text: "r1" }], columns: [{ name: "c1", title: "c1", cellType: "text" }],
     });
+  });
+  test("the value type is what the question itself reports", () => {
+    ComponentCollection.Instance.add({ name: "aiexgrade", questionJSON: { type: "dropdown", choices: [1, 2, 3] } });
+    ComponentCollection.Instance.add({ name: "aiexname", elementsJSON: [{ type: "text", name: "first" }] });
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "boolean", name: "b1", valueTrue: "yes", valueFalse: "no" },
+        { type: "dropdown", name: "d1", choices: [1, 2] },
+        { type: "slider", name: "sl1", sliderType: "range" },
+        { type: "rating", name: "ra1", rateValues: ["low", "high"] },
+        { type: "signaturepad", name: "s1" },
+        { type: "aiexgrade", name: "g1" },
+        { type: "aiexname", name: "n1" },
+        { type: "expression", name: "e1", expression: "1 + 1" },
+        { type: "html", name: "h1" },
+      ] });
+      const names = ["b1", "d1", "sl1", "ra1", "s1", "g1", "n1", "e1", "h1"];
+      expect(names.map(name => getExpressionValueType(<Question>survey.getQuestionByName(name))))
+        .toEqual(["string", "number", "array", "string", "string", "number", "object", undefined, undefined]);
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
   });
 });

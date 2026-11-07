@@ -14,6 +14,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   static readonly tabletSizeBreakpoint = 600;
   private scrollEventTargets: Array<EventTarget> = undefined;
   private scrollEventCallBack = (event: any) => {
+    // A scroll event dispatched by script (the survey's lazy rendering check) is not a scroll of the page.
+    if (event?.isTrusted === false) return;
     if (this.isOverlay && IsTouch) {
       event.stopPropagation();
       event.preventDefault();

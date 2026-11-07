@@ -434,6 +434,74 @@ export function plainSortHeaderScenario(name: string): PerfScenario {
   });
 }
 
+// records-plain: the plain dynamic panels panels30 (30 records, no paging) and panelsPaged (a page of 10 of 1,000
+// records), in list mode, where a sort and a page move keep the panels (rebind) rather than rebuild them. A sample
+// starts unsorted on page 0. The panel has no header to click: in a page the sort is a model call too, as filter-set
+// is, and the page shows it. Next is a click on the pager button.
+export async function plainPanelReady(ctx: PerfContext, name: string): Promise<any> {
+  const survey = await cachedSurvey(ctx, (sv: any) => { sv.data = ctx.fixture.data; });
+  const q = survey.getQuestionByName(name);
+  await showPageOf(ctx, survey, name);
+  await resetView(ctx, q, []);
+  q.renderedPanels;
+  return { survey: survey, q: q, records: survey.getValue(name) || [], dom: undefined };
+}
+
+// The panels a sort or a page move left: the ids of the records the view shows from index on, each panel showing
+// its record (a kept panel that kept a value of the record it showed before fails); in a page every rendered id too.
+export function expectPlainPanels(ctx: PerfContext, s: any, criteria: Array<any>, index: number): void {
+  const size = s.q.pageSize > 0 ? s.q.pageSize : s.records.length;
+  const expected = sortRecords(s.records, criteria).slice(index, index + size).map((r: any) => r.id);
+  expectEqual(JSON.stringify(shownIds(s.q)), JSON.stringify(expected), "the shown panels");
+  const byId: { [id: string]: any } = {};
+  s.records.forEach((r: any) => { byId[r.id] = r; });
+  s.q.panels.forEach((panel: any) => {
+    const record = byId[panel.getQuestionByName("id").value];
+    expectEqual(panel.getQuestionByName("title").value, record.title, "the title question of " + record.id);
+    expectEqual(panel.getQuestionByName("qty").value, record.qty, "the qty question of " + record.id);
+  });
+  if (ctx.page) expectEqual(JSON.stringify(s.dom), JSON.stringify(expected), "the rendered ids");
+}
+
+function plainPanelBase(op: string, name: string, uses: Array<string>): any {
+  return { id: "records-plain/records/" + op + "@" + name, rev: 1, fixture: "records-plain", kind: "action",
+    requires: ["paneldynamic.pageSize", "paneldynamic.allowSort"],
+    uses: ["plainPanelReady", "expectPlainPanels", "renderedIds"].concat(uses), counters: recordsShown };
+}
+
+// A sort by id ascending, from code; the page renders it.
+export function plainPanelSortScenario(name: string): PerfScenario {
+  return Object.assign(plainPanelBase("sort-1", name, ["plainSort", "plainPageIds"]), {
+    setup: (ctx: PerfContext): Promise<any> => plainPanelReady(ctx, name),
+    run: async(ctx: PerfContext, s: any): Promise<void> => {
+      s.q.sortCriteria = [{ field: "id", direction: "asc" }];
+      if (ctx.page) await ctx.page.updated();
+    },
+    record: (ctx: PerfContext, s: any): void => { s.dom = renderedIds(ctx, s.q); },
+    check: (ctx: PerfContext, s: any): void => {
+      expectEqual(s.q.pageIndex, 0, "page index");
+      expectThat(JSON.stringify(plainPageIds(s.q, s.records, plainSort)) !== JSON.stringify(plainPageIds(s.q, s.records, [])), "the sort changes the shown panels");
+      expectPlainPanels(ctx, s, plainSort, 0);
+    }
+  });
+}
+
+// Next on page 0, unsorted: in a page a click on the pager's Next button.
+export function plainPanelNextScenario(name: string): PerfScenario {
+  return Object.assign(plainPanelBase("next", name, ["pagerSelector"]), {
+    setup: (ctx: PerfContext): Promise<any> => plainPanelReady(ctx, name),
+    run: async(ctx: PerfContext, s: any): Promise<void> => {
+      if (!ctx.page) { s.q.nextPage(); return; }
+      await ctx.page.click(pagerSelector(s.q, "Next"));
+    },
+    record: (ctx: PerfContext, s: any): void => { s.dom = renderedIds(ctx, s.q); },
+    check: (ctx: PerfContext, s: any): void => {
+      expectEqual(s.q.pageIndex, 1, "page index");
+      expectPlainPanels(ctx, s, [], s.q.pageSize);
+    }
+  });
+}
+
 function panelScenarios(fixture: string): Array<PerfScenario> {
   const ready = panelReady;
   return [
@@ -495,6 +563,8 @@ export function recordsScenarios(): Array<PerfScenario> {
   panelScenarios("records-1k").forEach((s: PerfScenario) => res.push(s));
   res.push(sortHeaderScenario("records-10k"));
   ["orders30", "ordersPaged"].forEach((name: string) => res.push(plainSortScenario(name), plainSortHeaderScenario(name)));
+  ["panels30", "panelsPaged"].forEach((name: string) => res.push(plainPanelSortScenario(name)));
+  res.push(plainPanelNextScenario("panelsPaged"));
   // toJSON of the small records JSON takes ~7 ms: two in a sample. dispose (~4 ms) cannot repeat: counterOnly.
   outputScenarios("records-10k", "answerRecords", answerRecords).forEach((s: PerfScenario) => {
     const extra: any = { requires: requires };

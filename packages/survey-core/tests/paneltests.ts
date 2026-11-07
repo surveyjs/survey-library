@@ -2821,6 +2821,79 @@ describe("Panel", () => {
     expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q7"]);
     expect(page.rows[4].visibleElements.map(q => q.name)).toEqual(["q5"]);
   });
+  describe("several elements added to elements in one call each get a layout row", () => {
+    const containers: Array<{ name: string, create: () => PanelModel | PageModel }> = [
+      { name: "page", create: () => {
+        const survey = new SurveyModel({ elements: [{ type: "text", name: "q0" }, { type: "text", name: "q1" }] });
+        const page = survey.pages[0];
+        page.onFirstRendering();
+        return page;
+      } },
+      { name: "nested panel", create: () => {
+        const survey = new SurveyModel({ elements: [{ type: "panel", name: "panel",
+          elements: [{ type: "text", name: "q0" }, { type: "text", name: "q1" }] }] });
+        survey.pages[0].onFirstRendering();
+        const panel = <PanelModel>survey.getPanelByName("panel");
+        panel.onFirstRendering();
+        return panel;
+      } }
+    ];
+    const createQuestions = (startWithNewLine: boolean = true): Array<QuestionTextModel> => ["a", "b"].map(name => {
+      const question = new QuestionTextModel(name);
+      question.startWithNewLine = startWithNewLine;
+      return question;
+    });
+    const rowNames = (container: PanelModel | PageModel): Array<Array<string>> =>
+      container.rows.map(row => row.elements.map(el => el.name));
+    containers.forEach(container => {
+      test(container.name + ": push", () => {
+        const panel = container.create();
+        expect(rowNames(panel), "#1").toEqual([["q0"], ["q1"]]);
+        panel.elements.push(...createQuestions());
+        expect(rowNames(panel), "#2").toEqual([["q0"], ["q1"], ["a"], ["b"]]);
+      });
+      test(container.name + ": splice in the middle", () => {
+        const panel = container.create();
+        panel.elements.splice(1, 0, ...createQuestions());
+        expect(rowNames(panel), "#1").toEqual([["q0"], ["a"], ["b"], ["q1"]]);
+      });
+      test(container.name + ": unshift", () => {
+        const panel = container.create();
+        panel.elements.unshift(...createQuestions());
+        expect(rowNames(panel), "#1").toEqual([["a"], ["b"], ["q0"], ["q1"]]);
+      });
+      test(container.name + ": splice in the middle with the second element on the same line", () => {
+        const panel = container.create();
+        const questions = createQuestions();
+        questions[1].startWithNewLine = false;
+        panel.elements.splice(1, 0, ...questions);
+        expect(rowNames(panel), "#1").toEqual([["q0"], ["a", "b"], ["q1"]]);
+      });
+      test(container.name + ": push of two elements on the same line", () => {
+        const panel = container.create();
+        panel.elements.push(...createQuestions(false));
+        expect(rowNames(panel), "#1").toEqual([["q0"], ["q1", "a", "b"]]);
+      });
+    });
+    ["inputPerPage", "questionPerPage"].forEach(mode => {
+      test(mode + ": an element added next to the current one gets no row", () => {
+        const survey = new SurveyModel({ questionsOnPageMode: mode,
+          elements: [{ type: "text", name: "q0" }, { type: "text", name: "q1" }, { type: "text", name: "q2" }] });
+        const page = survey.pages[0];
+        page.onFirstRendering();
+        expect(survey.currentSingleElement.name, "#1: the current element").toBe("q0");
+        expect(rowNames(page), "#2").toEqual([["q0"]]);
+        page.elements.splice(2, 0, new QuestionTextModel("a"));
+        expect(rowNames(page), "#3: splice").toEqual([["q0"]]);
+        page.elements.unshift(new QuestionTextModel("b"));
+        expect(rowNames(page), "#4: unshift").toEqual([["q0"]]);
+        page.elements.push(...createQuestions());
+        expect(rowNames(page), "#5: push").toEqual([["q0"]]);
+        page.addNewQuestion("text", "c", 3);
+        expect(rowNames(page), "#6: addNewQuestion").toEqual([["q0"]]);
+      });
+    });
+  });
   test("Check swnl changed: change swnl for first element on page", () => {
     const survey = new SurveyModel();
     survey.fromJSON({

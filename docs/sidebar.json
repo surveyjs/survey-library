@@ -61,6 +61,10 @@
         {
           "Name": "design-survey-merge-question-values",
           "Title": "Merge Question Values"
+        },
+        {
+          "Name": "design-survey-nested-data",
+          "Title": "Nested Data"
         }
       ]
     },

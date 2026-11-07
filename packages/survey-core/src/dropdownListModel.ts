@@ -14,6 +14,7 @@ import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { settings } from "./settings";
+import { ISurveySettings, getSettingsOfSurvey } from "./survey-settings";
 import { SurveyModel } from "./survey";
 import { CreateCustomChoiceItemEvent } from "./survey-events-api";
 import { toCssClasses } from "./utils/cssClassBuilder";
@@ -120,11 +121,15 @@ export class DropdownListModel extends Base {
     }
   }
 
+  private getQuestionSurveySettings(): ISurveySettings {
+    return getSettingsOfSurvey(!!this.question ? this.question.survey : undefined);
+  }
   private processCustomValue(newValue?: string) {
     if (!this.allowCustomChoices) return;
 
     const value = newValue || this.filterString;
-    const item = this.listModel.getVisibleActions().filter(action => Helpers.isTwoValueEquals(action.text, value, false, false))[0];
+    const surveySettings = this.getQuestionSurveySettings();
+    const item = this.listModel.getVisibleActions().filter(action => Helpers.isTwoValueEquals(action.text, value, false, false, undefined, surveySettings))[0];
     if (!!item) {
       this.customValue = undefined;
     } else {

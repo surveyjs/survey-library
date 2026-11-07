@@ -253,6 +253,13 @@ export class Survey extends SurveyElementBase<any, any>
         continue;
       }
       if (newProps[key] === oldProps[key]) continue;
+      if (key == "settings") {
+        // Data for the model's settings() method; assigning it would replace the method. An absent value applies nothing
+        if (newProps.settings !== undefined && newProps.settings !== null) {
+          this.survey.settings(newProps.settings);
+        }
+        continue;
+      }
       if (key.indexOf("on") == 0 && this.survey[key] && this.survey[key].add) {
         if (!!oldProps[key]) {
           this.survey[key].remove(oldProps[key]);

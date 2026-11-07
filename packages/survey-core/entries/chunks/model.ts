@@ -34,6 +34,7 @@ export function slk(key: string): void {
 export { hasLicense, glc } from "./license";
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
+export type { ISurveySettings, ISurveySettingsComparator, ISurveyOptions } from "../../src/survey-settings";
 export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
 export {
   SurveyVariablePresets,
@@ -260,6 +261,27 @@ export * from "../../src/themes";
 export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
 export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
 export * from "../../src/survey-events-api";
+export type {
+  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent,
+} from "../../src/interfaces/ai-interfaces";
+export { isAIObject, getAIFencedText, getAIFencedBlocks, readAIJson } from "../../src/ai/ai-response";
+export { AIRequestSession } from "../../src/ai/ai-request";
+export type { IAIFeature, IAIRequest, AIRequestResult, IAIRequestOwner } from "../../src/ai/ai-request";
+export { readExpressionData, parseExpressionResponse } from "../../src/ai/expression-response";
+export type { IExpressionResponse } from "../../src/ai/expression-response";
+export { expressionGuideVersion, expressionGuideSections, getExpressionGuideText } from "../../src/ai/expression-guide";
+export type { IExpressionGuideSection, IExpressionGuideExample } from "../../src/ai/expression-guide";
+export { expressionResponseFormat, ExpressionAIFeature } from "../../src/ai/expression-ai-feature";
+export type { IExpressionAIIssue } from "../../src/ai/expression-ai-feature";
+export {
+  expressionOperatorSpellings, expressionPanelScope, expressionRowScope, expressionItemScope, getExpressionScopePrefix,
+  getExpressionValueType, toExpressionChoices, getExpressionChoices, getExpressionPageName, describeExpressionQuestion,
+  getExpressionFunctions, getExpressionOperators, buildExpressionInstruction, buildExpressionSystemPrompt,
+} from "../../src/ai/expression-context";
+export type {
+  IExpressionContext, IExpressionVariable, IExpressionContextChoice, IExpressionContextFunction, IExpressionContextOperator,
+  IExpressionScopeEntry, IExpressionSystemPromptTexts,
+} from "../../src/ai/expression-context";
 export {
   SurveyTrigger,
   SurveyTriggerComplete,

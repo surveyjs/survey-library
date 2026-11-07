@@ -955,7 +955,7 @@ describe("The unmasked value of a masked question", () => {
       const survey = createSurvey({ type: "text", name: "q1", ...saved({ ...numeric, maskSettings: { precision: 0 } }) });
       const q = getText(survey);
       survey.data = { q1: "12.5" };
-      expect(q.getFilteredValue(), "as on master").toBe(125);
+      expect(q.getFilteredValue(), "precision 0 truncates the fraction").toBe(12);
       (<InputMaskNumeric>q.maskSettings).precision = 2;
       expect(q.getFilteredValue()).toBe(12.5);
       survey.locale = "de";

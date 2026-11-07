@@ -3858,6 +3858,175 @@ describe("Survey", () => {
     survey.doComplete();
     expect(survey.data, "There should be one value only").toEqual({ q3: "val3" });
   });
+  describe("completion clears a value hidden by clearing another one", () => {
+    const chain = [
+      { type: "text", name: "j" },
+      { type: "text", name: "y", visibleIf: "{j} <> 'b'" },
+      { type: "text", name: "x", visibleIf: "{y} notempty" }
+    ];
+    // The values are set in order: y and x while y is visible, then j hides y.
+    function createSurvey(json: any, values: any): SurveyModel {
+      const survey = new SurveyModel(json);
+      Object.keys(values).forEach(name => survey.setValue(name, values[name]));
+      return survey;
+    }
+    test("a question hidden by a cleared value is cleared too, in both element orders", () => {
+      [chain, chain.slice().reverse()].forEach((elements, index) => {
+        const survey = createSurvey({ elements: elements }, { y: "Y", x: "X", j: "b" });
+        expect(survey.getQuestionByName("x").isVisible, "#1." + index).toBe(true);
+        survey.doComplete();
+        expect(survey.data, "#2." + index).toEqual({ j: "b" });
+        expect(survey.getQuestionByName("x").isVisible, "#3." + index).toBe(false);
+      });
+    });
+    test("a three-step chain is cleared to its end", () => {
+      const elements = chain.concat([{ type: "text", name: "z", visibleIf: "{x} notempty" }]);
+      const survey = createSurvey({ elements: elements }, { y: "Y", x: "X", z: "Z", j: "b" });
+      survey.doComplete();
+      expect(survey.data).toEqual({ j: "b" });
+    });
+    test("no chain: the same data, one pass plus one check, and no conditions run when nothing is cleared", () => {
+      const elements = [chain[0], chain[1], { type: "text", name: "k" }];
+      let survey = createSurvey({ elements: elements }, { y: "Y", k: "K", j: "b" });
+      let runs = vi.spyOn(<any>survey, "runConditionsCore");
+      const passes = vi.spyOn(survey.getQuestionByName("k"), "clearValueIfInvisible");
+      survey.doComplete();
+      expect(survey.data, "#1").toEqual({ k: "K", j: "b" });
+      expect(passes, "#2: one pass").toHaveBeenCalledTimes(1);
+      expect(runs, "#3: one check").toHaveBeenCalledTimes(1);
+      survey = createSurvey({ elements: elements }, { y: "Y", k: "K" });
+      runs = vi.spyOn(<any>survey, "runConditionsCore");
+      survey.doComplete();
+      expect(survey.data, "#4").toEqual({ y: "Y", k: "K" });
+      expect(runs, "#5: nothing cleared, no conditions run").toHaveBeenCalledTimes(0);
+    });
+    test("clearInvisibleValues: 'none' clears nothing", () => {
+      const survey = createSurvey({ clearInvisibleValues: "none", elements: chain }, { y: "Y", x: "X", j: "b" });
+      const runs = vi.spyOn(<any>survey, "runConditionsCore");
+      survey.doComplete();
+      expect(survey.data, "#1").toEqual({ y: "Y", x: "X", j: "b" });
+      expect(runs, "#2").toHaveBeenCalledTimes(0);
+    });
+    test("a page hidden by a cleared value has its question cleared", () => {
+      const survey = createSurvey({ pages: [
+        { elements: [chain[0], chain[1]] },
+        { visibleIf: "{y} notempty", elements: [{ type: "text", name: "x" }] }] }, { y: "Y", x: "X", j: "b" });
+      survey.doComplete();
+      expect(survey.data).toEqual({ j: "b" });
+    });
+    test("an expression question and a calculated value that read a cleared value are recalculated", () => {
+      const survey = createSurvey({ calculatedValues: [{ name: "cv", expression: "{y}", includeIntoResult: true }],
+        elements: [chain[0], chain[1], { type: "expression", name: "e", expression: "{y}" }] }, { y: "Y", j: "b" });
+      expect(survey.data, "#1").toEqual({ y: "Y", e: "Y", cv: "Y", j: "b" });
+      survey.doComplete();
+      expect(survey.data, "#2").toEqual({ j: "b" });
+    });
+    test("a chain in a dynamic panel", () => {
+      const templateElements = [
+        { type: "text", name: "j" },
+        { type: "text", name: "y", visibleIf: "{panel.j} <> 'b'" },
+        { type: "text", name: "x", visibleIf: "{panel.y} notempty" }
+      ];
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 1, templateElements: templateElements }] });
+      const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("p")).panels[0];
+      panel.getQuestionByName("y").value = "Y";
+      panel.getQuestionByName("x").value = "X";
+      panel.getQuestionByName("j").value = "b";
+      expect(survey.data, "#1").toEqual({ p: [{ y: "Y", x: "X", j: "b" }] });
+      survey.doComplete();
+      expect(survey.data, "#2").toEqual({ p: [{ j: "b" }] });
+    });
+    test("a matrix detail panel: completion clears no hidden detail question, as before", () => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "c" }],
+        detailPanelMode: "underRow", detailElements: [
+          { type: "text", name: "j" },
+          { type: "text", name: "y", visibleIf: "{row.j} <> 'b'" },
+          { type: "text", name: "x", visibleIf: "{row.y} notempty" }] }] });
+      survey.setValue("m", [{ c: 1, j: "b", y: "Y", x: "X" }]);
+      survey.doComplete();
+      expect(survey.data).toEqual({ m: [{ c: 1, j: "b", y: "Y", x: "X" }] });
+    });
+    test("two questions hidden by each other's value settle after one pass and one check", () => {
+      const survey = createSurvey({ elements: [
+        { type: "text", name: "a", visibleIf: "{b} empty" },
+        { type: "text", name: "b", visibleIf: "{a} empty" }] }, { a: "A", b: "B" });
+      const runs = vi.spyOn(<any>survey, "runConditionsCore");
+      survey.doComplete();
+      expect(survey.data, "#1").toEqual({});
+      expect(runs, "#2").toHaveBeenCalledTimes(1);
+    });
+    test("hidden expressions refilled by every run are cleared again once, and the loop ends", () => {
+      const survey = new SurveyModel({ elements: [
+        { type: "expression", name: "a", expression: "iif({b} empty, 1, 1)", visibleIf: "{b} empty" },
+        { type: "expression", name: "b", expression: "iif({a} empty, 1, 1)", visibleIf: "{a} empty" }] });
+      expect(survey.data, "#1").toEqual({ a: 1, b: 1 });
+      const changes: Array<string> = [];
+      survey.onValueChanged.add((_, options) => changes.push(options.name + "=" + options.value));
+      survey.doComplete();
+      expect(survey.data, "#2").toEqual({});
+      expect(changes, "#3: cleared, refilled, cleared again").toEqual(["a=undefined", "b=undefined", "a=1", "b=1", "a=undefined", "b=undefined"]);
+    });
+    test("a cycle that never settles stops at the number of questions", () => {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "h1", visible: false },
+        { type: "text", name: "h2", visible: false },
+        { type: "expression", name: "e", expression: "{h1}" }] });
+      survey.setValue("h1", "v0");
+      let count = 0;
+      let h1Cleared = 0;
+      // A handler that refills each hidden value the clean-up clears; e reads the new h1 on every run.
+      survey.onValueChanged.add((sender, options) => {
+        if (!sender.isCompleted || options.value !== undefined) return;
+        if (options.name === "h1") h1Cleared++;
+        if (options.name === "h1" || options.name === "h2") {
+          sender.setValue(options.name === "h1" ? "h2" : "h1", "v" + (++count));
+        }
+      });
+      survey.doComplete();
+      expect(h1Cleared, "#1: a pass per question").toBe(3);
+      expect(survey.state, "#2").toBe("completed");
+    });
+    test("the survey keeps the page it completed on when the clean-up hides it", () => {
+      const survey = createSurvey({ pages: [
+        { name: "p1", elements: [chain[0], chain[1]] },
+        { name: "p2", visibleIf: "{y} notempty", elements: [{ type: "text", name: "x" }] }] }, { y: "Y", x: "X" });
+      survey.currentPageNo = 1;
+      survey.setValue("j", "b");
+      const events: Array<string> = [];
+      survey.onCurrentPageChanging.add(() => events.push("changing"));
+      survey.onCurrentPageChanged.add(() => events.push("changed"));
+      survey.onPageVisibleChanged.add((_, options) => events.push("visible:" + options.page.name + ":" + options.visible));
+      let completedOn = "";
+      survey.onComplete.add(sender => { completedOn = sender.currentPage.name; });
+      survey.doComplete();
+      expect(survey.data, "#1").toEqual({ j: "b" });
+      expect(events, "#2").toEqual(["visible:p2:false"]);
+      expect(completedOn, "#3").toBe("p2");
+    });
+    test("doComplete() called inside a value change keeps that change's keys for the question triggers", () => {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "t", resetValueIf: "{h} empty" },
+        { type: "text", name: "h", visible: false },
+        { type: "expression", name: "e", expression: "{a}" }] });
+      survey.setValue("t", "T");
+      survey.setValue("h", "H");
+      survey.onValueChanged.add((sender, options) => {
+        if (options.name === "e" && options.value === 2) sender.doComplete();
+      });
+      survey.setValue("a", 2);
+      expect(survey.state, "#1").toBe("completed");
+      expect(survey.data, "#2").toEqual({ a: 2, e: 2 });
+    });
+    test("onHidden: runtime clearing is unchanged", () => {
+      const survey = createSurvey({ clearInvisibleValues: "onHidden", elements: chain }, { y: "Y", x: "X", j: "b" });
+      expect(survey.data, "#1").toEqual({ j: "b" });
+      const runs = vi.spyOn(<any>survey, "runConditionsCore");
+      survey.doComplete();
+      expect(survey.data, "#2").toEqual({ j: "b" });
+      expect(runs, "#3").toHaveBeenCalledTimes(0);
+    });
+  });
   test("Do not store others value if others is not selected, #311", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p1");

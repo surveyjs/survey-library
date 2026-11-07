@@ -2191,7 +2191,7 @@ describe("Expression parser: PEG behaviours", () => {
     checkCases([
       ["-{a}", 1],
       ["0x1F", 3],
-      ["1e5", 1],
+      ["1e5", "100000"],
       ["01", 2],
       ["1.", 2],
       ["a.b", 1],
@@ -2201,6 +2201,55 @@ describe("Expression parser: PEG behaviours", () => {
       ["{ a b }", "{ a b }"],
       ["{a} <> 1 or {b} != 2", "(({a} != 1) or ({b} != 2))"],
     ]);
+  });
+});
+
+describe("Expression parser: a number literal with an exponent", () => {
+  const parseResult = (text: string): string | number => {
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression(text);
+    return operand ? operand.toString() : parser.error.at;
+  };
+  test("An exponent directly after a number is part of the number", () => {
+    const cases: Array<[string, number]> = [["1e1", 10], ["1.5e3", 1500], ["1E+21", 1e21], ["2e-7", 2e-7], ["0e5", 0],
+      ["0.5E2", 50], ["-1e2", -100], ["12e02", 1200]];
+    cases.forEach(([text, value]) => {
+      const operand = <Const>parse(text);
+      expect(operand.getType(), text).toBe("const");
+      expect(operand.correctValue, text).toBe(value);
+    });
+  });
+  test("A condition with an exponent literal compares numbers", () => {
+    const small = new ConditionRunner("{q} = 1e-7");
+    expect(small.runValues({ q: 0.0000001 }), "q = 0.0000001").toBe(true);
+    expect(small.runValues({ q: 0.000001 }), "q = 0.000001").toBe(false);
+    const large = new ConditionRunner("{q} > 1.5e3");
+    expect(large.runValues({ q: 1501 }), "q = 1501").toBe(true);
+    expect(large.runValues({ q: 1500 }), "q = 1500").toBe(false);
+  });
+  test("An e that does not start a complete exponent is not part of the number", () => {
+    expect(parseResult("{q} = 2e"), "no digits after e").toBe(8);
+    expect(parseResult("{q} = 2e+"), "no digits after the sign").toBe(9);
+    expect(parseResult("{q} = 1 e1"), "space before e").toBe(8);
+    expect(parseResult("{q}e1 = 1"), "after a variable").toBe(3);
+    expect(parseResult("{q} = 1e1x"), "a letter after the exponent").toBe(9);
+    expect(parseResult("{q} = 1e1.5"), "a fraction in the exponent").toBe(9);
+    expect(parseResult("{q} = e1"), "e1 is a name").toBe("({q} == e1)");
+    expect(parseResult("1empty"), "a postfix operator after a number").toBe("1 empty");
+    expect(parseResult("1e5empty"), "a postfix operator after an exponent").toBe("100000 empty");
+    expect(parseResult("{q} = a1e5"), "a name with digits").toBe("({q} == a1e5)");
+  });
+  test("toString of a number written with an exponent parses back to the same number", () => {
+    ["{q} = 1e21", "{q} = 1e-7", "{q} = -2.5e+30"].forEach(text => {
+      const operand = parse(text);
+      const printed = operand.toString();
+      const reparsed = parse(printed);
+      expect(reparsed.toString(), text).toBe(printed);
+      expect(reparsed.isEqual(operand), text).toBe(true);
+      expect((<any>reparsed).rightOperand.correctValue, text).toBe((<any>operand).rightOperand.correctValue);
+    });
+    expect(parse("{q} = 1e21").toString()).toBe("({q} == 1e+21)");
+    expect(parse("{q} = 1e-7").toString()).toBe("({q} == 1e-7)");
   });
 });
 

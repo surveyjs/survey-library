@@ -701,7 +701,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       const item = visItems[i];
       if (item === this.selectAllItem) continue;
       var val = visItems[i].value;
-      if (Helpers.isTwoValueEquals(val, this.invisibleOldValues[val])) {
+      if (this.isTwoValueEqualsInSurvey(val, this.invisibleOldValues[val])) {
         if (!this.isItemSelected(item)) {
           res.push(val);
         }
@@ -720,7 +720,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return json;
   }
   public isAnswerCorrect(): boolean {
-    return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue());
+    return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue(), this.getSurveySettings());
   }
   protected setDefaultValueWithOthers() {
     this.value = this.renderedValueFromDataCore(this.defaultValue);

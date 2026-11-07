@@ -143,9 +143,17 @@ ArithmeticValue
   / sign:[-]? num:Number { return sign == null ? num : -num; }
 
 Number
+  = Mantissa Exponent { return parseFloat(text()); }
+  / Mantissa
+
+Mantissa
   = Digits "." Digits     { return parseFloat(text()); }
   / NonZeroDigits Digits? { return parseInt(text(), 10); }
   / "0"                   { return 0; }
+
+// No whitespace before the "e": "1 e1" is not a number
+Exponent
+  = [eE] [+-]? Digits
 
 ValueInput
   = $[^{}]+

@@ -7382,7 +7382,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private runConditions() {
     if (
-      this.isCompleted ||
+      this.isCompleted && !this.isRunningConditionsOnComplete ||
       this.isEndLoadingFromJson === "processing" ||
       this.isRunningConditions
     )
@@ -7449,6 +7449,11 @@ export class SurveyModel extends SurveyElementCore
   // changed first-hand: the question-level triggers (resetValueIf/setValueIf) use it to skip the
   // question that is being set. A batch has no such name and passes none.
   private runConditionOnValuesChanged(values: HashTable<any>, name?: string, isCalculatedValueAtLoad?: boolean): void {
+    if (!!this.changesOnComplete) {
+      for (const key in values) {
+        this.changesOnComplete.names[key] = values[key];
+      }
+    }
     if (!this.questionTriggersKeys) {
       this.questionTriggersKeys = {};
     }
@@ -7843,11 +7848,71 @@ export class SurveyModel extends SurveyElementCore
     var questions = this.getQuestionsByValueName(valueName);
     return !!questions ? questions : [];
   }
+  // What the completion clean-up gathers while it runs: a completed survey runs no conditions, so the names
+  // whose values change and whether an element is hidden are collected here instead.
+  private changesOnComplete: { names: HashTable<any>, isElementHidden: boolean };
   private clearInvisibleQuestionValues() {
     const reason = this.clearInvisibleValues === "none" ? "none" : "onComplete";
     const questions = this.getAllQuestions();
-    for (var i: number = 0; i < questions.length; i++) {
-      questions[i].clearValueIfInvisible(reason);
+    // A cleared value can hide another question. The pass repeats, with the conditions that read the changed
+    // names run between passes (keyed, as on a value change), while a pass clears something and the run after it
+    // hides an element or writes a value. A pass that only clears again what the last run wrote (an expression
+    // with a function runs on every run, so a hidden one is refilled) ends it: running the conditions once more
+    // would refill it again, so a question that reads such a hidden expression keeps its value.
+    // The passes are bounded by the number of questions, template questions counted once, for a cycle that refills
+    // values by other means (an onValueChanged handler). A chain from one dynamic panel to the next ({prevPanel.x})
+    // can be longer than that; its rest is kept, as before. Counting the panels would build them.
+    // Not covered: a hidden matrix row or a hidden item of a question that changes no value when hidden (the single
+    // matrix rows) ends the loop; it kept its value before as well.
+    let maxPasses: number;
+    let written: HashTable<any> = {};
+    for (let pass = 1; ; pass++) {
+      const cleared = this.collectChangesOnComplete(() => {
+        for (let i = 0; i < questions.length; i++) {
+          questions[i].clearValueIfInvisible(reason);
+        }
+      }).names;
+      const isNewValueCleared = Object.keys(cleared).some(name => !Object.prototype.hasOwnProperty.call(written, name));
+      if (!isNewValueCleared) return;
+      if (maxPasses === undefined) {
+        maxPasses = Math.max(1, this.getAllQuestions(false, true).length);
+      }
+      if (pass >= maxPasses) return;
+      const res = this.collectChangesOnComplete(() => this.runConditionsOnComplete(cleared));
+      if (!res.isElementHidden && Object.keys(res.names).length === 0) return;
+      written = res.names;
+    }
+  }
+  private collectChangesOnComplete(func: () => void): { names: HashTable<any>, isElementHidden: boolean } {
+    const res = { names: {}, isElementHidden: false };
+    const prev = this.changesOnComplete;
+    this.changesOnComplete = res;
+    try {
+      func();
+    } finally {
+      this.changesOnComplete = prev;
+    }
+    return res;
+  }
+  private runningConditionsOnCompleteScope = new Scope();
+  private get isRunningConditionsOnComplete(): boolean {
+    return this.runningConditionsOnCompleteScope.isActive;
+  }
+  private runConditionsOnComplete(changed: HashTable<any>): void {
+    // doComplete() can be called from a handler inside a value change: that change's keys come back after the run.
+    const prevKeys = this.questionTriggersKeys;
+    this.questionTriggersKeys = changed;
+    try {
+      this.runningConditionsOnCompleteScope.run(() => {
+        this.conditionOnValueChangedScope.run(() => this.runConditions());
+      });
+    } finally {
+      this.questionTriggersKeys = prevKeys;
+    }
+  }
+  private notifyElementHiddenOnComplete(): void {
+    if (!!this.changesOnComplete) {
+      this.changesOnComplete.isElementHidden = true;
     }
   }
   /**
@@ -8332,10 +8397,13 @@ export class SurveyModel extends SurveyElementCore
     return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean, resetIndexes: boolean): void {
+    if (!newValue) {
+      this.notifyElementHiddenOnComplete();
+    }
     if (resetIndexes) {
       this.updateVisibleIndexes(question.page);
     }
-    if (!newValue) {
+    if (!newValue && !this.isRunningConditionsOnComplete) {
       this.changeCurrentSingleElementOnVisibilityChanged();
     }
     this.onQuestionVisibleChanged.fire(this, {
@@ -8346,16 +8414,21 @@ export class SurveyModel extends SurveyElementCore
   }
   pageVisibilityChanged(page: PageModel, newValue: boolean) {
     if (this.isLoadingFromJson) return;
-    if (newValue && !this.currentPage || page === this.currentPage) {
+    if (!newValue) {
+      this.notifyElementHiddenOnComplete();
+    }
+    // A completed survey keeps the page and element it completed on, also when the completion clean-up hides them.
+    const canNavigate = !this.isRunningConditionsOnComplete;
+    if (canNavigate && (newValue && !this.currentPage || page === this.currentPage)) {
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    if (!newValue) {
+    if (!newValue && canNavigate) {
       this.changeCurrentSingleElementOnVisibilityChanged();
     }
     const el: any = this.currentSingleElement;
     const curPage = this.currentPage;
-    if (!!el && !!curPage && el.page !== curPage) {
+    if (canNavigate && !!el && !!curPage && el.page !== curPage) {
       this.currentSingleElement = curPage.getFirstVisibleElement();
     }
     this.onPageVisibleChanged.fire(this, {
@@ -8365,9 +8438,12 @@ export class SurveyModel extends SurveyElementCore
     this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
+    if (!newValue) {
+      this.notifyElementHiddenOnComplete();
+    }
     if (!!panel.page) {
       this.updateVisibleIndexes(panel.page);
-      if (!newValue) {
+      if (!newValue && !this.isRunningConditionsOnComplete) {
         this.changeCurrentSingleElementOnVisibilityChanged();
       }
     }

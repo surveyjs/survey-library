@@ -1,7 +1,9 @@
 import type { IQuestion, IElement, ISurvey, ISurveyImpl, ISurveyData, ITextProcessor } from "./base-interfaces";
-import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
+import type { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
+import { ValueGetterContextCore } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
 import { Helpers } from "./helpers";
+import { settings } from "./settings";
 
 // The dataNesting modes that nest a container without a valueName under its name, and the container
 // kinds each applies to (decisions N3).
@@ -130,10 +132,61 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
     return !!this.parentData ? this.parentData.findQuestionByName(name) : null;
   }
   //IObjectValueContext
-  // Expressions inside the scope resolve as at the parent for now (nested-data prompt 04 adds the scope).
+  // An inactive scope resolves as its parent does. An active one answers with its own questions and the
+  // containers inside it first, then falls back to the parent (design-01 1.1).
   getValueGetterContext(): IValueGetterContext {
+    if (this.isActive) return new PanelDataScopeValueGetterContext([this]);
+    return this.getParentValueGetterContext();
+  }
+  public getParentValueGetterContext(): IValueGetterContext {
     const data: any = this.parentData;
     return !!data && typeof data.getValueGetterContext === "function" ? data.getValueGetterContext() : undefined;
+  }
+  // The stored object, as an expression reads it.
+  public getObjectValue(): any {
+    const data = this.parentData;
+    return !!data ? data.getValue(this.key) : undefined;
+  }
+  // The questions whose values this active scope's object holds (directly, or through panels that do not
+  // nest) and the active scopes directly inside it. Unlike forEachDataChild, a panel whose scope is
+  // inactive is walked through: its questions write into this object.
+  public forEachActiveChild(onQuestion: (q: Question) => void, onScope: (scope: PanelDataScope) => void): void {
+    this.forEachActiveChildCore(this.owner.elements, onQuestion, onScope);
+  }
+  private forEachActiveChildCore(elements: Array<IElement>, onQuestion: (q: Question) => void, onScope: (scope: PanelDataScope) => void): void {
+    for (let i = 0; i < elements.length; i++) {
+      const el: any = elements[i];
+      if (el.isPanel) {
+        const scope = (<IPanelWithDataScope>el).getDataScope();
+        if (!!scope && scope.isActive && scope.getParentActiveScope() === this) {
+          onScope(scope);
+        } else {
+          this.forEachActiveChildCore(el.elements, onQuestion, onScope);
+        }
+      } else if (el.isQuestion && el.data instanceof PanelDataScope && el.data.getActiveScope() === this) {
+        onQuestion(<Question>el);
+      }
+    }
+  }
+  // The active scopes directly inside this one: a walk over the panels only.
+  public forEachActiveInnerScope(onScope: (scope: PanelDataScope) => void): void {
+    const walk = (elements: Array<IElement>): void => {
+      for (let i = 0; i < elements.length; i++) {
+        const el: any = elements[i];
+        if (!el.isPanel) continue;
+        const scope = (<IPanelWithDataScope>el).getDataScope();
+        if (!!scope && scope.isActive && scope.getParentActiveScope() === this) {
+          onScope(scope);
+        } else {
+          walk(el.elements);
+        }
+      }
+    };
+    walk(this.owner.elements);
+  }
+  private getParentActiveScope(): PanelDataScope {
+    const parent = this.parentScope;
+    return !!parent ? parent.getActiveScope() : null;
   }
   // The survey calls these for a root-level scope after its key is written.
   // The questions read their values from the stored object again; the scopes inside follow.
@@ -186,4 +239,91 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
   private isTwoValueEquals(x: any, y: any): boolean {
     return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: true, trimStrings: false, doNotConvertNumbers: true });
   }
+}
+
+// The survey's lookup of questions by value name that includes inner questions (SurveyModel).
+interface IDataScopeQuestionLookup {
+  getQuestionsByAnyValueName(name: string): Array<Question>;
+}
+
+// The expression context of the active scopes that share one key (D4, one scope unless two containers
+// share it). A name is answered, ignoring letter case, by a question of the scopes (by value name; an
+// empty question still answers), then by an active scope directly inside them (by key), then, for a
+// comment key ({kind-Comment}), by the comment a question of the scopes stores. A path with no items
+// left ({address}) gives the stored object.
+// As an inner element's context (the scope's getValueGetterContext) an unanswered name falls back to the
+// parent's context through getRootObj; reached through a path from outside ({address.street}) it answers
+// the rest of the path only, and the survey falls back to the raw data.
+export class PanelDataScopeValueGetterContext extends ValueGetterContextCore {
+  // Built on the first lookup that needs it: a context lives for one expression run.
+  private innerScopes: Array<PanelDataScope>;
+  constructor(private scopes: Array<PanelDataScope>) {
+    super();
+  }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    if (params.path.length === 0) return { isFound: true, value: this.scopes[0].getObjectValue(), context: this };
+    return super.getValue(params);
+  }
+  getRootObj(): IObjectValueContext {
+    return <IObjectValueContext><any>this.scopes[0].parentData;
+  }
+  protected isSearchNameRevert(): boolean { return true; }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const postfix = settings.expressionVariables.unwrapPostfix;
+    if (!!postfix && name.endsWith(postfix)) {
+      name = name.substring(0, name.length - postfix.length);
+    }
+    const question = this.findQuestion(name);
+    if (!!question) {
+      res.isFound = true;
+      res.obj = question;
+      res.context = question.getValueGetterContext();
+      return;
+    }
+    const lowName = name.toLowerCase();
+    const inner = this.getInnerScopes().filter(scope => scope.key.toLowerCase() === lowName);
+    if (inner.length > 0) {
+      res.isFound = true;
+      res.context = new PanelDataScopeValueGetterContext(inner);
+      return;
+    }
+    const baseName = getNameOfCommentName(name);
+    const owner = !!baseName ? this.findQuestion(baseName) : null;
+    if (!!owner) {
+      // The stored comment, as a top-level {q-Comment} reads the raw data key.
+      res.isFound = true;
+      res.value = (<PanelDataScope>owner.data).getActiveScope().getValue(Helpers.getCommentKey(owner.getValueName()));
+    }
+  }
+  private findQuestion(name: string): Question {
+    const survey: any = this.scopes[0].getSurvey();
+    const lowName = name.toLowerCase();
+    const isOwn = (q: Question): boolean => q.data instanceof PanelDataScope && this.scopes.indexOf(q.data.getActiveScope()) > -1;
+    if (!!survey && typeof survey.getQuestionsByAnyValueName === "function") {
+      const qs = (<IDataScopeQuestionLookup>survey).getQuestionsByAnyValueName(lowName);
+      for (let i = 0; i < qs.length; i++) {
+        if (isOwn(qs[i])) return qs[i];
+      }
+      return null;
+    }
+    let res: Question = null;
+    this.scopes.forEach(scope => scope.forEachActiveChild((q: Question) => {
+      if (!res && q.getValueName().toLowerCase() === lowName) res = q;
+    }, () => { }));
+    return res;
+  }
+  private getInnerScopes(): Array<PanelDataScope> {
+    if (!this.innerScopes) {
+      const res: Array<PanelDataScope> = [];
+      this.scopes.forEach(scope => scope.forEachActiveInnerScope(inner => res.push(inner)));
+      this.innerScopes = res;
+    }
+    return this.innerScopes;
+  }
+}
+// The value name a comment key names, ignoring letter case ({Kind-comment} -> "Kind"); "" for another name.
+export function getNameOfCommentName(name: string): string {
+  const suffix = settings.commentSuffix;
+  if (!suffix || name.length <= suffix.length) return "";
+  return name.toLowerCase().endsWith(suffix.toLowerCase()) ? name.substring(0, name.length - suffix.length) : "";
 }

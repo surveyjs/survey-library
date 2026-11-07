@@ -167,8 +167,8 @@ export class InputMaskNumeric extends InputMaskBase {
    */
   @property() max: number;
 
-  private calccaretPosition(leftPart: string, args: ITextInputParams, maskedValue: string) {
-    const leftPartMaskedLength = !! leftPart ? this.displayNumber(this.parseNumber(leftPart), false).length : 0;
+  private calccaretPosition(leftPart: string, args: ITextInputParams, maskedValue: string, isKeystroke: boolean) {
+    const leftPartMaskedLength = !! leftPart ? this.displayNumber(this.parseNumber(leftPart, undefined, undefined, isKeystroke), false).length : 0;
     let validCharIndex = 0;
     let result = args.selectionStart;
     // let result = 0;
@@ -321,7 +321,11 @@ export class InputMaskNumeric extends InputMaskBase {
 
   // The separators are parameters so that text entered under the previous locale can be read
   // with the pair that produced it; both default to the mask's current values.
-  public parseNumber(src: string, decimalSeparator?: string, thousandsSeparator?: string): INumericalComposition {
+  // With precision 0 the decimal separator ends the integer part and the fraction is dropped, as
+  // every other precision truncates the digits it has no room for. A keystroke is the exception
+  // (isKeystroke): the respondent sees each key, so a typed separator is ignored and the next digit
+  // appends to the integer part.
+  public parseNumber(src: string, decimalSeparator?: string, thousandsSeparator?: string, isKeystroke: boolean = false): INumericalComposition {
     const result: INumericalComposition = { integralPart: "", fractionalPart: "", hasDecimalSeparator: false, isNegative: false };
     const input = (src === undefined || src === null) ? "" : src.toString();
     const decimal = decimalSeparator !== undefined ? decimalSeparator : this.decimalSeparator;
@@ -330,6 +334,7 @@ export class InputMaskNumeric extends InputMaskBase {
       this.ensureTextFormat(decimal, thousands);
     }
     let minusCharCount = 0;
+    let isFractionDropped = false;
 
     for (let inputIndex = 0; inputIndex < input.length; inputIndex++) {
       const currentChar = input[inputIndex];
@@ -341,6 +346,8 @@ export class InputMaskNumeric extends InputMaskBase {
         case decimal: {
           if (this.precision > 0) {
             result.hasDecimalSeparator = true;
+          } else if (!isKeystroke) {
+            isFractionDropped = true;
           }
           break;
         }
@@ -349,6 +356,11 @@ export class InputMaskNumeric extends InputMaskBase {
         }
         default: {
           if (currentChar.match(numberDefinition)) {
+            if (isFractionDropped) {
+              // ".5" truncates to 0, as 0.5 does, not to nothing
+              if (!result.integralPart) result.integralPart = "0";
+              break;
+            }
             if (result.hasDecimalSeparator) {
               result.fractionalPart += currentChar;
             } else {
@@ -461,7 +473,9 @@ export class InputMaskNumeric extends InputMaskBase {
     // the digits it selected and leaves the separator in place. With no digit left there is nothing
     // to separate any more.
     const keepsDecimalSeparator = this.hasTrailingZeros && deletedText.indexOf(this.decimalSeparator) !== -1 && numberDefinition.test(leftPart + rightPart);
-    const parsedNumber = this.parseNumber(leftPart + (keepsDecimalSeparator ? this.decimalSeparator : "") + rightPart);
+    // several characters at once are a paste (or an autofill), read as a whole number
+    const isKeystroke = !args.insertedChars || args.insertedChars.length <= 1;
+    const parsedNumber = this.parseNumber(leftPart + (keepsDecimalSeparator ? this.decimalSeparator : "") + rightPart, undefined, undefined, isKeystroke);
 
     if (!this.validateNumber(parsedNumber, false)) {
       return result;
@@ -475,7 +489,7 @@ export class InputMaskNumeric extends InputMaskBase {
       result.caretPosition = args.inputDirection === "backward" ? args.selectionStart : args.selectionEnd;
       return result;
     }
-    result.caretPosition = this.calccaretPosition(leftPart, args, maskedValue);
+    result.caretPosition = this.calccaretPosition(leftPart, args, maskedValue, isKeystroke);
 
     return result;
   }

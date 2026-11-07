@@ -15,8 +15,9 @@ export const resultSchema = 1;
 const budgetMin: { [suite: string]: number } = { "core": 20, "react": 10, "survey-js-ui": 10 };
 
 // A guard against a hung core scenario process (perf/core/run.ts), below the core suite budget. On the perf server the
-// longest process on master takes about 175 s (expressions/answer/next10); on survey-core 3.2.0
-// complexLogic/answer/next10 takes 7 minutes, and load/design and output/dispose do not finish.
+// longest process on master took about 175 s (expressions/answer/next10; next3 takes about a third: 61 s vs 182 s
+// locally, as the untimed setup does not shrink); on
+// survey-core 3.2.0 complexLogic/answer/next10 took 7 minutes, and load/design and output/dispose do not finish.
 export const scenarioTimeoutMs = 300000;
 
 export interface SuiteManifest {

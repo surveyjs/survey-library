@@ -4,7 +4,7 @@ import { scenarioById } from "../scenarios/index.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { getExtraFixtures } from "../fixtures/extra.ts";
 import { sampleLoop, scenarioDriver } from "../harness/sample.ts";
-import { calibrateOnce, calibrationResult } from "../harness/calibration.ts";
+import { calibrateOnce, calibrationReadings, calibrationResult } from "../harness/calibration.ts";
 import { installFunnels } from "../harness/counters.ts";
 import { summarize } from "../harness/stats.ts";
 import type { PerfContext, PerfFixture } from "../harness/scenario.ts";
@@ -72,8 +72,10 @@ async function main(): Promise<void> {
     calibrate: (): number => calibrateOnce(now),
     installFunnels: () => installFunnels(Survey)
   });
+  // maxMs 3 s (5 s before 2026-11-05): short scenarios' spread is a few percent against a 25% threshold, so the extra
+  // samples bought little; at least 5 are kept either way.
   const res = await sampleLoop(driver, { warmup: scenario.warmup === undefined ? 2 : scenario.warmup, samples: scenario.samples || 12,
-    maxMs: scenario.maxMs || 5000, minSamples: 5, now: now });
+    maxMs: scenario.maxMs || 3000, minSamples: 5, now: now });
   (gc as () => void)();
   if (warnings.length > 0 && !isExtra) throw new Error("warnings during the scenario: " + warnings.slice(0, 3).join(" | "));
   const jsonErrors = ctx.cache.jsonErrors || 0;
@@ -81,6 +83,7 @@ async function main(): Promise<void> {
   // extra/*) they are only recorded.
   const strict = !isExtra && (core.isRunnerBuild || env.kind === "nightly" || env.kind === "record");
   if (strict && jsonErrors > 0) throw new Error(jsonErrors + " jsonErrors on " + scenario.fixture);
+  const readings = calibrationReadings(res.calibrationBefore, res.calibrationDuring, res.calibrationAfter);
   const stats = summarize(res.samples);
   const phases: { [phase: string]: { median: number, min: number } } | undefined = res.phases ? {} : undefined;
   if (res.phases && phases) {
@@ -92,10 +95,10 @@ async function main(): Promise<void> {
   const entry: ResultEntry = {
     id: scenario.id, rev: scenario.rev, unit: "ms", samples: res.samples.map((v: number) => Math.round(v * 100) / 100),
     median: stats.median, min: stats.min, max: stats.max, mad: stats.mad,
-    calibration: calibrationResult(res.calibrationBefore, res.calibrationAfter),
+    calibration: calibrationResult(readings),
     phases: phases, counters: res.counters,
     info: { kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), heapMB: Math.round(process.memoryUsage().heapUsed / 1048576),
-      gc: true, fixtureMeta: isExtra ? fixture.meta : undefined, warnings: isExtra ? warnings.length : undefined },
+      gc: true, calibrationReadings: readings, fixtureMeta: isExtra ? fixture.meta : undefined, warnings: isExtra ? warnings.length : undefined },
     jsonErrors: jsonErrors, tolerance: scenario.tolerance === undefined ? null : scenario.tolerance, local: isExtra
   };
   if (scenario.repeat) entry.repeat = scenario.repeat;

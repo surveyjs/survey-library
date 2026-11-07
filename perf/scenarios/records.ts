@@ -1,5 +1,6 @@
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
 import { expectThat, expectEqual } from "../harness/scenario.ts";
+import { RECORD_OPS_1K } from "../harness/ids.ts";
 import { loadModel, outputScenarios } from "./common.ts";
 import { loadSurvey, cachedSurvey, releaseSurvey, sortRecords, filterRecords, sum, firstShown, renderedCell, showPageOf, expectSortedPage, recordsShown, shownIds } from "./helpers.ts";
 
@@ -490,7 +491,9 @@ export function recordsScenarios(): Array<PerfScenario> {
   for (const fixture of ["records-1k", "records-10k"]) {
     res.push(Object.assign(loadModel(fixture), { requires: requires }));
     res.push(recordsLoadData(fixture));
-    matrixScenarios(fixture).forEach((s: PerfScenario) => res.push(s));
+    // records-1k keeps only RECORD_OPS_1K (ids.ts).
+    matrixScenarios(fixture).filter((s: PerfScenario) => fixture !== "records-1k" || RECORD_OPS_1K.some((op: string) => s.id === fixture + "/records/" + op + "@orders"))
+      .forEach((s: PerfScenario) => res.push(s));
   }
   panelScenarios("records-1k").forEach((s: PerfScenario) => res.push(s));
   res.push(sortHeaderScenario("records-10k"));

@@ -78,5 +78,16 @@ The types are `ResultFile` and `ResultEntry` in `perf/harness/node/result.ts`. A
   (`median`, `before`, `after`), `phases`, `counters` (`value`, `kind`), `info`, `jsonErrors`, `tolerance`, `local`,
   `repeat`, `counterOnly`.
 
+`calibration` is the speed of the process the scenario runs in (for a load scenario, its pages' renderers) on fixed
+work (`perf/harness/calibration.ts`), in ms; lower is faster. A scenario takes 3 readings before its warm-ups, one
+right before the setup of every kept sample (in a load scenario, in the sample's own page) and 3 after its counter run.
+`before` and `after` are the medians of their 3. `median` is the median of the readings before the samples together
+with `before` and `after` as one value each (7 to 14 values): a block's 3 readings are taken back to back, so they
+count once. The readings themselves are in `info.calibrationReadings`
+(`before`, `during`, `after`, ms rounded to 0.01), and the three values are computed from those rounded readings.
+
+`info` is free-form: its fields are not part of the contract, and a new one changes neither `contract` nor
+`resultSchema`. Today every entry has `info.kept` (the number of samples) and `info.calibrationReadings`.
+
 `environment` is always `null` here: it belongs to the caller, which may fill it in (the server records the host load
 there).

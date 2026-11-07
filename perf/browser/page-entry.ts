@@ -1,6 +1,6 @@
 import { scenarioById } from "../scenarios/index.ts";
 import { sampleLoop, scenarioDriver } from "../harness/sample.ts";
-import { calibrateOnce, calibrationResult } from "../harness/calibration.ts";
+import { calibrateOnce, calibrationReadings, calibrationResult, releaseCalibration } from "../harness/calibration.ts";
 import { installFunnels, dom } from "../harness/counters.ts";
 import { median, round2 } from "../harness/stats.ts";
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
@@ -42,6 +42,13 @@ function context(scenario: PerfScenario, fixture: any): PerfContext {
 
 function gc(): void {
   if (typeof W.gc === "function") W.gc();
+}
+
+// Before the 3 readings before the warm-ups and the 3 after the counter run (and in the calibration page of a load
+// scenario): the garbage collected and the page quiet, so a reading does not land on the page's own leftover work.
+async function settleForCalibration(): Promise<void> {
+  gc();
+  await settle();
 }
 
 function heapMB(): number | null {
@@ -94,25 +101,37 @@ async function runAction(id: string, fixture: any, options: any): Promise<any> {
       await delay(0);
       frames.push(now() - t0);
     },
-    afterSample: settle
+    afterSample: settle,
+    beforeCalibration: settleForCalibration
   });
   const res = await sampleLoop(driver, { warmup: scenario.warmup === undefined ? 1 : scenario.warmup, samples: scenario.samples || 7,
     maxMs: scenario.maxMs || options.maxMs, minSamples: 5, now: now });
   res.counters.domNodes = dom(rootElement().querySelectorAll("*").length);
+  const readings = calibrationReadings(res.calibrationBefore, res.calibrationDuring, res.calibrationAfter);
   return {
-    samples: res.samples, phases: res.phases, calibration: calibrationResult(res.calibrationBefore, res.calibrationAfter), counters: res.counters,
+    samples: res.samples, phases: res.phases, calibration: calibrationResult(readings), counters: res.counters,
     info: { kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), frameMs: round2(median(frames)),
-      longTaskMs: longTaskMsPerSample(), heapMB: heapMB() },
+      longTaskMs: longTaskMsPerSample(), heapMB: heapMB(), calibrationReadings: readings },
     jsonErrors: ctx.cache.jsonErrors || 0, repeat: scenario.repeat, counterOnly: scenario.counterOnly, tolerance: scenario.tolerance, rev: scenario.rev
   };
 }
 
-// One sample of a load scenario in this fresh page: setup, gc, timed run, check.
-async function loadSample(id: string, fixture: any): Promise<any> {
+// One sample of a load scenario in this fresh page: (a calibration reading), setup, gc, timed run, check. The reading is
+// taken here, in the sample's own renderer, because a page that only calibrates can run at another speed than the
+// fresh pages the samples run in.
+async function loadSample(id: string, fixture: any, withReading?: boolean): Promise<any> {
   const scenario = getScenario(id);
   const skip = missingRequirement(W.Survey, scenario.requires);
   if (skip) return { skipped: skip };
   const ctx = context(scenario, fixture);
+  let reading: number | undefined;
+  let readingMs: number | undefined;
+  if (withReading) {
+    const start = now();
+    reading = calibrateOnce(now);
+    readingMs = now() - start;
+    releaseCalibration();
+  }
   const state = await scenario.setup(ctx);
   gc();
   const t0 = now();
@@ -126,7 +145,7 @@ async function loadSample(id: string, fixture: any): Promise<any> {
     for (const key in phases) ms += (phases as any)[key];
   }
   return { ms: ms, phases: phases || undefined, jsonErrors: ctx.cache.jsonErrors || 0, longTaskMs: longTaskMsPerSample(), rev: scenario.rev,
-    tolerance: scenario.tolerance, counterOnly: scenario.counterOnly };
+    tolerance: scenario.tolerance, counterOnly: scenario.counterOnly, reading: reading, readingMs: readingMs };
 }
 
 // The counter run of a load scenario, in a fresh page of its own.
@@ -164,4 +183,4 @@ async function nextPageProbe(): Promise<any> {
 }
 
 W.PerfPage = { ready: ready, prepare: prepare, runAction: runAction, loadSample: loadSample, loadCounters: loadCounters,
-  calibrate: (): number => calibrateOnce(now), nextPageProbe: nextPageProbe };
+  calibrate: (): number => calibrateOnce(now), settleForCalibration: settleForCalibration, nextPageProbe: nextPageProbe };

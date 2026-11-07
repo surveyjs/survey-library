@@ -4,6 +4,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { runnerRoot } from "../harness/node/build.ts";
+import { calibrationResult } from "../harness/calibration.ts";
 
 // 01 check 8 extended to the core entry points (02): run.ts and scenario-process.ts load in plain Node with nothing
 // on stderr, and write a result file of 00's format.
@@ -26,6 +27,9 @@ describe("the core runner", () => {
     expect(r.samples.length).toBeGreaterThanOrEqual(5);
     expect(r.median).toBeGreaterThan(0);
     expect(Object.keys(r.calibration)).toEqual(["median", "before", "after"]);
+    // CONTRACT.md: the three values are recomputed exactly from info.calibrationReadings; one reading per kept sample.
+    expect(r.calibration).toEqual(calibrationResult(r.info.calibrationReadings));
+    expect(r.info.calibrationReadings.during.length).toBe(r.samples.length);
     expect(r.counters.expressionRuns.kind).toBe("work");
     expect(result.fixtures.calculations.hash).toMatch(/^[0-9a-f]{40}$/);
     expect(result.machine.key).toMatch(/^[a-z0-9.-]+$/);

@@ -32,6 +32,13 @@ export function calibrateOnce(now: () => number): number {
   return elapsed;
 }
 
+// Drops the fixed work's data: a load sample's page calls it after its reading, so the sample runs with the heap it
+// had before the page took readings.
+export function releaseCalibration(): void {
+  numbers = undefined;
+  object = undefined;
+}
+
 export function calibrate(now: () => number, count: number = calibrationSamples): Array<number> {
   const res: Array<number> = [];
   for (let i = 0; i < count; i++) res.push(calibrateOnce(now));
@@ -44,7 +51,28 @@ export interface CalibrationResult {
   after: number;
 }
 
-export function calibrationResult(before: Array<number>, after: Array<number>): CalibrationResult {
-  const r = (v: number): number => Math.round(v * 100) / 100;
-  return { median: r(median(before.concat(after))), before: r(median(before)), after: r(median(after)) };
+// Every reading of one scenario (info.calibrationReadings), in ms rounded to 0.01: 3 before the warm-ups, one before
+// the setup of every kept sample, 3 after the counter run.
+export interface CalibrationReadings {
+  before: Array<number>;
+  during: Array<number>;
+  after: Array<number>;
+}
+
+const round = (v: number): number => Math.round(v * 100) / 100;
+
+export function calibrationReadings(before: Array<number>, during: Array<number>, after: Array<number>): CalibrationReadings {
+  return { before: before.map(round), during: during.map(round), after: after.map(round) };
+}
+
+// before and after: the medians of their 3. median: of the reading before every sample plus before and after as one
+// value each, since a block's 3 readings are taken back to back in ~45 ms and are one observation. So the readings
+// next to the samples are always the majority: a burst that hits one block or a few readings moves it little, and a
+// process that runs slow throughout moves it fully. Not the minimum: a fast reading after an idle moment would hide
+// the slow mode the calibration is for. Computed from the rounded readings, so a reader can recompute all three from
+// info.calibrationReadings.
+export function calibrationResult(readings: CalibrationReadings): CalibrationResult {
+  const before = round(median(readings.before));
+  const after = round(median(readings.after));
+  return { median: round(median(readings.during.concat([before, after]))), before: before, after: after };
 }

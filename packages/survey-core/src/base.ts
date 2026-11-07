@@ -8,6 +8,7 @@ import {
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
+import { ISurveySettings, getSettingsOfSurvey } from "./survey-settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ExpressionRunner } from "./expressions/expressionRunner";
@@ -1862,6 +1863,7 @@ export class Base implements IObjectValueContext {
     this.propertyValueChanged(name, deletedItems, dest, arrayChanges);
     this.notifyArrayChanged(name, dest, arrayChanges);
   }
+  // Value-change checks: case and trimming are always explicit, so the survey's comparator settings do not apply here
   protected isTwoValueEquals(
     x: any,
     y: any,
@@ -1869,6 +1871,19 @@ export class Base implements IObjectValueContext {
     trimString: boolean = false
   ): boolean {
     return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: !caseInSensitive, trimStrings: trimString, doNotConvertNumbers: true });
+  }
+  // Compares values as the survey does: caseSensitive and trimStrings come from its settings.
+  // The settings apply to two strings only (also inside two arrays or objects), so other pairs do not read them.
+  protected isTwoValueEqualsInSurvey(x: any, y: any): boolean {
+    if (x === y) return true;
+    const tX = typeof x;
+    const tY = typeof y;
+    const mayCompareStrings = tX === "string" && tY === "string" || tX === "object" && tY === "object" && x !== null && y !== null;
+    return Helpers.isTwoValueEquals(x, y, false, undefined, undefined, mayCompareStrings ? this.getSurveySettings() : undefined);
+  }
+  // The settings of the survey this object belongs to; undefined (the global settings) without one
+  protected getSurveySettings(): ISurveySettings {
+    return getSettingsOfSurvey(this.getSurvey());
   }
   private static copyObject(dst: any, src: any) {
     for (var key in src) {

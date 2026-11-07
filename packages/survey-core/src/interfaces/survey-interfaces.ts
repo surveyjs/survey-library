@@ -11,6 +11,7 @@ import type { QuestionPanelDynamicModel } from "../question_paneldynamic";
 import type { DragDropAllowEvent } from "../survey-events-api";
 import type { PopupModel } from "../popup";
 import type { ItemValue } from "../itemvalue";
+import type { ISurveySettings } from "../survey-settings";
 import type {
   ISurveyElementLifecycle,
   ISurveyFileCallbacks,
@@ -87,6 +88,13 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
 
   //#region Rendered ids
   getElementId(id: string): string;
+  //#endregion
+
+  //#region Settings
+  // The survey's effective settings (SurveyModel.getSettings)
+  getSettings(): ISurveySettings;
+  // The settings comparisons pass on: undefined when the survey sets no key itself (the global settings apply)
+  getOwnSettings(): ISurveySettings;
   //#endregion
 
   //#region Locale

@@ -1,5 +1,6 @@
 import { ILintRule, LintContext } from "../rule";
 import { ElementRecord, getEffectiveType } from "../symbols";
+import { isDescendantOf, isPropertyOn } from "../metadata";
 import { ownerText } from "../message-utils";
 import { getInputType, isMinMaxInputType } from "../value-types";
 import { AliasPairSite, PropertySite } from "../property-walk";
@@ -75,6 +76,24 @@ function checkInertBounds(ctx: LintContext, record: ElementRecord): void {
   });
 }
 
+// requiredTrue only narrows the required check of a boolean (question_boolean.ts, hasRequiredError),
+// so on a question that is never required it does nothing.
+function checkRequiredTrueNotRequired(ctx: LintContext, record: ElementRecord): void {
+  const json = record.json;
+  if (json.requiredTrue !== true || !isDescendantOf(getEffectiveType(record), "boolean")) return;
+  if (isPropertyOn(json, "question", "isRequired") || !!json.requiredIf) return;
+  ctx.report({
+    message: "\"requiredTrue\" is set on \"" + record.name + "\", but \"" + record.name + "\" has neither isRequired " +
+      "nor requiredIf - the runtime ignores it.",
+    path: record.path + ".requiredTrue",
+    reason: reasons.requiredTrueNotRequired,
+    messageData: { key: "requiredTrue", name: record.name },
+    elementName: record.name,
+    elementType: record.type,
+    fix: removeFix(fixReasons.removeKey, record.path + ".requiredTrue"),
+  });
+}
+
 export const propertyDeadRule: ILintRule = {
   id: "property/dead",
   defaultSeverity: "info",
@@ -85,6 +104,7 @@ export const propertyDeadRule: ILintRule = {
     ctx.index.allElements.forEach(record => {
       if (!record.json) return;
       checkInertBounds(ctx, record);
+      checkRequiredTrueNotRequired(ctx, record);
     });
   },
 };

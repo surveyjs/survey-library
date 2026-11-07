@@ -154,6 +154,7 @@
     flex-direction: row;
     align-items: center;
     position: relative;
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
 
     &:before {
         top: 0;

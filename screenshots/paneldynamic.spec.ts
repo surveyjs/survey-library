@@ -551,25 +551,39 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, paneldynamicRoot, "panel-dynamic-comment.png");
     });
 
-    // TODO: Reanimate in processing of https://github.com/surveyjs/survey-library/issues/11421
-    test.skip("Paneldynamic: removePanelButtonLocation=right", async ({ page }) => {
+    // https://github.com/surveyjs/survey-library/issues/11772
+    test("Paneldynamic: removePanelButtonLocation=right", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
-        "elements": [
+        "pages": [
           {
-            "type": "paneldynamic",
-            "templateElements": [
+            "name": "page1",
+            "elements": [
               {
-                "type": "text",
-                "name": "q2",
+                "type": "paneldynamic",
+                "name": "paneldynamic",
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "q1"
+                  },
+                  {
+                    "type": "text",
+                    "name": "q2",
+                    "visibleIf": "{panel.q1} = 'test'"
+                  }
+                ],
+                "panelCount": 2,
+                "removePanelButtonLocation": "right"
               }
-            ],
-            "panelCount": 2,
-            "removePanelButtonLocation": "right"
+            ]
           }
         ]
       };
       await initSurvey(page, framework, json);
+
+      await page.getByRole("textbox", { name: "q1" }).first().fill("test");
+      await page.keyboard.press("Tab");
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
       await compareScreenshot(page, paneldynamicRoot, "panel-dynamic-removepanelbuttonlocation-right.png");
     });

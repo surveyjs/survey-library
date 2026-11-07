@@ -482,6 +482,15 @@ describe("json-schema convert - literals survey-core reads like other values", (
     expect(shown(schema, "1,000")).toEqual([true]);
   });
 
+  it("does not express a const that survey-core releases read differently, and reports it", () => {
+    // Releases before survey-core #12234 read "0x1g" as the number 1, later ones as text.
+    const schema = ifOn({ enum: ["0x1g", "x"] }, { const: "0x1g" });
+    const { output, report } = convert(schema);
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    expect(entry(report.entries, JsonSchemaCodes.ASSUMED_IF_THEN_ELSE)?.sourcePointer).toBe("#/if");
+    expect(shown(schema, "0x1g", "x")).toEqual([true, true]);
+  });
+
   it("does not express an if on a field whose enum holds null, which survey-core reads as empty", () => {
     const schema = { type: "object", properties: { k: { enum: [null, "x"] }, b: { type: "string" } },
       if: { properties: { k: { const: "x" } } }, then: { properties: { b: { type: "string" } } } };

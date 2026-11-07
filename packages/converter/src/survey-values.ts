@@ -8,14 +8,19 @@
 
 // survey-core's number reading of a value (`Helpers.getNumber`, with the default `parseNumber`):
 // a text is trimmed, read as hex after `0x`, refused when it holds an operator or more than 15
-// digits alone, and read with a single comma as the decimal point.
-export function surveyNumber(value: unknown): number {
+// digits alone, and read with a single comma as the decimal point. Releases before survey-core
+// #12234 read the hex digits after `0x` and ignored the rest ("0xa hello" is 10); later ones read a
+// `0x` text only when all of it is hex. `strictHex` picks the later reading.
+export function surveyNumber(value: unknown, strictHex = false): number {
   let text = value;
   if (typeof text === "string") {
     text = text.trim();
     if (!text) return NaN;
     const s = text as string;
-    if (s.indexOf("0x") === 0) return s.length > 32 ? NaN : parseInt(s);
+    if (s.indexOf("0x") === 0) {
+      if (s.length > 32 || (strictHex && !/^0x[0-9a-f]+$/i.test(s))) return NaN;
+      return parseInt(s);
+    }
     if (s.length > 15 && /^\d+$/.test(s)) return NaN;
     if (s.lastIndexOf("-") <= 0 && s.lastIndexOf("+") <= 0 && /[*^/%]/.test(s)) return NaN;
     const comma = s.indexOf(",");
@@ -29,11 +34,11 @@ export function surveyNumber(value: unknown): number {
 // (`Variable.getCorrectValue`): a text that reads "true" or "false" in any case is a boolean, a
 // quoted text loses its quotes, and a text that reads as a number is that number, unless it starts
 // with a 0 that is not `0x`, `0.` or `0,`.
-export function surveyVariable(value: unknown): unknown {
+export function surveyVariable(value: unknown, strictHex = false): unknown {
   if (!value || typeof value !== "string") return value;
   if (/^(true|false)$/i.test(value)) return value.toLowerCase() === "true";
   if (value.length > 1 && /^['"]/.test(value) && /['"]$/.test(value)) return value.substring(1, value.length - 1);
-  const n = surveyNumber(value);
+  const n = surveyNumber(value, strictHex);
   if (Number.isNaN(n)) return value;
   if (value[0] === "0" && value.indexOf("0x") !== 0) {
     const hasPoint = value.length > 1 && (value[1] === "." || value[1] === ",");
@@ -50,18 +55,33 @@ export function surveyEquals(x: unknown, y: unknown): boolean {
   if (x === "undefined") x = undefined;
   if (y === "undefined") y = undefined;
   if (x === y) return true;
+  if (Array.isArray(x) && x.length === 0 && y === undefined) return true;
+  if (Array.isArray(y) && y.length === 0 && x === undefined) return true;
   if ((x === undefined || x === null) && y === "") return true;
   if ((y === undefined || y === null) && x === "") return true;
   if (typeof x === "string" && typeof y === "string") return x.trim().toLowerCase() === y.trim().toLowerCase();
-  const convertible = (v: unknown) => v !== undefined && v !== null && !Number.isNaN(Number(v));
+  const convertible = (v: unknown) => v !== undefined && v !== null && !Array.isArray(v) && !Number.isNaN(Number(v));
   if (convertible(x) && convertible(y) && parseInt(x as string) === parseInt(y as string)
     && parseFloat(x as string) === parseFloat(y as string)) return true;
-  const isEmpty = (v: unknown) => !v && v !== 0 && v !== false;
-  if (isEmpty(x) !== isEmpty(y)) return false;
+  if (isValueEmpty(x) !== isValueEmpty(y)) return false;
   if ((x === true || x === false) && typeof y === "string") return x.toString() === y.toLocaleLowerCase();
   if ((y === true || y === false) && typeof x === "string") return y.toString() === x.toLocaleLowerCase();
+  // An array or object equals only another one: arrays item by item in any order, objects key by key.
+  const isObject = (v: unknown) => v !== null && typeof v === "object";
   // eslint-disable-next-line eqeqeq
-  return x == y;
+  if (!isObject(x) && !isObject(y)) return x == y;
+  if (!isObject(x) || !isObject(y)) return false;
+  if (Array.isArray(x) && Array.isArray(y)) {
+    if (x.length !== y.length) return false;
+    const xs = [...x].sort();
+    const ys = [...y].sort();
+    return xs.every((item, i) => surveyEquals(item, ys[i]));
+  }
+  if (Array.isArray(x) || Array.isArray(y)) return false;
+  const xo = x as Record<string, unknown>;
+  const yo = y as Record<string, unknown>;
+  const keys = Object.keys(xo);
+  return keys.length === Object.keys(yo).length && keys.every((k) => k in yo && surveyEquals(xo[k], yo[k]));
 }
 
 // survey-core's `{q} empty` when the question holds `value` (`undefined` for no value):
@@ -94,9 +114,18 @@ export function surveyLiteral(value: unknown): unknown {
 // Whether survey-core's `{q} <op> <literal>` holds when the question holds `value` (`undefined`
 // for no value), and the literal reads back as `literal` (see `surveyLiteral`). `<>` is the negation
 // of `=`; `<` and `>` compare with JavaScript's operators, and never hold for a missing side; `<=`
-// and `>=` hold also when `=` does.
-export function surveyHolds(op: SurveyOperator, value: unknown, literal: unknown): boolean {
-  const left = value === undefined ? undefined : surveyVariable(value);
+// and `>=` hold also when `=` does. `undefined` when survey-core releases the peer range allows
+// disagree (see `surveyNumber`), so a caller that compares the result with a boolean refuses it.
+export function surveyHolds(op: SurveyOperator, value: unknown, literal: unknown): boolean | undefined {
+  if (value === undefined) return holdsFor(op, undefined, literal);
+  const loose = surveyVariable(value);
+  const strict = surveyVariable(value, true);
+  const holds = holdsFor(op, loose, literal);
+  if (loose === strict || (Number.isNaN(loose) && Number.isNaN(strict))) return holds;
+  return holds === holdsFor(op, strict, literal) ? holds : undefined;
+}
+
+function holdsFor(op: SurveyOperator, left: unknown, literal: unknown): boolean {
   switch(op) {
     case "=": return surveyEquals(left, literal);
     case "<>": return !surveyEquals(left, literal);

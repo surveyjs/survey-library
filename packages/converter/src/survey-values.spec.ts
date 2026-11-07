@@ -18,7 +18,8 @@ const EDGE_VALUES: unknown[] = [
   "", " ", "0", "00", "01", "1", "1.0", "1,0", "1,5", "1.5", " 1 ", "0x10", "16", "0x", "0.", "0,", ".5", "0.5",
   "-1", "-01", "+1", "1e3", "1000", "10,000", "10", "TRUE", "true", "True", "false", "FALSE", "yes", "undefined",
   "null", "NaN", "Infinity", "'a'", "\"a\"", "a", "A", " a", "ab", "1/2", "2*3", "3-2", "-", "1234567890123456",
-  "123456789012345", "0.0", "-0", "1 2", "1,2,3", 0, 1, -1, 1.5, 10, 16, 1000, 0.5, -0.5, true, false, null
+  "123456789012345", "0.0", "-0", "1 2", "1,2,3", "0xa hello", "0x1g", "0xa", 0, 1, -1, 1.5, 10, 16, 1000, 0.5, -0.5,
+  true, false, null
 ];
 const CHARS = ["0", "1", "2", "9", ".", ",", "x", "-", "+", "e", " ", "t", "r", "u", "T", "E", "f", "a", "l", "s", "'", "\"", "*", "/"];
 const OPERATORS: SurveyOperator[] = ["=", "<>", "<", "<=", ">", ">=", "contains", "notcontains"];
@@ -42,9 +43,21 @@ describe("survey-core value model", () => {
       checked++;
       const expected = new ConditionRunner(`{q} ${op} ${literal}`).runValues({ q: questionValue });
       const modelled = surveyHolds(op, questionValue, surveyLiteral(raw));
-      if (modelled !== expected) mismatches.push(`${JSON.stringify(questionValue)} ${op} ${literal}: survey-core ${expected}`);
+      // `undefined` means the survey-core releases disagree; the converter refuses those.
+      if (modelled !== undefined && modelled !== expected) mismatches.push(`${JSON.stringify(questionValue)} ${op} ${literal}: survey-core ${expected}`);
     }
     expect(mismatches).toEqual([]);
+  });
+
+  it("gives no answer for a comparison that depends on the survey-core release", () => {
+    // Releases before survey-core #12234 read "0xa hello" as 10; later ones read it as text.
+    expect(surveyHolds("=", "0xa hello", 10)).toBeUndefined();
+    expect(surveyHolds("contains", "0xa hello", "hello")).toBeUndefined();
+    expect(surveyHolds("=", "0x1g", "0x1g")).toBeUndefined();
+    // A text that is all hex reads as the same number in every release.
+    expect(surveyHolds("=", "0xa", 10)).toBe(true);
+    expect(new ConditionRunner("{q} = 10").runValues({ q: "0xa" })).toBe(true);
+    expect(surveyHolds("=", "abc", "abc")).toBe(true);
   });
 
   it("agrees with survey-core's ConditionRunner on empty and notempty", () => {

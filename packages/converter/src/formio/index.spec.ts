@@ -649,6 +649,16 @@ describe("formio convert - legacy conditions", () => {
     });
   }
 
+  it("gives no condition for a choice that survey-core releases read differently, and reports it assumed", () => {
+    // Releases before survey-core #12234 read "0x1g" as the number 1, later ones as text.
+    const choices = { type: "radio", key: "n", values: [{ value: "0x1g", label: "A" }, { value: "x", label: "B" }] };
+    const form = { components: [choices, { type: "textfield", key: "b", conditional: { show: true, when: "n", eq: "0x1g" } }] };
+    const { output, report } = convert(form);
+    expect(findElement(output, "b")?.visibleIf).toBeUndefined();
+    expect(entry(report.entries, FormioCodes.ASSUMED_CONDITIONAL)?.sourcePointer).toBe("/components/1/conditional/when");
+    expect(isVisible(form, { n: "x" }, "b")).toBe(true);
+  });
+
   it("compares \"false\" with false on a select from a URL, and not with no value", () => {
     const form = { components: [booleanTargets[0][1], { type: "textfield", key: "b", conditional: { show: true, when: "n", eq: "false" } }] };
     expect(findElement(convert(form).output, "b")?.visibleIf).toBe("{n} = 'false'");

@@ -1061,7 +1061,10 @@ function equalityLiterals(allowed: unknown[], optional: boolean, known: unknown[
   for (const value of [undefined, ...(known ?? []), ...allowed]) {
     if (value !== undefined && !isPrimitive(value)) return undefined;
     const matches = value === undefined ? optional : allowed.some((a) => a === value);
-    const holds = (optional && surveyEmpty(value)) || reads.some((read) => surveyHolds("=", value, read));
+    const each = reads.map((read) => surveyHolds("=", value, read));
+    // A comparison that depends on the survey-core release is refused.
+    if (each.some((h) => h === undefined)) return undefined;
+    const holds = (optional && surveyEmpty(value)) || each.some((h) => h);
     if (matches !== holds) return undefined;
   }
   return literals;

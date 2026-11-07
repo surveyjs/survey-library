@@ -1042,11 +1042,8 @@ describe("Records questions: error walks", () => {
       detailElements: [{ type: "text", name: "q2", validators: [{ type: "expression", expression: "{row.q1} + {row.q2} <= 10" }] }]
     };
     [false, true].forEach(isPaged => {
-      /* Without paging getAllErrors reports the errors of the row cells only, as it always has; with
-         paging it walks the row objects of the page, detail panels included. */
-      const name = isPaged ? "with paging, a detail-panel error is reported and goes away when survey.setValue makes the row valid, "
-        : "without paging, a detail-panel error is not reported and stays until the matrix is validated, ";
-      test(name + kind.type, () => {
+      // With paging or without, getAllErrors walks the rows, detail panels included.
+      test("a detail-panel error is reported and goes away when survey.setValue makes the row valid, paged: " + isPaged + ", " + kind.type, () => {
         const survey = createSurvey(kind, [{ name: "q1", cellType: "text", inputType: "number" }],
           Object.assign({ pageSize: isPaged ? 3 : 0 }, detail));
         const q = survey.getQuestionByName("q");
@@ -1056,17 +1053,13 @@ describe("Records questions: error walks", () => {
         row.getQuestionByName("q2").value = 8;
         expect(q.validate(true), "#1").toBe(false);
         expect(row.getQuestionByName("q2").errors.length, "#1: the detail question shows it").toBe(1);
-        expect(q.getAllErrors().length, "#2: reported with paging only").toBe(isPaged ? 1 : 0);
+        expect(q.getAllErrors().length, "#2: reported").toBe(1);
         survey.setValue("q", kind.value([{ q1: 1, q2: 8 }, {}, {}]));
-        expect(row.getQuestionByName("q2").errors.length, "#3: re-validated with paging, kept without it").toBe(isPaged ? 0 : 1);
+        expect(row.getQuestionByName("q2").errors.length, "#3: re-validated").toBe(0);
         expect(q.getAllErrors().length, "#4").toBe(0);
-        if (!isPaged) {
-          q.validate(true);
-          expect(row.getQuestionByName("q2").errors.length, "#5: validated, it is gone").toBe(0);
-        }
       });
     });
-    test("without paging, clearErrors clears the cells of the visible rows only, " + kind.type, () => {
+    test("without paging, clearErrors clears the cells and the detail panels of every row, a hidden row's included, " + kind.type, () => {
       const survey = createSurvey(kind, [{ name: "a", isRequired: true }, { name: "h" }], Object.assign({
         detailPanelMode: "underRow",
         detailElements: [{ type: "text", name: "d", isRequired: true }]
@@ -1083,9 +1076,10 @@ describe("Records questions: error walks", () => {
       detailPanel.getQuestionByName("d").errors = [new CustomError("the detail question")];
       q.clearErrors();
       expect(kind.question(q, 0, "a").errors.length, "#2: a visible row").toBe(0);
-      expect(kind.question(q, 1, "a").errors.length, "#3: the hidden row keeps its error").toBe(1);
-      expect(detailPanel.getQuestionByName("d").errors.length, "#4: so does the detail question: detail panels take no part").toBe(1);
-      expect(q.allRows[2].detailPanel === null, "#5: no detail panel is created").toBe(true);
+      expect(kind.question(q, 1, "a").errors.length, "#3: the hidden row").toBe(0);
+      expect(detailPanel.getQuestionByName("d").errors.length, "#4: the detail question").toBe(0);
+      expect(q.getAllErrors().length, "#5: nothing reported").toBe(0);
+      expect(q.allRows[2].detailPanel === null, "#6: no detail panel is created").toBe(true);
     });
     test("with paging, clearErrors clears the rows of the page and their detail panels, the panel's own error included, and creates no detail panel, " + kind.type, () => {
       const survey = createSurvey(kind, [{ name: "a", isRequired: true }], {

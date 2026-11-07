@@ -466,15 +466,15 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
     reached: ["pd.item", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "rg.panel"],
     builds: ["md.cell", "md.detail", "md.detail.pd.item", "mx.cell"]
   },
-  // detail panel: getAllErrors() without paging reads the cells. total row and hidden item: not read. panel of an unselected
+  // total row and hidden item: not read. a hidden row's cells are read, its detail panel is not. panel of an unselected
   // choice: not shown. custom questions do not override getAllErrors(): the wrapper copies the content question's errors.
   "getAllErrors": {
-    reached: ["md.cell", "md.hiddenRowCell", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.static", "pd.choicePanel", "mt.editor", "cp.content", "cp.nested", "cb.shownPanel", "rg.panel"]
+    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.static", "pd.choicePanel", "mt.editor", "cp.content", "cp.nested", "cb.shownPanel", "rg.panel"]
   },
-  // hidden rows, detail panel, total row: a matrix clears the errors of the cells of its visible rows. composite and select
-  // questions clear every element they created, the panel of an unselected choice included.
+  // total row: a matrix clears the cells and the detail panel of every row it created, a hidden row's included. composite
+  // and select questions clear every element they created, the panel of an unselected choice included.
   "clearErrors": {
-    reached: ["md.cell", "mx.cell", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
+    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
   },
   // choice panels: their questions are survey questions and get the change from the survey. multiple text: the editors
   // read the item values when the value changes.
@@ -1727,5 +1727,240 @@ describe("getAllErrors() and clearErrors() of composite and select questions", (
     expect(sel.length, "one entry for sel").toBe(1);
     expect(sel[0].errors.length, "the n1 error").toBe(1);
     presets.dispose();
+  });
+});
+
+describe("getAllErrors() and clearErrors() of a matrix with detail panels", () => {
+  // A validator that does not read its row: an expression over {row.x} is re-checked by any value change of the row.
+  const maxTen = { type: "text", name: "d", inputType: "number", validators: [{ type: "numeric", maxValue: 10 }] };
+  const required = { type: "text", name: "d", isRequired: true };
+  const requiredCell = { name: "c", cellType: "text", isRequired: true };
+  const hidingCell = { name: "h", cellType: "text" };
+  interface IMatrixOptions { mode?: string, paged?: boolean, matrix?: any, elements?: Array<any> }
+  function createMatrixSurvey(detailElements: Array<any>, options: IMatrixOptions = {}): SurveyModel {
+    return new SurveyModel({
+      checkErrorsMode: options.mode,
+      elements: [...(options.elements || []), {
+        type: "matrixdynamic", name: "m", rowCount: 2, detailPanelMode: "underRow",
+        columns: [{ name: "c", cellType: "text" }], detailElements: detailElements,
+        ...(options.paged ? { pageSize: 2 } : {}), ...(options.matrix || {})
+      }]
+    });
+  }
+  const matrixOf = (survey: SurveyModel): any => survey.getQuestionByName("m");
+  const detailOf = (row: any, name: string = "d"): Question => row.detailPanel.getQuestionByName(name);
+  const panelsShowing = (rows: Array<any>): Array<boolean> => rows.map(row => row.isDetailPanelShowing);
+  const ownerNames = (errors: Array<any>): Array<string> => errors.map(error => error.errorOwner.name);
+
+  test("a detail question's error is reported, and a valid answer clears it in the default mode", () => {
+    const survey = createMatrixSurvey([maxTen], { matrix: { rowCount: 1 } });
+    const m = matrixOf(survey);
+    const row = m.visibleRows[0];
+    row.showDetailPanel();
+    const d = detailOf(row);
+    d.value = 20;
+    survey.validate(true);
+    expect(d.errors.length, "the detail question shows it").toBe(1);
+    expect(m.getAllErrors().length, "reported").toBe(1);
+    d.value = 5;
+    expect(d.errors.length, "the detail question is fixed").toBe(0);
+    expect(m.getAllErrors().length, "nothing reported").toBe(0);
+  });
+  test("two rows with two required detail questions each: answering one keeps the other three errors", () => {
+    const survey = createMatrixSurvey([{ type: "text", name: "d1", isRequired: true }, { type: "text", name: "d2", isRequired: true }]);
+    const m = matrixOf(survey);
+    survey.validate(true);
+    expect(m.getAllErrors().length, "four errors").toBe(4);
+    const rows = m.visibleRows;
+    detailOf(rows[0], "d1").value = "x";
+    expect(detailOf(rows[0], "d1").errors.length, "answered").toBe(0);
+    expect([detailOf(rows[0], "d2"), detailOf(rows[1], "d1"), detailOf(rows[1], "d2")].map(q => q.errors.length), "the others").toEqual([1, 1, 1]);
+    expect(m.getAllErrors().length, "three reported").toBe(3);
+  });
+  test("clearErrors() clears the cells and the detail panels, a hidden row's included", () => {
+    const survey = createMatrixSurvey([required], { matrix: { rowsVisibleIf: "{row.h} empty", columns: [requiredCell, hidingCell] } });
+    const m = matrixOf(survey);
+    const rows = m.visibleRows;
+    expect(survey.validate(true), "invalid").toBe(false);
+    rows[1].getQuestionByName("h").value = "hide";
+    expect(rows[1].isVisible, "row 1 is hidden").toBe(false);
+    const questions = [rows[0].getQuestionByName("c"), detailOf(rows[0]), rows[1].getQuestionByName("c"), detailOf(rows[1])];
+    expect(questions.map(q => q.errors.length), "before").toEqual([1, 1, 1, 1]);
+    m.clearErrors();
+    expect(questions.map(q => q.errors.length), "cleared").toEqual([0, 0, 0, 0]);
+    expect(m.getAllErrors().length, "nothing reported").toBe(0);
+  });
+  const hidingSubPanel = (variable: string): Array<any> => [
+    { type: "text", name: "hide" },
+    { type: "panel", name: "sp", visibleIf: "{" + variable + ".hide} empty", elements: [{ type: "text", name: "inner", isRequired: true }] }
+  ];
+  test.each([false, true])("a question of a detail sub-panel that a visibleIf hides keeps its error and is not reported, paged: %s", (paged) => {
+    const survey = createMatrixSurvey(hidingSubPanel("row"), { paged, matrix: { rowCount: 1 } });
+    const m = matrixOf(survey);
+    const row = m.visibleRows[0];
+    survey.validate(true);
+    expect(m.getAllErrors().length, "shown").toBe(1);
+    detailOf(row, "hide").value = "x";
+    expect(row.detailPanel.getElementByName("sp").isVisible, "the sub-panel is hidden").toBe(false);
+    expect(detailOf(row, "inner").errors.length, "the question keeps its error").toBe(1);
+    expect(m.getAllErrors().length, "not reported").toBe(0);
+  });
+  test.each([false, true])("a question of a dynamic panel's sub-panel that a visibleIf hides keeps its error and is not reported, paged: %s", (paged) => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "pd", panelCount: 1, templateElements: hidingSubPanel("panel"), ...(paged ? { pageSize: 1 } : {}) }]
+    });
+    const pd: any = survey.getQuestionByName("pd");
+    const panel = pd.panels[0];
+    survey.validate(true);
+    expect(pd.getAllErrors().length, "shown").toBe(1);
+    panel.getQuestionByName("hide").value = "x";
+    expect(panel.getElementByName("sp").isVisible, "the sub-panel is hidden").toBe(false);
+    expect(panel.getQuestionByName("inner").errors.length, "the question keeps its error").toBe(1);
+    expect(pd.getAllErrors().length, "not reported").toBe(0);
+  });
+  test("a hidden row reports the errors of its cells and not those of its detail panel", () => {
+    const survey = createMatrixSurvey([required], { matrix: { rowCount: 1, rowsVisibleIf: "{row.h} empty", columns: [requiredCell, hidingCell] } });
+    const m = matrixOf(survey);
+    const row = m.visibleRows[0];
+    survey.validate(true);
+    expect(m.getAllErrors().length, "shown").toBe(2);
+    row.getQuestionByName("h").value = "hide";
+    expect(row.isVisible, "the row is hidden").toBe(false);
+    expect(detailOf(row).errors.length, "the detail question keeps its error").toBe(1);
+    expect(ownerNames(m.getAllErrors()), "the cell only").toEqual(["c"]);
+  });
+  // A container is hidden by its own visibleIf, or by the visibleIf of the panel around it.
+  const hidingCases = [false, true].flatMap(paged => [{ by: "its own visibleIf", paged }, { by: "a parent panel", paged }]);
+  const hideContainer = (by: string, container: any): Array<any> => {
+    const hide = { type: "text", name: "hide" };
+    if (by === "a parent panel") return [hide, { type: "panel", name: "p", visibleIf: "{hide} empty", elements: [container] }];
+    return [hide, { ...container, visibleIf: "{hide} empty" }];
+  };
+  test.each(hidingCases)("a matrix hidden by $by reports no nested errors, and its questions keep them, paged: $paged", ({ by, paged }) => {
+    const survey = new SurveyModel({
+      elements: hideContainer(by, {
+        type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
+        columns: [requiredCell], detailElements: [required], ...(paged ? { pageSize: 2 } : {})
+      })
+    });
+    const m = matrixOf(survey);
+    const row = m.visibleRows[0];
+    survey.validate(true);
+    expect(m.getAllErrors().length, "shown").toBe(2);
+    survey.setValue("hide", "x");
+    expect(m.isVisibleInSurvey, "the matrix is hidden").toBe(false);
+    expect([row.getQuestionByName("c"), detailOf(row)].map(q => q.errors.length), "the questions keep their errors").toEqual([1, 1]);
+    expect(m.getAllErrors().length, "hidden").toBe(0);
+  });
+  test.each(hidingCases)("a dynamic panel hidden by $by reports no nested errors, and its questions keep them, paged: $paged", ({ by, paged }) => {
+    const survey = new SurveyModel({
+      elements: hideContainer(by, {
+        type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [{ type: "text", name: "t1", isRequired: true }], ...(paged ? { pageSize: 1 } : {})
+      })
+    });
+    const pd: any = survey.getQuestionByName("pd");
+    const t1 = pd.panels[0].getQuestionByName("t1");
+    survey.validate(true);
+    expect(pd.getAllErrors().length, "shown").toBe(1);
+    survey.setValue("hide", "x");
+    expect(pd.isVisibleInSurvey, "the dynamic panel is hidden").toBe(false);
+    expect(t1.errors.length, "the question keeps its error").toBe(1);
+    expect(pd.getAllErrors().length, "hidden").toBe(0);
+  });
+  /* Without hidden rows. A hidden row breaks it: the unpaged matrix keeps reporting the hidden row's cells,
+     and the paged one rebuilds the row objects of its page when a row is hidden, so it reports none. */
+  test("a paged and an unpaged matrix report the same errors in the same order: a row's cells, then its detail panel", () => {
+    const reported = [false, true].map(paged => {
+      const survey = createMatrixSurvey([required], { paged, matrix: { columns: [requiredCell] } });
+      survey.validate(true);
+      return ownerNames(matrixOf(survey).getAllErrors());
+    });
+    expect(reported[0], "unpaged").toEqual(["c", "d", "c", "d"]);
+    expect(reported[1], "paged").toEqual(reported[0]);
+  });
+  const valueChangeCases = [
+    { name: "the default mode", mode: undefined, paged: false },
+    { name: "onValueChanged", mode: "onValueChanged", paged: false },
+    { name: "onValueChanging", mode: "onValueChanging", paged: false },
+    { name: "a paged matrix", mode: undefined, paged: true }
+  ];
+  [
+    { name: "a required detail question", detail: required, value: undefined },
+    { name: "a detail validator with a failing value", detail: maxTen, value: 20 }
+  ].forEach(failing => {
+    test.each(valueChangeCases)(failing.name + ": a closed detail panel stays closed while cells change, $name", ({ mode, paged }) => {
+      const survey = createMatrixSurvey([failing.detail], { mode, paged });
+      const rows = matrixOf(survey).visibleRows;
+      rows[0].showDetailPanel();
+      if (failing.value !== undefined) detailOf(rows[0]).value = failing.value;
+      expect(survey.validate(true), "invalid").toBe(false);
+      expect(detailOf(rows[0]).errors.length, "row 0 shows the error").toBe(1);
+      rows.forEach(row => row.hideDetailPanel());
+      rows[0].getQuestionByName("c").value = "a";
+      expect(panelsShowing(rows), "a cell of the same row").toEqual([false, false]);
+      rows[1].getQuestionByName("c").value = "b";
+      expect(panelsShowing(rows), "a cell of another row").toEqual([false, false]);
+      expect(detailOf(rows[0]).errors.length, "row 0 keeps the error").toBe(1);
+      survey.validate(true);
+      expect(rows[0].isDetailPanelShowing, "a full validation opens it").toBe(true);
+    });
+  });
+  test.each(valueChangeCases.filter(item => !item.paged))("a duplicate key in detail panels: both panels stay closed while a cell changes, $name", ({ mode }) => {
+    const survey = createMatrixSurvey([{ type: "text", name: "k" }], { mode, matrix: { keyName: "k" } });
+    survey.setValue("m", [{ k: "same" }, { k: "same" }]);
+    const rows = matrixOf(survey).visibleRows;
+    expect(survey.validate(true), "duplicated").toBe(false);
+    expect(panelsShowing(rows), "the validation opens both").toEqual([true, true]);
+    rows.forEach(row => row.hideDetailPanel());
+    rows[1].getQuestionByName("c").value = "x";
+    expect(panelsShowing(rows), "closed").toEqual([false, false]);
+    expect(rows.map(row => detailOf(row, "k").errors.length), "each row keeps its duplicate error").toEqual([1, 1]);
+    survey.validate(true);
+    expect(panelsShowing(rows), "a full validation opens them").toEqual([true, true]);
+  });
+  // In onValueChanging mode the row validation creates no panel, so the duplicate check has to create it.
+  test.each(["onValueChanged", "onValueChanging"])("a duplicate key set from code into detail panels never opened: both rows get the error and no panel opens, %s", (mode) => {
+    const survey = createMatrixSurvey([{ type: "text", name: "k" }], { mode, matrix: { keyName: "k" } });
+    const rows = matrixOf(survey).visibleRows;
+    survey.setValue("m", [{ k: "same" }, { k: "same" }]);
+    expect(panelsShowing(rows), "closed").toEqual([false, false]);
+    expect(rows.map(row => detailOf(row, "k").errors.length), "each row has its duplicate error").toEqual([1, 1]);
+  });
+  test("underRowSingle: the panel the respondent opens stays open while the row with the error is re-validated", () => {
+    const survey = createMatrixSurvey([maxTen], { matrix: { detailPanelMode: "underRowSingle" } });
+    const rows = matrixOf(survey).visibleRows;
+    rows[0].showDetailPanel();
+    detailOf(rows[0]).value = 20;
+    survey.validate(true);
+    expect(detailOf(rows[0]).errors.length, "row 0 shows the error").toBe(1);
+    rows[1].showDetailPanel();
+    expect(panelsShowing(rows), "the respondent opens row 1").toEqual([false, true]);
+    rows[1].getQuestionByName("c").value = "a";
+    expect(panelsShowing(rows), "row 1 stays open").toEqual([false, true]);
+    expect(detailOf(rows[0]).errors.length, "row 0 keeps the error").toBe(1);
+  });
+  test("an empty required detail question that a visibleIf shows after the validation gains no error", () => {
+    const survey = createMatrixSurvey([
+      { type: "text", name: "d1", isRequired: true },
+      { type: "text", name: "show" },
+      { type: "text", name: "d2", isRequired: true, visibleIf: "{row.show} notempty" }
+    ], { matrix: { rowCount: 1 } });
+    const row = matrixOf(survey).visibleRows[0];
+    survey.validate(true);
+    expect(detailOf(row, "d1").errors.length, "d1 is required").toBe(1);
+    detailOf(row, "show").value = "x";
+    expect(detailOf(row, "d2").isVisible, "d2 is shown").toBe(true);
+    expect(detailOf(row, "d2").errors.length, "d2 gains no error").toBe(0);
+    expect(detailOf(row, "d1").errors.length, "d1 keeps its error").toBe(1);
+  });
+  test("a filled detail question with a failing value gets its error at once next to an error in another row", () => {
+    const survey = createMatrixSurvey([{ type: "text", name: "d1", isRequired: true }, maxTen]);
+    survey.setValue("m", [{}, { d1: "y" }]);
+    const rows = matrixOf(survey).visibleRows;
+    survey.validate(true);
+    expect([detailOf(rows[0], "d1"), detailOf(rows[1], "d1")].map(q => q.errors.length), "row 0 only").toEqual([1, 0]);
+    detailOf(rows[1]).value = 20;
+    expect(detailOf(rows[1]).errors.length, "the bad value shows at once").toBe(1);
+    expect(detailOf(rows[0], "d1").errors.length, "row 0 keeps its error").toBe(1);
   });
 });

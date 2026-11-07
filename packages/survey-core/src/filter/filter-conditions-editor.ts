@@ -61,6 +61,11 @@ export interface IFilterConditionsEditorOptions {
   // Called after every change the respondent makes to a field - not for the prefill, not for
   // setConditions(), not for the search box. The Filters dialog counts the records again on it.
   onFieldChanged?: () => void;
+  // The survey the fields' panels are added to, at the start of its first page, instead of a survey
+  // of the editor's own: Create custom filter's, which also holds the description. It belongs to its
+  // owner, who sets it up (locale, mode, look); the editor takes its panels and values away on
+  // dispose(). Not with showSearch or readOnly, which set up a survey of the editor's own.
+  survey?: SurveyModel;
   // Called by apply() with every condition the editor holds, in the order of its fields - or with
   // undefined when no field was changed since the editor opened or was last applied, only the
   // search box: the fields then hold only their prefill, which the owner must not write back - and
@@ -68,6 +73,19 @@ export interface IFilterConditionsEditorOptions {
   // command - the advanced dialog's Apply, a fast mode popup's Apply - and listen here; without it
   // apply() has nothing to do.
   onApply?: (conditions: Array<IFilterCondition> | undefined, searchString?: string) => void;
+}
+// Takes a panel of questions out of the survey it is in and disposes it. Its questions leave it one by
+// one before it leaves its parent: a survey that loses a panel keeps finding the panel's questions by
+// name (getQuestionByName), and a panel added later can have questions of the same names.
+export function removePanelFromSurvey(panel: PanelModel): void {
+  [].concat(panel.elements).forEach((element: Question): void => {
+    panel.removeElement(element);
+    element.dispose();
+  });
+  if (!!panel.parent) {
+    panel.parent.removeElement(panel);
+  }
+  panel.dispose();
 }
 // A checkbox list of values shows this many until "Show More" is clicked - with Select All above
 // them, five rows, as in the mockup - unless one of its checked values is further down.
@@ -102,14 +120,15 @@ export class FilterConditionsEditor {
 
   constructor(private owner: IFilterConditionsEditorOwner, names: Array<string>, private options: IFilterConditionsEditorOptions = {}) {
     this.names = (names || []).filter((name: string): boolean => !!owner.getFieldByName(name));
-    this.surveyValue = this.createSurvey();
+    this.surveyValue = !!options.survey ? this.addPanels(options.survey) : this.createSurvey();
     // Prefilled before the survey is listened to: what the editor opens with is not a change.
     this.names.forEach((name: string, index: number): void => { this.buildField(index, this.owner.getFieldCondition(name)); });
     if (this.hasSearch) {
       this.getSearchQuestion().value = this.options.searchString || "";
     }
-    this.surveyValue.onValueChanged.add((_: SurveyModel, opt: any): void => { this.onValueChanged(opt.name); });
+    this.surveyValue.onValueChanged.add(this.onSurveyValueChanged);
   }
+  private onSurveyValueChanged = (_: SurveyModel, opt: any): void => { this.onValueChanged(opt.name); };
   public get survey(): SurveyModel { return this.surveyValue; }
   public get fieldNames(): Array<string> { return [].concat(this.names); }
   public get isReadOnly(): boolean { return !!this.options.readOnly; }
@@ -176,7 +195,25 @@ export class FilterConditionsEditor {
     if (this.isDisposedValue) return;
     this.isDisposedValue = true;
     this.moreActions.forEach((action: Action): void => { if (!!action) action.dispose(); });
-    this.surveyValue.dispose();
+    if (!this.options.survey) {
+      this.surveyValue.dispose();
+    } else {
+      this.removePanels();
+    }
+  }
+  // The owner's survey is left as it was before the editor: without the panels and their values.
+  private removePanels(): void {
+    const survey = this.surveyValue;
+    survey.onValueChanged.remove(this.onSurveyValueChanged);
+    if (survey.isDisposed) return;
+    this.names.forEach((_: string, index: number): void => {
+      const panel = this.getPanel(index);
+      if (!!panel) {
+        removePanelFromSurvey(panel);
+      }
+      survey.clearValue(this.getOperatorName(index));
+      survey.clearValue(this.getValueName(index));
+    });
   }
 
   private createSurvey(): SurveyModel {
@@ -199,6 +236,15 @@ export class FilterConditionsEditor {
     if (this.isReadOnly) {
       survey.mode = "display";
     }
+    return survey;
+  }
+  private addPanels(survey: SurveyModel): SurveyModel {
+    const page = survey.pages.length > 0 ? survey.pages[0] : survey.addNewPage("page1");
+    this.names.forEach((name: string, index: number): void => {
+      const panel = new PanelModel(this.getPanelName(index));
+      panel.fromJSON(this.createPanelJson(name, index));
+      page.addElement(panel, index);
+    });
     return survey;
   }
   // The panel groups a field's editors, and is titled by the field only where the editor shows

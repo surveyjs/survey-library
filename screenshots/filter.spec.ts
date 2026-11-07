@@ -130,9 +130,9 @@ frameworks.forEach(framework => {
       await page.evaluate(() => { (<any>window).survey.onAIFilterRequest.add(() => { }); });
       await openFilters(page);
       await popupWith(page, ".sd-filter-modal__content").getByRole("button", { name: "Create with AI..." }).click();
-      await popupWith(page, ".sd-filter-ai-dialog__content").waitFor({ state: "visible" });
+      await popupWith(page, ".sd-root-modern .sd-filter-ai-prompt").waitFor({ state: "visible" });
       await settle(page);
-      await compareScreenshot(page, popupWith(page, ".sd-filter-ai-dialog__content"), "filter-ai-dialog.png");
+      await compareScreenshot(page, popupWith(page, ".sd-root-modern .sd-filter-ai-prompt"), "filter-ai-dialog.png");
     });
 
     // On a phone a chip's popup is a sheet, which keeps the focus to itself: every shot starts anew.

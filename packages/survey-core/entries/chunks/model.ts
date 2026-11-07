@@ -235,7 +235,7 @@ export {
 } from "../../src/filter/filter-conditions-editor";
 export {
   FilterToolbars, FilterEditorHolder, IFilterToolbarsOwner, IFilterFieldState, filterUIStrings, filterModalComponentName, filterPresetDialogComponentName,
-  filterFieldPopupComponentName, filterChipComponentName, filterAIDialogComponentName
+  filterFieldPopupComponentName, filterChipComponentName
 } from "../../src/filter/filter-toolbars";
 export {
   FilterFieldEditorKind, IFilterFieldListItem, getFilterFieldEditorKind, getFilterFieldListItems, getFilterChipText

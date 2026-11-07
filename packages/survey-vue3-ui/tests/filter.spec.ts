@@ -183,35 +183,33 @@ describe("Filter AI dialog", () => {
     survey.onAIFilterRequest.add((_, options) => { calls.push(options); });
     return { q: survey.getQuestionByName("f1") as QuestionFilterModel, calls: calls };
   }
-  it("Create custom filter: the description and its button; the fields' editors once the model answered", async () => {
+  it("Create custom filter is the dialog's survey drawn as any survey: the description and its button; the fields' editors once the model answered", async () => {
     const { q, calls } = setup();
-    const holder = new FilterEditorHolder();
-    holder.cssClasses = q.cssClasses;
     const dialog = q.createAIDialog();
-    holder.aiDialog = dialog;
-    const wrapper = mountComponent("sv-filter-ai-dialog", { holder: holder });
+    // The component the dialog host is given: "survey", with the dialog's survey as the model.
+    const wrapper = mountComponent("survey", { model: dialog.survey, survey: dialog.survey });
     await nextTick();
-    const content = wrapper.element.parentElement.querySelector(".sd-filter-ai-dialog__content");
-    expect(content.querySelector(".sd-filter-ai-prompt__title").textContent, "#1").toBe("Describe what you need - AI will do the rest.");
-    expect(!!content.querySelector(".sd-filter-ai-prompt__form textarea"), "#2: the description").toBe(true);
-    expect(content.querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Create new filter");
-    expect(!!content.querySelector(".sd-filter-modal__editor"), "#4: no fields yet").toBe(false);
+    const root = wrapper.element.parentElement.querySelector(".sd-root-modern.sd-filter-editor.sd-filter-modal__editor");
+    expect(!!root, "#0: the editors' classes on the survey's root").toBe(true);
+    const prompt = (): Element => root.querySelector(".sd-panel.sd-filter-ai-prompt");
+    expect(prompt().querySelector(".sd-panel__title").textContent, "#1").toContain("Describe what you need - AI will do the rest.");
+    expect(!!prompt().querySelector("textarea"), "#2: the description").toBe(true);
+    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Create new filter");
+    expect(root.querySelectorAll(".sd-panel").length, "#4: no fields yet").toBe(1);
     dialog.aiPrompt.form.setValue("prompt", "adults");
     dialog.aiPrompt.request();
     await nextTick();
     calls[0].callback({ data: { expression: "{age} > 18", title: "Adults", explanation: "" } });
     await nextTick();
-    expect(!!content.querySelector(".sd-filter-modal__editor"), "#5: the fields").toBe(true);
-    expect(content.querySelector(".sd-filter-ai-prompt__request").textContent, "#6").toContain("Make Changes");
-    expect(content.querySelector(".sd-filter-ai-prompt__title").textContent, "#7").toBe("Describe what to change - if needed.");
+    expect(root.querySelectorAll(".sd-panel").length, "#5: the field's panel").toBe(2);
+    expect(root.querySelector(".sd-panel").textContent, "#5a: over the description").toContain("age");
+    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#6").toContain("Make Changes");
+    expect(prompt().querySelector(".sd-panel__title").textContent, "#7").toContain("Describe what to change - if needed.");
     dialog.aiPrompt.errorText = "Something went wrong";
     await nextTick();
-    expect(content.querySelector(".sd-filter-ai-prompt__error").textContent, "#8").toBe("Something went wrong");
-    holder.aiDialog = undefined;
-    await nextTick();
-    dialog.dispose();
-    expect(wrapper.element.parentElement.querySelector(".sd-filter-ai-dialog__content"), "#9: an emptied holder unmounts the content").toBe(null);
+    expect(prompt().querySelector(".sd-question__erbox").textContent, "#8").toContain("Something went wrong");
     cleanup(wrapper);
+    dialog.dispose();
   });
   it("the Filters dialog shows Create with AI while the application answers AI requests", async () => {
     const { q } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });

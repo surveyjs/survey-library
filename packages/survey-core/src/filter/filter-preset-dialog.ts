@@ -464,7 +464,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
   }
   private createAIPrompt(tab: IFilterPresetTab): FilterAIPrompt {
     const prompt = new FilterAIPrompt(this.editOwner.createAIRequest(), { prompt: tab.prompt, isModify: true,
-      modifyTitle: filterUIStrings.aiPromptEdit, locale: this.owner.getLocale(),
+      modifyTitle: filterUIStrings.aiPromptEdit, locale: this.owner.getLocale(), css: this.owner.cssClasses,
       getConditions: (): Array<IFilterCondition> => !!this.editor ? this.editor.getConditions() : (tab.conditions || []),
       onAnswer: (conditions: Array<IFilterCondition>): void => { this.onAIAnswer(tab, conditions); } });
     prompt.form.onValueChanged.add((): void => {

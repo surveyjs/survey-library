@@ -190,35 +190,38 @@ describe("Filter AI dialog", () => {
     survey.onAIFilterRequest.add((_: any, options: any) => { calls.push(options); });
     return { q: survey.getQuestionByName("f1") as QuestionFilterModel, calls: calls };
   }
-  it("Create custom filter: the description and its button; the fields' editors once the model answered", async () => {
+  it("Create custom filter is the dialog's survey drawn as any survey: the description and its button; the fields' editors once the model answered", async () => {
     const { q, calls } = setup();
-    const holder = new FilterEditorHolder();
-    holder.cssClasses = q.cssClasses;
     const dialog = q.createAIDialog();
-    holder.aiDialog = dialog;
-    const fixture = createByName("sv-filter-ai-dialog", { holder: holder });
+    // The component the dialog host is given: "survey", with the dialog's survey as the model.
+    const fixture = createByName("survey", { model: dialog.survey, survey: dialog.survey });
     await settle(fixture);
-    const content = () => <HTMLElement>getRoot(fixture).querySelector(".sd-filter-ai-dialog__content");
-    expect(content().querySelector(".sd-filter-ai-prompt__title")?.textContent?.trim()).withContext("#1").toBe("Describe what you need - AI will do the rest.");
-    expect(!!content().querySelector(".sd-filter-ai-prompt__form textarea")).withContext("#2: the description").toBe(true);
-    expect(content().querySelector(".sd-filter-ai-prompt__request")?.textContent).withContext("#3").toContain("Create new filter");
-    expect(!!content().querySelector(".sd-filter-modal__editor")).withContext("#4: no fields yet").toBe(false);
+    const root = <HTMLElement>getRoot(fixture).querySelector(".sd-root-modern.sd-filter-editor.sd-filter-modal__editor");
+    expect(!!root).withContext("#0: the editors' classes on the survey's root").toBe(true);
+    const prompt = () => <HTMLElement>root.querySelector(".sd-panel.sd-filter-ai-prompt");
+    expect(prompt().querySelector(".sd-panel__title")?.textContent).withContext("#1").toContain("Describe what you need - AI will do the rest.");
+    expect(!!prompt().querySelector("textarea")).withContext("#2: the description").toBe(true);
+    expect(prompt().querySelector(".sd-filter-ai-prompt__request")?.textContent).withContext("#3").toContain("Create new filter");
+    expect(root.querySelectorAll(".sd-panel").length).withContext("#4: no fields yet").toBe(1);
     dialog.aiPrompt.form.setValue("prompt", "adults");
     dialog.aiPrompt.request();
     await settle(fixture);
     calls[0].callback({ data: { expression: "{age} > 18", title: "Adults", explanation: "" } });
     await settle(fixture);
-    expect(!!content().querySelector(".sd-filter-modal__editor")).withContext("#5: the fields").toBe(true);
-    expect(content().querySelector(".sd-filter-ai-prompt__request")?.textContent).withContext("#6").toContain("Make Changes");
-    expect(content().querySelector(".sd-filter-ai-prompt__title")?.textContent?.trim()).withContext("#7").toBe("Describe what to change - if needed.");
+    expect(root.querySelectorAll(".sd-panel").length).withContext("#5: the field's panel").toBe(2);
+    expect(root.querySelector(".sd-panel")?.textContent).withContext("#5a: over the description").toContain("age");
+    expect(prompt().querySelector(".sd-filter-ai-prompt__request")?.textContent).withContext("#6").toContain("Make Changes");
+    expect(prompt().querySelector(".sd-panel__title")?.textContent).withContext("#7").toContain("Describe what to change - if needed.");
     dialog.aiPrompt.errorText = "Something went wrong";
     await settle(fixture);
-    expect(content().querySelector(".sd-filter-ai-prompt__error")?.textContent?.trim()).withContext("#8").toBe("Something went wrong");
-    holder.aiDialog = undefined as any;
-    await settle(fixture);
-    dialog.dispose();
-    expect(getRoot(fixture).querySelector(".sd-filter-ai-dialog__content")).withContext("#9: an emptied holder unmounts the content").toBe(null);
+    expect(prompt().querySelector(".sd-question__erbox")?.textContent).withContext("#8").toContain("Something went wrong");
+    // The survey's content is drawn next to its host, right in the document body, and stays there when
+    // the fixture is destroyed - in a dialog it goes with the popup. A textarea left behind would be
+    // found by the id of another test's question.
+    const nodes = getRootNodes(fixture);
     fixture.destroy();
+    nodes.forEach((node: HTMLElement) => node.remove());
+    dialog.dispose();
   });
   it("the Filters dialog shows Create with AI while the application answers AI requests", async () => {
     const { q } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });

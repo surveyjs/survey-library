@@ -4,6 +4,8 @@ import { Action } from "../actions/action";
 import { SurveyModel } from "../survey";
 import { PanelModel } from "../panel";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
+import { createBoxShadowResetVariables } from "../utils/base-theme-init";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { FilterItem } from "./filter-item";
 import { FilterConditionsEditor, IFilterConditionsEditorOwner } from "./filter-conditions-editor";
 import type { FilterAIRequest } from "./filter-ai";
@@ -34,26 +36,32 @@ export interface IFilterAIDialogOwner extends IFilterConditionsEditorOwner {
   getAllFieldKeys(): Array<string>;
   visibleItems: Array<FilterItem>;
   cssClasses: any;
+  isMobile?: boolean;
   addItem(title: string, conditions: Array<IFilterCondition>, options?: { type?: string, prompt?: string }): FilterItem;
   createAIRequest(): FilterAIRequest;
 }
 
 // The Create custom filter dialog: the description (FilterAIPrompt), and the model's filter as the
 // editors of the fields it is on - each with a trash that takes its condition away - which the
-// respondent may change before Apply adds the filter as an AI preset. The editors are made anew for
-// every answer and every field taken away, so a renderer watches the editor property. Nothing
-// reaches the control until apply(). Made when the dialog opens, disposed when it closes.
+// respondent may change before Apply adds the filter as an AI preset. Nothing reaches the control
+// until apply(). Made when the dialog opens, disposed when it closes.
+// All of it is one survey (the survey property), which the dialog host draws as any survey - no
+// renderer has a component of its own for it: the fields' panels first, made anew for every answer
+// and every field taken away, then the description's panel.
 export class FilterAIDialog extends Base {
   // undefined while there is no filter
   @property() editor: FilterConditionsEditor;
   @property({ defaultValue: false }) hasConditions: boolean;
+  private surveyValue: SurveyModel;
   private aiPromptValue: FilterAIPrompt;
   private aiTitle: string = "";
   private createdItemValue: FilterItem;
 
   constructor(private owner: IFilterAIDialogOwner) {
     super();
+    this.surveyValue = this.createSurvey();
     this.aiPromptValue = new FilterAIPrompt(owner.createAIRequest(), { locale: owner.getLocale(),
+      survey: this.surveyValue, css: owner.cssClasses,
       getConditions: (): Array<IFilterCondition> => this.conditions,
       onAnswer: (conditions: Array<IFilterCondition>, title: string): void => {
         // An answer to Make Changes that names no title keeps the one the model gave before.
@@ -65,6 +73,8 @@ export class FilterAIDialog extends Base {
   }
   public getType(): string { return "filteraidialog"; }
   public get title(): string { return filterUIStrings.aiDialogTitle; }
+  // What the dialog shows: the fields' panels and the description's.
+  public get survey(): SurveyModel { return this.surveyValue; }
   public get aiPrompt(): FilterAIPrompt { return this.aiPromptValue; }
   public get conditions(): Array<IFilterCondition> { return !!this.editor ? this.editor.getConditions() : []; }
   // A filter to add, and no request running.
@@ -95,17 +105,60 @@ export class FilterAIDialog extends Base {
     this.editor = undefined;
     if (!!editor) editor.dispose();
     super.dispose();
+    this.surveyValue.dispose();
   }
 
-  // The fields the conditions are on, in the order the Filters dialog shows them, each starting with its condition.
+  // As the records' Sort by dialog's survey: no title, numbers or navigation, and the look of the
+  // survey it is shown under - no theme root of its own, so it inherits that survey's variables, and
+  // --sd-mobile-width 0 keeps its own width from making it mobile: it follows the control's isMobile.
+  // The root carries the classes the other dialogs' editors are drawn in.
+  private createSurvey(): SurveyModel {
+    const owner = this.owner;
+    const css = owner.cssClasses || {};
+    const survey = new SurveyModel();
+    survey.css = { root: toCssClasses(survey.css.root, css.editor, css.modalEditor), rootTheme: "" };
+    survey.showNavigationButtons = false;
+    survey.showQuestionNumbers = "off";
+    survey.fitToContainer = false;
+    survey.gridLayoutEnabled = false;
+    // The outer survey already renders the icons.
+    survey.needRenderIcons = false;
+    const cssVariables: { [index: string]: string } = { "--sd-mobile-width": "0px" };
+    Object.keys(createBoxShadowResetVariables()).forEach((name: string): void => { cssVariables[name] = "inherit"; });
+    survey.applyTheme({ cssVariables: cssVariables });
+    survey.locale = owner.getLocale();
+    survey.setIsMobile(!!owner.isMobile);
+    survey.addNewPage("page1");
+    // Listened to before the panels are drawn: a panel asks for its title actions when it renders.
+    survey.onGetPanelTitleActions.add((_: SurveyModel, options: any): void => {
+      const editor = this.editor;
+      const key = !!editor ? editor.fieldNames[this.getPanelIndex(options.panel)] : undefined;
+      if (key === undefined) return;
+      // The mockup's 16px bin, muted, as the presets' pencil is.
+      options.titleActions.push(new Action({ id: "sv-filter-ai-remove", iconName: "icon-delete-16x16", iconSize: "auto",
+        title: filterUIStrings.aiRemoveField, showTitle: false, appearance: { style: "neutral", mode: "tertiary-muted", size: "x-small" },
+        action: (): void => { this.removeField(key); } }));
+    });
+    return survey;
+  }
+  // The fields the conditions are on, in the order the Filters dialog shows them, each starting with
+  // its condition. The old editor's panels go first: the new ones have the same names. One editor
+  // swapped for another in place, not panels that leave and come.
   private showConditions(conditions: Array<IFilterCondition>): void {
     const keys = this.owner.getAllFieldKeys().filter((key: string): boolean => {
       const field = this.owner.getFieldByName(key);
       return !!field && conditions.some((c: IFilterCondition): boolean => c.field === field.valueName);
     });
-    const old = this.editor;
-    this.editor = keys.length > 0 ? this.createEditor(keys, conditions) : undefined;
-    if (!!old) old.dispose();
+    const page = this.surveyValue.pages[0];
+    page.blockAnimations();
+    try {
+      const old = this.editor;
+      this.editor = undefined;
+      if (!!old) old.dispose();
+      this.editor = keys.length > 0 ? this.createEditor(keys, conditions) : undefined;
+    } finally {
+      page.releaseAnimations();
+    }
     this.updateState();
   }
   private createEditor(keys: Array<string>, conditions: Array<IFilterCondition>): FilterConditionsEditor {
@@ -122,18 +175,8 @@ export class FilterAIDialog extends Base {
       getLocale: () => owner.getLocale(),
       isRawExpression: false
     };
-    const editor = new FilterConditionsEditor(editorOwner, keys, { showFieldTitles: true, useFieldKinds: true,
+    return new FilterConditionsEditor(editorOwner, keys, { survey: this.surveyValue, showFieldTitles: true, useFieldKinds: true,
       linkCss: (owner.cssClasses || {}).link, onFieldChanged: (): void => { this.updateState(); } });
-    // Listened to before the editor is drawn: a panel asks for its title actions when it renders.
-    editor.survey.onGetPanelTitleActions.add((_: SurveyModel, options: any): void => {
-      const key = editor.fieldNames[this.getPanelIndex(options.panel)];
-      if (key === undefined) return;
-      // The mockup's 16px bin, muted, as the presets' pencil is.
-      options.titleActions.push(new Action({ id: "sv-filter-ai-remove", iconName: "icon-delete-16x16", iconSize: "auto",
-        title: filterUIStrings.aiRemoveField, showTitle: false, appearance: { style: "neutral", mode: "tertiary-muted", size: "x-small" },
-        action: (): void => { this.removeField(key); } }));
-    });
-    return editor;
   }
   // The editor names a field's panel "f" + its index.
   private getPanelIndex(panel: PanelModel): number {

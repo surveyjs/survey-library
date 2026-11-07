@@ -1119,12 +1119,9 @@ export var defaultCss = {
     presetTabs: "sd-filter-preset-dialog__tabs",
     presetForm: "sd-filter-preset-dialog__form",
     presetFields: "sd-filter-preset-dialog__fields",
-    aiContent: "sd-filter-ai-dialog__content",
+    aiDialog: "sd-filter-ai-dialog",
     aiPrompt: "sd-filter-ai-prompt",
-    aiPromptTitle: "sd-filter-ai-prompt__title",
-    aiPromptForm: "sd-filter-ai-prompt__form",
-    aiPromptRequest: "sd-filter-ai-prompt__request",
-    aiPromptError: "sd-filter-ai-prompt__error"
+    aiPromptRequest: "sd-filter-ai-prompt__request"
   }
 };
 

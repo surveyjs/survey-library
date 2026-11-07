@@ -11,13 +11,21 @@ import { FilterAIDialog } from "../../src/filter/filter-ai-dialog";
 // Create with AI in the Filters dialog: the button, the dialog it opens over the Filters dialog, and
 // what its Apply does there.
 const presets = [{ name: "adults", title: "Adults", expression: "{age} > 18" }];
-function control(over: any = {}, withHandler: boolean = true): { q: QuestionFilterModel, calls: Array<any> } {
+function control(over: any = {}, withHandler: boolean = true): { q: QuestionFilterModel, calls: Array<any>, aiDialogs: Array<FilterAIDialog> } {
   const q = createFilter(Object.assign({ items: presets }, over));
   const calls: Array<any> = [];
   if (withHandler) {
     (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
   }
-  return { q: q, calls: calls };
+  // The dialog host gets only the dialog's survey: the dialogs the control makes are kept here.
+  const aiDialogs: Array<FilterAIDialog> = [];
+  const createAIDialog = q.createAIDialog.bind(q);
+  q.createAIDialog = (): FilterAIDialog => {
+    const dialog = createAIDialog();
+    aiDialogs.push(dialog);
+    return dialog;
+  };
+  return { q: q, calls: calls, aiDialogs: aiDialogs };
 }
 // A stand-in for the dialog host, as in filter-preset-entry.test.ts.
 function stubDialogs(): { calls: Array<any>, restore: () => void } {
@@ -61,12 +69,14 @@ describe("FilterModal: Create with AI", () => {
   test("a click opens Create custom filter over the Filters dialog", () => {
     const dialogs = stubDialogs();
     try {
-      const modal = control().q.createFilterModal();
+      const { q, aiDialogs } = control();
+      const modal = q.createFilterModal();
       createAI(modal).action();
       expect(dialogs.calls.length, "#1").toBe(1);
       const options = dialogs.calls[0].options;
-      expect([options.componentName, options.title, options.data.holder.aiDialog instanceof FilterAIDialog], "#2")
-        .toEqual(["sv-filter-ai-dialog", "Create custom filter", true]);
+      expect([options.componentName, options.title, options.data.model === aiDialogs[0].survey, options.data.survey === aiDialogs[0].survey], "#2: drawn as any survey")
+        .toEqual(["survey", "Create custom filter", true, true]);
+      expect(options.cssClass.split(" ").indexOf(q.cssClasses.aiDialog) > -1, "#2a").toBe(true);
       expect(dialogs.calls[0].footerToolbar.actions.map((a: Action): string => a.id), "#3").toEqual(["sv-filter-preset-cancel", "sv-filter-preset-apply"]);
       dialogs.calls[0].cancel();
       modal.dispose();
@@ -77,22 +87,21 @@ describe("FilterModal: Create with AI", () => {
   test("Apply adds the preset and turns it on in the Filters dialog", () => {
     const dialogs = stubDialogs();
     try {
-      const { q, calls } = control();
+      const { q, calls, aiDialogs } = control();
       const modal = q.createFilterModal();
       createAI(modal).action();
-      const holder = dialogs.calls[0].options.data.holder;
-      const dialog: FilterAIDialog = holder.aiDialog;
+      const dialog: FilterAIDialog = aiDialogs[0];
       const apply: Action = dialogs.calls[0].footerToolbar.actions[1];
       expect(apply.enabled, "#1: no filter yet").toBe(false);
       dialogs.calls[0].apply();
-      expect([holder.aiDialog, dialog.isDisposed], "#2: kept open").toEqual([dialog, false]);
+      expect(dialog.isDisposed, "#2: kept open").toBe(false);
       dialog.aiPrompt.form.setValue("prompt", "kids");
       dialog.aiPrompt.request();
       calls[0].callback(answer("{age} < 10", "Kids"));
       expect(apply.enabled, "#3").toBe(true);
       dialogs.calls[0].apply();
       const item = dialog.createdItem;
-      expect([item.type, item.title, holder.aiDialog, dialog.isDisposed], "#4").toEqual(["ai", "Kids", undefined, true]);
+      expect([item.type, item.title, dialog.isDisposed, dialog.survey.isDisposed], "#4").toEqual(["ai", "Kids", true, true]);
       expect([chips(modal), modal.activeItemName], "#5").toEqual([["Adults", "Kids*"], item.name]);
       expect(modal.editor.getConditions(), "#6").toEqual([{ field: "age", operator: "less", value: 10 }]);
       modal.dispose();
@@ -110,7 +119,7 @@ describe("FilterModal: Create with AI", () => {
       dialogs.calls[0].cancel();
       createAI(modal).action();
       addPreset(modal).action();
-      expect([dialogs.calls.length, dialogs.calls[1].options.componentName], "#2").toEqual([2, "sv-filter-ai-dialog"]);
+      expect([dialogs.calls.length, dialogs.calls[1].options.componentName], "#2").toEqual([2, "survey"]);
       dialogs.calls[1].cancel();
       modal.dispose();
     } finally {
@@ -139,10 +148,10 @@ describe("FilterModal: Create with AI", () => {
   test("closed while the model is answering: the dialog is gone and the answer changes nothing", () => {
     const dialogs = stubDialogs();
     try {
-      const { q, calls } = control();
+      const { q, calls, aiDialogs } = control();
       const modal = q.createFilterModal();
       createAI(modal).action();
-      const dialog: FilterAIDialog = dialogs.calls[0].options.data.holder.aiDialog;
+      const dialog: FilterAIDialog = aiDialogs[0];
       dialog.aiPrompt.form.setValue("prompt", "kids");
       dialog.aiPrompt.request();
       dialogs.calls[0].cancel();

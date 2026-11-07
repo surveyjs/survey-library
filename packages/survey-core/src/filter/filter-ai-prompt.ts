@@ -1,11 +1,16 @@
 import { Base } from "../base";
 import { property } from "../decorators";
 import { Action } from "../actions/action";
-import { ActionContainer } from "../actions/container";
 import { SurveyModel } from "../survey";
+import { PanelModel } from "../panel";
+import { Question } from "../question";
+import { CustomError } from "../error";
+import { Serializer } from "../jsonobject";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import type { FilterAIRequest, FilterAIResult } from "./filter-ai";
 import { filterUIStrings } from "./filter-ui-strings";
+import { removePanelFromSurvey } from "./filter-conditions-editor";
 // The question type the description is typed in; imported here, as the other dialogs import theirs.
 import "../question_comment";
 
@@ -23,12 +28,20 @@ export interface IFilterAIPromptOptions {
   // the filter as it is now, which "modify" sends
   getConditions: () => Array<IFilterCondition>;
   onAnswer: (conditions: Array<IFilterCondition>, title: string) => void;
+  // The survey the description is added to, as a panel at the end of its first page: Create custom
+  // filter's own survey. Without it the prompt makes a survey of its own (form) for a renderer to draw.
+  survey?: SurveyModel;
+  // The control's classes: the panel's frame (aiPrompt) and the row of its button (aiPromptRequest).
+  css?: any;
 }
 
 // The description of a filter and its request button - "Create new filter", then "Make Changes" -
 // with the request's state: busy while the model answers, and what went wrong. The description is
 // what the filter is for: it stays in the field after an answer and is sent again, with the filter
 // as it is, by Make Changes. Owns the request and disposes it.
+// It is made of survey elements only, so a renderer draws it as the survey it is in: a panel titled
+// promptTitle with the description's comment question, the request button in the panel's footer and
+// errorText as the question's error.
 export class FilterAIPrompt extends Base {
   @property({ defaultValue: false }) isBusy: boolean;
   // "" while nothing went wrong
@@ -36,39 +49,41 @@ export class FilterAIPrompt extends Base {
   // There is a filter to change: the caption and the button say so, and a request is "modify".
   @property({ defaultValue: false }) isModify: boolean;
   private formValue: SurveyModel;
+  private isOwnForm: boolean;
+  private panelValue: PanelModel;
   private requestActionValue: Action;
-  private requestToolbarValue: ActionContainer;
+  private onFormValueChanged = (): void => { this.updateAction(); };
+  private onUpdatePanelCss = (_: SurveyModel, options: any): void => {
+    if (options.panel === this.panelValue && !!this.css.aiPrompt) {
+      options.cssClasses.panel.container = toCssClasses(options.cssClasses.panel.container, this.css.aiPrompt);
+    }
+  };
 
   constructor(private aiRequest: FilterAIRequest, private options: IFilterAIPromptOptions) {
     super();
     this.isModify = !!options.isModify;
-    // In a panel of its own, as the preset dialogs' title is: a question that is not in a panel gets a
-    // frame, and the mockup has none.
-    this.formValue = new SurveyModel({ showNavigationButtons: false, showQuestionNumbers: "off",
-      elements: [{ type: "panel", name: "promptPanel", elements: [
-        { type: "comment", name: "prompt", titleLocation: "hidden", maxLength: filterAIPromptMaxLength, textUpdateMode: "onTyping" }] }] });
-    this.formValue.locale = options.locale;
-    // Inside the dialog with no frames of its own, as the fields' editors are.
-    this.formValue.isCompact = true;
-    this.formValue.setValue("prompt", options.prompt || "");
-    this.formValue.onValueChanged.add((): void => { this.updateAction(); });
+    this.isOwnForm = !options.survey;
+    this.formValue = options.survey || this.createForm();
+    // Listened to before the panel is made: the panel reads its classes when it is first drawn.
+    this.formValue.onUpdatePanelCssClasses.add(this.onUpdatePanelCss);
+    // The mockup's light brand button across the frame.
     this.requestActionValue = new Action({ id: "sv-filter-ai-request", iconName: "icon-sparkle-24x24", iconSize: "auto",
-      action: (): void => { this.request(); } });
-    // The mockup's light brand button across the dialog: an action bar of its own, as every other
-    // button of the control is drawn.
-    this.requestToolbarValue = new ActionContainer();
-    this.requestToolbarValue.setActionsAppearance({ style: "brand", mode: "secondary", size: "medium" });
-    this.requestToolbarValue.setItems([this.requestActionValue], false);
+      appearance: { style: "brand", mode: "secondary", size: "medium" }, action: (): void => { this.request(); } });
+    this.panelValue = this.createPanel();
+    this.formValue.setValue("prompt", options.prompt || "");
+    this.formValue.onValueChanged.add(this.onFormValueChanged);
     this.updateAction();
   }
   public getType(): string { return "filteraiprompt"; }
+  // The survey the description is in: the one the options give, or the prompt's own.
   public get form(): SurveyModel { return this.formValue; }
+  // The panel with the caption, the description and the request button.
+  public get panel(): PanelModel { return this.panelValue; }
   public get prompt(): string { return this.formValue.getValue("prompt") || ""; }
   public get promptTitle(): string {
     return !this.isModify ? filterUIStrings.aiPromptNew : (this.options.modifyTitle || filterUIStrings.aiPromptChange);
   }
   public get requestAction(): Action { return this.requestActionValue; }
-  public get requestToolbar(): ActionContainer { return this.requestToolbarValue; }
   // Asks the model: a new filter, or the filter as it is for the description as it is now. Nothing
   // while a request runs or for a blank description.
   public request(): void {
@@ -90,13 +105,55 @@ export class FilterAIPrompt extends Base {
     this.isBusy = false;
     this.updateAction();
   }
+  // A survey the options gave belongs to its owner: the prompt takes only its panel and its value away.
   public dispose(): void {
     this.aiRequest.dispose();
-    this.requestToolbarValue.dispose();
-    this.formValue.dispose();
+    const form = this.formValue;
+    form.onValueChanged.remove(this.onFormValueChanged);
+    form.onUpdatePanelCssClasses.remove(this.onUpdatePanelCss);
+    if (this.isOwnForm) {
+      form.dispose();
+    } else if (!form.isDisposed) {
+      removePanelFromSurvey(this.panelValue);
+      form.clearValue("prompt");
+    }
+    this.requestActionValue.dispose();
     super.dispose();
   }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "errorText") {
+      this.updateError();
+    }
+  }
 
+  private createForm(): SurveyModel {
+    const form = new SurveyModel({ showNavigationButtons: false, showQuestionNumbers: "off" });
+    form.locale = this.options.locale;
+    return form;
+  }
+  // A panel of its own: a question outside a panel gets a frame of its own, and the mockup frames the
+  // caption, the description and the button together - the panel's frame (css.aiPrompt). The error
+  // shows under the description.
+  private createPanel(): PanelModel {
+    const form = this.formValue;
+    const page = form.pages.length > 0 ? form.pages[0] : form.addNewPage("page1");
+    const panel = new PanelModel("promptPanel");
+    // One button across the frame: an adaptive bar could fold it into a "more" menu.
+    panel.allowAdaptiveActions = false;
+    panel.footerActions.push(this.requestActionValue);
+    panel.onGetFooterToolbarCssCallback = (): string => toCssClasses(panel.cssClasses.panel.footer, this.css.aiPromptRequest);
+    // On the page first, then the question in it: an empty page that gets a panel which already has
+    // a question does not become the survey's current page, and a survey with none draws nothing.
+    page.addElement(panel);
+    const question = <Question>Serializer.createClass("comment");
+    question.fromJSON({ name: "prompt", titleLocation: "hidden", maxLength: filterAIPromptMaxLength,
+      textUpdateMode: "onTyping", errorLocation: "bottom" });
+    panel.addElement(question);
+    return panel;
+  }
+  private get css(): any { return this.options.css || {}; }
+  private get promptQuestion(): Question { return <Question>this.panelValue.getQuestionByName("prompt"); }
   private onResult(res: FilterAIResult): void {
     if (this.isDisposed) return;
     this.isBusy = false;
@@ -111,9 +168,23 @@ export class FilterAIPrompt extends Base {
     }
     this.updateAction();
   }
+  // errorText is the description's only error: the survey is never validated.
+  private updateError(): void {
+    const question = !!this.panelValue ? this.promptQuestion : undefined;
+    if (!question) return;
+    const text = this.errorText;
+    if (!!text) {
+      question.errors = [new CustomError(text, this.formValue)];
+    } else if (question.errors.length > 0) {
+      question.errors = [];
+    }
+  }
   private updateAction(): void {
     const action = this.requestActionValue;
-    if (!action) return;
+    if (!action || !this.panelValue) return;
+    this.panelValue.title = this.promptTitle;
+    // The hidden title is still the description's accessible name.
+    this.promptQuestion.title = this.promptTitle;
     // While the model answers, the button says so: the answer may take seconds.
     if (this.isBusy) {
       action.title = this.isModify ? filterUIStrings.aiMakingChanges : filterUIStrings.aiCreating;

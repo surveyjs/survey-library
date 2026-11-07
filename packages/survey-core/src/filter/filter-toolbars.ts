@@ -75,7 +75,6 @@ export const filterModalComponentName = "sv-filter-modal";
 export const filterFieldPopupComponentName = "sv-filter-field-popup";
 export const filterChipComponentName = "sv-filter-chip";
 export const filterPresetDialogComponentName = "sv-filter-preset-dialog";
-export const filterAIDialogComponentName = "sv-filter-ai-dialog";
 
 // The control's UI as standard action bars the question owns, drawn with sv-action-bar:
 // - the chips row: Filters (when there is no search box to stand next to), a badge per fast mode
@@ -261,7 +260,9 @@ export class FilterToolbars {
   // Create custom filter (FilterAIDialog), over the Filters dialog that opened it, in the place of a
   // preset dialog: one of them at a time. Its Apply adds the AI preset, refreshes that dialog's
   // presets and turns the new one on there, so its count says what the preset leaves; any other way
-  // it closes writes nothing, and an answer that comes after is ignored.
+  // it closes writes nothing, and an answer that comes after is ignored. The dialog is one survey
+  // (FilterAIDialog.survey), drawn by the "survey" component every renderer registers, as the records'
+  // Sort by dialog is; the holder only disposes the dialog once it closes.
   public showAIDialog(modal: FilterModal): void {
     if (!settings.showDialog || !!this.presetDialog || !modal || modal.isDisposed) return;
     const dialogModel = this.owner.createAIDialog();
@@ -269,8 +270,8 @@ export class FilterToolbars {
     holder.aiDialog = dialogModel;
     this.presetHolder = holder;
     const options: IDialogOptions = {
-      componentName: filterAIDialogComponentName,
-      data: { holder: holder },
+      componentName: "survey",
+      data: { model: dialogModel.survey, survey: dialogModel.survey },
       onApply: (): boolean => {
         if (!dialogModel.apply()) return false;
         modal.refreshPresets();
@@ -285,7 +286,7 @@ export class FilterToolbars {
       },
       title: dialogModel.title,
       showCloseButton: true,
-      cssClass: toCssClasses(this.cssClasses.modal, this.cssClasses.presetDialog, this.owner.isMobile && this.cssClasses.modalMobile),
+      cssClass: toCssClasses(this.cssClasses.modal, this.cssClasses.presetDialog, this.cssClasses.aiDialog, this.owner.isMobile && this.cssClasses.modalMobile),
       displayMode: "popup"
     };
     this.presetDialog = settings.showDialog(options, this.owner.getSurveyRootElement());

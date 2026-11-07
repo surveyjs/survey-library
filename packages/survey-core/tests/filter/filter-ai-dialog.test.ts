@@ -4,7 +4,7 @@ import { SurveyModel } from "../../src/survey";
 import { PanelModel } from "../../src/panel";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { conditionsToExpression } from "../../src/filter/filter-conditions";
-import { FilterAIDialog, makeFilterAITitle } from "../../src/filter/filter-ai-dialog";
+import { FilterAIDialog, FilterAIPrompt, makeFilterAITitle } from "../../src/filter/filter-ai-dialog";
 
 // The Create custom filter dialog: a description, the model's filter as the fields' editors, Make
 // Changes, and Apply, which adds it as an AI preset.
@@ -39,10 +39,76 @@ describe("FilterAIDialog: before the first answer", () => {
     expect([question.parent.isPanel, question.parent.name]).toEqual([true, "promptPanel"]);
     dialog.dispose();
   });
-  test("the request button is drawn as an action bar of its own", () => {
+  test("the description is survey elements only: the panel's title, its comment and the button in its footer", () => {
+    const { q, dialog } = open();
+    const prompt = dialog.aiPrompt;
+    const panel = prompt.panel;
+    const question = prompt.form.getQuestionByName("prompt");
+    expect([panel.name, panel.title, question.title, question.titleLocation], "#1: the hidden title is the accessible name")
+      .toEqual(["promptPanel", "Describe what you need - AI will do the rest.", "Describe what you need - AI will do the rest.", "hidden"]);
+    const footer = panel.getFooterToolbar();
+    expect([footer.actions.length, footer.actions[0] === prompt.requestAction, panel.allowAdaptiveActions], "#2").toEqual([1, true, false]);
+    const css = prompt.requestAction.getActionBarItemCss();
+    expect([css.indexOf("sd-action--brand") > -1, css.indexOf("sd-action--secondary") > -1], "#3: the mockup's light brand button").toEqual([true, true]);
+    expect(footer.containerCss.split(" ").indexOf(q.cssClasses.aiPromptRequest) > -1, "#4").toBe(true);
+    expect(panel.getContainerCss().split(" ").indexOf(q.cssClasses.aiPrompt) > -1, "#5: the frame").toBe(true);
+    dialog.dispose();
+  });
+  test("errorText is the description's error", () => {
     const { dialog } = open();
     const prompt = dialog.aiPrompt;
-    expect([prompt.requestToolbar.actions.length, prompt.requestToolbar.actions[0] === prompt.requestAction]).toEqual([1, true]);
+    const question = prompt.form.getQuestionByName("prompt");
+    prompt.errorText = "quota";
+    expect([question.errors.length, question.errors[0].getText(), question.getErrorLocation()], "#1").toEqual([1, "quota", "bottom"]);
+    prompt.errorText = "";
+    expect(question.errors.length, "#2").toBe(0);
+    dialog.dispose();
+  });
+});
+
+describe("FilterAIPrompt: a form of its own (Edit Presets)", () => {
+  test("with no survey given it makes one in the control's locale, and disposes it", () => {
+    const q = createFilter();
+    const prompt = new FilterAIPrompt(q.createAIRequest(), { locale: "de", prompt: "kids", isModify: true, modifyTitle: "Edit",
+      css: q.cssClasses, getConditions: () => [], onAnswer: () => { } });
+    const form = prompt.form;
+    expect([form.locale, form.pages[0].elements.map((e: any): string => e.name), prompt.prompt, prompt.panel.title], "#1")
+      .toEqual(["de", ["promptPanel"], "kids", "Edit"]);
+    expect([form.state, form.currentPage === form.pages[0]], "#1a: a page to draw").toEqual(["running", true]);
+    prompt.dispose();
+    expect(form.isDisposed, "#2").toBe(true);
+  });
+});
+
+describe("FilterAIDialog: one survey", () => {
+  test("the dialog draws one survey: the prompt is in it, with no title, numbers, navigation or theme root", () => {
+    const { q, dialog } = open();
+    const survey = dialog.survey;
+    expect([dialog.aiPrompt.form === survey, survey.pages.length, survey.pages[0].elements.map((e: any): string => e.name)], "#1")
+      .toEqual([true, 1, ["promptPanel"]]);
+    expect([survey.state, survey.currentPage === survey.pages[0]], "#1a: a page to draw").toEqual(["running", true]);
+    expect([survey.showNavigationButtons, survey.showQuestionNumbers, survey.css.rootTheme], "#2")
+      .toEqual([false, "off", ""]);
+    expect(survey.getRootCss().split(" ").filter((c: string): boolean => c === q.cssClasses.editor || c === q.cssClasses.modalEditor), "#3")
+      .toEqual([q.cssClasses.editor, q.cssClasses.modalEditor]);
+    dialog.dispose();
+    expect(survey.isDisposed, "#4: the dialog owns it").toBe(true);
+  });
+  test("an answer puts the fields' panels over the prompt's, and the next answer replaces them", () => {
+    const { dialog, calls } = open();
+    const survey = dialog.survey;
+    const names = (): Array<string> => survey.pages[0].elements.map((e: any): string => e.name);
+    dialog.aiPrompt.form.setValue("prompt", "adults");
+    dialog.aiPrompt.request();
+    calls[0].callback(answer("{age} > 18 and {country} anyof ['de']"));
+    expect([dialog.editor.survey === survey, names()], "#1").toEqual([true, ["f0", "f1", "promptPanel"]]);
+    dialog.aiPrompt.request();
+    calls[1].callback(answer("{age} < 10"));
+    expect([names(), survey.getAllQuestions().map((qn: any): string => qn.name)], "#2")
+      .toEqual([["f0", "promptPanel"], ["f0_operator", "f0_value", "prompt"]]);
+    expect([survey.getValue("f1_value"), survey.getValue("prompt")], "#3: the old fields leave no values").toEqual([undefined, "adults"]);
+    dialog.removeField("age");
+    expect([names(), dialog.editor], "#4").toEqual([["promptPanel"], undefined]);
     dialog.dispose();
   });
 });

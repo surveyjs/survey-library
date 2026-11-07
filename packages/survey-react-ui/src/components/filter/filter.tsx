@@ -4,10 +4,11 @@
 // Add New Preset and Edit Presets are FilterPresetDialogs; the classes are the theme's "filter"
 // entry. This file only lays the parts out and draws the few pieces that are not standard components:
 // a chip with a trailing chevron, a checkbox list entry, the popup's frame, the dialogs' content.
+// Create custom filter has nothing here: it is a survey, drawn by the "survey" component.
 import * as React from "react";
 import {
-  Action, ActionDropdownViewModel, Base, FilterAIDialog, FilterAIPrompt, FilterEditPresetsDialog, FilterEditorHolder, FilterFieldPopup,
-  FilterModal, FilterPresetDialog, ListModel, Question, QuestionFilterModel, SurveyError, SurveyModel, filterAIDialogComponentName,
+  Action, ActionDropdownViewModel, Base, FilterEditPresetsDialog, FilterEditorHolder, FilterFieldPopup,
+  FilterModal, FilterPresetDialog, ListModel, Question, QuestionFilterModel, SurveyError, SurveyModel,
   filterChipComponentName, filterModalComponentName, filterFieldPopupComponentName, filterListItemComponentName,
   filterPresetDialogComponentName, filterUIStrings, toCssClasses
 } from "survey-core";
@@ -162,10 +163,12 @@ export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: Filter
     if (dialog instanceof FilterEditPresetsDialog) return [holder, dialog, dialog.tabsToolbar, dialog.actionsToolbar];
     return [holder, dialog];
   }
-  // The description and Make Changes of an AI preset's tab, under its fields.
+  // The description and Make Changes of an AI preset's tab, under its fields: a survey of their own
+  // (FilterAIPrompt.form), drawn as a page as the fields' editors are.
   private renderAIPrompt(dialog: FilterEditPresetsDialog, css: any): React.JSX.Element | null {
-    if (!dialog || !dialog.aiPrompt) return null;
-    return <FilterAIPromptBlock key={dialog.aiPrompt.form.uniqueId} prompt={dialog.aiPrompt} css={css} />;
+    const prompt = !!dialog ? dialog.aiPrompt : undefined;
+    if (!prompt) return null;
+    return <FilterEditorPage key={prompt.form.uniqueId} editor={{ survey: prompt.form, isDisposed: prompt.isDisposed }} className={css.editor} />;
   }
   private renderTabs(dialog: FilterEditPresetsDialog, css: any): React.JSX.Element | null {
     if (!dialog || !dialog.tabsToolbar.hasActions) return null;
@@ -199,56 +202,6 @@ export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: Filter
 }
 ReactElementFactory.Instance.registerElement(filterPresetDialogComponentName,
   (props) => { return React.createElement(SurveyFilterPresetDialog, props); });
-
-// The description of a filter, its request button - Create new filter, then Make Changes - and what
-// went wrong: Create custom filter's, and the tab of an AI preset in Edit Presets. The form is a
-// survey of its own, drawn as a page as the fields' editors are.
-class FilterAIPromptBlock extends SurveyElementBase<{ prompt: FilterAIPrompt, css: any }, any> {
-  protected getStateElements(): Array<Base> {
-    const prompt = this.props.prompt;
-    return !!prompt && !prompt.isDisposed ? [prompt, prompt.requestToolbar] : [];
-  }
-  protected renderElement(): React.JSX.Element | null {
-    const prompt = this.props.prompt;
-    if (!prompt || prompt.isDisposed) return null;
-    const css = this.props.css;
-    return <div className={css.aiPrompt}>
-      <div className={css.aiPromptTitle}>{prompt.promptTitle}</div>
-      <FilterEditorPage key={prompt.form.uniqueId} editor={{ survey: prompt.form, isDisposed: prompt.isDisposed }}
-        className={toCssClasses(css.editor, css.aiPromptForm)} />
-      <div className={css.aiPromptRequest}><SurveyActionBar model={prompt.requestToolbar} /></div>
-      {!!prompt.errorText ? <div className={css.aiPromptError} role="alert">{prompt.errorText}</div> : null}
-    </div>;
-  }
-}
-
-// Create custom filter: the model's filter as the fields' editors, over the description and its
-// button; the footer is the dialog's own. It watches the holder, as the other dialogs do, and the
-// dialog: its editors are made anew for every answer.
-export class SurveyFilterAIDialog extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
-  private get dialog(): FilterAIDialog {
-    const holder = this.props.holder;
-    return !!holder && !!holder.aiDialog && !holder.aiDialog.isDisposed ? holder.aiDialog : undefined;
-  }
-  protected getStateElements(): Array<Base> {
-    const holder = this.props.holder;
-    const dialog = this.dialog;
-    if (!dialog) return !!holder ? [holder] : [];
-    return [holder, dialog];
-  }
-  protected renderElement(): React.JSX.Element | null {
-    const dialog = this.dialog;
-    if (!dialog) return null;
-    const css = this.props.holder.cssClasses;
-    const editor = dialog.editor;
-    return <div className={toCssClasses(css.modalContent, css.aiContent)}>
-      {!!editor ? <FilterEditorPage key={editor.survey.uniqueId} editor={editor} className={toCssClasses(css.editor, css.modalEditor)} /> : null}
-      <FilterAIPromptBlock prompt={dialog.aiPrompt} css={css} />
-    </div>;
-  }
-}
-ReactElementFactory.Instance.registerElement(filterAIDialogComponentName,
-  (props) => { return React.createElement(SurveyFilterAIDialog, props); });
 
 // A badge's popup: the search box (a long list, or one a value can be typed into), the title row
 // with its link, the list or the operator and value, and Apply.

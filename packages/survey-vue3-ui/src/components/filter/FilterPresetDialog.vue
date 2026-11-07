@@ -9,7 +9,8 @@
       <FilterEditorPage :key="dialog().editor.survey.uniqueId" :survey="dialog().editor.survey" :disposed="dialog().editor.isDisposed"
         :className="toCssClasses(css().editor, css().modalEditor)"></FilterEditorPage>
     </div>
-    <FilterAIPrompt v-if="!!edit() && !!edit().aiPrompt" :key="edit().aiPrompt.form.uniqueId" :prompt="edit().aiPrompt" :css="css()"></FilterAIPrompt>
+    <FilterEditorPage v-if="!!edit() && !!edit().aiPrompt" :key="edit().aiPrompt.form.uniqueId" :survey="edit().aiPrompt.form"
+      :disposed="edit().aiPrompt.isDisposed" :className="css().editor"></FilterEditorPage>
     <div v-if="!!edit() && edit().actionsToolbar.hasVisibleActions" :class="css().modalSection">
       <div :class="css().modalSectionTitle">{{ filterUIStrings.presetActions }}</div>
       <SvComponent :is="'sv-action-bar'" :model="edit().actionsToolbar"></SvComponent>
@@ -23,7 +24,6 @@
 // keyed by their survey's uniqueId: element ids restart in every survey.
 import SvComponent from "@/SvComponent.vue";
 import FilterEditorPage from "./FilterEditorPage.vue";
-import FilterAIPrompt from "./FilterAIPrompt.vue";
 import { useBase } from "@/base";
 import { type FilterEditorHolder, type FilterPresetDialog, FilterEditPresetsDialog, filterUIStrings, toCssClasses } from "survey-core";
 const props = defineProps<{ holder: FilterEditorHolder }>();

@@ -2188,7 +2188,22 @@ export class SurveyModel extends SurveyElementCore
     var hasChanges = false;
     for (var key in data) {
       // isKnownRootKey() is the same test setData() runs, so the two never disagree.
-      if (this.isKnownRootKey(key)) continue;
+      if (this.isKnownRootKey(key)) {
+        // A container key: the keys inside its object that no element owns go too (D6).
+        const scopes = this.getRootDataScopes(key);
+        if (scopes.length > 0) {
+          const obj = Helpers.getUnbindValue(data[key]);
+          if (this.removeUnknownDataScopeKeys(scopes, obj)) {
+            hasChanges = true;
+            if (Helpers.isValueEmpty(obj)) {
+              delete data[key];
+            } else {
+              data[key] = obj;
+            }
+          }
+        }
+        continue;
+      }
       hasChanges = true;
       delete data[key];
     }
@@ -3665,6 +3680,11 @@ export class SurveyModel extends SurveyElementCore
     if (level === 0) return this.data;
     const data: any = {};
     this.pages.forEach(p => {
+      // A nesting page is one value, <key>: <its stored object>, in every view (D7).
+      if (p.isDataNesting) {
+        p.collectDataNestingValue(data);
+        return;
+      }
       if (includePages) {
         const pageValues = {};
         if (p.collectValues(pageValues, level - 1)) {
@@ -3681,14 +3701,15 @@ export class SurveyModel extends SurveyElementCore
     const res: any = {};
     for (let key in data) {
       const q = this.getQuestionByValueName(key);
-      if (q) {
+      if (q || this.isDataScopeKey(key)) {
+        // A question's value, or a nesting container's object as one value (D7).
         res[key] = data[key];
       } else {
         let panel: PanelModelBase = this.getPageByName(key);
         if (!panel) {
           panel = this.getPanelByName(key);
         }
-        if (panel) {
+        if (panel && !panel.isDataNesting) {
           this.collectDataFromPanel(panel, res, data[key]);
         }
       }
@@ -3702,13 +3723,28 @@ export class SurveyModel extends SurveyElementCore
   private collectDataFromPanel(panel: PanelModelBase, output: any, data: any): void {
     for (let key in data) {
       let el = panel.getElementByName(key);
-      if (!el) continue;
-      if (el.isPanel) {
-        this.collectDataFromPanel(<PanelModel>el, output, data[key]);
-      } else {
+      if (!!el && !el.isPanel) {
         output[key] = data[key];
+      } else if (this.hasDataNestingContainer(panel, key)) {
+        // A nesting container at this level: its object is one value (D7).
+        output[key] = data[key];
+      } else if (!!el && !(<PanelModelBase><any>el).isDataNesting) {
+        this.collectDataFromPanel(<PanelModel>el, output, data[key]);
       }
     }
+  }
+  // Whether a nesting container with the key sits in the panel, directly or inside panels that do not nest.
+  private hasDataNestingContainer(panel: PanelModelBase, key: string): boolean {
+    if (!this.isDataScopeUsedValue) return false;
+    const elements = panel.elements;
+    for (let i = 0; i < elements.length; i++) {
+      if (!elements[i].isPanel) continue;
+      const inner = <PanelModelBase><any>elements[i];
+      if (inner.isDataNesting) {
+        if (inner.getDataScopeKey() === key) return true;
+      } else if (this.hasDataNestingContainer(inner, key)) return true;
+    }
+    return false;
   }
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   public get editingObj(): Base {
@@ -3777,14 +3813,18 @@ export class SurveyModel extends SurveyElementCore
       var resultItem = (<Question>question).getPlainData(options);
       if (!!resultItem) {
         result.push(resultItem);
-        questionValueNames.push(question.valueName || question.name);
+        // An inner question's value name is not a top-level key (D9): a top-level key named like it is an extra item.
+        if (!this.isInnerDataQuestion(<Question>question)) {
+          questionValueNames.push(question.valueName || question.name);
+        }
       }
     });
     if (!!options.includeValues) {
       const keys = this.getValuesKeys();
       for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
-        if (questionValueNames.indexOf(key) == -1) {
+        // A nesting container's key is no extra item: its questions are listed.
+        if (questionValueNames.indexOf(key) == -1 && !this.isDataScopeKey(key)) {
           var dataValue = this.getDataValueCore(this.valuesHash, key);
           if (!!dataValue) {
             result.push({
@@ -4916,7 +4956,15 @@ export class SurveyModel extends SurveyElementCore
     if (context.checks.reportUnknownProperties) {
       const data = this.data;
       for (const key in data) {
-        if (this.isKnownRootKey(key)) continue;
+        if (this.isKnownRootKey(key)) {
+          const scopes = this.getRootDataScopes(key);
+          if (scopes.length > 0) {
+            context.pushSegment(key);
+            this.reportUnknownDataScopeKeys(scopes, data[key], context);
+            context.popSegment();
+          }
+          continue;
+        }
         context.addIssue("unknownProperty", key, data[key], undefined);
       }
     }
@@ -4925,7 +4973,7 @@ export class SurveyModel extends SurveyElementCore
   // The root keys clearIncorrectValues(true) keeps: a question found by valueName, a comment or a
   // totals key of such a question, a calculated value that is a part of the result.
   private isKnownRootKey(key: string): boolean {
-    if (!!this.getQuestionByValueName(key)) return true;
+    if (!!this.getQuestionByValueName(key) || this.isDataScopeKey(key)) return true;
     if (this.isCorrectValueWithPostPrefix(key, settings.commentSuffix) ||
       this.isCorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)) return true;
     const calcValue = this.getCalculatedValueByName(key);
@@ -7455,6 +7503,68 @@ export class SurveyModel extends SurveyElementCore
     }
     return true;
   }
+  // The inner questions that hold the same value as question: the same value name under the same data
+  // path (two containers sharing a key share their object, D4). A top-level question shares nothing.
+  private getInnerQuestionsSharingValue(question: Question): Array<Question> {
+    const valueName = question.getValueName();
+    const path = this.getQuestionDataPath(question).join("\n");
+    return this.getQuestionsByAnyValueName(valueName).filter(q => q.getValueName() === valueName &&
+      this.isInnerDataQuestion(q) && this.getQuestionDataPath(q).join("\n") === path);
+  }
+  // The keys of the object of the scopes sharing one key that an element owns (D6): an inner question's
+  // value name, its comment and totals keys; and the inner scopes by key.
+  private getDataScopeKeyOwners(scopes: Array<PanelDataScope>): { owned: HashTable<boolean>, inner: HashTable<Array<PanelDataScope>> } {
+    const owned: HashTable<boolean> = {};
+    const inner: HashTable<Array<PanelDataScope>> = {};
+    scopes.forEach(scope => scope.forEachActiveChild((q: Question) => {
+      const valueName = q.getValueName();
+      owned[valueName] = true;
+      owned[Helpers.getCommentKey(valueName)] = true;
+      owned[valueName + settings.matrix.totalsSuffix] = true;
+    }, (innerScope: PanelDataScope) => {
+      if (!inner[innerScope.key]) inner[innerScope.key] = [];
+      inner[innerScope.key].push(innerScope);
+    }));
+    return { owned: owned, inner: inner };
+  }
+  // clearIncorrectValues(true): removes the keys no element owns from a container's object (a copy) and
+  // from the objects of the containers inside it; an inner object that becomes empty goes too.
+  private removeUnknownDataScopeKeys(scopes: Array<PanelDataScope>, obj: any): boolean {
+    if (!Helpers.isValueObject(obj, true) || Array.isArray(obj)) return false;
+    const owners = this.getDataScopeKeyOwners(scopes);
+    let res = false;
+    Object.keys(obj).forEach(key => {
+      const inner = owners.inner[key];
+      if (!!inner) {
+        if (this.removeUnknownDataScopeKeys(inner, obj[key])) {
+          res = true;
+          if (Helpers.isValueEmpty(obj[key])) delete obj[key];
+        }
+        return;
+      }
+      if (owners.owned[key]) return;
+      delete obj[key];
+      res = true;
+    });
+    return res;
+  }
+  // setData(): reports the keys no element owns inside a container's object, by path (D6).
+  private reportUnknownDataScopeKeys(scopes: Array<PanelDataScope>, obj: any, context: IVerifyDataContext): void {
+    if (!Helpers.isValueObject(obj, true) || Array.isArray(obj)) return;
+    const owners = this.getDataScopeKeyOwners(scopes);
+    Object.keys(obj).forEach(key => {
+      const inner = owners.inner[key];
+      if (!!inner) {
+        context.pushSegment(key);
+        this.reportUnknownDataScopeKeys(inner, obj[key], context);
+        context.popSegment();
+        return;
+      }
+      if (!owners.owned[key]) {
+        context.addIssue("unknownProperty", key, obj[key], undefined);
+      }
+    });
+  }
   private rebuildQuestionHashes(): void {
     this.questionHashesClear();
     this.pages.forEach(page => this.questionHashesPanelAdded(page));
@@ -8093,7 +8203,7 @@ export class SurveyModel extends SurveyElementCore
   }
   hasVisibleQuestionByValueName(question: IQuestion): boolean {
     const checkQ = <Question>question;
-    var qs = this.getQuestionsByValueName(checkQ.getValueName());
+    var qs = this.isInnerDataQuestion(checkQ) ? this.getInnerQuestionsSharingValue(checkQ) : this.getQuestionsByValueName(checkQ.getValueName());
     if (!Array.isArray(qs) || qs.length < 2) return false;
     for (var i: number = 0; i < qs.length; i++) {
       const q = qs[i];

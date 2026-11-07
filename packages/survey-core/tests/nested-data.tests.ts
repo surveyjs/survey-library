@@ -8,6 +8,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { PanelDataScope } from "../src/panel-data-scope";
 import { settings } from "../src/settings";
+import { SurveyElement } from "../src/survey-element";
 
 const addressJson = (extra?: any): any => Object.assign({
   elements: [
@@ -867,5 +868,437 @@ describe("nested data: by-name runtime changes (D8)", () => {
     survey.dataNesting = "auto";
     expect(q1.value, "auto").toBe("flat");
     expect(survey.data).toEqual({ q1: "flat", panel1: { q1: "byPanel" }, page1: { q1: "byPage", panel1: { q1: "both2" } } });
+  });
+});
+
+// Prompt 05: clearing, validation, structured data (design-01 3, 5, 7).
+const clearJson = (extra?: any): any => Object.assign({
+  elements: [
+    { type: "text", name: "q0" },
+    { type: "panel", name: "panel1", valueName: "address", elements: [
+      { type: "text", name: "street" },
+      { type: "text", name: "city", showCommentArea: true },
+      { type: "dropdown", name: "kind", choices: ["home", "work"] }
+    ] }
+  ]
+}, extra || {});
+
+describe("nested data: clearInvisibleValues (design-01 3.1)", () => {
+  test("\"onHidden\": hiding an inner question removes its key; the emptied object goes", () => {
+    const survey = new SurveyModel(clearJson({ clearInvisibleValues: "onHidden" }));
+    survey.data = { q0: "a", address: { street: "s", city: "c" } };
+    survey.getQuestionByName("street").visible = false;
+    expect(survey.data).toEqual({ q0: "a", address: { city: "c" } });
+    survey.getQuestionByName("city").visible = false;
+    expect(survey.data, "the object is removed").toEqual({ q0: "a" });
+  });
+  test("\"onHidden\": a hidden container is not cleared when hidden, it is cleared on complete", () => {
+    const survey = new SurveyModel(clearJson({ clearInvisibleValues: "onHidden" }));
+    survey.data = { q0: "a", address: { street: "s", city: "c" } };
+    survey.getPanelByName("panel1").visible = false;
+    expect(survey.data).toEqual({ q0: "a", address: { street: "s", city: "c" } });
+    survey.doComplete();
+    expect(survey.data).toEqual({ q0: "a" });
+  });
+  test("\"onHiddenContainer\": hiding the container removes its questions' keys and keeps unknown keys (D6)", () => {
+    const survey = new SurveyModel(clearJson({ clearInvisibleValues: "onHiddenContainer" }));
+    survey.data = { q0: "a", address: { street: "s", city: "c" } };
+    survey.getPanelByName("panel1").visible = false;
+    expect(survey.data, "the object is removed").toEqual({ q0: "a" });
+    survey.getPanelByName("panel1").visible = true;
+    // A comment loaded with the data stays when its question is cleared, as with "dataNesting": "none"
+    // (where the top-level "city-Comment" stays).
+    survey.data = { q0: "a", address: { street: "s", city: "c", "city-Comment": "cm" } };
+    survey.getPanelByName("panel1").visible = false;
+    expect(survey.data, "the comment stays").toEqual({ q0: "a", address: { "city-Comment": "cm" } });
+    survey.getPanelByName("panel1").visible = true;
+    survey.data = { q0: "a", address: { street: "s", foo: 1 } };
+    survey.getPanelByName("panel1").visible = false;
+    expect(survey.data, "the unknown key stays").toEqual({ q0: "a", address: { foo: 1 } });
+  });
+  test("\"onHiddenContainer\": a nesting panel inside a nesting page", () => {
+    const survey = new SurveyModel(clearJson({ clearInvisibleValues: "onHiddenContainer", dataNesting: "page" }));
+    survey.data = { page1: { q0: "a", address: { street: "s" } } };
+    survey.getPanelByName("panel1").visible = false;
+    expect(survey.data).toEqual({ page1: { q0: "a" } });
+    survey.getQuestionByName("q0").visible = false;
+    expect(survey.data, "\"onHiddenContainer\" also clears a hidden question; the emptied page object goes").toEqual({});
+  });
+  test("\"onComplete\": an invisible inner question's value is removed on complete; the emptied object goes", () => {
+    const survey = new SurveyModel(clearJson());
+    survey.data = { q0: "a", address: { street: "s", city: "c" } };
+    survey.getQuestionByName("street").visible = false;
+    expect(survey.data, "kept until complete").toEqual({ q0: "a", address: { street: "s", city: "c" } });
+    survey.doComplete();
+    expect(survey.data).toEqual({ q0: "a", address: { city: "c" } });
+
+    const survey2 = new SurveyModel(clearJson());
+    survey2.data = { q0: "a", address: { street: "s", city: "c" } };
+    survey2.getQuestionByName("street").visible = false;
+    survey2.getQuestionByName("city").visible = false;
+    survey2.doComplete();
+    expect(survey2.data, "the object is removed").toEqual({ q0: "a" });
+  });
+  test("\"onComplete\": a hidden container loses its questions' keys and keeps unknown keys", () => {
+    const survey = new SurveyModel(clearJson());
+    survey.data = { q0: "a", address: { street: "s", city: "c", foo: 1 } };
+    survey.getPanelByName("panel1").visible = false;
+    survey.doComplete();
+    expect(survey.data).toEqual({ q0: "a", address: { foo: 1 } });
+  });
+  test("\"none\": values of hidden inner questions and containers are kept", () => {
+    const survey = new SurveyModel(clearJson({ clearInvisibleValues: "none" }));
+    survey.data = { q0: "a", address: { street: "s", city: "c" } };
+    survey.getQuestionByName("street").visible = false;
+    survey.getPanelByName("panel1").visible = false;
+    survey.doComplete();
+    expect(survey.data).toEqual({ q0: "a", address: { street: "s", city: "c" } });
+  });
+  test("clearIfInvisible of an inner question overrides the survey's (design-01 3.2)", () => {
+    const json = clearJson();
+    json.elements[1].elements[0].clearIfInvisible = "onHidden";
+    json.elements[1].elements[1].clearIfInvisible = "none";
+    const survey = new SurveyModel(json);
+    survey.data = { address: { street: "s", city: "c" } };
+    survey.getQuestionByName("street").visible = false;
+    expect(survey.data, "street: onHidden").toEqual({ address: { city: "c" } });
+    survey.getQuestionByName("city").visible = false;
+    survey.doComplete();
+    expect(survey.data, "city: none").toEqual({ address: { city: "c" } });
+  });
+  test("two inner questions sharing a value name keep the value while one is visible", () => {
+    const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [
+      { type: "panel", name: "panel1", valueName: "address", elements: [
+        { type: "text", name: "x1", valueName: "x" },
+        { type: "text", name: "x2", valueName: "x" }
+      ] }
+    ] });
+    survey.getQuestionByName("x1").value = "v";
+    survey.getQuestionByName("x1").visible = false;
+    expect(survey.data, "x2 is visible").toEqual({ address: { x: "v" } });
+    survey.getQuestionByName("x2").visible = false;
+    expect(survey.data, "both hidden").toEqual({});
+  });
+  test("two containers sharing a key: an inner value shared across them is kept while one holder is visible (D4)", () => {
+    const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [
+      { type: "panel", name: "a1", valueName: "address", elements: [{ type: "text", name: "x1", valueName: "x" }] },
+      { type: "panel", name: "a2", valueName: "address", elements: [{ type: "text", name: "x2", valueName: "x" }] }
+    ] });
+    survey.getQuestionByName("x1").value = "v";
+    survey.getQuestionByName("x1").visible = false;
+    expect(survey.data).toEqual({ address: { x: "v" } });
+  });
+  test("an inner question and top-level questions with the same value name share nothing", () => {
+    const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [
+      { type: "text", name: "y1", valueName: "x" },
+      { type: "text", name: "y2", valueName: "x" },
+      { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "x3", valueName: "x" }] }
+    ] });
+    survey.data = { x: "top", address: { x: "inner" } };
+    survey.getQuestionByName("x3").visible = false;
+    expect(survey.data, "the inner value goes").toEqual({ x: "top" });
+    survey.data = { x: "top", address: { x: "inner" } };
+    survey.getQuestionByName("x3").visible = true;
+    survey.getQuestionByName("y1").visible = false;
+    survey.getQuestionByName("y2").visible = false;
+    expect(survey.data, "the top-level value goes").toEqual({ address: { x: "inner" } });
+  });
+});
+
+describe("nested data: clearIncorrectValues and setData (design-01 3.3, 3.4, D6)", () => {
+  test("clearIncorrectValues(): a dropdown inside the container drops a value not in its choices", () => {
+    const survey = new SurveyModel(clearJson());
+    survey.data = { address: { street: "s", kind: "office" } };
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ address: { street: "s" } });
+    survey.data = { address: { kind: "office" } };
+    survey.clearIncorrectValues();
+    expect(survey.data, "the emptied object goes").toEqual({});
+  });
+  test("clearIncorrectValues(true) keeps a container key and removes unknown keys inside its object", () => {
+    const survey = new SurveyModel(clearJson());
+    survey.data = { q0: "a", bar: 2, address: { street: "s", city: "c", "city-Comment": "cm", kind: "home", foo: 1 } };
+    survey.clearIncorrectValues(true);
+    expect(survey.data).toEqual({ q0: "a", address: { street: "s", city: "c", "city-Comment": "cm", kind: "home" } });
+    survey.data = { q0: "a", address: { foo: 1 } };
+    survey.clearIncorrectValues(true);
+    expect(survey.data, "an object with unknown keys only goes").toEqual({ q0: "a" });
+  });
+  test("clearIncorrectValues(true): a nesting panel inside a nesting page, and a shared key", () => {
+    const survey = new SurveyModel(clearJson({ dataNesting: "page" }));
+    survey.data = { page1: { q0: "a", baz: 3, address: { street: "s", foo: 1 } }, bar: 2 };
+    survey.clearIncorrectValues(true);
+    expect(survey.data).toEqual({ page1: { q0: "a", address: { street: "s" } } });
+
+    const shared = new SurveyModel({ elements: [
+      { type: "panel", name: "a1", valueName: "address", elements: [{ type: "text", name: "street" }] },
+      { type: "panel", name: "a2", valueName: "address", elements: [{ type: "text", name: "city" }] }
+    ] });
+    shared.data = { address: { street: "s", city: "c", foo: 1 } };
+    shared.clearIncorrectValues(true);
+    expect(shared.data, "both containers' keys stay").toEqual({ address: { street: "s", city: "c" } });
+  });
+  test("setData() reports unknown keys inside the object by path, and an inner question's issue by path", () => {
+    const survey = new SurveyModel(clearJson());
+    const issues = survey.setData({ q0: "a", bar: 2, address: { street: "s", kind: "office", foo: 1 } });
+    const found = issues.map(issue => issue.type + ":" + issue.path).sort();
+    expect(found).toEqual(["invalidChoiceValue:address.kind", "unknownProperty:address.foo", "unknownProperty:bar"]);
+    const kindIssue = issues.filter(issue => issue.path === "address.kind")[0];
+    expect(kindIssue.question?.name).toBe("kind");
+
+    const paged = new SurveyModel(clearJson({ dataNesting: "page" }));
+    const pagedIssues = paged.setData({ page1: { q0: "a", baz: 3, address: { street: "s", foo: 1 } } });
+    expect(pagedIssues.map(issue => issue.type + ":" + issue.path).sort()).toEqual(["unknownProperty:page1.address.foo", "unknownProperty:page1.baz"]);
+  });
+});
+
+describe("nested data: validation (design-01 3.5)", () => {
+  const requiredJson = (extra?: any): any => Object.assign({
+    pages: [
+      { name: "page1", elements: [
+        { type: "text", name: "q0" },
+        { type: "panel", name: "panel1", valueName: "address", elements: [
+          { type: "text", name: "street", isRequired: true },
+          { type: "text", name: "city" }
+        ] }
+      ] },
+      { name: "page2", elements: [{ type: "text", name: "q3" }] }
+    ]
+  }, extra || {});
+  test("a required inner question blocks Next and Complete and the error focuses it", () => {
+    let focusedId = "";
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedId = elId;
+      return true;
+    };
+    try {
+      const survey = new SurveyModel(requiredJson());
+      const street = survey.getQuestionByName("street");
+      survey.getQuestionByName("q0").value = "a";
+      expect(survey.nextPage(), "Next is blocked").toBe(false);
+      expect(survey.currentPageNo).toBe(0);
+      expect(street.errors.length).toBe(1);
+      expect(focusedId, "the inner question is focused").toBe(street.inputId);
+      expect(survey.validate(false), "validate").toBe(false);
+      expect(survey.hasErrors(false), "hasErrors").toBe(true);
+
+      street.value = "s";
+      expect(survey.nextPage()).toBe(true);
+
+      const onComplete = new SurveyModel(requiredJson({ checkErrorsMode: "onComplete" }));
+      const street2 = onComplete.getQuestionByName("street");
+      expect(onComplete.nextPage(), "onComplete: Next is not checked").toBe(true);
+      // No focus check here: a flat survey does not focus synchronously on this path either.
+      expect(onComplete.tryComplete(), "Complete is blocked").toBe(false);
+      expect(onComplete.currentPageNo, "back on the page with the error").toBe(0);
+      expect(street2.errors.length).toBe(1);
+      expect(onComplete.state).toBe("running");
+      street2.value = "s";
+      onComplete.currentPageNo = 1;
+      expect(onComplete.tryComplete()).toBe(true);
+      expect(onComplete.data).toEqual({ address: { street: "s" } });
+    } finally {
+      SurveyElement.FocusElement = oldFunc;
+    }
+  });
+  test("\"page\" mode: a required inner question of a nesting page and of a nesting panel inside it", () => {
+    const survey = new SurveyModel(requiredJson({ dataNesting: "page" }));
+    const json = requiredJson();
+    json.pages[0].elements[0].isRequired = true;
+    const survey2 = new SurveyModel(Object.assign(json, { dataNesting: "page" }));
+    expect(survey.nextPage()).toBe(false);
+    expect(survey.getQuestionByName("street").errors.length).toBe(1);
+    survey.getQuestionByName("street").value = "s";
+    expect(survey.nextPage()).toBe(true);
+    expect(survey.data).toEqual({ page1: { address: { street: "s" } } });
+    survey2.getQuestionByName("street").value = "s";
+    expect(survey2.nextPage(), "q0 is required").toBe(false);
+    expect(survey2.getQuestionByName("q0").errors.length).toBe(1);
+  });
+  test("a required nesting panel is satisfied by any inner value", () => {
+    const json = requiredJson();
+    json.pages[0].elements[1].isRequired = true;
+    json.pages[0].elements[1].elements[0].isRequired = false;
+    const survey = new SurveyModel(json);
+    const panel = survey.getPanelByName("panel1");
+    expect(survey.nextPage()).toBe(false);
+    expect(panel.errors.length).toBe(1);
+    survey.getQuestionByName("city").value = "c";
+    expect(survey.nextPage()).toBe(true);
+  });
+});
+
+// The example survey of design-01 ("The example survey"), comments left out.
+const structuredJson = (mode: string): any => ({
+  dataNesting: mode,
+  pages: [
+    { name: "page1", elements: [
+      { type: "text", name: "q0" },
+      { type: "panel", name: "panel1", valueName: "address", elements: [
+        { type: "text", name: "street" },
+        { type: "text", name: "city" },
+        { type: "panel", name: "panel2", elements: [{ type: "text", name: "zip" }] }
+      ] }
+    ] },
+    { name: "page2", valueName: "step2", elements: [{ type: "text", name: "q3" }] }
+  ]
+});
+const fillStructured = (survey: SurveyModel): void => {
+  survey.getQuestionByName("q0").value = "a";
+  survey.getQuestionByName("street").value = "Main";
+  survey.getQuestionByName("city").value = "Oslo";
+  survey.getQuestionByName("zip").value = "0150";
+  survey.getQuestionByName("q3").value = 3;
+};
+const structuredOptions: Array<{ includePages?: boolean, includePanels?: boolean }> = [
+  {}, { includePages: true }, { includePanels: true }, { includePages: true, includePanels: true }
+];
+
+describe("nested data: getData and setStructuredData (design-01 5, D7)", () => {
+  const flatAddress = { street: "Main", city: "Oslo", zip: "0150" };
+  const panelAddress = { street: "Main", city: "Oslo", panel2: { zip: "0150" } };
+  const expected: { [mode: string]: Array<any> } = {
+    none: [
+      { q0: "a", street: "Main", city: "Oslo", zip: "0150", q3: 3 },
+      { page1: { q0: "a", street: "Main", city: "Oslo", zip: "0150" }, page2: { q3: 3 } },
+      { q0: "a", panel1: { street: "Main", city: "Oslo", panel2: { zip: "0150" } }, q3: 3 },
+      { page1: { q0: "a", panel1: { street: "Main", city: "Oslo", panel2: { zip: "0150" } } }, page2: { q3: 3 } }
+    ],
+    auto: [
+      { q0: "a", address: flatAddress, step2: { q3: 3 } },
+      { page1: { q0: "a", address: flatAddress }, step2: { q3: 3 } },
+      { q0: "a", address: flatAddress, step2: { q3: 3 } },
+      { page1: { q0: "a", address: flatAddress }, step2: { q3: 3 } }
+    ],
+    panel: [
+      { q0: "a", address: panelAddress, step2: { q3: 3 } },
+      { page1: { q0: "a", address: panelAddress }, step2: { q3: 3 } },
+      { q0: "a", address: panelAddress, step2: { q3: 3 } },
+      { page1: { q0: "a", address: panelAddress }, step2: { q3: 3 } }
+    ],
+    page: [
+      { page1: { q0: "a", address: flatAddress }, step2: { q3: 3 } },
+      { page1: { q0: "a", address: flatAddress }, step2: { q3: 3 } },
+      { page1: { q0: "a", address: flatAddress }, step2: { q3: 3 } },
+      { page1: { q0: "a", address: flatAddress }, step2: { q3: 3 } }
+    ],
+    panelAndPage: [
+      { page1: { q0: "a", address: panelAddress }, step2: { q3: 3 } },
+      { page1: { q0: "a", address: panelAddress }, step2: { q3: 3 } },
+      { page1: { q0: "a", address: panelAddress }, step2: { q3: 3 } },
+      { page1: { q0: "a", address: panelAddress }, step2: { q3: 3 } }
+    ]
+  };
+  Object.keys(expected).forEach(mode => {
+    test(`"${mode}": getData in each view and the setStructuredData round trip`, () => {
+      const survey = new SurveyModel(structuredJson(mode));
+      fillStructured(survey);
+      expect(survey.data, "data").toEqual(expected[mode][0]);
+      structuredOptions.forEach((opts, index) => {
+        const view = survey.getData(opts);
+        expect(view, JSON.stringify(opts)).toEqual(expected[mode][index]);
+        const restored = new SurveyModel(structuredJson(mode));
+        restored.setStructuredData(view);
+        expect(restored.data, "restored " + JSON.stringify(opts)).toEqual(survey.data);
+        expect(restored.getQuestionByName("zip").value, "zip " + JSON.stringify(opts)).toBe("0150");
+        const merged = new SurveyModel(structuredJson(mode));
+        merged.getQuestionByName("q0").value = "old";
+        merged.setStructuredData(view, true);
+        expect(merged.data, "merged " + JSON.stringify(opts)).toEqual(survey.data);
+      });
+    });
+  });
+  test("a nesting container's object is one value: comments and unknown keys go through the views", () => {
+    const survey = new SurveyModel(clearJson());
+    survey.data = { q0: "a", address: { street: "s", city: "c", "city-Comment": "cm", foo: 1 } };
+    structuredOptions.forEach(opts => {
+      const view = survey.getData(opts);
+      const restored = new SurveyModel(clearJson());
+      restored.setStructuredData(view);
+      expect(restored.data, JSON.stringify(opts)).toEqual(survey.data);
+    });
+    expect(survey.getData({ includePages: true })).toEqual({ page1: { q0: "a", address: { street: "s", city: "c", "city-Comment": "cm", foo: 1 } } });
+  });
+  test("a nesting panel inside a panel that does not nest: the panel view keeps the panel level", () => {
+    const json = { elements: [
+      { type: "panel", name: "outer", elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
+      ] }
+    ] };
+    const survey = new SurveyModel(json);
+    survey.data = { q1: 1, address: { street: "s" } };
+    expect(survey.getData({ includePanels: true })).toEqual({ outer: { q1: 1, address: { street: "s" } } });
+    expect(survey.getData({ includePages: true })).toEqual({ page1: { q1: 1, address: { street: "s" } } });
+    structuredOptions.forEach(opts => {
+      const restored = new SurveyModel(json);
+      restored.setStructuredData(survey.getData(opts));
+      expect(restored.data, JSON.stringify(opts)).toEqual(survey.data);
+    });
+  });
+  test("a key shared by containers on two pages shows under each page and restores (4.1)", () => {
+    const json = { pages: [
+      { name: "p1", elements: [{ type: "panel", name: "a1", valueName: "address", elements: [{ type: "text", name: "street" }] }] },
+      { name: "p2", elements: [{ type: "panel", name: "a2", valueName: "address", elements: [{ type: "text", name: "city" }] }] }
+    ] };
+    const survey = new SurveyModel(json);
+    survey.data = { address: { street: "s", city: "c" } };
+    const view = survey.getData({ includePages: true });
+    expect(view).toEqual({ p1: { address: { street: "s", city: "c" } }, p2: { address: { street: "s", city: "c" } } });
+    const restored = new SurveyModel(json);
+    restored.setStructuredData(view);
+    expect(restored.data).toEqual(survey.data);
+  });
+});
+
+describe("nested data: getPlainData and panel.getValue (design-01 7)", () => {
+  test("getPlainData({ includeValues: true }) lists inner questions by name and no container key", () => {
+    const survey = new SurveyModel(clearJson());
+    survey.data = { q0: "a", bar: 2, address: { street: "s", kind: "home" } };
+    const names = survey.getPlainData({ includeEmpty: false, includeValues: true }).map(item => item.name);
+    expect(names).toEqual(["q0", "street", "kind", "bar"]);
+    const street = survey.getPlainData({ includeEmpty: false }).filter(item => item.name === "street")[0];
+    expect(street.value).toBe("s");
+  });
+  test("panel.getValue(): a nesting container returns its stored object; a container that does not nest shows it as one value", () => {
+    const survey = new SurveyModel(structuredJson("auto"));
+    fillStructured(survey);
+    survey.getQuestionByName("city").comment = "cm";
+    expect(survey.getPanelByName("panel1").getValue()).toEqual({ street: "Main", city: "Oslo", "city-Comment": "cm", zip: "0150" });
+    expect(survey.getPanelByName("panel2").getValue(), "a panel inside the object").toEqual({ zip: "0150" });
+    expect(survey.pages[0].getValue()).toEqual({ q0: "a", address: { street: "Main", city: "Oslo", "city-Comment": "cm", zip: "0150" } });
+    expect(survey.pages[1].getValue(), "a nesting page").toEqual({ q3: 3 });
+    expect(survey.getPanelByName("panel1").getComments(), "getComments").toEqual({ city: "cm" });
+
+    const flat = new SurveyModel(structuredJson("none"));
+    fillStructured(flat);
+    expect(flat.pages[0].getValue(), "none: unchanged").toEqual({ q0: "a", street: "Main", city: "Oslo", zip: "0150" });
+  });
+  test("getPlainData({ includeValues: true }) lists a stray top-level key named like an inner question (review)", () => {
+    const survey = new SurveyModel(clearJson());
+    survey.data = { street: "old", address: { street: "new" } };
+    const items = survey.getPlainData({ includeEmpty: false, includeValues: true }).map(item => item.name + "=" + item.value);
+    expect(items).toEqual(["street=new", "street=old"]);
+  });
+  test("panel.getDisplayValue() follows getValue(): a nesting container inside is one value (review)", () => {
+    const json = { elements: [
+      { type: "text", name: "q0", title: "Q0" },
+      { type: "panel", name: "panel1", valueName: "address", title: "Address", elements: [
+        { type: "dropdown", name: "kind", title: "Kind", choices: [{ value: "h", text: "Home" }] }
+      ] },
+      { type: "panel", name: "panel2", valueName: "billing", elements: [
+        { type: "dropdown", name: "kind2", valueName: "kind", choices: [{ value: "h", text: "Home" }] }
+      ] }
+    ] };
+    const survey = new SurveyModel(json);
+    survey.data = { q0: "a", address: { kind: "h" }, billing: { kind: "h" } };
+    expect(survey.pages[0].getDisplayValue(false)).toEqual({ q0: "a", address: { kind: "Home" }, billing: { kind: "Home" } });
+    expect(survey.pages[0].getDisplayValue(true), "keys as text: the title, else the key").toEqual({ Q0: "a", Address: { Kind: "Home" }, billing: { kind2: "Home" } });
+    expect(survey.getPanelByName("panel1").getDisplayValue(false), "the container itself").toEqual({ kind: "Home" });
+
+    const flat = new SurveyModel(Object.assign({ dataNesting: "none" }, json));
+    flat.data = { q0: "a", kind: "h" };
+    expect(flat.pages[0].getDisplayValue(false), "none: unchanged").toEqual({ q0: "a", kind: "Home" });
   });
 });

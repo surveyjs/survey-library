@@ -546,6 +546,18 @@ export class PanelModelBase extends SurveyElement<Question>
     const survey: any = this.survey;
     return getDataNestingKey(!!survey ? survey.dataNesting : undefined, this.getDataNestingKind(), this.valueName, this.name);
   }
+  // Whether this container stores its elements' values in an object under its key now.
+  public get isDataNesting(): boolean {
+    const scope = this.getDataScope();
+    return !!scope && scope.isActive;
+  }
+  // Writes this nesting container's stored object into data under its key, as one value (D7).
+  collectDataNestingValue(data: any): void {
+    const val = this.getDataScope().getObjectValue();
+    if (!Helpers.isValueEmpty(val)) {
+      data[this.getDataScopeKey()] = Helpers.getUnbindValue(val);
+    }
+  }
   // Which by-name modes of dataNesting nest this container: "panel" or "page" (PageModel), or "" for none.
   protected getDataNestingKind(): string {
     return "panel";
@@ -974,6 +986,11 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see getDisplayValue
    */
   public getValue(): any {
+    // A nesting container's value is its stored object (nested data, design-01 7).
+    if (this.isDataNesting) {
+      const val = this.getDataScope().getObjectValue();
+      return Helpers.isValueObject(val, true) && !Array.isArray(val) ? Helpers.getUnbindValue(val) : {};
+    }
     var data: any = {};
     this.collectValues(data, 0);
     return Helpers.getUnbindValue(data);
@@ -988,17 +1005,25 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return false;
   }
+  // level 0 writes the questions flat, walking through the panels. A nesting container inside is one
+  // value at any level, <key>: <its stored object> (nested data, D7).
   collectValues(data: any, level: number): boolean {
-    let elements = this.elements;
-    if (level === 0) {
-      elements = this.questions;
-    }
+    const elements = this.elements;
     let hasValue = false;
     for (var i = 0; i < elements.length; i++) {
       const el = elements[i];
       if (el.isPanel || el.isPage) {
+        const panel = <PanelModelBase><any>el;
+        if (panel.isDataNesting) {
+          panel.collectDataNestingValue(data);
+          continue;
+        }
+        if (level === 0) {
+          panel.collectValues(data, 0);
+          continue;
+        }
         const panelData = {};
-        if ((<PanelModelBase><any>el).collectValues(panelData, level - 1)) {
+        if (panel.collectValues(panelData, level - 1)) {
           data[el.name] = panelData;
           hasValue = true;
         }
@@ -1026,15 +1051,31 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   public getDisplayValue(keysAsText: boolean): any {
     var data: any = {};
-    var questions = this.questions;
-
-    for (var i = 0; i < questions.length; i++) {
-      var q = questions[i];
-      if (q.isEmpty()) continue;
-      var valueName = keysAsText ? q.title : q.getValueName();
-      data[valueName] = q.getDisplayValue(keysAsText);
-    }
+    this.collectDisplayValues(data, keysAsText);
     return data;
+  }
+  // The questions flat, walking through the panels, as getValue() does: a nesting container inside is one
+  // value, under its title (keysAsText) or its key (nested data, D7).
+  private collectDisplayValues(data: any, keysAsText: boolean): void {
+    const elements = this.elements;
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      if (el.isPanel) {
+        const panel = <PanelModelBase><any>el;
+        if (panel.isDataNesting) {
+          const val = panel.getDisplayValue(keysAsText);
+          if (Object.keys(val).length > 0) {
+            data[keysAsText && !!panel.title ? panel.processedTitle : panel.getDataScopeKey()] = val;
+          }
+        } else {
+          panel.collectDisplayValues(data, keysAsText);
+        }
+        continue;
+      }
+      const q = <Question><any>el;
+      if (q.isEmpty()) continue;
+      data[keysAsText ? q.title : q.getValueName()] = q.getDisplayValue(keysAsText);
+    }
   }
   /**
    * Returns a JSON object with comments left to questions within this panel/page. Question names are used as keys.
@@ -1045,7 +1086,8 @@ export class PanelModelBase extends SurveyElement<Question>
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
-      var comment = this.data.getComment(q.getValueName());
+      // Through the question's data: inside a nesting container it is the container's data scope.
+      var comment = (q.data || this.data).getComment(q.getValueName());
       if (!!comment) {
         (<any>comments)[q.getValueName()] = comment;
       }
@@ -1157,7 +1199,11 @@ export class PanelModelBase extends SurveyElement<Question>
   // A page and a panel own no data key of their own, a dynamic panel item included: the index of
   // the item is pushed by the dynamic panel that walks into it.
   public verifyDataCore(context: IVerifyDataContext): void {
+    // A nesting container adds its key to the location of its elements' findings.
+    const key = this.isDataNesting ? this.getDataScopeKey() : undefined;
+    if (!!key) context.pushSegment(key);
     this.elements.forEach(element => (<any>element).verifyDataCore(context));
+    if (!!key) context.popSegment();
   }
   public validateContainerOnly(): void {
     this.validateInPanels(new ValidationContext({ fireCallback: true, isOnValueChanged: false }));

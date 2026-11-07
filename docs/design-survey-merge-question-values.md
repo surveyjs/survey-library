@@ -76,6 +76,9 @@ const surveyJson = {
 
 [View Demo](https://surveyjs.io/Examples/Library?id=survey-shareddata (linkStyle))
 
+To store the values of all questions in a panel or a page in one object (`{ "address": { "street": "...", "city": "..." } }`), set the panel's or page's `valueName` instead. Refer to the following help topic for more information: [Nested Data](/form-library/documentation/design-survey-nested-data).
+
 ## See Also
 
 - [Populate Form Fields](/form-library/documentation/design-survey-predefine-answers)
+- [Nested Data: Store Panel and Page Values in Objects](/form-library/documentation/design-survey-nested-data)

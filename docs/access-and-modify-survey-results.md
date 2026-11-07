@@ -160,3 +160,4 @@ survey.onComplete.add((survey) => {
 - [Store Survey Results](/Documentation/Library?id=handle-survey-results-store)
 - [Continue an Incomplete Survey](/Documentation/Library?id=handle-survey-results-continue-incomplete)
 - [Merge Question Values](/Documentation/Library?id=design-survey-merge-question-values)
+- [Nested Data: Store Panel and Page Values in Objects](/form-library/documentation/design-survey-nested-data)

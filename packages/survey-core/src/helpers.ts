@@ -1,5 +1,6 @@
 import { settings } from "./settings";
 import { mulberry32 } from "./utils/utils";
+import { ISurveySettings, getSurveySetting } from "./survey-settings";
 
 export interface HashTable<T = any> {
   [key: string]: T;
@@ -9,6 +10,8 @@ export interface IEqualValuesParameters {
   caseSensitive?: boolean;
   trimStrings?: boolean;
   doNotConvertNumbers?: boolean;
+  // The survey's settings for the keys not given above; undefined means the global settings
+  settings?: ISurveySettings;
 }
 // What "the current moment" means for one survey. A survey that has no provider reads the machine
 // clock, which is what every application does. A provider is instance state on purpose: two surveys
@@ -81,13 +84,13 @@ export class Helpers {
   public static isValueUndefined(value: any): boolean {
     return (value === undefined || value === null) || (typeof value === "number" && isNaN(value));
   }
-  public static isArrayContainsEqual(x: any, y: any): boolean {
+  public static isArrayContainsEqual(x: any, y: any, surveySettings?: ISurveySettings): boolean {
     if (!Array.isArray(x) || !Array.isArray(y)) return false;
     if (x.length !== y.length) return false;
     for (var i = 0; i < x.length; i++) {
       var j = 0;
       for (; j < y.length; j++) {
-        if (Helpers.isTwoValueEquals(x[i], y[j])) break;
+        if (Helpers.isTwoValueEquals(x[i], y[j], false, undefined, undefined, surveySettings)) break;
       }
       if (j === y.length) return false;
     }
@@ -119,9 +122,10 @@ export class Helpers {
     y: any,
     ignoreOrder: boolean = false,
     caseSensitive?: boolean,
-    trimStrings? : boolean
+    trimStrings? : boolean,
+    surveySettings?: ISurveySettings
   ): boolean {
-    return Helpers.checkIfArraysEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings });
+    return Helpers.checkIfArraysEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings, settings: surveySettings });
   }
   public static compareStrings(x: string, y: string): number {
     const normalize = settings.comparator.normalizeTextCallback;
@@ -157,10 +161,10 @@ export class Helpers {
       return true;
     if ((x === undefined || x === null) && y === "") return true;
     if ((y === undefined || y === null) && x === "") return true;
-    const caseSensitive = params.caseSensitive !== undefined ? params.caseSensitive : settings.comparator.caseSensitive;
-    const trimStrings = params.trimStrings !== undefined ? params.trimStrings : settings.comparator.trimStrings;
-
     if (typeof x === "string" && typeof y === "string") {
+      // An explicit parameter wins, then the survey's own value, then the global one
+      const caseSensitive = params.caseSensitive !== undefined ? params.caseSensitive : getSurveySetting(params.settings, "comparator", "caseSensitive");
+      const trimStrings = params.trimStrings !== undefined ? params.trimStrings : getSurveySetting(params.settings, "comparator", "trimStrings");
       const normalize = settings.comparator.normalizeTextCallback;
       x = normalize(x, "compare");
       y = normalize(y, "compare");
@@ -217,9 +221,10 @@ export class Helpers {
     y: any,
     ignoreOrder: boolean = false,
     caseSensitive?: boolean,
-    trimStrings? : boolean
+    trimStrings? : boolean,
+    surveySettings?: ISurveySettings
   ): boolean {
-    return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings });
+    return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings, settings: surveySettings });
   }
   public static randomizeArray<T>(array: Array<T>, seed?: number): Array<T> {
 
@@ -279,11 +284,11 @@ export class Helpers {
     }
     return res;
   }
-  public static createDiff(changedObj: any, originalObject: any): any {
+  public static createDiff(changedObj: any, originalObject: any, surveySettings?: ISurveySettings): any {
     const res: any = {};
     if (typeof changedObj !== "object" || typeof originalObject !== "object") return res;
     for (const key in changedObj) {
-      if (!Helpers.isTwoValueEquals(changedObj[key], originalObject[key])) {
+      if (!Helpers.isTwoValueEquals(changedObj[key], originalObject[key], false, undefined, undefined, surveySettings)) {
         res[key] = changedObj[key];
       }
     }

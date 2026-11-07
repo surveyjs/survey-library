@@ -1,0 +1,160 @@
+import { settings } from "./settings";
+import type { ISurvey } from "./interfaces/survey-interfaces";
+import { ConsoleWarnings } from "./console-warnings";
+
+// settings.comparator.normalizeTextCallback stays global only: no converter needs it per survey (decisions.md, C3)
+export interface ISurveySettingsComparator {
+  trimStrings?: boolean;
+  caseSensitive?: boolean;
+}
+export interface ISurveySettings {
+  comparator?: ISurveySettingsComparator;
+}
+// Prompt 02 adds `events` here. The key is reserved now: the constructor does not warn about it.
+export interface ISurveyOptions extends ISurveySettings {
+}
+
+// The global settings every survey value falls back to (the same object, not a copy).
+// Every key of ISurveySettings is optional, so typing it as ISurveySettings would still compile after a key
+// is renamed in settings.ts. The deep-required type makes such a rename break the build.
+type DeepRequired<T> = { [K in keyof T]-?: T[K] extends Function ? T[K] : T[K] extends object ? DeepRequired<T[K]> : T[K] };
+const globalSettings: DeepRequired<ISurveySettings> = settings;
+
+type SurveySettingsGroup = keyof ISurveySettings;
+type SurveySettingsKeys = { [G in SurveySettingsGroup]-?: { [K in keyof NonNullable<ISurveySettings[G]>]-?: true } };
+// The groups and keys a survey can set for itself. The type makes the build fail when the interface
+// gets a key this list misses.
+const surveySettingsKeys: SurveySettingsKeys = {
+  comparator: { trimStrings: true, caseSensitive: true }
+};
+const reservedOptionKeys = ["events"];
+
+function hasOwn(obj: any, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
+// Not Helpers.isValueObject: a DOM element passes it in a browser.
+export function isPlainObject(v: any): boolean {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return false;
+  const proto = Object.getPrototypeOf(v);
+  return proto === Object.prototype || proto === null;
+}
+// A survey's effective value of one key: the survey's own value when it has one, else the global one.
+// surveySettings may be undefined (no survey: the global settings), the view of
+// SurveyModel.getSettings(), or any object a caller passes in code.
+export function getSurveySetting<G extends SurveySettingsGroup, K extends keyof NonNullable<ISurveySettings[G]>>(
+  surveySettings: ISurveySettings, group: G, key: K): NonNullable<ISurveySettings[G]>[K] {
+  const groupValue: any = !!surveySettings ? surveySettings[group] : undefined;
+  const val = !!groupValue ? groupValue[key] : undefined;
+  return val !== undefined ? val : globalSettings[group][key];
+}
+
+// The settings a comparison passes on (ISurvey.getOwnSettings): undefined when there is no survey, or the
+// survey sets no key itself. Then the readers take the global settings directly, as before per-survey
+// settings existed, so a survey without its own settings pays nothing for them.
+export function getSettingsOfSurvey(survey: ISurvey): ISurveySettings {
+  return !!survey ? survey.getOwnSettings() : undefined;
+}
+
+// One survey's own settings values. Reads fall back to the global settings per key, at read time.
+export class SurveySettingsValues {
+  private values: { [group: string]: { [key: string]: any } } = {};
+  private viewValue: ISurveySettings;
+  private hasOwnValuesValue: boolean = false;
+  // True when the survey sets at least one key itself; kept up to date by merge().
+  public get hasOwnValues(): boolean {
+    return this.hasOwnValuesValue;
+  }
+  public getValue(group: string, key: string): any {
+    const groupValues = this.values[group];
+    const val = !!groupValues ? groupValues[key] : undefined;
+    return val !== undefined ? val : (<any>globalSettings)[group][key];
+  }
+  // The read-only view SurveyModel.getSettings() returns: own enumerable getters, so JSON.stringify,
+  // spread and Object.keys see the effective values. It is frozen, so any write throws in strict mode.
+  public get view(): ISurveySettings {
+    if (!this.viewValue) {
+      this.viewValue = this.createView();
+    }
+    return this.viewValue;
+  }
+  // Merges value into the own values; returns true when an own value changed (by reference).
+  // isOptions: the value comes from the constructor, where the reserved option keys are not settings.
+  public merge(value: any, isOptions: boolean): boolean {
+    if (!isPlainObject(value)) return false;
+    let changed = false;
+    const groups = Object.keys(value);
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i];
+      if (reservedOptionKeys.indexOf(group) > -1) {
+        if (!isOptions) {
+          ConsoleWarnings.warn("survey.settings() does not take \"" + group + "\". Use survey.onX.add() to handle events after the survey is created.");
+        }
+        continue;
+      }
+      if (!hasOwn(surveySettingsKeys, group)) {
+        this.warnUnknownKey(group);
+        continue;
+      }
+      const groupValue = value[group];
+      if (groupValue === undefined) {
+        if (this.clearGroup(group)) changed = true;
+        continue;
+      }
+      if (!isPlainObject(groupValue)) continue;
+      const knownKeys = surveySettingsKeys[group];
+      const keys = Object.keys(groupValue);
+      for (let j = 0; j < keys.length; j++) {
+        const key = keys[j];
+        if (!hasOwn(knownKeys, key)) {
+          this.warnUnknownKey(group + "." + key);
+          continue;
+        }
+        if (this.setOwnValue(group, key, groupValue[key])) changed = true;
+      }
+    }
+    if (changed) {
+      this.hasOwnValuesValue = Object.keys(this.values).some((group: string): boolean => Object.keys(this.values[group]).length > 0);
+    }
+    return changed;
+  }
+  private warnUnknownKey(path: string): void {
+    ConsoleWarnings.warn("The survey setting \"" + path + "\" is unknown or cannot be set per survey. It is ignored.");
+  }
+  private clearGroup(group: string): boolean {
+    const groupValues = this.values[group];
+    if (!groupValues) return false;
+    delete this.values[group];
+    return Object.keys(groupValues).length > 0;
+  }
+  private setOwnValue(group: string, key: string, val: any): boolean {
+    let groupValues = this.values[group];
+    if (val === undefined) {
+      if (!groupValues || !hasOwn(groupValues, key)) return false;
+      delete groupValues[key];
+      return true;
+    }
+    if (!groupValues) {
+      groupValues = {};
+      this.values[group] = groupValues;
+    }
+    if (hasOwn(groupValues, key) && groupValues[key] === val) return false;
+    groupValues[key] = val;
+    return true;
+  }
+  private createView(): ISurveySettings {
+    const res: any = {};
+    const groups = Object.keys(surveySettingsKeys);
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i];
+      const groupView: any = {};
+      const keys = Object.keys(surveySettingsKeys[group]);
+      for (let j = 0; j < keys.length; j++) {
+        const key = keys[j];
+        Object.defineProperty(groupView, key, { enumerable: true, get: () => this.getValue(group, key) });
+      }
+      Object.freeze(groupView);
+      Object.defineProperty(res, group, { enumerable: true, get: () => groupView });
+    }
+    return Object.freeze(res);
+  }
+}

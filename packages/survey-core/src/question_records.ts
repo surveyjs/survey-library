@@ -5,6 +5,7 @@ import { HashTable, Helpers } from "./helpers";
 import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
+import { getSettingsOfSurvey } from "./survey-settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
@@ -1822,7 +1823,7 @@ export abstract class QuestionRecordsModel extends Question {
           const value = q["roundValue"](runner.runContext(part.scope.item.getValueGetterContext(), part.scope.properties));
           const name = q.getValueName();
           const isEmpty = Helpers.isValueEmpty(value);
-          if (isEmpty ? Helpers.isValueEmpty(current[name]) : Helpers.isTwoValueEquals(current[name], value)) return;
+          if (isEmpty ? Helpers.isValueEmpty(current[name]) : this.isTwoValueEqualsInSurvey(current[name], value)) return;
           if (!res) res = Object.assign({}, record);
           if (isEmpty) {
             delete res[name];
@@ -4534,8 +4535,9 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   protected updateSharedQuestionsValue(name: string, value: any): void {
     const questions = this.getQuestionsByValueName(name);
     if (questions.length > 1) {
+      const surveySettings = getSettingsOfSurvey(this.getSurvey());
       for (let i = 0; i < questions.length; i ++) {
-        if (!Helpers.isTwoValueEquals(questions[i].value, value)) {
+        if (!Helpers.isTwoValueEquals(questions[i].value, value, false, undefined, undefined, surveySettings)) {
           this.runSettingValue((): void => questions[i].updateValueFromSurvey(value));
         }
       }

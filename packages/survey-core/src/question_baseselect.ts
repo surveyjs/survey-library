@@ -905,7 +905,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private updateValuePropertyOnChoicesChanged(propName: string): void {
     const val = (<any>this)[propName];
     const newValue = this.getValueOnChoicesChanged(val);
-    if (Helpers.isTwoValueEquals(val, newValue)) return;
+    if (this.isTwoValueEqualsInSurvey(val, newValue)) return;
     if (this.isValueEmpty(newValue)) {
       (<any>this)[propName] = undefined;
       //an array-valued property keeps an empty array on resetting, so remove it explicitly
@@ -1098,7 +1098,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.setPropertyValue("renderedValue", val);
     if (changeValue && !this.isReadOnlyAttr) {
       val = this.rendredValueToData(val);
-      if (!this.isTwoValueEquals(val, this.value)) {
+      if (!this.isEqualToValue(val)) {
         this.value = val;
       }
     }
@@ -1172,7 +1172,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true, updateComment: boolean = true): void {
     if (
       this.isLoadingFromJson ||
-      this.isTwoValueEquals(this.value, newValue)
+      this.isEqualToValue(newValue)
     )
       return;
     this.setRenderedValue(this.rendredValueFromData(newValue), false);
@@ -1821,7 +1821,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     for (var i = 0; i < value.length; i++) {
       vals.push(!onGetValueCallback ? value[i] : onGetValueCallback(i));
     }
-    if (Helpers.isTwoValueEquals(this.value, vals)) {
+    if (this.isTwoValueEqualsInSurvey(this.value, vals)) {
       this.getMultipleSelectedItems().forEach((item, index) => strs.push(this.getItemDisplayValue(item, vals[index], isReadOnly)));
     }
     if (strs.length === 0) {
@@ -2313,7 +2313,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
         newChoices
       );
       if (!!newValue && !this.isReadOnly) {
-        var hasChanged = !this.isTwoValueEquals(this.value, newValue.value);
+        var hasChanged = !this.isEqualToValue(newValue.value);
         try {
           if (!this.isValueEmpty(newValue.value)) {
             this.allowNotifyValueChanged = false;

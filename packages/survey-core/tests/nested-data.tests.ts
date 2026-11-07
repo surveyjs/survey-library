@@ -2,6 +2,7 @@ import { describe, test, expect } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { Serializer } from "../src/jsonobject";
 import { PanelModel } from "../src/panel";
+import { PageModel } from "../src/page";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
@@ -24,7 +25,7 @@ describe("nested data: serializer", () => {
     const prop = Serializer.findProperty("survey", "dataNesting");
     expect(prop, "survey").toBeTruthy();
     expect(prop.defaultValue).toBe("auto");
-    expect(prop.choices).toEqual(["auto", "none"]);
+    expect(prop.choices).toEqual(["auto", "none", "panel", "page", "panelAndPage"]);
     const survey = new SurveyModel({ elements: [{ type: "panel", name: "p1", elements: [{ type: "text", name: "q1" }] }] });
     expect(survey.dataNesting).toBe("auto");
     const json = survey.toJSON();
@@ -615,5 +616,256 @@ describe("nested data: runtime changes (D8)", () => {
     q.value = "1";
     expect(survey.data).toEqual({ address: { zip: "1" } });
     expect(survey.getQuestionByValueName("zip")).toBeFalsy();
+  });
+});
+
+// Prompt 03: the modes that nest every panel and/or page under valueName, else name (decisions N3, N5, D8).
+const modesJson = (mode: string, dataNestingFirst: boolean = true): any => {
+  const pages = [
+    { name: "page1", elements: [
+      { type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] },
+      { type: "panel", name: "panel2", valueName: "p2", elements: [{ type: "text", name: "q2" }] }
+    ] },
+    { name: "page2", valueName: "s2", elements: [{ type: "text", name: "q3" }] }
+  ];
+  // toJSON writes dataNesting after the pages: both orders must load the same way.
+  return dataNestingFirst ? { dataNesting: mode, pages: pages } : { pages: pages, dataNesting: mode };
+};
+const modesData: { [mode: string]: any } = {
+  auto: { q1: 1, p2: { q2: 2 }, s2: { q3: 3 } },
+  panel: { panel1: { q1: 1 }, p2: { q2: 2 }, s2: { q3: 3 } },
+  page: { page1: { q1: 1, p2: { q2: 2 } }, s2: { q3: 3 } },
+  panelAndPage: { page1: { panel1: { q1: 1 }, p2: { q2: 2 } }, s2: { q3: 3 } },
+  none: { q1: 1, q2: 2, q3: 3 }
+};
+const fillModesSurvey = (survey: SurveyModel): void => {
+  survey.getQuestionByName("q1").value = 1;
+  survey.getQuestionByName("q2").value = 2;
+  survey.getQuestionByName("q3").value = 3;
+};
+
+describe("nested data: dataNesting by-name modes", () => {
+  test("dataNesting has the by-name choices", () => {
+    expect(Serializer.findProperty("survey", "dataNesting").choices).toEqual(["auto", "none", "panel", "page", "panelAndPage"]);
+  });
+  Object.keys(modesData).forEach(mode => {
+    test(`"${mode}": typing gives the mode's shape`, () => {
+      const survey = new SurveyModel(modesJson(mode));
+      fillModesSurvey(survey);
+      expect(survey.data).toEqual(modesData[mode]);
+    });
+    test(`"${mode}": the same with dataNesting after the pages in the json`, () => {
+      const survey = new SurveyModel(modesJson(mode, false));
+      fillModesSurvey(survey);
+      expect(survey.data).toEqual(modesData[mode]);
+    });
+    test(`"${mode}": survey.data fills the questions back`, () => {
+      const survey = new SurveyModel(modesJson(mode, false));
+      survey.data = modesData[mode];
+      expect(survey.getQuestionByName("q1").value, "q1").toBe(1);
+      expect(survey.getQuestionByName("q2").value, "q2").toBe(2);
+      expect(survey.getQuestionByName("q3").value, "q3").toBe(3);
+      expect(survey.data).toEqual(modesData[mode]);
+    });
+    test(`"${mode}": onQuestionCreated fires once per question while the survey loads`, () => {
+      [true, false].forEach(first => {
+        const survey = new SurveyModel();
+        let count = 0;
+        survey.onQuestionCreated.add(() => count++);
+        survey.fromJSON(modesJson(mode, first));
+        expect(count, "dataNesting first: " + first).toBe(3);
+      });
+    });
+  });
+  test("\"page\": a survey with root elements nests under the generated page name", () => {
+    const survey = new SurveyModel();
+    let count = 0;
+    survey.onQuestionCreated.add(() => count++);
+    survey.fromJSON({ dataNesting: "page", elements: [{ type: "text", name: "q1" }] });
+    survey.getQuestionByName("q1").value = 1;
+    expect(survey.data).toEqual({ page1: { q1: 1 } });
+    expect(count).toBe(1);
+  });
+  test("\"panel\": a panel without a name in the json nests under its generated name", () => {
+    const survey = new SurveyModel({ dataNesting: "panel", elements: [{ type: "panel", elements: [{ type: "text", name: "q1" }] }] });
+    const panel = survey.getAllPanels()[0];
+    expect(panel.name).toBe("panel1");
+    survey.getQuestionByName("q1").value = 1;
+    expect(survey.data).toEqual({ panel1: { q1: 1 } });
+  });
+  test("by-name modes: getQuestionByValueName and onValueChanged follow the outermost key", () => {
+    const survey = new SurveyModel(modesJson("panelAndPage"));
+    expect(survey.getQuestionByValueName("q1"), "inner question").toBeFalsy();
+    const names: Array<string> = [];
+    survey.onValueChanged.add((_, options) => names.push(options.name + ":" + options.question?.name));
+    survey.getQuestionByName("q1").value = 1;
+    survey.getQuestionByName("q3").value = 3;
+    expect(names).toEqual(["page1:q1", "s2:q3"]);
+  });
+  test("\"panelAndPage\": singlePage mode and the preview keep the page keys", () => {
+    const json = modesJson("panelAndPage");
+    json.questionsOnPageMode = "singlePage";
+    const survey = new SurveyModel(json);
+    fillModesSurvey(survey);
+    expect(survey.data).toEqual(modesData.panelAndPage);
+    survey.showPreview();
+    expect(survey.getQuestionByName("q1").value).toBe(1);
+    survey.cancelPreview();
+    survey.getQuestionByName("q1").value = 5;
+    expect(survey.data).toEqual({ page1: { panel1: { q1: 5 }, p2: { q2: 2 } }, s2: { q3: 3 } });
+  });
+  test("\"panel\": the singlePage container page and the pages it holds are not panels by name", () => {
+    const json = modesJson("panel");
+    json.questionsOnPageMode = "singlePage";
+    const survey = new SurveyModel(json);
+    fillModesSurvey(survey);
+    expect(survey.data).toEqual(modesData.panel);
+  });
+  test("\"panelAndPage\": a panel and a page added at runtime nest by name", () => {
+    const survey = new SurveyModel({ dataNesting: "panelAndPage" });
+    const page = survey.addNewPage("pg");
+    const panel = page.addNewPanel("pn");
+    panel.addNewQuestion("text", "q1").value = 1;
+    page.addNewQuestion("text", "q2").value = 2;
+    expect(survey.data).toEqual({ pg: { pn: { q1: 1 }, q2: 2 } });
+  });
+  test("an unnamed panel or page with questions added at runtime nests under its generated name (review)", () => {
+    const survey = new SurveyModel({ dataNesting: "panelAndPage", pages: [{ name: "pg" }] });
+    let created: Array<string> = [];
+    survey.onQuestionCreated.add((_, options) => created.push(options.question.name));
+    const panel = new PanelModel("");
+    const qa = new QuestionTextModel("qa");
+    qa.defaultValue = "a";
+    panel.addElement(qa);
+    survey.pages[0].addElement(panel);
+    expect(panel.name).toBe("panel1");
+    expect(qa.value, "the default stays in the question").toBe("a");
+    expect(created, "created once").toEqual(["qa"]);
+    created = [];
+    const page = new PageModel("");
+    const qb = new QuestionTextModel("qb");
+    qb.defaultValue = "b";
+    page.addElement(qb);
+    survey.addPage(page);
+    expect(page.name).toBe("page1");
+    expect(qb.value).toBe("b");
+    expect(created).toEqual(["qb"]);
+    expect(survey.data).toEqual({ pg: { panel1: { qa: "a" } }, page1: { qb: "b" } });
+  });
+});
+
+describe("nested data: by-name modes and records (N5)", () => {
+  test("\"panelAndPage\": a dynamic panel's template and a panel inside it do not nest", () => {
+    const survey = new SurveyModel({ dataNesting: "panelAndPage", pages: [{ name: "page1", elements: [
+      { type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
+        { type: "text", name: "q0" },
+        { type: "panel", name: "inner", elements: [{ type: "text", name: "street" }] }
+      ] }
+    ] }] });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
+    dp.panels[0].getQuestionByName("q0").value = "a";
+    dp.panels[0].getQuestionByName("street").value = "x";
+    expect(survey.data).toEqual({ page1: { items: [{ q0: "a", street: "x" }] } });
+    survey.data = { page1: { items: [{ q0: "b", street: "y" }] } };
+    expect(dp.panels[0].getQuestionByName("street").value).toBe("y");
+    expect(dp.template.getDataScope(), "template").toBeFalsy();
+    expect(dp.panels[0].getDataScope(), "panel").toBeFalsy();
+  });
+  test("\"panelAndPage\": the designer's dynamic panel template does not nest", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ dataNesting: "panelAndPage", pages: [{ name: "page1", elements: [
+      { type: "paneldynamic", name: "items", templateElements: [
+        { type: "panel", name: "inner", elements: [{ type: "text", name: "street" }] }
+      ] }
+    ] }] });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
+    expect(dp.template.getDataScope(), "template").toBeFalsy();
+    expect((<PanelModel>dp.template.elements[0]).getDataScope(), "inner panel").toBeFalsy();
+  });
+  test("\"panelAndPage\": a matrix detail panel and a panel inside it do not nest", () => {
+    const survey = new SurveyModel({ dataNesting: "panelAndPage", pages: [{ name: "page1", elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "col1" }],
+        detailElements: [{ type: "panel", name: "inner", elements: [{ type: "text", name: "street" }] }] }
+    ] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    row.detailPanel.getQuestionByName("street").value = "x";
+    expect(survey.data).toEqual({ page1: { m: [{ street: "x" }] } });
+  });
+  test("\"panelAndPage\": a composite's content panel and a panel inside it do not nest", async () => {
+    const { ComponentCollection } = await import("../src/question_custom");
+    ComponentCollection.Instance.add({ name: "nestedaddr3", elementsJSON: [
+      { type: "text", name: "zip" },
+      { type: "panel", name: "inner", elements: [{ type: "text", name: "street" }] }
+    ] });
+    try {
+      const survey = new SurveyModel({ dataNesting: "panelAndPage", pages: [{ name: "page1", elements: [{ type: "nestedaddr3", name: "q1" }] }] });
+      const q1: any = survey.getQuestionByName("q1");
+      q1.contentPanel.getQuestionByName("zip").value = "1";
+      q1.contentPanel.getQuestionByName("street").value = "x";
+      expect(survey.data).toEqual({ page1: { q1: { zip: "1", street: "x" } } });
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
+});
+
+describe("nested data: by-name runtime changes (D8)", () => {
+  test("\"panel\": renaming panel1 changes its key, the data does not move", () => {
+    const survey = new SurveyModel(modesJson("panel"));
+    survey.data = { panel1: { q1: "a" } };
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.value).toBe("a");
+    panel.name = "panelX";
+    expect(survey.data, "the data stays").toEqual({ panel1: { q1: "a" } });
+    expect(q1.isEmpty(), "the question reads from the new key").toBe(true);
+    q1.value = "b";
+    expect(survey.data).toEqual({ panel1: { q1: "a" }, panelX: { q1: "b" } });
+    panel.name = "panel1";
+    expect(q1.value, "back to the old key").toBe("a");
+    expect(survey.getQuestionByValueName("q1")).toBeFalsy();
+  });
+  test("\"panel\": renaming a panel with a valueName keeps its key", () => {
+    const survey = new SurveyModel(modesJson("panel"));
+    survey.getQuestionByName("q2").value = 2;
+    survey.getPanelByName("panel2").name = "panelY";
+    expect(survey.getQuestionByName("q2").value).toBe(2);
+    expect(survey.data).toEqual({ p2: { q2: 2 } });
+  });
+  test("\"page\": renaming a page changes its key; \"auto\": renaming a panel changes nothing", () => {
+    const survey = new SurveyModel(modesJson("page"));
+    survey.getQuestionByName("q1").value = 1;
+    survey.pages[0].name = "pageX";
+    expect(survey.getQuestionByName("q1").isEmpty()).toBe(true);
+    expect(survey.data).toEqual({ page1: { q1: 1 } });
+    const survey2 = new SurveyModel(modesJson("auto"));
+    survey2.getQuestionByName("q1").value = 1;
+    survey2.getPanelByName("panel1").name = "panelX";
+    expect(survey2.getQuestionByName("q1").value).toBe(1);
+    expect(survey2.data).toEqual({ q1: 1 });
+  });
+  test("changing dataNesting at runtime re-attaches the containers without moving data", () => {
+    const survey = new SurveyModel(modesJson("auto"));
+    // Each mode reads q1 from a different key.
+    survey.data = { q1: "flat", panel1: { q1: "byPanel" }, page1: { q1: "byPage", panel1: { q1: "both" } } };
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.value).toBe("flat");
+    survey.dataNesting = "panel";
+    expect(q1.value, "panel").toBe("byPanel");
+    expect(survey.getQuestionByValueName("q1"), "panel: inner").toBeFalsy();
+    survey.dataNesting = "page";
+    expect(q1.value, "page").toBe("byPage");
+    survey.dataNesting = "panelAndPage";
+    expect(q1.value, "panelAndPage").toBe("both");
+    q1.value = "both2";
+    survey.dataNesting = "none";
+    expect(q1.value, "none").toBe("flat");
+    expect(survey.getQuestionByValueName("q1"), "none: top-level").toBe(q1);
+    survey.dataNesting = "auto";
+    expect(q1.value, "auto").toBe("flat");
+    expect(survey.data).toEqual({ q1: "flat", panel1: { q1: "byPanel" }, page1: { q1: "byPage", panel1: { q1: "both2" } } });
   });
 });

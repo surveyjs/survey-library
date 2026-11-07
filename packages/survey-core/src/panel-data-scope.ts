@@ -3,35 +3,49 @@ import type { IObjectValueContext, IValueGetterContext } from "./conditions/cond
 import type { Question } from "./question";
 import { Helpers } from "./helpers";
 
+// The dataNesting modes that nest a container without a valueName under its name, and the container
+// kinds each applies to (decisions N3).
+const byNameModes: { [mode: string]: Array<string> } = {
+  panel: ["panel"],
+  page: ["page"],
+  panelAndPage: ["panel", "page"]
+};
+// The rule of decisions N3: the key a container stores its elements' values under, or "" when it does
+// not nest. kind is "panel" or "page" ("" for a container that never nests, the single-page container).
+//   "none": never; "auto" (and an unknown mode): under valueName;
+//   "panel" / "page" / "panelAndPage": under valueName, else name for the containers of that kind.
+// The records rule (N5) is the owner's: PanelModelBase.getDataScopeKey().
+export function getDataNestingKey(dataNesting: string, kind: string, valueName: string, name: string): string {
+  if (dataNesting === "none" || !kind) return "";
+  if (!!valueName) return valueName;
+  const kinds = byNameModes[dataNesting];
+  return !!kinds && kinds.indexOf(kind) > -1 ? name || "" : "";
+}
+
 // The panel or page that owns a scope. A type, not an import of PanelModelBase: panel.ts imports this file.
 export interface IPanelDataScopeOwner {
-  valueName: string;
+  getDataScopeKey(): string;
   elements: Array<IElement>;
 }
 // A panel or page that hands a scope to its elements (see PanelModelBase.getDataScope()).
 interface IPanelWithDataScope {
   getDataScope(): PanelDataScope;
 }
-interface IDataNestingSurvey {
-  dataNesting: string;
-}
 
-// The data of the elements of a panel or page with a valueName: they read and write
-// parentData.getValue(key)[name]. It composes over the parent's ISurveyData (the survey or the scope
-// of an outer container), so a container inside a container needs no special code.
-// The scope is inactive (passes every call through to the parent) while the key is empty or the
-// survey's dataNesting is "none": the owner keeps one scope once it has had a key, and switching
-// nesting on or off does not re-attach its elements.
+// The data of the elements of a nesting panel or page: they read and write parentData.getValue(key)[name].
+// It composes over the parent's ISurveyData (the survey or the scope of an outer container), so a
+// container inside a container needs no special code.
+// The scope is inactive (passes every call through to the parent) while the owner has no key (no
+// valueName, dataNesting "none", or a by-name mode that does not apply to it): the owner keeps one scope
+// once it has had a key, and switching nesting on or off does not re-attach its elements.
 export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueContext {
   private parentImpl: ISurveyImpl;
   constructor(public readonly owner: IPanelDataScopeOwner) { }
   public get key(): string {
-    return this.owner.valueName;
+    return this.owner.getDataScopeKey();
   }
   public get isActive(): boolean {
-    if (!this.key) return false;
-    const survey = <IDataNestingSurvey><any>this.getSurvey();
-    return !survey || survey.dataNesting !== "none";
+    return !!this.key;
   }
   public setParent(impl: ISurveyImpl): void {
     this.parentImpl = impl;

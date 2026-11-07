@@ -7339,9 +7339,23 @@ export class SurveyModel extends SurveyElementCore
     }
     data[path[path.length - 1]] = this.getUnbindValue(value);
   }
-  // A container's valueName or the survey's dataNesting changed: the value-name hash and the values of the
+  // The survey's dataNesting changed: the containers whose key changed re-attach their elements (D8).
+  private updateDataScopeAttachments(): void {
+    const update = (panel: PanelModelBase): void => {
+      panel.updateDataScopeAttachment();
+      const elements = panel.elements;
+      for (let i = 0; i < elements.length; i++) {
+        if (elements[i].isPanel) update(<PanelModelBase><any>elements[i]);
+      }
+    };
+    this.pages.forEach(page => update(page));
+  }
+  // A container's key or the survey's dataNesting changed: the value-name hash and the values of the
   // questions follow. The data does not move.
   dataScopeChanged(panel?: PanelModelBase): void {
+    if (!panel) {
+      this.updateDataScopeAttachments();
+    }
     if (!this.isDataScopeUsedValue) return;
     this.rebuildQuestionHashes();
     if (this.isLoadingFromJson) return;
@@ -7853,6 +7867,11 @@ export class SurveyModel extends SurveyElementCore
     if (json && json.locale) {
       this.locale = json.locale;
     }
+    // Applied before the pages load (toJSON writes it after them): a container decides whether it nests
+    // when it is attached, and re-attaching after the load would create its questions again.
+    if (json && json.dataNesting !== undefined) {
+      this.dataNesting = json.dataNesting;
+    }
     // only a survey that already has questions can hold a mask with a resolved format
     this.regionalFormatBeforeLoad = { json: this.getRegionalFormatJSON(), hadPages: this.pages.length > 0 };
     if (!!json) {
@@ -8261,8 +8280,9 @@ export class SurveyModel extends SurveyElementCore
     return this.isTwoValueEquals(newValue, oldValue);
   }
   protected doOnPageAdded(page: PageModel): void {
-    page.setSurveyImpl(this);
+    // Named before it is attached: a by-name dataNesting mode nests the page's elements under the name.
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
+    page.setSurveyImpl(this);
     this.questionHashesPanelAdded(page);
     this.updateVisibleIndexes();
     if (!!this.runningPages) return;
@@ -10000,7 +10020,7 @@ Serializer.addClass("survey", [
     default: "standard",
     choices: ["standard", "singlePage", "questionPerPage", "inputPerPage"],
   },
-  { name: "dataNesting", visible: false, default: "auto", choices: ["auto", "none"] },
+  { name: "dataNesting", visible: false, default: "auto", choices: ["auto", "none", "panel", "page", "panelAndPage"] },
   {
     name: "showPreviewBeforeComplete:boolean",
     default: false,

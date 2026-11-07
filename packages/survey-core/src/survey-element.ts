@@ -47,6 +47,16 @@ export function getReadOnlyModePropertyInfo(): any {
     visibleIf: (obj: any) => !!obj && !!obj.readOnly
   };
 }
+// A valid name or value name of a question, panel or page: trimmed, without braces and a leading
+// expression conversion character.
+export function makeNameValid(str: string): string {
+  if (!str) return str;
+  str = str.trim().replace(/[\{\}]+/g, "");
+  while(!!str && str[0] === settings.expressionDisableConversionChar) {
+    str = str.substring(1);
+  }
+  return str;
+}
 
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.

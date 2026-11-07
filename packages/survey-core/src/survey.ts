@@ -96,6 +96,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
+import { PanelDataScope } from "./panel-data-scope";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { registerRecordsSortDialogSurvey } from "./records/records-sort-dialog";
@@ -1314,6 +1315,9 @@ export class SurveyModel extends SurveyElementCore
     }
     if (name === "readOnlyMode") {
       this.pages.forEach(page => page.onReadOnlyModeChanged());
+    }
+    if (name === "dataNesting") {
+      this.dataScopeChanged();
     }
     const resetVisibleIndexesProps = ["questionStartIndex", "requiredMark", "questionTitlePattern"];
     if (resetVisibleIndexesProps.indexOf(name) > -1) {
@@ -3419,6 +3423,14 @@ export class SurveyModel extends SurveyElementCore
    * @see readOnly
    */
   @property({ defaultValue: "readonly" }) readOnlyMode: "readonly" | "view";
+  // Read without a hard-coded default: the serializer's default applies, so an application can change it
+  // once (Serializer.findProperty("survey", "dataNesting").defaultValue = "none").
+  public get dataNesting(): string {
+    return this.getPropertyValue("dataNesting");
+  }
+  public set dataNesting(val: string) {
+    this.setPropertyValue("dataNesting", val);
+  }
   public getReadOnlyMode(): "readonly" | "view" {
     return this.readOnlyMode === "view" ? "view" : "readonly";
   }
@@ -5791,6 +5803,10 @@ export class SurveyModel extends SurveyElementCore
       for (var i = 0; i < questions.length; i++) {
         var question = questions[i];
         if (!question.visible) continue;
+        if (this.isInnerDataQuestion(question)) {
+          this.addInnerValueToServerData(options.data, question);
+          continue;
+        }
         var value = this.getValue(question.getValueName());
         if (!this.isValueEmpty(value))
           options.data[question.getValueName()] = value;
@@ -7069,7 +7085,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isSettingValueOnExpression) return "expression";
     return this.isSettingValueFromTrigger ? "trigger" : undefined;
   }
-  protected questionOnValueChanging(valueName: string, newValue: any, questionValueName?: string): any {
+  protected questionOnValueChanging(valueName: string, newValue: any, questionValueName?: string, writer?: Question): any {
     if (!!this.editingObj) {
       const prop = Serializer.findProperty(this.editingObj.getType(), valueName);
       if (!!prop) newValue = prop.settingValue(this.editingObj, newValue);
@@ -7077,7 +7093,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.onValueChanging.isEmpty) return newValue;
     var options = {
       name: valueName,
-      question: <Question>this.getQuestionByValueName(questionValueName || valueName),
+      question: writer || <Question>this.getQuestionByValueName(questionValueName || valueName),
       value: this.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
       reason: this.getValueChangeReason()
@@ -7103,6 +7119,7 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     }
+    this.getRootDataScopes(valueName).forEach(scope => scope.updateValuesFromData());
   }
   private validateQuestionOnValueChanged(question: Question) {
     if (this.isNavigationButtonPressed) return;
@@ -7133,10 +7150,13 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  private validateOnValueChanging(valueName: string, newValue: any): boolean {
+  private validateOnValueChanging(valueName: string, newValue: any, writer?: Question): boolean {
     if (this.isLoadingFromJson) return false;
+    // A write through a data scope validates the inner question that wrote, only: an empty required
+    // sibling must not block typing into another question of the container.
+    if (!!writer) return this.validateQuestionOnValueChangedCore(writer) && writer.errors.length == 0;
     const questions = this.getQuestionsByValueName(valueName);
-    if (!questions) return false;
+    if (!questions) return this.isDataScopeKey(valueName);
     let res = true;
     for (let i: number = 0; i < questions.length; i++) {
       const q = questions[i];
@@ -7155,7 +7175,7 @@ export class SurveyModel extends SurveyElementCore
       reason: this.getValueChangeReason()
     });
   }
-  protected notifyQuestionOnValueChanged(valueName: string, newValue: any, questionName: string): void {
+  protected notifyQuestionOnValueChanged(valueName: string, newValue: any, questionName: string, writer?: Question): void {
     if (this.isLoadingFromJson) return;
     var questions = this.getQuestionsByValueName(valueName);
     if (!!questions) {
@@ -7165,11 +7185,32 @@ export class SurveyModel extends SurveyElementCore
         question.onSurveyValueChanged(newValue);
       }
     }
+    this.notifyDataScopesOnValueChanged(valueName, writer);
     this.updateProgressText(true);
     this.fireOnValueChanged(valueName, newValue, !!questionName ? this.getQuestionByName(questionName) : undefined);
     if (this.isDisposed) return;
     this.checkElementsBindings(valueName, newValue);
+    // A binding names a question's value name: an inner question's one is checked too.
+    if (!!writer && !this.isDisposed) {
+      this.checkElementsBindings(writer.getValueName(), writer.value);
+    }
     this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName);
+  }
+  private notifyDataScopesOnValueChanged(valueName: string, writer: Question): void {
+    const scopes = this.getRootDataScopes(valueName);
+    if (scopes.length === 0) return;
+    scopes.forEach(scope => scope.notifyValueChanged());
+    if (!!writer) {
+      this.validateQuestionOnValueChanged(writer);
+    }
+    // A question of the container that shows an error is checked again: a shared key may have fixed it.
+    const validateWithErrors = (q: Question): void => {
+      if (q !== writer && q.errors.length > 0) {
+        this.validateQuestionOnValueChanged(q);
+      }
+    };
+    const forEachQuestion = (scope: PanelDataScope): void => scope.forEachDataChild(validateWithErrors, forEachQuestion);
+    scopes.forEach(forEachQuestion);
   }
   private elementsBindingsScope = new Scope();
   private get isRunningElementsBindings(): boolean {
@@ -7207,10 +7248,11 @@ export class SurveyModel extends SurveyElementCore
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
       var q = <Question>questions[i];
+      const data = this.getQuestionDataHost(q);
       var valName = q.getValueName();
-      q.updateValueFromSurvey(this.getValue(valName), clearData);
+      q.updateValueFromSurvey(data.getValue(valName), clearData);
       if (q.requireUpdateCommentValue) {
-        q.updateCommentFromSurvey(this.getComment(valName));
+        q.updateCommentFromSurvey(data.getComment(valName));
       }
     }
   }
@@ -7218,10 +7260,102 @@ export class SurveyModel extends SurveyElementCore
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
       questions[i].onSurveyValueChanged(
-        this.getValue(questions[i].getValueName())
+        this.getQuestionDataHost(questions[i]).getValue(questions[i].getValueName())
       );
     }
   }
+  //#region Nested data (PanelDataScope)
+  // The rule for survey-level code: a question inside a nesting container (an "inner" question) reads and
+  // writes through its data scope, and its top-level key is the outermost container key. The survey's
+  // value-name hash holds only the questions whose value name is a top-level key.
+  private isDataScopeUsedValue: boolean = false;
+  dataScopeUsed(): void {
+    this.isDataScopeUsedValue = true;
+  }
+  private getActiveDataScope(question: Question): PanelDataScope {
+    const data = question.data;
+    return data instanceof PanelDataScope ? data.getActiveScope() : null;
+  }
+  private isInnerDataQuestion(question: Question): boolean {
+    return !!this.getActiveDataScope(question);
+  }
+  private getQuestionDataHost(question: Question): ISurveyData {
+    const scope = this.getActiveDataScope(question);
+    return !!scope ? scope : this;
+  }
+  // The keys from the survey data down to the question's value: ["address", "street"].
+  private getQuestionDataPath(question: Question): Array<string> {
+    const scope = this.getActiveDataScope(question);
+    const res = !!scope ? scope.getDataPath() : [];
+    res.push(question.getValueName());
+    return res;
+  }
+  // The inner question that wrote the key valueName through its data scope.
+  private getDataScopeWriter(valueName: string, questionName: string): Question {
+    if (!questionName || !this.isDataScopeUsedValue) return undefined;
+    const q = this.getQuestionByName(questionName);
+    if (!q || !this.isInnerDataQuestion(q)) return undefined;
+    return this.getQuestionDataPath(q)[0] === valueName ? q : undefined;
+  }
+  // The active scopes whose object is the top-level key valueName: the containers with this key that are
+  // not inside another nesting container.
+  private getRootDataScopes(key: string): Array<PanelDataScope> {
+    const res: Array<PanelDataScope> = [];
+    if (!key || !this.isDataScopeUsedValue) return res;
+    const collect = (panel: PanelModelBase): void => {
+      const scope = panel.getDataScope();
+      if (!!scope && scope.isActive) {
+        if (scope.key === key) res.push(scope);
+        return;
+      }
+      const elements = panel.elements;
+      for (let i = 0; i < elements.length; i++) {
+        if (elements[i].isPanel) collect(<PanelModelBase><any>elements[i]);
+      }
+    };
+    this.pages.forEach(page => collect(page));
+    return res;
+  }
+  private isDataScopeKey(key: string): boolean {
+    return this.getRootDataScopes(key).length > 0;
+  }
+  private isInnerDataQuestionName(name: string): boolean {
+    if (!this.isDataScopeUsedValue) return false;
+    const q = this.getQuestionByName(name);
+    return !!q && this.isInnerDataQuestion(q);
+  }
+  private rebuildQuestionHashes(): void {
+    this.questionHashesClear();
+    this.pages.forEach(page => this.questionHashesPanelAdded(page));
+  }
+  private addInnerValueToServerData(data: any, question: Question): void {
+    const value = question.value;
+    if (this.isValueEmpty(value)) return;
+    const path = this.getQuestionDataPath(question);
+    for (let i = 0; i < path.length - 1; i++) {
+      const key = path[i];
+      if (!data[key] || typeof data[key] !== "object") data[key] = {};
+      data = data[key];
+    }
+    data[path[path.length - 1]] = this.getUnbindValue(value);
+  }
+  // A container's valueName or the survey's dataNesting changed: the value-name hash and the values of the
+  // questions follow. The data does not move.
+  dataScopeChanged(panel?: PanelModelBase): void {
+    if (!this.isDataScopeUsedValue) return;
+    this.rebuildQuestionHashes();
+    if (this.isLoadingFromJson) return;
+    const questions = !!panel ? panel.questions : this.getAllQuestions();
+    questions.forEach(q => {
+      const data = this.getQuestionDataHost(q);
+      const valueName = q.getValueName();
+      q.updateValueFromSurvey(data.getValue(valueName), false);
+      if (q.requireUpdateCommentValue) {
+        q.updateCommentFromSurvey(data.getComment(valueName));
+      }
+    });
+  }
+  //#endregion
   private checkOnPageTriggers(isOnComplete: boolean) {
     this.checkTriggers(this.getTriggerKeys(this.getCurrentPageQuestions(true)), true, isOnComplete);
   }
@@ -7742,6 +7876,10 @@ export class SurveyModel extends SurveyElementCore
     this.isEndLoadingFromJson = "processing";
     this.onFirstPageIsStartedChanged();
     super.endLoadingFromJson();
+    // Questions are hashed while they load, before a dataNesting written after the pages applies.
+    if (this.isDataScopeUsedValue) {
+      this.rebuildQuestionHashes();
+    }
     if (this.hasCookie) {
       this.isCompletedBefore = true;
     }
@@ -8014,10 +8152,11 @@ export class SurveyModel extends SurveyElementCore
     questionName?: string
   ): void {
     var newValue = newQuestionValue;
+    const writer = this.getDataScopeWriter(name, questionName);
     if (allowNotifyValueChanged) {
-      newValue = this.questionOnValueChanging(name, newQuestionValue);
+      newValue = this.questionOnValueChanging(name, newQuestionValue, undefined, writer);
     }
-    if (this.isValidateOnValueChanging && !this.validateOnValueChanging(name, newValue)) return;
+    if (this.isValidateOnValueChanging && !this.validateOnValueChanging(name, newValue, writer)) return;
     if (
       !this.editingObj &&
       this.isValueEqual(name, newValue) &&
@@ -8038,7 +8177,8 @@ export class SurveyModel extends SurveyElementCore
       oldValue,
       locNotification,
       allowNotifyValueChanged,
-      questionName
+      questionName,
+      writer
     );
   }
   // The dynamic panel that fires event for a value change of question: its parent, when the event has handlers.
@@ -8090,19 +8230,24 @@ export class SurveyModel extends SurveyElementCore
     oldValue: any,
     locNotification: any = false,
     allowNotifyValueChanged: boolean = true,
-    questionName?: string
+    questionName?: string,
+    writer?: Question
   ) {
     this.updateQuestionValue(name, newValue);
     if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
-    questionName = questionName || name;
+    // A code write reports the question named like the key, but never an inner question: a container key
+    // reports none, and an inner question's name is not a key of the survey data.
+    if (!questionName && !this.isDataScopeKey(name) && !this.isInnerDataQuestionName(name)) {
+      questionName = name;
+    }
     this.nofifyQuesitonHash[name] = true;
     this.checkTriggersAndRunConditions(name, newValue, oldValue);
     if (this.nofifyQuesitonHash[name]) {
       if (allowNotifyValueChanged) {
-        this.notifyQuestionOnValueChanged(name, newValue, questionName);
+        this.notifyQuestionOnValueChanged(name, newValue, questionName, writer);
       }
       if (locNotification !== "text") {
-        this.tryGoNextPageAutomatic(name);
+        this.tryGoNextPageAutomaticCore(name, writer);
       }
       delete this.nofifyQuesitonHash[name];
     }
@@ -8154,9 +8299,9 @@ export class SurveyModel extends SurveyElementCore
   public tryGoNextPageAutomatic(name: string): void {
     this.tryGoNextPageAutomaticCore(name);
   }
-  public tryGoNextPageAutomaticCore(name: string): boolean {
+  public tryGoNextPageAutomaticCore(name: string, writer?: Question): boolean {
     if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return false;
-    const question = <Question>this.getQuestionByValueName(name);
+    const question = writer || <Question>this.getQuestionByValueName(name);
     if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return false;
     if (!question.validate(false) && !question.supportGoNextPageError()) return false;
     if (!!this.currentSingleElement) return this.tryGoNextSingleElementAutomatic(question);
@@ -8184,7 +8329,8 @@ export class SurveyModel extends SurveyElementCore
     const questions: Array<Question> = element.isPanel ? element.visibleQuestions : [element];
     // The value's first holder may be off screen: a shared valueName, or a nested inputPerPage step.
     const isOnScreen = (q: Question) => questions.indexOf(q) > -1 || q === element.singleInputQuestion;
-    if (!this.getQuestionsByValueName(question.getValueName()).some(isOnScreen)) return false;
+    const holders: Array<Question> = this.isInnerDataQuestion(question) ? [question] : this.getQuestionsByValueName(question.getValueName()) || [];
+    if (!holders.some(isOnScreen)) return false;
     // A question as the element has no empty check: multipletext and inputPerPage decide through supportAutoAdvance.
     if (element.isPanel) {
       for (let i = 0; i < questions.length; i++) {
@@ -8427,6 +8573,8 @@ export class SurveyModel extends SurveyElementCore
       question,
       question.name.toLowerCase()
     );
+    // An inner question's value name is not a key of the survey data.
+    if (this.isInnerDataQuestion(question)) return;
     this.questionHashAddedCore(
       this.questionHashes.valueNames,
       question,
@@ -9852,6 +10000,7 @@ Serializer.addClass("survey", [
     default: "standard",
     choices: ["standard", "singlePage", "questionPerPage", "inputPerPage"],
   },
+  { name: "dataNesting", visible: false, default: "auto", choices: ["auto", "none"] },
   {
     name: "showPreviewBeforeComplete:boolean",
     default: false,

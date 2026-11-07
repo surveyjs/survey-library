@@ -4,7 +4,7 @@ import { property } from "./decorators";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IDataVerificationOptions, IDataIssue, DataIssueType } from "./base-interfaces";
 import { Base, ComputedUpdater } from "./base";
 import { EventBase } from "./event";
-import { SurveyElement, getReadOnlyModePropertyInfo } from "./survey-element";
+import { SurveyElement, getReadOnlyModePropertyInfo, makeNameValid } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
@@ -33,6 +33,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
+import { PanelDataScope } from "./panel-data-scope";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -3741,7 +3742,14 @@ export class Question extends SurveyElement<Question>
   // getQuestionByValueName only sees top-level questions. A nested question with the same
   // name must not advance on behalf of that other question.
   protected get isAutoAdvanceOwner(): boolean {
+    if (this.isInnerDataQuestion && !!this.survey) return true;
     return (this.survey as SurveyModel)?.getQuestionByValueName(this.getValueName()) === this;
+  }
+  // A question inside a nesting container (nested data): its value name is not a key of the survey data,
+  // so the survey cannot find it by value name and is given the question.
+  protected get isInnerDataQuestion(): boolean {
+    const data = this.data;
+    return data instanceof PanelDataScope && !!data.getActiveScope();
   }
   // A question nested in a choice item is found by value name, but it is not in the page's question
   // list, so the survey advances for it only when it is the single input on screen.
@@ -3751,7 +3759,8 @@ export class Question extends SurveyElement<Question>
   }
   protected requestAutoAdvance(): boolean {
     if (!this.isAutoAdvanceOwner) return false;
-    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomaticCore(this.getValueName()));
+    const writer = this.isInnerDataQuestion ? this : undefined;
+    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomaticCore(this.getValueName(), writer));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();
@@ -4169,15 +4178,6 @@ export class Question extends SurveyElement<Question>
   @property() randomize: boolean;
   @property() randomizeCategory: string;
 }
-function makeNameValid(str: string): string {
-  if (!str) return str;
-  str = str.trim().replace(/[\{\}]+/g, "");
-  while(!!str && str[0] === settings.expressionDisableConversionChar) {
-    str = str.substring(1);
-  }
-  return str;
-}
-
 Serializer.addClass("question", [
   { name: "!name", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   {

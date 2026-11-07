@@ -17,7 +17,7 @@ import {
   IFindElement,
   ISurveyValidation
 } from "./base-interfaces";
-import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo } from "./survey-element";
+import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo, makeNameValid } from "./survey-element";
 import { Question } from "./question";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -37,6 +37,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
+import { PanelDataScope } from "./panel-data-scope";
 import { Scope } from "./utils/scope";
 
 // The lazily rendered rows waiting on one scroll container share a single "scroll" listener and a single
@@ -492,6 +493,9 @@ export class PanelModelBase extends SurveyElement<Question>
         this.validateContainerOnly();
       }
     }
+    if (name === "valueName") {
+      this.onDataScopeKeyChanged();
+    }
   }
   public getType(): string {
     return "panelbase";
@@ -512,10 +516,67 @@ export class PanelModelBase extends SurveyElement<Question>
     this.runWithoutAnimations(() => {
       super.setSurveyImpl(value, isLight);
       if (this.isDesignMode)this.onVisibleChanged();
+      const elementsImpl = this.updateDataScope(value);
       for (var i = 0; i < this.elements.length; i++) {
-        this.elements[i].setSurveyImpl(value, isLight);
+        this.elements[i].setSurveyImpl(elementsImpl, isLight);
       }
     });
+  }
+  public get valueName(): string {
+    return this.getPropertyValue("valueName", "");
+  }
+  public set valueName(val: string) {
+    this.setPropertyValue("valueName", val);
+  }
+  // Nested data: a panel or page with a valueName hands its elements a PanelDataScope, so their values are
+  // stored in an object under the key. The scope is kept once created; it passes everything through
+  // while the key is empty or the survey's dataNesting is "none".
+  private dataScopeValue: PanelDataScope;
+  private isDataScopeUsed: boolean = false;
+  public getDataScope(): PanelDataScope {
+    return this.isDataScopeUsed ? this.dataScopeValue : null;
+  }
+  protected getElementsSurveyImpl(): ISurveyImpl {
+    return this.getDataScope() || this.surveyImpl;
+  }
+  private updateDataScope(value: ISurveyImpl): ISurveyImpl {
+    this.isDataScopeUsed = false;
+    if (!value || !this.canUseDataScope(value)) return value;
+    if (!this.dataScopeValue) {
+      this.dataScopeValue = new PanelDataScope(this);
+    }
+    this.dataScopeValue.setParent(value);
+    this.isDataScopeUsed = true;
+    (<SurveyModel><any>value.getSurvey())?.dataScopeUsed();
+    return this.dataScopeValue;
+  }
+  private canUseDataScope(value: ISurveyImpl): boolean {
+    if (!this.valueName && !this.dataScopeValue) return false;
+    // Only over the survey data or another scope: a dynamic panel's panel, a matrix row's detail panel and
+    // a composite's content panel are a record of their own (N5), and their data is the record.
+    const data: any = value.getSurveyData();
+    if (!data || data !== value.getSurvey() && !(data instanceof PanelDataScope)) return false;
+    // A dynamic panel's template (in the designer) is attached to the survey: it has a parent question.
+    let el: any = this;
+    while(!!el) {
+      if (!!el.parentQuestion) return false;
+      el = el.parent;
+    }
+    return true;
+  }
+  private onDataScopeKeyChanged(): void {
+    if (!this.surveyImpl) return;
+    const prevImpl = this.getElementsSurveyImpl();
+    const elementsImpl = this.updateDataScope(this.surveyImpl);
+    if (elementsImpl !== prevImpl) {
+      for (let i = 0; i < this.elements.length; i++) {
+        this.elements[i].setSurveyImpl(elementsImpl);
+      }
+    }
+    // A panel that cannot nest (inside a record, N5) ignores its key: nothing to re-read.
+    if (this.isDataScopeUsed) {
+      (<SurveyModel><any>this.survey)?.dataScopeChanged(this);
+    }
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
@@ -1646,7 +1707,7 @@ export class PanelModelBase extends SurveyElement<Question>
     const survey = this.survey;
     const fireNotification = this.canFireAddRemoveNotifications(element);
     if (!!this.surveyImpl) {
-      element.setSurveyImpl(this.surveyImpl);
+      element.setSurveyImpl(this.getElementsSurveyImpl());
     }
     element.parent = this;
     this.markQuestionListDirty();
@@ -2655,6 +2716,7 @@ Serializer.addClass(
   "panelbase",
   [
     "name",
+    { name: "valueName", visible: false, onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
     {
       name: "elements",
       alternativeName: "questions",

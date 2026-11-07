@@ -1,0 +1,619 @@
+import { describe, test, expect } from "vitest";
+import { SurveyModel } from "../src/survey";
+import { Serializer } from "../src/jsonobject";
+import { PanelModel } from "../src/panel";
+import { QuestionTextModel } from "../src/question_text";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { PanelDataScope } from "../src/panel-data-scope";
+import { settings } from "../src/settings";
+
+const addressJson = (extra?: any): any => Object.assign({
+  elements: [
+    { type: "panel", name: "panel1", valueName: "address", elements: [
+      { type: "text", name: "street" },
+      { type: "text", name: "city" }
+    ] }
+  ]
+}, extra || {});
+
+describe("nested data: serializer", () => {
+  test("valueName on panel and page, dataNesting on survey", () => {
+    expect(Serializer.findProperty("panel", "valueName"), "panel").toBeTruthy();
+    expect(Serializer.findProperty("page", "valueName"), "page").toBeTruthy();
+    const prop = Serializer.findProperty("survey", "dataNesting");
+    expect(prop, "survey").toBeTruthy();
+    expect(prop.defaultValue).toBe("auto");
+    expect(prop.choices).toEqual(["auto", "none"]);
+    const survey = new SurveyModel({ elements: [{ type: "panel", name: "p1", elements: [{ type: "text", name: "q1" }] }] });
+    expect(survey.dataNesting).toBe("auto");
+    const json = survey.toJSON();
+    expect(json.dataNesting, "survey json").toBeUndefined();
+    expect(json.pages[0].valueName, "page json").toBeUndefined();
+    expect(json.pages[0].elements[0].valueName, "panel json").toBeUndefined();
+  });
+  test("valueName and dataNesting are serialized when set", () => {
+    const survey = new SurveyModel(addressJson({ dataNesting: "none" }));
+    const json = survey.toJSON();
+    expect(json.dataNesting).toBe("none");
+    expect(json.pages[0].elements[0].valueName).toBe("address");
+  });
+  test("a panel valueName is made valid the way a question's is", () => {
+    const panel = new PanelModel("p1");
+    panel.valueName = " address ";
+    expect(panel.valueName).toBe("address");
+  });
+  test("re-adding valueName to panel through Serializer.addProperty keeps it working", () => {
+    let prop: any;
+    expect(() => { prop = Serializer.addProperty("panel", "valueName"); }).not.toThrow();
+    try {
+      const survey = new SurveyModel(addressJson());
+      survey.getQuestionByName("street").value = "x";
+      expect(survey.data).toEqual({ address: { street: "x" } });
+      expect(survey.toJSON().pages[0].elements[0].valueName).toBe("address");
+    } finally {
+      if (!!prop) Serializer.removeProperty("panel", "valueName");
+    }
+    expect(Serializer.findProperty("panel", "valueName"), "the built-in property is back").toBeTruthy();
+    const survey = new SurveyModel(addressJson());
+    survey.getQuestionByName("street").value = "y";
+    expect(survey.data).toEqual({ address: { street: "y" } });
+  });
+});
+
+describe("nested data: storage", () => {
+  test("a panel valueName stores its questions' values in an object", () => {
+    const survey = new SurveyModel(addressJson());
+    const street = survey.getQuestionByName("street");
+    street.value = "x";
+    expect(survey.data).toEqual({ address: { street: "x" } });
+    survey.getQuestionByName("city").value = "Oslo";
+    expect(survey.data).toEqual({ address: { street: "x", city: "Oslo" } });
+    survey.data = { address: { street: "y" } };
+    expect(street.value).toBe("y");
+    expect(survey.getQuestionByName("city").isEmpty()).toBe(true);
+    expect(street.data instanceof PanelDataScope).toBe(true);
+  });
+  test("dataNesting none keeps the data flat", () => {
+    const survey = new SurveyModel(addressJson({ dataNesting: "none" }));
+    survey.getQuestionByName("street").value = "x";
+    expect(survey.data).toEqual({ street: "x" });
+    survey.data = { street: "y" };
+    expect(survey.getQuestionByName("street").value).toBe("y");
+  });
+  test("dataNesting none before the pages in the json keeps the data flat", () => {
+    const survey = new SurveyModel({ dataNesting: "none", elements: addressJson().elements });
+    survey.getQuestionByName("street").value = "x";
+    expect(survey.data).toEqual({ street: "x" });
+    expect(survey.getQuestionByValueName("street")).toBe(survey.getQuestionByName("street"));
+  });
+  test("a page valueName", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "page1", valueName: "step1", elements: [{ type: "text", name: "q1" }] },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] }
+    ] });
+    survey.getQuestionByName("q1").value = 1;
+    survey.getQuestionByName("q2").value = 2;
+    expect(survey.data).toEqual({ step1: { q1: 1 }, q2: 2 });
+  });
+  test("a nesting panel in a nesting panel; a non-nesting panel is transparent", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "pa", valueName: "a", elements: [
+        { type: "panel", name: "pb", valueName: "b", elements: [{ type: "text", name: "q" }] },
+        { type: "panel", name: "pc", elements: [{ type: "text", name: "q2" }] }
+      ] }
+    ] });
+    survey.getQuestionByName("q").value = 1;
+    expect(survey.data).toEqual({ a: { b: { q: 1 } } });
+    survey.getQuestionByName("q2").value = 2;
+    expect(survey.data).toEqual({ a: { b: { q: 1 }, q2: 2 } });
+    survey.data = { a: { b: { q: 3 }, q2: 4 } };
+    expect(survey.getQuestionByName("q").value).toBe(3);
+    expect(survey.getQuestionByName("q2").value).toBe(4);
+    survey.getQuestionByName("q").clearValue();
+    expect(survey.data, "the emptied inner object is removed").toEqual({ a: { q2: 4 } });
+    survey.getQuestionByName("q2").clearValue();
+    expect(survey.data, "and up").toEqual({});
+  });
+  test("a nesting page holding a nesting panel", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "page1", valueName: "page1", elements: [
+        { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
+      ] }
+    ] });
+    survey.getQuestionByName("street").value = "Main";
+    expect(survey.data).toEqual({ page1: { address: { street: "Main" } } });
+  });
+  test("a question's dotted valueName stores the literal key inside the object", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "q1", valueName: "x.y" }] }
+    ] });
+    survey.getQuestionByName("q1").value = 1;
+    expect(survey.data).toEqual({ address: { "x.y": 1 } });
+  });
+  test("a dotted panel valueName is a literal key (D11)", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "panel1", valueName: "a.b", elements: [{ type: "text", name: "q1" }] }
+    ] });
+    survey.getQuestionByName("q1").value = 1;
+    expect(survey.data).toEqual({ "a.b": { q1: 1 } });
+  });
+  test("comments and other text are stored inside the object", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "panel1", valueName: "address", elements: [
+        { type: "radiogroup", name: "street", choices: ["x", "y"], showCommentArea: true },
+        { type: "dropdown", name: "kind", choices: ["home", "work"], showOtherItem: true }
+      ] }
+    ] });
+    const street = survey.getQuestionByName("street");
+    street.value = "x";
+    street.comment = "c";
+    expect(survey.data).toEqual({ address: { street: "x", "street-Comment": "c" } });
+    expect(survey.getComment("street")).toBe("");
+    const kind = survey.getQuestionByName("kind");
+    kind.value = "other";
+    kind.otherValue = "oth";
+    expect(survey.data).toEqual({ address: { street: "x", "street-Comment": "c", kind: "other", "kind-Comment": "oth" } });
+    survey.data = { address: { street: "y", "street-Comment": "c2" } };
+    expect(street.comment).toBe("c2");
+    street.comment = "";
+    expect(survey.data).toEqual({ address: { street: "y" } });
+  });
+  test("survey.getValue reads top-level keys only", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.getQuestionByName("street").value = "x";
+    expect(survey.getValue("street")).toBeUndefined();
+    expect(survey.getValue("address")).toEqual({ street: "x" });
+  });
+  test("survey.setValue of the container key updates the inner questions and replaces the object", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.setValue("address", { street: "a", city: "b" });
+    expect(survey.getQuestionByName("street").value).toBe("a");
+    expect(survey.getQuestionByName("city").value).toBe("b");
+    survey.setValue("address", { zip: "1" });
+    expect(survey.getQuestionByName("street").isEmpty()).toBe(true);
+    expect(survey.getQuestionByName("city").isEmpty()).toBe(true);
+    expect(survey.data).toEqual({ address: { zip: "1" } });
+    survey.clearValue("address");
+    expect(survey.data).toEqual({});
+  });
+  test("survey.setValue of a top-level key named like an inner question does not reach it", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.setValue("street", "top");
+    expect(survey.getQuestionByName("street").isEmpty()).toBe(true);
+    expect(survey.data).toEqual({ street: "top" });
+  });
+  test("survey.data with a top-level key beside the object does not reach the inner question (F21)", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.data = { street: "top", address: { street: "inner" } };
+    expect(survey.getQuestionByName("street").value).toBe("inner");
+    survey.data = { street: "top" };
+    expect(survey.getQuestionByName("street").isEmpty()).toBe(true);
+  });
+  test("mergeData is deep (D10)", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.data = { address: { street: "Main", city: "Oslo" } };
+    survey.mergeData({ address: { zip: "0150" } });
+    expect(survey.data).toEqual({ address: { street: "Main", city: "Oslo", zip: "0150" } });
+    expect(survey.getQuestionByName("street").value).toBe("Main");
+    survey.mergeData({ address: { city: "Bergen" } });
+    expect(survey.getQuestionByName("city").value).toBe("Bergen");
+  });
+  test("an inner defaultValue lands in the object", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street", defaultValue: "def" }] }
+    ] });
+    expect(survey.data).toEqual({ address: { street: "def" } });
+  });
+  test("the object is removed when it becomes empty", () => {
+    const survey = new SurveyModel(addressJson());
+    const street = survey.getQuestionByName("street");
+    street.value = "x";
+    street.clearValue();
+    expect(survey.data).toEqual({});
+    expect(Object.keys(survey.data)).toEqual([]);
+  });
+  test("an unknown key inside the object is kept through an inner edit (D5)", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.data = { address: { street: "y", foo: 1 } };
+    survey.getQuestionByName("street").value = "z";
+    expect(survey.data).toEqual({ address: { street: "z", foo: 1 } });
+    survey.getQuestionByName("street").clearValue();
+    expect(survey.data).toEqual({ address: { foo: 1 } });
+  });
+  test("two containers with one key share one object (D4)", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "p1", elements: [{ type: "panel", name: "a1", valueName: "address", elements: [
+        { type: "text", name: "street" }, { type: "text", name: "zip1", valueName: "zip" }] }] },
+      { name: "p2", elements: [{ type: "panel", name: "a2", valueName: "address", elements: [
+        { type: "text", name: "city" }, { type: "text", name: "zip2", valueName: "zip" }] }] }
+    ] });
+    survey.getQuestionByName("street").value = "s";
+    survey.getQuestionByName("city").value = "c";
+    expect(survey.data).toEqual({ address: { street: "s", city: "c" } });
+    survey.getQuestionByName("zip1").value = "z";
+    expect(survey.getQuestionByName("zip2").value, "a write through one updates the other").toBe("z");
+    survey.setValue("address", { street: "s2", city: "c2" });
+    expect(survey.getQuestionByName("street").value).toBe("s2");
+    expect(survey.getQuestionByName("city").value).toBe("c2");
+    expect(survey.getQuestionByName("zip2").isEmpty()).toBe(true);
+  });
+  test("a container key and a top-level question with the same value name share the key (4.2)", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "address" },
+      { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
+    ] });
+    survey.getQuestionByName("street").value = "x";
+    expect(survey.data).toEqual({ address: { street: "x" } });
+    survey.getQuestionByName("address").value = "str";
+    expect(survey.data, "last write wins").toEqual({ address: "str" });
+    expect(survey.getQuestionByName("street").isEmpty()).toBe(true);
+  });
+  test("a valueName on a panel inside a dynamic panel's template is ignored (N5)", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
+        { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }
+      ] }
+    ] });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
+    dp.panels[0].getQuestionByName("street").value = "x";
+    expect(survey.data).toEqual({ items: [{ street: "x" }] });
+    survey.data = { items: [{ street: "y" }] };
+    expect(dp.panels[0].getQuestionByName("street").value).toBe("y");
+  });
+  test("a valueName on a panel inside a matrix detail panel is ignored (N5)", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "col1" }],
+        detailElements: [{ type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }] }
+    ] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    row.detailPanel.getQuestionByName("street").value = "x";
+    expect(survey.data).toEqual({ m: [{ street: "x" }] });
+  });
+  test("a valueName on a panel inside a composite's content panel is ignored (N5)", async () => {
+    const { ComponentCollection } = await import("../src/question_custom");
+    ComponentCollection.Instance.add({ name: "nestedaddr", elementsJSON: [
+      { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }
+    ] });
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "nestedaddr", name: "q1" }] });
+      const q1: any = survey.getQuestionByName("q1");
+      q1.contentPanel.getQuestionByName("street").value = "x";
+      expect(survey.data).toEqual({ q1: { street: "x" } });
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
+});
+
+describe("nested data: events", () => {
+  test("onValueChanged / onValueChanging fire once at the top-level key with the inner question (D1)", () => {
+    const survey = new SurveyModel(addressJson());
+    const changed: Array<any> = [];
+    const changing: Array<any> = [];
+    survey.onValueChanged.add((_, o) => changed.push({ name: o.name, value: o.value, question: o.question?.name }));
+    survey.onValueChanging.add((_, o) => changing.push({ name: o.name, value: o.value, oldValue: o.oldValue, question: o.question?.name }));
+    survey.getQuestionByName("street").value = "x";
+    expect(changed).toEqual([{ name: "address", value: { street: "x" }, question: "street" }]);
+    expect(changing).toEqual([{ name: "address", value: { street: "x" }, oldValue: undefined, question: "street" }]);
+    survey.getQuestionByName("city").value = "c";
+    expect(changed[1]).toEqual({ name: "address", value: { street: "x", city: "c" }, question: "city" });
+    expect(changing[1]).toEqual({ name: "address", value: { street: "x", city: "c" }, oldValue: { street: "x" }, question: "city" });
+    expect(changed.length).toBe(2);
+    expect(changing.length).toBe(2);
+  });
+  test("events in a nested container report the outermost key", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "page1", valueName: "page1", elements: [
+        { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
+      ] }
+    ] });
+    const changed: Array<any> = [];
+    survey.onValueChanged.add((_, o) => changed.push({ name: o.name, question: o.question?.name }));
+    survey.getQuestionByName("street").value = "x";
+    expect(changed).toEqual([{ name: "page1", question: "street" }]);
+  });
+  test("onValueChanging can change the object", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.onValueChanging.add((_, o) => {
+      if (o.name === "address" && o.value?.street === "bad") {
+        o.value = Object.assign({}, o.value, { street: "good" });
+      }
+    });
+    survey.getQuestionByName("street").value = "bad";
+    expect(survey.data).toEqual({ address: { street: "good" } });
+    expect(survey.getQuestionByName("street").value).toBe("good");
+  });
+  test("a code write of a container key reports no question, even with an inner question named like the key (D13)", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "address" }] }
+    ] });
+    const changed: Array<any> = [];
+    const changing: Array<any> = [];
+    survey.onValueChanged.add((_, o) => changed.push({ name: o.name, question: o.question }));
+    survey.onValueChanging.add((_, o) => changing.push({ name: o.name, question: o.question }));
+    survey.setValue("address", { address: "x" });
+    expect(survey.getQuestionByName("address").value).toBe("x");
+    expect(changed).toEqual([{ name: "address", question: undefined }]);
+    expect(changing.length).toBe(1);
+    expect(changing[0].question).toBeFalsy();
+    survey.getQuestionByName("address").value = "y";
+    expect(survey.data).toEqual({ address: { address: "y" } });
+    expect(changed[1].question.name).toBe("address");
+  });
+  test("a comment write fires one onValueChanged at the container key", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "radiogroup", name: "street", choices: ["x"], showCommentArea: true }] }
+    ] });
+    const changed: Array<any> = [];
+    survey.onValueChanged.add((_, o) => changed.push({ name: o.name, value: o.value, question: o.question?.name }));
+    survey.getQuestionByName("street").comment = "c";
+    expect(changed).toEqual([{ name: "address", value: { "street-Comment": "c" }, question: "street" }]);
+  });
+});
+
+describe("nested data: survey APIs", () => {
+  test("getQuestionByValueName of an inner question is null (D9)", () => {
+    const survey = new SurveyModel(addressJson());
+    expect(survey.getQuestionByValueName("street")).toBeFalsy();
+    expect(survey.getQuestionsByValueName("street")).toBeFalsy();
+    expect(survey.getQuestionByName("street").name).toBe("street");
+  });
+  test("getQuestionByValueName follows dataNesting changes", () => {
+    const survey = new SurveyModel(addressJson());
+    expect(survey.getQuestionByValueName("street")).toBeFalsy();
+    survey.dataNesting = "none";
+    expect(survey.getQuestionByValueName("street")).toBe(survey.getQuestionByName("street"));
+    survey.dataNesting = "auto";
+    expect(survey.getQuestionByValueName("street")).toBeFalsy();
+  });
+  test("auto-advance works with an inner question", async () => {
+    const survey = new SurveyModel({ autoAdvanceEnabled: true, pages: [
+      { name: "page1", elements: [{ type: "panel", name: "panel1", valueName: "address", elements: [
+        { type: "dropdown", name: "kind", choices: ["a", "b"] }] }] },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] }
+    ] });
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      survey.getQuestionByName("kind").value = "a";
+      await new Promise(resolve => setTimeout(resolve, 20));
+      expect(survey.currentPageNo).toBe(1);
+      expect(survey.data).toEqual({ address: { kind: "a" } });
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+  test("checkErrorsMode onValueChanging validates only the inner question that wrote (2.7)", () => {
+    const survey = new SurveyModel({ checkErrorsMode: "onValueChanging", elements: [
+      { type: "panel", name: "panel1", valueName: "address", elements: [
+        { type: "text", name: "street" },
+        { type: "text", name: "city", isRequired: true },
+        { type: "text", name: "zip", validators: [{ type: "numeric" }] }
+      ] }
+    ] });
+    survey.getQuestionByName("street").value = "x";
+    expect(survey.data, "an empty required sibling does not block the write").toEqual({ address: { street: "x" } });
+    expect(survey.getQuestionByName("city").errors.length).toBe(0);
+    survey.getQuestionByName("zip").value = "abc";
+    expect(survey.data, "the writer's own error drops the write").toEqual({ address: { street: "x" } });
+    expect(survey.getQuestionByName("zip").errors.length).toBe(1);
+    survey.getQuestionByName("zip").value = "12";
+    expect(survey.data).toEqual({ address: { street: "x", zip: "12" } });
+  });
+  test("onServerValidateQuestions options.data has the nested shape (F22)", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "page1", elements: [
+        { type: "text", name: "q0" },
+        { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
+      ] },
+      { name: "page2", elements: [{ type: "panel", name: "panel2", valueName: "address", elements: [{ type: "text", name: "city" }] }] }
+    ] });
+    let data: any;
+    survey.onServerValidateQuestions.add((_, options) => {
+      data = options.data;
+      options.complete();
+    });
+    survey.data = { q0: "a", address: { street: "s", city: "c" } };
+    survey.nextPage();
+    expect(data).toEqual({ q0: "a", address: { street: "s" } });
+  });
+  test("a binding to an inner question updates (F24)", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "panel1", valueName: "address", elements: [
+        { type: "text", name: "count", inputType: "number" },
+        { type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "col1" }], bindings: { rowCount: "count" } }
+      ] }
+    ] });
+    survey.getQuestionByName("count").value = 3;
+    expect((<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).rowCount).toBe(3);
+  });
+  test("the data survives completing the survey", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.getQuestionByName("street").value = "x";
+    survey.doComplete();
+    expect(survey.data).toEqual({ address: { street: "x" } });
+  });
+});
+
+describe("nested data: survey modes", () => {
+  test("the serializer default of dataNesting can be changed once in code (N2)", () => {
+    const prop = Serializer.findProperty("survey", "dataNesting");
+    prop.defaultValue = "none";
+    try {
+      const survey = new SurveyModel(addressJson());
+      expect(survey.dataNesting).toBe("none");
+      survey.getQuestionByName("street").value = "x";
+      expect(survey.data).toEqual({ street: "x" });
+    } finally {
+      prop.defaultValue = "auto";
+    }
+  });
+  test("onQuestionCreated fires once per question while a survey with containers loads", () => {
+    const survey = new SurveyModel();
+    let count = 0;
+    survey.onQuestionCreated.add(() => count++);
+    survey.fromJSON({ elements: addressJson().elements, dataNesting: "none" });
+    expect(count).toBe(2);
+  });
+  test("questionsOnPageMode singlePage and the preview keep the nested data", () => {
+    const survey = new SurveyModel({ questionsOnPageMode: "singlePage", pages: [
+      { name: "page1", elements: [{ type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }] },
+      { name: "page2", valueName: "step2", elements: [{ type: "text", name: "q2" }] }
+    ] });
+    survey.getQuestionByName("street").value = "x";
+    survey.getQuestionByName("q2").value = "y";
+    expect(survey.data).toEqual({ address: { street: "x" }, step2: { q2: "y" } });
+    survey.showPreview();
+    expect(survey.getQuestionByName("street").value).toBe("x");
+    survey.cancelPreview();
+    survey.getQuestionByName("street").value = "z";
+    expect(survey.data).toEqual({ address: { street: "z" }, step2: { q2: "y" } });
+  });
+});
+
+describe("nested data: review fixes", () => {
+  test("dataNesting none after the pages in the json (the order toJSON writes)", () => {
+    const survey = new SurveyModel({ pages: [{ name: "page1", elements: addressJson().elements }], dataNesting: "none" });
+    const street = survey.getQuestionByName("street");
+    expect(survey.getQuestionByValueName("street")).toBe(street);
+    survey.setValue("street", "s1");
+    expect(street.value).toBe("s1");
+    const json = survey.toJSON();
+    expect(Object.keys(json).indexOf("dataNesting") > Object.keys(json).indexOf("pages")).toBe(true);
+  });
+  test("dataNesting auto after the pages with the serializer default changed to none", () => {
+    const prop = Serializer.findProperty("survey", "dataNesting");
+    prop.defaultValue = "none";
+    try {
+      const survey = new SurveyModel({ pages: [{ name: "page1", elements: addressJson().elements }], dataNesting: "auto" });
+      expect(survey.getQuestionByValueName("city")).toBeFalsy();
+      survey.setValue("city", "top");
+      expect(survey.getQuestionByName("city").isEmpty()).toBe(true);
+      survey.getQuestionByName("city").value = "c";
+      expect(survey.data).toEqual({ city: "top", address: { city: "c" } });
+    } finally {
+      prop.defaultValue = "auto";
+    }
+  });
+  test("a valueName set at runtime on a panel inside a dynamic panel's panel is ignored (N5)", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
+        { type: "panel", name: "inner", elements: [{ type: "text", name: "street" }] }
+      ] }
+    ] });
+    survey.data = { dp: [{ street: "x" }] };
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    (<PanelModel>dp.panels[0].getElementByName("inner")).valueName = "address";
+    expect(dp.panels[0].getQuestionByName("street").value).toBe("x");
+    dp.panels[0].getQuestionByName("street").value = "y";
+    expect(survey.data).toEqual({ dp: [{ street: "y" }] });
+  });
+  test("a code write of a top-level key named like an inner question reports no question", () => {
+    const survey = new SurveyModel(addressJson());
+    const changed: Array<any> = [];
+    survey.onValueChanged.add((_, o) => changed.push({ name: o.name, question: o.question }));
+    survey.setValue("street", "top");
+    expect(changed).toEqual([{ name: "street", question: undefined }]);
+  });
+  test("Enter and a re-click advance for an inner question", async () => {
+    const survey = new SurveyModel({ autoAdvanceEnabled: true, pages: [
+      { name: "page1", elements: [{ type: "panel", name: "panel1", valueName: "address", elements: [
+        { type: "rating", name: "rate" }, { type: "radiogroup", name: "kind", choices: ["a", "b"] }] }] },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] }
+    ] });
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const kind: any = survey.getQuestionByName("kind");
+      expect(kind.canAdvanceOnEnter()).toBe(true);
+      kind.value = "a";
+      survey.data = { address: { kind: "a", rate: 3 } };
+      survey.currentPageNo = 0;
+      const rate: any = survey.getQuestionByName("rate");
+      rate.commitRatingValue(3);
+      await new Promise(resolve => setTimeout(resolve, 20));
+      expect(survey.currentPageNo, "a re-click of the rating's value").toBe(1);
+      survey.currentPageNo = 0;
+      kind.commitAutoAdvance();
+      await new Promise(resolve => setTimeout(resolve, 20));
+      expect(survey.currentPageNo, "commitAutoAdvance").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+});
+
+describe("nested data: runtime changes (D8)", () => {
+  test("setting and clearing a panel valueName at runtime re-attaches without moving data", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "panel1", elements: [{ type: "text", name: "street" }] }
+    ] });
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    const street = survey.getQuestionByName("street");
+    street.value = "flat";
+    expect(survey.data).toEqual({ street: "flat" });
+    panel.valueName = "address";
+    expect(survey.data, "the data stays").toEqual({ street: "flat" });
+    expect(street.isEmpty(), "the question reads from the new place").toBe(true);
+    expect(survey.getQuestionByValueName("street")).toBeFalsy();
+    street.value = "x";
+    expect(survey.data).toEqual({ street: "flat", address: { street: "x" } });
+    panel.valueName = "addr2";
+    expect(street.isEmpty()).toBe(true);
+    street.value = "y";
+    expect(survey.data).toEqual({ street: "flat", address: { street: "x" }, addr2: { street: "y" } });
+    panel.valueName = "";
+    expect(street.value, "flat again").toBe("flat");
+    expect(survey.getQuestionByValueName("street")).toBe(street);
+    street.value = "z";
+    expect(survey.data).toEqual({ street: "z", address: { street: "x" }, addr2: { street: "y" } });
+  });
+  test("the runtime example of design-01, section 6", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.data = { address: { street: "Main" } };
+    survey.getPanelByName("panel1").valueName = "addr2";
+    expect(survey.data).toEqual({ address: { street: "Main" } });
+    expect(survey.getQuestionByName("street").isEmpty()).toBe(true);
+    survey.getQuestionByName("street").value = "x";
+    expect(survey.data).toEqual({ address: { street: "Main" }, addr2: { street: "x" } });
+  });
+  test("changing dataNesting at runtime re-reads the values", () => {
+    const survey = new SurveyModel(addressJson());
+    survey.data = { street: "flat", address: { street: "inner" } };
+    const street = survey.getQuestionByName("street");
+    expect(street.value).toBe("inner");
+    survey.dataNesting = "none";
+    expect(street.value).toBe("flat");
+    street.value = "f2";
+    expect(survey.data).toEqual({ street: "f2", address: { street: "inner" } });
+    survey.dataNesting = "auto";
+    expect(street.value).toBe("inner");
+  });
+  test("moving a question into and out of a nesting panel", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1" },
+      { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
+    ] });
+    const q1 = survey.getQuestionByName("q1");
+    q1.value = "a";
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    panel.addElement(q1);
+    expect(q1.isEmpty()).toBe(true);
+    q1.value = "b";
+    expect(survey.data).toEqual({ q1: "a", address: { q1: "b" } });
+    survey.pages[0].addElement(q1);
+    expect(q1.value).toBe("a");
+  });
+  test("a new question added to a nesting panel writes into the object", () => {
+    const survey = new SurveyModel(addressJson());
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    const q = new QuestionTextModel("zip");
+    panel.addElement(q);
+    q.value = "1";
+    expect(survey.data).toEqual({ address: { zip: "1" } });
+    expect(survey.getQuestionByValueName("zip")).toBeFalsy();
+  });
+});

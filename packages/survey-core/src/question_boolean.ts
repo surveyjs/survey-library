@@ -553,7 +553,12 @@ Serializer.addClass(
     },
     "valueTrue",
     "valueFalse",
-    { name: "requiredTrue:boolean", default: false, visible: false },
+    {
+      name: "requiredTrue:boolean",
+      default: false,
+      dependsOn: ["isRequired", "requiredIf"],
+      visibleIf: (obj: any): boolean => !!obj && (!!obj.isRequired || !!obj.requiredIf)
+    },
     { name: "swapOrder:boolean" },
     {
       name: "displayMode",

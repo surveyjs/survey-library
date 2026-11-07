@@ -190,4 +190,15 @@ describe("boolean requiredTrue, Issue#12241", () => {
     expect(prop.type).toBe("boolean");
     expect(prop.isDefaultValue(false)).toBe(true);
   });
+  test("property visibility: shown only while the question is required or has requiredIf", () => {
+    const { q } = createQuestion({});
+    const prop = Serializer.findProperty("boolean", "requiredTrue");
+    expect(prop.dependsOn).toEqual(["isRequired", "requiredIf"]);
+    expect(prop.isVisible("", q), "not required").toBe(false);
+    q.isRequired = true;
+    expect(prop.isVisible("", q), "isRequired").toBe(true);
+    q.isRequired = false;
+    q.requiredIf = "{t} = 1";
+    expect(prop.isVisible("", q), "requiredIf").toBe(true);
+  });
 });

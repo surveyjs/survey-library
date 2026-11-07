@@ -130,6 +130,10 @@ function createVariablesContext(variablesHash: HashTable<any>): VariableGetterCo
     return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
   });
 }
+// The stored answers only, by name ignoring letter case, the way expressions read the values hash
+function createDataContext(valuesHash: HashTable<any>, valuesKeyIndex: HashKeyIndex): VariableGetterContext {
+  return new VariableGetterContext(valuesHash, (name: string): any => valuesKeyIndex.getValue(valuesHash, name));
+}
 
 // The built-in variables live in their own module; the name list stays exported from here
 export { getBuiltInVariableNames };
@@ -171,7 +175,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash, (name: string): any => this.valuesKeyIndex.getValue(this.valuesHash, name)).getValue(params);
+    return createDataContext(this.valuesHash, this.valuesKeyIndex).getValue(params);
   }
   private getPageByName(name: string): PageModel | undefined {
     if (!name) return undefined;
@@ -8558,6 +8562,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public getValueGetterContext(): IValueGetterContext {
     return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex);
+  }
+  // The stored data alone: no question, variable or calculated value answers a name, so a key that
+  // holds an empty value is found and a missing key is not. The hasValue('name') expression function reads it.
+  public getDataValueGetterContext(): IValueGetterContext {
+    return createDataContext(this.valuesHash, this.valuesKeyIndex);
   }
   processText(text: string, returnDisplayValue: boolean, context?: any): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false, context: context }).text;

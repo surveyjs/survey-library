@@ -554,7 +554,7 @@ export class FunctionOperand extends Operand {
         };
       }
     }
-    const res = FunctionFactory.Instance.run(this.functionName, parameters, properties, this.parameters.values);
+    const res = FunctionFactory.Instance.run(this.functionName, parameters, properties, this.parameters.values, processValue.context);
     if (res instanceof Promise) {
       res.then((value) => {
         properties.returnResult(value);

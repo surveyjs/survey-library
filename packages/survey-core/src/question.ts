@@ -2794,7 +2794,8 @@ export class Question extends SurveyElement<Question>
     return this.correctAnswer;
   }
   protected checkIfAnswerCorrect(): boolean {
-    const isEqual = Helpers.isTwoValueEquals(this.value, this.getCorrectAnswerValue(), this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
+    // caseSensitive is left to the settings: the survey's own value, else the global one
+    const isEqual = Helpers.isTwoValueEquals(this.value, this.getCorrectAnswerValue(), this.getAnswerCorrectIgnoreOrder(), undefined, true, this.getSurveySettings());
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {
@@ -2835,7 +2836,7 @@ export class Question extends SurveyElement<Question>
     this.defaultValueChangeScope.run(true, func);
   }
   public get isValueDefault(): boolean {
-    return !this.isEmpty() && (this.isTwoValueEquals(this.defaultValue, this.value) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
+    return !this.isEmpty() && (this.isEqualToValue(this.defaultValue) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
   }
   protected get isClearValueOnHidden(): boolean {
     const clearIf = this.getClearIfInvisible();
@@ -2858,7 +2859,7 @@ export class Question extends SurveyElement<Question>
   protected setDefaultValue(): void {
     this.setDefaultValueCore((val: any): void => {
       val = this.convertToCorrectValue(val);
-      if (!this.isTwoValueEquals(this.value, val)) {
+      if (!this.isEqualToValue(val)) {
         this.setDefaultIntoValue(val);
       }
     });
@@ -2893,7 +2894,7 @@ export class Question extends SurveyElement<Question>
   }
   private runExpressionSetValue(val: any): void {
     this.runExpressionSetValueCore(val, (val: any): void => {
-      if (!this.isTwoValueEquals(this.value, val)) {
+      if (!this.isEqualToValue(val)) {
         this.startSetValueOnExpression();
         try {
           this.value = val;
@@ -3484,9 +3485,14 @@ export class Question extends SurveyElement<Question>
     if (!this.hasIncorrectValueInData()) return;
     this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
   }
+  // Compares val with the question value (a value-change check, see Base.isTwoValueEquals).
+  // Unlike isNewValueEqualsToValue, the same array/object instance counts as equal.
+  protected isEqualToValue(val: any): boolean {
+    return this.isTwoValueEquals(this.value, val);
+  }
   protected isNewValueEqualsToValue(newValue: any): boolean {
     const val = this.value;
-    if (!this.isTwoValueEquals(newValue, val, false, false)) return false;
+    if (!this.isEqualToValue(newValue)) return false;
     const isObj = newValue === val && !!val && (Array.isArray(val) || typeof val === "object");
     return !isObj;
   }

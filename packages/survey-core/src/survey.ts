@@ -111,6 +111,7 @@ import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
+import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject } from "./survey-settings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
@@ -1220,7 +1221,7 @@ export class SurveyModel extends SurveyElementCore
   public onCreateCustomChoiceItem: EventBase<SurveyModel, CreateCustomChoiceItemEvent> = this.addEvent<SurveyModel, CreateCustomChoiceItemEvent>();
   //#endregion
 
-  constructor(jsonObj: any = null, renderedElement: any = null) {
+  constructor(jsonObj: any = null, options?: ISurveyOptions) {
     super();
 
     this.createNewArray(
@@ -1245,6 +1246,8 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     );
+    // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
+    this.surveySettingsValues.merge(options, true);
 
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     if (jsonObj) {
@@ -1261,8 +1264,9 @@ export class SurveyModel extends SurveyElementCore
     }
 
     this.applyTheme(DefaultTheme);
-    if (!!renderedElement) {
-      this.render(renderedElement);
+    // Not options: the old, undocumented renderedElement argument. render() is still called, without it.
+    if (!!options && !isPlainObject(options)) {
+      this.render();
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
@@ -1411,14 +1415,44 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("pages");
   }
   renderCallback: () => void;
-  public render(element: any = null): void {
+  public render(): void {
     if (this.renderCallback) {
       this.renderCallback();
     }
   }
+  private surveySettingsValuesValue: SurveySettingsValues;
+  private get surveySettingsValues(): SurveySettingsValues {
+    // Created on first use, not in a field initializer: it can be read during construction
+    if (!this.surveySettingsValuesValue) {
+      this.surveySettingsValuesValue = new SurveySettingsValues();
+    }
+    return this.surveySettingsValuesValue;
+  }
+  public settings(value: ISurveySettings): void {
+    // The conditions re-run at once, as for showInvisibleElements, so no re-render is needed
+    if (this.surveySettingsValues.merge(value, false) && !this.isLoadingFromJson) {
+      this.runConditions();
+    }
+  }
+  public getSettings(): ISurveySettings {
+    return this.surveySettingsValues.view;
+  }
+  // For the comparisons (ISurvey.getOwnSettings): the view when the survey sets a key itself, else undefined,
+  // so a survey without its own settings reads the global settings directly, at no extra cost.
+  public getOwnSettings(): ISurveySettings {
+    const values = this.surveySettingsValuesValue;
+    return !!values && values.hasOwnValues ? values.view : undefined;
+  }
   public updateSurvey(newProps: any, oldProps?: any) {
     for (var key in newProps) {
       if (key == "model" || key == "children") continue;
+      if (key === "settings") {
+        // Data for the settings() method; assigning it would replace the method. An absent value applies nothing
+        if (newProps[key] !== undefined && newProps[key] !== null) {
+          this.settings(newProps[key]);
+        }
+        continue;
+      }
       if (key.indexOf("on") == 0 && this[key] && this[key].add) {
         let funcBody = newProps[key];
         let func = function (sender: any, options: any) {
@@ -7287,8 +7321,8 @@ export class SurveyModel extends SurveyElementCore
       const maxIterations = 3;
       for (let i = 0; i < maxIterations; i++) {
         this.runSurveyTriggers(options, isQuestionInvalid);
-        if (this.isCompleted || Helpers.isTwoValueEquals(originalKeys, this.triggerKeys)) break;
-        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys);
+        if (this.isCompleted || this.isTwoValueEqualsInSurvey(originalKeys, this.triggerKeys)) break;
+        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys, this.getOwnSettings());
         originalKeys = Helpers.createCopy(this.triggerKeys);
       }
       let prevCanBeCompleted = this.canBeCompletedByTrigger;
@@ -7856,7 +7890,7 @@ export class SurveyModel extends SurveyElementCore
     const oldValue = this.getVariable(name);
     name = this.setVariableCore(name, newValue);
     this.notifyElementsOnAnyValueOrVariableChanged(name);
-    if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
+    if (!this.isTwoValueEqualsInSurvey(oldValue, newValue)) {
       const changed: HashTable<{ newValue: any, oldValue: any }> = {};
       changed[name] = { newValue: newValue, oldValue: oldValue };
       this.variablesChangedCore(changed, name);
@@ -7932,7 +7966,7 @@ export class SurveyModel extends SurveyElementCore
     const changed: HashTable<{ newValue: any, oldValue: any }> = {};
     for (const name in newValues) {
       const oldValue = this.getVariable(name);
-      if (!Helpers.isTwoValueEquals(oldValue, newValues[name])) {
+      if (!this.isTwoValueEqualsInSurvey(oldValue, newValues[name])) {
         changed[name] = { newValue: newValues[name], oldValue: oldValue };
       }
     }

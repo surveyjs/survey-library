@@ -49,6 +49,10 @@ const FIX_FIXTURES: Array<{ ruleId: string, fixReason: string, json: any }> = [
     json: { elements: [{ type: "text", name: "toString" }] },
   },
   {
+    ruleId: "nesting/generated-key", fixReason: "setValueName",
+    json: { dataNesting: "panel", elements: [{ type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }] },
+  },
+  {
     ruleId: "property/dead", fixReason: "removeKey",
     json: { mode: "display", elements: [{ type: "text", name: "q1" }] },
   },

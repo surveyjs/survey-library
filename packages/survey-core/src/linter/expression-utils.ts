@@ -5,12 +5,13 @@ import { SurveyLintHintReasons, SurveyLintReasons } from "./reasons";
 import { ILintResolvedSettings } from "./lint-settings";
 import { closestMatch } from "./levenshtein";
 import {
-  ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
+  DataScopeRecord, ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
   ScopeFrameArrayItem, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic,
   SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
   ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
 import { getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields, isOwnField } from "./record-fields";
+import { getOwnerDataScope, isInNestedScope } from "./data-nesting";
 
 export interface ParseOutcome {
   ast?: Operand;
@@ -198,14 +199,28 @@ function isRootRecordVisible(record: ElementRecord, nameOnly: boolean): boolean 
   return nameOnly || record.kind !== "page";
 }
 
-function findRootRecord(root: string, index: SurveyIndex, nameOnly: boolean): ElementRecord | undefined {
+// An element of the survey data itself, which the root answers before a container key: a question
+// writing a key of the survey data, or a panel or page that does not nest. A question inside a nesting
+// container and a nesting container's own name answer only after the container keys (report-04).
+function isTopLevelNamed(record: ElementRecord, index: SurveyIndex): boolean {
+  if (record.kind === "question") return !isInNestedScope(record, index) && isValueQuestion(record);
+  return !record.nestedScope;
+}
+
+// later: the stage the container keys of the survey data answer in, between the two (see
+// classifyRefCore). A runtime name of one segment (a trigger target, a function argument) is an
+// element name first - isContainerReady('page1') names the page - so it keeps the plain order.
+function findRootRecord(root: string, index: SurveyIndex, nameOnly: boolean, later?: { named?: ElementRecord }): ElementRecord | undefined {
   // byName is a multimap: a page and a question may share a name, and only the
   // question answers an expression reference
-  const named = index.byName.get(root);
-  for (let i = 0; i < named.length; i++) {
-    if (isRootRecordVisible(named[i], nameOnly)) return named[i];
-  }
-  return index.byValueName.first(root);
+  const named = index.byName.get(root).filter(record => isRootRecordVisible(record, nameOnly));
+  const top = !later ? named[0] : named.filter(record => isTopLevelNamed(record, index))[0];
+  if (top) return top;
+  const byValue = index.byValueName.first(root);
+  if (byValue || !later) return byValue;
+  // a nesting container holds no value under its name: its object is reached by its key alone
+  later.named = named.filter(record => !record.nestedScope)[0];
+  return undefined;
 }
 
 export interface NameCandidateFilter {
@@ -228,6 +243,7 @@ export function nameCandidates(index: SurveyIndex, options: ISurveyLintOptions,
   });
   if (!filter.values) return res;
   index.byValueName.forEach((_, name) => res.push(name));
+  index.rootScope.children.forEach((_, name) => res.push(name));
   index.calculatedValues.forEach((_, name) => res.push(name));
   if (Array.isArray(options.knownVariables)) res.push(...options.knownVariables);
   res.push(...index.definitionVariables.names());
@@ -594,7 +610,7 @@ function collapseLongestRootName(ref: ParsedRef, index: SurveyIndex, options: IS
   let joined = "";
   const last = findDottedName(ref.segments, 0, name => {
     joined = name;
-    return index.byName.has(name) || index.byValueName.has(name) ||
+    return index.byName.has(name) || index.byValueName.has(name) || index.rootScope.children.has(name) ||
       index.calculatedValues.has(name) || isKnownVariable(name, index, options);
   });
   if (last < 1) return;
@@ -629,6 +645,8 @@ function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex)
   if (base === undefined) return false;
   const record = index.findByDataName(base);
   if (!record || (record.type !== "matrixdropdown" && record.type !== "matrixdynamic")) return false;
+  // the total of a matrix inside a nesting container is stored inside the container's object
+  if (isInNestedScope(record, index)) return false;
   ref.status = "resolved";
   ref.resolvedTo = record;
   ref.resolvedKind = "element";
@@ -679,12 +697,128 @@ function tryResolveArrayItem(ref: ParsedRef, scope: Array<ScopeFrame>, settings:
   return false;
 }
 
+// Nested data. The names one object answers, tried from segment start on, longest name first in each
+// stage, in the runtime's order (PanelDataScopeValueGetterContext): a question by value name, a nesting
+// container directly inside it by key, a question's comment key, and a matrix's totals key. A container
+// key followed by more segments continues inside that container's object, which then answers the rest
+// or reports it unknown: a path never falls back to an outer object. childrenOnly: the survey data,
+// whose questions the root stages answer.
+// flags.childrenOnly: the survey data, whose questions the root stages answer. flags.fromRoot: the path
+// started at the survey data, so the raw data answers what the scope context does not - the runtime's
+// scope context has no totals step, and only such a path reaches a matrix total ({address.m-total.c}).
+function resolveInDataScope(ref: ParsedRef, start: number, scope: DataScopeRecord, index: SurveyIndex,
+  flags: { childrenOnly?: boolean, fromRoot?: boolean }): boolean {
+  const segments = ref.segments;
+  const fold = (end: number) => foldRootSegments(ref, end, segments.slice(0, end + 1).map(seg => seg.name).join("."));
+  // a display-only question (html, image) stores nothing: a container key answers before it
+  const resolveQuestion = (valued: boolean): boolean => {
+    let question: ElementRecord;
+    const qEnd = findDottedName(segments, start, name => {
+      question = scope.questions.get(name).filter(rec => isValueQuestion(rec) === valued)[0];
+      return !!question;
+    });
+    if (qEnd < 0) return false;
+    fold(qEnd);
+    ref.status = "resolved";
+    ref.resolvedTo = question;
+    ref.resolvedKind = "element";
+    validateElementSubPath(ref, question);
+    return true;
+  };
+  if (!flags.childrenOnly && resolveQuestion(true)) return true;
+  // the runtime matches container keys ignoring case, and merges the objects of keys that differ in case
+  let children: Array<DataScopeRecord> = [];
+  const cEnd = findDottedName(segments, start, name => {
+    children = scope.children.get(name);
+    return children.length > 0;
+  });
+  if (cEnd > -1) {
+    if (cEnd === segments.length - 1) {
+      fold(cEnd);
+      ref.status = "resolved";
+      ref.resolvedTo = children[0].valueRecord;
+      ref.resolvedKind = "element";
+      return true;
+    }
+    for (let i = 0; i < children.length; i++) {
+      if (resolveInDataScope(ref, cEnd + 1, children[i], index, { fromRoot: flags.fromRoot })) return true;
+    }
+    fold(cEnd);
+    ref.resolvedTo = children[0].valueRecord;
+    let names: Array<string> = [];
+    children.forEach(child => names = names.concat(getDataScopeNames(child)));
+    markUnknownSegment(ref, 1, names, "field");
+    return true;
+  }
+  if (flags.childrenOnly) return false;
+  if (resolveQuestion(false)) return true;
+  if (flags.fromRoot && resolveTotalsInDataScope(ref, start, scope, index)) return true;
+  if (segments.length !== start + 1) return false;
+  const name = segments[start].name;
+  const commentBase = stripCommentSuffix(name, index.settings);
+  if (commentBase !== undefined && scope.questions.has(commentBase)) {
+    fold(start);
+    ref.status = "resolved";
+    ref.resolvedKind = "comment";
+    return true;
+  }
+  return false;
+}
+
+// A question that stores a value. A display-only one (html, image) holds no data key.
+function isValueQuestion(record: ElementRecord): boolean {
+  return !record.valueType || record.valueType.shape !== "none";
+}
+
+// The keys of one object a typo suggestion is drawn from.
+function getDataScopeNames(scope: DataScopeRecord): Array<string> {
+  return scope.questions.names().concat(scope.children.names());
+}
+
+// A matrix's totals key inside a container's object ({address.m-total.c}): only a matrix writes one.
+function resolveTotalsInDataScope(ref: ParsedRef, start: number, scope: DataScopeRecord, index: SurveyIndex): boolean {
+  const base = stripTotalsSuffix(ref.segments[start].name, index.settings);
+  if (base === undefined) return false;
+  const record = scope.questions.get(base).filter(rec => rec.type === "matrixdropdown" || rec.type === "matrixdynamic")[0];
+  if (!record) return false;
+  foldRootSegments(ref, start, ref.segments.slice(0, start + 1).map(seg => seg.name).join("."));
+  ref.status = "resolved";
+  ref.resolvedTo = record;
+  ref.resolvedKind = "element";
+  const totals = getTotalFields(record);
+  if (ref.segments.length > 1 && !!totals && isUnknownName(ref, 1, totals)) {
+    markUnknownSegment(ref, 1, totals.names(), "column");
+  }
+  return true;
+}
+
+// An expression inside a nesting container reads its own object first, then the outer ones; the
+// survey data comes last, through the root stages.
+function resolveInSiteDataScopes(ref: ParsedRef, site: { owner?: ElementRecord }, index: SurveyIndex): boolean {
+  for (let scope = getOwnerDataScope(site.owner, index); !!scope && !!scope.parent; scope = scope.parent) {
+    if (resolveInDataScope(ref, 0, scope, index, {})) return true;
+  }
+  return false;
+}
+
+// The hint for a name that is a valueName of a container that stores nothing under it.
+function setNonNestingHint(ref: ParsedRef, root: string, index: SurveyIndex): void {
+  const container = index.nonNestingKeys.first(root);
+  if (!container || !!ref.scopeHint) return;
+  const why = index.dataNesting === "none" ? "the survey's dataNesting is \"none\""
+    : "it is inside a dynamic panel, a matrix detail panel or a composite question, whose record stays flat";
+  ref.scopeHint = "\"" + root + "\" is the valueName of " + container.type + " \"" + container.name +
+    "\", which stores no object: " + why + ".";
+  ref.hintReason = SurveyLintHintReasons.containerKeyNotNesting;
+  ref.hintName = root;
+}
+
 // nameOnly: the raw string is a runtime NAME (a trigger target), not an expression
 // reference, so none of the expression-only sugar applies - no ":"/property-prefix
 // skipping, no conversion-char or unwrap-postfix stripping, no trailing ".length",
 // and no scope prefixes (a question may legitimately be named "survey").
 function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Array<ScopeFrame> },
-  index: SurveyIndex, options: ISurveyLintOptions, flags: { nameOnly?: boolean }): ParsedRef {
+  index: SurveyIndex, options: ISurveyLintOptions, flags: { nameOnly?: boolean, asValue?: boolean }): ParsedRef {
   const ref: ParsedRef = { raw: raw, segments: [], status: "skipped" };
   if (!raw) return ref;
   const nameOnly = flags.nameOnly === true;
@@ -729,10 +863,17 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
     if (scopeRes.handled) return scopeRes.ref;
   }
 
+  if (resolveInSiteDataScopes(ref, site, index)) return ref;
+
   collapseLongestRootName(ref, index, options);
   const root = ref.segments[0].name;
 
-  const record = findRootRecord(root, index, nameOnly);
+  // a runtime name of one segment keeps the plain order (findRootRecord); everything else lets a
+  // container key of the survey data answer before an inner question's name and a container's name
+  const later: { named?: ElementRecord } = nameOnly && ref.segments.length === 1 && !flags.asValue ? undefined : {};
+  let record = findRootRecord(root, index, nameOnly, later);
+  if (!record && resolveInDataScope(ref, 0, index.rootScope, index, { childrenOnly: true, fromRoot: true })) return ref;
+  if (!record && !!later) record = later.named;
   if (record) {
     ref.status = "resolved";
     ref.resolvedTo = record;
@@ -770,6 +911,7 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
     ref.hintReason = scopeRes.inactiveHintReason;
     ref.hintName = scopeRes.inactiveHintName;
   }
+  setNonNestingHint(ref, root, index);
   // a bare name that exists in the enclosing template/matrix scope needs its prefix
   const panelFrame = findFrame<ScopeFramePanelDynamic>(site.scope || [], "panelDynamic");
   const matrixFrame = findFrame<ScopeFrameMatrixRow>(site.scope || [], "matrixRow");
@@ -805,8 +947,21 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
 
 // Resolves a runtime name (a trigger target) through the same chain as expression
 // references, so both stay consistent by construction.
-export function classifyTargetName(raw: string, index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
-  return classifyRefCore(raw, { scope: [] }, index, options, { nameOnly: true });
+// asValue: the name addresses a value (a trigger's setToName / fromName), which the runtime looks up in
+// the expression order - a container key before an inner question's name (setTriggerValue, D13). A
+// gotoName or a function argument names an element, and keeps the plain order.
+export function classifyTargetName(raw: string, index: SurveyIndex, options: ISurveyLintOptions, asValue?: boolean): ParsedRef {
+  return classifyRefCore(raw, { scope: [] }, index, options, { nameOnly: true, asValue: asValue === true });
+}
+
+// The value a trigger's setToName / fromName addresses, by the element NAME the cycle rules use as
+// a slot: a valueName, a dotted path into a nesting container ("address.street") and a sub-path all
+// land on the element. "" when the name addresses no element, for the caller's own fallback.
+export function canonicalTargetSlot(name: string, index: SurveyIndex, options: ISurveyLintOptions): string {
+  if (typeof name !== "string" || !name) return "";
+  const ref = classifyTargetName(name, index, options, true);
+  if (ref.status !== "resolved" || ref.unknownSegmentIndex !== undefined || !ref.resolvedTo || !ref.resolvedTo.name) return "";
+  return ref.resolvedTo.name.toLowerCase();
 }
 
 export function classifySiteRefs(site: ExpressionSite, index: SurveyIndex, options: ISurveyLintOptions): Array<ParsedRef> {

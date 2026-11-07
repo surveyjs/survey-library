@@ -6,6 +6,8 @@ import { hasOtherItem } from "../value-types";
 import { addsItemFieldsTo, getDataKey, getDataKeyRecords, getListedRows, getSharedValueShape, getSharingRecords } from "../record-fields";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
+import { getAllNestedScopes, getContainerKeyPath, isInNestedScope } from "../data-nesting";
+import { DataScopeRecord } from "../symbols";
 
 const reasons = SurveyLintReasons["name/shadowing"];
 
@@ -24,13 +26,19 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
   record?: ElementRecord): void {
   if (!isBuiltInVariable(name)) return;
   const owner = nameKind === "calculatedValue" ? "calculated value" : (record ? record.type : "element");
+  // nested data: a question inside a nesting container answers its own name inside the container
+  // first, and by its path everywhere; only the bare name outside the container reads the built-in
+  const dataPath = !!record && record.kind === "question" && isInNestedScope(record, ctx.index)
+    ? record.dataScope.path.join(".") : undefined;
+  const tail = dataPath === undefined ? "} answers the built-in value, so this one is unreachable in expressions."
+    : "} outside its container answers the built-in value - reference it there as {" + dataPath + "." + name + "}.";
   ctx.report({
     message: "The " + nameKind + " \"" + name + "\" of this " + owner +
-      " is also a built-in survey variable - {" + name +
-      "} answers the built-in value, so this one is unreachable in expressions.",
+      " is also a built-in survey variable - {" + name + tail,
     path: path,
     reason: reasons.builtInVariable,
-    messageData: { name: name, nameKind: nameKind, builtIn: builtInSpelling(name) },
+    messageData: dataPath === undefined ? { name: name, nameKind: nameKind, builtIn: builtInSpelling(name) }
+      : { name: name, nameKind: nameKind, builtIn: builtInSpelling(name), dataPath: dataPath },
     elementName: record ? record.name : name,
     elementType: record ? record.type : "calculatedvalue",
   });
@@ -102,7 +110,7 @@ function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void
     // the questions writing the base key in the record's data scope: a question of a dynamic-panel
     // template writes into its panel's record, one of a matrix detail panel into its row's record
     // next to the columns, every other question into the survey data
-    const owner = getDataKeyRecords(ctx.index, getCapturingFrame(record.scope), base)
+    const owner = getDataKeyRecords(ctx.index, getCapturingFrame(record.scope), base, record.dataScope)
       .filter(other => other !== record && owns(other))[0];
     if (!owner) return;
     ctx.report({
@@ -219,6 +227,82 @@ function checkVariableTrigger(ctx: LintContext, trigger: TriggerRecord): void {
   });
 }
 
+function equalsVariable(list: Array<string> | undefined, name: string): boolean {
+  return Array.isArray(list) && list.some(item => typeof item === "string" && equalsCI(item, name));
+}
+
+// What answers {key} before a container key of the survey data: a calculated value, a host variable or
+// a variable a trigger sets (decisions D4, design-01 4.3). Variables are read first in expressions, and
+// a calculated value with includeIntoResult writes the same key of the survey data. Only a key of the
+// survey data itself: inside a container, the container's object answers first.
+function findVariableOver(ctx: LintContext, key: string): { kind: string, name: string, path?: string } | undefined {
+  const cv = ctx.index.calculatedValues.get(key);
+  if (!!cv) return { kind: "calculatedValue", name: cv.name, path: cv.path };
+  if (equalsVariable(ctx.options.knownVariables, key)) return { kind: "variable", name: key };
+  const definitionName = ctx.index.definitionVariables.get(key);
+  if (!!definitionName) return { kind: "variable", name: definitionName };
+  const trigger = ctx.index.triggers.filter(trg => !!trg.json && trg.json.isVariable === true &&
+    typeof trg.json.setToName === "string" && equalsCI(trg.json.setToName, key))[0];
+  if (!!trigger) return { kind: "trigger", name: trigger.json.setToName, path: trigger.path };
+  return undefined;
+}
+
+const VARIABLE_KIND_TEXT: { [kind: string]: string } = {
+  calculatedValue: "calculated value", variable: "host variable", trigger: "variable a trigger sets",
+};
+
+// The <name>-Comment and <matrix>-total keys the runtime derives, spelled by a container key in the same
+// object: the comment or the totals overwrite the container's object, or the other way round.
+function checkContainerDerivedKeys(ctx: LintContext, scope: DataScopeRecord): void {
+  const settings = ctx.index.settings;
+  scope.children.forEach(children => children.forEach(child => {
+    const check = (base: string, suffix: string, reason: string, owns: (rec: ElementRecord) => boolean, what: string): void => {
+      if (!base) return;
+      const owner = getDataKeyRecords(ctx.index, undefined, base, scope).filter(owns)[0];
+      if (!owner) return;
+      child.containers.forEach(container => {
+        const name = container.name || child.key;
+        ctx.report({
+          message: "The data key \"" + child.key + "\" of \"" + name + "\" is also the " + what +
+            " key of \"" + owner.name + "\" (its data key plus \"" + suffix +
+            "\") - one write silently overwrites the other.",
+          path: getContainerKeyPath(container),
+          reason: reason,
+          messageData: { name: name, dataName: child.key, base: base, suffix: suffix },
+          elementName: container.name,
+          elementType: container.type,
+          related: relatedOf([container, owner]),
+        });
+      });
+    };
+    check(stripCommentSuffix(child.key, settings), settings.commentSuffix, reasons.commentKeyCollision, writesComment, "comment");
+    check(stripTotalsSuffix(child.key, settings), settings.matrixTotalsSuffix, reasons.totalKeyCollision, hasTotals, "totals");
+  }));
+}
+
+function checkRootContainerKeys(ctx: LintContext): void {
+  ctx.index.rootScope.children.forEach(scopes => scopes.forEach(scope => {
+    const container = scope.containers[0];
+    if (!container || !container.json) return;
+    const path = getContainerKeyPath(container);
+    const nameKind = path.endsWith(".valueName") ? "valueName" : "name";
+    reportBuiltIn(ctx, scope.key, nameKind, path, container);
+    const over = findVariableOver(ctx, scope.key);
+    if (!over) return;
+    ctx.report({
+      message: "The " + container.type + " \"" + container.name + "\" stores its questions' values under \"" + scope.key +
+        "\", which is also a " + VARIABLE_KIND_TEXT[over.kind] + " - {" + scope.key + "} and {" + scope.key +
+        ".x} read the variable first.",
+      path: path,
+      reason: reasons.containerKeyShadowed,
+      messageData: { name: container.name, key: scope.key, kind: over.kind, variable: over.name },
+      elementName: container.name,
+      elementType: container.type,
+      related: relatedOf(scope.containers).concat(over.path ? [{ path: over.path }] : []),
+    });
+  }));
+}
+
 export const nameShadowingRule: ILintRule = {
   id: "name/shadowing",
   defaultSeverity: "warning",
@@ -247,5 +331,7 @@ export const nameShadowingRule: ILintRule = {
       checkValueShapeConflict(ctx, record);
     });
     ctx.index.triggers.forEach(trigger => checkVariableTrigger(ctx, trigger));
+    checkRootContainerKeys(ctx);
+    [ctx.index.rootScope].concat(getAllNestedScopes(ctx.index)).forEach(scope => checkContainerDerivedKeys(ctx, scope));
   },
 };

@@ -1,5 +1,5 @@
 import { getCheckboxItemFields, getImageMapItemFields } from "survey-core";
-import { CapturingScopeFrame, CIMap, CIMultiMap, ElementRecord, getCapturingFrame, getEffectiveType, ITEM_FIELD_TYPE,
+import { CapturingScopeFrame, CIMap, CIMultiMap, DataScopeRecord, ElementRecord, getCapturingFrame, getEffectiveType, ITEM_FIELD_TYPE,
   MergedObjectKeys, ScopeFrame, SurveyIndex } from "./symbols";
 import { isDescendantOf } from "./metadata";
 
@@ -46,19 +46,20 @@ function getFrameDataKeys(frame: CapturingScopeFrame): CIMultiMap<ElementRecord>
 }
 
 // The questions writing a data key of a data scope: a dynamic-panel template or a matrix row
-// (frame), or the survey data. The runtime binds them by the exact key (getQuestionsByValueName is
-// case-sensitive), so the case-insensitive maps only narrow the search down.
-export function getDataKeyRecords(index: SurveyIndex, frame: CapturingScopeFrame | undefined, key: string): Array<ElementRecord> {
+// (frame), or else one object of the survey data - the survey data itself, or a nesting container's
+// object (dataScope, the survey data when unset). The runtime binds them by the exact key
+// (getQuestionsByValueName is case-sensitive), so the case-insensitive maps only narrow the search down.
+export function getDataKeyRecords(index: SurveyIndex, frame: CapturingScopeFrame | undefined, key: string,
+  dataScope?: DataScopeRecord): Array<ElementRecord> {
   const candidates = !!frame ? getFrameDataKeys(frame).get(key)
-    : index.byName.get(key).filter(record => record.kind === "question" && !record.valueName)
-      .concat(index.byValueName.get(key));
+    : (dataScope || index.rootScope).questions.get(key);
   return candidates.filter(record => getDataKey(record) === key);
 }
 
 // The record itself first, then every other question (or matrix column) of its data scope on the
 // same data key.
 export function getSharingRecords(index: SurveyIndex, record: ElementRecord): Array<ElementRecord> {
-  const others = getDataKeyRecords(index, getCapturingFrame(record.scope), getDataKey(record));
+  const others = getDataKeyRecords(index, getCapturingFrame(record.scope), getDataKey(record), record.dataScope);
   return [record].concat(others.filter(other => other !== record));
 }
 

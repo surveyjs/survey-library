@@ -4,6 +4,7 @@ import { ElementRecord } from "../symbols";
 import { getItemValueRaw } from "../value-types";
 import { ILintFix } from "../types";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { getContainerKeyPath } from "../data-nesting";
 import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["name/reserved"];
@@ -118,6 +119,22 @@ export const nameReservedRule: ILintRule = {
       } else if (record.kind === "multipletextitem") {
         checkMember(ctx, record, reasons.itemName, "item", "questionName");
       }
+    });
+    // nested data: a nesting panel or page keys an object of the survey data, under its valueName or,
+    // in a by-name dataNesting mode, its name. A valueName has no single repair (see checkQuestion),
+    // and renaming a container by name moves its data, so neither carries a fix.
+    ctx.index.containers.forEach(container => {
+      const record = container.record;
+      if (!record || !container.dataKey || !isReserved(container.dataKey)) return;
+      ctx.report({
+        message: "The key \"" + container.dataKey + "\" the " + record.type + " \"" + record.name +
+          "\" stores its questions' values under" + TAIL,
+        path: getContainerKeyPath(record),
+        reason: reasons.containerKey,
+        messageData: { name: record.name, key: container.dataKey },
+        elementName: record.name,
+        elementType: record.type,
+      });
     });
     // a calculated value is stored the way an answer is, and named the way a question is
     ctx.index.calculatedValueList.forEach(cv => {

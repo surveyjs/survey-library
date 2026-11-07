@@ -60,6 +60,10 @@ function isAcceptedTarget(ref: ParsedRef, kind: TargetKind): boolean {
   }
   if (ref.resolvedKind === "calculatedValue" || ref.resolvedKind === "knownVariable" ||
     ref.resolvedKind === "builtInVariable" || ref.resolvedKind === "comment") return true;
+  // nested data: a container key names an object the trigger reads or replaces as a whole - also a
+  // page or a panel named by its key in a by-name mode, which a one-segment name resolves to first
+  if (!!record && (record.isDataObject || !!record.nestedScope && ref.segments.length === 1 &&
+    equalsCI(record.nestedScope.key, ref.segments[0].name))) return true;
   return ref.resolvedKind === "element" && !!record && record.kind === "question";
 }
 
@@ -69,7 +73,7 @@ export const triggerUnknownTargetRule: ILintRule = {
   run(ctx: LintContext): void {
     ctx.index.triggers.forEach(trigger => {
       trigger.targets.forEach(target => {
-        const ref = classifyTargetName(target.name, ctx.index, ctx.options);
+        const ref = classifyTargetName(target.name, ctx.index, ctx.options, target.kind === "questionvalue");
         // in name mode "skipped" only means an empty/degenerate name
         if (ref.status === "skipped") return;
         if (isAcceptedTarget(ref, target.kind)) return;

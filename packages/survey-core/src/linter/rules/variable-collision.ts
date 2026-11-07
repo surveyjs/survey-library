@@ -4,6 +4,7 @@ import { CalculatedValueRecord, ElementRecord, SurveyIndex } from "../symbols";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 import { getDataKey } from "../record-fields";
+import { isInNestedScope } from "../data-nesting";
 
 const reasons = SurveyLintReasons["variable/collision"];
 
@@ -20,19 +21,20 @@ function definitionRelated(questionName: string): Array<ILintRelated> {
 
 // Only a root question shares a data key with a host variable: a question inside a dynamic panel
 // template or a matrix cell writes into its container's value, and its name is addressed through
-// that container's scope. Display-only elements have no value to overwrite.
-function isRootDataKey(record: ElementRecord, name: string): boolean {
-  return record.kind === "question" && record.scope.length === 0 && record.valueType.shape !== "none" &&
-    equalsCI(getDataKey(record), name);
+// that container's scope; a question inside a nesting panel or page writes into the container's
+// object. Display-only elements have no value to overwrite.
+function isRootDataKey(index: SurveyIndex, record: ElementRecord, name: string): boolean {
+  return record.kind === "question" && record.scope.length === 0 && !isInNestedScope(record, index) &&
+    record.valueType.shape !== "none" && equalsCI(getDataKey(record), name);
 }
 
 // findByDataName's order - a name answers before a valueName - narrowed to the records that
 // really write the key. findByDataName itself answers with the first record registered under the
 // name, which may be a template question that writes no root key at all.
 function findRootDataQuestion(index: SurveyIndex, name: string): ElementRecord | undefined {
-  const named = index.byName.get(name).filter(record => isRootDataKey(record, name));
+  const named = index.byName.get(name).filter(record => isRootDataKey(index, record, name));
   if (named.length > 0) return named[0];
-  return index.byValueName.get(name).filter(record => isRootDataKey(record, name))[0];
+  return index.byValueName.get(name).filter(record => isRootDataKey(index, record, name))[0];
 }
 
 function reportQuestion(ctx: LintContext, variable: string, definitionQuestion: string,

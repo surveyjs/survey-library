@@ -781,6 +781,42 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
       }],
     },
   },
+  {
+    ruleId: "name/shadowing", reason: "containerKeyShadowed",
+    json: {
+      elements: [{ type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "q1" }] }],
+      calculatedValues: [{ name: "address", expression: "1" }],
+    },
+  },
+  {
+    ruleId: "name/reserved", reason: "containerKey",
+    json: { elements: [{ type: "panel", name: "p1", valueName: "constructor", elements: [{ type: "text", name: "q1" }] }] },
+  },
+  {
+    ruleId: "nesting/key-conflict", reason: "questionKey",
+    json: {
+      elements: [
+        { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "q1" }] },
+        { type: "text", name: "address" },
+      ],
+    },
+  },
+  {
+    ruleId: "nesting/ignored-key", reason: "insideRecord",
+    json: {
+      elements: [{ type: "paneldynamic", name: "pd", templateElements: [
+        { type: "panel", name: "p1", valueName: "box", elements: [{ type: "text", name: "q1" }] },
+      ] }],
+    },
+  },
+  {
+    ruleId: "nesting/generated-key", reason: "generatedName",
+    json: { dataNesting: "panel", elements: [{ type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }] },
+  },
+  {
+    ruleId: "nesting/generated-key", reason: "unnamed",
+    json: { dataNesting: "page", pages: [{ elements: [{ type: "text", name: "q1" }] }] },
+  },
 ];
 
 describe("linter reasons - the (ruleId, reason) table", () => {
@@ -861,6 +897,17 @@ describe("linter reasons - every finding carries one", () => {
 });
 
 describe("linter reasons - the scope hint", () => {
+  test("a valueName that stores no object reports the containerKeyNotNesting hint", () => {
+    const findings = findingsOf({
+      dataNesting: "none",
+      elements: [
+        { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] },
+        { type: "text", name: "q1", visibleIf: "{address.street} = 1" },
+      ],
+    }, "reference/unknown");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].hint).toEqual({ reason: SurveyLintHintReasons.containerKeyNotNesting, name: "address" });
+  });
   test("an inactive row scope reports the hint reason and the variable it is about", () => {
     const findings = findingsOf({
       elements: [{ type: "text", name: "q1", visibleIf: "{row.col1} = 1" }],

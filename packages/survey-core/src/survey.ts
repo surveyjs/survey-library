@@ -123,6 +123,11 @@ export var DefaultTheme = DefaultLightTheme;
 function createHash(): HashTable<any> {
   return Object.create(null);
 }
+// The kinds of the element name hash. A page is a PageModel of survey.pages, whatever its isPage says: inside
+// the single-page container a page has a parent and reports isPage: false. Only pages enter the hash as pages.
+function isQuestionInNameHash(el: Base): boolean { return el.isQuestion; }
+function isPageInNameHash(el: Base): boolean { return el instanceof PageModel; }
+function isPanelInNameHash(el: Base): boolean { return !el.isQuestion && !(el instanceof PageModel); }
 // Every key of the variables hash is lower-case (setVariableCore lower-cases the names), so the one
 // key that can answer a name ignoring letter case is the name's lower-case form: no key scan
 function createVariablesContext(variablesHash: HashTable<any>): VariableGetterContext {
@@ -144,7 +149,9 @@ interface ICalculatedValuesAtLoad {
 }
 
 class SurveyValueGetterContext extends ValueGetterContextCore {
-  constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>, private valuesKeyIndex: HashKeyIndex) {
+  // findPageOrPanel: a page, else a panel, by a name with its letter case ignored (a property path {$page1.title})
+  constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>, private valuesKeyIndex: HashKeyIndex,
+    private findPageOrPanel: (name: string) => Base) {
     super();
   }
   public getObj(): Base { return this.survey; }
@@ -159,13 +166,9 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       if (firstName === settings.expressionVariables.survey) {
         return new PropertyGetterContext(this.survey).getValue({ path: path.slice(1), isRoot: false, index: -1 });
       }
-      const page = this.getPageByName(path[0].name);
-      if (!!page) {
-        return new PropertyGetterContext(page).getValue({ path: path.slice(1), isRoot: false, index: -1 });
-      }
-      const panel = this.getPanelByName(path[0].name);
-      if (!!panel) {
-        return new PropertyGetterContext(panel).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+      const element = this.findPageOrPanel(path[0].name);
+      if (!!element) {
+        return new PropertyGetterContext(element).getValue({ path: path.slice(1), isRoot: false, index: -1 });
       }
     }
     let res = createVariablesContext(this.variablesHash).getValue(params);
@@ -173,27 +176,6 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
     return new VariableGetterContext(this.valuesHash, (name: string): any => this.valuesKeyIndex.getValue(this.valuesHash, name)).getValue(params);
-  }
-  private getPageByName(name: string): PageModel | undefined {
-    if (!name) return undefined;
-    const nameLower = name.toLowerCase();
-    for (let i = 0; i < this.survey.pages.length; i++) {
-      if (this.survey.pages[i].name.toLowerCase() === nameLower) {
-        return this.survey.pages[i];
-      }
-    }
-    return undefined;
-  }
-  private getPanelByName(name: string): IPanel | undefined {
-    if (!name) return undefined;
-    const nameLower = name.toLowerCase();
-    const panels = this.survey.getAllPanels();
-    for (let i = 0; i < panels.length; i++) {
-      if (panels[i].name && panels[i].name.toLowerCase() === nameLower) {
-        return panels[i];
-      }
-    }
-    return undefined;
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
@@ -1248,6 +1230,7 @@ export class SurveyModel extends SurveyElementCore
       },
       (value: PageModel) => {
         // The page leaves the pages now, even when doOnPageRemoved runs later
+        this.containerHashesRemoved(value);
         this.questionTriggersChanged();
         if (!value.isReadyForClean) {
           value.isReadyForCleanChangedCallback = () => {
@@ -6948,8 +6931,7 @@ export class SurveyModel extends SurveyElementCore
    * @see getQuestionByValueName
    */
   public getQuestionByName(name: string, caseInsensitive: boolean = false): Question {
-    const res = this.getQuestionsFromHash(this.questionHashes.names, this.questionHashes.namesInsensitive, name, caseInsensitive);
-    return !!res ? res[0] : null;
+    return this.findElementInNameHash(name, caseInsensitive, true, isQuestionInNameHash);
   }
   findQuestionByName(name: string): IQuestion {
     return this.getQuestionByName(name);
@@ -7033,10 +7015,7 @@ export class SurveyModel extends SurveyElementCore
    * @returns A page with the specified name.
    */
   public getPageByName(name: string): PageModel {
-    for (var i: number = 0; i < this.pages.length; i++) {
-      if (this.pages[i].name == name) return this.pages[i];
-    }
-    return null;
+    return this.findElementInNameHash(name, false, true, isPageInNameHash);
   }
   public getPagesByNames(names: string[]): PageModel[] {
     var result: PageModel[] = [];
@@ -7116,14 +7095,9 @@ export class SurveyModel extends SurveyElementCore
     name: string,
     caseInsensitive: boolean = false
   ): PanelModel {
-    var panels = this.getAllPanels();
-    if (caseInsensitive) name = name.toLowerCase();
-    for (var i: number = 0; i < panels.length; i++) {
-      var panelName = panels[i].name;
-      if (caseInsensitive) panelName = panelName.toLowerCase();
-      if (panelName == name) return <PanelModel>panels[i];
-    }
-    return null;
+    // Ignoring letter case, the first matching panel in the hash wins, even when another one has the exact name.
+    // The hash keeps document order after loading, and insertion order for panels added at runtime.
+    return this.findElementInNameHash(name, caseInsensitive, false, isPanelInNameHash);
   }
   /**
    * Returns a list of all [panels](https://surveyjs.io/form-library/documentation/api-reference/panel-model) in the survey.
@@ -7565,9 +7539,10 @@ export class SurveyModel extends SurveyElementCore
       }
     });
   }
+  // A data key changed which questions are top-level: the value names follow. The names stay.
   private rebuildQuestionHashes(): void {
-    this.questionHashesClear();
-    this.pages.forEach(page => this.questionHashesPanelAdded(page));
+    this.questionValueNameHashesClear();
+    this.pages.forEach(page => page.questions.forEach(q => this.questionValueNameHashesAdded(q)));
   }
   private addInnerValueToServerData(data: any, question: Question): void {
     const value = question.value;
@@ -8053,7 +8028,14 @@ export class SurveyModel extends SurveyElementCore
     if (!json) return;
     this.resetHasLogo();
     this.resetPropertyValue("titleIsEmpty");
-    this.questionHashesClear();
+    this.elementNameHashesClear();
+    this.questionValueNameHashesClear();
+    // A JSON without pages keeps the pages: they and their panels stay found, as when they were scanned.
+    // Their questions are not, as before (the question hash was cleared here). A JSON with pages removes them.
+    this.pages.forEach(page => {
+      this.elementNameAdded(page);
+      this.innerPanelNamesAdded(page);
+    });
     this.jsonErrors = null;
     this.sjsVersion = undefined;
     const jsonConverter = new JsonObject();
@@ -8532,7 +8514,8 @@ export class SurveyModel extends SurveyElementCore
     // Named before it is attached: a by-name dataNesting mode nests the page's elements under the name.
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     page.setSurveyImpl(this);
-    this.questionHashesPanelAdded(page);
+    this.elementNameAdded(page);
+    this.containerContentHashesAdded(page, true);
     this.updateVisibleIndexes();
     if (!!this.runningPages) return;
     if (!this.isLoadingFromJson) {
@@ -8810,42 +8793,95 @@ export class SurveyModel extends SurveyElementCore
     this.questionHashesRemoved(<Question>question, oldName, oldValueName);
     this.questionHashesAdded(<Question>question);
   }
-  // Null-prototype hashes: the keys are question names, and "constructor", "toString" or "valueOf"
-  // must not resolve to an Object.prototype member (Bug#11858)
-  private questionHashes = {
+  // A panel or a page was renamed. Only an element the hash holds moves: a panel of a dynamic panel's
+  // template is not added by its rename.
+  elementRenamed(element: ISurveyElement, oldName: string): void {
+    const list = this.elementNameHashes.names[oldName || ""];
+    if (!list || list.indexOf(element) < 0) return;
+    this.elementNameRemoved(element, oldName);
+    this.elementNameAdded(element);
+  }
+  // Questions, panels and pages by name, exact and lower-case. The library does not keep names unique across
+  // types (the Creator does), so an entry is an array, and each getter takes the first element of its kind.
+  // The members are those of today's lookups: the questions below, the panels getAllPanels() returns, and
+  // survey.pages. Null-prototype hashes: "constructor", "toString" or "valueOf" must not resolve to an
+  // Object.prototype member (Bug#11858).
+  private elementNameHashes = {
     names: createHash(),
     namesInsensitive: createHash(),
+  };
+  private elementNameHashesClear(): void {
+    this.elementNameHashes.names = createHash();
+    this.elementNameHashes.namesInsensitive = createHash();
+  }
+  // An element without a name is kept under "" (a JSON may set "name": ""), so a later rename finds it.
+  // No getter looks a name "" up.
+  private elementNameAdded(element: ISurveyElement): void {
+    const name = element.name || "";
+    this.questionHashAddedCore(this.elementNameHashes.names, element, name);
+    this.questionHashAddedCore(this.elementNameHashes.namesInsensitive, element, name.toLowerCase());
+  }
+  private elementNameRemoved(element: ISurveyElement, name: string): void {
+    name = name || "";
+    this.questionHashRemovedCore(this.elementNameHashes.names, element, name);
+    this.questionHashRemovedCore(this.elementNameHashes.namesInsensitive, element, name.toLowerCase());
+  }
+  // exactFirst: ignoring letter case, an element with the exact name wins (questions); otherwise the first
+  // one whose lower-case name matches (panels and pages, as their scans did).
+  private findElementInNameHash(name: string, caseInsensitive: boolean, exactFirst: boolean, isKind: (el: Base) => boolean): any {
+    if (!name) return null;
+    if (!caseInsensitive || exactFirst) {
+      const res = this.findElementOfKind(this.elementNameHashes.names[name], isKind);
+      if (!!res || !caseInsensitive) return res;
+    }
+    return this.findElementOfKind(this.elementNameHashes.namesInsensitive[name.toLowerCase()], isKind);
+  }
+  private findElementOfKind(list: Array<Base>, isKind: (el: Base) => boolean): Base {
+    if (!list) return null;
+    for (let i = 0; i < list.length; i++) {
+      if (isKind(list[i])) return list[i];
+    }
+    return null;
+  }
+  // The panels and questions inside a panel or a page. While the survey loads, each of them is added
+  // by its own notification.
+  private containerContentHashesAdded(container: PanelModelBase, addPanels: boolean): void {
+    if (this.isLoadingFromJson) return;
+    if (addPanels) {
+      this.innerPanelNamesAdded(container);
+    }
+    container.questions.forEach(q => this.questionHashesAdded(q));
+  }
+  private innerPanelNamesAdded(container: PanelModelBase): void {
+    const panels: Array<IPanel> = [];
+    container.addPanelsIntoList(panels);
+    panels.forEach(panel => this.elementNameAdded(panel));
+  }
+  private containerHashesRemoved(container: PanelModelBase): void {
+    this.elementNameRemoved(container, container.name);
+    const panels: Array<IPanel> = [];
+    container.addPanelsIntoList(panels);
+    panels.forEach(panel => this.elementNameRemoved(panel, panel.name));
+    container.questions.forEach(q => this.questionHashesRemoved(q, q.name, q.getValueName()));
+  }
+  // The value names of questions; the names are in elementNameHashes. Null-prototype hashes (Bug#11858).
+  private questionHashes = {
     valueNames: createHash(),
     valueNamesInsensitive: createHash(),
     // Every question by its lower-case value name, inner questions included: the expression lookup inside
     // a nesting container (getQuestionsByAnyValueName) filters it by data scope.
     allValueNamesInsensitive: createHash(),
   };
-  private questionHashesClear() {
-    this.questionHashes.names = createHash();
-    this.questionHashes.namesInsensitive = createHash();
+  private questionValueNameHashesClear() {
     this.questionHashes.valueNames = createHash();
     this.questionHashes.valueNamesInsensitive = createHash();
     this.questionHashes.allValueNamesInsensitive = createHash();
   }
-  private questionHashesPanelAdded(panel: PanelModelBase) {
-    if (this.isLoadingFromJson) return;
-    var questions = panel.questions;
-    for (var i = 0; i < questions.length; i++) {
-      this.questionHashesAdded(questions[i]);
-    }
-  }
   private questionHashesAdded(question: Question) {
-    this.questionHashAddedCore(
-      this.questionHashes.names,
-      question,
-      question.name
-    );
-    this.questionHashAddedCore(
-      this.questionHashes.namesInsensitive,
-      question,
-      question.name.toLowerCase()
-    );
+    this.elementNameAdded(question);
+    this.questionValueNameHashesAdded(question);
+  }
+  private questionValueNameHashesAdded(question: Question) {
     this.questionHashAddedCore(
       this.questionHashes.allValueNamesInsensitive,
       question,
@@ -8869,14 +8905,7 @@ export class SurveyModel extends SurveyElementCore
     name: string,
     valueName: string
   ) {
-    if (!!name) {
-      this.questionHashRemovedCore(this.questionHashes.names, question, name);
-      this.questionHashRemovedCore(
-        this.questionHashes.namesInsensitive,
-        question,
-        name.toLowerCase()
-      );
-    }
+    this.elementNameRemoved(question, name);
     if (!!valueName) {
       this.questionHashRemovedCore(
         this.questionHashes.valueNames,
@@ -8895,7 +8924,7 @@ export class SurveyModel extends SurveyElementCore
       );
     }
   }
-  private questionHashAddedCore(hash: any, question: Question, name: string) {
+  private questionHashAddedCore(hash: any, question: ISurveyElement, name: string) {
     var res = hash[name];
     if (!!res) {
       var res = hash[name];
@@ -8906,7 +8935,7 @@ export class SurveyModel extends SurveyElementCore
       hash[name] = [question];
     }
   }
-  private questionHashRemovedCore(hash: any, question: Question, name: string) {
+  private questionHashRemovedCore(hash: any, question: ISurveyElement, name: string) {
     var res = hash[name];
     if (!res) return;
     var index = res.indexOf(question);
@@ -8924,7 +8953,14 @@ export class SurveyModel extends SurveyElementCore
         "panel"
       );
     }
-    this.questionHashesPanelAdded(<PanelModelBase>(<any>panel));
+    // As for a question (questionAdded), a panel without a page (in a dynamic panel's template or panels) is
+    // not added, the way getAllPanels() does not return it. The questions inside are added either way, as
+    // they always were.
+    const hasPage = !!panel.page;
+    if (hasPage) {
+      this.elementNameAdded(panel);
+    }
+    this.containerContentHashesAdded(<PanelModelBase>(<any>panel), hasPage);
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
     if (this.canFireAddElement()) {
@@ -8940,6 +8976,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   panelRemoved(panel: PanelModel): void {
+    this.containerHashesRemoved(<PanelModelBase>(<any>panel));
     this.dropRemovedQuestionsWithPendingWrites();
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
@@ -8988,7 +9025,9 @@ export class SurveyModel extends SurveyElementCore
     return this.processText(options.html, true);
   }
   public getValueGetterContext(): IValueGetterContext {
-    return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex);
+    return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex,
+      (name: string): Base => this.findElementInNameHash(name, true, false, isPageInNameHash) ||
+        this.findElementInNameHash(name, true, false, isPanelInNameHash));
   }
   processText(text: string, returnDisplayValue: boolean, context?: any): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false, context: context }).text;

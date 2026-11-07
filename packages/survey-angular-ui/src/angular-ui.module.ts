@@ -37,6 +37,14 @@ import { ImagePickerQuestionComponent } from "./questions/imagepicker.component"
 
 import { ActionBarComponent } from "./components/action-bar/action-bar.component";
 import { SortBarLevelComponent } from "./components/records-bar/sort-bar-level.component";
+import { FilterQuestionComponent } from "./components/filter/filter-question.component";
+import { FilterChipsComponent } from "./components/filter/filter-chips.component";
+import { FilterChipComponent } from "./components/filter/filter-chip.component";
+import { FilterListItemComponent } from "./components/filter/filter-list-item.component";
+import { FilterEditorPageComponent } from "./components/filter/filter-editor-page.component";
+import { FilterFieldPopupComponent } from "./components/filter/filter-field-popup.component";
+import { FilterModalComponent } from "./components/filter/filter-modal.component";
+import { FilterPresetDialogComponent } from "./components/filter/filter-preset-dialog.component";
 
 import { ActionComponent } from "./components/action-bar/action.component";
 import { ActionBarItemComponent } from "./components/action-bar/action-bar-item.component";
@@ -150,6 +158,8 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListLoadingComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, SortBarLevelComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
+    FilterQuestionComponent, FilterChipsComponent, FilterChipComponent, FilterListItemComponent,
+    FilterEditorPageComponent, FilterFieldPopupComponent, FilterModalComponent, FilterPresetDialogComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, ProgressTocComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
@@ -175,6 +185,8 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListLoadingComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, SortBarLevelComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
+    FilterQuestionComponent, FilterChipComponent, FilterListItemComponent,
+    FilterFieldPopupComponent, FilterModalComponent, FilterPresetDialogComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,

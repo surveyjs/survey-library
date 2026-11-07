@@ -945,6 +945,16 @@ export interface DynamicDataErrorEvent extends QuestionEventMixin {
   // The error the data source reported: whatever its promise was rejected with or its method threw.
   error: any;
 }
+// Raised when a Filter Control composes a new expression. The source question, if the control is
+// bound to one, has already been re-filtered by the time the event is raised.
+export interface FilterChangedEvent extends QuestionEventMixin {
+  // The expression the control composed: its active item and its quick search, combined. An empty
+  // string means the control filters nothing.
+  filterExpression: string;
+  // The Dynamic Matrix or Dynamic Panel the control filters, or undefined for a standalone control
+  // and for a control whose source resolves to nothing.
+  sourceQuestion: Question;
+}
 export interface TimerPanelInfoTextEvent {
   /**
    * the timer panel info text
@@ -1145,7 +1155,7 @@ export interface UIStateChangedEvent {
    * @since 2.4.0
    */
   // MERGE(V3): keep the `"shown"` member; master (V2) ends this union with `"passed"`. Keep V3 on merge.
-  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex" | "shown";
+  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex" | "shown" | "filter";
 }
 export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
   /**

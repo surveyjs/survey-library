@@ -224,6 +224,44 @@ export { QuestionDropdownModel } from "../../src/question_dropdown";
 export { QuestionFactory, ElementFactory } from "../../src/questionfactory";
 export { QuestionFileModelBase, QuestionFileModel, QuestionFilePage } from "../../src/question_file";
 export { QuestionHtmlModel } from "../../src/question_html";
+// Value exports on purpose: FilterField and FilterItem register themselves with the Serializer as an
+// import side effect, and "export type" would not run it.
+export { QuestionFilterModel } from "../../src/question_filter";
+export { FilterField, IFilterFieldOwner } from "../../src/filter/filter-field";
+export { FilterItem } from "../../src/filter/filter-item";
+export {
+  FilterConditionsEditor, IFilterConditionsEditorOwner, IFilterConditionsEditorOptions, filterEditorVisibleChoiceCount,
+  filterEditorMaxCheckboxChoiceCount
+} from "../../src/filter/filter-conditions-editor";
+export {
+  FilterToolbars, FilterEditorHolder, IFilterToolbarsOwner, IFilterFieldState, filterUIStrings, filterModalComponentName, filterPresetDialogComponentName,
+  filterFieldPopupComponentName, filterChipComponentName
+} from "../../src/filter/filter-toolbars";
+export {
+  FilterFieldEditorKind, IFilterFieldListItem, getFilterFieldEditorKind, getFilterFieldListItems, getFilterChipText
+} from "../../src/filter/filter-field-kinds";
+export { FilterFieldPopup, IFilterFieldPopupOwner, filterPopupSearchMinItemCount, filterListItemComponentName } from "../../src/filter/filter-field-popup";
+export { FilterChipsLayout, fitFilterChips } from "../../src/filter/filter-chips-layout";
+export { FilterModal, IFilterModalOwner, filterModalCountDelay } from "../../src/filter/filter-modal";
+export {
+  FilterAIRequest, FilterAIFeature, buildFilterAIContext, buildFilterAISystemPrompt, buildFilterAIInstruction, filterAIResponseFormat,
+  filterAIGuideExamples, filterAIGuideVersion, filterAIMaxChoices, filterAIFixAttempts
+} from "../../src/filter/filter-ai";
+export type {
+  IFilterAIField, IFilterAIContext, IFilterAIContextOwner, IFilterAIResponse, FilterAIResult, IFilterAIRequestOwner
+} from "../../src/filter/filter-ai";
+export { FilterAIDialog, makeFilterAITitle } from "../../src/filter/filter-ai-dialog";
+export type { IFilterAIDialogOwner } from "../../src/filter/filter-ai-dialog";
+export { FilterAIPrompt, filterAIPromptMaxLength } from "../../src/filter/filter-ai-prompt";
+export type { IFilterAIPromptOptions } from "../../src/filter/filter-ai-prompt";
+export {
+  FilterPresetDialog, FilterEditPresetsDialog, IFilterPresetDialogOwner, IFilterEditPresetsDialogOwner, IFilterPresetBuffer,
+  filterPresetTitleMaxLength
+} from "../../src/filter/filter-preset-dialog";
+export {
+  FilterConditionItem, getConditionOperatorTitle, conditionsToExpression, parseFilterExpression
+} from "../../src/filter/filter-conditions";
+export type { IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterState, IFilterUserItemState } from "../../src/interfaces/ui-interfaces";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";
@@ -247,8 +285,9 @@ export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dyna
 export type {
   IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, ISortCriterion, IDynamicDataField,
   SortDirection,
-  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation
+  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation, IDynamicDataFilterSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
+export type { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-filter-fields";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";
 export { SurveyProgressTextModel } from "../../src/surveyProgressTextModel";
@@ -261,7 +300,7 @@ export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/su
 export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export type {
-  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent,
+  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent, FilterAIRequestEvent,
 } from "../../src/interfaces/ai-interfaces";
 export { isAIObject, getAIFencedText, getAIFencedBlocks, readAIJson } from "../../src/ai/ai-response";
 export { AIRequestSession } from "../../src/ai/ai-request";

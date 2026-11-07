@@ -98,6 +98,7 @@ export const renamedIcons: any = {
   "expand_16x16": "expand-16x16",
   "expression": "toolbox-expression-24x24",
   "fast-entry": "textedit-24x24",
+  "filter": "toolbox-filter-24x24",
   "fix": "fix-24x24",
   "html": "toolbox-html-24x24",
   "image": "toolbox-image-24x24",

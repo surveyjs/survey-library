@@ -39,6 +39,12 @@ export * from "./components-container.component";
 
 export * from "./components/action-bar/action-bar.component";
 export * from "./components/records-bar/sort-bar-level.component";
+export * from "./components/filter/filter-question.component";
+export * from "./components/filter/filter-chip.component";
+export * from "./components/filter/filter-list-item.component";
+export * from "./components/filter/filter-field-popup.component";
+export * from "./components/filter/filter-modal.component";
+export * from "./components/filter/filter-preset-dialog.component";
 export * from "./components/action-bar/action.component";
 export * from "./components/action-bar/action-bar-item.component";
 export * from "./components/action-bar/action-bar-item-dropdown.component";

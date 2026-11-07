@@ -1,0 +1,14 @@
+<div [class]="rootCss" #contentElement>
+  <div *ngIf="model.showSearch" [class]="model.cssClasses.searchRow">
+    <div [class]="searchRootCss">
+      <svg [iconName]="'icon-search-24x24'" [size]="'auto'" [partCss]="model.cssClasses.searchIcon" sv-ng-svg-icon></svg>
+      <input type="text" [class]="model.searchCss.control" [value]="model.searchString" [attr.placeholder]="model.searchPlaceholder"
+        [attr.aria-label]="searchLabel" [disabled]="model.isDesignMode" (input)="onSearchInput($event)" />
+    </div>
+    <sv-ng-action-bar [model]="model.searchToolbar"></sv-ng-action-bar>
+  </div>
+  <div [class]="model.cssClasses.chipsRow">
+    <sv-ng-filter-chips [question]="model"></sv-ng-filter-chips>
+    <sv-ng-action-bar [model]="model.clearToolbar"></sv-ng-action-bar>
+  </div>
+</div>

@@ -141,7 +141,11 @@ frameworks.forEach((framework) => {
       await expect(tabs).toContainText("Adults");
       await expect(tabs).toContainText("Kids");
       await tabs.getByRole("button", { name: "Adults" }).click();
-      await editDialog.locator(".sd-filter-preset-dialog__form input").first().fill("Grown-ups");
+      const titleInput = editDialog.locator(".sd-filter-preset-dialog__form input").first();
+      await titleInput.fill("Grown-ups");
+      // fill() fires "input" only. The Angular and Vue text inputs pass a typed value on keyup (or on
+      // change, at blur): a key sends it on, as typing would.
+      await titleInput.press("End");
       await expect(tabs, "a changed title shows in its tab at once").toContainText("Grown-ups");
       await tabs.getByRole("button", { name: "Kids" }).click();
       await editDialog.getByRole("button", { name: "Delete" }).click();

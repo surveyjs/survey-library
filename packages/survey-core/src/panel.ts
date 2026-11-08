@@ -603,17 +603,26 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private canUseDataScope(value: ISurveyImpl): boolean {
     if (!this.dataScopeValue && !this.getDataNestingKey()) return false;
-    // Only over the survey data or another scope: a dynamic panel's panel, a matrix row's detail panel and
-    // a composite's content panel are a record of their own (N5), and their data is the record.
-    const data: any = value.getSurveyData();
-    if (!data || data !== value.getSurvey() && !(data instanceof PanelDataScope)) return false;
+    return !!value.getSurveyData() && !this.isInsideRecordCore(value);
+  }
+  // N5: a panel inside a record (a dynamic panel's template or panel, a matrix row's detail panel, a composite's
+  // content panel, at any depth) ignores its valueName in every dataNesting mode. The Creator hides the property there.
+  public isInsideRecord(): boolean {
+    return this.isInsideRecordCore(this.surveyImpl);
+  }
+  private isInsideRecordCore(value: ISurveyImpl): boolean {
+    // Only the survey data or another scope is not a record: a dynamic panel's panel, a matrix row's detail
+    // panel and a composite's content panel have the record as their data.
+    const data: any = !!value ? value.getSurveyData() : null;
+    if (!!data && data !== value.getSurvey() && !(data instanceof PanelDataScope)) return true;
     // A dynamic panel's template (in the designer) is attached to the survey: it has a parent question.
+    // A matrix's detail panel template is attached to nothing until a row shows it: only the matrix knows it.
     let el: any = this;
     while(!!el) {
-      if (!!el.parentQuestion) return false;
+      if (!!el.parentQuestion || !!el.selectedElementInDesign?.isDetailPanelTemplate?.(el)) return true;
       el = el.parent;
     }
-    return true;
+    return false;
   }
   private onDataScopeKeyChanged(): void {
     if (!this.surveyImpl) return;
@@ -2836,7 +2845,8 @@ Serializer.addClass(
   "panelbase",
   [
     "name",
-    { name: "valueName", visible: false, onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
+    { name: "valueName", visibleIf: (obj: any): boolean => !obj?.isInsideRecord?.(),
+      onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
     {
       name: "elements",
       alternativeName: "questions",

@@ -61,6 +61,80 @@ describe("nested data: serializer", () => {
     survey.getQuestionByName("street").value = "y";
     expect(survey.data).toEqual({ address: { street: "y" } });
   });
+  test("valueName and dataNesting are visible; a panel valueName is hidden inside a record (N5)", async () => {
+    const { ComponentCollection } = await import("../src/question_custom");
+    ComponentCollection.Instance.add({ name: "nestedvisibility", elementsJSON: [
+      { type: "panel", name: "cin", elements: [{ type: "text", name: "cq" }] }
+    ] });
+    try {
+      const prop = Serializer.findProperty("panel", "valueName");
+      expect(prop.visible, "panel valueName").toBe(true);
+      expect(Serializer.findProperty("page", "valueName").visible, "page valueName").toBe(true);
+      expect(Serializer.findProperty("survey", "dataNesting").visible, "dataNesting").toBe(true);
+      const json = {
+        elements: [
+          { type: "panel", name: "top", elements: [{ type: "panel", name: "top2", elements: [{ type: "text", name: "q0" }] }] },
+          { type: "panel", name: "nest", valueName: "nest", elements: [{ type: "panel", name: "nest2", elements: [{ type: "text", name: "q00" }] }] },
+          { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [
+            { type: "panel", name: "pin", elements: [{ type: "panel", name: "pin2", elements: [{ type: "text", name: "q1" }] }] }] },
+          { type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "c1" }],
+            detailElements: [{ type: "panel", name: "din", elements: [{ type: "panel", name: "din2", elements: [{ type: "text", name: "q2" }] }] }] },
+          { type: "nestedvisibility", name: "comp" }
+        ]
+      };
+      const check = (survey: SurveyModel, mode: string): void => {
+        const isVisible = (panel: any, name: string): boolean => {
+          expect(panel, mode + ": " + name + " exists").toBeTruthy();
+          return prop.isVisible("", panel);
+        };
+        expect(isVisible(survey.pages[0], "page"), mode + ": page").toBe(true);
+        expect(isVisible(survey.getPanelByName("top"), "top"), mode + ": top").toBe(true);
+        expect(isVisible(survey.getPanelByName("top2"), "top2"), mode + ": top2").toBe(true);
+        expect(isVisible(survey.getPanelByName("nest2"), "nest2"), mode + ": nest2").toBe(true);
+        const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+        const pdPanel: PanelModel = survey.isDesignMode ? pd.template : pd.panels[0];
+        expect(isVisible(pdPanel, "dynamic panel"), mode + ": dynamic panel").toBe(false);
+        expect(isVisible(pdPanel.getElementByName("pin"), "pin"), mode + ": pin").toBe(false);
+        expect(isVisible((<PanelModel>pdPanel.getElementByName("pin")).getElementByName("pin2"), "pin2"), mode + ": pin2").toBe(false);
+        const row = (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows[0];
+        row.showDetailPanel();
+        expect(isVisible(row.detailPanel, "detail panel"), mode + ": detail panel").toBe(false);
+        expect(isVisible(row.detailPanel.getElementByName("din"), "din"), mode + ": din").toBe(false);
+        expect(isVisible((<PanelModel>row.detailPanel.getElementByName("din")).getElementByName("din2"), "din2"), mode + ": din2").toBe(false);
+        const content = (<any>survey.getQuestionByName("comp")).contentPanel;
+        expect(isVisible(content, "content panel"), mode + ": content panel").toBe(false);
+        expect(isVisible(content.getElementByName("cin"), "cin"), mode + ": cin").toBe(false);
+      };
+      // A matrix detail panel no row has shown yet is the template, attached to nothing
+      const detailSurvey = new SurveyModel();
+      detailSurvey.setDesignMode(true);
+      detailSurvey.fromJSON({ elements: [
+        { type: "matrixdynamic", name: "m0", rowCount: 0, detailPanelMode: "underRow", columns: [{ name: "c1" }],
+          detailElements: [{ type: "panel", name: "din", elements: [{ type: "panel", name: "din2", elements: [{ type: "text", name: "q2" }] }] }] },
+        { type: "matrixdropdown", name: "md", rows: ["r1"], detailPanelMode: "underRow", columns: [{ name: "c1" }],
+          detailElements: [{ type: "panel", name: "dd", elements: [{ type: "text", name: "q3" }] }] }
+      ] });
+      ["m0", "md"].forEach(name => {
+        const detail = (<QuestionMatrixDynamicModel>detailSurvey.getQuestionByName(name)).detailPanel;
+        expect(prop.isVisible("", detail), name + ": unshown detail panel").toBe(false);
+        detail.elements.forEach(el => {
+          expect(prop.isVisible("", el), name + ": " + el.name).toBe(false);
+          (<PanelModel>el).elements.forEach(inner => {
+            if (inner.isPanel) expect(prop.isVisible("", inner), name + ": " + inner.name).toBe(false);
+          });
+        });
+      });
+      for (const mode of ["auto", "none", "panelAndPage"]) {
+        check(new SurveyModel(Object.assign({ dataNesting: mode }, json)), mode);
+        const designSurvey = new SurveyModel();
+        designSurvey.setDesignMode(true);
+        designSurvey.fromJSON(Object.assign({ dataNesting: mode }, json));
+        check(designSurvey, mode + ", design mode");
+      }
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
 });
 
 describe("nested data: storage", () => {

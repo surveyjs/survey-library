@@ -10315,7 +10315,7 @@ Serializer.addClass("survey", [
     default: "standard",
     choices: ["standard", "singlePage", "questionPerPage", "inputPerPage"],
   },
-  { name: "dataNesting", visible: false, default: "auto", choices: ["auto", "none", "panel", "page", "panelAndPage"] },
+  { name: "dataNesting", default: "auto", choices: ["auto", "none", "panel", "page", "panelAndPage"] },
   {
     name: "showPreviewBeforeComplete:boolean",
     default: false,

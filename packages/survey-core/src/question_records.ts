@@ -35,6 +35,7 @@ import { Action } from "./actions/action";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { Scope, ValueScope } from "./utils/scope";
+import { ObjectDataScope } from "./panel-data-scope";
 import { RecordsDataWaits } from "./records/records-data-waits";
 import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainerVisible } from "./records/records-hidden-answers";
 import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/records-cleanup-runner";
@@ -4316,7 +4317,12 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
   }
 }
 
-export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IObjectValueContext {
+/* The data of one record's questions (decisions RN1): a root data scope over the record, as the survey is
+   (R6) and a composite's content is. ObjectDataScope gives the reads, the key index and the loops that push
+   a record into the questions; the per-type differences are the subclasses' overrides. It is no
+   PanelDataScope and no IDataScope: a question inside a record has the survey as its value scope, and a
+   panel inside a record does not nest (N5, PanelModelBase.isInsideRecordCore). */
+export abstract class QuestionRecordItem extends ObjectDataScope implements ISurveyData, ISurveyImpl, IObjectValueContext {
 
   private settingValueScope: Scope = new Scope();
   protected get isSettingValue(): boolean {
@@ -4324,6 +4330,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   }
   private textPreProcessor: TextContextProcessor;
   constructor(public data: QuestionRecordsModel) {
+    super();
     this.textPreProcessor = new TextContextProcessor(this);
   }
   // The record this object holds, and its position among the visible records of the whole view: the
@@ -4342,7 +4349,10 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     return this.textPreProcessor;
   }
 
-  public abstract getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question>;
+  // The record's questions on a value name, as the key index has them: in document order, a row's cells first.
+  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
+    return this.getIndexQuestions(name, caseInsensitive);
+  }
   public abstract getVariableName(): string;
   protected abstract getQuestionByName(name: string): IQuestion;
 
@@ -4351,8 +4361,17 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   getSurvey(): ISurvey {
     return this.data ? this.data.getSurvey() : null;
   }
-  getValue(name: string): any {
-    return this.getAllValues()[name];
+  // The record as getAllValues() reads it: a row's includes its questions' current values.
+  protected getObject(): any {
+    return this.getAllValues();
+  }
+  // The key as stored, not a copy, as getValue has always read it.
+  protected getObjectKey(obj: any, name: string): any {
+    return !!obj ? obj[name] : undefined;
+  }
+  // No panel nests inside a record yet (N5): the walk reaches every question.
+  protected isScopeQuestion(q: Question): boolean {
+    return true;
   }
   public setValue(name: string, newValue: any): void {
     this.writeRecordValue(name, newValue, false);
@@ -4362,7 +4381,6 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     return this.data.getItemData(this);
   }
 
-  abstract getComment(name: string): string;
   public setComment(name: string, newValue: string, locNotification: any): void {
     this.writeRecordValue(name, newValue, true);
   }
@@ -4395,12 +4413,10 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   /* The owner's value was assigned from outside the item: the record is pushed into the questions,
      which do not write it back. */
   public updateFromRecord(record: any): void {
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      this.updateQuestionFromRecord(questions[i], record);
-    }
+    this.updateValuesFrom(record);
   }
-  protected updateQuestionFromRecord(question: Question, record: any): void {
+  // A record item sets each question, without comparing its value first.
+  protected updateQuestionFrom(question: Question, record: any): void {
     const name = question.getValueName();
     question.updateValueFromSurvey(!!record ? record[name] : undefined);
     question.updateCommentFromSurvey(!!record ? record[Helpers.getCommentKey(name)] : undefined);
@@ -4411,11 +4427,10 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
      object (fillQuestionFromRecord). The questions write nothing back. */
   public rebindToRecord(record: any): void {
     this.runSettingValue((): void => {
-      const questions = this.questions;
-      for (let i = 0; i < questions.length; i++) {
-        questions[i]["resetForAnotherRecord"]();
-        this.fillQuestionFromRecord(questions[i], record);
-      }
+      this.forEachQuestion((q: Question): void => {
+        q["resetForAnotherRecord"]();
+        this.fillQuestionFromRecord(q, record);
+      });
     });
   }
   // How a question of a new object takes its record: by its value name, with the comment.
@@ -4458,15 +4473,12 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   public abstract get questions(): Array<Question>;
   public runTriggers(name: string, value: any, keys?: any): void {
     if (!name && !keys) return;
-    this.questions.forEach(q => q.runTriggers(name, value, keys));
+    this.forEachQuestion((q: Question): void => q.runTriggers(name, value, keys));
   }
   /* The questions of a panel item are the panel's, nested panels included, in the order
      PanelModel.onAnyValueChanged reaches them through its elements. */
   public onAnyValueChanged(name: string, questionName: string): void {
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      questions[i].onAnyValueChanged(name, questionName);
-    }
+    this.forEachQuestion((q: Question): void => q.onAnyValueChanged(name, questionName));
   }
   /* After a write of this item reached the owner: its own questions re-run what reads the record
      through the item variable ({row.x}, {panel.x}). The other items are not told. */
@@ -4476,31 +4488,26 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   // The errors the item's questions show; the owner asks the visible items only.
   public getAllErrors(): Array<SurveyError> {
     let res: Array<SurveyError> = [];
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      const errors = questions[i].getAllErrors();
+    this.forEachQuestion((q: Question): void => {
+      const errors = q.getAllErrors();
       if (errors && errors.length > 0) {
         res = res.concat(errors);
       }
-    }
+    });
     return res;
   }
   public isRunningValidators(): boolean {
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      if (questions[i].isRunningValidators) return true;
-    }
-    return false;
+    let res = false;
+    this.forEachQuestion((q: Question): void => {
+      res = res || q.isRunningValidators;
+    });
+    return res;
   }
   public clearErrors(): void {
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      questions[i].clearErrors();
-    }
+    this.forEachQuestion((q: Question): void => q.clearErrors());
   }
 
   protected runTriggersOnSetValue(name: string, newValue: any): void {
-    const questions = this.questions;
     const commentOf = Helpers.getNameOfCommentKey(name);
     if (commentOf !== undefined) {
       name = commentOf;
@@ -4510,13 +4517,12 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
       }
     }
     const triggerName = this.getVariableName() + "." + name;
-    for (var i = 0; i < questions.length; i++) {
-      const q = questions[i];
+    this.forEachQuestion((q: Question): void => {
       if (q.getValueName() !== name) {
         q.checkBindings(name, newValue);
       }
       q.runTriggers(triggerName, newValue);
-    }
+    });
     /* The record index, not the position of this item: a question bound to the same value may have
        created its objects for a different set of records or in a different order. */
     const index = this.getOwnRecordIndex();
@@ -4585,9 +4591,6 @@ class RecordValueItem extends QuestionRecordItem {
   public getValueGetterContext(): IValueGetterContext {
     return this.createContext(this);
   }
-  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
-    return [];
-  }
   public getVariableName(): string {
     return this.variableName;
   }
@@ -4601,12 +4604,12 @@ class RecordValueItem extends QuestionRecordItem {
     return this.record || {};
   }
   public setValue(name: string, newValue: any): void { }
-  public getComment(name: string): string {
-    const res = this.getAllValues()[Helpers.getCommentKey(name)];
-    return !!res ? res : "";
-  }
   public setComment(name: string, newValue: string, locNotification: boolean): void { }
   public get questions(): Array<Question> {
+    return [];
+  }
+  // A scope with no elements.
+  protected getScopeElements(): Array<IElement> {
     return [];
   }
 }

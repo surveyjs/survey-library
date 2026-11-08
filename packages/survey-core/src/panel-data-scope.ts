@@ -161,7 +161,8 @@ export function setObjectKey(obj: any, name: string, value: any): any {
 
 // The values of a group of elements kept as keys of one object (decisions N8): a question reads
 // object[valueName], its comment object[valueName + commentSuffix]. PanelDataScope keeps the object under its
-// key in its parent's data; a composite question keeps it as its value (CompositeDataScope, question_custom.ts).
+// key in its parent's data; a composite question keeps it as its value (CompositeDataScope, question_custom.ts); a
+// record item (a dynamic panel's item, a matrix row) keeps it as its record (QuestionRecordItem, question_records.ts).
 export abstract class ObjectDataScope {
   // The object as stored, or undefined when there is none.
   protected abstract getObject(): any;
@@ -194,26 +195,50 @@ export abstract class ObjectDataScope {
     }
     return this.indexValue;
   }
-  // The questions whose values this scope's object holds (directly, or through panels that do not nest)
-  // and the active containers directly inside it: the one walk of a container's elements.
   private buildIndex(): DataKeyIndex {
     const res = new DataKeyIndex();
+    this.walkScope((el: ISurveyDataElement, key: string): void => res.add(key, el), true);
+    return res;
+  }
+  // The questions whose values this scope's object holds (directly, or through panels that do not nest)
+  // and the active containers directly inside it: the one walk of a container's elements, in document order.
+  // withKeys: add gets each element's key (a question's getValueName() is the walk's main cost).
+  private walkScope(add: (el: ISurveyDataElement, key: string) => void, withKeys: boolean): void {
     const walk = (elements: Array<IElement>): void => {
       for (let i = 0; i < elements.length; i++) {
         const el: any = elements[i];
         if (el.isPanel) {
           const scope = (<IPanelDataScopeOwner>el).getDataScope();
           if (!!scope && scope.isActive && scope.getParentActiveScope() === <any>this) {
-            res.add(scope.key, scope.owner);
+            add(scope.owner, withKeys ? scope.key : undefined);
           } else {
             walk(el.elements);
           }
         } else if (el.isQuestion && this.isScopeQuestion(<Question>el)) {
-          res.add((<Question>el).getValueName(), <Question>el);
+          add(<Question>el, withKeys ? (<Question>el).getValueName() : undefined);
         }
       }
     };
     walk(this.getScopeElements());
+  }
+  // The index's elements. A scope whose index is rebuilt on every read (no version) walks without building
+  // the key hashes: the loops read the elements only.
+  private getIndexElements(): Array<ISurveyDataElement> {
+    if (this.getIndexVersion() !== undefined) return this.getDataKeyIndex().elements;
+    const res: Array<ISurveyDataElement> = [];
+    this.walkScope((el: ISurveyDataElement): void => { res.push(el); }, false);
+    return res;
+  }
+  // The index's questions on a key, as a new array. A scope with no version compares the keys during one walk
+  // and builds no hashes: a record item answers every {row.x} / {panel.x} this way.
+  protected getIndexQuestions(name: string, caseInsensitive?: boolean): Array<Question> {
+    if (this.getIndexVersion() !== undefined) return this.getDataKeyIndex().getQuestions(name, caseInsensitive).slice();
+    const res: Array<Question> = [];
+    if (!name) return res;
+    const key = caseInsensitive ? name.toLowerCase() : name;
+    this.walkScope((el: ISurveyDataElement, elKey: string): void => {
+      if (el.isQuestion && !!elKey && (caseInsensitive ? elKey.toLowerCase() : elKey) === key) res.push(<Question>el);
+    }, true);
     return res;
   }
   // The questions read their values from the stored object again; the scopes inside follow.
@@ -222,7 +247,7 @@ export abstract class ObjectDataScope {
   }
   // The questions read their values from obj; the scopes inside read their own stored objects.
   public updateValuesFrom(obj: any): void {
-    this.getDataKeyIndex().elements.forEach(el => {
+    this.getIndexElements().forEach(el => {
       const inner = getElementDataScope(el);
       if (!!inner) {
         inner.updateValuesFromData();
@@ -234,12 +259,12 @@ export abstract class ObjectDataScope {
   protected updateQuestionFrom(q: Question, obj: any): void {
     const valueName = q.getValueName();
     const val = this.getObjectKey(obj, valueName);
-    if (!this.isTwoValueEquals(q.value, val)) {
+    if (!this.isScopeValueEqual(q.value, val)) {
       q.updateValueFromSurvey(val, false);
     }
     if (q.requireUpdateCommentValue) {
       const comment = this.getObjectKey(obj, Helpers.getCommentKey(valueName)) || "";
-      if (!this.isTwoValueEquals(q.comment, comment)) {
+      if (!this.isScopeValueEqual(q.comment, comment)) {
         q.updateCommentFromSurvey(comment);
       }
     }
@@ -250,7 +275,7 @@ export abstract class ObjectDataScope {
   // Each question gets onSurveyValueChanged with its key of obj; the scopes inside notify from their own
   // stored objects.
   public notifyValueChangedFrom(obj: any): void {
-    this.getDataKeyIndex().elements.forEach(el => {
+    this.getIndexElements().forEach(el => {
       const inner = getElementDataScope(el);
       if (!!inner) {
         inner.notifyValueChanged();
@@ -261,7 +286,7 @@ export abstract class ObjectDataScope {
   }
   // The questions of this scope and of the scopes inside it, in document order.
   public forEachQuestion(callback: (q: Question) => void): void {
-    this.getDataKeyIndex().elements.forEach(el => {
+    this.getIndexElements().forEach(el => {
       const inner = getElementDataScope(el);
       if (!!inner) {
         inner.forEachQuestion(callback);
@@ -270,7 +295,8 @@ export abstract class ObjectDataScope {
       }
     });
   }
-  protected isTwoValueEquals(x: any, y: any): boolean {
+  // Not isTwoValueEquals: a matrix row (a record item, question_records.ts) has its own rule under that name.
+  protected isScopeValueEqual(x: any, y: any): boolean {
     return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: true, trimStrings: false, doNotConvertNumbers: true });
   }
 }

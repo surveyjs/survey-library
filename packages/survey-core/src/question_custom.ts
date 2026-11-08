@@ -1239,7 +1239,7 @@ class CompositeDataScope extends ObjectDataScope {
     const key = q.getValueName();
     const val = !!obj ? obj[key] : undefined;
     const commentVal = !!obj && obj[Helpers.getCommentKey(key)] || "";
-    if (!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
+    if (!this.isScopeValueEqual(q.value, val) && (val !== undefined || !q.isEmpty())) {
       q.value = val;
     }
     if (q.comment !== commentVal) {

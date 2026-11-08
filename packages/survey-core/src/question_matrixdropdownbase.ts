@@ -395,7 +395,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
      of its value: a question may adjust the value it is given in place (a checkbox puts its other item
      in), and the record keeps the stored answer, as released. A survey element the row edits in place is
      not copied. */
-  protected updateQuestionFromRecord(question: Question, record: any): void {
+  protected updateQuestionFrom(question: Question, record: any): void {
     const cellValue = this.getRecordFieldValue(record, question.getValueName());
     const val = !this.editingObj ? Helpers.getUnbindValue(cellValue) : cellValue;
     const oldComment = question.comment;
@@ -410,41 +410,27 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   public get filteredValue(): any {
     return this.getValueCore(true);
   }
+  /* The row value from the index walk: the cells come first (getScopeElements), then the detail questions;
+     a detail question on a cell's value name gives no key. */
   private getValueCore(isFiltered: boolean): any {
-    var result: any = {};
-    var cellValueNames: any = {};
-    for (var i = 0; i < this.cells.length; i++) {
-      var question = this.cells[i].question;
-      if (!question) continue;
-      var valueName = question.getValueName();
-      cellValueNames[valueName] = true;
+    const result: any = {};
+    const cellValueNames: any = {};
+    const cellCount = this.getCellQuestions().length;
+    const survey = this.getSurvey();
+    const storeComments = !!survey && survey.storeOthersAsComment;
+    let position = 0;
+    this.forEachQuestion((question: Question): void => {
+      const valueName = question.getValueName();
+      if (position++ < cellCount) {
+        cellValueNames[valueName] = true;
+      } else if (cellValueNames[valueName]) return;
       if (!question.isEmpty()) {
         result[valueName] = isFiltered ? question.getFilteredValue() : question.value;
       }
-      if (
-        !!question.comment &&
-        !!this.getSurvey() &&
-        this.getSurvey().storeOthersAsComment
-      ) {
+      if (!!question.comment && storeComments) {
         result[Helpers.getCommentKey(valueName)] = question.comment;
       }
-    }
-    var detailQuestions = !!this.detailPanel ? this.detailPanel.questions : [];
-    for (var i = 0; i < detailQuestions.length; i++) {
-      var question = detailQuestions[i];
-      var valueName = question.getValueName();
-      if (cellValueNames[valueName]) continue;
-      if (!question.isEmpty()) {
-        result[valueName] = isFiltered ? question.getFilteredValue() : question.value;
-      }
-      if (
-        !!question.comment &&
-        !!this.getSurvey() &&
-        this.getSurvey().storeOthersAsComment
-      ) {
-        result[Helpers.getCommentKey(valueName)] = question.comment;
-      }
-    }
+    });
     return result;
   }
   public get locText(): LocalizableString {
@@ -508,12 +494,11 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
     this.creatingDetailPanelScope.run((): void => {
       this.detailPanelValue = this.data.createRowDetailPanel(this);
-      var questions = this.detailPanelValue.questions;
-      var value = this.getDataRowValue();
+      const value = this.getDataRowValue();
+      /* The new detail questions take the record as rebindToRecord fills them (fillQuestionFromRecord), before
+         they have data. The panel's own questions, not the index: the cells were filled when they were built. */
       if (!Helpers.isValueEmpty(value)) {
-        for (var i = 0; i < questions.length; i++) {
-          this.assignQuestionFromRecord(questions[i], questions[i].getValueName(), value, false);
-        }
+        this.detailPanelValue.questions.forEach((q: Question): void => this.fillQuestionFromRecord(q, value));
       }
       this.detailPanelValue.setSurveyImpl(this);
     });
@@ -576,7 +561,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   }
   public getNamesWithDefaultValues(): Array<string> {
     const res: Array<string> = [];
-    this.questions.forEach(q => {
+    this.forEachQuestion((q: Question): void => {
       if (q.isValueDefault) {
         res.push(q.getValueName());
       }
@@ -584,10 +569,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     return res;
   }
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-    var questions = this.questions;
-    for (var i = 0; i < questions.length; i++) {
-      questions[i].clearValue(keepComment, fromUI);
-    }
+    this.forEachQuestion((q: Question): void => q.clearValue(keepComment, fromUI));
   }
   public getDataValueCore(valuesHash: any, key: string): any {
     var survey = this.getSurvey();
@@ -668,11 +650,11 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     }
   }
   public hasValueAnyQuestion(visibleOnly?: boolean): boolean {
-    const questions = visibleOnly ? this.visibleQuestions : this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      if (!questions[i].isEmpty()) return true;
-    }
-    return false;
+    let res = false;
+    this.forEachQuestion((q: Question): void => {
+      res = res || (!visibleOnly || q.isVisible) && !q.isEmpty();
+    });
+    return res;
   }
   public getQuestionByColumn(column: MatrixDropdownColumn): Question {
     var cell = this.getCellByColumn(column);
@@ -729,27 +711,17 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     }
     return res;
   }
-  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
-    if (caseInsensitive) {
-      name = name.toLocaleLowerCase();
-    }
-    let res = [];
-    for (var i = 0; i < this.cells.length; i++) {
-      const cell = this.cells[i];
-      const q = cell.question;
-      if (!q) continue;
-      let valueName = q.getValueName();
-      if (caseInsensitive) {
-        valueName = valueName.toLocaleLowerCase();
-      }
-      if (valueName === name) {
-        res.push(cell.question);
-      }
-    }
-    if (!!this.detailPanel) {
-      res = res.concat(this.detailPanel.getQuestionsByValueName(name, caseInsensitive));
-    }
+  private getCellQuestions(): Array<Question> {
+    const res: Array<Question> = [];
+    this.cells.forEach((cell: MatrixDropdownCell): void => {
+      if (!!cell.question) res.push(cell.question);
+    });
     return res;
+  }
+  // The cells' questions, then the detail panel's elements once the panel exists.
+  protected getScopeElements(): Array<IElement> {
+    const res: Array<IElement> = this.getCellQuestions();
+    return !!this.detailPanel ? res.concat(this.detailPanel.elements) : res;
   }
   public clearIncorrectValues(val: any): void {
     // The keys of the detail panel questions are known once the panel is created.

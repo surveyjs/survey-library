@@ -125,11 +125,11 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
   public getVariableName(): string {
     return settings.expressionVariables.panel;
   }
-  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
-    return this.panel.getQuestionsByValueName(name, caseInsensitive);
-  }
   protected getQuestionByName(name: string): IQuestion {
     return this.panel.getQuestionByName(name);
+  }
+  protected getScopeElements(): Array<IElement> {
+    return this.panel.elements;
   }
   // The window-local RECORD index: what the owner's storage is addressed by. The number the
   // respondent sees ({panelIndex}) adds the window offset of a source that pages itself.
@@ -144,12 +144,8 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
   public get questions(): Array<Question> {
     return this.panel.questions;
   }
-  public getComment(name: string): string {
-    var result = this.getValue(Helpers.getCommentKey(name));
-    return result ? result : "";
-  }
-  protected updateQuestionFromRecord(question: Question, record: any): void {
-    super.updateQuestionFromRecord(question, record);
+  protected updateQuestionFrom(question: Question, record: any): void {
+    super.updateQuestionFrom(question, record);
     question.initDataUI();
   }
   // The panel clears its nested panels' own errors and its own as well.

@@ -6,6 +6,8 @@ import { ConsoleWarnings } from "./console-warnings";
 export interface ISurveySettingsComparator {
   trimStrings?: boolean;
   caseSensitive?: boolean;
+  // A text that reads as a number is compared as a text with another text (decisions.md, C4)
+  numericTextAsText?: boolean;
 }
 export interface ISurveySettings {
   comparator?: ISurveySettingsComparator;
@@ -25,7 +27,7 @@ type SurveySettingsKeys = { [G in SurveySettingsGroup]-?: { [K in keyof NonNulla
 // The groups and keys a survey can set for itself. The type makes the build fail when the interface
 // gets a key this list misses.
 const surveySettingsKeys: SurveySettingsKeys = {
-  comparator: { trimStrings: true, caseSensitive: true }
+  comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: true }
 };
 const reservedOptionKeys = ["events"];
 

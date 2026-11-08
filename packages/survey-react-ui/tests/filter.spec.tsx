@@ -1,7 +1,7 @@
 import { Action, FilterEditorHolder, FilterFieldPopup, SurveyModel, QuestionFilterModel } from "survey-core";
 import React from "react";
 import ReactDOM from "react-dom";
-import { act } from "react-dom/test-utils";
+import { act, Simulate } from "react-dom/test-utils";
 // eslint-disable-next-line surveyjs/no-imports-from-entries
 import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterListItem, SurveyFilterFieldPopup, ReactElementFactory } from "../entries/index";
 import { describe, it, expect, beforeAll } from "vitest";
@@ -27,6 +27,73 @@ describe("SurveyQuestionFilter", () => {
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);
     expect((q as any).toolbarsValue, "#2").toBe(undefined);
+    container.remove();
+  });
+  it("renders the filter control in design mode", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }] }] });
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyReact, { model: survey }), container);
+    });
+    expect(!!container.querySelector(".sd-filter"), "#1").toBe(true);
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+    survey.dispose();
+  });
+  it("typing in the search box sets the search string and the filter expression", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyReact, { model: survey }), container);
+    });
+    const input = container.querySelector(".sd-filter__search input") as HTMLInputElement;
+    expect(!!input, "#1: the search box").toBe(true);
+    expect(q.filterExpression, "#2").toBe("");
+    act(() => {
+      input.value = "ab";
+      Simulate.change(input);
+    });
+    expect(q.searchString, "#3").toBe("ab");
+    expect(q.filterExpression, "#4: the search filters the records").toContain("ab");
+    expect((container.querySelector(".sd-filter__search input") as HTMLInputElement).value, "#5").toBe("ab");
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+    survey.dispose();
+  });
+  it("typing in the Filters dialog's search box sets the dialog's search string", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterModal, { holder: holder }), container);
+    });
+    const input = container.querySelector(".sd-filter-modal__section input") as HTMLInputElement;
+    act(() => {
+      input.value = "ab";
+      Simulate.change(input);
+    });
+    expect(holder.modal.searchString, "#1").toBe("ab");
+    expect(q.searchString, "#2: the question's search string waits for Apply").toBe("");
+    expect((container.querySelector(".sd-filter-modal__section input") as HTMLInputElement).value, "#3").toBe("ab");
+    const modal = holder.modal;
+    act(() => { holder.modal = undefined; });
+    modal.dispose();
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
     container.remove();
   });
   it("the Filters dialog shows the search box, the presets and the fields", () => {
@@ -162,6 +229,50 @@ describe("SurveyFilterFieldPopup", () => {
     ReactDOM.unmountComponentAtNode(container);
     container.remove();
     holder.fieldPopup.dispose();
+  });
+  function renderPopup(): { holder: FilterEditorHolder, container: HTMLElement, input: HTMLInputElement } {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
+      { name: "product", fieldType: "dropdown", choices: ["apple", "banana", "cherry", "date", "elder", "fig", "grape"] }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.fieldPopup = q.createFieldPopup("product", () => {});
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterFieldPopup, { holder: holder }), container);
+    });
+    return { holder: holder, container: container, input: container.querySelector(".sd-filter-popup__search-input") as HTMLInputElement };
+  }
+  function removePopup(holder: FilterEditorHolder, container: HTMLElement): void {
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+    holder.fieldPopup.dispose();
+  }
+  it("typing in the search box of a badge's popup filters its list", () => {
+    const { holder, container, input } = renderPopup();
+    const list = holder.fieldPopup.list;
+    expect(list.visibleItems.length, "#1").toBe(7);
+    act(() => {
+      input.value = "an";
+      Simulate.change(input);
+    });
+    expect(list.filterString, "#2").toBe("an");
+    expect(list.visibleItems.map((a: Action) => a.title), "#3").toEqual(["banana"]);
+    expect((container.querySelector(".sd-filter-popup__search-input") as HTMLInputElement).value, "#4").toBe("an");
+    removePopup(holder, container);
+  });
+  it("ArrowDown in the search box of a badge's popup focuses the first item of the list", () => {
+    const { holder, container, input } = renderPopup();
+    input.focus();
+    act(() => {
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    });
+    const first = container.querySelector(".sd-filter-popup ul > li");
+    expect(!!first, "#1").toBe(true);
+    expect(document.activeElement, "#2").toBe(first);
+    removePopup(holder, container);
   });
 });
 

@@ -75,6 +75,37 @@ describe("Filter question", () => {
     fixture.destroy();
     survey.dispose();
   });
+  it("a change of the chips measures the row again", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }],
+      items: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const fixture = renderSurvey(survey);
+    await settle(fixture);
+    const update = spyOn(q.chipsLayout, "update").and.callThrough();
+    q.items.splice(1, 1);
+    await settle(fixture);
+    await fixture.whenStable();
+    expect(update).toHaveBeenCalled();
+    fixture.destroy();
+    survey.dispose();
+  });
+  it("typing in the search box sets the search string and the filter expression", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const fixture = renderSurvey(survey);
+    await settle(fixture);
+    const input = <HTMLInputElement>fixture.nativeElement.querySelector(".sd-filter__search input");
+    expect(!!input).withContext("#1: the search box").toBe(true);
+    expect(q.filterExpression).withContext("#2").toBe("");
+    input.value = "ab";
+    input.dispatchEvent(new Event("input"));
+    await settle(fixture);
+    expect(q.searchString).withContext("#3").toBe("ab");
+    expect(q.filterExpression).withContext("#4: the search filters the records").toContain("ab");
+    expect((<HTMLInputElement>fixture.nativeElement.querySelector(".sd-filter__search input")).value).withContext("#5").toBe("ab");
+    fixture.destroy();
+    survey.dispose();
+  });
 });
 
 describe("Filter list item", () => {
@@ -193,6 +224,61 @@ describe("Filter dialogs", () => {
     const fixture = createByName("sv-filter-field-popup", { holder: holder });
     await settle(fixture);
     expect(!!getRoot(fixture).querySelector(".sd-filter-popup__search.sd-formbox input")).toBe(true);
+    fixture.destroy();
+    holder.fieldPopup.dispose();
+  });
+  it("typing in the Filters dialog's search box sets the dialog's search string", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    const fixture = createByName("sv-filter-modal", { holder: holder });
+    await settle(fixture);
+    const input = <HTMLInputElement>getRoot(fixture).querySelector(".sd-filter-modal__section input");
+    input.value = "ab";
+    input.dispatchEvent(new Event("input"));
+    await settle(fixture);
+    expect(holder.modal.searchString).withContext("#1").toBe("ab");
+    expect(q.searchString).withContext("#2: the question's search string waits for Apply").toBe("");
+    expect((<HTMLInputElement>getRoot(fixture).querySelector(".sd-filter-modal__section input")).value).withContext("#3").toBe("ab");
+    const modal = holder.modal;
+    holder.modal = undefined as any;
+    await settle(fixture);
+    modal.dispose();
+    fixture.destroy();
+  });
+  async function renderPopup(): Promise<{ holder: FilterEditorHolder, fixture: ComponentFixture<any>, input: HTMLInputElement }> {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
+      { name: "product", fieldType: "dropdown", choices: ["apple", "banana", "cherry", "date", "elder", "fig", "grape"] }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.fieldPopup = q.createFieldPopup("product", () => {});
+    const fixture = createByName("sv-filter-field-popup", { holder: holder });
+    await settle(fixture);
+    return { holder: holder, fixture: fixture, input: <HTMLInputElement>getRoot(fixture).querySelector(".sd-filter-popup__search-input") };
+  }
+  it("typing in the search box of a badge's popup filters its list", async () => {
+    const { holder, fixture, input } = await renderPopup();
+    const list = holder.fieldPopup.list;
+    expect(list.visibleItems.length).withContext("#1").toBe(7);
+    input.value = "an";
+    input.dispatchEvent(new Event("input"));
+    await settle(fixture);
+    expect(list.filterString).withContext("#2").toBe("an");
+    expect(list.visibleItems.map((a: Action) => a.title)).withContext("#3").toEqual(["banana"]);
+    expect((<HTMLInputElement>getRoot(fixture).querySelector(".sd-filter-popup__search-input")).value).withContext("#4").toBe("an");
+    fixture.destroy();
+    holder.fieldPopup.dispose();
+  });
+  it("ArrowDown in the search box of a badge's popup focuses the first item of the list", async () => {
+    const { holder, fixture, input } = await renderPopup();
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    await settle(fixture);
+    const first = getRoot(fixture).querySelector(".sd-filter-popup ul > li");
+    expect(!!first).withContext("#1").toBe(true);
+    expect(document.activeElement).withContext("#2").toBe(first);
     fixture.destroy();
     holder.fieldPopup.dispose();
   });

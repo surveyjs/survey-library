@@ -75,6 +75,24 @@ describe("Filter question", () => {
     cleanup(wrapper);
     survey.dispose();
   });
+  it("typing in the search box sets the search string and the filter expression", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const wrapper = mount(Survey, { attachTo: attach(), props: { model: survey } });
+    await nextTick();
+    const container = wrapper.element.parentElement;
+    const input = container.querySelector(".sd-filter__search input") as HTMLInputElement;
+    expect(!!input, "#1: the search box").toBe(true);
+    expect(q.filterExpression, "#2").toBe("");
+    input.value = "ab";
+    input.dispatchEvent(new Event("input"));
+    await nextTick();
+    expect(q.searchString, "#3").toBe("ab");
+    expect(q.filterExpression, "#4: the search filters the records").toContain("ab");
+    expect((container.querySelector(".sd-filter__search input") as HTMLInputElement).value, "#5").toBe("ab");
+    cleanup(wrapper);
+    survey.dispose();
+  });
 });
 
 describe("Filter list item", () => {
@@ -181,6 +199,62 @@ describe("Filter dialogs", () => {
     const wrapper = mountComponent("sv-filter-field-popup", { holder: holder });
     await nextTick();
     expect(!!wrapper.element.parentElement.querySelector(".sd-filter-popup__search.sd-formbox input")).toBe(true);
+    cleanup(wrapper);
+    holder.fieldPopup.dispose();
+  });
+  it("typing in the Filters dialog's search box sets the dialog's search string", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    const wrapper = mountComponent("sv-filter-modal", { holder: holder });
+    await nextTick();
+    const container = wrapper.element.parentElement;
+    const input = container.querySelector(".sd-filter-modal__section input") as HTMLInputElement;
+    input.value = "ab";
+    input.dispatchEvent(new Event("input"));
+    await nextTick();
+    expect(holder.modal.searchString, "#1").toBe("ab");
+    expect(q.searchString, "#2: the question's search string waits for Apply").toBe("");
+    expect((container.querySelector(".sd-filter-modal__section input") as HTMLInputElement).value, "#3").toBe("ab");
+    const modal = holder.modal;
+    holder.modal = undefined;
+    await nextTick();
+    modal.dispose();
+    cleanup(wrapper);
+  });
+  async function renderPopup(): Promise<{ holder: FilterEditorHolder, wrapper: VueWrapper<any>, input: HTMLInputElement }> {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
+      { name: "product", fieldType: "dropdown", choices: ["apple", "banana", "cherry", "date", "elder", "fig", "grape"] }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.fieldPopup = q.createFieldPopup("product", () => {});
+    const wrapper = mountComponent("sv-filter-field-popup", { holder: holder });
+    await nextTick();
+    return { holder: holder, wrapper: wrapper, input: wrapper.element.parentElement.querySelector(".sd-filter-popup__search-input") as HTMLInputElement };
+  }
+  it("typing in the search box of a badge's popup filters its list", async () => {
+    const { holder, wrapper, input } = await renderPopup();
+    const list = holder.fieldPopup.list;
+    expect(list.visibleItems.length, "#1").toBe(7);
+    input.value = "an";
+    input.dispatchEvent(new Event("input"));
+    await nextTick();
+    expect(list.filterString, "#2").toBe("an");
+    expect(list.visibleItems.map((a: Action) => a.title), "#3").toEqual(["banana"]);
+    expect((wrapper.element.parentElement.querySelector(".sd-filter-popup__search-input") as HTMLInputElement).value, "#4").toBe("an");
+    cleanup(wrapper);
+    holder.fieldPopup.dispose();
+  });
+  it("ArrowDown in the search box of a badge's popup focuses the first item of the list", async () => {
+    const { holder, wrapper, input } = await renderPopup();
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    await nextTick();
+    const first = wrapper.element.parentElement.querySelector(".sd-filter-popup ul > li");
+    expect(!!first, "#1").toBe(true);
+    expect(document.activeElement, "#2").toBe(first);
     cleanup(wrapper);
     holder.fieldPopup.dispose();
   });

@@ -115,7 +115,8 @@ frameworks.forEach(framework => {
     });
 
     test("Edit Presets", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 900 });
+      // Tall enough for the whole dialog: at 900 it scrolls and cuts the Preset Actions row.
+      await page.setViewportSize({ width: 1280, height: 1300 });
       await initSurvey(page, framework, json());
       await openFilters(page);
       await popupWith(page, ".sd-filter-modal__content").locator(".sd-filter-modal__section-header [title='Edit Presets']").click();
@@ -171,6 +172,14 @@ frameworks.forEach(framework => {
       await openFilters(page);
       await settle(page);
       await compareScreenshot(page, popupWith(page, ".sd-filter-modal__content"), "filter-modal-mobile.png");
+    });
+    test("on a phone: Edit Presets", async ({ page }) => {
+      await initPhone(page);
+      await openFilters(page);
+      await popupWith(page, ".sd-filter-modal__content").locator(".sd-filter-modal__section-header [title='Edit Presets']").click();
+      await popupWith(page, ".sd-filter-preset-dialog__tabs").waitFor({ state: "visible" });
+      await settle(page);
+      await compareScreenshot(page, popupWith(page, ".sd-filter-preset-dialog__tabs"), "filter-edit-presets-dialog-mobile.png");
     });
   });
 });

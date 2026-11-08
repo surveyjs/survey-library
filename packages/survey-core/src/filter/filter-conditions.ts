@@ -2,13 +2,13 @@ import { getLocaleString } from "../surveyStrings";
 import { ItemValue } from "../itemvalue";
 import { Helpers } from "../helpers";
 import { QuestionValueType } from "../question";
-import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
+import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import {
   getConditionDefaultOperator, getConditionOperatorNames, isConditionOperatorEnabled, isQuestionClassContains
 } from "../conditions/conditionOperators";
 import { ConditionEditorItem, ConditionEditorItemsBuilder } from "../conditions/conditionEditorItems";
-import { getFieldChoiceItems, toExpressionConst } from "./filter-expression";
+import { getFieldChoiceItems, getFilterValueText, toExpressionConst } from "./filter-expression";
 
 // The label a condition editor shows for one operator, e.g. "equal" -> "Equals". Written out as
 // literal keys (not "conditionOperator" + operator, capitalized) so survey-utils check-strings -
@@ -62,13 +62,13 @@ export function getFilterConditionValueText(field: IDynamicDataFilterField, valu
       const res = q.getDisplayValue(false, v);
       if (res !== undefined && res !== null && res !== "") return res.toString();
     }
-    return v === undefined || v === null ? "" : v.toString();
+    return getFilterValueText(v);
   };
   return (Array.isArray(value) ? value : [value]).map(toText).join(", ");
 }
 // "Title: Operator value" - the one-line summary a renderer shows for a field's condition.
 export function getFilterConditionText(field: IDynamicDataFilterField, condition: IFilterCondition, locale?: string): string {
-  const title = !!field.locTitle ? field.locTitle.calculatedText : field.name;
+  const title = getFilterFieldTitle(field);
   let res = title + ": " + getConditionOperatorTitle(condition.operator, locale);
   if (isFilterConditionValueRequired(condition.operator)) {
     res += " " + getFilterConditionValueText(field, condition.value);

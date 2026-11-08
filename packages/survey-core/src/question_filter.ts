@@ -1,15 +1,17 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
+import type { LocalizableString } from "./localizablestring";
+import type { Question } from "./question";
 import { Helpers, HashTable } from "./helpers";
 import { ISurveyImpl } from "./base-interfaces";
 import {
-  IElementUIState, IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterState, IFilterUserItemState
+  IElementUIState, IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterSavedItemState, IFilterState, IFilterUserItemState
 } from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
-import { FilterFieldPopup } from "./filter/filter-field-popup";
+import { FilterFieldPopup, writeFilterFieldCondition } from "./filter/filter-field-popup";
 import { FilterModal } from "./filter/filter-modal";
 import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter/filter-preset-dialog";
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
@@ -20,19 +22,21 @@ import { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 import { ActionContainer } from "./actions/container";
 import { buildSearchFragment } from "./filter/filter-expression";
 import {
-  conditionsToExpression, getFieldsByValueName, getFilterConditionText, getFilterFieldOperators, getFilterValueEditorJson,
+  conditionsToExpression, getFieldsByValueName, getFilterFieldOperators, getFilterValueEditorJson,
   normalizeFilterCondition, normalizeFilterConditions, parseFilterExpression
 } from "./filter/filter-conditions";
 import { FilterFieldEditorKind, getFilterChipText, getFilterFieldEditorKind } from "./filter/filter-field-kinds";
-import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
+import { IDynamicDataFilterField, getFilterFieldTitle } from "./dynamic-data/dynamic-data-filter-fields";
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 
 // What uiState keeps of the authored presets the respondent changed, by name.
-type FilterSavedItems = { [name: string]: { conditions?: Array<IFilterCondition>, title?: string, prompt?: string } };
-// How a preset is made: type "ai" and the description it was made of, for one made with AI.
-type FilterItemOrigin = { type?: string, prompt?: string };
+type FilterSavedItems = { [name: string]: IFilterSavedItemState };
+// How a preset is made: kind "ai" and the description it was made of, for one made with AI.
+type FilterItemOrigin = { kind?: "fields" | "ai", prompt?: string };
 // The operators whose value is a set of values - see isSameConditionSet().
+// The source is always the question findQuestionByName returns, asked by capability - see filterSource.
+type FilterSourceQuestion = Question & IDynamicDataFilterSource;
 const multiValueOperators: { [operator: string]: boolean } = { anyof: true, noneof: true, allof: true };
 
 // The Filter Control. It descends from QuestionNonValue because it is a control and not an answer:
@@ -165,15 +169,15 @@ export class QuestionFilterModel extends QuestionNonValue {
   // through a fresh lookup by name: once source has been re-pointed, or the source question has
   // been renamed, the lookup no longer finds the question that still carries the filter, and it
   // would stay filtered forever with nothing left to clear it.
-  private attachedSource: IDynamicDataFilterSource;
+  private attachedSource: FilterSourceQuestion;
   // The question source names, if it can be filtered by a control. Asked by capability, the way the
   // data list asks a source whether it has "remove": the control imports none of the records questions.
   // A control taken off its page keeps its data, so without the parent check it would still find a
   // source - and filter it from outside the survey - the next time it re-resolves one.
-  private get filterSource(): IDynamicDataFilterSource {
+  private get filterSource(): FilterSourceQuestion {
     const q: any = !!this.data && !!this.parent ? this.data.findQuestionByName(this.source) : undefined;
     return !!q && typeof q.getFilterFields === "function" && typeof q.setControlFilter === "function"
-      ? <IDynamicDataFilterSource>q : undefined;
+      ? <FilterSourceQuestion>q : undefined;
   }
 
   // Standalone or bound: one uniform field list, so nothing downstream has to know which one it is.
@@ -311,14 +315,14 @@ export class QuestionFilterModel extends QuestionNonValue {
   // Whether the application answers AI requests (survey.onAIFilterRequest has a handler): an AI
   // preset may be asked about again (Make Changes). Never in the designer. Read when a dialog opens.
   public get canRequestAI(): boolean {
-    const survey: any = this.survey;
-    return !this.isDesignMode && !!survey && typeof survey.isAIFilterRequestAvailable === "function" && survey.isAIFilterRequestAvailable();
+    return !this.isDesignMode && !!this.survey && this.survey.isAIFilterRequestAvailable();
   }
   // Create with AI: a new preset from a description, where presets may be added.
   public get canCreateAIItems(): boolean { return this.canRequestAI && this.canAddItems; }
   public fireAIRequest(options: FilterAIRequestEvent): void {
-    const survey: any = this.survey;
-    if (!!survey && typeof survey.aiFilterRequest === "function") survey.aiFilterRequest(options);
+    if (!!this.survey) {
+      this.survey.aiFilterRequest(options);
+    }
   }
   // A conversation with the application's model about this control's filter - see FilterAIRequest.
   // The caller disposes it.
@@ -379,7 +383,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // A preset of the respondent's own (the Filters dialog's Add Preset): the conditions it filters by,
   // normalized as an edit is, and a title. It goes after every other preset and is not turned on.
   // Nothing is added where presets cannot be added, in the designer, or for conditions none of which
-  // the fields can hold: a preset that filters by nothing is no preset. options: type "ai" and its
+  // the fields can hold: a preset that filters by nothing is no preset. options: kind "ai" and its
   // prompt for a preset made with AI (Create with AI).
   public addItem(title: string, conditions: Array<IFilterCondition>, options?: FilterItemOrigin): FilterItem {
     if (!this.canAddItems || this.isDesignMode) return undefined;
@@ -417,7 +421,7 @@ export class QuestionFilterModel extends QuestionNonValue {
         this.rememberOriginal(item);
       }
       if (isTitleChanged) {
-        this.setItemTitle(item, text);
+        this.setItemText(item.locTitle, text);
         if (!isUser) {
           this.savedItemTitles[item.name] = text;
         }
@@ -431,7 +435,7 @@ export class QuestionFilterModel extends QuestionNonValue {
         }
       }
       if (isPromptChanged) {
-        this.setItemPrompt(item, promptText);
+        this.setItemText(item.locPrompt, promptText);
         if (!isUser) {
           this.savedItemPrompts[item.name] = promptText;
         }
@@ -515,7 +519,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (this.isDesignMode) return false;
     if (this.allowMultipleItems) return true;
     const item = this.activeItem;
-    return !item || item.type !== "ai";
+    return !item || item.kind !== "ai";
   }
   // The active preset applies as text that has no conditions to show: an "or", a function, a
   // comparison of two fields. A renderer warns with it that the first edit starts from nothing.
@@ -529,14 +533,6 @@ export class QuestionFilterModel extends QuestionNonValue {
     const conditions = this.ownConditions !== undefined ? this.ownConditions : this.parseActiveItemConditions();
     const condition = (conditions || []).filter((c: IFilterCondition): boolean => c.field === field.valueName)[0];
     return !!condition ? this.copyCondition(condition) : undefined;
-  }
-  // What a renderer writes on a field's badge. Empty where the field has no condition - which is also
-  // every field of a preset that does not decompose (isRawExpression): its text has none to show.
-  public getFieldConditionText(name: string): string {
-    const field = this.getFieldByName(name);
-    const condition = this.getFieldCondition(name);
-    if (!field || !condition) return "";
-    return getFilterConditionText(field, condition, this.getLocale());
   }
   // One condition per field: an edit of a field that already has one replaces it where it stands,
   // so the badges a renderer shows do not jump around; a new one goes to the end. The condition is
@@ -638,12 +634,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       readOnly: !this.canEditConditions,
       onApply: (conditions: Array<IFilterCondition>): void => {
         if (conditions === undefined) return;
-        const condition = conditions[0];
-        if (!!condition) {
-          this.setFieldCondition(name, condition.operator, condition.value);
-        } else if (!!this.getFieldCondition(name)) {
-          this.clearFieldCondition(name);
-        }
+        writeFilterFieldCondition(this, name, conditions[0]);
       }
     });
   }
@@ -668,7 +659,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // isAdvancedModeAvailable is false: that flag tells a renderer whether to offer the mode, it is
   // not a permission the model enforces. The caller owns the editor and disposes it.
   public createAdvancedModeEditor(): FilterConditionsEditor {
-    return new FilterConditionsEditor(this, this.getAdvancedModeFieldKeys(), {
+    return new FilterConditionsEditor(this, this.getAllFieldKeys(), {
       readOnly: !this.canEditConditions,
       showSearch: this.showSearch,
       searchString: this.searchString,
@@ -684,7 +675,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // dialog has one above its presets. It writes nothing: the dialog reads its conditions
   // (FilterModal) and is told of every change through onFieldChanged.
   public createModalEditor(onFieldChanged: () => void): FilterConditionsEditor {
-    return new FilterConditionsEditor(this, this.getAdvancedModeFieldKeys(), {
+    return new FilterConditionsEditor(this, this.getAllFieldKeys(), {
       readOnly: !this.canEditConditions,
       showFieldTitles: true,
       useFieldKinds: true,
@@ -706,12 +697,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   public createEditPresetsDialog(activeItemName?: string): FilterEditPresetsDialog {
     return new FilterEditPresetsDialog(this, activeItemName);
   }
-  // Every field by its key, in the order the Filters dialog shows them - the fields a preset can be
-  // made of.
-  public getAllFieldKeys(): Array<string> { return this.getAdvancedModeFieldKeys(); }
-  // Every field by the name the editors reach it back by - those fast mode hides too, a duplicate
-  // valueName collapsed to its first field.
-  private getAdvancedModeFieldKeys(): Array<string> {
+  // Every field by the name the editors reach it back by, in the order the Filters dialog shows them -
+  // the fields a preset can be made of: those fast mode hides too, a duplicate valueName collapsed to
+  // its first field.
+  public getAllFieldKeys(): Array<string> {
     const all = this.getFilterFields();
     const names: Array<string> = [];
     this.collapseDuplicateValueNames(all).forEach((field: IDynamicDataFilterField): void => {
@@ -881,7 +870,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       const kind = getFilterFieldEditorKind(field);
       res.push({
         key: key,
-        title: !!field.locTitle ? field.locTitle.calculatedText : field.name,
+        title: getFilterFieldTitle(field),
         kind: kind,
         text: !!condition ? getFilterChipText(field, condition, locale, kind) : ""
       });
@@ -916,8 +905,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // Says what the search looks in: the titles of the fields it searches, in searchFields' order. With
   // no field to name it is the library's own "Type to search...".
   public get searchPlaceholder(): string {
-    const titles = this.getSearchFields().map((field: IDynamicDataFilterField): string =>
-      (!!field.locTitle && field.locTitle.calculatedText) || field.name);
+    const titles = this.getSearchFields().map(getFilterFieldTitle);
     if (titles.length === 0) return this.getLocalizationString("filterStringPlaceholder");
     return filterUIStrings.searchPlaceholder.replace("{0}", titles.join(", "));
   }
@@ -934,7 +922,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The element the survey this control is in rendered into: the advanced editor's dialog is
   // mounted there, inside that survey's theme and outside its <form>. undefined while that survey is
   // not rendered.
-  public getSurveyRootElement(): HTMLElement { return !!this.survey ? (<any>this.survey).rootElement : undefined; }
+  public getSurveyRootElement(): HTMLElement { return !!this.survey ? this.survey.rootElement : undefined; }
   public getFieldOperators(name: string): Array<string> {
     const field = this.getFieldByName(name);
     return !!field ? getFilterFieldOperators(field) : [];
@@ -1042,10 +1030,6 @@ export class QuestionFilterModel extends QuestionNonValue {
   // array the host assigns anew drops the entries of the presets it replaced - see
   // dropReplacedSavedItems().
   private savedItemConditions: HashTable<Array<IFilterCondition>> = {};
-  // Internal accessor for the uiState serialization; deliberately not public API for this class.
-  private getSavedItemConditions(name: string): Array<IFilterCondition> {
-    return this.savedItemConditions[name];
-  }
   // The titles the respondent gave authored presets (updateItem), by name; their conditions are in
   // savedItemConditions.
   private savedItemTitles: HashTable<string> = {};
@@ -1066,10 +1050,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   private deletedItemNames: Array<string> = [];
   private createUserItem(name: string, title: string, conditions: Array<IFilterCondition>, origin?: FilterItemOrigin): FilterItem {
     const item = new FilterItem(name);
-    this.setItemTitle(item, (title || "").trim());
-    if (!!origin && origin.type === "ai") {
-      item.type = "ai";
-      this.setItemPrompt(item, (origin.prompt || "").trim());
+    this.setItemText(item.locTitle, (title || "").trim());
+    if (!!origin && origin.kind === "ai") {
+      item.kind = "ai";
+      this.setItemText(item.locPrompt, (origin.prompt || "").trim());
     }
     item.expression = conditionsToExpression(conditions, this.getFilterFields());
     this.userItemConditions[name] = conditions;
@@ -1079,22 +1063,19 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // Free among every preset, the deleted ones too: a name is what activeItemName and uiState hold.
   private getNewItemName(): string {
-    const isUsed = (name: string): boolean =>
-      this.items.some((item: FilterItem): boolean => item.name === name) || !!this.findUserItem(name);
     let n = this.userItemsValue.length + 1;
-    while(isUsed("userItem" + n)) n++;
+    while(this.isItemNameUsed("userItem" + n)) n++;
     return "userItem" + n;
   }
-  // A title the respondent typed is the title in every locale: set as the default text, with no
-  // translations left that would show the author's text in another locale.
-  private setItemTitle(item: FilterItem, title: any): void {
-    item.locTitle.setJson(!!title && typeof title === "object" ? Object.assign({}, title) : (title || null), true);
-    item.locTitle.strChanged();
+  // A name is a key, not a title: matched exactly, with no trimming or case folding.
+  private isItemNameUsed(name: string): boolean {
+    return this.items.some((item: FilterItem): boolean => item.name === name) || !!this.findUserItem(name);
   }
-  // The same for a prompt: what the respondent typed is the prompt in every locale.
-  private setItemPrompt(item: FilterItem, prompt: any): void {
-    item.locPrompt.setJson(!!prompt && typeof prompt === "object" ? Object.assign({}, prompt) : (prompt || null), true);
-    item.locPrompt.strChanged();
+  // A title or a prompt the respondent typed is the text in every locale: set as the default text,
+  // with no translations left that would show the author's text in another locale.
+  private setItemText(locStr: LocalizableString, text: any): void {
+    locStr.setJson(!!text && typeof text === "object" ? Object.assign({}, text) : (text || null), true);
+    locStr.strChanged();
   }
   private rememberOriginal(item: FilterItem): void {
     if (!this.originalItems[item.name]) {
@@ -1129,8 +1110,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     delete this.savedItemTitles[item.name];
     delete this.savedItemPrompts[item.name];
     if (!original) return;
-    this.setItemTitle(item, original.title);
-    this.setItemPrompt(item, original.prompt);
+    this.setItemText(item.locTitle, original.title);
+    this.setItemText(item.locPrompt, original.prompt);
     item.expression = original.expression;
   }
   // An array value is copied both ways: the caller's array must not be able to change the filter
@@ -1225,7 +1206,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.updateToolbars();
   }
   private detachFromSource(): void {
-    const source: any = this.attachedSource;
+    const source = this.attachedSource;
     this.attachedSource = undefined;
     // A disposed question has no list and no controller left to write into.
     if (!!source && source.isDisposed !== true) {
@@ -1239,9 +1220,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!!source) {
       source.setControlFilter(this.controlFilterKey, this.filterExpression);
     }
-    const survey: any = this.survey;
-    if (!!survey && !!survey.filterChanged) {
-      survey.filterChanged(this, this.filterExpression, source);
+    if (!!this.survey) {
+      this.survey.filterChanged(this, this.filterExpression, source);
     }
   }
   // A bound control whose source is not there (yet) has no fields to check restored conditions
@@ -1296,33 +1276,22 @@ export class QuestionFilterModel extends QuestionNonValue {
   // Only presets that still exist and may still be edited: restoreItems() would ignore any other.
   private getUIStateItems(): FilterSavedItems {
     let res: FilterSavedItems = undefined;
-    const add = (name: string, conditions: Array<IFilterCondition>, title: string, prompt: string): void => {
+    const add = (name: string, item: IFilterSavedItemState): void => {
       if (!this.canRestoreSavedItem(name)) return;
-      const entry: { conditions?: Array<IFilterCondition>, title?: string, prompt?: string } = {};
-      if (Array.isArray(conditions)) {
-        entry.conditions = conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
-      }
-      if (typeof title === "string") {
-        entry.title = title;
-      }
-      if (typeof prompt === "string") {
-        entry.prompt = prompt;
-      }
-      if (Object.keys(entry).length === 0) return;
+      const entry = this.toSavedItemEntry(item);
+      if (!entry) return;
       res = res || {};
       res[name] = entry;
     };
     const pending = this.pendingItems || {};
-    Object.keys(pending).forEach((name: string): void => {
-      if (!!pending[name]) add(name, pending[name].conditions, pending[name].title, pending[name].prompt);
-    });
+    Object.keys(pending).forEach((name: string): void => { add(name, pending[name]); });
     // A preset changed in this session wins over one still waiting for its source: it is newer.
     const names = Object.keys(this.savedItemConditions);
     Object.keys(this.savedItemTitles).concat(Object.keys(this.savedItemPrompts)).forEach((name: string): void => {
       if (names.indexOf(name) < 0) names.push(name);
     });
     names.forEach((name: string): void => {
-      add(name, this.getSavedItemConditions(name), this.savedItemTitles[name], this.savedItemPrompts[name]);
+      add(name, { conditions: this.savedItemConditions[name], title: this.savedItemTitles[name], prompt: this.savedItemPrompts[name] });
     });
     return res;
   }
@@ -1335,8 +1304,8 @@ export class QuestionFilterModel extends QuestionNonValue {
       const title = item.locTitle.getJson();
       const res: IFilterUserItemState = { name: item.name, title: typeof title === "string" ? title : "",
         conditions: this.userItemConditions[item.name].map((c: IFilterCondition): IFilterCondition => this.copyCondition(c)) };
-      if (item.type === "ai") {
-        res.type = "ai";
+      if (item.kind === "ai") {
+        res.kind = "ai";
         res.prompt = item.prompt;
       }
       return res;
@@ -1417,13 +1386,13 @@ export class QuestionFilterModel extends QuestionNonValue {
       const title = typeof entry.title === "string" ? entry.title.trim() : "";
       if (!!title) {
         this.rememberOriginal(item);
-        this.setItemTitle(item, title);
+        this.setItemText(item.locTitle, title);
         this.savedItemTitles[name] = title;
       }
       const prompt = typeof entry.prompt === "string" ? entry.prompt.trim() : "";
       if (!!prompt) {
         this.rememberOriginal(item);
-        this.setItemPrompt(item, prompt);
+        this.setItemText(item.locPrompt, prompt);
         this.savedItemPrompts[name] = prompt;
       }
       if (!Array.isArray(entry.conditions)) return;
@@ -1461,13 +1430,12 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (!entry || typeof entry !== "object" || typeof entry.name !== "string" || !entry.name || !Array.isArray(entry.conditions)) return;
       const conditions = normalizeFilterConditions(entry.conditions, fields);
       if (conditions.length === 0) return;
-      const isTaken = this.items.some((item: FilterItem): boolean => item.name === entry.name) || !!this.findUserItem(entry.name);
-      const name = isTaken ? this.getNewItemName() : entry.name;
+      const name = this.isItemNameUsed(entry.name) ? this.getNewItemName() : entry.name;
       if (name !== entry.name) {
         renamed[entry.name] = name;
       }
       this.createUserItem(name, typeof entry.title === "string" ? entry.title : "", conditions,
-        { type: entry.type, prompt: typeof entry.prompt === "string" ? entry.prompt : "" });
+        { kind: entry.kind, prompt: typeof entry.prompt === "string" ? entry.prompt : "" });
     });
     return renamed;
   }
@@ -1481,34 +1449,39 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!items) return undefined;
     const res: FilterSavedItems = {};
     Object.keys(items).forEach((name: string): void => {
-      const entry = items[name];
-      if (!entry) return;
-      const copy: { conditions?: Array<IFilterCondition>, title?: string, prompt?: string } = {};
-      if (typeof entry.title === "string") {
-        copy.title = entry.title;
-      }
-      if (typeof entry.prompt === "string") {
-        copy.prompt = entry.prompt;
-      }
-      if (Array.isArray(entry.conditions)) {
-        const conditions = this.copyConditionList(entry.conditions);
-        // Nothing usable left of a non-empty list: see restoreItems(), which would skip it too.
-        if (conditions.length > 0 || entry.conditions.length === 0) {
-          copy.conditions = conditions;
-        }
-      }
-      if (Object.keys(copy).length > 0) {
+      const copy = this.toSavedItemEntry(items[name]);
+      if (!!copy) {
         res[name] = copy;
       }
     });
     return res;
   }
+  // A saved preset's entry, copied: a string title and prompt, and the conditions that are objects.
+  // undefined when nothing is left of it.
+  private toSavedItemEntry(entry: IFilterSavedItemState): IFilterSavedItemState {
+    if (!entry || typeof entry !== "object") return undefined;
+    const res: IFilterSavedItemState = {};
+    if (Array.isArray(entry.conditions)) {
+      const conditions = this.copyConditionList(entry.conditions);
+      // Nothing usable left of a non-empty list: see restoreItems(), which would skip it too.
+      if (conditions.length > 0 || entry.conditions.length === 0) {
+        res.conditions = conditions;
+      }
+    }
+    if (typeof entry.title === "string") {
+      res.title = entry.title;
+    }
+    if (typeof entry.prompt === "string") {
+      res.prompt = entry.prompt;
+    }
+    return Object.keys(res).length > 0 ? res : undefined;
+  }
   private copyUserItems(list: Array<IFilterUserItemState>): Array<IFilterUserItemState> {
     return list.filter((entry: IFilterUserItemState): boolean => !!entry && typeof entry === "object" && Array.isArray(entry.conditions))
       .map((entry: IFilterUserItemState): IFilterUserItemState => {
         const res: IFilterUserItemState = { name: entry.name, title: entry.title, conditions: this.copyConditionList(entry.conditions) };
-        if (entry.type === "ai") {
-          res.type = "ai";
+        if (entry.kind === "ai") {
+          res.kind = "ai";
           res.prompt = typeof entry.prompt === "string" ? entry.prompt : "";
         }
         return res;
@@ -1593,16 +1566,14 @@ export class QuestionFilterModel extends QuestionNonValue {
       this.batchLevel--;
     }
   }
-  // The survey is reached duck-typed so a host that is not a SurveyModel does not crash on it. The
-  // designer has no respondent, so nothing done to the control there is respondent state.
+  // The designer has no respondent, so nothing done to the control there is respondent state.
   private raiseUIStateChanged(): void {
     if (this.isLoadingFromJson || this.isDesignMode || !this.survey) return;
     if (this.batchLevel > 0) {
       this.uiStateChangedInBatch = true;
       return;
     }
-    const survey: any = this.survey;
-    if (!!survey.filterStateChanged) survey.filterStateChanged(this);
+    this.survey.filterStateChanged(this);
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
@@ -1764,18 +1735,17 @@ export class QuestionFilterModel extends QuestionNonValue {
 function getSearchFieldChoices(obj: any): Array<any> {
   if (!obj || typeof obj.getFilterFields !== "function") return [];
   const fields: Array<IDynamicDataFilterField> = obj.getFilterFields();
-  const titleOf = (field: IDynamicDataFilterField): string => (!!field.locTitle && field.locTitle.calculatedText) || field.name;
   const counts: { [name: string]: number } = {};
   fields.forEach((field: IDynamicDataFilterField): void => { counts[field.name] = (counts[field.name] || 0) + 1; });
   const res: Array<any> = fields.map((field: IDynamicDataFilterField): any => counts[field.name] > 1
-    ? { value: field.valueName, text: titleOf(field) + " (" + field.valueName + ")" }
-    : { value: field.name, text: titleOf(field) });
+    ? { value: field.valueName, text: getFilterFieldTitle(field) + " (" + field.valueName + ")" }
+    : { value: field.name, text: getFilterFieldTitle(field) });
   const current = obj.searchFields;
   if (Array.isArray(current)) {
     current.forEach((val: string): void => {
       if (res.some((item: any): boolean => item.value === val)) return;
       const field: IDynamicDataFilterField = obj.getFieldByName(val);
-      if (!!field) res.push({ value: val, text: titleOf(field) + " (" + val + ")" });
+      if (!!field) res.push({ value: val, text: getFilterFieldTitle(field) + " (" + val + ")" });
     });
   }
   return res;

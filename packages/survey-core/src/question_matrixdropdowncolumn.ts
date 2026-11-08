@@ -38,6 +38,8 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   readonly isQuestion: boolean;
   // The respondent sorts the rows, by a header click among others.
   readonly allowSort?: boolean;
+  // The matrix's own choices, which a select cell with none of its own shows.
+  readonly choices?: Array<ItemValue>;
 }
 export class MatrixColumnGetterContext implements IValueGetterContext {
   constructor(private column: MatrixDropdownColumn) {
@@ -605,9 +607,11 @@ export class MatrixDropdownColumn extends Base
   // no choicesByUrl of its own shows the matrix's. It is applied to the cells only, never to the
   // template question, and copying them there would serialize them into the column.
   private getMatrixChoicesForFilter(): Array<ItemValue> {
-    const q: any = this.templateQuestion;
+    // Cast, not instanceof: QuestionSelectBase stays a type-only import here. A question of another
+    // type has no isChoicesUrlEmpty, so the test below refuses it.
+    const q = <QuestionSelectBase>this.templateQuestion;
     if (!q || q.isChoicesUrlEmpty !== true || (Array.isArray(q.choices) && q.choices.length > 0)) return undefined;
-    const matrixChoices: Array<ItemValue> = !!this.colOwner ? (<any>this.colOwner).choices : undefined;
+    const matrixChoices = !!this.colOwner ? this.colOwner.choices : undefined;
     return Array.isArray(matrixChoices) && matrixChoices.length > 0 ? matrixChoices : undefined;
   }
   /**
@@ -1128,7 +1132,7 @@ Serializer.addClass(
     // question's. It deliberately does NOT forward into it - do not copy isRequired here, that one
     // forwards through an onSet (see its @property above). The column is the only authority:
     // updateTemplateQuestion() recreates the cell question whenever cellType changes and a
-    // forwarded value would not survive it, so the composite path (question_matrixdynamic.ts,
+    // forwarded value would not survive it, so the composite path (question_matrixdropdownbase.ts,
     // getFilterFields) asks column.allowFiltering and not the cell question's copy of it.
     // dependsOn re-asks the grid when the cell type changes, because the cell type is what decides
     // whether a column can be filtered at all.

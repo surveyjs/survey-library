@@ -3,7 +3,7 @@ import { property } from "../decorators";
 import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { IFilterCondition, IFilterState } from "../interfaces/ui-interfaces";
-import { FilterItem } from "./filter-item";
+import { FilterItem, getUniqueFilterActionId } from "./filter-item";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
 import { filterUIStrings } from "./filter-ui-strings";
 
@@ -201,14 +201,10 @@ export class FilterModal extends Base {
     const used: { [id: string]: boolean } = {};
     return this.owner.visibleItems.map((item: FilterItem): Action => {
       // A chip of its own even for a second preset with the same name, as in the control's row.
-      const base = "sv-filter-modal-item-" + item.name;
-      let id = base;
-      for (let n = 2; used[id]; n++) {
-        id = base + "-" + n;
-      }
+      const id = getUniqueFilterActionId("sv-filter-modal-item-" + item.name, (candidate: string): boolean => !!used[candidate]);
       used[id] = true;
       const chip = new Action({ id: id, enabled: !this.isReadOnly, iconSize: "auto",
-        iconName: item.type === "ai" ? "icon-sparkle-24x24" : undefined,
+        iconName: item.kind === "ai" ? "icon-sparkle-24x24" : undefined,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.togglePreset(item); } });
       chip.locTitle = item.locTitle;
       chip.data = item;

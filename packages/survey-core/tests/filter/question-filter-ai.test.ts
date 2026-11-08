@@ -85,9 +85,9 @@ describe("FilterAIRequest", () => {
   });
 });
 
-describe("QuestionFilterModel: the type and the prompt of a preset", () => {
+describe("QuestionFilterModel: the kind and the prompt of a preset", () => {
   const adults = [{ field: "age", operator: "greater", value: 18 }];
-  const aiItem = { name: "a1", type: "ai", prompt: "p0", expression: "{age} > 18" };
+  const aiItem = { name: "a1", kind: "ai", prompt: "p0", expression: "{age} > 18" };
   function trackEvents(q: QuestionFilterModel): { filter: number, uiState: number } {
     const survey = <SurveyModel>q.survey;
     const res = { filter: 0, uiState: 0 };
@@ -95,20 +95,20 @@ describe("QuestionFilterModel: the type and the prompt of a preset", () => {
     survey.onUIStateChanged.add((_, o) => { if (o.changedProperty === "filter") res.uiState++; });
     return res;
   }
-  test("the respondent's AI preset keeps its type and prompt in uiState; any other preset has neither", () => {
+  test("the respondent's AI preset keeps its kind and prompt in uiState; any other preset has neither", () => {
     const q = createFilter();
-    const item = q.addItem("Adults", adults, { type: "ai", prompt: "grown-ups" });
-    expect([item.type, item.prompt], "#1").toEqual(["ai", "grown-ups"]);
+    const item = q.addItem("Adults", adults, { kind: "ai", prompt: "grown-ups" });
+    expect([item.kind, item.prompt], "#1").toEqual(["ai", "grown-ups"]);
     q.addItem("Kids", [{ field: "age", operator: "less", value: 10 }]);
     const userItems = q.uiState.filter.userItems;
-    expect(userItems[0], "#2").toEqual({ name: "userItem1", title: "Adults", conditions: adults, type: "ai", prompt: "grown-ups" });
+    expect(userItems[0], "#2").toEqual({ name: "userItem1", title: "Adults", conditions: adults, kind: "ai", prompt: "grown-ups" });
     expect(Object.keys(userItems[1]).sort(), "#3").toEqual(["conditions", "name", "title"]);
   });
   test("a restore brings the AI preset back", () => {
     const q = createFilter();
-    q.uiState = { filter: { userItems: [{ name: "userItem1", title: "Adults", conditions: adults, type: "ai", prompt: "grown-ups" }] } };
+    q.uiState = { filter: { userItems: [{ name: "userItem1", title: "Adults", conditions: adults, kind: "ai", prompt: "grown-ups" }] } };
     const item = q.getItemByName("userItem1");
-    expect([item.type, item.prompt, item.expression]).toEqual(["ai", "grown-ups", "{age} > 18"]);
+    expect([item.kind, item.prompt, item.expression]).toEqual(["ai", "grown-ups", "{age} > 18"]);
   });
   test("an authored AI preset: a new prompt is a change Reset takes back", () => {
     const q = createFilter({ items: [aiItem] });

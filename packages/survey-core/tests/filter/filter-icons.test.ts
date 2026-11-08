@@ -12,7 +12,7 @@ import { Action } from "../../src/actions/action";
 // (sd-filter.scss).
 const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
-  { name: "smart", type: "ai", expression: "{age} > 60" }];
+  { name: "smart", kind: "ai", expression: "{age} > 60" }];
 function control(): QuestionFilterModel {
   return createFilter({ items: presets });
 }

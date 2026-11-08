@@ -8,7 +8,7 @@ import { Helpers, normalizeTextForSearch } from "../helpers";
 import { getLocaleString } from "../surveyStrings";
 import { ElementHelper } from "../element-helper";
 import { classesToSelector, getFirstVisibleChild } from "../utils/dom-utils";
-import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
+import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
 import {
@@ -16,6 +16,7 @@ import {
   getFilterFieldSelection, getFilterSelectionCondition
 } from "./filter-field-kinds";
 import { filterUIStrings } from "./filter-ui-strings";
+import { getFilterValueText } from "./filter-expression";
 
 // What a field's popup reads from the control and calls on it: the control's public API only.
 export interface IFilterFieldPopupOwner extends ILocalizableOwner {
@@ -57,7 +58,7 @@ export class FilterFieldPopup extends Base {
     super();
     this.field = owner.getFieldByName(key);
     this.kind = owner.getFieldEditorKind(key);
-    this.title = !!this.field.locTitle ? this.field.locTitle.calculatedText : this.field.name;
+    this.title = getFilterFieldTitle(this.field);
     this.headerToolbarValue = new ActionContainer();
     this.headerToolbarValue.locOwner = owner;
     this.headerToolbarValue.setActionsAppearance({ style: "brand", mode: "tertiary", size: "small" });
@@ -193,7 +194,7 @@ export class FilterFieldPopup extends Base {
     return res;
   }
   private createCustomAction(value: any, enabled: boolean): Action {
-    const title = value === undefined || value === null ? "" : value.toString();
+    const title = getFilterValueText(value);
     return new Action({ id: "sv-filter-custom-" + (this.customCount++), title: title, enabled: enabled, data: { value: value, isCustom: true, popup: this } });
   }
   private createActions(): void {
@@ -309,10 +310,16 @@ export class FilterFieldPopup extends Base {
     this.listValue.setItems(isNeeded ? this.getValueActions().concat([add]) : this.getValueActions(), false);
   }
   private write(condition: IFilterCondition): void {
-    if (!!condition) {
-      this.owner.setFieldCondition(this.key, condition.operator, condition.value);
-    } else if (!!this.owner.getFieldCondition(this.key)) {
-      this.owner.clearFieldCondition(this.key);
-    }
+    writeFilterFieldCondition(this.owner, this.key, condition);
+  }
+}
+// One field's condition as an editor gives it: set, or cleared when there is none. A field that had
+// no condition and gets none is not written: clearing it would still be an edit, which turns an
+// active preset off.
+export function writeFilterFieldCondition(owner: IFilterFieldPopupOwner, name: string, condition: IFilterCondition): void {
+  if (!!condition) {
+    owner.setFieldCondition(name, condition.operator, condition.value);
+  } else if (!!owner.getFieldCondition(name)) {
+    owner.clearFieldCondition(name);
   }
 }

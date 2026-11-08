@@ -7,13 +7,22 @@ import { ISurvey } from "../base-interfaces";
 export interface IFilterItemOwner {
   getSurvey(live?: boolean): ISurvey;
 }
+// An action id for a preset's chip or tab: base, then base-2, base-3... for a second preset with the
+// same name (an authoring error), so a row and a renderer can still tell them apart.
+export function getUniqueFilterActionId(base: string, isUsed: (id: string) => boolean): string {
+  let id = base;
+  for (let n = 2; isUsed(id); n++) {
+    id = base + "-" + n;
+  }
+  return id;
+}
 
 // A preset: one saved filter the survey author defines (in JSON or in Creator's property grid), that
 // the end user applies to the data with a single click by picking it in the Filter Control, and can
-// then edit over (see ownConditions/saveActiveItem in question_filter.ts). type names which editor
+// then edit over (see ownConditions/saveActiveItem in question_filter.ts). kind names which editor
 // authored the expression - "fields" (built from field/operator/value conditions, edited through the
 // control's own condition API and its fast/advanced mode editors) or "ai" (a natural-language
-// prompt; canEditConditions refuses it). Whichever type an item carries, its expression is applied
+// prompt; canEditConditions refuses it). Whichever kind an item is, its expression is applied
 // identically as a filter expression string; prompt is what Make Changes in Edit Presets sends to
 // survey.onAIFilterRequest.
 export class FilterItem extends Base {
@@ -39,18 +48,6 @@ export class FilterItem extends Base {
     return !!this.itemOwnerValue ? this.itemOwnerValue.getSurvey(live) : null;
   }
 
-  // toObjectCore (jsonobject.ts) reserves the "type" key for the polymorphic class
-  // discriminator and always skips it in its property loop before findProperty ever runs, so
-  // a class-owned "type" property can only be read here, before that loop, or not at all.
-  // Safe here because items:filteritem[] declares className: "filteritem" (Task T8), so
-  // neither the array-item factory nor the discriminator writer ever look at this key.
-  startLoadingFromJson(json?: any): void {
-    super.startLoadingFromJson(json);
-    if (!!json && json.type !== undefined) {
-      this.type = json.type;
-    }
-  }
-
   public get name(): string { return this.getPropertyValue("name"); }
   public set name(val: string) { this.setPropertyValue("name", val); }
 
@@ -58,8 +55,8 @@ export class FilterItem extends Base {
   public set title(val: string) { this.locTitle.text = val; }
   public get locTitle(): LocalizableString { return this.getOrCreateLocStr("title"); }
 
-  public get type(): string { return this.getPropertyValue("type"); }
-  public set type(val: string) { this.setPropertyValue("type", val); }
+  public get kind(): string { return this.getPropertyValue("kind"); }
+  public set kind(val: string) { this.setPropertyValue("kind", val); }
 
   public get expression(): string { return this.getPropertyValue("expression"); }
   public set expression(val: string) { this.setPropertyValue("expression", val); }
@@ -81,14 +78,14 @@ export class FilterItem extends Base {
 Serializer.addClass("filteritem", [
   { name: "!name", isUnique: true },
   { name: "title:text", serializationProperty: "locTitle", dependsOn: "name" },
-  { name: "type", default: "fields", choices: ["fields", "ai"] },
+  { name: "kind", default: "fields", choices: ["fields", "ai"] },
   // Not ":condition": ":condition" makes JsonObjectProperty.isExpression true and everything that
   // discovers expressions by type - Base.validateExpressions(), the linter - would read it with the
   // survey as the variable context, while its variables are record fields. ":text" is a plain string
   // too; it only gives the expression a multi-line box in Creator.
   { name: "expression:text" },
   { name: "prompt:text", serializationProperty: "locPrompt",
-    dependsOn: "type", visibleIf: (obj: any): boolean => obj.type === "ai" },
+    dependsOn: "kind", visibleIf: (obj: any): boolean => obj.kind === "ai" },
   { name: "allowEdit:boolean", default: true },
   { name: "allowDelete:boolean", default: true },
   // No UI reads canCopyItem yet: hidden until a preset can be copied.

@@ -170,8 +170,8 @@ describe("FilterEditPresetsDialog: Apply", () => {
 
 describe("FilterEditPresetsDialog: Make Changes of an AI preset", () => {
   const aiPresets = [
-    { name: "a1", title: "Adults", type: "ai", prompt: "adults", expression: "{age} > 18" },
-    { name: "raw", type: "ai", expression: "{age} > 1 or {age} < 0" },
+    { name: "a1", title: "Adults", kind: "ai", prompt: "adults", expression: "{age} > 18" },
+    { name: "raw", kind: "ai", expression: "{age} > 1 or {age} < 0" },
     { name: "adults2", expression: "{age} > 20" }];
   function open(withHandler: boolean = true, selected: string = "a1"): { q: QuestionFilterModel, dialog: FilterEditPresetsDialog, calls: Array<any> } {
     const q = createFilter({ items: aiPresets });
@@ -254,8 +254,8 @@ describe("FilterEditPresetsDialog: Make Changes of an AI preset", () => {
 
 describe("FilterEditPresetsDialog: one survey for the fields and the description", () => {
   const aiPresets = [
-    { name: "a1", title: "Adults", type: "ai", prompt: "adults", expression: "{age} > 18" },
-    { name: "a2", title: "Germans", type: "ai", prompt: "germans", expression: "{country} anyof ['de']" },
+    { name: "a1", title: "Adults", kind: "ai", prompt: "adults", expression: "{age} > 18" },
+    { name: "a2", title: "Germans", kind: "ai", prompt: "germans", expression: "{country} anyof ['de']" },
     { name: "plain", expression: "{age} > 20" },
     { name: "locked", expression: "{age} > 2", allowEdit: false }];
   function open(): { q: QuestionFilterModel, dialog: FilterEditPresetsDialog, calls: Array<any> } {
@@ -333,7 +333,7 @@ describe("FilterEditPresetsDialog: one survey for the fields and the description
 });
 
 describe("FilterEditPresetsDialog: while Make Changes waits for the model", () => {
-  const aiPresets = [{ name: "a1", title: "Adults", type: "ai", prompt: "adults", expression: "{age} > 18" }];
+  const aiPresets = [{ name: "a1", title: "Adults", kind: "ai", prompt: "adults", expression: "{age} > 18" }];
   function open(): { q: QuestionFilterModel, dialog: FilterEditPresetsDialog, calls: Array<any> } {
     const q = createFilter({ items: aiPresets });
     const calls: Array<any> = [];

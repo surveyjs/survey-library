@@ -17,8 +17,11 @@ export function escapeExpressionText(text: string): string {
 // a boolean.
 export function toExpressionConst(value: any): string {
   if (typeof value === "number" || typeof value === "boolean") return value.toString();
-  const text = value === undefined || value === null ? "" : value.toString();
-  return "'" + escapeExpressionText(text) + "'";
+  return "'" + escapeExpressionText(getFilterValueText(value)) + "'";
+}
+// A value as text: "" for undefined and null.
+export function getFilterValueText(value: any): string {
+  return value === undefined || value === null ? "" : value.toString();
 }
 export function buildSearchFragment(field: IDynamicDataFilterField, text: string): string {
   const variable = "{" + field.valueName + "}";

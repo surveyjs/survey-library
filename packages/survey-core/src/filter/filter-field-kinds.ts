@@ -1,7 +1,7 @@
 import { getLocaleString } from "../surveyStrings";
 import { ItemValue } from "../itemvalue";
 import { Helpers } from "../helpers";
-import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
+import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { getFieldChoiceItems } from "./filter-expression";
 import { getFilterConditionText, getFilterConditionValueText, getFilterFieldOperators } from "./filter-conditions";
@@ -86,7 +86,7 @@ export function getFilterChipText(field: IDynamicDataFilterField, condition: IFi
   if (!kind) kind = getFilterFieldEditorKind(field);
   const values = kind !== "condition" ? getFilterFieldSelection(field, kind, condition) : undefined;
   if (!values || values.length === 0) return getFilterConditionText(field, condition, locale);
-  const title = !!field.locTitle ? field.locTitle.calculatedText : field.name;
+  const title = getFilterFieldTitle(field);
   if (values.length > 1) return title + ": " + values.length;
   const item = kind === "boolean" ? getBooleanItems(field, locale).filter((i: IFilterFieldListItem): boolean => Helpers.isTwoValueEquals(i.value, values[0]))[0] : undefined;
   return title + ": " + (!!item ? item.text : getFilterConditionValueText(field, values[0]));

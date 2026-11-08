@@ -247,14 +247,14 @@ describe("QuestionFilterModel: where conditions cannot be edited", () => {
     expect(q.filterExpression, "#3").toBe("");
   });
   test("an ai preset takes edits, and an edit turns it off", () => {
-    const q = createControl({ items: [{ name: "smart", type: "ai", expression: "{age} > 18" }], defaultItem: "smart" });
+    const q = createControl({ items: [{ name: "smart", kind: "ai", expression: "{age} > 18" }], defaultItem: "smart" });
     expect(q.canEditConditions, "#1").toBe(true);
     q.setFieldCondition("age", "greater", 21);
     expect(q.activeItemName, "#2").toBe("");
     expect(q.filterExpression, "#3").toBe("{age} > 21");
   });
   test("single mode: an ai preset refuses edits", () => {
-    const q = createControl({ allowMultipleItems: false, items: [{ name: "smart", type: "ai", expression: "{age} > 18" }], defaultItem: "smart" });
+    const q = createControl({ allowMultipleItems: false, items: [{ name: "smart", kind: "ai", expression: "{age} > 18" }], defaultItem: "smart" });
     expect(q.canEditConditions, "#1").toBe(false);
     q.setFieldCondition("age", "greater", 21);
     expect(q.ownConditions, "#2").toBe(undefined);

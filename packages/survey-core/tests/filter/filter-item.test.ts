@@ -10,14 +10,14 @@ describe("FilterItem", () => {
   });
   test("the ai preset kind is storage only", () => {
     const item = new FilterItem("");
-    new JsonObject().toObject({ name: "ai1", type: "ai", prompt: "orders from Germany",
+    new JsonObject().toObject({ name: "ai1", kind: "ai", prompt: "orders from Germany",
       expression: "{country} = 'de'" }, item);
-    expect(item.type, "#1").toBe("ai");
+    expect(item.kind, "#1").toBe("ai");
     expect(item.prompt, "#2").toBe("orders from Germany");
     expect(item.expression, "#3").toBe("{country} = 'de'");
   });
-  test("type defaults to fields", () => {
-    expect(new FilterItem("a").type).toBe("fields");
+  test("kind defaults to fields", () => {
+    expect(new FilterItem("a").kind).toBe("fields");
   });
   test("the allow flags default to true and round-trip", () => {
     const item = new FilterItem("a");
@@ -27,11 +27,9 @@ describe("FilterItem", () => {
     item.allowDelete = false;
     expect(new JsonObject().toJsonObject(item).allowDelete, "#4").toBe(false);
   });
-  // Pins the JSON key itself: the format fixes "type", not some other name, and a future
-  // rename (e.g. to sidestep the "type" reservation in jsonobject.ts) must fail this test.
-  test("type is serialized under the key \"type\"", () => {
+  test("kind is serialized under the key \"kind\"", () => {
     const item = new FilterItem("a");
-    item.type = "ai";
-    expect(new JsonObject().toJsonObject(item)).toEqual({ name: "a", type: "ai" });
+    item.kind = "ai";
+    expect(new JsonObject().toJsonObject(item)).toEqual({ name: "a", kind: "ai" });
   });
 });

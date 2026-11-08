@@ -1,6 +1,6 @@
-import { Question, QuestionValueType } from "../question";
-import { LocalizableString } from "../localizablestring";
-import { ItemValue } from "../itemvalue";
+import type { Question, QuestionValueType } from "../question";
+import type { LocalizableString } from "../localizablestring";
+import type { ItemValue } from "../itemvalue";
 
 // What a Filter Control needs to know about one field of a Dynamic Matrix or a Dynamic Panel. It is
 // not an IDynamicDataField: that one describes a record key the list sorts and compares by, this one
@@ -34,6 +34,11 @@ export interface IDynamicDataFilterField {
   // standalone field), in the order a condition editor lists them. undefined or [] = every operator
   // the field's value editor takes.
   operators?: Array<string>;
+}
+// What a field is called in the filter UI: its title, or its name when the title is empty. For a field
+// of a question the title already falls back to the name; a field of a custom source may have none.
+export function getFilterFieldTitle(field: IDynamicDataFilterField): string {
+  return (!!field.locTitle && field.locTitle.calculatedText) || field.name;
 }
 // The fields a Filter Control offers for a set of questions. A question whose value is a record of
 // its own - Multiple Textboxes, a composite question - is not a field: its children are, under the

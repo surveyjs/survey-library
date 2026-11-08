@@ -5,7 +5,8 @@ import { Serializer } from "../jsonobject";
 import { Helpers } from "../helpers";
 import { ItemValue } from "../itemvalue";
 import { Action } from "../actions/action";
-import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
+import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
+import { getFilterValueText } from "./filter-expression";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { getLocaleString } from "../surveyStrings";
 import { getConditionOperatorTitle, getFilterFieldDefaultOperator, isFilterConditionValueRequired } from "./filter-conditions";
@@ -36,6 +37,22 @@ export interface IFilterConditionsEditorOwner {
   getValueEditorJson(name: string, operator: string): any;
   getLocale(): string;
   isRawExpression: boolean;
+}
+// The control as a dialog's editor sees it, except that the fields start with the conditions
+// getConditions gives (a preset's, or the dialog's own) and not with the filter's. Read on every call.
+export function createFilterEditorOwner(control: IFilterConditionsEditorOwner, getConditions: () => Array<IFilterCondition>): IFilterConditionsEditorOwner {
+  return {
+    getFieldByName: (name: string) => control.getFieldByName(name),
+    getFieldCondition: (name: string): IFilterCondition => {
+      const field = control.getFieldByName(name);
+      return !!field ? getConditions().filter((c: IFilterCondition): boolean => c.field === field.valueName)[0] : undefined;
+    },
+    getFieldOperators: (name: string) => control.getFieldOperators(name),
+    getFieldEditorKind: (name: string) => control.getFieldEditorKind(name),
+    getValueEditorJson: (name: string, operator: string) => control.getValueEditorJson(name, operator),
+    getLocale: () => control.getLocale(),
+    isRawExpression: false
+  };
 }
 export interface IFilterConditionsEditorOptions {
   // The editor survey is display-only and reports no change.
@@ -267,7 +284,7 @@ export class FilterConditionsEditor {
     const res: any = { type: "panel", name: this.getPanelName(index) };
     if (this.options.showFieldTitles) {
       const field = this.owner.getFieldByName(name);
-      res.title = (!!field.locTitle && field.locTitle.calculatedText) || field.name;
+      res.title = getFilterFieldTitle(field);
     }
     return res;
   }
@@ -342,7 +359,7 @@ export class FilterConditionsEditor {
     const extras = selection.filter((value: any): boolean =>
       !items.some((item: IFilterFieldListItem): boolean => Helpers.isTwoValueEquals(item.value, value)));
     const choices = items.map((item: IFilterFieldListItem): any => ({ value: item.value, text: item.text }))
-      .concat(extras.map((value: any): any => ({ value: value, text: value === undefined || value === null ? "" : value.toString() })));
+      .concat(extras.map((value: any): any => ({ value: value, text: getFilterValueText(value) })));
     const template: any = field.templateQuestion;
     const allowCustom = !!template && template.allowCustomChoices === true;
     let json: any;

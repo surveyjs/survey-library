@@ -49,9 +49,9 @@ describe("fitFilterChips", () => {
 describe("FilterChipsLayout", () => {
   test("measures the attached row: its chips, the gap and the link", () => {
     const layout = new TestLayout();
-    expect([layout.fitCount, layout.hasOverflow], "#1: nothing attached").toEqual([-1, false]);
+    expect(layout.fitCount, "#1: nothing attached").toBe(-1);
     layout.attach(createRow(300, [100, 100, 100], 80));
-    expect([layout.fitCount, layout.hasOverflow], "#2").toEqual([2, true]);
+    expect(layout.fitCount, "#2").toBe(2);
     layout.attach(createRow(500, [100, 100, 100], 80));
     expect(layout.fitCount, "#3: a new row is measured at once").toBe(-1);
     layout.dispose();
@@ -59,7 +59,7 @@ describe("FilterChipsLayout", () => {
   test("Angular host elements around the bar and the chips are not measured", () => {
     const layout = new TestLayout();
     layout.attach(createAngularRow(300, [100, 100, 100], 80));
-    expect([layout.fitCount, layout.hasOverflow]).toEqual([2, true]);
+    expect(layout.fitCount).toBe(2);
     layout.dispose();
   });
   test("on a phone nothing is measured: the row scrolls instead", () => {

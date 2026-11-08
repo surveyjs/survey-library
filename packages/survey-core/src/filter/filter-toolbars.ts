@@ -4,11 +4,12 @@ import { Action, IAction } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { getActionDropdownButtonTarget } from "../actions/dropdown-action";
 import { IDialogOptions, PopupModel } from "../popup";
+import type { PopupModalViewModel } from "../popup-modal-view-model";
 import { getLocaleString } from "../surveyStrings";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { settings } from "../settings";
 import { toCssClasses } from "../utils/cssClassBuilder";
-import { FilterItem } from "./filter-item";
+import { FilterItem, getUniqueFilterActionId } from "./filter-item";
 import { FilterFieldEditorKind } from "./filter-field-kinds";
 import { FilterFieldPopup } from "./filter-field-popup";
 import { FilterChipsLayout } from "./filter-chips-layout";
@@ -99,11 +100,11 @@ export class FilterToolbars {
   private itemChips: Array<{ item: FilterItem, chip: Action }> = [];
   private chipIds: Array<string>;
   private advancedHolder: FilterEditorHolder;
-  private advancedDialog: any;
+  private advancedDialog: PopupModalViewModel;
   // The one dialog open over the Filters dialog - Add New Preset, Edit Presets or Create custom
   // filter: what the dialog host returned, its model, and the holder a preset dialog is drawn from
   // (Create custom filter is a survey, drawn with no holder).
-  private subDialog: any;
+  private subDialog: PopupModalViewModel;
   private subDialogModel: FilterPresetDialog | FilterAIDialog;
   private subDialogHolder: FilterEditorHolder;
   private isUpdating: boolean;
@@ -191,32 +192,44 @@ export class FilterToolbars {
     const holder = this.createHolder();
     holder.modal = modal;
     this.advancedHolder = holder;
-    const options: IDialogOptions = {
+    this.advancedDialog = this.openDialog({
       componentName: filterModalComponentName,
       data: { holder: holder },
       onApply: (): boolean => {
         modal.apply();
         return true;
       },
-      onCancel: (): void => { },
       onHide: (): void => {
         this.release(holder);
         this.advancedDialog = undefined;
         this.advancedHolder = undefined;
       },
       title: filterUIStrings.dialogTitle,
+      cssClass: this.getAdvancedDialogCss()
+    });
+    this.setModalFooter(this.advancedDialog, modal);
+  }
+  // What every dialog of the control shares: a close button, the host's "popup" mode, and no work on
+  // cancel - only Apply writes anything. Returns what the dialog host returned.
+  private openDialog(options: { componentName: string, data: any, onApply: () => boolean, onHide: () => void, title: string, cssClass: string }): PopupModalViewModel {
+    const dialogOptions: IDialogOptions = {
+      componentName: options.componentName,
+      data: options.data,
+      onApply: options.onApply,
+      onCancel: (): void => { },
+      onHide: options.onHide,
+      title: options.title,
       showCloseButton: true,
-      cssClass: this.getAdvancedDialogCss(),
+      cssClass: options.cssClass,
       displayMode: "popup"
     };
-    this.advancedDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
-    this.setModalFooter(this.advancedDialog, modal);
+    return settings.showDialog(dialogOptions, this.owner.getSurveyRootElement());
   }
   // The dialog's own Apply and Cancel give way to Clear All on the left and the main button on the
   // right, which says how many records it will show and applies the dialog through the dialog host
   // (onApply, then the dialog closes). In the designer there is nothing to clear or apply: only the
   // close button is left.
-  private setModalFooter(dialog: any, modal: FilterModal): void {
+  private setModalFooter(dialog: PopupModalViewModel, modal: FilterModal): void {
     const footer: ActionContainer = !!dialog ? dialog.footerToolbar : undefined;
     if (!footer) return;
     if (modal.isReadOnly) {
@@ -241,7 +254,7 @@ export class FilterToolbars {
     holder.presetDialog = dialogModel;
     this.subDialogHolder = holder;
     this.subDialogModel = dialogModel;
-    const options: IDialogOptions = {
+    this.subDialog = this.openDialog({
       componentName: filterPresetDialogComponentName,
       data: { holder: holder },
       onApply: (): boolean => {
@@ -249,14 +262,10 @@ export class FilterToolbars {
         modal.refreshPresets();
         return true;
       },
-      onCancel: (): void => { },
       onHide: (): void => { this.releaseSubDialog(); },
       title: dialogModel.title,
-      showCloseButton: true,
-      cssClass: this.getSubDialogCss(),
-      displayMode: "popup"
-    };
-    this.subDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
+      cssClass: this.getSubDialogCss()
+    });
     this.setPresetDialogFooter(this.subDialog, dialogModel instanceof FilterEditPresetsDialog ? (): boolean => dialogModel.canApply : undefined);
   }
   // Create custom filter (FilterAIDialog), over the Filters dialog that opened it, in the place of a
@@ -269,7 +278,7 @@ export class FilterToolbars {
     if (!settings.showDialog || !!this.subDialog || !modal || modal.isDisposed) return;
     const dialogModel = this.owner.createAIDialog();
     this.subDialogModel = dialogModel;
-    const options: IDialogOptions = {
+    this.subDialog = this.openDialog({
       componentName: "survey",
       data: { model: dialogModel.survey, survey: dialogModel.survey },
       onApply: (): boolean => {
@@ -278,14 +287,10 @@ export class FilterToolbars {
         modal.togglePreset(dialogModel.createdItem);
         return true;
       },
-      onCancel: (): void => { },
       onHide: (): void => { this.releaseSubDialog(); },
       title: dialogModel.title,
-      showCloseButton: true,
-      cssClass: this.getSubDialogCss(),
-      displayMode: "popup"
-    };
-    this.subDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
+      cssClass: this.getSubDialogCss()
+    });
     this.setPresetDialogFooter(this.subDialog, (): boolean => dialogModel.canApply);
   }
   // The dialog over the Filters dialog is gone (closed, or the control disposed): what it was drawn
@@ -324,7 +329,7 @@ export class FilterToolbars {
     }
   }
   // Cancel on the left and Apply on the right, as in the mockup. canApply: Apply is off while it is false.
-  private setPresetDialogFooter(dialog: any, canApply?: () => boolean): void {
+  private setPresetDialogFooter(dialog: PopupModalViewModel, canApply?: () => boolean): void {
     const footer: ActionContainer = !!dialog ? dialog.footerToolbar : undefined;
     if (!footer) return;
     const locale = this.owner.getLocale();
@@ -566,11 +571,8 @@ export class FilterToolbars {
     if (!entry) {
       // A chip of its own even for a second preset with the same name (an authoring error): the row
       // tells its chips apart by id, and so does a renderer.
-      const base = "sv-filter-item-" + item.name;
-      let id = base;
-      for (let n = 2; this.itemChips.some((e: { item: FilterItem, chip: Action }): boolean => e.chip.id === id); n++) {
-        id = base + "-" + n;
-      }
+      const id = getUniqueFilterActionId("sv-filter-item-" + item.name,
+        (candidate: string): boolean => this.itemChips.some((e: { item: FilterItem, chip: Action }): boolean => e.chip.id === candidate));
       const chip = new Action({ id: id, innerCss: this.cssClasses.chip,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => {
           if (this.owner.isDesignMode) {
@@ -589,7 +591,7 @@ export class FilterToolbars {
   }
   private updateItemChip(item: FilterItem, chip: Action): void {
     chip.active = item === this.owner.activeItem;
-    chip.iconName = item.type === "ai" ? "icon-sparkle-16x16" : undefined;
+    chip.iconName = item.kind === "ai" ? "icon-sparkle-16x16" : undefined;
     chip.iconSize = "auto";
   }
   // A field or a preset that is no longer shown takes its chip with it; an open popup is closed and

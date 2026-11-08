@@ -38,7 +38,6 @@ export class FilterChipsLayout extends Base {
   @property({ defaultValue: false }) isMobile: boolean;
 
   public getType(): string { return "filterchipslayout"; }
-  public get hasOverflow(): boolean { return this.fitCount > -1; }
   public attach(container: HTMLElement): void {
     if (this.container === container) return;
     this.detach();

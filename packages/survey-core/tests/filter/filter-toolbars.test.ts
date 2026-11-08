@@ -6,6 +6,7 @@ import { FilterItem } from "../../src/filter/filter-item";
 import { settings } from "../../src/settings";
 import { ActionContainer } from "../../src/actions/container";
 import { FilterModal } from "../../src/filter/filter-modal";
+import { getFilterConditionText } from "../../src/filter/filter-conditions";
 import "../../src/localization/german";
 
 function ids(container: any): Array<string> { return container.actions.map((a: any) => a.id); }
@@ -46,7 +47,7 @@ describe("FilterToolbars: the chips row", () => {
     expect([age.title, !!age.active], "#5").toEqual(["age", false]);
   });
   test("a preset's chip: titled by it, active while it is on, a sparkle for an ai preset", () => {
-    const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }, { name: "ai", type: "ai", expression: "{age} > 60" }] });
+    const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }, { name: "ai", kind: "ai", expression: "{age} > 60" }] });
     const adults = action(q.chipsToolbar, "sv-filter-item-adults");
     const ai = action(q.chipsToolbar, "sv-filter-item-ai");
     expect([adults.title, !!adults.active, adults.iconName], "#1").toEqual(["adults", false, undefined]);
@@ -437,7 +438,7 @@ describe("QuestionFilterModel: what the renderer shows besides the toolbars", ()
     expect([preset.title, badge.title], "#1").toEqual(["Adults", "age: Greater than 18"]);
     survey.locale = "de";
     expect(preset.title, "#2").toBe("Erwachsene");
-    expect(badge.title, "#3: composed again, in the survey's locale").toBe(q.getFieldConditionText("age"));
+    expect(badge.title, "#3: composed again, in the survey's locale").toBe(getFilterConditionText(q.getFieldByName("age"), q.getFieldCondition("age"), "de"));
     survey.locale = "";
     expect([preset.title, badge.title], "#4").toEqual(["Adults", "age: Greater than 18"]);
   });

@@ -27,7 +27,6 @@ import {
   ITextProcessorProp,
   ITextProcessorResult, ISurveyUIState,
   ISurveyWebProvider,
-  ISurveyFilterCallbacks,
   ISaveToJSONOptions,
   IScrollElementToTopOptions,
   IDataIssue,
@@ -242,8 +241,7 @@ export class SurveyModel extends SurveyElementCore
   ISurveyImpl,
   ISurveyTriggerOwner,
   ISurveyErrorOwner,
-  ISurveyTimerText,
-  ISurveyFilterCallbacks {
+  ISurveyTimerText {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   // public static get cssType(): string {

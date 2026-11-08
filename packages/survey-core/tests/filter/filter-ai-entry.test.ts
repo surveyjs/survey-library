@@ -101,7 +101,7 @@ describe("FilterModal: Create with AI", () => {
       expect(apply.enabled, "#3").toBe(true);
       dialogs.calls[0].apply();
       const item = dialog.createdItem;
-      expect([item.type, item.title, dialog.isDisposed, dialog.survey.isDisposed], "#4").toEqual(["ai", "Kids", true, true]);
+      expect([item.kind, item.title, dialog.isDisposed, dialog.survey.isDisposed], "#4").toEqual(["ai", "Kids", true, true]);
       expect([chips(modal), modal.activeItemName], "#5").toEqual([["Adults", "Kids*"], item.name]);
       expect(modal.editor.getConditions(), "#6").toEqual([{ field: "age", operator: "less", value: 10 }]);
       modal.dispose();
@@ -129,7 +129,7 @@ describe("FilterModal: Create with AI", () => {
   test("Edit Presets: its Apply is off while Make Changes waits for the model", () => {
     const dialogs = stubDialogs();
     try {
-      const { q, calls } = control({ items: [{ name: "a1", title: "Adults", type: "ai", prompt: "adults", expression: "{age} > 18" }] });
+      const { q, calls } = control({ items: [{ name: "a1", title: "Adults", kind: "ai", prompt: "adults", expression: "{age} > 18" }] });
       const modal = q.createFilterModal();
       modal.presetsTitleToolbar.actions[0].action();
       const edit = dialogs.calls[0].options.data.holder.presetDialog;

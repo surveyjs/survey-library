@@ -166,7 +166,7 @@ describe("FilterAIDialog: the answer", () => {
     calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']", "French adults"));
     expect(dialog.apply(), "#1").toBe(true);
     const item = dialog.createdItem;
-    expect([item.type, item.prompt, item.title, item.expression], "#2")
+    expect([item.kind, item.prompt, item.title, item.expression], "#2")
       .toEqual(["ai", "adults from France", "French adults", "{country} anyof ['fr'] and {age} > 18"]);
     expect(q.visibleItems[q.visibleItems.length - 1], "#3").toBe(item);
     dialog.dispose();

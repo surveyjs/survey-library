@@ -9,8 +9,9 @@ import { getLocaleString } from "../surveyStrings";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import { setUpDialogSurvey } from "../utils/dialog-survey";
 import { IFilterCondition, IFilterItemEdit } from "../interfaces/ui-interfaces";
-import { FilterItem } from "./filter-item";
-import { FilterConditionsEditor, IFilterConditionsEditorOwner } from "./filter-conditions-editor";
+import { FilterItem, getUniqueFilterActionId } from "./filter-item";
+import { FilterConditionsEditor, IFilterConditionsEditorOwner, createFilterEditorOwner } from "./filter-conditions-editor";
+import { getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import type { FilterAIRequest } from "./filter-ai";
 import { FilterAIPrompt } from "./filter-ai-prompt";
 import { filterUIStrings } from "./filter-ui-strings";
@@ -28,6 +29,12 @@ export interface IFilterPresetDialogOwner extends IFilterConditionsEditorOwner {
 }
 // The longest title a preset may get: the mockup's counter.
 export const filterPresetTitleMaxLength = 32;
+// Whether another preset already has the title: trimmed and compared case-insensitively, as a
+// respondent reads them.
+export function isFilterPresetTitleTaken(title: string, otherTitles: Array<string>): boolean {
+  const key = (title || "").trim().toLocaleLowerCase();
+  return otherTitles.some((other: string): boolean => (other || "").trim().toLocaleLowerCase() === key);
+}
 
 // A preset as a dialog edits it: its title, and its conditions - null for a preset that does not
 // decompose, which has none to edit.
@@ -257,7 +264,7 @@ export class FilterPresetDialog extends Base {
   private getFieldChoices(exclude: Array<string>): Array<any> {
     return this.owner.getAllFieldKeys().filter((key: string): boolean => exclude.indexOf(key) < 0).map((key: string): any => {
       const field = this.owner.getFieldByName(key);
-      return { value: key, text: (!!field.locTitle && field.locTitle.calculatedText) || field.name };
+      return { value: key, text: getFilterFieldTitle(field) };
     });
   }
   private onFormChanged(name: string): void {
@@ -283,25 +290,11 @@ export class FilterPresetDialog extends Base {
   private createEditor(): FilterConditionsEditor {
     const keys = !!this.form ? this.getRowKeys() : [];
     if (keys.length === 0 || this.buffer.conditions === null) return undefined;
-    return new FilterConditionsEditor(this.createEditorOwner(), keys, { survey: this.surveyValue, panel: this.fieldsPanelValue,
+    // The fields start with the preset's conditions, not the filter's.
+    const editorOwner = createFilterEditorOwner(this.owner, (): Array<IFilterCondition> => this.buffer.conditions || []);
+    return new FilterConditionsEditor(editorOwner, keys, { survey: this.surveyValue, panel: this.fieldsPanelValue,
       readOnly: this.isReadOnly, showFieldTitles: true,
       useFieldKinds: true, linkCss: (this.owner.cssClasses || {}).link, onFieldChanged: (): void => { this.onChanged(); } });
-  }
-  // The control, except that the fields start with the preset's conditions and not the filter's.
-  private createEditorOwner(): IFilterConditionsEditorOwner {
-    const owner = this.owner;
-    return {
-      getFieldByName: (name: string) => owner.getFieldByName(name),
-      getFieldCondition: (name: string): IFilterCondition => {
-        const field = owner.getFieldByName(name);
-        return !!field ? (this.buffer.conditions || []).filter((c: IFilterCondition): boolean => c.field === field.valueName)[0] : undefined;
-      },
-      getFieldOperators: (name: string) => owner.getFieldOperators(name),
-      getFieldEditorKind: (name: string) => owner.getFieldEditorKind(name),
-      getValueEditorJson: (name: string, operator: string) => owner.getValueEditorJson(name, operator),
-      getLocale: () => owner.getLocale(),
-      isRawExpression: false
-    };
   }
   protected getTitleError(value: any, otherTitles: Array<string> = this.getOtherTitles()): string {
     const locale = this.owner.getLocale();
@@ -310,9 +303,7 @@ export class FilterPresetDialog extends Base {
     if (title.length > filterPresetTitleMaxLength) {
       return getLocaleString("textMaxLength", locale).replace("{0}", filterPresetTitleMaxLength.toString());
     }
-    const key = title.toLocaleLowerCase();
-    const isTaken = otherTitles.some((other: string): boolean => (other || "").trim().toLocaleLowerCase() === key);
-    return isTaken ? filterUIStrings.presetTitleExists : undefined;
+    return isFilterPresetTitleTaken(title, otherTitles) ? filterUIStrings.presetTitleExists : undefined;
   }
 }
 
@@ -376,11 +367,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     const used: { [id: string]: boolean } = {};
     this.tabs = owner.getEditableItems().map((item: FilterItem): IFilterPresetTab => {
       // A tab of its own even for a second preset with the same name, as in the control's row.
-      const base = "sv-filter-preset-tab-" + item.name;
-      let id = base;
-      for (let n = 2; used[id]; n++) {
-        id = base + "-" + n;
-      }
+      const id = getUniqueFilterActionId("sv-filter-preset-tab-" + item.name, (candidate: string): boolean => !!used[candidate]);
       used[id] = true;
       const conditions = owner.getItemConditions(item.name);
       const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions, prompt: item.prompt, isDeleted: false,
@@ -521,7 +508,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
   // the application answers AI requests.
   private canAskAI(tab: IFilterPresetTab): boolean {
     const owner = this.editOwner;
-    return !!tab && !!tab.item && tab.item.type === "ai" && tab.conditions !== null && owner.canEditItem(tab.item) && owner.canRequestAI;
+    return !!tab && !!tab.item && tab.item.kind === "ai" && tab.conditions !== null && owner.canEditItem(tab.item) && owner.canRequestAI;
   }
   private createAIPrompt(tab: IFilterPresetTab): FilterAIPrompt {
     return new FilterAIPrompt(this.editOwner.createAIRequest(), { prompt: tab.prompt, isModify: true,

@@ -137,7 +137,7 @@ describe("Filter dialogs", () => {
   });
   it("Edit Presets shows the tabs, the form, the fields in a frame and the actions; another tab redraws them", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }, { name: "name" }],
-      items: [{ name: "a", title: "Adults", type: "ai", prompt: "grown-ups", expression: "{age} > 18" },
+      items: [{ name: "a", title: "Adults", kind: "ai", prompt: "grown-ups", expression: "{age} > 18" },
         { name: "k", title: "Kids", expression: "{age} < 10 and {name} = 'x'" }] }] });
     survey.onAIFilterRequest.add(() => { });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
@@ -237,7 +237,7 @@ describe("Filter AI dialog", () => {
     cleanup(wrapper);
   });
   it("Edit Presets shows the description and Make Changes in the tab of an AI preset", async () => {
-    const { q } = setup({ items: [{ name: "a", title: "Adults", type: "ai", prompt: "grown-ups", expression: "{age} > 18" }] });
+    const { q } = setup({ items: [{ name: "a", title: "Adults", kind: "ai", prompt: "grown-ups", expression: "{age} > 18" }] });
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
     const dialog = q.createEditPresetsDialog("a");

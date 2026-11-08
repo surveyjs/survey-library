@@ -8,7 +8,7 @@ import { Action } from "../../src/actions/action";
 const presets = [
   { name: "adults", expression: "{age} > 18 and {country} = 'de'" },
   { name: "edges", expression: "{age} < 18 or {age} > 35" },
-  { name: "smart", type: "ai", expression: "{age} > 60" }];
+  { name: "smart", kind: "ai", expression: "{age} > 60" }];
 function control(over: any = {}): QuestionFilterModel {
   return <QuestionFilterModel>createSurvey(Object.assign({ items: presets, defaultItem: undefined }, over)).getQuestionByName("f1");
 }

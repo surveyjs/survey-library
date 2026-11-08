@@ -118,22 +118,7 @@ function getVirtualFields(fields: Array<IDynamicDataField>): Array<IDynamicDataF
    surveySettings: the list's survey settings for the filter's comparisons; without them the global settings apply. */
 export function applyFilter(records: Array<any>, filter: string | ConditionRunner, fields?: Array<IDynamicDataField>,
   surveySettings?: ISurveySettings): Array<number> {
-  const runner = toRunner(filter);
-  if (!runner) return createIndexes(records.length);
-  const used = runner.getVariables().map((name: string): string => name.split(/[.[]/)[0].toLowerCase());
-  const virtualFields = getVirtualFields(fields).filter((field: IDynamicDataField): boolean => used.indexOf(field.name.toLowerCase()) > -1);
-  const res: Array<number> = [];
-  for (let i = 0; i < records.length; i++) {
-    let values = records[i] || {};
-    if (virtualFields.length > 0) {
-      values = Object.assign({}, values);
-      for (let j = 0; j < virtualFields.length; j++) {
-        values[virtualFields[j].name] = virtualFields[j].getValue(records[i], i);
-      }
-    }
-    if (runner.runValues(values, undefined, surveySettings)) res.push(i);
-  }
-  return res;
+  return applyFilters(records, [toRunner(filter)], fields, surveySettings);
 }
 /* The slots of a list are ANDed: a record is created only if every runner accepts it. Each runner
    was parsed on its own, so this never concatenates the expressions - and therefore never has to

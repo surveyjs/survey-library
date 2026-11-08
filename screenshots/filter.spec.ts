@@ -128,7 +128,7 @@ frameworks.forEach(framework => {
     test("Edit Presets: an AI preset", async ({ page }) => {
       // Tall enough for the whole tab: the description is under the fields.
       await page.setViewportSize({ width: 1280, height: 1300 });
-      await initSurvey(page, framework, json({ items: [{ name: "grownups", title: "Grown-ups", type: "ai",
+      await initSurvey(page, framework, json({ items: [{ name: "grownups", title: "Grown-ups", kind: "ai",
         prompt: "People older than 18", expression: "{age} > 18" }] }));
       await page.evaluate(() => { (<any>window).survey.onAIFilterRequest.add(() => { }); });
       await openFilters(page);

@@ -40,12 +40,12 @@ export interface IFilterItemEdit {
   isDeleted?: boolean;
 }
 // A preset the respondent added, as uiState keeps it: its conditions and not its expression text,
-// as with saved presets. type and prompt only for one made with AI ("ai").
+// as with saved presets. kind and prompt only for one made with AI ("ai").
 export interface IFilterUserItemState {
   name: string;
   title: string;
   conditions: Array<IFilterCondition>;
-  type?: string;
+  kind?: "fields" | "ai";
   prompt?: string;
 }
 // The end-user state of a Filter Control. Only what the respondent changed is kept here: what the
@@ -64,16 +64,23 @@ export interface IFilterElementUIState {
   // mode, the Edit Presets dialog) and the title given to one. Kept as conditions and not as
   // expression text: the preset's expression is rebuilt from them on restore, with nothing to parse
   // back. prompt: the description given to an AI preset.
-  items?: { [name: string]: { conditions?: Array<IFilterCondition>, title?: string, prompt?: string } };
+  items?: { [name: string]: IFilterSavedItemState };
   // The presets the respondent added, in their order.
   userItems?: Array<IFilterUserItemState>;
   // The authored presets the respondent deleted, by name.
   deletedItems?: Array<string>;
 }
+// An authored preset the respondent changed, as uiState keeps it - see IFilterElementUIState.items.
+export interface IFilterSavedItemState {
+  conditions?: Array<IFilterCondition>;
+  title?: string;
+  prompt?: string;
+}
 export interface IElementUIState {
   collapsed?: boolean;
   activePanelIndex?: number; // For Dynamic panel only, current Tab index
   // MERGE(V3): keep `shown`; master (V2) names this progress flag `passed`. Keep V3 on merge.
+  // Keep the `filter` member below on merge too.
   shown?: boolean; // For Page only, indicates that the respondent has already seen the page (progress state)
   filter?: IFilterElementUIState; // For the Filter Control only
 }

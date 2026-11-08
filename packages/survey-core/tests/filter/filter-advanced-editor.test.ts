@@ -404,7 +404,7 @@ describe("Advanced mode editor: multi-value values compare as sets", () => {
 
 describe("Advanced mode editor: read-only", () => {
   test("single mode, an ai preset: display-only, and apply() writes nothing", () => {
-    const q = createControl({ items: [{ name: "smart", type: "ai", expression: "{age} > 18" }], defaultItem: "smart", allowMultipleItems: false });
+    const q = createControl({ items: [{ name: "smart", kind: "ai", expression: "{age} > 18" }], defaultItem: "smart", allowMultipleItems: false });
     const events = trackEvents(q);
     const editor = q.createAdvancedModeEditor();
     expect(editor.isReadOnly, "#1").toBe(true);

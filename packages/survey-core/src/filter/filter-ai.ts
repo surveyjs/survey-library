@@ -1,7 +1,7 @@
 import { ItemValue } from "../itemvalue";
 import { surveyLocalization } from "../surveyStrings";
 import type { Question } from "../question";
-import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
+import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { AIRequestIssue, AIResponseFormat, FilterAIRequestEvent } from "../interfaces/ai-interfaces";
 import { AIRequestResult, AIRequestSession, IAIFeature, IAIRequest } from "../ai/ai-request";
@@ -57,7 +57,7 @@ export function buildFilterAIContext(owner: IFilterAIContextOwner): IFilterAICon
     if (!field) return;
     const entry: IFilterAIField = {
       name: field.valueName,
-      title: (!!field.locTitle && field.locTitle.calculatedText) || field.name,
+      title: getFilterFieldTitle(field),
       valueType: field.valueType,
       editor: owner.getFieldEditorKind(key),
       operators: owner.getFieldOperators(key)

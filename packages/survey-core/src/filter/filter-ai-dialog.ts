@@ -6,10 +6,11 @@ import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { setUpDialogSurvey } from "../utils/dialog-survey";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import { FilterItem } from "./filter-item";
-import { FilterConditionsEditor, IFilterConditionsEditorOwner } from "./filter-conditions-editor";
+import { FilterConditionsEditor, IFilterConditionsEditorOwner, createFilterEditorOwner } from "./filter-conditions-editor";
+import { getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import type { FilterAIRequest } from "./filter-ai";
 import { FilterAIPrompt } from "./filter-ai-prompt";
-import { filterPresetTitleMaxLength } from "./filter-preset-dialog";
+import { filterPresetTitleMaxLength, isFilterPresetTitleTaken } from "./filter-preset-dialog";
 import { filterUIStrings } from "./filter-ui-strings";
 export { FilterAIPrompt, filterAIPromptMaxLength } from "./filter-ai-prompt";
 export type { IFilterAIPromptOptions } from "./filter-ai-prompt";
@@ -20,8 +21,7 @@ export type { IFilterAIPromptOptions } from "./filter-ai-prompt";
 export function makeFilterAITitle(title: string, fieldTitles: Array<string>, otherTitles: Array<string>): string {
   const max = filterPresetTitleMaxLength;
   const base = ((title || "").trim() || fieldTitles.filter((t: string): boolean => !!t).join(", ")).substring(0, max).trim();
-  const taken = otherTitles.map((t: string): string => (t || "").trim().toLocaleLowerCase());
-  const isTaken = (t: string): boolean => taken.indexOf(t.toLocaleLowerCase()) > -1;
+  const isTaken = (t: string): boolean => isFilterPresetTitleTaken(t, otherTitles);
   if (!isTaken(base)) return base;
   for (let n = 2; ; n++) {
     const suffix = " " + n;
@@ -36,7 +36,7 @@ export interface IFilterAIDialogOwner extends IFilterConditionsEditorOwner {
   visibleItems: Array<FilterItem>;
   cssClasses: any;
   isMobile?: boolean;
-  addItem(title: string, conditions: Array<IFilterCondition>, options?: { type?: string, prompt?: string }): FilterItem;
+  addItem(title: string, conditions: Array<IFilterCondition>, options?: { kind?: "fields" | "ai", prompt?: string }): FilterItem;
   createAIRequest(): FilterAIRequest;
 }
 
@@ -90,11 +90,11 @@ export class FilterAIDialog extends Base {
     const conditions = this.conditions;
     const fieldTitles = this.editor.fieldNames.map((key: string): string => {
       const field = this.owner.getFieldByName(key);
-      return (!!field.locTitle && field.locTitle.calculatedText) || field.name;
+      return getFilterFieldTitle(field);
     });
     const otherTitles = this.owner.visibleItems.map((item: FilterItem): string => item.title);
     const title = makeFilterAITitle(this.aiTitle, fieldTitles, otherTitles);
-    this.createdItemValue = this.owner.addItem(title, conditions, { type: "ai", prompt: this.aiPromptValue.prompt.trim() });
+    this.createdItemValue = this.owner.addItem(title, conditions, { kind: "ai", prompt: this.aiPromptValue.prompt.trim() });
     return !!this.createdItemValue;
   }
   public dispose(): void {
@@ -155,18 +155,7 @@ export class FilterAIDialog extends Base {
   }
   private createEditor(keys: Array<string>, conditions: Array<IFilterCondition>): FilterConditionsEditor {
     const owner = this.owner;
-    const editorOwner: IFilterConditionsEditorOwner = {
-      getFieldByName: (name: string) => owner.getFieldByName(name),
-      getFieldCondition: (name: string): IFilterCondition => {
-        const field = owner.getFieldByName(name);
-        return !!field ? conditions.filter((c: IFilterCondition): boolean => c.field === field.valueName)[0] : undefined;
-      },
-      getFieldOperators: (name: string) => owner.getFieldOperators(name),
-      getFieldEditorKind: (name: string) => owner.getFieldEditorKind(name),
-      getValueEditorJson: (name: string, operator: string) => owner.getValueEditorJson(name, operator),
-      getLocale: () => owner.getLocale(),
-      isRawExpression: false
-    };
+    const editorOwner = createFilterEditorOwner(owner, (): Array<IFilterCondition> => conditions);
     return new FilterConditionsEditor(editorOwner, keys, { survey: this.surveyValue, showFieldTitles: true, useFieldKinds: true,
       linkCss: (owner.cssClasses || {}).link, onFieldChanged: (): void => { this.updateState(); } });
   }

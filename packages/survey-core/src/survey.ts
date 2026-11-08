@@ -6133,17 +6133,37 @@ export class SurveyModel extends SurveyElementCore
       const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement)?.getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
+        let isSwitchedBack = false;
+        let processedSize: string;
+        let previousProcessedSize: string;
+        const getObservedSize = (): string => observedElement.offsetWidth + "x" + observedElement.offsetHeight;
         let screenOrientationType = DomWindowHelper.getScreenOrientationType();
         this._processingResponsivenessFunc = () => {
+          previousProcessedSize = processedSize;
+          processedSize = getObservedSize();
           return this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
         };
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           DomWindowHelper.requestAnimationFrame((): void | undefined => {
             let currScreenOrientationType = DomWindowHelper.getScreenOrientationType();
-            if ((isProcessed || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
+            // A call that switches isMobile changes the root's css class, and the size change it causes comes back
+            // as one more notification. A resize made within the same frame is reported in that same notification,
+            // so after a switch only a notification with the size just processed is skipped. Processing a size change
+            // caused by the class is harmless while the width stays on the same side of the mobile width.
+            // When the root's width depends on the layout (e.g. a page scrollbar that comes and goes with it), the
+            // two layouts can switch each other endlessly. So after a switch back, a return to the size of the switch
+            // before it is skipped as well. On a root whose size does not depend on the layout, this also skips a
+            // real resize back to that size; the next resize corrects the layout.
+            const size = getObservedSize();
+            const isLayoutChangeNotification = isProcessed &&
+              (size === processedSize || (isSwitchedBack && size === previousProcessedSize));
+            if ((isLayoutChangeNotification || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
               isProcessed = false;
+              isSwitchedBack = false;
             } else {
+              const isAfterSwitch = isProcessed;
               isProcessed = !!this._processingResponsivenessFunc && this._processingResponsivenessFunc();
+              isSwitchedBack = isProcessed && isAfterSwitch;
               screenOrientationType = currScreenOrientationType;
             }
           });

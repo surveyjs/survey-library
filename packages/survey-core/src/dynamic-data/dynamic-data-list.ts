@@ -1,6 +1,7 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
 import type { ISurvey } from "../interfaces/survey-interfaces";
+import { ISurveySettings, getSettingsOfSurvey } from "../survey-settings";
 import { Scope } from "../utils/scope";
 import {
   DynamicDataErrorOperation, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
@@ -66,6 +67,7 @@ export class DynamicDataList {
     getFields: (): Array<IDynamicDataField> => this.getFields(),
     getLocalFilterRunner: (): ConditionRunner => this.isWindowWholeStorage ? this.view.filterRunner : undefined,
     getLocalSort: (): Array<ISortCriterion> => this.isWindowWholeStorage ? this.view.sort : [],
+    getSurveySettings: (): ISurveySettings => getSettingsOfSurvey(!!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined),
     isMembershipFrozen: (): boolean => this.isViewFrozenOnEdit && this.hasLocalViews
   });
   // The index arithmetic over the views (dynamic-data-view-indexes.ts); the list delegates to it.

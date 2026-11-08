@@ -4178,7 +4178,7 @@ describe("Survey", () => {
 
     expect(question.renderWidth, "the render width is 100%").toBe("100%");
   });
-  test("tryGoNextPageAutomaticCore reports whether navigation was scheduled", () => {
+  test("tryGoNextPageAutomatic reports whether navigation was scheduled", () => {
     const prevDelay = settings.autoAdvanceDelay;
     settings.autoAdvanceDelay = 0;
     try {
@@ -4192,7 +4192,7 @@ describe("Survey", () => {
       blocked.autoAdvanceEnabled = false;
       blocked.setValue("q1", "a");
       blocked.autoAdvanceEnabled = true;
-      expect(blocked.tryGoNextPageAutomaticCore("q1"), "Another empty question blocks navigation").toBe(false);
+      expect(blocked.tryGoNextPageAutomatic("q1"), "Another empty question blocks navigation").toBe(false);
       expect(blocked.currentPageNo, "Stay on the first page").toBe(0);
 
       const survey = new SurveyModel({
@@ -4206,7 +4206,7 @@ describe("Survey", () => {
       survey.setValue("q1", "a");
       survey.setValue("q2", "b");
       survey.autoAdvanceEnabled = true;
-      expect(survey.tryGoNextPageAutomaticCore("q1"), "Navigation is scheduled").toBe(true);
+      expect(survey.tryGoNextPageAutomatic("q1"), "Navigation is scheduled").toBe(true);
       expect(survey.currentPageNo, "The second page is opened").toBe(1);
     } finally {
       settings.autoAdvanceDelay = prevDelay;
@@ -19804,7 +19804,7 @@ describe("Survey", () => {
     });
     survey.data = { q1: 1, q2: 1 };
     survey.currentSingleQuestion = survey.getQuestionByName("q2");
-    expect(survey.tryGoNextPageAutomaticCore("q2")).toBe(false);
+    expect(survey.tryGoNextPageAutomatic("q2")).toBe(false);
   });
   test("questionPerPage: Enter keeps its line break in the last comment with autoAdvanceAllowComplete: false", () => {
     const survey = new SurveyModel({

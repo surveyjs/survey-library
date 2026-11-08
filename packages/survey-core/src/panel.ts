@@ -1759,8 +1759,17 @@ export class PanelModelBase extends SurveyElement<Question>
   private updateRowsOnElementAdded(element: IElement): void {
     if (!this.wasRendered && this.rows.length === 0 && this.elements.length > 1) return;
     if (!!this.findRowByElement(element)) return;
+    /* A page that shows one element at a time (questionsOnPageMode) builds a row for that element only.
+       Anywhere else the elements for rows are the elements themselves, which hold the added one. */
+    const elementsForRows = this.getElementsForRows();
+    if (elementsForRows !== this.elements && elementsForRows.indexOf(element) < 0) return;
     const index = this.elements.indexOf(element);
-    const targetElement = this.elements[index + 1];
+    /* The target is the next element that already has a row: a push, unshift or splice of several
+       elements puts them all in elements before the first of them is added here. */
+    let targetElement = this.elements[index + 1];
+    for (let i = index + 2; !!targetElement && !this.findRowByElement(targetElement); i++) {
+      targetElement = this.elements[i];
+    }
     const createRowAtIndex = (index: number) => {
       const row = this.createRowAndSetLazy(index);
       if (this.isDesignMode) {

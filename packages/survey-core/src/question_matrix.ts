@@ -1235,7 +1235,7 @@ export class QuestionMatrixModel
       }
       updatedData = newData;
     }
-    if (this.isTwoValueEquals(updatedData, this.value)) return;
+    if (this.isEqualToValue(updatedData)) return;
     this.value = updatedData;
   }
   protected clearIncorrectValuesInRow(key: any, data: any): void {
@@ -1340,7 +1340,7 @@ export class QuestionMatrixModel
     if (this.isMultiSelect) {
       return this.getRowValueIndex(row, column) > -1;
     }
-    return Helpers.isTwoValueEquals(row.value, column.value);
+    return this.isTwoValueEqualsInSurvey(row.value, column.value);
   }
   getRowValueIndex(row: MatrixRowModel, column: ItemValue): number {
     const val = row.value;

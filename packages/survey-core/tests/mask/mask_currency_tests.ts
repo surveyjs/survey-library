@@ -673,6 +673,36 @@ describe("Currency mask", () => {
     expect(result.value, "the generated zero is kept").toBe("$ 1.50");
     expect(result.caretPosition, "the caret steps over the generated zero").toBe(5);
   });
+
+  test.each([
+    { prefix: "$", suffix: "" },
+    { prefix: "", suffix: " USD" },
+    { prefix: "$ ", suffix: " USD" }
+  ])("precision 0 truncates the fraction: %j", ({ prefix, suffix }) => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.setData({ prefix, suffix, precision: 0 });
+    const wrap = (text: string): string => prefix + text + suffix;
+    expect(maskInstance.getMaskedValue(1234.5), "1234.5").toBe(wrap("1,234"));
+    expect(maskInstance.getMaskedValue(1234.4), "1234.4").toBe(wrap("1,234"));
+    expect(maskInstance.getMaskedValue(0.99), "0.99").toBe(wrap("0"));
+    expect(maskInstance.getMaskedValue(1234.56), "1234.56").toBe(wrap("1,234"));
+    expect(maskInstance.getMaskedValue(-1234.5), "-1234.5").toBe(maskInstance.getMaskedValue(-1234));
+
+    let result = maskInstance.processInput({ insertedChars: "1234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste 1234.5").toBe(wrap("1,234"));
+    result = maskInstance.processInput({ insertedChars: wrap("1,234.5"), selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste a formatted amount").toBe(wrap("1,234"));
+    result = maskInstance.processInput({ insertedChars: ".5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste .5").toBe(wrap("0"));
+
+    // a keystroke: the typed separator is dropped and the next digit appends
+    let value = "";
+    for (const char of ["1", "2", "3", "4", ".", "5"]) {
+      result = maskInstance.processInput({ insertedChars: char, selectionStart: value.length, selectionEnd: value.length, prevValue: value, inputDirection: "forward" });
+      value = result.value;
+    }
+    expect(value, "typed 1234.5").toBe(wrap("12,345"));
+  });
 });
 
 // written as escapes so that this file stays ascii: the euro sign, the CLDR currency sign (an

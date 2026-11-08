@@ -2,6 +2,7 @@ import { HashTable, Helpers, createDate } from "../helpers";
 import { FunctionFactory } from "../functionsfactory";
 import { ProcessValue } from "../conditions/conditionProcessValue";
 import { settings } from "../settings";
+import { ISurveySettings, getSurveySetting } from "../survey-settings";
 import { ExpressionErrorType, IExpressionError } from "./expressionError";
 
 export interface AsyncFunctionItem {
@@ -133,7 +134,8 @@ export class BinaryOperand extends Operand {
       this,
       this.evaluateParam(this.left, processValue),
       this.evaluateParam(this.right, processValue),
-      this.requireStrictCompare
+      this.requireStrictCompare,
+      processValue?.settings
     );
   }
 
@@ -735,30 +737,31 @@ export class OperandMaker {
       right = OperandMaker.convertValForDateCompare(right, left);
       return left < right;
     },
-    greaterorequal: function(left: any, right: any): boolean {
-      if (OperandMaker.binaryFunctions.equal(left, right)) return true;
+    // A comparing operator takes the run's survey settings as the 4th argument (undefined: the global settings)
+    greaterorequal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      if (OperandMaker.binaryFunctions.equal(left, right, undefined, surveySettings)) return true;
       return OperandMaker.binaryFunctions.greater(left, right);
     },
-    lessorequal: function(left: any, right: any): boolean {
-      if (OperandMaker.binaryFunctions.equal(left, right)) return true;
+    lessorequal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      if (OperandMaker.binaryFunctions.equal(left, right, undefined, surveySettings)) return true;
       return OperandMaker.binaryFunctions.less(left, right);
     },
-    equal: function(left: any, right: any, strictCompare?: boolean): boolean {
+    equal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
       left = OperandMaker.convertValForDateCompare(left, right);
       right = OperandMaker.convertValForDateCompare(right, left);
-      return OperandMaker.isTwoValueEquals(left, right, strictCompare !== true);
+      return OperandMaker.isTwoValueEquals(left, right, strictCompare !== true, surveySettings);
     },
-    notequal: function(left: any, right: any, strictCompare?: boolean): boolean {
-      return !OperandMaker.binaryFunctions.equal(left, right, strictCompare);
+    notequal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      return !OperandMaker.binaryFunctions.equal(left, right, strictCompare, surveySettings);
     },
-    contains: function(left: any, right: any): boolean {
-      return OperandMaker.binaryFunctions.containsCore(left, right, true);
+    contains: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      return OperandMaker.binaryFunctions.containsCore(left, right, true, surveySettings);
     },
-    notcontains: function(left: any, right: any): boolean {
+    notcontains: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
       if (!left && !Helpers.isValueEmpty(right)) return true;
-      return OperandMaker.binaryFunctions.containsCore(left, right, false);
+      return OperandMaker.binaryFunctions.containsCore(left, right, false, surveySettings);
     },
-    anyof: function(left: any, right: any): boolean {
+    anyof: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
       if (Helpers.isValueEmpty(left) && Helpers.isValueEmpty(right))
         return true;
       if (
@@ -768,28 +771,28 @@ export class OperandMaker {
         return false;
       if (Helpers.isValueEmpty(right)) return true;
       if (!Array.isArray(left))
-        return OperandMaker.binaryFunctions.contains(right, left);
+        return OperandMaker.binaryFunctions.contains(right, left, undefined, surveySettings);
       if (!Array.isArray(right))
-        return OperandMaker.binaryFunctions.contains(left, right);
+        return OperandMaker.binaryFunctions.contains(left, right, undefined, surveySettings);
       for (var i = 0; i < right.length; i++) {
-        if (OperandMaker.binaryFunctions.contains(left, right[i])) return true;
+        if (OperandMaker.binaryFunctions.contains(left, right[i], undefined, surveySettings)) return true;
       }
       return false;
     },
-    noneof: function(left: any, right: any): boolean {
-      return !OperandMaker.binaryFunctions.anyof(left, right);
+    noneof: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      return !OperandMaker.binaryFunctions.anyof(left, right, undefined, surveySettings);
     },
-    allof: function(left: any, right: any): boolean {
+    allof: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
       if (!left && !Helpers.isValueEmpty(right)) return false;
       if (!Array.isArray(right))
-        return OperandMaker.binaryFunctions.contains(left, right);
+        return OperandMaker.binaryFunctions.contains(left, right, undefined, surveySettings);
       for (var i = 0; i < right.length; i++) {
-        if (!OperandMaker.binaryFunctions.contains(left, right[i]))
+        if (!OperandMaker.binaryFunctions.contains(left, right[i], undefined, surveySettings))
           return false;
       }
       return true;
     },
-    containsCore: function(left: any, right: any, isContains: any): boolean {
+    containsCore: function(left: any, right: any, isContains: any, surveySettings?: ISurveySettings): boolean {
       if (Array.isArray(left) && !left.length) return !isContains;
       if (!left && left !== 0 && left !== false) return false;
       if (!left.length) {
@@ -798,7 +801,7 @@ export class OperandMaker {
       if (typeof left === "string" || left instanceof String) {
         if (!right) return false;
         right = right.toString();
-        if (!settings.comparator.caseSensitive) {
+        if (!getSurveySetting(surveySettings, "comparator", "caseSensitive")) {
           left = left.toLowerCase();
           right = right.toLowerCase();
         }
@@ -810,7 +813,7 @@ export class OperandMaker {
         var i = 0;
         right = rightArray[rIndex];
         for (; i < left.length; i++) {
-          if (OperandMaker.isTwoValueEquals(left[i], right)) break;
+          if (OperandMaker.isTwoValueEquals(left[i], right, true, surveySettings)) break;
         }
         if (i == left.length) return !isContains;
       }
@@ -818,10 +821,10 @@ export class OperandMaker {
     },
   };
 
-  static isTwoValueEquals(x: any, y: any, ignoreOrder: boolean = true): boolean {
+  static isTwoValueEquals(x: any, y: any, ignoreOrder: boolean = true, surveySettings?: ISurveySettings): boolean {
     if (x === "undefined") x = undefined;
     if (y === "undefined") y = undefined;
-    return Helpers.isTwoValueEquals(x, y, ignoreOrder);
+    return Helpers.isTwoValueEquals(x, y, ignoreOrder, undefined, undefined, surveySettings);
   }
   static operatorToString(operatorName: string): string {
     let opStr = OperandMaker.signs[operatorName];

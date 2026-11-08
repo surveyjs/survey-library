@@ -50,6 +50,72 @@ describe("Pattern mask", () => {
     expect(result[1].value).toBe("1");
   });
 
+  test("parsingMask: an escaped escape character is a literal backslash", () => {
+    expect(getLiterals("9\\\\9")).toEqual([
+      { type: "regex", value: "9" },
+      { type: "const", value: "\\" },
+      { type: "regex", value: "9" }
+    ]);
+    expect(getLiterals("\\\\")).toEqual([{ type: "const", value: "\\" }]);
+    expect(getLiterals("\\\\\\9"), "an escaped backslash, then an escaped 9").toEqual([
+      { type: "const", value: "\\" },
+      { type: "fixed", value: "9" }
+    ]);
+  });
+
+  test("parsingMask: a single escape character at the end of a pattern is dropped", () => {
+    expect(getLiterals("99\\")).toEqual([
+      { type: "regex", value: "9" },
+      { type: "regex", value: "9" }
+    ]);
+    expect(getLiterals("\\")).toEqual([]);
+  });
+
+  test("parsingMask uses the configured escape character", () => {
+    const oldEscapeChar = settings.maskSettings.patternEscapeChar;
+    settings.maskSettings.patternEscapeChar = "!";
+    try {
+      expect(getLiterals("9!!9!9\\")).toEqual([
+        { type: "regex", value: "9" },
+        { type: "const", value: "!" },
+        { type: "regex", value: "9" },
+        { type: "fixed", value: "9" },
+        { type: "const", value: "\\" }
+      ]);
+    } finally {
+      settings.maskSettings.patternEscapeChar = oldEscapeChar;
+    }
+  });
+
+  test("a pattern with an escaped backslash shows a literal backslash", () => {
+    const maskInstance = new InputMaskPattern();
+    maskInstance.pattern = "9\\\\9";
+    expect(maskInstance.getMaskedValue("12")).toBe("1\\2");
+    expect(maskInstance.getUnmaskedValue("1\\2")).toBe("12");
+    expect(maskInstance.getMaskedValue("1\\2"), "the shown backslash is not read as input").toBe("1\\2");
+    let result = maskInstance.processInput({ insertedChars: "1", selectionStart: 0, selectionEnd: 0, prevValue: "_\\_", inputDirection: "forward" });
+    expect(result.value, "type the first digit").toBe("1\\_");
+    expect(result.caretPosition, "the caret skips the backslash").toBe(2);
+    result = maskInstance.processInput({ insertedChars: "2", selectionStart: 2, selectionEnd: 2, prevValue: "1\\_", inputDirection: "forward" });
+    expect(result.value, "type the second digit").toBe("1\\2");
+
+    maskInstance.pattern = "\\\\";
+    expect(maskInstance.getMaskedValue("")).toBe("\\");
+
+    maskInstance.pattern = "\\\\\\9";
+    expect(maskInstance.getMaskedValue("")).toBe("\\9");
+  });
+
+  test("a text question with an escaped backslash in its pattern stores the value without it", () => {
+    const q = new QuestionTextModel("q1");
+    q.maskType = "pattern";
+    q.maskSettings.fromJSON({ pattern: "9\\\\9" });
+    q.inputValue = "1\\2";
+    expect(q.value).toBe("12");
+    q.value = "34";
+    expect(q.inputValue).toBe("3\\4");
+  });
+
   test("get masked valid text matchWholeMask = true", () => {
     settings.maskSettings.patternPlaceholderChar = "*";
     expect(getMaskedValueByPattern("", pattern, true)).toBe("+*(***)-***-**-**");

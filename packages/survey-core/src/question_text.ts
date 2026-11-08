@@ -885,7 +885,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateValueOnEvent(event: any) {
     if (this.inputType === "color" && !this._isValueChanged) return;
     const newValue = event.target.value;
-    if (!this.isTwoValueEquals(this.value, newValue)) {
+    if (!this.isEqualToValue(newValue)) {
       this.inputValue = newValue;
     }
   }

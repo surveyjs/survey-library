@@ -5,6 +5,11 @@ import { settings } from "../settings";
 import { ISurveySettings, getSurveySetting } from "../survey-settings";
 import { ExpressionErrorType, IExpressionError } from "./expressionError";
 
+// Set by static blocks in Const and Variable: BinaryOperand reads their private state through these,
+// so the state stays out of the public API.
+let isQuotedTextLiteral: (op: Const) => boolean;
+let getTextBeforeConversion: (op: Variable) => string | undefined;
+
 export interface AsyncFunctionItem {
   operand?: FunctionOperand;
   parent?: AsyncFunctionItem;
@@ -68,9 +73,17 @@ export abstract class Operand {
   }
 }
 
+// The operators that compare a variable's text with a quoted literal. A negative operator is the
+// exact negation of its positive counterpart.
+const textCompareOperators: HashTable<"positive" | "negative"> = {
+  equal: "positive", contains: "positive", anyof: "positive", allof: "positive",
+  notequal: "negative", notcontains: "negative", noneof: "negative"
+};
+
 export class BinaryOperand extends Operand {
   private consumer: Function;
   private isArithmeticValue: boolean;
+  private textVariable: Variable;
   constructor(
     private operatorName: string,
     private left: any = null,
@@ -90,6 +103,20 @@ export class BinaryOperand extends Operand {
     if (this.consumer == null) {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
+    if (!isArithmeticOp && Object.prototype.hasOwnProperty.call(textCompareOperators, operatorName)) {
+      this.textVariable = this.getTextVariable(this.left, this.right) || this.getTextVariable(this.right, this.left);
+    }
+  }
+  // A variable compared with a quoted literal: its text is compared before the converted value.
+  private getTextVariable(op: Operand, other: Operand): Variable {
+    if (!(op instanceof Variable) || !other) return undefined;
+    if (other instanceof ArrayOperand) {
+      return other.values.some(val => this.isQuotedLiteral(val)) ? op : undefined;
+    }
+    return this.isQuotedLiteral(other) ? op : undefined;
+  }
+  private isQuotedLiteral(op: Operand): boolean {
+    return op instanceof Const && op.getType() === "const" && isQuotedTextLiteral(op);
   }
   private get requireStrictCompare(): boolean {
     return this.getIsOperandRequireStrict(this.left) ||
@@ -130,13 +157,23 @@ export class BinaryOperand extends Operand {
   }
 
   public evaluate(processValue?: ProcessValue): any {
-    return this.consumer.call(
-      this,
-      this.evaluateParam(this.left, processValue),
-      this.evaluateParam(this.right, processValue),
-      this.requireStrictCompare,
-      processValue?.settings
-    );
+    const left = this.evaluateParam(this.left, processValue);
+    const leftText = this.textVariable === this.left ? getTextBeforeConversion(this.textVariable) : undefined;
+    const right = this.evaluateParam(this.right, processValue);
+    const rightText = this.textVariable === this.right ? getTextBeforeConversion(this.textVariable) : undefined;
+    const strictCompare = this.requireStrictCompare;
+    const surveySettings = processValue?.settings;
+    if (leftText !== undefined || rightText !== undefined) {
+      // The variable's text was converted ("1,000" reads as 1), while a quoted literal never is.
+      // Compare the text first: only when that comparison fails, compare the converted value.
+      const textRes = this.consumer.call(this,
+        leftText !== undefined ? leftText : left,
+        rightText !== undefined ? rightText : right,
+        strictCompare, surveySettings);
+      const isPositive = textCompareOperators[this.operatorName] === "positive";
+      if (textRes === isPositive) return textRes;
+    }
+    return this.consumer.call(this, left, right, strictCompare, surveySettings);
   }
 
   public toString(func: (op: Operand) => string = undefined): string {
@@ -426,6 +463,9 @@ export class Const extends Operand {
     const val = this.value;
     return typeof val === "string" && val.length > 1 && val[0] === "'" && val[val.length - 1] === "'";
   }
+  static {
+    isQuotedTextLiteral = (op: Const): boolean => op.isStringLiteral();
+  }
 }
 
 export class Variable extends Const {
@@ -434,6 +474,12 @@ export class Variable extends Const {
   private valueInfo: any = {};
   private useValueAsItIs: boolean = false;
   private returnOriginalValue: boolean = false;
+  // The text the last evaluate converted to another value (a number, a boolean, a text without its quotes);
+  // undefined when the value was not a text or was returned as is.
+  private textBeforeConversion: string | undefined;
+  static {
+    getTextBeforeConversion = (op: Variable): string | undefined => op.textBeforeConversion;
+  }
   constructor(private variableName: string) {
     super(variableName);
     if (
@@ -468,6 +514,7 @@ export class Variable extends Const {
     this.returnOriginalValue = val;
   }
   public evaluate(processValue?: ProcessValue): any {
+    this.textBeforeConversion = undefined;
     this.valueInfo.name = this.variableName;
     this.valueInfo.isOriginalValue = this.returnOriginalValue;
     processValue.getValueInfo(this.valueInfo);
@@ -478,7 +525,11 @@ export class Variable extends Const {
     if (this.valueInfo.onProcessValue) {
       val = this.valueInfo.onProcessValue(val);
     }
-    return this.getCorrectValue(val);
+    const res = this.getCorrectValue(val);
+    if (typeof val === "string" && res !== val) {
+      this.textBeforeConversion = val;
+    }
+    return res;
   }
   public setVariables(variables: Array<string>) {
     variables.push(this.variableName);

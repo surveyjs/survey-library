@@ -1,5 +1,6 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import { FilterChipsLayout, fitFilterChips } from "../../src/filter/filter-chips-layout";
+import { AnimationFrameQueue } from "../test-helpers";
 
 // jsdom lays nothing out: the widths and the gap a browser would report are given here.
 class TestLayout extends FilterChipsLayout {
@@ -68,6 +69,54 @@ describe("FilterChipsLayout", () => {
     layout.attach(createRow(300, [100, 100, 100], 80));
     expect(layout.fitCount).toBe(-1);
     layout.dispose();
+  });
+  test("a chip added under the bar measures the row again", async () => {
+    const layout = new TestLayout();
+    const container = createRow(300, [100, 100, 100], 80);
+    layout.attach(container);
+    const update = vi.spyOn(layout, "update");
+    const chip = document.createElement("div");
+    container.firstElementChild.insertBefore(chip, container.firstElementChild.firstElementChild);
+    await Promise.resolve();
+    expect(update, "#1: a chip added").toHaveBeenCalledTimes(1);
+    chip.textContent = "Country: Germany";
+    await Promise.resolve();
+    expect(update, "#2: a chip's text changed").toHaveBeenCalledTimes(2);
+    layout.detach();
+    container.firstElementChild.appendChild(document.createElement("div"));
+    await Promise.resolve();
+    expect(update, "#3: nothing after detach").toHaveBeenCalledTimes(2);
+    layout.dispose();
+  });
+  test("leaving the phone layout measures the row in the next frame", () => {
+    const frames = new AnimationFrameQueue();
+    frames.install();
+    try {
+      const layout = new TestLayout();
+      layout.isMobile = true;
+      layout.attach(createRow(300, [100, 100, 100], 80));
+      expect(layout.fitCount, "#1: a phone").toBe(-1);
+      layout.isMobile = false;
+      expect(layout.fitCount, "#2: not measured yet").toBe(-1);
+      frames.runFrame();
+      expect(layout.fitCount, "#3: measured").toBe(2);
+      layout.isMobile = true;
+      expect(frames.pendingCount, "#4: a phone needs no frame").toBe(0);
+      layout.isMobile = false;
+      layout.detach();
+      const update = vi.spyOn(layout, "update");
+      frames.runFrame();
+      expect(update, "#5: detached by then").not.toHaveBeenCalled();
+      layout.attach(createRow(300, [100, 100, 100], 80));
+      update.mockClear();
+      layout.isMobile = true;
+      layout.isMobile = false;
+      layout.dispose();
+      frames.runFrame();
+      expect(update, "#6: disposed by then").not.toHaveBeenCalled();
+    } finally {
+      frames.uninstall();
+    }
   });
   test("detach() forgets the row", () => {
     const layout = new TestLayout();

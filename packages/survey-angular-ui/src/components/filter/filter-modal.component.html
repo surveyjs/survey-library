@@ -4,7 +4,7 @@
       <div [class]="modal.searchCss.root">
         <svg [iconName]="'icon-search-24x24'" [size]="'auto'" [partCss]="modal.cssClasses.searchIcon" sv-ng-svg-icon></svg>
         <input type="text" [class]="modal.searchCss.control" [value]="modal.searchString" [attr.placeholder]="modal.searchPlaceholder"
-          [attr.aria-label]="searchLabel" [disabled]="modal.isReadOnly" (input)="onSearchInput($event)" />
+          [attr.aria-label]="searchLabel" [disabled]="modal.isSearchDisabled" (input)="onSearchInput($event)" />
       </div>
     </div>
     <div *ngIf="modal.creationToolbar.hasVisibleActions" [class]="modal.cssClasses.modalSection">
@@ -18,6 +18,6 @@
       <sv-ng-action-bar [model]="modal.presetsToolbar"></sv-ng-action-bar>
     </div>
     <sv-ng-filter-editor-page *ngIf="!!modal.editor" [survey]="modal.editor.survey" [disposed]="modal.editor.isDisposed"
-      [className]="editorCss"></sv-ng-filter-editor-page>
+      [className]="modal.editorCss"></sv-ng-filter-editor-page>
   </div>
 </ng-template>

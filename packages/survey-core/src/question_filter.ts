@@ -29,6 +29,7 @@ import { FilterFieldEditorKind, getFilterChipText, getFilterFieldEditorKind } fr
 import { IDynamicDataFilterField, getFilterFieldTitle } from "./dynamic-data/dynamic-data-filter-fields";
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 // What uiState keeps of the authored presets the respondent changed, by name.
 type FilterSavedItems = { [name: string]: IFilterSavedItemState };
@@ -901,6 +902,16 @@ export class QuestionFilterModel extends QuestionNonValue {
     const css: any = !!this.survey ? this.survey.getCss() : undefined;
     const text: any = !!css && !!css.text ? css.text : {};
     return { root: text.root || "", control: text.control || "" };
+  }
+  public get searchRootCss(): string { return toCssClasses(this.searchCss.root, this.cssClasses.search); }
+  // The quick search box is off in the designer only; the Filters dialog's box has its own rule
+  // (FilterModal.isSearchDisabled).
+  public get isSearchDisabled(): boolean { return this.isDesignMode; }
+  // The element the chips layout is attached to: expanded by Show More. A disposed control has
+  // released its layout, and asking for it would build a new one.
+  public get chipsCss(): string {
+    const css = this.cssClasses;
+    return toCssClasses(css.chips, !this.isDisposed && this.chipsLayout.isExpanded && css.chipsExpanded);
   }
   // Says what the search looks in: the titles of the fields it searches, in searchFields' order. With
   // no field to name it is the library's own "Type to search...".

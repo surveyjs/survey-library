@@ -1,16 +1,16 @@
 <template>
-  <div :class="getRootCss()" ref="root">
+  <div :class="question.getQuestionRootCss()" ref="root">
     <div v-if="question.showSearch" :class="question.cssClasses.searchRow">
-      <div :class="getSearchRootCss()">
+      <div :class="question.searchRootCss">
         <SvComponent :is="'sv-svg-icon'" :className="question.cssClasses.searchIcon" :iconName="'icon-search-24x24'" :size="'auto'"></SvComponent>
         <input type="text" :class="question.searchCss.control" :value="question.searchString" :placeholder="question.searchPlaceholder"
-          :aria-label="filterUIStrings.searchLabel" :disabled="question.isDesignMode"
+          :aria-label="filterUIStrings.searchLabel" :disabled="question.isSearchDisabled"
           @input="onSearchInput" />
       </div>
       <SvComponent :is="'sv-action-bar'" :model="question.searchToolbar"></SvComponent>
     </div>
     <div :class="question.cssClasses.chipsRow">
-      <div :class="getChipsCss()" ref="chipsRef">
+      <div :class="question.chipsCss" ref="chipsRef">
         <SvComponent :is="'sv-action-bar'" :model="question.chipsToolbar"></SvComponent>
       </div>
       <SvComponent :is="'sv-action-bar'" :model="question.clearToolbar"></SvComponent>
@@ -20,10 +20,10 @@
 
 <script lang="ts" setup>
 // The Filter Control (#11890), as packages/survey-react-ui/src/components/filter/filter.tsx draws it.
-import { type QuestionFilterModel, filterUIStrings, toCssClasses } from "survey-core";
+import { type QuestionFilterModel, filterUIStrings } from "survey-core";
 import SvComponent from "@/SvComponent.vue";
 import { useBase, useQuestion } from "./base";
-import { onBeforeUnmount, onMounted, onUpdated, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionFilterModel }>();
 const root = ref(null);
@@ -31,34 +31,19 @@ const chipsRef = ref<HTMLElement>();
 useQuestion(props, root);
 // A disposed question has released its layout, and asking for it would build a new one.
 useBase(() => props.question.isDisposed ? undefined as any : props.question.chipsLayout);
-// The chips are drawn by the action bar; the row watches them to measure itself again.
-useBase(() => props.question.isDisposed ? undefined as any : props.question.chipsToolbar);
-
-// Plain functions, not computed: the question builds its classes and toolbars on first use, which a
-// computed would take for a change of its own dependency.
-const getRootCss = (): string => toCssClasses(props.question.cssClasses.root, props.question.isMobile && props.question.cssClasses.rootMobile);
-const getSearchRootCss = (): string => toCssClasses(props.question.searchCss.root, props.question.cssClasses.search);
-const getChipsCss = (): string => toCssClasses(props.question.cssClasses.chips,
-  !props.question.isDisposed && props.question.chipsLayout.isExpanded && props.question.cssClasses.chipsExpanded);
 
 const onSearchInput = (event: any) => {
   const question = props.question;
   question.searchString = event.target.value;
 };
 
-// The chips row is measured once it is drawn: FilterChipsLayout cuts it to one row. The chips are
-// drawn by the action bar, so a change of the chips is watched here too - by their ids: the array of
-// the rendered actions is changed in place, and the same array would not count as a change.
-const updateLayout = () => {
+// FilterChipsLayout cuts the chips row to one row, and measures the row again itself whenever it
+// changes: the renderer only attaches it and detaches it.
+onMounted(() => {
   const q = props.question;
   if (!chipsRef.value || !q || q.isDisposed) return;
   q.chipsLayout.attach(chipsRef.value);
-  q.chipsLayout.update();
-};
-onMounted(updateLayout);
-onUpdated(updateLayout);
-watch(() => props.question.isDisposed ? "" : props.question.chipsToolbar.renderedActions.map(action => action.id).join(","),
-  updateLayout, { flush: "post" });
+});
 onBeforeUnmount(() => {
   if (!!props.question && !props.question.isDisposed) {
     props.question.chipsLayout.detach();

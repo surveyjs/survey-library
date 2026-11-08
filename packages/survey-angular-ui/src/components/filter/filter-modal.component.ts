@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { Base, FilterModal, filterModalComponentName, filterUIStrings, toCssClasses } from "survey-core";
+import { Base, FilterModal, filterModalComponentName, filterUIStrings } from "survey-core";
 import { FilterHolderComponent } from "./filter-holder.component";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -11,9 +11,10 @@ import { AngularComponentFactory } from "../../component-factory";
   styleUrls: ["../../hide-host.scss"]
 })
 export class FilterModalComponent extends FilterHolderComponent {
+  // The holder empties a slot before it disposes what it held: this is never a disposed dialog.
   public get modal(): FilterModal {
     const holder = this.holder;
-    return !!holder && !!holder.modal && !holder.modal.isDisposed ? holder.modal : undefined as any;
+    return !!holder ? holder.modal : undefined as any;
   }
   protected getWatchedModels(): Array<Base | undefined> {
     const modal = this.modal;
@@ -24,9 +25,6 @@ export class FilterModalComponent extends FilterHolderComponent {
   }
   public get presetsTitle(): string {
     return filterUIStrings.presetsTitle;
-  }
-  public get editorCss(): string {
-    return toCssClasses(this.modal.cssClasses.editor, this.modal.cssClasses.modalEditor);
   }
   public onSearchInput(event: any): void {
     this.modal.searchString = event.target.value;

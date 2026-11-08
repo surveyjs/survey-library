@@ -77,6 +77,12 @@ export class FilterPresetDialog extends Base {
   public get title(): string { return filterUIStrings.addPresetTitle; }
   // Whether the preset shown may be changed; a dialog that adds one always may.
   public get isReadOnly(): boolean { return false; }
+  // The control's classes (the "filter" entry of the theme): the dialog is drawn outside the
+  // control's own markup.
+  public get cssClasses(): any { return this.owner.cssClasses || {}; }
+  public get contentCss(): string { return toCssClasses(this.cssClasses.modalContent, this.cssClasses.presetContent); }
+  public get formCss(): string { return toCssClasses(this.cssClasses.editor, this.cssClasses.presetForm); }
+  public get editorCss(): string { return toCssClasses(this.cssClasses.editor, this.cssClasses.modalEditor); }
   // What a renderer draws under the form: the fields' editors in their frame and, in Edit Presets,
   // the description. Its page is empty while there is neither.
   public get survey(): SurveyModel { return this.surveyValue; }

@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { Base, FilterEditPresetsDialog, FilterPresetDialog, filterPresetDialogComponentName, filterUIStrings, toCssClasses } from "survey-core";
+import { Base, FilterEditPresetsDialog, FilterPresetDialog, filterPresetDialogComponentName, filterUIStrings } from "survey-core";
 import { FilterHolderComponent } from "./filter-holder.component";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -12,9 +12,10 @@ import { AngularComponentFactory } from "../../component-factory";
   styleUrls: ["../../hide-host.scss"]
 })
 export class FilterPresetDialogComponent extends FilterHolderComponent {
+  // The holder empties a slot before it disposes what it held: this is never a disposed dialog.
   public get dialog(): FilterPresetDialog {
     const holder = this.holder;
-    return !!holder && !!holder.presetDialog && !holder.presetDialog.isDisposed ? holder.presetDialog : undefined as any;
+    return !!holder ? holder.presetDialog : undefined as any;
   }
   public get edit(): FilterEditPresetsDialog {
     const dialog = this.dialog;
@@ -28,18 +29,6 @@ export class FilterPresetDialogComponent extends FilterHolderComponent {
   public get hasFields(): boolean {
     const edit = this.edit;
     return !!this.dialog.editor || (!!edit && !!edit.aiPrompt);
-  }
-  public get css(): any {
-    return this.holder.cssClasses;
-  }
-  public get contentCss(): string {
-    return toCssClasses(this.css.modalContent, this.css.presetContent);
-  }
-  public get formCss(): string {
-    return toCssClasses(this.css.editor, this.css.presetForm);
-  }
-  public get editorCss(): string {
-    return toCssClasses(this.css.editor, this.css.modalEditor);
   }
   public get actionsTitle(): string {
     return filterUIStrings.presetActions;

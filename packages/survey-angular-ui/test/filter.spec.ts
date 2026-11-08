@@ -248,6 +248,36 @@ describe("Filter dialogs", () => {
     modal.dispose();
     fixture.destroy();
   });
+  it("an editor page gives its survey's root element back on unmount, unless another one was set", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    const fixture = createByName("sv-filter-modal", { holder: holder });
+    await settle(fixture);
+    const modal = holder.modal;
+    const editorSurvey = modal.editor.survey;
+    expect(editorSurvey.rootElement).withContext("#1: set on mount").toBe(getRoot(fixture).querySelector(".sd-filter-modal__editor") as HTMLElement);
+    holder.modal = undefined as any;
+    await settle(fixture);
+    expect(editorSurvey.isDisposed).withContext("#2: not disposed yet").toBe(false);
+    expect(editorSurvey.rootElement).withContext("#3: cleared on unmount").toBeUndefined();
+    modal.dispose();
+    const other = q.createFilterModal();
+    holder.modal = other;
+    await settle(fixture);
+    const otherSurvey = other.editor.survey;
+    expect(!!otherSurvey.rootElement).withContext("#4: set on mount").toBe(true);
+    const elsewhere = document.createElement("div");
+    otherSurvey.rootElement = elsewhere;
+    holder.modal = undefined as any;
+    await settle(fixture);
+    expect(otherSurvey.rootElement).withContext("#5: set elsewhere in the meantime, kept").toBe(elsewhere);
+    other.dispose();
+    fixture.destroy();
+    survey.dispose();
+  });
   async function renderPopup(): Promise<{ holder: FilterEditorHolder, fixture: ComponentFixture<any>, input: HTMLInputElement }> {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
       { name: "product", fieldType: "dropdown", choices: ["apple", "banana", "cherry", "date", "elder", "fig", "grape"] }] }] });

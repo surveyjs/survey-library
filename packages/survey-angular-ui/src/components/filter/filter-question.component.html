@@ -1,9 +1,9 @@
-<div [class]="rootCss" #contentElement>
+<div [class]="model.getQuestionRootCss()" #contentElement>
   <div *ngIf="model.showSearch" [class]="model.cssClasses.searchRow">
-    <div [class]="searchRootCss">
+    <div [class]="model.searchRootCss">
       <svg [iconName]="'icon-search-24x24'" [size]="'auto'" [partCss]="model.cssClasses.searchIcon" sv-ng-svg-icon></svg>
       <input type="text" [class]="model.searchCss.control" [value]="model.searchString" [attr.placeholder]="model.searchPlaceholder"
-        [attr.aria-label]="searchLabel" [disabled]="model.isDesignMode" (input)="onSearchInput($event)" />
+        [attr.aria-label]="searchLabel" [disabled]="model.isSearchDisabled" (input)="onSearchInput($event)" />
     </div>
     <sv-ng-action-bar [model]="model.searchToolbar"></sv-ng-action-bar>
   </div>

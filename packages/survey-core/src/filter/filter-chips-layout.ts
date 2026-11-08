@@ -1,6 +1,6 @@
-import { Base } from "../base";
+import { ArrayChanges, Base } from "../base";
 import { property } from "../decorators";
-import { DomDocumentHelper } from "../global_variables_utils";
+import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 
 // How many chips the first row shows with the "Show More" link right after the last of them, or -1
 // when every chip fits in the row and no link is needed. widths are the chips' own widths in their
@@ -26,11 +26,14 @@ export function fitFilterChips(widths: Array<number>, available: number, gap: nu
 // always rendered - one the collapsed row does not show is taken out of the flow and stays
 // measurable (see FilterToolbars) - so its width is known without a separate measuring pass. The
 // renderer attaches the element that holds the action bar of the chips (the bar is its first displayed
-// child; its last displayed item is "Show More") and calls update() after it has drawn changed chips;
-// a resize is observed here. On a phone the row scrolls sideways instead, and nothing is measured.
+// child; its last displayed item is "Show More") on mount and detaches it on unmount; nothing else.
+// The row is measured again here: on a resize, on a change of the chips under the element (a chip
+// added, removed or retitled) and when the control leaves the phone layout. On a phone the row
+// scrolls sideways instead, and nothing is measured.
 export class FilterChipsLayout extends Base {
   private container: HTMLElement;
   private resizeObserver: ResizeObserver;
+  private mutationObserver: MutationObserver;
   // "Show More" was clicked: every chip shows, in as many rows as they need.
   @property({ defaultValue: false }) isExpanded: boolean;
   // How many chips the collapsed row shows; -1 while every chip fits, or nothing was measured.
@@ -46,12 +49,23 @@ export class FilterChipsLayout extends Base {
       this.resizeObserver = new ResizeObserver((): void => { this.update(); });
       this.resizeObserver.observe(container);
     }
+    // The chips are the container's grandchildren (container > action bar > items), and a retitled chip
+    // changes its text only. Attributes are not observed: update() itself changes the chips' classes.
+    // A chip's popup is drawn inside the row, so opening it measures the row once too.
+    if (typeof MutationObserver !== "undefined") {
+      this.mutationObserver = new MutationObserver((): void => { this.update(); });
+      this.mutationObserver.observe(container, { childList: true, subtree: true, characterData: true });
+    }
     this.update();
   }
   public detach(): void {
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
+    }
+    if (!!this.mutationObserver) {
+      this.mutationObserver.disconnect();
+      this.mutationObserver = undefined;
     }
     this.container = undefined;
   }
@@ -70,6 +84,16 @@ export class FilterChipsLayout extends Base {
     const more = items.pop();
     this.fitCount = fitFilterChips(items.map((el: HTMLElement): number => this.getWidth(el)),
       this.getAvailableSpace(bar), this.getGap(bar), this.getWidth(more));
+  }
+  // Leaving the phone layout changes no element under the row, so nothing above sees it: the row is
+  // measured in the next frame, once it is laid out as a row again (as ResponsivityManager does).
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void {
+    super.onPropertyValueChanged(name, oldValue, newValue, arrayChanges);
+    if (name !== "isMobile" || !!newValue || !this.container) return;
+    DomWindowHelper.requestAnimationFrame((): void => {
+      if (!this.container || this.isDisposed) return;
+      this.update();
+    });
   }
   public dispose(): void {
     this.detach();

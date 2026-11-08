@@ -11,9 +11,10 @@ import { AngularComponentFactory } from "../../component-factory";
   styleUrls: ["../../hide-host.scss"]
 })
 export class FilterFieldPopupComponent extends FilterHolderComponent {
+  // The holder empties a slot before it disposes what it held: this is never a disposed popup.
   public get popup(): FilterFieldPopup {
     const holder = this.holder;
-    return !!holder && !!holder.fieldPopup && !holder.fieldPopup.isDisposed ? holder.fieldPopup : undefined as any;
+    return !!holder ? holder.fieldPopup : undefined as any;
   }
   protected getWatchedModels(): Array<Base | undefined> {
     const popup = this.popup;

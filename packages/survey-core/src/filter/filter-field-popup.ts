@@ -8,6 +8,7 @@ import { Helpers, normalizeTextForSearch } from "../helpers";
 import { getLocaleString } from "../surveyStrings";
 import { ElementHelper } from "../element-helper";
 import { classesToSelector, getFirstVisibleChild } from "../utils/dom-utils";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
@@ -90,6 +91,12 @@ export class FilterFieldPopup extends Base {
   // The control's classes (the "filter" entry of the theme): the popup is drawn outside the
   // control's own markup.
   public get cssClasses(): any { return this.owner.cssClasses; }
+  // A checkbox list entry's check, drawn as the checkbox question draws one: checked by the entry's
+  // active flag (kept here), and always there, transparent while the entry is not checked.
+  public getItemCheckCss(item: Action): string {
+    const css = this.cssClasses;
+    return toCssClasses(css.listItemCheck, !!item && !!item.active && css.listItemCheckChecked, this.isReadOnly && css.listItemCheckReadOnly);
+  }
   // Writes what the popup holds and closes it. Nothing once the popup is gone: a second click on
   // Apply can arrive after the first one closed and disposed it.
   public apply(): void {

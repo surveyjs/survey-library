@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { Action, FilterFieldPopup, ListModel, filterListItemComponentName, filterUIStrings, toCssClasses } from "survey-core";
+import { Action, FilterFieldPopup, ListModel, filterListItemComponentName, filterUIStrings } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -22,12 +22,6 @@ export class FilterListItemComponent extends BaseAngular<Action> {
   }
   public get css(): any {
     return this.popup.cssClasses;
-  }
-  // The checkbox question's checkbox: its classes, so it is drawn the way the question draws one. The
-  // check is always there, transparent while the entry is not checked - as in the question.
-  public get checkCss(): string {
-    return toCssClasses(this.css.listItemCheck, !!this.model.active && this.css.listItemCheckChecked,
-      this.popup.isReadOnly && this.css.listItemCheckReadOnly);
   }
   public get removeTitle(): string {
     return filterUIStrings.removeValue;

@@ -4,7 +4,7 @@
       <div :class="modal().searchCss.root">
         <SvComponent :is="'sv-svg-icon'" :className="modal().cssClasses.searchIcon" :iconName="'icon-search-24x24'" :size="'auto'"></SvComponent>
         <input type="text" :class="modal().searchCss.control" :value="modal().searchString" :placeholder="modal().searchPlaceholder"
-          :aria-label="filterUIStrings.searchLabel" :disabled="modal().isReadOnly" @input="onSearchInput" />
+          :aria-label="filterUIStrings.searchLabel" :disabled="modal().isSearchDisabled" @input="onSearchInput" />
       </div>
     </div>
     <div v-if="modal().creationToolbar.hasVisibleActions" :class="modal().cssClasses.modalSection">
@@ -18,7 +18,7 @@
       <SvComponent :is="'sv-action-bar'" :model="modal().presetsToolbar"></SvComponent>
     </div>
     <FilterEditorPage v-if="!!modal().editor" :survey="modal().editor.survey" :disposed="modal().editor.isDisposed"
-      :className="toCssClasses(modal().cssClasses.editor, modal().cssClasses.modalEditor)"></FilterEditorPage>
+      :className="modal().editorCss"></FilterEditorPage>
   </div>
 </template>
 <script lang="ts" setup>
@@ -28,12 +28,12 @@
 import SvComponent from "@/SvComponent.vue";
 import FilterEditorPage from "./FilterEditorPage.vue";
 import { useBase } from "@/base";
-import { type FilterEditorHolder, type FilterModal, filterUIStrings, toCssClasses } from "survey-core";
+import { type FilterEditorHolder, type FilterModal, filterUIStrings } from "survey-core";
 const props = defineProps<{ holder: FilterEditorHolder }>();
-// A plain function, not computed: whether the dialog is disposed is not reactive.
+// A plain function, not computed: the holder, which useBase watches, empties a slot before it disposes what it held, so this never returns a disposed dialog.
 const modal = (): FilterModal => {
   const holder = props.holder;
-  return !!holder && !!holder.modal && !holder.modal.isDisposed ? holder.modal : undefined as any;
+  return holder ? holder.modal : undefined as any;
 };
 useBase(() => props.holder);
 useBase(() => modal());

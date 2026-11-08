@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { QuestionFilterModel, filterUIStrings, toCssClasses } from "survey-core";
+import { QuestionFilterModel, filterUIStrings } from "survey-core";
 import { QuestionAngular } from "../../question";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -10,12 +10,6 @@ import { AngularComponentFactory } from "../../component-factory";
   templateUrl: "./filter-question.component.html"
 })
 export class FilterQuestionComponent extends QuestionAngular<QuestionFilterModel> {
-  public get rootCss(): string {
-    return toCssClasses(this.model.cssClasses.root, this.model.isMobile && this.model.cssClasses.rootMobile);
-  }
-  public get searchRootCss(): string {
-    return toCssClasses(this.model.searchCss.root, this.model.cssClasses.search);
-  }
   public get searchLabel(): string {
     return filterUIStrings.searchLabel;
   }

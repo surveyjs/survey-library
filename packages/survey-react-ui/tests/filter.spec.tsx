@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 // eslint-disable-next-line surveyjs/no-imports-from-entries
 import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterListItem, SurveyFilterFieldPopup, ReactElementFactory } from "../entries/index";
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 
 beforeAll(() => {
   (window as any).ResizeObserver = function () {
@@ -28,6 +28,25 @@ describe("SurveyQuestionFilter", () => {
     ReactDOM.unmountComponentAtNode(container);
     expect((q as any).toolbarsValue, "#2").toBe(undefined);
     container.remove();
+  });
+  it("a change of the chips measures the row again", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }],
+      items: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyReact, { model: survey }), container);
+    });
+    const update = vi.spyOn(q.chipsLayout, "update");
+    // The row is measured from a MutationObserver, whose callback runs in a microtask.
+    await act(async () => { q.items.splice(1, 1); });
+    expect(update).toHaveBeenCalled();
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+    survey.dispose();
   });
   it("renders the filter control in design mode", () => {
     const survey = new SurveyModel();
@@ -122,6 +141,40 @@ describe("SurveyQuestionFilter", () => {
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);
     container.remove();
+  });
+  it("an editor page gives its survey's root element back on unmount, unless another one was set", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const mountModal = () => {
+      holder.modal = q.createFilterModal();
+      act(() => {
+        // eslint-disable-next-line react/no-deprecated
+        ReactDOM.render(React.createElement(SurveyFilterModal, { holder: holder }), container);
+      });
+      return holder.modal;
+    };
+    const modal = mountModal();
+    const editorSurvey = modal.editor.survey;
+    expect(editorSurvey.rootElement, "#1: set on mount").toBe(container.querySelector(".sd-filter-modal__editor"));
+    act(() => { holder.modal = undefined; });
+    expect(editorSurvey.isDisposed, "#2: not disposed yet").toBe(false);
+    expect(editorSurvey.rootElement, "#3: cleared on unmount").toBeUndefined();
+    modal.dispose();
+    const other = mountModal();
+    const otherSurvey = other.editor.survey;
+    const elsewhere = document.createElement("div");
+    otherSurvey.rootElement = elsewhere;
+    act(() => { holder.modal = undefined; });
+    expect(otherSurvey.rootElement, "#4: set elsewhere in the meantime, kept").toBe(elsewhere);
+    other.dispose();
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+    survey.dispose();
   });
 });
 

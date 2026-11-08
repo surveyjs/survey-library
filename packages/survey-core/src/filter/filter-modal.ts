@@ -1,5 +1,6 @@
 import { Base } from "../base";
 import { property } from "../decorators";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { IFilterCondition, IFilterState } from "../interfaces/ui-interfaces";
@@ -128,6 +129,9 @@ export class FilterModal extends Base {
   // The control's classes (the "filter" entry of the theme): the dialog is drawn outside the
   // control's own markup.
   public get cssClasses(): any { return this.owner.cssClasses; }
+  public get editorCss(): string { return toCssClasses(this.cssClasses.editor, this.cssClasses.modalEditor); }
+  // Off whenever the conditions can't be edited (isReadOnly); the control's own box has its own rule.
+  public get isSearchDisabled(): boolean { return this.isReadOnly; }
   // The buffer's search text.
   public get searchString(): string { return this.getPropertyValue("searchString", ""); }
   public set searchString(val: string) {

@@ -24,6 +24,8 @@ export { filterUIStrings } from "./filter-ui-strings";
 // changes, so a renderer watches this instead - and the holder is emptied, unmounting what it held,
 // before that is disposed. cssClasses are the control's: a popup and a dialog are drawn outside the
 // control's markup.
+// Whoever fills a holder empties it before disposing what it held (see FilterToolbars.release), so a
+// holder never holds a disposed model and the renderers don't ask: keep it that way.
 export class FilterEditorHolder extends Base {
   public getType(): string { return "filtereditorholder"; }
   @property() fieldPopup: FilterFieldPopup;

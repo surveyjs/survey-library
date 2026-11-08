@@ -411,6 +411,67 @@ describe("FilterToolbars: the Filters dialog", () => {
       settings.showDialog = saved;
     }
   });
+  // The renderers read a holder's slots without asking whether what they hold is disposed: a slot is
+  // emptied before what it held is disposed, on every way it goes.
+  describe("a holder never holds a disposed model", () => {
+    // isDisposed of what each emptied slot held, at the moment it was emptied.
+    function watch(holder: any): Array<boolean> {
+      const res: Array<boolean> = [];
+      holder.onPropertyChanged.add((_: any, o: any): void => {
+        if (!o.newValue && !!o.oldValue) res.push(o.oldValue.isDisposed);
+      });
+      return res;
+    }
+    function openAll(q: QuestionFilterModel, dialogs: { calls: Array<any> }): { modal: Array<boolean>, preset: Array<boolean>, field: Array<boolean> } {
+      const badge = action(q.chipsToolbar, "sv-filter-field-country");
+      const fieldHolder = badge.popupModel.contentComponentData.holder;
+      const field = watch(fieldHolder);
+      badge.action();
+      expect(!!fieldHolder.fieldPopup, "field popup open").toBe(true);
+      q.showAdvancedEditor();
+      const modalHolder = dialogs.calls[0].options.data.holder;
+      const modal = watch(modalHolder);
+      q.showPresetDialog(modalHolder.modal, false);
+      const presetHolder = dialogs.calls[1].options.data.holder;
+      const preset = watch(presetHolder);
+      expect(!!presetHolder.presetDialog, "preset dialog open").toBe(true);
+      return { modal: modal, preset: preset, field: field };
+    }
+    test("on close", () => {
+      const dialogs = stubDialogs();
+      try {
+        const q = createFilter({ items: [] });
+        const emptied = openAll(q, dialogs);
+        dialogs.calls[1].model.hide();
+        dialogs.calls[0].model.hide();
+        action(q.chipsToolbar, "sv-filter-field-country").popupModel.isVisible = false;
+        expect(emptied, "#1").toEqual({ modal: [false], preset: [false], field: [false] });
+      } finally {
+        dialogs.restore();
+      }
+    });
+    test("on a gone chip", () => {
+      const q = createFilter({ items: [] });
+      const badge = action(q.chipsToolbar, "sv-filter-field-country");
+      const holder = badge.popupModel.contentComponentData.holder;
+      const emptied = watch(holder);
+      badge.action();
+      const popup = holder.fieldPopup;
+      q.allowFastMode = false;
+      expect([emptied, popup.isDisposed], "#1").toEqual([[false], true]);
+    });
+    test("on the control's dispose", () => {
+      const dialogs = stubDialogs();
+      try {
+        const q = createFilter({ items: [] });
+        const emptied = openAll(q, dialogs);
+        q.dispose();
+        expect(emptied, "#1").toEqual({ modal: [false], preset: [false], field: [false] });
+      } finally {
+        dialogs.restore();
+      }
+    });
+  });
 });
 
 describe("QuestionFilterModel: what the renderer shows besides the toolbars", () => {

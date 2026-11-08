@@ -100,10 +100,15 @@ export class SurveyActionBarItem extends SurveyElementBase<
         title={this.item.tooltip || this.item.title}
       ></SvgIcon>
     ) : null;
+    // A trailing icon (a filter chip's chevron); the bar's cssClasses give its class.
+    const markerIcon = !!this.item.markerIconName ? (
+      <SvgIcon className={this.item.cssClasses.itemMarkerIcon} iconName={this.item.markerIconName} size={"auto"}></SvgIcon>
+    ) : null;
     return (
       <>
         {svgIcon}
         {text}
+        {markerIcon}
       </>
     );
   }

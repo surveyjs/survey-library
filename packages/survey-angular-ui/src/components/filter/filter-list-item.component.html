@@ -3,7 +3,7 @@
     <span [class]="css.listItemText">{{ model.title }}</span>
   </div>
   <div *ngIf="!!popup && !model.data.isAdd" [class]="css.listItem">
-    <span [class]="checkCss" aria-hidden="true">
+    <span [class]="popup.getItemCheckCss(model)" aria-hidden="true">
       <span [class]="css.listItemCheckDecorator">
         <svg [iconName]="'icon-check-16x16'" [size]="'auto'" [css]="css.listItemCheckIcon" sv-ng-svg-icon></svg>
       </span>

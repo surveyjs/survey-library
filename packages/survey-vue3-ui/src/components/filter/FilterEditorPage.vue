@@ -9,16 +9,33 @@
 // Survey inside another survey's question would put a <form> inside a <form>).
 import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel } from "survey-core";
-import { onMounted, onUpdated, ref } from "vue";
+import { onBeforeUnmount, onMounted, onUpdated, ref } from "vue";
 const props = defineProps<{ survey: SurveyModel; disposed?: boolean; className: string }>();
 const root = ref<HTMLElement>();
-// The Survey component would set this; a page rendered on its own leaves it to its host.
+// The survey whose rootElement this page set, and the element it set: given back on unmount.
+let rootSurvey: SurveyModel | undefined;
+let rootElement: HTMLElement | undefined;
+const clearRootElement = () => {
+  if (!!rootSurvey && !rootSurvey.isDisposed && rootSurvey.rootElement === rootElement) {
+    rootSurvey.rootElement = undefined as any;
+  }
+  rootSurvey = undefined;
+  rootElement = undefined;
+};
+// The Survey component would set this; a page rendered on its own leaves it to its host. It is
+// cleared on unmount, unless something else set it in the meantime.
 const updateRootElement = () => {
   if (!props.disposed && !!root.value) {
     const survey = props.survey;
+    if (rootSurvey !== survey) {
+      clearRootElement();
+    }
     survey.rootElement = root.value;
+    rootSurvey = survey;
+    rootElement = root.value;
   }
 };
 onMounted(updateRootElement);
 onUpdated(updateRootElement);
+onBeforeUnmount(clearRootElement);
 </script>

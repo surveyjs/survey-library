@@ -1,17 +1,23 @@
-import { Component } from "@angular/core";
-import { ActionDropdownViewModel, filterChipComponentName } from "survey-core";
-import { ActionBarItemComponent } from "../action-bar/action-bar-item.component";
+import { Component, Input } from "@angular/core";
+import { Action, ActionDropdownViewModel, filterChipComponentName } from "survey-core";
+import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
-// A chip of the Filter Control: the standard action button with a trailing chevron while it opens a
-// popup, and the popup right after the button (the popup is placed against its previous sibling).
+// A chip of the Filter Control: the standard action button (sv-action-bar-item; its trailing chevron
+// is the item's markerIconName), and the popup right after the button (the popup is placed against
+// its previous sibling). Not an ActionBarItemComponent: the inner item sets the item's input element,
+// and that class's ngAfterViewInit here, with no button of its own, would set it to undefined after.
 @Component({
   selector: "sv-ng-filter-chip",
   templateUrl: "./filter-chip.component.html",
   styleUrls: ["../../hide-host.scss"]
 })
-export class FilterChipComponent extends ActionBarItemComponent {
+export class FilterChipComponent extends BaseAngular<Action> {
+  @Input() model?: Action;
   private viewModel?: ActionDropdownViewModel;
+  protected getModel(): Action {
+    return this.model as Action;
+  }
   override ngOnInit(): void {
     super.ngOnInit();
     if (!!this.model && !!this.model.popupModel) {

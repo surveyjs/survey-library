@@ -28,10 +28,10 @@ import FilterEditorPage from "./FilterEditorPage.vue";
 import { useBase } from "@/base";
 import type { FilterEditorHolder, FilterFieldPopup } from "survey-core";
 const props = defineProps<{ holder: FilterEditorHolder }>();
-// A plain function, not computed: whether the popup is disposed is not reactive.
+// A plain function, not computed: the holder, which useBase watches, empties a slot before it disposes what it held, so this never returns a disposed popup.
 const popup = (): FilterFieldPopup => {
   const holder = props.holder;
-  return !!holder && !!holder.fieldPopup && !holder.fieldPopup.isDisposed ? holder.fieldPopup : undefined as any;
+  return holder ? holder.fieldPopup : undefined as any;
 };
 useBase(() => props.holder);
 useBase(() => popup()?.headerToolbar);

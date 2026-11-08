@@ -224,6 +224,37 @@ describe("Filter dialogs", () => {
     modal.dispose();
     cleanup(wrapper);
   });
+  it("an editor page gives its survey's root element back on unmount, unless another one was set", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    holder.modal = q.createFilterModal();
+    const wrapper = mountComponent("sv-filter-modal", { holder: holder });
+    await nextTick();
+    const container = wrapper.element.parentElement;
+    const modal = holder.modal;
+    const editorSurvey = modal.editor.survey;
+    expect(editorSurvey.rootElement, "#1: set on mount").toBe(container.querySelector(".sd-filter-modal__editor"));
+    holder.modal = undefined;
+    await nextTick();
+    expect(editorSurvey.isDisposed, "#2: not disposed yet").toBe(false);
+    expect(editorSurvey.rootElement, "#3: cleared on unmount").toBeUndefined();
+    modal.dispose();
+    const other = q.createFilterModal();
+    holder.modal = other;
+    await nextTick();
+    const otherSurvey = other.editor.survey;
+    expect(!!otherSurvey.rootElement, "#4: set on mount").toBe(true);
+    const elsewhere = document.createElement("div");
+    otherSurvey.rootElement = elsewhere;
+    holder.modal = undefined;
+    await nextTick();
+    expect(otherSurvey.rootElement, "#5: set elsewhere in the meantime, kept").toBe(elsewhere);
+    other.dispose();
+    cleanup(wrapper);
+    survey.dispose();
+  });
   async function renderPopup(): Promise<{ holder: FilterEditorHolder, wrapper: VueWrapper<any>, input: HTMLInputElement }> {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
       { name: "product", fieldType: "dropdown", choices: ["apple", "banana", "cherry", "date", "elder", "fig", "grape"] }] }] });

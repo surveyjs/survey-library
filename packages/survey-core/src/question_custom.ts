@@ -27,6 +27,7 @@ import { settings } from "./settings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 import { Scope } from "./utils/scope";
+import { ObjectDataScope, setObjectKey } from "./panel-data-scope";
 
 /**
  * An interface used to create custom question types.
@@ -1208,6 +1209,45 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   }
 }
 
+// The content panel's values as keys of the composite's value (decisions N8). The composite stays its
+// questions' data and keeps its own write pipeline (hooks, conversions, the Creator's editing object); the
+// scope gives it the reads, the key index and the loops that push a value into its questions.
+// It is no PanelDataScope: a content question's value scope stays the survey (N5).
+class CompositeDataScope extends ObjectDataScope {
+  constructor(private question: QuestionCompositeModel) {
+    super();
+  }
+  protected getObject(): any {
+    return this.question.value;
+  }
+  // The key as stored, not a copy: a content question may share it (the Creator binds Base values). Never null:
+  // a dynamic panel tells an undefined value apart.
+  protected getObjectKey(obj: any, name: string): any {
+    return !!obj ? obj[name] : undefined;
+  }
+  protected getScopeElements(): Array<IElement> {
+    const panel = this.question.contentPanel;
+    return !!panel ? panel.elements : [];
+  }
+  // No panel inside a composite nests (N5): the walk reaches every content question.
+  protected isScopeQuestion(q: Question): boolean {
+    return true;
+  }
+  // The composite sets a value through the question's setters, so the question's own value-changed path
+  // runs. An undefined key does not clear a question that is still empty (it may hold its default value).
+  protected updateQuestionFrom(q: Question, obj: any): void {
+    const key = q.getValueName();
+    const val = !!obj ? obj[key] : undefined;
+    const commentVal = !!obj && obj[Helpers.getCommentKey(key)] || "";
+    if (!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
+      q.value = val;
+    }
+    if (q.comment !== commentVal) {
+      q.comment = commentVal;
+    }
+  }
+}
+
 export class QuestionCompositeModel extends QuestionCustomModelBase {
   private panelWrapper: PanelModel;
   private textProcessing: TextContextProcessor;
@@ -1406,16 +1446,18 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   onSurveyValueChanged(newValue: any): void {
     super.onSurveyValueChanged(newValue);
-    const val = !!newValue ? newValue : {};
-    if (!!this.contentPanel) {
-      this.contentPanel.questions.forEach(q => {
-        q.onSurveyValueChanged(val[q.getValueName()]);
-      });
-    }
+    this.dataScope.notifyValueChangedFrom(newValue);
   }
   getValue(name: string): any {
-    var val = this.value;
-    return !!val ? val[name] : null;
+    return this.dataScope.getValue(name);
+  }
+  // Created on first use, as newValueSettingScope below.
+  private dataScopeValue: CompositeDataScope;
+  private get dataScope(): CompositeDataScope {
+    if (!this.dataScopeValue) {
+      this.dataScopeValue = new CompositeDataScope(this);
+    }
+    return this.dataScopeValue;
   }
   protected getQuestionByName(name: string): IQuestion {
     return !!this.contentPanel ? this.contentPanel.getQuestionByName(name) : undefined;
@@ -1451,14 +1493,19 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
   }
   setComment(name: string, newValue: string): any {
-    let val = this.getUnbindValue(this.value);
     const commentName = Helpers.getCommentKey(name);
-    if (!val && !newValue || !!newValue && !!val && val[commentName] === newValue) return;
-    if (!!newValue) {
-      if (!val) { val = {}; }
-      val[commentName] = newValue;
+    const stored = this.value;
+    if (!stored && !newValue || !!newValue && !!stored && stored[commentName] === newValue) return;
+    let val = this.getUnbindValue(stored);
+    if (!!val && val.getType) {
+      // The Creator's editing object: a Base value is changed in place.
+      if (!!newValue) {
+        val[commentName] = newValue;
+      } else {
+        delete val[commentName];
+      }
     } else {
-      delete val[commentName];
+      val = setObjectKey(val, commentName, newValue);
     }
     const q = <Question>this.getQuestionByName(name);
     if (!!q && q.comment !== newValue) {
@@ -1470,9 +1517,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   getComment(name: string): string {
     const q = <Question>this.getQuestionByName(name);
-    if (!!q) return q.comment;
-    const val = this.value;
-    return !!val && val[Helpers.getCommentKey(name)] || "";
+    return !!q ? q.comment : this.dataScope.getComment(name);
   }
   private runPanelTriggers(name: string, value: any): void {
     if (!!this.contentPanel) {
@@ -1520,9 +1565,16 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
     return includeItSelf && !!this.contentPanel;
   }
+  // The object written is built from the content panel's values, not from the stored value: a key no content
+  // question owns is dropped.
   protected convertDataValue(name: string, newValue: any): any {
-    var val = !!this.contentPanel && !this.isEditingSurveyElement ?
+    let val = !!this.contentPanel && !this.isEditingSurveyElement ?
       this.contentPanel.getValue() : this.getValueForContentPanel(this.value);
+    if (!this.isEditingSurveyElement && !(!!val && val.getType)) {
+      // A whitespace-only answer is empty here (Question.isValueEmpty trims).
+      return this.getContentPanelValue(setObjectKey(val, name, this.isValueEmpty(newValue) ? undefined : newValue));
+    }
+    // The Creator's editing object keeps an empty value, and a Base object is changed in place.
     if (!val) val = {};
     if (!val.getType) {
       val = Helpers.getUnbindValue(val);
@@ -1544,22 +1596,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   private setValuesIntoQuestions(newValue: any): void {
     if (!this.contentPanel || this.newValueSettingScope.isActive) return;
     newValue = this.getValueForContentPanel(newValue);
-    this.newValueSettingScope.run(() => {
-      const questions = this.contentPanel.questions;
-      for (var i = 0; i < questions.length; i++) {
-        const q = questions[i];
-        const key = q.getValueName();
-        const commentKey = Helpers.getCommentKey(key);
-        const val = !!newValue ? newValue[key] : undefined;
-        const commentVal = !!newValue && newValue[commentKey] || "";
-        if (!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
-          q.value = val;
-        }
-        if (q.comment !== commentVal) {
-          q.comment = commentVal;
-        }
-      }
-    });
+    this.newValueSettingScope.run(() => this.dataScope.updateValuesFrom(newValue));
   }
   public getValueGetterContext(): IValueGetterContext {
     return new CompositeValueGetterContext(this);

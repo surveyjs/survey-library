@@ -147,15 +147,145 @@ export class DataKeyIndex {
   }
 }
 
+// A copy of obj with one key set, or removed when the value is empty. The other keys are kept, including keys
+// no question owns.
+export function setObjectKey(obj: any, name: string, value: any): any {
+  const res = Object.assign({}, obj);
+  if (Helpers.isValueEmpty(value)) {
+    delete res[name];
+  } else {
+    res[name] = Helpers.getUnbindValue(value);
+  }
+  return res;
+}
+
+// The values of a group of elements kept as keys of one object (decisions N8): a question reads
+// object[valueName], its comment object[valueName + commentSuffix]. PanelDataScope keeps the object under its
+// key in its parent's data; a composite question keeps it as its value (CompositeDataScope, question_custom.ts).
+export abstract class ObjectDataScope {
+  // The object as stored, or undefined when there is none.
+  protected abstract getObject(): any;
+  // The elements the index walk starts from.
+  protected abstract getScopeElements(): Array<IElement>;
+  // Whether the object holds this question's value (the walk reached it through panels that do not nest).
+  protected abstract isScopeQuestion(q: Question): boolean;
+  // The survey's data shape version: an index built at one version is current until the version changes.
+  // undefined builds the index on every read.
+  protected getIndexVersion(): number {
+    return undefined;
+  }
+  getValue(name: string): any {
+    return this.getObjectKey(this.getObject(), name);
+  }
+  getComment(name: string): string {
+    return this.getValue(Helpers.getCommentKey(name)) || "";
+  }
+  protected getObjectKey(obj: any, name: string): any {
+    return !!obj ? Helpers.getUnbindValue(obj[name]) : undefined;
+  }
+  private indexValue: DataKeyIndex;
+  private indexVersion: number;
+  // The index of this scope's keys: its questions and the active containers directly inside it.
+  public getDataKeyIndex(): DataKeyIndex {
+    const version = this.getIndexVersion();
+    if (!this.indexValue || version === undefined || version !== this.indexVersion) {
+      this.indexValue = this.buildIndex();
+      this.indexVersion = version;
+    }
+    return this.indexValue;
+  }
+  // The questions whose values this scope's object holds (directly, or through panels that do not nest)
+  // and the active containers directly inside it: the one walk of a container's elements.
+  private buildIndex(): DataKeyIndex {
+    const res = new DataKeyIndex();
+    const walk = (elements: Array<IElement>): void => {
+      for (let i = 0; i < elements.length; i++) {
+        const el: any = elements[i];
+        if (el.isPanel) {
+          const scope = (<IPanelDataScopeOwner>el).getDataScope();
+          if (!!scope && scope.isActive && scope.getParentActiveScope() === <any>this) {
+            res.add(scope.key, scope.owner);
+          } else {
+            walk(el.elements);
+          }
+        } else if (el.isQuestion && this.isScopeQuestion(<Question>el)) {
+          res.add((<Question>el).getValueName(), <Question>el);
+        }
+      }
+    };
+    walk(this.getScopeElements());
+    return res;
+  }
+  // The questions read their values from the stored object again; the scopes inside follow.
+  public updateValuesFromData(): void {
+    this.updateValuesFrom(this.getObject());
+  }
+  // The questions read their values from obj; the scopes inside read their own stored objects.
+  public updateValuesFrom(obj: any): void {
+    this.getDataKeyIndex().elements.forEach(el => {
+      const inner = getElementDataScope(el);
+      if (!!inner) {
+        inner.updateValuesFromData();
+      } else {
+        this.updateQuestionFrom(<Question>el, obj);
+      }
+    });
+  }
+  protected updateQuestionFrom(q: Question, obj: any): void {
+    const valueName = q.getValueName();
+    const val = this.getObjectKey(obj, valueName);
+    if (!this.isTwoValueEquals(q.value, val)) {
+      q.updateValueFromSurvey(val, false);
+    }
+    if (q.requireUpdateCommentValue) {
+      const comment = this.getObjectKey(obj, Helpers.getCommentKey(valueName)) || "";
+      if (!this.isTwoValueEquals(q.comment, comment)) {
+        q.updateCommentFromSurvey(comment);
+      }
+    }
+  }
+  public notifyValueChanged(): void {
+    this.notifyValueChangedFrom(this.getObject());
+  }
+  // Each question gets onSurveyValueChanged with its key of obj; the scopes inside notify from their own
+  // stored objects.
+  public notifyValueChangedFrom(obj: any): void {
+    this.getDataKeyIndex().elements.forEach(el => {
+      const inner = getElementDataScope(el);
+      if (!!inner) {
+        inner.notifyValueChanged();
+      } else {
+        el.onSurveyValueChanged(this.getObjectKey(obj, el.getValueName()));
+      }
+    });
+  }
+  // The questions of this scope and of the scopes inside it, in document order.
+  public forEachQuestion(callback: (q: Question) => void): void {
+    this.getDataKeyIndex().elements.forEach(el => {
+      const inner = getElementDataScope(el);
+      if (!!inner) {
+        inner.forEachQuestion(callback);
+      } else {
+        callback(<Question>el);
+      }
+    });
+  }
+  protected isTwoValueEquals(x: any, y: any): boolean {
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: true, trimStrings: false, doNotConvertNumbers: true });
+  }
+}
+
 // The data of the elements of a nesting panel or page: they read and write parentData.getValue(key)[name].
 // It composes over the parent's ISurveyData (the survey or the scope of an outer container), so a
 // container inside a container needs no special code.
 // The scope is inactive (passes every call through to the parent) while the owner has no key (no
 // valueName, dataNesting "none", or a by-name mode that does not apply to it): the owner keeps one scope
 // once it has had a key, and switching nesting on or off does not re-attach its elements.
-export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueContext, IDataScope {
+export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISurveyData, IObjectValueContext, IDataScope {
   private parentImpl: ISurveyImpl;
-  constructor(public readonly owner: IPanelDataScopeOwner) { }
+  constructor(public readonly owner: IPanelDataScopeOwner) {
+    super();
+  }
   public get key(): string {
     return this.owner.getDataScopeKey();
   }
@@ -187,7 +317,7 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
     return res;
   }
   // The scope's object as stored, or undefined when the key holds no object.
-  private getObject(): any {
+  protected getObject(): any {
     const data = this.parentData;
     if (!data) return undefined;
     const val = data.getValue(this.key);
@@ -206,8 +336,7 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
   //ISurveyData
   getValue(name: string): any {
     if (!this.isActive) return !!this.parentData ? this.parentData.getValue(name) : undefined;
-    const obj = this.getObject();
-    return !!obj ? Helpers.getUnbindValue(obj[name]) : undefined;
+    return super.getValue(name);
   }
   setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean, questionName?: string): any {
     const data = this.parentData;
@@ -215,19 +344,12 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
     if (!this.isActive) return data.setValue(name, newValue, locNotification, allowNotifyValueChanged, questionName);
     // A copy of the stored object with one key changed: the scope never rebuilds the object from its
     // questions, so keys no question owns (and the keys of another container with the same key) are kept.
-    const obj = Object.assign({}, this.getObject());
-    if (Helpers.isValueEmpty(newValue)) {
-      delete obj[name];
-    } else {
-      obj[name] = Helpers.getUnbindValue(newValue);
-    }
     // An empty object is written as is: the survey (or the outer scope) removes an empty value.
-    data.setValue(this.key, obj, locNotification, allowNotifyValueChanged, questionName);
+    data.setValue(this.key, setObjectKey(this.getObject(), name, newValue), locNotification, allowNotifyValueChanged, questionName);
   }
   getComment(name: string): string {
     if (!this.isActive) return !!this.parentData ? this.parentData.getComment(name) : "";
-    const res = this.getValue(Helpers.getCommentKey(name));
-    return res || "";
+    return super.getComment(name);
   }
   setComment(name: string, newValue: string, locNotification: boolean | "text"): any {
     if (!this.isActive) {
@@ -263,89 +385,23 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
   public isKnownKey(key: string): boolean {
     return isKnownDataKey(this.getDataKeyIndex(), key);
   }
-  // The index of this active scope's keys. Built on its first read after the survey's data shape changed
+  // The index of this active scope's keys is built on its first read after the survey's data shape changed
   // (SurveyModel.dataShapeChanged()): shape changes are rare, and every write reads it.
-  private indexValue: DataKeyIndex;
-  private indexVersion: number;
-  public getDataKeyIndex(): DataKeyIndex {
-    const version = getDataShapeVersion(this.getSurvey());
-    if (!this.indexValue || version === undefined || version !== this.indexVersion) {
-      this.indexValue = this.buildIndex();
-      this.indexVersion = version;
-    }
-    return this.indexValue;
+  protected getIndexVersion(): number {
+    return getDataShapeVersion(this.getSurvey());
   }
-  // The questions whose values this scope's object holds (directly, or through panels that do not nest)
-  // and the active containers directly inside it: the one walk of a container's elements.
-  private buildIndex(): DataKeyIndex {
-    const res = new DataKeyIndex();
-    const walk = (elements: Array<IElement>): void => {
-      for (let i = 0; i < elements.length; i++) {
-        const el: any = elements[i];
-        if (el.isPanel) {
-          const scope = (<IPanelDataScopeOwner>el).getDataScope();
-          if (!!scope && scope.isActive && scope.getParentActiveScope() === this) {
-            res.add(scope.key, scope.owner);
-          } else {
-            walk(el.elements);
-          }
-        } else if (el.isQuestion && (<Question>el).getValueScope() === this) {
-          res.add((<Question>el).getValueName(), <Question>el);
-        }
-      }
-    };
-    if (this.isActive) walk(this.owner.elements);
-    return res;
+  protected getScopeElements(): Array<IElement> {
+    return this.isActive ? this.owner.elements : [];
+  }
+  protected isScopeQuestion(q: Question): boolean {
+    return q.getValueScope() === this;
   }
   public getParentActiveScope(): PanelDataScope {
     const parent = this.parentScope;
     return !!parent ? parent.getActiveScope() : null;
   }
-  // The survey calls these for a root-level scope after its key is written (through the container's
-  // ISurveyDataElement members). The questions read their values from the stored object again; the
-  // scopes inside follow.
-  public updateValuesFromData(): void {
-    this.getDataKeyIndex().elements.forEach(el => {
-      const inner = getElementDataScope(el);
-      if (!!inner) {
-        inner.updateValuesFromData();
-        return;
-      }
-      const q = <Question>el;
-      const valueName = q.getValueName();
-      const val = this.getValue(valueName);
-      if (!this.isTwoValueEquals(q.value, val)) {
-        q.updateValueFromSurvey(val, false);
-      }
-      if (q.requireUpdateCommentValue) {
-        const comment = this.getComment(valueName);
-        if (!this.isTwoValueEquals(q.comment, comment)) {
-          q.updateCommentFromSurvey(comment);
-        }
-      }
-    });
-  }
-  public notifyValueChanged(): void {
-    this.getDataKeyIndex().elements.forEach(el => {
-      const inner = getElementDataScope(el);
-      if (!!inner) {
-        inner.notifyValueChanged();
-      } else {
-        el.onSurveyValueChanged(this.getValue(el.getValueName()));
-      }
-    });
-  }
-  // The questions of this scope and of the scopes inside it, in document order.
-  public forEachQuestion(callback: (q: Question) => void): void {
-    this.getDataKeyIndex().elements.forEach(el => {
-      const inner = getElementDataScope(el);
-      if (!!inner) {
-        inner.forEachQuestion(callback);
-      } else {
-        callback(<Question>el);
-      }
-    });
-  }
+  // The survey calls updateValuesFromData() and notifyValueChanged() for a root-level scope after its key is
+  // written (through the container's ISurveyDataElement members).
   // Whether the question's value is in this scope's object, directly or in the object of a scope inside it.
   public containsQuestion(question: Question): boolean {
     let scope = getActiveDataScope(question.data);
@@ -354,9 +410,6 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
       scope = scope.getParentActiveScope();
     }
     return false;
-  }
-  private isTwoValueEquals(x: any, y: any): boolean {
-    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: true, trimStrings: false, doNotConvertNumbers: true });
   }
 }
 

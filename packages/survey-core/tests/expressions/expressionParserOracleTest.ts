@@ -20,6 +20,7 @@ describe("Expression parser: differential test against the generated parser", ()
   };
 
   const NUMS = ["0", "1", "01", "007", "123", "1.5", "0.25", "1.", ".5", "1.2.3", "0x1F", "0x10", "0x", "0X1", "0x1.5", "1e5", "1E-5",
+    "1e+21", "1.5e3", "2E7", "0e0", "1e", "1e+", "1E-", "1.e5", "1e1.5", "0x1e5", "e1",
     "-1", "-0", "- 1", "-1.5", "-0x1", "--1", "-", "123456789012345678901234567890", "99999999999999999999.5", "00", "0.0", "10"];
   const STRS = ["'abc'", "\"abc\"", "''", "\"\"", "'a\\'b'", "\"a\\\"b\"", "'a\"b'", "\"a'b\"", "'unterminated", "\"unterminated", "'a\\\\'",
     "'\\'", "'<>'", "' '", "'\\x'", "'a\\\"b'", "\"\\'\"", "'", "\""];
@@ -33,7 +34,8 @@ describe("Expression parser: differential test against the generated parser", ()
   const FUNCS = ["iif", "max", "f", "sum", "today", "age", "contains", "and", "null", "true", "x1", "negate"];
   const ROWS = ["1 order", "{a} andy", "{a} containsX", "trueish", "nullable", "{a} = NULL", "f(null, 1)", "f(null)", "[null, 1]", "[ ]",
     "{a} contains", "(1", "max(1", "{a} anyof ['x'", "f(,1)", "[1,,2]", "{a} = null", "{a} = undefined", "2 ^ 3 ^ 2", "1 = 2 = 3",
-    "{a} AND {b}", "NEGATE {a}", "negate{a}", "-{a}", "0x1F", "1e5", "01", "1.", "a.b", "{a}.b", "f(1)(2)", "'a<>b' = {c}", "{ a b }",
+    "{a} AND {b}", "NEGATE {a}", "negate{a}", "-{a}", "0x1F", "1e5",
+    "{q} = 1e-7", "{q} > 1.5e3", "{q} = 2e", "{q} = 1 e1", "{q}e1 = 1", "{q} = e1", "1empty", "1e5e5", "-1E+2 * 2", "01", "1.", "a.b", "{a}.b", "f(1)(2)", "'a<>b' = {c}", "{ a b }",
     "{a} <> 1 or {b} != 2", "iif({a} > 1, 'x', {b} * 2) notempty", "{a} anyof [1, 2, 'x'] and !({b} contains 'y')"];
   const ALPHABET: Array<string> = [];
   for (let c = 32; c < 127; c++) ALPHABET.push(String.fromCharCode(c));
@@ -163,6 +165,18 @@ describe("Expression parser: differential test against the generated parser", ()
     expect(kinds["null root"], "null roots").toBeGreaterThan(0);
     expect(kinds.exception, "other exceptions").toBe(0);
     expect(escapedFound, "escaped characters in messages").toBeGreaterThan(0);
+  });
+  test("An incomplete exponent: offset and message", () => {
+    const cases: Array<[string, string]> = [
+      ["{q} = 1e", String.raw`error at 8: Expected [+\-] or [0-9] but end of input found.`],
+      ["{q} = 1e+", "error at 9: Expected [0-9] but end of input found."],
+      ["1 + 2e", String.raw`error at 6: Expected [+\-] or [0-9] but end of input found.`],
+      ["{q} = 1ex", String.raw`error at 8: Expected [+\-] or [0-9] but "x" found.`],
+    ];
+    cases.forEach(([text, expected]) => {
+      expect(outcome(oracleParse, PeggySyntaxError, text), text + " generated").toBe(expected);
+      expect(outcome(parse, ExpressionSyntaxError, text), text + " hand-written").toBe(expected);
+    });
   });
   test("An unterminated string ends only at its own quote: offset and message", () => {
     const sq = String.raw`Expected "'", "\\'", "\\\"", or [^'] but end of input found.`;

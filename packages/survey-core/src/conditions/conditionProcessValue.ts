@@ -2,6 +2,7 @@ import { IQuestion } from "../base-interfaces";
 import { Helpers, HashTable } from "../helpers";
 import { settings } from "../settings";
 import { isBuiltInVariableName } from "./builtInVariables";
+import type { ISurveySettings } from "../survey-settings";
 
 export interface IValueGetterItem {
   name: string;
@@ -503,6 +504,8 @@ export class VariableGetterContextEx extends VariableGetterContext {
 export class ProcessValue {
   private contextValue: IValueGetterContext;
   public properties: HashTable<any> = null;
+  // The settings of the run (ExpressionExecutorRunner); undefined means the global settings
+  public settings: ISurveySettings;
   public asyncValues: HashTable<any> = {};
   public onCompleteAsyncFunc: (op: any) => void;
   constructor(context: IValueGetterContext) {

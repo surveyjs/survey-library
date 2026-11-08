@@ -1,6 +1,7 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers, createDate } from "../helpers";
 import { settings } from "../settings";
+import type { ISurveySettings } from "../survey-settings";
 import { IDynamicDataField, ISortCriterion, SortDirection } from "./dynamic-data-interfaces";
 import { createIndexes } from "./dynamic-data-records";
 
@@ -113,8 +114,10 @@ function getVirtualFields(fields: Array<IDynamicDataField>): Array<IDynamicDataF
 }
 /* Returns the indexes of the records the filter expression accepts, in record order. A field that is
    read and never stored is a variable too: each record is then run as a copy with the fields the
-   expression names put over its own keys, and the record itself is not modified. */
-export function applyFilter(records: Array<any>, filter: string | ConditionRunner, fields?: Array<IDynamicDataField>): Array<number> {
+   expression names put over its own keys, and the record itself is not modified.
+   surveySettings: the list's survey settings for the filter's comparisons; without them the global settings apply. */
+export function applyFilter(records: Array<any>, filter: string | ConditionRunner, fields?: Array<IDynamicDataField>,
+  surveySettings?: ISurveySettings): Array<number> {
   const runner = toRunner(filter);
   if (!runner) return createIndexes(records.length);
   const used = runner.getVariables().map((name: string): string => name.split(/[.[]/)[0].toLowerCase());
@@ -128,15 +131,16 @@ export function applyFilter(records: Array<any>, filter: string | ConditionRunne
         values[virtualFields[j].name] = virtualFields[j].getValue(records[i], i);
       }
     }
-    if (runner.runValues(values)) res.push(i);
+    if (runner.runValues(values, undefined, surveySettings)) res.push(i);
   }
   return res;
 }
 /* The slots of a list are ANDed: a record is created only if every runner accepts it. Each runner
    was parsed on its own, so this never concatenates the expressions - and therefore never has to
    bracket them. A field that is read and never stored is put over the record's own keys when any
-   of the expressions names it, as applyFilter does. */
-export function applyFilters(records: Array<any>, runners: Array<ConditionRunner>, fields?: Array<IDynamicDataField>): Array<number> {
+   of the expressions names it, as applyFilter does. surveySettings: as in applyFilter. */
+export function applyFilters(records: Array<any>, runners: Array<ConditionRunner>, fields?: Array<IDynamicDataField>,
+  surveySettings?: ISurveySettings): Array<number> {
   const used = (runners || []).filter((runner: ConditionRunner): boolean => !!runner);
   if (used.length === 0) return createIndexes(records.length);
   const names: Array<string> = [];
@@ -155,7 +159,7 @@ export function applyFilters(records: Array<any>, runners: Array<ConditionRunner
     }
     let passes = true;
     for (let j = 0; j < used.length && passes; j++) {
-      passes = used[j].runValues(values);
+      passes = used[j].runValues(values, undefined, surveySettings);
     }
     if (passes) res.push(i);
   }

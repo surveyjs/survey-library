@@ -7,13 +7,14 @@ import { FunctionFactory } from "../functionsfactory";
 import { IExpressionValidationOptions } from "../base";
 import { ExpressionErrorType, IExpressionError, getQuestionErrorText } from "./expressionError";
 import { setCreateExpressionExecutor } from "./expressionRunner";
+import type { ISurveySettings } from "../survey-settings";
 
 export interface IExpressionExecutorBase {
   onComplete: (res: any, id: number) => void;
   expression: string;
   canRun(): boolean;
-  run(values: HashTable<any>, properties: HashTable<any>, id: number): any;
-  runContext(context: IValueGetterContext, properties: HashTable<any>, id: number): any;
+  run(values: HashTable<any>, properties: HashTable<any>, id: number, settings?: ISurveySettings): any;
+  runContext(context: IValueGetterContext, properties: HashTable<any>, id: number, settings?: ISurveySettings): any;
   getVariables(): Array<string>;
   hasFunction(noParamsOnly?: boolean): boolean;
   // The names of the functions the expression calls; an executor without it is treated as calling unknown ones
@@ -41,8 +42,8 @@ export interface IExpressionExecutor {
    * @param values has with values names and their results. Normally it is question names and their values
    * @param properties the list of properties that are available in functions. Commonly it is survey and question, if expression execuited in a question context
    */
-  run(values: HashTable<any>, properties: HashTable<any>, id: number): any;
-  runContext(context: IValueGetterContext, properties: HashTable<any>, id: number): any;
+  run(values: HashTable<any>, properties: HashTable<any>, id: number, settings?: ISurveySettings): any;
+  runContext(context: IValueGetterContext, properties: HashTable<any>, id: number, settings?: ISurveySettings): any;
   /**
    * Returns the list of variables that used in the expression. They defined as: {variableName} in default parser.
    */
@@ -61,9 +62,23 @@ export interface IExpressionExecutor {
 export class ExpressionExecutorRunner {
   private processValue: ProcessValue;
   private asyncFuncList: Array<AsyncFunctionItem>;
-  constructor(private operand: Operand, private id: number, private onComplete: (res: any, id: number) => void, properties: HashTable<any>, context: IValueGetterContext) {
+  constructor(private operand: Operand, private id: number, private onComplete: (res: any, id: number) => void, properties: HashTable<any>, context: IValueGetterContext, settings?: ISurveySettings) {
     this.processValue = new ProcessValue(context);
     this.processValue.properties = properties;
+    this.processValue.settings = ExpressionExecutorRunner.getRunSettings(settings, properties, context);
+  }
+  // Once per run: the explicit settings, else the survey's from the properties, else the survey's of
+  // the context object (a text question's min/maxValueExpression runs with no properties at load).
+  // undefined means the global settings, also for a survey that sets no key itself (getOwnSettings).
+  // Not kept on the operand or the executor: they outlive a run.
+  // properties.survey and the context object are untyped and may come from caller code, so the members are checked.
+  private static getRunSettings(settings: ISurveySettings, properties: HashTable<any>, context: IValueGetterContext): ISurveySettings {
+    if (!!settings) return settings;
+    const survey = properties?.survey;
+    if (!!survey && typeof survey.getOwnSettings === "function") return survey.getOwnSettings();
+    const obj = !!context && typeof context.getObj === "function" ? context.getObj() : undefined;
+    const objSurvey = !!obj && typeof obj.getSurvey === "function" ? obj.getSurvey() : undefined;
+    return !!objSurvey && typeof objSurvey.getOwnSettings === "function" ? objSurvey.getOwnSettings() : undefined;
   }
   public run(isAsync: boolean): any {
     if (!isAsync) return this.runValues();
@@ -192,17 +207,17 @@ export class ExpressionExecutor implements IExpressionExecutor {
     return !!this.operand;
   }
 
-  public run(values: HashTable<any>, properties?: HashTable<any>, id?: number): any {
-    return this.runContext(new VariableGetterContextEx(values, properties?.context), properties, id);
+  public run(values: HashTable<any>, properties?: HashTable<any>, id?: number, settings?: ISurveySettings): any {
+    return this.runContext(new VariableGetterContextEx(values, properties?.context), properties, id, settings);
   }
-  public runContext(context: IValueGetterContext, properties: HashTable<any> = null, id: number): any {
+  public runContext(context: IValueGetterContext, properties: HashTable<any> = null, id: number, settings?: ISurveySettings): any {
     if (!this.operand) {
       if (!!this.expression) {
         ConsoleWarnings.warn("Invalid expression: '" + this.expression + "'." + getQuestionErrorText(properties));
       }
       return null;
     }
-    const runner = new ExpressionExecutorRunner(this.operand, id, this.onComplete, properties, context);
+    const runner = new ExpressionExecutorRunner(this.operand, id, this.onComplete, properties, context, settings);
     return runner.run(this.isAsync);
   }
   public validate(context: IValueGetterContext, isCondition: boolean, options: IExpressionValidationOptions): IExpressionError[] {

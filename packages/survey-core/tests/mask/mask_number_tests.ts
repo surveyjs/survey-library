@@ -1614,6 +1614,101 @@ describe("Numeric mask", () => {
     expect(q.displayValue, "displayValue").toBe("1.234,56");
     expect(survey.getPlainData()[0].displayValue, "plain data displayValue").toBe("1.234,56");
   });
+
+  test("precision 0 truncates the fraction of a stored value", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.precision = 0;
+    expect(maskInstance.getMaskedValue(1234.5), "1234.5").toBe("1,234");
+    expect(maskInstance.getMaskedValue(1234.4), "1234.4").toBe("1,234");
+    expect(maskInstance.getMaskedValue(1234.99), "1234.99, not rounded").toBe("1,234");
+    expect(maskInstance.getMaskedValue(-1234.5), "-1234.5").toBe("-1,234");
+    expect(maskInstance.getMaskedValue(0.99), "0.99").toBe("0");
+    expect(maskInstance.getMaskedValue(1234.56), "1234.56").toBe("1,234");
+    expect(maskInstance.getMaskedValue("1,234.5"), "a formatted text").toBe("1,234");
+  });
+
+  test("precision 0: a paste drops the fraction, a keystroke keeps today's behaviour", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.precision = 0;
+    let result = maskInstance.processInput({ insertedChars: "1234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste 1234.5").toBe("1,234");
+    expect(result.caretPosition, "paste 1234.5, caret").toBe(5);
+    result = maskInstance.processInput({ insertedChars: "1,234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste 1,234.5").toBe("1,234");
+    expect(result.caretPosition, "paste 1,234.5, caret").toBe(5);
+
+    let value = "";
+    for (const char of ["1", "2", "3", "4", ".", "5"]) {
+      result = maskInstance.processInput({ insertedChars: char, selectionStart: value.length, selectionEnd: value.length, prevValue: value, inputDirection: "forward" });
+      value = result.value;
+    }
+    expect(value, "typed 1234.5").toBe("12,345");
+  });
+
+  test("precision 0: a stored fraction is kept until the respondent edits the field", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q", maskType: "numeric", maskSettings: { precision: 0 }, defaultValue: 1234.5 }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q");
+    q.afterRenderQuestionElement(testInput);
+    const adapter: InputElementAdapter = q["maskInputAdapter"];
+    expect(survey.data, "after load").toEqual({ q: 1234.5 });
+    expect(q.inputValue, "the shown value").toBe("1,234");
+    expect(testInput.value, "the element").toBe("1,234");
+
+    testInput.setSelectionRange(5, 5);
+    adapter.beforeInputHandler({ data: "6", inputType: "insertText", target: testInput, preventDefault: () => { } });
+    expect(testInput.value, "a digit typed").toBe("12,346");
+    q.onBlur({ target: testInput });
+    expect(survey.data, "after an edit, the shown number").toEqual({ q: 12346 });
+
+    q.beforeDestroyQuestionElement(testInput);
+    testInput.remove();
+  });
+
+  test("precision 0: leaving the field without an edit stores the shown number, as at every precision", () => {
+    // The blur commits the element text whenever it differs from the value. Precision 2 does the
+    // same with 1234.567 (stored as 1234.56), so this is the existing blur behaviour, not this mask's.
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q", maskType: "numeric", maskSettings: { precision: 0 }, defaultValue: 1234.5 }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q");
+    q.afterRenderQuestionElement(testInput);
+    q.onFocus({ target: testInput });
+    expect(survey.data, "on focus").toEqual({ q: 1234.5 });
+    q.onBlur({ target: testInput });
+    expect(survey.data, "on blur").toEqual({ q: 1234 });
+
+    q.beforeDestroyQuestionElement(testInput);
+    testInput.remove();
+  });
+
+  test("precision 0: a fraction is dropped in limits, unmasking and other separators", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.precision = 0;
+    expect(maskInstance.getUnmaskedValue("1,234.5"), "unmasked").toBe(1234);
+    expect(maskInstance.getUnmaskedValue(".5"), "unmasked, no integer part").toBe(0);
+
+    let result = maskInstance.processInput({ insertedChars: ".5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste .5").toBe("0");
+    result = maskInstance.processInput({ insertedChars: "-1234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste -1234.5").toBe("-1,234");
+
+    maskInstance.max = 1234;
+    expect(maskInstance.isValueOutOfRange("1,234.5"), "1,234.5 is 1,234, within max").toBe(false);
+    result = maskInstance.processInput({ insertedChars: "1234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste 1234.5 with max 1234").toBe("1,234");
+
+    const germanMask = new InputMaskNumeric();
+    germanMask.setData({ precision: 0, decimalSeparator: ",", thousandsSeparator: "." });
+    expect(germanMask.getMaskedValue(1234.5), "decimal comma, a stored value").toBe("1.234");
+    result = germanMask.processInput({ insertedChars: "1.234,5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "decimal comma, a paste").toBe("1.234");
+  });
 });
 
 describe("Numeric mask: localization", () => {

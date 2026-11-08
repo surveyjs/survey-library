@@ -731,7 +731,7 @@ export abstract class QuestionCustomModelBase extends Question
     return !!this.data ? this.getUnbindValue(this.data.getValue(this.getValueName())) : undefined;
   }
   protected notifySurveyOnValueChanged(oldValue: any): void {
-    if (!this.isSettingNewValue && !!this.survey && !this.isTwoValueEquals(oldValue, this.value)) {
+    if (!this.isSettingNewValue && !!this.survey && !this.isEqualToValue(oldValue)) {
       this.survey.questionValueChanged(this, oldValue);
     }
   }
@@ -742,7 +742,7 @@ export abstract class QuestionCustomModelBase extends Question
     if (!!this.customQuestion) {
       const qValue = newValue;
       newValue = this.customQuestion.onValueChanging(this, name, newValue);
-      if (!Helpers.isTwoValueEquals(newValue, qValue)) {
+      if (!this.isTwoValueEqualsInSurvey(newValue, qValue)) {
         const q = this.getQuestionByName(name);
         if (!!q) {
           q.value = newValue;

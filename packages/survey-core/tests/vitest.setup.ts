@@ -1,11 +1,13 @@
 // Setup file for Vitest. Mirrors the side-effect imports and global settings
 // from the Karma+QUnit entry barrel at tests/entries/test.ts.
-import { afterAll, afterEach, expect, vi } from "vitest";
+import { afterAll, afterEach, chai, expect, vi } from "vitest";
 import "../src/localization/russian";
 import "../src/localization/french";
 import "../src/localization/finnish";
 import "../src/localization/german";
 import { settings } from "../src/settings";
+import { Base } from "../src/base";
+import { QuestionRecordItem } from "../src/question_records";
 import { ComponentCollection } from "../src/question_custom";
 import { surveyLocalization } from "../src/surveyStrings";
 import { _setIsTouch } from "../src/utils/devices";
@@ -635,6 +637,51 @@ expect.addEqualityTesters([
     return true;
   },
 ]);
+
+// ---------------------------------------------------------------------------
+// A failed assertion on a model object: no deep comparison, no print of the survey.
+// ---------------------------------------------------------------------------
+// A failed `toBe` runs a deep comparison to suggest `toEqual`, and every failed
+// assertion keeps `actual` and `expected`, which Vitest prints and diffs. A model
+// object reaches the whole survey, so a failed `expect(row).toBe(otherRow)` ended
+// in a stack overflow in `arrayValuesEqual` above, and a failed
+// `expect(matrix.renderedTable).toBe(other)` ran the worker out of memory, which
+// hid the real failure. For a model value, or an array that holds one, `toBe`
+// compares with `Object.is` only, and a failed assertion carries the class name
+// instead of the object. "Model" is `Base` or `QuestionRecordItem`: a matrix row
+// is not a `Base`. A failed `toEqual` is covered too: its deep comparison stops at
+// the first difference, and the print was what ran out of memory. The `toBe`
+// replacement runs outside Vitest's soft wrapper, so `expect.soft(model).toBe(...)`
+// fails at once, as `expect` does; survey-core tests do not use `expect.soft`.
+const isModel = (value: any): boolean => value instanceof Base || value instanceof QuestionRecordItem;
+const isModelValue = (value: any): boolean => isModel(value) || (Array.isArray(value) && value.some(isModel));
+const getModelText = (value: any): string => {
+  if (Array.isArray(value)) return "array of " + value.length + " items";
+  return isModel(value) ? value.constructor.name : String(value);
+};
+// The setup runs again for each test file while chai stays loaded (isolate: false), so the methods
+// are replaced once, and they read the checks of the latest run.
+const modelGuard: any = (<any>chai.Assertion).__sv_modelGuard || ((<any>chai.Assertion).__sv_modelGuard = {});
+modelGuard.isModelValue = isModelValue;
+modelGuard.getModelText = getModelText;
+if (!modelGuard.isInstalled) {
+  modelGuard.isInstalled = true;
+  chai.use((api: any, utils: any) => {
+    utils.overwriteMethod(api.Assertion.prototype, "toBe", (toBe: any) => function (this: any, expected: any) {
+      const actual = utils.flag(this, "object");
+      if (!modelGuard.isModelValue(actual) && !modelGuard.isModelValue(expected)) return toBe.call(this, expected);
+      this.assert(Object.is(actual, expected), "expected the same object", "expected another object",
+        modelGuard.getModelText(expected), modelGuard.getModelText(actual), false);
+    });
+    const assert = api.Assertion.prototype.assert;
+    api.Assertion.prototype.assert = function (...args: Array<any>) {
+      const actual = args.length > 4 ? args[4] : utils.flag(this, "object");
+      // utils.test applies the "not" flag: a passing expression fails a negated assertion.
+      if (utils.test(this, args) || (!modelGuard.isModelValue(actual) && !modelGuard.isModelValue(args[3]))) return assert.apply(this, args);
+      return assert.call(this, args[0], args[1], args[2], modelGuard.getModelText(args[3]), modelGuard.getModelText(actual), false);
+    };
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Generalizable singleton cleanup.

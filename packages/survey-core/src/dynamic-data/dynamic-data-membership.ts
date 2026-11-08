@@ -2,6 +2,7 @@ import { ConditionRunner } from "../conditions/conditionRunner";
 import { applyFilters, applySort } from "./dynamic-data-filter";
 import { createIndexes } from "./dynamic-data-records";
 import { IDynamicDataField, ISortCriterion } from "./dynamic-data-interfaces";
+import type { ISurveySettings } from "../survey-settings";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
 import { Scope, ValueScope } from "../utils/scope";
 
@@ -17,6 +18,8 @@ export interface IDynamicDataMembershipHost {
   // when the source runs them. A filter per slot of the view, the authored one first.
   getLocalFilterRunners(): Array<ConditionRunner>;
   getLocalSort(): Array<ISortCriterion>;
+  // The settings of the owner's survey, for the local filter; undefined means the global settings.
+  getSurveySettings?(): ISurveySettings;
   // The owner materializes an object per record (isViewFrozenOnEdit) and the list has a local view.
   isMembershipFrozen(): boolean;
 }
@@ -191,7 +194,8 @@ export class DynamicDataMembership {
       // Read once, and only when the filter or the sort has to look at the records.
       const records = needFilter || needSort ? this.host.getRecords() : undefined;
       const fields = needFilter || needSort ? this.host.getFields() : undefined;
-      created = needFilter ? applyFilters(records, filterRunners, fields) : createIndexes(recordCount);
+      const surveySettings = needFilter && !!this.host.getSurveySettings ? this.host.getSurveySettings() : undefined;
+      created = needFilter ? applyFilters(records, filterRunners, fields, surveySettings) : createIndexes(recordCount);
       if (needSort) {
         created = applySort(records, sort, fields, created);
       }

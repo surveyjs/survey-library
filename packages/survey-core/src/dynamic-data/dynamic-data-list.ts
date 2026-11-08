@@ -1,6 +1,7 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
 import type { ISurvey } from "../interfaces/survey-interfaces";
+import { ISurveySettings, getSettingsOfSurvey } from "../survey-settings";
 import { Scope } from "../utils/scope";
 import {
   DynamicDataErrorOperation, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
@@ -67,6 +68,7 @@ export class DynamicDataList {
     getFields: (): Array<IDynamicDataField> => this.getFields(),
     getLocalFilterRunners: (): Array<ConditionRunner> => this.isWindowWholeStorage ? this.view.filterRunners : [],
     getLocalSort: (): Array<ISortCriterion> => this.isWindowWholeStorage ? this.view.sort : [],
+    getSurveySettings: (): ISurveySettings => this.getSurveySettings(),
     isMembershipFrozen: (): boolean => this.isViewFrozenOnEdit && this.hasLocalViews
   });
   // The index arithmetic over the views (dynamic-data-view-indexes.ts); the list delegates to it.
@@ -882,7 +884,10 @@ export class DynamicDataList {
     } catch(e) {
       return Promise.resolve(undefined);
     }
-    return Promise.resolve(applyFilters(this.records, [this.view.filterRunner, runner], this.getFields()).length);
+    return Promise.resolve(applyFilters(this.records, [this.view.filterRunner, runner], this.getFields(), this.getSurveySettings()).length);
+  }
+  private getSurveySettings(): ISurveySettings {
+    return getSettingsOfSurvey(!!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined);
   }
   private countAtSource(filter: string): Promise<number | undefined> {
     return new Promise((resolve: (count: number | undefined) => void): void => {

@@ -325,7 +325,8 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   protected updateCustomChoices(value: any, items: Array<ItemValue>): void {
     if (value !== undefined && value !== null && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
       this.customChoices.splice(0, this.customChoices.length);
-      const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false))[0];
+      const surveySettings = this.getSurveySettings();
+      const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false, undefined, surveySettings))[0];
       if (!item) {
         this.customChoices.splice(0, this.customChoices.length, new ItemValue(value));
       }

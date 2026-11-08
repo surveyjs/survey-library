@@ -2460,8 +2460,14 @@ export class Question extends SurveyElement<Question>
    * @see comment
    */
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-    if (this.value !== undefined) {
-      this.value = undefined;
+    this.runDeletingEmptyValues((): void => this.clearValueCore(undefined, keepComment, fromUI));
+  }
+  private clearValueCore(emptyValue: any, keepComment: boolean, fromUI: boolean): void {
+    if (this.value !== emptyValue) {
+      this.value = emptyValue;
+    }
+    if (emptyValue === undefined) {
+      this.removeKeptEmptyValue();
     }
     if (!!this.comment && keepComment !== true) {
       this.comment = undefined;
@@ -2471,7 +2477,36 @@ export class Question extends SurveyElement<Question>
   }
   protected onClearValue(): void {}
   clearValueFromUI(): void {
-    this.clearValue(true, true);
+    this.clearValueByRespondent(true, true);
+  }
+  /* A clear the respondent makes in the question's UI: the clear button, or a click on the selected rating.
+     With data.keepEmptyValues on, the question gets the empty value its UI produces, so its key stays in the
+     data: [] for an array value, {} for an object value, else null. A clear by code goes through clearValue(). */
+  protected clearValueByRespondent(keepComment: boolean, fromUI: boolean): void {
+    if (!this.isKeepingEmptyValues() || !this.canKeepEmptyValue()) {
+      this.clearValue(keepComment, fromUI);
+      return;
+    }
+    this.clearValueCore(this.isEmpty() ? this.value : this.getEmptyValueOnRespondentClear(), keepComment, fromUI);
+  }
+  protected getEmptyValueOnRespondentClear(): any {
+    const val = this.value;
+    if (Array.isArray(val)) return [];
+    return Helpers.isValueObject(val) ? {} : null;
+  }
+  // An empty value data.keepEmptyValues kept equals undefined, so the value setter skips it: it is removed here.
+  private removeKeptEmptyValue(): void {
+    if (!this.data || !this.isKeepingEmptyValues() || !this.canSetValueToSurvey()) return;
+    const val = this.data.getValue(this.getValueName());
+    if (val === undefined || !this.isValueEmpty(val)) return;
+    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
+  }
+  protected isKeepingEmptyValues(): boolean {
+    return !!this.survey && !!this.survey.getSettings().data.keepEmptyValues;
+  }
+  // See ISurvey.runDeletingEmptyValues: the empty values func writes remove their keys.
+  protected runDeletingEmptyValues<T>(func: () => T): T {
+    return !!this.survey ? this.survey.runDeletingEmptyValues(func) : func();
   }
   /**
    * Specifies whether to display a button that clears the question value.
@@ -2547,7 +2582,7 @@ export class Question extends SurveyElement<Question>
     if (clearIf === "none") return;
     if (reason === "onHidden" && clearIf === "onComplete") return;
     if (reason === "onHiddenContainer" && clearIf !== reason) return;
-    this.clearValueIfInvisibleCore(reason);
+    this.runDeletingEmptyValues((): void => this.clearValueIfInvisibleCore(reason));
   }
   protected clearValueIfInvisibleCore(reason: string): void {
     if (this.canClearValueAsInvisible(reason)) {
@@ -2890,7 +2925,13 @@ export class Question extends SurveyElement<Question>
     return Helpers.convertValToQuestionVal(val);
   }
   private runExpressionSetValueCore(val: any, setFunc?: (val: any) => void): void {
-    setFunc(this.convertFuncValuetoQuestionValue(val));
+    val = this.convertFuncValuetoQuestionValue(val);
+    // An empty result of defaultValueExpression or setValueExpression is no respondent's clear
+    if (this.isValueEmpty(val)) {
+      this.runDeletingEmptyValues((): void => setFunc(val));
+    } else {
+      setFunc(val);
+    }
   }
   private runExpressionSetValue(val: any): void {
     this.runExpressionSetValueCore(val, (val: any): void => {
@@ -3523,15 +3564,20 @@ export class Question extends SurveyElement<Question>
     this.setQuestionValue(newValue);
     if (this.data != null && this.canSetValueToSurvey()) {
       newValue = this.valueForSurvey;
-      this.data.setValue(
-        this.getValueName(),
-        newValue,
-        this.getDataLocNotification(),
-        this.allowNotifyValueChanged,
-        this.name
-      );
+      if (!this.canKeepEmptyValue() && this.isValueEmpty(newValue)) {
+        this.runDeletingEmptyValues((): void => this.setValueToData(newValue));
+      } else {
+        this.setValueToData(newValue);
+      }
     }
     this.isMouseDown = false;
+  }
+  private setValueToData(newValue: any): void {
+    this.data.setValue(this.getValueName(), newValue, this.getDataLocNotification(), this.allowNotifyValueChanged, this.name);
+  }
+  // data.keepEmptyValues: false for a question whose empty value is never the respondent's own clear.
+  protected canKeepEmptyValue(): boolean {
+    return true;
   }
   protected canSetValueToSurvey(): boolean {
     return true;
@@ -3776,8 +3822,10 @@ export class Question extends SurveyElement<Question>
    * @see validate
    */
   public clearIncorrectValues(): void {
-    this.clearIncorrectOwnValue();
-    this.clearIncorrectNestedValues();
+    this.runDeletingEmptyValues((): void => {
+      this.clearIncorrectOwnValue();
+      this.clearIncorrectNestedValues();
+    });
   }
   // The question's own value, nested values excluded.
   protected clearIncorrectOwnValue(): void {

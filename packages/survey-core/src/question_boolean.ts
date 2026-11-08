@@ -371,7 +371,8 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     if (newValue === "true" && this.valueTrue !== "true") newValue = true;
     if (newValue === "false" && this.valueFalse !== "false") newValue = false;
-    if (newValue === "indeterminate" || newValue === null) newValue = undefined;
+    // null is the cleared state the data keeps with data.keepEmptyValues on
+    if (newValue === "indeterminate" || newValue === null && !this.isKeepingEmptyValues()) newValue = undefined;
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   /* #region web-based methods */

@@ -7,8 +7,12 @@ export interface ISurveySettingsComparator {
   trimStrings?: boolean;
   caseSensitive?: boolean;
 }
+export interface ISurveySettingsData {
+  keepEmptyValues?: boolean;
+}
 export interface ISurveySettings {
   comparator?: ISurveySettingsComparator;
+  data?: ISurveySettingsData;
 }
 // Prompt 02 adds `events` here. The key is reserved now: the constructor does not warn about it.
 export interface ISurveyOptions extends ISurveySettings {
@@ -25,7 +29,8 @@ type SurveySettingsKeys = { [G in SurveySettingsGroup]-?: { [K in keyof NonNulla
 // The groups and keys a survey can set for itself. The type makes the build fail when the interface
 // gets a key this list misses.
 const surveySettingsKeys: SurveySettingsKeys = {
-  comparator: { trimStrings: true, caseSensitive: true }
+  comparator: { trimStrings: true, caseSensitive: true },
+  data: { keepEmptyValues: true }
 };
 const reservedOptionKeys = ["events"];
 

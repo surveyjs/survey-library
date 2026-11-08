@@ -842,6 +842,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property() isClearingFiles: boolean = false;
 
   public clear(doneCallback?: () => void) {
+    this.clearCore(doneCallback, false);
+  }
+  // isByRespondent: the Clear button. With data.keepEmptyValues on it keeps [] in the data; clear() in code
+  // removes the key.
+  private clearCore(doneCallback: () => void, isByRespondent: boolean) {
     if (!this.fileCallbacks) return;
     this.containsMultiplyFiles = false;
     this.isClearingFiles = true;
@@ -852,7 +857,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
       null,
       (status, data) => {
         if (status === "success") {
-          this.value = undefined;
+          if (isByRespondent) {
+            this.value = undefined;
+          } else {
+            this.runDeletingEmptyValues((): void => { this.value = undefined; });
+          }
           this.errors = [];
           !!doneCallback && doneCallback();
           this.indexToShow = 0;
@@ -900,7 +909,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public removeFile(name: string) {
     this.removeFileByContent(this.value.filter((f: any) => f.name === name)[0]);
   }
-  protected removeFileByContent(content: any) {
+  // isByRespondent: the remove button. With data.keepEmptyValues on, removing the last file keeps [] in the data;
+  // removeFile() in code removes the key, as without the setting.
+  protected removeFileByContent(content: any, isByRespondent: boolean = false) {
     if (!this.fileCallbacks) return;
     this.isClearingFiles = true;
     this.fileCallbacks.clearFiles(
@@ -912,7 +923,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            this.value = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true, false, false));
+            const newValue = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true, false, false));
+            if (isByRespondent) {
+              this.value = newValue;
+            } else {
+              this.runDeletingEmptyValues((): void => { this.value = newValue; });
+            }
           } else {
             this.value = undefined;
           }
@@ -1309,7 +1325,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         input.value = "";
       }
     }
-    this.clear();
+    this.clearCore(undefined, true);
   }
   doRemoveFile(data: any) {
     if (this.confirmDelete) {
@@ -1326,7 +1342,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   private removeFileCore(data: any): void {
     const previewIndex = this.previewValue.indexOf(data);
-    this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex]);
+    this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex], true);
     this.removeFileButtonMap.delete(data);
   }
   doDownloadFileFromContainer = (event: MouseEvent) => {

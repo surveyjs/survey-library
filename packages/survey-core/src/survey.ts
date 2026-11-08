@@ -3529,6 +3529,45 @@ export class SurveyModel extends SurveyElementCore
     this.markAnsweredPagesAsShown();
     this.checkTriggersOnSettingData();
   }
+  // Removes the keys whose value is empty from the data, also inside dynamic-panel items and matrix rows.
+  // No onValueChanging/onValueChanged and no triggers: the answers do not change, only how an empty one
+  // is stored. Conditions run once when a key was removed, since a value that was "" is now absent.
+  public clearEmptyValues(): void {
+    // A property grid edits an object's properties: they are not survey data
+    if (!!this.editingObj) return;
+    const changedKeys = new Set<string>();
+    const keys = this.getValuesKeys();
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = this.getDataValueCore(this.valuesHash, key);
+      const newValue = Helpers.removeEmptyKeys(value);
+      if (Helpers.isValueEmpty(newValue)) {
+        this.deleteDataValueCore(this.valuesHash, key);
+      } else if (newValue !== value) {
+        this.setDataValueCore(this.valuesHash, key, newValue);
+      } else continue;
+      changedKeys.add(key);
+    }
+    if (changedKeys.size === 0) return;
+    const questions = this.getAllQuestions();
+    for (let i = 0; i < questions.length; i++) {
+      const q = <Question>questions[i];
+      const valName = q.getValueName();
+      if (changedKeys.has(valName)) {
+        q.updateValueFromSurvey(this.getValue(valName));
+      }
+      if (q.requireUpdateCommentValue && changedKeys.has(Helpers.getCommentKey(valName))) {
+        q.updateCommentFromSurvey(this.getComment(valName));
+      }
+    }
+    this.notifyElementsOnAnyValueOrVariableChanged("");
+    // Called from code that runs inside a conditions pass (a custom function): ask for one more pass
+    if (this.isRunningConditions) {
+      this.isValueChangedOnRunningCondition = true;
+    } else {
+      this.runConditions();
+    }
+  }
   /* Assigning or merging data restores a previously saved survey state, so pages that
   already contain answers are shown as passed in the progress bar. Values changed via
   code (setValue), triggers or expressions do not affect the pages' wasShown state. */

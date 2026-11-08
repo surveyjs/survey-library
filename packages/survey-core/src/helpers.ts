@@ -1,5 +1,5 @@
 import { settings } from "./settings";
-import { mulberry32 } from "./utils/utils";
+import { mulberry32, isProtoKey } from "./utils/utils";
 import { ISurveySettings, getSurveySetting } from "./survey-settings";
 
 export interface HashTable<T = any> {
@@ -75,6 +75,38 @@ export class Helpers {
       return true;
     }
     return !value && value !== 0 && value !== false;
+  }
+  // The value without the keys whose value is empty (isValueEmpty), at any depth; the same value when it has
+  // none, so a caller can tell that nothing changed. Only the objects isValueEmpty looks into are walked. An
+  // array keeps its length and its non-object items: a dynamic panel's panel count and a dynamic matrix's row
+  // count come from it. A changed object or array is a copy; the value passed in is never modified.
+  public static removeEmptyKeys(value: any): any {
+    if (Array.isArray(value)) {
+      let res: Array<any>;
+      for (let i = 0; i < value.length; i++) {
+        const item = Helpers.removeEmptyKeys(value[i]);
+        if (item !== value[i]) {
+          if (!res) res = value.slice();
+          res[i] = item;
+        }
+      }
+      return res || value;
+    }
+    if (!value || !Helpers.isValueObject(value) || value.constructor !== Object) return value;
+    let res: any;
+    for (const key of Object.keys(value)) {
+      // A "__proto__" key is kept or removed, never rewritten: assigning it would replace the copy's prototype
+      const item = isProtoKey(key) ? value[key] : Helpers.removeEmptyKeys(value[key]);
+      const isEmpty = Helpers.isValueEmpty(item);
+      if (!isEmpty && item === value[key]) continue;
+      if (!res) res = { ...value };
+      if (isEmpty) {
+        delete res[key];
+      } else {
+        res[key] = item;
+      }
+    }
+    return res || value;
   }
   // A string or a String object trimmed; any other value as it is.
   public static trimValue(value: any): any {

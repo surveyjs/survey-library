@@ -11,7 +11,7 @@ import {
   ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
 import { getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields, isOwnField } from "./record-fields";
-import { getOwnerDataScope, isInNestedScope } from "./data-nesting";
+import { getOwnerDataScope, isInNestedObject, isInNestedScope } from "./data-nesting";
 
 export interface ParseOutcome {
   ast?: Operand;
@@ -349,6 +349,9 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
   if (found > -1) {
     scopedResolved(ref, prefix);
     ref.resolvedTo = record;
+    // a nesting panel's object inside the record: the path continues inside it ({panel.address.street})
+    const unknown = resolveInRecordObject(ref, found + 1, record, lintSettings);
+    if (!!unknown) return scopedUnknown(ref, prefix, unknown.index, unknown.candidates);
     return ref;
   }
   // a comment lives next to its value inside the row/panel too ({row.col1-Comment}):
@@ -370,6 +373,24 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
     return scopedResolved(ref, prefix);
   }
   return scopedUnknown(ref, prefix, 1, map.names());
+}
+
+// {panel.street} where street is inside a nesting panel of the template: no field of the record, but the
+// runtime's {panel.x} also finds a panel question by its name at any depth (panel.questions), and reads
+// its value. A matrix row has no such lookup: {row.street} stays unknown there.
+function resolvePanelInnerQuestion(ref: ParsedRef, frame: ScopeFramePanelDynamic): ParsedRef {
+  if (ref.status !== "scoped-unknown" || ref.unknownSegmentIndex !== 1) return ref;
+  let question: ElementRecord;
+  const end = findDottedName(ref.segments, 1, name => {
+    question = frame.templateNames.get(name).filter(rec => rec.kind === "question" && isInNestedObject(rec))[0];
+    return !!question;
+  });
+  if (end < 0) return ref;
+  ref.unknownSegmentIndex = undefined;
+  setSuggestion(ref, undefined);
+  scopedResolved(ref, ref.scopePrefix);
+  ref.resolvedTo = question;
+  return ref;
 }
 
 // The synthetic element behind a standalone scope variable, memoized on the matrix/panel it
@@ -441,7 +462,7 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
   }
   if (equalsCI(root, vars.panel)) {
     if (inFilter) return inFilterScope(vars.panel, true);
-    if (panelFrame) return { handled: true, ref: validateInnerName(ref, vars.panel, getFrameItemFields(panelFrame), lintSettings, true) };
+    if (panelFrame) return { handled: true, ref: resolvePanelInnerQuestion(validateInnerName(ref, vars.panel, getFrameItemFields(panelFrame), lintSettings, true), panelFrame) };
     const staticPanel = getStaticPanelAncestor(site.owner);
     if (staticPanel && staticPanel.panelDescendantNames) {
       if (ref.segments.length < 2) return { handled: true, ref: scopedResolved(ref, vars.panel) };
@@ -506,6 +527,70 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
     return { handled: true, ref: scopedResolved(ref, root) };
   }
   return NOT_A_SCOPE;
+}
+
+// {mdyn[0].col}, {pd[0].q}: a field of one record, and below a nesting panel's object the path inside it
+// ({pd[0].address.street}). resolvedTo stays the dynamic panel or the matrix.
+function validateRecordFieldPath(ref: ParsedRef, record: ElementRecord, level: SegmentLevel): void {
+  const fields = getItemFields(record);
+  let field: ElementRecord;
+  const end = findDottedName(ref.segments, 1, name => {
+    field = fields.get(name).filter(rec => rec.isDataObject)[0] || fields.first(name);
+    return !!field;
+  });
+  if (end < 0) {
+    markUnknownSegment(ref, 1, fields.names(), level);
+    return;
+  }
+  // the path is checked on a copy: resolvedTo stays the dynamic panel or the matrix (getSubPathRecord)
+  const inner: ParsedRef = { raw: ref.raw, segments: ref.segments, status: ref.status };
+  const unknown = resolveInRecordObject(inner, end + 1, field, undefined);
+  if (!!unknown) markUnknownSegment(ref, unknown.index, unknown.candidates, "field");
+}
+
+// Records nesting 02: a field of a panel or row object that is a nesting panel's object (its synthetic
+// record, isDataObject). The segments from start continue inside that object, in the runtime's order: a
+// question by value name, an object directly inside it by key, a question's comment key. A path never
+// falls back to the record. resolvedTo becomes what the path reached (a comment: unset); an unknown
+// segment is returned with the names the object holds. Nothing to do for another field or no segments
+// left. lintSettings unset: a comment key is not looked for (an indexed path keeps resolvedTo).
+function resolveInRecordObject(ref: ParsedRef, start: number, field: ElementRecord,
+  lintSettings: ILintResolvedSettings): { index: number, candidates: Array<string> } | undefined {
+  if (!field || !field.isDataObject || !field.objectScope || start >= ref.segments.length) return undefined;
+  return resolveInRecordObjects(ref, start, [field.objectScope], lintSettings);
+}
+function resolveInRecordObjects(ref: ParsedRef, start: number, objects: Array<DataScopeRecord>,
+  lintSettings: ILintResolvedSettings): { index: number, candidates: Array<string> } | undefined {
+  const segments = ref.segments;
+  let question: ElementRecord;
+  const qEnd = findDottedName(segments, start, name => {
+    question = undefined;
+    objects.some(obj => !!(question = obj.questions.get(name).filter(rec => isValueQuestion(rec))[0]));
+    return !!question;
+  });
+  if (qEnd > -1) {
+    ref.resolvedTo = question;
+    return undefined;
+  }
+  let children: Array<DataScopeRecord> = [];
+  const cEnd = findDottedName(segments, start, name => {
+    children = [];
+    objects.forEach(obj => children.push(...obj.children.get(name)));
+    return children.length > 0;
+  });
+  if (cEnd > -1) {
+    ref.resolvedTo = children[0].valueRecord;
+    return cEnd < segments.length - 1 ? resolveInRecordObjects(ref, cEnd + 1, children, lintSettings) : undefined;
+  }
+  const commentBase = !!lintSettings && segments.length === start + 1 ? stripCommentSuffix(segments[start].name, lintSettings) : undefined;
+  if (commentBase !== undefined && objects.some(obj => obj.questions.has(commentBase))) {
+    ref.resolvedTo = undefined;
+    ref.resolvedKind = "comment";
+    return undefined;
+  }
+  let names: Array<string> = [];
+  objects.forEach(obj => names = names.concat(getDataScopeNames(obj)));
+  return { index: start, candidates: names };
 }
 
 // The segment at index does not name anything inside the container the segment before it
@@ -578,18 +663,12 @@ function validateElementSubPath(ref: ParsedRef, record: ElementRecord): void {
   if (type === "matrixdynamic" && record.matrixColumns) {
     // {mdyn[0].col} - the index is attached to the root segment
     if (ref.segments[0].index === undefined) return;
-    const fields = getItemFields(record);
-    if (isUnknownName(ref, 1, fields)) {
-      markUnknownSegment(ref, 1, fields.names(), "column");
-    }
+    validateRecordFieldPath(ref, record, "column");
     return;
   }
   if (type === "paneldynamic" && record.templateNames) {
     if (ref.segments[0].index === undefined) return;
-    const fields = getItemFields(record);
-    if (isUnknownName(ref, 1, fields)) {
-      markUnknownSegment(ref, 1, fields.names(), "templateQuestion");
-    }
+    validateRecordFieldPath(ref, record, "templateQuestion");
     return;
   }
   if (record.componentFieldNames && record.componentFieldNames.size > 0) {
@@ -793,10 +872,19 @@ function resolveTotalsInDataScope(ref: ParsedRef, start: number, scope: DataScop
 }
 
 // An expression inside a nesting container reads its own object first, then the outer ones; the
-// survey data comes last, through the root stages.
+// survey data comes last, through the root stages. Inside a record the objects up to the record answer
+// ({street} inside a dynamic panel's nesting panel); the record itself is reached through {panel.x} /
+// {row.x}, and the search goes on in the objects around the dynamic panel or the matrix.
 function resolveInSiteDataScopes(ref: ParsedRef, site: { owner?: ElementRecord }, index: SurveyIndex): boolean {
-  for (let scope = getOwnerDataScope(site.owner, index); !!scope && !!scope.parent; scope = scope.parent) {
+  let scope = getOwnerDataScope(site.owner, index);
+  while(!!scope) {
+    if (!!scope.recordOwner) {
+      scope = getOwnerDataScope(scope.recordOwner, index);
+      continue;
+    }
+    if (!scope.parent) return false;
     if (resolveInDataScope(ref, 0, scope, index, {})) return true;
+    scope = scope.parent;
   }
   return false;
 }
@@ -805,8 +893,8 @@ function resolveInSiteDataScopes(ref: ParsedRef, site: { owner?: ElementRecord }
 function setNonNestingHint(ref: ParsedRef, root: string, index: SurveyIndex): void {
   const container = index.nonNestingKeys.first(root);
   if (!container || !!ref.scopeHint) return;
-  const why = index.dataNesting === "none" ? "the survey's dataNesting is \"none\""
-    : "it is inside a dynamic panel, a matrix detail panel or a composite question, whose record stays flat";
+  // only "none" leaves a valueName of a panel or page indexed here without an object (records nesting 02)
+  const why = "the survey's dataNesting is \"none\"";
   ref.scopeHint = "\"" + root + "\" is the valueName of " + container.type + " \"" + container.name +
     "\", which stores no object: " + why + ".";
   ref.hintReason = SurveyLintHintReasons.containerKeyNotNesting;
@@ -1023,6 +1111,9 @@ export function getSubPathRecord(ref: ParsedRef | undefined): ElementRecord | un
     const fields = getRowFields(record, segments[1].name);
     return !!fields ? fields.first(segments[2].name) : undefined;
   }
+  if ((type === "matrixdynamic" && record.matrixColumns || type === "paneldynamic" && record.templateNames) && segments.length > 2) {
+    return getRecordObjectPathRecord(record, segments);
+  }
   if (type === "matrixdynamic" && record.matrixColumns) {
     if (segments.length !== 2 || segments[0].index === undefined ||
       segments[1].index !== undefined) return undefined;
@@ -1035,6 +1126,20 @@ export function getSubPathRecord(ref: ParsedRef | undefined): ElementRecord | un
     return !!sub && sub.kind === "question" ? sub : undefined;
   }
   return undefined;
+}
+
+// {pd[0].address.street}, {mdyn[0].home.street2}: the question a path into a nesting panel's object
+// inside one record lands on (records nesting 02). Plain names only: a dotted name or an index inside
+// the object is not modelled.
+function getRecordObjectPathRecord(record: ElementRecord, segments: Array<ParsedRefSegment>): ElementRecord | undefined {
+  if (segments[0].index === undefined || segments.slice(1).some(seg => seg.index !== undefined)) return undefined;
+  const field = getItemFields(record).get(segments[1].name).filter(rec => rec.isDataObject)[0];
+  let scope = !!field ? field.objectScope : undefined;
+  for (let i = 2; i < segments.length - 1 && !!scope; i++) {
+    scope = scope.children.get(segments[i].name)[0];
+  }
+  if (!scope) return undefined;
+  return scope.questions.get(segments[segments.length - 1].name).filter(rec => isValueQuestion(rec))[0];
 }
 
 // The element a reference compares against, sub-paths included: the referenced element itself

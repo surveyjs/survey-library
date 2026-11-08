@@ -6,7 +6,7 @@ import { hasOtherItem } from "../value-types";
 import { addsItemFieldsTo, getDataKey, getDataKeyRecords, getListedRows, getSharedValueShape, getSharingRecords } from "../record-fields";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
-import { getAllNestedScopes, getContainerKeyPath, isInNestedScope } from "../data-nesting";
+import { getAllNestedScopes, getAllRecordLevels, getContainerKeyPath, isInNestedScope } from "../data-nesting";
 import { DataScopeRecord } from "../symbols";
 
 const reasons = SurveyLintReasons["name/shadowing"];
@@ -332,6 +332,8 @@ export const nameShadowingRule: ILintRule = {
     });
     ctx.index.triggers.forEach(trigger => checkVariableTrigger(ctx, trigger));
     checkRootContainerKeys(ctx);
-    [ctx.index.rootScope].concat(getAllNestedScopes(ctx.index)).forEach(scope => checkContainerDerivedKeys(ctx, scope));
+    // the records' levels too, but not checkRootContainerKeys: a key inside a record meets no variable
+    [ctx.index.rootScope].concat(getAllNestedScopes(ctx.index), getAllRecordLevels(ctx.index))
+      .forEach(scope => checkContainerDerivedKeys(ctx, scope));
   },
 };

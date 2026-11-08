@@ -33,6 +33,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
+import { getRecordDataScope } from "./panel-data-scope";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -3750,11 +3751,13 @@ export class Question extends SurveyElement<Question>
   // The survey is given the question (requestAutoAdvance), but a question whose value is a key of the
   // survey data must also be the one getQuestionByValueName finds: a nested question with the same name
   // must not advance on behalf of that other question. Inside a container the value name is no key of
-  // the survey data (nested data, D9), and the question is its own owner.
+  // the survey data (nested data, D9), and the question is its own owner. Inside a record's nesting panel
+  // (RN4) a question answers as one directly in the record does.
   protected get isAutoAdvanceOwner(): boolean {
     const survey = this.survey as SurveyModel;
     if (!survey) return false;
-    return this.getValueScope() !== survey || survey.getQuestionByValueName(this.getValueName()) === this;
+    const isInSurveyContainer = this.getValueScope() !== survey && !getRecordDataScope(this.data);
+    return isInSurveyContainer || survey.getQuestionByValueName(this.getValueName()) === this;
   }
   // A question nested in a choice item is found by value name, but it is not in the page's question
   // list, so the survey advances for it only when it is the single input on screen.

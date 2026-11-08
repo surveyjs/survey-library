@@ -807,11 +807,11 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
   },
   {
     ruleId: "nesting/ignored-key", reason: "insideRecord",
-    json: {
-      elements: [{ type: "paneldynamic", name: "pd", templateElements: [
-        { type: "panel", name: "p1", valueName: "box", elements: [{ type: "text", name: "q1" }] },
-      ] }],
-    },
+    // a panel inside a dynamic panel's template nests (records nesting 02): a composite's still does not
+    json: { elements: [{ type: "addr", name: "a1" }] },
+    options: { components: { addr: { elementsJSON: [
+      { type: "panel", name: "p1", valueName: "box", elements: [{ type: "text", name: "q1" }] },
+    ] } } },
   },
   {
     ruleId: "nesting/generated-key", reason: "generatedName",

@@ -12,7 +12,9 @@ const BY_NAME_MODES: { [mode: string]: Array<string> } = {
 
 // A copy of getDataNestingKey (src/panel-data-scope.ts): the core keeps it internal, and the linter
 // imports nothing but the public "survey-core" entry. linter-nested-data.tests.ts compares the two for
-// every mode, kind and key. kind is "panel" or "page" ("" for a container that never nests).
+// every mode, kind and key. kind is "panel" or "page", "record" for a panel inside a dynamic panel's
+// template or a matrix detail panel (no by-name mode lists it: it nests under its valueName only, RN3),
+// "" for a container that never nests.
 //   "none": never; "auto" (and an unknown mode): under valueName;
 //   "panel" / "page" / "panelAndPage": under valueName, else name for the containers of that kind.
 export function getLintDataNestingKey(dataNesting: string, kind: string, valueName: string, name: string): string {
@@ -50,6 +52,21 @@ export function createRootScope(): DataScopeRecord {
   return { key: "", path: [], containers: [], questions: new CIMultiMap<ElementRecord>(), children: new CIMultiMap<DataScopeRecord>() };
 }
 
+// The record one panel of a dynamic panel or one row of a matrix is (records nesting 02, RN1): a root of
+// its own, as the survey data is. Its paths start at the record (RN4).
+export function createRecordScope(owner: ElementRecord): DataScopeRecord {
+  const res = createRootScope();
+  res.recordOwner = owner;
+  return res;
+}
+
+// Whether the object is a record or lies inside one: a panel there nests by its valueName only (RN3).
+export function isInsideRecordScope(scope: DataScopeRecord): boolean {
+  let current = scope;
+  while(!!current && !!current.parent) current = current.parent;
+  return !!current && !!current.recordOwner;
+}
+
 // The object of a nesting container inside parent: shared with every container on the same exact key
 // at that level (D4) - the runtime stores data keys case-sensitively.
 export function getChildScope(parent: DataScopeRecord, key: string, container: ElementRecord): DataScopeRecord {
@@ -62,6 +79,7 @@ export function getChildScope(parent: DataScopeRecord, key: string, container: E
     res.valueRecord = {
       name: key, type: container.type, kind: "panel", path: container.path, json: container.json,
       scope: [], isUnknownType: false, valueType: { shape: "object" }, dataScope: parent, isDataObject: true,
+      objectScope: res,
     };
     parent.children.add(key, res);
   }
@@ -81,9 +99,13 @@ export function getOwnerDataScope(owner: ElementRecord | undefined, index: Surve
   return index.rootScope;
 }
 
-// A question that writes inside a nesting container's object rather than a key of the survey data.
+// A question that writes inside a nesting container's object rather than a key of the survey data (or
+// of a record, which is a root of its own).
 export function isInNestedScope(record: ElementRecord, index: SurveyIndex): boolean {
-  return !!record.dataScope && record.dataScope !== index.rootScope;
+  return isInNestedObject(record);
+}
+export function isInNestedObject(record: ElementRecord): boolean {
+  return !!record.dataScope && !!record.dataScope.parent;
 }
 
 // The property of a container that spells its key: what a finding about the key points at.
@@ -95,11 +117,21 @@ export function getContainerKeyPath(record: ElementRecord): string {
 
 // Every object below the survey data, outer ones first.
 export function getAllNestedScopes(index: SurveyIndex): Array<DataScopeRecord> {
+  return getScopesBelow(index.rootScope);
+}
+function getScopesBelow(root: DataScopeRecord): Array<DataScopeRecord> {
   const res: Array<DataScopeRecord> = [];
   const collect = (scope: DataScopeRecord) => scope.children.forEach(children => children.forEach(child => {
     res.push(child);
     collect(child);
   }));
-  collect(index.rootScope);
+  collect(root);
+  return res;
+}
+// Every record and every object inside one, each record before its objects: the levels the key rules run
+// on inside dynamic panels and matrices. Nothing of the survey data is among them.
+export function getAllRecordLevels(index: SurveyIndex): Array<DataScopeRecord> {
+  const res: Array<DataScopeRecord> = [];
+  index.recordScopes.forEach(record => res.push(record, ...getScopesBelow(record)));
   return res;
 }

@@ -97,7 +97,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { PanelDataScope, PanelDataScopeValueGetterContext, DataKeyIndex, IDataScope, isKnownDataKey, getNameOfCommentName, getElementDataScope, getActiveDataScope } from "./panel-data-scope";
+import { PanelDataScope, PanelDataScopeValueGetterContext, DataKeyIndex, IDataScope, isKnownDataKey, getNameOfCommentName, getElementDataScope, getActiveDataScope, getRecordDataScope } from "./panel-data-scope";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { registerRecordsSortDialogSurvey } from "./records/records-sort-dialog";
@@ -7387,6 +7387,10 @@ export class SurveyModel extends SurveyElementCore
     this.isDataScopeUsedValue = true;
     this.dataShapeChanged();
   }
+  // Whether a container of this survey has nested once: the records skip their nesting walks until then.
+  isDataScopeUsed(): boolean {
+    return this.isDataScopeUsedValue;
+  }
   // The scopes' indexes (PanelDataScope.getDataKeyIndex()) and the root's containers are built on their first
   // read after the data shape changed: an element added, removed, moved or renamed, a container key or
   // dataNesting changed, a survey loaded. Shape changes are rare; a write reads the index.
@@ -7577,10 +7581,12 @@ export class SurveyModel extends SurveyElementCore
   }
   // The questions that hold the same value as question: its value name in the indexes of the scopes at its
   // value scope's data path (D4: two containers sharing a key share their object). At the root these are
-  // getQuestionsByValueName's.
+  // getQuestionsByValueName's. A question inside a record is looked up at the root, as one directly in a
+  // record always was: its data path starts at the record (RN4), not at the survey data.
   private getQuestionsSharingValue(question: Question): Array<Question> {
     const res: Array<Question> = [];
-    this.getDataScopesByPath(question.getValueScope().getDataPath())
+    const path = !getRecordDataScope(question.data) ? question.getValueScope().getDataPath() : [];
+    this.getDataScopesByPath(path)
       .forEach(scope => res.push(...scope.getDataKeyIndex().getQuestions(question.getValueName())));
     return res;
   }

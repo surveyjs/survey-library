@@ -299,8 +299,8 @@ another one, and no property holds it.
 | `element/count-contradiction` | warning | Authored count and bound constraints the runtime silently reconciles: `minRowCount` above `maxRowCount`, `rowCount`/`panelCount` outside the authored bounds (dynamic matrices and panels), and the same conflict in every other bound pair — `rateMin`/`rateMax`, a numeric or date `min`/`max` (question, matrix column, multiple-text item), slider `min`/`max` and `minRangeLength`/`maxRangeLength`, `minSelectedChoices`/`maxSelectedChoices`, and the fraction-digit pairs of an `expression` question and of column totals. Also a `rateStep` (or slider `step`) wider than the whole range, a `rateCount` outside `[2, settings.ratingMaximumRateValueCount]`, and a `minSelectedChoices` above the number of choices that can be selected together. |
 | `element/never-visible` | warning | An element dead through the cascade: its `visibleIf` demands a value of a question that can never become visible and that nothing (defaults, expressions, triggers, bindings) ever writes to. A question with `visible: false` is not a cascade source - hidden fields are routinely filled from application code. |
 | `mask/mismatch` | warning | An input mask the runtime resolves to something else than the JSON describes: an unknown `maskType` (which falls back to no mask), a `maskSettings` key that belongs to a different mask class, `maskSettings` written without a `maskType` (where only `saveMaskedValue` survives), a mask on an `inputType` other than `text`/`tel`, `datetime` bounds without a `pattern`, and a numeric `min` above its `max`. `maskSettings` is loaded through `setData`, which drops a foreign key without even a `JsonUnknownPropertyError`, so `property/unknown` deliberately stays out of it. |
-| `nesting/key-conflict` | error | Nested data: a nesting panel or page whose key equals the data key of a question in the same object - the survey data, or the object of the container around both. The container's object and the question's value then share one key: an answer to the question replaces the object, and the question shows it. Two containers on one key share one object and are not reported, nor is a container key equal to the name of a question inside the container (another level). Keys are compared exactly, as the runtime stores them. |
-| `nesting/ignored-key` | warning | Nested data: a panel `valueName` that stores nothing because the panel is inside a dynamic-panel template, a matrix detail panel or a composite definition (`options.components`) - a record of its own, which stays flat. Not reported with `"dataNesting": "none"`, where every container key is ignored by the author's choice. |
+| `nesting/key-conflict` | error | Nested data: a nesting panel or page whose key equals the data key of a question in the same object - the survey data, a dynamic panel's or a matrix's record (a matrix row holds its columns too), or the object of the container around both. The container's object and the question's value then share one key: an answer to the question replaces the object, and the question shows it. Two containers on one key share one object and are not reported, nor is a container key equal to the name of a question inside the container (another level). Keys are compared exactly, as the runtime stores them. |
+| `nesting/ignored-key` | warning | Nested data: a panel `valueName` that stores nothing because the panel is inside a composite definition (`options.components`), whose value stays flat. A panel inside a dynamic-panel template or a matrix detail panel nests by its `valueName`. Not reported with `"dataNesting": "none"`, where every container key is ignored by the author's choice. |
 | `nesting/generated-key` | info | Nested data: a by-name `dataNesting` mode (`"panel"`, `"page"`, `"panelAndPage"`) nesting a container under a generated name (`panel1`, `page2`), which a rename moves to another key (`generatedName`), or a container without a name, which nests under the name the runtime generates in load order (`unnamed`) - root `elements` in a page mode nest under `page1`. |
 | `page/empty` | warning | A page or panel with no element that can ever render, and a dynamic panel with an empty template. An element is counted out when it is statically hidden or its own `visibleIf` can never hold. Also `detailElements` of a matrix whose `detailPanelMode` stays `"none"` (the default). |
 
@@ -459,13 +459,20 @@ another one, and no property holds it.
   (`data.address.street`). The mode is the JSON's `dataNesting`, else the serializer default a host may
   have changed; the key rule is the runtime's (`data-nesting.ts` keeps a copy of
   `getDataNestingKey`, pinned by a test), and an unnamed container nests under the name the runtime
-  generates for it. A dynamic-panel template, a matrix detail panel and a composite definition are records
-  and never nest. References resolve in the runtime's order:
+  generates for it. A composite definition never nests. A dynamic panel's panel and a matrix row are records,
+  roots of their own: a panel inside the template or the detail panel nests by its `valueName` only (no
+  by-name mode reaches into a record, `"none"` switches it off), and the template and the detail panel
+  themselves never nest. A record's keys meet each other only - never the survey data's or a variable -
+  and its objects are reached through the record: `{panel.address.street}`, `{row.home.street2}`,
+  `{items[0].address.street}`, `{panel.address}` (the object); a question inside such an object is no
+  field of the record (`{row.street}` is unknown), though `{panel.street}` finds a dynamic panel's question by
+  its name at any depth, as the runtime does. References resolve in the runtime's order:
   * at the root - variables and calculated values, a question of the survey data, a container key of the
     survey data (`{address}`, `{address.street}`, `{page1.address.street}`), a question inside a container
     by its **name** (`{street}`), and its comment key (`{street-Comment}`);
   * inside a container - its questions by **value name**, the containers directly inside it by key, its
-    comment keys, then the outer objects and the root. A matrix total inside an object is reached by a
+    comment keys, then the outer objects and the root. Inside a record the outer objects stop at the
+    record and go on around the dynamic panel or the matrix. A matrix total inside an object is reached by a
     path from the survey data only (`{address.m-total.c}`), as at runtime. Display-only questions (html,
     image) store nothing: a container key answers before them, and they conflict with no key. A path continues inside the
     object it names and never falls back: `{address.foo}` is reported though the runtime reads raw data
@@ -475,7 +482,7 @@ another one, and no property holds it.
 
   A resolved path reaches the inner question, so `{address.kind}` is checked against `kind`'s choices,
   type and bounds, and `{address}` is an object. A name that is the `valueName` of a container that stores
-  nothing (`"dataNesting": "none"`, a record) gets the `containerKeyNotNesting` hint. Trigger targets take
+  nothing (`"dataNesting": "none"`) gets the `containerKeyNotNesting` hint. Trigger targets take
   the same names, paths and container keys, in the expression order: `setToName: "address"` writes the
   object even when a question inside it is named `address` (D13). Data keys meet within one object: two
   questions sharing a `valueName` in different containers share nothing. Keys that differ only in letter

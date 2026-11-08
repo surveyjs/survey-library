@@ -44,7 +44,8 @@ function exampleSurvey(): any {
 describe("linter nested data: the key rule", () => {
   test("the linter's copy of the key rule equals the core's getDataNestingKey", () => {
     const modes = ["auto", "none", "panel", "page", "panelAndPage", "unknownMode", undefined];
-    const kinds = ["panel", "page", ""];
+    // "record": a panel inside a dynamic panel's template or a matrix detail panel, which nests by its valueName only (RN3)
+    const kinds = ["panel", "page", "record", ""];
     const keys = [["", ""], ["vn", ""], ["", "nm"], ["vn", "nm"]];
     modes.forEach(mode => kinds.forEach(kind => keys.forEach(pair => {
       expect(getLintDataNestingKey(mode, kind, pair[0], pair[1]), mode + "/" + kind + "/" + pair.join(","))
@@ -231,8 +232,8 @@ describe("linter nested data: references", () => {
       prop.defaultValue = saved;
     }
   });
-  test("a valueName inside a dynamic panel keeps the record flat", () => {
-    const json = {
+  test("a valueName inside a dynamic panel nests inside the record (records nesting 02)", () => {
+    const json: any = {
       elements: [
         { type: "paneldynamic", name: "pd", templateElements: [
           { type: "panel", name: "inner", valueName: "box", elements: [{ type: "text", name: "t" }] },
@@ -241,8 +242,11 @@ describe("linter nested data: references", () => {
         { type: "text", name: "q", visibleIf: "{pd[0].t} = 1 and {pd[0].box} = 1" },
       ],
     };
-    const findings = refFindings(json);
-    expect(brief(findings)).toEqual(["reference/unknown/inContainer @ elements[1].visibleIf"]);
+    // t is a key of the record's box object, not of the record: {pd[0].t} finds nothing, while {panel.t}
+    // finds the panel's question by its name at any depth, as the runtime's panel lookup does
+    expect(brief(refFindings(json))).toEqual(["reference/unknown/inContainer @ elements[1].visibleIf"]);
+    json.dataNesting = "none";
+    expect(brief(refFindings(json)), "\"none\" keeps the record flat").toEqual(["reference/unknown/inContainer @ elements[1].visibleIf"]);
   });
   test("an object is checked as an object", () => {
     const json = exampleSurvey();
@@ -441,7 +445,7 @@ describe("linter nested data: data keys are compared within one object", () => {
 });
 
 describe("linter nested data: ignored and generated keys", () => {
-  test("a valueName inside a record is ignored (N5): a warning", () => {
+  test("a valueName inside a dynamic panel or a detail panel nests: nothing is reported (records nesting 02)", () => {
     const json: any = {
       elements: [
         { type: "paneldynamic", name: "pd", templateElements: [
@@ -452,22 +456,21 @@ describe("linter nested data: ignored and generated keys", () => {
         ] },
       ],
     };
-    const findings = findingsOf(json, "nesting/ignored-key");
-    expect(brief(findings)).toEqual([
-      "nesting/ignored-key/insideRecord @ elements[0].templateElements[0].valueName",
-      "nesting/ignored-key/insideRecord @ elements[1].detailElements[0].valueName",
-    ]);
-    expect(findings[0].severity).toBe("warning");
-    expect(findings[0].messageData.recordName).toBe("pd");
-    json.dataNesting = "none";
     expect(findingsOf(json, "nesting/ignored-key")).toHaveLength(0);
+    json.dataNesting = "none";
+    expect(findingsOf(json, "nesting/ignored-key"), "\"none\": ignored by the author's choice").toHaveLength(0);
   });
-  test("a valueName inside a composite definition is ignored", () => {
+  test("a valueName inside a composite definition is ignored: a warning", () => {
     const options: ISurveyLintOptions = {
       components: { addr: { elementsJSON: [{ type: "panel", name: "pp", valueName: "box", elements: [{ type: "text", name: "t" }] }] } },
     };
-    const json = { elements: [{ type: "addr", name: "a1" }] };
-    expect(brief(findingsOf(json, "nesting/ignored-key", options))).toEqual(["nesting/ignored-key/insideRecord @ components.addr.elementsJSON[0].valueName"]);
+    const json: any = { elements: [{ type: "addr", name: "a1" }] };
+    const findings = findingsOf(json, "nesting/ignored-key", options);
+    expect(brief(findings)).toEqual(["nesting/ignored-key/insideRecord @ components.addr.elementsJSON[0].valueName"]);
+    expect(findings[0].severity).toBe("warning");
+    expect(findings[0].messageData.recordName).toBe("addr");
+    json.dataNesting = "none";
+    expect(findingsOf(json, "nesting/ignored-key", options)).toHaveLength(0);
   });
   test("a by-name mode nesting under a generated name: a hint with a fix", () => {
     const json: any = {
@@ -628,5 +631,132 @@ describe("linter nested data: review fixes", () => {
     expect(brief(findings)).toEqual(["name/shadowing/builtInVariable @ elements[0].elements[0].name"]);
     expect(findings[0].message).toContain("{address.locale}");
     expect(findings[0].messageData.dataPath).toBe("address");
+  });
+});
+
+// Records nesting 02 (decisions RN3-RN7): a panel with a valueName inside a dynamic panel's template or a
+// matrix detail panel stores its questions' values in an object inside the record. A by-name mode never
+// reaches into a record, and "none" switches it off.
+function recordsSurvey(): any {
+  return {
+    elements: [
+      { type: "paneldynamic", name: "items", templateElements: [
+        { type: "text", name: "title" },
+        { type: "panel", name: "p1", valueName: "address", elements: [
+          { type: "dropdown", name: "kind", choices: ["home", "work"] },
+          { type: "text", name: "street", title: "Street of {kind}", visibleIf: "{kind} = 'home'" },
+        ] },
+      ] },
+      { type: "matrixdynamic", name: "rows", detailPanelMode: "underRow", columns: [{ name: "col1" }], detailElements: [
+        { type: "panel", name: "p2", valueName: "home", elements: [{ type: "text", name: "street2" }] },
+      ] },
+    ],
+  };
+}
+describe("linter nested data: a nesting panel inside a record", () => {
+  test("the records survey is clean: paths into the record's object resolve", () => {
+    const json = recordsSurvey();
+    const tpl = json.elements[0].templateElements;
+    tpl.push({ type: "text", name: "t1", visibleIf: "{panel.address.street} = 'Main' and {panel.address} notempty and {prevPanel.address.street} = 'x'" });
+    tpl[1].elements.push({ type: "text", name: "t2", visibleIf: "{street} = 'Main' and {panel.title} = 'A'", title: "{street} of {panel.address.kind}" });
+    json.elements[0].templateTitle = "{panel.address.street}";
+    json.elements[1].detailElements.push({ type: "text", name: "d1", visibleIf: "{row.home.street2} = 'x' and {row.col1} = 1 and {row.home} notempty" });
+    json.elements[1].columns.push({ name: "col2", visibleIf: "{row.home.street2} = 'x'" });
+    json.elements.push({ type: "text", name: "q", visibleIf: "{items[0].address.street} = 'x' and {items[0].title} = 'A'" });
+    expect(brief(defects(json))).toEqual([]);
+  });
+  test("an unknown field inside the record's object, and a field of the object read off the record", () => {
+    const json = recordsSurvey();
+    json.elements[0].templateElements.push({ type: "text", name: "t1", visibleIf: "{panel.address.strete} = 1 or {panel.street} = 1 or {panel.nope} = 1" });
+    json.elements[1].detailElements.push({ type: "text", name: "d1", visibleIf: "{row.street2} = 1" });
+    json.elements.push({ type: "text", name: "q", visibleIf: "{items[0].address.strete} = 'x'" });
+    const findings = refFindings(json);
+    // {panel.street} works: the runtime's {panel.x} finds a panel question by its name at any depth. A
+    // matrix row has no such lookup: {row.street2} gives no value
+    expect(brief(findings)).toEqual([
+      "reference/unknown/scopedUnknown @ elements[0].templateElements[2].visibleIf",
+      "reference/unknown/scopedUnknown @ elements[0].templateElements[2].visibleIf",
+      "reference/unknown/scopedUnknown @ elements[1].detailElements[1].visibleIf",
+      "reference/unknown/inContainer @ elements[2].visibleIf",
+    ]);
+    expect(findings[0].suggestion, "the object's keys are suggested").toBe("street");
+    expect(findings[3].suggestion).toBe("street");
+  });
+  test("{panel.x} of an inner question is checked as that question", () => {
+    const json = recordsSurvey();
+    json.elements[0].templateElements.push({ type: "text", name: "t1", visibleIf: "{panel.kind} = 'hom'" });
+    expect(brief(findingsOf(json, "expression/unknown-choice"))).toEqual(["expression/unknown-choice/notAmongChoices @ elements[0].templateElements[2].visibleIf"]);
+  });
+  test("a path reaches the inner question, so its choices are checked", () => {
+    const json = recordsSurvey();
+    json.elements[0].templateElements.push({ type: "text", name: "t1", visibleIf: "{panel.address.kind} = 'hom'" });
+    json.elements.push({ type: "text", name: "q", visibleIf: "{items[0].address.kind} = 'wrk'" });
+    expect(brief(findingsOf(json, "expression/unknown-choice"))).toEqual([
+      "expression/unknown-choice/notAmongChoices @ elements[0].templateElements[2].visibleIf",
+      "expression/unknown-choice/notAmongChoices @ elements[2].visibleIf",
+    ]);
+  });
+  test("a record's object is no key of the survey data", () => {
+    const json = recordsSurvey();
+    json.elements.push({ type: "text", name: "q", visibleIf: "{address.street} = 'x'" });
+    expect(brief(refFindings(json))).toEqual(["reference/unknown/notFound @ elements[2].visibleIf"]);
+  });
+  test("by-name modes never reach into a record; \"none\" keeps it flat", () => {
+    const json = recordsSurvey();
+    json.dataNesting = "panelAndPage";
+    json.elements[0].templateElements.push({ type: "panel", name: "plain", elements: [{ type: "text", name: "inPlain" }] });
+    json.elements[0].templateElements.push({ type: "text", name: "t1", visibleIf: "{panel.inPlain} = 1 and {panel.address.street} = 1" });
+    expect(brief(refFindings(json))).toEqual([]);
+    json.dataNesting = "none";
+    json.elements[0].templateElements[3].visibleIf = "{panel.inPlain} = 1 and {panel.street} = 1 and {panel.address.street} = 1";
+    // the scopedUnknown is {panel.address.street}: there is no object; {panel.street} is a field of the record
+    // without the object, {kind} inside p1 is a field of the record: reached as {panel.kind} only
+    expect(brief(refFindings(json))).toEqual([
+      "reference/unknown/notFound @ elements[0].templateElements[1].elements[1].title",
+      "reference/unknown/notFound @ elements[0].templateElements[1].elements[1].visibleIf",
+      "reference/unknown/scopedUnknown @ elements[0].templateElements[3].visibleIf",
+    ]);
+  });
+  test("a container key equal to a question's key in the same record is an error (D4)", () => {
+    const json = recordsSurvey();
+    json.elements[0].templateElements.push({ type: "text", name: "addr", valueName: "address" });
+    json.elements[1].columns.push({ name: "home" });
+    const findings = findingsOf(json, "nesting/key-conflict");
+    expect(brief(findings)).toEqual([
+      "nesting/key-conflict/questionKey @ elements[0].templateElements[1].valueName",
+      "nesting/key-conflict/questionKey @ elements[1].detailElements[0].valueName",
+    ]);
+    expect(findings[0].severity).toBe("error");
+  });
+  test("keys meet within one record level only", () => {
+    const json = recordsSurvey();
+    // the survey's address, a question inside the record's object keyed like it, and two containers
+    // sharing one object (D4) are other levels or a share: none of them is reported
+    json.elements.push({ type: "text", name: "address" });
+    json.elements[0].templateElements[1].elements.push({ type: "text", name: "addressInner", valueName: "address" });
+    json.elements[0].templateElements.push({ type: "panel", name: "p3", valueName: "address", elements: [{ type: "text", name: "zip" }] });
+    json.calculatedValues = [{ name: "home", expression: "1" }];
+    expect(brief(findingsOf(json, "nesting/key-conflict"))).toEqual([]);
+    expect(brief(findingsOf(json, "name/shadowing")), "a key inside a record does not meet the survey's variables").toEqual([]);
+    json.elements[0].templateElements.push({ type: "text", name: "t1", visibleIf: "{panel.address.zip} = 1 and {panel.address.street} = 1" });
+    expect(brief(refFindings(json)), "both containers answer in the shared object").toEqual([]);
+  });
+  test("derived keys collide inside the record's object, not across its levels", () => {
+    const json = recordsSurvey();
+    const inner = json.elements[0].templateElements[1].elements;
+    inner.push({ type: "text", name: "n1", showCommentArea: true });
+    inner.push({ type: "text", name: "n1c", valueName: "n1-Comment" });
+    json.elements[0].templateElements.push({ type: "text", name: "n2", valueName: "n1-Comment" });
+    json.elements[0].templateElements[0].showCommentArea = true;
+    json.elements[0].templateElements.push({ type: "panel", name: "p4", valueName: "title-Comment", elements: [{ type: "text", name: "z" }] });
+    expect(brief(findingsOf(json, "name/shadowing"))).toEqual([
+      "name/shadowing/commentKeyCollision @ elements[0].templateElements[1].elements[3]",
+      "name/shadowing/commentKeyCollision @ elements[0].templateElements[3].valueName",
+    ]);
+  });
+  test("a reserved container key inside a record is reported", () => {
+    const json = recordsSurvey();
+    json.elements[0].templateElements[1].valueName = "constructor";
+    expect(brief(findingsOf(json, "name/reserved"))).toEqual(["name/reserved/containerKey @ elements[0].templateElements[1].valueName"]);
   });
 });

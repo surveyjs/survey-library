@@ -353,7 +353,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const removeIndex = removedIndexes[0];
     const removedRow = rows[removeIndex];
     if (!this.isDisposed) {
-      this.defaultValuesInRows[removedRow.rowName] = removedRow.getNamesWithDefaultValues();
+      this.defaultValuesInRows[removedRow.rowName] = removedRow.getDefaultValuePaths();
     }
     rows.splice(removeIndex, 1);
     this.finishIncrementalRowChange((table) => table.onRemovedRow(removedRow));
@@ -588,18 +588,25 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     if (!this.generatedVisibleRows) return;
     if (!this.isDisposed) {
       this.generatedVisibleRows.forEach(row => {
-        this.defaultValuesInRows[row.rowName] = row.getNamesWithDefaultValues();
+        this.defaultValuesInRows[row.rowName] = row.getDefaultValuePaths();
       });
     }
     super.clearGeneratedRows();
   }
+  // The keys of a row's default values are removed: the new row's questions apply their defaults again. A
+  // default inside a nesting panel's object is removed from a copy of that object (RN3).
   private getRowValueForCreation(val: any, rowName: any): any {
     const res = val[rowName];
     if (!res) return res;
-    const names = this.defaultValuesInRows[rowName];
-    if (!Array.isArray(names) || names.length === 0) return res;
-    names.forEach(name => {
-      delete res[name];
+    const paths: Array<Array<string>> = this.defaultValuesInRows[rowName];
+    if (!Array.isArray(paths) || paths.length === 0) return res;
+    paths.forEach(path => {
+      let obj = res;
+      for (let i = 0; i < path.length - 1; i++) {
+        if (!obj[path[i]] || typeof obj[path[i]] !== "object") return;
+        obj = obj[path[i]] = Object.assign({}, obj[path[i]]);
+      }
+      delete obj[path[path.length - 1]];
     });
     return res;
   }

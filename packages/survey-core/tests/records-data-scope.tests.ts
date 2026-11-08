@@ -26,19 +26,20 @@ describe("records data scope: a dynamic panel's item", () => {
   test("values reach each panel's questions, written by a panel question, question.value, survey.setValue and survey.data", () => {
     const survey = createSurvey();
     const pd = pdOf(survey);
-    survey.data = { pd: [{ a: "a1", b: "b1", city: "c1" }, { a: "a2" }] };
+    // Records nesting 02 lifts N5: the inner panel with valueName keeps its question's value in an object (RN3).
+    survey.data = { pd: [{ a: "a1", b: "b1", addr: { city: "c1" } }, { a: "a2" }] };
     expect(pd.panels.length, "#1").toBe(2);
     expect(inPanel(pd.panels[0], "a").value, "#2").toBe("a1");
     expect(inPanel(pd.panels[0], "b").value, "#3: a plain inner panel is keyed flat").toBe("b1");
-    expect(inPanel(pd.panels[0], "c").value, "#4: an inner panel with valueName stays flat (N5)").toBe("c1");
+    expect(inPanel(pd.panels[0], "c").value, "#4: an inner panel with valueName nests (RN3)").toBe("c1");
     expect(inPanel(pd.panels[1], "a").value, "#5").toBe("a2");
     expect(inPanel(pd.panels[1], "b").isEmpty(), "#6").toBe(true);
 
     inPanel(pd.panels[0], "b").value = "b1x";
     inPanel(pd.panels[1], "c").value = "c2";
-    expect(survey.data, "#7: written by a panel question").toEqual({ pd: [{ a: "a1", b: "b1x", city: "c1" }, { a: "a2", city: "c2" }] });
+    expect(survey.data, "#7: written by a panel question").toEqual({ pd: [{ a: "a1", b: "b1x", addr: { city: "c1" } }, { a: "a2", addr: { city: "c2" } }] });
 
-    pd.value = [{ a: "q1", city: "qc" }, { b: "qb" }];
+    pd.value = [{ a: "q1", addr: { city: "qc" } }, { b: "qb" }];
     expect(inPanel(pd.panels[0], "a").value, "#8: question.value").toBe("q1");
     expect(inPanel(pd.panels[0], "b").isEmpty(), "#9").toBe(true);
     expect(inPanel(pd.panels[0], "c").value, "#10").toBe("qc");
@@ -49,11 +50,11 @@ describe("records data scope: a dynamic panel's item", () => {
     expect(inPanel(pd.panels[0], "c").isEmpty(), "#13").toBe(true);
     expect(inPanel(pd.panels[1], "b").value, "#14").toBe("sb");
 
-    survey.data = { pd: [{ a: "d1", city: "dc" }] };
+    survey.data = { pd: [{ a: "d1", addr: { city: "dc" } }] };
     expect(pd.panels.length, "#15: survey.data").toBe(1);
     expect(inPanel(pd.panels[0], "a").value, "#16").toBe("d1");
     expect(inPanel(pd.panels[0], "c").value, "#17").toBe("dc");
-    expect(survey.data, "#18").toEqual({ pd: [{ a: "d1", city: "dc" }] });
+    expect(survey.data, "#18").toEqual({ pd: [{ a: "d1", addr: { city: "dc" } }] });
   });
   test("the item's reads: getValue, getAllValues and the panel's questions", () => {
     const survey = createSurvey();

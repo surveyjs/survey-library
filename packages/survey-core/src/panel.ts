@@ -38,7 +38,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
-import { PanelDataScope, getDataNestingKey } from "./panel-data-scope";
+import { PanelDataScope, getDataNestingKey, getRecordDataScope, isRecordData } from "./panel-data-scope";
 import { Scope } from "./utils/scope";
 
 // The lazily rendered rows waiting on one scroll container share a single "scroll" listener and a single
@@ -541,14 +541,24 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.isDataScopeUsed ? this.dataScopeValue : null;
   }
   // The one place that decides whether this container nests and under which key ("" when it does not):
-  // the dataNesting table (getDataNestingKey, decisions N3) for a container that is not inside a record
-  // (N5, checked by canUseDataScope when the container is attached).
+  // the dataNesting table (getDataNestingKey, decisions N3) for the place the container is attached to
+  // (dataNestingPlace, checked by canUseDataScope).
   public getDataScopeKey(): string {
     return this.isDataScopeUsed ? this.getDataNestingKey() : "";
   }
   private getDataNestingKey(): string {
+    const place = this.dataNestingPlace;
+    const kind = place === "survey" ? this.getDataNestingKind() : (place === "record" ? "record" : "");
+    return this.getDataNestingKeyOfKind(kind);
+  }
+  private getDataNestingKeyOfKind(kind: string): string {
     const survey: any = this.survey;
-    return getDataNestingKey(!!survey ? survey.dataNesting : undefined, this.getDataNestingKind(), this.valueName, this.name);
+    return getDataNestingKey(!!survey ? survey.dataNesting : undefined, kind, this.valueName, this.name);
+  }
+  // The key a panel inside a record's template (a dynamic panel's template, a matrix's detail panel) nests
+  // under in the records built from it (RN3), whatever the template is attached to; "" when it does not.
+  public getRecordDataNestingKey(): string {
+    return this.getDataNestingKeyOfKind("record");
   }
   // Whether this container stores its elements' values in an object under its key now.
   public get isDataNesting(): boolean {
@@ -592,45 +602,74 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private updateDataScope(value: ISurveyImpl): ISurveyImpl {
     this.isDataScopeUsed = false;
+    this.attachedDataScopeKey = "";
+    this.dataNestingPlace = this.getDataNestingPlace();
     if (!value || !this.canUseDataScope(value)) return value;
     if (!this.dataScopeValue) {
       this.dataScopeValue = new PanelDataScope(this);
     }
     this.dataScopeValue.setParent(value);
     this.isDataScopeUsed = true;
+    this.attachedDataScopeKey = this.getDataScopeKey();
     (<SurveyModel><any>value.getSurvey())?.dataScopeUsed();
     return this.dataScopeValue;
   }
   private canUseDataScope(value: ISurveyImpl): boolean {
-    if (!this.dataScopeValue && !this.getDataNestingKey()) return false;
-    return !!value.getSurveyData() && !this.isInsideRecordCore(value);
+    const place = this.dataNestingPlace;
+    // Inside a record a panel with valueName keeps a scope under "none" too: the survey's dataNesting changes
+    // reach no panel inside a record, and its key turns on when the mode does (D8).
+    const isRecordKey = place === "record" && !!this.valueName;
+    if (!this.dataScopeValue && !this.getDataNestingKey() && !isRecordKey) return false;
+    return !!value.getSurveyData() && (place === "survey" || place === "record");
   }
-  // N5: a panel inside a record (a dynamic panel's template or panel, a matrix row's detail panel, a composite's
-  // content panel, at any depth) ignores its valueName in every dataNesting mode. The Creator hides the property there.
-  public isInsideRecord(): boolean {
-    return this.isInsideRecordCore(this.surveyImpl);
-  }
-  private isInsideRecordCore(value: ISurveyImpl): boolean {
-    // Only the survey data or another scope is not a record: a dynamic panel's panel, a matrix row's detail
-    // panel and a composite's content panel have the record as their data.
-    const data: any = !!value ? value.getSurveyData() : null;
-    if (!!data && data !== value.getSurvey() && !(data instanceof PanelDataScope)) return true;
-    // A dynamic panel's template (in the designer) is attached to the survey: it has a parent question.
-    // A matrix's detail panel template is attached to nothing until a row shows it: only the matrix knows it.
+  // Where this container's key applies, found when it is attached (updateDataScope):
+  //   "survey": the dataNesting table (N3);
+  //   "record": a panel inside a dynamic panel's or a matrix detail panel's record, at any depth: under its
+  //   valueName only, "none" switches it off (RN3);
+  //   "template": a panel inside such a record's template (the designer's dynamic panel template, a matrix's
+  //   detail panel template): it never nests there, its valueName applies to the records built from it;
+  //   "": never - a record panel itself (RN6), a composite's content panel and the panels in it (N5).
+  private dataNestingPlace: string = "survey";
+  private getDataNestingPlace(): string {
     let el: any = this;
     while(!!el) {
-      if (!!el.parentQuestion || !!el.selectedElementInDesign?.isDetailPanelTemplate?.(el)) return true;
+      // A dynamic panel's panels and its template have it as their parent question; a matrix knows its detail
+      // panel template. A row's detail panel has the row, a record item, as its data.
+      const isTemplate = !!el.parentQuestion && el.parentQuestion.template === el || !!el.selectedElementInDesign?.isDetailPanelTemplate?.(el);
+      if (isTemplate || !!el.parentQuestion || !el.parent && isRecordData(el.data)) {
+        return el === this ? "" : (isTemplate ? "template" : "record");
+      }
+      if (!el.parent) {
+        // A composite's content panel has the composite question as its data.
+        const data = el.data;
+        return el.isContentElement || !!data && data !== el.survey && !(data instanceof PanelDataScope) ? "" : "survey";
+      }
       el = el.parent;
     }
-    return false;
+    return "survey";
   }
+  // The key is ignored here (N5, RN6): on a record panel itself and inside a composite. The Creator hides the
+  // valueName property there; it shows it on a panel inside a dynamic panel or a detail panel (RN3).
+  public isInsideRecord(): boolean {
+    return this.getDataNestingPlace() === "";
+  }
+  // The key the container had when it was last attached: a key change inside a record re-reads the record once.
+  private attachedDataScopeKey: string = "";
   private onDataScopeKeyChanged(): void {
     if (!this.surveyImpl) return;
+    const prevKey = this.attachedDataScopeKey;
     this.updateDataScopeAttachment();
-    // A panel that cannot nest (inside a record, N5) ignores its key: nothing to re-read.
-    if (this.isDataScopeUsed) {
-      (<SurveyModel><any>this.survey)?.dataScopeChanged(this);
+    // A panel that cannot nest ignores its key: nothing to re-read.
+    if (!this.isDataScopeUsed) return;
+    const record = this.dataNestingPlace === "record" ? getRecordDataScope(this.data) : null;
+    if (!!record) {
+      // Inside a record the record's questions read it again (D8): the survey's indexes do not hold them.
+      if (prevKey === this.attachedDataScopeKey) return;
+      (<SurveyModel><any>this.survey)?.dataShapeChanged();
+      record.updateValuesFromData();
+      return;
     }
+    (<SurveyModel><any>this.survey)?.dataScopeChanged(this);
   }
   // The container's key may have changed (its valueName or name, or the survey's dataNesting): a container
   // that starts to nest gets its scope and re-attaches its elements. The data does not move (D8).

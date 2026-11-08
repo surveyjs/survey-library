@@ -61,7 +61,7 @@ describe("nested data: serializer", () => {
     survey.getQuestionByName("street").value = "y";
     expect(survey.data).toEqual({ address: { street: "y" } });
   });
-  test("valueName and dataNesting are visible; a panel valueName is hidden inside a record (N5)", async () => {
+  test("valueName and dataNesting are visible; a panel valueName is hidden on a record panel itself and in a composite (N5, RN3, RN6)", async () => {
     const { ComponentCollection } = await import("../src/question_custom");
     ComponentCollection.Instance.add({ name: "nestedvisibility", elementsJSON: [
       { type: "panel", name: "cin", elements: [{ type: "text", name: "cq" }] }
@@ -94,13 +94,14 @@ describe("nested data: serializer", () => {
         const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
         const pdPanel: PanelModel = survey.isDesignMode ? pd.template : pd.panels[0];
         expect(isVisible(pdPanel, "dynamic panel"), mode + ": dynamic panel").toBe(false);
-        expect(isVisible(pdPanel.getElementByName("pin"), "pin"), mode + ": pin").toBe(false);
-        expect(isVisible((<PanelModel>pdPanel.getElementByName("pin")).getElementByName("pin2"), "pin2"), mode + ": pin2").toBe(false);
+        // Records nesting 02: a panel inside a dynamic panel or a detail panel nests (RN3), so its valueName shows.
+        expect(isVisible(pdPanel.getElementByName("pin"), "pin"), mode + ": pin").toBe(true);
+        expect(isVisible((<PanelModel>pdPanel.getElementByName("pin")).getElementByName("pin2"), "pin2"), mode + ": pin2").toBe(true);
         const row = (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows[0];
         row.showDetailPanel();
         expect(isVisible(row.detailPanel, "detail panel"), mode + ": detail panel").toBe(false);
-        expect(isVisible(row.detailPanel.getElementByName("din"), "din"), mode + ": din").toBe(false);
-        expect(isVisible((<PanelModel>row.detailPanel.getElementByName("din")).getElementByName("din2"), "din2"), mode + ": din2").toBe(false);
+        expect(isVisible(row.detailPanel.getElementByName("din"), "din"), mode + ": din").toBe(true);
+        expect(isVisible((<PanelModel>row.detailPanel.getElementByName("din")).getElementByName("din2"), "din2"), mode + ": din2").toBe(true);
         const content = (<any>survey.getQuestionByName("comp")).contentPanel;
         expect(isVisible(content, "content panel"), mode + ": content panel").toBe(false);
         expect(isVisible(content.getElementByName("cin"), "cin"), mode + ": cin").toBe(false);
@@ -118,9 +119,9 @@ describe("nested data: serializer", () => {
         const detail = (<QuestionMatrixDynamicModel>detailSurvey.getQuestionByName(name)).detailPanel;
         expect(prop.isVisible("", detail), name + ": unshown detail panel").toBe(false);
         detail.elements.forEach(el => {
-          expect(prop.isVisible("", el), name + ": " + el.name).toBe(false);
+          expect(prop.isVisible("", el), name + ": " + el.name).toBe(true);
           (<PanelModel>el).elements.forEach(inner => {
-            if (inner.isPanel) expect(prop.isVisible("", inner), name + ": " + inner.name).toBe(false);
+            if (inner.isPanel) expect(prop.isVisible("", inner), name + ": " + inner.name).toBe(true);
           });
         });
       });
@@ -325,7 +326,8 @@ describe("nested data: storage", () => {
     expect(survey.data, "last write wins").toEqual({ address: "str" });
     expect(survey.getQuestionByName("street").isEmpty()).toBe(true);
   });
-  test("a valueName on a panel inside a dynamic panel's template is ignored (N5)", () => {
+  // Records nesting 02 lifts N5 for dynamic panels and detail panels (RN3); tests/records-nesting.tests.ts covers them.
+  test("a valueName on a panel inside a dynamic panel's template nests inside the record (RN3)", () => {
     const survey = new SurveyModel({ elements: [
       { type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
         { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }
@@ -333,11 +335,11 @@ describe("nested data: storage", () => {
     ] });
     const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
     dp.panels[0].getQuestionByName("street").value = "x";
-    expect(survey.data).toEqual({ items: [{ street: "x" }] });
-    survey.data = { items: [{ street: "y" }] };
+    expect(survey.data).toEqual({ items: [{ address: { street: "x" } }] });
+    survey.data = { items: [{ address: { street: "y" } }] };
     expect(dp.panels[0].getQuestionByName("street").value).toBe("y");
   });
-  test("a valueName on a panel inside a matrix detail panel is ignored (N5)", () => {
+  test("a valueName on a panel inside a matrix detail panel nests inside the record (RN3)", () => {
     const survey = new SurveyModel({ elements: [
       { type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "col1" }],
         detailElements: [{ type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }] }
@@ -346,7 +348,7 @@ describe("nested data: storage", () => {
     const row = matrix.visibleRows[0];
     row.showDetailPanel();
     row.detailPanel.getQuestionByName("street").value = "x";
-    expect(survey.data).toEqual({ m: [{ street: "x" }] });
+    expect(survey.data).toEqual({ m: [{ address: { street: "x" } }] });
   });
   test("a valueName on a panel inside a composite's content panel is ignored (N5)", async () => {
     const { ComponentCollection } = await import("../src/question_custom");
@@ -574,7 +576,7 @@ describe("nested data: review fixes", () => {
       prop.defaultValue = "auto";
     }
   });
-  test("a valueName set at runtime on a panel inside a dynamic panel's panel is ignored (N5)", () => {
+  test("a valueName set at runtime on a panel inside a dynamic panel's panel nests; the data does not move (RN3, D8)", () => {
     const survey = new SurveyModel({ elements: [
       { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
         { type: "panel", name: "inner", elements: [{ type: "text", name: "street" }] }
@@ -583,9 +585,9 @@ describe("nested data: review fixes", () => {
     survey.data = { dp: [{ street: "x" }] };
     const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
     (<PanelModel>dp.panels[0].getElementByName("inner")).valueName = "address";
-    expect(dp.panels[0].getQuestionByName("street").value).toBe("x");
+    expect(dp.panels[0].getQuestionByName("street").isEmpty()).toBe(true);
     dp.panels[0].getQuestionByName("street").value = "y";
-    expect(survey.data).toEqual({ dp: [{ street: "y" }] });
+    expect(survey.data).toEqual({ dp: [{ street: "x", address: { street: "y" } }] });
   });
   test("a code write of a top-level key named like an inner question reports no question", () => {
     const survey = new SurveyModel(addressJson());

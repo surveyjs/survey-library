@@ -2,6 +2,7 @@ import { getCheckboxItemFields, getImageMapItemFields } from "survey-core";
 import { CapturingScopeFrame, CIMap, CIMultiMap, DataScopeRecord, ElementRecord, getCapturingFrame, getEffectiveType, ITEM_FIELD_TYPE,
   MergedObjectKeys, ScopeFrame, SurveyIndex } from "./symbols";
 import { isDescendantOf } from "./metadata";
+import { isInNestedObject } from "./data-nesting";
 
 // Questions on one data key share one value: the runtime binds them by getValueName() - the
 // valueName, else the name - whichever of them declares the valueName. A dynamic panel's or a
@@ -33,26 +34,27 @@ export function getFrameNames(frame: CapturingScopeFrame): CIMultiMap<ElementRec
   return frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
 }
 
-// The questions (and columns) of a panel's or row's record by data key, built once per scope.
+// The questions (and columns) of a panel's or row's record by data key, built once per scope. A question
+// inside a nesting panel there writes into that panel's object, not into the record (records nesting 02).
 function getFrameDataKeys(frame: CapturingScopeFrame): CIMultiMap<ElementRecord> {
   if (!frame.dataKeys) {
     const keys = new CIMultiMap<ElementRecord>();
     getFrameNames(frame).forEach(records => records.forEach(record => {
-      if (record.kind === "question" || record.kind === "column") keys.add(getDataKey(record), record);
+      if (record.kind === "column" || record.kind === "question" && !isInNestedObject(record)) keys.add(getDataKey(record), record);
     }));
     frame.dataKeys = keys;
   }
   return frame.dataKeys;
 }
 
-// The questions writing a data key of a data scope: a dynamic-panel template or a matrix row
-// (frame), or else one object of the survey data - the survey data itself, or a nesting container's
-// object (dataScope, the survey data when unset). The runtime binds them by the exact key
+// The questions writing a data key of a data scope: a nesting container's object (dataScope with a
+// parent, inside a record too), a dynamic-panel template or a matrix row (frame), or else the survey data
+// or a record (dataScope, the survey data when unset). The runtime binds them by the exact key
 // (getQuestionsByValueName is case-sensitive), so the case-insensitive maps only narrow the search down.
 export function getDataKeyRecords(index: SurveyIndex, frame: CapturingScopeFrame | undefined, key: string,
   dataScope?: DataScopeRecord): Array<ElementRecord> {
-  const candidates = !!frame ? getFrameDataKeys(frame).get(key)
-    : (dataScope || index.rootScope).questions.get(key);
+  const candidates = !!dataScope && !!dataScope.parent ? dataScope.questions.get(key)
+    : !!frame ? getFrameDataKeys(frame).get(key) : (dataScope || index.rootScope).questions.get(key);
   return candidates.filter(record => getDataKey(record) === key);
 }
 
@@ -91,13 +93,18 @@ function getItemFieldRecord(record: ElementRecord, field: string): ElementRecord
 // The fields this question writes into one object: its template questions and its columns
 // (detail-panel questions included) under the key each stores its value by - a panel inside a
 // template holds no value and keeps its name - and for a checkbox or an image map with object
-// items the fields of such an item.
+// items the fields of such an item. A nesting panel inside the template or the detail panel adds its
+// key, whose value is its object, and its questions are fields of that object, not of the record.
 function addOwnItemFields(record: ElementRecord, res: CIMultiMap<ElementRecord>): void {
   const subs = getSubElementNames(record);
   if (subs) {
     subs.forEach((records, name) => records.forEach(sub => {
+      if (sub.kind === "question" && isInNestedObject(sub)) return;
       res.add(sub.kind === "question" && !!sub.valueName ? sub.valueName : name, sub);
     }));
+    if (hasRecordObjects(record)) {
+      record.recordScope.children.forEach((children, key) => children.forEach(child => res.add(key, child.valueRecord)));
+    }
     return;
   }
   const json = record.json || {};
@@ -173,11 +180,16 @@ function isReKeyed(record: ElementRecord): boolean {
   return res;
 }
 
+// Whether a nesting panel inside the template or the detail panel keeps an object in the record.
+function hasRecordObjects(record: ElementRecord): boolean {
+  return !!record.recordScope && record.recordScope.children.names().length > 0;
+}
+
 // Set only where the fields differ from the name map, which getItemFields reads otherwise.
 function annotateItemFields(record: ElementRecord, sharing: Array<ElementRecord>): void {
   const kind = getItemKind(record);
   const partners = sharing.filter(question => question !== record && !!kind && getItemKind(question) === kind);
-  if (partners.length === 0 && !isReKeyed(record)) return;
+  if (partners.length === 0 && !isReKeyed(record) && !hasRecordObjects(record)) return;
   const fields = new CIMultiMap<ElementRecord>();
   [record].concat(partners).forEach(question => addOwnItemFields(question, fields));
   record.itemFields = fields;

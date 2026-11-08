@@ -6,6 +6,7 @@ import type { PanelModelBase } from "../panel";
 import type { ItemValue } from "../itemvalue";
 import type { DynamicDataList } from "../dynamic-data/dynamic-data-list";
 import type { IRecordCleanupObject, QuestionRecordItem } from "../question_records";
+import { deleteObjectPaths } from "../panel-data-scope";
 
 // What the records clean-up reads from the records question.
 export interface IRecordCleanupRunnerOwner {
@@ -18,6 +19,8 @@ export interface IRecordCleanupRunnerOwner {
   // The records a clean-up pass changed, written in one batch of the list as the question's own change.
   writeRecordChanges(changes: Array<{ index: number, record: any }>): void;
   getRecordUnknownKeys(recordIndex: number, record: any, item: QuestionRecordItem): Array<string>;
+  // The unknown keys inside a record's nesting panels' objects, by path (RN3, D6). An owner without it has none.
+  getRecordNestedUnknownPaths?(record: any): Array<Array<string>>;
   getRecordTemplateQuestion(key: string): Question;
   createRecordCleanupObject(index: number, record: any): IRecordCleanupObject;
   getDataFilteredProperties(): HashTable<any>;
@@ -184,6 +187,7 @@ export class RecordCleanupRunner {
     const owner = this.owner;
     const copy = Object.assign({}, record);
     owner.getRecordUnknownKeys(index, record, undefined).forEach((key: string): void => { delete copy[key]; });
+    if (!!owner.getRecordNestedUnknownPaths) deleteObjectPaths(copy, owner.getRecordNestedUnknownPaths(record));
     const cleanup = { index: index, copy: copy, item: <ISurveyData>undefined, isBuilding: true };
     let cleanupObject: IRecordCleanupObject = undefined;
     try {

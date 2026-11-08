@@ -13,7 +13,8 @@ import {
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
 import { annotateSharedValues, getDataKey, getFrameNames } from "./record-fields";
-import { createRootScope, generateContainerName, getChildScope, getDataNestingMode, getLintDataNestingKey } from "./data-nesting";
+import { createRecordScope, createRootScope, generateContainerName, getChildScope, getDataNestingMode, getLintDataNestingKey,
+  isInsideRecordScope } from "./data-nesting";
 
 const MAX_DEPTH = 128;
 
@@ -224,8 +225,8 @@ function getElementsArray(state: WalkState, json: any): { key: string, elements:
   return getArrayByKeys(json, state.metadata.getElementsKeys());
 }
 
-// dataScope is the object the elements write into; undefined inside a record (a dynamic-panel template,
-// a matrix detail panel), where nothing nests (decisions N5).
+// dataScope is the object the elements write into: the survey data, a record (a dynamic-panel template,
+// a matrix detail panel) or a nesting container's object.
 function walkElementsArray(state: WalkState, elements: Array<any>, basePath: string,
   parent: ElementRecord, scope: Array<ScopeFrame>, ancestorPanels: Array<ElementRecord>,
   container: ContainerRecord, dataScope: DataScopeRecord): void {
@@ -248,7 +249,9 @@ function applyDataNesting(state: WalkState, record: ElementRecord, container: Co
   const name = record.name || generateContainerName(kind, names);
   names.add(name);
   const valueName = isNonEmptyString(record.json.valueName) ? record.json.valueName : "";
-  const key = !!dataScope ? getLintDataNestingKey(state.index.dataNesting, kind, valueName, name) : "";
+  // inside a record a panel nests by its valueName only (RN3): no by-name mode lists the kind "record"
+  const keyKind = !!dataScope && kind === "panel" && isInsideRecordScope(dataScope) ? "record" : kind;
+  const key = !!dataScope ? getLintDataNestingKey(state.index.dataNesting, keyKind, valueName, name) : "";
   if (!key) {
     if (valueName) state.index.nonNestingKeys.add(valueName, record);
     return dataScope;
@@ -257,6 +260,15 @@ function applyDataNesting(state: WalkState, record: ElementRecord, container: Co
   container.dataKeySource = valueName ? "valueName" : (record.name ? "name" : "generated");
   record.nestedScope = getChildScope(dataScope, key, record);
   return record.nestedScope;
+}
+
+// The record of a dynamic panel or a matrix, created on first use.
+function getRecordScope(state: WalkState, owner: ElementRecord): DataScopeRecord {
+  if (!owner.recordScope) {
+    owner.recordScope = createRecordScope(owner);
+    state.index.recordScopes.push(owner.recordScope);
+  }
+  return owner.recordScope;
 }
 
 function walkPanel(state: WalkState, json: any, path: string, parent: ElementRecord,
@@ -323,7 +335,11 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
         columnRecord.choicesInfo = choicesInfo;
       }
       state.index.allElements.push(columnRecord);
-      if (columnRecord.name) frame.columns.add(columnRecord.name, columnRecord);
+      if (columnRecord.name) {
+        frame.columns.add(columnRecord.name, columnRecord);
+        // a cell writes into the row's record, next to the detail-panel questions
+        getRecordScope(state, record).questions.add(columnRecord.name, columnRecord);
+      }
       addSitesFromProps(state, columnJson, columnPath,
         state.metadata.getCellExpressionProps(effectiveCellType), columnRecord, rowScope);
       addTextRefsFromProps(state, columnJson, columnPath,
@@ -333,7 +349,8 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
     });
   }
   if (Array.isArray(json.detailElements)) {
-    walkElementsArray(state, json.detailElements, path + ".detailElements", record, rowScope, [], undefined, undefined);
+    walkElementsArray(state, json.detailElements, path + ".detailElements", record, rowScope, [], undefined,
+      getRecordScope(state, record));
   }
   return rowScope;
 }
@@ -459,7 +476,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     state.index.containers.push(container);
     if (template) {
       walkElementsArray(state, template.elements, joinPath(path, template.key), record,
-        templateScope, [], container, undefined);
+        templateScope, [], container, getRecordScope(state, record));
     }
   }
   // after the matrix/panel branches: a title template scoped to a row or a panel needs the
@@ -641,6 +658,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     dataNesting: getDataNestingMode(json),
     rootScope: createRootScope(),
     nonNestingKeys: new CIMultiMap<ElementRecord>(),
+    recordScopes: [],
     elementNames: new CIMultiMap<ElementRecord>(),
     calculatedValues: new CIMap(),
     calculatedValueList: [],

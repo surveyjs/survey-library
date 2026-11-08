@@ -11,7 +11,8 @@ const reasons = SurveyLintReasons["nesting/key-conflict"];
 // runtime allows it - last write wins - but it is never intended: the question shows the object, and
 // an answer to it replaces every value of the container. Two containers on one key share one object
 // (D4), and a key equal to the name of a question inside the container is another level (4.4): neither
-// is reported. Keys are compared exactly, as the runtime stores them.
+// is reported. Keys are compared exactly, as the runtime stores them. Inside a dynamic panel or a matrix
+// each record is a level of its own (records nesting 02): a matrix record holds its columns too.
 function checkScope(ctx: LintContext, scope: DataScopeRecord): void {
   scope.children.forEach(children => children.forEach(child => {
     checkScope(ctx, child);
@@ -42,5 +43,6 @@ export const nestingKeyConflictRule: ILintRule = {
   defaultSeverity: "error",
   run(ctx: LintContext): void {
     checkScope(ctx, ctx.index.rootScope);
+    ctx.index.recordScopes.forEach(record => checkScope(ctx, record));
   },
 };

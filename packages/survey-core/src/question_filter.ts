@@ -323,7 +323,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // A conversation with the application's model about this control's filter - see FilterAIRequest.
   // The caller disposes it.
   public createAIRequest(): FilterAIRequest {
-    return new FilterAIRequest(this, this);
+    return new FilterAIRequest(this);
   }
   // The Create custom filter dialog - see FilterAIDialog. The caller owns it and disposes it.
   public createAIDialog(): FilterAIDialog {

@@ -245,7 +245,7 @@ export { FilterChipsLayout, fitFilterChips } from "../../src/filter/filter-chips
 export { FilterModal, IFilterModalOwner, filterModalCountDelay } from "../../src/filter/filter-modal";
 export {
   FilterAIRequest, FilterAIFeature, buildFilterAIContext, buildFilterAISystemPrompt, buildFilterAIInstruction, filterAIResponseFormat,
-  filterAIGuideExamples, filterAIGuideVersion, filterAIMaxChoices, filterAIFixAttempts
+  filterAIGuideExamples, filterAIGuideVersion, filterAIMaxChoices
 } from "../../src/filter/filter-ai";
 export type {
   IFilterAIField, IFilterAIContext, IFilterAIContextOwner, IFilterAIResponse, FilterAIResult, IFilterAIRequestOwner

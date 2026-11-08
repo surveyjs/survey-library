@@ -185,7 +185,7 @@ describe("FilterEditPresetsDialog: Make Changes of an AI preset", () => {
   test("the tab of an AI preset has its description and Make Changes", () => {
     const { dialog } = open();
     const prompt = dialog.aiPrompt;
-    expect([prompt.form.getValue("prompt"), prompt.promptTitle, prompt.requestAction.title, prompt.isModify])
+    expect([prompt.prompt, prompt.promptTitle, prompt.requestAction.title, prompt.isModify])
       .toEqual(["adults", "Describe what to change - AI will do the rest.", "Make Changes", true]);
     dialog.dispose();
   });
@@ -203,18 +203,18 @@ describe("FilterEditPresetsDialog: Make Changes of an AI preset", () => {
   });
   test("Make Changes sends the tab's filter with the new description; the answer is the tab's filter", () => {
     const { dialog, calls } = open();
-    dialog.aiPrompt.form.setValue("prompt", "adults from France");
+    dialog.aiPrompt.prompt = "adults from France";
     dialog.aiPrompt.request();
     expect([calls[0].action, calls[0].userPrompt, calls[0].expression], "#1").toEqual(["modify", "adults from France", "{age} > 18"]);
     calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']"));
     expect(dialog.editor.getConditions(), "#2").toEqual([{ field: "country", operator: "anyof", value: ["fr"] }, { field: "age", operator: "greater", value: 18 }]);
-    expect([rows(dialog), dialog.form.getValue("presetTitle"), dialog.aiPrompt.form.getValue("prompt")], "#3")
+    expect([rows(dialog), dialog.form.getValue("presetTitle"), dialog.aiPrompt.prompt], "#3")
       .toEqual([["country", "age"], "Adults", "adults from France"]);
     dialog.dispose();
   });
   test("Apply writes the new description and filter", () => {
     const { q, dialog, calls } = open();
-    dialog.aiPrompt.form.setValue("prompt", "adults from France");
+    dialog.aiPrompt.prompt = "adults from France";
     dialog.aiPrompt.request();
     calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']"));
     expect(dialog.apply(), "#1").toBe(true);
@@ -224,12 +224,20 @@ describe("FilterEditPresetsDialog: Make Changes of an AI preset", () => {
   });
   test("a new description alone is a change, and Reset brings the JSON's back", () => {
     const { dialog } = open();
-    dialog.aiPrompt.form.setValue("prompt", "grown-ups");
+    dialog.aiPrompt.prompt = "grown-ups";
     expect(actions(dialog), "#1").toEqual(["Delete", "Reset"]);
     dialog.resetSelected();
-    expect([dialog.aiPrompt.form.getValue("prompt"), dialog.editor.getConditions()], "#2")
+    expect([dialog.aiPrompt.prompt, dialog.editor.getConditions()], "#2")
       .toEqual(["adults", [{ field: "age", operator: "greater", value: 18 }]]);
     expect(actions(dialog), "#3").toEqual(["Delete"]);
+    dialog.dispose();
+  });
+  test("Make Changes with every row removed asks for a new filter: there is nothing to change", () => {
+    const { dialog, calls } = open();
+    (<any>dialog.form.getPanelByName("contains").elements[0]).clearValue();
+    expect([rows(dialog), dialog.editor, dialog.aiPrompt.isModify], "#1").toEqual([[], undefined, true]);
+    dialog.aiPrompt.request();
+    expect([calls[0].action, calls[0].userPrompt], "#2").toEqual(["generate", "adults"]);
     dialog.dispose();
   });
   test("another tab while the model answers: the answer is ignored", () => {
@@ -240,6 +248,86 @@ describe("FilterEditPresetsDialog: Make Changes of an AI preset", () => {
     expect(dialog.editor.getConditions(), "#1").toEqual([{ field: "age", operator: "greater", value: 20 }]);
     dialog.selectTab("a1");
     expect(dialog.editor.getConditions(), "#2").toEqual([{ field: "age", operator: "greater", value: 18 }]);
+    dialog.dispose();
+  });
+});
+
+describe("FilterEditPresetsDialog: one survey for the fields and the description", () => {
+  const aiPresets = [
+    { name: "a1", title: "Adults", type: "ai", prompt: "adults", expression: "{age} > 18" },
+    { name: "a2", title: "Germans", type: "ai", prompt: "germans", expression: "{country} anyof ['de']" },
+    { name: "plain", expression: "{age} > 20" },
+    { name: "locked", expression: "{age} > 2", allowEdit: false }];
+  function open(): { q: QuestionFilterModel, dialog: FilterEditPresetsDialog, calls: Array<any> } {
+    const q = createFilter({ items: aiPresets });
+    const calls: Array<any> = [];
+    (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
+    return { q: q, dialog: q.createEditPresetsDialog("a1"), calls: calls };
+  }
+  const answer = (expression: string) => ({ data: { expression: expression, title: "", explanation: "" } });
+  // The page's elements, and the fields' panels in the frame.
+  function layout(dialog: FilterEditPresetsDialog): Array<any> {
+    const page = dialog.survey.pages[0];
+    const fields = <PanelModel>dialog.survey.getPanelByName("fields");
+    return [page.elements.map((e: any): string => e.name), fields.elements.map((e: any): string => e.name)];
+  }
+  test("the fields' panels are in the frame, the description after it; both live in the dialog's survey", () => {
+    const { q, dialog } = open();
+    const survey = dialog.survey;
+    expect([dialog.editor.survey === survey, dialog.aiPrompt.panel.survey === survey, layout(dialog)], "#1")
+      .toEqual([true, true, [["fields", "promptPanel"], ["f0"]]]);
+    const fields = <PanelModel>survey.getPanelByName("fields");
+    expect(fields.getContainerCss().split(" ").indexOf(q.cssClasses.presetFields) > -1, "#2: the frame").toBe(true);
+    const f0 = (<PanelModel>survey.getPanelByName("f0")).getContainerCss();
+    expect([f0.indexOf("sd-panel--nested") < 0, f0.indexOf("sd-panel--with-frame") > -1], "#3: drawn as on a page of its own").toEqual([true, true]);
+    dialog.dispose();
+    expect(survey.isDisposed, "#4: the dialog owns it").toBe(true);
+  });
+  test("Make Changes' answer, Reset and a row change keep the new editor's values and the description, after the fields", () => {
+    const { dialog, calls } = open();
+    dialog.aiPrompt.prompt = "adults from France";
+    dialog.aiPrompt.request();
+    calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']"));
+    expect([layout(dialog), dialog.editor.getConditions(), dialog.aiPrompt.prompt], "#1: the answer")
+      .toEqual([[["fields", "promptPanel"], ["f0", "f1"]],
+        [{ field: "country", operator: "anyof", value: ["fr"] }, { field: "age", operator: "greater", value: 18 }], "adults from France"]);
+    (<any>dialog.form.getPanelByName("contains").elements[0]).clearValue();
+    expect([layout(dialog), dialog.editor.getConditions(), dialog.aiPrompt.prompt], "#2: a row taken away")
+      .toEqual([[["fields", "promptPanel"], ["f0"]], [{ field: "age", operator: "greater", value: 18 }], "adults from France"]);
+    dialog.resetSelected();
+    expect([layout(dialog), dialog.editor.getConditions(), dialog.aiPrompt.prompt], "#3: Reset")
+      .toEqual([[["fields", "promptPanel"], ["f0"]], [{ field: "age", operator: "greater", value: 18 }], "adults"]);
+    expect(dialog.survey.getAllQuestions().map((qn: any): string => qn.name), "#4: no question left behind")
+      .toEqual(["f0_operator", "f0_value", "prompt"]);
+    dialog.dispose();
+  });
+  test("another AI tab has its own description; a plain tab has none", () => {
+    const { dialog } = open();
+    const first = dialog.aiPrompt;
+    dialog.selectTab("a2");
+    expect([dialog.aiPrompt !== first, first.isDisposed, dialog.aiPrompt.prompt, layout(dialog)], "#1")
+      .toEqual([true, true, "germans", [["fields", "promptPanel"], ["f0"]]]);
+    dialog.selectTab("plain");
+    expect([dialog.aiPrompt, layout(dialog), dialog.survey.getValue("prompt")], "#2").toEqual([undefined, [["fields"], ["f0"]], undefined]);
+    dialog.dispose();
+  });
+  test("a description typed in a tab is still there after another tab, and the tab left is not touched by the switch", () => {
+    const { dialog } = open();
+    dialog.selectTab("a2");
+    dialog.aiPrompt.prompt = "germans only";
+    dialog.selectTab("plain");
+    dialog.selectTab("a1");
+    expect([dialog.aiPrompt.prompt, (<any>dialog).tabs[0].isTouched], "#1: a1 was never touched").toEqual(["adults", false]);
+    dialog.selectTab("a2");
+    expect([dialog.aiPrompt.prompt, (<any>dialog).tabs[1].isTouched], "#2").toEqual(["germans only", true]);
+    dialog.dispose();
+  });
+  test("a preset that may not be edited shows its fields read-only; the next tab is editable again", () => {
+    const { dialog } = open();
+    dialog.selectTab("locked");
+    expect([dialog.isReadOnly, dialog.survey.mode, dialog.editor.isReadOnly, dialog.aiPrompt], "#1").toEqual([true, "display", true, undefined]);
+    dialog.selectTab("a1");
+    expect([dialog.isReadOnly, dialog.survey.mode, !!dialog.aiPrompt], "#2").toEqual([false, "edit", true]);
     dialog.dispose();
   });
 });
@@ -255,7 +343,7 @@ describe("FilterEditPresetsDialog: while Make Changes waits for the model", () =
   const answer = (expression: string) => ({ data: { expression: expression, title: "", explanation: "" } });
   test("Apply writes nothing: the description and the filter would not match", () => {
     const { q, dialog, calls } = open();
-    dialog.aiPrompt.form.setValue("prompt", "adults from France");
+    dialog.aiPrompt.prompt = "adults from France";
     dialog.aiPrompt.request();
     expect([dialog.canApply, dialog.apply()], "#1").toEqual([false, false]);
     expect(q.getItemByName("a1").prompt, "#2").toBe("adults");
@@ -265,12 +353,12 @@ describe("FilterEditPresetsDialog: while Make Changes waits for the model", () =
   });
   test("Reset stops the request: an answer after it does not undo the reset", () => {
     const { dialog, calls } = open();
-    dialog.aiPrompt.form.setValue("prompt", "kids");
+    dialog.aiPrompt.prompt = "kids";
     dialog.aiPrompt.request();
     dialog.resetSelected();
     expect(dialog.aiPrompt.isBusy, "#1").toBe(false);
     calls[0].callback(answer("{age} < 10"));
-    expect([dialog.editor.getConditions(), dialog.aiPrompt.form.getValue("prompt")], "#2")
+    expect([dialog.editor.getConditions(), dialog.aiPrompt.prompt], "#2")
       .toEqual([[{ field: "age", operator: "greater", value: 18 }], "adults"]);
     dialog.dispose();
   });

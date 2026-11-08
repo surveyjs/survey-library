@@ -28,7 +28,6 @@ export class FilterEditorHolder extends Base {
   @property() fieldPopup: FilterFieldPopup;
   @property() modal: FilterModal;
   @property() presetDialog: FilterPresetDialog;
-  @property() aiDialog: FilterAIDialog;
   public cssClasses: any;
 }
 
@@ -101,8 +100,12 @@ export class FilterToolbars {
   private chipIds: Array<string>;
   private advancedHolder: FilterEditorHolder;
   private advancedDialog: any;
-  private presetHolder: FilterEditorHolder;
-  private presetDialog: any;
+  // The one dialog open over the Filters dialog - Add New Preset, Edit Presets or Create custom
+  // filter: what the dialog host returned, its model, and the holder a preset dialog is drawn from
+  // (Create custom filter is a survey, drawn with no holder).
+  private subDialog: any;
+  private subDialogModel: FilterPresetDialog | FilterAIDialog;
+  private subDialogHolder: FilterEditorHolder;
   private isUpdating: boolean;
   private isUpdatePending: boolean;
 
@@ -158,9 +161,11 @@ export class FilterToolbars {
     }
   }
   private updateRows(): void {
+    const isMobile = this.owner.isMobile;
     if (!!this.layoutValue) {
-      this.layoutValue.isMobile = this.owner.isMobile;
+      this.layoutValue.isMobile = isMobile;
     }
+    this.updateDialogsMode(isMobile);
     this.updateSearchRow();
     this.updateChipsRow();
     this.updateClearRow();
@@ -201,7 +206,7 @@ export class FilterToolbars {
       },
       title: filterUIStrings.dialogTitle,
       showCloseButton: true,
-      cssClass: toCssClasses(this.cssClasses.modal, this.owner.isMobile && this.cssClasses.modalMobile),
+      cssClass: this.getAdvancedDialogCss(),
       displayMode: "popup"
     };
     this.advancedDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
@@ -230,11 +235,12 @@ export class FilterToolbars {
   // Its Apply writes the presets into the control and refreshes that dialog's presets, or keeps it
   // open while the preset has errors; any other way it closes writes nothing. One at a time.
   public showPresetDialog(modal: FilterModal, isEdit: boolean): void {
-    if (!settings.showDialog || !!this.presetDialog || !modal || modal.isDisposed) return;
+    if (!settings.showDialog || !!this.subDialog || !modal || modal.isDisposed) return;
     const dialogModel = isEdit ? this.owner.createEditPresetsDialog(modal.activeItemName) : this.owner.createAddPresetDialog(modal.presetConditions);
     const holder = this.createHolder();
     holder.presetDialog = dialogModel;
-    this.presetHolder = holder;
+    this.subDialogHolder = holder;
+    this.subDialogModel = dialogModel;
     const options: IDialogOptions = {
       componentName: filterPresetDialogComponentName,
       data: { holder: holder },
@@ -244,31 +250,25 @@ export class FilterToolbars {
         return true;
       },
       onCancel: (): void => { },
-      onHide: (): void => {
-        this.release(holder);
-        this.presetDialog = undefined;
-        this.presetHolder = undefined;
-      },
+      onHide: (): void => { this.releaseSubDialog(); },
       title: dialogModel.title,
       showCloseButton: true,
-      cssClass: toCssClasses(this.cssClasses.modal, this.cssClasses.presetDialog, this.owner.isMobile && this.cssClasses.modalMobile),
+      cssClass: this.getSubDialogCss(),
       displayMode: "popup"
     };
-    this.presetDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
-    this.setPresetDialogFooter(this.presetDialog, dialogModel instanceof FilterEditPresetsDialog ? (): boolean => dialogModel.canApply : undefined);
+    this.subDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
+    this.setPresetDialogFooter(this.subDialog, dialogModel instanceof FilterEditPresetsDialog ? (): boolean => dialogModel.canApply : undefined);
   }
   // Create custom filter (FilterAIDialog), over the Filters dialog that opened it, in the place of a
   // preset dialog: one of them at a time. Its Apply adds the AI preset, refreshes that dialog's
   // presets and turns the new one on there, so its count says what the preset leaves; any other way
   // it closes writes nothing, and an answer that comes after is ignored. The dialog is one survey
   // (FilterAIDialog.survey), drawn by the "survey" component every renderer registers, as the records'
-  // Sort by dialog is; the holder only disposes the dialog once it closes.
+  // Sort by dialog is: no holder, the dialog is disposed once it closes.
   public showAIDialog(modal: FilterModal): void {
-    if (!settings.showDialog || !!this.presetDialog || !modal || modal.isDisposed) return;
+    if (!settings.showDialog || !!this.subDialog || !modal || modal.isDisposed) return;
     const dialogModel = this.owner.createAIDialog();
-    const holder = this.createHolder();
-    holder.aiDialog = dialogModel;
-    this.presetHolder = holder;
+    this.subDialogModel = dialogModel;
     const options: IDialogOptions = {
       componentName: "survey",
       data: { model: dialogModel.survey, survey: dialogModel.survey },
@@ -279,18 +279,49 @@ export class FilterToolbars {
         return true;
       },
       onCancel: (): void => { },
-      onHide: (): void => {
-        this.release(holder);
-        this.presetDialog = undefined;
-        this.presetHolder = undefined;
-      },
+      onHide: (): void => { this.releaseSubDialog(); },
       title: dialogModel.title,
       showCloseButton: true,
-      cssClass: toCssClasses(this.cssClasses.modal, this.cssClasses.presetDialog, this.cssClasses.aiDialog, this.owner.isMobile && this.cssClasses.modalMobile),
+      cssClass: this.getSubDialogCss(),
       displayMode: "popup"
     };
-    this.presetDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
-    this.setPresetDialogFooter(this.presetDialog, (): boolean => dialogModel.canApply);
+    this.subDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
+    this.setPresetDialogFooter(this.subDialog, (): boolean => dialogModel.canApply);
+  }
+  // The dialog over the Filters dialog is gone (closed, or the control disposed): what it was drawn
+  // from is released and its model disposed, once - onHide may come after dispose().
+  private releaseSubDialog(): void {
+    const holder = this.subDialogHolder;
+    const model = this.subDialogModel;
+    this.subDialog = undefined;
+    this.subDialogHolder = undefined;
+    this.subDialogModel = undefined;
+    if (!!holder) {
+      this.release(holder);
+    }
+    if (!!model && !model.isDisposed) model.dispose();
+  }
+  // The frame's classes: a phone's dialog covers the screen.
+  private getAdvancedDialogCss(): string {
+    return toCssClasses(this.cssClasses.modal, this.owner.isMobile && this.cssClasses.modalMobile);
+  }
+  private getSubDialogCss(): string {
+    const css = this.cssClasses;
+    return toCssClasses(css.modal, css.presetDialog, this.subDialogModel instanceof FilterAIDialog && css.aiDialog,
+      this.owner.isMobile && css.modalMobile);
+  }
+  // The dialog host does not close a dialog on a rotation or a resize: the open dialogs follow the
+  // control's isMobile - their frames and the surveys they show.
+  private updateDialogsMode(isMobile: boolean): void {
+    if (!!this.advancedDialog && !!this.advancedDialog.model) {
+      this.advancedDialog.model.cssClass = this.getAdvancedDialogCss();
+    }
+    if (!!this.subDialogModel) {
+      this.subDialogModel.setIsMobile(isMobile);
+      if (!!this.subDialog && !!this.subDialog.model) {
+        this.subDialog.model.cssClass = this.getSubDialogCss();
+      }
+    }
   }
   // Cancel on the left and Apply on the right, as in the mockup. canApply: Apply is off while it is false.
   private setPresetDialogFooter(dialog: any, canApply?: () => boolean): void {
@@ -309,14 +340,10 @@ export class FilterToolbars {
     ]);
   }
   public dispose(): void {
-    if (!!this.presetDialog && !!this.presetDialog.model) {
-      this.presetDialog.model.hide();
+    if (!!this.subDialog && !!this.subDialog.model) {
+      this.subDialog.model.hide();
     }
-    if (!!this.presetHolder) {
-      this.release(this.presetHolder);
-    }
-    this.presetDialog = undefined;
-    this.presetHolder = undefined;
+    this.releaseSubDialog();
     if (!!this.advancedDialog && !!this.advancedDialog.model) {
       this.advancedDialog.model.hide();
     }
@@ -594,15 +621,12 @@ export class FilterToolbars {
     const modal = holder.modal;
     const fieldPopup = holder.fieldPopup;
     const presetDialog = holder.presetDialog;
-    const aiDialog = holder.aiDialog;
     holder.modal = undefined;
     holder.fieldPopup = undefined;
     holder.presetDialog = undefined;
-    holder.aiDialog = undefined;
     if (!!modal) modal.dispose();
     if (!!fieldPopup) fieldPopup.dispose();
     if (!!presetDialog) presetDialog.dispose();
-    if (!!aiDialog) aiDialog.dispose();
   }
   private isSameList(a: Array<string>, b: Array<string>): boolean {
     return !!a && a.length === b.length && a.every((v: string, i: number): boolean => v === b[i]);

@@ -5,7 +5,7 @@
 </template>
 <script lang="ts" setup>
 // The page of an editor survey of the Filter Control: the Filters dialog's fields, a "condition"
-// popup's, and a preset dialog's form and fields. It is drawn as a page, not as a whole Survey (a
+// popup's, and a preset dialog's form and survey. It is drawn as a page, not as a whole Survey (a
 // Survey inside another survey's question would put a <form> inside a <form>).
 import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel } from "survey-core";

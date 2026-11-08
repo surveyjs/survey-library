@@ -3,9 +3,9 @@ import { SurveyModel } from "survey-core";
 import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
 
 // The page of an editor survey of the Filter Control: the Filters dialog's fields, a "condition"
-// popup's, and a preset dialog's form and fields. It is drawn as a page, not as a whole Survey (a
+// popup's, and a preset dialog's form and survey. It is drawn as a page, not as a whole Survey (a
 // Survey inside another survey's question would put a <form> inside a <form>). A survey made anew
-// (another tab, another set of fields) is drawn anew: element ids restart in every survey.
+// (another tab's form) is drawn anew: element ids restart in every survey.
 @Component({
   selector: "sv-ng-filter-editor-page",
   templateUrl: "./filter-editor-page.component.html",

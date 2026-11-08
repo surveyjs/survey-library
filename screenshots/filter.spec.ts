@@ -124,6 +124,20 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, popupWith(page, ".sd-filter-preset-dialog__tabs"), "filter-edit-presets-dialog.png");
     });
 
+    // An AI preset's tab: the fields' frame, then the description and Make Changes, in one survey.
+    test("Edit Presets: an AI preset", async ({ page }) => {
+      // Tall enough for the whole tab: the description is under the fields.
+      await page.setViewportSize({ width: 1280, height: 1300 });
+      await initSurvey(page, framework, json({ items: [{ name: "grownups", title: "Grown-ups", type: "ai",
+        prompt: "People older than 18", expression: "{age} > 18" }] }));
+      await page.evaluate(() => { (<any>window).survey.onAIFilterRequest.add(() => { }); });
+      await openFilters(page);
+      await popupWith(page, ".sd-filter-modal__content").locator(".sd-filter-modal__section-header [title='Edit Presets']").click();
+      await popupWith(page, ".sd-filter-preset-dialog__content .sd-filter-ai-prompt").waitFor({ state: "visible" });
+      await settle(page);
+      await compareScreenshot(page, popupWith(page, ".sd-filter-preset-dialog__tabs"), "filter-edit-presets-dialog-ai.png");
+    });
+
     test("Create custom filter", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await initSurvey(page, framework, json());

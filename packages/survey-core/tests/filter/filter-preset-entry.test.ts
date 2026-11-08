@@ -166,4 +166,23 @@ describe("FilterToolbars: the preset dialogs", () => {
       dialogs.restore();
     }
   });
+  test("an open preset dialog follows the control's isMobile: its frame and its survey", () => {
+    const dialogs = stubDialogs();
+    try {
+      const q = control();
+      const modal = q.createFilterModal();
+      editPresets(modal).action();
+      const dialog = dialogs.calls[0];
+      const model = dialog.options.data.holder.presetDialog;
+      q.setIsMobile(true);
+      expect([model.survey.isMobile, dialog.model.cssClass.split(" ").indexOf(q.cssClasses.modalMobile) > -1], "#1").toEqual([true, true]);
+      q.setIsMobile(false);
+      expect([model.survey.isMobile, dialog.model.cssClass.split(" ").indexOf(q.cssClasses.modalMobile) > -1], "#2").toEqual([false, false]);
+      dialog.cancel();
+      expect([model.isDisposed, model.survey.isDisposed], "#3").toEqual([true, true]);
+      modal.dispose();
+    } finally {
+      dialogs.restore();
+    }
+  });
 });

@@ -44,7 +44,7 @@ class FilterEditorCreator implements ISurveyCreator {
   }
 }
 
-// What an editor survey is drawn from: a FilterConditionsEditor, or a preset dialog's form.
+// What an editor survey is drawn from: a FilterConditionsEditor, or a preset dialog's form or survey.
 interface IFilterEditorSurvey {
   survey: SurveyModel;
   isDisposed: boolean;
@@ -147,10 +147,12 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
 ReactElementFactory.Instance.registerElement(filterModalComponentName,
   (props) => { return React.createElement(SurveyFilterModal, props); });
 
-// Add New Preset and Edit Presets: the tabs (Edit Presets only), the form, the fields' editors in a
-// frame and the preset's actions (Edit Presets only); the footer is the dialog's own. A form or
-// editors made anew (another tab, another set of fields) are drawn anew, keyed by their survey's
-// uniqueId: element ids restart in every survey, so a page id would be the same for each new form.
+// Add New Preset and Edit Presets: the tabs (Edit Presets only), the form, the dialog's survey - the
+// fields' editors in a frame and, for an AI preset's tab, the description and Make Changes - and the
+// preset's actions (Edit Presets only); the footer is the dialog's own. A form made anew (another tab)
+// is drawn anew, keyed by its survey's uniqueId: element ids restart in every survey, so a page id
+// would be the same for each new form. The dialog's survey lives as long as the dialog, and its ids
+// keep counting: it needs no key.
 export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
   private get dialog(): FilterPresetDialog {
     const holder = this.props.holder;
@@ -162,13 +164,6 @@ export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: Filter
     if (!dialog) return !!holder ? [holder] : [];
     if (dialog instanceof FilterEditPresetsDialog) return [holder, dialog, dialog.tabsToolbar, dialog.actionsToolbar];
     return [holder, dialog];
-  }
-  // The description and Make Changes of an AI preset's tab, under its fields: a survey of their own
-  // (FilterAIPrompt.form), drawn as a page as the fields' editors are.
-  private renderAIPrompt(dialog: FilterEditPresetsDialog, css: any): React.JSX.Element | null {
-    const prompt = !!dialog ? dialog.aiPrompt : undefined;
-    if (!prompt) return null;
-    return <FilterEditorPage key={prompt.form.uniqueId} editor={{ survey: prompt.form, isDisposed: prompt.isDisposed }} className={css.editor} />;
   }
   private renderTabs(dialog: FilterEditPresetsDialog, css: any): React.JSX.Element | null {
     if (!dialog || !dialog.tabsToolbar.hasActions) return null;
@@ -187,15 +182,14 @@ export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: Filter
     const css = this.props.holder.cssClasses;
     const edit = dialog instanceof FilterEditPresetsDialog ? dialog : undefined;
     const form = dialog.form;
-    const editor = dialog.editor;
+    // The page is empty with no field picked and no description (Add Preset, a plain tab).
+    const hasFields = !!dialog.editor || (!!edit && !!edit.aiPrompt);
     return <div className={toCssClasses(css.modalContent, css.presetContent)}>
       {this.renderTabs(edit, css)}
       {!!form ? <FilterEditorPage key={form.uniqueId} editor={{ survey: form, isDisposed: dialog.isDisposed }}
         className={toCssClasses(css.editor, css.presetForm)} /> : null}
-      {!!editor ? <div className={css.presetFields}>
-        <FilterEditorPage key={editor.survey.uniqueId} editor={editor} className={toCssClasses(css.editor, css.modalEditor)} />
-      </div> : null}
-      {this.renderAIPrompt(edit, css)}
+      {hasFields ? <FilterEditorPage editor={{ survey: dialog.survey, isDisposed: dialog.isDisposed }}
+        className={toCssClasses(css.editor, css.modalEditor)} /> : null}
       {this.renderActions(edit, css)}
     </div>;
   }

@@ -136,8 +136,10 @@ describe("Filter dialogs", () => {
     cleanup(wrapper);
   });
   it("Edit Presets shows the tabs, the form, the fields in a frame and the actions; another tab redraws them", async () => {
-    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }],
-      items: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }, { name: "name" }],
+      items: [{ name: "a", title: "Adults", type: "ai", prompt: "grown-ups", expression: "{age} > 18" },
+        { name: "k", title: "Kids", expression: "{age} < 10 and {name} = 'x'" }] }] });
+    survey.onAIFilterRequest.add(() => { });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
@@ -146,15 +148,24 @@ describe("Filter dialogs", () => {
     const wrapper = mountComponent("sv-filter-preset-dialog", { holder: holder });
     await nextTick();
     const container = wrapper.element.parentElement;
+    // The fields' panels in the frame, and the description after it, once each.
+    const fields = (): Array<string> => Array.from(container.querySelectorAll(".sd-filter-modal__editor .sd-filter-preset-dialog__fields .sd-panel__title"))
+      .map((el: Element): string => el.textContent);
+    const prompts = (): number => container.querySelectorAll(".sd-filter-modal__editor .sd-filter-ai-prompt").length;
     expect(container.querySelector(".sd-filter-preset-dialog__tabs").textContent, "#1").toBe("AdultsKids");
     expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#2").toBe("Adults");
-    expect(!!container.querySelector(".sd-filter-preset-dialog__fields .sd-filter-modal__editor"), "#3: the fields").toBe(true);
+    expect([fields(), prompts()], "#3: the fields and the description").toEqual([["age"], 1]);
     expect(container.textContent, "#4").toContain("Preset Actions");
     const input = container.querySelector(".sd-filter-preset-dialog__form input");
     dialog.selectTab("k");
     await nextTick();
     expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#5").toBe("Kids");
     expect(container.querySelector(".sd-filter-preset-dialog__form input") !== input, "#5a: a new form is drawn anew, not over the old one").toBe(true);
+    expect([fields(), prompts()], "#5b: a plain tab has no description").toEqual([["age", "name"], 0]);
+    dialog.selectTab("a");
+    await nextTick();
+    expect([fields(), prompts()], "#5c: back to the AI tab").toEqual([["age"], 1]);
+    expect((container.querySelector(".sd-filter-ai-prompt textarea") as HTMLTextAreaElement).value, "#5d").toBe("grown-ups");
     holder.presetDialog = undefined;
     await nextTick();
     dialog.dispose();
@@ -196,7 +207,7 @@ describe("Filter AI dialog", () => {
     expect(!!prompt().querySelector("textarea"), "#2: the description").toBe(true);
     expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Create new filter");
     expect(root.querySelectorAll(".sd-panel").length, "#4: no fields yet").toBe(1);
-    dialog.aiPrompt.form.setValue("prompt", "adults");
+    dialog.aiPrompt.prompt = "adults";
     dialog.aiPrompt.request();
     await nextTick();
     calls[0].callback({ data: { expression: "{age} > 18", title: "Adults", explanation: "" } });
@@ -233,8 +244,11 @@ describe("Filter AI dialog", () => {
     holder.presetDialog = dialog;
     const wrapper = mountComponent("sv-filter-preset-dialog", { holder: holder });
     await nextTick();
-    const block = wrapper.element.parentElement.querySelector(".sd-filter-preset-dialog__content .sd-filter-ai-prompt");
-    expect(!!block, "#1").toBe(true);
+    // In the dialog's survey, after the fields' frame.
+    const page = wrapper.element.parentElement.querySelector(".sd-filter-preset-dialog__content .sd-filter-modal__editor");
+    const panels = Array.from(page.querySelectorAll(".sd-filter-preset-dialog__fields, .sd-filter-ai-prompt"));
+    expect(panels.map((el: Element): boolean => el.classList.contains("sd-filter-ai-prompt")), "#1").toEqual([false, true]);
+    const block = panels[1];
     expect((block.querySelector("textarea") as HTMLTextAreaElement).value, "#2").toBe("grown-ups");
     expect(block.querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Make Changes");
     holder.presetDialog = undefined;

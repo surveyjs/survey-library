@@ -24,13 +24,12 @@ export interface IFilterAIPromptOptions {
   isModify?: boolean;
   // the caption over the field once there is a filter; aiPromptChange when not given
   modifyTitle?: string;
-  locale: string;
   // the filter as it is now, which "modify" sends
   getConditions: () => Array<IFilterCondition>;
   onAnswer: (conditions: Array<IFilterCondition>, title: string) => void;
-  // The survey the description is added to, as a panel at the end of its first page: Create custom
-  // filter's own survey. Without it the prompt makes a survey of its own (form) for a renderer to draw.
-  survey?: SurveyModel;
+  // The survey the description is added to, as a panel at the end of its first page: the dialog's
+  // survey (Create custom filter, Edit Presets), which the dialog owns and draws.
+  survey: SurveyModel;
   // The control's classes: the panel's frame (aiPrompt) and the row of its button (aiPromptRequest).
   css?: any;
 }
@@ -48,11 +47,10 @@ export class FilterAIPrompt extends Base {
   @property({ defaultValue: "" }) errorText: string;
   // There is a filter to change: the caption and the button say so, and a request is "modify".
   @property({ defaultValue: false }) isModify: boolean;
-  private formValue: SurveyModel;
-  private isOwnForm: boolean;
+  private surveyValue: SurveyModel;
   private panelValue: PanelModel;
   private requestActionValue: Action;
-  private onFormValueChanged = (): void => { this.updateAction(); };
+  private onSurveyValueChanged = (): void => { this.updateAction(); };
   private onUpdatePanelCss = (_: SurveyModel, options: any): void => {
     if (options.panel === this.panelValue && !!this.css.aiPrompt) {
       options.cssClasses.panel.container = toCssClasses(options.cssClasses.panel.container, this.css.aiPrompt);
@@ -62,24 +60,22 @@ export class FilterAIPrompt extends Base {
   constructor(private aiRequest: FilterAIRequest, private options: IFilterAIPromptOptions) {
     super();
     this.isModify = !!options.isModify;
-    this.isOwnForm = !options.survey;
-    this.formValue = options.survey || this.createForm();
+    this.surveyValue = options.survey;
     // Listened to before the panel is made: the panel reads its classes when it is first drawn.
-    this.formValue.onUpdatePanelCssClasses.add(this.onUpdatePanelCss);
+    this.surveyValue.onUpdatePanelCssClasses.add(this.onUpdatePanelCss);
     // The mockup's light brand button across the frame.
     this.requestActionValue = new Action({ id: "sv-filter-ai-request", iconName: "icon-sparkle-24x24", iconSize: "auto",
       appearance: { style: "brand", mode: "secondary", size: "medium" }, action: (): void => { this.request(); } });
     this.panelValue = this.createPanel();
-    this.formValue.setValue("prompt", options.prompt || "");
-    this.formValue.onValueChanged.add(this.onFormValueChanged);
+    this.surveyValue.setValue("prompt", options.prompt || "");
+    this.surveyValue.onValueChanged.add(this.onSurveyValueChanged);
     this.updateAction();
   }
   public getType(): string { return "filteraiprompt"; }
-  // The survey the description is in: the one the options give, or the prompt's own.
-  public get form(): SurveyModel { return this.formValue; }
   // The panel with the caption, the description and the request button.
   public get panel(): PanelModel { return this.panelValue; }
-  public get prompt(): string { return this.formValue.getValue("prompt") || ""; }
+  public get prompt(): string { return this.surveyValue.getValue("prompt") || ""; }
+  public set prompt(val: string) { this.surveyValue.setValue("prompt", val || ""); }
   public get promptTitle(): string {
     return !this.isModify ? filterUIStrings.aiPromptNew : (this.options.modifyTitle || filterUIStrings.aiPromptChange);
   }
@@ -93,8 +89,11 @@ export class FilterAIPrompt extends Base {
     this.errorText = "";
     this.updateAction();
     const done = (res: FilterAIResult): void => { this.onResult(res); };
-    if (this.isModify) {
-      this.aiRequest.modify(prompt, this.options.getConditions(), done);
+    // A filter whose every condition was taken away has nothing to change: the request asks for a
+    // new one, and the button still says Make Changes.
+    const conditions = this.isModify ? this.options.getConditions() : [];
+    if (conditions.length > 0) {
+      this.aiRequest.modify(prompt, conditions, done);
     } else {
       this.aiRequest.generate(prompt, done);
     }
@@ -105,17 +104,21 @@ export class FilterAIPrompt extends Base {
     this.isBusy = false;
     this.updateAction();
   }
-  // A survey the options gave belongs to its owner: the prompt takes only its panel and its value away.
+  // The survey belongs to its owner: the prompt takes only its panel and its value away.
   public dispose(): void {
     this.aiRequest.dispose();
-    const form = this.formValue;
-    form.onValueChanged.remove(this.onFormValueChanged);
-    form.onUpdatePanelCssClasses.remove(this.onUpdatePanelCss);
-    if (this.isOwnForm) {
-      form.dispose();
-    } else if (!form.isDisposed) {
-      removePanelFromSurvey(this.panelValue);
-      form.clearValue("prompt");
+    const survey = this.surveyValue;
+    survey.onValueChanged.remove(this.onSurveyValueChanged);
+    survey.onUpdatePanelCssClasses.remove(this.onUpdatePanelCss);
+    if (!survey.isDisposed) {
+      const page = this.panelValue.parent;
+      if (!!page) page.blockAnimations();
+      try {
+        removePanelFromSurvey(this.panelValue);
+      } finally {
+        if (!!page) page.releaseAnimations();
+      }
+      survey.clearValue("prompt");
     }
     this.requestActionValue.dispose();
     super.dispose();
@@ -127,17 +130,12 @@ export class FilterAIPrompt extends Base {
     }
   }
 
-  private createForm(): SurveyModel {
-    const form = new SurveyModel({ showNavigationButtons: false, showQuestionNumbers: "off" });
-    form.locale = this.options.locale;
-    return form;
-  }
   // A panel of its own: a question outside a panel gets a frame of its own, and the mockup frames the
   // caption, the description and the button together - the panel's frame (css.aiPrompt). The error
   // shows under the description.
   private createPanel(): PanelModel {
-    const form = this.formValue;
-    const page = form.pages.length > 0 ? form.pages[0] : form.addNewPage("page1");
+    const survey = this.surveyValue;
+    const page = survey.pages.length > 0 ? survey.pages[0] : survey.addNewPage("page1");
     const panel = new PanelModel("promptPanel");
     // One button across the frame: an adaptive bar could fold it into a "more" menu.
     panel.allowAdaptiveActions = false;
@@ -145,11 +143,18 @@ export class FilterAIPrompt extends Base {
     panel.onGetFooterToolbarCssCallback = (): string => toCssClasses(panel.cssClasses.panel.footer, this.css.aiPromptRequest);
     // On the page first, then the question in it: an empty page that gets a panel which already has
     // a question does not become the survey's current page, and a survey with none draws nothing.
-    page.addElement(panel);
-    const question = <Question>Serializer.createClass("comment");
-    question.fromJSON({ name: "prompt", titleLocation: "hidden", maxLength: filterAIPromptMaxLength,
-      textUpdateMode: "onTyping", errorLocation: "bottom" });
-    panel.addElement(question);
+    // Not animated, as the fields' panels are not: in Edit Presets it comes with another tab, which
+    // is drawn anew - and an entering row of a page that is already drawn could stay undrawn.
+    page.blockAnimations();
+    try {
+      page.addElement(panel);
+      const question = <Question>Serializer.createClass("comment");
+      question.fromJSON({ name: "prompt", titleLocation: "hidden", maxLength: filterAIPromptMaxLength,
+        textUpdateMode: "onTyping", errorLocation: "bottom" });
+      panel.addElement(question);
+    } finally {
+      page.releaseAnimations();
+    }
     return panel;
   }
   private get css(): any { return this.options.css || {}; }
@@ -174,7 +179,7 @@ export class FilterAIPrompt extends Base {
     if (!question) return;
     const text = this.errorText;
     if (!!text) {
-      question.errors = [new CustomError(text, this.formValue)];
+      question.errors = [new CustomError(text, this.surveyValue)];
     } else if (question.errors.length > 0) {
       question.errors = [];
     }

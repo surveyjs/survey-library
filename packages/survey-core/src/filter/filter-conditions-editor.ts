@@ -1,5 +1,5 @@
 import { SurveyModel } from "../survey";
-import { PanelModel } from "../panel";
+import { PanelModel, PanelModelBase } from "../panel";
 import { Question } from "../question";
 import { Serializer } from "../jsonobject";
 import { Helpers } from "../helpers";
@@ -61,11 +61,14 @@ export interface IFilterConditionsEditorOptions {
   // Called after every change the respondent makes to a field - not for the prefill, not for
   // setConditions(), not for the search box. The Filters dialog counts the records again on it.
   onFieldChanged?: () => void;
-  // The survey the fields' panels are added to, at the start of its first page, instead of a survey
-  // of the editor's own: Create custom filter's, which also holds the description. It belongs to its
-  // owner, who sets it up (locale, mode, look); the editor takes its panels and values away on
-  // dispose(). Not with showSearch or readOnly, which set up a survey of the editor's own.
+  // The survey the fields' panels are added to, instead of a survey of the editor's own: a dialog's,
+  // which also holds the description (Create custom filter, Edit Presets). It belongs to its owner,
+  // who sets it up (locale, mode, look - readOnly does not reach it: the owner sets display mode);
+  // the editor takes its panels and values away on dispose(). Not with showSearch, which sets up a
+  // survey of the editor's own.
   survey?: SurveyModel;
+  // The panel of survey the fields' panels go into, at its start; the first page when not given.
+  panel?: PanelModelBase;
   // Called by apply() with every condition the editor holds, in the order of its fields - or with
   // undefined when no field was changed since the editor opened or was last applied, only the
   // search box: the fields then hold only their prefill, which the owner must not write back - and
@@ -138,6 +141,15 @@ export class FilterConditionsEditor {
   public get isDisposed(): boolean { return this.isDisposedValue; }
   public get hasSearch(): boolean { return !!this.options.showSearch; }
   public get isModified(): boolean { return this.isModifiedValue; }
+  // The field whose editors the panel holds; undefined for a panel that is not one of the editor's -
+  // the survey may be shared with other panels (a dialog's description).
+  public getFieldKeyByPanel(panel: PanelModelBase): string {
+    if (!panel || this.isDisposedValue) return undefined;
+    for (let i = 0; i < this.names.length; i++) {
+      if (this.getPanel(i) === panel) return this.names[i];
+    }
+    return undefined;
+  }
   // The condition the editor holds for the field now, or undefined when it holds none. A multi-
   // value answer comes in the field's choice order - see normalizeValue().
   public getCondition(name: string): IFilterCondition {
@@ -239,11 +251,11 @@ export class FilterConditionsEditor {
     return survey;
   }
   private addPanels(survey: SurveyModel): SurveyModel {
-    const page = survey.pages.length > 0 ? survey.pages[0] : survey.addNewPage("page1");
+    const container = this.options.panel || (survey.pages.length > 0 ? survey.pages[0] : survey.addNewPage("page1"));
     this.names.forEach((name: string, index: number): void => {
       const panel = new PanelModel(this.getPanelName(index));
       panel.fromJSON(this.createPanelJson(name, index));
-      page.addElement(panel, index);
+      container.addElement(panel, index);
     });
     return survey;
   }

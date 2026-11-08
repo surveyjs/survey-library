@@ -2,9 +2,8 @@ import { Base } from "../base";
 import { property } from "../decorators";
 import { Action } from "../actions/action";
 import { SurveyModel } from "../survey";
-import { PanelModel } from "../panel";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
-import { createBoxShadowResetVariables } from "../utils/base-theme-init";
+import { setUpDialogSurvey } from "../utils/dialog-survey";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import { FilterItem } from "./filter-item";
 import { FilterConditionsEditor, IFilterConditionsEditorOwner } from "./filter-conditions-editor";
@@ -60,8 +59,7 @@ export class FilterAIDialog extends Base {
   constructor(private owner: IFilterAIDialogOwner) {
     super();
     this.surveyValue = this.createSurvey();
-    this.aiPromptValue = new FilterAIPrompt(owner.createAIRequest(), { locale: owner.getLocale(),
-      survey: this.surveyValue, css: owner.cssClasses,
+    this.aiPromptValue = new FilterAIPrompt(owner.createAIRequest(), { survey: this.surveyValue, css: owner.cssClasses,
       getConditions: (): Array<IFilterCondition> => this.conditions,
       onAnswer: (conditions: Array<IFilterCondition>, title: string): void => {
         // An answer to Make Changes that names no title keeps the one the model gave before.
@@ -108,31 +106,25 @@ export class FilterAIDialog extends Base {
     this.surveyValue.dispose();
   }
 
-  // As the records' Sort by dialog's survey: no title, numbers or navigation, and the look of the
-  // survey it is shown under - no theme root of its own, so it inherits that survey's variables, and
-  // --sd-mobile-width 0 keeps its own width from making it mobile: it follows the control's isMobile.
+  // The control's isMobile, which may change while the dialog is open (a rotation, a resize).
+  public setIsMobile(isMobile: boolean): void {
+    if (this.isDisposed) return;
+    this.surveyValue.setIsMobile(!!isMobile);
+  }
+
+  // As the records' Sort by dialog's survey (setUpDialogSurvey), following the control's isMobile.
   // The root carries the classes the other dialogs' editors are drawn in.
   private createSurvey(): SurveyModel {
     const owner = this.owner;
     const css = owner.cssClasses || {};
     const survey = new SurveyModel();
-    survey.css = { root: toCssClasses(survey.css.root, css.editor, css.modalEditor), rootTheme: "" };
-    survey.showNavigationButtons = false;
-    survey.showQuestionNumbers = "off";
-    survey.fitToContainer = false;
-    survey.gridLayoutEnabled = false;
-    // The outer survey already renders the icons.
-    survey.needRenderIcons = false;
-    const cssVariables: { [index: string]: string } = { "--sd-mobile-width": "0px" };
-    Object.keys(createBoxShadowResetVariables()).forEach((name: string): void => { cssVariables[name] = "inherit"; });
-    survey.applyTheme({ cssVariables: cssVariables });
-    survey.locale = owner.getLocale();
-    survey.setIsMobile(!!owner.isMobile);
+    setUpDialogSurvey(survey, { css: { root: toCssClasses(survey.css.root, css.editor, css.modalEditor) },
+      locale: owner.getLocale(), isMobile: !!owner.isMobile });
     survey.addNewPage("page1");
     // Listened to before the panels are drawn: a panel asks for its title actions when it renders.
     survey.onGetPanelTitleActions.add((_: SurveyModel, options: any): void => {
       const editor = this.editor;
-      const key = !!editor ? editor.fieldNames[this.getPanelIndex(options.panel)] : undefined;
+      const key = !!editor ? editor.getFieldKeyByPanel(options.panel) : undefined;
       if (key === undefined) return;
       // The mockup's 16px bin, muted, as the presets' pencil is.
       options.titleActions.push(new Action({ id: "sv-filter-ai-remove", iconName: "icon-delete-16x16", iconSize: "auto",
@@ -177,11 +169,6 @@ export class FilterAIDialog extends Base {
     };
     return new FilterConditionsEditor(editorOwner, keys, { survey: this.surveyValue, showFieldTitles: true, useFieldKinds: true,
       linkCss: (owner.cssClasses || {}).link, onFieldChanged: (): void => { this.updateState(); } });
-  }
-  // The editor names a field's panel "f" + its index.
-  private getPanelIndex(panel: PanelModel): number {
-    const match = /^f(\d+)$/.exec(!!panel ? panel.name : "");
-    return !!match ? parseInt(match[1], 10) : -1;
   }
   private updateState(): void {
     this.hasConditions = this.conditions.length > 0;

@@ -1,6 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { createFilter } from "./filter-test-helpers";
 import { analyzeFilterExpression } from "../../src/filter/filter-conditions";
+import { readAIJson } from "../../src/ai/ai-response";
 import {
   buildFilterAIContext, buildFilterAISystemPrompt, buildFilterAIInstruction, filterAIGuideExamples, filterAIMaxChoices,
   filterAIResponseFormat, FilterAIFeature
@@ -75,6 +76,14 @@ describe("FilterAIFeature", () => {
     const empty = feature.parse(undefined, "");
     expect([empty, feature.isEmpty(empty)], "#2").toEqual([{ expression: "", title: "", explanation: "" }, true]);
   });
+  test("parse: the title comes from the object the expression came from", () => {
+    const json = "{\"expression\":\"{age} > 18\",\"title\":\"Adults\"}";
+    expect(feature.parse({ foo: 1 }, json), "#1: data that is no answer").toEqual({ expression: "{age} > 18", title: "Adults", explanation: "" });
+    const prose = "Example:\n```json\n{\"foo\":1}\n```\nAnswer:\n```json\n" + json + "\n```";
+    expect(feature.parse(readAIJson(prose), prose), "#2: an example block before the answer's")
+      .toEqual({ expression: "{age} > 18", title: "Adults", explanation: "" });
+    expect(feature.parse(undefined, json).title, "#3: the whole text").toBe("Adults");
+  });
   test("validate: conditions the control can show have no problems", () => {
     expect(feature.validate(answer("{age} > 18 and {country} anyof ['de', 'fr']"), "generate")).toEqual([]);
   });
@@ -91,6 +100,14 @@ describe("FilterAIFeature", () => {
     expect(issues.map((i) => i.code), "#1").toEqual(["filter:choice"]);
     expect([issues[0].message.indexOf("country") > -1, issues[0].message.indexOf("'de'") > -1], "#2").toEqual([true, true]);
     expect(feature.validate(answer("{country} anyof ['de', 'Italy']"), "generate").map((i) => i.code), "#3").toEqual(["filter:choice"]);
+  });
+  test("validate: a choice issue quotes the values as the expression writes them", () => {
+    const fq = createFilter({ fields: [{ name: "brand", fieldType: "dropdown", choices: ["Macy's", "Gap"] }] });
+    const f = new FilterAIFeature(() => fq.getFilterFields());
+    const issues = f.validate(answer("{brand} = 'Levi\\'s'"), "generate");
+    expect(issues.map((i) => i.code), "#1").toEqual(["filter:choice"]);
+    expect([issues[0].message.indexOf("'Levi\\'s' is not") === 0, issues[0].message.indexOf("'Macy\\'s', 'Gap'") > -1], "#2")
+      .toEqual([true, true]);
   });
   test("validate: no value where the operator needs one", () => {
     expect(feature.validate(answer("{age} > ''"), "generate").map((i) => i.code)).toEqual(["filter:value"]);

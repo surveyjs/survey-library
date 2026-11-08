@@ -95,7 +95,7 @@ describe("FilterModal: Create with AI", () => {
       expect(apply.enabled, "#1: no filter yet").toBe(false);
       dialogs.calls[0].apply();
       expect(dialog.isDisposed, "#2: kept open").toBe(false);
-      dialog.aiPrompt.form.setValue("prompt", "kids");
+      dialog.aiPrompt.prompt = "kids";
       dialog.aiPrompt.request();
       calls[0].callback(answer("{age} < 10", "Kids"));
       expect(apply.enabled, "#3").toBe(true);
@@ -145,6 +145,48 @@ describe("FilterModal: Create with AI", () => {
       dialogs.restore();
     }
   });
+  test("the open dialogs follow the control's isMobile: a rotation or a resize does not close them", () => {
+    const dialogs = stubDialogs();
+    try {
+      const { q, aiDialogs } = control();
+      const modal = q.createFilterModal();
+      q.showAdvancedEditor();
+      createAI(q.createFilterModal()).action();
+      const dialog: FilterAIDialog = aiDialogs[0];
+      const isMobileCss = (d: any): boolean => (d.model.cssClass || d.options.cssClass).split(" ").indexOf(q.cssClasses.modalMobile) > -1;
+      expect([dialog.survey.isMobile, isMobileCss(dialogs.calls[0]), isMobileCss(dialogs.calls[1])], "#1").toEqual([false, false, false]);
+      q.setIsMobile(true);
+      expect([dialog.survey.isMobile, isMobileCss(dialogs.calls[0]), isMobileCss(dialogs.calls[1])], "#2").toEqual([true, true, true]);
+      expect(dialogs.calls[1].model.cssClass.split(" ").indexOf(q.cssClasses.aiDialog) > -1, "#2a: its own classes stay").toBe(true);
+      q.setIsMobile(false);
+      expect([dialog.survey.isMobile, isMobileCss(dialogs.calls[0]), isMobileCss(dialogs.calls[1])], "#3").toEqual([false, false, false]);
+      dialogs.calls[1].cancel();
+      expect(dialog.isDisposed, "#4").toBe(true);
+      modal.dispose();
+    } finally {
+      dialogs.restore();
+    }
+  });
+  test("the control disposed while the dialog is open disposes the dialog, once", () => {
+    const dialogs = stubDialogs();
+    try {
+      const { q, aiDialogs } = control();
+      // a host whose hide() does not report onHide
+      dialogs.calls.length = 0;
+      createAI(q.createFilterModal()).action();
+      dialogs.calls[0].model.hide = (): void => { };
+      const dialog: FilterAIDialog = aiDialogs[0];
+      let count = 0;
+      const dispose = dialog.dispose.bind(dialog);
+      dialog.dispose = (): void => { count++; dispose(); };
+      q.dispose();
+      expect([dialog.isDisposed, count], "#1").toEqual([true, 1]);
+      dialogs.calls[0].options.onHide();
+      expect(count, "#2: onHide after it does not dispose it again").toBe(1);
+    } finally {
+      dialogs.restore();
+    }
+  });
   test("closed while the model is answering: the dialog is gone and the answer changes nothing", () => {
     const dialogs = stubDialogs();
     try {
@@ -152,7 +194,7 @@ describe("FilterModal: Create with AI", () => {
       const modal = q.createFilterModal();
       createAI(modal).action();
       const dialog: FilterAIDialog = aiDialogs[0];
-      dialog.aiPrompt.form.setValue("prompt", "kids");
+      dialog.aiPrompt.prompt = "kids";
       dialog.aiPrompt.request();
       dialogs.calls[0].cancel();
       expect(dialog.isDisposed, "#1").toBe(true);

@@ -5,12 +5,8 @@
     </div>
     <FilterEditorPage v-if="!!dialog().form" :key="dialog().form.uniqueId" :survey="dialog().form" :disposed="dialog().isDisposed"
       :className="toCssClasses(css().editor, css().presetForm)"></FilterEditorPage>
-    <div v-if="!!dialog().editor" :class="css().presetFields">
-      <FilterEditorPage :key="dialog().editor.survey.uniqueId" :survey="dialog().editor.survey" :disposed="dialog().editor.isDisposed"
-        :className="toCssClasses(css().editor, css().modalEditor)"></FilterEditorPage>
-    </div>
-    <FilterEditorPage v-if="!!edit() && !!edit().aiPrompt" :key="edit().aiPrompt.form.uniqueId" :survey="edit().aiPrompt.form"
-      :disposed="edit().aiPrompt.isDisposed" :className="css().editor"></FilterEditorPage>
+    <FilterEditorPage v-if="hasFields()" :survey="dialog().survey" :disposed="dialog().isDisposed"
+      :className="toCssClasses(css().editor, css().modalEditor)"></FilterEditorPage>
     <div v-if="!!edit() && edit().actionsToolbar.hasVisibleActions" :class="css().modalSection">
       <div :class="css().modalSectionTitle">{{ filterUIStrings.presetActions }}</div>
       <SvComponent :is="'sv-action-bar'" :model="edit().actionsToolbar"></SvComponent>
@@ -18,10 +14,11 @@
   </div>
 </template>
 <script lang="ts" setup>
-// Add New Preset and Edit Presets: the tabs (Edit Presets only), the form, the fields' editors in a
-// frame, the description of an AI preset and the preset's actions (Edit Presets only); the footer is
-// the dialog's own. A form or editors made anew (another tab, another set of fields) are drawn anew,
-// keyed by their survey's uniqueId: element ids restart in every survey.
+// Add New Preset and Edit Presets: the tabs (Edit Presets only), the form, the dialog's survey - the
+// fields' editors in a frame and, for an AI preset's tab, the description and Make Changes - and the
+// preset's actions (Edit Presets only); the footer is the dialog's own. A form made anew (another tab)
+// is drawn anew, keyed by its survey's uniqueId: element ids restart in every survey. The dialog's
+// survey lives as long as the dialog, and its ids keep counting: it needs no key.
 import SvComponent from "@/SvComponent.vue";
 import FilterEditorPage from "./FilterEditorPage.vue";
 import { useBase } from "@/base";
@@ -34,6 +31,8 @@ const dialog = (): FilterPresetDialog => {
 };
 const edit = (): FilterEditPresetsDialog => dialog() instanceof FilterEditPresetsDialog ? dialog() as FilterEditPresetsDialog : undefined as any;
 const css = (): any => props.holder.cssClasses;
+// The page is empty with no field picked and no description (Add Preset, a plain tab).
+const hasFields = (): boolean => !!dialog().editor || (!!edit() && !!edit().aiPrompt);
 useBase(() => props.holder);
 useBase(() => dialog());
 useBase(() => edit()?.tabsToolbar);

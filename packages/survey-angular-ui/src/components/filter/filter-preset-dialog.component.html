@@ -4,10 +4,7 @@
       <sv-ng-action-bar [model]="edit.tabsToolbar"></sv-ng-action-bar>
     </div>
     <sv-ng-filter-editor-page *ngIf="!!dialog.form" [survey]="dialog.form" [disposed]="dialog.isDisposed" [className]="formCss"></sv-ng-filter-editor-page>
-    <div *ngIf="!!dialog.editor" [class]="css.presetFields">
-      <sv-ng-filter-editor-page [survey]="dialog.editor.survey" [disposed]="dialog.editor.isDisposed" [className]="editorCss"></sv-ng-filter-editor-page>
-    </div>
-    <sv-ng-filter-editor-page *ngIf="!!edit && !!edit.aiPrompt" [survey]="edit.aiPrompt.form" [disposed]="edit.aiPrompt.isDisposed" [className]="css.editor"></sv-ng-filter-editor-page>
+    <sv-ng-filter-editor-page *ngIf="hasFields" [survey]="dialog.survey" [disposed]="dialog.isDisposed" [className]="editorCss"></sv-ng-filter-editor-page>
     <div *ngIf="!!edit && edit.actionsToolbar.hasVisibleActions" [class]="css.modalSection">
       <div [class]="css.modalSectionTitle">{{ actionsTitle }}</div>
       <sv-ng-action-bar [model]="edit.actionsToolbar"></sv-ng-action-bar>

@@ -5,13 +5,13 @@ import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fie
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { AIRequestIssue, AIResponseFormat, FilterAIRequestEvent } from "../interfaces/ai-interfaces";
 import { AIRequestResult, AIRequestSession, IAIFeature, IAIRequest } from "../ai/ai-request";
-import { isAIObject } from "../ai/ai-response";
+import { getAIFencedBlocks, getAIFencedText, isAIObject, parseAIObject } from "../ai/ai-response";
 import { parseExpressionResponse, readExpressionData } from "../ai/expression-response";
 import {
   analyzeFilterExpression, conditionsToExpression, FilterExpressionProblem, getFieldsByValueName, getFilterFieldOperators,
   normalizeFilterCondition, normalizeFilterConditions
 } from "./filter-conditions";
-import { getFieldChoiceItems } from "./filter-expression";
+import { getFieldChoiceItems, toExpressionConst } from "./filter-expression";
 import { FilterFieldEditorKind, getFilterFieldListItems } from "./filter-field-kinds";
 import { filterPresetTitleMaxLength } from "./filter-preset-dialog";
 
@@ -163,9 +163,6 @@ export const filterAIResponseFormat: AIResponseFormat = {
 };
 
 const choiceOperators: { [operator: string]: boolean } = { equal: true, notequal: true, anyof: true, noneof: true, allof: true };
-function quote(value: any): string {
-  return typeof value === "string" ? "'" + value + "'" : String(value);
-}
 function getProblemMessage(problem: FilterExpressionProblem, fields: { [valueName: string]: IDynamicDataFilterField }): string {
   switch(problem.code) {
     case "unsupported":
@@ -190,9 +187,23 @@ function getChoiceIssue(field: IDynamicDataFilterField, condition: IFilterCondit
   const values: Array<any> = Array.isArray(condition.value) ? condition.value : [condition.value];
   const wrong = values.filter((v: any): boolean => !ItemValue.getItemByValue(items, v));
   if (wrong.length === 0) return undefined;
-  const allowed = items.slice(0, filterAIMaxChoices).map((item: ItemValue): string => quote(item.value)).join(", ");
+  const allowed = items.slice(0, filterAIMaxChoices).map((item: ItemValue): string => toExpressionConst(item.value)).join(", ");
   return { severity: "error", code: "filter:choice",
-    message: wrong.map(quote).join(", ") + " is not a choice value of the field \"" + condition.field + "\". Use the choice values: " + allowed + "." };
+    message: wrong.map((v: any): string => toExpressionConst(v)).join(", ") + " is not a choice value of the field \"" + condition.field + "\". Use the choice values: " + allowed + "." };
+}
+
+// The title of the object the expression was read from: data, the text as one object or one fenced
+// block, or one of the text's fenced blocks - in the order parseExpressionResponse reads them.
+function getAnswerTitle(data: any, text: string, expression: string): string {
+  if (!expression) return "";
+  const trimmed = typeof text === "string" ? text.trim() : "";
+  const objects = [data, parseAIObject(trimmed), parseAIObject(getAIFencedText(trimmed))]
+    .concat(getAIFencedBlocks(trimmed).map((block: string): any => parseAIObject(block)));
+  const source = objects.filter((obj: any): boolean => {
+    const answer = readExpressionData(obj);
+    return !!answer && answer.expression === expression;
+  })[0];
+  return !!source && typeof source.title === "string" ? source.title.trim() : "";
 }
 
 // The filter's part of an AI request. getFields: the control's fields at the moment the answer comes.
@@ -204,8 +215,8 @@ export class FilterAIFeature implements IAIFeature<IFilterAIResponse, AIRequestI
   public parse(data: any, text: string): IFilterAIResponse {
     // data is the first object the text holds; one that is no answer leaves the text to read
     const res = (isAIObject(data) ? readExpressionData(data) : undefined) || parseExpressionResponse(text);
-    const title = isAIObject(data) && typeof data.title === "string" ? data.title.trim() : "";
-    return { expression: (!!res && res.expression || "").trim(), title: title, explanation: !!res && res.explanation || "" };
+    const expression = (!!res && res.expression || "").trim();
+    return { expression: expression, title: getAnswerTitle(data, text, expression), explanation: !!res && res.explanation || "" };
   }
   public isEmpty(answer: IFilterAIResponse): boolean {
     return !answer.expression;
@@ -261,7 +272,8 @@ export class FilterAIRequest {
   private feature: FilterAIFeature;
   private session: AIRequestSession<IFilterAIResponse, AIRequestIssue, FilterAIRequestEvent>;
 
-  constructor(private owner: IFilterAIRequestOwner, private question: Question) {
+  // The control: the owner, and the question the event names.
+  constructor(private owner: IFilterAIRequestOwner & Question) {
     this.feature = new FilterAIFeature((): Array<IDynamicDataFilterField> => owner.getFilterFields());
     this.session = new AIRequestSession<IFilterAIResponse, AIRequestIssue, FilterAIRequestEvent>({
       fire: (options: FilterAIRequestEvent): void => { owner.fireAIRequest(options); },
@@ -293,7 +305,7 @@ export class FilterAIRequest {
       systemPrompt: buildFilterAISystemPrompt(context),
       buildSystemPrompt: (ctx: IFilterAIContext): string => buildFilterAISystemPrompt(ctx),
       getFields: (retryOf?: IFilterAIResponse): { [name: string]: any } =>
-        ({ expression: !!retryOf ? retryOf.expression : expression, question: this.question })
+        ({ expression: !!retryOf ? retryOf.expression : expression, question: this.owner })
     };
     this.session.send(request, (result: AIRequestResult<IFilterAIResponse, AIRequestIssue>): void => { done(this.toResult(result)); });
   }

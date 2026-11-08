@@ -4,7 +4,7 @@ import { SurveyModel } from "../../src/survey";
 import { PanelModel } from "../../src/panel";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { conditionsToExpression } from "../../src/filter/filter-conditions";
-import { FilterAIDialog, FilterAIPrompt, makeFilterAITitle } from "../../src/filter/filter-ai-dialog";
+import { FilterAIDialog, makeFilterAITitle } from "../../src/filter/filter-ai-dialog";
 
 // The Create custom filter dialog: a description, the model's filter as the fields' editors, Make
 // Changes, and Apply, which adds it as an AI preset.
@@ -25,17 +25,17 @@ describe("FilterAIDialog: before the first answer", () => {
       .toEqual(["Create custom filter", false, "Describe what you need - AI will do the rest."]);
     expect([prompt.requestAction.title, prompt.requestAction.enabled, prompt.requestAction.iconName], "#2")
       .toEqual(["Create new filter", false, "icon-sparkle-24x24"]);
-    expect([prompt.form.getQuestionByName("prompt").getType(), prompt.form.getQuestionByName("prompt").maxLength], "#3").toEqual(["comment", 500]);
-    prompt.form.setValue("prompt", "adults");
+    expect([dialog.survey.getQuestionByName("prompt").getType(), dialog.survey.getQuestionByName("prompt").maxLength], "#3").toEqual(["comment", 500]);
+    prompt.prompt = "adults";
     expect(prompt.requestAction.enabled, "#4").toBe(true);
-    prompt.form.setValue("prompt", "   ");
+    prompt.prompt = "   ";
     expect(prompt.requestAction.enabled, "#5: a blank description").toBe(false);
     expect([dialog.editor, dialog.canApply, dialog.apply()], "#6").toEqual([undefined, false, false]);
     dialog.dispose();
   });
   test("the description is in a panel of its own: a question outside a panel gets a frame, the mockup has none", () => {
     const { dialog } = open();
-    const question = dialog.aiPrompt.form.getQuestionByName("prompt");
+    const question = dialog.survey.getQuestionByName("prompt");
     expect([question.parent.isPanel, question.parent.name]).toEqual([true, "promptPanel"]);
     dialog.dispose();
   });
@@ -43,7 +43,7 @@ describe("FilterAIDialog: before the first answer", () => {
     const { q, dialog } = open();
     const prompt = dialog.aiPrompt;
     const panel = prompt.panel;
-    const question = prompt.form.getQuestionByName("prompt");
+    const question = dialog.survey.getQuestionByName("prompt");
     expect([panel.name, panel.title, question.title, question.titleLocation], "#1: the hidden title is the accessible name")
       .toEqual(["promptPanel", "Describe what you need - AI will do the rest.", "Describe what you need - AI will do the rest.", "hidden"]);
     const footer = panel.getFooterToolbar();
@@ -57,7 +57,7 @@ describe("FilterAIDialog: before the first answer", () => {
   test("errorText is the description's error", () => {
     const { dialog } = open();
     const prompt = dialog.aiPrompt;
-    const question = prompt.form.getQuestionByName("prompt");
+    const question = dialog.survey.getQuestionByName("prompt");
     prompt.errorText = "quota";
     expect([question.errors.length, question.errors[0].getText(), question.getErrorLocation()], "#1").toEqual([1, "quota", "bottom"]);
     prompt.errorText = "";
@@ -66,25 +66,11 @@ describe("FilterAIDialog: before the first answer", () => {
   });
 });
 
-describe("FilterAIPrompt: a form of its own (Edit Presets)", () => {
-  test("with no survey given it makes one in the control's locale, and disposes it", () => {
-    const q = createFilter();
-    const prompt = new FilterAIPrompt(q.createAIRequest(), { locale: "de", prompt: "kids", isModify: true, modifyTitle: "Edit",
-      css: q.cssClasses, getConditions: () => [], onAnswer: () => { } });
-    const form = prompt.form;
-    expect([form.locale, form.pages[0].elements.map((e: any): string => e.name), prompt.prompt, prompt.panel.title], "#1")
-      .toEqual(["de", ["promptPanel"], "kids", "Edit"]);
-    expect([form.state, form.currentPage === form.pages[0]], "#1a: a page to draw").toEqual(["running", true]);
-    prompt.dispose();
-    expect(form.isDisposed, "#2").toBe(true);
-  });
-});
-
 describe("FilterAIDialog: one survey", () => {
   test("the dialog draws one survey: the prompt is in it, with no title, numbers, navigation or theme root", () => {
     const { q, dialog } = open();
     const survey = dialog.survey;
-    expect([dialog.aiPrompt.form === survey, survey.pages.length, survey.pages[0].elements.map((e: any): string => e.name)], "#1")
+    expect([dialog.aiPrompt.panel.survey === survey, survey.pages.length, survey.pages[0].elements.map((e: any): string => e.name)], "#1")
       .toEqual([true, 1, ["promptPanel"]]);
     expect([survey.state, survey.currentPage === survey.pages[0]], "#1a: a page to draw").toEqual(["running", true]);
     expect([survey.showNavigationButtons, survey.showQuestionNumbers, survey.css.rootTheme], "#2")
@@ -98,7 +84,7 @@ describe("FilterAIDialog: one survey", () => {
     const { dialog, calls } = open();
     const survey = dialog.survey;
     const names = (): Array<string> => survey.pages[0].elements.map((e: any): string => e.name);
-    dialog.aiPrompt.form.setValue("prompt", "adults");
+    dialog.aiPrompt.prompt = "adults";
     dialog.aiPrompt.request();
     calls[0].callback(answer("{age} > 18 and {country} anyof ['de']"));
     expect([dialog.editor.survey === survey, names()], "#1").toEqual([true, ["f0", "f1", "promptPanel"]]);
@@ -117,7 +103,7 @@ describe("FilterAIDialog: the answer", () => {
   test("shows the filter as the fields' editors, and the button becomes Make Changes", () => {
     const { dialog, calls } = open();
     const prompt = dialog.aiPrompt;
-    prompt.form.setValue("prompt", "adults");
+    prompt.prompt = "adults";
     prompt.request();
     expect([calls.length, calls[0].action, calls[0].userPrompt, prompt.isBusy, prompt.requestAction.enabled, dialog.canApply], "#1")
       .toEqual([1, "generate", "adults", true, false, false]);
@@ -126,19 +112,19 @@ describe("FilterAIDialog: the answer", () => {
     expect([prompt.isBusy, prompt.isModify, prompt.errorText], "#2").toEqual([false, true, ""]);
     expect(dialog.editor.fieldNames, "#3").toEqual(["country", "age"]);
     expect(dialog.conditions, "#4").toEqual([{ field: "country", operator: "anyof", value: ["de"] }, { field: "age", operator: "greater", value: 18 }]);
-    expect([prompt.requestAction.title, prompt.promptTitle, prompt.form.getValue("prompt"), dialog.canApply], "#5")
+    expect([prompt.requestAction.title, prompt.promptTitle, prompt.prompt, dialog.canApply], "#5")
       .toEqual(["Make Changes", "Describe what to change - if needed.", "adults", true]);
     dialog.dispose();
   });
   test("Make Changes sends the filter as it is with the new description, and the editors are made anew", () => {
     const { q, dialog, calls } = open();
     const prompt = dialog.aiPrompt;
-    prompt.form.setValue("prompt", "adults");
+    prompt.prompt = "adults";
     prompt.request();
     calls[0].callback(answer("{age} > 18 and {country} anyof ['de']", "Adults"));
     const before = dialog.conditions;
     const editor = dialog.editor;
-    prompt.form.setValue("prompt", "adults from France");
+    prompt.prompt = "adults from France";
     prompt.request();
     expect(prompt.requestAction.title, "#0: busy").toBe("Making changes...");
     expect([calls[1].action, calls[1].userPrompt, calls[1].expression], "#1")
@@ -150,7 +136,7 @@ describe("FilterAIDialog: the answer", () => {
   });
   test("the trash of a field takes its condition away", () => {
     const { dialog, calls } = open();
-    dialog.aiPrompt.form.setValue("prompt", "adults");
+    dialog.aiPrompt.prompt = "adults";
     dialog.aiPrompt.request();
     calls[0].callback(answer("{age} > 18 and {country} anyof ['de']"));
     const panel = <PanelModel>dialog.editor.survey.getPanelByName("f0");
@@ -162,9 +148,20 @@ describe("FilterAIDialog: the answer", () => {
     expect([dialog.editor, dialog.canApply], "#3: nothing left").toEqual([undefined, false]);
     dialog.dispose();
   });
+  test("Make Changes once the trash took every field away asks for a new filter", () => {
+    const { dialog, calls } = open();
+    dialog.aiPrompt.prompt = "adults";
+    dialog.aiPrompt.request();
+    calls[0].callback(answer("{age} > 18"));
+    dialog.removeField("age");
+    expect([dialog.editor, dialog.aiPrompt.isModify, dialog.aiPrompt.requestAction.title], "#1").toEqual([undefined, true, "Make Changes"]);
+    dialog.aiPrompt.request();
+    expect([calls[1].action, calls[1].userPrompt], "#2").toEqual(["generate", "adults"]);
+    dialog.dispose();
+  });
   test("Apply adds an AI preset with the description and the model's title", () => {
     const { q, dialog, calls } = open();
-    dialog.aiPrompt.form.setValue("prompt", "adults from France");
+    dialog.aiPrompt.prompt = "adults from France";
     dialog.aiPrompt.request();
     calls[0].callback(answer("{age} > 18 and {country} anyof ['fr']", "French adults"));
     expect(dialog.apply(), "#1").toBe(true);
@@ -176,7 +173,7 @@ describe("FilterAIDialog: the answer", () => {
   });
   test("an answer to Make Changes with no title keeps the title the model gave before", () => {
     const { dialog, calls } = open();
-    dialog.aiPrompt.form.setValue("prompt", "countries");
+    dialog.aiPrompt.prompt = "countries";
     dialog.aiPrompt.request();
     calls[0].callback(answer("{country} anyof ['de']", "Country"));
     dialog.aiPrompt.request();
@@ -187,7 +184,7 @@ describe("FilterAIDialog: the answer", () => {
   });
   test("a title the model gives that is taken gets a number", () => {
     const { dialog, calls } = open();
-    dialog.aiPrompt.form.setValue("prompt", "adults");
+    dialog.aiPrompt.prompt = "adults";
     dialog.aiPrompt.request();
     calls[0].callback(answer("{age} > 18", "adults"));
     dialog.apply();
@@ -200,7 +197,7 @@ describe("FilterAIDialog: what can go wrong", () => {
   test("an answer after the dialog is gone changes nothing", () => {
     const { q, dialog, calls } = open();
     const count = q.visibleItems.length;
-    dialog.aiPrompt.form.setValue("prompt", "adults");
+    dialog.aiPrompt.prompt = "adults";
     dialog.aiPrompt.request();
     dialog.dispose();
     expect(() => calls[0].callback(answer("{age} > 18")), "#1").not.toThrow();
@@ -209,7 +206,7 @@ describe("FilterAIDialog: what can go wrong", () => {
   test("an answer to a cancelled request is ignored", () => {
     const { dialog, calls } = open();
     const prompt = dialog.aiPrompt;
-    prompt.form.setValue("prompt", "adults");
+    prompt.prompt = "adults";
     prompt.request();
     prompt.cancel();
     expect(prompt.isBusy, "#1").toBe(false);
@@ -231,7 +228,7 @@ describe("FilterAIDialog: what can go wrong", () => {
     });
     const dialog = q.createAIDialog();
     const prompt = dialog.aiPrompt;
-    prompt.form.setValue("prompt", "adults");
+    prompt.prompt = "adults";
     prompt.request();
     expect([prompt.isBusy, prompt.errorText, dialog.canApply], "#1").toEqual([false, "AI could not make a filter. Try again.", false]);
     mode = "error";

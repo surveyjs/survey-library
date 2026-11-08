@@ -384,7 +384,7 @@
   }
 
   // A field's operator and value share a row: the frame keeps a narrower gutter to leave them room.
-  .sd-filter-preset-dialog__fields {
+  .sd-filter-editor .sd-panel.sd-filter-preset-dialog__fields {
     padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x200);
   }
 }
@@ -446,7 +446,9 @@
     margin: 0;
     padding: 0;
 
-    .sd-action {
+    // Show More only: the description's button in a footer of the same survey keeps the space
+    // between its icon and its label, which is the label's padding.
+    .sd-action.sd-filter__link {
       --sd-action-title-padding: 0;
       padding-inline: 0;
     }
@@ -480,7 +482,9 @@
   }
 }
 
-.sd-filter-preset-dialog__fields {
+// The fields' frame: the "fields" panel of the preset dialog's survey, which holds the fields' panels.
+// As specific as the editor's own reset of a framed panel, which it follows.
+.sd-filter-editor .sd-panel.sd-filter-preset-dialog__fields {
   padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x500);
   border: 1px solid var(--sjs2-color-border-basic-secondary);
   border-radius: var(--sjs2-radius-x150);

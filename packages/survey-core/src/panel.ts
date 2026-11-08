@@ -15,7 +15,8 @@ import {
   IProgressInfo,
   ISurvey,
   IFindElement,
-  ISurveyValidation
+  ISurveyValidation,
+  ISurveyDataElement
 } from "./base-interfaces";
 import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo, makeNameValid } from "./survey-element";
 import { Question } from "./question";
@@ -364,7 +365,7 @@ export class QuestionRowModel extends Base {
  * A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) and [`PageModel`](https://surveyjs.io/form-library/documentation/pagemodel) classes.
  */
 export class PanelModelBase extends SurveyElement<Question>
-  implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
+  implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner, ISurveyDataElement {
 
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
@@ -553,6 +554,24 @@ export class PanelModelBase extends SurveyElement<Question>
   public get isDataNesting(): boolean {
     const scope = this.getDataScope();
     return !!scope && scope.isActive;
+  }
+  // ISurveyDataElement: a nesting container owns its key in the data of its parent scope, as a question
+  // owns its value name (decisions R3). The survey reaches it through its data key index.
+  public getValueName(): string {
+    return this.getDataScopeKey();
+  }
+  public onSurveyValueChanged(newValue: any): void {
+    const scope = this.getDataScope();
+    if (!scope || !scope.isActive) return;
+    scope.notifyValueChanged();
+    (<SurveyModel><any>this.survey)?.dataScopeValueChanged(scope);
+  }
+  // The questions read the stored object: newValue is its copy. clearData does not apply to a container.
+  public updateValueFromSurvey(newValue: any, clearData: boolean): void {
+    const scope = this.getDataScope();
+    if (!!scope && scope.isActive) {
+      scope.updateValuesFromData();
+    }
   }
   // Writes this nesting container's stored object into data under its key, as one value (D7).
   collectDataNestingValue(data: any): void {
@@ -817,6 +836,8 @@ export class PanelModelBase extends SurveyElement<Question>
       this.setArrayPropertyDirectly("elements", newElements, false);
       if (!!this.survey) {
         this.lifecycleCallbacks.questionTriggersChanged();
+        // The data key index keeps document order.
+        (<SurveyModel><any>this.survey).dataShapeChanged();
       }
       this.updateRows();
       this.updateVisibleIndexes();

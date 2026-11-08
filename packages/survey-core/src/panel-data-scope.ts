@@ -1,8 +1,8 @@
-import type { IQuestion, IElement, ISurvey, ISurveyImpl, ISurveyData, ITextProcessor } from "./base-interfaces";
+import type { IQuestion, IElement, ISurvey, ISurveyImpl, ISurveyData, ISurveyDataElement, ITextProcessor } from "./base-interfaces";
 import type { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ValueGetterContextCore } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 
 // The dataNesting modes that nest a container without a valueName under its name, and the container
@@ -25,13 +25,68 @@ export function getDataNestingKey(dataNesting: string, kind: string, valueName: 
 }
 
 // The panel or page that owns a scope. A type, not an import of PanelModelBase: panel.ts imports this file.
-export interface IPanelDataScopeOwner {
+export interface IPanelDataScopeOwner extends ISurveyDataElement {
   getDataScopeKey(): string;
+  getDataScope(): PanelDataScope;
   elements: Array<IElement>;
 }
-// A panel or page that hands a scope to its elements (see PanelModelBase.getDataScope()).
-interface IPanelWithDataScope {
-  getDataScope(): PanelDataScope;
+// The survey's counter of data shape changes (SurveyModel.getDataShapeVersion()): an index built at one
+// version is current until the counter changes.
+interface IDataShapeVersionOwner {
+  getDataShapeVersion(): number;
+}
+function getDataShapeVersion(survey: ISurvey): number {
+  const owner: any = survey;
+  return !!owner && typeof owner.getDataShapeVersion === "function" ? (<IDataShapeVersionOwner>owner).getDataShapeVersion() : undefined;
+}
+// The question's data scope: the nearest active scope above it, or null when its value is a top-level
+// key of the survey data. The one test of an inner question (nested data).
+export function getQuestionDataScope(question: IQuestion): PanelDataScope {
+  const data: any = (<any>question).data;
+  return data instanceof PanelDataScope ? data.getActiveScope() : null;
+}
+// The scope of an index entry that is a container; null for a question.
+export function getElementDataScope(el: ISurveyDataElement): PanelDataScope {
+  return !el.isQuestion ? (<IPanelDataScopeOwner>el).getDataScope() : null;
+}
+
+// The keys of one data scope and the elements that own them (decisions R2): the questions whose data is
+// the scope, under their value name, and the active containers directly inside it, under their key. Two
+// elements may share a key (D4). A key is found exact or lower-case; elements keeps document order.
+export class DataKeyIndex {
+  private exact: HashTable<Array<ISurveyDataElement>> = Object.create(null);
+  private lower: HashTable<Array<ISurveyDataElement>> = Object.create(null);
+  public readonly elements: Array<ISurveyDataElement> = [];
+  public add(key: string, el: ISurveyDataElement): void {
+    this.elements.push(el);
+    if (!key) return;
+    DataKeyIndex.addToHash(this.exact, key, el);
+    DataKeyIndex.addToHash(this.lower, key.toLowerCase(), el);
+  }
+  private static addToHash(hash: HashTable<Array<ISurveyDataElement>>, key: string, el: ISurveyDataElement): void {
+    const list = hash[key];
+    if (!!list) {
+      list.push(el);
+    } else {
+      hash[key] = [el];
+    }
+  }
+  public getElements(key: string, caseInsensitive?: boolean): Array<ISurveyDataElement> {
+    if (!key) return [];
+    const res = caseInsensitive ? this.lower[key.toLowerCase()] : this.exact[key];
+    return res || [];
+  }
+  public getQuestions(key: string, caseInsensitive?: boolean): Array<Question> {
+    return <Array<Question>><any>this.getElements(key, caseInsensitive).filter(el => el.isQuestion);
+  }
+  public getScopes(key: string, caseInsensitive?: boolean): Array<PanelDataScope> {
+    const res: Array<PanelDataScope> = [];
+    this.getElements(key, caseInsensitive).forEach(el => {
+      const scope = getElementDataScope(el);
+      if (!!scope) res.push(scope);
+    });
+    return res;
+  }
 }
 
 // The data of the elements of a nesting panel or page: they read and write parentData.getValue(key)[name].
@@ -122,7 +177,7 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
       return !!data ? data.setComment(name, newValue, locNotification) : undefined;
     }
     if (this.getComment(name) === (newValue || "")) return;
-    const question = this.findDataQuestion(name);
+    const question = this.getIndex().getQuestions(name)[0];
     this.setValue(Helpers.getCommentKey(name), newValue, locNotification, true, !!question ? question.name : undefined);
   }
   getFilteredProperties(): any {
@@ -147,51 +202,55 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
     const data = this.parentData;
     return !!data ? data.getValue(this.key) : undefined;
   }
-  // The questions whose values this active scope's object holds (directly, or through panels that do not
-  // nest) and the active scopes directly inside it. Unlike forEachDataChild, a panel whose scope is
-  // inactive is walked through: its questions write into this object.
-  public forEachActiveChild(onQuestion: (q: Question) => void, onScope: (scope: PanelDataScope) => void): void {
-    this.forEachActiveChildCore(this.owner.elements, onQuestion, onScope);
-  }
-  private forEachActiveChildCore(elements: Array<IElement>, onQuestion: (q: Question) => void, onScope: (scope: PanelDataScope) => void): void {
-    for (let i = 0; i < elements.length; i++) {
-      const el: any = elements[i];
-      if (el.isPanel) {
-        const scope = (<IPanelWithDataScope>el).getDataScope();
-        if (!!scope && scope.isActive && scope.getParentActiveScope() === this) {
-          onScope(scope);
-        } else {
-          this.forEachActiveChildCore(el.elements, onQuestion, onScope);
-        }
-      } else if (el.isQuestion && el.data instanceof PanelDataScope && el.data.getActiveScope() === this) {
-        onQuestion(<Question>el);
-      }
+  // The index of this active scope's keys. Built on its first read after the survey's data shape changed
+  // (SurveyModel.dataShapeChanged()): shape changes are rare, and every write reads it.
+  private indexValue: DataKeyIndex;
+  private indexVersion: number;
+  public getIndex(): DataKeyIndex {
+    const version = getDataShapeVersion(this.getSurvey());
+    if (!this.indexValue || version === undefined || version !== this.indexVersion) {
+      this.indexValue = this.buildIndex();
+      this.indexVersion = version;
     }
+    return this.indexValue;
   }
-  // The active scopes directly inside this one: a walk over the panels only.
-  public forEachActiveInnerScope(onScope: (scope: PanelDataScope) => void): void {
+  // The questions whose values this scope's object holds (directly, or through panels that do not nest)
+  // and the active containers directly inside it: the one walk of a container's elements.
+  private buildIndex(): DataKeyIndex {
+    const res = new DataKeyIndex();
     const walk = (elements: Array<IElement>): void => {
       for (let i = 0; i < elements.length; i++) {
         const el: any = elements[i];
-        if (!el.isPanel) continue;
-        const scope = (<IPanelWithDataScope>el).getDataScope();
-        if (!!scope && scope.isActive && scope.getParentActiveScope() === this) {
-          onScope(scope);
-        } else {
-          walk(el.elements);
+        if (el.isPanel) {
+          const scope = (<IPanelDataScopeOwner>el).getDataScope();
+          if (!!scope && scope.isActive && scope.getParentActiveScope() === this) {
+            res.add(scope.key, scope.owner);
+          } else {
+            walk(el.elements);
+          }
+        } else if (el.isQuestion && getQuestionDataScope(el) === this) {
+          res.add((<Question>el).getValueName(), <Question>el);
         }
       }
     };
-    walk(this.owner.elements);
+    if (this.isActive) walk(this.owner.elements);
+    return res;
   }
-  private getParentActiveScope(): PanelDataScope {
+  public getParentActiveScope(): PanelDataScope {
     const parent = this.parentScope;
     return !!parent ? parent.getActiveScope() : null;
   }
-  // The survey calls these for a root-level scope after its key is written.
-  // The questions read their values from the stored object again; the scopes inside follow.
+  // The survey calls these for a root-level scope after its key is written (through the container's
+  // ISurveyDataElement members). The questions read their values from the stored object again; the
+  // scopes inside follow.
   public updateValuesFromData(): void {
-    this.forEachDataChild((q: Question) => {
+    this.getIndex().elements.forEach(el => {
+      const inner = getElementDataScope(el);
+      if (!!inner) {
+        inner.updateValuesFromData();
+        return;
+      }
+      const q = <Question>el;
       const valueName = q.getValueName();
       const val = this.getValue(valueName);
       if (!this.isTwoValueEquals(q.value, val)) {
@@ -203,47 +262,41 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
           q.updateCommentFromSurvey(comment);
         }
       }
-    }, (scope: PanelDataScope) => scope.updateValuesFromData());
+    });
   }
   public notifyValueChanged(): void {
-    this.forEachDataChild((q: Question) => q.onSurveyValueChanged(this.getValue(q.getValueName())),
-      (scope: PanelDataScope) => scope.notifyValueChanged());
-  }
-  // The questions of the scope (directly or through panels that hand down this scope) and the scopes
-  // directly inside it.
-  public forEachDataChild(onQuestion: (q: Question) => void, onScope?: (scope: PanelDataScope) => void): void {
-    this.forEachDataChildCore(this.owner.elements, onQuestion, onScope);
-  }
-  private forEachDataChildCore(elements: Array<IElement>, onQuestion: (q: Question) => void, onScope: (scope: PanelDataScope) => void): void {
-    for (let i = 0; i < elements.length; i++) {
-      const el: any = elements[i];
-      if (el.isPanel) {
-        const scope = (<IPanelWithDataScope>el).getDataScope();
-        if (!!scope && scope.parentData === this) {
-          if (!!onScope) onScope(scope);
-        } else {
-          this.forEachDataChildCore(el.elements, onQuestion, onScope);
-        }
-      } else if (el.isQuestion && el.data === this) {
-        onQuestion(<Question>el);
+    this.getIndex().elements.forEach(el => {
+      const inner = getElementDataScope(el);
+      if (!!inner) {
+        inner.notifyValueChanged();
+      } else {
+        el.onSurveyValueChanged(this.getValue(el.getValueName()));
       }
-    }
-  }
-  private findDataQuestion(valueName: string): Question {
-    let res: Question = null;
-    this.forEachDataChild((q: Question) => {
-      if (!res && q.getValueName() === valueName) res = q;
     });
-    return res;
+  }
+  // The questions of this scope and of the scopes inside it, in document order.
+  public forEachQuestion(callback: (q: Question) => void): void {
+    this.getIndex().elements.forEach(el => {
+      const inner = getElementDataScope(el);
+      if (!!inner) {
+        inner.forEachQuestion(callback);
+      } else {
+        callback(<Question>el);
+      }
+    });
+  }
+  // Whether the question's value is in this scope's object, directly or in the object of a scope inside it.
+  public containsQuestion(question: Question): boolean {
+    let scope = getQuestionDataScope(question);
+    while(!!scope) {
+      if (scope === this) return true;
+      scope = scope.getParentActiveScope();
+    }
+    return false;
   }
   private isTwoValueEquals(x: any, y: any): boolean {
     return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: true, trimStrings: false, doNotConvertNumbers: true });
   }
-}
-
-// The survey's lookup of questions by value name that includes inner questions (SurveyModel).
-interface IDataScopeQuestionLookup {
-  getQuestionsByAnyValueName(name: string): Array<Question>;
 }
 
 // The expression context of the active scopes that share one key (D4, one scope unless two containers
@@ -255,8 +308,6 @@ interface IDataScopeQuestionLookup {
 // parent's context through getRootObj; reached through a path from outside ({address.street}) it answers
 // the rest of the path only, and the survey falls back to the raw data.
 export class PanelDataScopeValueGetterContext extends ValueGetterContextCore {
-  // Built on the first lookup that needs it: a context lives for one expression run.
-  private innerScopes: Array<PanelDataScope>;
   constructor(private scopes: Array<PanelDataScope>) {
     super();
   }
@@ -280,8 +331,8 @@ export class PanelDataScopeValueGetterContext extends ValueGetterContextCore {
       res.context = question.getValueGetterContext();
       return;
     }
-    const lowName = name.toLowerCase();
-    const inner = this.getInnerScopes().filter(scope => scope.key.toLowerCase() === lowName);
+    const inner: Array<PanelDataScope> = [];
+    this.scopes.forEach(scope => inner.push(...scope.getIndex().getScopes(name, true)));
     if (inner.length > 0) {
       res.isFound = true;
       res.context = new PanelDataScopeValueGetterContext(inner);
@@ -295,30 +346,13 @@ export class PanelDataScopeValueGetterContext extends ValueGetterContextCore {
       res.value = (<PanelDataScope>owner.data).getActiveScope().getValue(Helpers.getCommentKey(owner.getValueName()));
     }
   }
+  // The scopes' indexes, letter case ignored: a question of the first scope that has one wins.
   private findQuestion(name: string): Question {
-    const survey: any = this.scopes[0].getSurvey();
-    const lowName = name.toLowerCase();
-    const isOwn = (q: Question): boolean => q.data instanceof PanelDataScope && this.scopes.indexOf(q.data.getActiveScope()) > -1;
-    if (!!survey && typeof survey.getQuestionsByAnyValueName === "function") {
-      const qs = (<IDataScopeQuestionLookup>survey).getQuestionsByAnyValueName(lowName);
-      for (let i = 0; i < qs.length; i++) {
-        if (isOwn(qs[i])) return qs[i];
-      }
-      return null;
+    for (let i = 0; i < this.scopes.length; i++) {
+      const res = this.scopes[i].getIndex().getQuestions(name, true);
+      if (res.length > 0) return res[0];
     }
-    let res: Question = null;
-    this.scopes.forEach(scope => scope.forEachActiveChild((q: Question) => {
-      if (!res && q.getValueName().toLowerCase() === lowName) res = q;
-    }, () => { }));
-    return res;
-  }
-  private getInnerScopes(): Array<PanelDataScope> {
-    if (!this.innerScopes) {
-      const res: Array<PanelDataScope> = [];
-      this.scopes.forEach(scope => scope.forEachActiveInnerScope(inner => res.push(inner)));
-      this.innerScopes = res;
-    }
-    return this.innerScopes;
+    return null;
   }
 }
 // The value name a comment key names, ignoring letter case ({Kind-comment} -> "Kind"); "" for another name.

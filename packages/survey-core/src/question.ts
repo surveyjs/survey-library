@@ -33,7 +33,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
-import { PanelDataScope } from "./panel-data-scope";
+import { getQuestionDataScope } from "./panel-data-scope";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -3748,8 +3748,7 @@ export class Question extends SurveyElement<Question>
   // A question inside a nesting container (nested data): its value name is not a key of the survey data,
   // so the survey cannot find it by value name and is given the question.
   protected get isInnerDataQuestion(): boolean {
-    const data = this.data;
-    return data instanceof PanelDataScope && !!data.getActiveScope();
+    return !!getQuestionDataScope(this);
   }
   // A question nested in a choice item is found by value name, but it is not in the page's question
   // list, so the survey advances for it only when it is the single input on screen.

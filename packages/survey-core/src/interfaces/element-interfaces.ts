@@ -110,6 +110,18 @@ export interface IPanel extends ISurveyElement, IParentElement {
 export interface IPage extends IPanel, IConditionRunner {
   isStartPage: boolean;
 }
+// An element that owns a key of its data scope (the survey data, or a nesting container's object): a
+// question under its value name, a nesting panel or page under its key (decisions R3). The survey
+// dispatches a written key to both through this.
+export interface ISurveyDataElement {
+  readonly isQuestion: boolean;
+  // A container: its key, or "" when it does not nest.
+  getValueName(): string;
+  // A container: its questions are told, and the ones that show an error are validated again.
+  onSurveyValueChanged(newValue: any): void;
+  // A container: its questions read their values from its object again.
+  updateValueFromSurvey(newValue: any, clearData: boolean): void;
+}
 export interface ITitleOwner {
   name: string;
   no: string;

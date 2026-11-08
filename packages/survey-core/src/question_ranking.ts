@@ -153,7 +153,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.updateRankingChoicesSync();
   }
   public isAnswerCorrect(): boolean {
-    return Helpers.isArraysEqual(this.value, this.correctAnswer, false);
+    return Helpers.isArraysEqual(this.value, this.correctAnswer, false, undefined, undefined, this.getSurveySettings());
   }
   get requireStrictCompare(): boolean { return true; }
   onSurveyValueChanged(newValue: any) {
@@ -234,7 +234,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   private syncValueWithVisibleChoices(): void {
     if (this.selectToRankEnabled || this.isEmpty()) return;
     const newValue = this.getRankedValueByVisibleChoices(this.value);
-    if (!this.isTwoValueEquals(this.value, newValue)) {
+    if (!this.isEqualToValue(newValue)) {
       this.value = newValue;
     }
   }

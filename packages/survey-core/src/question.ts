@@ -33,7 +33,6 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
-import { getQuestionDataScope } from "./panel-data-scope";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -686,6 +685,9 @@ export class Question extends SurveyElement<Question>
   public getValueName(): string {
     if (!!this.valueName) return this.valueName.toString();
     return this.name;
+  }
+  protected getDataKey(): string {
+    return this.getValueName();
   }
   /**
    * Specifies an object property that should store the question value.
@@ -3745,16 +3747,14 @@ export class Question extends SurveyElement<Question>
   protected get isSurveyAutoAdvanceEnabled(): boolean {
     return (this.survey as SurveyModel)?.autoAdvanceEnabled === true;
   }
-  // getQuestionByValueName only sees top-level questions. A nested question with the same
-  // name must not advance on behalf of that other question.
+  // The survey is given the question (requestAutoAdvance), but a question whose value is a key of the
+  // survey data must also be the one getQuestionByValueName finds: a nested question with the same name
+  // must not advance on behalf of that other question. Inside a container the value name is no key of
+  // the survey data (nested data, D9), and the question is its own owner.
   protected get isAutoAdvanceOwner(): boolean {
-    if (this.isInnerDataQuestion && !!this.survey) return true;
-    return (this.survey as SurveyModel)?.getQuestionByValueName(this.getValueName()) === this;
-  }
-  // A question inside a nesting container (nested data): its value name is not a key of the survey data,
-  // so the survey cannot find it by value name and is given the question.
-  protected get isInnerDataQuestion(): boolean {
-    return !!getQuestionDataScope(this);
+    const survey = this.survey as SurveyModel;
+    if (!survey) return false;
+    return this.getValueScope() !== survey || survey.getQuestionByValueName(this.getValueName()) === this;
   }
   // A question nested in a choice item is found by value name, but it is not in the page's question
   // list, so the survey advances for it only when it is the single input on screen.
@@ -3764,8 +3764,7 @@ export class Question extends SurveyElement<Question>
   }
   protected requestAutoAdvance(): boolean {
     if (!this.isAutoAdvanceOwner) return false;
-    const writer = this.isInnerDataQuestion ? this : undefined;
-    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomaticCore(this.getValueName(), writer));
+    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomaticCore(this.getValueName(), this));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();

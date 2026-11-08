@@ -36,6 +36,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
 import { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
+import { IDataScope, getActiveDataScope } from "./panel-data-scope";
 
 // The readOnlyMode serializer property shared by questions and panels; a new object per class.
 export function getReadOnlyModePropertyInfo(): any {
@@ -592,6 +593,25 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public get data(): ISurveyData {
     return this.surveyDataValue;
+  }
+  // Nested data (decisions R6). The data scope this element's own value is a key of: the survey, or the
+  // nearest active PanelDataScope above it. A question inside a record answers the survey.
+  public getValueScope(): IDataScope {
+    return getActiveDataScope(this.data) || <IDataScope><any>this.survey;
+  }
+  // The keys from the survey data down to this element's value: ["q1"], ["page1", "address", "street"].
+  // Empty for an element with no key of its own (a container that does not nest).
+  public getDataPath(): Array<string> {
+    const key = this.getDataKey();
+    const scope = !!key ? this.getValueScope() : null;
+    if (!scope) return [];
+    const res = scope.getDataPath();
+    res.push(key);
+    return res;
+  }
+  // The element's own key in its value scope: a question's value name, a nesting container's key.
+  protected getDataKey(): string {
+    return "";
   }
   /**
    * Returns the survey object.

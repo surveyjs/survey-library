@@ -39,10 +39,9 @@ function getDataShapeVersion(survey: ISurvey): number {
   const owner: any = survey;
   return !!owner && typeof owner.getDataShapeVersion === "function" ? (<IDataShapeVersionOwner>owner).getDataShapeVersion() : undefined;
 }
-// The question's data scope: the nearest active scope above it, or null when its value is a top-level
-// key of the survey data. The one test of an inner question (nested data).
-export function getQuestionDataScope(question: IQuestion): PanelDataScope {
-  const data: any = (<any>question).data;
+// The nearest active scope of an element's data, or null when its value is a key of the survey data (or of
+// a record): SurveyElement.getValueScope().
+export function getActiveDataScope(data: any): PanelDataScope {
   return data instanceof PanelDataScope ? data.getActiveScope() : null;
 }
 // The scope of an index entry that is a container; null for a question.
@@ -50,42 +49,101 @@ export function getElementDataScope(el: ISurveyDataElement): PanelDataScope {
   return !el.isQuestion ? (<IPanelDataScopeOwner>el).getDataScope() : null;
 }
 
-// The keys of one data scope and the elements that own them (decisions R2): the questions whose data is
-// the scope, under their value name, and the active containers directly inside it, under their key. Two
-// elements may share a key (D4). A key is found exact or lower-case; elements keeps document order.
-export class DataKeyIndex {
+// A data scope (decisions R6): the survey, the root, or an active PanelDataScope. Its elements' values are
+// keys of its data, found through its index; getDataPath() gives the keys from the survey data down to it.
+export interface IDataScope {
+  getDataKeyIndex(): DataKeyIndex;
+  getDataPath(): Array<string>;
+  getValue(name: string): any;
+  getComment(name: string): string;
+  // The unknown-key rule (D6): clearIncorrectValues(true) keeps a known key, setData() reports another.
+  isKnownKey(key: string): boolean;
+}
+// A key an element of the index owns, or a question's comment or totals key: the part of the unknown-key
+// rule every scope shares.
+export function isKnownDataKey(index: DataKeyIndex, key: string): boolean {
+  if (index.getElements(key).length > 0) return true;
+  return [settings.commentSuffix, settings.matrix.totalsSuffix].some(suffix =>
+    !!suffix && key.endsWith(suffix) && index.getQuestions(key.substring(0, key.length - suffix.length)).length > 0);
+}
+
+const noElements: Array<any> = Object.freeze(<Array<any>>[]) as Array<any>;
+// One kind of element under its keys, exact and lower-case. Null-prototype hashes (Bug#11858).
+class DataKeyHash {
   private exact: HashTable<Array<ISurveyDataElement>> = Object.create(null);
   private lower: HashTable<Array<ISurveyDataElement>> = Object.create(null);
+  public add(key: string, el: ISurveyDataElement): void {
+    DataKeyHash.addTo(this.exact, key, el);
+    DataKeyHash.addTo(this.lower, key.toLowerCase(), el);
+  }
+  public remove(key: string, el: ISurveyDataElement): void {
+    DataKeyHash.removeFrom(this.exact, key, el);
+    DataKeyHash.removeFrom(this.lower, key.toLowerCase(), el);
+  }
+  // The list as stored, or a shared empty one: callers only read it.
+  public get(key: string, caseInsensitive?: boolean): Array<ISurveyDataElement> {
+    if (!key) return noElements;
+    return (caseInsensitive ? this.lower[key.toLowerCase()] : this.exact[key]) || noElements;
+  }
+  private static addTo(hash: HashTable<Array<ISurveyDataElement>>, key: string, el: ISurveyDataElement): void {
+    const list = hash[key];
+    if (!list) {
+      hash[key] = [el];
+    } else if (list.indexOf(el) < 0) {
+      list.push(el);
+    }
+  }
+  private static removeFrom(hash: HashTable<Array<ISurveyDataElement>>, key: string, el: ISurveyDataElement): void {
+    const list = hash[key];
+    const index = !!list ? list.indexOf(el) : -1;
+    if (index < 0) return;
+    list.splice(index, 1);
+    if (list.length === 0) delete hash[key];
+  }
+}
+
+// The keys of one data scope and the elements that own them (decisions R2): the questions whose value
+// scope it is, under their value name, and the active containers directly inside it, under their key. Two
+// elements may share a key (D4). A key is found exact or lower-case; for one key the questions come first.
+// A scope's index is built by a walk (add): elements keeps document order. The survey's root index uses
+// addKey only and leaves elements empty: its questions are added and removed one by one (removeKey), its
+// containers are added again after clearContainers() once the data shape changed.
+export class DataKeyIndex {
+  private questions = new DataKeyHash();
+  private containers = new DataKeyHash();
   public readonly elements: Array<ISurveyDataElement> = [];
   public add(key: string, el: ISurveyDataElement): void {
     this.elements.push(el);
-    if (!key) return;
-    DataKeyIndex.addToHash(this.exact, key, el);
-    DataKeyIndex.addToHash(this.lower, key.toLowerCase(), el);
+    this.addKey(key, el);
   }
-  private static addToHash(hash: HashTable<Array<ISurveyDataElement>>, key: string, el: ISurveyDataElement): void {
-    const list = hash[key];
-    if (!!list) {
-      list.push(el);
-    } else {
-      hash[key] = [el];
-    }
+  public addKey(key: string, el: ISurveyDataElement): void {
+    if (!key) return;
+    this.getHash(el).add(key, el);
+  }
+  public removeKey(key: string, el: ISurveyDataElement): void {
+    if (!key) return;
+    this.getHash(el).remove(key, el);
+  }
+  public clearQuestions(): void {
+    this.questions = new DataKeyHash();
+  }
+  public clearContainers(): void {
+    this.containers = new DataKeyHash();
+  }
+  private getHash(el: ISurveyDataElement): DataKeyHash {
+    return el.isQuestion ? this.questions : this.containers;
   }
   public getElements(key: string, caseInsensitive?: boolean): Array<ISurveyDataElement> {
-    if (!key) return [];
-    const res = caseInsensitive ? this.lower[key.toLowerCase()] : this.exact[key];
-    return res || [];
+    const questions = this.questions.get(key, caseInsensitive);
+    const containers = this.containers.get(key, caseInsensitive);
+    return containers.length === 0 ? questions : questions.concat(containers);
   }
+  // The list as stored: read it, do not change it.
   public getQuestions(key: string, caseInsensitive?: boolean): Array<Question> {
-    return <Array<Question>><any>this.getElements(key, caseInsensitive).filter(el => el.isQuestion);
+    return <Array<Question>><any>this.questions.get(key, caseInsensitive);
   }
   public getScopes(key: string, caseInsensitive?: boolean): Array<PanelDataScope> {
-    const res: Array<PanelDataScope> = [];
-    this.getElements(key, caseInsensitive).forEach(el => {
-      const scope = getElementDataScope(el);
-      if (!!scope) res.push(scope);
-    });
-    return res;
+    return this.containers.get(key, caseInsensitive).map(el => getElementDataScope(el));
   }
 }
 
@@ -95,7 +153,7 @@ export class DataKeyIndex {
 // The scope is inactive (passes every call through to the parent) while the owner has no key (no
 // valueName, dataNesting "none", or a by-name mode that does not apply to it): the owner keeps one scope
 // once it has had a key, and switching nesting on or off does not re-attach its elements.
-export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueContext {
+export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueContext, IDataScope {
   private parentImpl: ISurveyImpl;
   constructor(public readonly owner: IPanelDataScopeOwner) { }
   public get key(): string {
@@ -177,7 +235,7 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
       return !!data ? data.setComment(name, newValue, locNotification) : undefined;
     }
     if (this.getComment(name) === (newValue || "")) return;
-    const question = this.getIndex().getQuestions(name)[0];
+    const question = this.getDataKeyIndex().getQuestions(name)[0];
     this.setValue(Helpers.getCommentKey(name), newValue, locNotification, true, !!question ? question.name : undefined);
   }
   getFilteredProperties(): any {
@@ -202,11 +260,14 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
     const data = this.parentData;
     return !!data ? data.getValue(this.key) : undefined;
   }
+  public isKnownKey(key: string): boolean {
+    return isKnownDataKey(this.getDataKeyIndex(), key);
+  }
   // The index of this active scope's keys. Built on its first read after the survey's data shape changed
   // (SurveyModel.dataShapeChanged()): shape changes are rare, and every write reads it.
   private indexValue: DataKeyIndex;
   private indexVersion: number;
-  public getIndex(): DataKeyIndex {
+  public getDataKeyIndex(): DataKeyIndex {
     const version = getDataShapeVersion(this.getSurvey());
     if (!this.indexValue || version === undefined || version !== this.indexVersion) {
       this.indexValue = this.buildIndex();
@@ -228,7 +289,7 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
           } else {
             walk(el.elements);
           }
-        } else if (el.isQuestion && getQuestionDataScope(el) === this) {
+        } else if (el.isQuestion && (<Question>el).getValueScope() === this) {
           res.add((<Question>el).getValueName(), <Question>el);
         }
       }
@@ -244,7 +305,7 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
   // ISurveyDataElement members). The questions read their values from the stored object again; the
   // scopes inside follow.
   public updateValuesFromData(): void {
-    this.getIndex().elements.forEach(el => {
+    this.getDataKeyIndex().elements.forEach(el => {
       const inner = getElementDataScope(el);
       if (!!inner) {
         inner.updateValuesFromData();
@@ -265,7 +326,7 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
     });
   }
   public notifyValueChanged(): void {
-    this.getIndex().elements.forEach(el => {
+    this.getDataKeyIndex().elements.forEach(el => {
       const inner = getElementDataScope(el);
       if (!!inner) {
         inner.notifyValueChanged();
@@ -276,7 +337,7 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
   }
   // The questions of this scope and of the scopes inside it, in document order.
   public forEachQuestion(callback: (q: Question) => void): void {
-    this.getIndex().elements.forEach(el => {
+    this.getDataKeyIndex().elements.forEach(el => {
       const inner = getElementDataScope(el);
       if (!!inner) {
         inner.forEachQuestion(callback);
@@ -287,7 +348,7 @@ export class PanelDataScope implements ISurveyImpl, ISurveyData, IObjectValueCon
   }
   // Whether the question's value is in this scope's object, directly or in the object of a scope inside it.
   public containsQuestion(question: Question): boolean {
-    let scope = getQuestionDataScope(question);
+    let scope = getActiveDataScope(question.data);
     while(!!scope) {
       if (scope === this) return true;
       scope = scope.getParentActiveScope();
@@ -332,7 +393,7 @@ export class PanelDataScopeValueGetterContext extends ValueGetterContextCore {
       return;
     }
     const inner: Array<PanelDataScope> = [];
-    this.scopes.forEach(scope => inner.push(...scope.getIndex().getScopes(name, true)));
+    this.scopes.forEach(scope => inner.push(...scope.getDataKeyIndex().getScopes(name, true)));
     if (inner.length > 0) {
       res.isFound = true;
       res.context = new PanelDataScopeValueGetterContext(inner);
@@ -343,13 +404,13 @@ export class PanelDataScopeValueGetterContext extends ValueGetterContextCore {
     if (!!owner) {
       // The stored comment, as a top-level {q-Comment} reads the raw data key.
       res.isFound = true;
-      res.value = (<PanelDataScope>owner.data).getActiveScope().getValue(Helpers.getCommentKey(owner.getValueName()));
+      res.value = owner.getValueScope().getValue(Helpers.getCommentKey(owner.getValueName()));
     }
   }
   // The scopes' indexes, letter case ignored: a question of the first scope that has one wins.
   private findQuestion(name: string): Question {
     for (let i = 0; i < this.scopes.length; i++) {
-      const res = this.scopes[i].getIndex().getQuestions(name, true);
+      const res = this.scopes[i].getDataKeyIndex().getQuestions(name, true);
       if (res.length > 0) return res[0];
     }
     return null;

@@ -560,6 +560,9 @@ export class PanelModelBase extends SurveyElement<Question>
   public getValueName(): string {
     return this.getDataScopeKey();
   }
+  protected getDataKey(): string {
+    return this.getDataScopeKey();
+  }
   public onSurveyValueChanged(newValue: any): void {
     const scope = this.getDataScope();
     if (!scope || !scope.isActive) return;

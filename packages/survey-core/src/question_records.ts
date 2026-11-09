@@ -577,6 +577,11 @@ export abstract class QuestionRecordsModel extends Question {
     this.recordCleanup.clearIncorrectValuesWithoutObjects();
   }
   protected abstract clearIncorrectValuesInObjects(): void;
+  // data.keepEmptyValues: the records are added and removed, never cleared by the respondent. An empty
+  // list (the last row or panel removed, the records cleaned) removes the key, as without the setting.
+  protected canKeepEmptyValue(): boolean {
+    return false;
+  }
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     if (this.isRemoteData) {
       this.warnOutsideAssignment();

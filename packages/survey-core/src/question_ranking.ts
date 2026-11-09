@@ -179,7 +179,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.onVisibleChoicesChanged();
 
     if (this.carryForwardStartUnranked && !this.isValueSetByUser && !this.selectToRankEnabled && !this.defaultValue) {
-      this.value = [];
+      this.runDeletingEmptyValues((): void => { this.value = []; });
     }
 
     // ranking question with only one choice doesn't make sense

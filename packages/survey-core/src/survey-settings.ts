@@ -11,8 +11,12 @@ export interface ISurveySettingsComparator {
   // A text that reads as a number is compared as a text with another text (decisions.md, C4)
   numericTextAsText?: boolean;
 }
+export interface ISurveySettingsData {
+  keepEmptyValues?: boolean;
+}
 export interface ISurveySettings {
   comparator?: ISurveySettingsComparator;
+  data?: ISurveySettingsData;
 }
 // The names of SurveyModel's events, read from its member types, so a new event needs no change here.
 // An event is a public member whose type is an Event and whose name starts with "on"; the run-time check in
@@ -44,7 +48,8 @@ type SurveySettingsKeys = { [G in SurveySettingsGroup]-?: { [K in keyof NonNulla
 // The groups and keys a survey can set for itself. The type makes the build fail when the interface
 // gets a key this list misses.
 const surveySettingsKeys: SurveySettingsKeys = {
-  comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: true }
+  comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: true },
+  data: { keepEmptyValues: true }
 };
 const reservedOptionKeys = ["events"];
 

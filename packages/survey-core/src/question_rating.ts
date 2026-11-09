@@ -839,6 +839,8 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
   @property({ getDefaultValue: (obj: QuestionRatingModel) => obj.getDefaultItemComponent() }) itemComponent: string;
 
   protected valueToData(val: any): any {
+    // A rating the respondent cleared with data.keepEmptyValues on holds null, which is not a number
+    if (val === null && this.isKeepingEmptyValues()) return val;
     if (this.useRateValues()) {
       var item = ItemValue.getItemByValue(this.visibleChoices, val);
       return !!item ? item.value : val;
@@ -859,7 +861,7 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     this.resetDigitShortcut();
     if (this.isReadOnlyAttr || this.isEnterKey) return;
     if (this.value === ((typeof (this.value) === "string") ? value : parseFloat(value))) {
-      this.clearValue(true);
+      this.clearValueByRespondent(true, false);
     } else {
       this.value = value;
     }

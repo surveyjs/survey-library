@@ -202,6 +202,9 @@ export class QuestionImageMapModel extends Question {
   }
   public clearIncorrectValues(): void {
     super.clearIncorrectValues();
+    this.runDeletingEmptyValues((): void => this.clearInvisibleAreaValues());
+  }
+  private clearInvisibleAreaValues(): void {
     if (!this.value) return;
     if (this.isMultiSelect) {
       this.value = this.value.filter((val: any) => {

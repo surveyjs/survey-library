@@ -180,7 +180,7 @@ This monorepo does **not** use npm workspaces — each package installs and buil
     npm install
     ```
 
-    Requires Node.js 20 or later — CI builds on Node 20.x and 22.x.
+    Requires Node.js 20 or later — CI builds on Node 22.x and 24.x.
 
 2. **Install and build `survey-core`**
 

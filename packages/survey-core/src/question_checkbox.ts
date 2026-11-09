@@ -653,13 +653,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val && restoredValues.length == 0) return;
     if (!Array.isArray(val) || val.length == 0) {
       if (!clearDisabled) {
-        this.changingValueOnClearIncorrectScope.run(() => {
+        this.changingValueOnClearIncorrectScope.run(() => this.runDeletingEmptyValues(() => {
           if (this.showCommentArea) {
             this.value = null;
           } else {
             this.clearValue(true);
           }
-        });
+        }));
       }
       if (restoredValues.length == 0) return;
       val = [];

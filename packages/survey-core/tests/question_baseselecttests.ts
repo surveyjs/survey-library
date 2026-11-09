@@ -5798,3 +5798,55 @@ describe("Design mode: the visible choices are built on first read", () => {
     }
   });
 });
+describe("choicesFromQuestion, mode selected: the display value of a copied Other, Bug#12246", () => {
+  const createSurvey = (copy: any): SurveyModel => new SurveyModel({ elements: [
+    { type: "checkbox", name: "langs", choices: ["English", "French"], showOtherItem: true, otherText: "Other (describe)" },
+    Object.assign({ name: "first", choicesFromQuestion: "langs", choicesFromQuestionMode: "selected" }, copy),
+    { type: "html", name: "say", html: "<p>{first}</p>" }
+  ] });
+  const fillSource = (survey: SurveyModel): void => {
+    survey.setValue("langs", ["English", "other"]);
+    survey.setComment("langs", "Breton");
+  };
+  for (const type of ["radiogroup", "dropdown"]) {
+    test(type + ": the copied Other shows the typed text in displayValue, getPlainData and text piping", () => {
+      const survey = createSurvey({ type: type });
+      fillSource(survey);
+      survey.setValue("first", "other");
+      const first = <QuestionSelectBase>survey.getQuestionByName("first");
+      expect(first.visibleChoices.map(item => item.value + ":" + item.text), "the copied choices").toEqual(["English:English", "other:Breton"]);
+      expect(first.displayValue, "displayValue").toBe("Breton");
+      expect(first.getDisplayValue(true, undefined, true), "displayValue, read-only").toBe("Breton");
+      expect(survey.getPlainData().filter(d => d.name === "first")[0].displayValue, "getPlainData").toBe("Breton");
+      expect((<any>survey.getQuestionByName("say")).locHtml.renderedHtml, "text piping").toBe("<p>Breton</p>");
+      survey.setValue("first", "English");
+      expect(first.displayValue, "a regular copied choice").toBe("English");
+    });
+  }
+  for (const type of ["checkbox", "tagbox"]) {
+    test(type + ": the copied Other shows the typed text in displayValue and getPlainData", () => {
+      const survey = createSurvey({ type: type });
+      fillSource(survey);
+      survey.setValue("first", ["English", "other"]);
+      const first = <QuestionSelectBase>survey.getQuestionByName("first");
+      expect(first.displayValue, "displayValue").toBe("English, Breton");
+      expect(first.getDisplayValue(true, ["other"]), "displayValue of another value").toBe("Breton");
+      expect(survey.getPlainData().filter(d => d.name === "first")[0].displayValue, "getPlainData").toBe("English, Breton");
+    });
+  }
+  test("The copying question shows its own Other: its display value is still its own Other", () => {
+    const survey = createSurvey({ type: "radiogroup", showOtherItem: true, otherText: "Something else" });
+    fillSource(survey);
+    const first = <QuestionSelectBase>survey.getQuestionByName("first");
+    expect(first.visibleChoices.map(item => item.value), "the source's Other is not copied").toEqual(["English", "other"]);
+    first.value = "other";
+    expect(first.displayValue, "no text typed").toBe("Something else");
+    first.comment = "Welsh";
+    expect(first.displayValue, "the text typed in this question").toBe("Welsh");
+  });
+  test("A regular choice with the value 'other' and no showOtherItem: the display value is the choice's text", () => {
+    const survey = new SurveyModel({ elements: [{ type: "radiogroup", name: "q", choices: ["a", { value: "other", text: "Something else" }] }] });
+    survey.setValue("q", "other");
+    expect(survey.getQuestionByName("q").displayValue, "displayValue").toBe("Something else");
+  });
+});

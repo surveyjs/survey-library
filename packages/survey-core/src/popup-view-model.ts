@@ -213,7 +213,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
   public get footerToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
-      this.createFooterActionBar();
+      Base.runUntracked(() => this.createFooterActionBar());
     }
     return this.footerToolbarValue;
   }

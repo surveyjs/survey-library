@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Rich text demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://unpkg.com/react@16.5.0/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.5.0/umd/react-dom.development.js"></script>
+    <script src="./node_modules/survey-core/survey.core.js"></script>
+    <script src="./node_modules/survey-core/themes/index.js"></script>
+    <link rel="stylesheet" href="./node_modules/survey-core/survey-core.css" />
+    <script>
+        (function () {
+            var pluginOff = /[?&]plugin=off(?:&|$)/.test(location.search);
+            window.__richTextPlugin = !pluginOff;
+            if (pluginOff) return;
+            document.write("<link rel=\"stylesheet\" href=\"./node_modules/survey-core/rich-text.css\" />");
+            document.write("<script src=\"./node_modules/survey-core/rich-text/index.js\"><\/script>");
+        })();
+    </script>
+    <script src="./build/survey-react-ui.js"></script>
+    <link rel="stylesheet" href="./fonts.css" />
+    <style>
+        html, body { margin: 0; height: 100%; }
+        body { display: flex; font-family: "Open Sans", sans-serif; }
+        #surveyElement { flex: 1; min-width: 0; overflow: auto; }
+        #richTextPanel {
+            width: 360px;
+            box-sizing: border-box;
+            padding: 12px;
+            overflow: auto;
+            border-left: 1px solid #d0d0d0;
+            background: #f7f7f7;
+            font-size: 13px;
+        }
+        #richTextPanel h2 { margin: 16px 0 8px; font-size: 14px; }
+        #richTextPanel h2:first-child { margin-top: 0; }
+        #richTextPanel button, #richTextPanel select { margin: 0 6px 6px 0; }
+        #richTextPanel pre, #richTextPanel textarea {
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 80px;
+            white-space: pre-wrap;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+        }
+        #richTextPanel .plugin-only { display: none; }
+        body.plugin-on #richTextPanel .plugin-only { display: block; }
+    </style>
+</head>
+
+<body>
+    <div id="surveyElement"></div>
+    <aside id="richTextPanel">
+        <h2>Live data</h2>
+        <pre id="liveData">{}</pre>
+        <pre id="valueLog"></pre>
+        <h2>Show JSON</h2>
+        <button type="button" id="showJson">Show JSON</button>
+        <pre id="jsonOutput"></pre>
+        <h2>Set value externally</h2>
+        <button type="button" id="setValue">Set c_md</button>
+        <button type="button" id="setValueLater">Set c_md in 3s</button>
+        <h2>Mode</h2>
+        <select id="modeSwitch">
+            <option value="edit">edit</option>
+            <option value="read-only">read-only</option>
+            <option value="display">display</option>
+            <option value="design">design</option>
+        </select>
+        <h2>Theme</h2>
+        <select id="themeSwitch">
+            <option value="light">default light</option>
+            <option value="dark">dark</option>
+        </select>
+        <div class="plugin-only">
+            <h2>String handler</h2>
+            <select id="handlerSwitch">
+                <option value="none">none</option>
+                <option value="built-in" selected>built-in</option>
+                <option value="raw">raw HTML</option>
+                <option value="custom">custom</option>
+            </select>
+            <h2>Playground</h2>
+            <textarea id="playgroundInput">&lt;b&gt;a&lt;/b&gt;</textarea>
+            <pre id="playgroundBlock"></pre>
+            <pre id="playgroundInline"></pre>
+            <pre id="playgroundDisallowed"></pre>
+            <h2>Find unsupported</h2>
+            <button type="button" id="findUnsupported">Find unsupported</button>
+            <pre id="unsupportedOutput"></pre>
+        </div>
+    </aside>
+    <script src="./rich-text.js"></script>
+</body>
+
+</html>

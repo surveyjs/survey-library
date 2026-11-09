@@ -10,6 +10,7 @@ examples/
 examples_test/
 .gitignore
 index.js
+rich-text.js
 packages/survey-core/tests/bundle/*
 packages/converter/corpus/
 packages/survey-core/prompts/

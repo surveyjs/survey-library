@@ -612,10 +612,10 @@ Scope: `entries/rich-text.ts` (version check, empty `RichText`), `rollup.rich-te
 Automated: build succeeds; lint.
 
 **CP0 — the plugin loads.** Run `npm run build && npm run build:rich-text` in `packages/survey-core`, then `npm run build && npm start` in `packages/survey-react-ui`, open `/rich-text.html`.
-- [ ] The survey renders; the console has no errors and no version-mismatch warning.
-- [ ] `window.SurveyRichText.RichText` exists.
-- [ ] With `?plugin=off`, `SurveyRichText` is undefined and the survey looks identical.
-- [ ] `build/rich-text/index.js`, `build/fesm/rich-text/index.mjs`, `build/rich-text.css` exist.
+- [x] The survey renders; the console has no errors and no version-mismatch warning.
+- [x] `window.SurveyRichText.RichText` exists.
+- [x] With `?plugin=off`, `SurveyRichText` is undefined and the survey looks identical.
+- [x] `build/rich-text/index.js`, `build/fesm/rich-text/index.mjs`, `build/rich-text.css` exist.
 
 #### M1 — survey-core hook (§5)
 

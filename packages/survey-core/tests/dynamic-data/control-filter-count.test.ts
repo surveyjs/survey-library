@@ -199,3 +199,35 @@ describe("A Filter Control's count and the rows a visibility condition hides", (
     expect(matrix.visibleRows.length, "#4: a filter change drops the touched row").toBe(3);
   });
 });
+
+// Without paging a record's visibility comes from its row or panel, and only the records the view
+// shows have one: a record the control filter keeps out may never have been built. The count reads
+// the visibility condition for those, as Apply would.
+describe("A Filter Control's count and the records with no row or panel", () => {
+  const ages = (): Array<any> => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((age: number): any => ({ age: age }));
+  const preset = { items: [{ name: "older", expression: "{age} > 5" }], defaultItem: "older" };
+  test("a non-paged Dynamic Matrix: the rows the active preset keeps out were never built", async () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", rowsVisibleIf: "{row.age} > 3", columns: [{ name: "age", cellType: "text" }], defaultValue: ages() },
+      Object.assign({ type: "filter", name: "f1", source: "m" }, preset)] });
+    const matrix = <any>survey.getQuestionByName("m");
+    const q = <any>survey.getQuestionByName("f1");
+    expect(matrix.visibleRows.length, "#1: the preset's rows").toBe(5);
+    expect(await q.countFilterResults(""), "#2: no conditions").toBe(7);
+    expect(await q.countFilterResults("{age} < 6"), "#3").toBe(2);
+    q.clearActiveItem();
+    expect(matrix.visibleRows.length, "#4: what Apply shows").toBe(7);
+  });
+  test("a non-paged Dynamic Panel: the panels the active preset keeps out were never built", async () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p", templateVisibleIf: "{panel.age} > 3", templateElements: [{ type: "text", name: "age" }] },
+      Object.assign({ type: "filter", name: "f1", source: "p" }, preset)] });
+    survey.data = { p: ages() };
+    const panel = <any>survey.getQuestionByName("p");
+    const q = <any>survey.getQuestionByName("f1");
+    expect(panel.visiblePanels.length, "#1: the preset's panels").toBe(5);
+    expect(await q.countFilterResults(""), "#2: no conditions").toBe(7);
+    q.clearActiveItem();
+    expect(panel.visiblePanels.length, "#3: what Apply shows").toBe(7);
+  });
+});

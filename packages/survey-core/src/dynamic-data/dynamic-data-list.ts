@@ -873,8 +873,11 @@ export class DynamicDataList {
      - records held here as the whole storage (a source that does not page, or a paging one read whole
        for a view it cannot run) are counted here, exactly;
      - a paging source that cannot filter, while it holds only a page, and a source that sends no
-       total: unknown. */
-  public countControlFilter(controlFilter: string): Promise<number | undefined> {
+       total: unknown.
+     isRecordShown, when the owner gives it, says which records it shows, instead of the owner-hidden
+     flags: without paging the flags come from the rows or panels, and a record out of the view has
+     none. */
+  public countControlFilter(controlFilter: string, isRecordShown?: (index: number) => boolean): Promise<number | undefined> {
     if (!this._source || this.isDisposed) return Promise.resolve(undefined);
     if (!this.readState.mayFilterLocally) return this.countAtSource(combineFilterExpressions(this.view.filter, controlFilter));
     if (!this.isWindowCommitted || !this.isWindowWholeStorage) return Promise.resolve(undefined);
@@ -885,9 +888,10 @@ export class DynamicDataList {
       return Promise.resolve(undefined);
     }
     // A record the owner hides (rowsVisibleIf, templateVisibleIf) is not shown after Apply either: the
-    // membership's own flags say which, as they do for the view.
+    // owner's predicate or the membership's own flags say which, as they do for the view.
+    const isShown = isRecordShown || ((index: number): boolean => this.isRecordVisible(index));
     const indexes = applyFilters(this.records, [this.view.filterRunner, runner], this.getFields(), this.getSurveySettings());
-    return Promise.resolve(indexes.filter((index: number): boolean => this.isRecordVisible(index)).length);
+    return Promise.resolve(indexes.filter(isShown).length);
   }
   private getSurveySettings(): ISurveySettings {
     return getSettingsOfSurvey(!!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined);

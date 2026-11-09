@@ -29,7 +29,7 @@ import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fiel
 import {
   IRecordIndexFollower, RecordIndexEvent, RecordRemap, createLazyRemap, getRecordListChangeEvent, isRecordListChange, toKnownRemap
 } from "./records/records-index-followers";
-import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
+import { IDynamicDataRecordCondition, IDynamicDataRecordScope, createRecordVisibilityPredicate } from "./dynamic-data/dynamic-data-record-visibility";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { Action } from "./actions/action";
@@ -2479,7 +2479,21 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   // How many records would be shown if the control with this key filtered by expression instead of
   // what it filters by now; undefined when it cannot be known. Nothing is applied.
   public getControlFilterCount(key: string, expression: string): Promise<number | undefined> {
-    return this.paging.countControlFilter(key, expression);
+    return this.paging.countControlFilter(key, expression, this.isPagingActive ? undefined : this.createRecordShownPredicate());
+  }
+  /* Without paging a record's visibility comes from its row or panel, and only the records of the view
+     have one: a record without one runs the visibility condition here, as its object would once built.
+     Under paging the list's flags are the condition's already, over every record
+     (updatePagedRecordsVisibility). */
+  private createRecordShownPredicate(): (index: number) => boolean {
+    const isShowingAll = this.areInvisibleElementsShowing;
+    const byCondition = createRecordVisibilityPredicate(isShowingAll ? "" : this.getExpressionFromSurvey(this.getRecordVisibleIfPropertyName()),
+      (index: number): any => this.getListRecordAt(index), (): IDynamicDataRecordScope => this.createRecordVisibilityScope(this.getDataFilteredProperties()),
+      isShowingAll ? undefined : this.getRecordConditionReader());
+    return (index: number): boolean => {
+      const item = this.getItemByRecordIndex(index);
+      return !!item ? this.isItemVisible(item) : byCondition(index);
+    };
   }
   // The fields a Filter Control offers for the records: the matrix columns, the panel template's
   // questions. A records question with no fields of its own offers none.

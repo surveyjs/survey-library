@@ -3272,8 +3272,8 @@ export class Question extends SurveyElement<Question>
      must not wipe the other required errors. */
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered || !!this.getErrorByType("required")) && this.hasRequiredError()) {
-      const err = new AnswerRequiredError(this.requiredErrorText, this);
-      err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
+      const err = new AnswerRequiredError(this.getRequiredErrorText(), this);
+      err.onUpdateErrorTextCallback = (err) => { err.text = this.getRequiredErrorText(); };
       errors.push(err);
     }
     if (!this.isEmpty() && this.customWidget) {
@@ -3282,6 +3282,11 @@ export class Question extends SurveyElement<Question>
         errors.push(this.addCustomError(text));
       }
     }
+  }
+  // The text of the "required" error. A question type with its own required check (boolean requireTrue)
+  // overrides it; it is read again on a locale change through onUpdateErrorTextCallback.
+  protected getRequiredErrorText(): string {
+    return this.requiredErrorText;
   }
   public hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();

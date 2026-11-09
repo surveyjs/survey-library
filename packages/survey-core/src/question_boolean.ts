@@ -215,18 +215,26 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    */
   @property()
     valueFalse: any;
-  // A modifier of isRequired (and requiredIf): while the question is required, only valueTrue passes the
-  // required check, so a required "I agree" checkbox cannot be left unchecked. It changes nothing else:
-  // false stays an answer for isEmpty(), isAnswered, the empty operator, progress and the data.
-  @property({ defaultValue: false }) requiredTrue: boolean;
+  // A check of its own, independent of isRequired and requiredIf: while it is on, only valueTrue passes,
+  // so an "I agree" checkbox cannot be left untouched or answered No. It reuses the "required" error type
+  // (so the base clear/re-check logic applies), shows requireTrueErrorText, and replaces the ordinary
+  // required error, so a question that is also isRequired shows one error. It does not set isRequired
+  // or the required mark, and false stays an answer for isEmpty(), isAnswered, the empty operator,
+  // progress and the data.
+  @property({ defaultValue: false }) requireTrue: boolean;
+  @property({ localizable: { defaultStr: "requireTrueError" } }) requireTrueErrorText: string;
+  declare readonly locRequireTrueErrorText: LocalizableString;
   public hasRequiredError(): boolean {
-    if (super.hasRequiredError()) return true;
-    return this.isRequired && this.requiredTrue && this.booleanValue !== true;
+    if (this.requireTrue) return this.booleanValue !== true;
+    return super.hasRequiredError();
   }
-  // On a value change, Question checks required only for a cleared answer. A false that fails requiredTrue
+  protected getRequiredErrorText(): string {
+    return this.requireTrue ? this.requireTrueErrorText : super.getRequiredErrorText();
+  }
+  // On a value change, Question checks required only for a cleared answer. A false that fails requireTrue
   // is a non-empty answer, so it is checked at once, as a validator would be.
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
-    if (isOnValueChanged && this.requiredTrue && !this.isEmpty()) isOnValueChanged = false;
+    if (isOnValueChanged && this.requireTrue && !this.isEmpty()) isOnValueChanged = false;
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
   }
 
@@ -488,7 +496,7 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     // as isRequired does when it is switched off
-    if (name === "requiredTrue" && !this.requiredTrue && this.errors.length > 0) {
+    if (name === "requireTrue" && !this.requireTrue && this.errors.length > 0) {
       this.validate();
     }
     if (name === "displayMode") {
@@ -554,12 +562,8 @@ Serializer.addClass(
     },
     "valueTrue",
     "valueFalse",
-    {
-      name: "requiredTrue:boolean",
-      default: false,
-      dependsOn: ["isRequired", "requiredIf"],
-      visibleIf: (obj: any): boolean => !!obj && (!!obj.isRequired || !!obj.requiredIf)
-    },
+    { name: "requireTrue:boolean" },
+    { name: "requireTrueErrorText:text", serializationProperty: "locRequireTrueErrorText" },
     { name: "swapOrder:boolean" },
     {
       name: "displayMode",

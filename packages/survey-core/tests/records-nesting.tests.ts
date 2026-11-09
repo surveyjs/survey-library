@@ -451,6 +451,8 @@ describe("records nesting: a matrix detail panel", () => {
         detailElements: [{ type: "text", name: "flat" }, { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }] }
     ] });
     expect(matrixOf(survey).getDesignSortFields().map(f => f.field)).toEqual(["col1", "flat"]);
+    survey.dataNesting = "none";
+    expect(matrixOf(survey).getDesignSortFields().map(f => f.field), "#2 none: the panel does not nest").toEqual(["col1", "flat", "street"]);
   });
   test("runtime: valueName set and cleared on a detail panel's inner panel, dataNesting \"none\" (D8)", () => {
     const survey = new SurveyModel({ elements: [
@@ -481,6 +483,16 @@ describe("records nesting: a matrix detail panel", () => {
     const pd = new SurveyModel(pdJson({ dataNesting: "none" }));
     const pdPanel = <PanelModel>(<QuestionPanelDynamicModel>pd.getQuestionByName("items")).template.getElementByName("p1");
     expect(pdPanel.getRecordDataNestingKey(), "#3 a dynamic panel's template, none").toBe("");
+    const nested = new SurveyModel({ dataNesting: "none", elements: [{ type: "matrixdynamic", name: "rows", detailPanelMode: "underRow", columns: [{ name: "col1" }],
+      detailElements: [{ type: "paneldynamic", name: "items", templateElements: [
+        { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }, { type: "text", name: "top" }] }] }] });
+    const innerPd = <QuestionPanelDynamicModel>matrixOf(nested).detailPanel.getQuestionByName("items");
+    const innerP1 = <PanelModel>innerPd.template.getElementByName("p1");
+    expect(innerP1.getRecordDataNestingKey(), "#4 a dynamic panel in the detail panel template, none").toBe("");
+    expect(innerPd.getDesignSortFields().map(f => f.field), "#5").toEqual(["street", "top"]);
+    nested.dataNesting = "auto";
+    expect(innerP1.getRecordDataNestingKey(), "#6 auto").toBe("address");
+    expect(innerPd.getDesignSortFields().map(f => f.field), "#7").toEqual(["top"]);
   });
 });
 

@@ -182,6 +182,14 @@ describe("FilterModal: Show N items", () => {
     await Promise.resolve();
     expect(modal.resultCount).toBe(undefined);
   });
+  test("a read-only dialog counts nothing: it has no button to show the count on", () => {
+    const q = <QuestionFilterModel>createBound().getQuestionByName("f1");
+    q.readOnly = true;
+    const spy = vi.spyOn(q, "countFilterResults");
+    const modal = q.createFilterModal();
+    expect([modal.isReadOnly, spy.mock.calls.length], "#1").toEqual([true, 0]);
+    modal.dispose();
+  });
   test("a control that cannot count: Show results", async () => {
     const modal = createFilter().createFilterModal();
     await Promise.resolve();

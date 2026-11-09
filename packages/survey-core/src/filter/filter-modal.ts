@@ -249,8 +249,14 @@ export class FilterModal extends Base {
       this.countTimer = undefined;
     }
   }
-  // Only the answer to the latest count is taken: an older one can arrive after it.
+  // Only the answer to the latest count is taken: an older one can arrive after it. A read-only dialog
+  // has no button to show the count on (no footer), so it counts nothing: for a source that filters
+  // itself, a count is a read.
   private count(): void {
+    if (this.isReadOnly) {
+      this.isCounting = false;
+      return;
+    }
     const request = ++this.countRequest;
     this.isCounting = true;
     const done = (count: number | undefined): void => {

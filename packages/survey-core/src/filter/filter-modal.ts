@@ -4,7 +4,7 @@ import { toCssClasses } from "../utils/cssClassBuilder";
 import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { IFilterCondition, IFilterState } from "../interfaces/ui-interfaces";
-import { FilterItem, getFilterElementId, getUniqueFilterActionId } from "./filter-item";
+import { FilterItem, getUniqueFilterActionId } from "./filter-item";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
 import { filterUIStrings } from "./filter-ui-strings";
 
@@ -50,8 +50,8 @@ export class FilterModal extends Base {
   private editorValue: FilterConditionsEditor;
   private presetsToolbarValue: ActionContainer;
   // The presets section is a group named by its title (aria-labelledby): the renderer gives the title
-  // this id.
-  public readonly presetsTitleId: string = getFilterElementId("sv-filter-presets-title-");
+  // this id, made of the dialog's own element id.
+  public get presetsTitleId(): string { return this.id + "_presets-title"; }
   private creationToolbarValue: ActionContainer;
   private presetsTitleToolbarValue: ActionContainer;
   private addPresetAction: Action;

@@ -9,7 +9,7 @@ import { getLocaleString } from "../surveyStrings";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import { setUpDialogSurvey } from "../utils/dialog-survey";
 import { IFilterCondition, IFilterItemEdit } from "../interfaces/ui-interfaces";
-import { FilterItem, getFilterElementId, getUniqueFilterActionId } from "./filter-item";
+import { FilterItem, getUniqueFilterActionId } from "./filter-item";
 import { FilterConditionsEditor, IFilterConditionsEditorOwner, createFilterEditorOwner } from "./filter-conditions-editor";
 import { getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import type { FilterAIRequest } from "./filter-ai";
@@ -357,8 +357,8 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
   private tabsToolbarValue: ActionContainer;
   private actionsToolbarValue: ActionContainer;
   // The Preset Actions section is a group named by its title (aria-labelledby): the renderer gives
-  // the title this id.
-  public readonly actionsTitleId: string = getFilterElementId("sv-filter-preset-actions-title-");
+  // the title this id, made of the dialog's own element id.
+  public get actionsTitleId(): string { return this.id + "_actions-title"; }
   private deleteAction: Action;
   private resetAction: Action;
 

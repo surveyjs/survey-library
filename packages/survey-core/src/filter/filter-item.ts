@@ -16,13 +16,6 @@ export function getUniqueFilterActionId(base: string, isUsed: (id: string) => bo
   }
   return id;
 }
-// An element id of the Filter Control's own, unique on the page: a dialog section's title, which
-// names the section (aria-labelledby).
-let filterElementIdCounter = 0;
-export function getFilterElementId(prefix: string): string {
-  filterElementIdCounter++;
-  return prefix + filterElementIdCounter;
-}
 
 // A preset: one saved filter the survey author defines (in JSON or in Creator's property grid), that
 // the end user applies to the data with a single click by picking it in the Filter Control, and can

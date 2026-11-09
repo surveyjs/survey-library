@@ -49,6 +49,7 @@ describe("Filter Control: ARIA", () => {
     expect(first.presetsTitleId === second.presetsTitleId, "#2: unique").toBe(false);
     const dialog = q.createEditPresetsDialog();
     expect(!!dialog.actionsTitleId && dialog.actionsTitleId !== first.presetsTitleId, "#3").toBe(true);
+    expect([first.presetsTitleId.indexOf(first.id), dialog.actionsTitleId.indexOf(dialog.id)], "#4: made of the dialog's own element id").toEqual([0, 0]);
     [first, second, dialog].forEach((d: any): void => d.dispose());
   });
 });

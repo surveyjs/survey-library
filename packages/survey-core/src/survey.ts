@@ -111,7 +111,7 @@ import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
-import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject } from "./survey-settings";
+import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
@@ -1252,6 +1252,8 @@ export class SurveyModel extends SurveyElementCore
     );
     // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
     this.surveySettingsValues.merge(options, true);
+    // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
+    addEventHandlersFromOptions(this, options);
 
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     if (jsonObj) {

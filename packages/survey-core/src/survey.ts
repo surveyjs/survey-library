@@ -6757,13 +6757,14 @@ export class SurveyModel extends SurveyElementCore
             this.suspendLazyRendering();
             this.focusedQuestionScroll.scrollIntoView(htmlElement);
             this.releaseLazyRendering();
-            activateLazyRenderingChecks(htmlElement);
+            // Without lazy rendering no row waits for the check, and its synthetic scroll is not needed.
+            if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
           } else {
             this.suspendLazyRendering();
             SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
               this.releaseLazyRendering();
-              activateLazyRenderingChecks(htmlElement);
+              if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
               optOnScolledCallback && optOnScolledCallback();
             });
           }
@@ -9671,7 +9672,7 @@ export class SurveyModel extends SurveyElementCore
     return this.focusedQuestionScrollValue;
   }
 
-  public onScroll(): void {
+  public onScroll(event?: Event): void {
     if (!!this.rootElement) {
       if (this._isElementShouldBeSticky(".sv-components-container-center")) {
         this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
@@ -9682,12 +9683,14 @@ export class SurveyModel extends SurveyElementCore
         this.tocModel.updateStickyTOCSize(this.rootElement);
       }
     }
-    if (this.onScrollCallback) {
+    // A scroll event dispatched by script (the lazy rendering check) must not close an open popup.
+    // A call without an event (the popup survey window) still closes it.
+    if (this.onScrollCallback && event?.isTrusted !== false) {
       this.onScrollCallback();
     }
   }
   public addScrollEventListener(): void {
-    this.scrollHandler = () => { this.onScroll(); };
+    this.scrollHandler = (event: Event) => { this.onScroll(event); };
     this.rootElement.addEventListener("scroll", this.scrollHandler);
     if (!!this.rootElement.getElementsByTagName("form")[0]) {
       this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);

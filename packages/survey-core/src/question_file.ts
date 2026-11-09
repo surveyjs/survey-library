@@ -252,7 +252,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private get pagesCount() {
     return Math.ceil(this.previewValue.length / this.pageSize);
   }
-
   get actionsContainerVisible(): boolean {
     const showLoadingIndicator = this.showLoadingIndicator;
     const isPlayingVideo = this.isPlayingVideo;
@@ -266,7 +265,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
         this.acceptedTypes = undefined;
       }
     });
-    this.actionsContainerValue = this.createActionsContainer();
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -281,8 +279,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   private actionsContainerValue: ActionContainer;
   public get actionsContainer(): ActionContainer {
-    if (this.actionsContainerValue.actions.length === 0) {
-      this.actionsContainerValue.actions = this.createContainerActions();
+    if (!this.actionsContainerValue) {
+      Base.runUntracked(() => {
+        this.actionsContainerValue = this.createFileActionsContainer();
+        this.actionsContainerValue.containerCss = new ComputedUpdater<string>(() => this.cssClasses.actionsContainer) as unknown as string;
+        this.actionsContainerValue.actions = this.createContainerActions();
+      });
     }
     return this.actionsContainerValue;
   }
@@ -290,14 +292,16 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private fileNavigatorValue: ActionContainer;
   public get fileNavigator(): ActionContainer {
     if (!this.fileNavigatorValue) {
-      this.fileNavigatorValue = this.createActionsContainer();
-      this.fileNavigatorValue.actions = this.createFileNavigatorActions();
+      Base.runUntracked(() => {
+        this.fileNavigatorValue = this.createFileActionsContainer();
+        this.fileNavigatorValue.actions = this.createFileNavigatorActions();
+      });
     }
     return this.fileNavigatorValue;
   }
 
-  private createActionsContainer(): ActionContainer {
-    const container = new ActionContainer();
+  private createFileActionsContainer(): ActionContainer {
+    const container = this.createActionContainer();
     container.setActionsAppearance({ style: "neutral", mode: "quaternary-surface", size: "small" });
     container.locOwner = this;
     return container;
@@ -1132,16 +1136,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
     src.value = "";
     this.loadFiles(files);
-  }
-  private updateActionsContainerCss(css: any, classes: any): void {
-    const container = this.actionsContainerValue;
-    container.cssClasses = css.actionBar;
-    container.containerCss = classes.actionsContainer;
-  }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    this.updateActionsContainerCss(css, classes);
-    return classes;
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();

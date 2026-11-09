@@ -1725,7 +1725,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private toolbarValue: ActionContainer;
   public get toolbar(): ActionContainer {
     if (!this.toolbarValue) {
-      this.initToolbar();
+      Base.runUntracked(() => this.initToolbar());
     }
     return this.toolbarValue;
   }

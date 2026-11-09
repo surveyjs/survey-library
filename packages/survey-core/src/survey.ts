@@ -2816,11 +2816,13 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
   public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
-      this.navigationBarValue = this.createNavigationBar();
-      if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
-      this.updateNavigationCss();
-      this.navigationBarValue.flushUpdates();
-      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
+      Base.runUntracked(() => {
+        this.navigationBarValue = this.createNavigationBar();
+        if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
+        this.updateNavigationCss();
+        this.navigationBarValue.flushUpdates();
+        this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
+      });
     }
     return this.navigationBarValue;
   }

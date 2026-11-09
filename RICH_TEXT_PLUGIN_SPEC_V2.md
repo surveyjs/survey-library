@@ -624,10 +624,10 @@ Scope: `allowRichText` and the `getComponentName` override.
 Automated: core part of `comment-rich-text.tests.ts`; the full existing survey-core suite is green without changed expectations.
 
 **CP1 — core is unchanged without the plugin** (`?plugin=off`).
-- [ ] Comment questions render as ordinary textareas; typing `<b>x</b>` stores `<b>x</b>` literally (data panel).
-- [ ] `c_unsupported` shows its default HTML value as raw text in the textarea.
-- [ ] "Show JSON" contains `"allowRichText": true` for `c_md`; a plain comment has no `allowRichText` key; no element has a `textFormat` key.
-- [ ] Titles with HTML on page "Strings" show the raw tags (no plugin → no rendering), exactly as before the change.
+- [x] Comment questions render as ordinary textareas; typing `<b>x</b>` stores `<b>x</b>` literally (data panel).
+- [x] `c_unsupported` shows its default HTML value as raw text in the textarea.
+- [x] "Show JSON" contains `"allowRichText": true` for `c_md`; a plain comment has no `allowRichText` key; no element has a `textFormat` key.
+- [x] Titles with HTML on page "Strings" show the raw tags (no plugin → no rendering), exactly as before the change.
 
 #### M2 — Sanitizer and survey string rendering (§3, §4.1, §6.2, §6.3, `findUnsupported`)
 

@@ -39,7 +39,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
@@ -97,7 +97,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { PanelDataScope, PanelDataScopeValueGetterContext, DataKeyIndex, IDataScope, isKnownDataKey, getNameOfCommentName, getElementDataScope, getActiveDataScope, getRecordDataScope } from "./panel-data-scope";
+import { PanelDataScope, PanelDataScopeValueGetterContext, getMetadataValueGetterContext, DataKeyIndex, IDataScope, isKnownDataKey, getNameOfCommentName, getElementDataScope, getActiveDataScope, getRecordDataScope } from "./panel-data-scope";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { registerRecordsSortDialogSurvey } from "./records/records-sort-dialog";
@@ -154,6 +154,26 @@ interface ICalculatedValuesAtLoad {
   changed: Set<string>;
 }
 
+// SurveyModel.getExpressionScopePaths: a data path an expression resolves names in; record: the records question
+// the path is relative to (RN4), none for a path from the survey data.
+export interface IExpressionScopePath {
+  path: Array<string>;
+  record?: Question;
+}
+// ["a", "b"] -> [["a", "b"], ["a"], []]
+function getPathPrefixes(path: Array<string>): Array<Array<string>> {
+  const res: Array<Array<string>> = [];
+  for (let i = path.length; i >= 0; i--) res.push(path.slice(0, i));
+  return res;
+}
+// SurveyModel.getQuestionByVariable: the question an expression variable reads, and how the name reads it.
+export interface IExpressionVariableInfo {
+  question: Question;
+  rest: string;
+  isComment?: boolean;
+  isUnwrapped?: boolean;
+}
+
 class SurveyValueGetterContext extends ValueGetterContextCore {
   // findPageOrPanel: a page, else a panel, by a name with its letter case ignored (a property path {$page1.title})
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>, private valuesKeyIndex: HashKeyIndex,
@@ -181,18 +201,33 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
+    if (params.isMetadata) {
+      res = this.getTopLevelCommentInfo(path);
+      if (!!res) return res;
+    }
     return createDataContext(this.valuesHash, this.valuesKeyIndex).getValue(params);
+  }
+  // The metadata mode: a top-level question's comment key ({kind-Comment}), which the runtime reads from the
+  // raw data (the step after this one). It names the question, not the stored key.
+  private getTopLevelCommentInfo(path: Array<IValueGetterItem>): IValueGetterInfo {
+    const baseName = path.length > 0 ? getNameOfCommentName(path[0].name) : "";
+    const q = !!baseName ? this.survey.getQuestionByValueName(baseName, true) : null;
+    return !!q ? { isFound: true, obj: q, isComment: true, restFrom: path[0].to } : undefined;
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
     if (name.endsWith(unWrappedNameSuffix)) {
       name = name.substring(0, name.length - unWrappedNameSuffix.length);
+      if (res.isMetadata) res.isUnwrapped = true;
     }
     // Before the raw data: the root data scope's key, then an inner question by its name (design-01 1.1).
-    const info = this.survey.findDataScopeValueContext(name);
+    const info = this.survey.findDataScopeValueContext(name, res.isMetadata);
     if (!!info) {
       res.isFound = true;
-      if (!!info.context) {
+      if (info.isComment) {
+        res.obj = info.obj;
+        res.isComment = true;
+      } else if (!!info.context) {
         res.obj = info.obj;
         res.context = info.context;
       } else {
@@ -7478,11 +7513,62 @@ export class SurveyModel extends SurveyElementCore
     const q = this.getQuestionByName(name);
     return !this.isDataScopeKey(name) && (!q || q.getValueScope() === this);
   }
+  // Which question an expression variable reads ({street}, {address.street}, {m.r1}, {kind-Comment}), found by
+  // the runtime's own walk in its metadata mode, without values (decisions L1-L5). context is the object whose
+  // expression it is (a question, a panel, a page, a matrix column); the survey when it is omitted. null when
+  // the runtime answers the name with no element question: a built-in, a property path, a variable, a
+  // container's object, the raw data, a matrix cell or an item editor.
+  // rest is the exact tail of the name after the question's part ("", ".r1", "[0].q1"), so the head a rename
+  // replaces is name.slice(0, name.length - rest.length).
+  public getQuestionByVariable(name: string, context?: Base): IExpressionVariableInfo {
+    const owner: any = context || this;
+    if (!name || typeof owner.getValueGetterContext !== "function") return null;
+    const info = new ValueGetter().getQuestionInfo(name, getMetadataValueGetterContext(owner));
+    const q = <Question>info?.obj;
+    if (!q || !q.isQuestion || !this.isElementQuestion(q) || info.restFrom === undefined) return null;
+    const res: IExpressionVariableInfo = { question: q, rest: name.substring(info.restFrom) };
+    if (info.isComment) res.isComment = true;
+    if (info.isUnwrapped) res.isUnwrapped = true;
+    return res;
+  }
+  // The data paths an object's expressions resolve their names in, innermost first, ending with the survey's []
+  // (decisions L6): the prefixes of its value scope's data path; a panel's and a page's own expressions run in
+  // their parent's scope. Inside a record (a template element at design time, a record's element, a matrix
+  // column) the paths relative to the record come first, tagged with the records question (RN4), then the
+  // records question's own paths.
+  public getExpressionScopePaths(context: Base): Array<IExpressionScopePath> {
+    const el: any = context;
+    if (!el || el === this) return [{ path: [] }];
+    if (!!el.colOwner) return [<IExpressionScopePath>{ path: [], record: el.colOwner }].concat(this.getExpressionScopePaths(el.colOwner));
+    // A record panel's and a template's own expressions run in the record.
+    const own = typeof el.getRecordsOwner === "function" ? el.getRecordsOwner() : null;
+    if (!!own) return [<IExpressionScopePath>{ path: [], record: own }].concat(this.getExpressionScopePaths(own));
+    const keys: Array<string> = [];
+    let panel: any = el.parent;
+    while(!!panel && typeof panel.getRecordsOwner === "function") {
+      const records = panel.getRecordsOwner();
+      if (!!records) {
+        const res = getPathPrefixes(keys).map(path => <IExpressionScopePath>{ path: path, record: records });
+        return res.concat(this.getExpressionScopePaths(records));
+      }
+      const key = panel.getRecordDataNestingKey();
+      if (!!key) keys.unshift(key);
+      panel = panel.parent;
+    }
+    const scope = typeof el.getValueScope === "function" ? el.getValueScope() : null;
+    return getPathPrefixes(!!scope ? scope.getDataPath() : []).map(path => <IExpressionScopePath>{ path: path });
+  }
+  // An element of a panel or a page, not a matrix cell or a multiple text item editor (their parent is no container).
+  private isElementQuestion(q: Question): boolean {
+    const parent: any = q.parent;
+    return !!parent && (parent.isPanel || parent.isPage);
+  }
   // The root expression lookup (SurveyValueGetterContext), in this order: the root index, a question by value
   // name (the exact name first), then a container by key; then a question by name whose value scope is not
   // the root (names are unique, design-01 1.1). A comment key ({kind-Comment}) of such a question gives the
-  // comment it stores (value, no context), as a top-level {q-Comment} reads the raw data key.
-  public findDataScopeValueContext(name: string): { obj?: Question, context?: IValueGetterContext, value?: any } {
+  // comment it stores (value, no context), as a top-level {q-Comment} reads the raw data key; isMetadata
+  // (getQuestionByVariable) gives the question instead, marked isComment, and reads nothing.
+  public findDataScopeValueContext(name: string, isMetadata?: boolean): { obj?: Question, context?: IValueGetterContext, value?: any, isComment?: boolean } {
     const q = this.getQuestionByValueName(name, true);
     if (!!q) return { obj: q, context: q.getValueGetterContext() };
     if (!this.isDataScopeUsedValue) return undefined;
@@ -7493,6 +7579,7 @@ export class SurveyModel extends SurveyElementCore
     const baseName = getNameOfCommentName(name);
     const owner = !!baseName ? this.getQuestionByName(baseName, true) : null;
     if (!!owner && owner.getValueScope() !== this) {
+      if (isMetadata) return { obj: owner, isComment: true };
       return { value: owner.getValueScope().getValue(Helpers.getCommentKey(owner.getValueName())) };
     }
     return undefined;

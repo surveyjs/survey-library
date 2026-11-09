@@ -91,7 +91,9 @@ export class QuestionValueGetterContext implements IValueGetterContext {
           new QuestionArrayGetterContext(panel.questions).getValue(params);
       }
     }
-    if (!this.question.isEmpty()) {
+    // The own value answers a name first ({r1.c1} in a matrix's own expressions). The metadata mode reads no
+    // value, so it skips the step: the name goes on to the question's container.
+    if (!params.isMetadata && !this.question.isEmpty()) {
       let val = this.question.value;
       if (index >= 0) {
         if (!Array.isArray(val || index >= val.length)) return undefined;
@@ -129,7 +131,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
 export abstract class QuestionItemValueGetterContext extends ValueGetterContextCore {
   protected abstract getIndex(): number;
   protected abstract getQuestionData(): Question;
-  protected getValueFromBindedQuestions(path: Array<IValueGetterItem>, objValue: any): IValueGetterInfo {
+  protected getValueFromBindedQuestions(path: Array<IValueGetterItem>, objValue: any, isMetadata?: boolean): IValueGetterInfo {
     if (typeof objValue !== "object") {
       objValue = undefined;
     }
@@ -141,7 +143,7 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       if (!!name && q.valuePropertyName === name && !!objValue && objValue.hasOwnProperty(name)) {
         return { isFound: true, value: objValue[name], context: q.getValueGetterContext() };
       }
-      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex(), existingObjectsOnly: this.readsExistingObjectsOnly() });
+      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex(), existingObjectsOnly: this.readsExistingObjectsOnly(), isMetadata });
       if (!!res && res.isFound) return res;
     }
     return undefined;

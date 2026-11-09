@@ -35,7 +35,7 @@ import { Action } from "./actions/action";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { Scope, ValueScope } from "./utils/scope";
-import { ObjectDataScope, PanelDataScope, PanelDataScopeValueGetterContext, RecordKeyLevel, getActiveDataScope, getElementDataScope, asScopeObject, hasRecordDataNesting } from "./panel-data-scope";
+import { ObjectDataScope, PanelDataScope, PanelDataScopeValueGetterContext, RecordKeyLevel, RecordKeyLevelValueGetterContext, getActiveDataScope, getElementDataScope, asScopeObject, hasRecordDataNesting } from "./panel-data-scope";
 import { RecordsDataWaits } from "./records/records-data-waits";
 import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainerVisible } from "./records/records-hidden-answers";
 import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/records-cleanup-runner";
@@ -4321,7 +4321,7 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
       if (!!res && res.isFound) return res;
       const allValues = this.item.getAllValues();
       if (params.isRoot) {
-        res = this.getValueFromBindedQuestions(path, allValues);
+        res = this.getValueFromBindedQuestions(path, allValues, params.isMetadata);
         if (!!res) return res;
       }
       return new VariableGetterContext(allValues).getValue(params);
@@ -4341,6 +4341,24 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
     if (scopes.length > 0) {
       res.isFound = true;
       res.context = new PanelDataScopeValueGetterContext(scopes);
+      return;
+    }
+    // The metadata mode at design time: a template's nesting panels have no scope, and a row's detail panel is
+    // not built; the template's keys answer.
+    if (res.isMetadata) {
+      const level = new RecordKeyLevel(this.item.getRecordKeyElements());
+      const q = level.getQuestion(name, true);
+      if (!!q) {
+        res.isFound = true;
+        res.obj = q;
+        res.context = q.getValueGetterContext();
+        return;
+      }
+      const levels = level.getLevels(name, true);
+      if (levels.length > 0) {
+        res.isFound = true;
+        res.context = new RecordKeyLevelValueGetterContext(levels);
+      }
     }
   }
   /* The neighbour comes from the view, not from the objects that exist: the first panel or row of a
@@ -4443,6 +4461,11 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   // The record's questions on a value name, as the key index has them: in document order, a row's cells first.
   public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
     return this.getIndexQuestions(name, caseInsensitive);
+  }
+  // The elements the record's keys come from, for the metadata mode (getQuestionByVariable): the record's own
+  // (the panel's; a row's cells and detail panel).
+  public getRecordKeyElements(): Array<IElement> {
+    return this.getScopeElements();
   }
   // The record's nesting panels' scopes on a key (RN3).
   public getDataScopesByKey(name: string, caseInsensitive?: boolean): Array<PanelDataScope> {

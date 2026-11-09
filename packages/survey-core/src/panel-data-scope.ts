@@ -192,11 +192,11 @@ export class RecordKeyLevel {
     });
   }
   // The levels of the nesting panels on a key: panels sharing a key share its object (D4).
-  public getLevels(key: string): Array<RecordKeyLevel> {
-    return this.index.getElements(key).filter(el => !el.isQuestion).map(el => this.levels.get(el));
+  public getLevels(key: string, caseInsensitive?: boolean): Array<RecordKeyLevel> {
+    return this.index.getElements(key, caseInsensitive).filter(el => !el.isQuestion).map(el => this.levels.get(el));
   }
-  public getQuestion(key: string): Question {
-    return this.index.getQuestions(key)[0] || undefined;
+  public getQuestion(key: string, caseInsensitive?: boolean): Question {
+    return this.index.getQuestions(key, caseInsensitive)[0] || undefined;
   }
   public isKnownKey(key: string): boolean {
     return isKnownDataKey(this.index, key);
@@ -565,15 +565,58 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
   }
 }
 
+// The name step of a context over the keys of one data level, ignoring letter case: a question of the level
+// (by value name; an empty question still answers), then an inner level (by key), then, for a comment key
+// ({kind-Comment}), the comment a question of the level stores. The metadata mode (getQuestionByVariable)
+// gives the question instead of the comment. A scope's context (PanelDataScopeValueGetterContext) and a
+// records template's level (RecordKeyLevelValueGetterContext) share it.
+abstract class DataLevelValueGetterContext extends ValueGetterContextCore {
+  protected isSearchNameRevert(): boolean { return true; }
+  protected abstract findQuestion(name: string): Question;
+  protected abstract findInnerContext(name: string): IValueGetterContext;
+  protected abstract getCommentValue(owner: Question): any;
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const postfix = settings.expressionVariables.unwrapPostfix;
+    if (!!postfix && name.endsWith(postfix)) {
+      name = name.substring(0, name.length - postfix.length);
+      if (res.isMetadata) res.isUnwrapped = true;
+    }
+    const question = this.findQuestion(name);
+    if (!!question) {
+      res.isFound = true;
+      res.obj = question;
+      res.context = question.getValueGetterContext();
+      return;
+    }
+    const inner = this.findInnerContext(name);
+    if (!!inner) {
+      res.isFound = true;
+      res.context = inner;
+      return;
+    }
+    const baseName = getNameOfCommentName(name);
+    const owner = !!baseName ? this.findQuestion(baseName) : null;
+    if (!!owner) {
+      // The stored comment, as a top-level {q-Comment} reads the raw data key; the metadata mode names the
+      // question instead.
+      res.isFound = true;
+      if (res.isMetadata) {
+        res.obj = owner;
+        res.isComment = true;
+        return;
+      }
+      res.value = this.getCommentValue(owner);
+    }
+  }
+}
+
 // The expression context of the active scopes that share one key (D4, one scope unless two containers
-// share it). A name is answered, ignoring letter case, by a question of the scopes (by value name; an
-// empty question still answers), then by an active scope directly inside them (by key), then, for a
-// comment key ({kind-Comment}), by the comment a question of the scopes stores. A path with no items
-// left ({address}) gives the stored object.
+// share it), with DataLevelValueGetterContext's name step. A path with no items left ({address}) gives the
+// stored object.
 // As an inner element's context (the scope's getValueGetterContext) an unanswered name falls back to the
 // parent's context through getRootObj; reached through a path from outside ({address.street}) it answers
 // the rest of the path only, and the survey falls back to the raw data.
-export class PanelDataScopeValueGetterContext extends ValueGetterContextCore {
+export class PanelDataScopeValueGetterContext extends DataLevelValueGetterContext {
   constructor(private scopes: Array<PanelDataScope>) {
     super();
   }
@@ -592,42 +635,121 @@ export class PanelDataScopeValueGetterContext extends ValueGetterContextCore {
     const ctx = !!root && typeof root.getValueGetterContext === "function" ? root.getValueGetterContext() : undefined;
     return !!ctx && typeof ctx.getContextKeys === "function" ? ctx.getContextKeys(keys) : {};
   }
-  protected isSearchNameRevert(): boolean { return true; }
-  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const postfix = settings.expressionVariables.unwrapPostfix;
-    if (!!postfix && name.endsWith(postfix)) {
-      name = name.substring(0, name.length - postfix.length);
-    }
-    const question = this.findQuestion(name);
-    if (!!question) {
-      res.isFound = true;
-      res.obj = question;
-      res.context = question.getValueGetterContext();
-      return;
-    }
-    const inner: Array<PanelDataScope> = [];
-    this.scopes.forEach(scope => inner.push(...scope.getDataKeyIndex().getScopes(name, true)));
-    if (inner.length > 0) {
-      res.isFound = true;
-      res.context = new PanelDataScopeValueGetterContext(inner);
-      return;
-    }
-    const baseName = getNameOfCommentName(name);
-    const owner = !!baseName ? this.findQuestion(baseName) : null;
-    if (!!owner) {
-      // The stored comment, as a top-level {q-Comment} reads the raw data key.
-      res.isFound = true;
-      res.value = owner.getValueScope().getValue(Helpers.getCommentKey(owner.getValueName()));
-    }
-  }
   // The scopes' indexes, letter case ignored: a question of the first scope that has one wins.
-  private findQuestion(name: string): Question {
+  protected findQuestion(name: string): Question {
     for (let i = 0; i < this.scopes.length; i++) {
       const res = this.scopes[i].getDataKeyIndex().getQuestions(name, true);
       if (res.length > 0) return res[0];
     }
     return null;
   }
+  protected findInnerContext(name: string): IValueGetterContext {
+    const inner: Array<PanelDataScope> = [];
+    this.scopes.forEach(scope => inner.push(...scope.getDataKeyIndex().getScopes(name, true)));
+    return inner.length > 0 ? new PanelDataScopeValueGetterContext(inner) : undefined;
+  }
+  protected getCommentValue(owner: Question): any {
+    return owner.getValueScope().getValue(Helpers.getCommentKey(owner.getValueName()));
+  }
+}
+// The levels a records template's nesting panels build (RecordKeyLevel), as an expression context of the
+// metadata mode at design time: a template's nesting panel has no scope (place "template"), so its keys come
+// from the template's elements. It holds no values. rootObj: where an unanswered name goes on to.
+export class RecordKeyLevelValueGetterContext extends DataLevelValueGetterContext {
+  constructor(private levels: Array<RecordKeyLevel>, private rootObj?: IObjectValueContext) {
+    super();
+  }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    if (params.path.length === 0) return { isFound: true, value: undefined, context: this };
+    return super.getValue(params);
+  }
+  getRootObj(): IObjectValueContext {
+    return this.rootObj;
+  }
+  protected findQuestion(name: string): Question {
+    for (let i = 0; i < this.levels.length; i++) {
+      const res = this.levels[i].getQuestion(name, true);
+      if (!!res) return res;
+    }
+    return null;
+  }
+  protected findInnerContext(name: string): IValueGetterContext {
+    const inner: Array<RecordKeyLevel> = [];
+    this.levels.forEach(level => inner.push(...level.getLevels(name, true)));
+    return inner.length > 0 ? new RecordKeyLevelValueGetterContext(inner) : undefined;
+  }
+  protected getCommentValue(owner: Question): any {
+    return undefined;
+  }
+}
+// The metadata mode's start context of an element inside a records template (design time): the element's own
+// context, then the levels of the template's nesting panels around it, innermost first, then the template's
+// record, then the records question's own metadata context (an outer template's levels come after an inner
+// template's record). A matrix's detail panel template has no data: the matrix's design row stands for its
+// record. A matrix column goes on to its matrix's metadata context. The element's own context otherwise.
+// A panel's own expressions run in its parent's scope, so its levels start at its parent; a template panel's
+// own expressions run in its record.
+export function getMetadataValueGetterContext(el: any): IValueGetterContext {
+  const cxt: IValueGetterContext = el.getValueGetterContext();
+  if (!!el.colOwner) return withOwnerRoot(cxt, el.colOwner);
+  const template = isTemplatePanel(el) ? el : getRecordTemplatePanel(el);
+  if (!template) return cxt;
+  const chain = getRecordTemplateKeyLevels(el, template);
+  const record: IObjectValueContext = !el.data ? getDesignRecordObj(template) : (el.isQuestion ?
+    (!!cxt && !!cxt.getRootObj ? cxt.getRootObj() : undefined) : { getValueGetterContext: () => cxt });
+  let root: IObjectValueContext = !record ? record :
+    { getValueGetterContext: () => withOwnerRoot(record.getValueGetterContext(), template.getRecordsOwner()) };
+  for (let i = chain.length - 1; i >= 0; i--) {
+    const levels = chain[i];
+    const next = root;
+    root = { getValueGetterContext: () => new RecordKeyLevelValueGetterContext(levels, next) };
+  }
+  const first = root;
+  if (!el.isQuestion || !cxt) return !!first ? first.getValueGetterContext() : cxt;
+  return { getValue: params => cxt.getValue(params), getRootObj: () => first };
+}
+// A context that goes on, when a name is not found, to the owner's metadata context: each step moves to a
+// records question strictly outside the template, so the chain ends at the survey.
+function withOwnerRoot(cxt: IValueGetterContext, owner: any): IValueGetterContext {
+  if (!cxt || !owner) return cxt;
+  return { getValue: params => cxt.getValue(params),
+    getRootObj: () => ({ getValueGetterContext: () => getMetadataValueGetterContext(owner) }) };
+}
+function isTemplatePanel(panel: any): boolean {
+  return !!panel && typeof panel.isRecordTemplatePanel === "function" && panel.isRecordTemplatePanel();
+}
+// The records template around an element, or null.
+function getRecordTemplatePanel(el: any): any {
+  let panel = el.parent;
+  while(!!panel && !isTemplatePanel(panel)) panel = panel.parent;
+  return panel || null;
+}
+// The record of a template with no data (a matrix's detail panel template): the matrix's design row.
+function getDesignRecordObj(template: any): IObjectValueContext {
+  const owner: any = template.getRecordsOwner();
+  if (!owner || typeof owner.getDesignRowContext !== "function") return undefined;
+  return { getValueGetterContext: () => owner.getDesignRowContext() };
+}
+// The levels of the template's nesting panels around an element, innermost first; empty when no panel around
+// it nests in the records.
+function getRecordTemplateKeyLevels(el: any, template: any): Array<Array<RecordKeyLevel>> {
+  const panels: Array<any> = [];
+  let panel = el === template ? null : el.parent;
+  while(!!panel && panel !== template) {
+    panels.unshift(panel);
+    panel = panel.parent;
+  }
+  const res: Array<Array<RecordKeyLevel>> = [];
+  let levels = [new RecordKeyLevel(template.elements)];
+  for (let i = 0; i < panels.length && levels.length > 0; i++) {
+    const key = panels[i].getRecordDataNestingKey();
+    if (!key) continue;
+    const next: Array<RecordKeyLevel> = [];
+    levels.forEach(level => next.push(...level.getLevels(key)));
+    levels = next;
+    if (levels.length > 0) res.unshift(levels);
+  }
+  return res;
 }
 // The value name a comment key names, ignoring letter case ({Kind-comment} -> "Kind"); "" for another name.
 export function getNameOfCommentName(name: string): string {

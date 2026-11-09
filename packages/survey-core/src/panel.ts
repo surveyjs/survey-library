@@ -364,6 +364,10 @@ export class QuestionRowModel extends Base {
 /**
  * A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) and [`PageModel`](https://surveyjs.io/form-library/documentation/pagemodel) classes.
  */
+// Whether el (any element up a parent chain) is a dynamic panel's template or a matrix's detail panel template.
+function isRecordTemplatePanel(el: any): boolean {
+  return !!el.parentQuestion && el.parentQuestion.template === el || !!el.selectedElementInDesign?.isDetailPanelTemplate?.(el);
+}
 export class PanelModelBase extends SurveyElement<Question>
   implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner, ISurveyDataElement {
 
@@ -551,9 +555,20 @@ export class PanelModelBase extends SurveyElement<Question>
     const kind = place === "survey" ? this.getDataNestingKind() : (place === "record" ? "record" : "");
     return this.getDataNestingKeyOfKind(kind);
   }
-  private getDataNestingKeyOfKind(kind: string): string {
+  private getDataNestingKeyOfKind(kind: string, valueName?: string, name?: string): string {
     const survey: any = this.survey || this.getRecordTemplateOwnerSurvey();
-    return getDataNestingKey(!!survey ? survey.dataNesting : undefined, kind, this.valueName, this.name);
+    return getDataNestingKey(!!survey ? survey.dataNesting : undefined, kind,
+      valueName !== undefined ? valueName : this.valueName, name !== undefined ? name : this.name);
+  }
+  // The key this container nests under with these valueName and name (the Creator asks it before a rename),
+  // for where it is now: the dataNesting table on the survey; inside a record and in a records template
+  // (RN3) under valueName only; "" for a record panel itself and inside a composite. A template panel
+  // answers with the key of the records built from it (getRecordDataNestingKey), not with its own,
+  // which is "" at design time.
+  public getDataNestingKeyFor(valueName: string, name: string): string {
+    const place = this.getDataNestingPlace();
+    const kind = place === "survey" ? this.getDataNestingKind() : (place === "record" || place === "template" ? "record" : "");
+    return this.getDataNestingKeyOfKind(kind, valueName || "", name || "");
   }
   // A matrix's detail panel template is attached to no survey; its matrix (selectedElementInDesign) is.
   // A template inside such a template (a dynamic panel or a matrix in a detail panel template) has no survey
@@ -648,7 +663,7 @@ export class PanelModelBase extends SurveyElement<Question>
     while(!!el) {
       // A dynamic panel's panels and its template have it as their parent question; a matrix knows its detail
       // panel template. A row's detail panel has the row, a record item, as its data.
-      const isTemplate = !!el.parentQuestion && el.parentQuestion.template === el || !!el.selectedElementInDesign?.isDetailPanelTemplate?.(el);
+      const isTemplate = isRecordTemplatePanel(el);
       if (isTemplate || !!el.parentQuestion || !el.parent && isRecordData(el.data)) {
         return el === this ? "" : (isTemplate ? "template" : "record");
       }
@@ -660,6 +675,20 @@ export class PanelModelBase extends SurveyElement<Question>
       el = el.parent;
     }
     return "survey";
+  }
+  // A dynamic panel's template, or a matrix's detail panel template: the panel the records are built from.
+  public isRecordTemplatePanel(): boolean {
+    return isRecordTemplatePanel(this);
+  }
+  // The records question this panel is the record panel of: a dynamic panel's template or one of its panels,
+  // a matrix's detail panel template or a row's detail panel. null for another panel.
+  public getRecordsOwner(): Question {
+    if (isRecordTemplatePanel(this)) {
+      const pq: any = this.parentQuestion;
+      return !!pq && pq.template === this ? pq : (<any>this).selectedElementInDesign;
+    }
+    const data: any = this.data;
+    return !this.parent && isRecordData(data) ? data.data : null;
   }
   // The key is ignored here (N5, RN6): on a record panel itself and inside a composite. The Creator hides the
   // valueName property there; it shows it on a panel inside a dynamic panel or a detail panel (RN3).

@@ -1,7 +1,7 @@
-import { Action, ActionContainer } from "survey-core";
+import { Action, ActionContainer, settings } from "survey-core";
 import { getRichTextString } from "./rich-text-strings";
 
-export type RichTextCommand = "bold" | "italic" | "strikeThrough" | "insertUnorderedList" | "insertOrderedList" | "removeFormat";
+export type RichTextCommand = "bold" | "italic" | "strikeThrough" | "createLink" | "insertUnorderedList" | "insertOrderedList" | "removeFormat";
 
 export interface IRichTextToolbarHost {
   run(command: RichTextCommand): void;
@@ -15,12 +15,14 @@ export function createRichTextToolbar(host: IRichTextToolbarHost, mode: "inline"
     button(host, "rich-text-bold", "richTextBold", "bold"),
     button(host, "rich-text-italic", "richTextItalic", "italic"),
     button(host, "rich-text-strikethrough", "richTextStrikethrough", "strikeThrough"),
+    button(host, "rich-text-link", "richTextLink", "createLink"),
     button(host, "rich-text-list-bulleted", "richTextBulletedList", "insertUnorderedList"),
     button(host, "rich-text-list-numbered", "richTextNumberedList", "insertOrderedList"),
     button(host, "rich-text-clear", "richTextClearFormatting", "removeFormat")
   ];
-  actions[3].visible = mode === "block";
+  actions[3].visible = typeof settings.showDialog === "function";
   actions[4].visible = mode === "block";
+  actions[5].visible = mode === "block";
   toolbar.actions = actions;
   return toolbar;
 }

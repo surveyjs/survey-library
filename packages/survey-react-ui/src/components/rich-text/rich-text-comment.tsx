@@ -3,6 +3,7 @@ import { QuestionCommentModel } from "survey-core";
 import { SurveyQuestionUncontrolledElement } from "../../reactquestion_element";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
 import { ReactElementFactory } from "../../element-factory";
+import { TextAreaComponent } from "../text-area";
 
 function editorModel(question: QuestionCommentModel): any {
   const host = globalThis as any;
@@ -18,6 +19,7 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
     super(props);
     this.model = editorModel(props.question);
     this.hostRef = React.createRef();
+    if (this.model)this.model.onState = (): void => this.forceUpdate();
   }
 
   componentDidMount(): void {
@@ -27,11 +29,13 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
 
   componentDidUpdate(prevProps: any, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
+    if (this.model && this.model.isAttached && !this.hostRef.current)this.model.detach();
     this.attach();
   }
 
   componentWillUnmount(): void {
-    if (this.model)this.model.detach();
+    if (this.model && this.model.dispose)this.model.dispose();
+    else if (this.model)this.model.detach();
     super.componentWillUnmount();
   }
 
@@ -43,8 +47,20 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
     const question = this.question;
     if (!this.model || !this.model.isEditing) {
       const html = this.model ? this.model.displayHtml : "";
-      return <div className="sd-rich-text__content" dangerouslySetInnerHTML={{ __html: html }} />;
+      return <div className={question.getRootClass() + " sd-rich-text__content"} dangerouslySetInnerHTML={{ __html: html }} />;
     }
+    if (this.model.sourceMode) {
+      return (
+        <div className="sd-rich-text sd-rich-text--source">
+          <div className="sd-rich-text__notice">{this.model.sourceNotice}</div>
+          <button type="button" className="sd-rich-text__edit-anyway" onClick={() => this.model.editAnyway()}>{this.model.editAnywayLabel}</button>
+          {React.createElement(TextAreaComponent, { viewModel: question.textAreaModel })}
+        </div>
+      );
+    }
+    const counter = question.hasVisibleInputActions
+      ? ReactElementFactory.Instance.createElement("sv-action-bar", { model: question.inputActionsContainer })
+      : null;
     return (
       <div className={question.getRootClass() + " sd-rich-text"}>
         <div
@@ -52,12 +68,20 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
           className={question.getControlClass() + " sd-rich-text__area"}
           contentEditable={true}
           role="textbox"
-          aria-multiline={this.model.mode === "block"}
+          aria-multiline={this.model.mode === "block" ? true : undefined}
+          aria-label={question.a11y_input_ariaLabel}
+          aria-labelledby={question.a11y_input_ariaLabelledBy}
+          aria-describedby={question.a11y_input_ariaDescribedBy}
+          aria-required={question.a11y_input_ariaRequired}
+          aria-invalid={question.a11y_input_ariaInvalid}
+          aria-errormessage={question.a11y_input_ariaErrormessage}
+          data-placeholder={this.model.placeholder || undefined}
           suppressContentEditableWarning={true}
           id={question.inputId}
-          style={{ minHeight: ((question.rows || 4) * 1.5) + "em" }}
+          style={this.model.areaStyle}
         />
-        <div className="sd-rich-text__toolbar" role="toolbar" aria-label="Formatting" aria-controls={question.inputId}>
+        {counter}
+        <div className="sd-rich-text__toolbar" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
           {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.model.toolbar })}
         </div>
       </div>

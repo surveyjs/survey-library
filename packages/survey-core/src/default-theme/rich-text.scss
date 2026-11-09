@@ -16,18 +16,53 @@
   outline: none;
 }
 
+.sd-rich-text__area:empty::before {
+  content: attr(data-placeholder);
+  color: var(--sjs2-color-component-input-default-placeholder);
+  pointer-events: none;
+}
+
+.sd-rich-text__area a,
+.sd-rich-text__content a {
+  color: var(--sjs2-color-bg-brand-primary);
+}
+
+.sd-rich-text__notice {
+  margin-bottom: var(--sjs2-spacing-x050);
+  color: var(--sjs2-color-fg-basic-primary);
+}
+
+.sd-rich-text__edit-anyway {
+  display: block;
+  margin: 0 0 var(--sjs2-spacing-x100);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--sjs2-color-bg-brand-primary);
+  cursor: pointer;
+  text-align: start;
+}
+
 .sd-rich-text__toolbar {
   display: none;
   position: absolute;
   top: 100%;
   left: 0;
   z-index: 20;
+  box-sizing: border-box;
+  max-width: 100%;
+  width: max-content;
   margin-top: 2px;
   padding: var(--sjs2-spacing-x050);
   border-radius: var(--sjs2-radius-component-drop);
   border: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
   background: var(--sjs2-color-utility-sheet);
   box-shadow: var(--sjs2-border-effect-floating-default);
+}
+
+.sd-rich-text__toolbar .sv-action-bar {
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .sd-rich-text:focus-within .sd-rich-text__toolbar {

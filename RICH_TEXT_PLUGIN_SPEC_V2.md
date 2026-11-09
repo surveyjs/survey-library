@@ -673,22 +673,22 @@ Scope: link dialog, paste sanitizing, `maxLength` and counter, placeholder, `row
 Automated: remaining `editor-model.tests.ts` cases; all React markup etalons.
 
 **CP4 — the comment editor is feature-complete in React.**
-- [ ] Link: dialog opens; `https://surveyjs.io` creates a link; `javascript:alert(1)` shows the validation error; empty URL removes the link; with no selection the URL is inserted as link text.
+- [x] Link: dialog opens; `https://surveyjs.io` creates a link; `javascript:alert(1)` shows the validation error; empty URL removes the link; with no selection the URL is inserted as link text.
 - [ ] Link dialog: no panel chrome around the field; with the caret inside a link the field shows its URL, and Apply with a new URL keeps the link text and the caret position.
-- [ ] The stored link is `<a href="https://surveyjs.io" target="_blank" rel="noopener noreferrer">…</a>`.
-- [ ] Paste formatted content from a web page or Word (colors, fonts, a table): only supported formatting remains; table text is kept as paragraphs/lines.
-- [ ] `c_max`: the counter counts visible characters; making a word bold does not change it; typing stops at the limit.
-- [ ] Placeholder is visible when empty and disappears on typing; it reappears after deleting everything.
-- [ ] `c_rows`: initial height of 6 lines, grows with content, can be resized.
-- [ ] "Set value externally" updates `c_md` immediately when not focused; with the delayed button while typing in `c_md`, the content is updated only after blur and the caret is not disturbed.
-- [ ] Read-only, display and disabled modes show formatted, non-editable HTML without a toolbar; design mode shows the same.
-- [ ] `c_legacy` shows two lines and the `&` and `<` characters as typed; focusing and leaving it writes nothing; making a word bold stores HTML with `<br>` between the lines.
-- [ ] `c_unsupported` opens in source mode with the notice; "edit anyway" switches to the rich editor; after editing, the stored value contains only canonical HTML.
-- [ ] `c_inline`: no list buttons; Enter does nothing.
-- [ ] Matrix `m1`: the comment cell has the rich editor; the cell value is HTML.
-- [ ] Dark theme: toolbar, content, links, placeholder and source-mode notice are readable.
-- [ ] Narrow (mobile) width: the toolbar fits or wraps without overlapping the content.
-- [ ] Screen reader / devtools accessibility tree: textbox with the question title as name, toolbar with pressed states.
+- [x] The stored link is `<a href="https://surveyjs.io" target="_blank" rel="noopener noreferrer">…</a>`.
+- [x] Paste formatted content from a web page or Word (colors, fonts, a table): only supported formatting remains; table text is kept as paragraphs/lines.
+- [x] `c_max`: the counter counts visible characters; making a word bold does not change it; typing stops at the limit.
+- [x] Placeholder is visible when empty and disappears on typing; it reappears after deleting everything.
+- [x] `c_rows`: initial height of 6 lines, grows with content, can be resized.
+- [x] "Set value externally" updates `c_md` immediately when not focused; with the delayed button while typing in `c_md`, the content is updated only after blur and the caret is not disturbed.
+- [x] Read-only, display and disabled modes show formatted, non-editable HTML without a toolbar; design mode shows the same.
+- [x] `c_legacy` shows two lines and the `&` and `<` characters as typed; focusing and leaving it writes nothing; making a word bold stores HTML with `<br>` between the lines.
+- [x] `c_unsupported` opens in source mode with the notice; "edit anyway" switches to the rich editor; after editing, the stored value contains only canonical HTML.
+- [x] `c_inline`: no list buttons; Enter does nothing.
+- [x] Matrix `m1`: the comment cell has the rich editor; the cell value is HTML.
+- [x] Dark theme: toolbar, content, links, placeholder and source-mode notice are readable.
+- [x] Narrow (mobile) width: the toolbar fits or wraps without overlapping the content.
+- [x] Screen reader / devtools accessibility tree: textbox with the question title as name, toolbar with pressed states.
 
 #### M4H — Rework: HTML storage (team decision, this version of the spec)
 

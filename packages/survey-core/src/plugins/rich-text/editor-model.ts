@@ -1,7 +1,10 @@
-import { DomDocumentHelper, DomWindowHelper, QuestionCommentModel } from "survey-core";
-import { sanitizeHtml } from "./sanitizer";
+import { ActionContainer, DomDocumentHelper, DomWindowHelper, QuestionCommentModel, settings, SurveyModel } from "survey-core";
+import type { IDialogOptions } from "survey-core";
+import DefaultLightPanelless from "../../themes/default-light-panelless";
+import { getRichTextString } from "./rich-text-strings";
+import { escapeHref, escapeText } from "./runs";
+import { getDisallowedHtml, hrefScheme, sanitizeHtml, schemeAllowed } from "./sanitizer";
 import { createRichTextToolbar, RichTextCommand } from "./toolbar";
-import { ActionContainer } from "survey-core";
 
 export type ToggleState = "all" | "none" | "mixed";
 
@@ -37,10 +40,17 @@ export class RichTextEditorModel {
   private lastCommitted: string | undefined;
   private deferred: string | undefined;
   private timer: any;
+  private editAnywayFlag = false;
+  private sourceValue: string | undefined;
+  private sourceFlag = false;
+  private normalizing = false;
+  public onState?: () => void;
   private onSelection = (): void => this.rememberSelection();
   private onProperty = (sender: any, options: { name: string }): void => {
     if (options.name === "value")this.onExternalValue();
   };
+  private previousDesignMode: (() => void) | undefined;
+  private designModeHandler: (() => void) | undefined;
 
   public constructor(question?: QuestionCommentModel, options?: IRichTextEditorOptions) {
     this.question = question;
@@ -49,6 +59,7 @@ export class RichTextEditorModel {
     this.onInputCallback = options?.onInput;
     this.commands = options?.commands;
     this.toolbar = createRichTextToolbar(this, this.mode);
+    this.watchDesignMode();
   }
 
   public get isAttached(): boolean {
@@ -66,11 +77,52 @@ export class RichTextEditorModel {
     return sanitizeHtml(String(value), { inline: this.inline });
   }
 
+  public get sourceMode(): boolean {
+    if (this.contentAgnostic || !this.isEditing || this.editAnywayFlag) return false;
+    return this.sourceFor(this.currentValue());
+  }
+
+  public get sourceNotice(): string {
+    return getRichTextString("richTextSourceMode");
+  }
+
+  public get editAnywayLabel(): string {
+    return getRichTextString("richTextEditAnyway");
+  }
+
+  public get toolbarLabel(): string {
+    return getRichTextString("richTextToolbar");
+  }
+
+  public get placeholder(): string {
+    return this.question && this.question.renderedPlaceholder ? this.question.renderedPlaceholder : "";
+  }
+
+  public get areaStyle(): { minHeight: string, height?: string, overflow?: string, resize?: string } {
+    const rows = this.question && this.question.rows ? this.question.rows : 4;
+    const minHeight = "calc(" + rows + " * 1lh)";
+    const style: { minHeight: string, height?: string, overflow?: string, resize?: string } = { minHeight: minHeight };
+    const grow = !!this.question && this.question.renderedAutoGrow;
+    if (!grow) {
+      style.height = minHeight;
+      style.overflow = "auto";
+    }
+    if (this.question && this.question.renderedAllowResize) style.resize = "vertical";
+    return style;
+  }
+
+  public editAnyway(): void {
+    this.editAnywayFlag = true;
+    this.notify();
+  }
+
   public attach(element: HTMLElement): void {
     this.detach();
     this.element = element;
     element.addEventListener("keydown", this.onKeyDown);
+    element.addEventListener("beforeinput", this.onBeforeInput as any);
     element.addEventListener("input", this.onInput);
+    element.addEventListener("paste", this.onPaste as any);
     element.addEventListener("focus", this.onFocus);
     element.addEventListener("blur", this.onBlur);
     if (DomDocumentHelper.isAvailable()) DomDocumentHelper.addEventListener("selectionchange", this.onSelection);
@@ -79,14 +131,19 @@ export class RichTextEditorModel {
       this.lastCommitted = value === undefined || value === null ? undefined : String(value);
       element.innerHTML = this.displayHtml;
       this.question.onPropertyChanged.add(this.onProperty);
+      this.syncEmpty();
+      this.updateCounter();
     }
+    this.refreshLink();
   }
 
   public detach(): void {
     if (this.timer) clearTimeout(this.timer);
     if (this.element) {
       this.element.removeEventListener("keydown", this.onKeyDown);
+      this.element.removeEventListener("beforeinput", this.onBeforeInput as any);
       this.element.removeEventListener("input", this.onInput);
+      this.element.removeEventListener("paste", this.onPaste as any);
       this.element.removeEventListener("focus", this.onFocus);
       this.element.removeEventListener("blur", this.onBlur);
     }
@@ -96,20 +153,26 @@ export class RichTextEditorModel {
     this.saved = undefined;
   }
 
+  public dispose(): void {
+    this.detach();
+    this.unwatchDesignMode();
+  }
+
   public run(command: RichTextCommand): void {
     if (!this.element) return;
     const action = this.toolbar.actions.filter(item => item.id && item.id.indexOf(commandId(command)) >= 0)[0];
     if (action && action.visible === false) return;
+    if (command === "createLink") {
+      this.openLinkDialog();
+      return;
+    }
     this.restoreSelection();
     if (this.commands) {
       this.commands.exec(command);
     } else {
       this.apply(command);
     }
-    this.dirty = true;
-    this.rememberSelection();
-    if (this.onInputCallback)this.onInputCallback();
-    if (this.question && this.question.isInputTextUpdate)this.scheduleCommit();
+    this.afterEdit();
   }
 
   public toggleState(command: "bold" | "italic" | "strikeThrough" | "insertUnorderedList" | "insertOrderedList"): ToggleState {
@@ -166,22 +229,55 @@ export class RichTextEditorModel {
     if (!this.saved) return;
     if (event.shiftKey) insertBreak(this.saved);
     else splitBlock(this.element, this.saved);
-    this.dirty = true;
-    this.rememberSelection();
-    if (this.question && this.question.isInputTextUpdate)this.scheduleCommit();
+    this.afterEdit();
+  };
+
+  private onBeforeInput = (event: any): void => {
+    const max = this.limit();
+    if (!max || !this.element) return;
+    const type = event.inputType || "";
+    if (type.indexOf("insert") !== 0) return;
+    const current = this.currentVisible();
+    const selected = this.saved ? Math.min(rangeVisibleLength(this.saved), current.length) : 0;
+    const room = max - (current.length - selected);
+    const data = event.data || "";
+    if (room <= 0 || data && data.length > room) {
+      if (event.preventDefault) event.preventDefault();
+    }
+  };
+
+  private onPaste = (event: any): void => {
+    if (!this.element) return;
+    const data = event.clipboardData;
+    if (!data || !data.getData) return;
+    if (event.preventDefault) event.preventDefault();
+    this.restoreSelection();
+    const html = data.getData("text/html");
+    const text = data.getData("text/plain") || "";
+    if (html)this.insertHtml(this.clip(sanitizeHtml(html, { inline: this.inline, paste: true })));
+    else this.insertPlain(this.clip(escapePlain(text)));
+    this.afterEdit();
   };
 
   private onInput = (): void => {
-    this.dirty = true;
-    if (this.onInputCallback)this.onInputCallback();
-    if (this.question && this.question.isInputTextUpdate)this.scheduleCommit();
+    if (this.normalizing) return;
+    this.afterEdit();
   };
 
   private onFocus = (): void => {
     this.focused = true;
+    this.sourceValue = undefined;
+    this.refreshLink();
+    this.syncEmpty();
   };
 
-  private onBlur = (): void => {
+  private onBlur = (event: FocusEvent): void => {
+    const next = event.relatedTarget as Node | null;
+    if (next && this.element && dialogRoot(this.element).contains(next)) return;
+    this.finishBlur();
+  };
+
+  private finishBlur(): void {
     this.focused = false;
     if (this.timer) {
       clearTimeout(this.timer);
@@ -189,12 +285,14 @@ export class RichTextEditorModel {
     }
     if (this.dirty)this.commit();
     this.dirty = false;
+    this.editAnywayFlag = false;
     if (this.deferred !== undefined) {
       const next = this.deferred;
       this.deferred = undefined;
       this.renderValue(next);
     }
-  };
+    if (this.sourceMode)this.notify();
+  }
 
   private scheduleCommit(): void {
     if (this.timer) clearTimeout(this.timer);
@@ -214,17 +312,21 @@ export class RichTextEditorModel {
     this.writing = true;
     this.question.value = html;
     this.writing = false;
+    this.updateCounter();
   }
 
   private onExternalValue(): void {
     if (this.writing || !this.question) return;
-    const next = this.question.value === undefined || this.question.value === null ? "" : String(this.question.value);
+    this.editAnywayFlag = false;
+    this.sourceValue = undefined;
+    const next = this.currentValue();
     if (next === this.lastCommitted) return;
     if (this.focused) {
       this.deferred = next;
       return;
     }
     this.renderValue(next);
+    this.notify();
   }
 
   private renderValue(value: string): void {
@@ -232,6 +334,8 @@ export class RichTextEditorModel {
     this.lastCommitted = value;
     this.element.innerHTML = value ? sanitizeHtml(value, { inline: this.inline }) : "";
     this.dirty = false;
+    this.syncEmpty();
+    this.updateCounter();
   }
 
   private rememberSelection(): void {
@@ -276,7 +380,9 @@ export class RichTextEditorModel {
       const remove = !!closest(range.startContainer, this.element, [tag]);
       replaceRange(range, listHtml(range, tag, remove));
     } else if (command === "removeFormat") {
-      replaceRange(range, clearHtml(range));
+      const items = listItemsOverlapping(this.element, range);
+      if (items.length) convertItemsToParagraphs(items);
+      else replaceRange(range, clearHtml(range));
     }
     this.rememberSelection();
   }
@@ -304,12 +410,197 @@ export class RichTextEditorModel {
   private nodesNoneHave(range: Range, tags: string[]): boolean {
     return this.markState(range, tags) === "none";
   }
+
+  private afterEdit(): void {
+    this.dirty = true;
+    this.syncEmpty();
+    this.updateCounter();
+    this.rememberSelection();
+    if (this.onInputCallback)this.onInputCallback();
+    if (this.question && this.question.isInputTextUpdate)this.scheduleCommit();
+  }
+
+  private refreshLink(): void {
+    const action = this.toolbar.actions.filter(item => item.id === "rich-text-link")[0];
+    if (action) action.visible = typeof settings.showDialog === "function";
+  }
+
+  private openLinkDialog(): void {
+    if (!this.element || typeof settings.showDialog !== "function") return;
+    this.restoreSelection();
+    const range = this.saved;
+    const existing = range ? linkContaining(range, this.element) : undefined;
+    const survey = new SurveyModel({
+      showQuestionNumbers: "off",
+      questionErrorLocation: "bottom",
+      showNavigationButtons: "none",
+      elements: [{ type: "text", name: "url", title: getRichTextString("richTextLinkUrl"), textUpdateMode: "onTyping" }]
+    });
+    survey.applyTheme(DefaultLightPanelless);
+    const urlQuestion = survey.getQuestionByName("url");
+    if (existing) urlQuestion.value = existing.getAttribute("href") || "";
+    const root = dialogRoot(this.element);
+    settings.showDialog(<IDialogOptions>{
+      componentName: "survey",
+      data: { model: survey, survey: survey },
+      title: getRichTextString("richTextLink"),
+      showCloseButton: true,
+      displayMode: "popup",
+      isFocusedContent: true,
+      onApply: (): boolean => {
+        const url = String(urlQuestion.value || "").trim();
+        urlQuestion.clearErrors();
+        if (url && !schemeAllowed(hrefScheme(url))) {
+          urlQuestion.addError(getRichTextString("richTextLinkInvalid"));
+          return false;
+        }
+        this.applyLink(url);
+        return true;
+      },
+      onCancel: (): void => { this.restoreSelection(); },
+      onHide: (): void => {
+        const doc = DomDocumentHelper.getDocument();
+        const active = doc && doc.activeElement;
+        if (!this.element || !active || !this.element.contains(active))this.finishBlur();
+      }
+    }, root);
+  }
+
+  private applyLink(url: string): void {
+    if (!this.element) return;
+    this.restoreSelection();
+    const range = this.saved;
+    if (!range) return;
+    const link = linkContaining(range, this.element);
+    if (!url) {
+      if (link) unwrapElement(link);
+      this.afterEdit();
+      return;
+    }
+    if (link) {
+      const start = textOffset(this.element, range.startContainer, range.startOffset);
+      const end = textOffset(this.element, range.endContainer, range.endOffset);
+      link.setAttribute("href", url);
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      selectOffsets(this.element, start, end);
+      this.afterEdit();
+      return;
+    }
+    const label = range.collapsed ? url : range.toString();
+    replaceRange(range, "<a href=\"" + escapeHref(url) + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + escapePlain(label) + "</a>");
+    this.afterEdit();
+  }
+
+  private insertHtml(html: string): void {
+    if (!this.saved || !html) return;
+    replaceRange(this.saved, html);
+  }
+
+  private insertPlain(html: string): void {
+    if (!this.saved || !html) return;
+    const doc = this.saved.startContainer.ownerDocument;
+    if (!doc) return;
+    selectRange(this.saved);
+    const exec = (doc as any).execCommand;
+    if (typeof exec === "function") {
+      try {
+        const text = html.replace(/<br>/g, "\n");
+        if (exec.call(doc, "insertText", false, text)) return;
+      } catch(e) {
+        // jsdom has no editing host commands.
+      }
+    }
+    replaceRange(this.saved, html);
+  }
+
+  private clip(html: string): string {
+    const max = this.limit();
+    if (!max || !this.element || !this.saved) return html;
+    const current = this.currentVisible();
+    const selected = Math.min(rangeVisibleLength(this.saved), current.length);
+    const room = max - (current.length - selected);
+    if (room <= 0) return "";
+    const doc = this.element.ownerDocument;
+    if (!doc) return html;
+    const holder = doc.createElement("div");
+    holder.innerHTML = html;
+    if (isVisuallyEmpty(holder) || visibleText(holder).length <= room) return html;
+    return escapePlain(visibleText(holder).slice(0, room));
+  }
+
+  private currentVisible(): string {
+    if (!this.element || isVisuallyEmpty(this.element)) return "";
+    return visibleText(this.element);
+  }
+
+  private syncEmpty(): void {
+    if (this.normalizing || !this.element || !isVisuallyEmpty(this.element)) return;
+    if (!this.element.innerHTML) return;
+    this.normalizing = true;
+    this.element.innerHTML = "";
+    this.normalizing = false;
+  }
+
+  private updateCounter(): void {
+    const max = this.limit();
+    if (!max || !this.question) return;
+    const text = this.element ? this.currentVisible() : "";
+    this.question.characterCounter.updateRemainingCharacterCounter(text, max);
+  }
+
+  private limit(): number {
+    if (!this.question || this.contentAgnostic) return 0;
+    const max = this.question.getMaxLength();
+    return typeof max === "number" && max > 0 ? max : 0;
+  }
+
+  private currentValue(): string {
+    if (!this.question || this.question.value === undefined || this.question.value === null) return "";
+    return String(this.question.value);
+  }
+
+  private sourceFor(value: string): boolean {
+    if (this.sourceValue !== value) {
+      this.sourceValue = value;
+      this.sourceFlag = getDisallowedHtml(value).length > 0;
+    }
+    return this.sourceFlag;
+  }
+
+  private notify(): void {
+    if (!this.onState) return;
+    const callback = this.onState;
+    setTimeout(callback, 0);
+  }
+
+  private watchDesignMode(): void {
+    const question = this.question;
+    if (!question || this.designModeHandler) return;
+    this.previousDesignMode = question.onDesignModeChanged;
+    const handler = (): void => {
+      if (this.previousDesignMode)this.previousDesignMode.call(question);
+      this.notify();
+    };
+    this.designModeHandler = handler;
+    question.onDesignModeChanged = handler;
+  }
+
+  private unwatchDesignMode(): void {
+    const question = this.question;
+    if (question && this.designModeHandler && question.onDesignModeChanged === this.designModeHandler) {
+      question.onDesignModeChanged = this.previousDesignMode || ((): void => { });
+    }
+    this.designModeHandler = undefined;
+    this.previousDesignMode = undefined;
+  }
 }
 
 function commandId(command: string): string {
   if (command === "bold") return "rich-text-bold";
   if (command === "italic") return "rich-text-italic";
   if (command === "strikeThrough") return "rich-text-strikethrough";
+  if (command === "createLink") return "rich-text-link";
   if (command === "insertUnorderedList") return "rich-text-list-bulleted";
   if (command === "insertOrderedList") return "rich-text-list-numbered";
   return "rich-text-clear";
@@ -504,4 +795,159 @@ function placeCaret(element: HTMLElement): void {
   range.selectNodeContents(element);
   range.collapse(true);
   selectRange(range);
+}
+
+const BLOCK_TAGS: { [tag: string]: boolean } = { p: true, li: true, div: true, h1: true, h2: true, h3: true, h4: true, h5: true, h6: true };
+
+function visibleText(root: HTMLElement): string {
+  let out = "";
+  const walk = (node: Node, isRoot: boolean): void => {
+    if (node.nodeType === 3) {
+      const text = node.textContent || "";
+      if (!text) return;
+      out += text;
+      return;
+    }
+    if (node.nodeType !== 1) return;
+    const tag = (node as Element).tagName.toLowerCase();
+    if (tag === "br") {
+      out += "\n";
+      return;
+    }
+    if (!isRoot && BLOCK_TAGS[tag] && out) out += "\n";
+    const children = node.childNodes;
+    for (let i = 0; i < children.length; i++) walk(children[i], false);
+  };
+  walk(root, true);
+  return out;
+}
+
+function isVisuallyEmpty(root: HTMLElement): boolean {
+  return visibleText(root).replace(/\n/g, "").length === 0;
+}
+
+function rangeVisibleLength(range: Range): number {
+  const doc = range.startContainer.ownerDocument;
+  if (!doc) return 0;
+  const holder = doc.createElement("div");
+  holder.appendChild(range.cloneContents());
+  if (isVisuallyEmpty(holder)) return 0;
+  return visibleText(holder).length;
+}
+
+function escapePlain(text: string): string {
+  const lines = text.split("\n");
+  const encoded: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    let line = "";
+    for (let j = 0; j < lines[i].length; j++) line += escapeText(lines[i][j], lines[i][j + 1]);
+    encoded.push(line);
+  }
+  return encoded.join("<br>");
+}
+
+function dialogRoot(element: HTMLElement): HTMLElement {
+  const box = element.closest ? element.closest(".sd-rich-text") : null;
+  if (box) return box as HTMLElement;
+  return element.parentElement || element;
+}
+
+function linkContaining(range: Range, root: HTMLElement): HTMLAnchorElement | undefined {
+  const start = closest(range.startContainer, root, ["a"]);
+  const end = closest(range.endContainer, root, ["a"]);
+  if (start && start === end) return start as HTMLAnchorElement;
+  return undefined;
+}
+
+function listItemsOverlapping(root: HTMLElement, range: Range): HTMLElement[] {
+  const found: HTMLElement[] = [];
+  const items = root.querySelectorAll("li");
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i] as HTMLElement;
+    if (range.intersectsNode ? safeIntersects(range, item) : false) found.push(item);
+  }
+  return found;
+}
+
+function safeIntersects(range: Range, node: Node): boolean {
+  try {
+    return range.intersectsNode(node);
+  } catch(e) {
+    return false;
+  }
+}
+
+function convertItemsToParagraphs(items: HTMLElement[]): void {
+  for (let i = items.length - 1; i >= 0; i--) liftListItem(items[i]);
+}
+
+function liftListItem(item: HTMLElement): void {
+  const list = item.parentElement;
+  if (!list || !list.parentNode) return;
+  const doc = item.ownerDocument;
+  const paragraph = doc.createElement("p");
+  while(item.firstChild) paragraph.appendChild(item.firstChild);
+  unwrap(paragraph, ["strong", "b", "em", "i", "s", "strike", "del", "a"]);
+  const parent = list.parentNode;
+  const rest = doc.createElement(list.tagName.toLowerCase());
+  let sibling = item.nextSibling;
+  while(sibling) {
+    const next = sibling.nextSibling;
+    rest.appendChild(sibling);
+    sibling = next;
+  }
+  parent.insertBefore(paragraph, list.nextSibling);
+  if (rest.childNodes.length) parent.insertBefore(rest, paragraph.nextSibling);
+  if (item.parentNode) item.parentNode.removeChild(item);
+  if (!list.childNodes.length && list.parentNode) list.parentNode.removeChild(list);
+  if (!rest.childNodes.length && rest.parentNode) rest.parentNode.removeChild(rest);
+}
+
+function unwrapElement(element: Element): void {
+  const parent = element.parentNode;
+  if (!parent) return;
+  while(element.firstChild) parent.insertBefore(element.firstChild, element);
+  parent.removeChild(element);
+}
+
+function textOffset(root: Node, node: Node, offset: number): number {
+  const doc = (root as HTMLElement).ownerDocument;
+  if (!doc) return 0;
+  const range = doc.createRange();
+  range.selectNodeContents(root);
+  try {
+    range.setEnd(node, offset);
+  } catch(e) {
+    return 0;
+  }
+  return range.toString().length;
+}
+
+function selectOffsets(root: HTMLElement, start: number, end: number): void {
+  const from = textPoint(root, start);
+  const to = textPoint(root, end);
+  if (!from || !to) return;
+  const doc = root.ownerDocument;
+  const range = doc.createRange();
+  range.setStart(from.node, from.offset);
+  range.setEnd(to.node, to.offset);
+  selectRange(range);
+}
+
+function textPoint(root: HTMLElement, offset: number): { node: Text, offset: number } | undefined {
+  const doc = root.ownerDocument;
+  if (!doc) return undefined;
+  const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let seen = 0;
+  let last: Text | undefined;
+  let node = walker.nextNode() as Text;
+  while(node) {
+    last = node;
+    const length = (node.textContent || "").length;
+    if (seen + length >= offset) return { node: node, offset: offset - seen };
+    seen += length;
+    node = walker.nextNode() as Text;
+  }
+  if (last) return { node: last, offset: (last.textContent || "").length };
+  return undefined;
 }

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { QuestionCommentModel } from "../../src/question_comment";
 import { Serializer } from "../../src/jsonobject";
 import { SurveyModel } from "../../src/survey";
+import { settings } from "../../src/settings";
 import { RichTextEditorModel } from "../../src/plugins/rich-text/editor-model";
 import { RichText } from "../../src/plugins/rich-text/api";
 import "../../src/plugins/rich-text/index";
@@ -195,5 +196,111 @@ describe("rich text editor model", () => {
     element.dispatchEvent(new FocusEvent("blur"));
     expect(element.innerHTML).toBe("keep");
     handle.detach();
+  });
+
+  test("unsupported html stays in source mode until edit anyway, and a plain blur does not rewrite it", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
+    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    question.value = "<p style=\"color:red\">Red</p><table><tr><td>cell</td></tr></table>";
+    const model = new RichTextEditorModel(question);
+    expect(model.sourceMode).toBe(true);
+    model.editAnyway();
+    expect(model.sourceMode).toBe(false);
+    const element = document.createElement("div");
+    document.body.appendChild(element);
+    model.attach(element);
+    element.dispatchEvent(new FocusEvent("focus"));
+    element.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("<p style=\"color:red\">Red</p><table><tr><td>cell</td></tr></table>");
+    expect(model.sourceMode).toBe(true);
+  });
+
+  test("paste drops unsupported formatting and keeps the text", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
+    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const { element, model } = mount(question);
+    element.focus();
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    range.collapse(true);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(range);
+    model.syncSelection();
+    const event = new Event("paste", { cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: {
+        getData: (type: string): string => type === "text/html"
+          ? "<p style=\"color:red\">Hi</p><table><tr><td>cell</td></tr></table>"
+          : "Hi cell"
+      }
+    });
+    element.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(element.innerHTML.toLowerCase()).not.toContain("table");
+    expect(element.innerHTML.toLowerCase()).not.toContain("color");
+    expect(element.textContent).toContain("Hi");
+    expect(element.textContent).toContain("cell");
+  });
+
+  test("the counter uses visible characters and typing stops at the limit", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true, maxLength: 3 }] });
+    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const { element, model } = mount(question);
+    element.innerHTML = "<strong>ab</strong>";
+    element.dispatchEvent(new Event("input"));
+    expect(question.characterCounter.remainingCharacterCounter).toBe("2/3");
+    selectText(element, model, "ab", "ab");
+    model.run("bold");
+    expect(question.characterCounter.remainingCharacterCounter).toBe("2/3");
+    const caret = document.createRange();
+    caret.selectNodeContents(element);
+    caret.collapse(false);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(caret);
+    model.syncSelection();
+    const blocked = new Event("beforeinput", { cancelable: true });
+    Object.defineProperty(blocked, "inputType", { value: "insertText" });
+    Object.defineProperty(blocked, "data", { value: "cd" });
+    element.dispatchEvent(blocked);
+    expect(blocked.defaultPrevented).toBe(true);
+  });
+
+  test("clear formatting turns list items into paragraphs", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
+    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    question.value = "<ul><li>one</li><li>two</li></ul>";
+    const { element, model } = mount(question);
+    selectText(element, model, "one", "two");
+    model.run("removeFormat");
+    element.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("<p>one</p><p>two</p>");
+  });
+
+  test("the link dialog validates the url and stores a safe link", () => {
+    const previous = settings.showDialog;
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
+    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    question.value = "read this";
+    let options: any;
+    settings.showDialog = ((dialog: any): any => {
+      options = dialog;
+      return undefined;
+    }) as any;
+    try {
+      const { element, model } = mount(question);
+      expect(model.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(true);
+      selectText(element, model, "this", "this");
+      model.run("createLink");
+      const url = options.data.survey.getQuestionByName("url");
+      url.value = "javascript:alert(1)";
+      expect(options.onApply()).toBe(false);
+      expect(url.errors.length).toBeGreaterThan(0);
+      url.value = "https://surveyjs.io";
+      expect(options.onApply()).toBe(true);
+      element.dispatchEvent(new FocusEvent("blur"));
+      expect(question.value).toBe("read <a href=\"https://surveyjs.io\" target=\"_blank\" rel=\"noopener noreferrer\">this</a>");
+    } finally {
+      settings.showDialog = previous;
+    }
   });
 });

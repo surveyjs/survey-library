@@ -529,8 +529,9 @@ export class QuestionFilterModel extends QuestionNonValue {
   // uiState restore and an application's calls (canEditConditions) still work, as a read-only
   // question's value can still be set from code. In the designer every button reports the click.
   public get isControlReadOnly(): boolean { return !this.isDesignMode && this.readOnly; }
-  // What the editors and dialogs read: the conditions can be edited, and the UI is not locked.
-  private get canEditConditionsInUI(): boolean { return this.canEditConditions && !this.isControlReadOnly; }
+  // What the editors, the field popups and the Filters dialog read: the conditions can be edited, and
+  // the UI is not locked. The one rule of the UI's read-only state.
+  public get canEditConditionsInUI(): boolean { return this.canEditConditions && !this.isControlReadOnly; }
   // The active preset applies as text that has no conditions to show: an "or", a function, a
   // comparison of two fields. A renderer warns with it that the first edit starts from nothing.
   public get isRawExpression(): boolean {

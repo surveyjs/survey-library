@@ -27,8 +27,7 @@ export interface IFilterFieldPopupOwner extends ILocalizableOwner {
   setFieldCondition(name: string, operator: string, value?: any): void;
   clearFieldCondition(name: string): void;
   createFastModeEditor(name: string): FilterConditionsEditor;
-  canEditConditions: boolean;
-  isControlReadOnly: boolean;
+  canEditConditionsInUI: boolean;
   cssClasses: any;
 }
 // A list this long or longer gets a search box. The list's own threshold (ListModel.MINELEMENTCOUNT)
@@ -88,7 +87,7 @@ export class FilterFieldPopup extends Base {
   // A search box over the list: from filterPopupSearchMinItemCount values on, and always where a
   // value can be typed in. The popup draws it above its title row, so the list's own box is off.
   public get showSearch(): boolean { return this.showSearchValue; }
-  public get isReadOnly(): boolean { return !this.owner.canEditConditions || this.owner.isControlReadOnly; }
+  public get isReadOnly(): boolean { return !this.owner.canEditConditionsInUI; }
   // The control's classes (the "filter" entry of the theme): the popup is drawn outside the
   // control's own markup.
   public get cssClasses(): any { return this.owner.cssClasses; }

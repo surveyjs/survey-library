@@ -15,8 +15,7 @@ export interface IFilterModalOwner {
   showSearch: boolean;
   searchPlaceholder: string;
   searchCss: { root: string, control: string };
-  canEditConditions: boolean;
-  isControlReadOnly: boolean;
+  canEditConditionsInUI: boolean;
   cssClasses: any;
   getFilterState(): IFilterState;
   getItemConditions(name: string): Array<IFilterCondition> | null;
@@ -126,7 +125,7 @@ export class FilterModal extends Base {
     this.updatePresetActions();
   }
   // In the designer, for an AI preset in single mode, and while the control is read-only.
-  public get isReadOnly(): boolean { return !this.owner.canEditConditions || this.owner.isControlReadOnly; }
+  public get isReadOnly(): boolean { return !this.owner.canEditConditionsInUI; }
   public get showSearch(): boolean { return this.owner.showSearch; }
   public get searchPlaceholder(): string { return this.owner.searchPlaceholder; }
   // The search box is drawn the way the control's own is: as a text question's input.

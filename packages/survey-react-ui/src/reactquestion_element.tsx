@@ -36,6 +36,25 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private changedStatePropNameValue: string | undefined;
   constructor(props: any) {
     super(props);
+    const render = this.render;
+    this.render = () => this.renderWithTracking(render);
+  }
+  private renderWithTracking(render: () => React.JSX.Element | null): React.JSX.Element | null {
+    let res: React.JSX.Element | null = null;
+    this.propertyAccessTracker.startTracking();
+    try {
+      if (this.canRender()) {
+        this.forceHiddenDependencies();
+        res = render.call(this);
+      }
+    } finally {
+      this.propertyAccessTracker.stopTracking();
+    }
+    if (!!res) {
+      res = this.wrapElement(res);
+    }
+    this.changedStatePropNameValue = undefined;
+    return res;
   }
   componentDidMount() {
     this.enableStateElementsRerenderEvent(this.getStateElements());
@@ -75,22 +94,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   protected forceHiddenDependencies() {}
   render(): React.JSX.Element | null {
-    let res = null;
-    this.propertyAccessTracker.startTracking();
-    // A render that throws must restore the listener: while any tracker is the listener, every tracker ignores changes.
-    try {
-      if (this.canRender()) {
-        this.forceHiddenDependencies();
-        res = this.renderElement();
-      }
-    } finally {
-      this.propertyAccessTracker.stopTracking();
-    }
-    if (!!res) {
-      res = this.wrapElement(res);
-    }
-    this.changedStatePropNameValue = undefined;
-    return res;
+    return this.renderElement();
   }
   protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     return element;

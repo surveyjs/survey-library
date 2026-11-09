@@ -7,7 +7,8 @@ import { getFilterFieldOperators } from "./filter-conditions";
 // registrations share them.
 
 // Whether a Filter Control can reach a question as a field: the question is in the template of a
-// top-level Dynamic Panel, at any depth - in a panel (its parentQuestion is still the Dynamic Panel),
+// Dynamic Panel that can be a source (isFilterSourceInReach: not nested, not in a matrix detail
+// panel's template), at any depth - in a panel (its parentQuestion is still the Dynamic Panel),
 // or in a question whose children are the fields (a composite question, a Multiple Textboxes).
 // A nested Dynamic Panel's template, a matrix cell and a matrix detail panel's question are not
 // fields: getFilterFields doesn't walk into them, and no source is nested. A column has its own rule.
@@ -17,7 +18,7 @@ export function isFilterFieldInReach(question: Question): boolean {
   while(!!owner && owner.hasNestedFilterFields) {
     owner = owner.parentQuestion;
   }
-  return !!owner && owner.isDescendantOf("paneldynamic") && !owner.parentQuestion;
+  return !!owner && owner.isDescendantOf("paneldynamic") && isFilterSourceInReach(owner);
 }
 // Whether a Filter Control can take the question as its source: it finds the source by name among the
 // survey's questions (findQuestionByName), and no source is nested - not in a Dynamic Panel's template

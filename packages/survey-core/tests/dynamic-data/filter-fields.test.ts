@@ -138,6 +138,15 @@ describe("isFilterable and allowFiltering", () => {
     expect([allow.isVisible("", inDetail.columns[0]), operators.isVisible("", inDetail.columns[0])], "#4: in a detail panel").toEqual([false, false]);
     expect(Serializer.findProperty("question", "allowFiltering").isVisible("", p.template.getQuestionByName("pt")), "#5: the template's own field").toBe(true);
   });
+  test("a Dynamic Panel in a matrix detail panel is no source: its template's questions are no fields", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "top", columns: [{ name: "c1" }], detailPanelMode: "underRow", detailElements: [
+        { type: "paneldynamic", name: "pdInDetail", templateElements: [{ type: "text", name: "x" }] }] }] });
+    const top = <QuestionMatrixDynamicModel>survey.getQuestionByName("top");
+    const x = (<any>top.detailPanel.getQuestionByName("pdInDetail")).template.getQuestionByName("x");
+    expect([Serializer.findProperty("question", "allowFiltering").isVisible("", x),
+      Serializer.findProperty("question", "filterOperators").isVisible("", x)], "#1").toEqual([false, false]);
+  });
 });
 
 describe("getFilterFields", () => {

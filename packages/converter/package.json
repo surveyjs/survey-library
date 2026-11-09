@@ -1,6 +1,6 @@
 {
   "name": "survey-converter",
-  "version": "3.0.0-beta.8",
+  "version": "3.2.4",
   "description": "Convert third-party form definitions (Form.io, JSON Schema) into SurveyJS survey JSON. Pure JSON→JSON, runs client-side, zero runtime dependencies.",
   "license": "MIT",
   "keywords": [
@@ -82,6 +82,7 @@
     "@types/node": "18.11.12",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
+    "commit-and-tag-version": "^11.0.0",
     "eslint": "^8.57.0",
     "rollup": "^4.34.8",
     "survey-core": "file:../survey-core/build",

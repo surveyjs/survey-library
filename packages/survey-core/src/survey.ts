@@ -8187,7 +8187,8 @@ export class SurveyModel extends SurveyElementCore
     if (
       !this.editingObj &&
       this.isValueEqual(name, newValue) &&
-      this.isTwoValueEquals(newValue, newQuestionValue)
+      this.isTwoValueEquals(newValue, newQuestionValue) &&
+      !this.isKeptEmptyValueRemoved(name, newValue)
     )
       return;
     var oldValue = this.getValue(name);
@@ -8244,8 +8245,26 @@ export class SurveyModel extends SurveyElementCore
       this.onDynamicPanelValueChanged.fire(this, options);
     }
   }
+  private deletingEmptyValuesScope = new Scope();
+  // A clear made by the survey itself, not by the respondent: Question.clearValue(), clearIfInvisible,
+  // clearIncorrectValues, removing a row or a panel. An empty value set while it runs removes the key from
+  // the data even with data.keepEmptyValues on.
+  runDeletingEmptyValues<T>(func: () => T): T {
+    return this.deletingEmptyValuesScope.run(func);
+  }
+  // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
+  // undefined always removes the key: it is what Question.clearValue() assigns.
+  private isEmptyValueKeptOnSetValue(val: any): boolean {
+    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
+  }
+  // An empty value the key kept equals undefined and null (isValueEqual), yet a system clear removes it.
+  private isKeptEmptyValueRemoved(name: string, newValue: any): boolean {
+    if (!name || !this.getSettings().data.keepEmptyValues) return false;
+    return this.getDataValueCore(this.valuesHash, name) !== undefined && this.isValueEmpyOnSetValue(name, newValue);
+  }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
     if (!this.isValueEmpty(val, false)) return false;
+    if (!this.editingObj && this.isEmptyValueKeptOnSetValue(val)) return false;
     if (!this.editingObj || val === null || val === undefined) return true;
     return this.editingObj.getDefaultPropertyValue(name) === val;
   }
@@ -8434,8 +8453,10 @@ export class SurveyModel extends SurveyElementCore
    * @param {string} name An object property that stores the answer to delete. Pass a question's [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) or [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    */
   public clearValue(name: string): void {
-    this.setValue(name, null);
-    this.setComment(name, null);
+    this.runDeletingEmptyValues((): void => {
+      this.setValue(name, null);
+      this.setComment(name, null);
+    });
   }
   /**
    * Specifies whether to remove disabled choices from the value in [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), and [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model) questions.

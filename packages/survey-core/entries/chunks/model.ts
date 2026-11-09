@@ -136,7 +136,8 @@ export {
   FunctionOperand,
   ArrayOperand,
   UnaryOperand,
-  runBinaryOperator
+  runBinaryOperator,
+  IOperandToStringContext
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
 export { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";

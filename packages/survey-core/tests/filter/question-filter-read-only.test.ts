@@ -129,6 +129,21 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
       dialogs.restore();
     }
   });
+  test("a dialog opened from code while locked stays open through other changes, and closes as the lock turns off", () => {
+    const dialogs = stubDialogs();
+    try {
+      const q = createFilter({ readOnly: true });
+      q.showAdvancedEditor();
+      const holder = dialogs.calls[0].options.data.holder;
+      const modal: FilterModal = holder.modal;
+      q.width = "300px";
+      expect([modal.isDisposed, holder.modal === modal], "#1: another property changed").toEqual([false, true]);
+      q.readOnly = false;
+      expect([modal.isDisposed, holder.modal], "#2: built read-only, so closed").toEqual([true, undefined]);
+    } finally {
+      dialogs.restore();
+    }
+  });
   test("in the designer readOnly changes nothing: every click still reports to the designer", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);

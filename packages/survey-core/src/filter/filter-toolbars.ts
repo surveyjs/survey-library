@@ -113,8 +113,12 @@ export class FilterToolbars {
   private subDialogHolder: FilterEditorHolder;
   private isUpdating: boolean;
   private isUpdatePending: boolean;
+  // isControlReadOnly as of the last update: the dialogs close when it changes, not on every update.
+  // Taken at creation too: a dialog can open from code before any row is built.
+  private wasControlReadOnly: boolean;
 
   constructor(private owner: IFilterToolbarsOwner, private createContainer: (adaptive: boolean) => ActionContainer) {
+    this.wasControlReadOnly = !!owner.isControlReadOnly;
   }
 
   public get chipsToolbar(): ActionContainer {
@@ -171,7 +175,9 @@ export class FilterToolbars {
       this.layoutValue.isMobile = isMobile;
     }
     this.updateDialogsMode(isMobile);
-    if (this.owner.isControlReadOnly) {
+    const isReadOnly = !!this.owner.isControlReadOnly;
+    if (isReadOnly !== this.wasControlReadOnly) {
+      this.wasControlReadOnly = isReadOnly;
       this.closeDialogs();
     }
     this.updateSearchRow();
@@ -313,8 +319,9 @@ export class FilterToolbars {
     }
     if (!!model && !model.isDisposed) model.dispose();
   }
-  // A control that turns read-only closes what it opened: the dialog over the Filters dialog first.
-  // Each one's onHide releases it.
+  // A control that turns read-only closes what it opened, and so does one that turns editable: a dialog
+  // is built for the mode it opened in. The dialog over the Filters dialog first; each one's onHide
+  // releases it. One opened from code while the control is read-only stays open until the mode changes.
   private closeDialogs(): void {
     if (!!this.subDialog && !!this.subDialog.model) {
       this.subDialog.model.hide();

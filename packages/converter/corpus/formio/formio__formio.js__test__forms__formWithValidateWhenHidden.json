@@ -1,0 +1,115 @@
+{
+  "title": "form with validation",
+  "name": "formWithValidation",
+  "path": "formwithvalidation",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Number 1",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "validateWhenHidden": false,
+      "key": "number1",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Number 2",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "validateWhenHidden": false,
+      "key": "number2",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Number",
+      "applyMaskOn": "change",
+      "hidden": true,
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "clearOnHide": false,
+      "calculateValue": "value = data.number1 + data.number2",
+      "validate": {
+        "customMessage": "The sum of number 1 and number 2 must not exceed 10.",
+        "max": 10
+      },
+      "validateWhenHidden": true,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Checkbox",
+      "tableView": false,
+      "validateWhenHidden": false,
+      "key": "checkbox",
+      "conditional": {
+        "show": false,
+        "conjunction": "all"
+      },
+      "type": "checkbox",
+      "input": true,
+      "defaultValue": false
+    },
+    {
+      "label": "Text Area",
+      "applyMaskOn": "change",
+      "autoExpand": false,
+      "tableView": true,
+      "clearOnHide": false,
+      "calculateValue": "value = data.textField;",
+      "validate": {
+        "minWords": 3
+      },
+      "validateWhenHidden": true,
+      "key": "textArea",
+      "conditional": {
+        "show": false,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "checkbox",
+            "operator": "isEqual",
+            "value": true
+          }
+        ]
+      },
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "saveOnEnter": false
+    }
+  ]
+}

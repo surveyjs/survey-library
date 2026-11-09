@@ -137,6 +137,9 @@ function checkRange(ctx: LintContext, site: PropertySite): void {
 // author wrote can never be addressed.
 function checkValueName(ctx: LintContext, site: PropertySite): void {
   if (site.key !== "valueName" || typeof site.value !== "string" || site.value.indexOf(".") < 0) return;
+  // className is lower-cased by the walk; choicesByUrl.valueName names a property of each response item
+  // and is read as a path on purpose
+  if (site.className === "choicesbyurl") return;
   ctx.report({
     message: "The valueName \"" + site.value + "\" of \"" + site.owner.name +
       "\" contains a \".\" - expressions read {" + site.value + "} as a path into \"" +

@@ -1,0 +1,69 @@
+{
+  "components": [
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true,
+      "widget.type": "input"
+    },
+    {
+      "label": "Container",
+      "tableView": false,
+      "validateWhenHidden": false,
+      "key": "container",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "textField",
+            "operator": "isEqual",
+            "value": "show"
+          }
+        ]
+      },
+      "type": "container",
+      "input": true,
+      "components": [
+        {
+          "label": "Edit Grid",
+          "displayAsTable": false,
+          "tableView": false,
+          "validateWhenHidden": false,
+          "rowDrafts": false,
+          "key": "editGrid1",
+          "type": "editgrid",
+          "input": true,
+          "components": [
+            {
+              "label": "Number",
+              "applyMaskOn": "change",
+              "mask": false,
+              "tableView": true,
+              "delimiter": false,
+              "requireDecimal": false,
+              "inputFormat": "plain",
+              "truncateMultipleSpaces": false,
+              "validateWhenHidden": false,
+              "key": "number",
+              "type": "number",
+              "input": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Submit",
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "saveOnEnter": false
+    }
+  ]
+}

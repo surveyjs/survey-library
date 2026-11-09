@@ -1,0 +1,30 @@
+{
+  "components": [
+    {
+      "key": "whichOneIsYourFavoriteFruit",
+      "type": "radio",
+      "input": true,
+      "label": "Which one is your favorite fruit?",
+      "inline": false,
+      "values": [
+        {
+          "label": "Apple ",
+          "value": "apple",
+          "shortcut": ""
+        },
+        {
+          "label": "Orange",
+          "value": "orange",
+          "shortcut": ""
+        },
+        {
+          "label": "Banana",
+          "value": "banana",
+          "shortcut": ""
+        }
+      ],
+      "tableView": false,
+      "optionsLabelPosition": "right"
+    }
+  ]
+}

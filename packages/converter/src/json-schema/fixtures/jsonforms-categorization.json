@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Wizard",
+    "properties": {
+      "firstName": { "type": "string", "title": "First name" },
+      "age": { "type": "integer", "title": "Age", "minimum": 0 },
+      "street": { "type": "string", "title": "Street" },
+      "city": { "type": "string", "title": "City" }
+    }
+  },
+  "uiSchema": {
+    "type": "Categorization",
+    "elements": [
+      {
+        "type": "Category",
+        "label": "Personal",
+        "elements": [
+          { "type": "Control", "scope": "#/properties/firstName" },
+          { "type": "Control", "scope": "#/properties/age" }
+        ]
+      },
+      {
+        "type": "Category",
+        "label": "Address",
+        "elements": [
+          { "type": "Control", "scope": "#/properties/street" },
+          { "type": "Control", "scope": "#/properties/city" }
+        ]
+      }
+    ]
+  }
+}

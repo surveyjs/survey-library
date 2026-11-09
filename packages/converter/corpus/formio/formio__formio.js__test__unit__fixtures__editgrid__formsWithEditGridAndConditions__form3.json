@@ -1,0 +1,349 @@
+{
+  "title": "form3",
+  "name": "form3",
+  "path": "form3",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Tabs",
+      "components": [
+        {
+          "label": "tab1",
+          "key": "generalInformationTab",
+          "components": [
+            {
+              "title": "Fill first this tab, then the second one",
+              "theme": "primary",
+              "collapsible": false,
+              "key": "riskInfo",
+              "type": "panel",
+              "label": "Risk Information",
+              "tableView": false,
+              "input": false,
+              "components": [
+                {
+                  "label": "Select the second option",
+                  "optionsLabelPosition": "right",
+                  "tableView": false,
+                  "defaultValue": {
+                    "creditRisk": false,
+                    "marketRisk": false,
+                    "operationalRisk": false,
+                    "counterpartyCreditRisk": false,
+                    "creditValuationRiskAdjustment": false
+                  },
+                  "values": [
+                    {
+                      "label": "Do not select",
+                      "value": "creditRisk",
+                      "shortcut": ""
+                    },
+                    {
+                      "label": "Select this one",
+                      "value": "marketRisk",
+                      "shortcut": ""
+                    },
+                    {
+                      "label": "Do not select",
+                      "value": "operationalRisk",
+                      "shortcut": ""
+                    },
+                    {
+                      "label": "Do not select",
+                      "value": "counterpartyCreditRisk",
+                      "shortcut": ""
+                    },
+                    {
+                      "label": "Do not select",
+                      "value": "creditValuationRiskAdjustment",
+                      "shortcut": ""
+                    }
+                  ],
+                  "key": "affectedRiskTypes",
+                  "type": "selectboxes",
+                  "input": true,
+                  "inputType": "checkbox"
+                }
+              ]
+            },
+            {
+              "title": "1.4 Details of change",
+              "theme": "primary",
+              "collapsible": false,
+              "key": "changeInformationPanel",
+              "type": "panel",
+              "label": "Change information",
+              "input": false,
+              "tableView": false,
+              "components": [
+                {
+                  "title": "select options according to the label",
+                  "collapsible": false,
+                  "key": "rwaImpactPanel",
+                  "type": "panel",
+                  "label": "Panel",
+                  "input": false,
+                  "tableView": false,
+                  "components": [
+                    {
+                      "label": "here select yes",
+                      "optionsLabelPosition": "right",
+                      "customClass": "tooltip-text-left",
+                      "inline": true,
+                      "tableView": true,
+                      "values": [
+                        {
+                          "label": "Yes",
+                          "value": "yes",
+                          "shortcut": ""
+                        },
+                        {
+                          "label": "No",
+                          "value": "no",
+                          "shortcut": ""
+                        }
+                      ],
+                      "key": "rwaImpact",
+                      "type": "radio",
+                      "labelWidth": 100,
+                      "input": true
+                    },
+                    {
+                      "label": "here select the first option, then go to the second tab",
+                      "optionsLabelPosition": "right",
+                      "customClass": "ml-3",
+                      "inline": false,
+                      "tableView": false,
+                      "values": [
+                        {
+                          "label": "Select this one",
+                          "value": "EUParent",
+                          "shortcut": ""
+                        },
+                        {
+                          "label": "Do not select",
+                          "value": "other",
+                          "shortcut": ""
+                        }
+                      ],
+                      "key": "euParentInstitution",
+                      "conditional": {
+                        "show": true,
+                        "conjunction": "all",
+                        "conditions": [
+                          {
+                            "component": "rwaImpact",
+                            "operator": "isEqual",
+                            "value": "yes"
+                          }
+                        ]
+                      },
+                      "type": "radio",
+                      "input": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "tab3",
+          "key": "marketRiskTab",
+          "components": [
+            {
+              "label": "mr",
+              "tableView": true,
+              "key": "mr",
+              "conditional": {
+                "show": true,
+                "conjunction": "all",
+                "conditions": [
+                  {
+                    "component": "affectedRiskTypes",
+                    "operator": "isEqual",
+                    "value": "marketRisk"
+                  }
+                ]
+              },
+              "type": "container",
+              "input": true,
+              "components": [
+                {
+                  "label": "Quantitative Information",
+                  "tableView": false,
+                  "key": "quantitativeInformation",
+                  "type": "container",
+                  "input": true,
+                  "components": [
+                    {
+                      "title": "Fill this tab after tab1",
+                      "theme": "primary",
+                      "customClass": "tooltip-text-left",
+                      "collapsible": false,
+                      "key": "quantitativeInformation",
+                      "type": "panel",
+                      "label": "3.2 Quantitative information",
+                      "input": false,
+                      "tableView": false,
+                      "components": [
+                        {
+                          "label": "Here select yes",
+                          "labelPosition": "left-left",
+                          "optionsLabelPosition": "right",
+                          "inline": true,
+                          "tableView": false,
+                          "values": [
+                            {
+                              "label": "Yes",
+                              "value": "yes",
+                              "shortcut": ""
+                            },
+                            {
+                              "label": "No",
+                              "value": "no",
+                              "shortcut": ""
+                            }
+                          ],
+                          "key": "cva",
+                          "customConditional": "show = _.get(data, 'affectedRiskTypes.creditValuationRiskAdjustment') === false && data.rwaImpact === 'yes';",
+                          "type": "radio",
+                          "labelWidth": 100,
+                          "input": true
+                        },
+                        {
+                          "label": "Do not select",
+                          "tableView": false,
+                          "defaultValue": false,
+                          "key": "sameRiskCategories",
+                          "conditional": {
+                            "show": true,
+                            "conjunction": "all",
+                            "conditions": [
+                              {
+                                "component": "rwaImpact",
+                                "operator": "isEqual",
+                                "value": "yes"
+                              }
+                            ]
+                          },
+                          "type": "checkbox",
+                          "input": true
+                        },
+                        {
+                          "label": "Do not select",
+                          "tableView": true,
+                          "key": "sameImpactAcrossEntities",
+                          "conditional": {
+                            "show": true,
+                            "conjunction": "all",
+                            "conditions": [
+                              {
+                                "component": "euParentInstitution",
+                                "operator": "isEqual",
+                                "value": "EUParent"
+                              }
+                            ]
+                          },
+                          "type": "checkbox",
+                          "optionsLabelPosition": "right",
+                          "input": true,
+                          "defaultValue": false
+                        },
+                        {
+                          "label": "Try to add a row in this grid, it will disappear",
+                          "tableView": true,
+                          "templates": {
+                            "header": "<div class=\"row\">\n  <div class=\"col-sm-4\"><strong>Legal entities</strong></div>\n  <div class=\"col-sm-3\"><strong>Level of consolidation</strong></div>\n   <div class=\"col-sm-3\"><strong>Max change of risk number</strong></div>\n  <div class=\"col-sm-1\"></div>\n</div>",
+                            "row": "<div class=\"row\">\r\n  <div class=\"col-sm-4\">\r\n   {{ _.get(row, 'legalEntity.longName', '') }}\r\n  </div>\r\n  <div class=\"col-sm-3\">\r\n   {{ _.get(row, 'consolidationLevel', '') }}\r\n  </div>\r\n    <div class=\"col-sm-3\">\r\n    <!-- Calculates max absolute value of all risk numbers in the row -->\r\n\t{% \r\n\tvar items = [\r\n      _.get(row, 'VaRRelChange1Day', ''),\r\n      _.get(row, 'VaRRelChange', ''),\r\n      _.get(row, 'sVarRelChange1Day', ''),\r\n      _.get(row, 'sVarRelChange', ''),\r\n      _.get(row, 'IRCRelChange1Day', ''),\r\n      _.get(row, 'IRCRelChange', ''),\r\n      _.get(row, 'CRMRelChange1Day', ''),\r\n      _.get(row, 'CRMRelChange', ''),\r\n    ].filter((i) => typeof i !== 'undefined' && !isNaN(i))\r\n      .map((i) => Math.abs(i));\r\n\tif (items.length) { %}\r\n    {{Math.max(\r\n    ...items).toFixed(3)}}%\r\n  {% } else { %}\r\n    {{0.000}}%\r\n  {% } %}\r\n  </div>\r\n  <div class=\"col-sm-1\">\r\n  {% if (instance.options.readOnly) { %}\r\n    <div class=\"btn-group pull-right\">\r\n      <div class=\"btn btn-default btn-light btn-sm editRow\">\r\n        <i class=\"{{ iconClass('eye') }}\"></i>\r\n      </div>\r\n    </div>\r\n  {% } else { %}\r\n    <div class=\"btn-group pull-right\">\r\n      <button class=\"btn btn-secondary btn-sm editRow\" title = \"Edit MR figures\">\r\n        <i class=\"{{ iconClass('edit') }}\"></i>\r\n      </button>\r\n      <button class=\"btn btn-danger btn-sm removeRow\" title = \"Delete MR figures\">\r\n        <i class=\"{{ iconClass('trash') }}\"></i>\r\n      </button>\r\n    </div>\r\n  {% } %}\r\n  </div>\r\n</div>"
+                          },
+                          "addAnother": "Add legal entity",
+                          "modal": true,
+                          "saveRow": "Close",
+                          "rowDrafts": false,
+                          "key": "impactsPerEntity",
+                          "conditional": {
+                            "show": true,
+                            "conjunction": "all",
+                            "conditions": [
+                              {
+                                "component": "rwaImpact",
+                                "operator": "isEqual",
+                                "value": "yes"
+                              }
+                            ]
+                          },
+                          "type": "editgrid",
+                          "displayAsTable": false,
+                          "alwaysEnabled": true,
+                          "input": true,
+                          "components": [
+                            {
+                              "title": "Try to add a row in this grid, it will disappear",
+                              "theme": "primary",
+                              "collapsible": false,
+                              "key": "entitiesPanel",
+                              "type": "panel",
+                              "label": "Panel",
+                              "input": false,
+                              "tableView": false,
+                              "components": [
+                                {
+                                  "title": "Try to add a row in this grid, it will disappear",
+                                  "collapsible": false,
+                                  "key": "periodImpactEstimationPanel",
+                                  "customConditional": "show = (\n  (_.get(data, 'mr.quantitativeInformation.sameImpactAcrossEntities') === false) ||\n  (_.get(data, 'euParentInstitution') === 'other')\n)",
+                                  "type": "panel",
+                                  "label": "Panel",
+                                  "input": false,
+                                  "tableView": false,
+                                  "components": [
+                                    {
+                                      "label": "Number",
+                                      "applyMaskOn": "change",
+                                      "mask": false,
+                                      "tableView": true,
+                                      "delimiter": false,
+                                      "requireDecimal": false,
+                                      "inputFormat": "plain",
+                                      "truncateMultipleSpaces": false,
+                                      "key": "number",
+                                      "type": "number",
+                                      "input": true
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "path": "mrEditGrid"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "key": "nmcTab",
+      "type": "tabs",
+      "tableView": false,
+      "input": false,
+      "keyModified": true
+    },
+    {
+      "label": "Submit",
+      "action": "saveState",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "alwaysEnabled": false,
+      "state": "draft"
+    }
+  ]
+}

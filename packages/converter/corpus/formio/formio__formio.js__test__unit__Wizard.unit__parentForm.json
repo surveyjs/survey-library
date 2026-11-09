@@ -1,0 +1,36 @@
+{
+  "_id": "677d3efea934773d422a05fa",
+  "title": "Wizard parent",
+  "name": "fdAsWizardParent",
+  "path": "fdaswizardparent",
+  "type": "form",
+  "display": "wizard",
+  "components": [
+    {
+      "title": "Page 1",
+      "key": "page1",
+      "type": "panel",
+      "components": []
+    },
+    {
+      "title": "Page 2",
+      "key": "page2",
+      "type": "panel",
+      "components": [
+        {
+          "label": "Form",
+          "key": "form",
+          "type": "form",
+          "form": "677d3efea934773d422a05f3",
+          "lazyLoad": true
+        }
+      ]
+    },
+    {
+      "title": "Page 3",
+      "key": "page3",
+      "type": "panel",
+      "components": []
+    }
+  ]
+}

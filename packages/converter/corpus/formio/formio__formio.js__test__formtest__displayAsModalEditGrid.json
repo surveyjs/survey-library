@@ -1,0 +1,175 @@
+{
+  "_id": "5ece2d11b8c2fe102c726057",
+  "type": "form",
+  "tags": [],
+  "owner": "5e05a6b7549cdc2ece30c6b0",
+  "components": [
+    {
+      "label": "Edit Grid",
+      "tableView": false,
+      "modal": true,
+      "key": "editGrid",
+      "type": "editgrid",
+      "input": true,
+      "components": [
+        {
+          "label": "Select",
+          "widget": "choicesjs",
+          "tableView": true,
+          "data": {
+            "values": [
+              {
+                "label": "a",
+                "value": "a"
+              },
+              {
+                "label": "b",
+                "value": "b"
+              }
+            ]
+          },
+          "selectThreshold": 0.3,
+          "validate": {
+            "required": true
+          },
+          "key": "select1",
+          "type": "select",
+          "indexeddb": {
+            "filter": {}
+          },
+          "input": true
+        },
+        {
+          "label": "Checkbox",
+          "tableView": false,
+          "validate": {
+            "required": true
+          },
+          "key": "checkbox",
+          "type": "checkbox",
+          "input": true,
+          "defaultValue": false
+        },
+        {
+          "label": "Date / Time",
+          "tableView": false,
+          "enableMinDateInput": false,
+          "datePicker": {
+            "disableWeekends": false,
+            "disableWeekdays": false
+          },
+          "enableMaxDateInput": false,
+          "validate": {
+            "required": true
+          },
+          "key": "dateTime",
+          "type": "datetime",
+          "input": true,
+          "suffix": "<i ref=\"icon\" class=\"fa fa-calendar\" style=\"\"></i>",
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "language": "en",
+            "useLocaleSettings": false,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": true,
+            "noCalendar": false,
+            "format": "yyyy-MM-dd hh:mm a",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": false,
+            "minDate": null,
+            "disableWeekends": false,
+            "disableWeekdays": false,
+            "maxDate": null
+          }
+        },
+        {
+          "label": "Time",
+          "tableView": true,
+          "validate": {
+            "required": true
+          },
+          "key": "time",
+          "type": "time",
+          "input": true,
+          "inputMask": "99:99"
+        },
+        {
+          "collapsible": false,
+          "tableView": false,
+          "key": "panel",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "components": [
+            {
+              "label": "Select",
+              "widget": "choicesjs",
+              "tableView": true,
+              "data": {
+                "values": [
+                  {
+                    "label": "",
+                    "value": ""
+                  }
+                ]
+              },
+              "selectThreshold": 0.3,
+              "validate": {
+                "required": true
+              },
+              "key": "select",
+              "type": "select",
+              "indexeddb": {
+                "filter": {}
+              },
+              "input": true
+            }
+          ]
+        },
+        {
+          "label": "Tags",
+          "tableView": false,
+          "validate": {
+            "required": true
+          },
+          "key": "tags",
+          "type": "tags",
+          "input": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "controller": "",
+  "revisions": "",
+  "_vid": 0,
+  "title": "modalSelectValidation",
+  "display": "form",
+  "access": [
+    {
+      "roles": [
+        "5e96e79ee1c3ad3178454100",
+        "5e96e79ee1c3ad3178454101",
+        "5e96e79ee1c3ad3178454102"
+      ],
+      "type": "read_all"
+    }
+  ],
+  "submissionAccess": [],
+  "settings": {},
+  "properties": {},
+  "name": "modalSelectValidation",
+  "path": "modalselectvalidation",
+  "created": "2020-05-27T09:04:17.962Z",
+  "modified": "2020-05-27T10:38:56.616Z"
+}

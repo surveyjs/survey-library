@@ -1,0 +1,99 @@
+{
+  "_id": "6597baa341436815946204d1",
+  "title": "test clear datagrid first raw",
+  "name": "testClearDatagridFirstRaw",
+  "path": "testcleardatagridfirstraw",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Data Grid",
+      "reorder": false,
+      "addAnotherPosition": "bottom",
+      "layoutFixed": false,
+      "enableRowGroups": false,
+      "initEmpty": false,
+      "tableView": false,
+      "defaultValue": [
+        {
+          "dgRadio": "",
+          "textField": "",
+          "textArea": ""
+        }
+      ],
+      "key": "dataGrid",
+      "type": "datagrid",
+      "defaultOpen": false,
+      "alwaysEnabled": false,
+      "input": true,
+      "components": [
+        {
+          "label": "DG radio",
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "alwaysEnabled": false,
+          "tableView": false,
+          "values": [
+            {
+              "label": "A",
+              "value": "a",
+              "shortcut": ""
+            },
+            {
+              "label": "B",
+              "value": "b",
+              "shortcut": ""
+            },
+            {
+              "label": "C",
+              "value": "c",
+              "shortcut": ""
+            }
+          ],
+          "allowCalculateOverride": true,
+          "key": "dgRadio",
+          "type": "radio",
+          "input": true
+        },
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "calculateValue": "if (row.dgRadio == 'a'){value = 'test DataGrid'}",
+          "allowCalculateOverride": true,
+          "key": "textField",
+          "type": "textfield",
+          "alwaysEnabled": false,
+          "input": true
+        },
+        {
+          "label": "Number",
+          "applyMaskOn": "change",
+          "mask": false,
+          "tableView": false,
+          "delimiter": false,
+          "requireDecimal": false,
+          "inputFormat": "plain",
+          "truncateMultipleSpaces": false,
+          "calculateValue": "value = 11111;",
+          "allowCalculateOverride": true,
+          "key": "number",
+          "type": "number",
+          "input": true
+        },
+        {
+          "label": "Text Area",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "tableView": true,
+          "calculateValue": "value = 'test';",
+          "allowCalculateOverride": true,
+          "key": "textArea",
+          "type": "textarea",
+          "input": true
+        }
+      ],
+      "path": "dataGrid"
+    }
+  ]
+}

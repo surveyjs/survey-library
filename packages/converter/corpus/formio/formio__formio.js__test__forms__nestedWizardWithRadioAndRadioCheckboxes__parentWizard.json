@@ -1,0 +1,28 @@
+{
+  "_id": "68c9a1b2c3d4e5f600000001",
+  "title": "Parent Wizard With Nested Radio Checkboxes",
+  "name": "parentWizardWithNestedRadioCheckboxes",
+  "path": "parentwizardwithnestedradiocheckboxes",
+  "type": "form",
+  "display": "wizard",
+  "components": [
+    {
+      "title": "Page 1",
+      "label": "Page 1",
+      "type": "panel",
+      "key": "page1",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Child",
+          "key": "child",
+          "type": "form",
+          "form": "68c9a1b2c3d4e5f600000002",
+          "input": true,
+          "tableView": true
+        }
+      ]
+    }
+  ]
+}

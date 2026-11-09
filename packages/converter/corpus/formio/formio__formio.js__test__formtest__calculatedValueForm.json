@@ -1,0 +1,52 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "input": true,
+      "tableView": true,
+      "inputType": "text",
+      "label": "Amount 1",
+      "key": "amount1",
+      "delimiter": true,
+      "decimalLimit": 2,
+      "requireDecimal": true,
+      "type": "currency"
+    },
+    {
+      "input": true,
+      "tableView": true,
+      "inputType": "text",
+      "label": "Amount 2",
+      "key": "amount2",
+      "delimiter": true,
+      "decimalLimit": 2,
+      "requireDecimal": true,
+      "type": "currency"
+    },
+    {
+      "label": "Total",
+      "mask": false,
+      "spellcheck": true,
+      "tableView": true,
+      "currency": "USD",
+      "inputFormat": "plain",
+      "calculateValue": "var temp = [data.amount1, data.amount2];\nvar total = 0;\n\nfor (var i = 0; i < temp.length; i++) {\n  total += !isNaN(temp[i]) ? temp[i] : 0;\n}\n\nvalue = total;",
+      "key": "currency",
+      "type": "currency",
+      "input": true,
+      "inputType": "text",
+      "delimiter": true,
+      "decimalLimit": 2,
+      "requireDecimal": true
+    },
+    {
+      "input": true,
+      "label": "Submit",
+      "tableView": false,
+      "key": "submit",
+      "type": "button"
+    }
+  ],
+  "name": "preventOverriding",
+  "path": "preventoverriding"
+}

@@ -1,0 +1,109 @@
+{
+  "_id": "671218f1f2a193e287605944",
+  "title": "Wizard with Child Wizard failing validation cannot be linked to",
+  "name": "wizardWithChildWizardFailingValidationCannotBeLinkedTo",
+  "path": "wizardwithchildwizardfailingvalidationcannotbelinkedto",
+  "type": "form",
+  "display": "wizard",
+  "owner": "671225d7f2a193e287607cec",
+  "components": [
+    {
+      "title": "Page 1",
+      "breadcrumbClickable": true,
+      "buttonSettings": {
+        "previous": true,
+        "cancel": false,
+        "next": true
+      },
+      "navigateOnEnter": false,
+      "saveOnEnter": false,
+      "scrollToTop": false,
+      "collapsible": false,
+      "key": "page1",
+      "type": "panel",
+      "label": "Page 1",
+      "components": [
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validate": {
+            "required": true
+          },
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    },
+    {
+      "title": "Page 2",
+      "breadcrumbClickable": true,
+      "buttonSettings": {
+        "previous": true,
+        "cancel": true,
+        "next": true
+      },
+      "navigateOnEnter": false,
+      "saveOnEnter": false,
+      "scrollToTop": false,
+      "collapsible": false,
+      "key": "page2",
+      "type": "panel",
+      "label": "Page 2",
+      "components": [
+        {
+          "label": "Number",
+          "applyMaskOn": "change",
+          "mask": false,
+          "tableView": false,
+          "delimiter": false,
+          "requireDecimal": false,
+          "inputFormat": "plain",
+          "truncateMultipleSpaces": false,
+          "key": "number",
+          "type": "number",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    },
+    {
+      "title": "Page 3",
+      "breadcrumbClickable": true,
+      "buttonSettings": {
+        "previous": true,
+        "cancel": true,
+        "next": true
+      },
+      "navigateOnEnter": false,
+      "saveOnEnter": false,
+      "scrollToTop": false,
+      "collapsible": false,
+      "key": "page3",
+      "type": "panel",
+      "label": "Page 3",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Child",
+          "tableView": true,
+          "form": "671218f1f2a193e28760593d",
+          "useOriginalRevision": false,
+          "key": "child",
+          "type": "form",
+          "input": true
+        }
+      ]
+    }
+  ],
+  "pdfComponents": [],
+  "settings": {},
+  "project": "66f26afae0c7ef9920ae596d",
+  "created": "2024-10-18T08:14:41.116Z",
+  "modified": "2024-10-18T09:31:29.298Z"
+}

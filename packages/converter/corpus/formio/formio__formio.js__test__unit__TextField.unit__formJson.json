@@ -1,0 +1,18 @@
+{
+  "components": [
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "allowMultipleMasks": true,
+      "inputMasks": [
+        {
+          "label": "mask1",
+          "mask": "mask1"
+        }
+      ],
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    }
+  ]
+}

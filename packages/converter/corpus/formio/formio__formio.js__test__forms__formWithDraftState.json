@@ -1,0 +1,59 @@
+{
+  "_id": "68ca8ce2a183958d040c2cb8",
+  "title": "save in state 2",
+  "name": "saveInState2",
+  "path": "saveinstate2",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validate": {
+        "required": true
+      },
+      "validateWhenHidden": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Number",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "validateWhenHidden": false,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Save in state",
+      "action": "saveState",
+      "theme": "danger",
+      "tableView": false,
+      "key": "saveInState",
+      "type": "button",
+      "input": true,
+      "state": "draft",
+      "showValidations": false
+    },
+    {
+      "label": "Submit",
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "saveOnEnter": false
+    }
+  ],
+  "machineName": "testdefaultvalue-izutenexavvxnws:saveInState2",
+  "project": "68ca735a75d73ce360730062",
+  "created": "2025-09-17T10:26:42.193Z",
+  "modified": "2025-09-22T10:08:00.325Z"
+}

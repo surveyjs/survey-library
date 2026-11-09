@@ -62,6 +62,7 @@ packages/survey-core/test_output.txt
 .claude/
 packages/survey-core/prompts/
 packages/survey-core/promts/
+packages/converter/promts/
 packages/survey-core/docs/
 perf/results/
 perf/react19/node_modules/

@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "definitions": {
+      "warehouseitem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "buyer": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "age": {
+                "type": "number"
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "warehouse",
+              "shipping",
+              "delivered"
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "type": "object",
+    "properties": {
+      "warehouseitems": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/warehouseitem"
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "ListWithDetail",
+    "scope": "#/properties/warehouseitems",
+    "options": {
+      "labelRef": "#/items/properties/name"
+    }
+  }
+}

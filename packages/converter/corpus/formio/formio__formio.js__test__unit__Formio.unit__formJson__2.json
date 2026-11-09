@@ -1,0 +1,29 @@
+{
+  "components": [
+    {
+      "label": "Form",
+      "key": "form",
+      "type": "form",
+      "input": true,
+      "components": [
+        {
+          "label": "Text Field",
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "label": "Password",
+          "key": "password",
+          "type": "password",
+          "input": true
+        }
+      ]
+    },
+    {
+      "label": "Checkbox",
+      "type": "checkbox",
+      "input": true
+    }
+  ]
+}

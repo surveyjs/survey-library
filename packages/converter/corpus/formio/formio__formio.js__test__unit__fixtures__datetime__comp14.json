@@ -1,0 +1,88 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Date / Time",
+      "format": "yyyy-MM-dd",
+      "tableView": false,
+      "datePicker": {
+        "disableWeekends": false,
+        "disableWeekdays": false,
+        "minDate": "2025-07-01T12:00:00",
+        "maxDate": "2025-07-31T12:00:00"
+      },
+      "enableTime": false,
+      "enableMinDateInput": false,
+      "enableMaxDateInput": false,
+      "validateWhenHidden": false,
+      "key": "dateTime",
+      "type": "datetime",
+      "input": true,
+      "widget": {
+        "type": "calendar",
+        "displayInTimezone": "viewer",
+        "locale": "en",
+        "useLocaleSettings": false,
+        "allowInput": true,
+        "mode": "single",
+        "enableTime": false,
+        "noCalendar": false,
+        "format": "yyyy-MM-dd",
+        "hourIncrement": 1,
+        "minuteIncrement": 1,
+        "time_24hr": false,
+        "minDate": "2025-07-01T12:00:00",
+        "disableWeekends": false,
+        "disableWeekdays": false,
+        "maxDate": "2025-07-31T12:00:00"
+      }
+    },
+    {
+      "label": "Date / Time",
+      "tableView": false,
+      "datePicker": {
+        "disableWeekends": false,
+        "disableWeekdays": false,
+        "minDate": "2025-10-01T12:00:00",
+        "maxDate": "2025-10-31T12:00:00"
+      },
+      "enableMinDateInput": false,
+      "enableMaxDateInput": false,
+      "validateWhenHidden": false,
+      "key": "dateTime1",
+      "type": "datetime",
+      "input": true,
+      "widget": {
+        "type": "calendar",
+        "displayInTimezone": "viewer",
+        "locale": "en",
+        "useLocaleSettings": false,
+        "allowInput": true,
+        "mode": "single",
+        "enableTime": true,
+        "noCalendar": false,
+        "format": "yyyy-MM-dd hh:mm a",
+        "hourIncrement": 1,
+        "minuteIncrement": 1,
+        "time_24hr": false,
+        "minDate": "2025-10-01T12:00:00",
+        "disableWeekends": false,
+        "disableWeekdays": false,
+        "maxDate": "2025-10-31T12:00:00"
+      }
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "disableOnInvalid": true
+    }
+  ],
+  "title": "test11",
+  "display": "form",
+  "name": "test11",
+  "path": "test11"
+}

@@ -1,0 +1,14 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "input": true,
+      "label": "Submit",
+      "key": "submit",
+      "action": "submit",
+      "type": "button"
+    }
+  ],
+  "display": "pdf",
+  "name": "testPdfForm"
+}

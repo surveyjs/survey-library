@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "postalCode": {
+        "type": "string",
+        "description": "A Postal Code",
+        "maxLength": 5
+      },
+      "recurrenceInterval": {
+        "type": "integer",
+        "description": "A recurrence interval"
+      }
+    },
+    "required": [
+      "postalCode"
+    ]
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/postalCode",
+            "label": "Postal Code"
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/recurrenceInterval",
+            "label": "Recurrence Interval"
+          }
+        ]
+      }
+    ]
+  }
+}

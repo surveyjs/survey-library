@@ -1,0 +1,137 @@
+{
+  "_id": "63523dd8536c941e67a68fcf",
+  "title": "5288",
+  "name": "5288",
+  "path": "5288",
+  "type": "form",
+  "display": "form",
+  "tags": [],
+  "access": [
+    {
+      "type": "create_own",
+      "roles": []
+    },
+    {
+      "type": "create_all",
+      "roles": []
+    },
+    {
+      "type": "read_own",
+      "roles": []
+    },
+    {
+      "type": "read_all",
+      "roles": [
+        "63293a17a5eec5c8bfbd3874",
+        "61029d3c4c9d4e05de74bb29",
+        "61029d3c4c9d4e952174bb24",
+        "61029d3b4c9d4e72ef74bb1f"
+      ]
+    },
+    {
+      "type": "update_own",
+      "roles": []
+    },
+    {
+      "type": "update_all",
+      "roles": []
+    },
+    {
+      "type": "delete_own",
+      "roles": []
+    },
+    {
+      "type": "delete_all",
+      "roles": []
+    },
+    {
+      "type": "team_read",
+      "roles": []
+    },
+    {
+      "type": "team_write",
+      "roles": []
+    },
+    {
+      "type": "team_admin",
+      "roles": []
+    }
+  ],
+  "submissionAccess": [
+    {
+      "type": "create_own",
+      "roles": []
+    },
+    {
+      "type": "create_all",
+      "roles": []
+    },
+    {
+      "type": "read_own",
+      "roles": []
+    },
+    {
+      "type": "read_all",
+      "roles": []
+    },
+    {
+      "type": "update_own",
+      "roles": []
+    },
+    {
+      "type": "update_all",
+      "roles": []
+    },
+    {
+      "type": "delete_own",
+      "roles": []
+    },
+    {
+      "type": "delete_all",
+      "roles": []
+    },
+    {
+      "type": "team_read",
+      "roles": []
+    },
+    {
+      "type": "team_write",
+      "roles": []
+    },
+    {
+      "type": "team_admin",
+      "roles": []
+    }
+  ],
+  "owner": "6080329e2c806a03c1e15aa4",
+  "components": [
+    {
+      "label": "CalendarID",
+      "tableView": true,
+      "key": "CalendarID",
+      "type": "textfield",
+      "input": true,
+      "lockKey": true,
+      "source": "62a2dbe651c1cca162583427",
+      "isNew": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "settings": {},
+  "properties": {},
+  "project": "61029d3b4c9d4e24e774bb15",
+  "controller": "",
+  "revisions": "",
+  "submissionRevisions": "",
+  "_vid": 0,
+  "created": "2022-10-21T06:36:08.160Z",
+  "modified": "2022-10-21T08:09:00.342Z",
+  "machineName": "dev-pvbwkiwgifflcai:5288"
+}

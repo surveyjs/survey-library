@@ -12,7 +12,7 @@ import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
-import { getFilterOperatorChoices } from "./filter/filter-field-properties";
+import { getFilterOperatorChoices, isFilterColumnInReach } from "./filter/filter-field-properties";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
@@ -1140,11 +1140,12 @@ Serializer.addClass(
     // Because the cell question carries a property of the same name, getOriginalByProperty hands
     // visibleIf the cell question instead of the column, so read the capability off whichever of
     // the two arrives. Never off column.isFilterable: it folds in allowFiltering itself and would
-    // hide the switch the moment it is turned off.
+    // hide the switch the moment it is turned off. Both are shown only for a matrix a Filter Control
+    // can reach (isFilterColumnInReach), as a question's are only where it is a field.
     { name: "allowFiltering:boolean", default: true, dependsOn: "cellType",
       visibleIf: (obj: any): boolean => {
         const q = !!obj && !!obj.templateQuestion ? obj.templateQuestion : obj;
-        return !!q && (!!q.isFilterable || !!q.hasNestedFilterFields);
+        return !!q && (!!q.isFilterable || !!q.hasNestedFilterFields) && isFilterColumnInReach(obj);
       } },
     // The column's own, for the same reason as allowFiltering above: a cell question's copy would
     // not survive a cellType change. visibleIf is handed the cell question here too; the cell
@@ -1154,7 +1155,7 @@ Serializer.addClass(
       visibleIf: (obj: any): boolean => {
         const column = !!obj && !!obj.templateQuestion ? obj : (!!obj ? obj.locOwner : undefined);
         const q = !!column && !!column.templateQuestion ? column.templateQuestion : obj;
-        return !!q && !!q.isFilterable && (!column || column.allowFiltering !== false);
+        return !!q && !!q.isFilterable && (!column || column.allowFiltering !== false) && isFilterColumnInReach(obj);
       } },
     { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],

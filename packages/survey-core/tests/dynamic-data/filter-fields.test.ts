@@ -103,6 +103,26 @@ describe("isFilterable and allowFiltering", () => {
     matrix.columns[0].allowFiltering = false;
     expect(prop.isVisible("", matrix.columns[0]), "#5: the column opted out").toBe(false);
   });
+  // A Filter Control finds its source by name among the survey's questions, so a matrix in a Dynamic
+  // Panel's template or in a detail panel is no source, and its columns are no fields.
+  test("a column's properties are hidden where no Filter Control can reach its matrix", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "top", columns: [{ name: "c1" }], detailPanelMode: "underRow", detailElements: [
+        { type: "matrixdynamic", name: "inDetail", columns: [{ name: "d1" }] }] },
+      { type: "paneldynamic", name: "p", templateElements: [
+        { type: "matrixdynamic", name: "inTemplate", columns: [{ name: "t1" }] }, { type: "text", name: "pt" }] }] });
+    const allow = Serializer.findProperty("matrixdropdowncolumn", "allowFiltering");
+    const operators = Serializer.findProperty("matrixdropdowncolumn", "filterOperators");
+    const top = <QuestionMatrixDynamicModel>survey.getQuestionByName("top");
+    const p = <any>survey.getQuestionByName("p");
+    const inTemplate = <QuestionMatrixDynamicModel>p.template.getQuestionByName("inTemplate");
+    const inDetail = <QuestionMatrixDynamicModel>top.detailPanel.getQuestionByName("inDetail");
+    expect([allow.isVisible("", top.columns[0]), operators.isVisible("", top.columns[0])], "#1: a top-level matrix").toEqual([true, true]);
+    expect([allow.isVisible("", inTemplate.columns[0]), operators.isVisible("", inTemplate.columns[0])], "#2: in a template").toEqual([false, false]);
+    expect(operators.isVisible("", inTemplate.columns[0].templateQuestion), "#3: handed the cell question").toBe(false);
+    expect([allow.isVisible("", inDetail.columns[0]), operators.isVisible("", inDetail.columns[0])], "#4: in a detail panel").toEqual([false, false]);
+    expect(Serializer.findProperty("question", "allowFiltering").isVisible("", p.template.getQuestionByName("pt")), "#5: the template's own field").toBe(true);
+  });
 });
 
 describe("getFilterFields", () => {

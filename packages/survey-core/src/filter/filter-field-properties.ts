@@ -19,6 +19,20 @@ export function isFilterFieldInReach(question: Question): boolean {
   }
   return !!owner && owner.getType() === "paneldynamic" && !owner.parentQuestion;
 }
+// Whether a Filter Control can take the question as its source: it finds the source by name among the
+// survey's questions (findQuestionByName), and no source is nested - not in a Dynamic Panel's template
+// or a composite question (a parentQuestion), not in a matrix detail panel's template (a panel on no
+// page). A question not added anywhere yet is let through.
+export function isFilterSourceInReach(question: Question): boolean {
+  return !!question && !question.parentQuestion && (!question.parent || !!question.page);
+}
+// The column rule: a column, or its cell question, of a matrix a Filter Control can reach. A column with
+// no matrix yet is let through.
+export function isFilterColumnInReach(obj: any): boolean {
+  const column = getColumn(obj);
+  const matrix: any = !!column ? column.colOwner : undefined;
+  return !matrix || isFilterSourceInReach(matrix);
+}
 
 // The operators the property grid offers for filterOperators: those the control's editor would
 // offer for the field, before the author's own restriction - the list must not shrink to what is
@@ -34,12 +48,16 @@ export function getFilterOperatorChoices(obj: any): Array<string> {
 // is the column), answers its own field; a question the field collectFilterFields makes of it.
 function getChoicesField(obj: any): IDynamicDataFilterField {
   if (!obj) return undefined;
-  const column = isColumn(obj) ? obj : (isColumn(obj.locOwner) ? obj.locOwner : undefined);
+  const column = getColumn(obj);
   if (!!column) return column.getFilterField();
   if (typeof obj.getValueType !== "function" || !obj.isFilterable) return undefined;
   const res: Array<IDynamicDataFilterField> = [];
   collectFilterFields(res, obj, "");
   return res[0];
+}
+function getColumn(obj: any): any {
+  if (!obj) return undefined;
+  return isColumn(obj) ? obj : (isColumn(obj.locOwner) ? obj.locOwner : undefined);
 }
 function isColumn(obj: any): boolean {
   return !!obj && typeof obj.getFilterField === "function" && !!obj.templateQuestion;

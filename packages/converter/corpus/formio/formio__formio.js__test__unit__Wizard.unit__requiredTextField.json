@@ -1,0 +1,16 @@
+{
+  "components": [
+    {
+      "label": "Parent Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validate": {
+        "required": true
+      },
+      "validateWhenHidden": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    }
+  ]
+}

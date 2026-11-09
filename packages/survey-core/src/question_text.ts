@@ -440,6 +440,9 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!this._inputValue && !this.maskTypeIsEmpty) return this.maskInstance.getMaskedValue("");
     return this._inputValue;
   }
+  private isMaskInputErased(val: string): boolean {
+    return !val || val === this.maskInstance.getMaskedValue("");
+  }
   public set inputValue(val: string) {
     let value = val;
     let _inputValue = val;
@@ -456,7 +459,9 @@ export class QuestionTextModel extends QuestionTextBase {
         value = this.maskInstance.getUnmaskedValue(val);
         if (value === undefined || value === null || value === "") {
           keepEnteredText = true;
-          value = undefined;
+          // An erased input is the respondent's clear that data.keepEmptyValues keeps as "".
+          // An incomplete entry has no value.
+          value = this.isKeepingEmptyValues() && this.isMaskInputErased(val) ? "" : undefined;
         } else {
           _inputValue = this.maskInstance.getMaskedValue(value);
           if (!!value && this.maskSettings.saveMaskedValue) {
@@ -817,7 +822,8 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     const val = this.value;
     if (!this.maskTypeIsEmpty && !this.isValueEmpty(newValue) && !this.isTwoValueEquals(val, newValue)) {
-      this.setValueCore(val);
+      // The mask corrects the loaded value; a value it rejects is removed from the data
+      this.runDeletingEmptyValues((): void => this.setValueCore(val));
     }
   }
   protected correctValueType(newValue: any): any {
@@ -1106,6 +1112,9 @@ Serializer.addClass(
       default: "text",
       choices: settings.questions.inputTypes,
     },
+    // The question's own, with inputType added to dependsOn: a filter field's operators follow it
+    // (a number offers "greater", a text "contains").
+    { name: "filterOperators:string[]", dependsOn: ["allowFiltering", "inputType"] },
     {
       name: "inputSize:number", alternativeName: "size", minValue: 0, dependsOn: "inputType",
       visibleIf: function(obj: any) {

@@ -1,17 +1,42 @@
 import { settings } from "./settings";
 import type { ISurvey } from "./interfaces/survey-interfaces";
+import type { SurveyModel } from "./survey";
+import { Event } from "./event";
 import { ConsoleWarnings } from "./console-warnings";
 
 // settings.comparator.normalizeTextCallback stays global only: no converter needs it per survey (decisions.md, C3)
 export interface ISurveySettingsComparator {
   trimStrings?: boolean;
   caseSensitive?: boolean;
+  // A text that reads as a number is compared as a text with another text (decisions.md, C4)
+  numericTextAsText?: boolean;
+  // The expression operators compare without loose equality, so true = 1 is false (decisions.md, C5)
+  strictEquality?: boolean;
+}
+export interface ISurveySettingsData {
+  keepEmptyValues?: boolean;
 }
 export interface ISurveySettings {
   comparator?: ISurveySettingsComparator;
+  data?: ISurveySettingsData;
 }
-// Prompt 02 adds `events` here. The key is reserved now: the constructor does not warn about it.
+// The names of SurveyModel's events, read from its member types, so a new event needs no change here.
+// An event is a public member whose type is an Event and whose name starts with "on"; the run-time check in
+// addEventHandlersFromOptions uses the same rule. `any` members are excluded: `any extends Event` matches.
+// The key remapping (`as`) visits the declared members one by one; SurveyModel's `[index: string]: any`
+// would otherwise turn keyof SurveyModel into `string`. The index signature's key, `string`, is dropped.
+type IsAny<T> = 0 extends (1 & T) ? true : false;
+type SurveyEventKey<K, T> = K extends `on${string}` ? IsAny<T> extends true ? never : T extends Event<any, any, any> ? K : never : never;
+// onElementRerendered is a Base getter, not an event field: it returns the protected _onElementRerendered only
+// when a UI renderer enables it, and undefined otherwise. A type cannot tell a getter from a field, so it is excluded by name.
+type SurveyEventName = Exclude<keyof { [K in keyof SurveyModel as SurveyEventKey<K, SurveyModel[K]>]: true }, "onElementRerendered">;
+// The callback type of the event: (sender: SurveyModel, options: TOptions) => any for EventBase<SurveyModel, TOptions>.
+type SurveyEventHandler<K extends SurveyEventName> = SurveyModel[K] extends Event<infer F, any, any> ? F : never;
+export type SurveyEventHandlers = {
+  [K in SurveyEventName]?: SurveyEventHandler<K> | Array<SurveyEventHandler<K>>;
+};
 export interface ISurveyOptions extends ISurveySettings {
+  events?: SurveyEventHandlers;
 }
 
 // The global settings every survey value falls back to (the same object, not a copy).
@@ -25,7 +50,8 @@ type SurveySettingsKeys = { [G in SurveySettingsGroup]-?: { [K in keyof NonNulla
 // The groups and keys a survey can set for itself. The type makes the build fail when the interface
 // gets a key this list misses.
 const surveySettingsKeys: SurveySettingsKeys = {
-  comparator: { trimStrings: true, caseSensitive: true }
+  comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: true, strictEquality: true },
+  data: { keepEmptyValues: true }
 };
 const reservedOptionKeys = ["events"];
 
@@ -46,6 +72,40 @@ export function getSurveySetting<G extends SurveySettingsGroup, K extends keyof 
   const groupValue: any = !!surveySettings ? surveySettings[group] : undefined;
   const val = !!groupValue ? groupValue[key] : undefined;
   return val !== undefined ? val : globalSettings[group][key];
+}
+
+// Subscribes the handlers of the constructor's `events` option, in the order given. A JavaScript caller gets
+// no type checking, so an unknown name, or a value that is not a function or an array of functions, is ignored
+// with a warning. `undefined` means no handler (the type allows it); `events` that is not a plain object is
+// ignored silently, as a settings group is.
+export function addEventHandlersFromOptions(survey: SurveyModel, options: ISurveyOptions): void {
+  if (!isPlainObject(options) || !isPlainObject(options.events)) return;
+  const events: any = options.events;
+  const names = Object.keys(events);
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i];
+    // Events are own fields of the instance. hasOwn keeps prototype members (methods, getters) out without calling a getter.
+    const event: any = name.indexOf("on") === 0 && hasOwn(survey, name) ? (<any>survey)[name] : undefined;
+    if (!(event instanceof Event)) {
+      ConsoleWarnings.warn("The survey event \"" + name + "\" in the constructor options is unknown. It is ignored.");
+      continue;
+    }
+    const value = events[name];
+    if (value === undefined) continue;
+    const handlers: Array<any> = Array.isArray(value) ? value : [value];
+    // An index loop, not some(): some() skips the holes of a sparse array, and the loop below would add them.
+    let isValid = true;
+    for (let j = 0; j < handlers.length; j++) {
+      if (typeof handlers[j] !== "function") isValid = false;
+    }
+    if (!isValid) {
+      ConsoleWarnings.warn("The handler of the survey event \"" + name + "\" in the constructor options is not a function or an array of functions. It is ignored.");
+      continue;
+    }
+    for (let j = 0; j < handlers.length; j++) {
+      event.add(handlers[j]);
+    }
+  }
 }
 
 // The settings a comparison passes on (ISurvey.getOwnSettings): undefined when there is no survey, or the

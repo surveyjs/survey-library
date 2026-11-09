@@ -522,6 +522,16 @@ export class QuestionFilterModel extends QuestionNonValue {
     const item = this.activeItem;
     return !item || item.kind !== "ai";
   }
+  // The control's own readOnly (enableIf sets it) locks its UI: the chips are disabled, no dialog or
+  // popup opens and the search box is off, while the active preset still filters. Not isReadOnly:
+  // that includes survey display mode and a read-only parent panel, and a filter changes no data -
+  // a respondent reviewing a completed survey may still look at the records. Only the UI: the
+  // uiState restore and an application's calls (canEditConditions) still work, as a read-only
+  // question's value can still be set from code. In the designer every button reports the click.
+  public get isControlReadOnly(): boolean { return !this.isDesignMode && this.readOnly; }
+  // What the editors, the field popups and the Filters dialog read: the conditions can be edited, and
+  // the UI is not locked. The one rule of the UI's read-only state.
+  public get canEditConditionsInUI(): boolean { return this.canEditConditions && !this.isControlReadOnly; }
   // The active preset applies as text that has no conditions to show: an "or", a function, a
   // comparison of two fields. A renderer warns with it that the first edit starts from nothing.
   public get isRawExpression(): boolean {
@@ -632,7 +642,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   public createFastModeEditor(name: string): FilterConditionsEditor {
     if (!this.isFastModeField(this.getFieldByName(name))) return undefined;
     return new FilterConditionsEditor(this, [name], {
-      readOnly: !this.canEditConditions,
+      readOnly: !this.canEditConditionsInUI,
       onApply: (conditions: Array<IFilterCondition>): void => {
         if (conditions === undefined) return;
         writeFilterFieldCondition(this, name, conditions[0]);
@@ -661,7 +671,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // not a permission the model enforces. The caller owns the editor and disposes it.
   public createAdvancedModeEditor(): FilterConditionsEditor {
     return new FilterConditionsEditor(this, this.getAllFieldKeys(), {
-      readOnly: !this.canEditConditions,
+      readOnly: !this.canEditConditionsInUI,
       showSearch: this.showSearch,
       searchString: this.searchString,
       searchPlaceholder: this.searchPlaceholder,
@@ -677,7 +687,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // (FilterModal) and is told of every change through onFieldChanged.
   public createModalEditor(onFieldChanged: () => void): FilterConditionsEditor {
     return new FilterConditionsEditor(this, this.getAllFieldKeys(), {
-      readOnly: !this.canEditConditions,
+      readOnly: !this.canEditConditionsInUI,
       showFieldTitles: true,
       useFieldKinds: true,
       linkCss: (this.cssClasses || {}).link,
@@ -904,9 +914,10 @@ export class QuestionFilterModel extends QuestionNonValue {
     return { root: text.root || "", control: text.control || "" };
   }
   public get searchRootCss(): string { return toCssClasses(this.searchCss.root, this.cssClasses.search); }
-  // The quick search box is off in the designer only; the Filters dialog's box has its own rule
-  // (FilterModal.isSearchDisabled).
-  public get isSearchDisabled(): boolean { return this.isDesignMode; }
+  // The quick search box is off in the designer and while the control is read-only. The Filters
+  // dialog's box has its own rule (FilterModal.isSearchDisabled): it is also off for an AI preset in
+  // single mode, whose conditions can't be edited - the quick search is no condition edit.
+  public get isSearchDisabled(): boolean { return this.isDesignMode || this.isControlReadOnly; }
   // The element the chips layout is attached to: expanded by Show More. A disposed control has
   // released its layout, and asking for it would build a new one.
   public get chipsCss(): string {
@@ -1766,6 +1777,11 @@ function getSearchFieldChoices(obj: any): Array<any> {
 // box); each of them is stored as a plain string.
 Serializer.addClass("filter", [
   { name: "title", visible: true },
+  // The non-value base hides both; the control's own readOnly locks its UI (isControlReadOnly).
+  // readOnlyMode's "view" draws nothing different for a filter.
+  { name: "readOnly", visible: true },
+  { name: "enableIf", visible: true },
+  { name: "readOnlyMode", visible: false },
   { name: "source:question_filtersource" },
   // Needed only by a control with no source (the host filters through survey.onFilterChanged): a
   // bound control takes its fields from the source and ignores these, so the designer hides them.

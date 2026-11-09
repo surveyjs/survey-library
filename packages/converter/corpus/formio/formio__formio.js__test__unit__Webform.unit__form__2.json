@@ -1,0 +1,37 @@
+{
+  "components": [
+    {
+      "label": "Number",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "defaultValue": 4,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "validateWhenHidden": false,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true,
+      "defaultValue": "test"
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

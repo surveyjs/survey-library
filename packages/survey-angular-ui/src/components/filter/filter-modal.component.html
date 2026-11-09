@@ -10,9 +10,9 @@
     <div *ngIf="modal.creationToolbar.hasVisibleActions" [class]="modal.cssClasses.modalSection">
       <sv-ng-action-bar [model]="modal.creationToolbar"></sv-ng-action-bar>
     </div>
-    <div *ngIf="modal.presetsToolbar.hasActions" [class]="modal.cssClasses.modalSection">
+    <div *ngIf="modal.presetsToolbar.hasActions" [class]="modal.cssClasses.modalSection" role="group" [attr.aria-labelledby]="modal.presetsTitleId">
       <div [class]="modal.cssClasses.modalSectionHeader">
-        <div [class]="modal.cssClasses.modalSectionTitle">{{ presetsTitle }}</div>
+        <div [class]="modal.cssClasses.modalSectionTitle" [attr.id]="modal.presetsTitleId">{{ presetsTitle }}</div>
         <sv-ng-action-bar [model]="modal.presetsTitleToolbar"></sv-ng-action-bar>
       </div>
       <sv-ng-action-bar [model]="modal.presetsToolbar"></sv-ng-action-bar>

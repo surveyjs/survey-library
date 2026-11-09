@@ -1,5 +1,5 @@
 import { settings } from "./settings";
-import { mulberry32 } from "./utils/utils";
+import { mulberry32, isProtoKey } from "./utils/utils";
 import { ISurveySettings, getSurveySetting } from "./survey-settings";
 
 export interface HashTable<T = any> {
@@ -10,6 +10,9 @@ export interface IEqualValuesParameters {
   caseSensitive?: boolean;
   trimStrings?: boolean;
   doNotConvertNumbers?: boolean;
+  // Set only by the expression operators =, <>, anyof, allof, noneof, contains, notcontains: comparator.strictEquality
+  // applies to conditions, not to value-change checks, choice matching or matrix cells, which carry the same settings
+  strictEqualityApplies?: boolean;
   // The survey's settings for the keys not given above; undefined means the global settings
   settings?: ISurveySettings;
 }
@@ -75,6 +78,38 @@ export class Helpers {
       return true;
     }
     return !value && value !== 0 && value !== false;
+  }
+  // The value without the keys whose value is empty (isValueEmpty), at any depth; the same value when it has
+  // none, so a caller can tell that nothing changed. Only the objects isValueEmpty looks into are walked. An
+  // array keeps its length and its non-object items: a dynamic panel's panel count and a dynamic matrix's row
+  // count come from it. A changed object or array is a copy; the value passed in is never modified.
+  public static removeEmptyKeys(value: any): any {
+    if (Array.isArray(value)) {
+      let res: Array<any>;
+      for (let i = 0; i < value.length; i++) {
+        const item = Helpers.removeEmptyKeys(value[i]);
+        if (item !== value[i]) {
+          if (!res) res = value.slice();
+          res[i] = item;
+        }
+      }
+      return res || value;
+    }
+    if (!value || !Helpers.isValueObject(value) || value.constructor !== Object) return value;
+    let res: any;
+    for (const key of Object.keys(value)) {
+      // A "__proto__" key is kept or removed, never rewritten: assigning it would replace the copy's prototype
+      const item = isProtoKey(key) ? value[key] : Helpers.removeEmptyKeys(value[key]);
+      const isEmpty = Helpers.isValueEmpty(item);
+      if (!isEmpty && item === value[key]) continue;
+      if (!res) res = { ...value };
+      if (isEmpty) {
+        delete res[key];
+      } else {
+        res[key] = item;
+      }
+    }
+    return res || value;
   }
   // A string or a String object trimmed; any other value as it is.
   public static trimValue(value: any): any {
@@ -199,7 +234,14 @@ export class Helpers {
     }
     const isXObj = Helpers.isValueObject(x);
     const isYObj = Helpers.isValueObject(y);
-    if (!isXObj && !isYObj && (convertNumbers || (typeof x !== "number" && typeof y !== "number"))) return x == y;
+    if (!isXObj && !isYObj && (convertNumbers || (typeof x !== "number" && typeof y !== "number"))) {
+      // comparator.strictEquality: a boolean is not loosely equal to a number, so true = 1 is false. Only a boolean
+      // side is strict: a number and a text that == reads as that number ('.5', '1e3') are C4's concern.
+      // A boolean and a text returned above (true = 'true').
+      if (params.strictEqualityApplies && (typeof x === "boolean" || typeof y === "boolean") &&
+        getSurveySetting(params.settings, "comparator", "strictEquality")) return x === y;
+      return x == y;
+    }
     if (!isXObj || !isYObj) return false;
     if (x["equals"] && y["equals"]) return x.equals(y);
     if (Array.isArray(x) && Array.isArray(y)) {

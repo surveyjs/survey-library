@@ -58,7 +58,14 @@ export function canFilterFieldSelectAll(field: IDynamicDataFilterField, kind: Fi
 export function getFilterFieldSelection(field: IDynamicDataFilterField, kind: FilterFieldEditorKind, condition: IFilterCondition): Array<any> | undefined {
   if (!condition) return [];
   if (kind === "single") return condition.operator === "equal" ? [condition.value] : undefined;
-  if (kind === "multi") return condition.operator === "anyof" && Array.isArray(condition.value) ? [].concat(condition.value) : undefined;
+  if (kind === "multi") {
+    if (condition.operator === "anyof" && Array.isArray(condition.value)) return [].concat(condition.value);
+    // "= 'de'" on a field of one value is that value checked; another pick makes it anyof of both.
+    // Over an array value (a checkbox field) equal is an exact match of the whole array, which no
+    // set of checked values stands for.
+    if (condition.operator === "equal" && !Array.isArray(condition.value) && field.valueType !== "array") return [condition.value];
+    return undefined;
+  }
   if (kind === "boolean") {
     if (condition.operator === "notempty") return getBooleanItems(field, undefined).map((item: IFilterFieldListItem): any => item.value);
     return condition.operator === "equal" ? [condition.value] : undefined;
@@ -67,7 +74,16 @@ export function getFilterFieldSelection(field: IDynamicDataFilterField, kind: Fi
 }
 // The other way round: the condition a list editor's checked values stand for, or undefined for
 // none (nothing checked - and a boolean's two checked where the field does not offer notempty).
-export function getFilterSelectionCondition(field: IDynamicDataFilterField, kind: FilterFieldEditorKind, values: Array<any>): IFilterCondition | undefined {
+// shown: the condition the list was opened with. While the checked values are still the ones it
+// shows, its operator is kept - an untouched "= 'de'" is not rewritten as "anyof ['de']", which would
+// count as an edit and turn its preset off.
+export function getFilterSelectionCondition(field: IDynamicDataFilterField, kind: FilterFieldEditorKind, values: Array<any>, shown?: IFilterCondition): IFilterCondition | undefined {
+  const res = getSelectionCondition(field, kind, values);
+  if (!res || !shown || shown.operator === res.operator) return res;
+  const selection = getFilterFieldSelection(field, kind, shown);
+  return !!selection && Helpers.isTwoValueEquals(selection, values, true) ? Object.assign({}, shown) : res;
+}
+function getSelectionCondition(field: IDynamicDataFilterField, kind: FilterFieldEditorKind, values: Array<any>): IFilterCondition | undefined {
   if (!Array.isArray(values) || values.length === 0) return undefined;
   if (kind === "single") return { field: field.valueName, operator: "equal", value: values[0] };
   if (kind === "multi") return { field: field.valueName, operator: "anyof", value: [].concat(values) };

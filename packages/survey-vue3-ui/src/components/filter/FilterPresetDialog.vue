@@ -7,8 +7,8 @@
       :className="dialog().formCss"></FilterEditorPage>
     <FilterEditorPage v-if="hasFields()" :survey="dialog().survey" :disposed="dialog().isDisposed"
       :className="dialog().editorCss"></FilterEditorPage>
-    <div v-if="!!edit() && edit().actionsToolbar.hasVisibleActions" :class="css().modalSection">
-      <div :class="css().modalSectionTitle">{{ filterUIStrings.presetActions }}</div>
+    <div v-if="!!edit() && edit().actionsToolbar.hasVisibleActions" :class="css().modalSection" role="group" :aria-labelledby="edit().actionsTitleId">
+      <div :class="css().modalSectionTitle" :id="edit().actionsTitleId">{{ filterUIStrings.presetActions }}</div>
       <SvComponent :is="'sv-action-bar'" :model="edit().actionsToolbar"></SvComponent>
     </div>
   </div>

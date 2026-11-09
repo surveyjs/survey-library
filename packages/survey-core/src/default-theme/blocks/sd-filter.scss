@@ -35,10 +35,10 @@
   box-sizing: content-box;
   width: var(--sjs2-size-x300);
   height: var(--sjs2-size-x300);
-  padding: var(--sjs2-layout-component-input-medium-icon-padding-vertical)
-    var(--sjs2-layout-component-input-medium-icon-padding-right)
-    var(--sjs2-layout-component-input-medium-icon-padding-vertical)
-    var(--sjs2-layout-component-input-medium-icon-padding-left);
+  // Logical: the icon comes first in the box, so its outer gap stays on the box's edge in RTL too.
+  padding-block: var(--sjs2-layout-component-input-medium-icon-padding-vertical);
+  padding-inline: var(--sjs2-layout-component-input-medium-icon-padding-left)
+    var(--sjs2-layout-component-input-medium-icon-padding-right);
 
   use {
     fill: var(--sjs2-color-fg-basic-secondary);
@@ -46,10 +46,9 @@
 }
 // ...the small one in the control's 40px box.
 .sd-filter__search .sd-filter__search-icon {
-  padding: var(--sjs2-layout-component-input-small-icon-padding-vertical)
-    var(--sjs2-layout-component-input-small-icon-padding-right)
-    var(--sjs2-layout-component-input-small-icon-padding-vertical)
-    var(--sjs2-layout-component-input-small-icon-padding-left);
+  padding-block: var(--sjs2-layout-component-input-small-icon-padding-vertical);
+  padding-inline: var(--sjs2-layout-component-input-small-icon-padding-left)
+    var(--sjs2-layout-component-input-small-icon-padding-right);
 }
 
 .sd-filter__chips-row {
@@ -85,9 +84,22 @@
 .sd-filter__chip--overflow {
   position: absolute;
   top: 0;
-  left: 0;
+  inset-inline-start: 0;
   visibility: hidden;
   pointer-events: none;
+}
+
+// A read-only control's chips are disabled, and the theme's disabled colors are the same for an
+// active and an inactive chip: an active one keeps its colors, so the chips still show the active
+// filter. The same for the read-only Filters dialog's presets.
+.sd-filter__chips .sd-action--active:disabled,
+.sd-filter__chips .sd-action--active.sd-action--disabled,
+.sd-filter-modal__section .sd-action--active:disabled,
+.sd-filter-modal__section .sd-action--active.sd-action--disabled {
+  --sd-action-disabled-background: var(--sd-action-background);
+  --sd-action-disabled-title-color: var(--sd-action-title-color);
+  --sd-action-disabled-icon-color: var(--sd-action-icon-color);
+  --sd-action-disabled-box-shadow: var(--sd-action-boxshadow);
 }
 
 .sd-filter__chip-marker {
@@ -312,19 +324,6 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.sd-filter-popup__item-remove {
-  display: flex;
-  flex: 0 0 auto;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-
-  use {
-    fill: var(--sjs2-color-fg-basic-secondary);
-  }
 }
 
 .sd-filter-popup__footer {

@@ -1,0 +1,39 @@
+{
+  "_id": "68493845008f6ee0d1995d5a",
+  "title": "FD 59265 - file",
+  "name": "fd59265File",
+  "path": "fd59265file",
+  "type": "form",
+  "display": "form",
+  "tags": [],
+  "owner": "6849509a008f6ee0d199675e",
+  "components": [
+    {
+      "label": "Upload",
+      "tableView": false,
+      "storage": "base64",
+      "modalEdit": true,
+      "webcam": false,
+      "capture": false,
+      "fileTypes": [
+        {
+          "label": "",
+          "value": ""
+        }
+      ],
+      "fileMinSize": "{{config.minAttachmentSize}}",
+      "fileMaxSize": "{{config.maxAttachmentSize}}",
+      "validateWhenHidden": false,
+      "key": "file",
+      "type": "file",
+      "input": true
+    }
+  ],
+  "pdfComponents": [],
+  "created": "2025-06-11T08:03:17.980Z",
+  "modified": "2025-06-11T12:04:26.833Z",
+  "config": {
+    "maxAttachmentSize": "5MB",
+    "minAttachmentSize": "1MB"
+  }
+}

@@ -519,7 +519,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
           newVal[key] = val[key];
         }
       });
-      this.value = newVal;
+      this.runDeletingEmptyValues((): void => { this.value = newVal; });
     }
     super.clearIncorrectValues();
   }

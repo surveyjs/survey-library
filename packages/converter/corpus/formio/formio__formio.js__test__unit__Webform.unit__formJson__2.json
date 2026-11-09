@@ -1,0 +1,12 @@
+{
+  "components": [
+    {
+      "type": "checkbox",
+      "key": "chk",
+      "label": "Check",
+      "input": true,
+      "calculateValue": "value = true;",
+      "allowCalculateOverride": true
+    }
+  ]
+}

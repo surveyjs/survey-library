@@ -1,0 +1,31 @@
+{
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Edit Grid",
+      "tableView": false,
+      "validateWhenHidden": false,
+      "rowDrafts": false,
+      "key": "editGrid",
+      "type": "editgrid",
+      "displayAsTable": false,
+      "input": true,
+      "components": [
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "multiple": true,
+          "validate": {
+            "required": true
+          },
+          "validateWhenHidden": false,
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        }
+      ]
+    }
+  ]
+}

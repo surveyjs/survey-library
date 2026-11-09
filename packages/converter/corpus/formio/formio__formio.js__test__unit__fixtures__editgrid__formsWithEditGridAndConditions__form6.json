@@ -1,0 +1,93 @@
+{
+  "title": "form6",
+  "name": "form6",
+  "path": "form6",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Container",
+      "tableView": false,
+      "key": "container",
+      "type": "container",
+      "input": true,
+      "components": [
+        {
+          "label": "Edit Grid",
+          "tableView": false,
+          "rowDrafts": false,
+          "key": "editGrid",
+          "logic": [
+            {
+              "name": "ret",
+              "trigger": {
+                "type": "simple",
+                "simple": {
+                  "show": true,
+                  "conjunction": "all",
+                  "conditions": [
+                    {
+                      "component": "textField",
+                      "operator": "isEqual",
+                      "value": "show"
+                    }
+                  ]
+                }
+              },
+              "actions": [
+                {
+                  "name": "ter",
+                  "type": "value",
+                  "value": "value = [{number:1, textArea: 'test'}, {number:2, textArea: 'test2'}]"
+                }
+              ]
+            }
+          ],
+          "type": "editgrid",
+          "displayAsTable": false,
+          "input": true,
+          "components": [
+            {
+              "label": "Number",
+              "applyMaskOn": "change",
+              "mask": false,
+              "tableView": false,
+              "delimiter": false,
+              "requireDecimal": false,
+              "inputFormat": "plain",
+              "truncateMultipleSpaces": false,
+              "key": "number",
+              "type": "number",
+              "input": true
+            },
+            {
+              "label": "Text Area",
+              "applyMaskOn": "change",
+              "autoExpand": false,
+              "tableView": true,
+              "key": "textArea",
+              "type": "textarea",
+              "input": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

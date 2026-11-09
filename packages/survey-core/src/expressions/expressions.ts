@@ -5,6 +5,11 @@ import { settings } from "../settings";
 import { ISurveySettings, getSurveySetting } from "../survey-settings";
 import { ExpressionErrorType, IExpressionError } from "./expressionError";
 
+// Set by static blocks in Const and Variable: BinaryOperand reads their private state through these,
+// so the state stays out of the public API.
+let isQuotedTextLiteral: (op: Const) => boolean;
+let getTextBeforeConversion: (op: Variable) => string | undefined;
+
 export interface AsyncFunctionItem {
   operand?: FunctionOperand;
   parent?: AsyncFunctionItem;
@@ -68,9 +73,18 @@ export abstract class Operand {
   }
 }
 
+// The operators that compare a variable's text with a quoted literal. A negative operator is the
+// exact negation of its positive counterpart.
+const textCompareOperators: HashTable<"positive" | "negative"> = {
+  equal: "positive", contains: "positive", anyof: "positive", allof: "positive",
+  notequal: "negative", notcontains: "negative", noneof: "negative"
+};
+
 export class BinaryOperand extends Operand {
   private consumer: Function;
   private isArithmeticValue: boolean;
+  private isTextCompare: boolean;
+  private textVariable: Variable;
   constructor(
     private operatorName: string,
     private left: any = null,
@@ -90,6 +104,21 @@ export class BinaryOperand extends Operand {
     if (this.consumer == null) {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
+    this.isTextCompare = !isArithmeticOp && Object.prototype.hasOwnProperty.call(textCompareOperators, operatorName);
+    if (this.isTextCompare) {
+      this.textVariable = this.getTextVariable(this.left, this.right) || this.getTextVariable(this.right, this.left);
+    }
+  }
+  // A variable compared with a quoted literal: its text is compared before the converted value.
+  private getTextVariable(op: Operand, other: Operand): Variable {
+    if (!(op instanceof Variable) || !other) return undefined;
+    if (other instanceof ArrayOperand) {
+      return other.values.some(val => this.isQuotedLiteral(val)) ? op : undefined;
+    }
+    return this.isQuotedLiteral(other) ? op : undefined;
+  }
+  private isQuotedLiteral(op: Operand): boolean {
+    return op instanceof Const && op.getType() === "const" && isQuotedTextLiteral(op);
   }
   private get requireStrictCompare(): boolean {
     return this.getIsOperandRequireStrict(this.left) ||
@@ -129,14 +158,63 @@ export class BinaryOperand extends Operand {
     return x == null ? null : x.evaluate(processValue);
   }
 
+  // The text a variable operand read as a number in its last evaluate; undefined otherwise
+  private getNumericText(op: Operand, value: any): string | undefined {
+    if (!this.isTextCompare || typeof value !== "number" || !(op instanceof Variable)) return undefined;
+    return getTextBeforeConversion(op);
+  }
+  // A text, a variable's text read as a number or a boolean ("true"), or an array with a text item:
+  // not an actual number (comparator.numericTextAsText)
+  private static isTextSide(op: Operand, value: any, numericText: string | undefined): boolean {
+    if (numericText !== undefined || typeof value === "string") return true;
+    if (op instanceof Variable && getTextBeforeConversion(op) !== undefined) return true;
+    return Array.isArray(value) && value.some((item: any) => typeof item === "string");
+  }
+  // In an array compared with a restored text, a number item equal to the text's number is an actual number:
+  // it becomes the text, so it still matches ("1,5" and [1.5, "x"]). A copy: the array may be the survey's data.
+  private static numberItemsToText(value: any, num: number, text: string): any {
+    if (!Array.isArray(value) || value.indexOf(num) < 0) return value;
+    return value.map((item: any) => item === num ? text : item);
+  }
+
   public evaluate(processValue?: ProcessValue): any {
-    return this.consumer.call(
-      this,
-      this.evaluateParam(this.left, processValue),
-      this.evaluateParam(this.right, processValue),
-      this.requireStrictCompare,
-      processValue?.settings
-    );
+    let left = this.evaluateParam(this.left, processValue);
+    let leftText = this.textVariable === this.left ? getTextBeforeConversion(this.textVariable) : undefined;
+    const leftNumericText = this.getNumericText(this.left, left);
+    let right = this.evaluateParam(this.right, processValue);
+    let rightText = this.textVariable === this.right ? getTextBeforeConversion(this.textVariable) : undefined;
+    const rightNumericText = this.getNumericText(this.right, right);
+    const strictCompare = this.requireStrictCompare;
+    const surveySettings = processValue?.settings;
+    if ((leftNumericText !== undefined || rightNumericText !== undefined) &&
+      getSurveySetting(surveySettings, "comparator", "numericTextAsText")) {
+      // A variable's text read as a number goes back to the text when the other side is a text too, so the
+      // operator compares texts (under the comparator's case and trim rules). Against an actual number
+      // (a number literal, a numeric value) the converted value stays. Both sides are decided before either changes.
+      const restoreLeft = leftNumericText !== undefined && BinaryOperand.isTextSide(this.right, right, rightNumericText);
+      const restoreRight = rightNumericText !== undefined && BinaryOperand.isTextSide(this.left, left, leftNumericText);
+      if (restoreLeft) {
+        right = BinaryOperand.numberItemsToText(right, left, leftNumericText);
+        left = leftNumericText;
+        leftText = undefined;
+      }
+      if (restoreRight) {
+        left = BinaryOperand.numberItemsToText(left, right, rightNumericText);
+        right = rightNumericText;
+        rightText = undefined;
+      }
+    }
+    if (leftText !== undefined || rightText !== undefined) {
+      // The variable's text was converted ("1,000" reads as 1), while a quoted literal never is.
+      // Compare the text first: only when that comparison fails, compare the converted value.
+      const textRes = this.consumer.call(this,
+        leftText !== undefined ? leftText : left,
+        rightText !== undefined ? rightText : right,
+        strictCompare, surveySettings);
+      const isPositive = textCompareOperators[this.operatorName] === "positive";
+      if (textRes === isPositive) return textRes;
+    }
+    return this.consumer.call(this, left, right, strictCompare, surveySettings);
   }
 
   public toString(func: (op: Operand) => string = undefined): string {
@@ -426,6 +504,9 @@ export class Const extends Operand {
     const val = this.value;
     return typeof val === "string" && val.length > 1 && val[0] === "'" && val[val.length - 1] === "'";
   }
+  static {
+    isQuotedTextLiteral = (op: Const): boolean => op.isStringLiteral();
+  }
 }
 
 export class Variable extends Const {
@@ -434,6 +515,12 @@ export class Variable extends Const {
   private valueInfo: any = {};
   private useValueAsItIs: boolean = false;
   private returnOriginalValue: boolean = false;
+  // The text the last evaluate converted to another value (a number, a boolean, a text without its quotes);
+  // undefined when the value was not a text or was returned as is.
+  private textBeforeConversion: string | undefined;
+  static {
+    getTextBeforeConversion = (op: Variable): string | undefined => op.textBeforeConversion;
+  }
   constructor(private variableName: string) {
     super(variableName);
     if (
@@ -468,6 +555,7 @@ export class Variable extends Const {
     this.returnOriginalValue = val;
   }
   public evaluate(processValue?: ProcessValue): any {
+    this.textBeforeConversion = undefined;
     this.valueInfo.name = this.variableName;
     this.valueInfo.isOriginalValue = this.returnOriginalValue;
     processValue.getValueInfo(this.valueInfo);
@@ -478,7 +566,11 @@ export class Variable extends Const {
     if (this.valueInfo.onProcessValue) {
       val = this.valueInfo.onProcessValue(val);
     }
-    return this.getCorrectValue(val);
+    const res = this.getCorrectValue(val);
+    if (typeof val === "string" && res !== val) {
+      this.textBeforeConversion = val;
+    }
+    return res;
   }
   public setVariables(variables: Array<string>) {
     variables.push(this.variableName);
@@ -556,7 +648,7 @@ export class FunctionOperand extends Operand {
         };
       }
     }
-    const res = FunctionFactory.Instance.run(this.functionName, parameters, properties, this.parameters.values);
+    const res = FunctionFactory.Instance.run(this.functionName, parameters, properties, this.parameters.values, processValue.context);
     if (res instanceof Promise) {
       res.then((value) => {
         properties.returnResult(value);
@@ -738,18 +830,17 @@ export class OperandMaker {
       return left < right;
     },
     // A comparing operator takes the run's survey settings as the 4th argument (undefined: the global settings)
+    // >= and <= keep loose equality under comparator.strictEquality, as > and < convert their operands
     greaterorequal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
-      if (OperandMaker.binaryFunctions.equal(left, right, undefined, surveySettings)) return true;
+      if (OperandMaker.isEqualOperands(left, right, true, surveySettings, false)) return true;
       return OperandMaker.binaryFunctions.greater(left, right);
     },
     lessorequal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
-      if (OperandMaker.binaryFunctions.equal(left, right, undefined, surveySettings)) return true;
+      if (OperandMaker.isEqualOperands(left, right, true, surveySettings, false)) return true;
       return OperandMaker.binaryFunctions.less(left, right);
     },
     equal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
-      left = OperandMaker.convertValForDateCompare(left, right);
-      right = OperandMaker.convertValForDateCompare(right, left);
-      return OperandMaker.isTwoValueEquals(left, right, strictCompare !== true, surveySettings);
+      return OperandMaker.isEqualOperands(left, right, strictCompare !== true, surveySettings, true);
     },
     notequal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
       return !OperandMaker.binaryFunctions.equal(left, right, strictCompare, surveySettings);
@@ -821,10 +912,18 @@ export class OperandMaker {
     },
   };
 
-  static isTwoValueEquals(x: any, y: any, ignoreOrder: boolean = true, surveySettings?: ISurveySettings): boolean {
+  // = and <> pass strictEqualityApplies = true, >= and <= pass false (outside binaryFunctions, so a replaced
+  // equal cannot drop the flag)
+  static isEqualOperands(left: any, right: any, ignoreOrder: boolean, surveySettings: ISurveySettings, strictEqualityApplies: boolean): boolean {
+    left = OperandMaker.convertValForDateCompare(left, right);
+    right = OperandMaker.convertValForDateCompare(right, left);
+    return OperandMaker.isTwoValueEquals(left, right, ignoreOrder, surveySettings, strictEqualityApplies);
+  }
+  // strictEqualityApplies: comparator.strictEquality may apply; true for the operators, false for >= and <=
+  static isTwoValueEquals(x: any, y: any, ignoreOrder: boolean = true, surveySettings?: ISurveySettings, strictEqualityApplies: boolean = true): boolean {
     if (x === "undefined") x = undefined;
     if (y === "undefined") y = undefined;
-    return Helpers.isTwoValueEquals(x, y, ignoreOrder, undefined, undefined, surveySettings);
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, settings: surveySettings, strictEqualityApplies: strictEqualityApplies });
   }
   static operatorToString(operatorName: string): string {
     let opStr = OperandMaker.signs[operatorName];

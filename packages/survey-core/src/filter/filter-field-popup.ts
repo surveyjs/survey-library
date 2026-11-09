@@ -27,14 +27,14 @@ export interface IFilterFieldPopupOwner extends ILocalizableOwner {
   setFieldCondition(name: string, operator: string, value?: any): void;
   clearFieldCondition(name: string): void;
   createFastModeEditor(name: string): FilterConditionsEditor;
-  canEditConditions: boolean;
+  canEditConditionsInUI: boolean;
   cssClasses: any;
 }
 // A list this long or longer gets a search box. The list's own threshold (ListModel.MINELEMENTCOUNT)
 // is shared by every dropdown in the library and is not changed for this one.
 export const filterPopupSearchMinItemCount = 7;
-// The component a renderer draws a list entry of a "multi" or "boolean" popup with: a checkbox, the
-// text and, for a value the respondent typed, a button that removes it.
+// The component a renderer draws a list entry of a "multi" or "boolean" popup with: a checkbox and the
+// text. A value the respondent typed has no button of its own: unchecked, it is dropped.
 export const filterListItemComponentName = "sv-filter-list-item";
 
 // The content of a fast mode badge's popup: a title row with one link, the field's editor and a row
@@ -87,7 +87,7 @@ export class FilterFieldPopup extends Base {
   // A search box over the list: from filterPopupSearchMinItemCount values on, and always where a
   // value can be typed in. The popup draws it above its title row, so the list's own box is off.
   public get showSearch(): boolean { return this.showSearchValue; }
-  public get isReadOnly(): boolean { return !this.owner.canEditConditions; }
+  public get isReadOnly(): boolean { return !this.owner.canEditConditionsInUI; }
   // The control's classes (the "filter" entry of the theme): the popup is drawn outside the
   // control's own markup.
   public get cssClasses(): any { return this.owner.cssClasses; }
@@ -104,7 +104,7 @@ export class FilterFieldPopup extends Base {
     if (!!this.editorValue) {
       this.editorValue.apply();
     } else {
-      this.write(getFilterSelectionCondition(this.field, this.kind, this.getCheckedValues()));
+      this.write(getFilterSelectionCondition(this.field, this.kind, this.getCheckedValues(), this.owner.getFieldCondition(this.key)));
     }
     this.close();
   }
@@ -119,15 +119,6 @@ export class FilterFieldPopup extends Base {
     if (!first) return;
     ElementHelper.focusElement(first);
     event.preventDefault();
-  }
-  // Removes a value the respondent typed from a checkbox list. A "single" list has no checkboxes:
-  // its typed value goes with the next pick or with Clear.
-  public removeCustomItem(item: IAction): void {
-    const list = <MultiSelectListModel<Action>>this.listValue;
-    if (!list || !this.isMultiple || !item || !item.data || !item.data.isCustom) return;
-    list.setSelectedItems(list.selectedItems.filter((a: IAction): boolean => a.id !== item.id));
-    list.setItems(list.actions.filter((a: Action): boolean => a.id !== item.id), false);
-    this.updateHeader();
   }
   public dispose(): void {
     if (!!this.editorValue) {
@@ -168,6 +159,8 @@ export class FilterFieldPopup extends Base {
     }
     // The list still filters its entries by filterString; only its own box is not drawn.
     list.searchEnabled = false;
+    // A listbox needs a name of its own: the field's, which the popup's title row shows.
+    list.listAriaLabel = this.title;
     this.showSearchValue = items.length >= filterPopupSearchMinItemCount || this.allowCustom;
     if (this.allowCustom) {
       this.addAction = new Action({ id: "sv-filter-add-custom", title: "", data: { isAdd: true, popup: this } });
@@ -240,18 +233,25 @@ export class FilterFieldPopup extends Base {
       header.visible = !!this.owner.getFieldCondition(this.key);
       return;
     }
-    const isAll = this.getValueActions().length > 0 && this.getValueActions().every((a: Action): boolean => this.listValue.isItemSelected(a));
+    const values = this.getSelectAllActions();
+    const isAll = values.length > 0 && values.every((a: Action): boolean => this.listValue.isItemSelected(a));
     header.title = isAll ? filterUIStrings.clearAll : getLocaleString("selectAllItemText", this.owner.getLocale());
   }
   private toggleAll(): void {
     const list = <MultiSelectListModel<Action>>this.listValue;
-    const values = this.getValueActions();
+    const values = this.getSelectAllActions();
     const isAll = values.every((a: Action): boolean => list.isItemSelected(a));
     list.setSelectedItems(isAll ? [] : [].concat(values));
     this.updateHeader();
   }
   private getValueActions(): Array<Action> {
     return this.listValue.actions.filter((a: Action): boolean => !a.data || !a.data.isAdd);
+  }
+  // What Select All checks and Clear All unchecks: the field's own values and the typed ones still
+  // checked. Unchecking a typed value drops it - it is not in the condition, and the next open does not
+  // list it - so Select All does not check it again.
+  private getSelectAllActions(): Array<Action> {
+    return this.getValueActions().filter((a: Action): boolean => !a.data || !a.data.isCustom || this.listValue.isItemSelected(a));
   }
   private getCheckedValues(): Array<any> {
     return this.getValueActions().filter((a: Action): boolean => this.listValue.isItemSelected(a)).map((a: Action): any => a.data.value);

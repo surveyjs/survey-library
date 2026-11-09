@@ -134,6 +134,9 @@ export class FilterConditionsEditor {
   private isFieldModified: boolean = false;
   // Per field: the kind of the list question it edits with, or undefined for an operator and a value.
   private listKinds: Array<FilterFieldEditorKind> = [];
+  // Per list field: the condition it was built with, kept while its checked values are still that
+  // condition's (getFilterSelectionCondition).
+  private shownConditions: Array<IFilterCondition> = [];
   // Per field: "Show More" was clicked, and its own action that says so.
   private expanded: Array<boolean> = [];
   private moreActions: Array<Action> = [];
@@ -306,6 +309,7 @@ export class FilterConditionsEditor {
       this.surveyValue.clearValue(this.getOperatorName(index));
       this.surveyValue.clearValue(this.getValueName(index));
       this.listKinds[index] = kind;
+      this.shownConditions[index] = condition;
       this.expanded[index] = false;
       if (!!kind) {
         this.createListQuestion(index, field, kind, condition);
@@ -500,7 +504,7 @@ export class FilterConditionsEditor {
       const list = this.getValueQuestion(index);
       if (!list || list.isEmpty()) return undefined;
       const values = kind === "single" ? [list.value] : this.normalizeValue(list, list.value);
-      return getFilterSelectionCondition(field, kind, values);
+      return getFilterSelectionCondition(field, kind, values, this.shownConditions[index]);
     }
     const operator = this.getOperatorQuestion(index).value;
     if (!operator) return undefined;

@@ -144,9 +144,9 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
   private renderPresets(modal: FilterModal): React.JSX.Element | null {
     if (!modal.presetsToolbar.hasActions) return null;
     const css = modal.cssClasses;
-    return <div className={css.modalSection}>
+    return <div className={css.modalSection} role="group" aria-labelledby={modal.presetsTitleId}>
       <div className={css.modalSectionHeader}>
-        <div className={css.modalSectionTitle}>{filterUIStrings.presetsTitle}</div>
+        <div className={css.modalSectionTitle} id={modal.presetsTitleId}>{filterUIStrings.presetsTitle}</div>
         <SurveyActionBar model={modal.presetsTitleToolbar} />
       </div>
       <SurveyActionBar model={modal.presetsToolbar} />
@@ -191,8 +191,8 @@ export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: Filter
   }
   private renderActions(dialog: FilterEditPresetsDialog, css: any): React.JSX.Element | null {
     if (!dialog || !dialog.actionsToolbar.hasVisibleActions) return null;
-    return <div className={css.modalSection}>
-      <div className={css.modalSectionTitle}>{filterUIStrings.presetActions}</div>
+    return <div className={css.modalSection} role="group" aria-labelledby={dialog.actionsTitleId}>
+      <div className={css.modalSectionTitle} id={dialog.actionsTitleId}>{filterUIStrings.presetActions}</div>
       <SurveyActionBar model={dialog.actionsToolbar} />
     </div>;
   }
@@ -265,8 +265,9 @@ export class SurveyFilterFieldPopup extends SurveyElementBase<{ holder: FilterEd
 ReactElementFactory.Instance.registerElement(filterFieldPopupComponentName,
   (props) => { return React.createElement(SurveyFilterFieldPopup, props); });
 
-// An entry of a checkbox list: drawn checked by the entry's active flag (FilterFieldPopup keeps it),
-// with a remove button for a value the respondent typed. The "Add" entry is its text alone.
+// An entry of a checkbox list: drawn checked by the entry's active flag (FilterFieldPopup keeps it).
+// A value the respondent typed has no remove button: a button inside a list option is nested
+// interactive content, and unchecking the value is how it goes. The "Add" entry is its text alone.
 export class SurveyFilterListItem extends SurveyElementBase<{ model: ListModel, item: Action }, any> {
   protected getStateElement(): Base {
     return this.props.item;
@@ -283,12 +284,7 @@ export class SurveyFilterListItem extends SurveyElementBase<{ model: ListModel, 
         <SvgIcon iconName="icon-check-16x16" size={"auto"} css={css.listItemCheckIcon}></SvgIcon>
       </span>
     </span>;
-    const remove = item.data.isCustom && !popup.isReadOnly
-      ? <button type="button" className={css.listItemRemove} title={filterUIStrings.removeValue} aria-label={filterUIStrings.removeValue}
-        onClick={(e) => { e.stopPropagation(); popup.removeCustomItem(item); }}>
-        <SvgIcon iconName="icon-delete-16x16" size={"auto"}></SvgIcon>
-      </button> : null;
-    return <div className={css.listItem}>{check}{text}{remove}</div>;
+    return <div className={css.listItem}>{check}{text}</div>;
   }
 }
 ReactElementFactory.Instance.registerElement(filterListItemComponentName,

@@ -561,13 +561,14 @@ export class RecordsPagingController implements ISortCriterionOwner {
   // How many records the list would show with this control's filter replaced by expression - a
   // filter the control has not applied yet. The other controls' filters stay, combined in their
   // order as in getCombinedControlFilter; a control with no filter yet comes last. Unknown while the
-  // controller, not the list, holds the view (the question loads or is in design mode).
-  public countControlFilter(key: string, expression: string): Promise<number | undefined> {
+  // controller, not the list, holds the view (the question loads or is in design mode). isRecordShown:
+  // see DynamicDataList.countControlFilter.
+  public countControlFilter(key: string, expression: string, isRecordShown?: (index: number) => boolean): Promise<number | undefined> {
     if (!this.canPushToList) return Promise.resolve(undefined);
     const keys = this.controlFilterKeys.indexOf(key) > -1 ? this.controlFilterKeys : this.controlFilterKeys.concat([key]);
     const combined = keys.reduce((res: string, k: string): string =>
       combineFilterExpressions(res, k === key ? expression : this.controlFilters[k]), "");
-    return this.list.countControlFilter(combined);
+    return this.list.countControlFilter(combined, isRecordShown);
   }
   public setControlFilter(key: string, expression: string): void {
     if (!key) return;

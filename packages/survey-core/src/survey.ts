@@ -111,7 +111,7 @@ import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
-import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject } from "./survey-settings";
+import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
@@ -131,6 +131,10 @@ function createVariablesContext(variablesHash: HashTable<any>): VariableGetterCo
     const key = name.toLowerCase();
     return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
   });
+}
+// The stored answers only, by name ignoring letter case, the way expressions read the values hash
+function createDataContext(valuesHash: HashTable<any>, valuesKeyIndex: HashKeyIndex): VariableGetterContext {
+  return new VariableGetterContext(valuesHash, (name: string): any => valuesKeyIndex.getValue(valuesHash, name));
 }
 
 // The built-in variables live in their own module; the name list stays exported from here
@@ -173,7 +177,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash, (name: string): any => this.valuesKeyIndex.getValue(this.valuesHash, name)).getValue(params);
+    return createDataContext(this.valuesHash, this.valuesKeyIndex).getValue(params);
   }
   private getPageByName(name: string): PageModel | undefined {
     if (!name) return undefined;
@@ -1265,6 +1269,8 @@ export class SurveyModel extends SurveyElementCore
     );
     // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
     this.surveySettingsValues.merge(options, true);
+    // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
+    addEventHandlersFromOptions(this, options);
 
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     if (jsonObj) {
@@ -2867,11 +2873,13 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
   public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
-      this.navigationBarValue = this.createNavigationBar();
-      if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
-      this.updateNavigationCss();
-      this.navigationBarValue.flushUpdates();
-      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
+      Base.runUntracked(() => {
+        this.navigationBarValue = this.createNavigationBar();
+        if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
+        this.updateNavigationCss();
+        this.navigationBarValue.flushUpdates();
+        this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
+      });
     }
     return this.navigationBarValue;
   }
@@ -3541,6 +3549,45 @@ export class SurveyModel extends SurveyElementCore
     this.setDataCore(newData);
     this.markAnsweredPagesAsShown();
     this.checkTriggersOnSettingData();
+  }
+  // Removes the keys whose value is empty from the data, also inside dynamic-panel items and matrix rows.
+  // No onValueChanging/onValueChanged and no triggers: the answers do not change, only how an empty one
+  // is stored. Conditions run once when a key was removed, since a value that was "" is now absent.
+  public clearEmptyValues(): void {
+    // A property grid edits an object's properties: they are not survey data
+    if (!!this.editingObj) return;
+    const changedKeys = new Set<string>();
+    const keys = this.getValuesKeys();
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = this.getDataValueCore(this.valuesHash, key);
+      const newValue = Helpers.removeEmptyKeys(value);
+      if (Helpers.isValueEmpty(newValue)) {
+        this.deleteDataValueCore(this.valuesHash, key);
+      } else if (newValue !== value) {
+        this.setDataValueCore(this.valuesHash, key, newValue);
+      } else continue;
+      changedKeys.add(key);
+    }
+    if (changedKeys.size === 0) return;
+    const questions = this.getAllQuestions();
+    for (let i = 0; i < questions.length; i++) {
+      const q = <Question>questions[i];
+      const valName = q.getValueName();
+      if (changedKeys.has(valName)) {
+        q.updateValueFromSurvey(this.getValue(valName));
+      }
+      if (q.requireUpdateCommentValue && changedKeys.has(Helpers.getCommentKey(valName))) {
+        q.updateCommentFromSurvey(this.getComment(valName));
+      }
+    }
+    this.notifyElementsOnAnyValueOrVariableChanged("");
+    // Called from code that runs inside a conditions pass (a custom function): ask for one more pass
+    if (this.isRunningConditions) {
+      this.isValueChangedOnRunningCondition = true;
+    } else {
+      this.runConditions();
+    }
   }
   /* Assigning or merging data restores a previously saved survey state, so pages that
   already contain answers are shown as passed in the progress bar. Values changed via
@@ -6107,17 +6154,37 @@ export class SurveyModel extends SurveyElementCore
       const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement)?.getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
+        let isSwitchedBack = false;
+        let processedSize: string;
+        let previousProcessedSize: string;
+        const getObservedSize = (): string => observedElement.offsetWidth + "x" + observedElement.offsetHeight;
         let screenOrientationType = DomWindowHelper.getScreenOrientationType();
         this._processingResponsivenessFunc = () => {
+          previousProcessedSize = processedSize;
+          processedSize = getObservedSize();
           return this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
         };
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           DomWindowHelper.requestAnimationFrame((): void | undefined => {
             let currScreenOrientationType = DomWindowHelper.getScreenOrientationType();
-            if ((isProcessed || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
+            // A call that switches isMobile changes the root's css class, and the size change it causes comes back
+            // as one more notification. A resize made within the same frame is reported in that same notification,
+            // so after a switch only a notification with the size just processed is skipped. Processing a size change
+            // caused by the class is harmless while the width stays on the same side of the mobile width.
+            // When the root's width depends on the layout (e.g. a page scrollbar that comes and goes with it), the
+            // two layouts can switch each other endlessly. So after a switch back, a return to the size of the switch
+            // before it is skipped as well. On a root whose size does not depend on the layout, this also skips a
+            // real resize back to that size; the next resize corrects the layout.
+            const size = getObservedSize();
+            const isLayoutChangeNotification = isProcessed &&
+              (size === processedSize || (isSwitchedBack && size === previousProcessedSize));
+            if ((isLayoutChangeNotification || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
               isProcessed = false;
+              isSwitchedBack = false;
             } else {
+              const isAfterSwitch = isProcessed;
               isProcessed = !!this._processingResponsivenessFunc && this._processingResponsivenessFunc();
+              isSwitchedBack = isProcessed && isAfterSwitch;
               screenOrientationType = currScreenOrientationType;
             }
           });
@@ -8152,7 +8219,8 @@ export class SurveyModel extends SurveyElementCore
     if (
       !this.editingObj &&
       this.isValueEqual(name, newValue) &&
-      this.isTwoValueEquals(newValue, newQuestionValue)
+      this.isTwoValueEquals(newValue, newQuestionValue) &&
+      !this.isKeptEmptyValueRemoved(name, newValue)
     )
       return;
     var oldValue = this.getValue(name);
@@ -8209,8 +8277,26 @@ export class SurveyModel extends SurveyElementCore
       this.onDynamicPanelValueChanged.fire(this, options);
     }
   }
+  private deletingEmptyValuesScope = new Scope();
+  // A clear made by the survey itself, not by the respondent: Question.clearValue(), clearIfInvisible,
+  // clearIncorrectValues, removing a row or a panel. An empty value set while it runs removes the key from
+  // the data even with data.keepEmptyValues on.
+  runDeletingEmptyValues<T>(func: () => T): T {
+    return this.deletingEmptyValuesScope.run(func);
+  }
+  // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
+  // undefined always removes the key: it is what Question.clearValue() assigns.
+  private isEmptyValueKeptOnSetValue(val: any): boolean {
+    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
+  }
+  // An empty value the key kept equals undefined and null (isValueEqual), yet a system clear removes it.
+  private isKeptEmptyValueRemoved(name: string, newValue: any): boolean {
+    if (!name || !this.getSettings().data.keepEmptyValues) return false;
+    return this.getDataValueCore(this.valuesHash, name) !== undefined && this.isValueEmpyOnSetValue(name, newValue);
+  }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
     if (!this.isValueEmpty(val, false)) return false;
+    if (!this.editingObj && this.isEmptyValueKeptOnSetValue(val)) return false;
     if (!this.editingObj || val === null || val === undefined) return true;
     return this.editingObj.getDefaultPropertyValue(name) === val;
   }
@@ -8282,10 +8368,8 @@ export class SurveyModel extends SurveyElementCore
   public getNewGeneratedName(elements: Array<any>, baseName: string): string {
     return this.generateNewName(elements, baseName);
   }
-  public tryGoNextPageAutomatic(name: string): void {
-    this.tryGoNextPageAutomaticCore(name);
-  }
-  public tryGoNextPageAutomaticCore(name: string): boolean {
+  // Returns true when navigation is scheduled.
+  public tryGoNextPageAutomatic(name: string): boolean {
     if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return false;
     const question = <Question>this.getQuestionByValueName(name);
     if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return false;
@@ -8401,8 +8485,10 @@ export class SurveyModel extends SurveyElementCore
    * @param {string} name An object property that stores the answer to delete. Pass a question's [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) or [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    */
   public clearValue(name: string): void {
-    this.setValue(name, null);
-    this.setComment(name, null);
+    this.runDeletingEmptyValues((): void => {
+      this.setValue(name, null);
+      this.setComment(name, null);
+    });
   }
   /**
    * Specifies whether to remove disabled choices from the value in [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), and [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model) questions.
@@ -8700,6 +8786,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public getValueGetterContext(): IValueGetterContext {
     return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex);
+  }
+  // The stored data alone: no question, variable or calculated value answers a name, so a key that
+  // holds an empty value is found and a missing key is not. The hasValue('name') expression function reads it.
+  public getDataValueGetterContext(): IValueGetterContext {
+    return createDataContext(this.valuesHash, this.valuesKeyIndex);
   }
   processText(text: string, returnDisplayValue: boolean, context?: any): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false, context: context }).text;

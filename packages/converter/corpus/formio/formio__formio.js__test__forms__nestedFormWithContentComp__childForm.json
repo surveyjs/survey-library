@@ -1,0 +1,47 @@
+{
+  "_id": "67c19d4a0b924378e690a993",
+  "title": "child",
+  "name": "child",
+  "path": "child",
+  "type": "form",
+  "display": "form",
+  "owner": "67c19dfe0b924378e690b400",
+  "components": [
+    {
+      "label": "Name",
+      "key": "name",
+      "type": "hidden",
+      "input": true,
+      "tableView": false
+    },
+    {
+      "label": "Last",
+      "key": "last",
+      "type": "hidden",
+      "input": true,
+      "tableView": false
+    },
+    {
+      "html": "<p>Name: {{data.name}}</p><p>Last: {{data.last}}</p>",
+      "label": "Content",
+      "refreshOnChange": true,
+      "key": "content",
+      "type": "content",
+      "input": false,
+      "tableView": false
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "pdfComponents": [],
+  "machineName": "tlrqtysnoafumph:child",
+  "project": "67bf135578d9de8633fd050e",
+  "created": "2025-02-28T11:26:02.316Z",
+  "modified": "2025-02-28T13:37:46.387Z"
+}

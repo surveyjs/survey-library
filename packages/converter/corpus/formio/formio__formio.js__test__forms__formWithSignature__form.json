@@ -1,0 +1,27 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "title": "Page 1",
+      "label": "Page 1",
+      "type": "panel",
+      "key": "page1",
+      "components": [
+        {
+          "label": "Signature",
+          "tableView": false,
+          "key": "signature",
+          "type": "signature",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    }
+  ],
+  "title": "HTMLmode",
+  "display": "wizard",
+  "name": "htmLmode",
+  "path": "htmlmode",
+  "machineName": "cjksbatcpbhyfbs:htmLmode"
+}

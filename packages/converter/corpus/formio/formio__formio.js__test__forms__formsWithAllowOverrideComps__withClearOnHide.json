@@ -1,0 +1,134 @@
+{
+  "_id": "6597badd4143681594620748",
+  "title": "test clear on hide",
+  "name": "testClearOnHide",
+  "path": "testclearonhide",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Checkbox",
+      "tableView": false,
+      "key": "checkbox",
+      "type": "checkbox",
+      "input": true
+    },
+    {
+      "label": "Number",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "allowCalculateOverride": true,
+      "calculateValue": "value = 111;",
+      "key": "number",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "checkbox",
+            "operator": "isEqual",
+            "value": true
+          }
+        ]
+      },
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "calculateValue": "value = 'test';",
+      "allowCalculateOverride": true,
+      "key": "textField",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "checkbox",
+            "operator": "isEqual",
+            "value": true
+          }
+        ]
+      },
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Text Area",
+      "applyMaskOn": "change",
+      "autoExpand": false,
+      "tableView": true,
+      "calculateValue": "value = 'test value';",
+      "allowCalculateOverride": true,
+      "key": "textArea",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "checkbox",
+            "operator": "isEqual",
+            "value": true
+          }
+        ]
+      },
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "label": "Radio",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "a",
+          "value": "a",
+          "shortcut": ""
+        },
+        {
+          "label": "b",
+          "value": "b",
+          "shortcut": ""
+        },
+        {
+          "label": "c",
+          "value": "c",
+          "shortcut": ""
+        }
+      ],
+      "calculateValue": "value = 'a';\n\n",
+      "allowCalculateOverride": true,
+      "key": "radio",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "checkbox",
+            "operator": "isEqual",
+            "value": true
+          }
+        ]
+      },
+      "type": "radio",
+      "input": true
+    },
+    {
+      "label": "reset",
+      "action": "reset",
+      "showValidations": false,
+      "tableView": false,
+      "key": "reset",
+      "type": "button",
+      "input": true
+    }
+  ]
+}

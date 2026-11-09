@@ -4178,7 +4178,7 @@ describe("Survey", () => {
 
     expect(question.renderWidth, "the render width is 100%").toBe("100%");
   });
-  test("tryGoNextPageAutomaticCore reports whether navigation was scheduled", () => {
+  test("tryGoNextPageAutomatic reports whether navigation was scheduled", () => {
     const prevDelay = settings.autoAdvanceDelay;
     settings.autoAdvanceDelay = 0;
     try {
@@ -4192,7 +4192,7 @@ describe("Survey", () => {
       blocked.autoAdvanceEnabled = false;
       blocked.setValue("q1", "a");
       blocked.autoAdvanceEnabled = true;
-      expect(blocked.tryGoNextPageAutomaticCore("q1"), "Another empty question blocks navigation").toBe(false);
+      expect(blocked.tryGoNextPageAutomatic("q1"), "Another empty question blocks navigation").toBe(false);
       expect(blocked.currentPageNo, "Stay on the first page").toBe(0);
 
       const survey = new SurveyModel({
@@ -4206,7 +4206,7 @@ describe("Survey", () => {
       survey.setValue("q1", "a");
       survey.setValue("q2", "b");
       survey.autoAdvanceEnabled = true;
-      expect(survey.tryGoNextPageAutomaticCore("q1"), "Navigation is scheduled").toBe(true);
+      expect(survey.tryGoNextPageAutomatic("q1"), "Navigation is scheduled").toBe(true);
       expect(survey.currentPageNo, "The second page is opened").toBe(1);
     } finally {
       settings.autoAdvanceDelay = prevDelay;
@@ -15577,6 +15577,7 @@ describe("Survey", () => {
     call() {
       this.callback();
     }
+    disconnect() { }
   }
 
   test("Check survey resize observer double process", () => {
@@ -15656,6 +15657,84 @@ describe("Survey", () => {
     window.ResizeObserver = ResizeObserver;
     window.getComputedStyle = getComputedStyle;
     rootEl.remove();
+  });
+
+  // Renders a survey with a 600px mobile width into a root whose size comes from getSize.
+  // notify() delivers one resize observer notification and runs the animation frame it requests.
+  function renderResponsiveSurvey(getSize: (survey: SurveyModel) => { width: number, height: number }) {
+    const frames = new AnimationFrameQueue();
+    frames.install();
+    const getComputedStyle = window.getComputedStyle;
+    window.getComputedStyle = <any>((el: HTMLElement) => el.style);
+    const ResizeObserver = window.ResizeObserver;
+    window.ResizeObserver = <any>CustomResizeObserver;
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const rootEl = document.createElement("div");
+    Object.defineProperty(rootEl, "offsetWidth", { configurable: true, get: () => getSize(survey).width });
+    Object.defineProperty(rootEl, "offsetHeight", { configurable: true, get: () => getSize(survey).height });
+    document.body.appendChild(rootEl);
+    survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
+    window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
+    survey.afterRenderSurvey(rootEl);
+    frames.runFrame();
+    return {
+      survey,
+      rootEl,
+      notify: () => {
+        (<any>survey["resizeObserver"]).call();
+        frames.runFrame();
+      },
+      cleanup: () => {
+        survey.dispose();
+        rootEl.remove();
+        window.ResizeObserver = ResizeObserver;
+        window.getComputedStyle = getComputedStyle;
+        frames.uninstall();
+      }
+    };
+  }
+
+  test("Survey resize observer: a resize that arrives together with the mobile layout change is processed", () => {
+    let size = { width: 1000, height: 500 };
+    const { survey, notify, cleanup } = renderResponsiveSurvey(() => size);
+    try {
+      expect(survey.isMobile, "desktop on the first render").toBe(false);
+      size = { width: 500, height: 500 };
+      notify();
+      expect(survey.isMobile, "resize to a mobile width").toBe(true);
+      // The mobile layout changes the root's height, and a resize back to a desktop width
+      // arrives before that change is reported: the browser delivers both in one notification.
+      size = { width: 1000, height: 480 };
+      notify();
+      expect(survey.isMobile, "the resize back to a desktop width is not lost").toBe(false);
+      size = { width: 1000, height: 500 };
+      notify();
+      expect(survey.isMobile, "the desktop layout changes the height back").toBe(false);
+      size = { width: 500, height: 500 };
+      notify();
+      expect(survey.isMobile, "the next resize to a mobile width").toBe(true);
+    } finally {
+      cleanup();
+    }
+  });
+
+  test("Survey resize observer: a size that depends on the mobile layout does not switch the layout endlessly", () => {
+    // A page scrollbar that comes and goes with the layout: the root is narrower than
+    // the mobile width in the desktop layout and wider in the mobile one.
+    const { survey, rootEl, notify, cleanup } = renderResponsiveSurvey((s) => ({ width: s.isMobile ? 610 : 590, height: 500 }));
+    try {
+      const layouts = [survey.isMobile ? "mobile" : "desktop"];
+      // The browser delivers a notification after every size change.
+      let observedWidth = 590;
+      while(rootEl.offsetWidth !== observedWidth && layouts.length < 10) {
+        observedWidth = rootEl.offsetWidth;
+        notify();
+        layouts.push(survey.isMobile ? "mobile" : "desktop");
+      }
+      expect(layouts.join(","), "the layout switches back once, then the return to the first size is skipped").toBe("mobile,desktop,desktop");
+    } finally {
+      cleanup();
+    }
   });
 
   test("Check isMobile set via processResponsiveness method", () => {
@@ -19804,7 +19883,7 @@ describe("Survey", () => {
     });
     survey.data = { q1: 1, q2: 1 };
     survey.currentSingleQuestion = survey.getQuestionByName("q2");
-    expect(survey.tryGoNextPageAutomaticCore("q2")).toBe(false);
+    expect(survey.tryGoNextPageAutomatic("q2")).toBe(false);
   });
   test("questionPerPage: Enter keeps its line break in the last comment with autoAdvanceAllowComplete: false", () => {
     const survey = new SurveyModel({

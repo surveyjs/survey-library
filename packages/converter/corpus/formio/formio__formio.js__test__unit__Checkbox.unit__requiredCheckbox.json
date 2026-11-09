@@ -1,0 +1,13 @@
+{
+  "components": [
+    {
+      "label": "Check me",
+      "key": "checkbox",
+      "type": "checkbox",
+      "input": true,
+      "validate": {
+        "required": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "_id": "5e70ecc6579bb457608756cf",
+  "type": "form",
+  "tags": [],
+  "owner": "5e3bb355308fc84ff88614bf",
+  "components": [
+    {
+      "label": "Text Field",
+      "spellcheck": true,
+      "tableView": true,
+      "calculateServer": false,
+      "validate": {
+        "required": true
+      },
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Text Field",
+      "spellcheck": true,
+      "tableView": true,
+      "calculateServer": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "controller": "",
+  "revisions": "",
+  "_vid": 0,
+  "title": "uniqueApiKeysSameLevel",
+  "display": "form",
+  "access": [
+    {
+      "roles": [
+        "5e3bb35c308fc84ff88614d0",
+        "5e3bb35c308fc84ff88614d1",
+        "5e3bb35c308fc84ff88614d2"
+      ],
+      "type": "read_all"
+    }
+  ],
+  "submissionAccess": [],
+  "settings": {},
+  "properties": {},
+  "name": "uniqueApiKeysSameLevel",
+  "path": "uniqueapikeyssamelevel"
+}

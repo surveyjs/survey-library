@@ -11,6 +11,7 @@ import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { RendererFactory } from "./rendererFactory";
+import { SurveyError } from "./survey-error";
 
 function isBooleanDisplayMode(val: string): boolean {
   return val === "radio" || val === "checkbox" || val === "switch";
@@ -214,6 +215,20 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    */
   @property()
     valueFalse: any;
+  // A modifier of isRequired (and requiredIf): while the question is required, only valueTrue passes the
+  // required check, so a required "I agree" checkbox cannot be left unchecked. It changes nothing else:
+  // false stays an answer for isEmpty(), isAnswered, the empty operator, progress and the data.
+  @property({ defaultValue: false }) requiredTrue: boolean;
+  public hasRequiredError(): boolean {
+    if (super.hasRequiredError()) return true;
+    return this.isRequired && this.requiredTrue && this.booleanValue !== true;
+  }
+  // On a value change, Question checks required only for a cleared answer. A false that fails requiredTrue
+  // is a non-empty answer, so it is checked at once, as a validator would be.
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    if (isOnValueChanged && this.requiredTrue && !this.isEmpty()) isOnValueChanged = false;
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
+  }
 
   public getValueType(): QuestionValueType {
     return getScalarValueType(this.getValueTrue());
@@ -356,7 +371,8 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     if (newValue === "true" && this.valueTrue !== "true") newValue = true;
     if (newValue === "false" && this.valueFalse !== "false") newValue = false;
-    if (newValue === "indeterminate" || newValue === null) newValue = undefined;
+    // null is the cleared state the data keeps with data.keepEmptyValues on
+    if (newValue === "indeterminate" || newValue === null && !this.isKeepingEmptyValues()) newValue = undefined;
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   /* #region web-based methods */
@@ -471,6 +487,10 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    // as isRequired does when it is switched off
+    if (name === "requiredTrue" && !this.requiredTrue && this.errors.length > 0) {
+      this.validate();
+    }
     if (name === "displayMode") {
       this.updateRenderAsOnDisplayModeChanged(oldValue, newValue);
     }
@@ -534,6 +554,12 @@ Serializer.addClass(
     },
     "valueTrue",
     "valueFalse",
+    {
+      name: "requiredTrue:boolean",
+      default: false,
+      dependsOn: ["isRequired", "requiredIf"],
+      visibleIf: (obj: any): boolean => !!obj && (!!obj.isRequired || !!obj.requiredIf)
+    },
     { name: "swapOrder:boolean" },
     {
       name: "displayMode",

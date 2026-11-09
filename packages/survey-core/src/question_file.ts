@@ -41,8 +41,9 @@ export class QuestionFileModelBase extends Question {
   public get hasPlainInput(): boolean {
     return false;
   }
-  // The value is a list of uploaded files: only the question's own UI can produce a value a filter
-  // could compare against.
+  // The value is a list of uploaded files (a file question) or a drawing's data URL (a signature pad):
+  // only the question's own UI can produce a value a filter could compare against. The signature pad
+  // inherits it.
   public get isFilterable(): boolean {
     return false;
   }
@@ -257,7 +258,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private get pagesCount() {
     return Math.ceil(this.previewValue.length / this.pageSize);
   }
-
   get actionsContainerVisible(): boolean {
     const showLoadingIndicator = this.showLoadingIndicator;
     const isPlayingVideo = this.isPlayingVideo;
@@ -271,7 +271,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
         this.acceptedTypes = undefined;
       }
     });
-    this.actionsContainerValue = this.createActionsContainer();
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -286,8 +285,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   private actionsContainerValue: ActionContainer;
   public get actionsContainer(): ActionContainer {
-    if (this.actionsContainerValue.actions.length === 0) {
-      this.actionsContainerValue.actions = this.createContainerActions();
+    if (!this.actionsContainerValue) {
+      Base.runUntracked(() => {
+        this.actionsContainerValue = this.createFileActionsContainer();
+        this.actionsContainerValue.containerCss = new ComputedUpdater<string>(() => this.cssClasses.actionsContainer) as unknown as string;
+        this.actionsContainerValue.actions = this.createContainerActions();
+      });
     }
     return this.actionsContainerValue;
   }
@@ -295,14 +298,16 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private fileNavigatorValue: ActionContainer;
   public get fileNavigator(): ActionContainer {
     if (!this.fileNavigatorValue) {
-      this.fileNavigatorValue = this.createActionsContainer();
-      this.fileNavigatorValue.actions = this.createFileNavigatorActions();
+      Base.runUntracked(() => {
+        this.fileNavigatorValue = this.createFileActionsContainer();
+        this.fileNavigatorValue.actions = this.createFileNavigatorActions();
+      });
     }
     return this.fileNavigatorValue;
   }
 
-  private createActionsContainer(): ActionContainer {
-    const container = new ActionContainer();
+  private createFileActionsContainer(): ActionContainer {
+    const container = this.createActionContainer();
     container.setActionsAppearance({ style: "neutral", mode: "quaternary-surface", size: "small" });
     container.locOwner = this;
     return container;
@@ -847,6 +852,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property() isClearingFiles: boolean = false;
 
   public clear(doneCallback?: () => void) {
+    this.clearCore(doneCallback, false);
+  }
+  // isByRespondent: the Clear button. With data.keepEmptyValues on it keeps [] in the data; clear() in code
+  // removes the key.
+  private clearCore(doneCallback: () => void, isByRespondent: boolean) {
     if (!this.fileCallbacks) return;
     this.containsMultiplyFiles = false;
     this.isClearingFiles = true;
@@ -857,7 +867,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
       null,
       (status, data) => {
         if (status === "success") {
-          this.value = undefined;
+          if (isByRespondent) {
+            this.value = undefined;
+          } else {
+            this.runDeletingEmptyValues((): void => { this.value = undefined; });
+          }
           this.errors = [];
           !!doneCallback && doneCallback();
           this.indexToShow = 0;
@@ -905,7 +919,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public removeFile(name: string) {
     this.removeFileByContent(this.value.filter((f: any) => f.name === name)[0]);
   }
-  protected removeFileByContent(content: any) {
+  // isByRespondent: the remove button. With data.keepEmptyValues on, removing the last file keeps [] in the data;
+  // removeFile() in code removes the key, as without the setting.
+  protected removeFileByContent(content: any, isByRespondent: boolean = false) {
     if (!this.fileCallbacks) return;
     this.isClearingFiles = true;
     this.fileCallbacks.clearFiles(
@@ -917,7 +933,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            this.value = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true, false, false));
+            const newValue = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true, false, false));
+            if (isByRespondent) {
+              this.value = newValue;
+            } else {
+              this.runDeletingEmptyValues((): void => { this.value = newValue; });
+            }
           } else {
             this.value = undefined;
           }
@@ -1140,16 +1161,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
     src.value = "";
     this.loadFiles(files);
   }
-  private updateActionsContainerCss(css: any, classes: any): void {
-    const container = this.actionsContainerValue;
-    container.cssClasses = css.actionBar;
-    container.containerCss = classes.actionsContainer;
-  }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    this.updateActionsContainerCss(css, classes);
-    return classes;
-  }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
     this.updateAcceptedCategories();
@@ -1314,7 +1325,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         input.value = "";
       }
     }
-    this.clear();
+    this.clearCore(undefined, true);
   }
   doRemoveFile(data: any) {
     if (this.confirmDelete) {
@@ -1331,7 +1342,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   private removeFileCore(data: any): void {
     const previewIndex = this.previewValue.indexOf(data);
-    this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex]);
+    this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex], true);
     this.removeFileButtonMap.delete(data);
   }
   doDownloadFileFromContainer = (event: MouseEvent) => {

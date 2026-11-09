@@ -15,7 +15,7 @@ export interface IFilterModalOwner {
   showSearch: boolean;
   searchPlaceholder: string;
   searchCss: { root: string, control: string };
-  canEditConditions: boolean;
+  canEditConditionsInUI: boolean;
   cssClasses: any;
   getFilterState(): IFilterState;
   getItemConditions(name: string): Array<IFilterCondition> | null;
@@ -48,6 +48,9 @@ export class FilterModal extends Base {
   @property({ defaultValue: false }) isCounting: boolean;
   private editorValue: FilterConditionsEditor;
   private presetsToolbarValue: ActionContainer;
+  // The presets section is a group named by its title (aria-labelledby): the renderer gives the title
+  // this id, made of the dialog's own element id.
+  public get presetsTitleId(): string { return this.id + "_presets-title"; }
   private creationToolbarValue: ActionContainer;
   private presetsTitleToolbarValue: ActionContainer;
   private addPresetAction: Action;
@@ -121,7 +124,8 @@ export class FilterModal extends Base {
     this.updatePresetChips();
     this.updatePresetActions();
   }
-  public get isReadOnly(): boolean { return !this.owner.canEditConditions; }
+  // In the designer, for an AI preset in single mode, and while the control is read-only.
+  public get isReadOnly(): boolean { return !this.owner.canEditConditionsInUI; }
   public get showSearch(): boolean { return this.owner.showSearch; }
   public get searchPlaceholder(): string { return this.owner.searchPlaceholder; }
   // The search box is drawn the way the control's own is: as a text question's input.
@@ -207,7 +211,8 @@ export class FilterModal extends Base {
       // A chip of its own even for a second preset with the same name, as in the control's row.
       const id = getUniqueFilterActionId("sv-filter-modal-item-" + item.name, (candidate: string): boolean => !!used[candidate]);
       used[id] = true;
-      const chip = new Action({ id: id, enabled: !this.isReadOnly, iconSize: "auto",
+      // A toggle, as in the control's row: a checkbox.
+      const chip = new Action({ id: id, enabled: !this.isReadOnly, iconSize: "auto", ariaRole: "checkbox", ariaChecked: false,
         iconName: item.kind === "ai" ? "icon-sparkle-24x24" : undefined,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.togglePreset(item); } });
       chip.locTitle = item.locTitle;
@@ -226,6 +231,7 @@ export class FilterModal extends Base {
   private updatePresetChips(): void {
     this.presetsToolbarValue.actions.forEach((chip: Action): void => {
       chip.active = !!this.activeItemName && (<FilterItem>chip.data).name === this.activeItemName;
+      chip.ariaChecked = chip.active;
     });
   }
   private scheduleCount(): void {
@@ -242,8 +248,14 @@ export class FilterModal extends Base {
       this.countTimer = undefined;
     }
   }
-  // Only the answer to the latest count is taken: an older one can arrive after it.
+  // Only the answer to the latest count is taken: an older one can arrive after it. A read-only dialog
+  // has no button to show the count on (no footer), so it counts nothing: for a source that filters
+  // itself, a count is a read.
   private count(): void {
+    if (this.isReadOnly) {
+      this.isCounting = false;
+      return;
+    }
     const request = ++this.countRequest;
     this.isCounting = true;
     const done = (count: number | undefined): void => {

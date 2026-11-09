@@ -134,6 +134,8 @@ describe("SurveyQuestionFilter", () => {
     expect(!!container.querySelector(".sd-filter-modal__editor"), "#4: the fields").toBe(true);
     expect(container.textContent, "#4a: Add Preset").toContain("Add Preset");
     expect(!!container.querySelector(".sd-filter-modal__section-header [title='Edit Presets']"), "#4b: the pencil").toBe(true);
+    const section = container.querySelector(".sd-filter-modal__section[role='group']");
+    expect(!!section && section.querySelector("#" + section.getAttribute("aria-labelledby")).textContent, "#4c: the section is named by its title").toBe("Filter Presets");
     const modal = holder.modal;
     act(() => { holder.modal = undefined; });
     modal.dispose();
@@ -250,6 +252,23 @@ describe("SurveyFilterListItem", () => {
     removeItem(checked);
     removeItem(unchecked);
     popup.dispose();
+  });
+  it("a typed value is drawn checked, with no button inside the option; unchecked, it is gone at the next open", () => {
+    const custom = [{ name: "country", fieldType: "dropdown", allowCustomChoices: true, choices: [{ value: "de", text: "Germany" }] }];
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: custom }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    q.setFieldCondition("country", "anyof", ["de", "zz"]);
+    const popup = q.createFieldPopup("country", () => {});
+    const container = renderItem(popup, "zz");
+    expect(!!container.querySelector(".sd-checkbox.sd-checkbox--checked"), "#1: checked").toBe(true);
+    expect(container.querySelector("button"), "#2: no nested button").toBe(null);
+    removeItem(container);
+    popup.list.onItemClick(popup.list.actions.filter((a: Action) => a.title === "zz")[0]);
+    popup.apply();
+    popup.dispose();
+    const next = q.createFieldPopup("country", () => {});
+    expect(next.list.actions.map((a: Action) => a.title), "#3").toEqual(["Germany"]);
+    next.dispose();
   });
   it("an entry of a read-only checkbox list is drawn with a read-only checkbox", () => {
     const survey = new SurveyModel();

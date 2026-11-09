@@ -1,0 +1,96 @@
+{
+  "title": "simple conditional logic",
+  "name": "simpleConditionalLogic",
+  "path": "simpleconditionallogic",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Number",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Radio",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "one",
+          "value": "one",
+          "shortcut": ""
+        },
+        {
+          "label": "two",
+          "value": "two",
+          "shortcut": ""
+        },
+        {
+          "label": "three",
+          "value": "three",
+          "shortcut": ""
+        }
+      ],
+      "key": "radio",
+      "type": "radio",
+      "input": true
+    },
+    {
+      "label": "Field With Logic",
+      "tableView": true,
+      "key": "fieldWithLogic",
+      "logic": [
+        {
+          "name": "test logic",
+          "trigger": {
+            "type": "simple",
+            "simple": {
+              "show": true,
+              "conjunction": "all",
+              "conditions": [
+                {
+                  "component": "number",
+                  "operator": "isEqual",
+                  "value": 2
+                },
+                {
+                  "component": "radio",
+                  "operator": "isEqual",
+                  "value": "two"
+                }
+              ]
+            }
+          },
+          "actions": [
+            {
+              "name": "test action",
+              "type": "value",
+              "value": "value = 'logic works';"
+            }
+          ]
+        }
+      ],
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "created": "2022-09-29T08:56:20.643Z",
+  "modified": "2022-09-29T08:56:20.646Z",
+  "machineName": "uubnbosxacwjzbk:simpleConditionalLogic"
+}

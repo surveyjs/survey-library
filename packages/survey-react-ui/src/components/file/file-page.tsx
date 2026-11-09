@@ -15,7 +15,7 @@ export class SurveyFilePage extends SurveyElementBase<{ question: QuestionFileMo
   protected renderElement(): React.JSX.Element | null {
     const items = this.page.items.map((item: any, index: number) => { return ReactElementFactory.Instance.createElement("sv-file-item", { item, question: this.question, key: index }); });
     return (
-      <div className={this.page.css} id={this.page.id} >
+      <div className={this.page.css} id={this.page.renderedId} >
         {items}
       </div>
     );

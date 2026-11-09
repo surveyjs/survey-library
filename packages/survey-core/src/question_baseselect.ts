@@ -27,6 +27,7 @@ import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts";
 import { Scope } from "./utils/scope";
+import { getIdSelector } from "./utils/dom-utils";
 
 const OTHER_ITEM_VALUE = "other";
 // The key a choice comment is kept under in the object of a selected item (commentPropertyValue).
@@ -166,7 +167,7 @@ export class ChoiceItem extends ItemValue {
       const cssClasses = this.choiceOwner.getCssClassesForCommentPanelAnimation("panel");
       this.panelAnimationValue = new AnimationBoolean({
         getAnimatedElement: ()=> {
-          return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
+          return this.choiceOwner.getWrapperElement()?.querySelector(getIdSelector(this.panel.renderedId)) as HTMLElement;
         },
         getEnterOptions() {
           return { cssClass: cssClasses.onEnter,

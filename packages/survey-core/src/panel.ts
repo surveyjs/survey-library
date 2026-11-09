@@ -552,8 +552,15 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.getDataNestingKeyOfKind(kind);
   }
   private getDataNestingKeyOfKind(kind: string): string {
-    const survey: any = this.survey;
+    const survey: any = this.survey || this.getRecordTemplateOwnerSurvey();
     return getDataNestingKey(!!survey ? survey.dataNesting : undefined, kind, this.valueName, this.name);
+  }
+  // A matrix's detail panel template is attached to no survey; its matrix (selectedElementInDesign) is.
+  private getRecordTemplateOwnerSurvey(): any {
+    let el: any = this;
+    while(!!el.parent) el = el.parent;
+    const owner: any = el.selectedElementInDesign;
+    return !!owner && owner !== el ? owner.survey : undefined;
   }
   // The key a panel inside a record's template (a dynamic panel's template, a matrix's detail panel) nests
   // under in the records built from it (RN3), whatever the template is attached to; "" when it does not.

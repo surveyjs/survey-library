@@ -471,6 +471,17 @@ describe("records nesting: a matrix detail panel", () => {
     survey.dataNesting = "none";
     expect(detailOf(matrixOf(survey).visibleRows[0], "street").value, "#4").toBe("flat");
   });
+  test("getRecordDataNestingKey of a panel in the detail panel template follows the survey's dataNesting", () => {
+    // The template is attached to no survey: the key reads the mode through the matrix (Creator prompt 04).
+    const survey = new SurveyModel(matrixJson({ dataNesting: "none" }));
+    const p1 = <PanelModel>matrixOf(survey).detailPanel.getElementByName("p1");
+    expect(p1.getRecordDataNestingKey(), "#1 none").toBe("");
+    survey.dataNesting = "auto";
+    expect(p1.getRecordDataNestingKey(), "#2 auto").toBe("address");
+    const pd = new SurveyModel(pdJson({ dataNesting: "none" }));
+    const pdPanel = <PanelModel>(<QuestionPanelDynamicModel>pd.getQuestionByName("items")).template.getElementByName("p1");
+    expect(pdPanel.getRecordDataNestingKey(), "#3 a dynamic panel's template, none").toBe("");
+  });
 });
 
 describe("records nesting: more records", () => {

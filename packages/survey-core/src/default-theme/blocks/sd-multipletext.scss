@@ -57,6 +57,66 @@
   }
 }
 
+// Every item column gets a title track and an input track. Cells and item containers
+// inherit the tracks through subgrid, so titles in one column share the widest title's width.
+@for $i from 1 through 5 {
+  .sd-multipletext--col-count-#{$i} {
+    --sd-multipletext-col-count: #{$i};
+  }
+}
+
+.sd-multipletext:not(.sd-multipletext--mobile) {
+  // The title track also holds the item and title paddings, while the 30% limit applies to the title text.
+  --sd-multipletext-title-track-max: calc(
+    30% / var(--sd-multipletext-col-count, 1) +
+      var(--sjs2-layout-component-formbox-medium-padding-horizontal) +
+      var(--sjs2-layout-component-input-medium-label-padding-horizontal) * 2 +
+      var(--sjs2-layout-component-formbox-medium-gap)
+  );
+  display: grid;
+  grid-template-columns: repeat(
+    var(--sd-multipletext-col-count, 1),
+    fit-content(var(--sd-multipletext-title-track-max)) minmax(0, 1fr)
+  );
+  height: auto;
+
+  & > tbody,
+  .sd-multipletext__row {
+    display: contents;
+  }
+
+  .sd-multipletext__cell {
+    grid-column-end: span 2;
+    display: grid;
+    grid-template-columns: subgrid;
+    height: auto;
+  }
+
+  .sd-multipletext__cell:first-of-type {
+    grid-column-start: 1;
+  }
+
+  .sd-multipletext__cell--error {
+    display: block;
+  }
+
+  .sd-multipletext__item-container {
+    grid-column: 1 / -1;
+    height: auto;
+  }
+
+  .sd-multipletext__item-container:not(.sd-formbox--view) {
+    display: grid;
+    grid-template-columns: subgrid;
+
+    .sd-multipletext__item-title {
+      max-width: none;
+      height: auto;
+      align-self: stretch;
+    }
+  }
+}
+
 .sd-multipletext__item-container.sd-formbox.sd-formbox--view {
   flex-direction: column;
   align-items: stretch;

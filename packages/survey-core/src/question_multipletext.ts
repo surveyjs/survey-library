@@ -894,6 +894,14 @@ export class QuestionMultipleTextModel extends Question
   validateContainerOnly(): void {
     // do nothing
   }
+  // The stylesheet lays items out on a grid that needs the number of rendered columns.
+  public getQuestionRootCss(): string {
+    const colCount = Math.max(1, Math.min(this.colCount, this.items.length));
+    return toCssClasses(
+      super.getQuestionRootCss(),
+      !!this.cssClasses.rootColCount && this.cssClasses.rootColCount + colCount
+    );
+  }
   public getItemLabelCss(item: MultipleTextItemModel): string {
     return toCssClasses(
       this.cssClasses.itemLabel,

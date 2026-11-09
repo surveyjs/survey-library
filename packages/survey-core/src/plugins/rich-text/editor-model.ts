@@ -200,20 +200,36 @@ export class RichTextEditorModel {
 
   public openLink(): void {
     this.restoreSelection();
-    showRichTextLinkDialog(this.currentLinkHref(), (url) => this.applyLink(url), this.element || undefined);
+    showRichTextLinkDialog(this.currentLinkHref(), (url) => this.applyLink(url), this.getDialogRoot());
+  }
+
+  // The dialog container is appended into this element. It must not be the contenteditable
+  // itself: a popup inside it becomes part of the edited text. The comment editor's toolbar
+  // is a sibling under .sd-rich-text, so the popup goes there too.
+  private getDialogRoot(): HTMLElement | undefined {
+    const element = this.element;
+    if (!element) return undefined;
+    const richText = element.closest && element.closest(".sd-rich-text");
+    if (richText && richText !== element) return <HTMLElement>richText;
+    return element.parentElement || undefined;
   }
 
   public applyLink(url: string): void {
     this.restoreSelection();
+    const caret = this.captureCaret();
     const collapsed = !this.savedRange || this.savedRange.collapsed;
+    const anchor = this.anchorFromSavedRange();
     if (!url) {
       this.commands.exec("unlink");
+    } else if (anchor) {
+      anchor.setAttribute("href", url);
     } else if (collapsed) {
       const safe = escapeHtml(url);
       this.commands.exec("insertHTML", "<a href=\"" + safe + "\">" + safe + "</a>");
     } else {
       this.commands.exec("createLink", url);
     }
+    this.restoreCaret(caret);
     this.noteInput();
     this.guardLength();
     this.updateToolbar();
@@ -339,16 +355,71 @@ export class RichTextEditorModel {
   }
 
   private currentLinkHref(): string {
+    const anchor = this.anchorFromSavedRange();
+    return anchor ? anchor.getAttribute("href") || "" : "";
+  }
+
+  private anchorFromSavedRange(): HTMLAnchorElement | null {
     const range = this.savedRange;
-    if (!range || !this.element) return "";
-    let node: Node | null = range.startContainer;
-    while(node && node !== this.element) {
-      if (node.nodeType === 1 && (node as HTMLElement).tagName === "A") {
-        return (node as HTMLAnchorElement).getAttribute("href") || "";
-      }
-      node = node.parentNode;
+    if (!range) return null;
+    const start = this.findAnchor(range.startContainer);
+    if (!start) return null;
+    return start === this.findAnchor(range.endContainer) ? start : null;
+  }
+
+  private findAnchor(node: Node | null): HTMLAnchorElement | null {
+    let current = node;
+    while(current && current !== this.element) {
+      if (current.nodeType === 1 && (current as HTMLElement).tagName === "A") return <HTMLAnchorElement>current;
+      current = current.parentNode;
     }
-    return "";
+    return null;
+  }
+
+  private captureCaret(): { start: number, end: number } | null {
+    const range = this.savedRange;
+    const root = this.element;
+    if (!range || !root) return null;
+    return {
+      start: this.textOffset(root, range.startContainer, range.startOffset),
+      end: this.textOffset(root, range.endContainer, range.endOffset)
+    };
+  }
+
+  private textOffset(root: HTMLElement, node: Node, offset: number): number {
+    const range = root.ownerDocument.createRange();
+    range.selectNodeContents(root);
+    range.setEnd(node, offset);
+    return range.toString().length;
+  }
+
+  private restoreCaret(caret: { start: number, end: number } | null): void {
+    const root = this.element;
+    if (!root || !caret) return;
+    const start = this.pointAt(root, caret.start);
+    const end = this.pointAt(root, caret.end);
+    if (!start || !end) return;
+    const range = root.ownerDocument.createRange();
+    range.setStart(start.node, start.offset);
+    range.setEnd(end.node, end.offset);
+    this.savedRange = range;
+    this.restoreSelection();
+  }
+
+  private pointAt(root: HTMLElement, target: number): { node: Text, offset: number } | null {
+    const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let left = target;
+    let last: Text | null = null;
+    let current = <Text>walker.nextNode();
+    while(current) {
+      const len = current.textContent ? current.textContent.length : 0;
+      if (left <= len) return { node: current, offset: left };
+      left -= len;
+      last = current;
+      current = <Text>walker.nextNode();
+    }
+    if (!last) return null;
+    return { node: last, offset: last.textContent ? last.textContent.length : 0 };
   }
 
   private setSourceMode(sourceMode: boolean): void {

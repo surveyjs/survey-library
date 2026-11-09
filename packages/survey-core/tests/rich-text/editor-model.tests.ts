@@ -283,7 +283,12 @@ describe("rich text editor model", () => {
 
   test("the link dialog rejects a bad scheme and an empty url unlinks", () => {
     const bad = createRichTextLinkSurvey("javascript:alert(1)");
+    expect(bad.themeVariables["--sjs2-is-panelless"]).toBe("true");
+    expect(bad.themeVariables["--sjs2-color-component-panel-simple-default-bg"]).toBe("transparent");
     expect(bad.validate(false, false)).toBe(false);
+    expect(bad.getQuestionByName("url").errors.length).toBe(0);
+    expect(bad.validate(true, false)).toBe(false);
+    expect(bad.getQuestionByName("url").errors[0].locText.text).toBe("Enter a link that starts with http://, https://, or mailto:");
     bad.setValue("url", "https://surveyjs.io");
     expect(bad.validate(false, false)).toBe(true);
     bad.setValue("url", "");
@@ -308,6 +313,18 @@ describe("rich text editor model", () => {
     host.innerHTML = "";
     editor.applyLink("https://surveyjs.io");
     expect(adapter.calls[adapter.calls.length - 1]).toBe("insertHTML:<a href=\"https://surveyjs.io\">https://surveyjs.io</a>");
+    host.innerHTML = "<a href=\"https://old.example\">hello</a>";
+    const linkText = host.firstChild.firstChild as Text;
+    select(host, linkText, 2, linkText, 2);
+    editor.applyLink("https://surveyjs.io");
+    const anchor = host.querySelector("a");
+    expect(anchor.getAttribute("href")).toBe("https://surveyjs.io");
+    expect(anchor.textContent).toBe("hello");
+    const selection = host.ownerDocument.getSelection();
+    expect(selection.rangeCount).toBe(1);
+    expect(selection.getRangeAt(0).collapsed).toBe(true);
+    expect(selection.getRangeAt(0).startContainer).toBe(linkText);
+    expect(selection.getRangeAt(0).startOffset).toBe(2);
     expect(editor.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(false);
     const early = new RichTextEditorModel(hostOf(question), commands());
     expect(early.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(false);
@@ -317,10 +334,21 @@ describe("rich text editor model", () => {
     early.detach();
     const withDialog = new RichTextEditorModel(hostOf(question), commands());
     expect(withDialog.toolbar.actions.filter(action => action.id === "rich-text-link")[0].visible).toBe(true);
+    const rich = document.createElement("div");
+    rich.className = "sd-rich-text";
+    const field = document.createElement("div");
+    rich.appendChild(field);
+    document.body.appendChild(rich);
+    withDialog.attach(field);
     let opened = 0;
-    settings.showDialog = () => { opened += 1; return undefined as any; };
+    let root: HTMLElement | undefined;
+    settings.showDialog = (_options: any, passed?: HTMLElement) => { opened += 1; root = passed; return undefined as any; };
     withDialog.openLink();
     expect(opened).toBe(1);
+    expect(root).toBe(rich);
+    expect(root.contains(field)).toBe(true);
+    withDialog.detach();
+    rich.remove();
     settings.showDialog = undefined;
     editor.detach();
     host.remove();

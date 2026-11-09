@@ -1,4 +1,5 @@
 import { settings, SurveyModel } from "survey-core";
+import DefaultLightPanelless from "../../themes/default-light-panelless";
 import { isAllowedLink } from "./runs";
 import { getRichTextString } from "./rich-text-strings";
 
@@ -12,6 +13,7 @@ export function createRichTextLinkSurvey(initialUrl: string): SurveyModel {
       defaultValue: initialUrl || ""
     }]
   });
+  survey.applyTheme(DefaultLightPanelless);
   survey.onValidateQuestion.add((_sender, options) => {
     if (options.name !== "url") return;
     const value = String(options.value || "").trim();
@@ -30,7 +32,8 @@ export function showRichTextLinkDialog(initialUrl: string, onApply: (url: string
     displayMode: "popup",
     isFocusedContent: true,
     onApply: (): boolean => {
-      if (!survey.validate(false, false)) return false;
+      // fireCallback shows the message under the field. Without it the dialog stays open and the text is never rendered.
+      if (!survey.validate(true, true)) return false;
       onApply(String(survey.getValue("url") || "").trim());
       return true;
     }

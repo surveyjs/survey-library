@@ -461,7 +461,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     return this.detailPanelValue;
   }
   public get detailPanelId(): string {
-    return !!this.detailPanel ? this.detailPanel.id : "";
+    return !!this.detailPanel ? this.detailPanel.renderedId : "";
   }
   public get isDetailPanelShowing(): boolean {
     return !!this.data ? this.data.getIsDetailPanelShowing(this) : false;

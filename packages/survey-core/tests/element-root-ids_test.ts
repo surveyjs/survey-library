@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { SurveyElement } from "../src/survey-element";
 import { QuestionFileModel, QuestionFilePage } from "../src/question_file";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 import { describe, test, expect, afterEach, vi } from "vitest";
 
@@ -183,5 +184,36 @@ describe("Element roots use renderedId", () => {
     (q as any).contentElement = content;
     const el: HTMLElement = (q as any).getPagesAnimationOptions().getAnimatedElement(page);
     expect(el ? el.getAttribute("data-name") : null).toBe("prefixed");
+  });
+
+  test("The show-details button's aria-controls names the detail panel's renderedId", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m1", rowCount: 1, columns: [{ name: "c1" }],
+        detailPanelMode: "underRow", detailElements: [{ type: "text", name: "q1" }] }]
+    });
+    survey.elementIdPrefix = "x-";
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m1");
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    expect(row.detailPanelId).toBe("x-" + row.detailPanel.id);
+    expect(row.detailPanelId).toBe(row.detailPanel.renderedId);
+    const actions = matrix.renderedTable.rows.filter(r => r.row === row)[0].cells[0].item.value.actions;
+    const showDetail = actions.filter(a => a.id === "show-detail")[0];
+    expect(showDetail.ariaControls).toBe(row.detailPanel.renderedId);
+  });
+
+  test("A records question that is not rendered finds its root by renderedId to keep the focus after a read", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd1", templateElements: [{ type: "text", name: "q1" }] }] });
+    survey.elementIdPrefix = "x-";
+    const q = survey.getQuestionByName("pd1");
+    const root = addDiv(document.body, q.renderedId);
+    const input = document.createElement("input");
+    root.appendChild(input);
+    input.focus();
+    expect(document.activeElement).toBe(input);
+    expect(q.getWrapperElement()).toBeFalsy();
+    q["_dataList"] = { hasPendingRead: false };
+    q["focusIndexAfterRead"] = 2;
+    expect(q["takeFocusIndexAfterRead"]()).toBe(2);
   });
 });

@@ -584,6 +584,7 @@ frameworks.forEach(framework => {
 
       await page.getByRole("textbox", { name: "q1" }).first().fill("test");
       await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
       await compareScreenshot(page, paneldynamicRoot, "panel-dynamic-removepanelbuttonlocation-right.png");
     });

@@ -131,6 +131,10 @@ function createVariablesContext(variablesHash: HashTable<any>): VariableGetterCo
     return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
   });
 }
+// The stored answers only, by name ignoring letter case, the way expressions read the values hash
+function createDataContext(valuesHash: HashTable<any>, valuesKeyIndex: HashKeyIndex): VariableGetterContext {
+  return new VariableGetterContext(valuesHash, (name: string): any => valuesKeyIndex.getValue(valuesHash, name));
+}
 
 // The built-in variables live in their own module; the name list stays exported from here
 export { getBuiltInVariableNames };
@@ -172,7 +176,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash, (name: string): any => this.valuesKeyIndex.getValue(this.valuesHash, name)).getValue(params);
+    return createDataContext(this.valuesHash, this.valuesKeyIndex).getValue(params);
   }
   private getPageByName(name: string): PageModel | undefined {
     if (!name) return undefined;
@@ -3525,6 +3529,45 @@ export class SurveyModel extends SurveyElementCore
     this.markAnsweredPagesAsShown();
     this.checkTriggersOnSettingData();
   }
+  // Removes the keys whose value is empty from the data, also inside dynamic-panel items and matrix rows.
+  // No onValueChanging/onValueChanged and no triggers: the answers do not change, only how an empty one
+  // is stored. Conditions run once when a key was removed, since a value that was "" is now absent.
+  public clearEmptyValues(): void {
+    // A property grid edits an object's properties: they are not survey data
+    if (!!this.editingObj) return;
+    const changedKeys = new Set<string>();
+    const keys = this.getValuesKeys();
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = this.getDataValueCore(this.valuesHash, key);
+      const newValue = Helpers.removeEmptyKeys(value);
+      if (Helpers.isValueEmpty(newValue)) {
+        this.deleteDataValueCore(this.valuesHash, key);
+      } else if (newValue !== value) {
+        this.setDataValueCore(this.valuesHash, key, newValue);
+      } else continue;
+      changedKeys.add(key);
+    }
+    if (changedKeys.size === 0) return;
+    const questions = this.getAllQuestions();
+    for (let i = 0; i < questions.length; i++) {
+      const q = <Question>questions[i];
+      const valName = q.getValueName();
+      if (changedKeys.has(valName)) {
+        q.updateValueFromSurvey(this.getValue(valName));
+      }
+      if (q.requireUpdateCommentValue && changedKeys.has(Helpers.getCommentKey(valName))) {
+        q.updateCommentFromSurvey(this.getComment(valName));
+      }
+    }
+    this.notifyElementsOnAnyValueOrVariableChanged("");
+    // Called from code that runs inside a conditions pass (a custom function): ask for one more pass
+    if (this.isRunningConditions) {
+      this.isValueChangedOnRunningCondition = true;
+    } else {
+      this.runConditions();
+    }
+  }
   /* Assigning or merging data restores a previously saved survey state, so pages that
   already contain answers are shown as passed in the progress bar. Values changed via
   code (setValue), triggers or expressions do not affect the pages' wasShown state. */
@@ -6090,17 +6133,37 @@ export class SurveyModel extends SurveyElementCore
       const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement)?.getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
+        let isSwitchedBack = false;
+        let processedSize: string;
+        let previousProcessedSize: string;
+        const getObservedSize = (): string => observedElement.offsetWidth + "x" + observedElement.offsetHeight;
         let screenOrientationType = DomWindowHelper.getScreenOrientationType();
         this._processingResponsivenessFunc = () => {
+          previousProcessedSize = processedSize;
+          processedSize = getObservedSize();
           return this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
         };
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           DomWindowHelper.requestAnimationFrame((): void | undefined => {
             let currScreenOrientationType = DomWindowHelper.getScreenOrientationType();
-            if ((isProcessed || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
+            // A call that switches isMobile changes the root's css class, and the size change it causes comes back
+            // as one more notification. A resize made within the same frame is reported in that same notification,
+            // so after a switch only a notification with the size just processed is skipped. Processing a size change
+            // caused by the class is harmless while the width stays on the same side of the mobile width.
+            // When the root's width depends on the layout (e.g. a page scrollbar that comes and goes with it), the
+            // two layouts can switch each other endlessly. So after a switch back, a return to the size of the switch
+            // before it is skipped as well. On a root whose size does not depend on the layout, this also skips a
+            // real resize back to that size; the next resize corrects the layout.
+            const size = getObservedSize();
+            const isLayoutChangeNotification = isProcessed &&
+              (size === processedSize || (isSwitchedBack && size === previousProcessedSize));
+            if ((isLayoutChangeNotification || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
               isProcessed = false;
+              isSwitchedBack = false;
             } else {
+              const isAfterSwitch = isProcessed;
               isProcessed = !!this._processingResponsivenessFunc && this._processingResponsivenessFunc();
+              isSwitchedBack = isProcessed && isAfterSwitch;
               screenOrientationType = currScreenOrientationType;
             }
           });
@@ -8668,6 +8731,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public getValueGetterContext(): IValueGetterContext {
     return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex);
+  }
+  // The stored data alone: no question, variable or calculated value answers a name, so a key that
+  // holds an empty value is found and a missing key is not. The hasValue('name') expression function reads it.
+  public getDataValueGetterContext(): IValueGetterContext {
+    return createDataContext(this.valuesHash, this.valuesKeyIndex);
   }
   processText(text: string, returnDisplayValue: boolean, context?: any): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false, context: context }).text;

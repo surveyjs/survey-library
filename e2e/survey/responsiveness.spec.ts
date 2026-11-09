@@ -24,7 +24,6 @@ frameworks.forEach((framework) => {
 
       await expect(rootSelector).not.toHaveClass(mobileClass);
       await page.setViewportSize({ width: 500, height: 1000 });
-      await page.waitForTimeout(500);
       await expect(rootSelector).toHaveClass(mobileClass);
       await page.setViewportSize({ width: 1000, height: 1000 });
       await expect(rootSelector).not.toHaveClass(mobileClass);

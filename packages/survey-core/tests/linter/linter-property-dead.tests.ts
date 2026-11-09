@@ -104,6 +104,57 @@ describe("property/dead - bounds an inputType does not have", () => {
   });
 });
 
+describe("property/dead - requiredTrue without required, Issue#12241", () => {
+  test("requiredTrue with neither isRequired nor requiredIf is flagged", () => {
+    const findings = byRule({ elements: [{ type: "boolean", name: "b1", requiredTrue: true }] });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("requiredTrueNotRequired");
+    expect(findings[0].path).toBe("elements[0].requiredTrue");
+    expect(findings[0].messageData).toMatchObject({ key: "requiredTrue", name: "b1" });
+    expect(findings[0].message).toBe("\"requiredTrue\" is set on \"b1\", but \"b1\" has neither isRequired " +
+      "nor requiredIf - the runtime ignores it.");
+    expect(findings[0].fix.edits).toEqual([{ op: "remove", path: "elements[0].requiredTrue" }]);
+  });
+  test("isRequired: false is the same as no isRequired", () => {
+    expect(byRule({
+      elements: [{ type: "boolean", name: "b1", isRequired: false, requiredTrue: true }],
+    })).toHaveLength(1);
+  });
+  test("requiredTrue with isRequired or requiredIf is clean", () => {
+    expect(byRule({
+      elements: [
+        { type: "text", name: "t1" },
+        { type: "boolean", name: "b1", isRequired: true, requiredTrue: true },
+        { type: "boolean", name: "b2", requiredIf: "{t1} = 1", requiredTrue: true },
+        { type: "boolean", name: "b3", requiredTrue: false },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a boolean matrix column is checked too", () => {
+    const findings = byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [
+          { name: "c1", cellType: "boolean", requiredTrue: true },
+          { name: "c2", cellType: "boolean", isRequired: true, requiredTrue: true },
+        ],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[0].columns[0].requiredTrue");
+  });
+  test("a column with no cellType in a boolean matrix is checked too", () => {
+    const findings = byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1", cellType: "boolean",
+        columns: [{ name: "c1", requiredTrue: true }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[0].columns[0].requiredTrue");
+  });
+});
+
 describe("property/dead - configuration", () => {
   test("the rule can be raised to a warning", () => {
     const result = lintSurvey(

@@ -183,6 +183,9 @@ describe("nested data 17: the question an expression variable names", () => {
     expect(show(survey.getQuestionByVariable("kind-note"))).toBe("kind||comment");
     expect(show(survey.getQuestionByVariable("kindTop-note"))).toBe("kindTop||comment");
     expect(show(survey.getQuestionByVariable("kind-Comment"))).toBe("null");
+    settings.expressionVariables.unwrapPostfix = "";
+    expect(show(survey.getQuestionByVariable("q1")), "an empty postfix unwraps nothing, at the root").toBe("q1|");
+    expect(show(survey.getQuestionByVariable("street", survey.getQuestionByName("kind"))), "inside").toBe("street|");
   });
   test("a survey variable with a value shadows a question where the walk reaches it first", () => {
     const survey = createSurvey("auto");
@@ -300,6 +303,48 @@ describe("nested data 17: records (L5)", () => {
           expect(show(dsRes), title).toBe(show(rtRes));
         }
       }
+    }
+  });
+  test("a record-level comment key names its question, as the runtime reads it", () => {
+    const json = { elements: [
+      { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
+        { type: "text", name: "kind", showCommentArea: true },
+        { type: "panel", name: "pp", valueName: "address", elements: [{ type: "text", name: "k2", showCommentArea: true }] }] },
+      { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c1" }], detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "dq", showCommentArea: true }] }
+    ] };
+    const runtimeS = new SurveyModel(json);
+    runtimeS.data = { dp: [{ kind: "K", "kind-Comment": "KC", address: { k2: "K2", "k2-Comment": "K2C" } }],
+      md: { r1: { c1: "C", dq: "DQ", "dq-Comment": "DQC" } } };
+    const designS = new SurveyModel();
+    designS.setDesignMode(true);
+    designS.fromJSON(json);
+    const contexts = (survey: SurveyModel): Array<Question> => {
+      const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+      const md = <QuestionMatrixDropdownModel>survey.getQuestionByName("md");
+      let panel: PanelModel = dp.template, detail: PanelModel = md.detailPanel;
+      if (!survey.isDesignMode) {
+        panel = dp.panels[0];
+        const row = md.visibleRows[0];
+        row.showDetailPanel();
+        detail = row.detailPanel;
+      }
+      return [panel.getQuestionByName("kind"), detail.getQuestionByName("dq")];
+    };
+    const rtContexts = contexts(runtimeS);
+    const dsContexts = contexts(designS);
+    const cases = [[0, "panel.kind-Comment", "kind||comment", "KC"], [0, "panel.address.k2-Comment", "k2||comment", "K2C"],
+      [1, "row.dq-Comment", "dq||comment", "DQC"]];
+    for (const [index, name, expected, value] of cases) {
+      const ctx = rtContexts[<number>index];
+      expect(runtime(<string>name, ctx).value, "runtime " + name).toBe(value);
+      const rtRes = runtimeS.getQuestionByVariable(<string>name, ctx);
+      expect(show(rtRes), "built " + name).toBe(expected);
+      // The built record's own question: a dynamic panel's loads its comment from the record; a detail panel's
+      // question does not load it from the row (outside this lookup), so it is compared by identity.
+      if (index === 1) expect(rtRes.question, "built question " + name).toBe(ctx);
+      else expect(rtRes.question.comment, "built comment " + name).toBe(value);
+      expect(show(designS.getQuestionByVariable(<string>name, dsContexts[<number>index])), "template " + name).toBe(expected);
     }
   });
   test("the names inside a record, auto mode", () => {

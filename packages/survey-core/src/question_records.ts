@@ -35,7 +35,7 @@ import { Action } from "./actions/action";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { Scope, ValueScope } from "./utils/scope";
-import { ObjectDataScope, PanelDataScope, PanelDataScopeValueGetterContext, RecordKeyLevel, RecordKeyLevelValueGetterContext, getActiveDataScope, getElementDataScope, asScopeObject, hasRecordDataNesting } from "./panel-data-scope";
+import { ObjectDataScope, PanelDataScope, PanelDataScopeValueGetterContext, RecordKeyLevel, RecordKeyLevelValueGetterContext, getActiveDataScope, getElementDataScope, asScopeObject, hasRecordDataNesting, getNameOfCommentName } from "./panel-data-scope";
 import { RecordsDataWaits } from "./records/records-data-waits";
 import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainerVisible } from "./records/records-hidden-answers";
 import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/records-cleanup-runner";
@@ -4363,6 +4363,19 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
       if (levels.length > 0) {
         res.isFound = true;
         res.context = new RecordKeyLevelValueGetterContext(levels);
+        return;
+      }
+      // A record-level comment key ({panel.kind-Comment}), which the runtime reads from the record's values:
+      // it names the question, as the root does for a top-level comment key.
+      const baseName = getNameOfCommentName(name);
+      if (!!baseName) {
+        const owners = this.item.getQuestionsByValueName(baseName, true);
+        const owner = owners.length > 0 ? owners[0] : level.getQuestion(baseName, true);
+        if (!!owner) {
+          res.isFound = true;
+          res.obj = owner;
+          res.isComment = true;
+        }
       }
     }
   }

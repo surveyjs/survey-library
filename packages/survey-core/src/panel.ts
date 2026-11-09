@@ -361,13 +361,13 @@ export class QuestionRowModel extends Base {
   }
 }
 
-/**
- * A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) and [`PageModel`](https://surveyjs.io/form-library/documentation/pagemodel) classes.
- */
 // Whether el (any element up a parent chain) is a dynamic panel's template or a matrix's detail panel template.
 function isRecordTemplatePanel(el: any): boolean {
   return !!el.parentQuestion && el.parentQuestion.template === el || !!el.selectedElementInDesign?.isDetailPanelTemplate?.(el);
 }
+/**
+ * A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) and [`PageModel`](https://surveyjs.io/form-library/documentation/pagemodel) classes.
+ */
 export class PanelModelBase extends SurveyElement<Question>
   implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner, ISurveyDataElement {
 

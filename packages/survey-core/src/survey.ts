@@ -216,7 +216,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
-    if (name.endsWith(unWrappedNameSuffix)) {
+    if (!!unWrappedNameSuffix && name.endsWith(unWrappedNameSuffix)) {
       name = name.substring(0, name.length - unWrappedNameSuffix.length);
       if (res.isMetadata) res.isUnwrapped = true;
     }

@@ -54,6 +54,16 @@ describe("survey-core value model", () => {
     expect(surveyHolds("=", "0xa hello", 10)).toBeUndefined();
     expect(surveyHolds("contains", "0xa hello", "hello")).toBeUndefined();
     expect(surveyHolds("=", "0x1g", "0x1g")).toBeUndefined();
+    // survey-core #12237 compares a converted text with a quoted literal as text first: "10,000" reads
+    // as 10, and earlier releases find it not equal to '10,000'.
+    expect(surveyHolds("=", "10,000", "10,000")).toBeUndefined();
+    expect(surveyHolds("<>", "10,000", "10,000")).toBeUndefined();
+    expect(surveyHolds("contains", "10,000", ",0")).toBeUndefined();
+    expect(surveyHolds("=", "true", " true")).toBeUndefined();
+    // Without a conversion, or with a literal that is not quoted, every release agrees.
+    expect(surveyHolds("=", "abc", " ABC")).toBe(true);
+    expect(surveyHolds("=", "10,000", 10)).toBe(true);
+    expect(surveyHolds("=", "10", "10")).toBe(true);
     // A text that is all hex reads as the same number in every release.
     expect(surveyHolds("=", "0xa", 10)).toBe(true);
     expect(new ConditionRunner("{q} = 10").runValues({ q: "0xa" })).toBe(true);

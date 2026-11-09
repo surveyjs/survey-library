@@ -614,8 +614,10 @@ describe("formio convert - legacy conditions", () => {
     ["a checkbox", { type: "checkbox", key: "n" }]
   ];
   for (const [what, comp] of booleanTargets) {
-    // A select keeps " true" as text, which only that text equals, as in survey-core.
-    const refused = comp.type === "checkbox" ? ["TRUE", "True", " true", "true ", "FALSE", "False"] : ["TRUE", "True", "FALSE", "False"];
+    // A select keeps " true" as text, which in Form.io only that text equals. survey-core #12237 compares
+    // the text "true" with ' true' as text first and finds it equal; earlier releases read "true" as true
+    // and find it not equal, so the condition depends on the release.
+    const refused = ["TRUE", "True", " true", "true ", "FALSE", "False"];
     for (const eq of refused) {
       it(`gives no condition for ${JSON.stringify(eq)} on ${what}, and reports it assumed`, () => {
         const form = { components: [comp, { type: "textfield", key: "b", conditional: { show: true, when: "n", eq } }] };
@@ -635,17 +637,6 @@ describe("formio convert - legacy conditions", () => {
         expect(isVisible(form, { n: true }, "b")).toBe(show);
         expect(isVisible(form, { n: false }, "b")).toBe(!show);
       }
-    });
-  }
-
-  for (const eq of [" true", "true "]) {
-    it(`compares ${JSON.stringify(eq)} as text on a select from a URL`, () => {
-      const form = { components: [booleanTargets[0][1], { type: "textfield", key: "b", conditional: { show: true, when: "n", eq } }] };
-      expect(findElement(convert(form).output, "b")?.visibleIf).toBe(`{n} = '${eq}'`);
-      expect(isVisible(form, { n: eq }, "b")).toBe(true);
-      expect(isVisible(form, { n: true }, "b")).toBe(false);
-      expect(isVisible(form, { n: "true" }, "b")).toBe(false);
-      expect(isVisible(form, {}, "b")).toBe(false);
     });
   }
 

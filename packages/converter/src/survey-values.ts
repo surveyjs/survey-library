@@ -115,14 +115,31 @@ export function surveyLiteral(value: unknown): unknown {
 // for no value), and the literal reads back as `literal` (see `surveyLiteral`). `<>` is the negation
 // of `=`; `<` and `>` compare with JavaScript's operators, and never hold for a missing side; `<=`
 // and `>=` hold also when `=` does. `undefined` when survey-core releases the peer range allows
-// disagree (see `surveyNumber`), so a caller that compares the result with a boolean refuses it.
+// disagree, so a caller that compares the result with a boolean refuses it. The releases differ in
+// two ways: #12234 reads a `0x` text as a number only when all of it is hex (see `surveyNumber`),
+// and #12237 compares a text that the reading converts ("10,000" reads as 10, "true" as true) with
+// a quoted literal as text first (see `textFirst`). #12237 came after #12234, so three readings.
 export function surveyHolds(op: SurveyOperator, value: unknown, literal: unknown): boolean | undefined {
   if (value === undefined) return holdsFor(op, undefined, literal);
   const loose = surveyVariable(value);
   const strict = surveyVariable(value, true);
   const holds = holdsFor(op, loose, literal);
-  if (loose === strict || (Number.isNaN(loose) && Number.isNaN(strict))) return holds;
-  return holds === holdsFor(op, strict, literal) ? holds : undefined;
+  const sameReading = loose === strict || (Number.isNaN(loose) && Number.isNaN(strict));
+  const strictHolds = sameReading ? holds : holdsFor(op, strict, literal);
+  const latestHolds = textFirst(op, value, strict, literal) ?? strictHolds;
+  return holds === strictHolds && holds === latestHolds ? holds : undefined;
+}
+
+// survey-core #12237 (`BinaryOperand.evaluate`): for `=`, `<>`, `contains` and `notcontains`, when
+// the question's text was converted by the reading and the literal is a quoted text, the text is
+// compared first. A positive operator holds when the text comparison holds, a negative one fails
+// when the text comparison fails; otherwise (`undefined` here) the converted value decides.
+function textFirst(op: SurveyOperator, value: unknown, reading: unknown, literal: unknown): boolean | undefined {
+  if (typeof value !== "string" || reading === value || typeof literal !== "string") return undefined;
+  const positive = op === "=" || op === "contains";
+  if (!positive && op !== "<>" && op !== "notcontains") return undefined;
+  const textHolds = holdsFor(op, value, literal);
+  return textHolds === positive ? textHolds : undefined;
 }
 
 function holdsFor(op: SurveyOperator, left: unknown, literal: unknown): boolean {

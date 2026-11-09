@@ -1,4 +1,5 @@
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, baseTest as test } from "../e2e/helper";
+import { expect } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
 const title = "Filter Screenshot";
@@ -128,6 +129,8 @@ frameworks.forEach(framework => {
       await settle(page);
       await compareScreenshot(page, ".sd-filter", "filter-search-rtl.png");
       await openFilters(page);
+      // The dialog focuses its search box 100 ms after it shows (focusFirstInput): settle after that.
+      await expect(popupWith(page, ".sd-filter-modal__content").getByRole("textbox").first()).toBeFocused();
       await settle(page);
       await compareScreenshot(page, popupWith(page, ".sd-filter-modal__content"), "filter-modal-rtl.png");
     });

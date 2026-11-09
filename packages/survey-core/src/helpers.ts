@@ -10,6 +10,9 @@ export interface IEqualValuesParameters {
   caseSensitive?: boolean;
   trimStrings?: boolean;
   doNotConvertNumbers?: boolean;
+  // Set only by the expression operators =, <>, anyof, allof, noneof, contains, notcontains: comparator.strictEquality
+  // applies to conditions, not to value-change checks, choice matching or matrix cells, which carry the same settings
+  strictEqualityApplies?: boolean;
   // The survey's settings for the keys not given above; undefined means the global settings
   settings?: ISurveySettings;
 }
@@ -231,7 +234,14 @@ export class Helpers {
     }
     const isXObj = Helpers.isValueObject(x);
     const isYObj = Helpers.isValueObject(y);
-    if (!isXObj && !isYObj && (convertNumbers || (typeof x !== "number" && typeof y !== "number"))) return x == y;
+    if (!isXObj && !isYObj && (convertNumbers || (typeof x !== "number" && typeof y !== "number"))) {
+      // comparator.strictEquality: a boolean is not loosely equal to a number, so true = 1 is false. Only a boolean
+      // side is strict: a number and a text that == reads as that number ('.5', '1e3') are C4's concern.
+      // A boolean and a text returned above (true = 'true').
+      if (params.strictEqualityApplies && (typeof x === "boolean" || typeof y === "boolean") &&
+        getSurveySetting(params.settings, "comparator", "strictEquality")) return x === y;
+      return x == y;
+    }
     if (!isXObj || !isYObj) return false;
     if (x["equals"] && y["equals"]) return x.equals(y);
     if (Array.isArray(x) && Array.isArray(y)) {

@@ -10,6 +10,8 @@ export interface ISurveySettingsComparator {
   caseSensitive?: boolean;
   // A text that reads as a number is compared as a text with another text (decisions.md, C4)
   numericTextAsText?: boolean;
+  // The expression operators compare without loose equality, so true = 1 is false (decisions.md, C5)
+  strictEquality?: boolean;
 }
 export interface ISurveySettingsData {
   keepEmptyValues?: boolean;
@@ -48,7 +50,7 @@ type SurveySettingsKeys = { [G in SurveySettingsGroup]-?: { [K in keyof NonNulla
 // The groups and keys a survey can set for itself. The type makes the build fail when the interface
 // gets a key this list misses.
 const surveySettingsKeys: SurveySettingsKeys = {
-  comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: true },
+  comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: true, strictEquality: true },
   data: { keepEmptyValues: true }
 };
 const reservedOptionKeys = ["events"];

@@ -175,7 +175,7 @@ export class QuestionTextBase extends Question {
   }
   public get inputActionsContainer(): ActionContainer {
     if (!this._inputActionsContainer) {
-      this._inputActionsContainer = this.createInputActionsContainer();
+      this._inputActionsContainer = Base.runUntracked(() => this.createInputActionsContainer());
     }
     return this._inputActionsContainer;
   }

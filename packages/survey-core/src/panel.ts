@@ -2753,32 +2753,34 @@ export class PanelModel extends PanelModelBase implements IElement {
   public onGetFooterToolbarCssCallback: () => string;
   public getFooterToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
-      var actions = this.footerActions;
-      if (this.hasEditButton) {
-        const editAction = new Action({
-          id: "cancel-preview",
-          locTitle: this.survey.locEditText,
-          innerCss: this.survey.getCss().navigation.edit,
-          action: () => { this.cancelPreview(); }
-        });
-        actions.push(editAction);
-      }
-      if (!!this.onGetFooterActionsCallback) {
-        actions = this.onGetFooterActionsCallback();
-      } else {
-        actions = this.survey?.getUpdatedPanelFooterActions(this, actions);
-      }
-      this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
-      this.footerToolbarValue.setActionsAppearance(this.hasEditButton ? { mode: "tertiary-surface", size: "medium", style: "brand", showBorder: true } : { style: "neutral", mode: "secondary", size: "small" });
-      let footerCss = this.onGetFooterToolbarCssCallback ? this.onGetFooterToolbarCssCallback() : "";
-      if (!footerCss) {
-        footerCss = this.cssClasses.panel?.footer;
-      }
-      if (footerCss) {
-        this.footerToolbarValue.containerCss = footerCss;
-      }
-      this.footerToolbarValue.setItems(actions);
-      this.footerToolbarValue.flushUpdates();
+      Base.runUntracked(() => {
+        var actions = this.footerActions;
+        if (this.hasEditButton) {
+          const editAction = new Action({
+            id: "cancel-preview",
+            locTitle: this.survey.locEditText,
+            innerCss: this.survey.getCss().navigation.edit,
+            action: () => { this.cancelPreview(); }
+          });
+          actions.push(editAction);
+        }
+        if (!!this.onGetFooterActionsCallback) {
+          actions = this.onGetFooterActionsCallback();
+        } else {
+          actions = this.survey?.getUpdatedPanelFooterActions(this, actions);
+        }
+        this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
+        this.footerToolbarValue.setActionsAppearance(this.hasEditButton ? { mode: "tertiary-surface", size: "medium", style: "brand", showBorder: true } : { style: "neutral", mode: "secondary", size: "small" });
+        let footerCss = this.onGetFooterToolbarCssCallback ? this.onGetFooterToolbarCssCallback() : "";
+        if (!footerCss) {
+          footerCss = this.cssClasses.panel?.footer;
+        }
+        if (footerCss) {
+          this.footerToolbarValue.containerCss = footerCss;
+        }
+        this.footerToolbarValue.setItems(actions);
+        this.footerToolbarValue.flushUpdates();
+      });
     }
     return this.footerToolbarValue;
   }

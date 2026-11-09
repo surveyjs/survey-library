@@ -2,7 +2,7 @@ import { Action, IAction } from "./actions/action";
 import { defaultActionBarCss } from "./actions/actionBarCss";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
-import { ComputedUpdater } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import type { PanelModel } from "./panel";
@@ -65,7 +65,7 @@ export class PanelDynamicActions {
   }
   public get footerToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
-      this.initFooterToolbar();
+      Base.runUntracked(() => this.initFooterToolbar());
     }
     return this.footerToolbarValue;
   }
@@ -191,12 +191,14 @@ export class PanelDynamicActions {
   }
   public get tabbedMenu(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> {
     if (!this.tabbedMenuValue) {
-      this.tabbedMenuValue = new AdaptiveActionContainer<PanelDynamicTabbedMenuItem>();
-      this.tabbedMenuValue.dotsItem.popupModel.showPointer = false;
-      this.tabbedMenuValue.dotsItem.popupModel.verticalPosition = "bottom";
-      this.tabbedMenuValue.dotsItem.popupModel.horizontalPosition = "center";
-      this.owner.question.updateElementCss(false);
-      this.updateTabbedMenuItems();
+      Base.runUntracked(() => {
+        this.tabbedMenuValue = new AdaptiveActionContainer<PanelDynamicTabbedMenuItem>();
+        this.tabbedMenuValue.dotsItem.popupModel.showPointer = false;
+        this.tabbedMenuValue.dotsItem.popupModel.verticalPosition = "bottom";
+        this.tabbedMenuValue.dotsItem.popupModel.horizontalPosition = "center";
+        this.owner.question.updateElementCss(false);
+        this.updateTabbedMenuItems();
+      });
     }
     return this.tabbedMenuValue;
   }

@@ -6,6 +6,8 @@ import {
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { SurveyModel } from "../../src/survey";
 import "../../src/question_matrixdynamic";
+import "../../src/question_paneldynamic";
+import "../../src/question_filter";
 
 // How many records a control filter would leave before it is applied: what a Filter Control's
 // "Show N items" button reads. It lives in a file of its own, next to the control filter slot tests.
@@ -134,5 +136,66 @@ describe("Records question: getControlFilterCount", () => {
     expect(await matrix.getControlFilterCount("second", "{c1} = 'b'"), "#2").toBe(1);
     expect(await matrix.getControlFilterCount("third", "{c1} = 'a'"), "#3: a control with no filter yet").toBe(0);
     expect(matrix.getControlFilter("second"), "#4: nothing is applied").toBe("{c1} != 'c'");
+  });
+});
+
+// The count says how many rows Apply would show: a row or a panel its visibility condition hides is
+// not shown, so it is not counted either.
+describe("A Filter Control's count and the rows a visibility condition hides", () => {
+  const ages = (): Array<any> => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((age: number): any => ({ age: age }));
+  function createMatrixSurvey(over: any = {}): SurveyModel {
+    return new SurveyModel({ elements: [
+      Object.assign({ type: "matrixdynamic", name: "m", rowsVisibleIf: "{row.age} > 3", columns: [{ name: "age", cellType: "text" }],
+        defaultValue: ages() }, over),
+      { type: "filter", name: "f1", source: "m" }] });
+  }
+  test("a non-paged Dynamic Matrix: 3 of 10 rows hidden", async () => {
+    const survey = createMatrixSurvey();
+    const matrix = <any>survey.getQuestionByName("m");
+    const q = <any>survey.getQuestionByName("f1");
+    expect(matrix.visibleRows.length, "#1: the rows shown").toBe(7);
+    expect(await q.countFilterResults(""), "#2: no conditions").toBe(7);
+    expect(await q.countFilterResults("{age} < 6"), "#3").toBe(2);
+    q.setFieldCondition("age", "less", 6);
+    expect(matrix.visibleRows.length, "#4: what Apply shows").toBe(2);
+  });
+  test("the same matrix with pageSize", async () => {
+    const survey = createMatrixSurvey({ pageSize: 3 });
+    const matrix = <any>survey.getQuestionByName("m");
+    const q = <any>survey.getQuestionByName("f1");
+    expect(matrix.visibleRows.length, "#1: a page").toBe(3);
+    expect(await q.countFilterResults(""), "#2").toBe(7);
+    expect(await q.countFilterResults("{age} > 5"), "#3").toBe(5);
+  });
+  test("a Dynamic Panel with templateVisibleIf", async () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p", templateVisibleIf: "{panel.age} > 3", templateElements: [{ type: "text", name: "age" }],
+        defaultValue: ages() },
+      { type: "filter", name: "f1", source: "p" }] });
+    const panel = <any>survey.getQuestionByName("p");
+    const q = <any>survey.getQuestionByName("f1");
+    expect(panel.visiblePanels.length, "#1").toBe(7);
+    expect(await q.countFilterResults(""), "#2").toBe(7);
+    expect(await q.countFilterResults("{age} < 6"), "#3").toBe(2);
+  });
+  test("survey.showInvisibleElements: every row shows, every row counts", async () => {
+    const survey = createMatrixSurvey();
+    survey.showInvisibleElements = true;
+    const matrix = <any>survey.getQuestionByName("m");
+    const q = <any>survey.getQuestionByName("f1");
+    expect(matrix.visibleRows.length, "#1").toBe(10);
+    expect(await q.countFilterResults(""), "#2").toBe(10);
+  });
+  test("a row edited before the dialog opens: the count is what Apply shows", async () => {
+    const survey = createMatrixSurvey();
+    const matrix = <any>survey.getQuestionByName("m");
+    const q = <any>survey.getQuestionByName("f1");
+    q.setFieldCondition("age", "greater", 5);
+    expect(matrix.visibleRows.length, "#1").toBe(5);
+    matrix.visibleRows[4].getQuestionByName("age").value = 4;
+    expect(matrix.visibleRows.length, "#2: the touched row stays").toBe(5);
+    expect(await q.countFilterResults("{age} > 6"), "#3").toBe(3);
+    q.setFieldCondition("age", "greater", 6);
+    expect(matrix.visibleRows.length, "#4: a filter change drops the touched row").toBe(3);
   });
 });

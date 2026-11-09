@@ -4,7 +4,7 @@ import { toCssClasses } from "../utils/cssClassBuilder";
 import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { IFilterCondition, IFilterState } from "../interfaces/ui-interfaces";
-import { FilterItem, getUniqueFilterActionId } from "./filter-item";
+import { FilterItem, getFilterElementId, getUniqueFilterActionId } from "./filter-item";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
 import { filterUIStrings } from "./filter-ui-strings";
 
@@ -16,6 +16,7 @@ export interface IFilterModalOwner {
   searchPlaceholder: string;
   searchCss: { root: string, control: string };
   canEditConditions: boolean;
+  isControlReadOnly: boolean;
   cssClasses: any;
   getFilterState(): IFilterState;
   getItemConditions(name: string): Array<IFilterCondition> | null;
@@ -48,6 +49,9 @@ export class FilterModal extends Base {
   @property({ defaultValue: false }) isCounting: boolean;
   private editorValue: FilterConditionsEditor;
   private presetsToolbarValue: ActionContainer;
+  // The presets section is a group named by its title (aria-labelledby): the renderer gives the title
+  // this id.
+  public readonly presetsTitleId: string = getFilterElementId("sv-filter-presets-title-");
   private creationToolbarValue: ActionContainer;
   private presetsTitleToolbarValue: ActionContainer;
   private addPresetAction: Action;
@@ -121,7 +125,8 @@ export class FilterModal extends Base {
     this.updatePresetChips();
     this.updatePresetActions();
   }
-  public get isReadOnly(): boolean { return !this.owner.canEditConditions; }
+  // In the designer, for an AI preset in single mode, and while the control is read-only.
+  public get isReadOnly(): boolean { return !this.owner.canEditConditions || this.owner.isControlReadOnly; }
   public get showSearch(): boolean { return this.owner.showSearch; }
   public get searchPlaceholder(): string { return this.owner.searchPlaceholder; }
   // The search box is drawn the way the control's own is: as a text question's input.
@@ -207,7 +212,8 @@ export class FilterModal extends Base {
       // A chip of its own even for a second preset with the same name, as in the control's row.
       const id = getUniqueFilterActionId("sv-filter-modal-item-" + item.name, (candidate: string): boolean => !!used[candidate]);
       used[id] = true;
-      const chip = new Action({ id: id, enabled: !this.isReadOnly, iconSize: "auto",
+      // A toggle, as in the control's row: a checkbox.
+      const chip = new Action({ id: id, enabled: !this.isReadOnly, iconSize: "auto", ariaRole: "checkbox", ariaChecked: false,
         iconName: item.kind === "ai" ? "icon-sparkle-24x24" : undefined,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.togglePreset(item); } });
       chip.locTitle = item.locTitle;
@@ -226,6 +232,7 @@ export class FilterModal extends Base {
   private updatePresetChips(): void {
     this.presetsToolbarValue.actions.forEach((chip: Action): void => {
       chip.active = !!this.activeItemName && (<FilterItem>chip.data).name === this.activeItemName;
+      chip.ariaChecked = chip.active;
     });
   }
   private scheduleCount(): void {

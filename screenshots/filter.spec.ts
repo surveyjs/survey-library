@@ -101,6 +101,37 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, popupWith(page, ".sd-filter-popup"), "filter-popup-condition.png");
     });
 
+    // A value the respondent typed is listed after the field's values, checked, with no button of its own.
+    test("a chip's popup with a typed value", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await initSurvey(page, framework, json({}, [{ name: "city", title: "City", cellType: "dropdown", allowCustomChoices: true,
+        choices: ["Berlin", "Paris"] }]));
+      await page.evaluate(() => { (<any>window).survey.getQuestionByName("f1").setFieldCondition("city", "anyof", ["Berlin", "Rome"]); });
+      await chip(page, "City").click();
+      await settle(page);
+      await compareScreenshot(page, popupWith(page, ".sd-filter-popup"), "filter-popup-custom-value.png");
+    });
+
+    // A read-only control: the chips are disabled, and the active preset's chip still shows it is on.
+    test("a read-only control", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await initSurvey(page, framework, json({ readOnly: true, defaultItem: "adults", showSearch: true }));
+      await settle(page);
+      await compareScreenshot(page, ".sd-filter", "filter-chips-read-only.png");
+    });
+
+    test("right to left: the quick filters row and the Filters dialog", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.evaluate(() => { document.body.setAttribute("dir", "rtl"); });
+      // The search box has the icon whose padding faces the box's edge.
+      await initSurvey(page, framework, json({ showSearch: true, defaultItem: "adults" }));
+      await settle(page);
+      await compareScreenshot(page, ".sd-filter", "filter-search-rtl.png");
+      await openFilters(page);
+      await settle(page);
+      await compareScreenshot(page, popupWith(page, ".sd-filter-modal__content"), "filter-modal-rtl.png");
+    });
+
     test("the Filters dialog and the preset dialogs", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await initSurvey(page, framework, json());

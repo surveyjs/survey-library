@@ -33,6 +33,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
+import { getFilterOperatorChoices, isFilterFieldInReach } from "./filter/filter-field-properties";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -4315,14 +4316,16 @@ Serializer.addClass("question", [
   { name: "readOnly:switch", overridingProperty: "enableIf" },
   getReadOnlyModePropertyInfo(),
   /* The Filter Control offers this question as a filter field unless the author opts it out. It is
-     shown only where it can do something: a question that cannot be filtered at all answers false
-     through isFilterable and the property does not apply to it. */
+     shown only where a Filter Control can reach the question (isFilterFieldInReach), on a question
+     that is a field and on one whose children are (a composite question, a Multiple Textboxes):
+     allowFiltering: false there opts all of them out (collectFilterFields). */
   { name: "allowFiltering:boolean", default: true,
-    visibleIf: (obj: any): boolean => !!obj && !!obj.isFilterable },
-  // Applies only where the question is a filter field: filterable and not opted out.
+    visibleIf: (obj: any): boolean => !!obj && (!!obj.isFilterable || !!obj.hasNestedFilterFields) && isFilterFieldInReach(obj) },
+  // Applies only where the question is a filter field: filterable, within reach and not opted out.
+  // A text question's override adds inputType to dependsOn: its operators follow it.
   { name: "filterOperators:string[]", dependsOn: "allowFiltering",
-    choices: (): Array<string> => Object.keys(settings.logic.operators),
-    visibleIf: (obj: any): boolean => !!obj && !!obj.isFilterable && obj.allowFiltering !== false },
+    choices: (obj: any): Array<string> => getFilterOperatorChoices(obj),
+    visibleIf: (obj: any): boolean => !!obj && !!obj.isFilterable && obj.allowFiltering !== false && isFilterFieldInReach(obj) },
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

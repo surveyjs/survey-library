@@ -9,7 +9,7 @@ import { getLocaleString } from "../surveyStrings";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import { setUpDialogSurvey } from "../utils/dialog-survey";
 import { IFilterCondition, IFilterItemEdit } from "../interfaces/ui-interfaces";
-import { FilterItem, getUniqueFilterActionId } from "./filter-item";
+import { FilterItem, getFilterElementId, getUniqueFilterActionId } from "./filter-item";
 import { FilterConditionsEditor, IFilterConditionsEditorOwner, createFilterEditorOwner } from "./filter-conditions-editor";
 import { getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import type { FilterAIRequest } from "./filter-ai";
@@ -356,6 +356,9 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
   private tabs: Array<IFilterPresetTab>;
   private tabsToolbarValue: ActionContainer;
   private actionsToolbarValue: ActionContainer;
+  // The Preset Actions section is a group named by its title (aria-labelledby): the renderer gives
+  // the title this id.
+  public readonly actionsTitleId: string = getFilterElementId("sv-filter-preset-actions-title-");
   private deleteAction: Action;
   private resetAction: Action;
 
@@ -378,7 +381,8 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
       const conditions = owner.getItemConditions(item.name);
       const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions, prompt: item.prompt, isDeleted: false,
         isReset: false, isTouched: false, chip: undefined };
-      tab.chip = new Action({ id: id, title: item.title, activeAppearance: { style: "neutral", mode: "primary" },
+      // One choice of several: a radio (aria-checked is not allowed on the default button role).
+      tab.chip = new Action({ id: id, title: item.title, ariaRole: "radio", ariaChecked: false, activeAppearance: { style: "neutral", mode: "primary" },
         action: (): void => { this.showTab(tab); } });
       return tab;
     });
@@ -565,6 +569,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     const tab = <IFilterPresetTab>this.buffer;
     this.tabs.forEach((t: IFilterPresetTab): void => {
       t.chip.active = t === tab;
+      t.chip.ariaChecked = t.chip.active;
       t.chip.title = t.title.trim() || t.item.name;
     });
     const owner = this.editOwner;

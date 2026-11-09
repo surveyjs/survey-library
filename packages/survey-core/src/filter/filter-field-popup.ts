@@ -28,6 +28,7 @@ export interface IFilterFieldPopupOwner extends ILocalizableOwner {
   clearFieldCondition(name: string): void;
   createFastModeEditor(name: string): FilterConditionsEditor;
   canEditConditions: boolean;
+  isControlReadOnly: boolean;
   cssClasses: any;
 }
 // A list this long or longer gets a search box. The list's own threshold (ListModel.MINELEMENTCOUNT)
@@ -87,7 +88,7 @@ export class FilterFieldPopup extends Base {
   // A search box over the list: from filterPopupSearchMinItemCount values on, and always where a
   // value can be typed in. The popup draws it above its title row, so the list's own box is off.
   public get showSearch(): boolean { return this.showSearchValue; }
-  public get isReadOnly(): boolean { return !this.owner.canEditConditions; }
+  public get isReadOnly(): boolean { return !this.owner.canEditConditions || this.owner.isControlReadOnly; }
   // The control's classes (the "filter" entry of the theme): the popup is drawn outside the
   // control's own markup.
   public get cssClasses(): any { return this.owner.cssClasses; }
@@ -104,7 +105,7 @@ export class FilterFieldPopup extends Base {
     if (!!this.editorValue) {
       this.editorValue.apply();
     } else {
-      this.write(getFilterSelectionCondition(this.field, this.kind, this.getCheckedValues()));
+      this.write(getFilterSelectionCondition(this.field, this.kind, this.getCheckedValues(), this.owner.getFieldCondition(this.key)));
     }
     this.close();
   }
@@ -119,15 +120,6 @@ export class FilterFieldPopup extends Base {
     if (!first) return;
     ElementHelper.focusElement(first);
     event.preventDefault();
-  }
-  // Removes a value the respondent typed from a checkbox list. A "single" list has no checkboxes:
-  // its typed value goes with the next pick or with Clear.
-  public removeCustomItem(item: IAction): void {
-    const list = <MultiSelectListModel<Action>>this.listValue;
-    if (!list || !this.isMultiple || !item || !item.data || !item.data.isCustom) return;
-    list.setSelectedItems(list.selectedItems.filter((a: IAction): boolean => a.id !== item.id));
-    list.setItems(list.actions.filter((a: Action): boolean => a.id !== item.id), false);
-    this.updateHeader();
   }
   public dispose(): void {
     if (!!this.editorValue) {
@@ -168,6 +160,8 @@ export class FilterFieldPopup extends Base {
     }
     // The list still filters its entries by filterString; only its own box is not drawn.
     list.searchEnabled = false;
+    // A listbox needs a name of its own: the field's, which the popup's title row shows.
+    list.listAriaLabel = this.title;
     this.showSearchValue = items.length >= filterPopupSearchMinItemCount || this.allowCustom;
     if (this.allowCustom) {
       this.addAction = new Action({ id: "sv-filter-add-custom", title: "", data: { isAdd: true, popup: this } });

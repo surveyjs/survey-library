@@ -1106,7 +1106,6 @@ export var defaultCss = {
     listItemCheckDecorator: "sd-item__decorator sd-checkbox__decorator",
     listItemCheckIcon: "sd-item__svg sd-checkbox__svg",
     listItemText: "sd-filter-popup__item-text",
-    listItemRemove: "sd-filter-popup__item-remove",
     modal: "sd-filter-modal",
     modalMobile: "sd-filter-modal--mobile",
     modalContent: "sd-filter-modal__content",

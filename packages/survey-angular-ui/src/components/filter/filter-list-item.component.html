@@ -9,9 +9,5 @@
       </span>
     </span>
     <span [class]="css.listItemText">{{ model.title }}</span>
-    <button *ngIf="model.data.isCustom && !popup.isReadOnly" type="button" [class]="css.listItemRemove"
-      [attr.title]="removeTitle" [attr.aria-label]="removeTitle" (click)="remove($event)">
-      <svg [iconName]="'icon-delete-16x16'" [size]="'auto'" sv-ng-svg-icon></svg>
-    </button>
   </div>
 </ng-template>

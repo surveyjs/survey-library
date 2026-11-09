@@ -1,10 +1,11 @@
 import { Component, Input } from "@angular/core";
-import { Action, FilterFieldPopup, ListModel, filterListItemComponentName, filterUIStrings } from "survey-core";
+import { Action, FilterFieldPopup, ListModel, filterListItemComponentName } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
 // An entry of a checkbox list of the Filter Control: drawn checked by the entry's active flag
-// (FilterFieldPopup keeps it), with a remove button for a value the respondent typed. The "Add"
+// (FilterFieldPopup keeps it). A value the respondent typed has no remove button: a button inside
+// a list option is nested interactive content, and unchecking the value is how it goes. The "Add"
 // entry is its text alone.
 @Component({
   selector: "sv-ng-filter-list-item",
@@ -22,13 +23,6 @@ export class FilterListItemComponent extends BaseAngular<Action> {
   }
   public get css(): any {
     return this.popup.cssClasses;
-  }
-  public get removeTitle(): string {
-    return filterUIStrings.removeValue;
-  }
-  public remove(event: any): void {
-    event.stopPropagation();
-    this.popup.removeCustomItem(this.model);
   }
 }
 

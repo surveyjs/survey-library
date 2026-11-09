@@ -884,7 +884,10 @@ export class DynamicDataList {
     } catch(e) {
       return Promise.resolve(undefined);
     }
-    return Promise.resolve(applyFilters(this.records, [this.view.filterRunner, runner], this.getFields(), this.getSurveySettings()).length);
+    // A record the owner hides (rowsVisibleIf, templateVisibleIf) is not shown after Apply either: the
+    // membership's own flags say which, as they do for the view.
+    const indexes = applyFilters(this.records, [this.view.filterRunner, runner], this.getFields(), this.getSurveySettings());
+    return Promise.resolve(indexes.filter((index: number): boolean => this.isRecordVisible(index)).length);
   }
   private getSurveySettings(): ISurveySettings {
     return getSettingsOfSurvey(!!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined);

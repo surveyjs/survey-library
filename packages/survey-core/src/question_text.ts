@@ -1106,6 +1106,9 @@ Serializer.addClass(
       default: "text",
       choices: settings.questions.inputTypes,
     },
+    // The question's own, with inputType added to dependsOn: a filter field's operators follow it
+    // (a number offers "greater", a text "contains").
+    { name: "filterOperators:string[]", dependsOn: ["allowFiltering", "inputType"] },
     {
       name: "inputSize:number", alternativeName: "size", minValue: 0, dependsOn: "inputType",
       visibleIf: function(obj: any) {

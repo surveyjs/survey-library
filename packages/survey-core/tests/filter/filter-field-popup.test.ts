@@ -261,18 +261,39 @@ describe("FilterFieldPopup: search and typed values", () => {
     expect(q.getFieldCondition("product"), "#8").toEqual({ field: "product", operator: "anyof", value: ["Oreo"] });
     popup.dispose();
   });
-  test("a typed value comes back checked, and can be removed", () => {
+  // A typed value has no Remove of its own (a button inside a list option is nested interactive
+  // content): unchecked, it is not in the condition, so the next open does not list it.
+  test("a typed value comes back checked; unchecked and applied, it is gone at the next open", () => {
     const q = control();
     q.setFieldCondition("product", "anyof", ["Chai", "Oreo"]);
-    const { popup } = open(q, "product");
-    expect(titles(popup), "#1").toEqual(["Chai", "Beer", "Oreo"]);
-    expect(checked(popup), "#2").toEqual(["Chai", "Oreo"]);
-    expect(item(popup, "Oreo").data.isCustom, "#3").toBe(true);
-    popup.removeCustomItem(item(popup, "Oreo"));
-    expect(titles(popup), "#4").toEqual(["Chai", "Beer"]);
-    popup.apply();
+    const first = open(q, "product").popup;
+    expect(titles(first), "#1").toEqual(["Chai", "Beer", "Oreo"]);
+    expect(checked(first), "#2").toEqual(["Chai", "Oreo"]);
+    expect(item(first, "Oreo").data.isCustom, "#3").toBe(true);
+    first.list.onItemClick(item(first, "Oreo"));
+    expect(checked(first), "#4").toEqual(["Chai"]);
+    first.apply();
     expect(q.getFieldCondition("product").value, "#5").toEqual(["Chai"]);
+    first.dispose();
+    const second = open(q, "product").popup;
+    expect(titles(second), "#6").toEqual(["Chai", "Beer"]);
+    second.dispose();
+  });
+  test("an equal condition shows its value checked; another pick gives anyof of both", () => {
+    const q = control();
+    q.setFieldCondition("country", "equal", "de");
+    const { popup } = open(q, "country");
+    expect(popup.kind, "#1").toBe("multi");
+    expect(checked(popup), "#2").toEqual(["Germany"]);
+    popup.list.onItemClick(item(popup, "France"));
+    popup.apply();
+    expect(q.getFieldCondition("country"), "#3").toEqual({ field: "country", operator: "anyof", value: ["de", "fr"] });
     popup.dispose();
+    q.setFieldCondition("country", "equal", "de");
+    const untouched = open(q, "country").popup;
+    untouched.apply();
+    expect(q.getFieldCondition("country"), "#4: applied untouched, it stays as it was").toEqual({ field: "country", operator: "equal", value: "de" });
+    untouched.dispose();
   });
   test("a single pick takes the typed text at once", () => {
     const q = control();
@@ -281,16 +302,6 @@ describe("FilterFieldPopup: search and typed values", () => {
     popup.list.onItemClick(item(popup, "Add \"Oreo\"..."));
     expect(q.getFieldCondition("pick"), "#1").toEqual({ field: "pick", operator: "equal", value: "Oreo" });
     expect(closed(), "#2").toBe(1);
-    popup.dispose();
-  });
-  test("a single pick's typed value is no checkbox to remove: removeCustomItem leaves it", () => {
-    const q = control();
-    q.setFieldCondition("pick", "equal", "Oreo");
-    const { popup } = open(q, "pick");
-    const oreo = item(popup, "Oreo");
-    expect(oreo.data.isCustom, "#1").toBe(true);
-    expect(() => popup.removeCustomItem(oreo), "#2").not.toThrow();
-    expect(titles(popup), "#3").toEqual(["Chai", "Beer", "Oreo"]);
     popup.dispose();
   });
 });

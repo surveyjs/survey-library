@@ -3,6 +3,8 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { Serializer } from "../../src/jsonobject";
 import { ComponentCollection } from "../../src/question_custom";
+import { getFilterFieldsForQuestions } from "../../src/dynamic-data/dynamic-data-filter-fields";
+import "../../src/question_signaturepad";
 
 describe("isFilterable and allowFiltering", () => {
   test("the types that cannot be filtered say so", () => {
@@ -29,42 +31,91 @@ describe("isFilterable and allowFiltering", () => {
     expect(matrix.toJSON().columns[0].allowFiltering, "#3: the default is not emitted").toBe(undefined);
     expect(matrix.toJSON().columns[1].allowFiltering, "#4").toBe(false);
   });
+  // Shown only where a Filter Control can reach the question: in a top-level Dynamic Panel's template,
+  // at any depth, and as a matrix column.
   test("the property grid shows allowFiltering only where it applies", () => {
     const survey = new SurveyModel({ elements: [
-      { type: "matrixdynamic", name: "m", columns: [{ name: "c1" }] },
-      { type: "file", name: "f" }, { type: "text", name: "t" }] });
+      { type: "matrixdynamic", name: "m", columns: [{ name: "c1" }], detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d1" }] },
+      { type: "file", name: "f" }, { type: "text", name: "t" },
+      { type: "paneldynamic", name: "p", templateElements: [
+        { type: "text", name: "pt" }, { type: "file", name: "pf" },
+        { type: "panel", name: "inner", elements: [{ type: "dropdown", name: "pd", choices: [1, 2] }] },
+        { type: "multipletext", name: "pm", items: [{ name: "i1" }] },
+        { type: "paneldynamic", name: "nested", templateElements: [{ type: "text", name: "nt" }] }] }] });
     const prop = Serializer.findProperty("question", "allowFiltering");
-    expect(prop.isVisible("", survey.getQuestionByName("t")), "#1").toBe(true);
+    const p = <any>survey.getQuestionByName("p");
+    const inTemplate = (name: string): any => p.template.getQuestionByName(name);
+    expect(prop.isVisible("", survey.getQuestionByName("t")), "#1: a top-level question is no field").toBe(false);
     expect(prop.isVisible("", survey.getQuestionByName("f")), "#2").toBe(false);
-    const colProp = Serializer.findProperty("matrixdropdowncolumn", "allowFiltering");
+    expect(prop.isVisible("", inTemplate("pt")), "#3: in the template").toBe(true);
+    expect(prop.isVisible("", inTemplate("pf")), "#4: a file is never a field").toBe(false);
+    expect(prop.isVisible("", inTemplate("pd")), "#5: in a panel in the template").toBe(true);
+    expect(prop.isVisible("", inTemplate("pm")), "#6: it has nested fields, allowFiltering: false opts them out").toBe(true);
+    expect(prop.isVisible("", inTemplate("nested").template.getQuestionByName("nt")), "#7: a nested Dynamic Panel's template").toBe(false);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
-    expect(colProp.isVisible("", matrix.columns[0]), "#3").toBe(true);
+    const colProp = Serializer.findProperty("matrixdropdowncolumn", "allowFiltering");
+    expect(colProp.isVisible("", matrix.columns[0]), "#8").toBe(true);
+    expect(prop.isVisible("", matrix.detailPanel.getQuestionByName("d1")), "#9: a detail panel's question").toBe(false);
   });
-  test("filterOperators is shown where allowFiltering is on and offers every operator", () => {
-    const survey = new SurveyModel({ elements: [{ type: "file", name: "f" }, { type: "text", name: "t" }] });
+  test("a question that has nested filter fields shows allowFiltering, not filterOperators", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [
+      { type: "multipletext", name: "pm", items: [{ name: "i1" }] }] }] });
+    const pm = (<any>survey.getQuestionByName("p")).template.getQuestionByName("pm");
+    expect(Serializer.findProperty("question", "allowFiltering").isVisible("", pm), "#1").toBe(true);
+    expect(Serializer.findProperty("question", "filterOperators").isVisible("", pm), "#2").toBe(false);
+  });
+  test("filterOperators is shown where allowFiltering is on, and offers the operators of the question's type", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "top" }, { type: "paneldynamic", name: "p", templateElements: [
+      { type: "file", name: "f" }, { type: "text", name: "t" }, { type: "boolean", name: "b" },
+      { type: "text", name: "n", inputType: "number" }] }] });
     const prop = Serializer.findProperty("question", "filterOperators");
-    const t = survey.getQuestionByName("t");
+    const template = (<any>survey.getQuestionByName("p")).template;
+    const t = template.getQuestionByName("t");
     expect(prop.isVisible("", t), "#1").toBe(true);
-    expect(prop.isVisible("", survey.getQuestionByName("f")), "#2: a file is never a field").toBe(false);
+    expect(prop.isVisible("", template.getQuestionByName("f")), "#2: a file is never a field").toBe(false);
+    expect(prop.isVisible("", survey.getQuestionByName("top")), "#3: no Filter Control reaches it").toBe(false);
     t.allowFiltering = false;
-    expect(prop.isVisible("", t), "#3: opted out").toBe(false);
-    expect(prop.getChoices(t), "#4").toEqual(["empty", "notempty", "equal", "notequal", "contains", "notcontains",
+    expect(prop.isVisible("", t), "#4: opted out").toBe(false);
+    t.allowFiltering = true;
+    const bool = prop.getChoices(template.getQuestionByName("b"));
+    expect(bool.filter((op: string): boolean => ["contains", "greater", "allof"].indexOf(op) > -1), "#5: a boolean").toEqual([]);
+    expect(bool.indexOf("equal") > -1, "#6").toBe(true);
+    t.filterOperators = ["equal"];
+    expect(prop.getChoices(t).indexOf("contains") > -1, "#7: the author's own choice does not narrow the list").toBe(true);
+    expect(prop.getChoices(template.getQuestionByName("n")).indexOf("greater") > -1, "#8: a number").toBe(true);
+    expect(prop.getChoices(null), "#9: no object, every operator").toEqual(["empty", "notempty", "equal", "notequal", "contains", "notcontains",
       "anyof", "noneof", "allof", "greater", "less", "greaterorequal", "lessorequal"]);
+    expect(Serializer.findProperty("text", "inputType").getDependedProperties().indexOf("filterOperators") > -1, "#10: inputType changes them").toBe(true);
   });
-  test("a column's filterOperators follows the column's allowFiltering", () => {
+  test("the JSON schema still lists every operator", () => {
+    const schema: any = Serializer.generateSchema();
+    expect(schema.definitions.question.properties.filterOperators.enum.length, "#1").toBe(13);
+  });
+  test("a column's filterOperators follows the column's allowFiltering and offers its cell type's operators", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [
-      { name: "c1", cellType: "dropdown" }, { name: "c2", cellType: "file" }] }] });
+      { name: "c1", cellType: "dropdown" }, { name: "c2", cellType: "file" }, { name: "c3", cellType: "boolean" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     const prop = Serializer.findProperty("matrixdropdowncolumn", "filterOperators");
     expect(prop.isVisible("", matrix.columns[0]), "#1").toBe(true);
     expect(prop.isVisible("", matrix.columns[1]), "#2: a file cell is never a field").toBe(false);
+    expect(prop.getChoices(matrix.columns[2]).indexOf("contains"), "#3: a boolean column").toBe(-1);
+    expect(prop.getChoices(matrix.columns[2].templateQuestion).indexOf("contains"), "#4: handed the cell question").toBe(-1);
     matrix.columns[0].allowFiltering = false;
-    expect(prop.isVisible("", matrix.columns[0]), "#3: the column opted out").toBe(false);
-    expect(prop.getChoices(matrix.columns[0]).length, "#4").toBe(13);
+    expect(prop.isVisible("", matrix.columns[0]), "#5: the column opted out").toBe(false);
   });
 });
 
 describe("getFilterFields", () => {
+  test("a file and a signature pad are no fields, in a template and as a column", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p", templateElements: [
+        { type: "text", name: "t" }, { type: "file", name: "f" }, { type: "signaturepad", name: "s" }] },
+      { type: "matrixdynamic", name: "m", columns: [
+        { name: "c1" }, { name: "c2", cellType: "file" }, { name: "c3", cellType: "signaturepad" }] }] });
+    const panel = <any>survey.getQuestionByName("p");
+    expect(getFilterFieldsForQuestions(panel.template.questions).map((f: any) => f.name), "#1").toEqual(["t"]);
+    expect((<any>survey.getQuestionByName("m")).getFilterFields().map((f: any) => f.name), "#2").toEqual(["c1"]);
+  });
   test("a matrix answers one descriptor per filterable column", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [
       { name: "c1", title: "Country" },
@@ -139,6 +190,18 @@ describe("getFilterFields with a composite cell type", () => {
       { type: "text", name: "firstName" }, { type: "text", name: "lastName" }] });
   };
   afterEach(() => { ComponentCollection.Instance.clear(); });
+  test("a composite shows allowFiltering, in a template and as a column, and not filterOperators", () => {
+    addCustomerInfo();
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p", templateElements: [{ type: "customerinfo", name: "c" }] },
+      { type: "matrixdynamic", name: "m", columns: [{ name: "col1", cellType: "customerinfo" }] }] });
+    const c = (<any>survey.getQuestionByName("p")).template.getQuestionByName("c");
+    expect(Serializer.findProperty("question", "allowFiltering").isVisible("", c), "#1").toBe(true);
+    expect(Serializer.findProperty("question", "filterOperators").isVisible("", c), "#2").toBe(false);
+    const column = (<any>survey.getQuestionByName("m")).columns[0];
+    expect(Serializer.findProperty("matrixdropdowncolumn", "allowFiltering").isVisible("", column), "#3").toBe(true);
+    expect(Serializer.findProperty("matrixdropdowncolumn", "filterOperators").isVisible("", column), "#4").toBe(false);
+  });
   test("a composite column contributes its children and not itself", () => {
     addCustomerInfo();
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [

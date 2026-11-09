@@ -48,6 +48,8 @@ export interface IFilterToolbarsOwner {
   canClearActiveItem: boolean;
   clearActiveItem(): void;
   isDesignMode: boolean;
+  // The control's own readOnly: the buttons are disabled and open nothing (never in the designer).
+  isControlReadOnly: boolean;
   isMobile: boolean;
   isLocked: boolean;
   showSearch: boolean;
@@ -169,6 +171,9 @@ export class FilterToolbars {
       this.layoutValue.isMobile = isMobile;
     }
     this.updateDialogsMode(isMobile);
+    if (this.owner.isControlReadOnly) {
+      this.closeDialogs();
+    }
     this.updateSearchRow();
     this.updateChipsRow();
     this.updateClearRow();
@@ -308,6 +313,16 @@ export class FilterToolbars {
     }
     if (!!model && !model.isDisposed) model.dispose();
   }
+  // A control that turns read-only closes what it opened: the dialog over the Filters dialog first.
+  // Each one's onHide releases it.
+  private closeDialogs(): void {
+    if (!!this.subDialog && !!this.subDialog.model) {
+      this.subDialog.model.hide();
+    }
+    if (!!this.advancedDialog && !!this.advancedDialog.model) {
+      this.advancedDialog.model.hide();
+    }
+  }
   // The frame's classes: a phone's dialog covers the screen.
   private getAdvancedDialogCss(): string {
     return toCssClasses(this.cssClasses.modal, this.owner.isMobile && this.cssClasses.modalMobile);
@@ -438,7 +453,7 @@ export class FilterToolbars {
         action: (): void => { this.owner.clearActiveItem(); } });
       this.clearToolbarValue.setItems([this.saveAction, this.clearAction], false);
     }
-    const isEditable = !this.owner.isDesignMode;
+    const isEditable = !this.owner.isDesignMode && !this.owner.isControlReadOnly;
     this.saveAction.visible = isEditable && this.owner.canSaveActiveItem;
     this.clearAction.visible = isEditable && this.owner.canClearActiveItem;
   }
@@ -452,7 +467,7 @@ export class FilterToolbars {
         action: (): void => {
           if (this.owner.isDesignMode) {
             this.owner.onDesignItemClick();
-          } else {
+          } else if (!this.owner.isControlReadOnly) {
             this.showAdvancedEditor();
           }
         } });
@@ -471,6 +486,7 @@ export class FilterToolbars {
       action.title = count > 0 ? filterUIStrings.filtersCount.replace("{0}", count.toString()) : filterUIStrings.filters;
     }
     action.tooltip = filterUIStrings.filters;
+    action.enabled = !this.owner.isControlReadOnly;
   }
   private getMoreAction(): Action {
     if (!this.moreAction) {
@@ -536,6 +552,7 @@ export class FilterToolbars {
       this.owner.onDesignItemClick();
       return;
     }
+    if (this.owner.isControlReadOnly) return;
     if (this.owner.isLocked) {
       this.owner.clearActiveItem();
       return;
@@ -564,7 +581,8 @@ export class FilterToolbars {
     chip.title = state.text || state.title || state.key;
     chip.active = !!state.text;
     chip.markerIconName = isLocked ? undefined : "icon-chevrondown-24x24";
-    if (isLocked) {
+    chip.enabled = !this.owner.isControlReadOnly;
+    if (isLocked || this.owner.isControlReadOnly) {
       chip.popupModel.hide();
     }
   }
@@ -575,11 +593,12 @@ export class FilterToolbars {
       // tells its chips apart by id, and so does a renderer.
       const id = getUniqueFilterActionId("sv-filter-item-" + item.name,
         (candidate: string): boolean => this.itemChips.some((e: { item: FilterItem, chip: Action }): boolean => e.chip.id === candidate));
-      const chip = new Action({ id: id, innerCss: this.cssClasses.chip,
+      // A toggle: a checkbox, as aria-checked is not allowed on the default button role.
+      const chip = new Action({ id: id, innerCss: this.cssClasses.chip, ariaRole: "checkbox", ariaChecked: false,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => {
           if (this.owner.isDesignMode) {
             this.owner.onDesignItemClick(item);
-          } else {
+          } else if (!this.owner.isControlReadOnly) {
             this.owner.toggleItem(item);
           }
         } });
@@ -593,6 +612,8 @@ export class FilterToolbars {
   }
   private updateItemChip(item: FilterItem, chip: Action): void {
     chip.active = item === this.owner.activeItem;
+    chip.ariaChecked = chip.active;
+    chip.enabled = !this.owner.isControlReadOnly;
     chip.iconName = item.kind === "ai" ? "icon-sparkle-16x16" : undefined;
     chip.iconSize = "auto";
   }

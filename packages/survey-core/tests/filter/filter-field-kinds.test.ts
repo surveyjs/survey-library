@@ -81,6 +81,16 @@ describe("Filter field kinds: checked values and the condition they stand for", 
     expect(getFilterFieldSelection(f, "multi", undefined), "#3: no condition, nothing checked").toEqual([]);
     expect(getFilterSelectionCondition(f, "multi", ["fr"]), "#4").toEqual({ field: "country", operator: "anyof", value: ["fr"] });
   });
+  test("multi: an equal condition of one value shows that value checked; an array's equal does not", () => {
+    const f = field(control(), "country");
+    expect(getFilterFieldSelection(f, "multi", { field: "country", operator: "equal", value: "de" }), "#1").toEqual(["de"]);
+    expect(getFilterFieldSelection(f, "multi", { field: "country", operator: "equal", value: ["de"] }), "#2: an exact array match").toBe(undefined);
+    const tags = Object.assign({}, f, { valueType: "array" });
+    expect(getFilterFieldSelection(tags, "multi", { field: "country", operator: "equal", value: "de" }), "#3: a checkbox field").toBe(undefined);
+    const shown = { field: "country", operator: "equal", value: "de" };
+    expect(getFilterSelectionCondition(f, "multi", ["de"], shown), "#4: still its values, kept").toEqual(shown);
+    expect(getFilterSelectionCondition(f, "multi", ["de", "fr"], shown), "#5").toEqual({ field: "country", operator: "anyof", value: ["de", "fr"] });
+  });
   test("boolean: one checked is equal, both are notempty - where the field offers it", () => {
     const q = control();
     const f = field(q, "active");

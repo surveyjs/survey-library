@@ -140,14 +140,15 @@ frameworks.forEach((framework) => {
       const tabs = editDialog.locator(".sd-filter-preset-dialog__tabs");
       await expect(tabs).toContainText("Adults");
       await expect(tabs).toContainText("Kids");
-      await tabs.getByRole("button", { name: "Adults" }).click();
+      // A tab is one choice of several: a radio.
+      await tabs.getByRole("radio", { name: "Adults" }).click();
       const titleInput = editDialog.locator(".sd-filter-preset-dialog__form input").first();
       await titleInput.fill("Grown-ups");
       // fill() fires "input" only. The Angular and Vue text inputs pass a typed value on keyup (or on
       // change, at blur): a key sends it on, as typing would.
       await titleInput.press("End");
       await expect(tabs, "a changed title shows in its tab at once").toContainText("Grown-ups");
-      await tabs.getByRole("button", { name: "Kids" }).click();
+      await tabs.getByRole("radio", { name: "Kids" }).click();
       await editDialog.getByRole("button", { name: "Delete" }).click();
       await expect(tabs).not.toContainText("Kids");
       await editDialog.getByRole("button", { name: "Apply" }).click();
@@ -223,6 +224,29 @@ frameworks.forEach((framework) => {
       await expect(popup).toBeHidden();
       await expect(chip(page, "City")).toContainText("Rome");
       expect(await getVisibleRowCount(page), "no row is in Rome").toBe(0);
+    });
+
+    // A typed value has no Remove button (a button inside a list option is nested interactive
+    // content): unchecked, it is not in the condition, so the next open does not list it.
+    test("a custom value is unchecked in a chip's popup and gone at the next open", async ({ page }) => {
+      await initSurvey(page, framework, json([{ name: "city", title: "City", cellType: "dropdown", allowCustomChoices: true,
+        choices: ["Berlin", "Paris"] }]));
+      await chip(page, "City").click();
+      let popup = popupWith(page, ".sd-filter-popup");
+      await popup.locator(".sd-filter-popup__search-input").fill("Rome");
+      await popup.locator(".sd-filter-popup__item").filter({ hasText: "Add \"Rome\"" }).click();
+      const rome = popup.locator(".sd-filter-popup__item").filter({ hasText: /^Rome/ });
+      await expect(rome).toBeVisible();
+      await expect(rome.locator("button"), "no button inside the option").toHaveCount(0);
+      await rome.click();
+      await popup.getByRole("button", { name: "Apply" }).click();
+      await expect(popup).toBeHidden();
+      await expect(chip(page, "City")).not.toContainText("Rome");
+      expect(await getVisibleRowCount(page)).toBe(3);
+      await chip(page, "City").click();
+      popup = popupWith(page, ".sd-filter-popup");
+      await expect(popup.locator(".sd-filter-popup__item").filter({ hasText: "Berlin" })).toBeVisible();
+      await expect(popup.locator(".sd-filter-popup__item").filter({ hasText: /^Rome/ })).toHaveCount(0);
     });
 
     test("the keyboard: Tab, Enter and Escape in a chip's popup and in the Filters dialog", async ({ page }) => {

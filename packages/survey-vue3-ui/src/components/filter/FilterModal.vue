@@ -10,9 +10,9 @@
     <div v-if="modal().creationToolbar.hasVisibleActions" :class="modal().cssClasses.modalSection">
       <SvComponent :is="'sv-action-bar'" :model="modal().creationToolbar"></SvComponent>
     </div>
-    <div v-if="modal().presetsToolbar.hasActions" :class="modal().cssClasses.modalSection">
+    <div v-if="modal().presetsToolbar.hasActions" :class="modal().cssClasses.modalSection" role="group" :aria-labelledby="modal().presetsTitleId">
       <div :class="modal().cssClasses.modalSectionHeader">
-        <div :class="modal().cssClasses.modalSectionTitle">{{ filterUIStrings.presetsTitle }}</div>
+        <div :class="modal().cssClasses.modalSectionTitle" :id="modal().presetsTitleId">{{ filterUIStrings.presetsTitle }}</div>
         <SvComponent :is="'sv-action-bar'" :model="modal().presetsTitleToolbar"></SvComponent>
       </div>
       <SvComponent :is="'sv-action-bar'" :model="modal().presetsToolbar"></SvComponent>

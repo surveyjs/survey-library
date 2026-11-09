@@ -34,8 +34,8 @@ export interface IFilterFieldPopupOwner extends ILocalizableOwner {
 // A list this long or longer gets a search box. The list's own threshold (ListModel.MINELEMENTCOUNT)
 // is shared by every dropdown in the library and is not changed for this one.
 export const filterPopupSearchMinItemCount = 7;
-// The component a renderer draws a list entry of a "multi" or "boolean" popup with: a checkbox, the
-// text and, for a value the respondent typed, a button that removes it.
+// The component a renderer draws a list entry of a "multi" or "boolean" popup with: a checkbox and the
+// text. A value the respondent typed has no button of its own: unchecked, it is dropped.
 export const filterListItemComponentName = "sv-filter-list-item";
 
 // The content of a fast mode badge's popup: a title row with one link, the field's editor and a row
@@ -234,18 +234,25 @@ export class FilterFieldPopup extends Base {
       header.visible = !!this.owner.getFieldCondition(this.key);
       return;
     }
-    const isAll = this.getValueActions().length > 0 && this.getValueActions().every((a: Action): boolean => this.listValue.isItemSelected(a));
+    const values = this.getSelectAllActions();
+    const isAll = values.length > 0 && values.every((a: Action): boolean => this.listValue.isItemSelected(a));
     header.title = isAll ? filterUIStrings.clearAll : getLocaleString("selectAllItemText", this.owner.getLocale());
   }
   private toggleAll(): void {
     const list = <MultiSelectListModel<Action>>this.listValue;
-    const values = this.getValueActions();
+    const values = this.getSelectAllActions();
     const isAll = values.every((a: Action): boolean => list.isItemSelected(a));
     list.setSelectedItems(isAll ? [] : [].concat(values));
     this.updateHeader();
   }
   private getValueActions(): Array<Action> {
     return this.listValue.actions.filter((a: Action): boolean => !a.data || !a.data.isAdd);
+  }
+  // What Select All checks and Clear All unchecks: the field's own values and the typed ones still
+  // checked. Unchecking a typed value drops it - it is not in the condition, and the next open does not
+  // list it - so Select All does not check it again.
+  private getSelectAllActions(): Array<Action> {
+    return this.getValueActions().filter((a: Action): boolean => !a.data || !a.data.isCustom || this.listValue.isItemSelected(a));
   }
   private getCheckedValues(): Array<any> {
     return this.getValueActions().filter((a: Action): boolean => this.listValue.isItemSelected(a)).map((a: Action): any => a.data.value);

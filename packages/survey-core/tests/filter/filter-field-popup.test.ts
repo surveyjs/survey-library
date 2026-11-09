@@ -261,6 +261,35 @@ describe("FilterFieldPopup: search and typed values", () => {
     expect(q.getFieldCondition("product"), "#8").toEqual({ field: "product", operator: "anyof", value: ["Oreo"] });
     popup.dispose();
   });
+  // Unchecking a typed value is how it is dropped: Select All checks the field's own values and the
+  // typed ones still checked, not the dropped one.
+  test("a typed value unchecked stays out of Select All", () => {
+    const q = control();
+    const { popup } = open(q, "product");
+    popup.list.filterString = "Rmoe";
+    popup.list.onItemClick(item(popup, "Add \"Rmoe\"..."));
+    popup.list.onItemClick(item(popup, "Rmoe"));
+    expect(checked(popup), "#1").toEqual([]);
+    const link = headerAction(popup);
+    expect(link.title, "#2").toBe("Select All");
+    link.action();
+    expect(checked(popup), "#3").toEqual(["Chai", "Beer"]);
+    expect(link.title, "#4: every value of the field is checked").toBe("Clear All");
+    popup.apply();
+    expect(q.getFieldCondition("product"), "#5").toEqual({ field: "product", operator: "anyof", value: ["Chai", "Beer"] });
+    popup.dispose();
+  });
+  test("Select All keeps a typed value that is checked", () => {
+    const q = control();
+    q.setFieldCondition("product", "anyof", ["Oreo"]);
+    const { popup } = open(q, "product");
+    headerAction(popup).action();
+    expect(checked(popup), "#1").toEqual(["Chai", "Beer", "Oreo"]);
+    expect(headerAction(popup).title, "#2").toBe("Clear All");
+    headerAction(popup).action();
+    expect(checked(popup), "#3: Clear All unchecks it too").toEqual([]);
+    popup.dispose();
+  });
   // A typed value has no Remove of its own (a button inside a list option is nested interactive
   // content): unchecked, it is not in the condition, so the next open does not list it.
   test("a typed value comes back checked; unchecked and applied, it is gone at the next open", () => {

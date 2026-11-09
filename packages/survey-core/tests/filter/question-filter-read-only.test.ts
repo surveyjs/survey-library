@@ -46,6 +46,7 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
       q.setFieldCondition("age", "greater", 30);
       expect(action(q.clearToolbar, "sv-filter-clear").visible, "#9: no Clear All").toBe(false);
       expect(action(q.chipsToolbar, "sv-filter-more").enabled, "#10: Show More works").not.toBe(false);
+      expect(age.markerIconName, "#11: no chevron, as on a locked chip: it opens nothing").toBe(undefined);
     } finally {
       dialogs.restore();
     }

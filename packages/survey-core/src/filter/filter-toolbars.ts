@@ -585,11 +585,13 @@ export class FilterToolbars {
   private updateFieldChip(state: IFilterFieldState): void {
     const chip = this.fieldChips[state.key].chip;
     const isLocked = this.owner.isLocked;
+    const isReadOnly = this.owner.isControlReadOnly;
     chip.title = state.text || state.title || state.key;
     chip.active = !!state.text;
-    chip.markerIconName = isLocked ? undefined : "icon-chevrondown-24x24";
-    chip.enabled = !this.owner.isControlReadOnly;
-    if (isLocked || this.owner.isControlReadOnly) {
+    // No chevron where the chip opens nothing: locked, or read-only (it keeps its active colors).
+    chip.markerIconName = isLocked || isReadOnly ? undefined : "icon-chevrondown-24x24";
+    chip.enabled = !isReadOnly;
+    if (isLocked || isReadOnly) {
       chip.popupModel.hide();
     }
   }

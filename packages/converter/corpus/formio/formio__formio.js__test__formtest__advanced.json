@@ -1,0 +1,748 @@
+{
+  "type": "form",
+  "tags": [],
+  "owner": "55673dc04f0405dd28205bb7",
+  "components": [
+    {
+      "input": true,
+      "label": "Email",
+      "key": "email",
+      "defaultValue": "",
+      "type": "email",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false,
+        "minLength": "",
+        "maxLength": "",
+        "pattern": ""
+      },
+      "mask": false,
+      "inputType": "email",
+      "inputMask": "",
+      "kickbox": {
+        "enabled": false
+      },
+      "id": "ep3f9h"
+    },
+    {
+      "input": true,
+      "label": "Phone Number",
+      "key": "phoneNumber",
+      "defaultValue": "",
+      "type": "phoneNumber",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false,
+        "minLength": "",
+        "maxLength": "",
+        "pattern": ""
+      },
+      "mask": false,
+      "inputType": "tel",
+      "inputMask": "(999) 999-9999",
+      "id": "eu5wr6i"
+    },
+    {
+      "input": true,
+      "label": "Address",
+      "key": "address",
+      "map": {
+        "key": "",
+        "region": ""
+      },
+      "type": "address",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "defaultValue": null,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false,
+        "minLength": "",
+        "maxLength": "",
+        "pattern": ""
+      },
+      "mask": false,
+      "inputType": "text",
+      "inputMask": "",
+      "id": "ec9t5ex"
+    },
+    {
+      "input": true,
+      "label": "Date Time",
+      "key": "dateTime",
+      "format": "yyyy-MM-dd hh:mm a",
+      "datePicker": {
+        "datepickerMode": "day",
+        "showWeeks": true,
+        "startingDay": 0,
+        "initDate": "",
+        "minMode": "day",
+        "maxMode": "year",
+        "yearRows": 4,
+        "yearColumns": 5,
+        "minDate": null,
+        "maxDate": null
+      },
+      "type": "datetime",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "suffix": true,
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "multiple": false,
+      "defaultValue": null,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false
+      },
+      "enableDate": true,
+      "enableTime": true,
+      "defaultDate": "",
+      "datepickerMode": "day",
+      "timePicker": {
+        "hourStep": 1,
+        "minuteStep": 1,
+        "showMeridian": true,
+        "readonlyInput": false,
+        "mousewheel": true,
+        "arrowkeys": true
+      },
+      "id": "eugbw7"
+    },
+    {
+      "input": true,
+      "label": "Day",
+      "key": "day",
+      "fields": {
+        "day": {
+          "type": "number",
+          "placeholder": "",
+          "required": false
+        },
+        "month": {
+          "type": "select",
+          "placeholder": "",
+          "required": false
+        },
+        "year": {
+          "type": "number",
+          "placeholder": "",
+          "required": false
+        }
+      },
+      "type": "day",
+      "inputsLabelPosition": "top",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "defaultValue": null,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false
+      },
+      "dayFirst": false,
+      "id": "egok6s"
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "inputType": "time",
+      "format": "HH:mm",
+      "label": "Time",
+      "key": "time",
+      "placeholder": "",
+      "prefix": "",
+      "suffix": "",
+      "defaultValue": "",
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "type": "time",
+      "labelPosition": "top",
+      "inputFormat": "plain",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "input": true,
+      "inputType": "text",
+      "inputMask": "",
+      "label": "Currency",
+      "key": "currency",
+      "defaultValue": "",
+      "delimiter": true,
+      "decimalLimit": 2,
+      "requireDecimals": true,
+      "validate": {
+        "multiple": "",
+        "required": false,
+        "custom": "",
+        "customPrivate": false,
+        "min": "",
+        "max": "",
+        "step": "any",
+        "integer": ""
+      },
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "type": "currency",
+      "tags": [],
+      "properties": {},
+      "requireDecimal": true,
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "id": "e3j2bv7"
+    },
+    {
+      "input": true,
+      "label": "Signature",
+      "key": "signature",
+      "height": "150px",
+      "validate": {
+        "required": true,
+        "custom": "",
+        "customPrivate": false
+      },
+      "type": "signature",
+      "hideLabel": true,
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "defaultValue": null,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "footer": "Sign above",
+      "width": "100%",
+      "penColor": "black",
+      "backgroundColor": "rgb(245,245,235)",
+      "minWidth": "0.5",
+      "maxWidth": "2.5",
+      "id": "exd46q9"
+    },
+    {
+      "label": "Tags",
+      "mask": false,
+      "type": "tags",
+      "input": true,
+      "key": "tags",
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "defaultValue": null,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false
+      },
+      "conditional": {
+        "show": null,
+        "when": null,
+        "eq": ""
+      },
+      "delimeter": ",",
+      "storeas": "string",
+      "maxTags": 0,
+      "id": "ep2v8ws"
+    },
+    {
+      "input": true,
+      "label": "Survey",
+      "key": "survey",
+      "questions": [
+        {
+          "value": "a",
+          "label": "A"
+        },
+        {
+          "value": "b",
+          "label": "B"
+        }
+      ],
+      "values": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "defaultValue": "",
+      "type": "survey",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false
+      },
+      "id": "e4r5an9"
+    },
+    {
+      "label": "Location",
+      "mask": false,
+      "type": "location",
+      "input": true,
+      "key": "location",
+      "map": {
+        "key": "",
+        "region": "",
+        "gmapId": "",
+        "autocompleteOptions": {}
+      },
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "defaultValue": null,
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "tableView": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false
+      },
+      "conditional": {
+        "show": null,
+        "when": null,
+        "eq": ""
+      },
+      "id": "eb1jdfw"
+    },
+    {
+      "input": true,
+      "label": "Submit",
+      "tableView": false,
+      "key": "submit",
+      "theme": "primary",
+      "type": "button",
+      "placeholder": "",
+      "prefix": "",
+      "customClass": "",
+      "suffix": "",
+      "multiple": false,
+      "defaultValue": null,
+      "protected": false,
+      "unique": false,
+      "persistent": false,
+      "hidden": false,
+      "clearOnHide": true,
+      "labelPosition": "top",
+      "labelWidth": 30,
+      "labelMargin": 3,
+      "description": "",
+      "errorLabel": "",
+      "tooltip": "",
+      "hideLabel": false,
+      "tabindex": "",
+      "disabled": false,
+      "autofocus": false,
+      "dbIndex": false,
+      "customDefaultValue": "",
+      "calculateValue": "",
+      "validate": {
+        "required": false,
+        "custom": "",
+        "customPrivate": false
+      },
+      "conditional": {
+        "show": null,
+        "when": null,
+        "eq": ""
+      },
+      "size": "md",
+      "leftIcon": "",
+      "rightIcon": "",
+      "block": false,
+      "action": "submit",
+      "disableOnInvalid": false,
+      "id": "espm3rj"
+    }
+  ],
+  "revisions": "",
+  "_vid": 0,
+  "_id": "5b197db53b99cb596148d01e",
+  "title": "Advanced",
+  "display": "form",
+  "access": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [
+        "5692b920d1028f01000407e4",
+        "5692b920d1028f01000407e5",
+        "5692b920d1028f01000407e6"
+      ],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "submissionAccess": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [
+        "5692b920d1028f01000407e6"
+      ],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "settings": {},
+  "name": "advanced",
+  "path": "advanced",
+  "project": "5692b91fd1028f01000407e3",
+  "created": "2018-06-07T18:47:17.872Z",
+  "modified": "2018-08-03T02:57:10.081Z",
+  "machineName": "examples:advanced"
+}

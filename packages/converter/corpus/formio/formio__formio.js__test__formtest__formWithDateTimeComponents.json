@@ -1,0 +1,85 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "collapsible": true,
+      "key": "panel",
+      "type": "panel",
+      "label": "Panel",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Date / Time",
+          "format": "dd-MM-yyyy",
+          "tableView": false,
+          "enableMinDateInput": false,
+          "datePicker": {
+            "disableWeekends": false,
+            "disableWeekdays": false
+          },
+          "enableMaxDateInput": false,
+          "key": "dateTime1",
+          "type": "datetime",
+          "input": true,
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "en",
+            "useLocaleSettings": false,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": true,
+            "noCalendar": false,
+            "format": "dd-MM-yyyy",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": false,
+            "minDate": null,
+            "disableWeekends": false,
+            "disableWeekdays": false,
+            "maxDate": null
+          }
+        },
+        {
+          "label": "Text Field",
+          "widget": {
+            "type": "calendar",
+            "altInput": true,
+            "allowInput": true,
+            "clickOpens": true,
+            "enableDate": true,
+            "enableTime": true,
+            "mode": "single",
+            "noCalendar": false,
+            "format": "dd-MM-yyyy",
+            "dateFormat": "yyyy-MM-ddTHH:mm:ssZ",
+            "useLocaleSettings": false,
+            "hourIncrement": 1,
+            "minuteIncrement": 5,
+            "time_24hr": false,
+            "saveAs": "date"
+          },
+          "tableView": true,
+          "key": "textField1",
+          "type": "textfield",
+          "input": true
+        }
+      ],
+      "collapsed": false
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "testDateRedrawing",
+  "display": "form",
+  "name": "testDateRedrawing",
+  "path": "testdateredrawing",
+  "machineName": "cjksbatcpbhyfbs:testDateRedrawing"
+}

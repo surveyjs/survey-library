@@ -1,0 +1,232 @@
+{
+  "type": "form",
+  "tags": [],
+  "components": [
+    {
+      "label": "Nested form?",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "shortcut": ""
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "shortcut": ""
+        }
+      ],
+      "key": "nestedForm",
+      "type": "radio",
+      "input": true
+    },
+    {
+      "label": "second question to open Nested form",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "Open child form",
+          "value": "openChildForm",
+          "shortcut": ""
+        },
+        {
+          "label": "2",
+          "value": "2",
+          "shortcut": ""
+        },
+        {
+          "label": "3",
+          "value": "3",
+          "shortcut": ""
+        }
+      ],
+      "key": "secondQuestionToOpenNestedForm",
+      "conditional": {
+        "show": true,
+        "when": "nestedForm",
+        "eq": "yes"
+      },
+      "type": "radio",
+      "input": true
+    },
+    {
+      "label": "Form",
+      "tableView": true,
+      "components": [
+        {
+          "title": "Page 1",
+          "label": "Page 1",
+          "type": "panel",
+          "key": "page1",
+          "components": [
+            {
+              "label": "Radio",
+              "optionsLabelPosition": "right",
+              "inline": false,
+              "tableView": false,
+              "values": [
+                {
+                  "label": "unhide page3",
+                  "value": "unhidePage3",
+                  "shortcut": ""
+                },
+                {
+                  "label": "Next question",
+                  "value": "nextQuestion",
+                  "shortcut": ""
+                }
+              ],
+              "key": "radio1",
+              "type": "radio",
+              "input": true
+            }
+          ],
+          "input": false,
+          "tableView": false
+        },
+        {
+          "title": "Page 2",
+          "breadcrumbClickable": true,
+          "buttonSettings": {
+            "previous": true,
+            "cancel": true,
+            "next": true
+          },
+          "collapsible": false,
+          "key": "page2",
+          "type": "panel",
+          "label": "Page 2",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Checkbox1",
+              "inputType": "radio",
+              "tableView": false,
+              "key": "checkbox1",
+              "type": "checkbox",
+              "name": "question",
+              "value": "Checkbox1",
+              "input": true,
+              "defaultValue": false
+            },
+            {
+              "label": "Checkbox2",
+              "inputType": "radio",
+              "tableView": false,
+              "defaultValue": false,
+              "key": "checkbox2",
+              "type": "checkbox",
+              "name": "question",
+              "value": "Checkbox2",
+              "input": true
+            },
+            {
+              "label": "Data Grid",
+              "reorder": false,
+              "addAnotherPosition": "bottom",
+              "defaultOpen": false,
+              "layoutFixed": false,
+              "enableRowGroups": false,
+              "initEmpty": false,
+              "hideLabel": true,
+              "tableView": false,
+              "defaultValue": [
+                {
+                  "textField": ""
+                }
+              ],
+              "key": "dataGrid",
+              "customConditional": "show = data.question === 'Checkbox2';",
+              "type": "datagrid",
+              "input": true,
+              "components": [
+                {
+                  "label": "Text Field",
+                  "tableView": true,
+                  "validate": {
+                    "required": true
+                  },
+                  "key": "textField",
+                  "type": "textfield",
+                  "input": true
+                },
+                {
+                  "label": "Number",
+                  "mask": false,
+                  "spellcheck": true,
+                  "tableView": false,
+                  "delimiter": false,
+                  "requireDecimal": false,
+                  "inputFormat": "plain",
+                  "validate": {
+                    "required": true
+                  },
+                  "key": "number",
+                  "type": "number",
+                  "input": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Page 3",
+          "breadcrumbClickable": true,
+          "buttonSettings": {
+            "previous": true,
+            "cancel": true,
+            "next": true
+          },
+          "collapsible": false,
+          "key": "page3",
+          "conditional": {
+            "show": true,
+            "when": "radio1",
+            "eq": "unhidePage3"
+          },
+          "type": "panel",
+          "label": "Page 3",
+          "components": [
+            {
+              "label": "Text Field",
+              "tableView": true,
+              "key": "textField1",
+              "type": "textfield",
+              "input": true
+            }
+          ],
+          "input": false,
+          "tableView": false
+        }
+      ],
+      "useOriginalRevision": false,
+      "key": "form",
+      "display": "wizard",
+      "conditional": {
+        "show": true,
+        "when": "secondQuestionToOpenNestedForm",
+        "eq": "openChildForm"
+      },
+      "type": "form",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "FIO-3083 Parent",
+  "display": "form",
+  "name": "fio3083Parent",
+  "path": "fio3083parent"
+}

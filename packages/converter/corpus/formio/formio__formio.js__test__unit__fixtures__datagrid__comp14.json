@@ -1,0 +1,79 @@
+{
+  "_id": "68fb6355cdcef6d44ecbc939",
+  "title": "sdasdfs",
+  "name": "sdasdfs",
+  "path": "sdasdfs",
+  "type": "form",
+  "display": "form",
+  "tags": [],
+  "components": [
+    {
+      "key": "container",
+      "type": "container",
+      "input": true,
+      "label": "Container",
+      "tableView": false,
+      "components": [
+        {
+          "key": "dataGrid",
+          "type": "datagrid",
+          "input": true,
+          "label": "Data Grid with custom validation & default value - will show the validation errors when pristine - because the custom JS validation is triggered",
+          "reorder": false,
+          "validate": {
+            "custom": "valid  = !_.some(input, (item) => !!item.text) ? \"At least one text field in the data grid rows has to be filled in\" : true;"
+          },
+          "initEmpty": false,
+          "tableView": false,
+          "components": [
+            {
+              "key": "text",
+              "type": "textfield",
+              "input": true,
+              "label": "Text",
+              "tableView": true,
+              "applyMaskOn": "change"
+            }
+          ],
+          "layoutFixed": false,
+          "defaultValue": [
+            {
+              "text": ""
+            }
+          ],
+          "enableRowGroups": false,
+          "addAnotherPosition": "bottom",
+          "customDefaultValue": "value = [{ text: \"\" }]"
+        }
+      ]
+    },
+    {
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "label": "Submit",
+      "tableView": false,
+      "disableOnInvalid": true
+    },
+    {
+      "key": "saveAsDraft",
+      "type": "button",
+      "input": true,
+      "label": "Save as draft",
+      "state": "draft",
+      "theme": "secondary",
+      "action": "saveState",
+      "tableView": false,
+      "showValidations": false
+    }
+  ],
+  "pdfComponents": [],
+  "settings": {},
+  "properties": {},
+  "project": "68f8c39a080b308eef9db989",
+  "_vid": 0,
+  "esign": {},
+  "created": "2025-10-24T11:30:29.071Z",
+  "modified": "2025-10-24T11:30:52.932Z",
+  "machineName": "toeqjeebvavwfpd:sdasdfs"
+}

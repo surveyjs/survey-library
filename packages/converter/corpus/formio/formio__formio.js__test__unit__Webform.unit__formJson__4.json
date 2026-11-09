@@ -1,0 +1,24 @@
+{
+  "components": [
+    {
+      "label": "Select",
+      "widget": "html5",
+      "tableView": true,
+      "dataSrc": "url",
+      "data": {
+        "url": "http://example.com",
+        "headers": [
+          {
+            "key": "",
+            "value": ""
+          }
+        ]
+      },
+      "key": "select",
+      "hidden": true,
+      "type": "select",
+      "input": true,
+      "disableLimit": false
+    }
+  ]
+}

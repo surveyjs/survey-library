@@ -1,0 +1,18 @@
+{
+  "components": [
+    {
+      "label": "Phone Number",
+      "tableView": true,
+      "allowMultipleMasks": true,
+      "inputMasks": [
+        {
+          "label": "mask1",
+          "mask": "mask1"
+        }
+      ],
+      "key": "phoneNumber",
+      "type": "phoneNumber",
+      "input": true
+    }
+  ]
+}

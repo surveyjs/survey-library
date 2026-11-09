@@ -1,0 +1,62 @@
+{
+  "_id": "6996d7f91ef35597aa6d4156",
+  "title": "test",
+  "name": "test",
+  "path": "test",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Number",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "validateWhenHidden": false,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validate": {
+        "custom": "valid = (input === 'Joe') ? true : 'Your name must be \"Joe\"'; // some comment"
+      },
+      "validateWhenHidden": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true,
+      "widget.type": "input"
+    },
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "customDefaultValue": "value = 'test' // test comment",
+      "validateWhenHidden": false,
+      "key": "textField2",
+      "customConditional": "show = data.number === 1; // test comment",
+      "type": "textfield",
+      "input": true,
+      "widget.type": "input"
+    },
+    {
+      "label": "Submit",
+      "disableOnInvalid": true,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "saveOnEnter": false,
+      "input": true
+    }
+  ],
+  "machineName": "yztkznqwdadfxwv:test",
+  "project": "697b330ebaad3a0e1a7d5754",
+  "created": "2026-02-19T09:29:29.785Z",
+  "modified": "2026-02-19T10:26:07.548Z"
+}

@@ -1,0 +1,39 @@
+{
+  "type": "form",
+  "_id": "5f05ddf647b38b48d175d76f",
+  "components": [
+    {
+      "collapsible": false,
+      "tableView": false,
+      "key": "panel",
+      "type": "panel",
+      "label": "Panel",
+      "input": false,
+      "components": [
+        {
+          "label": "Text Field",
+          "tableView": true,
+          "validateOn": "blur",
+          "validate": {
+            "minLength": 5
+          },
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "blurInsidePanel",
+  "display": "form",
+  "name": "blurInsidePanel",
+  "path": "blurinsidepanel"
+}

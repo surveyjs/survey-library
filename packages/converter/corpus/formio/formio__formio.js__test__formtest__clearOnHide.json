@@ -1,0 +1,41 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "visible",
+      "spellcheck": true,
+      "tableView": true,
+      "calculateServer": false,
+      "key": "visible",
+      "type": "textfield",
+      "input": true,
+      "defaultValue": "yes"
+    },
+    {
+      "label": "ClearOnHide Field",
+      "spellcheck": true,
+      "tableView": true,
+      "calculateServer": false,
+      "key": "clearOnHideField",
+      "conditional": {
+        "show": true,
+        "when": "visible",
+        "eq": "yes"
+      },
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "submissionClearOnHide",
+  "display": "form",
+  "name": "submissionClearOnHide",
+  "path": "submissionclearonhide"
+}

@@ -1,0 +1,55 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Number1",
+      "mask": false,
+      "spellcheck": true,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "calculateServer": false,
+      "validate": {
+        "required": true
+      },
+      "key": "number1",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Number2",
+      "mask": false,
+      "spellcheck": true,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "calculateValue": {
+        "_camelCase": {
+          "var": "row.number1"
+        }
+      },
+      "calculateServer": false,
+      "allowCalculateOverride": true,
+      "validate": {
+        "required": true
+      },
+      "key": "number2",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "title": "manualOverrideTest",
+  "display": "form",
+  "name": "manualOverrideTest",
+  "path": "manualoverridetest"
+}

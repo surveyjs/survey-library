@@ -11,6 +11,7 @@ import { settings, ISurveyEnvironment } from "../../src/settings";
 import { AnimationOptions, AnimationUtils } from "../../src/utils/animation";
 import { ListModel } from "../../src/list";
 import { Action, IAction } from "../../src/actions/action";
+import { activateLazyRenderingChecks } from "../../src/utils/dom-utils";
 
 import { describe, test, expect, vi } from "vitest";
 // const popupTemplate = require("html-loader?interpolate!val-loader!../../../../src/knockout/components/popup/popup.html");
@@ -1204,6 +1205,36 @@ describe("Popup", () => {
     documentStyle.removeProperty("--sv-popup-overlay-top");
     delete (<any>window).visualViewport;
     targetElement.remove();
+  });
+
+  test("PopupDropdownViewModel is not closed by a scroll event dispatched by script", () => {
+    vi.useFakeTimers();
+    const model: PopupModel = new PopupModel("sv-list", {});
+    const targetElement: HTMLElement = document.createElement("div");
+    document.body.appendChild(targetElement);
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    try {
+      viewModel.initializePopupContainer();
+      viewModel.container.innerHTML = popupTemplate;
+      model.isVisible = true;
+      viewModel.updateOnShowing();
+      expect(model.isVisible, "the popup is open").toBe(true);
+
+      // jsdom has no layout: the check's event goes to window, which the popup listens on
+      activateLazyRenderingChecks(targetElement);
+      vi.advanceTimersByTime(10);
+      expect(model.isVisible, "the lazy rendering check does not close the popup").toBe(true);
+
+      window.dispatchEvent(new CustomEvent("scroll"));
+      expect(model.isVisible, "an untrusted scroll event does not close the popup").toBe(true);
+
+      viewModel["scrollEventCallBack"]({ isTrusted: true, stopPropagation: () => {}, preventDefault: () => {} });
+      expect(model.isVisible, "a scroll by the user closes the popup").toBe(false);
+    } finally {
+      vi.useRealTimers();
+      viewModel.dispose();
+      targetElement.remove();
+    }
   });
 
   test("PopupModel isModal displayMode", () => {

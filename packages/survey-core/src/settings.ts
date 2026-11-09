@@ -404,6 +404,7 @@ export var settings = {
     trimStrings: true,
     caseSensitive: false,
     numericTextAsText: false,
+    strictEquality: false,
     normalizeTextCallback: (str: string, reason: string): string => { return str; }
   },
   expressionDisableConversionChar: "#",

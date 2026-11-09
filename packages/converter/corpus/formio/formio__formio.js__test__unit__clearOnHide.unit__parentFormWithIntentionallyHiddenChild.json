@@ -1,0 +1,20 @@
+{
+  "components": [
+    {
+      "label": "Parent Form Checkbox",
+      "tableView": true,
+      "key": "checkbox",
+      "type": "checkbox",
+      "input": true
+    },
+    {
+      "label": "Form",
+      "tableView": true,
+      "src": "http://localhost:3000/myproject/child",
+      "key": "form",
+      "type": "form",
+      "input": true,
+      "hidden": true
+    }
+  ]
+}

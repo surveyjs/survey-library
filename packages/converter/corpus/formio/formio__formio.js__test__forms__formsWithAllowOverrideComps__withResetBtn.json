@@ -1,0 +1,138 @@
+{
+  "_id": "6597c00b4143681594622563",
+  "title": "recalculate on reset",
+  "name": "recalculateOnReset",
+  "path": "recalculateonreset",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Data Grid",
+      "reorder": false,
+      "addAnotherPosition": "bottom",
+      "layoutFixed": false,
+      "enableRowGroups": false,
+      "initEmpty": false,
+      "tableView": false,
+      "defaultValue": [
+        {
+          "dgRadio": "",
+          "textField": "",
+          "textArea": ""
+        }
+      ],
+      "key": "dataGrid",
+      "type": "datagrid",
+      "defaultOpen": false,
+      "alwaysEnabled": false,
+      "input": true,
+      "components": [
+        {
+          "label": "DG radio",
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "alwaysEnabled": false,
+          "tableView": false,
+          "values": [
+            {
+              "label": "A",
+              "value": "a",
+              "shortcut": ""
+            },
+            {
+              "label": "B",
+              "value": "b",
+              "shortcut": ""
+            },
+            {
+              "label": "C",
+              "value": "c",
+              "shortcut": ""
+            }
+          ],
+          "allowCalculateOverride": true,
+          "key": "dgRadio",
+          "type": "radio",
+          "input": true
+        },
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "calculateValue": "if (row.dgRadio == 'a'){value = 'test DataGrid'}",
+          "allowCalculateOverride": true,
+          "key": "textField",
+          "type": "textfield",
+          "alwaysEnabled": false,
+          "input": true
+        }
+      ],
+      "path": "dataGrid"
+    },
+    {
+      "label": "Checkbox",
+      "tableView": false,
+      "key": "checkbox",
+      "type": "checkbox",
+      "input": true
+    },
+    {
+      "label": "Radio",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "one",
+          "value": "one",
+          "shortcut": ""
+        },
+        {
+          "label": "two",
+          "value": "two",
+          "shortcut": ""
+        }
+      ],
+      "calculateValue": "if (data.checkbox) {\n  value = 'one';\n}",
+      "allowCalculateOverride": true,
+      "key": "radio",
+      "type": "radio",
+      "input": true
+    },
+    {
+      "label": "Text Area",
+      "applyMaskOn": "change",
+      "autoExpand": false,
+      "tableView": true,
+      "calculateValue": "value = 'test';",
+      "allowCalculateOverride": true,
+      "key": "textArea",
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "label": "Number",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "calculateValue": "value = 11111;",
+      "allowCalculateOverride": true,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "reset",
+      "action": "reset",
+      "showValidations": false,
+      "tableView": false,
+      "key": "reset",
+      "type": "button",
+      "input": true
+    }
+  ]
+}

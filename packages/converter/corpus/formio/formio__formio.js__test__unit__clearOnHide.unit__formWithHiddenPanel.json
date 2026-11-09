@@ -1,0 +1,17 @@
+{
+  "components": [
+    {
+      "type": "panel",
+      "key": "panel",
+      "components": [
+        {
+          "type": "textfield",
+          "key": "childTextField",
+          "label": "Text Field",
+          "input": true
+        }
+      ],
+      "hidden": true
+    }
+  ]
+}

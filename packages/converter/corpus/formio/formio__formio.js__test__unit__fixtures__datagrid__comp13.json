@@ -1,0 +1,61 @@
+{
+  "title": "10714",
+  "name": "10714",
+  "path": "10714",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Data Grid",
+      "reorder": false,
+      "addAnotherPosition": "bottom",
+      "layoutFixed": false,
+      "enableRowGroups": false,
+      "initEmpty": false,
+      "tableView": false,
+      "validateWhenHidden": false,
+      "key": "dataGrid",
+      "type": "datagrid",
+      "input": true,
+      "components": [
+        {
+          "label": "Number",
+          "applyMaskOn": "change",
+          "mask": false,
+          "tableView": false,
+          "delimiter": false,
+          "requireDecimal": false,
+          "inputFormat": "plain",
+          "truncateMultipleSpaces": false,
+          "validateWhenHidden": false,
+          "key": "number",
+          "type": "number",
+          "input": true
+        },
+        {
+          "label": "Select2",
+          "widget": "choicesjs",
+          "tableView": true,
+          "data": {
+            "values": [
+              {
+                "label": "q",
+                "value": "q"
+              },
+              {
+                "label": "w",
+                "value": "w"
+              }
+            ]
+          },
+          "refreshOn": "dataGrid.number",
+          "clearOnRefresh": true,
+          "validateWhenHidden": false,
+          "key": "select",
+          "type": "select",
+          "input": true
+        }
+      ]
+    }
+  ]
+}

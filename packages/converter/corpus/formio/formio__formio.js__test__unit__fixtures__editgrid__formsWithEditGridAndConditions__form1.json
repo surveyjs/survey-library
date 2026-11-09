@@ -1,0 +1,110 @@
+{
+  "title": "form1",
+  "name": "form1",
+  "path": "form1",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Checkbox",
+      "tableView": false,
+      "key": "checkbox",
+      "type": "checkbox",
+      "input": true
+    },
+    {
+      "collapsible": false,
+      "key": "panel",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "checkbox",
+            "operator": "isEqual",
+            "value": true
+          }
+        ]
+      },
+      "type": "panel",
+      "label": "Panel",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Radio",
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "tableView": false,
+          "values": [
+            {
+              "label": "yes",
+              "value": "yes",
+              "shortcut": ""
+            },
+            {
+              "label": "no",
+              "value": "no",
+              "shortcut": ""
+            }
+          ],
+          "key": "radio",
+          "type": "radio",
+          "input": true
+        },
+        {
+          "label": "Edit Grid",
+          "tableView": false,
+          "rowDrafts": false,
+          "key": "editGrid",
+          "conditional": {
+            "show": true,
+            "conjunction": "all",
+            "conditions": [
+              {
+                "component": "radio",
+                "operator": "isEqual",
+                "value": "yes"
+              }
+            ]
+          },
+          "type": "editgrid",
+          "displayAsTable": false,
+          "input": true,
+          "components": [
+            {
+              "label": "Text Field",
+              "applyMaskOn": "change",
+              "tableView": true,
+              "key": "textField",
+              "type": "textfield",
+              "input": true
+            },
+            {
+              "label": "Number",
+              "applyMaskOn": "change",
+              "mask": false,
+              "tableView": true,
+              "delimiter": false,
+              "requireDecimal": false,
+              "inputFormat": "plain",
+              "truncateMultipleSpaces": false,
+              "calculateValue": "value = row.textField.length;",
+              "key": "number",
+              "type": "number",
+              "input": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

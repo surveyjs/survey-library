@@ -1,0 +1,39 @@
+{
+  "_id": "67978d7ab71bdbf9f76c6bf7",
+  "title": "testNoDef",
+  "name": "testNoDef",
+  "path": "testnodef",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Container",
+      "tableView": false,
+      "key": "container",
+      "type": "container",
+      "input": true,
+      "components": [
+        {
+          "label": "Text Field",
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "label": "Text Field Calculation",
+          "key": "textFieldCalculation",
+          "type": "textfield",
+          "input": true,
+          "calculateValue": "value = data.container.textField"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true
+    }
+  ]
+}

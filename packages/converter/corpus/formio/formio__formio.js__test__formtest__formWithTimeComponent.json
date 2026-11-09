@@ -1,0 +1,26 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Time",
+      "inputType": "text",
+      "tableView": true,
+      "key": "time",
+      "type": "time",
+      "input": true,
+      "inputMask": "99:99"
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "title": "TimeTest666",
+  "display": "form",
+  "name": "timeTest666",
+  "path": "timetest666"
+}

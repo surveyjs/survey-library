@@ -1,0 +1,84 @@
+{
+  "_id": "68d108e8cded3659af4285c0",
+  "title": "test select",
+  "name": "testSelect",
+  "path": "testselect",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Select ChoicesJS",
+      "widget": "choicesjs",
+      "tableView": true,
+      "defaultValue": "ba",
+      "data": {
+        "values": [
+          {
+            "label": "banana",
+            "value": "ba"
+          },
+          {
+            "label": "apple",
+            "value": "ap"
+          },
+          {
+            "label": "pear",
+            "value": "pe"
+          }
+        ]
+      },
+      "unique": true,
+      "validateWhenHidden": false,
+      "key": "select",
+      "type": "select",
+      "input": true
+    },
+    {
+      "label": "Select HTML 5",
+      "widget": "html5",
+      "tableView": true,
+      "defaultValue": "ba",
+      "data": {
+        "values": [
+          {
+            "label": "banana",
+            "value": "ba"
+          },
+          {
+            "label": "apple",
+            "value": "ap"
+          },
+          {
+            "label": "pear",
+            "value": "pe"
+          }
+        ]
+      },
+      "unique": true,
+      "validateWhenHidden": false,
+      "key": "select1",
+      "type": "select",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "saveOnEnter": false
+    }
+  ],
+  "pdfComponents": [],
+  "settings": {},
+  "properties": {},
+  "machineName": "embed-hkbcjxkzzlcwkip:testSelect",
+  "project": "68beda8945642eeb71f4accf",
+  "controller": "",
+  "revisions": "",
+  "submissionRevisions": "",
+  "_vid": 0,
+  "esign": {},
+  "created": "2025-09-22T08:29:28.406Z",
+  "modified": "2025-09-23T09:52:55.883Z"
+}

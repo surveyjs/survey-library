@@ -1,0 +1,16 @@
+{
+  "components": [
+    {
+      "type": "number",
+      "key": "number",
+      "label": "Number"
+    },
+    {
+      "type": "button",
+      "key": "custom",
+      "label": "Custom",
+      "action": "custom",
+      "custom": "data['number'] = 5555"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Container",
+      "tableView": false,
+      "key": "container1",
+      "type": "container",
+      "input": true,
+      "components": [
+        {
+          "label": "Radio",
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "tableView": false,
+          "values": [
+            {
+              "label": "yes",
+              "value": "yes",
+              "shortcut": ""
+            },
+            {
+              "label": "no",
+              "value": "no",
+              "shortcut": ""
+            }
+          ],
+          "key": "radio1",
+          "type": "radio",
+          "input": true
+        },
+        {
+          "label": "Text Field",
+          "tableView": true,
+          "key": "textField",
+          "conditional": {
+            "show": true,
+            "when": "container1.radio1",
+            "eq": "yes"
+          },
+          "type": "textfield",
+          "input": true
+        }
+      ]
+    },
+    {
+      "label": "Container",
+      "tableView": false,
+      "key": "container2",
+      "type": "container",
+      "input": true,
+      "components": [
+        {
+          "label": "Radio",
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "tableView": false,
+          "values": [
+            {
+              "label": "yes",
+              "value": "yes",
+              "shortcut": ""
+            },
+            {
+              "label": "no",
+              "value": "no",
+              "shortcut": ""
+            }
+          ],
+          "key": "radio1",
+          "type": "radio",
+          "input": true
+        },
+        {
+          "label": "Text Field",
+          "tableView": true,
+          "key": "textField",
+          "conditional": {
+            "show": true,
+            "when": "container2.radio1",
+            "eq": "yes"
+          },
+          "type": "textfield",
+          "input": true
+        }
+      ]
+    }
+  ],
+  "title": "equalKeys",
+  "display": "form",
+  "path": "equalkeys"
+}

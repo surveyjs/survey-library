@@ -393,9 +393,9 @@ describe("Survey settings", () => {
     expect(survey.getSettings(), "#1: the same object").toBe(view);
     expect(view, "#2: never the global settings").not.toBe(<any>settings);
     expect(view.comparator, "#3: the same group object").toBe(view.comparator);
-    expect(JSON.parse(JSON.stringify(view)), "#4").toEqual({ comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: false }, data: { keepEmptyValues: false } });
+    expect(JSON.parse(JSON.stringify(view)), "#4").toEqual({ comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: false, strictEquality: false }, data: { keepEmptyValues: false } });
     settings.comparator.trimStrings = false;
-    expect(JSON.parse(JSON.stringify(view)), "#5: read at read time").toEqual({ comparator: { trimStrings: false, caseSensitive: true, numericTextAsText: false }, data: { keepEmptyValues: false } });
+    expect(JSON.parse(JSON.stringify(view)), "#5: read at read time").toEqual({ comparator: { trimStrings: false, caseSensitive: true, numericTextAsText: false, strictEquality: false }, data: { keepEmptyValues: false } });
     expect({ ...view.comparator }.caseSensitive, "#6: spread").toBe(true);
     expect(() => { (<any>view.comparator).caseSensitive = false; }, "#7").toThrow();
     expect(() => { (<any>view).comparator = {}; }, "#8").toThrow();

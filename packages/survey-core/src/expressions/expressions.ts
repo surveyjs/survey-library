@@ -83,6 +83,7 @@ const textCompareOperators: HashTable<"positive" | "negative"> = {
 export class BinaryOperand extends Operand {
   private consumer: Function;
   private isArithmeticValue: boolean;
+  private isTextCompare: boolean;
   private textVariable: Variable;
   constructor(
     private operatorName: string,
@@ -103,7 +104,8 @@ export class BinaryOperand extends Operand {
     if (this.consumer == null) {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
-    if (!isArithmeticOp && Object.prototype.hasOwnProperty.call(textCompareOperators, operatorName)) {
+    this.isTextCompare = !isArithmeticOp && Object.prototype.hasOwnProperty.call(textCompareOperators, operatorName);
+    if (this.isTextCompare) {
       this.textVariable = this.getTextVariable(this.left, this.right) || this.getTextVariable(this.right, this.left);
     }
   }
@@ -156,13 +158,52 @@ export class BinaryOperand extends Operand {
     return x == null ? null : x.evaluate(processValue);
   }
 
+  // The text a variable operand read as a number in its last evaluate; undefined otherwise
+  private getNumericText(op: Operand, value: any): string | undefined {
+    if (!this.isTextCompare || typeof value !== "number" || !(op instanceof Variable)) return undefined;
+    return getTextBeforeConversion(op);
+  }
+  // A text, a variable's text read as a number or a boolean ("true"), or an array with a text item:
+  // not an actual number (comparator.numericTextAsText)
+  private static isTextSide(op: Operand, value: any, numericText: string | undefined): boolean {
+    if (numericText !== undefined || typeof value === "string") return true;
+    if (op instanceof Variable && getTextBeforeConversion(op) !== undefined) return true;
+    return Array.isArray(value) && value.some((item: any) => typeof item === "string");
+  }
+  // In an array compared with a restored text, a number item equal to the text's number is an actual number:
+  // it becomes the text, so it still matches ("1,5" and [1.5, "x"]). A copy: the array may be the survey's data.
+  private static numberItemsToText(value: any, num: number, text: string): any {
+    if (!Array.isArray(value) || value.indexOf(num) < 0) return value;
+    return value.map((item: any) => item === num ? text : item);
+  }
+
   public evaluate(processValue?: ProcessValue): any {
-    const left = this.evaluateParam(this.left, processValue);
-    const leftText = this.textVariable === this.left ? getTextBeforeConversion(this.textVariable) : undefined;
-    const right = this.evaluateParam(this.right, processValue);
-    const rightText = this.textVariable === this.right ? getTextBeforeConversion(this.textVariable) : undefined;
+    let left = this.evaluateParam(this.left, processValue);
+    let leftText = this.textVariable === this.left ? getTextBeforeConversion(this.textVariable) : undefined;
+    const leftNumericText = this.getNumericText(this.left, left);
+    let right = this.evaluateParam(this.right, processValue);
+    let rightText = this.textVariable === this.right ? getTextBeforeConversion(this.textVariable) : undefined;
+    const rightNumericText = this.getNumericText(this.right, right);
     const strictCompare = this.requireStrictCompare;
     const surveySettings = processValue?.settings;
+    if ((leftNumericText !== undefined || rightNumericText !== undefined) &&
+      getSurveySetting(surveySettings, "comparator", "numericTextAsText")) {
+      // A variable's text read as a number goes back to the text when the other side is a text too, so the
+      // operator compares texts (under the comparator's case and trim rules). Against an actual number
+      // (a number literal, a numeric value) the converted value stays. Both sides are decided before either changes.
+      const restoreLeft = leftNumericText !== undefined && BinaryOperand.isTextSide(this.right, right, rightNumericText);
+      const restoreRight = rightNumericText !== undefined && BinaryOperand.isTextSide(this.left, left, leftNumericText);
+      if (restoreLeft) {
+        right = BinaryOperand.numberItemsToText(right, left, leftNumericText);
+        left = leftNumericText;
+        leftText = undefined;
+      }
+      if (restoreRight) {
+        left = BinaryOperand.numberItemsToText(left, right, rightNumericText);
+        right = rightNumericText;
+        rightText = undefined;
+      }
+    }
     if (leftText !== undefined || rightText !== undefined) {
       // The variable's text was converted ("1,000" reads as 1), while a quoted literal never is.
       // Compare the text first: only when that comparison fails, compare the converted value.

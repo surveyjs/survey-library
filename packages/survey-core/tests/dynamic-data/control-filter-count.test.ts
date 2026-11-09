@@ -230,4 +230,18 @@ describe("A Filter Control's count and the records with no row or panel", () => 
     q.clearActiveItem();
     expect(panel.visiblePanels.length, "#3: what Apply shows").toBe(7);
   });
+  test("a row kept out by the filter while the condition's other question changes", async () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "min", defaultValue: 3 },
+      { type: "matrixdynamic", name: "m", rowsVisibleIf: "{row.age} > {min}", columns: [{ name: "age", cellType: "text" }], defaultValue: ages() },
+      { type: "filter", name: "f1", source: "m" }] });
+    const matrix = <any>survey.getQuestionByName("m");
+    const q = <any>survey.getQuestionByName("f1");
+    expect(matrix.visibleRows.length, "#1: every row built, 3 hidden").toBe(7);
+    q.setFieldCondition("age", "greater", 5);
+    survey.setValue("min", 0);
+    expect(await q.countFilterResults(""), "#2: the rows out of the view run the condition again").toBe(10);
+    q.clearFieldCondition("age");
+    expect(matrix.visibleRows.length, "#3: what Apply shows").toBe(10);
+  });
 });

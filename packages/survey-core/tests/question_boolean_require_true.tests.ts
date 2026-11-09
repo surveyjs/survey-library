@@ -123,16 +123,51 @@ describe("boolean requireTrue, Issue#12241", () => {
       expect(errorTypes(q), "true").toEqual([]);
     });
   });
-  test("no required mark: requireTrue does not set isRequired", () => {
-    const { q } = createQuestion({ requireTrue: true });
+  test("required mark: requireTrue renders as required without setting isRequired", () => {
+    const { survey, q } = createQuestion({ requireTrue: true });
     expect(q.isRequired).toBe(false);
-    expect(q.requiredMark).toBe("");
-    expect(q.requiredText).toBe("");
-    expect(q.a11y_input_ariaRequired).toBe("false");
+    expect(q.isRenderedRequired).toBe(true);
+    expect(q.requiredMark).toBe("*");
+    expect(q.requiredText).toBe("*");
+    expect(q.a11y_input_ariaRequired).toBe("true");
     // the renderers show the mark only through these flags
     expect(q.isRequireTextOnStart).toBe(false);
     expect(q.isRequireTextBeforeTitle).toBe(false);
+    expect(q.isRequireTextAfterTitle).toBe(true);
+    survey.questionTitlePattern = "numRequireTitle";
+    expect(q.isRequireTextBeforeTitle).toBe(true);
+    survey.questionTitlePattern = "requireNumTitle";
+    expect(q.isRequireTextOnStart).toBe(true);
+  });
+  test("required mark and css follow switching requireTrue on and off", () => {
+    const { q } = createQuestion({});
+    expect(q.requiredMark).toBe("");
+    expect(q.cssTitle).not.toContain("sd-question__title--required");
+    q.requireTrue = true;
+    expect(q.requiredMark).toBe("*");
+    expect(q.isRequireTextAfterTitle).toBe(true);
+    expect(q.cssTitle).toContain("sd-question__title--required");
+    q.requireTrue = false;
+    expect(q.requiredMark).toBe("");
     expect(q.isRequireTextAfterTitle).toBe(false);
+    expect(q.cssTitle).not.toContain("sd-question__title--required");
+  });
+  test("a boolean matrix column with requireTrue shows the required mark in its header", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "m", rowCount: 1,
+        columns: [{ name: "c", cellType: "boolean", requireTrue: true }, { name: "c2", cellType: "boolean" }],
+      }],
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const [column, column2] = matrix.columns;
+    expect(column.isRequired).toBe(false);
+    expect(column.isRenderedRequired, "loaded with requireTrue").toBe(true);
+    expect(column2.isRenderedRequired, "no requireTrue").toBe(false);
+    (<any>column2).requireTrue = true;
+    expect(column2.isRenderedRequired, "requireTrue switched on").toBe(true);
+    (<any>column).requireTrue = false;
+    expect(column.isRenderedRequired, "requireTrue switched off").toBe(false);
   });
   test("false stays an answer: isEmpty, isAnswered, the empty operator and the data", () => {
     const survey = new SurveyModel({

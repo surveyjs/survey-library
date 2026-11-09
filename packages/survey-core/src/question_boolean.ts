@@ -222,7 +222,7 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    *
    * When this property is `true`, only a positive answer (`true` by default, or the custom value specified by [`valueTrue`](#valueTrue)) passes validation. A negative or empty answer displays the error message specified by [`requireTrueErrorText`](#requireTrueErrorText).
    *
-   * > This validation applies independently of [`isRequired`](#isRequired) and [`requiredIf`](#requiredIf). Enabling `requireTrue` does not set `isRequired` or add a required mark.
+   * > This validation applies independently of [`isRequired`](#isRequired) and [`requiredIf`](#requiredIf). Enabling `requireTrue` does not set `isRequired`, but the question displays a required mark as a required question does.
    */
   @property({ defaultValue: false }) requireTrue: boolean;
   /**
@@ -230,6 +230,9 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    */
   @property({ localizable: true }) requireTrueErrorText: string;
   declare readonly locRequireTrueErrorText: LocalizableString;
+  public get isRenderedRequired(): boolean {
+    return this.requireTrue || super.isRenderedRequired;
+  }
   public hasRequiredError(): boolean {
     if (this.requireTrue) return this.booleanValue !== true;
     return super.hasRequiredError();
@@ -503,8 +506,11 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     // as isRequired does when it is switched off
-    if (name === "requireTrue" && !this.requireTrue && this.errors.length > 0) {
-      this.validate();
+    if (name === "requireTrue") {
+      if (!this.requireTrue && this.errors.length > 0) {
+        this.validate();
+      }
+      this.onRenderedRequiredChanged();
     }
     if (name === "displayMode") {
       this.updateRenderAsOnDisplayModeChanged(oldValue, newValue);

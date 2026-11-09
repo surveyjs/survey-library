@@ -2,8 +2,10 @@ import { Component, ElementRef, ViewChild } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { ItemValue, QuestionSliderModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-slider-question",
   templateUrl: "./slider.component.html"
 })

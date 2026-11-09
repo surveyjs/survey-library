@@ -1,8 +1,10 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } from "@angular/core";
 import { Question } from "survey-core";
 import { BaseAngular } from "./base-angular";
+import { SurveyBaseProviders } from "./component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   template: ""
 })
 export class QuestionAngular<T extends Question = Question> extends BaseAngular<Question> implements AfterViewInit, OnDestroy {
@@ -20,10 +22,10 @@ export class QuestionAngular<T extends Question = Question> extends BaseAngular<
     }
   }
   override ngOnDestroy() {
+    super.ngOnDestroy();
     if (!!this.model) {
       this.model.beforeDestroyQuestionElement(this.elementContentRef?.nativeElement);
     }
-    super.ngOnDestroy();
   }
 }
 

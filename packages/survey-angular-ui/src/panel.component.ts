@@ -2,7 +2,9 @@ import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular
 import { PanelModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
 import { AngularComponentFactory } from "./component-factory";
+import { SurveyBaseProviders } from "./component-depth";
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-panel, '[sv-ng-panel]'",
   templateUrl: "./panel.component.html",
   styleUrls: ["./hide-host.scss"]

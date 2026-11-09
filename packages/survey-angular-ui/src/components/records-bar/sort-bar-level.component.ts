@@ -2,9 +2,11 @@ import { Component, Input } from "@angular/core";
 import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
 import { Action } from "survey-core";
+import { SurveyBaseProviders } from "../../component-depth";
 
 // One level of the sort bar: an item of the bar that holds the level's own action bar (field, direction, remove).
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-sort-bar-level",
   templateUrl: "./sort-bar-level.component.html",
   styles: [":host { display: none }"]

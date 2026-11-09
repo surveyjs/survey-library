@@ -1,8 +1,10 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { PanelModel, Question, SurveyModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
+import { SurveyBaseProviders } from "./component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-element",
   templateUrl: "./element.component.html",
   styleUrls: ["./hide-host.scss"]

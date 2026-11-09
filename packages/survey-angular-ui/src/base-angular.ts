@@ -1,126 +1,113 @@
-import { ChangeDetectorRef, Component, DoCheck, OnDestroy, ViewContainerRef } from "@angular/core";
+import { ChangeDetectorRef, Component, DoCheck, Inject, OnChanges, OnDestroy, Optional, SimpleChanges, ViewContainerRef } from "@angular/core";
 import { Base, IPropertyArrayValueChangedEvent, ISurvey } from "survey-core";
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
-import { IPropertyValueChangedEvent } from "survey-core/typings/src/base";
+import { IPropertyAccessTracker, PropertyAccessTracker } from "survey-core";
+import { getUpdateManager, IUpdateTask } from "./update-manager";
+import { COMPONENT_DEPTH, SurveyBaseProviders } from "./component-depth";
+
+const wrappedHookKey = "__surveyRunWithUpdateAccess";
+function wrapAfterViewInitHooks(instance: any): void {
+  let proto = Object.getPrototypeOf(instance);
+  while(!!proto && proto !== Object.prototype) {
+    if (Object.prototype.hasOwnProperty.call(proto, "ngAfterViewInit")) {
+      const hook = proto.ngAfterViewInit;
+      if (typeof hook === "function" && !hook[wrappedHookKey]) {
+        const wrapped = function (this: any, ...args: Array<any>) {
+          return Base.runWithUpdateAccess(() => hook.apply(this, args));
+        };
+        (<any>wrapped)[wrappedHookKey] = true;
+        proto.ngAfterViewInit = wrapped;
+      }
+    }
+    proto = Object.getPrototypeOf(proto);
+  }
+}
 
 @Component({
-  template: ""
+  template: "",
+  providers: SurveyBaseProviders
 })
-export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewContentComponent implements DoCheck, OnDestroy {
-  constructor(protected changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef) {
+export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewContentComponent implements DoCheck, OnDestroy, OnChanges {
+  protected readonly depth: number;
+  constructor(protected changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef, @Optional() @Inject(COMPONENT_DEPTH) depth?: number | null) {
     super(viewContainerRef);
+    wrapAfterViewInitHooks(this);
+    this.changeDetectorRef.detach();
+    this.depth = depth ?? 0;
+    this.updateTask = {
+      priority: this.depth,
+      callback: () => this.detectChanges(false)
+    };
+  }
+  override ngOnInit() {
+    super.ngOnInit();
+    this.embeddedView?.detach();
   }
   protected get surveyModel(): ISurvey {
     return this.getModel().getSurvey();
   }
   protected abstract getModel(): T;
   protected previousModel?: T;
-  private isModelSubsribed: boolean = false;
-
+  private propertyAccessTracker: IPropertyAccessTracker = new PropertyAccessTracker((model, options) => this.update(model, options));
+  private hasInputChanges: boolean = false;
+  ngOnChanges(changes?: SimpleChanges): void {
+    this.hasInputChanges = true;
+  }
   public override ngDoCheck(): void {
-    super.ngDoCheck();
-    if (this.previousModel !== this.getModel()) {
-      this.unMakeBaseElementAngular(this.previousModel);
-      this.makeBaseElementAngular(this.getModel());
-      this.onModelChanged();
-      this.previousModel = this.getModel();
+    this.syncModel();
+    if (this.hasInputChanges) {
+      this.hasInputChanges = false;
+      this.detectChanges();
     }
-    this.setIsModelRendering(true);
   }
-
-  protected onModelChanged() { }
-
-  private setIsModelRendering(val: boolean) {
+  private syncModel(): void {
     const model = this.getModel();
-    if (!!model) {
-      (<any>model).isRendering = val;
-    }
+    if (this.previousModel === model) return;
+    this.previousModel?.disableOnElementRerenderedEvent();
+    this.getModel()?.enableOnElementRerenderedEvent();
+    this.onModelChanged();
+    this.previousModel = model;
   }
-  private getIsModelRendering(stateElement?: Base) {
-    const model = stateElement ?? this.getModel();
-    return !!model && !!(<any>model).isRendering;
-  }
+  protected onModelChanged() { }
   private isDestroyed: boolean = false;
   ngOnDestroy() {
     this.isDestroyed = true;
-    this.unMakeBaseElementAngular(this.getModel());
+    this.propertyAccessTracker.unsubscribe();
+    this.getModel()?.disableOnElementRerenderedEvent();
     this.previousModel = undefined;
   }
   protected isBaseElementSubsribed(stateElement: Base) {
     return ((<any>stateElement).__ngImplementedCount ?? 0) > 0;
   }
-  private onArrayChangedCallback = (stateElement: Base, options: IPropertyArrayValueChangedEvent) => {
-    this.update(options.name);
-  };
-  private onPropertyChangedCallback = (stateElement: Base, options: IPropertyValueChangedEvent) => {
-    this.update(options.name);
-  };
-  private makeBaseElementAngular(stateElement: T) {
-    if (!!stateElement && !this.getIsModelRendering(stateElement)) {
-      this.isModelSubsribed = true;
-      stateElement.addOnArrayChangedCallback(this.onArrayChangedCallback);
-      stateElement.addOnPropertyValueChangedCallback(this.onPropertyChangedCallback);
-      stateElement.enableOnElementRerenderedEvent();
-      (<any>stateElement).__ngImplementedCount = ((<any>stateElement).__ngImplementedCount ?? 0) + 1;
-    }
-  }
-  private unMakeBaseElementAngular(stateElement?: Base) {
-    if (!!stateElement && this.isModelSubsribed) {
-      this.isModelSubsribed = false;
-      stateElement.removeOnPropertyValueChangedCallback(this.onPropertyChangedCallback);
-      stateElement.removeOnArrayChangedCallback(this.onArrayChangedCallback);
-      stateElement.disableOnElementRerenderedEvent();
-      if (((<any>stateElement).__ngImplementedCount ?? 0) - 1 <= 0) {
-        delete (<any>stateElement).__ngImplementedCount;
-      }
-    }
-  }
-  private isUpdatesBlocked: boolean = false;
-
-  protected update(key?: string): void {
-    if (this.getIsModelRendering() || this.isUpdatesBlocked) return;
-    if (key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
-      this.beforeUpdate();
+  private updateTask: IUpdateTask;
+  protected update(model?: Base, options?: IPropertyArrayValueChangedEvent): void {
+    const manger = getUpdateManager();
+    if (manger.hasTask(this.updateTask)) return;
+    const key = options?.name;
+    if (model === this.getModel() && key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
       this.detectChanges();
-      this.afterUpdate(true);
+      this.getModel()?.afterRerender();
     } else {
-      this.isUpdatesBlocked = true;
-      queueMicrotask(() => {
-        if (!this.isDestroyed) {
-          this.isUpdatesBlocked = false;
-          this.beforeUpdate();
-          this.detectChanges();
-          this.afterUpdate();
-        }
-      });
+      this.updateTask.after = this.getModel()?.afterRerenderCallback;
+      getUpdateManager().addTask(this.updateTask);
     }
-  }
-  private getChangeDetectorRef() {
-    return this.embeddedView ? this.embeddedView : this.changeDetectorRef;
   }
   protected getPropertiesToUpdateSync(): Array<string> {
     return [];
   }
-  protected detectChanges() {
-    this.getChangeDetectorRef().detectChanges();
+  protected detectChanges(isSync: boolean = true) {
+    if (this.isDestroyed) return;
+    this.beforeUpdate();
+    this.propertyAccessTracker.startTracking();
+    this.embeddedView?.detectChanges();
+    this.changeDetectorRef.detectChanges();
+    this.propertyAccessTracker.stopTracking();
+    this.propertyAccessTracker.subscribe();
+    Base.runWithUpdateAccess(() => {
+      this.afterUpdate(isSync);
+    });
   }
-
-  protected getShouldReattachChangeDetector(): boolean {
-    return true;
-  }
-
   protected beforeUpdate(): void {
-    this.setIsModelRendering(true);
   }
-  protected afterUpdate(isSync: boolean = false): void {
-    this.setIsModelRendering(false);
-    const model = this.getModel();
-    if (model && !this.isDestroyed) {
-      model.afterRerender();
-    }
-  }
-  override ngAfterViewChecked(): void {
-    super.ngAfterViewChecked();
-    this.setIsModelRendering(false);
-  }
+  protected afterUpdate(isSync: boolean = false): void {}
 }

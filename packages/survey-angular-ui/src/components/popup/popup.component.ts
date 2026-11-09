@@ -1,8 +1,10 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, Inject, Input, Optional, ViewChild, ViewContainerRef } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { PopupBaseViewModel, PopupModel, createPopupViewModel } from "survey-core";
+import { COMPONENT_DEPTH, SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-popup, '[sv-ng-popup]'",
   template: "<div #containerRef><sv-ng-popup-container [model]='model' ></sv-ng-popup-container></div>"
 })
@@ -17,8 +19,8 @@ export class PopupComponent extends BaseAngular<PopupModel> {
     return this.popupModel;
   }
 
-  constructor(viewContainerRef: ViewContainerRef, changeDetectorRef: ChangeDetectorRef) {
-    super(changeDetectorRef, viewContainerRef);
+  constructor(viewContainerRef: ViewContainerRef, changeDetectorRef: ChangeDetectorRef, @Optional() @Inject(COMPONENT_DEPTH) depth?: number | null) {
+    super(changeDetectorRef, viewContainerRef, depth);
   }
   protected override onModelChanged(): void {
     if (this.model) {

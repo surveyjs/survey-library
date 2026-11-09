@@ -123,6 +123,7 @@ export * from "./components/question-hint/question-hint.component";
 export * from "./questions/custom.component";
 export * from "./questions/composite.component";
 export * from "./base-angular";
+export * from "./component-depth";
 export * from "./components/loading-indicator/loading-indicator.component";
 export * from "./components/header/header.component";
 export * from "./components/header/header-cell.component";

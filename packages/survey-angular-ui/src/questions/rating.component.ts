@@ -2,8 +2,10 @@ import { Component } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { QuestionRatingModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-rating-question",
   templateUrl: "./rating.component.html"
 })
@@ -17,7 +19,7 @@ export class RatingQuestionComponent extends QuestionAngular<QuestionRatingModel
   }
   public override ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    this.detectChanges();
+    this.update();
   }
 }
 

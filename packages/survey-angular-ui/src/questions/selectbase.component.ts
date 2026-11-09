@@ -2,8 +2,10 @@ import { Component, Input } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { ItemValue, QuestionRadiogroupModel, QuestionSelectBase } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "['sv-ng-selectbase']",
   templateUrl: "./selectbase.component.html"
 })

@@ -2,8 +2,10 @@ import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
 import { Cover, CoverCell, SurveyModel } from "survey-core";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-header, sv-ng-header",
   templateUrl: "./header.component.html",
   styles: [":host { display: none }"]
@@ -21,11 +23,8 @@ export class HeaderComponent extends BaseAngular<Cover> {
     super.onModelChanged();
     this.shouldProcessResponsiveness = true;
   }
-  ngAfterViewInit() {
-    this.shouldProcessResponsiveness = true;
-  }
-  override ngAfterViewChecked(): void {
-    super.ngAfterViewChecked();
+  override afterUpdate(): void {
+    super.afterUpdate();
     if (this.shouldProcessResponsiveness) {
       this.model.processResponsiveness();
       this.shouldProcessResponsiveness = false;

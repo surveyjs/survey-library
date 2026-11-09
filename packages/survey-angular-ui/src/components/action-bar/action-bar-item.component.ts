@@ -2,8 +2,10 @@ import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 import { Action } from "survey-core";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-action-bar-item",
   templateUrl: "./action-bar-item.component.html",
   styleUrls: ["../../hide-host.scss"]

@@ -2,8 +2,10 @@ import { Component, ElementRef, ViewChild } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { Helpers, QuestionTextModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-text-question",
   templateUrl: "./text.component.html",
   styles: [":host { display: contents; }"]

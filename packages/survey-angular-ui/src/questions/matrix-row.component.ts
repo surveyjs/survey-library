@@ -5,8 +5,10 @@ import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow
 } from "survey-core";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-matrix-row",
   templateUrl: "./matrix-row.component.html",
   styles: [":host { display: none; }"]

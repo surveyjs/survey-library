@@ -2,8 +2,10 @@ import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular
 import { Action } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-list, '[sv-ng-list]'",
   templateUrl: "./list.component.html",
   styleUrls: ["../../hide-host.scss"]

@@ -884,6 +884,16 @@ export class Base implements IObjectValueContext {
       listener.releaseTracking();
     }
   }
+  public static runWithUpdateAccess<T>(func: () => T): T {
+    const listener = Base.currentPropertyAccessListener;
+    if (!listener) return func();
+    Base.currentPropertyAccessListener = undefined;
+    try {
+      return func();
+    } finally {
+      Base.currentPropertyAccessListener = listener;
+    }
+  }
   protected isValueUndefined(value: any): boolean {
     return Helpers.isValueUndefined(value);
   }
@@ -1910,7 +1920,7 @@ export class Base implements IObjectValueContext {
     return this.getIsAnimationAllowed();
   }
   protected getIsAnimationAllowed(): boolean {
-    return isAnimationEnabled() && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
+    return isAnimationEnabled() && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && !!this.onElementRerendered;
   }
   private animationAllowedLock: number = 0;
   public blockAnimations(): void {
@@ -1927,20 +1937,24 @@ export class Base implements IObjectValueContext {
       this.releaseAnimations();
     }
   }
-  //remove when knockout obsolete
-  public supportOnElementRerenderedEvent = true;
-  public onElementRerenderedEventEnabled = false;
+  public onElementRerenderedEventLock = 0;
+  public get onElementRerenderedEventEnabled () {
+    return this.onElementRerenderedEventLock > 0;
+  }
   public enableOnElementRerenderedEvent(): void {
-    this.onElementRerenderedEventEnabled = true;
+    this.onElementRerenderedEventLock++;
   }
   public disableOnElementRerenderedEvent(): void {
-    this.onElementRerendered?.fire(this, { isCancel: true });
-    this.onElementRerenderedEventEnabled = false;
+    this.onElementRerenderedEventLock--;
+    if (this.onElementRerenderedEventLock <= 0) {
+      this.onElementRerendered?.fire(this, { isCancel: true });
+    }
   }
   protected _onElementRerendered: EventBase<Base> = new EventBase();
   public get onElementRerendered(): EventBase<Base> {
-    return this.supportOnElementRerenderedEvent && this.onElementRerenderedEventEnabled ? this._onElementRerendered : undefined;
+    return this.onElementRerenderedEventEnabled ? this._onElementRerendered : undefined;
   }
+  public afterRerenderCallback = () => { this.afterRerender(); };
   public afterRerender(): void {
     this.onElementRerendered?.fire(this, { isCancel: false });
   }

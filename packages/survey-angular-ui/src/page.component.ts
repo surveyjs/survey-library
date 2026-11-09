@@ -2,7 +2,9 @@ import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, 
 import { PageModel, SurveyModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
 import { AngularComponentFactory } from "./component-factory";
+import { SurveyBaseProviders } from "./component-depth";
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-page, page, sv-ng-page",
   templateUrl: "./page.component.html",
   styleUrls: ["./hide-host.scss"]

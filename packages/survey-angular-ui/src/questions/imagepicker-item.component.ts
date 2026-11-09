@@ -2,7 +2,9 @@ import { AfterViewInit, Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 import { ImageItemValue, QuestionImagePickerModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SurveyBaseProviders } from "../component-depth";
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-imagepicker-item",
   templateUrl: "./imagepicker-item.component.html",
   styles: [":host { display: none; }"]
@@ -29,7 +31,7 @@ export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> implem
   }
   ngAfterViewInit(): void {
     this.model.locImageLink.onChanged = () => {
-      this.detectChanges();
+      this.update();
     };
   }
   override ngOnDestroy(): void {

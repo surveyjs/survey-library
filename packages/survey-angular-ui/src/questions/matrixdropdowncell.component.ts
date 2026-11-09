@@ -8,8 +8,10 @@ import {
   SurveyModel
 } from "survey-core";
 import { getComponentName } from "../question";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-matrixdropdown-cell",
   templateUrl: "./matrixdropdowncell.component.html",
   styles: [":host { display: none; }"]

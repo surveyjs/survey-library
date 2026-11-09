@@ -1,2 +1,35 @@
 // The stylesheet of "survey-core/rich-text", built as its own artifact so a form
 // that does not load the plugin downloads none of it.
+
+.sd-rich-text.sd-formbox {
+  position: relative;
+  align-items: stretch;
+}
+
+.sd-rich-text__area,
+.sd-rich-text__content {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sd-rich-text__area {
+  outline: none;
+}
+
+.sd-rich-text__toolbar {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  margin-top: 2px;
+  padding: var(--sjs2-spacing-x050);
+  border-radius: var(--sjs2-radius-component-drop);
+  border: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+  background: var(--sjs2-color-utility-sheet);
+  box-shadow: var(--sjs2-border-effect-floating-default);
+}
+
+.sd-rich-text:focus-within .sd-rich-text__toolbar {
+  display: block;
+}

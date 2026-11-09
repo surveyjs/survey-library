@@ -2,7 +2,7 @@
 // that does not load the plugin downloads neither this JS nor its CSS. entries/index.ts
 // does not reference this file.
 
-export { RichText } from "../src/plugins/rich-text/index";
+export { RichText, RichTextEditorModel } from "../src/plugins/rich-text/index";
 
 import { checkLibraryVersion } from "survey-core";
 export let Version: string;

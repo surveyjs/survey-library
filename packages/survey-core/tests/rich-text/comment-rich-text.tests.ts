@@ -60,8 +60,8 @@ describe("allowRichText on a comment question", () => {
   test("the property stays hidden until a plugin shows it", () => {
     const prop = Serializer.findProperty("comment", "allowRichText");
     expect(prop).toBeTruthy();
-    expect(prop.visible).toBe(false);
     expect(prop.type).toBe("boolean");
+    expect(prop.visible).toBe(!!(globalThis as any).__surveyRichTextPlugin);
   });
 
   test("rich-text properties and events from the previous design are not part of core", () => {
@@ -83,8 +83,14 @@ describe("getComponentName", () => {
     const question = new QuestionCommentModel("c");
     question.allowRichText = true;
     const plain = new QuestionCommentModel("plain");
-    expect(question.getComponentName()).toBe(plain.getComponentName());
-    expect(question.getComponentName()).toBe("default");
+    const registered = RendererFactory.Instance.getRenderer("comment", "richtext");
+    if (registered !== "default") RendererFactory.Instance.unregisterRenderer("comment", "richtext");
+    try {
+      expect(question.getComponentName()).toBe(plain.getComponentName());
+      expect(question.getComponentName()).toBe("default");
+    } finally {
+      if (registered !== "default") RendererFactory.Instance.registerRenderer("comment", "richtext", registered);
+    }
   });
 
   test("a comment, a subclass and a matrix comment cell use the comment rich renderer", () => {

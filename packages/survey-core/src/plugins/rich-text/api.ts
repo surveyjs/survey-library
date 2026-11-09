@@ -1,9 +1,10 @@
-import { Base, LocalizableString, SurveyModel, TextMarkdownEvent } from "survey-core";
+import { ActionContainer, Base, LocalizableString, SurveyModel, TextMarkdownEvent } from "survey-core";
 import { getDefaultEditMode, RichTextEditMode } from "./edit-mode";
 import { findUnsupported, UnsupportedRichText } from "./unsupported";
 import { getDisallowedHtml, sanitizeHtml } from "./sanitizer";
 import { applyStringHtml } from "./survey-strings";
 import { setRichTextStrings } from "./rich-text-strings";
+import { RichTextEditorModel } from "./editor-model";
 
 export type { RichTextEditMode } from "./edit-mode";
 
@@ -35,6 +36,15 @@ export class RichText {
   }
   public static getStringEditMode(owner: Base, name: string, locStr: LocalizableString): RichTextEditMode {
     return RichText.getEditMode(owner, name, locStr, getDefaultEditMode(owner, name, locStr));
+  }
+  public static attachEditor(element: HTMLElement, options: IRichTextEditorOptions): { toolbar: ActionContainer, detach(): void } {
+    const model = new RichTextEditorModel(undefined, {
+      mode: options.mode,
+      contentAgnostic: true,
+      onInput: options.onInput
+    });
+    model.attach(element);
+    return { toolbar: model.toolbar, detach: (): void => model.detach() };
   }
 }
 

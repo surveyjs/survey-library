@@ -125,6 +125,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         data-sv-tooltip={this.item.getTooltip()}
         tabIndex={tabIndex}
         aria-checked={this.item.ariaChecked}
+        aria-pressed={this.item.ariaPressed}
         aria-expanded={this.item.ariaExpanded}
         aria-controls={this.item.ariaControls}
         aria-labelledby={this.item.ariaLabelledBy}

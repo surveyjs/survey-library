@@ -1441,9 +1441,17 @@ export abstract class QuestionRecordsModel extends Question {
     const records = this.dataList.getMaterializedIndexes();
     let count = 0;
     while(!!this.getItem(count)) count++;
-    for (let i = count; i < records.length; i++) {
-      append(records[i]);
-    }
+    if (count >= records.length) return;
+    this.runObjectsAppend((): void => {
+      for (let i = count; i < records.length; i++) {
+        /* The held conditions keep the page from being rebuilt under the loop. Anything else that
+           builds the objects for these positions meanwhile - a handler of a new object that reads
+           the objects - leaves nothing to append there: an object appended past the page would
+           address a record that does not exist, and its write would add one. */
+        if (!!this.getItem(i)) continue;
+        append(records[i]);
+      }
+    });
   }
   /* The record count changed outside a list write - the matrix pads its value up to rowCount, an
      assignment the list did not make: the records that appeared join the view, the ones that are gone
@@ -1955,7 +1963,7 @@ export abstract class QuestionRecordsModel extends Question {
   private recordCountScope: Scope = new Scope();
   private get isRecordsOperationOpen(): boolean {
     return this.valueAssignmentScope.isActive || this.recordAddScope.isActive || this.recordCountScope.isActive || this.isOwnWriteOpen ||
-      this.structuralStoreScope.isActive || this.followingWriteScope.isActive;
+      this.structuralStoreScope.isActive || this.followingWriteScope.isActive || this.objectsAppendScope.isActive;
   }
   private runRecordsOperation<T>(scope: Scope, func: () => T): T {
     try {
@@ -2967,6 +2975,8 @@ export abstract class QuestionRecordsModel extends Question {
     for (let i = 0; i < items.length; i++) {
       // A late validator result would mark the record the object shows when it arrives.
       if (items[i].isRunningValidators()) return false;
+      // The same for a condition of the object itself: a panel's visibleIf or a nested panel's.
+      if (items[i].isAsyncConditionRunning()) return false;
       const questions = items[i].questions;
       for (let j = 0; j < questions.length; j++) {
         /* An async expression or condition still running (an expression cell, a visibleIf): its result
@@ -2994,6 +3004,11 @@ export abstract class QuestionRecordsModel extends Question {
     /* Choices loaded from a URL or on demand: a load the old record started, and the value it keeps
        for the next load, would reach the record the object shows now. */
     if (!!question["hasChoicesUrl"] || question["choicesLazyLoadEnabled"]) return false;
+    /* Choices that follow another question's value (choicesFromQuestion with "selected" or "unselected",
+       choiceValuesFromQuestion): while the records are swapped a question can see its source still empty
+       or showing the old record, and clear the value it was given - a chain of them clears in any order. */
+    if (!!question["choicesFromQuestion"] && (["selected", "unselected"].indexOf(question["choicesFromQuestionMode"]) > -1 ||
+      !!question["choiceValuesFromQuestion"])) return false;
     // A custom widget is set up on its element when the element is mounted, for the record shown then.
     if (!!question.customWidget) return false;
     // A choice with elements: the questions of its panel keep their state under the old record.
@@ -3326,6 +3341,11 @@ export abstract class QuestionRecordsModel extends Question {
       ? list.hasView && this.isPageStale()
       : !!created && !Helpers.isTwoValueEquals(created, list.getCreatedIndexes());
     if (isMembershipChanged) {
+      /* The page is a slice of the visible records, and the assigned records have no flags yet: they
+         are decided before the page is read, as a rebuild decides them. Otherwise objects are appended
+         for a page the held run then finds stale, and the page is built twice. An own write needs no
+         decision here: the condition run that follows it decides the flags. */
+      this.decideRecordsVisibility();
       this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex, true); });
     }
     if (!this.isPagedByList) return;
@@ -3515,7 +3535,7 @@ export abstract class QuestionRecordsModel extends Question {
   }
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
-    if (this.structuralStoreScope.isActive) {
+    if (this.structuralStoreScope.isActive || this.objectsAppendScope.isActive) {
       this.heldItemsCondition = { properties: properties };
     } else {
       this.runItemsCondition(properties);
@@ -3536,11 +3556,34 @@ export abstract class QuestionRecordsModel extends Question {
       this.runOwedExpressionFields();
     }
   }
+  /* The objects are appended for the records of the page that have none (followRecordsWithObjects).
+     The objects' conditions wait until the last one exists: the page names records the objects do
+     not hold yet, so a run in between - a new object computes a value and writes it, the write runs
+     the conditions, and a flag the records decide changes - would find the page stale and rebuild it
+     under the loop, which then appends past the page. The held run runs the conditions of every
+     object once they all exist. An append that threw drops it: the objects appended before ran their
+     own conditions while they were built, and a run here would call the handlers again while the
+     error unwinds. The next condition run completes the page. */
+  private objectsAppendScope: Scope = new Scope();
+  private runObjectsAppend(func: () => void): void {
+    let isAppended = false;
+    try {
+      this.objectsAppendScope.run((): void => {
+        func();
+        isAppended = true;
+      });
+    } finally {
+      // Inside a write the objects follow (runObjectsFollowingWrite), that write runs the held run.
+      if (!isAppended && !this.followingWriteScope.isActive)this.heldItemsCondition = undefined;
+      this.runHeldItemsCondition();
+      this.runOwedExpressionFields();
+    }
+  }
   /* An object's write during the held run can change how many records are stored - a padded record
      it fills in. The run that write makes skips the object that is still computing, so a record count
      that object read before is stale: the objects compute once more when the count changed. */
   private runHeldItemsCondition(): void {
-    if (this.followingWriteScope.isActive) return;
+    if (this.followingWriteScope.isActive || this.objectsAppendScope.isActive) return;
     const held = this.heldItemsCondition;
     this.heldItemsCondition = undefined;
     if (!held || this.isDisposed) return;
@@ -3656,7 +3699,9 @@ export abstract class QuestionRecordsModel extends Question {
         res = res.concat(item.getAllErrors());
       }
     });
-    return res;
+    /* A nested question sees its owner's own visibility only (isParentVisible), not the panels around the
+       owner, so a hidden owner is checked here, once, and only when there are errors. */
+    return res.length > 0 && !this.isVisibleInSurvey ? [] : res;
   }
   protected getIsRunningValidators(): boolean {
     return super.getIsRunningValidators() || this.someItem((item: QuestionRecordItem): boolean => item.isRunningValidators());
@@ -4623,11 +4668,15 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
      object (fillQuestionFromRecord). The questions write nothing back. */
   public rebindToRecord(record: any): void {
     this.runSettingValue((): void => {
-      this.forEachQuestion((q: Question): void => {
-        q["resetForAnotherRecord"]();
-        this.fillQuestionFromRecord(q, record);
-      });
+      // Every question drops the old record before any takes the new one: a question filled first would
+      // otherwise follow another that still shows the old record, and that one's reset would clear it.
+      this.forEachQuestion((q: Question): void => q["resetForAnotherRecord"]());
+      this.forEachQuestion((q: Question): void => this.fillQuestionFromRecord(q, record));
     });
+  }
+  // An async condition of the object itself (not of its questions) is still running: its result would land in another record.
+  public isAsyncConditionRunning(): boolean {
+    return false;
   }
   // How a question of a new object takes its record: by its value name, with the comment.
   protected fillQuestionFromRecord(question: Question, record: any): void {
@@ -4692,12 +4741,15 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   private notifyRecordWritten(): void {
     this.onAnyValueChanged(this.getVariableName(), "");
   }
-  // The errors the item's questions show; the owner asks the visible items only.
+  /* The errors the item's questions show; the owner asks the visible items only. A question out of view
+     (in a hidden sub-panel, or in an owner its own visibleIf hides) keeps its errors and is not reported;
+     the owner checks the panels around it (getItemErrors). Its visibility is checked only when it has
+     errors: the walk runs on every value change while the owner holds an error. */
   public getAllErrors(): Array<SurveyError> {
     let res: Array<SurveyError> = [];
     this.forEachQuestion((q: Question): void => {
       const errors = q.getAllErrors();
-      if (errors && errors.length > 0) {
+      if (errors && errors.length > 0 && q.isVisibleInSurvey) {
         res = res.concat(errors);
       }
     });

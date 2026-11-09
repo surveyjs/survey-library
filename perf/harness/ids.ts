@@ -35,6 +35,11 @@ add("records-1k", "records", ["next", "sort-1"], "ordersPanel");
 // 1,000 records. In the browser the same sort is a header click (sort-header).
 const plainMatrices = ["orders30", "ordersPaged"];
 plainMatrices.forEach((question: string) => add("records-plain", "records", ["sort-1"], question));
+// The same for the plain dynamic panels, panels kept where the panels allow it, and Next on the paged one. The panel
+// has no header to click: in the browser the sort is the same model call.
+const plainPanels = ["panels30", "panelsPaged"];
+plainPanels.forEach((question: string) => add("records-plain", "records", ["sort-1"], question));
+add("records-plain", "records", ["next"], "panelsPaged");
 
 // The browser column (03): React 19 and survey-js-ui run the same ids.
 const browser: Array<string> = [];
@@ -44,6 +49,8 @@ browser.push("complexLogic/answer/first", "complexLogic/answer/type");
 ["next", "last", "sort-header", "filter-set", "edit-cell", "add-row"].forEach((op: string) => browser.push("records-10k/records/" + op + "@orders"));
 browser.push("records-1k/records/next@ordersPanel");
 plainMatrices.forEach((question: string) => browser.push("records-plain/records/sort-header@" + question));
+plainPanels.forEach((question: string) => browser.push("records-plain/records/sort-1@" + question));
+browser.push("records-plain/records/next@panelsPaged");
 
 // The fixture x operation matrix of phase 1.
 export const SCENARIO_IDS: ReadonlyArray<ScenarioIdInfo> = Array.from(new Set(core.concat(browser))).sort().map((id: string): ScenarioIdInfo => {

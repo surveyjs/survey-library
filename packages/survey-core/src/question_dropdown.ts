@@ -259,16 +259,6 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    * @see SurveyModel.onChoicesLazyLoad
    */
   @property() choicesLazyLoadPageSize: number;
-  /**
-   * The name of the component used to render the dropdown's loading indicator and/or text.
-   */
-  @property({
-    onSet: (newValue: string, target: any) => {
-      if (!!target.dropdownListModelValue) {
-        target.dropdownListModel.setLoadingComponent(newValue);
-      }
-    }
-  }) loadingComponent: string;
   public getControlClass(): string {
     return toCssClasses(
       this.cssClasses.control,
@@ -417,8 +407,7 @@ Serializer.addClass(
     { name: "choicesLazyLoadEnabled:boolean", visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },
-    { name: "itemComponent", visible: false, default: "" },
-    { name: "loadingComponent", visible: false, default: "" }
+    { name: "itemComponent", visible: false, default: "" }
   ],
   function () {
     return new QuestionDropdownModel("");

@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "definitions": {
+      "choicesContainer": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "type": "object",
+    "properties": {
+      "exampleArray": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/choicesContainer"
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "HorizontalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "label": {
+          "text": "Example Array",
+          "show": true
+        },
+        "scope": "#/properties/exampleArray"
+      }
+    ]
+  }
+}

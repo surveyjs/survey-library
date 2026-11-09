@@ -60,19 +60,23 @@ export class QuestionRecordsBar extends Base {
   private pagerActionsValue: ActionContainer;
   public get pagerActions(): ActionContainer {
     if (!this.pagerActionsValue) {
-      this.pagerActionsValue = this.owner.createActionContainer();
-      createRecordsPagerActions(this.pagerActionsValue, this.owner);
-      this.pagerActionsValue.containerCss = this.owner.getCssClasses().root;
+      Base.runUntracked(() => {
+        this.pagerActionsValue = this.owner.createActionContainer();
+        createRecordsPagerActions(this.pagerActionsValue, this.owner);
+        this.pagerActionsValue.containerCss = this.owner.getCssClasses().root;
+      });
     }
     return this.pagerActionsValue;
   }
   private sortActionsValue: IRecordsSortActions;
   public get sortActions(): ActionContainer {
     if (!this.sortActionsValue) {
-      // It fits the bar to its width by whole levels, and shows "..." instead of "+" while a level is out.
-      const container = this.owner.createActionContainer(new RecordsSortBarContainer());
-      container.containerCss = this.owner.getCssClasses().sortBar;
-      this.sortActionsValue = createRecordsSortActions(container, this.owner, this);
+      Base.runUntracked(() => {
+        // It fits the bar to its width by whole levels, and shows "..." instead of "+" while a level is out.
+        const container = this.owner.createActionContainer(new RecordsSortBarContainer());
+        container.containerCss = this.owner.getCssClasses().sortBar;
+        this.sortActionsValue = createRecordsSortActions(container, this.owner, this);
+      });
     }
     return this.sortActionsValue.container;
   }

@@ -1,0 +1,76 @@
+{
+  "_id": "67b5d190ac6f65931c9a3212",
+  "title": "test clear on hide for nested",
+  "name": "clearOnHideTest",
+  "path": "clearonhidetest",
+  "type": "form",
+  "display": "form",
+  "owner": "67b5d19bac6f65931c9a34b8",
+  "components": [
+    {
+      "label": "Form",
+      "tableView": true,
+      "form": "67b5d190ac6f65931c9a320a",
+      "useOriginalRevision": false,
+      "clearOnHide": false,
+      "key": "form",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "textArea",
+            "operator": "isNotEmpty"
+          }
+        ]
+      },
+      "type": "form",
+      "input": true
+    },
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "clearOnHide": false,
+      "validate": {
+        "required": true
+      },
+      "validateWhenHidden": false,
+      "key": "textField",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "textArea",
+            "operator": "isNotEmpty"
+          }
+        ]
+      },
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Text Area",
+      "applyMaskOn": "change",
+      "autoExpand": false,
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "textArea",
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "machineName": "ryyclyrmbzvuqog:nm",
+  "project": "67a0e3801e09b2c654c75a09",
+  "created": "2025-02-19T12:41:52.127Z",
+  "modified": "2025-02-21T08:54:49.108Z"
+}

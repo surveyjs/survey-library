@@ -111,7 +111,7 @@ import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
-import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject } from "./survey-settings";
+import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
@@ -1252,6 +1252,8 @@ export class SurveyModel extends SurveyElementCore
     );
     // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
     this.surveySettingsValues.merge(options, true);
+    // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
+    addEventHandlersFromOptions(this, options);
 
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     if (jsonObj) {
@@ -2854,11 +2856,13 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
   public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
-      this.navigationBarValue = this.createNavigationBar();
-      if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
-      this.updateNavigationCss();
-      this.navigationBarValue.flushUpdates();
-      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
+      Base.runUntracked(() => {
+        this.navigationBarValue = this.createNavigationBar();
+        if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
+        this.updateNavigationCss();
+        this.navigationBarValue.flushUpdates();
+        this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
+      });
     }
     return this.navigationBarValue;
   }
@@ -6753,13 +6757,14 @@ export class SurveyModel extends SurveyElementCore
             this.suspendLazyRendering();
             this.focusedQuestionScroll.scrollIntoView(htmlElement);
             this.releaseLazyRendering();
-            activateLazyRenderingChecks(htmlElement);
+            // Without lazy rendering no row waits for the check, and its synthetic scroll is not needed.
+            if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
           } else {
             this.suspendLazyRendering();
             SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
               this.releaseLazyRendering();
-              activateLazyRenderingChecks(htmlElement);
+              if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
               optOnScolledCallback && optOnScolledCallback();
             });
           }
@@ -8183,7 +8188,8 @@ export class SurveyModel extends SurveyElementCore
     if (
       !this.editingObj &&
       this.isValueEqual(name, newValue) &&
-      this.isTwoValueEquals(newValue, newQuestionValue)
+      this.isTwoValueEquals(newValue, newQuestionValue) &&
+      !this.isKeptEmptyValueRemoved(name, newValue)
     )
       return;
     var oldValue = this.getValue(name);
@@ -8240,8 +8246,26 @@ export class SurveyModel extends SurveyElementCore
       this.onDynamicPanelValueChanged.fire(this, options);
     }
   }
+  private deletingEmptyValuesScope = new Scope();
+  // A clear made by the survey itself, not by the respondent: Question.clearValue(), clearIfInvisible,
+  // clearIncorrectValues, removing a row or a panel. An empty value set while it runs removes the key from
+  // the data even with data.keepEmptyValues on.
+  runDeletingEmptyValues<T>(func: () => T): T {
+    return this.deletingEmptyValuesScope.run(func);
+  }
+  // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
+  // undefined always removes the key: it is what Question.clearValue() assigns.
+  private isEmptyValueKeptOnSetValue(val: any): boolean {
+    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
+  }
+  // An empty value the key kept equals undefined and null (isValueEqual), yet a system clear removes it.
+  private isKeptEmptyValueRemoved(name: string, newValue: any): boolean {
+    if (!name || !this.getSettings().data.keepEmptyValues) return false;
+    return this.getDataValueCore(this.valuesHash, name) !== undefined && this.isValueEmpyOnSetValue(name, newValue);
+  }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
     if (!this.isValueEmpty(val, false)) return false;
+    if (!this.editingObj && this.isEmptyValueKeptOnSetValue(val)) return false;
     if (!this.editingObj || val === null || val === undefined) return true;
     return this.editingObj.getDefaultPropertyValue(name) === val;
   }
@@ -8430,8 +8454,10 @@ export class SurveyModel extends SurveyElementCore
    * @param {string} name An object property that stores the answer to delete. Pass a question's [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) or [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    */
   public clearValue(name: string): void {
-    this.setValue(name, null);
-    this.setComment(name, null);
+    this.runDeletingEmptyValues((): void => {
+      this.setValue(name, null);
+      this.setComment(name, null);
+    });
   }
   /**
    * Specifies whether to remove disabled choices from the value in [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), and [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model) questions.
@@ -9646,7 +9672,7 @@ export class SurveyModel extends SurveyElementCore
     return this.focusedQuestionScrollValue;
   }
 
-  public onScroll(): void {
+  public onScroll(event?: Event): void {
     if (!!this.rootElement) {
       if (this._isElementShouldBeSticky(".sv-components-container-center")) {
         this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
@@ -9657,12 +9683,14 @@ export class SurveyModel extends SurveyElementCore
         this.tocModel.updateStickyTOCSize(this.rootElement);
       }
     }
-    if (this.onScrollCallback) {
+    // A scroll event dispatched by script (the lazy rendering check) must not close an open popup.
+    // A call without an event (the popup survey window) still closes it.
+    if (this.onScrollCallback && event?.isTrusted !== false) {
       this.onScrollCallback();
     }
   }
   public addScrollEventListener(): void {
-    this.scrollHandler = () => { this.onScroll(); };
+    this.scrollHandler = (event: Event) => { this.onScroll(event); };
     this.rootElement.addEventListener("scroll", this.scrollHandler);
     if (!!this.rootElement.getElementsByTagName("form")[0]) {
       this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);

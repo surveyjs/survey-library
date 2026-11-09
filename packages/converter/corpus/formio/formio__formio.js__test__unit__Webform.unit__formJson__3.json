@@ -1,0 +1,19 @@
+{
+  "components": [
+    {
+      "label": "Number",
+      "key": "number",
+      "type": "number"
+    },
+    {
+      "label": "Currency",
+      "key": "currency",
+      "type": "currency"
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit"
+    }
+  ]
+}

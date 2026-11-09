@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "Control",
+    "scope": "#/properties/name/properties/name/properties/name",
+    "label": "Name"
+  }
+}

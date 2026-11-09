@@ -1,0 +1,27 @@
+{
+  "display": "form",
+  "components": [
+    {
+      "label": "Products",
+      "key": "products",
+      "type": "datagrid",
+      "input": true,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Name",
+          "key": "name",
+          "type": "textfield",
+          "input": true,
+          "tableView": true,
+          "applyMaskOn": "change"
+        }
+      ],
+      "defaultValue": [
+        {
+          "name": ""
+        }
+      ]
+    }
+  ]
+}

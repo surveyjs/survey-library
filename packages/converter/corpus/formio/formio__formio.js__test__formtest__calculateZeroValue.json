@@ -1,0 +1,42 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "A",
+      "tableView": true,
+      "key": "a",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "B",
+      "tableView": true,
+      "key": "b",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Sum",
+      "tableView": true,
+      "calculateValue": "value = +data.a + +data.b",
+      "key": "number",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "controller": "",
+  "revisions": "",
+  "_vid": 0,
+  "title": "calcWithFalseValue",
+  "display": "form",
+  "name": "calcWithFalseValue",
+  "path": "calcwithfalsevalue"
+}

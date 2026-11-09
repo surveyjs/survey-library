@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "username": {
+        "type": "string",
+        "description": "Login Name"
+      },
+      "password": {
+        "type": "string",
+        "format": "password",
+        "description": "Login password"
+      }
+    },
+    "required": [
+      "username",
+      "password"
+    ]
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Label",
+        "text": "Login Information"
+      },
+      {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/username"
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/password"
+          }
+        ]
+      }
+    ]
+  }
+}

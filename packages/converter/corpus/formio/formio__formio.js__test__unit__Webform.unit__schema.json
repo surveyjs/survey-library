@@ -1,0 +1,13 @@
+{
+  "title": "Translate Form",
+  "components": [
+    {
+      "type": "textfield",
+      "label": "Default Label",
+      "key": "myfield",
+      "input": true,
+      "inputType": "text",
+      "validate": {}
+    }
+  ]
+}

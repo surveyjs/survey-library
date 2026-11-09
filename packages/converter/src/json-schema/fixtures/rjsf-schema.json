@@ -1,0 +1,21 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Feedback",
+    "properties": {
+      "name": { "type": "string", "title": "Name" },
+      "bio": { "type": "string", "title": "Bio" },
+      "rating": { "type": "string", "title": "Rating", "enum": ["good", "ok", "bad"] },
+      "password": { "type": "string", "title": "Password" },
+      "secret": { "type": "string", "title": "Secret" }
+    },
+    "required": ["name"]
+  },
+  "uiSchema": {
+    "ui:order": ["rating", "name", "*"],
+    "bio": { "ui:widget": "textarea", "ui:placeholder": "Tell us about yourself" },
+    "rating": { "ui:widget": "radio" },
+    "password": { "ui:widget": "password" },
+    "secret": { "ui:widget": "hidden" }
+  }
+}

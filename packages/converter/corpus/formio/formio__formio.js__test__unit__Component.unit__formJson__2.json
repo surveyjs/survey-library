@@ -1,0 +1,10 @@
+{
+  "components": [
+    {
+      "key": "textField",
+      "label": "Text Field",
+      "type": "textfield",
+      "calculateValue": "value = value + '_calculated'"
+    }
+  ]
+}

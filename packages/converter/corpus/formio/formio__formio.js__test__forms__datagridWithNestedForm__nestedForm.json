@@ -1,0 +1,39 @@
+{
+  "_id": "687a3d82319f0b6faeb35735",
+  "title": "Child required",
+  "name": "childRequired",
+  "path": "childrequired",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validate": {
+        "required": true
+      },
+      "validateWhenHidden": false,
+      "key": "textfielda",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "pdfComponents": [],
+  "settings": {
+    "logs": "true"
+  },
+  "created": "2025-07-18T12:26:42.479Z",
+  "modified": "2025-07-21T08:24:52.674Z",
+  "config": {
+    "maxAttachmentSize": "1MB"
+  }
+}

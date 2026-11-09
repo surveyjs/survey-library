@@ -1,0 +1,77 @@
+{
+  "_id": "68de6cfeb2d84ea084dc73d2",
+  "title": "select component test",
+  "name": "selectComponentTest",
+  "path": "selectcomponenttest",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Set value",
+      "action": "custom",
+      "showValidations": false,
+      "tableView": false,
+      "key": "setValue",
+      "type": "button",
+      "custom": "var dataGrid = utils.getComponent(form.components, 'dataGrid');\r\ndataGrid.setValue({ select4: \"test2\" })\r\n                  \r\n",
+      "input": true
+    },
+    {
+      "label": "Data Grid",
+      "reorder": false,
+      "addAnotherPosition": "bottom",
+      "layoutFixed": false,
+      "enableRowGroups": false,
+      "initEmpty": false,
+      "tableView": false,
+      "defaultValue": [
+        {}
+      ],
+      "validateWhenHidden": false,
+      "key": "dataGrid",
+      "type": "datagrid",
+      "input": true,
+      "components": [
+        {
+          "label": "Select4",
+          "widget": "choicesjs",
+          "tableView": true,
+          "dataSrc": "resource",
+          "data": {
+            "resource": "68de6d13b2d84ea084dc7671"
+          },
+          "valueProperty": "data.value",
+          "template": "<span>{{ item.data.label }}</span>",
+          "validate": {
+            "select": false
+          },
+          "validateWhenHidden": false,
+          "key": "select4",
+          "type": "select",
+          "searchField": "data.value__regex",
+          "noRefreshOnScroll": false,
+          "addResource": false,
+          "reference": false,
+          "input": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "machineName": "authoring-hperfbnwzwxsypk:selectComponentTest",
+  "project": "6895de2ba405461077e79212",
+  "controller": "",
+  "revisions": "",
+  "submissionRevisions": "",
+  "_vid": 0,
+  "esign": {},
+  "created": "2025-10-02T12:15:58.365Z",
+  "modified": "2025-10-07T09:52:54.670Z"
+}

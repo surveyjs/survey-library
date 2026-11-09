@@ -11,7 +11,7 @@ import { getColorFromProperty } from "./utils/utils";
 import { isBase64URL } from "./utils/dom-utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { Action } from "./actions/action";
-import { ComputedUpdater } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { ActionContainer } from "./actions/container";
 import { IVerifyDataContext } from "./question";
 import { Scope } from "./utils/scope";
@@ -492,7 +492,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   private toolbarValue: ActionContainer<Action>;
   public get toolbar(): ActionContainer<Action> {
     if (!this.toolbarValue) {
-      this.toolbarValue = this.createToolbar();
+      this.toolbarValue = Base.runUntracked(() => this.createToolbar());
     }
     return this.toolbarValue;
   }

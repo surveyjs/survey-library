@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "zipCode": {
+        "type": "string",
+        "maxLength": 5
+      },
+      "zipCodeWithoutTrim": {
+        "type": "string",
+        "maxLength": 5
+      },
+      "zipCodeWithoutRestrict": {
+        "type": "string",
+        "maxLength": 5
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/zipCode",
+            "label": "ZIP Code (with trim and restrict options)",
+            "options": {
+              "trim": true,
+              "restrict": true
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/zipCodeWithoutTrim",
+            "label": "ZIP Code (without trimming)",
+            "options": {
+              "trim": false,
+              "restrict": true
+            }
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/zipCodeWithoutRestrict",
+            "label": "ZIP Code (without restricting)",
+            "options": {
+              "trim": true,
+              "restrict": false
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "_id": "674f851fcce87ee02734388a",
+  "title": "parent",
+  "name": "parent",
+  "path": "parent",
+  "type": "form",
+  "display": "form",
+  "tags": [],
+  "access": [],
+  "submissionAccess": [
+    {
+      "type": "create_own",
+      "roles": []
+    },
+    {
+      "type": "create_all",
+      "roles": []
+    },
+    {
+      "type": "read_own",
+      "roles": []
+    },
+    {
+      "type": "read_all",
+      "roles": []
+    },
+    {
+      "type": "update_own",
+      "roles": []
+    },
+    {
+      "type": "update_all",
+      "roles": []
+    },
+    {
+      "type": "delete_own",
+      "roles": []
+    },
+    {
+      "type": "delete_all",
+      "roles": []
+    },
+    {
+      "type": "team_read",
+      "roles": []
+    },
+    {
+      "type": "team_write",
+      "roles": []
+    },
+    {
+      "type": "team_admin",
+      "roles": []
+    }
+  ],
+  "owner": null,
+  "components": [
+    {
+      "label": "Number",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "validateWhenHidden": false,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Text Area",
+      "applyMaskOn": "change",
+      "autoExpand": false,
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "textArea",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "number",
+            "operator": "isEqual",
+            "value": 5
+          }
+        ]
+      },
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "label": "Form",
+      "tableView": true,
+      "form": "674f851fcce87ee027343883",
+      "useOriginalRevision": false,
+      "key": "form",
+      "type": "form",
+      "input": true,
+      "components": [
+        {
+          "label": "Number",
+          "applyMaskOn": "change",
+          "mask": false,
+          "tableView": false,
+          "delimiter": false,
+          "requireDecimal": false,
+          "inputFormat": "plain",
+          "truncateMultipleSpaces": false,
+          "validateWhenHidden": false,
+          "key": "number",
+          "type": "number",
+          "input": true
+        },
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validateWhenHidden": false,
+          "key": "textField",
+          "conditional": {
+            "show": true,
+            "conjunction": "all",
+            "conditions": [
+              {
+                "component": "number",
+                "operator": "isEqual",
+                "value": 5
+              }
+            ]
+          },
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "type": "button",
+          "label": "Submit",
+          "key": "submit",
+          "disableOnInvalid": true,
+          "input": true,
+          "tableView": false
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "pdfComponents": [],
+  "settings": {},
+  "properties": {},
+  "machineName": "authoring-fbjzvjaybjhpflj:parent",
+  "project": "674f8511cce87ee0273436ea",
+  "controller": "",
+  "revisions": "",
+  "submissionRevisions": "",
+  "_vid": 0,
+  "created": "2024-12-03T22:24:31.250Z",
+  "modified": "2024-12-03T22:24:31.255Z"
+}

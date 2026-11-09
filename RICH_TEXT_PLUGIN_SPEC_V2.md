@@ -634,18 +634,18 @@ Automated: core part of `comment-rich-text.tests.ts`; the full existing survey-c
 Automated: `sanitizer`, `serializer`, `roundtrip`, `value`, `survey-strings`, `unsupported`, `edit-mode` unit tests.
 
 **CP2 — survey strings render rich text; the sanitizer is inspectable.** React demo page (plugin on, string handler "built-in"), page "Strings".
-- [ ] Survey title, question titles, descriptions and choice texts show bold/italic/strikethrough/links; links open in a new tab.
-- [ ] The description of `s1` shows two lines, a paragraph break and a bulleted list.
-- [ ] The title of `s6` (a list in a question title) is shown as a bulleted list (block context: a question title is serializer type `text`).
-- [ ] `s2`: `Markdown **is not** rendered` shows the asterisks; `Tom & Jerry` shows one ampersand.
-- [ ] Plain strings, including the multi-line description of `s8`, look exactly as with `?plugin=off`.
-- [ ] String handler "none": the whole page "Strings" looks exactly as with `?plugin=off`; switching back to "built-in" restores formatting without reloading.
-- [ ] `s3` and `s4`: no alert appears; `s3` shows a bold "html" and no script text; `s4` shows "js link" as plain text.
-- [ ] `s5` (a table) shows its cell texts as separate lines; `s7` shows "Red" in the normal text color.
-- [ ] String handler "custom": titles show the `[handler]` prefix and are still formatted; descriptions are formatted without the prefix.
-- [ ] String handler "raw HTML": `s7` renders red text and a table; this is the customer's pass-through choice, not plugin behavior.
-- [ ] Playground: `<b>a</b>` → `<strong>a</strong>`; `<span style="color:red">x</span>` → `x`, disallowed `span`, `style`; `Tom &amp; Jerry` → `Tom & Jerry`; `R&D` → `R&amp;D`; `a` + line feed + `b` → `a<br>b`.
-- [ ] "Find unsupported" lists `s3`, `s4`, `s5`, `s7` and `c_unsupported`.
+- [x] Survey title, question titles, descriptions and choice texts show bold/italic/strikethrough/links; links open in a new tab.
+- [x] The description of `s1` shows two lines, a paragraph break and a bulleted list.
+- [x] The title of `s6` (a list in a question title) is shown as a bulleted list (block context: a question title is serializer type `text`).
+- [x] `s2`: `Markdown **is not** rendered` shows the asterisks; `Tom & Jerry` shows one ampersand.
+- [x] Plain strings, including the multi-line description of `s8`, look exactly as with `?plugin=off`.
+- [x] String handler "none": the whole page "Strings" looks exactly as with `?plugin=off`; switching back to "built-in" restores formatting without reloading.
+- [x] `s3` and `s4`: no alert appears; `s3` shows a bold "html" and no script text; `s4` shows "js link" as plain text.
+- [x] `s5` (a table) shows its cell texts as separate lines; `s7` shows "Red" in the normal text color.
+- [x] String handler "custom": titles show the `[handler]` prefix and are still formatted; descriptions are formatted without the prefix.
+- [x] String handler "raw HTML": `s7` renders red text and a table; this is the customer's pass-through choice, not plugin behavior.
+- [x] Playground: `<b>a</b>` → `<strong>a</strong>`; `<span style="color:red">x</span>` → `x`, disallowed `span`, `style`; `Tom &amp; Jerry` → `Tom & Jerry`; `R&D` → `R&amp;D`; `a` + line feed + `b` → `a<br>b`.
+- [x] "Find unsupported" lists `s3`, `s4`, `s5`, `s7` and `c_unsupported`.
 
 #### M3 — Editor core in React (§6.1, §7.1–§7.3, value flow basics of §7.4, §8 for React)
 

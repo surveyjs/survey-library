@@ -1,6 +1,7 @@
 import { afterEach, describe, test, expect } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { Serializer } from "../../src/jsonobject";
 import { ComponentCollection } from "../../src/question_custom";
 import { getFilterFieldsForQuestions } from "../../src/dynamic-data/dynamic-data-filter-fields";
@@ -56,6 +57,20 @@ describe("isFilterable and allowFiltering", () => {
     const colProp = Serializer.findProperty("matrixdropdowncolumn", "allowFiltering");
     expect(colProp.isVisible("", matrix.columns[0]), "#8").toBe(true);
     expect(prop.isVisible("", matrix.detailPanel.getQuestionByName("d1")), "#9: a detail panel's question").toBe(false);
+  });
+  test("a Dynamic Panel subclass registered under a type of its own reaches its template's questions", () => {
+    class MyDynamicPanel extends QuestionPanelDynamicModel {
+      public getType(): string { return "mydynamicpanel"; }
+    }
+    Serializer.addClass("mydynamicpanel", [], (): any => new MyDynamicPanel(""), "paneldynamic");
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "mydynamicpanel", name: "p", templateElements: [{ type: "text", name: "pt" }] }] });
+      const pt = (<any>survey.getQuestionByName("p")).template.getQuestionByName("pt");
+      expect(Serializer.findProperty("question", "allowFiltering").isVisible("", pt), "#1").toBe(true);
+      expect(Serializer.findProperty("question", "filterOperators").isVisible("", pt), "#2").toBe(true);
+    } finally {
+      Serializer.removeClass("mydynamicpanel");
+    }
   });
   test("a question that has nested filter fields shows allowFiltering, not filterOperators", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [

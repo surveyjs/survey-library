@@ -17,7 +17,7 @@ export function isFilterFieldInReach(question: Question): boolean {
   while(!!owner && owner.hasNestedFilterFields) {
     owner = owner.parentQuestion;
   }
-  return !!owner && owner.getType() === "paneldynamic" && !owner.parentQuestion;
+  return !!owner && owner.isDescendantOf("paneldynamic") && !owner.parentQuestion;
 }
 // Whether a Filter Control can take the question as its source: it finds the source by name among the
 // survey's questions (findQuestionByName), and no source is nested - not in a Dynamic Panel's template

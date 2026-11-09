@@ -9,9 +9,9 @@ const block = { inline: false };
 describe("lossless and findUnsupported", () => {
   test("built-in markdown is lossless for a table and still reports it", () => {
     const table = "| a | b |\n|---|---|\n| 1 | 2 |";
-    expect(RichText.getFormat("markdown").getUnsupported(table)).toEqual(["table"]);
-    expect(RichText.isLossless(table, "markdown", block)).toBe(true);
-    expect(RichText.isLossless("__a__", "markdown", block)).toBe(true);
+    expect(RichText.getUnsupportedMarkdown(table)).toEqual(["table"]);
+    expect(RichText.isLossless(table, block)).toBe(true);
+    expect(RichText.isLossless("__a__", block)).toBe(true);
   });
 
   test("a lossless converter skips the check and checkLossless wins over the round trip", () => {

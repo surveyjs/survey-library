@@ -1,8 +1,6 @@
 import { RendererFactory, Serializer, SvgRegistry } from "survey-core";
-import { installConverters, richTextBindings } from "./api";
-import { htmlConverter } from "./html-format";
+import { richTextBindings } from "./api";
 import { richTextIcons } from "./icons";
-import { markdownConverter } from "./markdown";
 import { attachEditor, getStringEditMode, htmlToMarkdown, htmlToMarkdownHandler, markdownToHtml, textMarkdownHandler } from "./survey-strings";
 
 export { RichText } from "./api";
@@ -11,7 +9,6 @@ export type { IRichTextCommands, IRichTextEditorHost, RichTextMark, RichTextMark
 export { getRichTextString, setRichTextStrings } from "./rich-text-strings";
 export type { IRichTextConverter, IRichTextConverterContext, IRichTextEditorHandle, IRichTextEditorOptions, RichTextEditMode, UnsupportedHit } from "./api";
 
-installConverters(markdownConverter, htmlConverter);
 richTextBindings.markdownToHtml = markdownToHtml;
 richTextBindings.htmlToMarkdown = htmlToMarkdown;
 richTextBindings.textMarkdownHandler = textMarkdownHandler;

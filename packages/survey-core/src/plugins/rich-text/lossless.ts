@@ -1,7 +1,8 @@
 import { Base, Question, Serializer, SurveyModel, DomDocumentHelper } from "survey-core";
 import { createAnswerConverter } from "./answer-format";
-import { IRichTextConverter, IRichTextConverterContext, RichText, RichTextFormat } from "./api";
+import type { IRichTextConverter, IRichTextConverterContext } from "./api";
 import { getAnswerEditMode } from "./edit-mode";
+import { getUnsupportedMarkdown, markdownConverter } from "./markdown";
 import { createDetachedElement } from "./runs";
 
 export interface UnsupportedHit {
@@ -22,12 +23,11 @@ export function isConverterLossless(converter: IRichTextConverter, source: strin
   return roundTrip === html;
 }
 
-export function isLossless(source: string, format: RichTextFormat, context: IRichTextConverterContext): boolean {
-  return isConverterLossless(RichText.getFormat(format), source, context);
+export function isLossless(source: string, context: IRichTextConverterContext): boolean {
+  return isConverterLossless(markdownConverter, source, context);
 }
 
-export function findUnsupported(survey: SurveyModel, format?: RichTextFormat): UnsupportedHit[] {
-  const scanFormat: RichTextFormat = format || "markdown";
+export function findUnsupported(survey: SurveyModel): UnsupportedHit[] {
   const hits: UnsupportedHit[] = [];
   const seen = new Set<Base>();
   const visit = (element: Base) => {
@@ -40,7 +40,9 @@ export function findUnsupported(survey: SurveyModel, format?: RichTextFormat): U
       const locales = loc.getLocales();
       for (let n = 0; n < locales.length; n++) {
         const text = loc.getLocaleText(locales[n]);
-        if (text) consider(element, props[i].name, locales[n], text, scanFormat);
+        if (text && getUnsupportedMarkdown(text).length > 0) {
+          hits.push({ element: element, name: props[i].name, locale: locales[n], text: text });
+        }
       }
     }
   };
@@ -66,14 +68,4 @@ export function findUnsupported(survey: SurveyModel, format?: RichTextFormat): U
     }
   });
   return hits;
-
-  function consider(element: Base, name: string, locale: string, text: string, usedFormat: RichTextFormat): void {
-    const converter = RichText.getFormat(usedFormat);
-    if (converter.getUnsupported) {
-      if (converter.getUnsupported(text).length === 0) return;
-    } else if (isLossless(text, usedFormat, { inline: false, element: element, name: name })) {
-      return;
-    }
-    hits.push({ element: element, name: name, locale: locale, text: text });
-  }
 }

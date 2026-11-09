@@ -121,14 +121,11 @@ describe("survey strings through handlers", () => {
     expect(RichText.markdownToHtml("- item", { element: inline, name: "value" })).toBe("");
   });
 
-  test("findUnsupported defaults to markdown", () => {
+  test("findUnsupported checks survey strings as markdown", () => {
     const survey = new SurveyModel({
       elements: [{ type: "text", name: "s5", description: "| a | b |\n|---|---|\n| 1 | 2 |" }]
     });
-    const byDefault = RichText.findUnsupported(survey).map(hit => hit.name);
-    const explicit = RichText.findUnsupported(survey, "markdown").map(hit => hit.name);
-    expect(byDefault).toEqual(explicit);
-    expect(byDefault).toContain("description");
+    expect(RichText.findUnsupported(survey).map(hit => hit.name)).toContain("description");
   });
 
   test("settings has no richText slot", () => {

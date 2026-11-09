@@ -241,24 +241,26 @@ document.getElementById("external-converter").addEventListener("change", functio
 function updatePlayground() {
   var api = richTextApi();
   var source = document.getElementById("pg-source").value;
-  var format = document.getElementById("pg-format").value;
-  if (!api || typeof api.getFormat !== "function") {
+  var mode = document.getElementById("pg-format").value;
+  if (!api || typeof api.sanitizeHtml !== "function") {
     document.getElementById("pg-preview").textContent = "";
     text("pg-canonical", "");
-    text("pg-meta", "Converter is not available yet.");
+    text("pg-meta", "Not available yet.");
     return;
   }
-  var converter = api.getFormat(format);
   var context = { inline: false };
-  var html = converter.toHtml(source, context);
-  document.getElementById("pg-preview").innerHTML = html;
-  var holder = document.createElement("div");
-  holder.innerHTML = html;
-  var canonical = converter.toSource(holder, context);
-  text("pg-canonical", canonical);
-  var unsupported = typeof converter.getUnsupported === "function" ? converter.getUnsupported(source) : [];
-  var lossless = typeof api.isLossless === "function" ? api.isLossless(source, format, context) : "";
-  text("pg-meta", "isLossless: " + lossless + "\ngetUnsupported: " + JSON.stringify(unsupported));
+  if (mode === "sanitizer") {
+    var clean = api.sanitizeHtml(source);
+    document.getElementById("pg-preview").innerHTML = clean;
+    text("pg-canonical", clean);
+    text("pg-meta", "getDisallowedHtml: " + JSON.stringify(api.getDisallowedHtml(source)));
+    return;
+  }
+  var html = api.markdownToHtml(source, context);
+  if (html) document.getElementById("pg-preview").innerHTML = html;
+  else document.getElementById("pg-preview").textContent = source;
+  text("pg-canonical", html ? api.htmlToMarkdown(html, context) : source);
+  text("pg-meta", "isLossless: " + api.isLossless(source, context) + "\ngetUnsupportedMarkdown: " + JSON.stringify(api.getUnsupportedMarkdown(source)));
 }
 
 document.getElementById("pg-source").addEventListener("input", updatePlayground);

@@ -35,7 +35,7 @@ Provide a rich text editor that can be used in:
 | Topic | Decision |
 |---|---|
 | Storage format | Survey strings and comment answers: whatever the customer's handlers understand; the plugin supplies Markdown handlers. A customer who wants HTML assigns `options.html = options.text` in their own handler (their risk for strings, §10; answers are sanitized on display, §6.4). Never store both. |
-| Converter | Own, built-in Markdown subset converter (both directions), exposed as ready-made handlers. Built-in allow-list HTML format, used as the display sanitizer of comment answers and for paste normalization. Customers replace conversion by attaching their own handlers (markdown-it, turndown). |
+| Converter | Own, built-in Markdown subset converter (both directions), exposed as ready-made handlers. Built-in allow-list HTML sanitizer, used on display of comment answers and for paste normalization. Customers replace conversion by attaching their own handlers (markdown-it, turndown). |
 | Features | Bold, italic, strikethrough, link, bulleted list, numbered list, line breaks/paragraphs, clear formatting. |
 | Not supported | Tables, images, headings, colors, font size/family, alignment, underline, nested lists, code, blockquotes. |
 | Distribution | Separate entry point of the `survey-core` npm package: `survey-core/rich-text` (ESM + UMD + CSS), same pattern as `survey-core/collaboration`. Designed so it can later move into the main bundle without breaking changes (§11.2). |
@@ -51,16 +51,17 @@ Provide a rich text editor that can be used in:
 
 ### 3.1 Formats
 
-There is no format property in JSON, neither for survey strings nor for comment answers. The storage format is whatever the handlers attached to `onTextMarkdown` / `onHtmlToMarkdown` read and write. Formats are only the names of the plugin's two built-in converters, available read-only through `RichText.getFormat`:
+There is no format property in JSON, neither for survey strings nor for comment answers. The storage format is whatever the handlers attached to `onTextMarkdown` / `onHtmlToMarkdown` read and write. The plugin has one built-in format and no format registry:
 
-- `"markdown"` — the default rich format. Stored value is Markdown text from the supported subset (§3.3). The plugin's functions and ready-made handlers (§4.2) use it.
-- `"html"` — the allow-list HTML format (§3.4). It is not a storage format of its own: it sanitizes handler output for comment answers (§6.4), normalizes paste (§7.4), and customers may call it from their own handlers (§10).
+- **Markdown** — stored value is Markdown text from the supported subset (§3.3). The plugin's functions and ready-made handlers (§4.2) use it. The converter itself is internal; it is reachable only through the functions of §4.2.
 
-No other format names exist, and the built-in converters cannot be replaced. A customer who wants different conversion (e.g. markdown-it/turndown) attaches their own handlers instead of the plugin's; the plugin's functions and ready-made handlers always use the built-in Markdown converter.
+The built-in **HTML sanitizer** (§3.4) is not a format: nothing is stored in it. It cleans handler output for comment answers (§6.4), normalizes paste (§7.4), and customers may call it through `RichText.sanitizeHtml` (§10).
+
+The built-in converter cannot be replaced. A customer who wants different conversion (e.g. markdown-it/turndown) attaches their own handlers instead of the plugin's; the plugin's functions and ready-made handlers always use the built-in Markdown converter.
 
 Comment answers and survey strings go through the same handlers. A handler recognizes an answer by `options.name === "value"`; `options.element` is the comment question. Any other storage (e.g. raw HTML strings, or HTML answers for selected questions) is implemented by the customer in their own handlers, branching on these options (§4.2 sample).
 
-### 3.2 Common rendering rules (both formats)
+### 3.2 Common rendering rules (Markdown and the HTML sanitizer)
 
 - **Line breaks:** a single newline in Markdown (and `<br>` in HTML) renders as a line break. A blank line (and `<p>` in HTML) separates paragraphs. Rationale: existing plain-text comment answers contain newlines and must not collapse when a question is switched to rich text.
 - **Paragraph wrapping:** a single paragraph renders **without** a `<p>` wrapper; two or more paragraphs render as `<p>` elements.
@@ -75,7 +76,7 @@ Parsing (input accepted):
 
 - Inline: `**bold**` and `__bold__`; `*italic*` and `_italic_` (underscore emphasis is not allowed inside words, as in CommonMark); `~~strike~~`; `[text](url)`; backslash escapes.
 - Block (block context only): paragraphs separated by blank lines; bulleted list items starting with `- `, `* ` or `+ `; numbered list items starting with `N. `. **No nested lists**: indented list items are not treated as nested.
-- Everything else (headings, tables, images, code, blockquotes, raw HTML, indented list items) is rendered as **literal, escaped text**. The parser records each such literal fallback; `getUnsupported` (§4.1) returns their kinds (`"heading"`, `"table"`, `"image"`, `"code"`, `"blockquote"`, `"raw-html"`, `"nested-list"`).
+- Everything else (headings, tables, images, code, blockquotes, raw HTML, indented list items) is rendered as **literal, escaped text**. The parser records each such literal fallback; `RichText.getUnsupportedMarkdown` (§4.2) returns their kinds (`"heading"`, `"table"`, `"image"`, `"code"`, `"blockquote"`, `"raw-html"`, `"nested-list"`).
 - All text is HTML-escaped. Output contains only canonical tags. The converter is XSS-safe by construction.
 - Delimiter resolution follows CommonMark for everything the serializer emits. For pathological delimiter runs (overlapping bold/italic boundaries inside one word with no separator) the parser uses a deterministic stack rule: inside a run of `*`, first close open marks from the top of the stack, then open new ones.
 
@@ -91,18 +92,18 @@ Serialization (output written), from the editor DOM:
 
 Worked example (must be a unit test): source `Please **read** the *terms* carefully`, user selects `ead the ter` and applies bold → `Please **read the** ***ter**ms* carefully`. Applying bold again to the same selection → `Please **r**ead the *terms* carefully`.
 
-### 3.4 Built-in HTML format (allow-list)
+### 3.4 Built-in HTML sanitizer (allow-list)
 
-Used as the display sanitizer of comment answers (§6.4), by paste normalization in the Creator string editor (§9.2), and available through `RichText.getFormat("html")`.
+Two functions in `sanitizer.ts`: `sanitizeHtml(html, inline)` and `getDisallowedHtml(html)`. Used on display of comment answers (§6.4), by paste normalization in the Creator string editor (§9.2), and available as `RichText.sanitizeHtml` / `RichText.getDisallowedHtml` (§4.2).
 
 - **Input accepted:** the same element set as §3.3 step 1.
 - **Unknown elements** are unwrapped, keeping their text. Block-level unknown elements (`div`, `h1`–`h6`, `table`, `tr`, `blockquote`, `pre`, …) become paragraph/line boundaries so text does not run together.
 - **Dropped with their content:** `script`, `style`, `iframe`, `object`, `embed`, `template`, `noscript`.
 - **Attributes:** all are removed except `a[href]` with an allowed scheme. `target` and `rel` on `a` are removed **without being reported**: they are render-time attributes (§3.2), and the built-in Markdown converter emits them, so reporting them would send every answer with a link to source mode (§6.4).
-- **Output:** canonical tags only. The same run-based serializer as §3.3 writes HTML instead of Markdown.
-- `toHtml` runs stored HTML through the same allow-list. This makes it a sanitizer on display.
-- The allow-list pass reports everything it removed or unwrapped (element names, attributes such as `style`, disallowed `href` schemes). `getUnsupported` returns these kinds; `checkLossless` returns `true` only when the report is empty. Renaming to canonical tags (`b` → `strong`) is not reported.
-- **No DOM available (SSR):** `toHtml` returns `""`, so callers render the source as escaped plain text.
+- **Output:** canonical tags only. The same run-based serializer as §3.3 writes HTML instead of Markdown; links get the render-time `target`/`rel` (§3.2).
+- **Inline context:** blocks are joined with `<br>` into one paragraph without a `<p>` wrapper.
+- The allow-list pass reports everything it removed or unwrapped (element names, attributes such as `style`, disallowed `href` schemes); `getDisallowedHtml` returns these kinds. Renaming to canonical tags (`b` → `strong`) is not reported.
+- **No DOM available (SSR):** `sanitizeHtml` returns `""`, so callers render the source as escaped plain text; `getDisallowedHtml` returns `[]`.
 
 ---
 
@@ -126,17 +127,21 @@ export interface IRichTextConverter {
 }
 ```
 
-Customers do not implement this interface to change conversion; they attach handlers (§4.2). It types the results of `RichText.getFormat`, Creator's `richTextConverter` (§6.1, §9.2.1) and the plugin's internal answer converter (§6.4).
+Customers do not implement this interface to change conversion; they attach handlers (§4.2). It types Creator's `richTextConverter` (§6.1, §9.2.1) and the plugin's internal converters: the built-in Markdown converter and the answer converter (§6.4).
 
-Converters must be synchronous. The built-in Markdown converter implements `getUnsupported` (§3.3). The built-in HTML converter implements `getUnsupported` and `checkLossless` (§3.4); `checkLossless` is required there because its `toHtml` already drops unsupported content, so a round trip of its output cannot detect the loss.
+Converters must be synchronous. The built-in Markdown converter implements `getUnsupported` (§3.3). The answer converter implements `checkLossless` (§6.4).
 
 ### 4.2 `RichText` facade (exported from `survey-core/rich-text`)
 
 ```ts
-// Built-in converters (read-only; no registration)
-RichText.getFormat(format: "markdown" | "html"): IRichTextConverter;
-RichText.isLossless(source: string, format: "markdown" | "html", context: IRichTextConverterContext): boolean;
-RichText.findUnsupported(survey: SurveyModel, format?: "markdown" | "html"): Array<{ element: Base, name: string, locale: string, text: string }>;
+// Built-in Markdown: diagnostics
+RichText.isLossless(source: string, context: IRichTextConverterContext): boolean;
+RichText.getUnsupportedMarkdown(source: string): string[]; // kinds rendered as literal text (§3.3)
+RichText.findUnsupported(survey: SurveyModel): Array<{ element: Base, name: string, locale: string, text: string }>;
+
+// Built-in HTML sanitizer (§3.4)
+RichText.sanitizeHtml(html: string, options?: { inline?: boolean }): string; // block context by default
+RichText.getDisallowedHtml(html: string): string[]; // what sanitizeHtml removes or unwraps
 
 // Survey strings: plain functions
 RichText.markdownToHtml(text: string, context?: Partial<IRichTextConverterContext>): string; // "" when there is no formatting
@@ -161,7 +166,7 @@ export interface IRichTextEditorOptions { mode: "inline" | "block"; onInput?: ()
 export interface IRichTextEditorHandle { toolbar: ActionContainer; detach(): void; }
 ```
 
-- `markdownToHtml` / `htmlToMarkdown` use the built-in Markdown converter (`RichText.getFormat("markdown")`). `htmlToMarkdown` parses the string into a detached element and calls `toSource`; without a DOM it returns the input unchanged.
+- `markdownToHtml` / `htmlToMarkdown` use the built-in Markdown converter. `htmlToMarkdown` parses the string into a detached element and calls `toSource`; without a DOM it returns the input unchanged.
 - When `context.inline` is omitted, it is derived from `context.element` and `context.name`. For a comment answer (`element` inherits from `comment` and `name === "value"`), `inline` = the effective comment edit mode is `"inline"` (§6.1). Otherwise `inline = getStringEditMode(...) !== "block"`. With no element, `inline = true`.
 - `textMarkdownHandler` calls `markdownToHtml(options.text, { element: options.element, name: options.name })` and assigns the result to `options.html` only when it is not `""`. `htmlToMarkdownHandler` assigns `htmlToMarkdown(options.html, { element, name })` to `options.text`; it assigns `""` (not `null`) for empty HTML, so the reverse-handler probes (§6.4, §9.0) detect it. Both handlers serve survey strings and comment answers.
 - Documented usage:
@@ -189,8 +194,8 @@ export interface IRichTextEditorHandle { toolbar: ActionContainer; detach(): voi
   });
   ```
 
-- `findUnsupported` checks survey strings against `format`, which defaults to `"markdown"`, and the values of comment questions with `allowRichText` through their answer converter (§6.4); `format` does not apply to answers.
-- `attachEditor` is format-agnostic: it adds the toolbar and keyboard behavior to a `contenteditable` element and never serializes. The caller reads `innerHTML` and converts it itself (Creator: through `onHtmlToMarkdown`, §9.2). Paste is normalized with the built-in allow-list HTML format (§3.4).
+- `findUnsupported` checks survey strings with `getUnsupportedMarkdown`, and the values of comment questions with `allowRichText` through their answer converter (§6.4).
+- `attachEditor` is format-agnostic: it adds the toolbar and keyboard behavior to a `contenteditable` element and never serializes. The caller reads `innerHTML` and converts it itself (Creator: through `onHtmlToMarkdown`, §9.2). Paste is normalized with the built-in HTML sanitizer (§3.4).
 - External converters are attached as handlers: markdown-it to `survey.onTextMarkdown`, turndown to `survey.onHtmlToMarkdown` (and to `creator.onHtmlToMarkdown` in Creator). Mixing is done in the customer's handlers, e.g. markdown-it for rendering and `RichText.htmlToMarkdownHandler` for saving.
 - Also export `RichTextEditorModel` and all public types.
 
@@ -290,11 +295,11 @@ Comment answers go through the handlers of the question's survey, with `element`
 
 - `toHtml(source, ctx)`: `raw = survey.getSurveyMarkdownHtml(question, source, "value", undefined)`.
   - When `raw` is empty (`null`, `undefined` or `""`), the source has no formatting: return the HTML-escaped source with `\n` → `<br>`.
-  - Otherwise return `RichText.getFormat("html").toHtml(raw, ctx)`. Handler output never reaches the DOM unsanitized, in edit mode and in display mode, whatever handler produced it (pass-through handlers included).
+  - Otherwise return `sanitizeHtml(raw, ctx.inline)`. Handler output never reaches the DOM unsanitized, in edit mode and in display mode, whatever handler produced it (pass-through handlers included).
 - `toSource(root, ctx)`: `survey.getSurveyHtmlToMarkdown(question, root.innerHTML, "value")`.
 - `checkLossless(source, ctx)`:
   1. `true` when `raw` is empty (plain text);
-  2. `false` when the allow-list reports anything in `raw` (`RichText.getFormat("html").getUnsupported(raw).length > 0`), e.g. a table rendered by markdown-it or a `style` attribute. Without this step the sanitizer would hide the loss from the round trip;
+  2. `false` when the allow-list reports anything in `raw` (`getDisallowedHtml(raw).length > 0`), e.g. a table rendered by markdown-it or a `style` attribute. Without this step the sanitizer would hide the loss from the round trip;
   3. otherwise the round trip on sanitized HTML: `html = toHtml(source)`, then `toHtml(toSource(detached(html))) === html`.
 
 **Rich editing condition** (`canEditRich`): the question is editable, it has a survey, `survey.onTextMarkdown` is not empty, and the reverse probe `survey.getSurveyHtmlToMarkdown(question, "", "value") !== null` succeeds. Otherwise the editable question renders the standard textarea with no notice and no toolbar: the editor would otherwise let the user format text that cannot be saved. Read-only, display and design modes always render `toHtml(value)`; with only `onTextMarkdown` attached (e.g. a results viewer) answers are shown formatted.
@@ -356,7 +361,7 @@ The model is framework-agnostic and attaches to any `contenteditable` element (`
 - **Source mode** (not lossless): the standard textarea is shown with the source, plus the `richTextSourceMode` notice and an `richTextEditAnyway` action that switches to rich mode for this session without the check.
 - **Committing:** on blur always; additionally on `input` (debounced) when `question.isInputTextUpdate` is true. Only real `input` events serialize; focusing and leaving without changes never rewrites the value.
 - **External value changes** (`setValue`, expressions, collaboration): re-render the element only if the new value differs from the last serialized value. If the element is focused, defer the re-render until blur.
-- **Paste:** always intercepted. `text/html` → `toSource` of a detached fragment → `toHtml` → `insertHTML` (normalizes everything to the format; for answers, this goes through the customer's handlers and the sanitizer, §6.4). `text/plain` → `insertText`. In the format-agnostic mode of `RichText.attachEditor` (§4.2) the built-in allow-list HTML format is used for this round trip.
+- **Paste:** always intercepted. `text/html` → `toSource` of a detached fragment → `toHtml` → `insertHTML` (normalizes everything to the format; for answers, this goes through the customer's handlers and the sanitizer, §6.4). `text/plain` → `insertText`. In the format-agnostic mode of `RichText.attachEditor` (§4.2) there is no round trip: `text/html` → `sanitizeHtml` → `insertHTML`.
 - **Undo/redo:** native (provided by `execCommand`).
 - **Format-agnostic mode** (`RichText.attachEditor`, Creator string editor): no lossless check, no source mode, no serialization, no value commits. The model only runs commands, keys, toolbar state and paste normalization; the caller owns the content.
 
@@ -483,10 +488,10 @@ Changes:
 
 - Built-in converters are XSS-safe by construction (escaping + allow-list). Must be proven by unit tests with known XSS vectors (script tags, event-handler attributes, `javascript:`/`data:` links, quote breaking in `href`, entity tricks).
 - Sanitization happens **at display time** (`toHtml`), never only at save time: respondents can submit arbitrary values without using the editor.
-- Comment answers: the output of the customer's `onTextMarkdown` handlers is always passed through the built-in allow-list before it reaches the DOM (§6.4), including pass-through handlers (`options.html = options.text`). Stored answers are not sanitized: they are whatever the reverse handler returns. Exports, PDF, analytics and custom viewers that render stored answers outside the plugin must sanitize them themselves; the documentation recommends `RichText.getFormat("html").toHtml`.
-- Piped values (`{name}`) are inserted by `textPreProcessor` without HTML escaping before conversion. Built-in Markdown escapes them; the built-in HTML format sanitizes them; for survey strings, pass-through handlers must sanitize (answers are sanitized by the plugin, §6.4). This is documented.
+- Comment answers: the output of the customer's `onTextMarkdown` handlers is always passed through the built-in allow-list before it reaches the DOM (§6.4), including pass-through handlers (`options.html = options.text`). Stored answers are not sanitized: they are whatever the reverse handler returns. Exports, PDF, analytics and custom viewers that render stored answers outside the plugin must sanitize them themselves; the documentation recommends `RichText.sanitizeHtml`.
+- Piped values (`{name}`) are inserted by `textPreProcessor` without HTML escaping before conversion. Built-in Markdown escapes them; the built-in HTML sanitizer cleans them; for survey strings, pass-through handlers must sanitize (answers are sanitized by the plugin, §6.4). This is documented.
 - Documentation must state the customer risks of pass-through HTML: stored XSS, piped values, tags in exports/PDF/analytics, one-way format migration, theme mismatch.
-- The same risks apply to raw HTML survey strings (`options.html = options.text` in a customer's `onTextMarkdown` handler). With a pass-through `onHtmlToMarkdown` handler (`options.text = options.html`), the Creator toolbar stores browser-generated markup (`<b>`, `<span style>`, …) as is. The docs recommend `RichText.getFormat("html").toHtml` as a sanitizer in such handlers.
+- The same risks apply to raw HTML survey strings (`options.html = options.text` in a customer's `onTextMarkdown` handler). With a pass-through `onHtmlToMarkdown` handler (`options.text = options.html`), the Creator toolbar stores browser-generated markup (`<b>`, `<span style>`, …) as is. The docs recommend `RichText.sanitizeHtml` in such handlers.
 
 ---
 
@@ -499,7 +504,7 @@ Changes:
 - Existing `onTextMarkdown` handlers are untouched for survey strings: the plugin never pre-fills `options.html`. They start receiving comment answers (`options.name === "value"`) only for questions that get `allowRichText: true`, which is new JSON, so existing surveys are not affected. Recommended migration: replace a markdown-it handler with `RichText.textMarkdownHandler` and attach `RichText.htmlToMarkdownHandler` to `survey.onHtmlToMarkdown`; or keep markdown-it and attach turndown to `survey.onHtmlToMarkdown`. Comment answers, survey strings and the editor then render identically because they share the handlers.
 - Creator `onHtmlToMarkdown` handlers are untouched; they are the only save path for survey strings (§9.2).
 - `allowRichText` survives loading/saving in environments without the plugin.
-- `RichText.findUnsupported(survey, format?)` lets customers find strings/answers that will render differently with the active converter (e.g. raw `<br>` inside Markdown, which the built-in converter shows literally) before attaching the handler. `format` defaults to `"markdown"`. It checks every `useMarkdown` string in every locale against `format` (it uses `getUnsupported` when the converter implements it, otherwise `!isLossless`), and the values of comment questions with `allowRichText` through their answer converter's `checkLossless` (§6.4).
+- `RichText.findUnsupported(survey)` lets customers find strings/answers that will render differently with the built-in Markdown converter (e.g. raw `<br>` inside Markdown, which it shows literally) before attaching the handler. It checks every `useMarkdown` string in every locale with `getUnsupportedMarkdown`, and the values of comment questions with `allowRichText` through their answer converter's `checkLossless` (§6.4). Customers who keep raw HTML strings check them with `RichText.getDisallowedHtml`.
 
 ### 11.2 Forward compatibility: a possible move into the main bundle
 
@@ -529,8 +534,8 @@ packages/survey-core/
     survey-strings.ts                        # markdownToHtml, htmlToMarkdown, handlers, attachEditor (§4.2)
     answer-format.ts                         # answer converter through handlers, canEditRich (§6.4)
     markdown.ts                              # Markdown parser + serializer
-    html-format.ts                           # allow-list HTML format
-    runs.ts                                  # DOM → runs flattening, shared by both formats
+    sanitizer.ts                             # allow-list HTML sanitizer
+    runs.ts                                  # DOM → runs flattening, shared by Markdown and the sanitizer
     lossless.ts                              # isLossless, findUnsupported
     editor-model.ts                          # RichTextEditorModel, command adapter
     toolbar.ts                               # ActionContainer setup
@@ -562,13 +567,13 @@ All test suites below are required deliverables.
 - **markdown.tests.ts:** subset parsing; escaping; line-break and paragraph rules; single-paragraph unwrapping; inline vs block context; unsupported syntax as literal text; link scheme allow-list; `target`/`rel` on render; plain text → `""` through `RichText.markdownToHtml`.
 - **serializer.tests.ts:** DOM-shape normalization (`b`/`strong`, `i`/`em`, `div`/`p`, duplicated nested tags, `span[style]` unwrapped); whitespace movement; overlapping marks including the worked example in §3.3; intraword emphasis; link outermost; lists; escaping of special characters and line-start markers; empty content.
 - **roundtrip.tests.ts:** corpus + deterministic generated run sequences; `toSource(toHtml(x))` stability; parse(serialize(runs)) equals runs.
-- **html-format.tests.ts:** allow-list; unknown elements unwrapped with text kept; block elements → boundaries; dropped elements with content; attribute stripping; `target`/`rel` on `a` stripped without being reported; `href` schemes; canonical output; XSS vectors; SSR (no DOM) returns `""`.
-- **lossless.tests.ts:** equivalent Markdown syntax variants are lossless; tables are lossy with a lossy test converter passed to the internal check (`isConverterLossless`); literal tables are lossless with the built-in Markdown converter but reported by its `getUnsupported`; built-in HTML: content with removed elements/attributes is not lossless, canonical renaming is; `lossless: true` converters skip the check; `checkLossless` takes precedence over the round trip; `findUnsupported` for strings and for comment answers with `allowRichText` (through their answer converter).
-- **survey-strings.tests.ts:** plugin loaded without a handler → survey strings render as plain text (no `options.html` pre-fill); `textMarkdownHandler` renders titles inline and descriptions in block context; plain strings keep `hasHtml === false`; `useMarkdown === false` strings untouched; a conditional customer handler calling `markdownToHtml` for some strings only; a pass-through handler (`options.html = options.text`) is unaffected by the plugin; `markdownToHtml` honours an explicit `inline`; for a comment answer (`name: "value"`) the context is inline when `acceptCarriageReturn === false` and block otherwise; `htmlToMarkdown` of a string, of `""`, and without a DOM; `htmlToMarkdownHandler` fills `options.text` and returns `""` for empty HTML; `RichText` has no `registerFormat`; `findUnsupported` with and without the `format` argument (default `"markdown"`).
+- **sanitizer.tests.ts:** allow-list; unknown elements unwrapped with text kept; block elements → boundaries; inline context joins blocks with `<br>`; dropped elements with content; attribute stripping; `target`/`rel` on `a` stripped without being reported; `href` schemes; canonical output; XSS vectors; `getDisallowedHtml` reports removed elements/attributes but not canonical renaming; SSR (no DOM) returns `""` and `[]`; `RichText` has no `getFormat` and no `registerFormat`.
+- **lossless.tests.ts:** equivalent Markdown syntax variants are lossless; tables are lossy with a lossy test converter passed to the internal check (`isConverterLossless`); literal tables are lossless with the built-in Markdown converter but reported by `getUnsupportedMarkdown`; `lossless: true` converters skip the check; `checkLossless` takes precedence over the round trip; `findUnsupported` for strings and for comment answers with `allowRichText` (through their answer converter).
+- **survey-strings.tests.ts:** plugin loaded without a handler → survey strings render as plain text (no `options.html` pre-fill); `textMarkdownHandler` renders titles inline and descriptions in block context; plain strings keep `hasHtml === false`; `useMarkdown === false` strings untouched; a conditional customer handler calling `markdownToHtml` for some strings only; a pass-through handler (`options.html = options.text`) is unaffected by the plugin; `markdownToHtml` honours an explicit `inline`; for a comment answer (`name: "value"`) the context is inline when `acceptCarriageReturn === false` and block otherwise; `htmlToMarkdown` of a string, of `""`, and without a DOM; `htmlToMarkdownHandler` fills `options.text` and returns `""` for empty HTML; `RichText` has no `registerFormat`; `findUnsupported` checks survey strings as Markdown.
 - **comment-rich-text.tests.ts** (core, with and without the plugin; replaces `comment-text-format.tests.ts`): `allowRichText` default `false` not serialized, `true` survives a load/save round trip; `getComponentName` for comment, an inheriting class, a matrix cell with `cellType: "comment"`, display mode; renderer fallback without plugin; `allowRichText` visibility toggled by plugin; `richTextEditMode`, `richTextToolbarVisibility` and `richTextConverter` not serialized; the comment question has no `textFormat` property, the survey has no `stringFormat` property and `settings` has no `richText` key. Core event: `getSurveyHtmlToMarkdown` returns `null` without handlers and the handler's `options.text` otherwise; the options carry `element`, `name` and `html`; adding a handler does not call `locStrsChanged`.
 - **answer-format.tests.ts:** `toHtml` goes through `onTextMarkdown` with `element` = question and `name` = `"value"`; empty handler output → escaped source with `<br>`; handler output is sanitized (a pass-through handler with `<script>`, `onerror`, `javascript:` links and `style` renders none of them); `toSource` goes through `onHtmlToMarkdown`; `checkLossless`: plain text → `true`, handler output with a table or `style` → `false`, a handler pair that does not round-trip → `false`, the built-in pair with links → `true`; `canEditRich`: no survey, no `onTextMarkdown` handler, no `onHtmlToMarkdown` handler, a reverse handler that ignores `"value"` → `false`, both built-in handlers → `true`, read-only → `false`; `richTextConverter` replaces the answer converter and skips the probe.
 - **edit-mode.tests.ts:** default modes (description → block, title → inline, non-markdown → none, `html` type → none, owner without a survey → by property name); `RichText.getEditMode` override through `getStringEditMode`; bold-hiding rule (computed `font-weight`).
-- **editor-model.tests.ts** (mocked command adapter; the test survey attaches the built-in handler pair): toggle state `all`/`none`/`mixed`; selection save/restore; command dispatch for buttons and shortcuts; Ctrl+U blocked; commit on blur and debounced input per `isInputTextUpdate`; no write on focus/blur without input; external value update and deferral while focused; paste normalization; source mode and "edit anyway"; `maxLength` blocking and command revert; placeholder emptiness; link dialog model validation and empty-URL unlink; format-agnostic mode of `RichText.attachEditor` (toolbar profile per mode, no value writes, no source mode, paste normalized by the allow-list HTML format, `detach` removes listeners).
+- **editor-model.tests.ts** (mocked command adapter; the test survey attaches the built-in handler pair): toggle state `all`/`none`/`mixed`; selection save/restore; command dispatch for buttons and shortcuts; Ctrl+U blocked; commit on blur and debounced input per `isInputTextUpdate`; no write on focus/blur without input; external value update and deferral while focused; paste normalization; source mode and "edit anyway"; `maxLength` blocking and command revert; placeholder emptiness; link dialog model validation and empty-URL unlink; format-agnostic mode of `RichText.attachEditor` (toolbar profile per mode, no value writes, no source mode, paste normalized by the HTML sanitizer, `detach` removes listeners).
 
 ### 13.2 Markup tests — UI packages
 
@@ -647,7 +652,7 @@ Every library demo page renders the demo survey of Appendix A and has a side pan
 - **Handler switch:** each option attaches a pair, one handler to `survey.onTextMarkdown` and one to `survey.onHtmlToMarkdown`: none / built-in (`RichText.textMarkdownHandler` + `RichText.htmlToMarkdownHandler`, the default) / raw HTML (`options.html = options.text` + `options.text = options.html`, demo only) / custom (titles get `"[handler] " + RichText.markdownToHtml(text, { inline: true })`, other strings and answers `RichText.markdownToHtml(text)`; reverse: `RichText.htmlToMarkdownHandler`). In built-in and custom, the answers of `c_html` and `c_unsupported` are routed to the raw HTML pair (the documented per-question sample of §4.2). Switching removes the previous pair, adds the new one and calls `survey.locStrsChanged()` without re-creating the survey; rich comments pick up the change when they next render the editor (§6.4).
 - **Reverse handler checkbox** (default on): unchecking detaches the `onHtmlToMarkdown` handler of the current pair, to verify the plain state (§6.4).
 - **External converter toggle** (from M7): replaces the built-in pair with markdown-it (`onTextMarkdown`) and turndown (`onHtmlToMarkdown`) handlers, loaded from a CDN on the demo page only, exactly as in the documentation sample.
-- **Converter playground:** a format selector, a source textarea, and three outputs updated on input: rendered HTML (preview), canonical source (`toSource` of the rendered HTML), `isLossless` and `getUnsupported` results.
+- **Playground:** a mode selector (Markdown / HTML sanitizer), a source textarea, and three outputs updated on input. Markdown: rendered HTML (`RichText.markdownToHtml`), canonical source (`RichText.htmlToMarkdown` of the rendered HTML), `isLossless` and `getUnsupportedMarkdown`. HTML sanitizer: `RichText.sanitizeHtml` as preview and as text, and `getDisallowedHtml`.
 - **Find unsupported:** runs `RichText.findUnsupported(survey)` and lists the results.
 - URL parameter **`?plugin=off`**: the page does not load the plugin bundle and CSS (the panel hides plugin-only controls).
 
@@ -747,9 +752,9 @@ Automated: remaining `editor-model.tests.ts` cases; all React markup etalons.
 
 #### M4R — Rework: comment answers through handlers (team decision, see `RICH_TEXT_ANSWER_HANDLERS_CHANGES.md`)
 
-Scope: replace the comment property `textFormat` with `allowRichText`; add the survey event `onHtmlToMarkdown` and `getSurveyHtmlToMarkdown` to survey-core (§5); add the answer converter and `canEditRich` to the plugin (§6.4); stop reporting `target`/`rel` in the allow-list (§3.4); answer context for the handlers (§4.2); remove `RichText.registerFormat` (§3.1, §4.2); plain state in the React wrapper (§7.5, §8); update demo page, tests and Appendix A.
+Scope: replace the comment property `textFormat` with `allowRichText`; add the survey event `onHtmlToMarkdown` and `getSurveyHtmlToMarkdown` to survey-core (§5); add the answer converter and `canEditRich` to the plugin (§6.4); stop reporting `target`/`rel` in the allow-list (§3.4); answer context for the handlers (§4.2); remove `RichText.registerFormat` (§3.1, §4.2); replace the HTML "format" with the HTML sanitizer: `RichText.getFormat`, the format registry and the `format` arguments of `isLossless` / `findUnsupported` are removed, `RichText.sanitizeHtml`, `getDisallowedHtml` and `getUnsupportedMarkdown` are added (§3.1, §3.4, §4.2); plain state in the React wrapper (§7.5, §8); update demo page, tests and Appendix A.
 
-Automated: `comment-rich-text.tests.ts` (replaces `comment-text-format.tests.ts`), `answer-format.tests.ts`; updated `survey-strings`, `lossless`, `html-format`, `editor-model` tests; the full existing survey-core suite is green without changed expectations; lint.
+Automated: `comment-rich-text.tests.ts` (replaces `comment-text-format.tests.ts`), `answer-format.tests.ts`, `sanitizer.tests.ts` (replaces `html-format.tests.ts`); updated `survey-strings`, `lossless`, `roundtrip`, `serializer`, `editor-model` tests; the full existing survey-core suite is green without changed expectations; lint.
 
 **CP4R — the rework keeps every checked behavior.**
 - [ ] Re-verify the items of CP1 and CP4 marked *(re-verify after M4R)*.
@@ -758,8 +763,9 @@ Automated: `comment-rich-text.tests.ts` (replaces `comment-text-format.tests.ts`
 - [ ] Built-in pair with the reverse handler checkbox off: editable comments are standard textareas without a notice; read-only mode shows `c_md` formatted.
 - [ ] Raw HTML pair: in the console, `survey.setValue("c_md", "<img src=x onerror=alert(1)><b>ok</b><script>alert(2)</script>")` shows a bold "ok" and no alert, in edit and read-only mode.
 - [ ] Built-in pair: a link typed in `c_md` stays in rich mode after reload of the value (no source mode because of `target`/`rel`).
-- [ ] `git grep -n "textFormat\|registerFormat" packages/` finds nothing.
-- [ ] Console: `SurveyRichText.RichText.registerFormat` is `undefined`; `SurveyRichText.RichText.getFormat("markdown")` still returns the built-in converter.
+- [ ] `git grep -n "textFormat\|registerFormat\|getFormat\|html-format" packages/` finds nothing.
+- [ ] Console: `SurveyRichText.RichText.registerFormat` and `SurveyRichText.RichText.getFormat` are `undefined`; `SurveyRichText.RichText.sanitizeHtml("<span style=\"color:red\">x</span><script>1</script>")` → `"x"`.
+- [ ] Playground: Markdown `__a__` → canonical `**a**`, lossless; a Markdown table → lossless, `getUnsupportedMarkdown` = `["table"]`; HTML sanitizer with `<span style="color:red">x</span>` → `x`, `getDisallowedHtml` lists `style`.
 
 #### M5 — survey-js-ui, Vue 3, Angular wrappers (§8)
 

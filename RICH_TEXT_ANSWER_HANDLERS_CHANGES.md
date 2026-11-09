@@ -11,7 +11,7 @@ Task list for the next session. It brings the code written for M0–M4 (includin
 5. Answers are untrusted. Handler output for answers always passes through the built-in allow-list before it reaches the DOM, pass-through handlers included (spec §1.2, §6.4, §10).
 6. The lossless check for answers first asks the allow-list whether it would remove anything from the handler output, then does the round trip. The allow-list stops reporting `target`/`rel` on links (spec §3.4, §6.4).
 7. `richTextConverter` stays. When set, it replaces the answer converter and skips the probe: Creator's property-grid and translation cells live in internal surveys without customer handlers.
-8. `RichText.registerFormat` is removed; the plugin has no converter registry. External converters (markdown-it, turndown) are attached as handlers. `RichText.getFormat("markdown" | "html")` stays public and read-only: customers use the allow-list as a sanitizer, and the demo playground inspects the built-in converters. The plugin's functions and ready-made handlers always use the built-in Markdown converter (spec §3.1, §4.1–§4.3).
+8. `RichText.registerFormat` and `RichText.getFormat` are removed; the plugin has no converter registry and one built-in format (Markdown). External converters (markdown-it, turndown) are attached as handlers. The allow-list is a sanitizer, not a format: `RichText.sanitizeHtml(html, { inline })` and `RichText.getDisallowedHtml(html)`. Markdown diagnostics are `RichText.isLossless(source, context)`, `RichText.getUnsupportedMarkdown(source)` and `RichText.findUnsupported(survey)` (no `format` argument). The plugin's functions and ready-made handlers always use the built-in Markdown converter (spec §3.1, §3.4, §4.1–§4.3).
 
 ---
 
@@ -34,8 +34,9 @@ Check: `git diff master -- packages/survey-core/src` shows changes only in the f
 ## 3. Plugin (`packages/survey-core/src/plugins/rich-text/`)
 
 ### 3.0 `api.ts`
-- Remove `RichText.registerFormat` (lines ~44–46). Keep `getFormat`, the `converters` map and `installConverters` (internal, called once from `index.ts`).
-- Keep `IRichTextConverter`, `IRichTextConverterContext` and `RichTextFormat` exported: they type `getFormat`, `richTextConverter` and the answer converter.
+- Remove `RichText.registerFormat`, `RichText.getFormat`, the `converters` map, `installConverters` and the `RichTextFormat` type. Add `sanitizeHtml`, `getDisallowedHtml`, `getUnsupportedMarkdown`; drop the `format` argument of `isLossless` and `findUnsupported`.
+- `html-format.ts` becomes `sanitizer.ts` with two functions, `sanitizeHtml(html, inline)` and `getDisallowedHtml(html)`; no `toSource`/`checkLossless`.
+- Keep `IRichTextConverter` and `IRichTextConverterContext` exported: they type `richTextConverter`, the built-in Markdown converter and the answer converter.
 
 ### 3.1 `runs.ts`
 - In `flattenElement`'s attribute report (line ~104–113): for `tag === "a"`, skip `target` and `rel` without reporting them, as is already done for an allowed `href`. Do not keep them in the output; rendering re-adds them.
@@ -52,20 +53,20 @@ Check: `git diff master -- packages/survey-core/src` shows changes only in the f
 Spec §6.4. Exports:
 
 - `createAnswerConverter(question): IRichTextConverter`
-  - `toHtml(source, ctx)`: `raw = question.survey.getSurveyMarkdownHtml(question, source, "value", undefined)`. When `raw` is empty, return `escapeHtml(source)` with `\n` → `<br>`. Otherwise return `RichText.getFormat("html").toHtml(raw, ctx)`.
+  - `toHtml(source, ctx)`: `raw = question.survey.getSurveyMarkdownHtml(question, source, "value", undefined)`. When `raw` is empty, return `escapeHtml(source)` with `\n` → `<br>`. Otherwise return `sanitizeHtml(raw, ctx.inline)`.
   - `toSource(root, ctx)`: `question.survey.getSurveyHtmlToMarkdown(question, root.innerHTML, "value")`.
-  - `checkLossless(source, ctx)`: `true` when `raw` is empty; `false` when `RichText.getFormat("html").getUnsupported(raw)` is not empty; otherwise the round trip on sanitized HTML (`toHtml` → `toSource(createDetachedElement(html))` → `toHtml`, compare). Return `true` when there is no DOM or `toSource` returns `null`.
+  - `checkLossless(source, ctx)`: `true` when `raw` is empty; `false` when `getDisallowedHtml(raw)` is not empty; otherwise the round trip on sanitized HTML (`toHtml` → `toSource(createDetachedElement(html))` → `toHtml`, compare). Return `true` when there is no DOM or `toSource` returns `null`.
   - No `lossless` flag.
 - `canEditRichAnswer(question): boolean`: `false` when the question is read-only or has no survey; `false` when `(question.survey as SurveyModel).onTextMarkdown.isEmpty` (cast: `ISurvey` has no events; add a `//` comment why); otherwise `question.survey.getSurveyHtmlToMarkdown(question, "", "value") !== null`.
 - Both take `richTextConverter` into account through the editor model (§3.6), not here.
 
 ### 3.5 `lossless.ts`
-- Extract `isConverterLossless(converter, source, context)` from the body of `isLossless` (lines ~12–22); `isLossless(source, format, context)` calls it with `RichText.getFormat(format)`.
+- Extract `isConverterLossless(converter, source, context)` from the body of `isLossless` (lines ~12–22); `isLossless(source, context)` calls it with the built-in Markdown converter. Survey strings in `findUnsupported` are checked with `getUnsupportedMarkdown`.
 - `findUnsupported` (lines ~52–57): replace the `textFormat` branch. For questions where `isDescendantOf("comment")` and `allowRichText` is `true` with a non-empty string value: `converter = question.richTextConverter || createAnswerConverter(question)`; add a hit when `!isConverterLossless(converter, value, { inline: getAnswerEditMode(question) === "inline", element: question, name: "value" })`. The `format` argument no longer applies to answers.
 
 ### 3.6 `editor-model.ts`
 - `IRichTextEditorHost`: remove `format` (line ~22).
-- `get converter()` (line ~237): `host.converter || (host.owner ? createAnswerConverter(host.owner) : RichText.getFormat("markdown"))`. Cache the answer converter per model instance; it is stateless and reads the survey on each call.
+- `get converter()` (line ~237): `host.converter || (host.owner ? createAnswerConverter(host.owner) : markdownConverter)`. Paste in format-agnostic mode calls `sanitizeHtml(html, inline)` directly. Cache the answer converter per model instance; it is stateless and reads the survey on each call.
 - `updateSourceMode` (lines ~344–351): use `isConverterLossless(this.converter, value, this.context)` instead of `RichText.isLossless(value, format, …)`. This also fixes a current bug: the check ignores `host.converter` (`richTextConverter`).
 - `context` (line ~241): keep `name: "value"`; `element` is `host.owner`.
 - Add `public get canEditRich(): boolean`: `true` when `host.converter` is set, `true` when there is no `host.owner` (format-agnostic mode), otherwise `canEditRichAnswer(host.owner)`.
@@ -88,7 +89,8 @@ Spec §6.4. Exports:
 | New `answer-format.tests.ts` | The cases in spec §13.1 (`toHtml` through `onTextMarkdown` with `name: "value"`; empty handler output → escaped text with `<br>`; XSS vectors through a pass-through handler are sanitized; `toSource` through `onHtmlToMarkdown`; `checkLossless` for plain text, table/`style` in handler output, a non-round-tripping pair, the built-in pair with links; `canEditRich` for no survey, no forward handler, no reverse handler, a reverse handler that ignores `"value"`, both built-in handlers, read-only; `richTextConverter` replaces the answer converter and skips the probe). |
 | `editor-model.tests.ts` | Add a helper that creates the survey and attaches `RichText.textMarkdownHandler` + `RichText.htmlToMarkdownHandler`. Replace `textFormat: "markdown"` with `allowRichText: true` (lines ~53–424). Remove `format` from the hosts (lines ~27, ~246). Replace the `textFormat` visibility assertion (line ~48) with `allowRichText`. Rewrite the `"html"` cases (lines ~386, ~409) with a raw HTML handler pair: the unsupported default value opens in source mode; typing stores the editor's HTML. Add a `canEditRich === false` case without the reverse handler. |
 | `lossless.tests.ts` | Lines ~16–23 ("a lossless converter skips the check…"): replace the `registerFormat` swaps with direct calls to the internal `isConverterLossless` (import from `src/plugins/rich-text/lossless`) on the two inline converters. Line ~32: `allowRichText: true` plus a raw HTML handler pair on the survey; `findUnsupported` still reports `c_unsupported`. Add a case: an answer with Markdown and the built-in pair is not reported. |
-| `html-format.tests.ts` | Add: `<a href="https://x" target="_blank" rel="noopener">` → `getUnsupported` is empty and the output keeps only `href` (plus render-time `target`/`rel`). |
+| `html-format.tests.ts` | Rename to `sanitizer.tests.ts` and use `RichText.sanitizeHtml` / `getDisallowedHtml`. Add: `<a href="https://x" target="_blank" rel="noopener">` → `getDisallowedHtml` is empty and the output keeps only `href` (plus render-time `target`/`rel`); inline context; `RichText.getFormat` is `undefined`. |
+| `roundtrip.tests.ts`, `serializer.tests.ts` | Import the internal `markdownConverter` instead of `RichText.getFormat("markdown")`. |
 | `survey-strings.tests.ts` | Delete the test "a registered markdown converter is used by the string functions and the handler" (lines ~103–119). Its replacement: a customer handler (a fake markdown-it, e.g. `options.html = "<i>" + options.text + "</i>"`) attached instead of `textMarkdownHandler` renders the title, and `RichText.registerFormat` is `undefined`. Add: for `{ element: comment, name: "value" }`, `markdownToHtml` uses block context by default and inline context with `acceptCarriageReturn: false`. |
 | Markup etalons (`tests/markup/etalon_rich_text.ts`) | Not created yet (M5); create them with `allowRichText` and the handler setup per etalon (spec §13.2). |
 
@@ -112,7 +114,7 @@ Run `npx vitest run tests/rich-text`, then the full `npm run test` in `packages/
 1. `npm run build && npm run build:rich-text` in `packages/survey-core`, then `npm run build && npm start` in `packages/survey-react-ui`, open `/rich-text.html`.
 2. Re-check the CP1/CP4 items marked *(re-verify after M4R)* and all CP3/CP4 items with the built-in pair.
 3. Run the CP4R checklist: handler "none", reverse checkbox off, the XSS value through the raw HTML pair, a link in `c_md` stays in rich mode.
-4. `git grep -n "textFormat\|registerFormat" packages/` finds nothing; in the console `SurveyRichText.RichText.registerFormat` is `undefined`.
+4. `git grep -n "textFormat\|registerFormat\|getFormat\|html-format" packages/` finds nothing; in the console `SurveyRichText.RichText.registerFormat` and `getFormat` are `undefined`.
 
 ---
 

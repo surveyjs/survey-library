@@ -1,4 +1,4 @@
-import { IRichTextConverter, IRichTextConverterContext } from "./api";
+import type { IRichTextConverter, IRichTextConverterContext } from "./api";
 import {
   BreakRun,
   InlinePiece,
@@ -10,7 +10,6 @@ import {
   blocksToHtml,
   blocksToMarkdown,
   emptyMarks,
-  escapeHtml,
   flattenElement,
   isAllowedLink
 } from "./runs";
@@ -395,6 +394,10 @@ export function markdownToHtml(source: string, inline: boolean): string {
   return blocksToHtml(parseMarkdown(source, inline).blocks, true);
 }
 
+export function getUnsupportedMarkdown(source: string): string[] {
+  return parseMarkdown(source, false).unsupported;
+}
+
 export const markdownConverter: IRichTextConverter = {
   toHtml(source: string, context: IRichTextConverterContext): string {
     return markdownToHtml(source, !!context.inline);
@@ -402,11 +405,5 @@ export const markdownConverter: IRichTextConverter = {
   toSource(root: HTMLElement): string {
     return blocksToMarkdown(flattenElement(root));
   },
-  getUnsupported(source: string): string[] {
-    return parseMarkdown(source, false).unsupported;
-  }
+  getUnsupported: getUnsupportedMarkdown
 };
-
-export function htmlEscapeVisible(text: string): string {
-  return escapeHtml(text);
-}

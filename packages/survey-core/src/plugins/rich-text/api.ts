@@ -1,5 +1,7 @@
 import { ActionContainer, Base, LocalizableString } from "survey-core";
 import { findUnsupported, isLossless, UnsupportedHit } from "./lossless";
+import { getUnsupportedMarkdown } from "./markdown";
+import { getDisallowedHtml, sanitizeHtml } from "./sanitizer";
 
 export interface IRichTextConverterContext {
   inline: boolean;
@@ -15,7 +17,6 @@ export interface IRichTextConverter {
   getUnsupported?(source: string): string[];
 }
 
-export type RichTextFormat = "markdown" | "html";
 export type RichTextEditMode = "none" | "inline" | "block";
 
 export interface IRichTextEditorOptions {
@@ -41,16 +42,24 @@ export const richTextBindings = {
 export class RichText {
   public static getEditMode: (owner: Base, name: string, locStr: LocalizableString, defaultMode: RichTextEditMode) => RichTextEditMode = (_owner, _name, _locStr, defaultMode) => defaultMode;
 
-  public static getFormat(format: RichTextFormat): IRichTextConverter {
-    return converters[format];
+  public static isLossless(source: string, context: IRichTextConverterContext): boolean {
+    return isLossless(source, context);
   }
 
-  public static isLossless(source: string, format: RichTextFormat, context: IRichTextConverterContext): boolean {
-    return isLossless(source, format, context);
+  public static getUnsupportedMarkdown(source: string): string[] {
+    return getUnsupportedMarkdown(source);
   }
 
-  public static findUnsupported(survey: any, format?: RichTextFormat): UnsupportedHit[] {
-    return findUnsupported(survey, format);
+  public static findUnsupported(survey: any): UnsupportedHit[] {
+    return findUnsupported(survey);
+  }
+
+  public static sanitizeHtml(html: string, options?: { inline?: boolean }): string {
+    return sanitizeHtml(html, !!options && !!options.inline);
+  }
+
+  public static getDisallowedHtml(html: string): string[] {
+    return getDisallowedHtml(html);
   }
 
   public static markdownToHtml(text: string, context?: Partial<IRichTextConverterContext>): string {
@@ -76,13 +85,6 @@ export class RichText {
   public static attachEditor(element: HTMLElement, options: IRichTextEditorOptions): IRichTextEditorHandle {
     return richTextBindings.attachEditor(element, options);
   }
-}
-
-const converters: { [format: string]: IRichTextConverter } = {};
-
-export function installConverters(markdown: IRichTextConverter, html: IRichTextConverter): void {
-  converters.markdown = markdown;
-  converters.html = html;
 }
 
 export type { UnsupportedHit };

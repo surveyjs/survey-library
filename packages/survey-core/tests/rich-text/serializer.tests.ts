@@ -1,10 +1,11 @@
-import { RichText } from "../../src/plugins/rich-text/index";
+import "../../src/plugins/rich-text/index";
+import { markdownConverter } from "../../src/plugins/rich-text/markdown";
 import { createDetachedElement } from "../../src/plugins/rich-text/runs";
 
 import { describe, expect, test } from "vitest";
 
 function sourceOf(html: string): string {
-  return RichText.getFormat("markdown").toSource(createDetachedElement(html), { inline: false });
+  return markdownConverter.toSource(createDetachedElement(html), { inline: false });
 }
 
 describe("markdown serializer", () => {

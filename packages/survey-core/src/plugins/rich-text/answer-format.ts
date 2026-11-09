@@ -1,7 +1,7 @@
 import { DomDocumentHelper, Question, SurveyModel } from "survey-core";
 import type { IRichTextConverter, IRichTextConverterContext } from "./api";
-import { htmlConverter } from "./html-format";
 import { createDetachedElement, escapeHtml } from "./runs";
+import { getDisallowedHtml, sanitizeHtml } from "./sanitizer";
 
 function rendered(question: Question, source: string): string {
   return question.survey.getSurveyMarkdownHtml(question, source, "value", undefined);
@@ -16,7 +16,7 @@ export function createAnswerConverter(question: Question): IRichTextConverter {
     toHtml(source: string, ctx: IRichTextConverterContext): string {
       const raw = rendered(question, source);
       if (!raw) return plainHtml(source);
-      return htmlConverter.toHtml(raw, ctx);
+      return sanitizeHtml(raw, !!ctx.inline);
     },
     toSource(root: HTMLElement): string {
       return question.survey.getSurveyHtmlToMarkdown(question, root.innerHTML, "value");
@@ -25,7 +25,7 @@ export function createAnswerConverter(question: Question): IRichTextConverter {
       if (!DomDocumentHelper.isAvailable()) return true;
       const raw = rendered(question, source);
       if (!raw) return true;
-      if (htmlConverter.getUnsupported(raw).length > 0) return false;
+      if (getDisallowedHtml(raw).length > 0) return false;
       const html = this.toHtml(source, ctx);
       const element = createDetachedElement(html);
       if (!element) return true;

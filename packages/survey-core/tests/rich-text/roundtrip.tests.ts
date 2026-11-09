@@ -1,4 +1,5 @@
-import { RichText } from "../../src/plugins/rich-text/index";
+import "../../src/plugins/rich-text/index";
+import { markdownConverter } from "../../src/plugins/rich-text/markdown";
 import { createDetachedElement } from "../../src/plugins/rich-text/runs";
 
 import { describe, expect, test } from "vitest";
@@ -6,9 +7,8 @@ import { describe, expect, test } from "vitest";
 const block = { inline: false };
 
 function roundTrip(source: string): string {
-  const converter = RichText.getFormat("markdown");
-  const html = converter.toHtml(source, block);
-  return converter.toSource(createDetachedElement(html), block);
+  const html = markdownConverter.toHtml(source, block);
+  return markdownConverter.toSource(createDetachedElement(html), block);
 }
 
 describe("markdown round trip", () => {
@@ -37,7 +37,7 @@ describe("markdown round trip", () => {
     sequences.forEach(sample => {
       const canonical = roundTrip(sample);
       expect(roundTrip(canonical)).toBe(canonical);
-      expect(RichText.getFormat("markdown").toHtml(canonical, block)).toBe(RichText.getFormat("markdown").toHtml(sample, block));
+      expect(markdownConverter.toHtml(canonical, block)).toBe(markdownConverter.toHtml(sample, block));
     });
   });
 });

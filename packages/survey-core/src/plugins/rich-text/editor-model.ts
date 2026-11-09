@@ -1,10 +1,12 @@
 import { ActionContainer, Base, Question } from "survey-core";
 import { canEditRichAnswer, createAnswerConverter } from "./answer-format";
-import { IRichTextConverter, RichText } from "./api";
+import type { IRichTextConverter } from "./api";
 import { getAnswerEditMode, isRichTextBoldDisabled } from "./edit-mode";
 import { isConverterLossless } from "./lossless";
 import { showRichTextLinkDialog } from "./link-dialog";
+import { markdownConverter } from "./markdown";
 import { createDetachedElement, escapeHtml } from "./runs";
+import { sanitizeHtml } from "./sanitizer";
 import { createRichTextToolbar, IRichTextToolbarActions, syncRichTextLinkVisibility } from "./toolbar";
 
 export type RichTextMark = "bold" | "italic" | "strike";
@@ -265,7 +267,7 @@ export class RichTextEditorModel {
       if (!this.cachedConverter)this.cachedConverter = createAnswerConverter(this.host.owner as Question);
       return this.cachedConverter;
     }
-    return RichText.getFormat("markdown");
+    return markdownConverter;
   }
 
   private get context() {
@@ -316,11 +318,12 @@ export class RichTextEditorModel {
     const plain = data.getData("text/plain");
     event.preventDefault();
     this.restoreSelection();
-    const converter = this.managesValue ? this.converter : RichText.getFormat("html");
-    if (html) {
+    if (html && !this.managesValue) {
+      this.commands.exec("insertHTML", sanitizeHtml(html, this.context.inline));
+    } else if (html) {
       const fragment = createDetachedElement(html);
-      const source = fragment ? converter.toSource(fragment, this.context) : "";
-      this.commands.exec("insertHTML", converter.toHtml(source, this.context));
+      const source = fragment ? this.converter.toSource(fragment, this.context) : "";
+      this.commands.exec("insertHTML", this.converter.toHtml(source, this.context));
     } else {
       this.commands.exec("insertText", plain || "");
     }

@@ -788,6 +788,11 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     });
     return res;
   }
+  // A row whose detail panel is not built has the keys of the matrix's detail panel template (the design row).
+  public getRecordKeyElements(): Array<IElement> {
+    const template = !this.detailPanel && !!this.data ? this.data["getRecordSortTemplate"]() : undefined;
+    return !!template ? (<Array<IElement>>this.getCellQuestions()).concat(template.elements) : super.getRecordKeyElements();
+  }
   // The cells' questions, then the detail panel's elements once the panel exists.
   protected getScopeElements(): Array<IElement> {
     const res: Array<IElement> = this.getCellQuestions();

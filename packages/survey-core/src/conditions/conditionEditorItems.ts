@@ -107,13 +107,21 @@ export class ConditionEditorItem {
   }
 }
 // A row of a survey's condition: a question whose valueName differs from its name is named in the text
-// by its valueName.
+// by its valueName. A question inside a nesting container is named by its name when the root resolves
+// that name to it, else by its data path ({address.town}): its value name is no key of the survey data (D9).
 export class SurveyConditionEditorItem extends ConditionEditorItem {
   public constructor(public survey: ISurvey) {
     super();
   }
   protected getVariableName(): string {
-    const question = this.survey.getQuestionByName(this.questionName);
+    const question: any = this.survey.getQuestionByName(this.questionName);
+    // ISurvey and IQuestion have neither member: the survey and the question models do (R6, L1).
+    const path: Array<string> = !!question && typeof question.getDataPath === "function" ? question.getDataPath() : [];
+    if (path.length > 1 && this.questionName === question.name) {
+      const survey: any = this.survey;
+      const info = typeof survey.getQuestionByVariable === "function" ? survey.getQuestionByVariable(question.name) : null;
+      return !!info && info.question === question && !info.rest ? question.name : path.join(".");
+    }
     if (question && question.name != question.getValueName() && this.questionName != question.getValueName()) {
       return this.questionName.replace(question.name, question.getValueName());
     }

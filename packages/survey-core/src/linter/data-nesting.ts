@@ -1,33 +1,17 @@
-import { Serializer } from "survey-core";
+import { Serializer, getDataNestingKey } from "survey-core";
 import { CIMultiMap, DataScopeRecord, ElementRecord, SurveyIndex } from "./symbols";
 
 // Nested data (prompts/nested-data/decisions.md): a panel or a page with a valueName - or every panel
 // and/or page in a by-name dataNesting mode - stores its questions' values in an object under its key.
 
-const BY_NAME_MODES: { [mode: string]: Array<string> } = {
-  panel: ["panel"],
-  page: ["page"],
-  panelAndPage: ["panel", "page"]
-};
+// The runtime's key rule (getDataNestingKey, src/panel-data-scope.ts), from the public "survey-core" entry.
+// kind is "panel" or "page", "record" for a panel inside a dynamic panel's template or a matrix detail panel
+// (no by-name mode lists it: it nests under its valueName only, RN3), "" for a container that never nests.
+export const getLintDataNestingKey: (dataNesting: string, kind: string, valueName: string, name: string) => string = getDataNestingKey;
 
-// A copy of getDataNestingKey (src/panel-data-scope.ts): the core keeps it internal, and the linter
-// imports nothing but the public "survey-core" entry. linter-nested-data.tests.ts compares the two for
-// every mode, kind and key. kind is "panel" or "page", "record" for a panel inside a dynamic panel's
-// template or a matrix detail panel (no by-name mode lists it: it nests under its valueName only, RN3),
-// "" for a container that never nests.
-//   "none": never; "auto" (and an unknown mode): under valueName;
-//   "panel" / "page" / "panelAndPage": under valueName, else name for the containers of that kind.
-export function getLintDataNestingKey(dataNesting: string, kind: string, valueName: string, name: string): string {
-  if (dataNesting === "none" || !kind) return "";
-  if (!!valueName) return valueName;
-  const kinds = BY_NAME_MODES[dataNesting];
-  return !!kinds && kinds.indexOf(kind) > -1 ? name || "" : "";
-}
-
-// Whether the mode nests a container of this kind by its name.
+// Whether the mode nests a container of this kind by its name: the rule gives the name when there is no valueName.
 export function isByNameKind(dataNesting: string, kind: string): boolean {
-  const kinds = BY_NAME_MODES[dataNesting];
-  return !!kinds && kinds.indexOf(kind) > -1;
+  return !!getDataNestingKey(dataNesting, kind, "", "name");
 }
 
 // The mode the survey runs in: the JSON's, else the serializer default - which a host may have set to

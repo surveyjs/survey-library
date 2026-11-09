@@ -55,6 +55,16 @@ export function getRecordDataScope(data: any): ObjectDataScope {
   }
   return data instanceof ObjectDataScope ? data : null;
 }
+// The survey whose data.keepEmptyValues decides for a value written through data (an element's ISurveyData,
+// or a scope); null inside a record (a dynamic panel's item, a matrix row): a record item removes every empty
+// value, and records are a survey-settings follow-up, so a nesting container or a composite inside one keeps
+// none either. The walk goes up through the scopes and through a custom question (its content's data).
+export function getEmptyValuesSurvey(data: any, survey: ISurvey): ISurvey {
+  while(data instanceof PanelDataScope || !!data && data.isQuestion === true) {
+    data = data instanceof PanelDataScope ? data.parentData : data.data;
+  }
+  return data instanceof ObjectDataScope ? null : survey;
+}
 // Whether an element's data is a record item itself (not a scope inside one).
 export function isRecordData(data: any): boolean {
   return data instanceof ObjectDataScope && !(data instanceof PanelDataScope);
@@ -252,11 +262,29 @@ export function deleteObjectPaths(obj: any, paths: Array<Array<string>>): void {
   });
 }
 
+// What a key of an object holds, for data.keepEmptyValues (decisions K1-K3): "value" a question's value,
+// "comment" a comment key (never kept, K2), "container" the object of a nesting container inside (K3).
+export type ObjectKeyKind = "value" | "comment" | "container";
+// K3: with data.keepEmptyValues on, a container's object is removed only when it has no keys left. One that
+// still has keys stays, even deep empty ({ street: "" }) and in a system clear. undefined when the rule does
+// not apply (no survey, the key off, or the value is no object): the caller's own rule decides. The survey asks
+// it for a root container's key, an outer scope for the key of a container inside it.
+export function isContainerObjectKept(survey: ISurvey, value: any): boolean {
+  const obj = asScopeObject(value);
+  if (!obj || !survey || !survey.getSettings().data.keepEmptyValues) return undefined;
+  return Object.keys(obj).length > 0;
+}
+function isEmptyObjectKeyKept(value: any, survey: ISurvey, kind: ObjectKeyKind): boolean {
+  if (!survey || kind === "comment") return false;
+  const kept = kind === "container" ? isContainerObjectKept(survey, value) : undefined;
+  return kept !== undefined ? kept : survey.isEmptyValueKept(value);
+}
 // A copy of obj with one key set, or removed when the value is empty. The other keys are kept, including keys
-// no question owns.
-export function setObjectKey(obj: any, name: string, value: any): any {
+// no question owns. With a survey, an empty value stays when the survey keeps it (data.keepEmptyValues, K1);
+// without one (no survey, a record) every empty value is removed.
+export function setObjectKey(obj: any, name: string, value: any, survey?: ISurvey, kind: ObjectKeyKind = "value"): any {
   const res = Object.assign({}, obj);
-  if (Helpers.isValueEmpty(value)) {
+  if (Helpers.isValueEmpty(value) && !isEmptyObjectKeyKept(value, survey, kind)) {
     delete res[name];
   } else {
     res[name] = Helpers.getUnbindValue(value);
@@ -498,10 +526,19 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     const data = this.parentData;
     if (!data) return;
     if (!this.isActive) return data.setValue(name, newValue, locNotification, allowNotifyValueChanged, questionName);
+    // The kind matters for an empty value only. By key: a question whose value name equals a container key
+    // here (D4, a linter error) shares the container's object and gets its rule.
+    const isContainer = Helpers.isValueEmpty(newValue) && this.getDataKeyIndex().getScopes(name).length > 0;
+    this.setObjectValue(name, newValue, isContainer ? "container" : "value", locNotification, allowNotifyValueChanged, questionName);
+  }
+  private setObjectValue(name: string, newValue: any, kind: ObjectKeyKind, locNotification: boolean | "text", allowNotifyValueChanged: boolean, questionName: string): void {
+    const data = this.parentData;
+    if (!data) return;
     // A copy of the stored object with one key changed: the scope never rebuilds the object from its
     // questions, so keys no question owns (and the keys of another container with the same key) are kept.
     // An empty object is written as is: the survey (or the outer scope) removes an empty value.
-    data.setValue(this.key, setObjectKey(this.getObject(), name, newValue), locNotification, allowNotifyValueChanged, questionName);
+    const survey = Helpers.isValueEmpty(newValue) ? getEmptyValuesSurvey(this, this.getSurvey()) : null;
+    data.setValue(this.key, setObjectKey(this.getObject(), name, newValue, survey, kind), locNotification, allowNotifyValueChanged, questionName);
   }
   getComment(name: string): string {
     if (!this.isActive) return !!this.parentData ? this.parentData.getComment(name) : "";
@@ -514,7 +551,8 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     }
     if (this.getComment(name) === (newValue || "")) return;
     const question = this.getDataKeyIndex().getQuestions(name)[0];
-    this.setValue(Helpers.getCommentKey(name), newValue, locNotification, true, !!question ? question.name : undefined);
+    // K2: an empty comment key is removed whatever data.keepEmptyValues says, as SurveyModel.setComment does.
+    this.setObjectValue(Helpers.getCommentKey(name), newValue, "comment", locNotification, true, !!question ? question.name : undefined);
   }
   getFilteredProperties(): any {
     return !!this.parentData ? this.parentData.getFilteredProperties() : {};

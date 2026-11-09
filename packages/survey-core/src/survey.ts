@@ -97,7 +97,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { PanelDataScope, PanelDataScopeValueGetterContext, getMetadataValueGetterContext, DataKeyIndex, IDataScope, isKnownDataKey, getNameOfCommentName, getElementDataScope, getActiveDataScope, getRecordDataScope } from "./panel-data-scope";
+import { PanelDataScope, PanelDataScopeValueGetterContext, getMetadataValueGetterContext, DataKeyIndex, IDataScope, isKnownDataKey, getNameOfCommentName, getElementDataScope, getActiveDataScope, getRecordDataScope, isContainerObjectKept } from "./panel-data-scope";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { registerRecordsSortDialogSurvey } from "./records/records-sort-dialog";
@@ -8665,8 +8665,9 @@ export class SurveyModel extends SurveyElementCore
     return this.deletingEmptyValuesScope.run(func);
   }
   // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
-  // undefined always removes the key: it is what Question.clearValue() assigns.
-  private isEmptyValueKeptOnSetValue(val: any): boolean {
+  // undefined always removes the key: it is what Question.clearValue() assigns. ISurvey: the containers that
+  // keep values as keys of one object ask it (nested data, K1).
+  isEmptyValueKept(val: any): boolean {
     return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
   }
   // An empty value the key kept equals undefined and null (isValueEqual), yet a system clear removes it.
@@ -8676,7 +8677,14 @@ export class SurveyModel extends SurveyElementCore
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
     if (!this.isValueEmpty(val, false)) return false;
-    if (!this.editingObj && this.isEmptyValueKeptOnSetValue(val)) return false;
+    if (!this.editingObj) {
+      // K3: a root container's object is removed only when it has no keys left (with the key on). A question's
+      // own object value keeps the rule below; the key tells them apart through the root index (a question
+      // whose value name equals a container key, D4, shares the container's object and gets its rule).
+      const isContainerKept = isContainerObjectKept(this, val);
+      if (isContainerKept !== undefined && this.isDataScopeKey(name)) return !isContainerKept;
+      if (this.isEmptyValueKept(val)) return false;
+    }
     if (!this.editingObj || val === null || val === undefined) return true;
     return this.editingObj.getDefaultPropertyValue(name) === val;
   }

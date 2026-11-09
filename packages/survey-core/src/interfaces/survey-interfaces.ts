@@ -97,6 +97,9 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   getOwnSettings(): ISurveySettings;
   // A system clear: an empty value set while func runs removes the key even with data.keepEmptyValues on
   runDeletingEmptyValues<T>(func: () => T): T;
+  // data.keepEmptyValues: whether an empty value written now stays in the data (not undefined, the key on, no
+  // system clear running). The containers that keep values as keys of one object ask it (nested data, K1).
+  isEmptyValueKept(value: any): boolean;
   //#endregion
 
   //#region Locale

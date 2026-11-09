@@ -649,6 +649,26 @@ function addInArrayConditionSites(state: WalkState): void {
   }
 }
 
+// The fields come from the companion's leaves; the objects on the way to them are the prefixes the
+// companion answers with an element that is no question. A prefix is tried at every dot because a
+// key may hold one (decisions D11): "users.a" of the leaf "users.a.b" is nothing when "a.b" is one key.
+function snapshotDefinitionPaths(index: SurveyIndex, variablePresets: SurveyVariablePresets): void {
+  const paths = index.definitionPaths;
+  const addObject = (path: string): void => {
+    if (paths.has(path)) return;
+    const element = variablePresets.getVariableElement(path);
+    if (!!element && !element.isQuestion) paths.set(path, "object");
+  };
+  variablePresets.getVariablePaths().forEach(path => {
+    paths.set(path, "question");
+    for (let i = path.indexOf("."); i > -1; i = path.indexOf(".", i + 1)) {
+      addObject(path.substring(0, i));
+    }
+  });
+  // an object variable without a field is still one
+  variablePresets.getVariableNames().forEach(addObject);
+}
+
 export function buildIndex(json: any, options: ISurveyLintOptions, metadata: LintMetadata,
   variablePresets?: SurveyVariablePresets): SurveyIndex {
   const index: SurveyIndex = {
@@ -670,6 +690,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     namespaces: [],
     settings: resolveLintSettings(),
     definitionVariables: new CIMap<string>(),
+    definitionPaths: new CIMap<"object" | "question">(),
     findByDataName(name: string): ElementRecord | undefined {
       return this.byName.first(name) || this.byValueName.first(name);
     },
@@ -678,6 +699,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   // names costs the companion its definition model on the first ask.
   if (!!variablePresets) {
     variablePresets.getVariableNames().forEach(name => index.definitionVariables.set(name, name));
+    snapshotDefinitionPaths(index, variablePresets);
   }
   // one namespace for every page, panel and question - a dynamic-panel template shares it, the
   // way the Creator's designer keeps element names unique across the whole survey

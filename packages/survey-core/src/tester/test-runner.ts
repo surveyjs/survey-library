@@ -763,14 +763,18 @@ export class SurveyTestRunner {
   // variable the application could never inject must not reach the survey under test, and a case that
   // is broken for that reason is reported as broken rather than failing three steps later. What is
   // returned is what is applied - the raw values the case wrote, minus the names the definition does
-  // not declare. The definition validates; it does not convert.
+  // not declare, and minus the fields an object variable does not declare ("users.nope"). The
+  // definition validates; it does not convert.
   private checkVariables(context: SurveyTestContext, presets: ISurveyTestVariablePresets,
     variables: { [name: string]: any }): { [name: string]: any } {
     if (!presets || !presets.companion.hasDefinition) return variables;
     const verdict = presets.companion.validateVariables(variables);
+    // "defined" lists what the host sets (the root names); a suggestion may also be a field of an
+    // object variable ("users.nope" -> "users.name"), so it is drawn from the names and the paths
     const defined = presets.companion.getVariableNames();
+    const candidates = defined.concat(presets.companion.getVariablePaths());
     verdict.unknownVariables.forEach(name => {
-      const closest = getClosestName(name, defined);
+      const closest = getClosestName(name, candidates);
       const issue: ISurveyTestIssue = {
         severity: "warning",
         code: SurveyTestIssueCodes.variableNotDefined,
@@ -788,9 +792,23 @@ export class SurveyTestRunner {
         { data: { questions: verdict.errors } });
     }
     if (verdict.unknownVariables.length === 0) return variables;
+    return this.removeUnknownVariables(variables, "", verdict.unknownVariables);
+  }
+  // The unknown keys are paths in the case's own spelling, built the way validateVariables walks the
+  // object (the keys joined with "."), so the same walk finds them. Only an object on the way to an
+  // unknown key is copied; every other value is passed on as the case wrote it. A joined path cannot
+  // tell a literal dotted root key from a field: with { "users.tier": 1, users: { tier } } both go
+  // (an erroneous case that is warned about anyway; report-15, open points).
+  private removeUnknownVariables(values: { [name: string]: any }, prefix: string,
+    unknown: Array<string>): { [name: string]: any } {
     const res: { [name: string]: any } = Object.create(null);
-    Object.keys(variables).forEach(name => {
-      if (verdict.unknownVariables.indexOf(name) < 0) res[name] = variables[name];
+    Object.keys(values).forEach(name => {
+      const path = prefix + name;
+      if (unknown.indexOf(path) > -1) return;
+      const val = values[name];
+      const inner = path + ".";
+      const hasUnknownInside = this.isObject(val) && unknown.some(key => key.indexOf(inner) === 0);
+      res[name] = hasUnknownInside ? this.removeUnknownVariables(val, inner, unknown) : val;
     });
     return res;
   }

@@ -337,8 +337,13 @@ object it has straight into the suite, and the linter reads the same one. Import
 variable name is the data key the question produces — `valueName` when it is set, otherwise `name` —
 and its type, its choices, its `min`/`max` and its validators are everything that is known about the
 variable. There is no second schema. A question inside a dynamic panel or a matrix cell is no
-variable: the panel or the matrix itself is the one variable, holding the array. `survey-core`
-derives all of that; the tester only reports what it says.
+variable: the panel or the matrix itself is the one variable, holding the array. With nested data, a
+panel or page of the definition that nests describes an **object variable**: `{ "type": "panel",
+"name": "user", "valueName": "users", "elements": [{ "type": "text", "name": "tier" }] }` declares the
+variable `users`, set as `"variables": { "users": { "tier": "gold" } }` and read as `{users.tier}`. Its
+fields are checked one by one, and a field the definition does not declare is reported by its path
+(`users.nope`) and removed from what is applied, as an unknown name is. `survey-core` derives all of
+that; the tester only reports what it says.
 
 **What the tester does with it.** Before the model of a test is created — after the structural and
 `disabled` gates, so a broken case is still reported as broken and neither reaches the factory — the
@@ -346,7 +351,7 @@ resolved variables of the test are checked against the definition:
 
 | | |
 |---|---|
-| a name the definition does not declare | the warning `variableNotDefined`, with a "did you mean". The name is **not** set on the survey; the test runs with the rest |
+| a name the definition does not declare, or a field an object variable does not declare (`users.nope`) | the warning `variableNotDefined`, with a "did you mean". The name or the field is **not** set on the survey; the test runs with the rest |
 | a value the definition rejects | the case error `variableInvalid`. The test ends with the status `"error"` and no survey under test is created. `data.questions` carries one entry per failing question — the data key, the question name and the error texts |
 | everything else | applied to the survey under test **raw**. The definition validates; it does not convert |
 

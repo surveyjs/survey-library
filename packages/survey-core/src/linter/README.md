@@ -172,7 +172,15 @@ interface ISurveyLintOptions {
   *are* the host variables (the data key of a question — its `valueName` when set, otherwise its
   `name` — is the variable name), and its **presets** are named value records for it. The
   definition names join `knownVariables` as a second source: the two are a **union**, and one
-  host declaring the same name in both is not a defect. The container itself must be a plain
+  host declaring the same name in both is not a defect. The definition's data is the shape of the
+  variables: a panel or page that nests (nested data) describes an **object variable** — its key
+  (`users`) is the variable, and its questions are the fields (`{users.tier}`). An unknown field
+  (`{users.nope}`) is `reference/unknown` with the closest field as the suggestion, and an inner
+  question's own name (`{tier}`) is no variable — it is reported with `users.tier` as the
+  suggestion. A field below a question (`{users.tier.x}`) is not checked, as for a flat variable,
+  and neither is an object variable also listed in `knownVariables`. `variable/preset` reports an
+  unknown field at `variablePresets.presets[i].variables.users.nope` and an invalid one at its path
+  in the preset's spelling. The container itself must be a plain
   object — a string or a class instance is a `TypeError`, like a bad survey JSON — while
   everything *inside* it is data the `variable/preset` rule reports on.
 * **`variableDefinitionModel`** is that same definition as a `SurveyModel` the host already has.

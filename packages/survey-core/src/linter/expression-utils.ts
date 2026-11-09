@@ -175,9 +175,61 @@ export function findTotalsKeyBase(name: string, map: CIMultiMap<ElementRecord>, 
 // a name twice is not a defect.
 function isKnownVariable(name: string, index: SurveyIndex, options: ISurveyLintOptions): boolean {
   if (index.definitionVariables.has(name)) return true;
+  return isListedVariable(name, options);
+}
+
+function isListedVariable(name: string, options: ISurveyLintOptions): boolean {
   const vars = options.knownVariables;
   if (!Array.isArray(vars)) return false;
   return vars.some(v => equalsCI(v, name));
+}
+
+// The fields of the definition's object variables ("users.tier"): what a condition can test below
+// a root variable.
+function getDefinitionFieldPaths(index: SurveyIndex): Array<string> {
+  const res: Array<string> = [];
+  index.definitionPaths.forEach((kind, path) => {
+    // a root variable is no field, a dotted one ("a.b" of a flat definition) included
+    if (kind === "question" && path.indexOf(".") > -1 && !index.definitionVariables.has(path)) res.push(path);
+  });
+  return res;
+}
+
+// The name a misspelled host variable most likely meant. An inner question's own name ({tier}) reads
+// nothing at runtime - the host sets { users: { tier } } - so a field of an object variable whose last
+// key is that name is the answer before any near miss. Then the closest of the root names and the
+// fields.
+export function suggestDefinitionVariable(name: string, index: SurveyIndex): string | undefined {
+  const field = findDefinitionFieldByKey(name, index);
+  if (!!field) return field;
+  return closestMatch(name, index.definitionVariables.names().concat(getDefinitionFieldPaths(index)));
+}
+
+function findDefinitionFieldByKey(name: string, index: SurveyIndex): string | undefined {
+  if (!name) return undefined;
+  const tail = "." + name.toLowerCase();
+  return getDefinitionFieldPaths(index).filter(path => path.toLowerCase().endsWith(tail))[0];
+}
+
+// {users.tier}: a variable the definition describes as an object (a panel or page that nests) has the
+// fields its questions write, and a field it does not declare reads undefined at runtime. Below a
+// question's field nothing is checked, as for a flat variable, and a variable also listed in
+// knownVariables has a shape the host did not describe. Segments are joined longest first: a key may
+// hold a dot (decisions D11).
+function validateDefinitionObjectPath(ref: ParsedRef, index: SurveyIndex, options: ISurveyLintOptions): void {
+  const segments = ref.segments;
+  const root = segments[0].name;
+  if (segments.length < 2 || index.definitionPaths.get(root) !== "object" || isListedVariable(root, options)) return;
+  for (let end = segments.length - 1; end > 0; end--) {
+    const kind = index.definitionPaths.get(segments.slice(0, end + 1).map(seg => seg.name).join("."));
+    if (!kind) continue;
+    if (end === segments.length - 1 || kind === "question") return;
+    break;
+  }
+  ref.status = "unknown";
+  ref.resolvedKind = undefined;
+  ref.unknownSegmentIndex = 0;
+  setSuggestion(ref, suggestForRef(ref, getDefinitionFieldPaths(index)));
 }
 
 // {pageno}, {locale} and the quiz counters: the survey answers these itself, so they
@@ -977,6 +1029,8 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
   if (isKnownVariable(root, index, options)) {
     ref.status = "resolved";
     ref.resolvedKind = "knownVariable";
+    // a runtime name (a trigger target) is a variable name of its own, never a path into one
+    if (!nameOnly) validateDefinitionObjectPath(ref, index, options);
     return ref;
   }
   // A one-segment path only: the runtime answers a built-in for a single name, so
@@ -1021,9 +1075,14 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
     ref.hintReason = SurveyLintHintReasons.panelQuestion;
     ref.hintName = root;
   } else {
-    setSuggestion(ref, suggestForRef(ref, nameCandidates(index, options, {
-      accepts: record => isRootRecordVisible(record, nameOnly), values: true,
-    })));
+    const field = !nameOnly && ref.segments.length === 1 ? findDefinitionFieldByKey(root, index) : undefined;
+    if (!!field) {
+      setSuggestion(ref, { name: field, end: 0 });
+    } else {
+      const pool = nameCandidates(index, options, { accepts: record => isRootRecordVisible(record, nameOnly), values: true });
+      if (!nameOnly) pool.push(...getDefinitionFieldPaths(index));
+      setSuggestion(ref, suggestForRef(ref, pool));
+    }
   }
   return ref;
 }

@@ -246,6 +246,26 @@ const surveyJson = {
 
 Calculated values and triggers read nested values in the same way. The `setToName` and `fromName` properties of `setvalue`, `copyvalue`, and `runexpression` triggers accept a question name (`"street"`), a path (`"address.street"`), or a top-level property (`"address"`).
 
+### Host Variables
+
+A variable that your application sets with [`setVariables()`](/form-library/documentation/api-reference/survey-data-model#setVariables) can hold an object, and expressions read its properties by path: after `survey.setVariables({ users: { tier: "gold", name: "Ann" }, role: "admin" })`, the survey reads `{users.tier}`, `{users.name}`, and `{role}`. A variable has no question in the survey, so only the path works: `{tier}` is empty. The variable definition that the survey linter and the survey tester use (`variablePresets.definition`) is an ordinary survey JSON whose data is the shape of the variables, so a nesting panel describes an object variable. The definition below declares the variables `users` and `role`, and its preset is `{ "name": "Gold", "variables": { "users": { "tier": "gold", "name": "Ann" }, "role": "admin" } }`. With `"dataNesting": "page"` or `"panelAndPage"`, the root elements of the definition nest under `page1`, and the one variable is `page1`.
+
+```json
+{
+  "elements": [{
+    "type": "panel",
+    "name": "user",
+    "valueName": "users",
+    "title": "User",
+    "elements": [
+      { "type": "dropdown", "name": "tier", "title": "Tier", "choices": ["gold", "silver"], "isRequired": true },
+      { "type": "text", "name": "name", "title": "Name" }
+    ]
+  },
+  { "type": "text", "name": "role" }]
+}
+```
+
 ## Clear and Validate Nested Values
 
 Nested questions are ordinary questions for clearing and validation:

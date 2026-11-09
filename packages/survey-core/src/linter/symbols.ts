@@ -403,6 +403,10 @@ export interface SurveyIndex {
   // SurveyVariablePresets - empty when no definition was given. The value is the
   // definition's own spelling of the name, which a finding quotes.
   definitionVariables: CIMap<string>;
+  // Every path into the definition's data (nested data, decisions V1-V5): "users" -> "object" for a
+  // panel or page that nests and so describes an object variable, "users.tier" -> "question" for a
+  // field. A flat definition holds its variables here as "question". Snapshotted with the names above.
+  definitionPaths: CIMap<"object" | "question">;
   // The element a data key names: the runtime reads a value by name, and a valueName
   // replaces the name as that key.
   findByDataName(name: string): ElementRecord | undefined;

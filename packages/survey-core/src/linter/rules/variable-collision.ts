@@ -89,7 +89,8 @@ export const variableCollisionRule: ILintRule = {
     const presets = ctx.variablePresets;
     if (!presets) return;
     ctx.index.definitionVariables.forEach(variable => {
-      const definitionQuestion = presets.getVariableQuestion(variable);
+      // the question, or the panel or page that describes an object variable
+      const definitionQuestion = presets.getVariableElement(variable);
       if (!definitionQuestion) return;
       const question = findRootDataQuestion(ctx.index, variable);
       if (!!question) {

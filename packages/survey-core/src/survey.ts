@@ -111,7 +111,7 @@ import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
-import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject } from "./survey-settings";
+import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
@@ -1252,6 +1252,8 @@ export class SurveyModel extends SurveyElementCore
     );
     // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
     this.surveySettingsValues.merge(options, true);
+    // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
+    addEventHandlersFromOptions(this, options);
 
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     if (jsonObj) {
@@ -2854,11 +2856,13 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
   public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
-      this.navigationBarValue = this.createNavigationBar();
-      if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
-      this.updateNavigationCss();
-      this.navigationBarValue.flushUpdates();
-      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
+      Base.runUntracked(() => {
+        this.navigationBarValue = this.createNavigationBar();
+        if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
+        this.updateNavigationCss();
+        this.navigationBarValue.flushUpdates();
+        this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
+      });
     }
     return this.navigationBarValue;
   }
@@ -8332,10 +8336,8 @@ export class SurveyModel extends SurveyElementCore
   public getNewGeneratedName(elements: Array<any>, baseName: string): string {
     return this.generateNewName(elements, baseName);
   }
-  public tryGoNextPageAutomatic(name: string): void {
-    this.tryGoNextPageAutomaticCore(name);
-  }
-  public tryGoNextPageAutomaticCore(name: string): boolean {
+  // Returns true when navigation is scheduled.
+  public tryGoNextPageAutomatic(name: string): boolean {
     if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return false;
     const question = <Question>this.getQuestionByValueName(name);
     if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return false;

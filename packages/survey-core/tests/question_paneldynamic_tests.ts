@@ -10920,6 +10920,8 @@ describe("Question Panel Dynamic: paging and sorting", () => {
   });
   test("assigning the same sort or the same filter rebuilds nothing", () => {
     const question = createQuestion({ panelCount: 3 }, [{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
+    // A question-creation handler keeps the rebuild of a sort that #3 checks (panel-rebind.test.ts).
+    (<SurveyModel>question.survey).onQuestionCreated.add(() => { });
     question.sort([{ field: "q1", direction: "asc" }]);
     question.filterExpression = "{q1} != 'z'";
     const panels = question.panels.slice();
@@ -11586,6 +11588,9 @@ describe("a question of a removed panel", () => {
   });
   test("a question of a panel that left the page writes nothing", () => {
     const { panel, log } = createPanel({ pageSize: 1 });
+    /* A page move rebinds the panels, and a kept question then shows the next record (panel-rebind.test.ts);
+       a question-creation handler keeps the rebuild this test follows. */
+    (<SurveyModel>panel.survey).onQuestionCreated.add(() => { });
     panel.value = [{ a: 1 }, { a: 2 }, { a: 3 }];
     const q = panel.panels[0].getQuestionByName("a");
     panel.nextPage();

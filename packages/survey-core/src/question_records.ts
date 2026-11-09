@@ -2893,6 +2893,8 @@ export abstract class QuestionRecordsModel extends Question {
     for (let i = 0; i < items.length; i++) {
       // A late validator result would mark the record the object shows when it arrives.
       if (items[i].isRunningValidators()) return false;
+      // The same for a condition of the object itself: a panel's visibleIf or a nested panel's.
+      if (items[i].isAsyncConditionRunning()) return false;
       const questions = items[i].questions;
       for (let j = 0; j < questions.length; j++) {
         /* An async expression or condition still running (an expression cell, a visibleIf): its result
@@ -2920,6 +2922,11 @@ export abstract class QuestionRecordsModel extends Question {
     /* Choices loaded from a URL or on demand: a load the old record started, and the value it keeps
        for the next load, would reach the record the object shows now. */
     if (!!question["hasChoicesUrl"] || question["choicesLazyLoadEnabled"]) return false;
+    /* Choices that follow another question's value (choicesFromQuestion with "selected" or "unselected",
+       choiceValuesFromQuestion): while the records are swapped a question can see its source still empty
+       or showing the old record, and clear the value it was given - a chain of them clears in any order. */
+    if (!!question["choicesFromQuestion"] && (["selected", "unselected"].indexOf(question["choicesFromQuestionMode"]) > -1 ||
+      !!question["choiceValuesFromQuestion"])) return false;
     // A custom widget is set up on its element when the element is mounted, for the record shown then.
     if (!!question.customWidget) return false;
     // A choice with elements: the questions of its panel keep their state under the old record.
@@ -4455,11 +4462,19 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   public rebindToRecord(record: any): void {
     this.runSettingValue((): void => {
       const questions = this.questions;
+      // Every question drops the old record before any takes the new one: a question filled first would
+      // otherwise follow another that still shows the old record, and that one's reset would clear it.
       for (let i = 0; i < questions.length; i++) {
         questions[i]["resetForAnotherRecord"]();
+      }
+      for (let i = 0; i < questions.length; i++) {
         this.fillQuestionFromRecord(questions[i], record);
       }
     });
+  }
+  // An async condition of the object itself (not of its questions) is still running: its result would land in another record.
+  public isAsyncConditionRunning(): boolean {
+    return false;
   }
   // How a question of a new object takes its record: by its value name, with the comment.
   protected fillQuestionFromRecord(question: Question, record: any): void {

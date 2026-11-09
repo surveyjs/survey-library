@@ -215,14 +215,19 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    */
   @property()
     valueFalse: any;
-  // A check of its own, independent of isRequired and requiredIf: while it is on, only valueTrue passes,
-  // so an "I agree" checkbox cannot be left untouched or answered No. It reuses the "required" error type
-  // (so the base clear/re-check logic applies), shows requireTrueErrorText, and replaces the ordinary
-  // required error, so a question that is also isRequired shows one error. It does not set isRequired
-  // or the required mark, and false stays an answer for isEmpty(), isAnswered, the empty operator,
-  // progress and the data. requireTrueErrorText is empty by default, like requiredErrorText; the error
-  // then falls back to the "requireTrueError" string of the current locale.
+  /**
+   * Specifies whether respondents must give a positive answer to pass validation.
+   *
+   * Default value: `false`
+   *
+   * When this property is `true`, only a positive answer (`true` by default, or the custom value specified by [`valueTrue`](#valueTrue)) passes validation. A negative or empty answer displays the error message specified by [`requireTrueErrorText`](#requireTrueErrorText).
+   *
+   * > This validation applies independently of [`isRequired`](#isRequired) and [`requiredIf`](#requiredIf). Enabling `requireTrue` does not set `isRequired` or add a required mark.
+   */
   @property({ defaultValue: false }) requireTrue: boolean;
+  /**
+   * Specifies a custom error message displayed when [`requireTrue`](#requireTrue) is enabled and the answer is negative or empty.
+   */
   @property({ localizable: true }) requireTrueErrorText: string;
   declare readonly locRequireTrueErrorText: LocalizableString;
   public hasRequiredError(): boolean {

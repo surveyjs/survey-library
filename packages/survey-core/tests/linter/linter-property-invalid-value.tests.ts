@@ -94,6 +94,9 @@ describe("property/invalid-value - a valueName that is read as a path", () => {
   test("a plain valueName is clean", () => {
     expect(byRule({ elements: [{ type: "text", name: "q1", valueName: "email" }] })).toHaveLength(0);
   });
+  test("a dotted choicesByUrl valueName is clean, it is a path into each response item", () => {
+    expect(byRule({ elements: [{ type: "dropdown", name: "q", choicesByUrl: { url: "https://x", valueName: "data.id" } }] })).toHaveLength(0);
+  });
 });
 
 describe("property/invalid-value - configuration", () => {

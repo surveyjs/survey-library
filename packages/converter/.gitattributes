@@ -1,0 +1,3 @@
+# Definitions scraped by `npm run corpus:refresh`; collapsed in GitHub diffs.
+corpus/formio/** linguist-generated=true
+corpus/json-schema/** linguist-generated=true

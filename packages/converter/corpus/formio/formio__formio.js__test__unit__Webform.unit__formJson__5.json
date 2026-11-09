@@ -1,0 +1,33 @@
+{
+  "components": [
+    {
+      "label": "This line",
+      "tableView": false,
+      "storage": "base64",
+      "webcam": false,
+      "fileTypes": [
+        {
+          "label": "",
+          "value": ""
+        }
+      ],
+      "multiple": true,
+      "validate": {
+        "required": true,
+        "customMessage": "will be showed once"
+      },
+      "key": "file",
+      "type": "file",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "saveOnEnter": false
+    }
+  ]
+}

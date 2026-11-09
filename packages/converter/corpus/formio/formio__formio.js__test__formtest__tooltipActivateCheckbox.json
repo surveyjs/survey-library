@@ -1,0 +1,134 @@
+{
+  "_id": "634d04a9b80651a7bae4157d",
+  "type": "form",
+  "tags": [],
+  "owner": "63046ffc99344cae68c78fbe",
+  "components": [
+    {
+      "label": "Checkbox",
+      "tooltip": "tooltip",
+      "tableView": false,
+      "key": "checkbox",
+      "type": "checkbox",
+      "input": true,
+      "defaultValue": false
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "revisions": "",
+  "_vid": 0,
+  "title": "5236",
+  "display": "form",
+  "access": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [
+        "6304702a0023ac6c2a5a3927",
+        "6304702a0023ac6ca65a392c",
+        "6304702a0023ac1e565a3931"
+      ],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "submissionAccess": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "controller": "",
+  "properties": {},
+  "settings": {},
+  "name": "5236",
+  "path": "5236",
+  "project": "6304702a0023ac17265a3920",
+  "created": "2022-10-17T07:30:49.019Z",
+  "modified": "2022-10-17T08:09:01.525Z",
+  "machineName": "zwxvvydfeeytjgw:5236"
+}

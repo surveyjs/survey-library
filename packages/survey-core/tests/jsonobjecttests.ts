@@ -3862,3 +3862,56 @@ describe("A choice item is deserialized from its JSON once", () => {
     expect(q.choices[0].text, "toObject: text").toBe("seven");
   });
 });
+
+describe("A null item in a JSON array", () => {
+  test("a null-only defaultValue loads as an empty value", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q", defaultValue: [null] }] });
+    expect(survey.getQuestionByName("q").defaultValue).toEqual([]);
+  });
+  test.each([
+    ["checkbox", { choices: [1, 2] }, 2],
+    ["tagbox", { choices: [1, 2] }, 2],
+    ["paneldynamic", { templateElements: [{ type: "text", name: "a" }] }, { a: 1 }],
+    ["matrixdynamic", { columns: [{ name: "a" }], rowCount: 0 }, { a: 1 }],
+  ])("%s defaultValue skips a null item", (type, extra, item) => {
+    const create = (defaultValue: any) => new SurveyModel({ elements: [{ type, name: "q", defaultValue, ...extra }] });
+    const withNull = create([null, item]);
+    const without = create([item]);
+    expect(withNull.getQuestionByName("q").value).toEqual(without.getQuestionByName("q").value);
+    expect(withNull.data).toEqual(without.data);
+  });
+  test("a defaultValue without null items is unchanged", () => {
+    const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q", choices: [1, 2], defaultValue: [1, 2] }] });
+    expect(survey.getQuestionByName("q").value).toEqual([1, 2]);
+  });
+  test("structural arrays skip a null item", () => {
+    expect(new SurveyModel({ elements: [{ type: "checkbox", name: "q", choices: [1, null, 2] }] })
+      .getQuestionByName("q").choices).toHaveLength(2);
+    expect(new SurveyModel({ elements: [{ type: "text", name: "a" }, null] }).getAllQuestions()).toHaveLength(1);
+    expect(new SurveyModel({ pages: [null, { elements: [{ type: "text", name: "a" }] }] }).pages).toHaveLength(1);
+    expect(new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", columns: [null, { name: "a" }] }] })
+      .getQuestionByName("q").columns).toHaveLength(1);
+    expect(new SurveyModel({ elements: [{ type: "text", name: "q", validators: [null] }] })
+      .getQuestionByName("q").validators).toHaveLength(0);
+    expect(new SurveyModel({ triggers: [null] }).triggers).toHaveLength(0);
+    expect(new SurveyModel({ calculatedValues: [null] }).calculatedValues).toHaveLength(0);
+  });
+  test("an undefined item is skipped in a structural array", () => {
+    const choices = [1, undefined, 2];
+    expect(new SurveyModel({ elements: [{ type: "checkbox", name: "q", choices }] })
+      .getQuestionByName("q").choices).toHaveLength(2);
+  });
+  test("null and undefined items of a custom primitive array property are kept", () => {
+    Serializer.addProperty("question", { name: "tags:string[]" });
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q", tags: ["a", null, "b", undefined] }] });
+      expect((<any>survey.getQuestionByName("q")).tags).toEqual(["a", null, "b", undefined]);
+    } finally {
+      Serializer.removeProperty("question", "tags");
+    }
+  });
+  test("a nested null inside an array defaultValue is kept", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q", defaultValue: [[null]] }] });
+    expect(survey.getQuestionByName("q").defaultValue).toEqual([[null]]);
+  });
+});

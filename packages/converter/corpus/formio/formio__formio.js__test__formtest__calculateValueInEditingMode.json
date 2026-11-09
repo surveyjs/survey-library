@@ -1,0 +1,93 @@
+{
+  "type": "form",
+  "owner": "6062c5aa6bf99c5218e80077",
+  "components": [
+    {
+      "label": "Select",
+      "widget": "choicesjs",
+      "tableView": true,
+      "data": {
+        "values": [
+          {
+            "label": "Dummy #1",
+            "value": "dummy1"
+          },
+          {
+            "label": "Dummy #2",
+            "value": "dummy2"
+          }
+        ]
+      },
+      "selectThreshold": 0.3,
+      "key": "select",
+      "type": "select",
+      "indexeddb": {
+        "filter": {}
+      },
+      "input": true
+    },
+    {
+      "label": "Data Source",
+      "persistent": false,
+      "clearOnHide": false,
+      "trigger": {
+        "init": false,
+        "server": false
+      },
+      "refreshOn": "select3",
+      "dataSrc": "url",
+      "fetch": {
+        "url": "https://form-issues.free.beeceptor.com/dummy",
+        "method": "get",
+        "headers": [
+          {
+            "key": "",
+            "value": ""
+          }
+        ],
+        "forwardHeaders": false,
+        "authenticate": false
+      },
+      "allowCaching": true,
+      "key": "datasource",
+      "type": "datasource",
+      "input": true,
+      "tableView": false
+    },
+    {
+      "label": "Filters",
+      "disabled": true,
+      "tableView": true,
+      "inputFormat": "raw",
+      "clearOnHide": false,
+      "calculateValue": "value = data.datasource && data.datasource.value;",
+      "key": "dataSourceDisplay",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "access": [
+    {
+      "roles": [
+        "5ebb002541fe5bae34e9fd0c",
+        "5ebb002541fe5b081de9fd0d",
+        "5ebb002541fe5b6664e9fd0e"
+      ],
+      "type": "read_all"
+    }
+  ],
+  "revisions": "",
+  "_vid": 0,
+  "title": "calculateValueInEditingMode",
+  "display": "form",
+  "name": "calculateValueInEditingMode",
+  "path": "calculatevalueineditingmode"
+}

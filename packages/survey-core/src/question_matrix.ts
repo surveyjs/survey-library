@@ -1236,7 +1236,7 @@ export class QuestionMatrixModel
       updatedData = newData;
     }
     if (this.isEqualToValue(updatedData)) return;
-    this.value = updatedData;
+    this.runDeletingEmptyValues((): void => { this.value = updatedData; });
   }
   protected clearIncorrectValuesInRow(key: any, data: any): void {
     const obj = data[key];

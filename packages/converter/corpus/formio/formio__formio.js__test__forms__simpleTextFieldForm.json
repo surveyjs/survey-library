@@ -1,0 +1,31 @@
+{
+  "_id": "689c453f02b3f420695fee95",
+  "title": "ddd",
+  "name": "ddd",
+  "path": "ddd",
+  "type": "form",
+  "display": "form",
+  "tags": [],
+  "components": [
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true,
+      "applyMaskOn": "change"
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "pdfComponents": [],
+  "modified": "2025-08-15T08:48:20.932Z",
+  "machineName": "hperfbnwzwxsypk:ddd"
+}

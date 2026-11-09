@@ -1,0 +1,19 @@
+{
+  "components": [
+    {
+      "type": "select",
+      "label": "Companies",
+      "key": "companies",
+      "placeholder": "Select a company",
+      "dataSrc": "url",
+      "data": {
+        "url": "https://example.form.io/company/submission?limit={{ limit }}&skip={{ skip }}"
+      },
+      "valueProperty": "data.name",
+      "searchField": "data.name__regex",
+      "template": "<span>{{ item.data.name }}</span>",
+      "multiple": true,
+      "input": true
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "title": "form2",
+  "name": "testyyy",
+  "path": "testyyy",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Text Area",
+      "autoExpand": false,
+      "tableView": true,
+      "key": "textArea",
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "label": "Edit Grid",
+      "tableView": false,
+      "rowDrafts": false,
+      "key": "editGrid1",
+      "type": "editgrid",
+      "displayAsTable": false,
+      "input": true,
+      "components": [
+        {
+          "label": "Set Panel Value",
+          "action": "custom",
+          "showValidations": false,
+          "tableView": false,
+          "key": "setPanelValue",
+          "type": "button",
+          "custom": "var rowIndex = instance.rowIndex;\nvar rowComponents = instance.parent?.editRows[rowIndex]?.components;\nvar panel = rowComponents?.find(comp => comp.component.key === 'panel');\npanel.setValue({radio: 'a', editGrid: [{textField:'testyyyy' }]});",
+          "input": true
+        },
+        {
+          "collapsible": false,
+          "key": "panel",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Radio",
+              "optionsLabelPosition": "right",
+              "inline": false,
+              "tableView": false,
+              "values": [
+                {
+                  "label": "a",
+                  "value": "a",
+                  "shortcut": ""
+                },
+                {
+                  "label": "b",
+                  "value": "b",
+                  "shortcut": ""
+                }
+              ],
+              "key": "radio",
+              "type": "radio",
+              "input": true
+            },
+            {
+              "title": "Grid Panel",
+              "collapsible": false,
+              "key": "panel1",
+              "customConditional": "show = row.radio === 'a'",
+              "type": "panel",
+              "label": "Grid Panel",
+              "input": false,
+              "tableView": false,
+              "components": [
+                {
+                  "label": "Edit Grid",
+                  "openWhenEmpty": true,
+                  "disableAddingRemovingRows": true,
+                  "tableView": false,
+                  "rowDrafts": false,
+                  "key": "editGrid",
+                  "conditional": {
+                    "show": true,
+                    "conjunction": "all",
+                    "conditions": [
+                      {
+                        "component": "radio",
+                        "operator": "isEqual",
+                        "value": "a"
+                      }
+                    ]
+                  },
+                  "type": "editgrid",
+                  "displayAsTable": false,
+                  "input": true,
+                  "components": [
+                    {
+                      "label": "Text Field",
+                      "tableView": true,
+                      "key": "textField",
+                      "type": "textfield",
+                      "input": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

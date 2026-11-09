@@ -1,0 +1,26 @@
+{
+  "_id": "6800c965a969b07fbd8d7077",
+  "title": "Base Simple",
+  "name": "baseSimple",
+  "path": "basesimple",
+  "type": "form",
+  "components": [
+    {
+      "label": "First Name",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validate": {
+        "required": true
+      },
+      "validateWhenHidden": false,
+      "key": "firstName",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "key": "submit",
+      "type": "button"
+    }
+  ]
+}

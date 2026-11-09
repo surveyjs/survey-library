@@ -1,0 +1,87 @@
+{
+  "_id": "5ee38279e92e482bb9b332a1",
+  "type": "form",
+  "owner": "5e8f2b72d248941a2bec61ad",
+  "components": [
+    {
+      "label": "Radio",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "a",
+          "value": "a",
+          "shortcut": ""
+        },
+        {
+          "label": "b",
+          "value": "b",
+          "shortcut": ""
+        }
+      ],
+      "key": "radio",
+      "type": "radio",
+      "input": true
+    },
+    {
+      "label": "Select Boxes",
+      "optionsLabelPosition": "right",
+      "tableView": false,
+      "defaultValue": {
+        "": false,
+        "a": false,
+        "b": false,
+        "c": false
+      },
+      "values": [
+        {
+          "label": "a",
+          "value": "a",
+          "shortcut": ""
+        },
+        {
+          "label": "b",
+          "value": "b",
+          "shortcut": ""
+        },
+        {
+          "label": "c",
+          "value": "c",
+          "shortcut": ""
+        }
+      ],
+      "calculateValue": "if (data.radio === 'a') { value = 'a' }",
+      "allowCalculateOverride": true,
+      "key": "selectBoxes",
+      "type": "selectboxes",
+      "input": true,
+      "inputType": "checkbox"
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "controller": "",
+  "revisions": "",
+  "_vid": 0,
+  "title": "blurValidation",
+  "display": "form",
+  "access": [
+    {
+      "roles": [
+        "5ec618dbca7d5e849d3266f7",
+        "5ec618dbca7d5eac193266f8",
+        "5ec618dbca7d5e4ab43266f9"
+      ],
+      "type": "read_all"
+    }
+  ],
+  "name": "blurValidation",
+  "path": "blurvalidation"
+}

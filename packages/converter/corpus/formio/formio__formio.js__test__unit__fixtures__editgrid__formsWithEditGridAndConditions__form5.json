@@ -1,0 +1,201 @@
+{
+  "title": "form5",
+  "name": "form5",
+  "path": "form5",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "generalInformation",
+      "tableView": false,
+      "key": "generalInformation",
+      "type": "container",
+      "input": true,
+      "components": [
+        {
+          "title": "Select here one entry",
+          "theme": "primary",
+          "collapsible": false,
+          "key": "sectionOutsourcingSupervisedEntites",
+          "type": "panel",
+          "label": "Outsourcing supervised entities",
+          "tableView": false,
+          "input": false,
+          "components": [
+            {
+              "label": "Select the only option here",
+              "widget": "choicesjs",
+              "description": "<br>",
+              "tableView": true,
+              "multiple": true,
+              "dataSrc": "json",
+              "data": {
+                "json": [
+                  {
+                    "id": 6256,
+                    "longName": "Bank_DE",
+                    "leiCode": "LEI6256",
+                    "countryCode": "DE"
+                  }
+                ]
+              },
+              "template": "<span>{{ item.longName }} [{{item.countryCode}}] {{item.leiCode}}</span>",
+              "customOptions": {
+                "searchResultLimit": 100,
+                "fuseOptions": {
+                  "threshold": 0.1,
+                  "distance": 9000
+                }
+              },
+              "validate": {
+                "required": true
+              },
+              "key": "listSupervisedEntitiesCovered",
+              "type": "select",
+              "input": true,
+              "searchThreshold": 0.3
+            }
+          ],
+          "path": "section12OutsourcingSupervisedEntities"
+        },
+        {
+          "title": "1.5 Country-specific questions",
+          "collapsible": false,
+          "key": "countrySpecificQuestionsPanel",
+          "customConditional": "var listSupervisedEntitiesCovered = _.get(data, \"generalInformation.listSupervisedEntitiesCovered\", []);\r\nshow = listSupervisedEntitiesCovered.some(entity => (entity.countryCode == \"LU\") || (entity.countryCode == \"DE\"));",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "DE specific questions",
+              "tableView": false,
+              "key": "deSpecific",
+              "customConditional": "var listSupervisedEntitiesCovered = _.get(data, \"generalInformation.listSupervisedEntitiesCovered\", []);\r\nshow = listSupervisedEntitiesCovered.some(entity => entity.countryCode == \"DE\");",
+              "type": "container",
+              "input": true,
+              "components": [
+                {
+                  "title": "Additional questions for DE entities",
+                  "collapsible": false,
+                  "key": "panel",
+                  "type": "panel",
+                  "label": "Panel",
+                  "input": false,
+                  "tableView": false,
+                  "components": [
+                    {
+                      "title": "Sub-outsourcing",
+                      "collapsible": false,
+                      "key": "suboutsourcing",
+                      "type": "panel",
+                      "label": "Panel",
+                      "input": false,
+                      "tableView": false,
+                      "components": [
+                        {
+                          "label": "Here select yes",
+                          "optionsLabelPosition": "right",
+                          "customClass": "tooltip-text-left",
+                          "inline": true,
+                          "tableView": false,
+                          "values": [
+                            {
+                              "label": "Yes",
+                              "value": "yes",
+                              "shortcut": ""
+                            },
+                            {
+                              "label": "No",
+                              "value": "no",
+                              "shortcut": ""
+                            }
+                          ],
+                          "validate": {
+                            "required": true
+                          },
+                          "key": "criticalPartsToBeOutsourcedSuboutsourcer",
+                          "type": "radio",
+                          "labelWidth": 100,
+                          "input": true
+                        },
+                        {
+                          "label": "add a row, it will be removed upon save",
+                          "customClass": "ml-3",
+                          "tableView": true,
+                          "templates": {
+                            "header": "<div class=\"row\">\r\n  <div class=\"col-sm-4\"><strong>Name</strong></div>\r\n   <div class=\"col-sm-4\"><strong>Location</strong></div>\r\n   <div class=\"col-sm-3\"><strong>Location of the data</strong></div>\r\n   <div class=\"col-sm-1\"></div>\r\n</div>",
+                            "row": "<div class=\"row\">\r\n  <div class=\"col-sm-4\">\r\n   {{ _.get(row, 'nameSuboutsourcer', '') }}\r\n  </div>\r\n  <div class=\"col-sm-4\">\r\n   {{ _.get(row, 'locationSuboutsourcer.name', '') }}\r\n  </div>\r\n  <div class=\"col-sm-3\">\r\n   {{ _.get(row, 'locationDataSub.name', '') }}\r\n  </div> \r\n  <div class=\"col-sm-1\">\r\n  {% if (instance.options.readOnly) { %}\r\n    <div class=\"btn-group pull-right\">\r\n      <div class=\"btn btn-default btn-light btn-sm editRow\">\r\n        <i class=\"{{ iconClass('eye') }}\"></i>\r\n      </div>\r\n    </div>\r\n  {% } else { %}\r\n    <div class=\"btn-group pull-right\">\r\n      <button class=\"btn btn-secondary btn-sm editRow\" title = \"Edit row\">\r\n        <i class=\"{{ iconClass('edit') }}\"></i>\r\n      </button>\r\n      <button class=\"btn btn-danger btn-sm removeRow\" title = \"Delete row\">\r\n        <i class=\"{{ iconClass('trash') }}\"></i>\r\n      </button>\r\n    </div>\r\n  {% } %}\r\n  </div>\r\n</div>"
+                          },
+                          "addAnother": "Add suboutsourcer",
+                          "modal": true,
+                          "saveRow": "Close",
+                          "validate": {
+                            "required": true
+                          },
+                          "rowDrafts": false,
+                          "key": "suboutsourcers",
+                          "conditional": {
+                            "show": true,
+                            "conjunction": "all",
+                            "conditions": [
+                              {
+                                "component": "generalInformation.deSpecific.criticalPartsToBeOutsourcedSuboutsourcer",
+                                "operator": "isEqual",
+                                "value": "yes"
+                              }
+                            ]
+                          },
+                          "type": "editgrid",
+                          "displayAsTable": false,
+                          "input": true,
+                          "components": [
+                            {
+                              "title": "Sub-outsourcer(s)",
+                              "theme": "primary",
+                              "collapsible": false,
+                              "key": "suboutsourcerS",
+                              "type": "panel",
+                              "label": "Panel",
+                              "input": false,
+                              "tableView": false,
+                              "components": [
+                                {
+                                  "label": "This edit grid row will disappear",
+                                  "applyMaskOn": "change",
+                                  "tableView": true,
+                                  "validate": {
+                                    "required": true,
+                                    "maxLength": 100
+                                  },
+                                  "key": "nameSuboutsourcer",
+                                  "type": "textfield",
+                                  "input": true
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Submit",
+      "action": "saveState",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "state": "draft"
+    }
+  ]
+}

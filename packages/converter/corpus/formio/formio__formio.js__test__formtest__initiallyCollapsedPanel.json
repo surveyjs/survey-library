@@ -1,0 +1,39 @@
+{
+  "_id": "5f2959ef4721b45f6089d572",
+  "type": "form",
+  "owner": "5e05a6b7549cdc2ece30c6b0",
+  "components": [
+    {
+      "collapsible": true,
+      "tableView": false,
+      "key": "panel",
+      "type": "panel",
+      "label": "Panel",
+      "input": false,
+      "components": [
+        {
+          "label": "Text Field",
+          "tableView": true,
+          "validate": {
+            "required": true
+          },
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        }
+      ],
+      "collapsed": true
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "title": "FJS-1118 Collapsed Panels",
+  "display": "form",
+  "name": "fjs1118CollapsedPanels"
+}

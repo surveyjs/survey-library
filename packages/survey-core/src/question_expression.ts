@@ -33,6 +33,10 @@ export class QuestionExpressionModel extends Question {
   public get supportClearTitleAction(): boolean {
     return false;
   }
+  // data.keepEmptyValues: an empty result removes the key.
+  protected canKeepEmptyValue(): boolean {
+    return false;
+  }
   public get hasInput(): boolean {
     return false;
   }

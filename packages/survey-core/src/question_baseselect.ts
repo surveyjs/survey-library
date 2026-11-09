@@ -2307,6 +2307,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.choicesFromUrl = newChoices;
     this.filterItems();
     this.onVisibleChoicesChanged();
+    // The loaded choices decide the value: a value they drop is a system clear (data.keepEmptyValues)
+    this.runDeletingEmptyValues((): void => this.updateValueOnChoicesFromUrl(newChoices, cachedValues));
+    this.errors = errors;
+    this.choicesLoaded();
+  }
+  private updateValueOnChoicesFromUrl(newChoices: Array<ItemValue>, cachedValues: any): void {
     if (newChoices) {
       var newValue = this.updateCachedValueForUrlRequests(
         cachedValues,
@@ -2333,8 +2339,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!this.isReadOnly && !newChoices && !this.isFirstLoadChoicesFromUrl) {
       this.value = null;
     }
-    this.errors = errors;
-    this.choicesLoaded();
   }
   private createCachedValueForUrlRequests(
     val: any,

@@ -1,0 +1,14 @@
+{
+  "display": "form",
+  "components": [
+    {
+      "type": "textfield",
+      "key": "textField",
+      "input": true,
+      "label": "Text Field",
+      "validate": {
+        "required": true
+      }
+    }
+  ]
+}

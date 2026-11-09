@@ -78,6 +78,8 @@ export const SurveyLintReasons = Object.freeze({
     aliasDuplicate: "aliasDuplicate",
     // min/max/step on an inputType that has no bounds
     inertMinMax: "inertMinMax",
+    // requiredTrue on a boolean that is neither isRequired nor has a requiredIf
+    requiredTrueNotRequired: "requiredTrueNotRequired",
   }),
   "element/unknown-type": Object.freeze({
     unknownType: "unknownType",

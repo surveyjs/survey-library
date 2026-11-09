@@ -96,6 +96,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   getSettings(): ISurveySettings;
   // The settings comparisons pass on: undefined when the survey sets no key itself (the global settings apply)
   getOwnSettings(): ISurveySettings;
+  // A system clear: an empty value set while func runs removes the key even with data.keepEmptyValues on
+  runDeletingEmptyValues<T>(func: () => T): T;
   //#endregion
 
   //#region Locale

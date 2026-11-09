@@ -1,0 +1,89 @@
+{
+  "_id": "6971da9de6e4df18ca03e2c8",
+  "title": "change year range",
+  "name": "changeYearRange",
+  "path": "changeyearrange",
+  "type": "form",
+  "display": "form",
+  "owner": "697217a18c1baa902c1515c4",
+  "components": [
+    {
+      "label": "env",
+      "tableView": true,
+      "key": "env",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Expiry date",
+      "hideInputLabels": false,
+      "inputsLabelPosition": "top",
+      "useLocaleSettings": false,
+      "tableView": false,
+      "fields": {
+        "day": {
+          "hide": true
+        },
+        "month": {
+          "hide": false,
+          "required": true
+        },
+        "year": {
+          "type": "select",
+          "hide": false,
+          "required": true,
+          "minYear": 2025,
+          "maxYear": 2029
+        }
+      },
+      "defaultValue": "00/00/0000",
+      "validateOn": "blur",
+      "validateWhenHidden": false,
+      "validate": {
+        "custom": "const [monthStr, , yearStr] = input.split('/');\r\nconst inputDateValue = parseInt(`${yearStr}${monthStr.padStart(2, '0')}`);\r\n\r\nconst now = new Date();\r\nconst currentYear = now.getFullYear();\r\nconst currentMonth = String(now.getMonth() + 1).padStart(2, '0'); // getMonth is 0-based\r\nconst currentDateValue = parseInt(`${currentYear}${currentMonth}`);\r\n\r\nif (currentDateValue > inputDateValue) {\r\n  return `${component.label} cannot be in the past.`;\r\n}"
+      },
+      "key": "expiryDate",
+      "logic": [
+        {
+          "name": "mix and max year",
+          "trigger": {
+            "type": "simple",
+            "simple": {
+              "show": true,
+              "conjunction": "all",
+              "conditions": [
+                {
+                  "component": "env",
+                  "operator": "isNotEmpty"
+                }
+              ]
+            }
+          },
+          "actions": [
+            {
+              "name": "merge schema",
+              "type": "mergeComponentSchema",
+              "schemaDefinition": "schema={\n  \"fields\": {\n    \"day\": {\n      \"hide\": true,\n      \"type\": \"number\",\n      \"placeholder\": \"\",\n      \"required\": false\n    },\n    \"month\": {\n      \"hide\": false,\n      \"required\": true,\n      \"type\": \"select\",\n      \"placeholder\": \"\"\n    },\n    \"year\": {\n      \"type\": \"select\",\n      \"hide\": false,\n      \"required\": true,\n      \"minYear\": 2026,\n      \"maxYear\": 2031,\n      \"placeholder\": \"\"\n    }\n  },\n  \"minYear\": 2026,\n  \"maxYear\": 2031\n};"
+            }
+          ]
+        }
+      ],
+      "type": "day",
+      "input": true,
+      "maxYear": 2029,
+      "minYear": 2025
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "machineName": "zjmpfnhcmfewehb:changeYearRange",
+  "project": "68f206eb77804fe4f4d850ea",
+  "created": "2026-01-22T08:06:53.956Z",
+  "modified": "2026-01-22T12:27:13.593Z"
+}

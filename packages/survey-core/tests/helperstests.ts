@@ -526,4 +526,52 @@ describe("Helpers", () => {
       settings.commentSuffix = oldSuffix;
     }
   });
+  test("Helpers.removeEmptyKeys removes empty keys at any depth and keeps 0 and false", () => {
+    expect(Helpers.removeEmptyKeys({ a: "", b: null, c: {}, d: [], e: 0, f: false, g: "x", h: undefined, i: NaN }))
+      .toStrictEqual({ e: 0, f: false, g: "x" });
+    expect(Helpers.removeEmptyKeys({ a: { b: "", c: { d: null } }, e: { f: 1, g: [] } })).toStrictEqual({ e: { f: 1 } });
+  });
+  test("Helpers.removeEmptyKeys keeps an array's length and its non-object items", () => {
+    expect(Helpers.removeEmptyKeys([{ a: "", b: 1 }, { a: null }, "", null, 0])).toStrictEqual([{ b: 1 }, {}, "", null, 0]);
+    expect(Helpers.removeEmptyKeys([[{ a: "" }], []])).toStrictEqual([[{}], []]);
+    expect(Helpers.removeEmptyKeys({ list: [{ a: "" }] })).toStrictEqual({ list: [{}] });
+  });
+  test("Helpers.removeEmptyKeys returns the same value when nothing is removed", () => {
+    const obj = { a: 1, b: { c: "x" }, d: [{ e: false }] };
+    expect(Helpers.removeEmptyKeys(obj)).toBe(obj);
+    const arr = [{ a: 0 }, "", null];
+    expect(Helpers.removeEmptyKeys(arr)).toBe(arr);
+    expect(Helpers.removeEmptyKeys("")).toBe("");
+    expect(Helpers.removeEmptyKeys(null)).toBeNull();
+    expect(Helpers.removeEmptyKeys(5)).toBe(5);
+  });
+  test("Helpers.removeEmptyKeys copies what it changes and never modifies the value passed in", () => {
+    const unchanged = { c: 1 };
+    const value = { a: "", obj: { b: "", c: 1 }, keep: unchanged, list: [{ d: null }, unchanged] };
+    const res = Helpers.removeEmptyKeys(value);
+    expect(res).toStrictEqual({ obj: { c: 1 }, keep: { c: 1 }, list: [{}, { c: 1 }] });
+    expect(value).toStrictEqual({ a: "", obj: { b: "", c: 1 }, keep: { c: 1 }, list: [{ d: null }, { c: 1 }] });
+    expect(res.keep).toBe(unchanged);
+    expect(res.list[1]).toBe(unchanged);
+  });
+  test("Helpers.removeEmptyKeys does not walk objects that are not plain", () => {
+    class Item { public a = ""; }
+    const date = new Date(2026, 0, 1);
+    const item = new Item();
+    const res = Helpers.removeEmptyKeys({ date: date, item: item, list: [item] });
+    expect(res.date).toBe(date);
+    expect(res.item).toBe(item);
+    expect(res.item.a).toBe("");
+    expect(res.list[0]).toBe(item);
+  });
+  test("Helpers.removeEmptyKeys keeps or removes a __proto__ key and never rewrites it", () => {
+    const kept = JSON.parse("{ \"__proto__\": { \"a\": \"\", \"b\": 1 }, \"c\": \"\" }");
+    const res = Helpers.removeEmptyKeys(kept);
+    expect(Object.getPrototypeOf(res)).toBe(Object.prototype);
+    expect(Object.keys(res)).toStrictEqual(["__proto__"]);
+    expect(Object.getOwnPropertyDescriptor(res, "__proto__").value).toStrictEqual({ a: "", b: 1 });
+    const removed = Helpers.removeEmptyKeys(JSON.parse("{ \"__proto__\": { \"a\": \"\" }, \"c\": 1 }"));
+    expect(Object.getPrototypeOf(removed)).toBe(Object.prototype);
+    expect(Object.keys(removed)).toStrictEqual(["c"]);
+  });
 });

@@ -1,0 +1,298 @@
+{
+  "type": "form",
+  "tags": [],
+  "owner": "55673dc04f0405dd28205bb7",
+  "components": [
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "label": "Files",
+      "key": "files",
+      "image": false,
+      "imageSize": "200",
+      "placeholder": "",
+      "multiple": false,
+      "defaultValue": "",
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "filePattern": "*",
+      "fileMinSize": "0KB",
+      "fileMaxSize": "1GB",
+      "type": "file",
+      "labelPosition": "top",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "storage": "base64"
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tableView": true,
+      "label": "file",
+      "key": "file",
+      "image": true,
+      "imageSize": "200",
+      "placeholder": "",
+      "multiple": true,
+      "defaultValue": "",
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "filePattern": "*",
+      "fileMinSize": "0KB",
+      "fileMaxSize": "1GB",
+      "type": "file",
+      "labelPosition": "top",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "hideLabel": true,
+      "storage": "base64",
+      "url": "http://google.com"
+    },
+    {
+      "clearOnHide": true,
+      "input": true,
+      "tableView": true,
+      "key": "formField",
+      "src": "",
+      "reference": true,
+      "form": "5692b920d1028f01000407e7",
+      "path": "formField",
+      "label": "formField",
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "type": "form",
+      "project": "examples",
+      "labelPosition": "top",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "hideLabel": true,
+      "components": [
+        {
+          "type": "email",
+          "persistent": true,
+          "unique": false,
+          "protected": false,
+          "defaultValue": "",
+          "suffix": "",
+          "prefix": "",
+          "placeholder": "Enter your email address",
+          "key": "email",
+          "label": "Email",
+          "inputType": "email",
+          "tableView": true,
+          "input": true,
+          "kickbox": {
+            "enabled": false
+          }
+        },
+        {
+          "type": "password",
+          "persistent": true,
+          "protected": true,
+          "suffix": "",
+          "prefix": "",
+          "placeholder": "Enter your password.",
+          "key": "password",
+          "label": "Password",
+          "inputType": "password",
+          "tableView": false,
+          "input": true
+        },
+        {
+          "input": true,
+          "inputType": "checkbox",
+          "tableView": true,
+          "hideLabel": true,
+          "label": "Valid",
+          "key": "valid",
+          "defaultValue": false,
+          "protected": false,
+          "persistent": true,
+          "validate": {
+            "required": false
+          },
+          "type": "checkbox",
+          "tags": [],
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          }
+        },
+        {
+          "type": "button",
+          "theme": "primary",
+          "disableOnInvalid": true,
+          "action": "submit",
+          "block": false,
+          "rightIcon": "",
+          "leftIcon": "",
+          "size": "md",
+          "key": "submit",
+          "tableView": false,
+          "label": "Submit",
+          "input": true
+        }
+      ]
+    },
+    {
+      "type": "custom",
+      "key": "custom",
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "protected": false,
+      "persistent": true,
+      "label": "custom",
+      "hideLabel": true
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "label": "Submit",
+      "tableView": false,
+      "key": "submit",
+      "size": "md",
+      "leftIcon": "",
+      "rightIcon": "",
+      "block": false,
+      "action": "submit",
+      "disableOnInvalid": false,
+      "theme": "primary",
+      "type": "button"
+    }
+  ],
+  "revisions": "",
+  "_vid": 0,
+  "_id": "5b299d88fd8cb38273aa3521",
+  "title": "Premium",
+  "display": "form",
+  "access": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [
+        "5692b920d1028f01000407e4",
+        "5692b920d1028f01000407e5",
+        "5692b920d1028f01000407e6"
+      ],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "submissionAccess": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [
+        "5692b920d1028f01000407e6"
+      ],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "settings": {},
+  "name": "premium",
+  "path": "premium",
+  "project": "5692b91fd1028f01000407e3",
+  "created": "2018-06-20T00:19:20.460Z",
+  "modified": "2018-07-10T17:27:01.390Z",
+  "machineName": "examples:premium"
+}

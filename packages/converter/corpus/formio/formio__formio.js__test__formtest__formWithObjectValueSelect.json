@@ -1,0 +1,148 @@
+{
+  "_id": "656dabe1ebc67ecca11415f7",
+  "title": "test conditions select",
+  "name": "testConditionsSelect",
+  "path": "testconditionsselect",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Select ref",
+      "widget": "choicesjs",
+      "tableView": true,
+      "dataSrc": "resource",
+      "data": {
+        "resource": "656daab0ebc67ecca1141226"
+      },
+      "template": "<span>Number {{ item.data.number }}<span>({{item.data.notes}})</span></span>",
+      "key": "selectRef",
+      "type": "select",
+      "noRefreshOnScroll": false,
+      "addResource": false,
+      "reference": true,
+      "input": true
+    },
+    {
+      "label": "Select no value property",
+      "widget": "choicesjs",
+      "tableView": true,
+      "multiple": true,
+      "dataSrc": "resource",
+      "data": {
+        "resource": "656daab0ebc67ecca1141226"
+      },
+      "template": "<span>{{ item.data.number }}</span>",
+      "key": "selectNoValueProperty",
+      "type": "select",
+      "noRefreshOnScroll": false,
+      "addResource": false,
+      "reference": false,
+      "input": true
+    },
+    {
+      "label": "Select entire object",
+      "widget": "choicesjs",
+      "tableView": true,
+      "dataSrc": "resource",
+      "data": {
+        "resource": "656daab0ebc67ecca1141226"
+      },
+      "valueProperty": "data",
+      "template": "<span>{{ item.data.number }}</span>",
+      "validate": {
+        "select": false
+      },
+      "key": "selectEntireObject",
+      "type": "select",
+      "searchField": "data__regex",
+      "noRefreshOnScroll": false,
+      "addResource": false,
+      "reference": false,
+      "input": true
+    },
+    {
+      "label": "Select entire object mult",
+      "widget": "choicesjs",
+      "tableView": true,
+      "multiple": true,
+      "dataSrc": "resource",
+      "data": {
+        "resource": "656daab0ebc67ecca1141226"
+      },
+      "valueProperty": "data",
+      "template": "<span>{{ item.data.number }}</span>",
+      "validate": {
+        "select": false
+      },
+      "key": "selectEntireObjectMult",
+      "type": "select",
+      "searchField": "data__regex",
+      "noRefreshOnScroll": false,
+      "addResource": false,
+      "reference": false,
+      "input": true
+    },
+    {
+      "label": "Number",
+      "applyMaskOn": "change",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "key": "number",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "selectRef",
+            "operator": "isEqual",
+            "value": {
+              "data": {
+                "number": 1,
+                "notes": "notes 1"
+              }
+            }
+          },
+          {
+            "component": "selectNoValueProperty",
+            "operator": "isEqual",
+            "value": {
+              "data": {
+                "number": 2
+              }
+            }
+          },
+          {
+            "component": "selectEntireObject",
+            "operator": "isEqual",
+            "value": {
+              "number": 3
+            }
+          },
+          {
+            "component": "selectEntireObjectMult",
+            "operator": "isEqual",
+            "value": {
+              "number": 4
+            }
+          }
+        ]
+      },
+      "type": "number",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "project": "656daa20ebc67ecca1140e8d",
+  "machineName": "yyyy-acvcpvwwqbabawl:testConditionsSelect"
+}

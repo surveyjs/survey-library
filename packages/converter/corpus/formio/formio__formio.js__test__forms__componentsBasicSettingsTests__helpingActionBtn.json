@@ -1,0 +1,14 @@
+{
+  "components": [
+    {
+      "label": "Hide btn",
+      "action": "event",
+      "showValidations": false,
+      "tableView": false,
+      "key": "hideBtn",
+      "type": "button",
+      "input": true,
+      "event": "hide"
+    }
+  ]
+}

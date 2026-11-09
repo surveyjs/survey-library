@@ -1,0 +1,287 @@
+{
+  "title": "test conditions",
+  "name": "testConditions",
+  "path": "testconditions",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Text Field CONDITIONAL",
+      "tableView": true,
+      "key": "conditionalField",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "email",
+            "operator": "endsWith",
+            "value": "@form.io"
+          },
+          {
+            "component": "day",
+            "operator": "dateGreaterThan",
+            "value": "9/20/2022"
+          },
+          {
+            "component": "currency",
+            "operator": "greaterThan",
+            "value": 30
+          },
+          {
+            "component": "survey",
+            "operator": "isNotEmpty"
+          },
+          {
+            "component": "number",
+            "operator": "lessThanOrEqual",
+            "value": 100
+          },
+          {
+            "component": "checkbox",
+            "operator": "isEqual",
+            "value": true
+          },
+          {
+            "component": "selectBoxes",
+            "operator": "isEqual",
+            "value": "one"
+          },
+          {
+            "component": "radio",
+            "operator": "isNotEqual",
+            "value": "one"
+          },
+          {
+            "component": "tags",
+            "operator": "includes",
+            "value": "test"
+          },
+          {
+            "component": "selectValues",
+            "operator": "isEqual",
+            "value": "one"
+          },
+          {
+            "component": "selectCustomWithValuesOfNumberType",
+            "operator": "isNotEqual",
+            "value": 2
+          }
+        ]
+      },
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Email",
+      "tableView": true,
+      "key": "email",
+      "type": "email",
+      "input": true
+    },
+    {
+      "label": "Day",
+      "hideInputLabels": false,
+      "inputsLabelPosition": "top",
+      "useLocaleSettings": false,
+      "tableView": false,
+      "fields": {
+        "day": {
+          "hide": false
+        },
+        "month": {
+          "hide": false
+        },
+        "year": {
+          "hide": false
+        }
+      },
+      "key": "day",
+      "type": "day",
+      "input": true
+    },
+    {
+      "label": "Currency",
+      "mask": false,
+      "spellcheck": true,
+      "tableView": false,
+      "currency": "USD",
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "key": "currency",
+      "type": "currency",
+      "input": true,
+      "delimiter": true
+    },
+    {
+      "label": "Survey",
+      "tableView": false,
+      "questions": [
+        {
+          "label": "q1",
+          "value": "q1",
+          "tooltip": ""
+        },
+        {
+          "label": "q2",
+          "value": "q2",
+          "tooltip": ""
+        }
+      ],
+      "values": [
+        {
+          "label": "true",
+          "value": "true",
+          "tooltip": ""
+        },
+        {
+          "label": "false",
+          "value": "false",
+          "tooltip": ""
+        }
+      ],
+      "key": "survey",
+      "type": "survey",
+      "input": true
+    },
+    {
+      "label": "Number",
+      "mask": false,
+      "tableView": false,
+      "multiple": true,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Checkbox",
+      "tableView": false,
+      "key": "checkbox",
+      "type": "checkbox",
+      "input": true
+    },
+    {
+      "label": "Select Boxes",
+      "optionsLabelPosition": "right",
+      "tableView": false,
+      "values": [
+        {
+          "label": "one",
+          "value": "one",
+          "shortcut": ""
+        },
+        {
+          "label": "two",
+          "value": "two",
+          "shortcut": ""
+        },
+        {
+          "label": "three",
+          "value": "three",
+          "shortcut": ""
+        },
+        {
+          "label": "four",
+          "value": "four",
+          "shortcut": ""
+        },
+        {
+          "label": "five",
+          "value": "five",
+          "shortcut": ""
+        }
+      ],
+      "key": "selectBoxes",
+      "type": "selectboxes",
+      "input": true,
+      "inputType": "checkbox"
+    },
+    {
+      "label": "Radio",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "one",
+          "value": "one",
+          "shortcut": ""
+        },
+        {
+          "label": "two",
+          "value": "two",
+          "shortcut": ""
+        },
+        {
+          "label": "three",
+          "value": "three",
+          "shortcut": ""
+        }
+      ],
+      "key": "radio",
+      "type": "radio",
+      "input": true
+    },
+    {
+      "label": "Tags",
+      "tableView": false,
+      "key": "tags",
+      "type": "tags",
+      "input": true
+    },
+    {
+      "label": "Select Values",
+      "widget": "choicesjs",
+      "tableView": true,
+      "data": {
+        "values": [
+          {
+            "label": "one",
+            "value": "one"
+          },
+          {
+            "label": "two",
+            "value": "two"
+          },
+          {
+            "label": "three",
+            "value": "three"
+          }
+        ]
+      },
+      "key": "selectValues",
+      "type": "select",
+      "input": true
+    },
+    {
+      "label": "Select custom with values of number type",
+      "widget": "choicesjs",
+      "tableView": true,
+      "dataSrc": "custom",
+      "data": {
+        "custom": "values = [ {label: 'one', value: 1}, {label: 'two', value: 2}, {label: 'three', value: 3}]"
+      },
+      "dataType": "boolean",
+      "valueProperty": "value",
+      "key": "selectCustomWithValuesOfNumberType",
+      "type": "select",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true,
+      "saveOnEnter": false
+    }
+  ],
+  "created": "2022-09-16T15:10:25.867Z",
+  "modified": "2022-09-29T08:37:57.247Z",
+  "machineName": "uubnbosxacwjzbk:testConditions"
+}

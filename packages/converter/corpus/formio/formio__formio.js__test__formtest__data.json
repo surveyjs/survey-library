@@ -1,0 +1,766 @@
+{
+  "type": "form",
+  "tags": [],
+  "owner": "55673dc04f0405dd28205bb7",
+  "components": [
+    {
+      "input": true,
+      "tableView": true,
+      "key": "test",
+      "label": "test",
+      "protected": false,
+      "unique": false,
+      "persistent": true,
+      "type": "hidden",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "input": true,
+      "tree": true,
+      "components": [
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Text",
+          "key": "containerText",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "type": "textfield",
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {}
+        }
+      ],
+      "tableView": true,
+      "label": "Container",
+      "key": "container",
+      "protected": false,
+      "persistent": true,
+      "clearOnHide": true,
+      "type": "container",
+      "labelPosition": "top",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tree": true,
+      "components": [
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Show Header",
+          "key": "dataGridText",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "type": "textfield",
+          "inDataGrid": true,
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {},
+          "tooltip": "My Tooltip"
+        },
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Show Neither",
+          "key": "dataGridText3",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "type": "textfield",
+          "inDataGrid": true,
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {},
+          "hideLabel": true
+        },
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Show Row",
+          "key": "dataGridText2",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "type": "textfield",
+          "inDataGrid": true,
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {},
+          "dataGridLabel": true,
+          "hideLabel": true
+        },
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Show Both",
+          "key": "dataGridText4",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "type": "textfield",
+          "inDataGrid": true,
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {},
+          "dataGridLabel": true
+        }
+      ],
+      "tableView": true,
+      "label": "Data Grid",
+      "key": "dataGrid",
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "type": "datagrid",
+      "addAnotherPosition": "bottom",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "validate": {
+        "minLength": 3,
+        "maxLength": 5
+      },
+      "bordered": true
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tree": true,
+      "components": [
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Text",
+          "key": "dataGrid2Text",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "type": "textfield",
+          "inDataGrid": true,
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {},
+          "hideLabel": true
+        },
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Text",
+          "key": "text",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "type": "textfield",
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {},
+          "inDataGrid": true,
+          "hideLabel": true
+        }
+      ],
+      "tableView": true,
+      "label": "Data Grid",
+      "key": "dataGrid2",
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "type": "datagrid",
+      "addAnotherPosition": "bottom",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "bordered": true
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "inputType": "checkbox",
+      "tableView": true,
+      "label": "Show",
+      "dataGridLabel": false,
+      "key": "show",
+      "defaultValue": false,
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "name": "",
+      "value": "",
+      "clearOnHide": true,
+      "validate": {
+        "required": false
+      },
+      "type": "checkbox",
+      "labelPosition": "right",
+      "hideLabel": false,
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {}
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "tree": true,
+      "components": [
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Checkbox",
+          "key": "conditionalDataGridCheckbox",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "true",
+            "when": "show",
+            "eq": "true"
+          },
+          "type": "textfield",
+          "inDataGrid": true,
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {}
+        },
+        {
+          "autofocus": false,
+          "input": true,
+          "inputType": "checkbox",
+          "tableView": true,
+          "label": "Show2",
+          "dataGridLabel": false,
+          "key": "conditionalDataGridShow2",
+          "defaultValue": false,
+          "protected": false,
+          "persistent": true,
+          "hidden": false,
+          "name": "",
+          "value": "",
+          "clearOnHide": true,
+          "validate": {
+            "required": false
+          },
+          "type": "checkbox",
+          "labelPosition": "right",
+          "inDataGrid": true,
+          "hideLabel": false,
+          "tags": [],
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "properties": {}
+        },
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Internal",
+          "key": "conditionalDataGridInternal",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "true",
+            "when": "conditionalDataGridShow2",
+            "eq": "true"
+          },
+          "type": "textfield",
+          "inDataGrid": true,
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {}
+        }
+      ],
+      "tableView": true,
+      "label": "Conditional Data Grid",
+      "key": "conditionalDataGrid",
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "type": "datagrid",
+      "addAnotherPosition": "bottom",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "bordered": true
+    },
+    {
+      "input": true,
+      "tree": true,
+      "components": [
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Text",
+          "key": "editGridText",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "type": "textfield",
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {}
+        },
+        {
+          "autofocus": false,
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Text",
+          "key": "editGridText2",
+          "placeholder": "",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "hidden": false,
+          "clearOnHide": true,
+          "spellcheck": true,
+          "validate": {
+            "required": false,
+            "minLength": "",
+            "maxLength": "",
+            "pattern": "",
+            "custom": "",
+            "customPrivate": false
+          },
+          "conditional": {
+            "show": "",
+            "when": null,
+            "eq": ""
+          },
+          "type": "textfield",
+          "labelPosition": "top",
+          "inputFormat": "plain",
+          "tags": [],
+          "properties": {}
+        }
+      ],
+      "multiple": false,
+      "tableView": true,
+      "label": "Edit Grid",
+      "key": "editGrid",
+      "protected": false,
+      "persistent": true,
+      "hidden": false,
+      "clearOnHide": true,
+      "templates": {
+        "header": "<div class=\"row\"> \n  {%util.eachComponent(components, function(component) { %} \n    <div class=\"col-sm-2\"> \n      {{ component.label }} \n    </div> \n  {% }) %} \n</div>",
+        "row": "<div class=\"row\"> \n  {%util.eachComponent(components, function(component) { %} \n    <div class=\"col-sm-2\"> \n      {{ getView(component, row[component.key]) }} \n    </div> \n  {% }) %} \n  <div class=\"col-sm-2\"> \n    <div class=\"btn-group pull-right\"> \n      <div class=\"btn btn-default editRow\">Edit</div> \n      <div class=\"btn btn-danger removeRow\">Delete</div> \n    </div> \n  </div> \n</div>",
+        "footer": ""
+      },
+      "type": "editgrid",
+      "tags": [],
+      "conditional": {
+        "show": "",
+        "when": null,
+        "eq": ""
+      },
+      "properties": {},
+      "removeRow": "Cancel"
+    },
+    {
+      "autofocus": false,
+      "input": true,
+      "label": "Submit",
+      "tableView": false,
+      "key": "submit",
+      "size": "md",
+      "leftIcon": "",
+      "rightIcon": "",
+      "block": false,
+      "action": "submit",
+      "disableOnInvalid": false,
+      "theme": "primary",
+      "type": "button"
+    }
+  ],
+  "revisions": "",
+  "_vid": 0,
+  "_id": "5b202662f417cc387d12fbc2",
+  "title": "Data",
+  "display": "form",
+  "access": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [
+        "5692b920d1028f01000407e4",
+        "5692b920d1028f01000407e5",
+        "5692b920d1028f01000407e6"
+      ],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "submissionAccess": [
+    {
+      "roles": [],
+      "type": "create_own"
+    },
+    {
+      "roles": [],
+      "type": "create_all"
+    },
+    {
+      "roles": [],
+      "type": "read_own"
+    },
+    {
+      "roles": [
+        "5692b920d1028f01000407e6"
+      ],
+      "type": "read_all"
+    },
+    {
+      "roles": [],
+      "type": "update_own"
+    },
+    {
+      "roles": [],
+      "type": "update_all"
+    },
+    {
+      "roles": [],
+      "type": "delete_own"
+    },
+    {
+      "roles": [],
+      "type": "delete_all"
+    },
+    {
+      "roles": [],
+      "type": "team_read"
+    },
+    {
+      "roles": [],
+      "type": "team_write"
+    },
+    {
+      "roles": [],
+      "type": "team_admin"
+    }
+  ],
+  "settings": {},
+  "name": "data",
+  "path": "data",
+  "project": "5692b91fd1028f01000407e3",
+  "created": "2018-06-12T20:00:34.303Z",
+  "modified": "2018-08-02T21:55:24.962Z",
+  "machineName": "examples:data1"
+}

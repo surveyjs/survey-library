@@ -220,16 +220,18 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   // (so the base clear/re-check logic applies), shows requireTrueErrorText, and replaces the ordinary
   // required error, so a question that is also isRequired shows one error. It does not set isRequired
   // or the required mark, and false stays an answer for isEmpty(), isAnswered, the empty operator,
-  // progress and the data.
+  // progress and the data. requireTrueErrorText is empty by default, like requiredErrorText; the error
+  // then falls back to the "requireTrueError" string of the current locale.
   @property({ defaultValue: false }) requireTrue: boolean;
-  @property({ localizable: { defaultStr: "requireTrueError" } }) requireTrueErrorText: string;
+  @property({ localizable: true }) requireTrueErrorText: string;
   declare readonly locRequireTrueErrorText: LocalizableString;
   public hasRequiredError(): boolean {
     if (this.requireTrue) return this.booleanValue !== true;
     return super.hasRequiredError();
   }
   protected getRequiredErrorText(): string {
-    return this.requireTrue ? this.requireTrueErrorText : super.getRequiredErrorText();
+    if (!this.requireTrue) return super.getRequiredErrorText();
+    return this.requireTrueErrorText || this.getLocalizationString("requireTrueError");
   }
   // On a value change, Question checks required only for a cleared answer. A false that fails requireTrue
   // is a non-empty answer, so it is checked at once, as a validator would be.
@@ -563,7 +565,12 @@ Serializer.addClass(
     "valueTrue",
     "valueFalse",
     { name: "requireTrue:boolean" },
-    { name: "requireTrueErrorText:text", serializationProperty: "locRequireTrueErrorText" },
+    {
+      name: "requireTrueErrorText:text",
+      serializationProperty: "locRequireTrueErrorText",
+      dependsOn: "requireTrue",
+      visibleIf: (obj: any): boolean => !!obj && !!obj.requireTrue
+    },
     { name: "swapOrder:boolean" },
     {
       name: "displayMode",

@@ -341,12 +341,46 @@ describe("boolean requireTrue, Issue#12241", () => {
     expect(prop.isDefaultValue(false)).toBe(true);
     expect(Serializer.findProperty("boolean", "requireTrueErrorText").serializationProperty).toBe("locRequireTrueErrorText");
   });
-  test("property metadata: no dependsOn, visible on a question that is not required", () => {
+  test("property metadata: requireTrue has no dependsOn and is visible on a question that is not required", () => {
     const { q } = createQuestion({});
     const prop = Serializer.findProperty("boolean", "requireTrue");
     expect(prop.dependsOn).toBeFalsy();
     expect(prop.isVisible("", q)).toBe(true);
-    expect(Serializer.findProperty("boolean", "requireTrueErrorText").isVisible("", q)).toBe(true);
+  });
+  test("property metadata: requireTrueErrorText depends on requireTrue and is visible only while it is on", () => {
+    const { q } = createQuestion({});
+    const prop = Serializer.findProperty("boolean", "requireTrueErrorText");
+    expect(prop.dependsOn).toEqual(["requireTrue"]);
+    expect(prop.isVisible("", q), "requireTrue is off").toBe(false);
+    q.requireTrue = true;
+    expect(prop.isVisible("", q), "requireTrue is on").toBe(true);
+    q.isRequired = true;
+    q.requireTrue = false;
+    expect(prop.isVisible("", q), "isRequired alone").toBe(false);
+  });
+  test("requireTrueErrorText is empty by default, the error shows the localized default text", () => {
+    const { q } = createQuestion({ requireTrue: true });
+    expect(q.requireTrueErrorText).toBe("");
+    expect(q.locRequireTrueErrorText.isEmpty).toBe(true);
+    expect(errorTexts(q)).toEqual([requireTrueText]);
+    expect(q.toJSON()).toEqual({ name: "b", requireTrue: true });
+    q.requireTrueErrorText = "Agree first";
+    expect(errorTexts(q)).toEqual(["Agree first"]);
+    q.requireTrueErrorText = "";
+    expect(errorTexts(q)).toEqual([requireTrueText]);
+  });
+  test("requireTrueErrorText of a boolean matrix column is visible only while requireTrue is on", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "m", rowCount: 1,
+        columns: [{ name: "c", cellType: "boolean" }],
+      }],
+    });
+    const column = <any>(<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).getColumnByName("c");
+    const prop = Serializer.getDynamicPropertiesByObj(column).filter(p => p.name === "requireTrueErrorText")[0];
+    expect(prop.isVisible("", column), "requireTrue is off").toBe(false);
+    column.requireTrue = true;
+    expect(prop.isVisible("", column), "requireTrue is on").toBe(true);
   });
   test("the old property name is gone", () => {
     // the old name is built from parts so that a repo grep for it stays empty;

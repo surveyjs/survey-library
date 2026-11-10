@@ -222,7 +222,7 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    *
    * When this property is `true`, only a positive answer (`true` by default, or the custom value specified by [`valueTrue`](#valueTrue)) passes validation. A negative or empty answer displays the error message specified by [`requireTrueErrorText`](#requireTrueErrorText).
    *
-   * > This validation applies independently of [`isRequired`](#isRequired) and [`requiredIf`](#requiredIf). Enabling `requireTrue` does not set `isRequired`, but the question displays a required mark as a required question does.
+   * > This validation applies independently of [`isRequired`](#isRequired) and [`requiredIf`](#requiredIf). Enabling `requireTrue` does not set `isRequired`, but the question displays a [required mark](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#requiredMark) as a required question does.
    */
   @property({ defaultValue: false }) requireTrue: boolean;
   /**

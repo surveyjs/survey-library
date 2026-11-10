@@ -13,13 +13,27 @@ function editorModel(question: QuestionCommentModel): any {
 
 export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
   private model: any;
+  private boundQuestion: QuestionCommentModel;
   private hostRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: any) {
     super(props);
+    this.boundQuestion = props.question;
     this.model = editorModel(props.question);
     this.hostRef = React.createRef();
     if (this.model)this.model.onState = (): void => this.forceUpdate();
+  }
+
+  // The property grid keeps this component and swaps the question. The editor follows that question
+  // and writes its value into the existing contenteditable, the same way an input gets control.value.
+  private bindQuestion(): void {
+    const question = this.question;
+    if (this.boundQuestion === question) return;
+    if (this.model && this.model.dispose) this.model.dispose();
+    else if (this.model) this.model.detach();
+    this.boundQuestion = question;
+    this.model = editorModel(question);
+    if (this.model) this.model.onState = (): void => this.forceUpdate();
   }
 
   componentDidMount(): void {
@@ -70,7 +84,10 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
       : null;
   }
 
+  // read / edit / source are different hosts. One shared div keeps the previous node,
+  // so a design-mode switch never replaces the contenteditable.
   protected renderElement(): React.JSX.Element {
+    this.bindQuestion();
     const question = this.question;
     if (!this.model || !this.model.isEditing) {
       return this.renderReadOnly();

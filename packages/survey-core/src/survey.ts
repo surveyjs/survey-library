@@ -8443,15 +8443,6 @@ export class SurveyModel extends SurveyElementCore
     var question = this.getQuestionByValueName(name);
     if (question) {
       this.fireOnValueChanged(commentName, newValue, question);
-      // Pushes a value changed by onValueChanging back into the question. A nested change made while
-      // this call ran (a trigger that cleared the value and its comment, an onValueChanged handler)
-      // has stored a newer comment: writing this stale one back would start the change again (#12247).
-      if (this.isTwoValueEquals(newValue, this.getComment(name))) {
-        question.comment = newValue;
-        if (question.comment != newValue) {
-          question.comment = newValue;
-        }
-      }
     }
   }
   /**

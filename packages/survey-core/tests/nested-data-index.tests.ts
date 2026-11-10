@@ -380,3 +380,119 @@ describe("nested data index: expressions", () => {
     expect(survey.runExpression("{STREET}"), "an inner question by its name").toBe("x");
   });
 });
+
+describe("the root index after an element moves", () => {
+  // The page "p1" nests its elements under "obj"; "p2" does not nest.
+  const movingJson = (p1Elements: Array<any>, p2Elements: Array<any>): any => ({ pages: [
+    { name: "p1", valueName: "obj", elements: p1Elements },
+    { name: "p2", elements: p2Elements }
+  ] });
+  test("a question moved out of a nesting page is a top-level key", () => {
+    const survey = new SurveyModel(movingJson([{ type: "text", name: "q1" }], [{ type: "text", name: "q2" }]));
+    const q1 = survey.getQuestionByName("q1");
+    q1.value = "a";
+    expect(survey.getQuestionByValueName("q1"), "before the move: inside obj (D9)").toBeNull();
+    q1.page = survey.pages[1];
+    expect(q1.getDataPath()).toEqual(["q1"]);
+    expect(survey.getQuestionByValueName("q1")).toBe(q1);
+    expect(survey.getQuestionsByValueName("q1")).toEqual([q1]);
+    expect(survey.data, "the data does not move (D8)").toEqual({ obj: { q1: "a" } });
+    survey.setValue("q1", "b");
+    expect(q1.value).toBe("b");
+    expect(survey.data).toEqual({ obj: { q1: "a" }, q1: "b" });
+  });
+  test("a question moved into a nesting page is not a top-level key", () => {
+    const survey = new SurveyModel(movingJson([{ type: "text", name: "q1" }], [{ type: "text", name: "q2" }]));
+    const q2 = survey.getQuestionByName("q2");
+    q2.value = "z";
+    expect(survey.getQuestionByValueName("q2"), "before the move: top-level").toBe(q2);
+    q2.page = survey.pages[0];
+    expect(q2.getDataPath()).toEqual(["obj", "q2"]);
+    expect(survey.getQuestionByValueName("q2"), "inside obj (D9)").toBeNull();
+    expect(survey.data, "the data does not move (D8)").toEqual({ q2: "z" });
+    const valueBefore = q2.value;
+    survey.setValue("q2", "zzz");
+    expect(q2.value, "a top-level write does not reach it").toBe(valueBefore);
+    survey.setValue("obj", { q2: "y" });
+    expect(q2.value, "a write of its container reaches it").toBe("y");
+  });
+  test("a plain panel moved out of a nesting page: its question is a top-level key", () => {
+    const survey = new SurveyModel(movingJson(
+      [{ type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }],
+      [{ type: "text", name: "q2" }]));
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    const q1 = survey.getQuestionByName("q1");
+    q1.value = "a";
+    panel.page = survey.pages[1];
+    expect(q1.getDataPath()).toEqual(["q1"]);
+    expect(survey.getQuestionByValueName("q1")).toBe(q1);
+    expect(survey.data, "the data does not move (D8)").toEqual({ obj: { q1: "a" } });
+    survey.setValue("q1", "b");
+    expect(q1.value).toBe("b");
+    expect(survey.data).toEqual({ obj: { q1: "a" }, q1: "b" });
+  });
+  test("a plain panel moved into a nesting page: its question is not a top-level key", () => {
+    const survey = new SurveyModel(movingJson(
+      [{ type: "text", name: "q1" }],
+      [{ type: "panel", name: "panel2", elements: [{ type: "text", name: "q2" }] }]));
+    const panel = <PanelModel>survey.getPanelByName("panel2");
+    const q2 = survey.getQuestionByName("q2");
+    q2.value = "z";
+    panel.page = survey.pages[0];
+    expect(q2.getDataPath()).toEqual(["obj", "q2"]);
+    expect(survey.getQuestionByValueName("q2"), "inside obj (D9)").toBeNull();
+    expect(survey.data, "the data does not move (D8)").toEqual({ q2: "z" });
+    const valueBefore = q2.value;
+    survey.setValue("q2", "zzz");
+    expect(q2.value, "a top-level write does not reach it").toBe(valueBefore);
+  });
+  test("questions sharing a value name: a question moved out comes last, the others keep their order", () => {
+    const survey = new SurveyModel(movingJson(
+      [{ type: "text", name: "q1", valueName: "shared" }],
+      [{ type: "text", name: "q2", valueName: "shared" }, { type: "text", name: "q3", valueName: "shared" }]));
+    const names = (): Array<string> => (survey.getQuestionsByValueName("shared") || []).map(q => q.name);
+    expect(names()).toEqual(["q2", "q3"]);
+    survey.getQuestionByName("q1").page = survey.pages[1];
+    expect(names(), "the order added").toEqual(["q2", "q3", "q1"]);
+    survey.getQuestionByName("q2").page = survey.pages[0];
+    expect(names()).toEqual(["q3", "q1"]);
+  });
+  test("a move in a survey keeps the order of the questions sharing a value name", () => {
+    const pages = (extra: Array<any>): any => ({ pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1", valueName: "s" }].concat(extra) },
+      { name: "p2", elements: [{ type: "text", name: "q2", valueName: "s" }, { type: "text", name: "q3", valueName: "s" }] }
+    ] });
+    const flat = new SurveyModel(pages([]));
+    const nesting = new SurveyModel(pages([{ type: "panel", name: "pn", valueName: "obj", elements: [{ type: "text", name: "x" }] }]));
+    for (const survey of [flat, nesting]) {
+      const title = survey === flat ? "flat" : "nesting";
+      const names = (): Array<string> => (survey.getQuestionsByValueName("s") || []).map(q => q.name);
+      expect(names(), title).toEqual(["q1", "q2", "q3"]);
+      survey.getQuestionByName("q1").page = survey.pages[1];
+      expect(names(), title + ": the order added").toEqual(["q1", "q2", "q3"]);
+    }
+  });
+  test("a nesting panel moved between a nesting page and a plain page", () => {
+    const survey = new SurveyModel(movingJson(
+      [{ type: "panel", name: "panel1", valueName: "addr", elements: [{ type: "text", name: "street" }] }],
+      [{ type: "text", name: "q2" }]));
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    const street = survey.getQuestionByName("street");
+    street.value = "a";
+    expect(street.getDataPath()).toEqual(["obj", "addr", "street"]);
+    expect(survey.getDataKeyIndex().getScopes("addr")).toHaveLength(0);
+    panel.page = survey.pages[1];
+    expect(street.getDataPath(), "out of the nesting page").toEqual(["addr", "street"]);
+    expect(survey.getDataKeyIndex().getScopes("addr"), "a root container").toHaveLength(1);
+    expect(survey.getQuestionByValueName("street"), "inside addr (D9)").toBeNull();
+    expect(survey.data, "the data does not move (D8)").toEqual({ obj: { addr: { street: "a" } } });
+    survey.setValue("addr", { street: "b" });
+    expect(street.value).toBe("b");
+    panel.page = survey.pages[0];
+    expect(street.getDataPath(), "back into the nesting page").toEqual(["obj", "addr", "street"]);
+    expect(survey.getDataKeyIndex().getScopes("addr"), "not a root container").toHaveLength(0);
+    expect(survey.data, "the data does not move (D8)").toEqual({ obj: { addr: { street: "a" } }, addr: { street: "b" } });
+    survey.setValue("addr", { street: "c" });
+    expect(street.value, "a top-level write does not reach it").toBe("a");
+  });
+});

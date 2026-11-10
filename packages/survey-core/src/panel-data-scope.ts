@@ -135,8 +135,9 @@ class DataKeyHash {
 // scope it is, under their value name, and the active containers directly inside it, under their key. Two
 // elements may share a key (D4). A key is found exact or lower-case; for one key the questions come first.
 // A scope's index is built by a walk (add): elements keeps document order. The survey's root index uses
-// addKey only and leaves elements empty: its questions are added and removed one by one (removeKey), its
-// containers are added again after clearContainers() once the data shape changed.
+// addKey only and leaves elements empty: its questions are added and removed one by one (removeKey) and,
+// once a container nests, synced with the pages after the data shape changed; its containers are added again
+// after clearContainers() then.
 export class DataKeyIndex {
   private questions = new DataKeyHash();
   private containers = new DataKeyHash();

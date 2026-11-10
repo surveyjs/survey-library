@@ -7069,8 +7069,9 @@ export class SurveyModel extends SurveyElementCore
    */
   public getQuestionsByValueName(valueName: string, caseInsensitive: boolean = false): Array<Question> {
     // The root index's questions (D9), kept up as elements change: a hash read, the exact name first.
-    let res = this.dataKeyIndex.getQuestions(valueName);
-    if (res.length === 0 && caseInsensitive) res = this.dataKeyIndex.getQuestions(valueName, true);
+    const index = this.getDataKeyIndex();
+    let res = index.getQuestions(valueName);
+    if (res.length === 0 && caseInsensitive) res = index.getQuestions(valueName, true);
     return res.length > 0 ? res : null;
   }
   public getCalculatedValueByName(name: string): CalculatedValue {
@@ -7431,8 +7432,8 @@ export class SurveyModel extends SurveyElementCore
   isDataScopeUsed(): boolean {
     return this.isDataScopeUsedValue;
   }
-  // The scopes' indexes (PanelDataScope.getDataKeyIndex()) and the root's containers are built on their first
-  // read after the data shape changed: an element added, removed, moved or renamed, a container key or
+  // The scopes' indexes (PanelDataScope.getDataKeyIndex()) and the root's containers are built, and the root's
+  // questions synced, on their first read after the data shape changed: an element added, removed, moved or renamed, a container key or
   // dataNesting changed, a survey loaded. Shape changes are rare; a write reads the index.
   // One counter for every survey: a panel moved to another survey must not find its index current there.
   private static dataShapeVersionCounter: number = 0;
@@ -7445,13 +7446,15 @@ export class SurveyModel extends SurveyElementCore
   }
   // The root index (decisions R2, D9). Its questions are kept up as elements are added, removed and renamed
   // (questionHashesAdded / questionHashesRemoved), in the order added, as the value-name hash was: the survey
-  // without nesting pays nothing new. Once a container nests, its root containers (the active scopes not
-  // inside another one) are added on the first read after the data shape changed.
+  // without nesting pays nothing new. Once a container nests, the whole index follows the data shape on its
+  // first read after a change: the questions are synced (syncRootQuestions) and the root containers (the
+  // active scopes not inside another one) are added again.
   private dataKeyIndex = new DataKeyIndex();
-  private rootContainersVersion: number;
+  private dataKeyIndexVersion: number;
   public getDataKeyIndex(): DataKeyIndex {
-    if (this.isDataScopeUsedValue && this.rootContainersVersion !== this.dataShapeVersion) {
-      this.rootContainersVersion = this.dataShapeVersion;
+    if (this.isDataScopeUsedValue && this.dataKeyIndexVersion !== this.dataShapeVersion) {
+      this.dataKeyIndexVersion = this.dataShapeVersion;
+      this.syncRootQuestions();
       const index = this.dataKeyIndex;
       index.clearContainers();
       const collect = (panel: PanelModelBase): void => {
@@ -7473,6 +7476,21 @@ export class SurveyModel extends SurveyElementCore
   private rebuildRootQuestions(): void {
     this.dataKeyIndex.clearQuestions();
     this.pages.forEach(page => page.questions.forEach(q => this.rootQuestionAdded(q)));
+  }
+  // An element moved with `page = otherPage` sends no add or remove notification, yet a nesting page it leaves or
+  // enters changes whether its questions are top-level. Each page question is added when it became top-level
+  // and removed when it no longer is; the others keep their place, so the order added stays. A question the
+  // pages do not hold (a dynamic panel's template) is left as the incremental path put it. A move and its
+  // reverse between two reads leave a question where it was; with a read between them, it comes last.
+  private syncRootQuestions(): void {
+    const index = this.dataKeyIndex;
+    this.pages.forEach(page => page.questions.forEach(q => {
+      const valueName = q.getValueName();
+      const isIn = index.getQuestions(valueName).indexOf(q) > -1;
+      const isRoot = q.getValueScope() === this;
+      if (isRoot && !isIn) index.addKey(valueName, q);
+      if (!isRoot && isIn) index.removeKey(valueName, q);
+    }));
   }
   private rootQuestionAdded(question: Question): void {
     if (question.getValueScope() === this) {

@@ -125,15 +125,14 @@
 }
 .sd-formbox__label {
     height: calc(100% - var(--sjs2-spacing-x300));
-    padding: var(--sjs2-layout-component-input-medium-label-padding-vertical)
-        calc(
-            var(--sjs2-layout-component-input-medium-label-padding-horizontal) +
-                var(--sjs2-layout-component-formbox-medium-gap)
-        )
-        var(--sjs2-layout-component-input-medium-label-padding-vertical)
-        var(--sjs2-layout-component-input-medium-label-padding-horizontal);
+    padding-block: var(--sjs2-layout-component-input-medium-label-padding-vertical);
+    padding-inline-start: var(--sjs2-layout-component-input-medium-label-padding-horizontal);
+    padding-inline-end: calc(
+        var(--sjs2-layout-component-input-medium-label-padding-horizontal) +
+            var(--sjs2-layout-component-formbox-medium-gap)
+    );
     max-width: 30%;
-    border-right: var(--sjs2-border-width-x100) solid var(--sjs2-color-component-input-default-line);
+    border-inline-end: var(--sjs2-border-width-x100) solid var(--sjs2-color-component-input-default-line);
     box-sizing: content-box;
     white-space: normal;
     color: var(--sjs2-color-component-input-default-label);

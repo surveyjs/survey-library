@@ -66,12 +66,17 @@
 }
 
 .sd-multipletext:not(.sd-multipletext--mobile) {
-  // The title track also holds the item and title paddings, while the 30% limit applies to the title text.
+  // The 30% limit applies to the title text within an item; the track also holds the item and title paddings and the title border.
+  --sd-multipletext-title-text-max: calc(
+    ((100% - (var(--sd-multipletext-col-count, 1) - 1) * var(--sjs2-spacing-x200)) / var(--sd-multipletext-col-count, 1)
+      - 2 * var(--sjs2-layout-component-formbox-medium-padding-horizontal)) * 0.3
+  );
   --sd-multipletext-title-track-max: calc(
-    30% / var(--sd-multipletext-col-count, 1) +
+    var(--sd-multipletext-title-text-max) +
       var(--sjs2-layout-component-formbox-medium-padding-horizontal) +
       var(--sjs2-layout-component-input-medium-label-padding-horizontal) * 2 +
-      var(--sjs2-layout-component-formbox-medium-gap)
+      var(--sjs2-layout-component-formbox-medium-gap) +
+      var(--sjs2-border-width-x100)
   );
   display: grid;
   grid-template-columns: repeat(
@@ -109,8 +114,11 @@
     display: grid;
     grid-template-columns: subgrid;
 
+    // A track never gets narrower than its items' minimum, so a long word would push the input out.
     .sd-multipletext__item-title {
       max-width: none;
+      min-width: 0;
+      overflow-wrap: break-word;
       height: auto;
       align-self: stretch;
     }

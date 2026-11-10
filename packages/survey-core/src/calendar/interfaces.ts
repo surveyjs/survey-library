@@ -20,4 +20,6 @@ export interface CalendarMonth {
 export interface ICalendarOptions {
   value?: Date;
   viewDate?: Date;
+  min?: Date;
+  max?: Date;
 }

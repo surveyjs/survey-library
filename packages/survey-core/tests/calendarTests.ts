@@ -490,3 +490,216 @@ describe("CalendarModel zoom", () => {
     expect(days(calendar).filter(item => item.isHovered)).toHaveLength(0);
   });
 });
+
+describe("CalendarModel min and max", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+  function findItem(calendar: CalendarModel, text: string): CalendarItem {
+    return calendar.items.filter(item => item.text === text)[0];
+  }
+  function disabledTexts(items: Array<CalendarItem>): Array<string> {
+    return items.filter(item => item.isDisabled).map(item => item.text);
+  }
+
+  test("min and max are passed in options and stored without time", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: new Date(2026, 10, 5, 13, 0), max: new Date(2026, 10, 20, 8, 0) });
+    expect(calendar.min.getTime()).toBe(d(2026, 11, 5).getTime());
+    expect(calendar.max.getTime()).toBe(d(2026, 11, 20).getTime());
+  });
+
+  test("Days outside [min, max] are disabled", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 11, 5), max: d(2026, 11, 20) });
+    expect(findDay(calendar, d(2026, 11, 4)).isDisabled).toBe(true);
+    expect(findDay(calendar, d(2026, 11, 5)).isDisabled).toBe(false);
+    expect(findDay(calendar, d(2026, 11, 20)).isDisabled).toBe(false);
+    expect(findDay(calendar, d(2026, 11, 21)).isDisabled).toBe(true);
+    expect(findDay(calendar, d(2026, 10, 30), true).isDisabled).toBe(true);
+    expect(days(calendar).filter(item => !item.isDisabled)).toHaveLength(16);
+  });
+
+  test("Only min", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 11, 10) });
+    expect(days(calendar).filter(item => item.isDisabled).map(item => item.date.getTime()))
+      .toEqual(days(calendar).filter(item => item.date < d(2026, 11, 10)).map(item => item.date.getTime()));
+    expect(findDay(calendar, d(2026, 12, 6), true).isDisabled).toBe(false);
+  });
+
+  test("Only max", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), max: d(2026, 11, 10) });
+    expect(findDay(calendar, d(2026, 10, 26), true).isDisabled).toBe(false);
+    expect(findDay(calendar, d(2026, 11, 10)).isDisabled).toBe(false);
+    expect(findDay(calendar, d(2026, 11, 11)).isDisabled).toBe(true);
+    expect(findDay(calendar, d(2026, 12, 6), true).isDisabled).toBe(true);
+  });
+
+  test("Months entirely outside [min, max] are disabled, partially available months are not", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 3, 31), max: d(2026, 9, 1) });
+    calendar.zoom = "month";
+    expect(disabledTexts(calendar.items)).toEqual(["January", "February", "October", "November", "December"]);
+    calendar.max = undefined;
+    calendar.next();
+    expect(calendar.title).toBe("2027");
+    expect(disabledTexts(calendar.items)).toHaveLength(0);
+    calendar.min = d(2028, 1, 1);
+    expect(disabledTexts(calendar.items)).toHaveLength(12);
+  });
+
+  test("Clearing value updates items", () => {
+    const calendar = new CalendarModel({ value: d(2026, 11, 9) });
+    calendar.value = undefined;
+    expect(days(calendar).filter(item => item.isSelected)).toHaveLength(0);
+  });
+
+  test("Years entirely outside [min, max] are disabled, partially available years are not", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2018, 12, 31), max: d(2024, 1, 1) });
+    calendar.zoom = "year";
+    expect(disabledTexts(calendar.items)).toEqual(["2016", "2017", "2025", "2026", "2027"]);
+  });
+
+  test("Disabled items cannot be selected", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 11, 5), max: d(2027, 6, 30) });
+    let counter = 0;
+    calendar.onValueChanged.add(() => counter++);
+    calendar.selectItem(findDay(calendar, d(2026, 11, 4)));
+    expect(calendar.value).toBeUndefined();
+    expect(counter).toBe(0);
+
+    calendar.zoom = "month";
+    expect(findItem(calendar, "October").isDisabled).toBe(true);
+    calendar.selectItem(findItem(calendar, "October"));
+    expect(calendar.zoom).toBe("month");
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+
+    calendar.zoom = "year";
+    expect(findItem(calendar, "2025").isDisabled).toBe(true);
+    calendar.selectItem(findItem(calendar, "2025"));
+    expect(calendar.zoom).toBe("year");
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+  });
+
+  test("Disabled items cannot be hovered", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 11, 5) });
+    calendar.hoverItem(findDay(calendar, d(2026, 11, 4)));
+    expect(days(calendar).filter(item => item.isHovered)).toHaveLength(0);
+
+    calendar.hoverItem(findDay(calendar, d(2026, 11, 6)));
+    calendar.min = d(2026, 11, 7);
+    expect(findDay(calendar, d(2026, 11, 6)).isDisabled).toBe(true);
+    expect(findDay(calendar, d(2026, 11, 6)).isHovered).toBe(false);
+  });
+
+  test("Disabled css", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 11, 5), max: d(2026, 12, 31) });
+    expect(findDay(calendar, d(2026, 11, 4)).css).toBe("sv-calendar__day sv-calendar__day--disabled");
+    calendar.zoom = "month";
+    expect(findItem(calendar, "October").css).toBe("sv-calendar__month sv-calendar__month--disabled");
+    calendar.zoom = "year";
+    expect(findItem(calendar, "2027").css).toBe("sv-calendar__year sv-calendar__year--disabled");
+  });
+
+  test("canPrev and canNext without min and max", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    expect(calendar.canPrev).toBe(true);
+    expect(calendar.canNext).toBe(true);
+  });
+
+  test("canPrev and canNext in the day zoom", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 10, 31), max: d(2026, 12, 1) });
+    expect(calendar.canPrev).toBe(true);
+    expect(calendar.canNext).toBe(true);
+    calendar.prev();
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 10, 1).getTime());
+    expect(calendar.canPrev).toBe(false);
+    calendar.prev();
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 10, 1).getTime());
+
+    calendar.next();
+    calendar.next();
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 12, 1).getTime());
+    expect(calendar.canNext).toBe(false);
+    calendar.next();
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 12, 1).getTime());
+  });
+
+  test("canPrev and canNext in the month zoom", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2025, 12, 31), max: d(2027, 1, 1) });
+    calendar.zoom = "month";
+    expect(calendar.canPrev).toBe(true);
+    expect(calendar.canNext).toBe(true);
+    calendar.prev();
+    expect(calendar.title).toBe("2025");
+    expect(calendar.canPrev).toBe(false);
+    calendar.prev();
+    expect(calendar.title).toBe("2025");
+    calendar.next();
+    calendar.next();
+    expect(calendar.title).toBe("2027");
+    expect(calendar.canNext).toBe(false);
+    calendar.next();
+    expect(calendar.title).toBe("2027");
+  });
+
+  test("canPrev and canNext in the year zoom", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2015, 12, 31), max: d(2028, 1, 1) });
+    calendar.zoom = "year";
+    expect(calendar.canPrev).toBe(true);
+    expect(calendar.canNext).toBe(true);
+    calendar.prev();
+    expect(calendar.title).toBe("2004 \u2013 2015");
+    expect(calendar.canPrev).toBe(false);
+    calendar.prev();
+    expect(calendar.title).toBe("2004 \u2013 2015");
+
+    calendar.max = d(2027, 12, 31);
+    calendar.next();
+    expect(calendar.title).toBe("2016 \u2013 2027");
+    expect(calendar.canNext).toBe(false);
+    calendar.next();
+    expect(calendar.title).toBe("2016 \u2013 2027");
+  });
+
+  test("resetView without value moves today into [min, max]", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 9));
+    const calendar = new CalendarModel({ min: d(2027, 3, 15) });
+    expect(calendar.viewDate.getTime()).toBe(d(2027, 3, 1).getTime());
+    calendar.prev();
+    calendar.resetView();
+    expect(calendar.viewDate.getTime()).toBe(d(2027, 3, 1).getTime());
+
+    calendar.min = undefined;
+    calendar.max = d(2025, 7, 4);
+    calendar.resetView();
+    expect(calendar.viewDate.getTime()).toBe(d(2025, 7, 1).getTime());
+
+    calendar.max = d(2026, 12, 31);
+    calendar.resetView();
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+  });
+
+  test("resetView with value uses the value month", () => {
+    const calendar = new CalendarModel({ value: d(2026, 11, 9), min: d(2027, 1, 1) });
+    calendar.resetView();
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+  });
+
+  test("Changing min and max updates items", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    expect(days(calendar).filter(item => item.isDisabled)).toHaveLength(0);
+    calendar.min = d(2026, 11, 10);
+    expect(findDay(calendar, d(2026, 11, 9)).isDisabled).toBe(true);
+    calendar.max = d(2026, 11, 20);
+    expect(findDay(calendar, d(2026, 11, 21)).isDisabled).toBe(true);
+    expect(calendar.canPrev).toBe(false);
+    expect(calendar.canNext).toBe(false);
+
+    calendar.zoom = "month";
+    expect(disabledTexts(calendar.items)).toHaveLength(11);
+    calendar.min = undefined;
+    calendar.max = undefined;
+    expect(disabledTexts(calendar.items)).toHaveLength(0);
+    expect(calendar.canPrev).toBe(true);
+    expect(calendar.canNext).toBe(true);
+  });
+});

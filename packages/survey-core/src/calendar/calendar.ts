@@ -5,7 +5,7 @@ import { createDate } from "../helpers";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { CalendarItem, CalendarMonth, CalendarZoom, ICalendarOptions } from "./interfaces";
 import { calendarCssClasses } from "./css-classes";
-import { isSameDay, toDateOnly, toMonthStart } from "./date-utils";
+import { clampDate, isPeriodOutside, isSameDay, toDateOnly, toMonthStart } from "./date-utils";
 
 // Localization is out of scope for now: the names are english.
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -17,6 +17,7 @@ const nextZoom: { [zoom: string]: CalendarZoom } = { day: "month", month: "year"
 interface ICalendarItemState {
   isSelected: boolean;
   isToday: boolean;
+  isDisabled: boolean;
   isOutside?: boolean;
 }
 
@@ -25,9 +26,13 @@ export class CalendarModel extends Base {
 
   @property() value: Date;
   @property() viewDate: Date;
+  @property() min: Date;
+  @property() max: Date;
   @property({ defaultValue: "day" }) zoom: CalendarZoom;
   @property({ defaultValue: 1 }) firstDayOfWeek: number;
   @property() title: string;
+  @property({ defaultValue: true }) canPrev: boolean;
+  @property({ defaultValue: true }) canNext: boolean;
   @property() months: Array<CalendarMonth>;
   @property() items: Array<CalendarItem>;
   @property() weekDays: Array<string>;
@@ -37,8 +42,10 @@ export class CalendarModel extends Base {
 
   constructor(options: ICalendarOptions = {}) {
     super();
+    this.min = options.min;
+    this.max = options.max;
     this.value = options.value;
-    this.viewDate = options.viewDate || options.value || this.getToday();
+    this.viewDate = options.viewDate || this.getDefaultViewDate();
     this.updateWeekDays();
     this.updateView();
   }
@@ -46,9 +53,11 @@ export class CalendarModel extends Base {
     return "calendar";
   }
   public prev(): void {
+    if (!this.canPrev) return;
     this.shiftView(-1);
   }
   public next(): void {
+    if (!this.canNext) return;
     this.shiftView(1);
   }
   public zoomOut(): void {
@@ -57,7 +66,7 @@ export class CalendarModel extends Base {
   public resetView(): void {
     this.hoveredItem = undefined;
     this.zoom = "day";
-    this.viewDate = this.value || this.getToday();
+    this.viewDate = this.getDefaultViewDate();
     this.updateView();
   }
   public selectItem(item: CalendarItem): void {
@@ -86,10 +95,10 @@ export class CalendarModel extends Base {
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if (name === "value") {
+    if (["value", "min", "max"].indexOf(name) > -1 && !!newValue) {
       const date = toDateOnly(newValue);
       if (!isSameDay(date, newValue)) {
-        this.value = date;
+        this.setPropertyValue(name, date);
         return;
       }
     }
@@ -107,7 +116,7 @@ export class CalendarModel extends Base {
     if (name === "firstDayOfWeek") {
       this.updateWeekDays();
     }
-    if (["value", "viewDate", "zoom", "firstDayOfWeek"].indexOf(name) > -1) {
+    if (["value", "viewDate", "min", "max", "zoom", "firstDayOfWeek"].indexOf(name) > -1) {
       this.updateView();
     }
     if (name === "zoom") {
@@ -127,6 +136,24 @@ export class CalendarModel extends Base {
   }
   private getToday(): Date {
     return toDateOnly(createDate("calendar-today"));
+  }
+  private getDefaultViewDate(): Date {
+    return this.value || clampDate(this.getToday(), this.min, this.max);
+  }
+  private isOutside(start: Date, end: Date): boolean {
+    return isPeriodOutside(start, end, this.min, this.max);
+  }
+  private isNeighbourPeriodOutside(direction: number): boolean {
+    const year = this.viewDate.getFullYear();
+    if (this.zoom === "month") {
+      return this.isOutside(new Date(year + direction, 0, 1), new Date(year + direction, 11, 31));
+    }
+    if (this.zoom === "year") {
+      const startYear = Math.floor(year / yearsInRange) * yearsInRange + direction * yearsInRange;
+      return this.isOutside(new Date(startYear, 0, 1), new Date(startYear + yearsInRange - 1, 11, 31));
+    }
+    const month = this.viewDate.getMonth() + direction;
+    return this.isOutside(new Date(year, month, 1), new Date(year, month + 1, 0));
   }
   private updateWeekDays(): void {
     const res: Array<string> = [];
@@ -153,6 +180,8 @@ export class CalendarModel extends Base {
       this.items = [];
       this.title = month.title;
     }
+    this.canPrev = !this.isNeighbourPeriodOutside(-1);
+    this.canNext = !this.isNeighbourPeriodOutside(1);
   }
   private createMonth(monthStart: Date): CalendarMonth {
     const year = monthStart.getFullYear();
@@ -165,6 +194,7 @@ export class CalendarModel extends Base {
       days.push(this.createItem("day", date, date.getDate().toString(), {
         isSelected: isSameDay(this.value, date),
         isToday: isSameDay(today, date),
+        isDisabled: this.isOutside(date, date),
         isOutside: date.getMonth() !== month
       }));
     }
@@ -175,7 +205,8 @@ export class CalendarModel extends Base {
     const today = this.getToday();
     return monthNames.map((name, month) => this.createItem("month", new Date(year, month, 1), name, {
       isSelected: isInMonth(this.value, month),
-      isToday: isInMonth(today, month)
+      isToday: isInMonth(today, month),
+      isDisabled: this.isOutside(new Date(year, month, 1), new Date(year, month + 1, 0))
     }));
   }
   private createYearItems(startYear: number): Array<CalendarItem> {
@@ -185,7 +216,8 @@ export class CalendarModel extends Base {
     for (let year = startYear; year < startYear + yearsInRange; year++) {
       res.push(this.createItem("year", new Date(year, 0, 1), year.toString(), {
         isSelected: isInYear(this.value, year),
-        isToday: isInYear(today, year)
+        isToday: isInYear(today, year),
+        isDisabled: this.isOutside(new Date(year, 0, 1), new Date(year, 11, 31))
       }));
     }
     return res;
@@ -197,10 +229,10 @@ export class CalendarModel extends Base {
       date: date,
       text: text,
       isSelected: state.isSelected,
-      isHovered: !!hovered && isSameDay(hovered.date, date) && hovered.isOutside === isOutside,
+      isHovered: !state.isDisabled && !!hovered && isSameDay(hovered.date, date) && hovered.isOutside === isOutside,
       isToday: state.isToday,
       isOutside: isOutside,
-      isDisabled: false,
+      isDisabled: state.isDisabled,
       css: ""
     };
     item.css = this.getItemCss(kind, item);

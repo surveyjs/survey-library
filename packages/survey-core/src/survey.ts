@@ -8444,10 +8444,6 @@ export class SurveyModel extends SurveyElementCore
     var question = this.getQuestionByValueName(name);
     if (question) {
       this.fireOnValueChanged(commentName, newValue, question);
-      question.comment = newValue;
-      if (question.comment != newValue) {
-        question.comment = newValue;
-      }
     }
   }
   /**

@@ -107,6 +107,8 @@ export var lithuaniaSurveyStrings = {
   value: "reikšmė",
   // "Response required."
   requiredError: "Būtina atsakyti į šį klausimą.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Norėdami tęsti, turite pasirinkti \"Taip\".",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Reikšmė neteisinga.",
   // [Auto-translated] "The value contains unknown keys: {0}."

@@ -107,6 +107,8 @@ export var estonianSurveyStrings = {
   value: "väärtus",
   // "Response required."
   requiredError: "Palun vasta küsimusele.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Jätkamiseks pead valima Jah.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Väärtus on vale.",
   // [Auto-translated] "The value contains unknown keys: {0}."

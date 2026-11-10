@@ -107,6 +107,8 @@ export var teluguStrings = {
   value: "విలువ",
   // "Response required."
   requiredError: "దయచేసి ప్రశ్నకు జవాబు ఇవ్వండి",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "కొనసాగడం కొరకు మీరు విధిగా అవును ఎంచుకోవాలి.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "విలువ సరైనది కాదు.",
   // [Auto-translated] "The value contains unknown keys: {0}."

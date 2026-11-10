@@ -107,6 +107,8 @@ export var turkishSurveyStrings = {
   value: "değer",
   // "Response required."
   requiredError: "Lütfen soruya cevap verin.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Devam etmek için Evet'i seçmeniz gerekir.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Değer yanlış.",
   // [Auto-translated] "The value contains unknown keys: {0}."

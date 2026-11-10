@@ -107,6 +107,8 @@ export var icelandicSurveyStrings = {
   value: "gildi",
   // "Response required."
   requiredError: "Vinsamlegast svarið spurningunni.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Þú verður að velja Já til að halda áfram.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Gildið er rangt.",
   // [Auto-translated] "The value contains unknown keys: {0}."

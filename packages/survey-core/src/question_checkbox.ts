@@ -753,7 +753,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];
-    if (!this.hasActiveChoices) return val;
+    // No choices yet (e.g. choicesByUrl is not loaded): an unknown value may be a choice that has not arrived.
+    // Choices hidden by visibleIf are still known, so the text typed for Other is recognised (#12245).
+    if (!this.hasRegularChoices) return val;
     for (var i = 0; i < val.length; i++) {
       if (this.isOtherValue(val[i])) return val;
       if (this.hasUnknownValueItem(val[i], true, false)) {

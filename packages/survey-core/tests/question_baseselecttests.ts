@@ -5850,3 +5850,82 @@ describe("choicesFromQuestion, mode selected: the display value of a copied Othe
     expect(survey.getQuestionByName("q").displayValue, "displayValue").toBe("Something else");
   });
 });
+describe("Checkbox Other while every regular choice is hidden, Bug#12245", () => {
+  const hiddenChoices = [
+    { value: "Oatly", visibleIf: "{known} contains 'Oatly'" },
+    { value: "Alpro", visibleIf: "{known} contains 'Alpro'" }
+  ];
+  test("valuePropertyName: the typed text stays Other, and a condition on 'other' is true", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [
+          { type: "checkbox", name: "known", choices: ["Oatly", "Alpro"] },
+          { type: "checkbox", name: "bought", valuePropertyName: "brand", showOtherItem: true, choices: hiddenChoices }] },
+        { name: "page2", visibleIf: "{bought} contains 'other'", elements: [
+          { type: "paneldynamic", name: "loop", valueName: "bought", templateElements: [{ type: "rating", name: "liking" }] }] },
+        { name: "page3", elements: [{ type: "html", name: "end", html: "End" }] }
+      ]
+    });
+    const bought = <QuestionCheckboxModel>survey.getQuestionByName("bought");
+    expect(bought.visibleChoices.map(item => item.value), "only the built-in Other is visible").toEqual(["other"]);
+    bought.renderedValue = ["other"];
+    bought.otherValue = "Hafervoll";
+    expect(survey.data, "survey.data").toEqual({ bought: [{ brand: "Hafervoll" }] });
+    expect([...bought.renderedValue], "renderedValue").toEqual(["other"]);
+    expect(bought.isOtherSelected, "isOtherSelected").toBe(true);
+    expect(bought.otherValue, "otherValue").toBe("Hafervoll");
+    expect(survey.getPageByName("page2").isVisible, "the page with {bought} contains 'other' is shown").toBe(true);
+  });
+  test("valuePropertyName: the stored text is read back as Other", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "checkbox", name: "known", choices: ["Oatly", "Alpro"] },
+      { type: "checkbox", name: "bought", valuePropertyName: "brand", showOtherItem: true, choices: hiddenChoices }] });
+    const bought = <QuestionCheckboxModel>survey.getQuestionByName("bought");
+    survey.data = { bought: [{ brand: "Hafervoll" }] };
+    expect([...bought.renderedValue], "renderedValue").toEqual(["other"]);
+    expect(bought.isOtherSelected, "isOtherSelected").toBe(true);
+    expect(bought.otherValue, "otherValue").toBe("Hafervoll");
+  });
+  test("storeOthersAsComment: false, the typed text stays Other", () => {
+    const survey = new SurveyModel({ storeOthersAsComment: false, elements: [
+      { type: "checkbox", name: "known", choices: ["Oatly", "Alpro"] },
+      { type: "checkbox", name: "bought", showOtherItem: true, choices: hiddenChoices }] });
+    const bought = <QuestionCheckboxModel>survey.getQuestionByName("bought");
+    bought.renderedValue = ["other"];
+    bought.otherValue = "Hafervoll";
+    expect(survey.data, "survey.data").toEqual({ bought: ["Hafervoll"] });
+    expect([...bought.renderedValue], "renderedValue").toEqual(["other"]);
+    expect(bought.isOtherSelected, "isOtherSelected").toBe(true);
+    expect(bought.otherValue, "otherValue").toBe("Hafervoll");
+  });
+  test("storeOthersAsComment: false, a hidden regular choice is not taken for Other", () => {
+    const survey = new SurveyModel({ storeOthersAsComment: false, elements: [
+      { type: "checkbox", name: "known", choices: ["Oatly", "Alpro"] },
+      { type: "checkbox", name: "bought", showOtherItem: true, choices: hiddenChoices }] });
+    const bought = <QuestionCheckboxModel>survey.getQuestionByName("bought");
+    survey.data = { bought: ["Oatly"] };
+    expect([...bought.renderedValue], "renderedValue").toEqual(["Oatly"]);
+    expect(bought.isOtherSelected, "isOtherSelected").toBe(false);
+    expect(bought.otherValue, "otherValue").toBeFalsy();
+  });
+  test("choicesFromQuestion: the source has nothing selected, the typed text stays Other", () => {
+    const survey = new SurveyModel({ storeOthersAsComment: false, elements: [
+      { type: "checkbox", name: "known", choices: ["Oatly", "Alpro"] },
+      { type: "checkbox", name: "bought", showOtherItem: true, choicesFromQuestion: "known", choicesFromQuestionMode: "selected" }] });
+    const bought = <QuestionCheckboxModel>survey.getQuestionByName("bought");
+    expect(bought.visibleChoices.map(item => item.value), "only the built-in Other is visible").toEqual(["other"]);
+    bought.renderedValue = ["other"];
+    bought.otherValue = "Hafervoll";
+    expect(survey.data, "survey.data").toEqual({ bought: ["Hafervoll"] });
+    expect([...bought.renderedValue], "renderedValue").toEqual(["other"]);
+    expect(bought.isOtherSelected, "isOtherSelected").toBe(true);
+  });
+  test("No choices at all: the values are not taken for Other (Bug#2910 keeps working)", () => {
+    const survey = new SurveyModel({ storeOthersAsComment: false, elements: [
+      { type: "checkbox", name: "q1", showOtherItem: true }] });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    survey.data = { q1: ["A", "B"] };
+    expect([...q1.renderedValue], "renderedValue").toEqual(["A", "B"]);
+    expect(q1.isOtherSelected, "isOtherSelected").toBe(false);
+  });
+});

@@ -353,6 +353,35 @@ describe("Survey", () => {
     expect(survey.activePage.rows.length, "rows #6").toBe(1);
     expect(survey.isShowPrevButton, "isShowPrevButton #6").toBe(false);
   });
+  test("firstPageIsStartPage & questionsOnPageMode, rows update after clear() and start()", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "info" }] },
+        { name: "quiz", elements: [
+          { type: "radiogroup", name: "q1", choices: [1, 2] },
+          { type: "radiogroup", name: "q2", choices: [1, 2] },
+          { type: "radiogroup", name: "q3", choices: [1, 2] }
+        ] }
+      ],
+      firstPageIsStartPage: true,
+      questionsOnPageMode: "questionPerPage"
+    });
+    const getRowNames = () => survey.activePage.rows.map(row => row.elements.map(el => el.name).join(",")).join(";");
+    survey.clear(false, true);
+    survey.start();
+    expect(survey.activePage.name, "active page #1").toBe("quiz");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #1").toBe("q1");
+    expect(getRowNames(), "rows #1").toBe("q1");
+    survey.nextPage();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #2").toBe("q2");
+    expect(getRowNames(), "rows #2").toBe("q2");
+    survey.nextPage();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #3").toBe("q3");
+    expect(getRowNames(), "rows #3").toBe("q3");
+    survey.prevPage();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #4").toBe("q2");
+    expect(getRowNames(), "rows #4").toBe("q2");
+  });
   test("Check page num when first page is started", () => {
     var survey = new SurveyModel({
       pages: [

@@ -603,8 +603,7 @@ export class Question extends SurveyElement<Question>
       if (!this.isRequired && this.errors.length > 0) {
         this.validate();
       }
-      this.locTitle.strChanged();
-      this.clearCssClasses();
+      this.onRenderedRequiredChanged();
     }
     if (name === "indent" || name === "rightIndent") {
       this.resetIndents();
@@ -1736,14 +1735,24 @@ export class Question extends SurveyElement<Question>
   protected get titlePattern(): string {
     return !!this.survey ? this.titleSettings.questionTitlePattern : "numTitleRequire";
   }
+  // Whether the question renders as required: the required mark, the required CSS classes and aria-required.
+  // It is isRequired, except for a question type that requires a specific answer (boolean requireTrue).
+  public get isRenderedRequired(): boolean {
+    return this.isRequired;
+  }
+  // The title text and the CSS classes are cached: a change of isRenderedRequired renews them.
+  protected onRenderedRequiredChanged(): void {
+    this.locTitle.strChanged();
+    this.clearCssClasses();
+  }
   public get isRequireTextOnStart(): boolean {
-    return this.isRequired && this.titlePattern == "requireNumTitle";
+    return this.isRenderedRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredMark !== "";
+    return this.isRenderedRequired && this.titlePattern == "numRequireTitle" && this.requiredMark !== "";
   }
   public get isRequireTextAfterTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredMark !== "";
+    return this.isRenderedRequired && this.titlePattern == "numTitleRequire" && this.requiredMark !== "";
   }
   /**
    * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
@@ -1959,9 +1968,9 @@ export class Question extends SurveyElement<Question>
   protected updateCssClasses(res: any, css: any): void {
     if (!css.question) return;
     const objCss = css[this.getCssType()];
-    res.title = toCssClasses(res.title, this.isRequired && css.question.titleRequired);
+    res.title = toCssClasses(res.title, this.isRenderedRequired && css.question.titleRequired);
 
-    const isRequiredCss = this.isRequired && !!css.question.required;
+    const isRequiredCss = this.isRenderedRequired && !!css.question.required;
     if (objCss === undefined || objCss === null) {
       res.root = toCssClasses(res.root);
     } else if (typeof objCss === "string" || objCss instanceof String) {
@@ -3202,7 +3211,7 @@ export class Question extends SurveyElement<Question>
    * @since 2.0.0
    */
   public get requiredMark(): string {
-    return this.survey != null && this.isRequired
+    return this.survey != null && this.isRenderedRequired
       ? this.titleSettings.requiredMark
       : "";
   }
@@ -3272,8 +3281,8 @@ export class Question extends SurveyElement<Question>
      must not wipe the other required errors. */
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered || !!this.getErrorByType("required")) && this.hasRequiredError()) {
-      const err = new AnswerRequiredError(this.requiredErrorText, this);
-      err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
+      const err = new AnswerRequiredError(this.getRequiredErrorText(), this);
+      err.onUpdateErrorTextCallback = (err) => { err.text = this.getRequiredErrorText(); };
       errors.push(err);
     }
     if (!this.isEmpty() && this.customWidget) {
@@ -3282,6 +3291,11 @@ export class Question extends SurveyElement<Question>
         errors.push(this.addCustomError(text));
       }
     }
+  }
+  // The text of the "required" error. A question type with its own required check (boolean requireTrue)
+  // overrides it; it is read again on a locale change through onUpdateErrorTextCallback.
+  protected getRequiredErrorText(): string {
+    return this.requiredErrorText;
   }
   public hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
@@ -4137,7 +4151,7 @@ export class Question extends SurveyElement<Question>
   public get ariaRequired() {
     if (this.isNewA11yStructure) return null;
 
-    return this.isRequired ? "true" : "false";
+    return this.isRenderedRequired ? "true" : "false";
   }
   public get ariaInvalid() {
     if (this.isNewA11yStructure) return null;
@@ -4177,7 +4191,7 @@ export class Question extends SurveyElement<Question>
     return null;
   }
   public get a11y_input_ariaRequired(): "true" | "false" {
-    return this.isRequired ? "true" : "false";
+    return this.isRenderedRequired ? "true" : "false";
   }
   public get a11y_input_ariaInvalid(): "true" | "false" {
     return this.hasCssError() ? "true" : "false";

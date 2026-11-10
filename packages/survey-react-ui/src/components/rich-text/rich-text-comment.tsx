@@ -43,11 +43,37 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
     if (this.model && this.hostRef.current && !this.model.isAttached)this.model.attach(this.hostRef.current);
   }
 
+  // Design, display and read-only keep the comment formbox: the value sits in the
+  // input, the same element the textarea and the editor use. Putting the HTML on
+  // the formbox itself makes that box the flex column and drops the input styles.
+  private renderReadOnly(): React.JSX.Element {
+    const question = this.question;
+    const html = this.model ? this.model.displayHtml : "";
+    const area = this.model ? this.model.areaStyle : undefined;
+    const style = area ? { minHeight: area.minHeight, height: area.height, overflow: area.overflow } : undefined;
+    return (
+      <div className={question.getRootClass()}>
+        <div
+          className={question.getControlClass() + " sd-rich-text__content"}
+          style={style}
+          data-placeholder={!html && this.model && this.model.placeholder ? this.model.placeholder : undefined}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+        {this.renderCounter()}
+      </div>
+    );
+  }
+
+  private renderCounter(): React.JSX.Element | null {
+    return this.question.hasVisibleInputActions
+      ? ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.question.inputActionsContainer })
+      : null;
+  }
+
   protected renderElement(): React.JSX.Element {
     const question = this.question;
     if (!this.model || !this.model.isEditing) {
-      const html = this.model ? this.model.displayHtml : "";
-      return <div className={question.getRootClass() + " sd-rich-text__content"} dangerouslySetInnerHTML={{ __html: html }} />;
+      return this.renderReadOnly();
     }
     if (this.model.sourceMode) {
       return (
@@ -58,9 +84,6 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
         </div>
       );
     }
-    const counter = question.hasVisibleInputActions
-      ? ReactElementFactory.Instance.createElement("sv-action-bar", { model: question.inputActionsContainer })
-      : null;
     return (
       <div className={question.getRootClass() + " sd-rich-text"}>
         <div
@@ -80,7 +103,7 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
           id={question.inputId}
           style={this.model.areaStyle}
         />
-        {counter}
+        {this.renderCounter()}
         <div className="sd-rich-text__toolbar" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
           {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.model.toolbar })}
         </div>

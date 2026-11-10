@@ -16,7 +16,8 @@
   outline: none;
 }
 
-.sd-rich-text__area:empty::before {
+.sd-rich-text__area:empty::before,
+.sd-rich-text__content:empty::before {
   content: attr(data-placeholder);
   color: var(--sjs2-color-component-input-default-placeholder);
   pointer-events: none;

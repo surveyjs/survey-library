@@ -897,7 +897,7 @@ function resolveInDataScope(ref: ParsedRef, start: number, scope: DataScopeRecor
 }
 
 // A question that stores a value. A display-only one (html, image) holds no data key.
-function isValueQuestion(record: ElementRecord): boolean {
+export function isValueQuestion(record: ElementRecord): boolean {
   return !record.valueType || record.valueType.shape !== "none";
 }
 
@@ -1103,11 +1103,13 @@ export function classifyTargetName(raw: string, index: SurveyIndex, options: ISu
 
 // The value a trigger's setToName / fromName addresses, by the element NAME the cycle rules use as
 // a slot: a valueName, a dotted path into a nesting container ("address.street") and a sub-path all
-// land on the element. "" when the name addresses no element, for the caller's own fallback.
-export function canonicalTargetSlot(name: string, index: SurveyIndex, options: ISurveyLintOptions): string {
-  if (typeof name !== "string" || !name) return "";
+// land on the element. A name that addresses no element (a variable, a calculated value, an unknown
+// name) gives the caller's fallback: the slot the caller derives from the name's data key, so a
+// variable read or written by a trigger still links the cycle graph.
+export function canonicalTargetSlot(name: string, index: SurveyIndex, options: ISurveyLintOptions, fallback: string): string {
+  if (typeof name !== "string" || !name) return fallback;
   const ref = classifyTargetName(name, index, options, true);
-  if (ref.status !== "resolved" || ref.unknownSegmentIndex !== undefined || !ref.resolvedTo || !ref.resolvedTo.name) return "";
+  if (ref.status !== "resolved" || ref.unknownSegmentIndex !== undefined || !ref.resolvedTo || !ref.resolvedTo.name) return fallback;
   return ref.resolvedTo.name.toLowerCase();
 }
 

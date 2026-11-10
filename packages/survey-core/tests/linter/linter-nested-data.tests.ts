@@ -760,3 +760,55 @@ describe("linter nested data: a nesting panel inside a record", () => {
     expect(brief(findingsOf(json, "name/reserved"))).toEqual(["name/reserved/containerKey @ elements[0].templateElements[1].valueName"]);
   });
 });
+
+describe("linter nested data: trigger variables and built-in container keys", () => {
+  test("cycle/trigger reads a fromName that names a variable or a calculated value", () => {
+    const json: any = {
+      elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }],
+      triggers: [
+        { type: "copyvalue", expression: "{b} notempty", setToName: "a", fromName: "v" },
+        { type: "setvalue", expression: "{a} notempty", setToName: "v", setValue: 1, isVariable: true },
+      ],
+    };
+    let findings = findingsOf(json, "cycle/trigger", { knownVariables: ["v"] });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.triggerIndexes.slice().sort()).toEqual([0, 1]);
+    // a calculated value: the fallback links the trigger reads and writes by name, whatever the name holds
+    json.calculatedValues = [{ name: "v", expression: "{b}" }];
+    findings = findingsOf(json, "cycle/trigger");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.triggerIndexes.slice().sort()).toEqual([0, 1]);
+  });
+  test("a container key spelling a built-in variable stays reachable by its path", () => {
+    const json: any = { elements: [{ type: "panel", name: "p", valueName: "pageno", elements: [
+      { type: "text", name: "street" }, { type: "text", name: "city" }] }] };
+    let findings = findingsOf(json, "name/shadowing");
+    expect(brief(findings)).toEqual(["name/shadowing/builtInVariable @ elements[0].valueName"]);
+    expect(findings[0].message).toBe("The valueName \"pageno\" of this panel is also a built-in survey variable - " +
+      "only the bare {pageno} reads the built-in value; {pageno.street} still reaches the panel's object.");
+    expect(findings[0].messageData).toEqual({ name: "pageno", nameKind: "valueName", builtIn: "pageno", examplePath: "pageno.street", reason: "builtInVariable" });
+    json.elements[0].elements[0].valueName = "addr1";
+    findings = findingsOf(json, "name/shadowing");
+    expect(findings[0].messageData.examplePath).toBe("pageno.addr1");
+    // a display-only question stores nothing in the object, so it is not the example
+    json.elements[0].elements.unshift({ type: "html", name: "h1" });
+    findings = findingsOf(json, "name/shadowing");
+    expect(findings[0].messageData.examplePath).toBe("pageno.addr1");
+    // a variable of the same name may answer the path first: the path clause is left out
+    findings = findingsOf(json, "name/shadowing", { knownVariables: ["pageno"] });
+    expect(brief(findings)).toEqual(["name/shadowing/builtInVariable @ elements[0].valueName",
+      "name/shadowing/containerKeyShadowed @ elements[0].valueName"]);
+    expect(findings[0].message).toBe("The valueName \"pageno\" of this panel is also a built-in survey variable - " +
+      "only the bare {pageno} reads the built-in value.");
+    expect(findings[0].messageData.examplePath).toBeUndefined();
+    json.elements[0].elements = [];
+    findings = findingsOf(json, "name/shadowing");
+    expect(brief(findings)).toEqual(["name/shadowing/builtInVariable @ elements[0].valueName"]);
+    expect(findings[0].messageData.examplePath).toBe("pageno.x");
+    const byName = { dataNesting: "page", pages: [{ name: "pageno", elements: [{ type: "text", name: "q1" }] }] };
+    findings = findingsOf(byName, "name/shadowing");
+    expect(brief(findings)).toEqual(["name/shadowing/builtInVariable @ pages[0].name"]);
+    expect(findings[0].message).toBe("The name \"pageno\" of this page is also a built-in survey variable - " +
+      "only the bare {pageno} reads the built-in value; {pageno.q1} still reaches the page's object.");
+  });
+});

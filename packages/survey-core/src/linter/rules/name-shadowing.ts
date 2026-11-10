@@ -1,5 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
-import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix, stripTotalsSuffix } from "../expression-utils";
+import { builtInVariableNames, equalsCI, isBuiltInVariable, isValueQuestion, stripCommentSuffix, stripTotalsSuffix } from "../expression-utils";
 import { ElementRecord, getCapturingFrame, getEffectiveType, TriggerRecord } from "../symbols";
 import { isMatrixDropdown, isPropertyOn } from "../metadata";
 import { hasOtherItem } from "../value-types";
@@ -41,6 +41,31 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
       : { name: name, nameKind: nameKind, builtIn: builtInSpelling(name), dataPath: dataPath },
     elementName: record ? record.name : name,
     elementType: record ? record.type : "calculatedvalue",
+  });
+}
+
+// A container key spelling a built-in: the survey answers only the bare {key} itself, while a path
+// into the container's object ({key.street}) still reaches the object, so the key is not
+// unreachable - only the object as a whole is. When a variable of that name exists too, a path may
+// read the variable instead (containerKeyShadowed reports it), so the path clause is left out.
+function reportContainerBuiltIn(ctx: LintContext, scope: DataScopeRecord, nameKind: string, path: string,
+  container: ElementRecord, isPathShadowed: boolean): void {
+  const key = scope.key;
+  if (!isBuiltInVariable(key)) return;
+  // the example names a key that holds a value: a display-only question (html) stores nothing
+  const innerKeys = scope.questions.names().filter(name => scope.questions.get(name).some(isValueQuestion));
+  const examplePath = key + "." + (innerKeys.length > 0 ? innerKeys[0] : "x");
+  const messageData: any = { name: key, nameKind: nameKind, builtIn: builtInSpelling(key) };
+  if (!isPathShadowed) messageData.examplePath = examplePath;
+  ctx.report({
+    message: "The " + nameKind + " \"" + key + "\" of this " + container.type +
+      " is also a built-in survey variable - only the bare {" + key + "} reads the built-in value" +
+      (isPathShadowed ? "." : "; {" + examplePath + "} still reaches the " + container.type + "'s object."),
+    path: path,
+    reason: reasons.builtInVariable,
+    messageData: messageData,
+    elementName: container.name,
+    elementType: container.type,
   });
 }
 
@@ -286,8 +311,8 @@ function checkRootContainerKeys(ctx: LintContext): void {
     if (!container || !container.json) return;
     const path = getContainerKeyPath(container);
     const nameKind = path.endsWith(".valueName") ? "valueName" : "name";
-    reportBuiltIn(ctx, scope.key, nameKind, path, container);
     const over = findVariableOver(ctx, scope.key);
+    reportContainerBuiltIn(ctx, scope, nameKind, path, container, !!over);
     if (!over) return;
     ctx.report({
       message: "The " + container.type + " \"" + container.name + "\" stores its questions' values under \"" + scope.key +

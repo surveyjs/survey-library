@@ -101,14 +101,14 @@ function buildTriggerWriter(ctx: LintContext, trigger: TriggerRecord): ValueWrit
   sites.forEach(site => getSiteReads(ctx, site).forEach(read => reads.push(read)));
   const fromName = trigger.json ? trigger.json.fromName : undefined;
   if (typeof fromName === "string" && fromName) {
-    reads.push(canonicalTargetSlot(fromName, ctx.index, ctx.options) || canonicalSlot(ctx, fromName));
+    reads.push(canonicalTargetSlot(fromName, ctx.index, ctx.options, canonicalSlot(ctx, fromName)));
   }
   return {
     id: trigger.path,
     kind: "trigger",
     path: trigger.path,
     label: trigger.path + " (" + (trigger.type || "trigger") + " -> " + trigger.setToName + ")",
-    slot: canonicalTargetSlot(trigger.setToName, ctx.index, ctx.options) || canonicalSlot(ctx, trigger.setRoot),
+    slot: canonicalTargetSlot(trigger.setToName, ctx.index, ctx.options, canonicalSlot(ctx, trigger.setRoot)),
     reads: reads,
     usesDefaultValueExpression: false,
   };

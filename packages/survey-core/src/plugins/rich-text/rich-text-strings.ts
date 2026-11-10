@@ -8,6 +8,7 @@ export const richTextStrings: { [index: string]: string } = {
   richTextNumberedList: "Numbered list",
   richTextClearFormatting: "Clear formatting",
   richTextLinkUrl: "URL",
+  richTextLinkPlaceholder: "http://, https://, or mailto:",
   richTextLinkInvalid: "Enter a link that starts with http://, https://, or mailto:",
   richTextSourceMode: "This text contains formatting the editor cannot change. You are editing its source.",
   richTextEditAnyway: "Edit as rich text (unsupported formatting will be removed)"

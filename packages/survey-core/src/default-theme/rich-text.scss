@@ -6,6 +6,19 @@
   align-items: stretch;
 }
 
+// The link dialog is rendered inside this formbox. A nested formbox is display:contents,
+// which drops the URL field's border. The dialog window grows with the survey body instead
+// of the default 452px, which is narrower than that body.
+.sd-rich-text .sv-popup .sd-formbox {
+  display: flex;
+}
+.sd-rich-text .sv-popup--modal-popup > .sv-popup__container,
+.sd-rich-text .sv-popup--modal-popup > .sv-popup__container > .sv-popup__body-content {
+  width: max-content;
+  min-width: calc(var(--sjs2-base-unit-size) * 78 + var(--sjs2-layout-component-modal-box-padding-horizontal) * 2);
+  max-width: calc(100vw - var(--sjs2-spacing-x400) * 2);
+}
+
 .sd-rich-text__area,
 .sd-rich-text__content {
   white-space: pre-wrap;

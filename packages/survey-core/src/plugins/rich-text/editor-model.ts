@@ -434,7 +434,7 @@ export class RichTextEditorModel {
       showQuestionNumbers: "off",
       questionErrorLocation: "bottom",
       showNavigationButtons: "none",
-      elements: [{ type: "text", name: "url", title: getRichTextString("richTextLinkUrl"), textUpdateMode: "onTyping" }]
+      elements: [{ type: "text", name: "url", title: getRichTextString("richTextLinkUrl"), placeholder: getRichTextString("richTextLinkPlaceholder"), textUpdateMode: "onTyping" }]
     });
     survey.applyTheme(DefaultLightPanelless);
     const urlQuestion = survey.getQuestionByName("url");

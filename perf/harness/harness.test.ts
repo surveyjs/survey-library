@@ -8,8 +8,7 @@ import { median, min, max, mad, p75, summarize } from "./stats.ts";
 import { sampleLoop, scenarioDriver } from "./sample.ts";
 import type { SampleDriver } from "./sample.ts";
 import { installFunnels, funnels } from "./counters.ts";
-import { calibrateOnce } from "./calibration.ts";
-import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, DROP_LIST, RENDER_SUBSET } from "./ids.ts";
+import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, RENDER_SUBSET } from "./ids.ts";
 import { defineScenarios, fixtureOfId, missingRequirement } from "./scenario.ts";
 import { allScenarios } from "../scenarios/index.ts";
 import { runnerRoot } from "./node/build.ts";
@@ -31,22 +30,21 @@ describe("stats", () => {
 });
 
 describe("the sample loop", () => {
-  // A fake clock: every sample takes `ms`, every calibration 10 ms.
+  // A fake clock: every sample takes `ms`.
   const fake = (ms: number): { driver: SampleDriver, now: () => number } => {
     let t = 0;
     return {
       now: (): number => t,
       driver: {
         sample: async(): Promise<any> => { t += ms; return { ms: ms }; },
-        counterRun: async(): Promise<any> => ({ rows: { value: 1, kind: "work" } }),
-        calibrate: async(): Promise<number> => { t += 10; return 10; }
+        counterRun: async(): Promise<any> => ({ rows: { value: 1, kind: "work" } })
       }
     };
   };
-  test("order: calibration x3, warm-ups, samples, counter run, calibration x3", async() => {
+  test("order: warm-ups, samples, counter run, and nothing else", async() => {
     const f = fake(100);
     const res = await sampleLoop(f.driver, { warmup: 2, samples: 12, maxMs: 5000, minSamples: 5, now: f.now });
-    expect(res.log).toEqual(["calibrate", "calibrate", "calibrate", "warmup", "warmup"].concat(new Array(12).fill("sample"), ["counters", "calibrate", "calibrate", "calibrate"]));
+    expect(res.log).toEqual(["warmup", "warmup"].concat(new Array(12).fill("sample"), ["counters"]));
     expect(res.samples.length).toBe(12);
     expect(res.warmups.length).toBe(2);
   });
@@ -70,7 +68,7 @@ describe("the sample loop", () => {
     }])[0];
     let t = 0;
     const ctx: any = { Survey: Survey, fixture: {}, platform: "node", now: () => t, cache: {} };
-    const driver = scenarioDriver(s, ctx, { now: () => ++t, gc: () => { log.push("gc"); }, calibrate: () => 1, installFunnels: () => installFunnels(Survey) });
+    const driver = scenarioDriver(s, ctx, { now: () => ++t, gc: () => { log.push("gc"); }, installFunnels: () => installFunnels(Survey) });
     const res = await sampleLoop(driver, { warmup: 1, samples: 5, maxMs: 100000, minSamples: 5, now: () => t });
     expect(log.slice(0, 5)).toEqual(["setup", "gc", "run", "check", "teardown"]);
     expect(log.filter((x: string) => x === "check").length).toBe(1 + 5 + 1);
@@ -85,11 +83,6 @@ describe("the sample loop", () => {
   });
   test("a scenario without check throws at registration", () => {
     expect(() => defineScenarios([{ id: "large/load/model", rev: 1, fixture: "large", kind: "load", setup: () => 1, run: () => 1 } as any])).toThrow(/no check/);
-  });
-  test("calibration is 10-20 ms of fixed work order of magnitude, and returns a time", () => {
-    const ms = calibrateOnce(() => performance.now());
-    expect(ms).toBeGreaterThan(0);
-    expect(ms).toBeLessThan(1000);
   });
 });
 
@@ -107,7 +100,6 @@ describe("ids", () => {
     expect(idsOfSuite("core").length).toBe(55);
     expect(idsOfSuite("core").filter((id: string) => id.indexOf("records-1k/records/") === 0 && /@orders$/.test(id)))
       .toEqual(["records-1k/records/filter-set@orders", "records-1k/records/next@orders", "records-1k/records/sort-1@orders"]);
-    DROP_LIST.forEach((id: string) => expect(ids).toContain(id));
     // The phase-2 browser suites' ids: browser ids that React runs.
     RENDER_SUBSET.forEach((id: string) => expect(idsOfSuite("react")).toContain(id));
     expect(RENDER_SUBSET.length).toBe(13);
@@ -118,6 +110,9 @@ describe("ids", () => {
     expect(splitOnly(null, "core").run.length).toBe(idsOfSuite("core").length);
     expect(splitOnly(["large/load/model", "extra/x/load/model"], "core")).toEqual({ run: ["extra/x/load/model", "large/load/model"], notInSuite: [] });
     expect(() => splitOnly(["large/load/nothing"], "core")).toThrow(/in no suite/);
+    // The former spacer id is an unknown id like any other.
+    expect(() => splitOnly(["calibration"], "core")).toThrow(/in no suite: calibration$/);
+    expect(() => splitOnly(["calibration"], "react")).toThrow(/in no suite: calibration$/);
     // A suite with none of the ids runs nothing and lists the others as notInSuite.
     expect(splitOnly(["large/load/model"], "react")).toEqual({ run: [], notInSuite: ["large/load/model"] });
     expect(splitOnly(["large/load/paint", "large/load/model"], "core")).toEqual({ run: ["large/load/model"], notInSuite: ["large/load/paint"] });

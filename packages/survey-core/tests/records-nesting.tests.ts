@@ -600,7 +600,7 @@ describe("records nesting: more records", () => {
 });
 
 describe("records nesting: where a panel may nest", () => {
-  test("isInsideRecord() and the valueName editor: shown inside a dynamic panel and a detail panel, hidden on the record panel and in a composite", async () => {
+  test("isDataNestingIgnored() and the valueName editor: shown inside a dynamic panel and a detail panel, hidden on the record panel and in a composite", async () => {
     const { ComponentCollection } = await import("../src/question_custom");
     ComponentCollection.Instance.add({ name: "nestingcomp", elementsJSON: [
       { type: "panel", name: "cin", elements: [{ type: "text", name: "cq" }] }

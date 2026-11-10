@@ -262,6 +262,7 @@ export * from "../../src/themes";
 export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
 export { IRunningAsyncOperation, SurveyAsyncOperationType, IExpressionVariableInfo, IExpressionScopePath } from "../../src/survey";
 export { getDataNestingKey } from "../../src/panel-data-scope";
+export type { DataNestingPlace, DataNestingKind } from "../../src/panel-data-scope";
 export * from "../../src/survey-events-api";
 export type {
   AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent,

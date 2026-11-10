@@ -1,5 +1,5 @@
 import { Base } from "./base";
-import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyDataElement, ISurveyImpl, ITextProcessor } from "./base-interfaces";
+import { IElement, IPanel, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyDataElement, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
@@ -35,7 +35,7 @@ import { Action } from "./actions/action";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { Scope, ValueScope } from "./utils/scope";
-import { ObjectDataScope, PanelDataScope, PanelDataScopeValueGetterContext, RecordKeyLevel, RecordKeyLevelValueGetterContext, getActiveDataScope, getElementDataScope, asScopeObject, hasRecordDataNesting, getNameOfCommentName, getDataScopeHost } from "./panel-data-scope";
+import { ObjectDataScope, PanelDataScope, PanelDataScopeValueGetterContext, RecordKeyLevel, RecordKeyLevelValueGetterContext, getActiveDataScope, getElementDataScope, asScopeObject, hasRecordDataNesting, getNameOfCommentName, getDataScopeHost, DataNestingPlace } from "./panel-data-scope";
 import { RecordsDataWaits } from "./records/records-data-waits";
 import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainerVisible } from "./records/records-hidden-answers";
 import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/records-cleanup-runner";
@@ -4519,6 +4519,14 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   }
   getTextProcessor(): ITextProcessor {
     return this.textPreProcessor;
+  }
+  // IDataNestingPlaceOwner: a panel whose data is the record (a dynamic panel's panel, a row's detail panel) is
+  // the record panel, and the panels inside it are in the record.
+  public getChildDataNestingPlace(panel: IPanel): DataNestingPlace {
+    return "record";
+  }
+  public getRecordsQuestion(): Question {
+    return this.data;
   }
 
   // The record's questions on a value name, as the key index has them: in document order, a row's cells first.

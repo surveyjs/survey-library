@@ -34,7 +34,7 @@ import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 import type { QuestionExpressionModel } from "./question_expression";
-import { PanelDataScope, getActiveDataScope, getElementDataScope, asScopeObject, deleteObjectPaths } from "./panel-data-scope";
+import { PanelDataScope, getActiveDataScope, getElementDataScope, asScopeObject, deleteObjectPaths, DataNestingPlace } from "./panel-data-scope";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
    rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */
@@ -1758,6 +1758,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // The template a row shows as its detail panel in design mode (createRowDetailPanel) belongs to the matrix.
   isDetailPanelTemplate(panel: PanelModel): boolean {
     return !!panel && panel === this.detailPanelValue;
+  }
+  // IDataNestingPlaceOwner: the panels inside the detail panel template are in a records template. A row's detail
+  // panel has the row as its data, and the row answers for it.
+  public getChildDataNestingPlace(panel: IPanel): DataNestingPlace {
+    return this.isDetailPanelTemplate(<PanelModel>panel) ? "template" : undefined;
   }
   // A detail panel a row drops (hideDetailPanel(true)) is disposed as a row that leaves is (disposeLeftObject).
   disposeDroppedDetailPanel(panel: PanelModel): void {

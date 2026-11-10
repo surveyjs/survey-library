@@ -8,6 +8,7 @@ import {
   IElementUIState,
 } from "./base-interfaces";
 import { PanelModelBase, PanelModel } from "./panel";
+import type { DataNestingKind } from "./panel-data-scope";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 
@@ -30,7 +31,7 @@ export class PageModel extends PanelModel implements IPage {
   }
   // A page nests by name in the "page" modes also inside the single-page container (where isPage is false).
   // The container itself never nests.
-  protected getDataNestingKind(): string {
+  protected getDataNestingKind(): DataNestingKind {
     return this.isPageContainer ? "" : "page";
   }
   public get isPanel(): boolean {

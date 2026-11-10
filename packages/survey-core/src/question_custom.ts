@@ -27,7 +27,7 @@ import { settings } from "./settings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 import { Scope } from "./utils/scope";
-import { ObjectDataScope, setObjectKey, getEmptyValuesSurvey, asScopeObject } from "./panel-data-scope";
+import { ObjectDataScope, setObjectKey, getEmptyValuesSurvey, asScopeObject, DataNestingPlace } from "./panel-data-scope";
 
 /**
  * An interface used to create custom question types.
@@ -1276,6 +1276,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
 
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
+  }
+  // IDataNestingPlaceOwner: the composite is asked as the data of its content panel (it is no panel's design owner
+  // or parent question). No panel inside a composite nests: the component's author owns the shape of its value.
+  public getChildDataNestingPlace(panel: IPanel): DataNestingPlace {
+    return "";
   }
   public getValueType(): QuestionValueType {
     return "object";

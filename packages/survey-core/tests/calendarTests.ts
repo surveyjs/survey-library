@@ -703,3 +703,288 @@ describe("CalendarModel min and max", () => {
     expect(calendar.canNext).toBe(true);
   });
 });
+
+describe("CalendarModel range", () => {
+  function rangeDay(calendar: CalendarModel, date: Date, monthIndex: number = 0): CalendarItem {
+    return calendar.months[monthIndex].days.filter(item => item.date.getTime() === date.getTime() && !item.isOutside)[0];
+  }
+  function rangeDayAnywhere(calendar: CalendarModel, date: Date): CalendarItem {
+    return rangeDay(calendar, date, 0) || rangeDay(calendar, date, 1);
+  }
+  function positions(calendar: CalendarModel, monthIndex: number = 0): { [day: string]: string } {
+    const res: { [day: string]: string } = {};
+    calendar.months[monthIndex].days.forEach(item => {
+      if (!item.isOutside && !!item.rangePosition) res[item.text] = item.rangePosition;
+    });
+    return res;
+  }
+  function dates(value: Array<Date>): Array<number> {
+    return value.map(date => date.getTime());
+  }
+
+  test("range is false by default", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    expect(calendar.range).toBe(false);
+    expect(calendar.months).toHaveLength(1);
+    expect(days(calendar).every(item => item.rangePosition === undefined)).toBe(true);
+  });
+
+  test("The day zoom shows two months", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    expect(calendar.months).toHaveLength(2);
+    expect(calendar.months[0].title).toBe("November 2026");
+    expect(calendar.months[1].title).toBe("December 2026");
+    expect(calendar.months[1].days).toHaveLength(42);
+    expect(calendar.title).toBe("November 2026");
+  });
+
+  test("prev and next shift the pair of months by one month", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 12, 1), range: true });
+    calendar.next();
+    expect(calendar.months.map(month => month.title)).toEqual(["January 2027", "February 2027"]);
+    calendar.prev();
+    calendar.prev();
+    expect(calendar.months.map(month => month.title)).toEqual(["November 2026", "December 2026"]);
+  });
+
+  test("canNext takes the second month into account", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true, min: d(2026, 11, 1), max: d(2026, 12, 15) });
+    expect(calendar.canPrev).toBe(false);
+    expect(calendar.canNext).toBe(false);
+    calendar.max = d(2027, 1, 1);
+    expect(calendar.canNext).toBe(true);
+    calendar.next();
+    expect(calendar.months.map(month => month.title)).toEqual(["December 2026", "January 2027"]);
+    expect(calendar.canNext).toBe(false);
+    expect(calendar.canPrev).toBe(true);
+  });
+
+  test("The month and year zooms show one block", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    calendar.zoom = "month";
+    expect(calendar.months).toHaveLength(0);
+    expect(calendar.items).toHaveLength(12);
+    calendar.zoom = "year";
+    expect(calendar.months).toHaveLength(0);
+    expect(calendar.items).toHaveLength(12);
+    calendar.zoom = "day";
+    expect(calendar.months).toHaveLength(2);
+  });
+
+  test("The first click sets rangeStart", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    const starts: Array<Date> = [];
+    let valueChanged = 0;
+    calendar.onRangeStartSelected.add((_, options) => starts.push(options.date));
+    calendar.onValueChanged.add(() => valueChanged++);
+
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
+    expect(calendar.rangeStart.getTime()).toBe(d(2026, 11, 5).getTime());
+    expect(calendar.value).toBeUndefined();
+    expect(dates(starts)).toEqual([d(2026, 11, 5).getTime()]);
+    expect(valueChanged).toBe(0);
+    expect(positions(calendar)).toEqual({ "5": "single" });
+    expect(rangeDay(calendar, d(2026, 11, 5)).isSelected).toBe(true);
+  });
+
+  test("Hover previews the range from rangeStart", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
+    calendar.hoverItem(rangeDay(calendar, d(2026, 11, 8)));
+    expect(positions(calendar)).toEqual({ "5": "start", "6": "middle", "7": "middle", "8": "end" });
+    expect(rangeDay(calendar, d(2026, 11, 8)).isHovered).toBe(true);
+
+    calendar.hoverItem(rangeDay(calendar, d(2026, 11, 3)));
+    expect(positions(calendar)).toEqual({ "3": "start", "4": "middle", "5": "end" });
+
+    calendar.hoverItem();
+    expect(positions(calendar)).toEqual({ "5": "single" });
+  });
+
+  test("Hover without rangeStart shows no preview", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    calendar.hoverItem(rangeDay(calendar, d(2026, 11, 8)));
+    expect(positions(calendar)).toEqual({});
+  });
+
+  test("The second click sets the end and commits the value", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    const values: Array<Array<Date>> = [];
+    calendar.onValueChanged.add((_, options) => values.push(options.value));
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
+    calendar.hoverItem(rangeDay(calendar, d(2026, 11, 7)));
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 7)));
+
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 5).getTime(), d(2026, 11, 7).getTime()]);
+    expect(calendar.rangeStart).toBeUndefined();
+    expect(values).toHaveLength(1);
+    expect(dates(values[0])).toEqual([d(2026, 11, 5).getTime(), d(2026, 11, 7).getTime()]);
+    expect(positions(calendar)).toEqual({ "5": "start", "6": "middle", "7": "end" });
+    expect(calendar.months[0].days.filter(item => !item.isOutside && item.isSelected).map(item => item.text)).toEqual(["5", "6", "7"]);
+  });
+
+  test("The end before the start swaps them", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 12)));
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 5).getTime(), d(2026, 11, 12).getTime()]);
+  });
+
+  test("Clicking the same day twice gives a one-day range", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 5).getTime(), d(2026, 11, 5).getTime()]);
+    expect(calendar.rangeStart).toBeUndefined();
+    expect(positions(calendar)).toEqual({ "5": "single" });
+  });
+
+  test("A click with a committed range starts a new selection", () => {
+    const calendar = new CalendarModel({ value: [d(2026, 11, 5), d(2026, 11, 12)], range: true });
+    let valueChanged = 0;
+    calendar.onValueChanged.add(() => valueChanged++);
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 20)));
+    expect(calendar.rangeStart.getTime()).toBe(d(2026, 11, 20).getTime());
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 5).getTime(), d(2026, 11, 12).getTime()]);
+    expect(valueChanged).toBe(0);
+    expect(positions(calendar)).toEqual({ "20": "single" });
+
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 25)));
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 20).getTime(), d(2026, 11, 25).getTime()]);
+    expect(valueChanged).toBe(1);
+  });
+
+  test("A range across the month boundary", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 27)));
+    calendar.hoverItem(rangeDay(calendar, d(2026, 12, 2), 1));
+    expect(positions(calendar, 0)).toEqual({ "27": "start", "28": "middle", "29": "middle", "30": "middle" });
+    expect(positions(calendar, 1)).toEqual({ "1": "middle", "2": "end" });
+
+    calendar.selectItem(rangeDay(calendar, d(2026, 12, 3), 1));
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 27).getTime(), d(2026, 12, 3).getTime()]);
+    expect(positions(calendar, 0)).toEqual({ "27": "start", "28": "middle", "29": "middle", "30": "middle" });
+    expect(positions(calendar, 1)).toEqual({ "1": "middle", "2": "middle", "3": "end" });
+  });
+
+  test("Clicking a day of a neighbour month does not move the months", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    const outside = calendar.months[0].days.filter(item => item.isOutside)[0];
+    calendar.selectItem(outside);
+    expect(calendar.rangeStart.getTime()).toBe(outside.date.getTime());
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+  });
+
+  test("Disabled days inside the range are allowed", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true, min: d(2026, 11, 5) });
+    calendar.value = [d(2026, 11, 2), d(2026, 11, 8)];
+    expect(rangeDay(calendar, d(2026, 11, 3)).isDisabled).toBe(true);
+    expect(rangeDay(calendar, d(2026, 11, 3)).rangePosition).toBe("middle");
+  });
+
+  test("A disabled day cannot be a range boundary", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true, min: d(2026, 11, 5), max: d(2026, 11, 20) });
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 4)));
+    expect(calendar.rangeStart).toBeUndefined();
+
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
+    calendar.hoverItem(rangeDay(calendar, d(2026, 11, 21)));
+    expect(positions(calendar)).toEqual({ "5": "single" });
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 21)));
+    expect(calendar.value).toBeUndefined();
+    expect(calendar.rangeStart.getTime()).toBe(d(2026, 11, 5).getTime());
+
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 20)));
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 5).getTime(), d(2026, 11, 20).getTime()]);
+  });
+
+  test("Month and year zooms only navigate in the range mode", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
+    calendar.zoom = "year";
+    calendar.selectItem(calendar.items.filter(item => item.text === "2027")[0]);
+    calendar.selectItem(calendar.items.filter(item => item.text === "March")[0]);
+    expect(calendar.zoom).toBe("day");
+    expect(calendar.rangeStart.getTime()).toBe(d(2026, 11, 5).getTime());
+    expect(calendar.value).toBeUndefined();
+    expect(calendar.months.map(month => month.title)).toEqual(["March 2027", "April 2027"]);
+
+    calendar.selectItem(rangeDay(calendar, d(2027, 3, 10)));
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 5).getTime(), d(2027, 3, 10).getTime()]);
+  });
+
+  test("Month and year items containing the range are selected", () => {
+    const calendar = new CalendarModel({ value: [d(2026, 11, 25), d(2027, 1, 5)], range: true });
+    calendar.zoom = "month";
+    expect(calendar.items.filter(item => item.isSelected).map(item => item.text)).toEqual(["November", "December"]);
+    calendar.zoom = "year";
+    expect(calendar.items.filter(item => item.isSelected).map(item => item.text)).toEqual(["2026", "2027"]);
+  });
+
+  test("resetView keeps rangeStart and shows its month", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    calendar.selectItem(rangeDay(calendar, d(2026, 12, 10), 1));
+    calendar.next();
+    calendar.next();
+    calendar.zoom = "year";
+    calendar.resetView();
+    expect(calendar.zoom).toBe("day");
+    expect(calendar.rangeStart.getTime()).toBe(d(2026, 12, 10).getTime());
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 12, 1).getTime());
+    expect(positions(calendar)).toEqual({ "10": "single" });
+  });
+
+  test("resetView shows the month of the range start", () => {
+    const calendar = new CalendarModel({ value: [d(2026, 11, 25), d(2027, 1, 5)], range: true });
+    calendar.next();
+    calendar.next();
+    calendar.resetView();
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+  });
+
+  test("setRangeStart sets the pending start from outside", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    let counter = 0;
+    calendar.onRangeStartSelected.add(() => counter++);
+    calendar.setRangeStart(new Date(2026, 10, 7, 12, 30));
+    expect(calendar.rangeStart.getTime()).toBe(d(2026, 11, 7).getTime());
+    expect(positions(calendar)).toEqual({ "7": "single" });
+    expect(counter).toBe(0);
+
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 9)));
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 7).getTime(), d(2026, 11, 9).getTime()]);
+
+    calendar.setRangeStart(d(2026, 11, 15));
+    calendar.setRangeStart(undefined);
+    expect(calendar.rangeStart).toBeUndefined();
+    expect(positions(calendar)).toEqual({ "7": "start", "8": "middle", "9": "end" });
+  });
+
+  test("A range value is normalized", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    calendar.value = [new Date(2026, 11, 3, 10, 0), new Date(2026, 10, 25, 22, 0)];
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 25).getTime(), d(2026, 12, 3).getTime()]);
+    calendar.value = d(2026, 11, 9);
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 9).getTime(), d(2026, 11, 9).getTime()]);
+  });
+
+  test("Switching range converts the value and clears rangeStart", () => {
+    const calendar = new CalendarModel({ value: d(2026, 11, 9) });
+    calendar.range = true;
+    expect(dates(calendar.value)).toEqual([d(2026, 11, 9).getTime(), d(2026, 11, 9).getTime()]);
+    expect(calendar.months).toHaveLength(2);
+    calendar.selectItem(rangeDayAnywhere(calendar, d(2026, 11, 20)));
+    calendar.range = false;
+    expect(calendar.rangeStart).toBeUndefined();
+    expect(calendar.value.getTime()).toBe(d(2026, 11, 9).getTime());
+    expect(calendar.months).toHaveLength(1);
+    expect(days(calendar).every(item => item.rangePosition === undefined)).toBe(true);
+  });
+
+  test("Single mode ignores rangeStart", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.selectItem(findDay(calendar, d(2026, 11, 5)));
+    expect(calendar.rangeStart).toBeUndefined();
+    expect(calendar.value.getTime()).toBe(d(2026, 11, 5).getTime());
+  });
+});

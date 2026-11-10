@@ -1,4 +1,5 @@
 export type CalendarZoom = "day" | "month" | "year";
+export type CalendarRangePosition = "start" | "end" | "middle" | "single";
 
 export interface CalendarItem {
   date: Date;
@@ -8,6 +9,7 @@ export interface CalendarItem {
   isToday: boolean;
   isOutside: boolean;
   isDisabled: boolean;
+  rangePosition?: CalendarRangePosition;
   css: string;
 }
 
@@ -18,8 +20,10 @@ export interface CalendarMonth {
 }
 
 export interface ICalendarOptions {
-  value?: Date;
+  // a Date, or an array of two dates [start, end] if range is true
+  value?: Date | Array<Date>;
   viewDate?: Date;
   min?: Date;
   max?: Date;
+  range?: boolean;
 }

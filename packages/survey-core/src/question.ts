@@ -539,6 +539,11 @@ export class Question extends SurveyElement<Question>
   public onSurveyChoiceShortcutsEnabledChanged(): void {
     this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyChoiceShortcutsEnabledChanged()), { build: "none", visibleOnly: false });
   }
+  // The survey calls it on its questions when its dropdownLoadingComponent changes; a container forwards
+  // it to the nested questions that exist, a question with a drop-down list updates the list.
+  public onSurveyDropdownLoadingComponentChanged(): void {
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyDropdownLoadingComponentChanged()), { build: "none", visibleOnly: false });
+  }
   // The survey calls it on its questions when its single-input mode or its preview starts or ends; a
   // container forwards it to the nested questions that exist. Not public API: the survey calls it
   // through a cast.

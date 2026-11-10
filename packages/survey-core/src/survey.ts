@@ -9708,6 +9708,25 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public questionErrorComponent = "sv-question-error";
+  private dropdownLoadingComponentValue = "sv-list-loading";
+  /**
+   * The name of a component used to display a loading indicator in drop-down lists.
+   *
+   * > This property can only be set in JavaScript code on a `SurveyModel` instance. It cannot be specified in the survey JSON schema.
+   */
+  public get dropdownLoadingComponent(): string {
+    return this.dropdownLoadingComponentValue;
+  }
+  public set dropdownLoadingComponent(val: string) {
+    const newValue = val || "sv-list-loading";
+    if (this.dropdownLoadingComponentValue === newValue) return;
+    this.dropdownLoadingComponentValue = newValue;
+    // The design-time questions too (choice panels, a dynamic panel's template); matrix columns are listed
+    // there and are not questions. Each question forwards to its nested instances.
+    this.getAllQuestions(false, true).forEach(q => {
+      if (q.isQuestion) q.onSurveyDropdownLoadingComponentChanged();
+    });
+  }
 
   public confirmActionAsync(message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): void {
     settings.confirmActionAsync(message, callback, { rootElement: this.rootElement, ...options });

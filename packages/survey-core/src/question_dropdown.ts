@@ -12,7 +12,7 @@ import { Helpers } from "./helpers";
 import { questionDropdownMixin } from "./question_dropdown_mixin";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
-import { ComputedUpdater } from "./base";
+import { Base, ComputedUpdater } from "./base";
 
 /**
  * A class that describes the Dropdown question type.
@@ -259,6 +259,16 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    * @see SurveyModel.onChoicesLazyLoad
    */
   @property() choicesLazyLoadPageSize: number;
+  /**
+   * The name of the component used to render the dropdown's loading indicator and/or text.
+   */
+  @property({
+    onSet: (newValue: string, target: any) => {
+      if (!!target.dropdownListModelValue) {
+        target.dropdownListModel.setLoadingComponent(newValue);
+      }
+    }
+  }) loadingComponent: string;
   public getControlClass(): string {
     return toCssClasses(
       this.cssClasses.control,
@@ -315,7 +325,8 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   protected updateCustomChoices(value: any, items: Array<ItemValue>): void {
     if (value !== undefined && value !== null && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
       this.customChoices.splice(0, this.customChoices.length);
-      const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false))[0];
+      const surveySettings = this.getSurveySettings();
+      const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false, undefined, surveySettings))[0];
       if (!item) {
         this.customChoices.splice(0, this.customChoices.length, new ItemValue(value));
       }
@@ -359,28 +370,30 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   private inputActionBarValue: ActionContainer;
   public get inputActionBar() {
     if (!this.inputActionBarValue) {
-      this.inputActionBarValue = new ActionContainer();
-      this.inputActionBarValue.locOwner = this;
-      this.inputActionBarValue.containerCss = this.cssClasses.group;
-      this.inputActionBarValue.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
+      Base.runUntracked(() => {
+        this.inputActionBarValue = new ActionContainer();
+        this.inputActionBarValue.locOwner = this;
+        this.inputActionBarValue.containerCss = this.cssClasses.group;
+        this.inputActionBarValue.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
 
-      const chevronButton = new Action({
-        id: "chevron",
-        css: "sd-editor-chevron-button",
-        iconName: this.cssClasses.chevronButtonIconId || "icon-chevron",
-        iconSize: "auto",
-        showTitle: false,
-        locTitle: this.locSelectCaption,
-        disableTabStop: true,
-        enabled: new ComputedUpdater(() => {
-          return !this.isInputReadOnly;
-        }),
-        visible: new ComputedUpdater(() => {
-          return !this.isPreviewStyle;
-        }),
-        action: () => {}
+        const chevronButton = new Action({
+          id: "chevron",
+          css: "sd-editor-chevron-button",
+          iconName: this.cssClasses.chevronButtonIconId || "icon-chevron",
+          iconSize: "auto",
+          showTitle: false,
+          locTitle: this.locSelectCaption,
+          disableTabStop: true,
+          enabled: new ComputedUpdater(() => {
+            return !this.isInputReadOnly;
+          }),
+          visible: new ComputedUpdater(() => {
+            return !this.isPreviewStyle;
+          }),
+          action: () => {}
+        });
+        this.inputActionBarValue.addAction(chevronButton);
       });
-      this.inputActionBarValue.addAction(chevronButton);
     }
     return this.inputActionBarValue;
   }
@@ -406,7 +419,8 @@ Serializer.addClass(
     { name: "choicesLazyLoadEnabled:boolean", visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },
-    { name: "itemComponent", visible: false, default: "" }
+    { name: "itemComponent", visible: false, default: "" },
+    { name: "loadingComponent", visible: false, default: "" }
   ],
   function () {
     return new QuestionDropdownModel("");

@@ -144,9 +144,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private updateRankingChoicesSync() {
-    this.blockAnimations();
-    this.updateRankingChoices();
-    this.releaseAnimations();
+    this.runWithoutAnimations(() => this.updateRankingChoices());
   }
 
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
@@ -155,7 +153,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.updateRankingChoicesSync();
   }
   public isAnswerCorrect(): boolean {
-    return Helpers.isArraysEqual(this.value, this.correctAnswer, false);
+    return Helpers.isArraysEqual(this.value, this.correctAnswer, false, undefined, undefined, this.getSurveySettings());
   }
   get requireStrictCompare(): boolean { return true; }
   onSurveyValueChanged(newValue: any) {
@@ -165,12 +163,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.updateRankingChoices();
   }
   onSurveyLoad(): void {
-    this.blockAnimations();
-    super.onSurveyLoad();
-    this.syncDefaultValueWithVisibleChoices();
-    this.syncValueWithVisibleChoices();
-    this.updateRankingChoices();
-    this.releaseAnimations();
+    this.runWithoutAnimations(() => {
+      super.onSurveyLoad();
+      this.syncDefaultValueWithVisibleChoices();
+      this.syncValueWithVisibleChoices();
+      this.updateRankingChoices();
+    });
   }
   // onSurveyLoad syncs the value and defaultValue with the visible choices (Bug#7919), so they are built at load
   protected get canDeferVisibleChoicesOnLoad(): boolean {
@@ -181,7 +179,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.onVisibleChoicesChanged();
 
     if (this.carryForwardStartUnranked && !this.isValueSetByUser && !this.selectToRankEnabled && !this.defaultValue) {
-      this.value = [];
+      this.runDeletingEmptyValues((): void => { this.value = []; });
     }
 
     // ranking question with only one choice doesn't make sense
@@ -236,7 +234,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   private syncValueWithVisibleChoices(): void {
     if (this.selectToRankEnabled || this.isEmpty()) return;
     const newValue = this.getRankedValueByVisibleChoices(this.value);
-    if (!this.isTwoValueEquals(this.value, newValue)) {
+    if (!this.isEqualToValue(newValue)) {
       this.value = newValue;
     }
   }

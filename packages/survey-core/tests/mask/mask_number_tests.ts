@@ -1350,6 +1350,184 @@ describe("Numeric mask", () => {
     testInput.remove();
   });
 
+  test("a max of 0 is a bound", () => {
+    let maskInstance = new InputMaskNumeric();
+    maskInstance.min = -100;
+    maskInstance.max = 0;
+    expect(maskInstance.getMaskedValue(5), "above max").toBeNull();
+    expect(maskInstance.isValueOutOfRange("5"), "above max").toBe(true);
+    expect(maskInstance.isValueOutOfRange("0.5"), "above max, fractional").toBe(true);
+    expect(maskInstance.getMaskedValue(0), "max").toBe("0");
+    expect(maskInstance.getMaskedValue(-5), "in range").toBe("-5");
+    expect(maskInstance.isValueOutOfRange("-5"), "in range").toBe(false);
+    expect(maskInstance.getMaskedValue(-150), "below min").toBeNull();
+
+    maskInstance = new InputMaskNumeric();
+    maskInstance.max = 0;
+    expect(maskInstance.getMaskedValue(5), "above max, no min").toBeNull();
+    expect(maskInstance.getMaskedValue(-5), "no min").toBe("-5");
+  });
+
+  test("a min of 0 is a bound", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.min = 0;
+    maskInstance.max = 100;
+    // parseNumber drops the minus sign at min: 0, so a negative composition is built by hand
+    expect(maskInstance.validateNumber({ integralPart: "5", fractionalPart: "", isNegative: true }, true), "below min").toBe(false);
+    expect(maskInstance.validateNumber({ integralPart: "", fractionalPart: "5", isNegative: true }, true), "below min, fractional").toBe(false);
+    expect(maskInstance.validateNumber({ integralPart: "0", fractionalPart: "" }, true), "min").toBe(true);
+    expect(maskInstance.getMaskedValue(5), "in range").toBe("5");
+    expect(maskInstance.isValueOutOfRange("5"), "in range").toBe(false);
+    expect(maskInstance.getMaskedValue(150), "above max").toBeNull();
+  });
+
+  test("an empty bound from JSON is no bound", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", maskType: "numeric", maskSettings: { min: null, max: 0 } },
+        { type: "text", name: "q2", maskType: "numeric", maskSettings: { min: "", max: 0 } },
+        { type: "text", name: "q3", maskType: "numeric", maskSettings: { max: null } }
+      ]
+    });
+    const getMask = (name: string) => <InputMaskNumeric>(<QuestionTextModel>survey.getQuestionByName(name)).maskSettings;
+    ["q1", "q2"].forEach(name => {
+      expect(getMask(name).getMaskedValue(-5), name + ": no min").toBe("-5");
+      expect(getMask(name).getMaskedValue(5), name + ": above max").toBeNull();
+    });
+    expect(getMask("q3").getMaskedValue(5), "q3: no max").toBe("5");
+    expect(getMask("q3").isValueOutOfRange("5"), "q3: no max").toBe(false);
+  });
+
+  test("numeric processInput: max 0", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.max = 0;
+
+    let result = maskInstance.processInput({ insertedChars: "5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "try type 5").toBe("");
+    expect(result.caretPosition, "try type 5").toBe(0);
+
+    result = maskInstance.processInput({ insertedChars: "0", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "type 0").toBe("0");
+
+    result = maskInstance.processInput({ insertedChars: "-", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "type minus").toBe("-");
+
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 1, selectionEnd: 1, prevValue: "-", inputDirection: "forward" });
+    expect(result.value, "type 5 after minus").toBe("-5");
+    expect(result.caretPosition, "type 5 after minus").toBe(2);
+  });
+
+  test("a value above a max of 0 is not stored", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1", maskType: "numeric", maskSettings: { max: 0 } }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "5";
+    expect(q.value, "above max").toBeUndefined();
+    expect(survey.data).toEqual({});
+
+    q.inputValue = "-5";
+    expect(q.value, "in range").toBe(-5);
+    expect(survey.data).toEqual({ q1: -5 });
+  });
+
+  test.each([
+    ["min: 0", { min: 0, max: 100 }],
+    ["allowNegativeValues: false", { allowNegativeValues: false }]
+  ])("a negative value is out of range on a mask that forbids negatives, %s", (_, settings: any) => {
+    const maskInstance = new InputMaskNumeric();
+    Object.keys(settings).forEach(key => maskInstance[key] = settings[key]);
+    expect(maskInstance.getMaskedValue(-5), "number").toBeNull();
+    expect(maskInstance.getMaskedValue("-5"), "text").toBeNull();
+    expect(maskInstance.getMaskedValue(-0.5), "fractional").toBeNull();
+    expect(maskInstance.isValueOutOfRange("-5"), "text").toBe(true);
+    expect(maskInstance.getMaskedValue(5), "positive").toBe("5");
+    expect(maskInstance.isValueOutOfRange("5"), "positive").toBe(false);
+    expect(maskInstance.getMaskedValue("-0"), "a zero has no sign").toBe("0");
+    expect(maskInstance.isValueOutOfRange("-0"), "a zero has no sign").toBe(false);
+    expect(maskInstance.getMaskedValue("--5"), "two minus signs cancel").toBe("5");
+
+    const result = maskInstance.processInput({ insertedChars: "-", selectionStart: 2, selectionEnd: 2, prevValue: "12", inputDirection: "forward" });
+    expect(result.value, "typing a minus is ignored").toBe("12");
+    expect(result.caretPosition, "typing a minus is ignored").toBe(2);
+  });
+
+  test("a negative value that is zero at the mask's precision is not out of range on a mask that forbids negatives", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.min = 0;
+    expect(maskInstance.getMaskedValue(-0.001), "number").toBe("0.00");
+    expect(maskInstance.isValueOutOfRange("-0.001"), "text").toBe(false);
+    expect(maskInstance.getMaskedValue(0.3 - 0.1 - 0.2), "floating-point noise").toBe("0.00");
+    expect(maskInstance.getMaskedValue(-0.01), "not zero at the precision").toBeNull();
+
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1", maskType: "numeric", maskSettings: { min: 0, saveMaskedValue: true } }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.value = 0.3 - 0.1 - 0.2;
+    expect(q.value, "saveMaskedValue").toBe("0.00");
+  });
+
+  test("an out-of-range value renders as empty into an input with maxLength", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", maxLength: 10, maskType: "numeric", maskSettings: { min: 0 } },
+        { type: "text", name: "q2", maxLength: 10, maskType: "numeric", maskSettings: { max: 100 } }
+      ]
+    });
+    survey.data = { q1: -5, q2: 150 };
+    ["q1", "q2"].forEach(name => {
+      const q = <QuestionTextModel>survey.getQuestionByName(name);
+      testInput.maxLength = q.getMaxLength();
+      q.afterRenderQuestionElement(testInput);
+      expect(testInput.value, name).toBe("");
+      q.beforeDestroyQuestionElement(testInput);
+    });
+    testInput.remove();
+  });
+
+  test("a stored negative value is not shown as its absolute value on a mask that forbids negatives", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", maskType: "numeric", maskSettings: { min: 0, max: 100 } },
+        { type: "text", name: "q2", maskType: "numeric", maskSettings: { min: 0, max: 100 } }
+      ]
+    });
+    const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+    survey.data = { q1: -5, q2: 150 };
+    expect(q1.inputValue, "below min").toBe(q2.inputValue);
+    expect(q1.inputValue, "below min").toBe("");
+    expect(q1.value, "the value is kept").toBe(-5);
+  });
+
+  test("saveMaskedValue: a negative value on a mask that forbids negatives is stored as a value above max", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", maskType: "numeric", maskSettings: { saveMaskedValue: true, min: 0, max: 100 } },
+        { type: "text", name: "q2", maskType: "numeric", maskSettings: { saveMaskedValue: true, allowNegativeValues: false, max: 100 } }
+      ]
+    });
+    const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+
+    survey.data = { q1: 150, q2: 150 };
+    const dataAboveMax = survey.data;
+    survey.data = { q1: -5, q2: -5 };
+    expect(survey.data, "data").toEqual(dataAboveMax);
+    expect(survey.data, "data").toEqual({});
+
+    q1.value = 150;
+    const valueAboveMax = q1.value;
+    q1.value = -5;
+    q2.value = -5;
+    expect(q1.value, "q1 value").toBe(valueAboveMax);
+    expect(q2.value, "q2 value").toBe(valueAboveMax);
+    expect(q1.value, "q1 value").toBeNull();
+  });
+
   test("showTrailingZeros: question value & inputValue", () => {
     const q = new QuestionTextModel("q1");
     q.maskType = "numeric";
@@ -1435,6 +1613,101 @@ describe("Numeric mask", () => {
     expect(q.value, "value").toBe(1234.56);
     expect(q.displayValue, "displayValue").toBe("1.234,56");
     expect(survey.getPlainData()[0].displayValue, "plain data displayValue").toBe("1.234,56");
+  });
+
+  test("precision 0 truncates the fraction of a stored value", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.precision = 0;
+    expect(maskInstance.getMaskedValue(1234.5), "1234.5").toBe("1,234");
+    expect(maskInstance.getMaskedValue(1234.4), "1234.4").toBe("1,234");
+    expect(maskInstance.getMaskedValue(1234.99), "1234.99, not rounded").toBe("1,234");
+    expect(maskInstance.getMaskedValue(-1234.5), "-1234.5").toBe("-1,234");
+    expect(maskInstance.getMaskedValue(0.99), "0.99").toBe("0");
+    expect(maskInstance.getMaskedValue(1234.56), "1234.56").toBe("1,234");
+    expect(maskInstance.getMaskedValue("1,234.5"), "a formatted text").toBe("1,234");
+  });
+
+  test("precision 0: a paste drops the fraction, a keystroke keeps today's behaviour", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.precision = 0;
+    let result = maskInstance.processInput({ insertedChars: "1234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste 1234.5").toBe("1,234");
+    expect(result.caretPosition, "paste 1234.5, caret").toBe(5);
+    result = maskInstance.processInput({ insertedChars: "1,234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste 1,234.5").toBe("1,234");
+    expect(result.caretPosition, "paste 1,234.5, caret").toBe(5);
+
+    let value = "";
+    for (const char of ["1", "2", "3", "4", ".", "5"]) {
+      result = maskInstance.processInput({ insertedChars: char, selectionStart: value.length, selectionEnd: value.length, prevValue: value, inputDirection: "forward" });
+      value = result.value;
+    }
+    expect(value, "typed 1234.5").toBe("12,345");
+  });
+
+  test("precision 0: a stored fraction is kept until the respondent edits the field", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q", maskType: "numeric", maskSettings: { precision: 0 }, defaultValue: 1234.5 }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q");
+    q.afterRenderQuestionElement(testInput);
+    const adapter: InputElementAdapter = q["maskInputAdapter"];
+    expect(survey.data, "after load").toEqual({ q: 1234.5 });
+    expect(q.inputValue, "the shown value").toBe("1,234");
+    expect(testInput.value, "the element").toBe("1,234");
+
+    testInput.setSelectionRange(5, 5);
+    adapter.beforeInputHandler({ data: "6", inputType: "insertText", target: testInput, preventDefault: () => { } });
+    expect(testInput.value, "a digit typed").toBe("12,346");
+    q.onBlur({ target: testInput });
+    expect(survey.data, "after an edit, the shown number").toEqual({ q: 12346 });
+
+    q.beforeDestroyQuestionElement(testInput);
+    testInput.remove();
+  });
+
+  test("precision 0: leaving the field without an edit stores the shown number, as at every precision", () => {
+    // The blur commits the element text whenever it differs from the value. Precision 2 does the
+    // same with 1234.567 (stored as 1234.56), so this is the existing blur behaviour, not this mask's.
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q", maskType: "numeric", maskSettings: { precision: 0 }, defaultValue: 1234.5 }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q");
+    q.afterRenderQuestionElement(testInput);
+    q.onFocus({ target: testInput });
+    expect(survey.data, "on focus").toEqual({ q: 1234.5 });
+    q.onBlur({ target: testInput });
+    expect(survey.data, "on blur").toEqual({ q: 1234 });
+
+    q.beforeDestroyQuestionElement(testInput);
+    testInput.remove();
+  });
+
+  test("precision 0: a fraction is dropped in limits, unmasking and other separators", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.precision = 0;
+    expect(maskInstance.getUnmaskedValue("1,234.5"), "unmasked").toBe(1234);
+    expect(maskInstance.getUnmaskedValue(".5"), "unmasked, no integer part").toBe(0);
+
+    let result = maskInstance.processInput({ insertedChars: ".5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste .5").toBe("0");
+    result = maskInstance.processInput({ insertedChars: "-1234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste -1234.5").toBe("-1,234");
+
+    maskInstance.max = 1234;
+    expect(maskInstance.isValueOutOfRange("1,234.5"), "1,234.5 is 1,234, within max").toBe(false);
+    result = maskInstance.processInput({ insertedChars: "1234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste 1234.5 with max 1234").toBe("1,234");
+
+    const germanMask = new InputMaskNumeric();
+    germanMask.setData({ precision: 0, decimalSeparator: ",", thousandsSeparator: "." });
+    expect(germanMask.getMaskedValue(1234.5), "decimal comma, a stored value").toBe("1.234");
+    result = germanMask.processInput({ insertedChars: "1.234,5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "decimal comma, a paste").toBe("1.234");
   });
 });
 

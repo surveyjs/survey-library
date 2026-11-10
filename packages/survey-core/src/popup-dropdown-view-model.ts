@@ -14,6 +14,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   static readonly tabletSizeBreakpoint = 600;
   private scrollEventTargets: Array<EventTarget> = undefined;
   private scrollEventCallBack = (event: any) => {
+    // A scroll event dispatched by script (the survey's lazy rendering check) is not a scroll of the page.
+    if (event?.isTrusted === false) return;
     if (this.isOverlay && IsTouch) {
       event.stopPropagation();
       event.preventDefault();
@@ -88,6 +90,13 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const rect = targetElement.getBoundingClientRect();
     return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
   }
+  private getWidthTargetRect(areaRect: Rect): Rect {
+    const widthTarget = this.model.getWidthTargetCallback?.(this.container);
+    if (!widthTarget) return undefined;
+    const rect = widthTarget.getBoundingClientRect();
+    if (!rect?.width) return undefined;
+    return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
+  }
 
   private getScrollEventTargets(): Array<EventTarget> {
     const targets: Array<EventTarget> = [];
@@ -133,7 +142,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const marginBottom = (parseFloat(popupComputedStyle.marginBottom) || 0);
     let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
     const width = popupContainer.getBoundingClientRect().width;
-    this.model.setWidthByTarget && (this.minWidth = targetElementRect.width + "px");
+    const widthTargetRect = (this.model.setWidthByTarget && this.getWidthTargetRect(area)) || targetElementRect;
+    this.model.setWidthByTarget && (this.minWidth = widthTargetRect.width + "px");
     let verticalPosition = this.model.verticalPosition;
 
     let actualHorizontalPosition = this.getActualHorizontalPosition();
@@ -184,8 +194,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       }
 
       if (this.model.setWidthByTarget) {
-        this.width = targetElementRect.width + "px";
-        pos.left = targetElementRect.left;
+        this.width = widthTargetRect.width + "px";
+        pos.left = widthTargetRect.left;
       } else {
         const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
           pos.left,

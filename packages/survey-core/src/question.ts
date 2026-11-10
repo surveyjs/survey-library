@@ -1192,8 +1192,11 @@ export class Question extends SurveyElement<Question>
       doComplete: (res: any, properties: HashTable<any>): void => {
         if (res === true) {
           this.startSetValueOnExpression();
-          this.updateValueWithDefaultsOrClear();
-          this.finishSetValueOnExpression();
+          try {
+            this.updateValueWithDefaultsOrClear();
+          } finally {
+            this.finishSetValueOnExpression();
+          }
         }
       }
     });
@@ -1663,6 +1666,15 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get isContainer(): boolean { return false; }
+  // A container that keeps the saved masked text of its nested question on a locale change (QuestionTextModel.localeChanged).
+  protected keepsSavedTextOnLocaleChange(question: Question): boolean { return false; }
+  // At any depth: through dynamic panels, composites and custom questions, whose content has no parentQuestion.
+  protected get isSavedTextKeptOnLocaleChange(): boolean {
+    for (let q: Question = this; !!q; q = q.parentQuestion || q.getCustomQuestionWrapper()) {
+      if (!!q.parentQuestion && q.parentQuestion.keepsSavedTextOnLocaleChange(q)) return true;
+    }
+    return false;
+  }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
       if (event.target) {
@@ -1997,7 +2009,7 @@ export class Question extends SurveyElement<Question>
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] && isAnimationEnabled() ? { behavior: "smooth" } : undefined;
         this.survey.scrollElementToTop({
-          element: this, question: this, id: this.id,
+          element: this, question: this, id: this.renderedId,
           scrollIfVisible, scrollIntoViewOptions: scrollOptions,
           onScolledCallback: () => { this.focusInputElement(onError); }
         });
@@ -2370,6 +2382,21 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("comment", val);
     this.fireCallback(this.commentChangedCallback);
   }
+  /* A records question keeps this question for another record - a Dynamic Matrix row on a sort or a page
+     move (QuestionRecordItem.rebindToRecord) - and pushes that record in right after: what the
+     question holds for the old record goes first, so that the record arrives as it arrives in a new
+     question. The errors and the mark of the last validation (containsErrors, which the title classes
+     read), the value and the comment, whether they were changed directly, and the visit the empty-field
+     validation remembers. Nothing is written and the survey is not told. */
+  protected resetForAnotherRecord(): void {
+    this.clearErrors();
+    this.updateContainsErrors();
+    // Through the type's own setter: what a type derives from the value (a rendered value) follows.
+    this.setQuestionValue(undefined);
+    this.questionComment = "";
+    this.isValueChangedDirectly = false;
+    this.isFocusEmpty = false;
+  }
   public get isValueArray(): boolean { return false; }
   /**
    * Gets or sets the question value.
@@ -2433,8 +2460,14 @@ export class Question extends SurveyElement<Question>
    * @see comment
    */
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-    if (this.value !== undefined) {
-      this.value = undefined;
+    this.runDeletingEmptyValues((): void => this.clearValueCore(undefined, keepComment, fromUI));
+  }
+  private clearValueCore(emptyValue: any, keepComment: boolean, fromUI: boolean): void {
+    if (this.value !== emptyValue) {
+      this.value = emptyValue;
+    }
+    if (emptyValue === undefined) {
+      this.removeKeptEmptyValue();
     }
     if (!!this.comment && keepComment !== true) {
       this.comment = undefined;
@@ -2444,7 +2477,36 @@ export class Question extends SurveyElement<Question>
   }
   protected onClearValue(): void {}
   clearValueFromUI(): void {
-    this.clearValue(true, true);
+    this.clearValueByRespondent(true, true);
+  }
+  /* A clear the respondent makes in the question's UI: the clear button, or a click on the selected rating.
+     With data.keepEmptyValues on, the question gets the empty value its UI produces, so its key stays in the
+     data: [] for an array value, {} for an object value, else null. A clear by code goes through clearValue(). */
+  protected clearValueByRespondent(keepComment: boolean, fromUI: boolean): void {
+    if (!this.isKeepingEmptyValues() || !this.canKeepEmptyValue()) {
+      this.clearValue(keepComment, fromUI);
+      return;
+    }
+    this.clearValueCore(this.isEmpty() ? this.value : this.getEmptyValueOnRespondentClear(), keepComment, fromUI);
+  }
+  protected getEmptyValueOnRespondentClear(): any {
+    const val = this.value;
+    if (Array.isArray(val)) return [];
+    return Helpers.isValueObject(val) ? {} : null;
+  }
+  // An empty value data.keepEmptyValues kept equals undefined, so the value setter skips it: it is removed here.
+  private removeKeptEmptyValue(): void {
+    if (!this.data || !this.isKeepingEmptyValues() || !this.canSetValueToSurvey()) return;
+    const val = this.data.getValue(this.getValueName());
+    if (val === undefined || !this.isValueEmpty(val)) return;
+    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
+  }
+  protected isKeepingEmptyValues(): boolean {
+    return !!this.survey && !!this.survey.getSettings().data.keepEmptyValues;
+  }
+  // See ISurvey.runDeletingEmptyValues: the empty values func writes remove their keys.
+  protected runDeletingEmptyValues<T>(func: () => T): T {
+    return !!this.survey ? this.survey.runDeletingEmptyValues(func) : func();
   }
   /**
    * Specifies whether to display a button that clears the question value.
@@ -2520,7 +2582,7 @@ export class Question extends SurveyElement<Question>
     if (clearIf === "none") return;
     if (reason === "onHidden" && clearIf === "onComplete") return;
     if (reason === "onHiddenContainer" && clearIf !== reason) return;
-    this.clearValueIfInvisibleCore(reason);
+    this.runDeletingEmptyValues((): void => this.clearValueIfInvisibleCore(reason));
   }
   protected clearValueIfInvisibleCore(reason: string): void {
     if (this.canClearValueAsInvisible(reason)) {
@@ -2767,7 +2829,8 @@ export class Question extends SurveyElement<Question>
     return this.correctAnswer;
   }
   protected checkIfAnswerCorrect(): boolean {
-    const isEqual = Helpers.isTwoValueEquals(this.value, this.getCorrectAnswerValue(), this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
+    // caseSensitive is left to the settings: the survey's own value, else the global one
+    const isEqual = Helpers.isTwoValueEquals(this.value, this.getCorrectAnswerValue(), this.getAnswerCorrectIgnoreOrder(), undefined, true, this.getSurveySettings());
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {
@@ -2808,7 +2871,7 @@ export class Question extends SurveyElement<Question>
     this.defaultValueChangeScope.run(true, func);
   }
   public get isValueDefault(): boolean {
-    return !this.isEmpty() && (this.isTwoValueEquals(this.defaultValue, this.value) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
+    return !this.isEmpty() && (this.isEqualToValue(this.defaultValue) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
   }
   protected get isClearValueOnHidden(): boolean {
     const clearIf = this.getClearIfInvisible();
@@ -2831,7 +2894,7 @@ export class Question extends SurveyElement<Question>
   protected setDefaultValue(): void {
     this.setDefaultValueCore((val: any): void => {
       val = this.convertToCorrectValue(val);
-      if (!this.isTwoValueEquals(this.value, val)) {
+      if (!this.isEqualToValue(val)) {
         this.setDefaultIntoValue(val);
       }
     });
@@ -2862,14 +2925,23 @@ export class Question extends SurveyElement<Question>
     return Helpers.convertValToQuestionVal(val);
   }
   private runExpressionSetValueCore(val: any, setFunc?: (val: any) => void): void {
-    setFunc(this.convertFuncValuetoQuestionValue(val));
+    val = this.convertFuncValuetoQuestionValue(val);
+    // An empty result of defaultValueExpression or setValueExpression is no respondent's clear
+    if (this.isValueEmpty(val)) {
+      this.runDeletingEmptyValues((): void => setFunc(val));
+    } else {
+      setFunc(val);
+    }
   }
   private runExpressionSetValue(val: any): void {
     this.runExpressionSetValueCore(val, (val: any): void => {
-      if (!this.isTwoValueEquals(this.value, val)) {
+      if (!this.isEqualToValue(val)) {
         this.startSetValueOnExpression();
-        this.value = val;
-        this.finishSetValueOnExpression();
+        try {
+          this.value = val;
+        } finally {
+          this.finishSetValueOnExpression();
+        }
       }
     });
   }
@@ -3104,6 +3176,14 @@ export class Question extends SurveyElement<Question>
       (visit: NestedElementVisit): void => this.forEachNestedElement(visit, { build: "none", visibleOnly: true }),
       (info: INestedElementInfo): boolean => info.element.isVisible && info.element.containsErrors);
   }
+  // The errors of the questions the question shows, see getContainsErrors.
+  protected getNestedErrors(): Array<SurveyError> {
+    const res: Array<SurveyError> = [];
+    this.forEachNestedElement(info => {
+      getNestedElementQuestions(info).forEach(q => { if (q.isVisibleInSurvey) res.push(...q.getAllErrors()); });
+    }, { build: "none", visibleOnly: true });
+    return res;
+  }
   /* A fix can come without a validation of the containers, so a nested question tells them. It does so
      on a change only: a validation without errors must not ask a container once per cell. */
   public updateContainsErrors(): void {
@@ -3187,8 +3267,11 @@ export class Question extends SurveyElement<Question>
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return true;
   }
+  /* On a value change, required is checked for the answer being cleared only. A question that already
+     shows its required error keeps it: a container re-validates every question it holds, and one answer
+     must not wipe the other required errors. */
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
-    if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {
+    if ((!isOnValueChanged || this.isOldAnswered || !!this.getErrorByType("required")) && this.hasRequiredError()) {
       const err = new AnswerRequiredError(this.requiredErrorText, this);
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
       errors.push(err);
@@ -3224,7 +3307,12 @@ export class Question extends SurveyElement<Question>
       context.removeElement(this.id);
     };
     context.addElement(this.id);
-    return this.validatorRunner.run(this);
+    try {
+      return this.validatorRunner.run(this);
+    } catch(e) {
+      this.validatorRunner = null;
+      throw e;
+    }
   }
   private doOnAsyncCompleted(fireCallback: boolean, errors: Array<SurveyError>): void {
     if (fireCallback) {
@@ -3239,6 +3327,9 @@ export class Question extends SurveyElement<Question>
   public allowSpaceAsAnswer: boolean;
   private isValueChangedInSurvey = false;
   private isOldAnswered: boolean;
+  // Internal: true while the value of an answered question is being set, so that a value-change
+  // validation can tell the answer being cleared (see PanelModelBase.validateRequired).
+  public get isAnsweredBeforeValueChange(): boolean { return !!this.isOldAnswered; }
   private isSettingQuestionValue: boolean;
   protected allowNotifyValueChanged = true;
   /* The old value goes to survey.questionValueChanged, which hands it to onDynamicPanelValueChanged
@@ -3253,14 +3344,20 @@ export class Question extends SurveyElement<Question>
     if (!this.checkIsValueCorrect(newValue)) return;
     const oldValue = this.getOldValueOnSetNewValue();
     this.isOldAnswered = this.isAnswered;
-    this.isSettingQuestionValue = true;
-    this.setNewValueInData(newValue);
-    this.allowNotifyValueChanged && this.onValueChanged();
-    this.isSettingQuestionValue = false;
-    if (this.isAnswered !== this.isOldAnswered) {
-      this.updateQuestionCss();
+    try {
+      this.isSettingQuestionValue = true;
+      try {
+        this.setNewValueInData(newValue);
+        this.allowNotifyValueChanged && this.onValueChanged();
+      } finally {
+        this.isSettingQuestionValue = false;
+      }
+      if (this.isAnswered !== this.isOldAnswered) {
+        this.updateQuestionCss();
+      }
+    } finally {
+      this.isOldAnswered = undefined;
     }
-    this.isOldAnswered = undefined;
     if (this.survey) {
       this.survey.questionValueChanged(this, oldValue);
     }
@@ -3429,9 +3526,14 @@ export class Question extends SurveyElement<Question>
     if (!this.hasIncorrectValueInData()) return;
     this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
   }
+  // Compares val with the question value (a value-change check, see Base.isTwoValueEquals).
+  // Unlike isNewValueEqualsToValue, the same array/object instance counts as equal.
+  protected isEqualToValue(val: any): boolean {
+    return this.isTwoValueEquals(this.value, val);
+  }
   protected isNewValueEqualsToValue(newValue: any): boolean {
     const val = this.value;
-    if (!this.isTwoValueEquals(newValue, val, false, false)) return false;
+    if (!this.isEqualToValue(newValue)) return false;
     const isObj = newValue === val && !!val && (Array.isArray(val) || typeof val === "object");
     return !isObj;
   }
@@ -3462,15 +3564,20 @@ export class Question extends SurveyElement<Question>
     this.setQuestionValue(newValue);
     if (this.data != null && this.canSetValueToSurvey()) {
       newValue = this.valueForSurvey;
-      this.data.setValue(
-        this.getValueName(),
-        newValue,
-        this.getDataLocNotification(),
-        this.allowNotifyValueChanged,
-        this.name
-      );
+      if (!this.canKeepEmptyValue() && this.isValueEmpty(newValue)) {
+        this.runDeletingEmptyValues((): void => this.setValueToData(newValue));
+      } else {
+        this.setValueToData(newValue);
+      }
     }
     this.isMouseDown = false;
+  }
+  private setValueToData(newValue: any): void {
+    this.data.setValue(this.getValueName(), newValue, this.getDataLocNotification(), this.allowNotifyValueChanged, this.name);
+  }
+  // data.keepEmptyValues: false for a question whose empty value is never the respondent's own clear.
+  protected canKeepEmptyValue(): boolean {
+    return true;
   }
   protected canSetValueToSurvey(): boolean {
     return true;
@@ -3525,26 +3632,29 @@ export class Question extends SurveyElement<Question>
     if (!this.checkIsValueCorrect(newValue)) return;
     const isEmpty = this.isValueEmpty(newValue);
     this.isUpdatingValueFromSurvey = true;
-    if (!isEmpty && this.defaultValueExpression) {
-      this.setDefaultValueCore((val: any): void => {
-        const isDefault = this.isTwoValueEquals(newValue, val);
-        this.updateValueFromSurveyCore(newValue, isDefault);
-        // A value assigned via survey.data/mergeData that differs from the default one is set directly,
-        // even if the question already holds it (e.g. the initial default equals the loaded value).
-        if (!isDefault && this.survey?.isSettingData()) {
-          this.setValueChangedDirectly(true);
+    try {
+      if (!isEmpty && this.defaultValueExpression) {
+        this.setDefaultValueCore((val: any): void => {
+          const isDefault = this.isTwoValueEquals(newValue, val);
+          this.updateValueFromSurveyCore(newValue, isDefault);
+          // A value assigned via survey.data/mergeData that differs from the default one is set directly,
+          // even if the question already holds it (e.g. the initial default equals the loaded value).
+          if (!isDefault && this.survey?.isSettingData()) {
+            this.setValueChangedDirectly(true);
+          }
+        });
+      } else {
+        this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
+        if (clearData && isEmpty) {
+          this.isValueChangedDirectly = false;
         }
-      });
-    } else {
-      this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
-      if (clearData && isEmpty) {
-        this.isValueChangedDirectly = false;
+        if (isEmpty) {
+          this.updateBindingsOnClearFromSurveyCore();
+        }
       }
-      if (isEmpty) {
-        this.updateBindingsOnClearFromSurveyCore();
-      }
+    } finally {
+      this.isUpdatingValueFromSurvey = false;
     }
-    this.isUpdatingValueFromSurvey = false;
     this.updateDependedQuestions();
     this.updateIsAnswered();
   }
@@ -3632,6 +3742,18 @@ export class Question extends SurveyElement<Question>
   public supportAutoAdvance(): boolean {
     return false;
   }
+  /**
+   * Specifies whether to display keyboard shortcut hints for this question.
+   *
+   * Default value: `undefined` (inherits the survey's [`showKeyboardHints`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showKeyboardHints) setting)
+   *
+   * Hints describe available keyboard actions, such as selecting choices or pressing Enter to continue. Displayed hints depend on the question type and settings.
+   *
+   * Keyboard hints are hidden on touch devices, in read-only or preview mode, for collapsed questions, and in matrix cells.
+   *
+   * [Demo: Keyboard Hints](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * @since 3.2.4
+   */
   @property() showKeyboardHints: boolean | undefined;
   public getKeyboardHintModel(): KeyboardHintModel {
     const hints = this.canShowKeyboardHints() ? this.getKeyboardHintsCore() : [];
@@ -3673,12 +3795,15 @@ export class Question extends SurveyElement<Question>
   protected get isAutoAdvanceOwner(): boolean {
     return (this.survey as SurveyModel)?.getQuestionByValueName(this.getValueName()) === this;
   }
+  // A question nested in a choice item is found by value name, but it is not in the page's question
+  // list, so the survey advances for it only when it is the single input on screen.
   public canAdvanceOnEnter(): boolean {
-    return this.isSurveyAutoAdvanceEnabled && this.isAutoAdvanceOwner;
+    if (!this.isSurveyAutoAdvanceEnabled || !this.isAutoAdvanceOwner) return false;
+    return !this.parentQuestion || this.parentQuestion.singleInputQuestion === this;
   }
   protected requestAutoAdvance(): boolean {
     if (!this.isAutoAdvanceOwner) return false;
-    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomaticCore(this.getValueName()));
+    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomatic(this.getValueName()));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();
@@ -3697,8 +3822,10 @@ export class Question extends SurveyElement<Question>
    * @see validate
    */
   public clearIncorrectValues(): void {
-    this.clearIncorrectOwnValue();
-    this.clearIncorrectNestedValues();
+    this.runDeletingEmptyValues((): void => {
+      this.clearIncorrectOwnValue();
+      this.clearIncorrectNestedValues();
+    });
   }
   // The question's own value, nested values excluded.
   protected clearIncorrectOwnValue(): void {

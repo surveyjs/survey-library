@@ -1,0 +1,108 @@
+{
+  "_id": "682330fbda82e92ff01ecd21",
+  "title": "NEW 9 3 2",
+  "name": "new932",
+  "path": "new932",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Container",
+      "tableView": false,
+      "validateWhenHidden": false,
+      "key": "container",
+      "type": "container",
+      "input": true,
+      "components": [
+        {
+          "collapsible": false,
+          "key": "panel",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Text Field",
+              "applyMaskOn": "change",
+              "tableView": true,
+              "validateWhenHidden": false,
+              "key": "textField",
+              "type": "textfield",
+              "input": true
+            }
+          ]
+        },
+        {
+          "collapsible": false,
+          "key": "panel1",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Text Field",
+              "applyMaskOn": "change",
+              "tableView": true,
+              "validateWhenHidden": false,
+              "key": "textField1",
+              "type": "textfield",
+              "input": true
+            }
+          ]
+        },
+        {
+          "label": "Tabs",
+          "key": "tabs",
+          "type": "tabs",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Tab 1",
+              "key": "tab1",
+              "components": [
+                {
+                  "label": "Text Field",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validateWhenHidden": false,
+                  "key": "textField2",
+                  "type": "textfield",
+                  "input": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Tabs",
+          "components": [
+            {
+              "label": "Tab 1",
+              "key": "tab2",
+              "components": []
+            }
+          ],
+          "key": "tabs1",
+          "type": "tabs",
+          "input": false,
+          "tableView": false
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "machineName": "lszihwhpgvtoncg:new932",
+  "project": "6811ed7a80ba48135398df84",
+  "created": "2025-05-13T11:46:03.004Z",
+  "modified": "2025-05-22T09:27:25.031Z"
+}

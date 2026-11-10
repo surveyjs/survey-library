@@ -440,14 +440,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private titleToolbarValue: AdaptiveActionContainer;
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
-      this.titleToolbarValue = <AdaptiveActionContainer>this.createActionContainer(true);
-      this.titleToolbarValue.setActionsAppearance({ style: "neutral", size: "small", mode: "secondary" });
-      this.titleToolbarValue.locOwner = this;
-      this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
-      this.titleToolbarValue.setItems(this.getTitleActions());
-      this.titleToolbarValue.flushUpdates();
-      this.titleToolbarValue.registerFunctionOnPropertyValueChanged("isEmpty", () => {
-        this.resetHasVisibleTitleActions();
+      Base.runUntracked(() => {
+        this.titleToolbarValue = <AdaptiveActionContainer>this.createActionContainer(true);
+        this.titleToolbarValue.setActionsAppearance({ style: "neutral", size: "small", mode: "secondary" });
+        this.titleToolbarValue.locOwner = this;
+        this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
+        this.titleToolbarValue.setItems(this.getTitleActions());
+        this.titleToolbarValue.flushUpdates();
+        this.titleToolbarValue.registerFunctionOnPropertyValueChanged("isEmpty", () => {
+          this.resetHasVisibleTitleActions();
+        });
       });
     }
     return this.titleToolbarValue;
@@ -542,9 +544,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.resetDescriptionVisibility();
       this.clearCssClasses();
     }
-    this.blockAnimations();
-    this.renderedIsExpanded = !this.isCollapsed;
-    this.releaseAnimations();
+    this.runWithoutAnimations(() => { this.renderedIsExpanded = !this.isCollapsed; });
   }
   public getValueGetterContext(): IValueGetterContext {
     const data = <IObjectValueContext><any>this.data;
@@ -709,13 +709,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private createCssClassesValue(): any {
     const callOnCalc = this.isCalculatingCssClasses;
     this.isCalculatingCssClasses = true;
-    const res = this.calcCssClasses(this.css);
-    if (!callOnCalc) {
-      this.onCalcCssClasses(res);
+    try {
+      const res = this.calcCssClasses(this.css);
+      if (!callOnCalc) {
+        this.onCalcCssClasses(res);
+      }
+      this.updateElementCssCore(res);
+      return res;
+    } finally {
+      this.isCalculatingCssClasses = false;
     }
-    this.updateElementCssCore(res);
-    this.isCalculatingCssClasses = false;
-    return res;
   }
   protected onCalcCssClasses(classes: any): void {}
   /**
@@ -810,7 +813,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.getArrayPropertyValue("errors");
   }
   public set errors(val: Array<SurveyError>) {
+    const isEmptied = this.errors.length > 0 && val.length === 0;
     this.setArrayPropertyValue("errors", val);
+    if (isEmptied) {
+      this.updateContainsErrors();
+    }
   }
   public get renderedErrors(): Array<SurveyError> {
     return this.getArrayPropertyValue("renderedErrors");

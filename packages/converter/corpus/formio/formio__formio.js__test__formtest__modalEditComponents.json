@@ -1,0 +1,87 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Checkbox",
+      "tableView": false,
+      "modalEdit": true,
+      "defaultValue": false,
+      "key": "checkbox",
+      "type": "checkbox",
+      "input": true
+    },
+    {
+      "label": "TextField",
+      "tableView": false,
+      "modalEdit": true,
+      "defaultValue": "",
+      "key": "textfield",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Select Boxes",
+      "optionsLabelPosition": "right",
+      "tableView": false,
+      "modalEdit": true,
+      "defaultValue": {
+        "": false,
+        "a": false,
+        "b": false
+      },
+      "values": [
+        {
+          "label": "a",
+          "value": "a",
+          "shortcut": ""
+        },
+        {
+          "label": "b",
+          "value": "b",
+          "shortcut": ""
+        }
+      ],
+      "key": "selectBoxes",
+      "type": "selectboxes",
+      "input": true,
+      "inputType": "checkbox"
+    },
+    {
+      "label": "Select",
+      "widget": "choicesjs",
+      "tableView": true,
+      "modalEdit": true,
+      "data": {
+        "values": [
+          {
+            "label": "e",
+            "value": "e"
+          },
+          {
+            "label": "f",
+            "value": "f"
+          }
+        ]
+      },
+      "selectThreshold": 0.3,
+      "key": "select",
+      "type": "select",
+      "indexeddb": {
+        "filter": {}
+      },
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "FJS-1033: Modal Edit",
+  "display": "form",
+  "name": "fjs1033ModalEdit",
+  "path": "fjs1033modaledit"
+}

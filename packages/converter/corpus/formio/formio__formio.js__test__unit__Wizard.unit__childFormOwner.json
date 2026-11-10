@@ -1,0 +1,21 @@
+{
+  "_id": "677d3efea934773d422a05f3",
+  "title": "Wizard Child Owner",
+  "name": "fdaWizardChildOwner",
+  "path": "fdawizardchildOwner",
+  "type": "form",
+  "components": [
+    {
+      "label": "Form",
+      "key": "form",
+      "type": "form",
+      "form": "677d3efea934773d422a05ec",
+      "lazyLoad": true
+    },
+    {
+      "label": "Submit",
+      "key": "submit",
+      "type": "button"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "_id": "677d3efea934773d422a05ec",
+  "title": "Wizard Child",
+  "name": "WizardChild",
+  "path": "wizardchild",
+  "type": "form",
+  "components": [
+    {
+      "label": "Text Field",
+      "key": "textField",
+      "type": "textfield",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Submit",
+      "key": "submit",
+      "type": "button"
+    }
+  ]
+}

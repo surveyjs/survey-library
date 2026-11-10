@@ -1,0 +1,92 @@
+{
+  "title": "test new simple conditionals",
+  "name": "testNewSimpleConditionals",
+  "path": "testnewsimpleconditionals",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Conditional Field",
+      "tableView": true,
+      "key": "conditionalField",
+      "conditional": {
+        "show": true,
+        "conjunction": "all",
+        "conditions": [
+          {
+            "component": "number",
+            "operator": "lessThan",
+            "value": 100
+          },
+          {
+            "component": "email",
+            "operator": "endsWith",
+            "value": "@form.io"
+          },
+          {
+            "component": "radio",
+            "operator": "isNotEmpty"
+          }
+        ]
+      },
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Number",
+      "mask": false,
+      "tableView": false,
+      "delimiter": false,
+      "requireDecimal": false,
+      "inputFormat": "plain",
+      "truncateMultipleSpaces": false,
+      "key": "number",
+      "type": "number",
+      "input": true
+    },
+    {
+      "label": "Email",
+      "tableView": true,
+      "key": "email",
+      "type": "email",
+      "input": true
+    },
+    {
+      "label": "Radio",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "one",
+          "value": "one",
+          "shortcut": ""
+        },
+        {
+          "label": "two",
+          "value": "two",
+          "shortcut": ""
+        },
+        {
+          "label": "three",
+          "value": "three",
+          "shortcut": ""
+        }
+      ],
+      "key": "radio",
+      "type": "radio",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "created": "2022-09-29T07:59:47.393Z",
+  "modified": "2022-09-29T08:02:54.472Z",
+  "machineName": "uubnbosxacwjzbk:testNewSimpleConditionals"
+}

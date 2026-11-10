@@ -1,5 +1,5 @@
-import { Page, test } from "@playwright/test";
-import { frameworks, url, initSurvey, axeOptions } from "./helper";
+import { Page } from "@playwright/test";
+import { frameworks, url, initSurvey, axeOptions, baseTest as test } from "./helper";
 import { injectAxe, checkA11y } from "axe-playwright";
 
 const title = "Panel";

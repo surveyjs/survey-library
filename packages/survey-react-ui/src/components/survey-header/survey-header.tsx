@@ -8,7 +8,7 @@ interface ISurveyHeaderProps {
   survey: SurveyModel;
 }
 
-export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
+export class SurveyHeader extends SurveyElementBase<ISurveyHeaderProps, any> {
   constructor(props: ISurveyHeaderProps) {
     super(props);
     this.state = { changed: 0 };
@@ -24,13 +24,12 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
   private rootRef: React.RefObject<HTMLDivElement>;
 
   componentDidMount() {
-    const self: SurveyHeader = this;
+    super.componentDidMount();
     this.survey.afterRenderHeader(this.rootRef.current as HTMLDivElement);
-    this.survey.locLogo.onChanged = function () {
-      self.setState({ changed: self.state.changed + 1 });
-    };
+    this.survey.locLogo.onChanged = () => { this.setState({ changed: this.state.changed + 1 }); };
   }
   componentWillUnmount() {
+    super.componentWillUnmount();
     this.survey.locLogo.onChanged = function () { };
   }
 
@@ -64,7 +63,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
       data: componentData,
     });
   }
-  public render(): React.JSX.Element | null {
+  public renderElement(): React.JSX.Element | null {
     if (!this.survey.renderedHasHeader) return null;
     return (
       <div className={this.css.header} ref={this.rootRef}>

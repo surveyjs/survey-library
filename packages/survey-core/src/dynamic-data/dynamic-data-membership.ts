@@ -2,8 +2,9 @@ import { ConditionRunner } from "../conditions/conditionRunner";
 import { applyFilter, applySort } from "./dynamic-data-filter";
 import { createIndexes } from "./dynamic-data-records";
 import { IDynamicDataField, ISortCriterion } from "./dynamic-data-interfaces";
+import type { ISurveySettings } from "../survey-settings";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
-import { Scope } from "../utils/scope";
+import { Scope, ValueScope } from "../utils/scope";
 
 // What the membership reads from DynamicDataList. Every member answers from the list's state when it
 // is called; nothing is cached on this side.
@@ -17,6 +18,8 @@ export interface IDynamicDataMembershipHost {
   // none, or when the source runs it.
   getLocalFilterRunner(): ConditionRunner;
   getLocalSort(): Array<ISortCriterion>;
+  // The settings of the owner's survey, for the local filter; undefined means the global settings.
+  getSurveySettings?(): ISurveySettings;
   // The owner materializes an object per record (isViewFrozenOnEdit) and the list has a local view.
   isMembershipFrozen(): boolean;
 }
@@ -54,7 +57,10 @@ export class DynamicDataMembership {
   private touchedIndexes: Array<number> = [];
   private addScope = new Scope();
   // Set by rebuild for the one decision of the view that keeps the touched records.
-  private keptTouched: Array<{ index: number, position: number }> = undefined;
+  private keptTouchedScope = new ValueScope<Array<{ index: number, position: number }>>(undefined);
+  private get keptTouched(): Array<{ index: number, position: number }> {
+    return this.keptTouchedScope.value;
+  }
   // One slot per view: with no owner-hidden records the created and the visible views are one array,
   // and the materialized one may be a third. A shared slot would rebuild its map on every switch.
   private createdPositions: ViewPositions = new ViewPositions();
@@ -188,7 +194,8 @@ export class DynamicDataMembership {
       // Read once, and only when the filter or the sort has to look at the records.
       const records = needFilter || needSort ? this.host.getRecords() : undefined;
       const fields = needFilter || needSort ? this.host.getFields() : undefined;
-      created = needFilter ? applyFilter(records, filterRunner, fields) : createIndexes(recordCount);
+      const surveySettings = needFilter && !!this.host.getSurveySettings ? this.host.getSurveySettings() : undefined;
+      created = needFilter ? applyFilter(records, filterRunner, fields, surveySettings) : createIndexes(recordCount);
       if (needSort) {
         created = applySort(records, sort, fields, created);
       }
@@ -246,12 +253,7 @@ export class DynamicDataMembership {
     const kept = this.takeKeptTouched(remap, previousCreated || this.frozenCreatedIndexes);
     this.resetMembership();
     this.resetViews();
-    this.keptTouched = kept;
-    try {
-      this.refreezeMembership();
-    } finally {
-      this.keptTouched = undefined;
-    }
+    this.keptTouchedScope.run(kept, (): void => this.refreezeMembership());
   }
   /* The owner changed how many records its storage holds without writing through the list. The
      records that are new join the view (an added record is always in it) and the ones that are gone

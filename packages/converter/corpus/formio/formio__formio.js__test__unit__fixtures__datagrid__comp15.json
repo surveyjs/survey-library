@@ -1,0 +1,56 @@
+{
+  "title": "11468",
+  "name": "11468",
+  "path": "11468",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Select clear value on data grid change",
+      "widget": "choicesjs",
+      "tableView": true,
+      "data": {
+        "values": [
+          {
+            "label": "a",
+            "value": "a"
+          },
+          {
+            "label": "b",
+            "value": "b"
+          }
+        ]
+      },
+      "refreshOn": "dataGrid",
+      "clearOnRefresh": true,
+      "validateWhenHidden": false,
+      "key": "selectClearValueOnDataGridChange",
+      "type": "select",
+      "input": true
+    },
+    {
+      "label": "Data Grid",
+      "reorder": false,
+      "addAnotherPosition": "bottom",
+      "layoutFixed": false,
+      "enableRowGroups": false,
+      "initEmpty": false,
+      "tableView": false,
+      "validateWhenHidden": false,
+      "key": "dataGrid",
+      "type": "datagrid",
+      "input": true,
+      "components": [
+        {
+          "label": "Text Field data grid",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validateWhenHidden": false,
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        }
+      ]
+    }
+  ]
+}

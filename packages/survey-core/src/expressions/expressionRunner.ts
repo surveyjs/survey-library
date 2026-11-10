@@ -3,6 +3,7 @@ import { IValueGetterContext, IValueGetterNameInfo, VariableGetterContextEx } fr
 import { IExpressionValidationOptions } from "../base";
 import { IExpressionError } from "./expressionError";
 import type { IExpressionExecutorBase } from "./expressionExecutor";
+import type { ISurveySettings } from "../survey-settings";
 
 export { IExpressionExecutorBase };
 
@@ -81,17 +82,25 @@ export class ExpressionRunnerBase {
   public canRun(): boolean {
     return this.expressionExecutor.canRun();
   }
-  public runContextCore(context: IValueGetterContext, properties?: HashTable<any>): any {
+  public runContextCore(context: IValueGetterContext, properties?: HashTable<any>, settings?: ISurveySettings): any {
     const id = this.getRunId ? this.getRunId() : ++this.runIdCounter;
-    if (this.onBeforeAsyncRun && this.isAsync) {
-      this.onBeforeAsyncRun(id);
+    try {
+      if (this.onBeforeAsyncRun && this.isAsync) {
+        this.onBeforeAsyncRun(id);
+      }
+      return this.expressionExecutor.runContext(context, properties, id, settings);
+    } catch(e) {
+      this.doAfterAsyncRun(id);
+      throw e;
     }
-    return this.expressionExecutor.runContext(context, properties, id);
   }
   public validate(context: IValueGetterContext, options: IExpressionValidationOptions, isCondition: boolean): IExpressionError[] {
     return this.expressionExecutor.validate(context, isCondition, options);
   }
   protected doOnComplete(res: any, id: number): void {
+    this.doAfterAsyncRun(id);
+  }
+  private doAfterAsyncRun(id: number): void {
     if (this.onAfterAsyncRun && this.isAsync) {
       this.onAfterAsyncRun(id);
     }
@@ -100,14 +109,17 @@ export class ExpressionRunnerBase {
 
 export class ExpressionRunner extends ExpressionRunnerBase {
   public onRunComplete: (result: any) => void;
-  public runValues(values: HashTable<any>, properties?: HashTable<any>): any {
-    return this.runContext(new VariableGetterContextEx(values, properties?.context), properties);
+  public runValues(values: HashTable<any>, properties?: HashTable<any>, settings?: ISurveySettings): any {
+    return this.runContext(new VariableGetterContextEx(values, properties?.context), properties, settings);
   }
-  public runContext(context: IValueGetterContext, properties?: HashTable<any>): any {
-    return this.runContextCore(context, properties);
+  public runContext(context: IValueGetterContext, properties?: HashTable<any>, settings?: ISurveySettings): any {
+    return this.runContextCore(context, properties, settings);
   }
   protected doOnComplete(res: any, id: number): void {
-    if (!!this.onRunComplete)this.onRunComplete(res);
-    super.doOnComplete(res, id);
+    try {
+      if (!!this.onRunComplete)this.onRunComplete(res);
+    } finally {
+      super.doOnComplete(res, id);
+    }
   }
 }

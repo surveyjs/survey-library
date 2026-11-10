@@ -94,7 +94,6 @@ frameworks.forEach((framework) => {
 
       await expect(contentItem).toBeVisible();
       await panelTitle.click();
-      await page.waitForTimeout(1000);
       await expect(contentItem).not.toBeVisible();
     });
 

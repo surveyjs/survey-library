@@ -1,5 +1,5 @@
-import { frameworks, url, initSurvey, compareScreenshot } from "../e2e/helper";
-import { test, expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, baseTest as test } from "../e2e/helper";
+import { expect } from "@playwright/test";
 
 const title = "Infinite Loop Screenshot";
 

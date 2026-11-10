@@ -1,0 +1,133 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "key": "textField",
+      "logic": [
+        {
+          "name": "On Click Button",
+          "trigger": {
+            "type": "event",
+            "event": "disabled"
+          },
+          "actions": [
+            {
+              "name": "Disabled Action on text field",
+              "type": "property",
+              "property": {
+                "label": "Disabled",
+                "value": "disabled",
+                "type": "boolean"
+              },
+              "state": true
+            }
+          ]
+        }
+      ],
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "disabled",
+      "action": "event",
+      "showValidations": false,
+      "theme": "info",
+      "tableView": false,
+      "key": "test",
+      "type": "button",
+      "event": "disabled",
+      "input": true
+    },
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "key": "textField1",
+      "logic": [
+        {
+          "name": "On Hide",
+          "trigger": {
+            "type": "event",
+            "event": "hide"
+          },
+          "actions": [
+            {
+              "name": "Hide Component",
+              "type": "property",
+              "property": {
+                "label": "Hidden",
+                "value": "hidden",
+                "type": "boolean"
+              },
+              "state": true
+            }
+          ]
+        }
+      ],
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Hide",
+      "action": "event",
+      "showValidations": false,
+      "theme": "danger",
+      "tableView": false,
+      "key": "hide",
+      "type": "button",
+      "input": true,
+      "event": "hide"
+    },
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "key": "textField2",
+      "logic": [
+        {
+          "name": "On Require",
+          "trigger": {
+            "type": "event",
+            "event": "require"
+          },
+          "actions": [
+            {
+              "name": "Require Component",
+              "type": "property",
+              "property": {
+                "label": "Required",
+                "value": "validate.required",
+                "type": "boolean"
+              },
+              "state": true
+            }
+          ]
+        }
+      ],
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Require",
+      "action": "event",
+      "showValidations": false,
+      "theme": "success",
+      "tableView": false,
+      "key": "hide1",
+      "type": "button",
+      "event": "require",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "FJS-1180",
+  "display": "form",
+  "name": "fjs1180"
+}

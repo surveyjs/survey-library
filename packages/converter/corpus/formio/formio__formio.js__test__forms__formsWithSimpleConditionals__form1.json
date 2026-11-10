@@ -1,0 +1,124 @@
+{
+  "_id": "672b166eb403d512b0f568bd",
+  "title": "ECB key issue",
+  "name": "ecbKeyIssue",
+  "path": "ecbkeyissue",
+  "type": "form",
+  "display": "form",
+  "owner": "672b16f7b403d512b0f56d59",
+  "components": [
+    {
+      "label": "Another container",
+      "tableView": false,
+      "key": "anotherContainerKey",
+      "type": "container",
+      "input": true,
+      "components": [
+        {
+          "label": "A select with the same key of a container in tab1. Select the option 'more'",
+          "widget": "choicesjs",
+          "tableView": true,
+          "data": {
+            "values": [
+              {
+                "label": "less",
+                "value": "less"
+              },
+              {
+                "label": "more",
+                "value": "more"
+              }
+            ]
+          },
+          "customOptions": {
+            "searchResultLimit": 100,
+            "fuseOptions": {
+              "threshold": 0.1,
+              "distance": 9000
+            }
+          },
+          "validateWhenHidden": false,
+          "key": "someDuplicatedKey",
+          "type": "select",
+          "input": true
+        },
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validateWhenHidden": false,
+          "key": "textField",
+          "conditional": {
+            "show": true,
+            "conjunction": "all",
+            "conditions": [
+              {
+                "component": "anotherContainerKey.someDuplicatedKey",
+                "operator": "isEqual",
+                "value": "more"
+              }
+            ]
+          },
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "label": "Here select yes, value will disappear",
+          "tableView": false,
+          "validateWhenHidden": false,
+          "key": "additionalContainer",
+          "conditional": {
+            "show": true,
+            "conjunction": "all",
+            "conditions": [
+              {
+                "component": "someDuplicatedKey",
+                "operator": "isEqual",
+                "value": "more"
+              }
+            ]
+          },
+          "type": "container",
+          "input": true,
+          "components": [
+            {
+              "label": "Number",
+              "applyMaskOn": "change",
+              "mask": false,
+              "tableView": false,
+              "delimiter": false,
+              "requireDecimal": false,
+              "inputFormat": "plain",
+              "truncateMultipleSpaces": false,
+              "validateWhenHidden": false,
+              "key": "number",
+              "type": "number",
+              "input": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "duplicate key",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "someDuplicatedKey",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "machineName": "testecb-izutenexavvxnws:ecbKeyIssue",
+  "project": "672b1664b403d512b0f564e0",
+  "created": "2024-11-06T07:10:38.132Z",
+  "modified": "2024-11-06T08:38:05.103Z"
+}

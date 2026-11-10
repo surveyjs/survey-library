@@ -53,8 +53,6 @@ export var icelandicSurveyStrings = {
   sortMoreAriaLabel: "Sýndu öll flokkunarstig",
   // [Auto-translated] "Add New"
   sortAddNewText: "Bættu við Nýju",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Flutningsflokkun á stigi {0}",
   // "Complete"

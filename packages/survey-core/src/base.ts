@@ -8,6 +8,7 @@ import {
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
+import { ISurveySettings, getSettingsOfSurvey } from "./survey-settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ExpressionRunner } from "./expressions/expressionRunner";
@@ -16,7 +17,7 @@ import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
-import { EventBase, Event } from "./event";
+import { EventBase, Event, EventAsync } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isAnimationEnabled } from "./utils/reduced-motion";
 import { Scope } from "./utils/scope";
@@ -252,6 +253,92 @@ export class ComputedUpdater<T = any> {
   }
 }
 
+export interface IPropertyAccessListener {
+  onPropertyAccessed(model: Base, propertyName: string): void;
+  blockTracking(): void;
+  releaseTracking(): void;
+}
+
+export interface IPropertyAccessTracker {
+  startTracking(): void;
+  stopTracking(): void;
+  unsubscribe(): void;
+  subscribe(): void;
+}
+
+// A render collects what it reads into pendingProperties; the commit (subscribe) swaps it in.
+// A render that React throws away (concurrent rendering, an error boundary) leaves the committed subscriptions working.
+export class PropertyAccessTracker implements IPropertyAccessListener, IPropertyAccessTracker {
+  // What the last committed render read. These models hold the tracker's callback while it is subscribed.
+  private trackedProperties: Map<Base, Set<string>> = new Map();
+  // What the current or last render read, until it is committed.
+  private pendingProperties: Map<Base, Set<string>> | undefined;
+  private prevListener: IPropertyAccessListener;
+  constructor(private onTrackedPropertyChanged: (model: Base, options: IPropertyArrayValueChangedEvent) => void) {}
+  private onPropertyChanged = (model: Base, options: IPropertyArrayValueChangedEvent) => {
+    if (PropertyAccessTracker.isTracking) return;
+    // A render that is not committed yet may already show the new value of a property the committed one did not read.
+    if (this.trackedProperties.get(model)?.has(options.name) || this.pendingProperties?.get(model)?.has(options.name)) {
+      this.onTrackedPropertyChanged(model, options);
+    }
+  };
+  private static get isTracking() {
+    return !!Base.currentPropertyAccessListener;
+  }
+  public onPropertyAccessed(model: Base, propertyName: string) {
+    if (this.isTrackingBlocked() || !this.pendingProperties) return;
+    let names = this.pendingProperties.get(model);
+    if (!names) {
+      names = new Set();
+      this.pendingProperties.set(model, names);
+    }
+    names.add(propertyName);
+  }
+  public startTracking() {
+    this.prevListener = Base.currentPropertyAccessListener;
+    Base.currentPropertyAccessListener = this;
+    this.pendingProperties = new Map();
+  }
+  public stopTracking() {
+    Base.currentPropertyAccessListener = this.prevListener;
+  }
+  // Without a render since the last call, it subscribes to the committed models again:
+  // React StrictMode and <Activity> unmount and mount a component again without rendering it.
+  public subscribe() {
+    const pending = this.pendingProperties;
+    if (!!pending) {
+      this.pendingProperties = undefined;
+      this.removeCallbacks();
+      this.trackedProperties = pending;
+    }
+    for (const model of this.trackedProperties.keys()) {
+      model.addOnArrayChangedCallback(this.onPropertyChanged);
+      model.addOnPropertyValueChangedCallback(this.onPropertyChanged);
+    }
+  }
+  // Keeps the committed properties, so that a mount without a render subscribes to them again.
+  public unsubscribe() {
+    this.pendingProperties = undefined;
+    this.removeCallbacks();
+  }
+  private removeCallbacks(): void {
+    for (const model of this.trackedProperties.keys()) {
+      model.removeOnPropertyValueChangedCallback(this.onPropertyChanged);
+      model.removeOnArrayChangedCallback(this.onPropertyChanged);
+    }
+  }
+  private trackingLock: number = 0;
+  isTrackingBlocked() {
+    return this.trackingLock > 0;
+  }
+  blockTracking() {
+    this.trackingLock++;
+  }
+  releaseTracking() {
+    this.trackingLock--;
+  }
+}
+
 /**
  * A base class for all SurveyJS objects.
  */
@@ -265,6 +352,7 @@ export class Base implements IObjectValueContext {
     }
     return Base.defaultIdGeneratorValue;
   }
+  public static currentPropertyAccessListener: IPropertyAccessListener;
   private static currentDependencis: Dependencies = undefined;
   public static finishCollectDependencies(): Dependencies {
     const deps = Base.currentDependencis;
@@ -342,7 +430,9 @@ export class Base implements IObjectValueContext {
     if (!this.propChangeHandlers) return undefined;
     const res = new Array<IPropChangeHandler>();
     this.propChangeHandlers.forEach(handlers => {
-      handlers.forEach(entry => res.push({ name: entry.name, func: entry.func, key: entry.key }));
+      handlers.forEach(entry => {
+        res.push({ name: entry.name, func: entry.func, key: entry.key });
+      });
     });
     return res;
   }
@@ -460,11 +550,13 @@ export class Base implements IObjectValueContext {
     const res = new EventBase<T, Options>();
     this.eventList.push(res);
     res.onCallbacksChanged = onCallbacksChanged;
+    res.isFireCounted = this.isSurvey;
     return res;
   }
   protected addAsyncEvent<T, Options = any>(): EventAsync<T, Options> {
     const res = new EventAsync<T, Options>();
     this.eventList.push(res);
+    res.isFireCounted = this.isSurvey;
     return res;
   }
   protected onBaseCreating(): void { }
@@ -754,7 +846,7 @@ export class Base implements IObjectValueContext {
     }
     if (!!calcFunc && Array.isArray(res) && res.length === 0 && (<any>res).isReset === true) {
       delete (<any>res).isReset;
-      this.setArrayPropertyDirectly(name, calcFunc(), false);
+      this.setArrayPropertyDirectly(name, Base.runUntracked(calcFunc), false);
       return res;
     }
     if (this.isValueUndefined(res)) {
@@ -762,7 +854,7 @@ export class Base implements IObjectValueContext {
       if (locStr) return locStr.text;
       if (!this.isValueUndefined(defaultValue)) return defaultValue;
       if (!!calcFunc) {
-        const newVal = calcFunc();
+        const newVal = Base.runUntracked(calcFunc);
         if (newVal !== undefined) {
           if (Array.isArray(newVal)) {
             const array = this.createNewArray(name);
@@ -778,6 +870,19 @@ export class Base implements IObjectValueContext {
       if (propDefaultValue !== undefined) return propDefaultValue;
     }
     return res;
+  }
+  // Runs func without recording the properties it reads into the current UI tracker, if any.
+  // A component that reads a calculated property depends on the property itself, not on what calcFunc reads;
+  // blocking only around calcFunc keeps plain reads during a render free of the block/release calls.
+  public static runUntracked<T>(func: () => T): T {
+    const listener = Base.currentPropertyAccessListener;
+    if (!listener) return func();
+    listener.blockTracking();
+    try {
+      return func();
+    } finally {
+      listener.releaseTracking();
+    }
   }
   protected isValueUndefined(value: any): boolean {
     return Helpers.isValueUndefined(value);
@@ -875,6 +980,9 @@ export class Base implements IObjectValueContext {
     if (Base.currentDependencis !== undefined && !this.isLoadingFromJson) {
       Base.collectDependency(this, name);
     }
+    if (Base.currentPropertyAccessListener) {
+      Base.currentPropertyAccessListener.onPropertyAccessed(this, name);
+    }
     if (this.getPropertyValueCoreHandler)
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];
@@ -895,7 +1003,7 @@ export class Base implements IObjectValueContext {
         if (!isCalcValue && !!this.onPropertyValueCoreChanged) {
           reportError = this.isDisposedValue;
           if (!reportError) {
-            this.onPropertyValueCoreChanged.fire(this, { name, newValue: val });
+            Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue: val });
           }
         }
       }
@@ -1263,10 +1371,19 @@ export class Base implements IObjectValueContext {
         }
         info.isRunning = true;
         runner.onRunComplete = (value: any) => {
-          onExecute(value);
-          info.isRunning = false;
+          try {
+            onExecute(value);
+          } finally {
+            info.isRunning = false;
+          }
         };
-        doRun();
+        try {
+          doRun();
+        } catch(e) {
+          // An async run ends in onRunComplete, a synchronous throw never gets there
+          info.isRunning = false;
+          throw e;
+        }
       }
     }
     return true;
@@ -1569,35 +1686,46 @@ export class Base implements IObjectValueContext {
     this.arraysInfo[name].isItemValues = true;
     return result;
   }
-  private onArrayChanged: EventBase<Base, IPropertyArrayValueChangedEvent>;
+  // UI components subscribe here, thousands per survey or page in a large survey.
+  // A Set keeps add and remove O(1); an EventBase scans its array on both.
+  private static fireUICallbacks<T>(getCallbacks: () => Set<(sender: Base, options: T) => void>, sender: Base, options: T): void {
+    // Iterate a copy, as EventBase.fire does: a callback that re-renders a component removes and re-adds
+    // itself, and a live Set iteration would call it again for this change.
+    const callbacks = Array.from(getCallbacks());
+    for (let i = 0; i < callbacks.length; i++) {
+      callbacks[i](sender, options);
+      if (!getCallbacks()) return;
+    }
+  }
+  private onArrayChanged: Set<(sender: Base, options: IPropertyArrayValueChangedEvent) => void>;
   public addOnArrayChangedCallback(callback: (sender: Base, options: IPropertyArrayValueChangedEvent) => void) {
     if (!this.onArrayChanged) {
-      this.onArrayChanged = new EventBase<Base, IPropertyArrayValueChangedEvent>();
+      this.onArrayChanged = new Set();
     }
     this.onArrayChanged.add(callback);
   }
   public removeOnArrayChangedCallback(callback: (sender: Base, options: IPropertyArrayValueChangedEvent) => void) {
     if (!!this.onArrayChanged) {
-      this.onArrayChanged.remove(callback);
-      if (this.onArrayChanged.isEmpty) {
+      this.onArrayChanged.delete(callback);
+      if (this.onArrayChanged.size === 0) {
         this.onArrayChanged = undefined;
       }
     }
   }
   private notifyArrayChanged(name: string, ar: any, arrayChanges: ArrayChanges) {
-    !!this.onArrayChanged && this.onArrayChanged.fire(this, { arrayChanges, name, newValue: ar, valueFromHash: this.propertyHash[name] });
+    !!this.onArrayChanged && Base.fireUICallbacks(() => this.onArrayChanged, this, { arrayChanges, name, newValue: ar, valueFromHash: this.propertyHash[name] });
   }
-  private onPropertyValueCoreChanged: EventBase<Base, IPropertyValueChangedEvent>;
+  private onPropertyValueCoreChanged: Set<(sender: Base, options: IPropertyValueChangedEvent) => void>;
   public addOnPropertyValueChangedCallback(callback: (sender: Base, options: IPropertyValueChangedEvent) => void) {
     if (!this.onPropertyValueCoreChanged) {
-      this.onPropertyValueCoreChanged = new EventBase<Base, IPropertyValueChangedEvent>();
+      this.onPropertyValueCoreChanged = new Set();
     }
     this.onPropertyValueCoreChanged.add(callback);
   }
   public removeOnPropertyValueChangedCallback(callback: (sender: Base, options: IPropertyValueChangedEvent) => void) {
     if (!!this.onPropertyValueCoreChanged) {
-      this.onPropertyValueCoreChanged.remove(callback);
-      if (this.onPropertyValueCoreChanged.isEmpty) {
+      this.onPropertyValueCoreChanged.delete(callback);
+      if (this.onPropertyValueCoreChanged.size === 0) {
         this.onPropertyValueCoreChanged = undefined;
       }
     }
@@ -1640,92 +1768,60 @@ export class Base implements IObjectValueContext {
     }
     this.arraysInfo[name] = { onPush: onPush, isItemValues: false };
     var self = this;
-    newArray.push = function (value): number {
-      var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
-      if (!self.isDisposedValue) {
-        if (onPush) onPush(value, newArray.length - 1);
-        const arrayChanges = new ArrayChanges(
-          newArray.length - 1,
-          0,
-          [value],
-          []
-        );
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
+    // Runs after the native call: every item is in place when the callbacks and subscribers see the array.
+    const onItemsChanged = (index: number, itemsToAdd: Array<any>, deletedItems: Array<any>): void => {
+      if (self.isDisposedValue) return;
+      if (onRemove) {
+        for (var i = 0; i < deletedItems.length; i++) {
+          onRemove(deletedItems[i]);
+        }
       }
+      if (onPush) {
+        for (var i = 0; i < itemsToAdd.length; i++) {
+          onPush(itemsToAdd[i], index + i);
+        }
+      }
+      const arrayChanges = new ArrayChanges(index, deletedItems.length, itemsToAdd, deletedItems);
+      self.propertyValueChanged(name, newArray, newArray, arrayChanges);
+      self.notifyArrayChanged(name, newArray, arrayChanges);
+    };
+    newArray.push = function (...items: Array<any>): number {
+      const oldLength = newArray.length;
+      var result = Object.getPrototypeOf(newArray).push.call(newArray, ...items);
+      if (items.length > 0) onItemsChanged(oldLength, items, []);
       return result;
     };
-    newArray.shift = function (): number {
+    newArray.shift = function (): any {
+      const oldLength = newArray.length;
       var result = Object.getPrototypeOf(newArray).shift.call(newArray);
-      if (!self.isDisposedValue && result) {
-        if (onRemove) onRemove(result);
-        const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
-      }
+      if (oldLength > 0) onItemsChanged(0, [], [result]);
       return result;
     };
-    newArray.unshift = function (value): number {
-      var result = Object.getPrototypeOf(newArray).unshift.call(
-        newArray,
-        value
-      );
-      if (!self.isDisposedValue) {
-        if (onPush) onPush(value, 0);
-        const arrayChanges = new ArrayChanges(0, 0, [value], []);
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
-      }
+    newArray.unshift = function (...items: Array<any>): number {
+      var result = Object.getPrototypeOf(newArray).unshift.call(newArray, ...items);
+      if (items.length > 0) onItemsChanged(0, items, []);
       return result;
     };
-    newArray.pop = function (): number {
+    newArray.pop = function (): any {
+      const oldLength = newArray.length;
       var result = Object.getPrototypeOf(newArray).pop.call(newArray);
-      if (!self.isDisposedValue) {
-        if (onRemove) onRemove(result);
-        const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
-      }
+      if (oldLength > 0) onItemsChanged(oldLength - 1, [], [result]);
       return result;
     };
-    newArray.splice = function (
-      start?: number,
-      deleteCount?: number,
-      ...items: any[]
-    ): any[] {
-      if (!start) start = 0;
-      if (!deleteCount) deleteCount = 0;
-      var result = Object.getPrototypeOf(newArray).splice.call(
-        newArray,
-        start,
-        deleteCount,
-        ...items
-      );
-      if (!items) items = [];
-      if (!self.isDisposedValue) {
-        if (onRemove && result) {
-          for (var i = 0; i < result.length; i++) {
-            onRemove(result[i]);
-          }
-        }
-        if (onPush) {
-          for (var i = 0; i < items.length; i++) {
-            onPush(items[i], start + i);
-          }
-        }
-        const arrayChanges = new ArrayChanges(
-          start,
-          deleteCount,
-          items,
-          result
-        );
-        self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(name, newArray, arrayChanges);
-      }
+    // The native splice tells an omitted deleteCount from an undefined one, so the arguments go as they came.
+    newArray.splice = function (...args: Array<any>): Array<any> {
+      const index = self.getSpliceIndex(args[0], newArray.length);
+      var result = Object.getPrototypeOf(newArray).splice.call(newArray, ...args);
+      onItemsChanged(index, args.slice(2), result);
       return result;
     };
 
     return newArray;
+  }
+  private getSpliceIndex(start: any, length: number): number {
+    // || 0: NaN, and the -0 that a start between -1 and 0 truncates to
+    const index = Math.trunc(Number(start)) || 0;
+    return index < 0 ? Math.max(length + index, 0) : Math.min(index, length);
   }
   protected getItemValueType(): string {
     return undefined;
@@ -1763,6 +1859,7 @@ export class Base implements IObjectValueContext {
     this.propertyValueChanged(name, deletedItems, dest, arrayChanges);
     this.notifyArrayChanged(name, dest, arrayChanges);
   }
+  // Value-change checks: case and trimming are always explicit, so the survey's comparator settings do not apply here
   protected isTwoValueEquals(
     x: any,
     y: any,
@@ -1770,6 +1867,19 @@ export class Base implements IObjectValueContext {
     trimString: boolean = false
   ): boolean {
     return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: !caseInSensitive, trimStrings: trimString, doNotConvertNumbers: true });
+  }
+  // Compares values as the survey does: caseSensitive and trimStrings come from its settings.
+  // The settings apply to two strings only (also inside two arrays or objects), so other pairs do not read them.
+  protected isTwoValueEqualsInSurvey(x: any, y: any): boolean {
+    if (x === y) return true;
+    const tX = typeof x;
+    const tY = typeof y;
+    const mayCompareStrings = tX === "string" && tY === "string" || tX === "object" && tY === "object" && x !== null && y !== null;
+    return Helpers.isTwoValueEquals(x, y, false, undefined, undefined, mayCompareStrings ? this.getSurveySettings() : undefined);
+  }
+  // The settings of the survey this object belongs to; undefined (the global settings) without one
+  protected getSurveySettings(): ISurveySettings {
+    return getSettingsOfSurvey(this.getSurvey());
   }
   private static copyObject(dst: any, src: any) {
     for (var key in src) {
@@ -1809,6 +1919,14 @@ export class Base implements IObjectValueContext {
   public releaseAnimations(): void {
     this.animationAllowedLock++;
   }
+  public runWithoutAnimations<T>(func: () => T): T {
+    this.blockAnimations();
+    try {
+      return func();
+    } finally {
+      this.releaseAnimations();
+    }
+  }
   //remove when knockout obsolete
   public supportOnElementRerenderedEvent = true;
   public onElementRerenderedEventEnabled = false;
@@ -1835,31 +1953,4 @@ export class ArrayChanges<T = any> {
     public itemsToAdd: T[],
     public deletedItems: T[]
   ) { }
-}
-
-export class EventAsync<Sender, Options = any> extends EventBase <Sender, Options> {
-  public fire(sender: Sender, options: Options, onComplete?: () => void, onFirstAsync?: () => void): void {
-    onComplete = onComplete || (() => { });
-    if (!this.callbacks) {
-      onComplete();
-      return;
-    }
-    const promises: Array<Promise<any>> = [];
-    const callbacks = [].concat(this.callbacks);
-    for (var i = 0; i < callbacks.length; i++) {
-      const res = callbacks[i](sender, options);
-      if (res && res instanceof Promise) {
-        promises.push(res);
-      }
-      if (!this.callbacks) return;
-    }
-    if (promises.length > 0) {
-      onFirstAsync && onFirstAsync();
-      Promise.all(promises).then(() => {
-        onComplete();
-      });
-    } else {
-      onComplete();
-    }
-  }
 }

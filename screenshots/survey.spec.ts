@@ -1,5 +1,5 @@
-import { test, expect, Page } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText } from "../e2e/helper";
+import { expect, Page } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText, baseTest as test } from "../e2e/helper";
 import { backgroundImage } from "../visualRegressionTests/constants";
 import { upArrowImageLink } from "../visualRegressionTests/helper";
 

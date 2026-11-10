@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 3.2.3 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 3.2.4 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.2.3/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.2.4/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 
@@ -88,6 +88,7 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `questionOrder` | `initial, random` | `"initial"` | Specifies the sort order of questions in the survey. |
 | `questionsOnPageMode` | `standard, singlePage, questionPerPage, inputPerPage` | `"standard"` | Specifies how to distribute survey elements between pages. |
 | `questionTitleLocation` | `top, bottom, left` | `"top"` | Gets or sets question title location relative to the input field: `"top"`, `"bottom"`, or `"left"`. |
+| `readOnlyMode` | `readonly, view` | `"readonly"` | Specifies how read-only questions are displayed. |
 | `showQuestionNumbers` | `on, onPage, recursive, off` | `"off"` | Specifies whether to display survey element numbers and how to calculate them. |
 | `textUpdateMode` | `onBlur, onTyping` | `"onBlur"` | Specifies when to update the question value in questions with a text input field. |
 | `timerInfoMode` | `page, survey, combined` | `"combined"` | Specifies whether the timer panel displays timers for the current page, the entire survey, or both. |
@@ -145,6 +146,7 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `title` *(loc)* | `string` |  | A title for the survey element. |
 | `validateVisitedEmptyFields` | `boolean` |  | Specifies whether to trigger validation when a user focuses on an empty input field and then leaves it without making any changes. |
 | `width` | `string` |  | A survey width in CSS values. |
+| `showKeyboardHints` | `boolean` | `false` |  |
 
 ## Shared question properties
 
@@ -213,6 +215,7 @@ A base class for the `PanelModel` and `PageModel` classes.
 | `questionErrorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position for questions that belong to this page/panel. |
 | `questionOrder` | `default, initial, random` | `"default"` | Specifies the sort order of questions in the panel/page. |
 | `questionTitleLocation` | `default, top, bottom, left, hidden` | `"default"` | Sets a title location relative to the input field for questions that belong to this panel/page. |
+| `readOnlyMode` | `default, readonly, view` | `"default"` | Specifies how the survey element is displayed when it is read-only. |
 | `description` *(loc)* | `string` |  | Explanatory text displayed under the title. |
 | `name` | `string` |  | A survey element identifier. |
 | `questionTitleWidth` | `string` |  | Sets consistent width for question titles in CSS values. |
@@ -241,6 +244,7 @@ A base class for all questions. Required: `name`.
 | `descriptionLocation` | `default, underInput, underTitle, hidden` | `"default"` | Specifies where to display a question description. |
 | `errorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position. |
 | `indent` | `0, 1, 2, 3` | `0` | Increases or decreases an indent of survey element content from the left edge. |
+| `readOnlyMode` | `default, readonly, view` | `"default"` | Specifies how the survey element is displayed when it is read-only. |
 | `state` | `default, collapsed, expanded` | `"default"` | Gets and sets the survey element's expand state. |
 | `titleLocation` | `default, top, bottom, left, hidden` | `"default"` | Sets question title location relative to the input field. |
 | `allowClear` | `boolean` |  | Specifies whether to display a button that clears the question value. |
@@ -263,6 +267,7 @@ A base class for all questions. Required: `name`.
 | `visible` | `boolean` | `true` | Gets or sets question visibility. |
 | `width` | `string` |  | Sets survey element width in CSS values. |
 | `bindings` | `string` |  |  |
+| `showKeyboardHints` | `boolean` |  |  |
 
 ### `selectbase`
 
@@ -1554,27 +1559,25 @@ An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic M
 
 ### `multipletextitem`
 
-A class that describes an item in a Multiple Textboxes question. Required: `name`.
-
-[API](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel.md)
+Required: `name`.
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `name` | `string` |  | An item ID that is not visible to respondents. Unique. |
-| `maskSettings` | `masksettings` |  | An object with properties that configure the mask applied to the input. |
-| `validators` | `array` of `surveyvalidator` |  | Item validators. |
-| `defaultValueExpression` | `expression` |  | An expression used to calculate the default item value. |
-| `maxValueExpression` | `expression` |  | An expression used to calculate the maximum item value. |
-| `minValueExpression` | `expression` |  | An expression used to calculate the minimum item value. |
-| `inputTextAlignment` | `left, right, auto` | `"auto"` | Specifies text alignment within the input field. |
-| `inputType` | `color, date, datetime-local, email, month, number, password, range, tel, text, time, url, week` | `"text"` | A value passed on to the `type` attribute of the underlying `<input>` element. |
-| `maskType` | `none, pattern, datetime, numeric, currency` | `"none"` | Specifies the type of a mask applied to the input. |
-| `inputSize` | `number` |  | A value passed on to the `size` attribute of the underlying `<input>` element. |
-| `isRequired` | `boolean` |  | Marks the item as required. |
-| `maxLength` | `number` | `-1` | The maximum text length measured in characters. |
-| `placeholder` *(loc)* | `string` |  | A placeholder for the input field. |
-| `requiredErrorText` *(loc)* | `string` |  | Specifies a custom error message for a required item. |
-| `title` *(loc)* | `string` |  | A user-friendly item label to display. |
+| `name` | `string` |  | Unique. |
+| `maskSettings` | `masksettings` |  |  |
+| `validators` | `array` of `surveyvalidator` |  |  |
+| `defaultValueExpression` | `expression` |  |  |
+| `maxValueExpression` | `expression` |  |  |
+| `minValueExpression` | `expression` |  |  |
+| `inputTextAlignment` | `left, right, auto` | `"auto"` |  |
+| `inputType` | `color, date, datetime-local, email, month, number, password, range, tel, text, time, url, week` | `"text"` |  |
+| `maskType` | `none, pattern, datetime, numeric, currency` | `"none"` |  |
+| `inputSize` | `number` |  |  |
+| `isRequired` | `boolean` |  |  |
+| `maxLength` | `number` | `-1` |  |
+| `placeholder` *(loc)* | `string` |  |  |
+| `requiredErrorText` *(loc)* | `string` |  |  |
+| `title` *(loc)* | `string` |  |  |
 
 ### `panellayoutcolumn`
 

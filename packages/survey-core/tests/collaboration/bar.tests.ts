@@ -2,20 +2,18 @@ import { describe, test, expect, afterEach } from "vitest";
 import { SurveyModel } from "survey-core";
 import { CollaborationPlugin } from "../../src/plugins/collaboration/index";
 import { COLLAB_BAR_ELEMENT_ID, COLLAB_BAR_INDEX } from "../../src/plugins/collaboration/bar/bar-model";
+import { createPlugin, disposePlugins } from "./collab-test-helpers";
 
 const json = { elements: [{ type: "text", name: "q1" }] };
 
-let plugins: Array<CollaborationPlugin> = [];
 afterEach(() => {
-  plugins.splice(0).forEach((p) => p.dispose());
+  disposePlugins();
   document.body.querySelectorAll(".collab-presence-layer").forEach((el) => el.remove());
 });
 
 function make(options: any = {}): { survey: SurveyModel, plugin: CollaborationPlugin } {
   const survey = new SurveyModel(json);
-  const plugin = new CollaborationPlugin(survey, options);
-  plugins.push(plugin);
-  return { survey, plugin };
+  return { survey, plugin: createPlugin(survey, options) };
 }
 
 function titles(plugin: CollaborationPlugin): Array<string> {
@@ -62,9 +60,8 @@ describe("the bar reaches the survey through the existing layout slot", () => {
   });
 
   test("dispose removes it again", () => {
-    const { survey, plugin } = make();
-    plugin.dispose();
-    plugins.length = 0;
+    const { survey } = make();
+    disposePlugins();
     const content = survey.getContainerContent("header" as any);
     expect(content.filter((e: any) => e.id === COLLAB_BAR_ELEMENT_ID)).toHaveLength(0);
   });
@@ -220,8 +217,7 @@ describe("participants", () => {
 describe("the bar can be switched off", () => {
   test("no layout element, and the delegating members stay silent", () => {
     const survey = new SurveyModel(json);
-    const plugin = new CollaborationPlugin(survey, { bar: false });
-    plugins.push(plugin);
+    const plugin = createPlugin(survey, { bar: false });
     expect(survey.getContainerContent("header" as any)
       .filter((e: any) => e.id === COLLAB_BAR_ELEMENT_ID)).toHaveLength(0);
     expect(plugin.bar).toBeUndefined();

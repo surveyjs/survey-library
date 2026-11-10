@@ -9,6 +9,7 @@ import { CustomError } from "./error";
 import { settings } from "./settings";
 import { Base } from "./base";
 import { IQuestion } from "./base-interfaces";
+import { getIdSelector } from "./utils/dom-utils";
 
 /* The fields an image map keeps in the object of a selected area: the area value under
    valuePropertyName while it selects several areas - a single selection stays a plain value.
@@ -202,6 +203,9 @@ export class QuestionImageMapModel extends Question {
   }
   public clearIncorrectValues(): void {
     super.clearIncorrectValues();
+    this.runDeletingEmptyValues((): void => this.clearInvisibleAreaValues());
+  }
+  private clearInvisibleAreaValues(): void {
     if (!this.value) return;
     if (this.isMultiSelect) {
       this.value = this.value.filter((val: any) => {
@@ -302,8 +306,8 @@ export class QuestionImageMapModel extends Question {
 
     if (!el) return;
 
-    this.bg = el.querySelector(`#${this.id}-bg`) as HTMLImageElement;
-    this.svg = el.querySelector(`#${this.id}-svg`) as SVGElement;
+    this.bg = el.querySelector(getIdSelector(this.renderedId + "-bg")) as HTMLImageElement;
+    this.svg = el.querySelector(getIdSelector(this.renderedId + "-svg")) as SVGElement;
 
     this.bg.addEventListener("load", this.onBgImageLoaded);
 

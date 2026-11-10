@@ -1,0 +1,18 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Some Field",
+      "type": "textfield",
+      "input": true,
+      "key": "someField"
+    },
+    {
+      "label": "Submit",
+      "action": "submit",
+      "type": "button",
+      "input": true,
+      "key": "submit"
+    }
+  ]
+}

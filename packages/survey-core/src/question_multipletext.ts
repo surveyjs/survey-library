@@ -59,6 +59,9 @@ export class MultipleTextEditorModel extends QuestionTextModel {
   public canAdvanceOnEnter(): boolean {
     return !!this.parentQuestion && this.parentQuestion.canAdvanceOnEnter();
   }
+  protected requestAutoAdvance(): boolean {
+    return !!this.parentQuestion && (<QuestionMultipleTextModel><any>this.parentQuestion).requestItemAutoAdvance();
+  }
   public get a11y_input_ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
@@ -680,6 +683,11 @@ export class QuestionMultipleTextModel extends Question
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return advanceKeyboardHints(this);
   }
+  // Internal. MultipleTextEditorModel calls this so an input can advance on Enter.
+  // Stays public because that model is not a subclass and requestAutoAdvance is protected.
+  public requestItemAutoAdvance(): boolean {
+    return this.requestAutoAdvance();
+  }
   /**
    * The number of columns used to arrange input items. Accepts the following values: 1, 2, 3, 4, 5.
    *
@@ -783,9 +791,7 @@ export class QuestionMultipleTextModel extends Question
     return super.validateElementCore(context) && res;
   }
   public getAllErrors(): Array<SurveyError> {
-    const res = super.getAllErrors();
-    this.forEachNestedElement(info => { res.push(...(<Question>info.element).getAllErrors()); }, allEditors);
-    return res;
+    return super.getAllErrors().concat(this.getNestedErrors());
   }
   public clearErrors() {
     super.clearErrors();
@@ -834,16 +840,19 @@ export class QuestionMultipleTextModel extends Question
   }
   setMultipleTextValue(name: string, value: any) {
     this.isMultipleItemValueChanging = true;
-    if (this.isValueEmpty(value)) {
-      value = undefined;
+    try {
+      if (this.isValueEmpty(value)) {
+        value = undefined;
+      }
+      var newValue = this.value;
+      if (!newValue) {
+        newValue = {};
+      }
+      newValue[name] = value;
+      this.setNewValue(newValue);
+    } finally {
+      this.isMultipleItemValueChanging = false;
     }
-    var newValue = this.value;
-    if (!newValue) {
-      newValue = {};
-    }
-    newValue[name] = value;
-    this.setNewValue(newValue);
-    this.isMultipleItemValueChanging = false;
   }
   getItemDefaultValue(name: string): any {
     return !!this.defaultValue ? this.defaultValue[name] : null;

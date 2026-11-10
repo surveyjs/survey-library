@@ -29,10 +29,17 @@ export function getLiterals(pattern: string): Array<IMaskLiteral> {
   let prevCharIsEscaped = false;
   const definitionsKeys = Object.keys(settings.maskSettings.patternDefinitions);
 
+  const escapeChar = settings.maskSettings.patternEscapeChar;
+
   for (let index = 0; index < pattern.length; index++) {
     const currentChar = pattern[index];
-    if (currentChar === settings.maskSettings.patternEscapeChar) {
+    if (currentChar === escapeChar && !prevCharIsEscaped) {
       prevCharIsEscaped = true;
+    } else if (currentChar === escapeChar) {
+      // An escaped escape character is shown as is. It is typed like an unescaped non-definition
+      // character, so the default "\" is "const" and is not stored in the value.
+      prevCharIsEscaped = false;
+      result.push({ type: getNonDefinitionType(currentChar), value: currentChar });
     } else if (prevCharIsEscaped) {
       prevCharIsEscaped = false;
       result.push({ type: "fixed", value: currentChar });
@@ -182,10 +189,11 @@ export class InputMaskPattern extends InputMaskBase {
     this.literals = getLiterals(this.pattern || "");
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
-    super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "pattern") {
       this.updateLiterals();
     }
+    // the base re-reads the saved text, so it comes after the literals
+    super.onPropertyValueChanged(name, oldValue, newValue);
   }
 
   public getType(): string {

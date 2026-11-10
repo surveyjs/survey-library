@@ -27,6 +27,7 @@ import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts";
 import { Scope } from "./utils/scope";
+import { getIdSelector } from "./utils/dom-utils";
 
 const OTHER_ITEM_VALUE = "other";
 // The key a choice comment is kept under in the object of a selected item (commentPropertyValue).
@@ -166,7 +167,7 @@ export class ChoiceItem extends ItemValue {
       const cssClasses = this.choiceOwner.getCssClassesForCommentPanelAnimation("panel");
       this.panelAnimationValue = new AnimationBoolean({
         getAnimatedElement: ()=> {
-          return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
+          return this.choiceOwner.getWrapperElement()?.querySelector(getIdSelector(this.panel.renderedId)) as HTMLElement;
         },
         getEnterOptions() {
           return { cssClass: cssClasses.onEnter,
@@ -520,16 +521,22 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return super.validateElementCore(context) && res;
   }
-  private isChoicePanelsValidationSuppressed: boolean;
+  // A select without choice panels walks nothing, see forEachNestedElementCore.
+  public getAllErrors(): Array<SurveyError> {
+    return super.getAllErrors().concat(this.getNestedErrors());
+  }
+  public clearErrors(): void {
+    super.clearErrors();
+    this.forEachNestedElement(info => info.element.clearErrors(), { build: "none", visibleOnly: false });
+  }
+  private choicePanelsValidationSuppressingScope = new Scope();
+  private get isChoicePanelsValidationSuppressed(): boolean {
+    return this.choicePanelsValidationSuppressingScope.isActive;
+  }
   // Used by Next on the question's own step in inputPerPage mode: the nested choice elements are
   // not on screen yet and get validated on their own steps. Every other validation path checks them.
   public validateWithoutChoicePanels(): boolean {
-    this.isChoicePanelsValidationSuppressed = true;
-    try {
-      return this.validate(true, true);
-    } finally {
-      this.isChoicePanelsValidationSuppressed = false;
-    }
+    return this.choicePanelsValidationSuppressingScope.run(() => this.validate(true, true));
   }
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;
@@ -899,7 +906,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private updateValuePropertyOnChoicesChanged(propName: string): void {
     const val = (<any>this)[propName];
     const newValue = this.getValueOnChoicesChanged(val);
-    if (Helpers.isTwoValueEquals(val, newValue)) return;
+    if (this.isTwoValueEqualsInSurvey(val, newValue)) return;
     if (this.isValueEmpty(newValue)) {
       (<any>this)[propName] = undefined;
       //an array-valued property keeps an empty array on resetting, so remove it explicitly
@@ -1092,7 +1099,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.setPropertyValue("renderedValue", val);
     if (changeValue && !this.isReadOnlyAttr) {
       val = this.rendredValueToData(val);
-      if (!this.isTwoValueEquals(val, this.value)) {
+      if (!this.isEqualToValue(val)) {
         this.value = val;
       }
     }
@@ -1144,10 +1151,29 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   private makeCommentEmpty: boolean;
+  /* What a question holds for the old record goes with it (Question.resetForAnotherRecord):
+     - the comment typed for a choice - of the visible choices too, which are copies under choicesFromQuestion;
+     - the "other" text: with showCommentArea the value reset does not clear it, and the next "other"
+       answer would write it into the new record;
+     - the "other" text typed before it, which would show the empty "other" error on a value change;
+     - the old value kept for a choices request;
+     - the comment clearing the value reset leaves pending - the next value write would carry it out. */
+  protected resetForAnotherRecord(): void {
+    super.resetForAnotherRecord();
+    const clearComment = (item: ItemValue): void => {
+      if ((<ChoiceItem>item).showCommentArea && !this.isOtherItemByValue(item))this.setCommentPropertyValue(item, undefined);
+    };
+    this.choices.forEach(clearComment);
+    this.visibleChoices.forEach(clearComment);
+    this.otherValueCore = "";
+    this.prevOtherErrorValue = undefined;
+    this.cachedValueForUrlRequests = undefined;
+    this.makeCommentEmpty = false;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true, updateComment: boolean = true): void {
     if (
       this.isLoadingFromJson ||
-      this.isTwoValueEquals(this.value, newValue)
+      this.isEqualToValue(newValue)
     )
       return;
     this.setRenderedValue(this.rendredValueFromData(newValue), false);
@@ -1796,7 +1822,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     for (var i = 0; i < value.length; i++) {
       vals.push(!onGetValueCallback ? value[i] : onGetValueCallback(i));
     }
-    if (Helpers.isTwoValueEquals(this.value, vals)) {
+    if (this.isTwoValueEqualsInSurvey(this.value, vals)) {
       this.getMultipleSelectedItems().forEach((item, index) => strs.push(this.getItemDisplayValue(item, vals[index], isReadOnly)));
     }
     if (strs.length === 0) {
@@ -1959,6 +1985,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return false;
   }
+  // Unlike hasActiveChoices, a regular choice hidden by its visibleIf still counts:
+  // the question knows its choices even when none of them is visible right now.
+  protected get hasRegularChoices(): boolean {
+    if (this.activeChoices.some(item => !this.isBuiltInChoice(item))) return true;
+    // A copy of a ready question is complete even when it is empty (nothing is selected in the source);
+    // while the source still loads its choices (choicesByUrl), the copy may lack them.
+    const source = this.isUsingCarryForward ? this.getCarryForwardQuestion() : null;
+    return !!source && source.isReady;
+  }
   public isBuiltInChoice(item: ItemValue): boolean {
     return !!item && [this.otherItemValue, this.noneItemValue, this.refuseItemValue, this.dontKnowItemValue, this.newItemValue].indexOf(item) > -1;
   }
@@ -2074,9 +2109,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return super.getFirstErrorInputElementId();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    this.isRunningChoicesValue = true;
-    super.setSurveyImpl(value, isLight);
-    this.isRunningChoicesValue = false;
+    this.runningChoicesScope.run(() => super.setSurveyImpl(value, isLight));
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
@@ -2160,8 +2193,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     if (!!newComment) {
       this.isUpdatingValueFromSurvey = true;
-      this.setNewComment(newComment);
-      this.isUpdatingValueFromSurvey = false;
+      try {
+        this.setNewComment(newComment);
+      } finally {
+        this.isUpdatingValueFromSurvey = false;
+      }
     }
     this.updateValueForPanels(clearData, false);
   }
@@ -2204,7 +2240,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       target.value = val || "";
     }
   }
-  private isRunningChoicesValue: boolean = false;
+  private runningChoicesScope = new Scope();
+  private get isRunningChoicesValue(): boolean {
+    return this.runningChoicesScope.isActive;
+  }
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
     if (!this.choicesByUrlValue || this.isLoadingFromJson || this.isRunningChoicesValue || this.isInDesignMode || this.choicesLazyLoadEnabled)
@@ -2215,9 +2254,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!processor) processor = this.survey;
     if (!processor) return;
     this.updateIsReady();
-    this.isRunningChoicesValue = true;
-    this.choicesByUrl.run(processor);
-    this.isRunningChoicesValue = false;
+    this.runningChoicesScope.run(() => this.choicesByUrl.run(processor));
   }
   private get isRunningChoices(): boolean {
     return this.isRunningChoicesValue || this.choicesByUrlValue?.isRunning;
@@ -2280,13 +2317,19 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.choicesFromUrl = newChoices;
     this.filterItems();
     this.onVisibleChoicesChanged();
+    // The loaded choices decide the value: a value they drop is a system clear (data.keepEmptyValues)
+    this.runDeletingEmptyValues((): void => this.updateValueOnChoicesFromUrl(newChoices, cachedValues));
+    this.errors = errors;
+    this.choicesLoaded();
+  }
+  private updateValueOnChoicesFromUrl(newChoices: Array<ItemValue>, cachedValues: any): void {
     if (newChoices) {
       var newValue = this.updateCachedValueForUrlRequests(
         cachedValues,
         newChoices
       );
       if (!!newValue && !this.isReadOnly) {
-        var hasChanged = !this.isTwoValueEquals(this.value, newValue.value);
+        var hasChanged = !this.isEqualToValue(newValue.value);
         try {
           if (!this.isValueEmpty(newValue.value)) {
             this.allowNotifyValueChanged = false;
@@ -2306,8 +2349,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!this.isReadOnly && !newChoices && !this.isFirstLoadChoicesFromUrl) {
       this.value = null;
     }
-    this.errors = errors;
-    this.choicesLoaded();
   }
   private createCachedValueForUrlRequests(
     val: any,
@@ -2970,6 +3011,8 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
    * When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that respondents can type while the question has focus. In questions that allow multiple selection, shortcuts toggle choice selection.
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   *
+   * [Demo: Letter Shortcuts](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @hidefor QuestionRankingModel
    * @since 3.2.2
    */

@@ -178,7 +178,7 @@ export class Survey extends SurveyElementBase<any, any>
       style.maxWidth = this.survey.renderedWidth;
     }
     return (
-      <div className={this.survey.bodyContainerCss}>
+      <div key={this.key} className={this.survey.bodyContainerCss}>
         <ComponentsContainer survey={this.survey} container={"left"}></ComponentsContainer>
         <div className="sv-components-column sv-components-column--expandable">
           <ComponentsContainer survey={this.survey} container={"center"}></ComponentsContainer>
@@ -253,6 +253,13 @@ export class Survey extends SurveyElementBase<any, any>
         continue;
       }
       if (newProps[key] === oldProps[key]) continue;
+      if (key == "settings") {
+        // Data for the model's settings() method; assigning it would replace the method. An absent value applies nothing
+        if (newProps.settings !== undefined && newProps.settings !== null) {
+          this.survey.settings(newProps.settings);
+        }
+        continue;
+      }
       if (key.indexOf("on") == 0 && this.survey[key] && this.survey[key].add) {
         if (!!oldProps[key]) {
           this.survey[key].remove(oldProps[key]);
@@ -263,18 +270,15 @@ export class Survey extends SurveyElementBase<any, any>
       }
     }
   }
-
+  private key = 0;
   protected setSurveyEvents() {
-    var self = this;
-
-    this.survey.renderCallback = function () {
-      var counter =
-        !!self.state && !!self.state.modelChanged ? self.state.modelChanged : 0;
-      self.setState({ modelChanged: counter + 1 });
+    this.survey.renderCallback = () => {
+      this.key++;
+      this.forceUpdate();
     };
     this.survey.onPartialSend.add((sender) => {
-      if (!!self.state) {
-        self.setState(self.state);
+      if (!!this.state) {
+        this.setState(this.state);
       }
     });
   }

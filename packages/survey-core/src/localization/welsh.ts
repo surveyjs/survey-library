@@ -53,8 +53,6 @@ export var welshSurveyStrings = {
   sortMoreAriaLabel: "Dangos pob lefel trefnu",
   // [Auto-translated] "Add New"
   sortAddNewText: "Ychwanegu Newydd",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Symud lefel trefn {0}",
   // "Complete"

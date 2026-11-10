@@ -2,7 +2,13 @@ import { HashTable, Helpers, createDate } from "../helpers";
 import { FunctionFactory } from "../functionsfactory";
 import { ProcessValue } from "../conditions/conditionProcessValue";
 import { settings } from "../settings";
+import { ISurveySettings, getSurveySetting } from "../survey-settings";
 import { ExpressionErrorType, IExpressionError } from "./expressionError";
+
+// Set by static blocks in Const and Variable: BinaryOperand reads their private state through these,
+// so the state stays out of the public API.
+let isQuotedTextLiteral: (op: Const) => boolean;
+let getTextBeforeConversion: (op: Variable) => string | undefined;
 
 export interface AsyncFunctionItem {
   operand?: FunctionOperand;
@@ -10,11 +16,56 @@ export interface AsyncFunctionItem {
   children?: Array<AsyncFunctionItem>;
 }
 
+// Hooks for Operand.toString. A hook that returns undefined or "" keeps the default text.
+// operandToString is called first for every node and replaces the whole node, as the toString(func) callback does.
+export interface IOperandToStringContext {
+  operandToString?(op: Operand): string;
+  variableToString?(op: Variable): string;
+  // comparedWith is the variable on the other side of a comparison, for a const that is the comparison's direct
+  // operand or an item of an array that is. Elsewhere (function parameters, arithmetic) it is undefined.
+  constToString?(op: Const, comparedWith: Variable): string;
+  operatorToString?(operatorName: string, op: Operand): string;
+  skipRootBrackets?: boolean;
+}
+
+// Set by static blocks in Operand and ArrayOperand: a node renders its children through these. A static block can call
+// the protected toStringCore (and ArrayOperand's private itemsToString) of another instance, so the traversal stays out
+// of the public API. Its state (the root, the compared variable) is passed as arguments and never stored on the
+// context, so one context object can be reused, also by a hook that renders another expression in the middle of a
+// traversal.
+let renderOperand: (op: Operand, context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable) => string;
+let renderArrayItems: (op: ArrayOperand, context: IOperandToStringContext) => string;
+
+const emptyToStringContext: IOperandToStringContext = {};
+function toOperandToStringContext(func: ((op: Operand) => string) | IOperandToStringContext): IOperandToStringContext {
+  if (!func) return emptyToStringContext;
+  // the callback is called as a plain function, as before
+  if (typeof func === "function") return { operandToString: (op: Operand) => func(op) };
+  return func;
+}
+function operatorText(context: IOperandToStringContext, operatorName: string, op: Operand): string {
+  const res = !!context.operatorToString ? context.operatorToString(operatorName, op) : undefined;
+  return !!res ? res : OperandMaker.operatorToString(operatorName);
+}
+
 export abstract class Operand {
   private static counter = 1;
   private _id: number = Operand.counter ++;
+  static {
+    renderOperand = (op: Operand, context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string => {
+      if (!!context.operandToString) {
+        const res = context.operandToString(op);
+        if (!!res) return res;
+      }
+      return op.toStringCore(context, isRoot, comparedWith);
+    };
+  }
   public get id(): number { return this._id; }
-  public toString(func: (op: Operand) => string = undefined): string {
+  public toString(func?: ((op: Operand) => string) | IOperandToStringContext): string {
+    return renderOperand(this, toOperandToStringContext(func), true, undefined);
+  }
+  // Renders the node itself: the context's operandToString has already been asked and kept the default.
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
     return "";
   }
   public abstract getType(): string;
@@ -67,9 +118,18 @@ export abstract class Operand {
   }
 }
 
+// The operators that compare a variable's text with a quoted literal. A negative operator is the
+// exact negation of its positive counterpart.
+const textCompareOperators: HashTable<"positive" | "negative"> = {
+  equal: "positive", contains: "positive", anyof: "positive", allof: "positive",
+  notequal: "negative", notcontains: "negative", noneof: "negative"
+};
+
 export class BinaryOperand extends Operand {
   private consumer: Function;
   private isArithmeticValue: boolean;
+  private isTextCompare: boolean;
+  private textVariable: Variable;
   constructor(
     private operatorName: string,
     private left: any = null,
@@ -89,6 +149,21 @@ export class BinaryOperand extends Operand {
     if (this.consumer == null) {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
+    this.isTextCompare = !isArithmeticOp && Object.prototype.hasOwnProperty.call(textCompareOperators, operatorName);
+    if (this.isTextCompare) {
+      this.textVariable = this.getTextVariable(this.left, this.right) || this.getTextVariable(this.right, this.left);
+    }
+  }
+  // A variable compared with a quoted literal: its text is compared before the converted value.
+  private getTextVariable(op: Operand, other: Operand): Variable {
+    if (!(op instanceof Variable) || !other) return undefined;
+    if (other instanceof ArrayOperand) {
+      return other.values.some(val => this.isQuotedLiteral(val)) ? op : undefined;
+    }
+    return this.isQuotedLiteral(other) ? op : undefined;
+  }
+  private isQuotedLiteral(op: Operand): boolean {
+    return op instanceof Const && op.getType() === "const" && isQuotedTextLiteral(op);
   }
   private get requireStrictCompare(): boolean {
     return this.getIsOperandRequireStrict(this.left) ||
@@ -128,29 +203,76 @@ export class BinaryOperand extends Operand {
     return x == null ? null : x.evaluate(processValue);
   }
 
-  public evaluate(processValue?: ProcessValue): any {
-    return this.consumer.call(
-      this,
-      this.evaluateParam(this.left, processValue),
-      this.evaluateParam(this.right, processValue),
-      this.requireStrictCompare
-    );
+  // The text a variable operand read as a number in its last evaluate; undefined otherwise
+  private getNumericText(op: Operand, value: any): string | undefined {
+    if (!this.isTextCompare || typeof value !== "number" || !(op instanceof Variable)) return undefined;
+    return getTextBeforeConversion(op);
+  }
+  // A text, a variable's text read as a number or a boolean ("true"), or an array with a text item:
+  // not an actual number (comparator.numericTextAsText)
+  private static isTextSide(op: Operand, value: any, numericText: string | undefined): boolean {
+    if (numericText !== undefined || typeof value === "string") return true;
+    if (op instanceof Variable && getTextBeforeConversion(op) !== undefined) return true;
+    return Array.isArray(value) && value.some((item: any) => typeof item === "string");
+  }
+  // In an array compared with a restored text, a number item equal to the text's number is an actual number:
+  // it becomes the text, so it still matches ("1,5" and [1.5, "x"]). A copy: the array may be the survey's data.
+  private static numberItemsToText(value: any, num: number, text: string): any {
+    if (!Array.isArray(value) || value.indexOf(num) < 0) return value;
+    return value.map((item: any) => item === num ? text : item);
   }
 
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
-      if (!!res) return res;
+  public evaluate(processValue?: ProcessValue): any {
+    let left = this.evaluateParam(this.left, processValue);
+    let leftText = this.textVariable === this.left ? getTextBeforeConversion(this.textVariable) : undefined;
+    const leftNumericText = this.getNumericText(this.left, left);
+    let right = this.evaluateParam(this.right, processValue);
+    let rightText = this.textVariable === this.right ? getTextBeforeConversion(this.textVariable) : undefined;
+    const rightNumericText = this.getNumericText(this.right, right);
+    const strictCompare = this.requireStrictCompare;
+    const surveySettings = processValue?.settings;
+    if ((leftNumericText !== undefined || rightNumericText !== undefined) &&
+      getSurveySetting(surveySettings, "comparator", "numericTextAsText")) {
+      // A variable's text read as a number goes back to the text when the other side is a text too, so the
+      // operator compares texts (under the comparator's case and trim rules). Against an actual number
+      // (a number literal, a numeric value) the converted value stays. Both sides are decided before either changes.
+      const restoreLeft = leftNumericText !== undefined && BinaryOperand.isTextSide(this.right, right, rightNumericText);
+      const restoreRight = rightNumericText !== undefined && BinaryOperand.isTextSide(this.left, left, leftNumericText);
+      if (restoreLeft) {
+        right = BinaryOperand.numberItemsToText(right, left, leftNumericText);
+        left = leftNumericText;
+        leftText = undefined;
+      }
+      if (restoreRight) {
+        left = BinaryOperand.numberItemsToText(left, right, rightNumericText);
+        right = rightNumericText;
+        rightText = undefined;
+      }
     }
-    return (
-      "(" +
-      OperandMaker.safeToString(this.left, func) +
-      " " +
-      OperandMaker.operatorToString(this.operatorName) +
-      " " +
-      OperandMaker.safeToString(this.right, func) +
-      ")"
-    );
+    if (leftText !== undefined || rightText !== undefined) {
+      // The variable's text was converted ("1,000" reads as 1), while a quoted literal never is.
+      // Compare the text first: only when that comparison fails, compare the converted value.
+      const textRes = this.consumer.call(this,
+        leftText !== undefined ? leftText : left,
+        rightText !== undefined ? rightText : right,
+        strictCompare, surveySettings);
+      const isPositive = textCompareOperators[this.operatorName] === "positive";
+      if (textRes === isPositive) return textRes;
+    }
+    return this.consumer.call(this, left, right, strictCompare, surveySettings);
+  }
+
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    const opText = operatorText(context, this.operatorName, this);
+    const isComparison = !this.isArithmetic && !this.isConjunction;
+    const text = this.childToString(this.left, context, isComparison ? this.right : undefined) + " " + opText + " " +
+      this.childToString(this.right, context, isComparison ? this.left : undefined);
+    return isRoot && context.skipRootBrackets ? text : "(" + text + ")";
+  }
+  // other is the operand on the other side of a comparison: a variable there is what a const child is compared with
+  private childToString(op: Operand, context: IOperandToStringContext, other: Operand): string {
+    if (!op) return "";
+    return renderOperand(op, context, false, !!other && other.getType() === "variable" ? <Variable>other : undefined);
   }
 
   public setVariables(variables: Array<string>) {
@@ -234,14 +356,10 @@ export class UnaryOperand extends Operand {
   public getType(): string {
     return "unary";
   }
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
-      if (!!res) return res;
-    }
-    const opName = OperandMaker.operatorToString(this.operator);
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    const opName = operatorText(context, this.operator, this);
     // a null operand is the "null"/"undefined" literal
-    const exp = !!this.expression ? this.expression.toString(func) : "null";
+    const exp = !!this.expression ? renderOperand(this.expression, context, false, undefined) : "null";
     return this.isRigtOperator ? exp + " " + opName : opName + " " + exp;
   }
   private get isRigtOperator(): boolean {
@@ -290,20 +408,27 @@ export class ArrayOperand extends Operand {
   public getType(): string {
     return "array";
   }
-  public toString(func: (op: Operand) => string = undefined, noBrackets?: boolean): string {
-    if (!!func) {
-      const res = func(this);
-      if (!!res) return res;
-    }
-
-    // a null item is the "null"/"undefined" literal
-    let res = this.values
-      .map(function(el: Operand) {
-        return el == null ? "null" : el.toString(func);
-      })
+  static {
+    // Function parameters: the items without the brackets
+    renderArrayItems = (op: ArrayOperand, context: IOperandToStringContext): string => {
+      if (!!context.operandToString) {
+        const res = context.operandToString(op);
+        if (!!res) return res;
+      }
+      return op.itemsToString(context, undefined);
+    };
+  }
+  public toString(func?: ((op: Operand) => string) | IOperandToStringContext, noBrackets?: boolean): string {
+    return noBrackets ? renderArrayItems(this, toOperandToStringContext(func)) : super.toString(func);
+  }
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    return "[" + this.itemsToString(context, comparedWith) + "]";
+  }
+  private itemsToString(context: IOperandToStringContext, comparedWith: Variable): string {
+    // a null item is the "null"/"undefined" literal; only a const item is compared with the variable
+    return this.values
+      .map((el: Operand) => el == null ? "null" : renderOperand(el, context, false, el.getType() === "const" ? comparedWith : undefined))
       .join(", ");
-
-    return !noBrackets ? "[" + res + "]" : res;
   }
 
   public evaluate(processValue?: ProcessValue): Array<any> {
@@ -361,9 +486,9 @@ export class Const extends Operand {
   public getType(): string {
     return "const";
   }
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    if (!!context.constToString) {
+      const res = context.constToString(this, comparedWith);
       if (!!res) return res;
     }
     if (this.value === "") return "''";
@@ -424,6 +549,9 @@ export class Const extends Operand {
     const val = this.value;
     return typeof val === "string" && val.length > 1 && val[0] === "'" && val[val.length - 1] === "'";
   }
+  static {
+    isQuotedTextLiteral = (op: Const): boolean => op.isStringLiteral();
+  }
 }
 
 export class Variable extends Const {
@@ -432,6 +560,12 @@ export class Variable extends Const {
   private valueInfo: any = {};
   private useValueAsItIs: boolean = false;
   private returnOriginalValue: boolean = false;
+  // The text the last evaluate converted to another value (a number, a boolean, a text without its quotes);
+  // undefined when the value was not a text or was returned as is.
+  private textBeforeConversion: string | undefined;
+  static {
+    getTextBeforeConversion = (op: Variable): string | undefined => op.textBeforeConversion;
+  }
   constructor(private variableName: string) {
     super(variableName);
     if (
@@ -449,9 +583,9 @@ export class Variable extends Const {
   public getType(): string {
     return "variable";
   }
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    if (!!context.variableToString) {
+      const res = context.variableToString(this);
       if (!!res) return res;
     }
     var prefix = this.useValueAsItIs ? Variable.DisableConversionChar : "";
@@ -466,6 +600,7 @@ export class Variable extends Const {
     this.returnOriginalValue = val;
   }
   public evaluate(processValue?: ProcessValue): any {
+    this.textBeforeConversion = undefined;
     this.valueInfo.name = this.variableName;
     this.valueInfo.isOriginalValue = this.returnOriginalValue;
     processValue.getValueInfo(this.valueInfo);
@@ -476,7 +611,11 @@ export class Variable extends Const {
     if (this.valueInfo.onProcessValue) {
       val = this.valueInfo.onProcessValue(val);
     }
-    return this.getCorrectValue(val);
+    const res = this.getCorrectValue(val);
+    if (typeof val === "string" && res !== val) {
+      this.textBeforeConversion = val;
+    }
+    return res;
   }
   public setVariables(variables: Array<string>) {
     variables.push(this.variableName);
@@ -554,7 +693,7 @@ export class FunctionOperand extends Operand {
         };
       }
     }
-    const res = FunctionFactory.Instance.run(this.functionName, parameters, properties, this.parameters.values);
+    const res = FunctionFactory.Instance.run(this.functionName, parameters, properties, this.parameters.values, processValue.context);
     if (res instanceof Promise) {
       res.then((value) => {
         properties.returnResult(value);
@@ -563,13 +702,8 @@ export class FunctionOperand extends Operand {
     }
     return res;
   }
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
-      if (!!res) return res;
-    }
-
-    return this.originalValue + "(" + this.parameters.toString(func, true) + ")";
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    return this.originalValue + "(" + renderArrayItems(this.parameters, context) + ")";
   }
   public setVariables(variables: Array<string>): void {
     this.parameters.setVariables(variables);
@@ -735,30 +869,30 @@ export class OperandMaker {
       right = OperandMaker.convertValForDateCompare(right, left);
       return left < right;
     },
-    greaterorequal: function(left: any, right: any): boolean {
-      if (OperandMaker.binaryFunctions.equal(left, right)) return true;
+    // A comparing operator takes the run's survey settings as the 4th argument (undefined: the global settings)
+    // >= and <= keep loose equality under comparator.strictEquality, as > and < convert their operands
+    greaterorequal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      if (OperandMaker.isEqualOperands(left, right, true, surveySettings, false)) return true;
       return OperandMaker.binaryFunctions.greater(left, right);
     },
-    lessorequal: function(left: any, right: any): boolean {
-      if (OperandMaker.binaryFunctions.equal(left, right)) return true;
+    lessorequal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      if (OperandMaker.isEqualOperands(left, right, true, surveySettings, false)) return true;
       return OperandMaker.binaryFunctions.less(left, right);
     },
-    equal: function(left: any, right: any, strictCompare?: boolean): boolean {
-      left = OperandMaker.convertValForDateCompare(left, right);
-      right = OperandMaker.convertValForDateCompare(right, left);
-      return OperandMaker.isTwoValueEquals(left, right, strictCompare !== true);
+    equal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      return OperandMaker.isEqualOperands(left, right, strictCompare !== true, surveySettings, true);
     },
-    notequal: function(left: any, right: any, strictCompare?: boolean): boolean {
-      return !OperandMaker.binaryFunctions.equal(left, right, strictCompare);
+    notequal: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      return !OperandMaker.binaryFunctions.equal(left, right, strictCompare, surveySettings);
     },
-    contains: function(left: any, right: any): boolean {
-      return OperandMaker.binaryFunctions.containsCore(left, right, true);
+    contains: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      return OperandMaker.binaryFunctions.containsCore(left, right, true, surveySettings);
     },
-    notcontains: function(left: any, right: any): boolean {
+    notcontains: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
       if (!left && !Helpers.isValueEmpty(right)) return true;
-      return OperandMaker.binaryFunctions.containsCore(left, right, false);
+      return OperandMaker.binaryFunctions.containsCore(left, right, false, surveySettings);
     },
-    anyof: function(left: any, right: any): boolean {
+    anyof: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
       if (Helpers.isValueEmpty(left) && Helpers.isValueEmpty(right))
         return true;
       if (
@@ -768,28 +902,28 @@ export class OperandMaker {
         return false;
       if (Helpers.isValueEmpty(right)) return true;
       if (!Array.isArray(left))
-        return OperandMaker.binaryFunctions.contains(right, left);
+        return OperandMaker.binaryFunctions.contains(right, left, undefined, surveySettings);
       if (!Array.isArray(right))
-        return OperandMaker.binaryFunctions.contains(left, right);
+        return OperandMaker.binaryFunctions.contains(left, right, undefined, surveySettings);
       for (var i = 0; i < right.length; i++) {
-        if (OperandMaker.binaryFunctions.contains(left, right[i])) return true;
+        if (OperandMaker.binaryFunctions.contains(left, right[i], undefined, surveySettings)) return true;
       }
       return false;
     },
-    noneof: function(left: any, right: any): boolean {
-      return !OperandMaker.binaryFunctions.anyof(left, right);
+    noneof: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
+      return !OperandMaker.binaryFunctions.anyof(left, right, undefined, surveySettings);
     },
-    allof: function(left: any, right: any): boolean {
+    allof: function(left: any, right: any, strictCompare?: boolean, surveySettings?: ISurveySettings): boolean {
       if (!left && !Helpers.isValueEmpty(right)) return false;
       if (!Array.isArray(right))
-        return OperandMaker.binaryFunctions.contains(left, right);
+        return OperandMaker.binaryFunctions.contains(left, right, undefined, surveySettings);
       for (var i = 0; i < right.length; i++) {
-        if (!OperandMaker.binaryFunctions.contains(left, right[i]))
+        if (!OperandMaker.binaryFunctions.contains(left, right[i], undefined, surveySettings))
           return false;
       }
       return true;
     },
-    containsCore: function(left: any, right: any, isContains: any): boolean {
+    containsCore: function(left: any, right: any, isContains: any, surveySettings?: ISurveySettings): boolean {
       if (Array.isArray(left) && !left.length) return !isContains;
       if (!left && left !== 0 && left !== false) return false;
       if (!left.length) {
@@ -798,7 +932,7 @@ export class OperandMaker {
       if (typeof left === "string" || left instanceof String) {
         if (!right) return false;
         right = right.toString();
-        if (!settings.comparator.caseSensitive) {
+        if (!getSurveySetting(surveySettings, "comparator", "caseSensitive")) {
           left = left.toLowerCase();
           right = right.toLowerCase();
         }
@@ -810,7 +944,7 @@ export class OperandMaker {
         var i = 0;
         right = rightArray[rIndex];
         for (; i < left.length; i++) {
-          if (OperandMaker.isTwoValueEquals(left[i], right)) break;
+          if (OperandMaker.isTwoValueEquals(left[i], right, true, surveySettings)) break;
         }
         if (i == left.length) return !isContains;
       }
@@ -818,10 +952,18 @@ export class OperandMaker {
     },
   };
 
-  static isTwoValueEquals(x: any, y: any, ignoreOrder: boolean = true): boolean {
+  // = and <> pass strictEqualityApplies = true, >= and <= pass false (outside binaryFunctions, so a replaced
+  // equal cannot drop the flag)
+  static isEqualOperands(left: any, right: any, ignoreOrder: boolean, surveySettings: ISurveySettings, strictEqualityApplies: boolean): boolean {
+    left = OperandMaker.convertValForDateCompare(left, right);
+    right = OperandMaker.convertValForDateCompare(right, left);
+    return OperandMaker.isTwoValueEquals(left, right, ignoreOrder, surveySettings, strictEqualityApplies);
+  }
+  // strictEqualityApplies: comparator.strictEquality may apply; true for the operators, false for >= and <=
+  static isTwoValueEquals(x: any, y: any, ignoreOrder: boolean = true, surveySettings?: ISurveySettings, strictEqualityApplies: boolean = true): boolean {
     if (x === "undefined") x = undefined;
     if (y === "undefined") y = undefined;
-    return Helpers.isTwoValueEquals(x, y, ignoreOrder);
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, settings: surveySettings, strictEqualityApplies: strictEqualityApplies });
   }
   static operatorToString(operatorName: string): string {
     let opStr = OperandMaker.signs[operatorName];

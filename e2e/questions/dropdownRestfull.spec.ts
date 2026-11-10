@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getVisibleListItemByText, getData, getButtonByText } from "../helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getVisibleListItemByText, getData, getButtonByText, baseTest as test } from "../helper";
 
 const title = "dropdownRestful";
 
@@ -61,7 +61,6 @@ frameworks.forEach(framework => {
     test("renderAs select: choose value", async ({ page }) => {
       await initSurvey(page, framework, jsonRenderAsSelect);
 
-      await page.waitForTimeout(1000);
       await page.selectOption("select", "Cuba");
       await getButtonByText(page, "Complete").click();
 
@@ -72,7 +71,6 @@ frameworks.forEach(framework => {
     test("renderAs select: change \"value\" in the returned json", async ({ page }) => {
       await initSurvey(page, framework, jsonRenderAsSelect);
 
-      await page.waitForTimeout(1000);
       await expect(page.locator("select option[value=\"Cuba\"]")).toHaveCount(1);
       await expect(page.locator("select option[value=\"CU\"]")).toHaveCount(0);
       await changeValue(page);
@@ -95,7 +93,6 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
 
       const questionDropdownSelect = page.locator(".sd-dropdown");
-      await page.waitForTimeout(1000);
       await questionDropdownSelect.click();
       await getVisibleListItemByText(page, "Cuba").click();
       await getButtonByText(page, "Complete").click();
@@ -108,7 +105,6 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
 
       const questionDropdownSelect = page.locator(".sd-dropdown");
-      await page.waitForTimeout(1000);
       await questionDropdownSelect.click();
       await getVisibleListItemByText(page, "Cuba").click();
 
@@ -156,7 +152,6 @@ frameworks.forEach(framework => {
         window["survey"].data = newData;
         window["survey"].render();
       }, { q1: ["United States", "Romania"], q2: "Romania" });
-      await page.waitForTimeout(1000);
       await questionDropdownSelect.click();
       await expect(getVisibleListItemByText(page, "Romania")).toBeVisible();
       await getButtonByText(page, "Complete").click();

@@ -14,6 +14,17 @@
         :key="partIndex"
         :class="part.className"
       >{{ part.text }}</span>
+      <span
+        v-for="(alternative, alternativeIndex) in hint.alternatives"
+        :key="alternativeIndex"
+        :class="alternative.className"
+      >
+        <span
+          v-for="(part, partIndex) in alternative.parts"
+          :key="partIndex"
+          :class="part.className"
+        >{{ part.text }}</span>
+      </span>
     </span>
   </div>
 </template>

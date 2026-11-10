@@ -230,7 +230,6 @@ frameworks.forEach((framework) => {
         rows.splice(1, 1);
         rows.splice(rows.length - 1, 0, new (window as any).Survey.ItemValue("Row 5"));
       });
-      await page.waitForTimeout(200);
 
       await expect(page.getByLabel("row Row 1, column col1")).toBeVisible();
       await expect(page.getByLabel("row Row 2, column col1")).toHaveCount(0);

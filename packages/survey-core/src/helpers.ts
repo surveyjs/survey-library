@@ -1,5 +1,6 @@
 import { settings } from "./settings";
-import { mulberry32 } from "./utils/utils";
+import { mulberry32, isProtoKey } from "./utils/utils";
+import { ISurveySettings, getSurveySetting } from "./survey-settings";
 
 export interface HashTable<T = any> {
   [key: string]: T;
@@ -9,6 +10,11 @@ export interface IEqualValuesParameters {
   caseSensitive?: boolean;
   trimStrings?: boolean;
   doNotConvertNumbers?: boolean;
+  // Set only by the expression operators =, <>, anyof, allof, noneof, contains, notcontains: comparator.strictEquality
+  // applies to conditions, not to value-change checks, choice matching or matrix cells, which carry the same settings
+  strictEqualityApplies?: boolean;
+  // The survey's settings for the keys not given above; undefined means the global settings
+  settings?: ISurveySettings;
 }
 // What "the current moment" means for one survey. A survey that has no provider reads the machine
 // clock, which is what every application does. A provider is instance state on purpose: two surveys
@@ -73,6 +79,38 @@ export class Helpers {
     }
     return !value && value !== 0 && value !== false;
   }
+  // The value without the keys whose value is empty (isValueEmpty), at any depth; the same value when it has
+  // none, so a caller can tell that nothing changed. Only the objects isValueEmpty looks into are walked. An
+  // array keeps its length and its non-object items: a dynamic panel's panel count and a dynamic matrix's row
+  // count come from it. A changed object or array is a copy; the value passed in is never modified.
+  public static removeEmptyKeys(value: any): any {
+    if (Array.isArray(value)) {
+      let res: Array<any>;
+      for (let i = 0; i < value.length; i++) {
+        const item = Helpers.removeEmptyKeys(value[i]);
+        if (item !== value[i]) {
+          if (!res) res = value.slice();
+          res[i] = item;
+        }
+      }
+      return res || value;
+    }
+    if (!value || !Helpers.isValueObject(value) || value.constructor !== Object) return value;
+    let res: any;
+    for (const key of Object.keys(value)) {
+      // A "__proto__" key is kept or removed, never rewritten: assigning it would replace the copy's prototype
+      const item = isProtoKey(key) ? value[key] : Helpers.removeEmptyKeys(value[key]);
+      const isEmpty = Helpers.isValueEmpty(item);
+      if (!isEmpty && item === value[key]) continue;
+      if (!res) res = { ...value };
+      if (isEmpty) {
+        delete res[key];
+      } else {
+        res[key] = item;
+      }
+    }
+    return res || value;
+  }
   // A string or a String object trimmed; any other value as it is.
   public static trimValue(value: any): any {
     if (!!value && (typeof value === "string" || value instanceof String)) return value.trim();
@@ -81,13 +119,13 @@ export class Helpers {
   public static isValueUndefined(value: any): boolean {
     return (value === undefined || value === null) || (typeof value === "number" && isNaN(value));
   }
-  public static isArrayContainsEqual(x: any, y: any): boolean {
+  public static isArrayContainsEqual(x: any, y: any, surveySettings?: ISurveySettings): boolean {
     if (!Array.isArray(x) || !Array.isArray(y)) return false;
     if (x.length !== y.length) return false;
     for (var i = 0; i < x.length; i++) {
       var j = 0;
       for (; j < y.length; j++) {
-        if (Helpers.isTwoValueEquals(x[i], y[j])) break;
+        if (Helpers.isTwoValueEquals(x[i], y[j], false, undefined, undefined, surveySettings)) break;
       }
       if (j === y.length) return false;
     }
@@ -119,9 +157,10 @@ export class Helpers {
     y: any,
     ignoreOrder: boolean = false,
     caseSensitive?: boolean,
-    trimStrings? : boolean
+    trimStrings? : boolean,
+    surveySettings?: ISurveySettings
   ): boolean {
-    return Helpers.checkIfArraysEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings });
+    return Helpers.checkIfArraysEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings, settings: surveySettings });
   }
   public static compareStrings(x: string, y: string): number {
     const normalize = settings.comparator.normalizeTextCallback;
@@ -157,10 +196,10 @@ export class Helpers {
       return true;
     if ((x === undefined || x === null) && y === "") return true;
     if ((y === undefined || y === null) && x === "") return true;
-    const caseSensitive = params.caseSensitive !== undefined ? params.caseSensitive : settings.comparator.caseSensitive;
-    const trimStrings = params.trimStrings !== undefined ? params.trimStrings : settings.comparator.trimStrings;
-
     if (typeof x === "string" && typeof y === "string") {
+      // An explicit parameter wins, then the survey's own value, then the global one
+      const caseSensitive = params.caseSensitive !== undefined ? params.caseSensitive : getSurveySetting(params.settings, "comparator", "caseSensitive");
+      const trimStrings = params.trimStrings !== undefined ? params.trimStrings : getSurveySetting(params.settings, "comparator", "trimStrings");
       const normalize = settings.comparator.normalizeTextCallback;
       x = normalize(x, "compare");
       y = normalize(y, "compare");
@@ -195,7 +234,14 @@ export class Helpers {
     }
     const isXObj = Helpers.isValueObject(x);
     const isYObj = Helpers.isValueObject(y);
-    if (!isXObj && !isYObj && (convertNumbers || (typeof x !== "number" && typeof y !== "number"))) return x == y;
+    if (!isXObj && !isYObj && (convertNumbers || (typeof x !== "number" && typeof y !== "number"))) {
+      // comparator.strictEquality: a boolean is not loosely equal to a number, so true = 1 is false. Only a boolean
+      // side is strict: a number and a text that == reads as that number ('.5', '1e3') are C4's concern.
+      // A boolean and a text returned above (true = 'true').
+      if (params.strictEqualityApplies && (typeof x === "boolean" || typeof y === "boolean") &&
+        getSurveySetting(params.settings, "comparator", "strictEquality")) return x === y;
+      return x == y;
+    }
     if (!isXObj || !isYObj) return false;
     if (x["equals"] && y["equals"]) return x.equals(y);
     if (Array.isArray(x) && Array.isArray(y)) {
@@ -217,9 +263,10 @@ export class Helpers {
     y: any,
     ignoreOrder: boolean = false,
     caseSensitive?: boolean,
-    trimStrings? : boolean
+    trimStrings? : boolean,
+    surveySettings?: ISurveySettings
   ): boolean {
-    return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings });
+    return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings, settings: surveySettings });
   }
   public static randomizeArray<T>(array: Array<T>, seed?: number): Array<T> {
 
@@ -279,11 +326,11 @@ export class Helpers {
     }
     return res;
   }
-  public static createDiff(changedObj: any, originalObject: any): any {
+  public static createDiff(changedObj: any, originalObject: any, surveySettings?: ISurveySettings): any {
     const res: any = {};
     if (typeof changedObj !== "object" || typeof originalObject !== "object") return res;
     for (const key in changedObj) {
-      if (!Helpers.isTwoValueEquals(changedObj[key], originalObject[key])) {
+      if (!Helpers.isTwoValueEquals(changedObj[key], originalObject[key], false, undefined, undefined, surveySettings)) {
         res[key] = changedObj[key];
       }
     }
@@ -314,7 +361,9 @@ export class Helpers {
       value = value.trim();
       if (!value) return NaN;
       if (value.indexOf("0x") == 0) {
-        if (value.length > 32) return NaN;
+        // parseInt stops at the first non-hex character, so "0xa hello" would be read as 10:
+        // the whole text must be a hex literal.
+        if (value.length > 32 || !/^0x[0-9a-f]+$/i.test(value)) return NaN;
         return parseInt(value);
       }
       if (value.length > 15 && Helpers.isDigitsOnly(value)) return NaN;

@@ -1,0 +1,20 @@
+{
+  "components": [
+    {
+      "label": "Select",
+      "widget": "html5",
+      "dataSrc": "values",
+      "data": {
+        "values": [
+          {
+            "label": "Jane",
+            "value": "jane's"
+          }
+        ]
+      },
+      "key": "select",
+      "type": "select",
+      "input": true
+    }
+  ]
+}

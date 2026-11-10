@@ -1,0 +1,30 @@
+{
+  "display": "form",
+  "components": [
+    {
+      "type": "textfield",
+      "key": "firstName",
+      "label": "First name",
+      "input": true,
+      "validate": { "required": true }
+    },
+    {
+      "type": "email",
+      "key": "email",
+      "label": "Email",
+      "input": true
+    },
+    {
+      "type": "select",
+      "key": "country",
+      "label": "Country",
+      "data": { "values": [{ "label": "USA", "value": "us" }, { "label": "Estonia", "value": "ee" }] }
+    },
+    {
+      "type": "textfield",
+      "key": "vatId",
+      "label": "VAT ID",
+      "conditional": { "show": true, "when": "country", "eq": "ee" }
+    }
+  ]
+}

@@ -21,6 +21,7 @@ import { Question, QuestionValueType, IVerifyDataContext, readOnlyViewEmptyText 
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
+import { Scope } from "./utils/scope";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -143,7 +144,10 @@ export class MatrixCells extends Base {
     return Object.keys(this.values).length == 0;
   }
   public onValuesChanged: () => void;
-  private locNotification: boolean;
+  private locNotificationScope = new Scope();
+  private get locNotification(): boolean {
+    return this.locNotificationScope.isActive;
+  }
   private valuesChanged(): void {
     if (!this.locNotification && !!this.onValuesChanged) {
       this.onValuesChanged();
@@ -261,29 +265,29 @@ export class MatrixCells extends Base {
         }
       }
     }
-    this.locNotification = true;
-    this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.setJson(this.getCellLocData(row, col)));
-    this.locNotification = false;
+    this.locNotificationScope.run(() => {
+      this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.setJson(this.getCellLocData(row, col)));
+    });
     this.valuesChanged();
   }
   public mergeWith(otherCells: MatrixCells, locales?: Array<string>): void {
-    this.locNotification = true;
-    const options: ISaveToJSONOptions = { locales: locales, storeLocaleStrings: true };
-    for (let row in otherCells.values) {
-      const rowValues = otherCells.values[row];
-      for (let col in rowValues) {
-        const otherLoc = otherCells.getCellLocCore(row, col);
-        if (!!otherLoc) {
-          let loc = this.getCellLocCore(row, col);
-          if (!loc) {
-            loc = this.createString(row, col, (item: LocalizableString) => item.setJson(otherLoc.getJson(options)));
-          } else {
-            loc.mergeWith(otherLoc, locales);
+    this.locNotificationScope.run(() => {
+      const options: ISaveToJSONOptions = { locales: locales, storeLocaleStrings: true };
+      for (let row in otherCells.values) {
+        const rowValues = otherCells.values[row];
+        for (let col in rowValues) {
+          const otherLoc = otherCells.getCellLocCore(row, col);
+          if (!!otherLoc) {
+            let loc = this.getCellLocCore(row, col);
+            if (!loc) {
+              loc = this.createString(row, col, (item: LocalizableString) => item.setJson(otherLoc.getJson(options)));
+            } else {
+              loc.mergeWith(otherLoc, locales);
+            }
           }
         }
       }
-    }
-    this.locNotification = false;
+    });
     this.onValuesChanged();
   }
   public locStrsChanged(): void {
@@ -1085,21 +1089,24 @@ export class QuestionMatrixModel
     if (!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
       return;
     this.isRowChanging = true;
-    var val = this.value;
-    if (!val) val = {};
-    if (this.rows.length == 0) {
-      this.generatedVisibleRows[0].setValueDirectly(val);
-    } else {
-      for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-        var row = this.generatedVisibleRows[i];
-        var rowVal = val[row.name];
-        if (this.isValueEmpty(rowVal)) rowVal = null;
-        this.generatedVisibleRows[i].setValueDirectly(rowVal);
+    try {
+      var val = this.value;
+      if (!val) val = {};
+      if (this.rows.length == 0) {
+        this.generatedVisibleRows[0].setValueDirectly(val);
+      } else {
+        for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+          var row = this.generatedVisibleRows[i];
+          var rowVal = val[row.name];
+          if (this.isValueEmpty(rowVal)) rowVal = null;
+          this.generatedVisibleRows[i].setValueDirectly(rowVal);
+        }
       }
+      this.refreshRowsErrors();
+      this.updateIsAnswered();
+    } finally {
+      this.isRowChanging = false;
     }
-    this.refreshRowsErrors();
-    this.updateIsAnswered();
-    this.isRowChanging = false;
   }
   public getValueGetterContext(): IValueGetterContext {
     return new MatrixValueGetterContext(this, name => this.getMatrixRowByName(name));
@@ -1228,8 +1235,8 @@ export class QuestionMatrixModel
       }
       updatedData = newData;
     }
-    if (this.isTwoValueEquals(updatedData, this.value)) return;
-    this.value = updatedData;
+    if (this.isEqualToValue(updatedData)) return;
+    this.runDeletingEmptyValues((): void => { this.value = updatedData; });
   }
   protected clearIncorrectValuesInRow(key: any, data: any): void {
     const obj = data[key];
@@ -1269,18 +1276,21 @@ export class QuestionMatrixModel
   onMatrixRowChanged(row: MatrixRowModel) {
     if (this.isRowChanging) return;
     this.isRowChanging = true;
-    if (!this.hasRows) {
-      this.setNewValue(row.value);
-    } else {
-      const newValue = this.value || {};
-      if (this.isValueEmpty(row.value)) {
-        delete newValue[row.name];
+    try {
+      if (!this.hasRows) {
+        this.setNewValue(row.value);
       } else {
-        newValue[row.name] = row.value;
+        const newValue = this.value || {};
+        if (this.isValueEmpty(row.value)) {
+          delete newValue[row.name];
+        } else {
+          newValue[row.name] = row.value;
+        }
+        this.setNewValue(newValue);
       }
-      this.setNewValue(newValue);
+    } finally {
+      this.isRowChanging = false;
     }
-    this.isRowChanging = false;
   }
   getCorrectedRowValue(value: any): any {
     const col = this.getColumnByValue(value);
@@ -1330,7 +1340,7 @@ export class QuestionMatrixModel
     if (this.isMultiSelect) {
       return this.getRowValueIndex(row, column) > -1;
     }
-    return Helpers.isTwoValueEquals(row.value, column.value);
+    return this.isTwoValueEqualsInSurvey(row.value, column.value);
   }
   getRowValueIndex(row: MatrixRowModel, column: ItemValue): number {
     const val = row.value;

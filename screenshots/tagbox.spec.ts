@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, getVisibleListItemByText } from "../e2e/helper";
+import { expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, getVisibleListItemByText, baseTest as test } from "../e2e/helper";
 
 const title = "Tagbox Screenshot";
 

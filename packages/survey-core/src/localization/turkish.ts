@@ -53,8 +53,6 @@ export var turkishSurveyStrings = {
   sortMoreAriaLabel: "Tüm sıralama seviyelerini göster",
   // [Auto-translated] "Add New"
   sortAddNewText: "Yeni Ekle",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Taşınma sıralaması seviyesi {0}",
   // "Complete"

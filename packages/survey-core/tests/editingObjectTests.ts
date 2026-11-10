@@ -1891,4 +1891,120 @@ describe("Survey.editingObj: a matrix that edits an array of the edited object",
     matrix.rowCount = 1;
     expect(choiceValues(question), "#1").toEqual([1, 2, 3]);
   });
+  test("a lowered rowCount goes back to the length of the live array, as released", () => {
+    const { question, matrix } = createChoicesMatrix([1, 2, 3, 4, 5]);
+    matrix.rowCount = 2;
+    expect(choiceValues(question), "#1: the array").toEqual([1, 2, 3, 4, 5]);
+    expect(matrix.rowCount, "#2: rowCount").toBe(5);
+    expect(matrix.visibleRows.length, "#3: every item has a row").toBe(5);
+  });
+  test("a lowered rowCount raises one value change for the live array, as released", () => {
+    const { matrix } = createChoicesMatrix([1, 2, 3, 4, 5]);
+    matrix.visibleRows;
+    let counter = 0;
+    matrix.survey.onValueChanged.add(() => { counter++; });
+    matrix.rowCount = 2;
+    expect(counter, "#1").toBe(1);
+  });
+  test("a lowered maxRowCount goes back to the length of the live array, as released", () => {
+    const { matrix } = createChoicesMatrix([1, 2, 3, 4, 5]);
+    matrix.visibleRows;
+    matrix.maxRowCount = 3;
+    expect(matrix.rowCount, "#1").toBe(5);
+  });
+  test("a lowered rowCount truncates a plain array of the edited object, as released", () => {
+    const edited = new QuestionDropdownModel("q3");
+    const records = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    (<any>edited).foo = records;
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "foo", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }] });
+    survey.editingObj = edited;
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("foo");
+    matrix.rowCount = 1;
+    expect((<any>edited).foo, "#1").toEqual([{ a: 1 }]);
+  });
+  const rowValues = (matrix: QuestionMatrixDynamicModel): Array<any> =>
+    matrix.visibleRows.map(row => row.getQuestionByColumnName("value").value);
+  test("removeRowByIndex in the middle of a live array keeps a row for every item and raises one value change", () => {
+    const { question, matrix } = createChoicesMatrix([1, 2, 3, 4]);
+    matrix.visibleRows;
+    let counter = 0;
+    matrix.survey.onValueChanged.add(() => { counter++; });
+    matrix.removeRowByIndex(1);
+    expect(choiceValues(question), "#1: the array").toEqual([1, 3, 4]);
+    expect(matrix.rowCount, "#2: rowCount").toBe(3);
+    expect(rowValues(matrix), "#3: the rows").toEqual([1, 3, 4]);
+    expect(counter, "#4: one value change").toBe(1);
+  });
+  test("removeRowByIndex at the end of a live array keeps a row for every item", () => {
+    const { question, matrix } = createChoicesMatrix([1, 2, 3, 4]);
+    matrix.visibleRows;
+    matrix.removeRowByIndex(3);
+    expect(choiceValues(question), "#1: the array").toEqual([1, 2, 3]);
+    expect(matrix.rowCount, "#2: rowCount").toBe(3);
+    expect(rowValues(matrix), "#3: the rows").toEqual([1, 2, 3]);
+  });
+  test("a lowered rowCount with built rows keeps a row for every item of the live array", () => {
+    const { question, matrix } = createChoicesMatrix([1, 2, 3, 4, 5]);
+    matrix.visibleRows;
+    matrix.rowCount = 2;
+    expect(choiceValues(question), "#1: the array").toEqual([1, 2, 3, 4, 5]);
+    expect(matrix.rowCount, "#2: rowCount").toBe(5);
+    expect(rowValues(matrix), "#3: the rows").toEqual([1, 2, 3, 4, 5]);
+  });
+  test("a lowered maxRowCount with built rows keeps a row for every item of the live array", () => {
+    const { question, matrix } = createChoicesMatrix([1, 2, 3, 4, 5]);
+    matrix.visibleRows;
+    matrix.maxRowCount = 2;
+    expect(choiceValues(question), "#1: the array").toEqual([1, 2, 3, 4, 5]);
+    expect(matrix.rowCount, "#2: rowCount").toBe(5);
+    expect(rowValues(matrix), "#3: the rows").toEqual([1, 2, 3, 4, 5]);
+  });
+  const createPlainArrayMatrix = (): { edited: any, matrix: QuestionMatrixDynamicModel } => {
+    const edited: any = new QuestionDropdownModel("q3");
+    edited.foo = [{ a: "1" }, { a: "2" }];
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "foo", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }] });
+    survey.editingObj = edited;
+    return { edited: edited, matrix: <QuestionMatrixDynamicModel>survey.getQuestionByName("foo") };
+  };
+  test("a record pushed onto a plain array of the edited object survives a cell edit", () => {
+    const { edited, matrix } = createPlainArrayMatrix();
+    matrix.visibleRows;
+    edited.foo.push({ a: "3" });
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = "z";
+    expect(edited.foo, "#1").toEqual([{ a: "z" }, { a: "2" }, { a: "3" }]);
+  });
+  test("a record pushed onto a plain array of the edited object survives removeRowByIndex", () => {
+    const { edited, matrix } = createPlainArrayMatrix();
+    matrix.visibleRows;
+    edited.foo.push({ a: "3" });
+    matrix.removeRowByIndex(0);
+    expect(edited.foo, "#1: the array").toEqual([{ a: "2" }, { a: "3" }]);
+    expect(matrix.rowCount, "#2: rowCount").toBe(2);
+  });
+  test("a record pushed onto a plain array of the edited object survives addRowByIndex", () => {
+    [0, 3].forEach(index => {
+      const { edited, matrix } = createPlainArrayMatrix();
+      matrix.visibleRows;
+      edited.foo.push({ a: "3" });
+      matrix.addRowByIndex({ a: "new" }, index);
+      const expected = [{ a: "1" }, { a: "2" }, { a: "3" }];
+      expected.splice(index, 0, { a: "new" });
+      expect(edited.foo, "#1: the array, index " + index).toEqual(expected);
+      expect(matrix.rowCount, "#2: rowCount, index " + index).toBe(4);
+      expect(matrix.visibleRows.map(row => row.getQuestionByColumnName("a").value), "#3: the rows, index " + index).toEqual(expected.map(item => item.a));
+    });
+  });
+  test("a record pushed onto a plain array of the edited object gets its row at the next rebuild", () => {
+    [undefined, { a: "default" }].forEach(defaultRowValue => {
+      const { edited, matrix } = createPlainArrayMatrix();
+      matrix.defaultRowValue = defaultRowValue;
+      matrix.visibleRows;
+      edited.foo.push({ a: "3" });
+      (<any>matrix).clearGeneratedRows();
+      const label = defaultRowValue ? ", with defaultRowValue" : "";
+      expect(matrix.visibleRows.map(row => row.getQuestionByColumnName("a").value), "#1: the rows" + label).toEqual(["1", "2", "3"]);
+      expect(matrix.rowCount, "#2: rowCount" + label).toBe(3);
+      expect(edited.foo, "#3: the array" + label).toEqual([{ a: "1" }, { a: "2" }, { a: "3" }]);
+    });
+  });
 });

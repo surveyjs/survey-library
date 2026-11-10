@@ -677,11 +677,12 @@ export abstract class QuestionCustomModelBase extends Question
       this.customQuestion.onSetQuestionValue(this, newValue);
     }
   }
-  private isSettingNewValue: boolean;
+  private newValueScope = new Scope();
+  private get isSettingNewValue(): boolean {
+    return this.newValueScope.isActive;
+  }
   protected setNewValue(newValue: any) {
-    this.isSettingNewValue = true;
-    super.setNewValue(newValue);
-    this.isSettingNewValue = false;
+    this.newValueScope.run(() => super.setNewValue(newValue));
     this.updateElementCss();
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
@@ -730,7 +731,7 @@ export abstract class QuestionCustomModelBase extends Question
     return !!this.data ? this.getUnbindValue(this.data.getValue(this.getValueName())) : undefined;
   }
   protected notifySurveyOnValueChanged(oldValue: any): void {
-    if (!this.isSettingNewValue && !!this.survey && !this.isTwoValueEquals(oldValue, this.value)) {
+    if (!this.isSettingNewValue && !!this.survey && !this.isEqualToValue(oldValue)) {
       this.survey.questionValueChanged(this, oldValue);
     }
   }
@@ -741,7 +742,7 @@ export abstract class QuestionCustomModelBase extends Question
     if (!!this.customQuestion) {
       const qValue = newValue;
       newValue = this.customQuestion.onValueChanging(this, name, newValue);
-      if (!Helpers.isTwoValueEquals(newValue, qValue)) {
+      if (!this.isTwoValueEqualsInSurvey(newValue, qValue)) {
         const q = this.getQuestionByName(name);
         if (!!q) {
           q.value = newValue;
@@ -944,6 +945,11 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     res = res && super.validateElementCore(context);
     this.updateElementCss();
     return res;
+  }
+  // getAllErrors() is not extended: validateElementCore copies the content question's errors into the wrapper's own.
+  public clearErrors(): void {
+    super.clearErrors();
+    this.contentQuestion?.clearErrors();
   }
   public focus(onError = false): void {
     if (!!this.contentQuestion) {
@@ -1238,6 +1244,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     const res = super.validateElementCore(context);
     const pnl = this.contentPanel;
     return !!pnl ? pnl.validateElement(context) && res : res;
+  }
+  public getAllErrors(): Array<SurveyError> {
+    return super.getAllErrors().concat(this.getNestedErrors());
+  }
+  public clearErrors(): void {
+    super.clearErrors();
+    this.forEachNestedElement(info => info.element.clearErrors(), { build: "none", visibleOnly: false });
   }
   // The questions of the content panel keep their values one segment deeper, under the key of the
   // composite question. A key of the composite value that none of them owns is not reported: the

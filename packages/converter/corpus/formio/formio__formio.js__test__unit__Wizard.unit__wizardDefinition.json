@@ -1,0 +1,57 @@
+{
+  "display": "wizard",
+  "components": [
+    {
+      "title": "Page 1",
+      "collapsible": false,
+      "key": "page1",
+      "type": "panel",
+      "label": "Panel",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "checkbox",
+          "label": "Trigger Change",
+          "input": true,
+          "key": "triggerChange"
+        },
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validateWhenHidden": false,
+          "key": "textField",
+          "type": "textfield",
+          "input": true,
+          "validate": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "title": "Page 2",
+      "collapsible": false,
+      "key": "page2",
+      "type": "panel",
+      "label": "Panel",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validateWhenHidden": false,
+          "key": "textField1",
+          "type": "textfield",
+          "validate": {
+            "required": true
+          },
+          "input": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "_id": "67c19d4a0b924378e690a99a",
+  "title": "pdf form",
+  "name": "pdfForm",
+  "path": "pdfform",
+  "type": "form",
+  "display": "wizard",
+  "owner": "67c19d9d0b924378e690af80",
+  "components": [
+    {
+      "title": "Page 1",
+      "label": "Page 1",
+      "type": "panel",
+      "key": "page1",
+      "components": [
+        {
+          "label": "database",
+          "calculateValue": "instance.setValue({name: \"hey\", last:\"foo\"});",
+          "key": "database",
+          "type": "hidden",
+          "input": true,
+          "tableView": false
+        },
+        {
+          "label": "Form",
+          "tableView": true,
+          "form": "67c19d4a0b924378e690a993",
+          "useOriginalRevision": true,
+          "calculateValue": "value = { data: \n{name: data.database.name, \nlast: data.database.last\n}};",
+          "key": "form",
+          "type": "form",
+          "lazyLoad": false,
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    }
+  ],
+  "machineName": "tlrqtysnoafumph:pdfForm",
+  "project": "67bf135578d9de8633fd050e"
+}

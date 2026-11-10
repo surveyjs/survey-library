@@ -1,8 +1,8 @@
 import { HashTable, Helpers, ISurveyDateProvider } from "./helpers";
 import { JsonObject, JsonError, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Base, ComputedUpdater, EventAsync } from "./base";
-import { EventBase } from "./event";
+import { Base, ComputedUpdater } from "./base";
+import { EventBase, EventAsync } from "./event";
 import {
   ISurvey,
   ISurveyData,
@@ -59,7 +59,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
-import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode, getIdSelector } from "./utils/dom-utils";
 import { getClosestSurveyScroller } from "./utils/scroll-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
@@ -111,6 +111,7 @@ import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
+import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
@@ -129,6 +130,10 @@ function createVariablesContext(variablesHash: HashTable<any>): VariableGetterCo
     const key = name.toLowerCase();
     return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
   });
+}
+// The stored answers only, by name ignoring letter case, the way expressions read the values hash
+function createDataContext(valuesHash: HashTable<any>, valuesKeyIndex: HashKeyIndex): VariableGetterContext {
+  return new VariableGetterContext(valuesHash, (name: string): any => valuesKeyIndex.getValue(valuesHash, name));
 }
 
 // The built-in variables live in their own module; the name list stays exported from here
@@ -171,7 +176,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash, (name: string): any => this.valuesKeyIndex.getValue(this.valuesHash, name)).getValue(params);
+    return createDataContext(this.valuesHash, this.valuesKeyIndex).getValue(params);
   }
   private getPageByName(name: string): PageModel | undefined {
     if (!name) return undefined;
@@ -1220,7 +1225,7 @@ export class SurveyModel extends SurveyElementCore
   public onCreateCustomChoiceItem: EventBase<SurveyModel, CreateCustomChoiceItemEvent> = this.addEvent<SurveyModel, CreateCustomChoiceItemEvent>();
   //#endregion
 
-  constructor(jsonObj: any = null, renderedElement: any = null) {
+  constructor(jsonObj: any = null, options?: ISurveyOptions) {
     super();
 
     this.createNewArray(
@@ -1245,6 +1250,10 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     );
+    // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
+    this.surveySettingsValues.merge(options, true);
+    // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
+    addEventHandlersFromOptions(this, options);
 
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     if (jsonObj) {
@@ -1261,8 +1270,9 @@ export class SurveyModel extends SurveyElementCore
     }
 
     this.applyTheme(DefaultTheme);
-    if (!!renderedElement) {
-      this.render(renderedElement);
+    // Not options: the old, undocumented renderedElement argument. render() is still called, without it.
+    if (!!options && !isPlainObject(options)) {
+      this.render();
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
@@ -1411,14 +1421,44 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("pages");
   }
   renderCallback: () => void;
-  public render(element: any = null): void {
+  public render(): void {
     if (this.renderCallback) {
       this.renderCallback();
     }
   }
+  private surveySettingsValuesValue: SurveySettingsValues;
+  private get surveySettingsValues(): SurveySettingsValues {
+    // Created on first use, not in a field initializer: it can be read during construction
+    if (!this.surveySettingsValuesValue) {
+      this.surveySettingsValuesValue = new SurveySettingsValues();
+    }
+    return this.surveySettingsValuesValue;
+  }
+  public settings(value: ISurveySettings): void {
+    // The conditions re-run at once, as for showInvisibleElements, so no re-render is needed
+    if (this.surveySettingsValues.merge(value, false) && !this.isLoadingFromJson) {
+      this.runConditions();
+    }
+  }
+  public getSettings(): ISurveySettings {
+    return this.surveySettingsValues.view;
+  }
+  // For the comparisons (ISurvey.getOwnSettings): the view when the survey sets a key itself, else undefined,
+  // so a survey without its own settings reads the global settings directly, at no extra cost.
+  public getOwnSettings(): ISurveySettings {
+    const values = this.surveySettingsValuesValue;
+    return !!values && values.hasOwnValues ? values.view : undefined;
+  }
   public updateSurvey(newProps: any, oldProps?: any) {
     for (var key in newProps) {
       if (key == "model" || key == "children") continue;
+      if (key === "settings") {
+        // Data for the settings() method; assigning it would replace the method. An absent value applies nothing
+        if (newProps[key] !== undefined && newProps[key] !== null) {
+          this.settings(newProps[key]);
+        }
+        continue;
+      }
       if (key.indexOf("on") == 0 && this[key] && this[key].add) {
         let funcBody = newProps[key];
         let func = function (sender: any, options: any) {
@@ -1610,7 +1650,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
     if (!!page) {
-      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(`#${page.id}`);
+      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(getIdSelector(page.renderedId));
       activateLazyRenderingChecks(htmlElement);
     }
   }
@@ -2024,12 +2064,30 @@ export class SurveyModel extends SurveyElementCore
    * You can override this setting for individual questions using their `choiceShortcutsEnabled` property.
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   *
+   * [Demo: Letter Shortcuts](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @since 3.2.2
+   * @see showKeyboardHints
    */
   @property({
     defaultValue: false,
     onSet: (_newValue, target: SurveyModel) => target.onChoiceShortcutsEnabledChanged()
   }) choiceShortcutsEnabled: boolean;
+  /**
+   * Specifies whether to display keyboard shortcut hints for questions that support them.
+   *
+   * Default value: `false`
+   *
+   * Hints describe available keyboard actions, such as selecting choices or pressing Enter to continue. Displayed hints depend on the question type and settings.
+   *
+   * Keyboard hints are hidden on touch devices, in read-only or preview mode, for collapsed questions, and in matrix cells.
+   *
+   * You can override this setting for individual questions using their [`showKeyboardHints`](https://surveyjs.io/form-library/documentation/api-reference/question#showKeyboardHints) property.
+   *
+   * [Demo: Keyboard Hints](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * @see choiceShortcutsEnabled
+   * @since 3.2.4
+   */
   @property({ defaultValue: false }) showKeyboardHints: boolean;
   private onChoiceShortcutsEnabledChanged(): void {
     // While loading, onSurveyLoad binds what the JSON enables.
@@ -2798,24 +2856,21 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
   public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
-      this.navigationBarValue = this.createNavigationBar();
-      if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
-      this.updateNavigationCss();
-      this.navigationBarValue.flushUpdates();
-      this.updateHasVisibleNavigationActions();
-      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.updateHasVisibleNavigationActions());
+      Base.runUntracked(() => {
+        this.navigationBarValue = this.createNavigationBar();
+        if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
+        this.updateNavigationCss();
+        this.navigationBarValue.flushUpdates();
+        this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.resetHasVisibleNavigationActions());
+      });
     }
     return this.navigationBarValue;
   }
-  // Mirrors navigationBar.isEmpty onto the survey so layout containers re-render: the survey component
-  // is not subscribed to the bar while the bar itself is not rendered.
-  // The bar read has to be part of the returned value. Production builds treat getters as pure and drop
-  // an unused `void this.navigationBar`, which leaves the flag at its default and hides the buttons.
-  public get hasVisibleNavigationActions(): boolean {
-    return this.navigationBar.hasVisibleActions;
+  public get hasVisibleNavigationActions() {
+    return this.getPropertyValue("hasVisibleNavigationActions", undefined, () => this.navigationBar.hasVisibleActions);
   }
-  private updateHasVisibleNavigationActions(): void {
-    this.setPropertyValue("hasVisibleNavigationActions", this.navigationBarValue.hasVisibleActions);
+  private resetHasVisibleNavigationActions(): void {
+    this.resetPropertyValue("hasVisibleNavigationActions");
   }
   public createNavigationBarCallback: () => ActionContainer;
   protected createNavigationBar(): ActionContainer {
@@ -3478,6 +3533,45 @@ export class SurveyModel extends SurveyElementCore
     this.markAnsweredPagesAsShown();
     this.checkTriggersOnSettingData();
   }
+  // Removes the keys whose value is empty from the data, also inside dynamic-panel items and matrix rows.
+  // No onValueChanging/onValueChanged and no triggers: the answers do not change, only how an empty one
+  // is stored. Conditions run once when a key was removed, since a value that was "" is now absent.
+  public clearEmptyValues(): void {
+    // A property grid edits an object's properties: they are not survey data
+    if (!!this.editingObj) return;
+    const changedKeys = new Set<string>();
+    const keys = this.getValuesKeys();
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = this.getDataValueCore(this.valuesHash, key);
+      const newValue = Helpers.removeEmptyKeys(value);
+      if (Helpers.isValueEmpty(newValue)) {
+        this.deleteDataValueCore(this.valuesHash, key);
+      } else if (newValue !== value) {
+        this.setDataValueCore(this.valuesHash, key, newValue);
+      } else continue;
+      changedKeys.add(key);
+    }
+    if (changedKeys.size === 0) return;
+    const questions = this.getAllQuestions();
+    for (let i = 0; i < questions.length; i++) {
+      const q = <Question>questions[i];
+      const valName = q.getValueName();
+      if (changedKeys.has(valName)) {
+        q.updateValueFromSurvey(this.getValue(valName));
+      }
+      if (q.requireUpdateCommentValue && changedKeys.has(Helpers.getCommentKey(valName))) {
+        q.updateCommentFromSurvey(this.getComment(valName));
+      }
+    }
+    this.notifyElementsOnAnyValueOrVariableChanged("");
+    // Called from code that runs inside a conditions pass (a custom function): ask for one more pass
+    if (this.isRunningConditions) {
+      this.isValueChangedOnRunningCondition = true;
+    } else {
+      this.runConditions();
+    }
+  }
   /* Assigning or merging data restores a previously saved survey state, so pages that
   already contain answers are shown as passed in the progress bar. Values changed via
   code (setValue), triggers or expressions do not affect the pages' wasShown state. */
@@ -3576,7 +3670,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].randomSeedChanged();
     }
   }
-  private isSettingDataValue: boolean;
+  private settingDataScope = new Scope();
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
       this.resetValuesHash();
@@ -3587,15 +3681,15 @@ export class SurveyModel extends SurveyElementCore
         this.setDataValueCore(this.valuesHash, dataKey, data[key]);
       }
     }
-    this.isSettingDataValue = true;
-    this.updateAllQuestionsValue(clearData);
-    this.notifyAllQuestionsOnValueChanged();
-    this.notifyElementsOnAnyValueOrVariableChanged("");
-    this.isSettingDataValue = false;
+    this.settingDataScope.run(() => {
+      this.updateAllQuestionsValue(clearData);
+      this.notifyAllQuestionsOnValueChanged();
+      this.notifyElementsOnAnyValueOrVariableChanged("");
+    });
     this.runConditions();
     this.updateAllQuestionsValue(clearData);
   }
-  public isSettingData(): boolean { return this.isSettingDataValue === true; }
+  public isSettingData(): boolean { return this.settingDataScope.isActive; }
   private resetValuesHash(): void {
     this.valuesHash = createHash();
     this.valuesKeyIndex.reset();
@@ -4387,6 +4481,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].timeSpent = 0;
       this.pages[i].setWasShown(false);
       this.pages[i].passed = false;
+      this.pages[i].clearErrors();
     }
     this.onFirstPageIsStartedChanged();
     if (goToFirstPage) {
@@ -4481,7 +4576,7 @@ export class SurveyModel extends SurveyElementCore
       isPrevPage: diff === -1,
       isGoingForward: qDiff > 0,
       isGoingBackward: qDiff < 0,
-      isAfterPreview: this.changeCurrentPageFromPreview === true
+      isAfterPreview: this.pageChangeFromPreviewScope.isActive
     };
   }
   public getProgress(): number {
@@ -5350,9 +5445,7 @@ export class SurveyModel extends SurveyElementCore
       }
       if (!!curPage) {
         isCurrentPageSet = true;
-        this.changeCurrentPageFromPreview = true;
-        this.currentPage = curPage;
-        this.changeCurrentPageFromPreview = false;
+        this.pageChangeFromPreviewScope.run(() => { this.currentPage = curPage; });
       }
     }
     if (!this.currentPage && this.visiblePageCount > 0 && !isCurrentPageSet) {
@@ -5458,7 +5551,7 @@ export class SurveyModel extends SurveyElementCore
     const newEl = (index > 0) ? els[index - 1] : (index < els.length - 1 ? els[index + 1] : undefined);
     this.currentSingleElement = newEl;
   }
-  private changeCurrentPageFromPreview: boolean;
+  private pageChangeFromPreviewScope = new Scope();
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview || this.isDesignMode) return;
     this.skippedPages = [];
@@ -5746,6 +5839,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.currentPageNo = 0;
     if (!!this.currentPage) {
+      this.currentPage.onFirstRendering();
       this.currentPage.locStrsChanged();
     }
     return true;
@@ -6044,17 +6138,37 @@ export class SurveyModel extends SurveyElementCore
       const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement)?.getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
+        let isSwitchedBack = false;
+        let processedSize: string;
+        let previousProcessedSize: string;
+        const getObservedSize = (): string => observedElement.offsetWidth + "x" + observedElement.offsetHeight;
         let screenOrientationType = DomWindowHelper.getScreenOrientationType();
         this._processingResponsivenessFunc = () => {
+          previousProcessedSize = processedSize;
+          processedSize = getObservedSize();
           return this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
         };
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           DomWindowHelper.requestAnimationFrame((): void | undefined => {
             let currScreenOrientationType = DomWindowHelper.getScreenOrientationType();
-            if ((isProcessed || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
+            // A call that switches isMobile changes the root's css class, and the size change it causes comes back
+            // as one more notification. A resize made within the same frame is reported in that same notification,
+            // so after a switch only a notification with the size just processed is skipped. Processing a size change
+            // caused by the class is harmless while the width stays on the same side of the mobile width.
+            // When the root's width depends on the layout (e.g. a page scrollbar that comes and goes with it), the
+            // two layouts can switch each other endlessly. So after a switch back, a return to the size of the switch
+            // before it is skipped as well. On a root whose size does not depend on the layout, this also skips a
+            // real resize back to that size; the next resize corrects the layout.
+            const size = getObservedSize();
+            const isLayoutChangeNotification = isProcessed &&
+              (size === processedSize || (isSwitchedBack && size === previousProcessedSize));
+            if ((isLayoutChangeNotification || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
               isProcessed = false;
+              isSwitchedBack = false;
             } else {
+              const isAfterSwitch = isProcessed;
               isProcessed = !!this._processingResponsivenessFunc && this._processingResponsivenessFunc();
+              isSwitchedBack = isProcessed && isAfterSwitch;
               screenOrientationType = currScreenOrientationType;
             }
           });
@@ -6625,11 +6739,11 @@ export class SurveyModel extends SurveyElementCore
           elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
         elementPage.forceRenderElement(elementToForceRender as IElement, () => {
-          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
+          const htmlElement = surveyRootElement?.querySelector(getIdSelector(options.elementId));
           this.suspendLazyRendering();
           SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
             this.releaseLazyRendering();
-            const pageRootElement = surveyRootElement.querySelector(`#${elementPage.id}`);
+            const pageRootElement = surveyRootElement.querySelector(getIdSelector(elementPage.renderedId));
             activateLazyRenderingChecks(pageRootElement);
             optOnScolledCallback && optOnScolledCallback();
           });
@@ -6639,18 +6753,19 @@ export class SurveyModel extends SurveyElementCore
           const elementToScroll = this.getPageScrollTarget(surveyRootElement);
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
-          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
+          const htmlElement = surveyRootElement?.querySelector(getIdSelector(options.elementId)) as HTMLElement;
           if (htmlElement && !element.isPage && this.autoCenterFocusedQuestion) {
             this.suspendLazyRendering();
             this.focusedQuestionScroll.scrollIntoView(htmlElement);
             this.releaseLazyRendering();
-            activateLazyRenderingChecks(htmlElement);
+            // Without lazy rendering no row waits for the check, and its synthetic scroll is not needed.
+            if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
           } else {
             this.suspendLazyRendering();
             SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
               this.releaseLazyRendering();
-              activateLazyRenderingChecks(htmlElement);
+              if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
               optOnScolledCallback && optOnScolledCallback();
             });
           }
@@ -7159,17 +7274,23 @@ export class SurveyModel extends SurveyElementCore
     this.checkElementsBindings(valueName, newValue);
     this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName);
   }
-  private isRunningElementsBindings: boolean;
+  private elementsBindingsScope = new Scope();
+  private get isRunningElementsBindings(): boolean {
+    return this.elementsBindingsScope.isActive;
+  }
   private updateVisibleIndexAfterBindings: boolean;
   private checkElementsBindings(valueName: string, newValue: any): void {
-    this.isRunningElementsBindings = true;
-    for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].checkBindings(valueName, newValue);
-    }
-    this.isRunningElementsBindings = false;
-    if (this.updateVisibleIndexAfterBindings) {
-      this.updateVisibleIndexes();
-      this.updateVisibleIndexAfterBindings = false;
+    try {
+      this.elementsBindingsScope.run(() => {
+        for (var i = 0; i < this.pages.length; i++) {
+          this.pages[i].checkBindings(valueName, newValue);
+        }
+      });
+    } finally {
+      if (!this.elementsBindingsScope.isActive && this.updateVisibleIndexAfterBindings) {
+        this.updateVisibleIndexAfterBindings = false;
+        this.updateVisibleIndexes();
+      }
     }
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
@@ -7269,8 +7390,8 @@ export class SurveyModel extends SurveyElementCore
       const maxIterations = 3;
       for (let i = 0; i < maxIterations; i++) {
         this.runSurveyTriggers(options, isQuestionInvalid);
-        if (this.isCompleted || Helpers.isTwoValueEquals(originalKeys, this.triggerKeys)) break;
-        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys);
+        if (this.isCompleted || this.isTwoValueEqualsInSurvey(originalKeys, this.triggerKeys)) break;
+        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys, this.getOwnSettings());
         originalKeys = Helpers.createCopy(this.triggerKeys);
       }
       let prevCanBeCompleted = this.canBeCompletedByTrigger;
@@ -7330,7 +7451,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private runConditions() {
     if (
-      this.isCompleted ||
+      this.isCompleted && !this.isRunningConditionsOnComplete ||
       this.isEndLoadingFromJson === "processing" ||
       this.isRunningConditions
     )
@@ -7365,7 +7486,10 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private questionTriggersKeys: any;
-  private isRunningConditionOnValueChanged: boolean;
+  private conditionOnValueChangedScope = new Scope();
+  private get isRunningConditionOnValueChanged(): boolean {
+    return this.conditionOnValueChangedScope.isActive;
+  }
   public getValueChangedKeys(): any {
     if (!this.isRunningConditionOnValueChanged) return undefined;
     // An onExpressionRunning subscriber can rewrite expressions on the fly, so static
@@ -7394,6 +7518,11 @@ export class SurveyModel extends SurveyElementCore
   // changed first-hand: the question-level triggers (resetValueIf/setValueIf) use it to skip the
   // question that is being set. A batch has no such name and passes none.
   private runConditionOnValuesChanged(values: HashTable<any>, name?: string, isCalculatedValueAtLoad?: boolean): void {
+    if (!!this.changesOnComplete) {
+      for (const key in values) {
+        this.changesOnComplete.names[key] = values[key];
+      }
+    }
     if (!this.questionTriggersKeys) {
       this.questionTriggersKeys = {};
     }
@@ -7409,9 +7538,7 @@ export class SurveyModel extends SurveyElementCore
         this.isValueChangedOnRunningCondition = true;
       }
     } else {
-      this.isRunningConditionOnValueChanged = true;
-      this.runConditions();
-      this.isRunningConditionOnValueChanged = false;
+      this.conditionOnValueChangedScope.run(() => this.runConditions());
       this.runQuestionsTriggers(name, !!name ? values[name] : undefined);
       this.questionTriggersKeys = undefined;
     }
@@ -7763,15 +7890,18 @@ export class SurveyModel extends SurveyElementCore
       textValue.value = res.value;
     }
   }
-  private isClearingUnsedValues: boolean;
+  private clearingUnusedValuesScope = new Scope();
+  private get isClearingUnsedValues(): boolean {
+    return this.clearingUnusedValuesScope.isActive;
+  }
   private clearUnusedValues() {
-    this.isClearingUnsedValues = true;
-    var questions = this.getAllQuestions();
-    for (var i: number = 0; i < questions.length; i++) {
-      questions[i].clearUnusedValues();
-    }
-    this.clearInvisibleQuestionValues();
-    this.isClearingUnsedValues = false;
+    this.clearingUnusedValuesScope.run(() => {
+      var questions = this.getAllQuestions();
+      for (var i: number = 0; i < questions.length; i++) {
+        questions[i].clearUnusedValues();
+      }
+      this.clearInvisibleQuestionValues();
+    });
   }
   hasVisibleQuestionByValueName(question: IQuestion): boolean {
     const checkQ = <Question>question;
@@ -7787,11 +7917,71 @@ export class SurveyModel extends SurveyElementCore
     var questions = this.getQuestionsByValueName(valueName);
     return !!questions ? questions : [];
   }
+  // What the completion clean-up gathers while it runs: a completed survey runs no conditions, so the names
+  // whose values change and whether an element is hidden are collected here instead.
+  private changesOnComplete: { names: HashTable<any>, isElementHidden: boolean };
   private clearInvisibleQuestionValues() {
     const reason = this.clearInvisibleValues === "none" ? "none" : "onComplete";
     const questions = this.getAllQuestions();
-    for (var i: number = 0; i < questions.length; i++) {
-      questions[i].clearValueIfInvisible(reason);
+    // A cleared value can hide another question. The pass repeats, with the conditions that read the changed
+    // names run between passes (keyed, as on a value change), while a pass clears something and the run after it
+    // hides an element or writes a value. A pass that only clears again what the last run wrote (an expression
+    // with a function runs on every run, so a hidden one is refilled) ends it: running the conditions once more
+    // would refill it again, so a question that reads such a hidden expression keeps its value.
+    // The passes are bounded by the number of questions, template questions counted once, for a cycle that refills
+    // values by other means (an onValueChanged handler). A chain from one dynamic panel to the next ({prevPanel.x})
+    // can be longer than that; its rest is kept, as before. Counting the panels would build them.
+    // Not covered: a hidden matrix row or a hidden item of a question that changes no value when hidden (the single
+    // matrix rows) ends the loop; it kept its value before as well.
+    let maxPasses: number;
+    let written: HashTable<any> = {};
+    for (let pass = 1; ; pass++) {
+      const cleared = this.collectChangesOnComplete(() => {
+        for (let i = 0; i < questions.length; i++) {
+          questions[i].clearValueIfInvisible(reason);
+        }
+      }).names;
+      const isNewValueCleared = Object.keys(cleared).some(name => !Object.prototype.hasOwnProperty.call(written, name));
+      if (!isNewValueCleared) return;
+      if (maxPasses === undefined) {
+        maxPasses = Math.max(1, this.getAllQuestions(false, true).length);
+      }
+      if (pass >= maxPasses) return;
+      const res = this.collectChangesOnComplete(() => this.runConditionsOnComplete(cleared));
+      if (!res.isElementHidden && Object.keys(res.names).length === 0) return;
+      written = res.names;
+    }
+  }
+  private collectChangesOnComplete(func: () => void): { names: HashTable<any>, isElementHidden: boolean } {
+    const res = { names: {}, isElementHidden: false };
+    const prev = this.changesOnComplete;
+    this.changesOnComplete = res;
+    try {
+      func();
+    } finally {
+      this.changesOnComplete = prev;
+    }
+    return res;
+  }
+  private runningConditionsOnCompleteScope = new Scope();
+  private get isRunningConditionsOnComplete(): boolean {
+    return this.runningConditionsOnCompleteScope.isActive;
+  }
+  private runConditionsOnComplete(changed: HashTable<any>): void {
+    // doComplete() can be called from a handler inside a value change: that change's keys come back after the run.
+    const prevKeys = this.questionTriggersKeys;
+    this.questionTriggersKeys = changed;
+    try {
+      this.runningConditionsOnCompleteScope.run(() => {
+        this.conditionOnValueChangedScope.run(() => this.runConditions());
+      });
+    } finally {
+      this.questionTriggersKeys = prevKeys;
+    }
+  }
+  private notifyElementHiddenOnComplete(): void {
+    if (!!this.changesOnComplete) {
+      this.changesOnComplete.isElementHidden = true;
     }
   }
   /**
@@ -7834,7 +8024,7 @@ export class SurveyModel extends SurveyElementCore
     const oldValue = this.getVariable(name);
     name = this.setVariableCore(name, newValue);
     this.notifyElementsOnAnyValueOrVariableChanged(name);
-    if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
+    if (!this.isTwoValueEqualsInSurvey(oldValue, newValue)) {
       const changed: HashTable<{ newValue: any, oldValue: any }> = {};
       changed[name] = { newValue: newValue, oldValue: oldValue };
       this.variablesChangedCore(changed, name);
@@ -7910,7 +8100,7 @@ export class SurveyModel extends SurveyElementCore
     const changed: HashTable<{ newValue: any, oldValue: any }> = {};
     for (const name in newValues) {
       const oldValue = this.getVariable(name);
-      if (!Helpers.isTwoValueEquals(oldValue, newValues[name])) {
+      if (!this.isTwoValueEqualsInSurvey(oldValue, newValues[name])) {
         changed[name] = { newValue: newValues[name], oldValue: oldValue };
       }
     }
@@ -7999,7 +8189,8 @@ export class SurveyModel extends SurveyElementCore
     if (
       !this.editingObj &&
       this.isValueEqual(name, newValue) &&
-      this.isTwoValueEquals(newValue, newQuestionValue)
+      this.isTwoValueEquals(newValue, newQuestionValue) &&
+      !this.isKeptEmptyValueRemoved(name, newValue)
     )
       return;
     var oldValue = this.getValue(name);
@@ -8056,8 +8247,26 @@ export class SurveyModel extends SurveyElementCore
       this.onDynamicPanelValueChanged.fire(this, options);
     }
   }
+  private deletingEmptyValuesScope = new Scope();
+  // A clear made by the survey itself, not by the respondent: Question.clearValue(), clearIfInvisible,
+  // clearIncorrectValues, removing a row or a panel. An empty value set while it runs removes the key from
+  // the data even with data.keepEmptyValues on.
+  runDeletingEmptyValues<T>(func: () => T): T {
+    return this.deletingEmptyValuesScope.run(func);
+  }
+  // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
+  // undefined always removes the key: it is what Question.clearValue() assigns.
+  private isEmptyValueKeptOnSetValue(val: any): boolean {
+    return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
+  }
+  // An empty value the key kept equals undefined and null (isValueEqual), yet a system clear removes it.
+  private isKeptEmptyValueRemoved(name: string, newValue: any): boolean {
+    if (!name || !this.getSettings().data.keepEmptyValues) return false;
+    return this.getDataValueCore(this.valuesHash, name) !== undefined && this.isValueEmpyOnSetValue(name, newValue);
+  }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
     if (!this.isValueEmpty(val, false)) return false;
+    if (!this.editingObj && this.isEmptyValueKeptOnSetValue(val)) return false;
     if (!this.editingObj || val === null || val === undefined) return true;
     return this.editingObj.getDefaultPropertyValue(name) === val;
   }
@@ -8129,37 +8338,20 @@ export class SurveyModel extends SurveyElementCore
   public getNewGeneratedName(elements: Array<any>, baseName: string): string {
     return this.generateNewName(elements, baseName);
   }
-  public tryGoNextPageAutomatic(name: string): void {
-    this.tryGoNextPageAutomaticCore(name);
-  }
-  public tryGoNextPageAutomaticCore(name: string): boolean {
+  // Returns true when navigation is scheduled.
+  public tryGoNextPageAutomatic(name: string): boolean {
     if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return false;
     const question = <Question>this.getQuestionByValueName(name);
     if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return false;
     if (!question.validate(false) && !question.supportGoNextPageError()) return false;
-    let scheduled = false;
-    if (!!this.currentSingleElement) {
-      const curQuestion = this.currentSingleElement;
-      const goNextQuestion = () => {
-        if (curQuestion !== this.currentSingleElement) return;
-        if (!this.isLastElement) {
-          this.performNext();
-        } else {
-          if (this.autoAdvanceAllowComplete) {
-            this.tryCompleteOrShowPreview();
-          }
-        }
-      };
-      surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
-      scheduled = true;
-    }
+    if (!!this.currentSingleElement) return this.tryGoNextSingleElementAutomatic(question);
     var questions = this.getCurrentPageQuestions();
-    if (questions.indexOf(question) < 0) return scheduled;
+    if (questions.indexOf(question) < 0) return false;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].hasInput && questions[i].isEmpty()) return scheduled;
+      if (questions[i].hasInput && questions[i].isEmpty()) return false;
     }
-    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return scheduled;
-    if (!this.validateActivePage(false)) return scheduled;
+    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return false;
+    if (!this.validateActivePage(false)) return false;
     const curPage = this.currentPage;
     const goNextPage = () => {
       if (curPage !== this.currentPage) return;
@@ -8170,6 +8362,33 @@ export class SurveyModel extends SurveyElementCore
       }
     };
     surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
+    return true;
+  }
+  private tryGoNextSingleElementAutomatic(question: Question): boolean {
+    const element: any = this.currentSingleElement;
+    const questions: Array<Question> = element.isPanel ? element.visibleQuestions : [element];
+    // The value's first holder may be off screen: a shared valueName, or a nested inputPerPage step.
+    const isOnScreen = (q: Question) => questions.indexOf(q) > -1 || q === element.singleInputQuestion;
+    if (!this.getQuestionsByValueName(question.getValueName()).some(isOnScreen)) return false;
+    // A question as the element has no empty check: multipletext and inputPerPage decide through supportAutoAdvance.
+    if (element.isPanel) {
+      for (let i = 0; i < questions.length; i++) {
+        if (questions[i].hasInput && questions[i].isEmpty()) return false;
+      }
+    }
+    if (this.isLastElement && !this.autoAdvanceAllowComplete) return false;
+    const input = element.singleInputQuestion;
+    const goNextQuestion = () => {
+      if (element !== this.currentSingleElement || input !== element.singleInputQuestion) return;
+      if (!this.isLastElement) {
+        this.performNext();
+      } else {
+        if (this.autoAdvanceAllowComplete) {
+          this.tryCompleteOrShowPreview();
+        }
+      }
+    };
+    surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
     return true;
   }
   private tryCompleteOrShowPreview(): void {
@@ -8225,10 +8444,6 @@ export class SurveyModel extends SurveyElementCore
     var question = this.getQuestionByValueName(name);
     if (question) {
       this.fireOnValueChanged(commentName, newValue, question);
-      question.comment = newValue;
-      if (question.comment != newValue) {
-        question.comment = newValue;
-      }
     }
   }
   /**
@@ -8236,8 +8451,10 @@ export class SurveyModel extends SurveyElementCore
    * @param {string} name An object property that stores the answer to delete. Pass a question's [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) or [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    */
   public clearValue(name: string): void {
-    this.setValue(name, null);
-    this.setComment(name, null);
+    this.runDeletingEmptyValues((): void => {
+      this.setValue(name, null);
+      this.setComment(name, null);
+    });
   }
   /**
    * Specifies whether to remove disabled choices from the value in [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), and [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model) questions.
@@ -8264,10 +8481,13 @@ export class SurveyModel extends SurveyElementCore
     return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean, resetIndexes: boolean): void {
+    if (!newValue) {
+      this.notifyElementHiddenOnComplete();
+    }
     if (resetIndexes) {
       this.updateVisibleIndexes(question.page);
     }
-    if (!newValue) {
+    if (!newValue && !this.isRunningConditionsOnComplete) {
       this.changeCurrentSingleElementOnVisibilityChanged();
     }
     this.onQuestionVisibleChanged.fire(this, {
@@ -8278,16 +8498,21 @@ export class SurveyModel extends SurveyElementCore
   }
   pageVisibilityChanged(page: PageModel, newValue: boolean) {
     if (this.isLoadingFromJson) return;
-    if (newValue && !this.currentPage || page === this.currentPage) {
+    if (!newValue) {
+      this.notifyElementHiddenOnComplete();
+    }
+    // A completed survey keeps the page and element it completed on, also when the completion clean-up hides them.
+    const canNavigate = !this.isRunningConditionsOnComplete;
+    if (canNavigate && (newValue && !this.currentPage || page === this.currentPage)) {
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    if (!newValue) {
+    if (!newValue && canNavigate) {
       this.changeCurrentSingleElementOnVisibilityChanged();
     }
     const el: any = this.currentSingleElement;
     const curPage = this.currentPage;
-    if (!!el && !!curPage && el.page !== curPage) {
+    if (canNavigate && !!el && !!curPage && el.page !== curPage) {
       this.currentSingleElement = curPage.getFirstVisibleElement();
     }
     this.onPageVisibleChanged.fire(this, {
@@ -8297,9 +8522,12 @@ export class SurveyModel extends SurveyElementCore
     this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
+    if (!newValue) {
+      this.notifyElementHiddenOnComplete();
+    }
     if (!!panel.page) {
       this.updateVisibleIndexes(panel.page);
-      if (!newValue) {
+      if (!newValue && !this.isRunningConditionsOnComplete) {
         this.changeCurrentSingleElementOnVisibilityChanged();
       }
     }
@@ -8524,6 +8752,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public getValueGetterContext(): IValueGetterContext {
     return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex);
+  }
+  // The stored data alone: no question, variable or calculated value answers a name, so a key that
+  // holds an empty value is found and a missing key is not. The hasValue('name') expression function reads it.
+  public getDataValueGetterContext(): IValueGetterContext {
+    return createDataContext(this.valuesHash, this.valuesKeyIndex);
   }
   processText(text: string, returnDisplayValue: boolean, context?: any): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false, context: context }).text;
@@ -9054,16 +9287,16 @@ export class SurveyModel extends SurveyElementCore
     if (isVariable) {
       this.setVariable(name, value);
     } else {
-      this.startSetValueFromTrigger();
-      const info = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext(), createObjects: true });
-      if (info.isFound && info.question) {
-        info.question.value = value;
-      } else {
-        if (name.indexOf(".") < 0) {
-          this.setValue(name, value);
+      this.valueFromTriggerScope.run(() => {
+        const info = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext(), createObjects: true });
+        if (info.isFound && info.question) {
+          info.question.value = value;
+        } else {
+          if (name.indexOf(".") < 0) {
+            this.setValue(name, value);
+          }
         }
-      }
-      this.finishSetValueFromTrigger();
+      });
     }
   }
   copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {
@@ -9077,14 +9310,8 @@ export class SurveyModel extends SurveyElementCore
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });
   }
-  private setValueFromTriggerCounter: number = 0;
-  public get isSettingValueFromTrigger(): boolean { return this.setValueFromTriggerCounter > 0; }
-  private startSetValueFromTrigger(): void {
-    this.setValueFromTriggerCounter ++;
-  }
-  private finishSetValueFromTrigger(): void {
-    this.setValueFromTriggerCounter --;
-  }
+  private valueFromTriggerScope = new Scope();
+  public get isSettingValueFromTrigger(): boolean { return this.valueFromTriggerScope.isActive; }
   private focusingQuestionInfo: any;
   private isMovingQuestion: boolean;
   public startMovingQuestion(): void {
@@ -9442,7 +9669,7 @@ export class SurveyModel extends SurveyElementCore
     return this.focusedQuestionScrollValue;
   }
 
-  public onScroll(): void {
+  public onScroll(event?: Event): void {
     if (!!this.rootElement) {
       if (this._isElementShouldBeSticky(".sv-components-container-center")) {
         this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
@@ -9453,12 +9680,14 @@ export class SurveyModel extends SurveyElementCore
         this.tocModel.updateStickyTOCSize(this.rootElement);
       }
     }
-    if (this.onScrollCallback) {
+    // A scroll event dispatched by script (the lazy rendering check) must not close an open popup.
+    // A call without an event (the popup survey window) still closes it.
+    if (this.onScrollCallback && event?.isTrusted !== false) {
       this.onScrollCallback();
     }
   }
   public addScrollEventListener(): void {
-    this.scrollHandler = () => { this.onScroll(); };
+    this.scrollHandler = (event: Event) => { this.onScroll(event); };
     this.rootElement.addEventListener("scroll", this.scrollHandler);
     if (!!this.rootElement.getElementsByTagName("form")[0]) {
       this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);

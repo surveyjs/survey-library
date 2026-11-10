@@ -153,8 +153,8 @@ describe("Records question: fixed matrix", () => {
     expect((<any>q).dataListValue, "#10: no record list").toBeUndefined();
   });
   /* The panel keeps the page states of the questions nested in its records while it rebuilds its
-     panels (the matrix that pages: page-window.test.ts). The fixed matrix next to it is walked as
-     well and has none. */
+     panels (the matrix that pages: page-window-touched-records.test.ts). The fixed matrix next to it
+     is walked as well and has none. */
   test("nested page state: a fixed matrix in a rebuilt dynamic panel has none and creates no list", () => {
     const survey = new SurveyModel({
       elements: [{
@@ -1042,11 +1042,8 @@ describe("Records questions: error walks", () => {
       detailElements: [{ type: "text", name: "q2", validators: [{ type: "expression", expression: "{row.q1} + {row.q2} <= 10" }] }]
     };
     [false, true].forEach(isPaged => {
-      /* Without paging getAllErrors reports the errors of the row cells only, as it always has; with
-         paging it walks the row objects of the page, detail panels included. */
-      const name = isPaged ? "with paging, a detail-panel error is reported and goes away when survey.setValue makes the row valid, "
-        : "without paging, a detail-panel error is not reported and stays until the matrix is validated, ";
-      test(name + kind.type, () => {
+      // With paging or without, getAllErrors walks the rows, detail panels included.
+      test("a detail-panel error is reported and goes away when survey.setValue makes the row valid, paged: " + isPaged + ", " + kind.type, () => {
         const survey = createSurvey(kind, [{ name: "q1", cellType: "text", inputType: "number" }],
           Object.assign({ pageSize: isPaged ? 3 : 0 }, detail));
         const q = survey.getQuestionByName("q");
@@ -1056,17 +1053,13 @@ describe("Records questions: error walks", () => {
         row.getQuestionByName("q2").value = 8;
         expect(q.validate(true), "#1").toBe(false);
         expect(row.getQuestionByName("q2").errors.length, "#1: the detail question shows it").toBe(1);
-        expect(q.getAllErrors().length, "#2: reported with paging only").toBe(isPaged ? 1 : 0);
+        expect(q.getAllErrors().length, "#2: reported").toBe(1);
         survey.setValue("q", kind.value([{ q1: 1, q2: 8 }, {}, {}]));
-        expect(row.getQuestionByName("q2").errors.length, "#3: re-validated with paging, kept without it").toBe(isPaged ? 0 : 1);
+        expect(row.getQuestionByName("q2").errors.length, "#3: re-validated").toBe(0);
         expect(q.getAllErrors().length, "#4").toBe(0);
-        if (!isPaged) {
-          q.validate(true);
-          expect(row.getQuestionByName("q2").errors.length, "#5: validated, it is gone").toBe(0);
-        }
       });
     });
-    test("without paging, clearErrors clears the cells of the visible rows only, " + kind.type, () => {
+    test("without paging, clearErrors clears the cells and the detail panels of every row, a hidden row's included, " + kind.type, () => {
       const survey = createSurvey(kind, [{ name: "a", isRequired: true }, { name: "h" }], Object.assign({
         detailPanelMode: "underRow",
         detailElements: [{ type: "text", name: "d", isRequired: true }]
@@ -1083,9 +1076,10 @@ describe("Records questions: error walks", () => {
       detailPanel.getQuestionByName("d").errors = [new CustomError("the detail question")];
       q.clearErrors();
       expect(kind.question(q, 0, "a").errors.length, "#2: a visible row").toBe(0);
-      expect(kind.question(q, 1, "a").errors.length, "#3: the hidden row keeps its error").toBe(1);
-      expect(detailPanel.getQuestionByName("d").errors.length, "#4: so does the detail question: detail panels take no part").toBe(1);
-      expect(q.allRows[2].detailPanel === null, "#5: no detail panel is created").toBe(true);
+      expect(kind.question(q, 1, "a").errors.length, "#3: the hidden row").toBe(0);
+      expect(detailPanel.getQuestionByName("d").errors.length, "#4: the detail question").toBe(0);
+      expect(q.getAllErrors().length, "#5: nothing reported").toBe(0);
+      expect(q.allRows[2].detailPanel === null, "#6: no detail panel is created").toBe(true);
     });
     test("with paging, clearErrors clears the rows of the page and their detail panels, the panel's own error included, and creates no detail panel, " + kind.type, () => {
       const survey = createSurvey(kind, [{ name: "a", isRequired: true }], {
@@ -1954,6 +1948,24 @@ describe("Records sort: the items Creator's property grid edits", () => {
     q.addColumn("c", "Gamma");
     q.getColumnByName("a").title = "A";
     expect(fields(), "#3").toEqual([{ field: "a", title: "A" }, { field: "b", title: "b" }, { field: "n", title: "Number" }, { field: "c", title: "Gamma" }]);
+  });
+  test("getDesignSortFields: the matrix lists the detail questions after the columns, and an invisible column keeps its place", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", allowSort: false, detailPanelMode: "underRow",
+      columns: [
+        { name: "a", title: "Alpha", cellType: "text" },
+        { name: "b", cellType: "text", visible: false }
+      ],
+      detailElements: [
+        { type: "text", name: "n", title: "Number", inputType: "number" },
+        { type: "text", name: "b", title: "Same key" },
+        { type: "panel", name: "box", elements: [{ type: "text", name: "c", title: "Nested {row.a}" }] },
+        { type: "expression", name: "e", expression: "1" }
+      ] }] });
+    const q = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    expect(q.getDesignSortFields()).toEqual([{ field: "a", title: "Alpha", dataType: "any" }, { field: "b", title: "b", dataType: "any" },
+      { field: "n", title: "Number", dataType: "number" }, { field: "c", title: "Nested", dataType: "any" }]);
+    q.detailPanelMode = "none";
+    expect(q.getDesignSortFields().map((f: any) => f.field), "#2").toEqual(["a", "b"]);
   });
   test("getDesignSortFields: the dynamic panel offers its template's value-sortable questions once each", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", templateElements: [

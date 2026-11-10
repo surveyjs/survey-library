@@ -24,7 +24,8 @@ frameworks.forEach((framework) => {
 
     test("Check first focused question, focus question", async ({ page }) => {
       await initSurvey(page, framework, json);
-      await page.waitForTimeout(500);
+      // autoFocusFirstQuestion focuses the first input after the page renders.
+      await expect(page.locator("div[data-name=q1] input")).toBeFocused();
       await page.keyboard.type("val1");
       await getButtonByText(page, "Next").click();
       await page.keyboard.type("val2");
@@ -83,21 +84,21 @@ frameworks.forEach((framework) => {
         ]
       });
 
-      const q1Sel = page.locator("input[type=text]").nth(0);
-      const panel1_q1Sel = page.locator("input[type=text]").nth(1);
+      const q1Sel = page.locator("div[data-name=q1] input");
+      const panel1_q1Sel = page.locator("div[data-name=panel1_q1] input");
 
+      // question.focus() scrolls first and focuses the input in a callback.
       await focusQuestion("panel1_q1", false);
-      await page.waitForTimeout(1000);
-
-      let elementVisisbleInViewPort = await visibleInViewportForShadowDom(page, "input[type=text]", 1);
-      await expect(elementVisisbleInViewPort).toBeTruthy();
+      await expect(panel1_q1Sel).toBeFocused();
+      await expect.poll(() => visibleInViewportForShadowDom(page, "input[type=text]", 1)).toBeTruthy();
       await page.keyboard.type("a");
 
       await focusQuestion("q1", false);
-      await page.waitForTimeout(1000);
-      elementVisisbleInViewPort = await visibleInViewportForShadowDom(page, "input[type=text]", 0);
-      await expect(elementVisisbleInViewPort).toBeTruthy();
+      await expect(q1Sel).toBeFocused();
+      await expect.poll(() => visibleInViewportForShadowDom(page, "input[type=text]", 0)).toBeTruthy();
       await page.keyboard.type("b");
+
+      let elementVisisbleInViewPort: boolean;
 
       await focusQuestion("panel1_q1", true);
       elementVisisbleInViewPort = await visibleInViewportForShadowDom(page, "input[type=text]", 1);

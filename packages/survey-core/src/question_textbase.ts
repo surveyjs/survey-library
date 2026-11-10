@@ -175,9 +175,17 @@ export class QuestionTextBase extends Question {
   }
   public get inputActionsContainer(): ActionContainer {
     if (!this._inputActionsContainer) {
-      this._inputActionsContainer = this.createInputActionsContainer();
+      this._inputActionsContainer = Base.runUntracked(() => this.createInputActionsContainer());
     }
     return this._inputActionsContainer;
+  }
+  // The character counter watches the survey's maxTextLength. The disposed container stays in the field:
+  // a renderer that reads it late gets no new container, which would subscribe again.
+  public dispose(): void {
+    super.dispose();
+    if (!!this._inputActionsContainer) {
+      this._inputActionsContainer.dispose();
+    }
   }
   public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);

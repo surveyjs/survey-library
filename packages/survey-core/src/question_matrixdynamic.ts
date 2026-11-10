@@ -32,6 +32,7 @@ import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsModel
 import { DynamicDataSourceMethod, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { ArrayDynamicDataSource, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
 import { isRecordEmpty } from "./dynamic-data/dynamic-data-records";
+import { ValueScope } from "./utils/scope";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -81,6 +82,11 @@ interface IRowRemoval extends IRecordRemoval {
 
 // The count properties of the dynamic matrix: getRecordCountNames and the Serializer entries read them.
 const rowCountNames = getRecordCountNamesOf("Row");
+/* RB01: the survey events a new row fires for its cells (canRebindOwnItems). onUpdateQuestionCssClasses
+   too: a cell keeps the classes a handler computed for its record. onAfterRenderQuestionInput fires once
+   per mounted cell editor, and a kept editor is not mounted again for the new record. */
+const rowCreationEvents = ["onQuestionCreated", "onMatrixCellCreating", "onMatrixCellCreated", "onMatrixRowAdded", "onAfterRenderMatrixCell",
+  "onAfterRenderQuestionInput", "onUpdateQuestionCssClasses"];
 
 /**
   * A class that describes the Dynamic Matrix question type.
@@ -154,6 +160,37 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase, position: number): void => {
       if (this.getBuiltRecordIndex(row) > -1 && position < indexes.length)this.setBuiltRecordIndex(row, indexes[position]);
     });
+  }
+  /* A sort, a cleared sort and a page move the list cuts keep the rows the way a move does: each row
+     takes the record its position holds now (rebindRows), and the rendered table keeps its rows - a
+     rebuild re-creates every cell and makes a renderer mount them again. Every other change, and every
+     case getRebindRecordIndexes refuses, is rebuilt as before. */
+  protected rebuildFromDataList(isPageMove: boolean, isSort: boolean = false): void {
+    const indexes = this.getRebindRecordIndexes(this.generatedVisibleRows, isPageMove, isSort);
+    if (!!indexes) {
+      this.rebindRows(indexes, (recordIndex: number): any => this.getNewRowValue(recordIndex));
+      return;
+    }
+    super.rebuildFromDataList(isPageMove);
+  }
+  // The matrix's own reasons to rebuild on a sort and a page move; the common ones are canRebindItems'.
+  protected canRebindOwnItems(): boolean {
+    // Under beginUpdate() the rows cannot be read.
+    if (this.isUpdateLocked) return false;
+    // A live-object value (Survey Creator's property grid) is never routed through the list.
+    if (this.isEditingObjectValue) return false;
+    // A detail panel is created for its record and keeps its nested questions' state under it.
+    if (this.detailPanelMode !== "none") return false;
+    /* RB01: the events and the callback a cell or a row is configured in for its record. The cell type
+       a row gets may vary by row too (getCustomCellType asks onMatrixCellCreating). */
+    if (!!this.onCellCreatedCallback || this.hasSurveyHandlers(rowCreationEvents)) return false;
+    // The vertical layout renders a row as a column.
+    if (!this.isColumnLayoutHorizontal) return false;
+    // A rebuild writes a record's defaults when its row is first built: a page visit or a sort may.
+    if (!this.isValueEmpty(this.defaultRowValue) || this.copyDefaultValueFromLastEntry) return false;
+    // Each choice of a column in showInMultipleColumns is a column of its own.
+    return this.columns.every((column: MatrixDropdownColumn): boolean =>
+      !column.isShowInMultipleColumns && this.canRebindTemplateQuestion(column.templateQuestion));
   }
   /* The records source reads question.value padded up to rowCount with copies of the default row
      value, as createNewValue() pads it. The padding is virtual - it reaches question.value only when a
@@ -572,7 +609,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isEditingObjectValue) {
       const value = this.createNewValue();
       value.splice(toIndex, 0, rowData);
-      this.setRecordCountCore(this.rowCount + 1);
+      // The length, not rowCount + 1: rowCount lags behind a plain array that was pushed to outside the matrix.
+      this.setRecordCountCore(value.length);
       this.value = value;
       return;
     }
@@ -616,7 +654,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isEditingObjectValue) {
       const value = this.createNewValue();
       value.splice(fromIndex, 1);
-      this.setRecordCountCore(this.rowCount - 1);
+      // A live array has notified: that notification brought the rows and rowCount up to date.
+      if (this.isLiveRecords(value)) return;
+      // The length, not rowCount - 1: rowCount lags behind a plain array that was pushed to outside the matrix.
+      this.setRecordCountCore(value.length);
       this.value = value;
       return;
     }
@@ -712,8 +753,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.value && this.value.length > val) {
       if (this.isEditingObjectValue) {
         var qVal = this.value;
-        qVal.splice(val);
+        this.truncateRecords(qVal, val);
         this.value = qVal;
+        // The empty splice of a live array has notified and put rowCount back to its length: the rows follow that count.
+        val = this.rowCountValue;
       } else {
         this.dataList.batch((): void => { this.dataList.truncate(val); });
       }
@@ -1403,6 +1446,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.keyName;
   }
   protected generateRows(): Array<MatrixDynamicRowModel> {
+    this.followPlainEditedArrayLength();
     if (this.rowCount === 0) return [];
     const indexes = this.getRecordIndexesForRows();
     /* The default write-back needs the whole padded value, and a live-object value is not copied at
@@ -1417,6 +1461,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.setOwnRecordsValue(val);
     }
     return result;
+  }
+  /* A plain array of an edited object does not notify, so rowCount lags behind records pushed to it
+     outside the matrix: a row rebuild catches up with them, before the indexes of the rows are taken. */
+  private followPlainEditedArrayLength(): void {
+    if (!this.isEditingObjectValue) return;
+    const val = this.value;
+    if (Array.isArray(val) && !this.isLiveRecords(val) && val.length > this.rowCountValue) {
+      this.setPropertyValueDirectly("rowCount", val.length);
+    }
   }
   /* The defaults reach question.value when rows are built for records it does not hold yet: the
      value is shorter than rowCount (the padded records get the defaults) or longer (it is truncated).
@@ -1563,19 +1616,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* Clearing such records leaves the rows as they are, as they stayed while such a matrix had no value
      (onBeforeValueChanged). A live array Creator assigns over them - they were written on first
      rendering, before the edited object was set - is stored as it is, not copied into them. */
-  private isClearingEmptyRecords: boolean = false;
+  private clearingEmptyRecordsScope = new ValueScope<boolean>(false);
+  private get isClearingEmptyRecords(): boolean {
+    return this.clearingEmptyRecordsScope.value;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    const prev = this.isClearingEmptyRecords;
     const isEmptyRecords = this.isStoredValueEmptyRecords();
     if (isEmptyRecords && this.isEditingSurveyElement && Array.isArray(newValue)) {
       this.clearPropertyValue("value");
     }
-    this.isClearingEmptyRecords = isEmptyRecords && this.isValueEmpty(newValue);
-    try {
-      super.setQuestionValue(newValue, updateIsAnswered);
-    } finally {
-      this.isClearingEmptyRecords = prev;
-    }
+    this.clearingEmptyRecordsScope.run(isEmptyRecords && this.isValueEmpty(newValue), () => super.setQuestionValue(newValue, updateIsAnswered));
     /* A cleared value: Base.setPropertyValue empties the stored array in place and keeps it. It goes,
        so that question.value is undefined as survey.getValue is, and the next value - a live object
        array Creator assigns - becomes the stored one instead of being copied into it. */
@@ -1649,8 +1699,27 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     /* The window of a data source is neither truncated nor padded to rowCount: rowCount is the server
        total and the records beyond the window are on the server, not missing from the value. */
     if (this.isRemoteData) return result;
-    if (result.length > this.rowCount) result.splice(this.rowCount);
+    /* The array of an edited object is not truncated here: rowCount lags behind a plain array that was
+       pushed to outside the matrix, and a write would drop the pushed records. A lowered rowCount still
+       truncates it (setRowCountCore). */
+    if (result.length > this.rowCount && !this.isEditingObjectValue) {
+      this.truncateRecords(result, this.rowCount);
+    }
     return this.arrayRecordsSource["padRecordsToMinCount"](result);
+  }
+  /* The value of an edited object is not copied, so a Base live array here is that object's own array,
+     and rowCount can lag behind it: it keeps its items. Its empty splice only notifies, and that
+     notification brings rowCount back to the length of the array. A plain array is truncated. */
+  private truncateRecords(records: Array<any>, count: number): void {
+    if (this.isLiveRecords(records)) {
+      records.splice(count, 0);
+    } else {
+      records.splice(count);
+    }
+  }
+  // A Base live array (Base.createNewArray) has its own splice, which notifies the object that owns it.
+  private isLiveRecords(records: Array<any>): boolean {
+    return Object.prototype.hasOwnProperty.call(records, "splice");
   }
   // The lookup is the own source's (readRecordInAnswer); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {
@@ -1713,7 +1782,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private toolbarValue: ActionContainer;
   public get toolbar(): ActionContainer {
     if (!this.toolbarValue) {
-      this.initToolbar();
+      Base.runUntracked(() => this.initToolbar());
     }
     return this.toolbarValue;
   }
@@ -1758,6 +1827,8 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
          follows the rows the table adds and removes in place; a keyboard move keeps every position. */
       const getRowNumber = (): number => {
         this.getPropertyValue("rows");
+        // A page move that keeps the rows renumbers them (updateAfterRowsRebound).
+        this.getPropertyValue("rowsRebindCount");
         return this.matrix.getRowNumberInView(row);
       };
       actions.push(new Action({

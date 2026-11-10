@@ -53,8 +53,6 @@ export var bulgarianStrings = {
   sortMoreAriaLabel: "Покажи всички нива на сортиране",
   // [Auto-translated] "Add New"
   sortAddNewText: "Добави ново",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Премести сортиране на ниво {0}",
   // "Complete"

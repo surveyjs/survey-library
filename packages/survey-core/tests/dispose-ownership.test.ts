@@ -654,8 +654,8 @@ describe("a row that edits an object", () => {
     const handlers = (items: Array<ItemValue>): Array<number> => items.map(item => item.onPropertyChanged.length);
     const first = createEdited();
     expect(handlers(first.items), "#1").toEqual(first.counts.map(c => c + 1));
-    first.matrix.rowCount = 2;
-    expect(handlers(first.items), "#2: a row cut off").toEqual([first.counts[0] + 1, first.counts[1] + 1, first.counts[2]]);
+    first.matrix.removeRowUI(first.matrix.visibleRows[2]);
+    expect(handlers(first.items), "#2: a row removed").toEqual([first.counts[0] + 1, first.counts[1] + 1, first.counts[2]]);
     first.survey.dispose();
     expect(handlers(first.items), "#3: survey.dispose").toEqual(first.counts);
     const second = createEdited();

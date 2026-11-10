@@ -118,6 +118,10 @@
     flex: 1 0 0;
     align-self: stretch;
     min-height: var(--sjs2-size-x1500);
+
+    .sd-loading-indicator .sv-svg-icon use {
+        fill: var(--sjs2-color-fg-brand-primary);
+    }
 }
 
 .sd-selectlist__empty-text {

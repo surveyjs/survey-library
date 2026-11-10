@@ -14,6 +14,7 @@ import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { settings } from "./settings";
+import { ISurveySettings, getSettingsOfSurvey } from "./survey-settings";
 import { SurveyModel } from "./survey";
 import { CreateCustomChoiceItemEvent } from "./survey-events-api";
 import { toCssClasses } from "./utils/cssClassBuilder";
@@ -94,6 +95,7 @@ export class DropdownListModel extends Base {
   }
   private _loadQuestionChoices(callbackAfterItemsLoaded?: () => void) {
     const _filterString = this.filterString;
+    this.listModel.isAllDataLoaded = false;
     this.setIsChoicesLoading(true);
     this.question.survey.loadQuestionChoices({
       question: this.question,
@@ -119,11 +121,15 @@ export class DropdownListModel extends Base {
     }
   }
 
+  private getQuestionSurveySettings(): ISurveySettings {
+    return getSettingsOfSurvey(!!this.question ? this.question.survey : undefined);
+  }
   private processCustomValue(newValue?: string) {
     if (!this.allowCustomChoices) return;
 
     const value = newValue || this.filterString;
-    const item = this.listModel.getVisibleActions().filter(action => Helpers.isTwoValueEquals(action.text, value, false, false))[0];
+    const surveySettings = this.getQuestionSurveySettings();
+    const item = this.listModel.getVisibleActions().filter(action => Helpers.isTwoValueEquals(action.text, value, false, false, undefined, surveySettings))[0];
     if (!!item) {
       this.customValue = undefined;
     } else {
@@ -217,6 +223,7 @@ export class DropdownListModel extends Base {
     }
     if (isVisible && this.choicesLazyLoadEnabled) {
       this.listModel.actions = [];
+      this.listModel.isAllDataLoaded = false;
       this.resetItemsSettings();
       this.updateQuestionChoices();
     }
@@ -608,6 +615,7 @@ export class DropdownListModel extends Base {
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
+    this.setLoadingComponent(this.question.loadingComponent);
     this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.setInputPlaceholder(this.question.placeholder);
     this.updateAfterListModelCreated(this.listModel);
@@ -703,6 +711,10 @@ export class DropdownListModel extends Base {
     if (newValue) {
       this.searchEnabled = newValue;
     }
+  }
+
+  public setLoadingComponent(newValue: string): void {
+    this.listModel.loadingComponent = newValue || "sv-list-loading";
   }
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {

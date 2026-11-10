@@ -871,6 +871,14 @@ describe("property/dead fix", () => {
     expect(finding.reason).toBe("inertMinMax");
     expect(finding.fix.edits).toEqual([{ op: "remove", path: "elements[0].min" }]);
   });
+  test("requiredTrue on a boolean that is never required is dropped, Issue#12241", () => {
+    const json = { elements: [{ type: "boolean", name: "q1", requiredTrue: true }] };
+    const finding = findingOf(json, "property/dead");
+    expect(finding.reason).toBe("requiredTrueNotRequired");
+    expect(finding.fix.edits).toEqual([{ op: "remove", path: "elements[0].requiredTrue" }]);
+    const fixed = expectFixSettles(json, finding);
+    expect(fixed.elements[0].requiredTrue).toBeUndefined();
+  });
 });
 
 describe("property/invalid-value out-of-range fix", () => {

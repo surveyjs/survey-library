@@ -1,0 +1,45 @@
+{
+  "_id": "67b5d190ac6f65931c9a320a",
+  "title": "vgc",
+  "name": "vgc",
+  "path": "vgc",
+  "type": "resource",
+  "display": "form",
+  "owner": "67b6f60e123d923eafbc391a",
+  "components": [
+    {
+      "label": "Text Field",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "defaultValue": "test",
+      "clearOnHide": false,
+      "validateWhenHidden": false,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Text Area",
+      "widget": "",
+      "applyMaskOn": "change",
+      "autoExpand": false,
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "textArea",
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "machineName": "ryyclyrmbzvuqog:vgc",
+  "project": "67a0e3801e09b2c654c75a09",
+  "created": "2025-02-19T12:41:52.105Z",
+  "modified": "2025-02-21T09:47:04.510Z"
+}

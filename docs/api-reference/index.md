@@ -19,17 +19,16 @@ product: Form Library
 - [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdynamicmodel.md) — A class that describes the Dynamic Matrix question type.
 - [`QuestionMatrixModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixmodel.md) — A class that describes the Single-Select Matrix question type.
 - [`QuestionFileModel`](https://surveyjs.io/form-library/documentation/api-reference/questionfilemodel.md) — A class that describes the File Upload question type.
-- [`MultipleTextItemModel`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel.md) — A class that describes an item in a Multiple Textboxes question.
 - [`QuestionSliderModel`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel.md) — A class that describes the Slider question type.
 - [`QuestionTextModel`](https://surveyjs.io/form-library/documentation/api-reference/questiontextmodel.md) — A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
-- [`QuestionRatingModel`](https://surveyjs.io/form-library/documentation/api-reference/questionratingmodel.md) — A class that describes the Rating Scale question type.
 - [`QuestionDropdownModel`](https://surveyjs.io/form-library/documentation/api-reference/questiondropdownmodel.md) — A class that describes the Dropdown question type.
+- [`QuestionRatingModel`](https://surveyjs.io/form-library/documentation/api-reference/questionratingmodel.md) — A class that describes the Rating Scale question type.
 - [`QuestionSignaturePadModel`](https://surveyjs.io/form-library/documentation/api-reference/questionsignaturepadmodel.md) — A class that describes the Signature question type.
 - [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/pagemodel.md) — The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
 - [`PopupSurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/popupsurveymodel.md) — A class that renders a survey in a pop-up window.
 - [`QuestionImagePickerModel`](https://surveyjs.io/form-library/documentation/api-reference/questionimagepickermodel.md) — A class that describes the Image Picker question type.
-- [`QuestionCheckboxModel`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxmodel.md) — A class that describes the Checkboxes question type.
 - [`QuestionTagboxModel`](https://surveyjs.io/form-library/documentation/api-reference/questiontagboxmodel.md) — A class that describes the Multi-Select Dropdown (Tag Box) question type.
+- [`QuestionCheckboxModel`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxmodel.md) — A class that describes the Checkboxes question type.
 - [`PanelModel`](https://surveyjs.io/form-library/documentation/api-reference/panelmodel.md) — A class that describes the Panel container element.
 - [`QuestionBooleanModel`](https://surveyjs.io/form-library/documentation/api-reference/questionbooleanmodel.md) — A class that describes the Yes/No (Boolean) question type.
 - [`QuestionExpressionModel`](https://surveyjs.io/form-library/documentation/api-reference/questionexpressionmodel.md) — A class that describes the Expression question type.
@@ -75,4 +74,5 @@ product: Form Library
 ## Variables
 
 - [`settings`](https://surveyjs.io/form-library/documentation/api-reference/settings.md) — Global settings that apply to all surveys on the page.
+- [`allEditors`](https://surveyjs.io/form-library/documentation/api-reference/alleditors.md) — A class that describes an item in a Multiple Textboxes question.
 - [`Serializer`](https://surveyjs.io/form-library/documentation/api-reference/serializer.md) — An alias for the metadata object.

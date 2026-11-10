@@ -1,0 +1,49 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Date / Time",
+      "tableView": true,
+      "enableMinDateInput": false,
+      "datePicker": {
+        "disableWeekends": false,
+        "disableWeekdays": false
+      },
+      "enableMaxDateInput": false,
+      "multiple": true,
+      "key": "dateTime",
+      "type": "datetime",
+      "input": true,
+      "widget": {
+        "type": "calendar",
+        "displayInTimezone": "submission",
+        "locale": "en",
+        "useLocaleSettings": false,
+        "allowInput": true,
+        "mode": "single",
+        "enableTime": true,
+        "noCalendar": false,
+        "format": "yyyy-MM-dd hh:mm a",
+        "hourIncrement": 1,
+        "minuteIncrement": 1,
+        "time_24hr": false,
+        "minDate": null,
+        "disableWeekends": false,
+        "disableWeekdays": false,
+        "maxDate": null
+      }
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "title": "test15",
+  "display": "form",
+  "name": "test15",
+  "path": "test15"
+}

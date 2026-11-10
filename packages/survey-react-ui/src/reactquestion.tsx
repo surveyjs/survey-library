@@ -150,7 +150,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       <>
         <div
           ref={this.rootRef}
-          id={question.id}
+          id={question.renderedId}
           className={question.getRootCss()}
           style={rootStyle}
           data-name={question.name}
@@ -250,7 +250,6 @@ ReactElementFactory.Instance.registerElement("question", (props) => {
 export class SurveyElementErrors extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
-    this.state = this.getState();
   }
   protected get id(): string {
     return this.props.element.renderedId + "_errors";
@@ -261,13 +260,8 @@ export class SurveyElementErrors extends ReactSurveyElement {
   private get creator(): ISurveyCreator {
     return this.props.creator;
   }
-  private getState(prevState: any = null) {
-    return !prevState ? { error: 0 } : { error: prevState.error + 1 };
-  }
   protected canRender(): boolean {
     return !!this.element && this.element.hasVisibleErrors;
-  }
-  componentWillUnmount() {
   }
   protected renderElement(): React.JSX.Element {
     const errors: Array<React.JSX.Element> = [];

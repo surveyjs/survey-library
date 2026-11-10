@@ -9,7 +9,7 @@ import { Operand, Const, Variable, BinaryOperand, UnaryOperand, FunctionOperand,
 // message, must be the same.
 //
 // Every terminal that fails is recorded as in peggy (except inside the whitespace rule "_", which is silent):
-// the farthest position, and a bit per expectation in one of two words. A failure at a position before a
+// the farthest position, and a bit per expectation in one of three words. A failure at a position before a
 // farther failure the same rule always records can be left out; the comments say where this is done.
 
 export class ExpressionSyntaxError extends Error {
@@ -62,6 +62,9 @@ const X_DESCRIPTIONS = ["\"(\"", "\")\"", "\"!\"", "\"negate\"", "\"empty\"", "\
   "\"0x\"", "[\\-]", "\".\"", "\"0\"", "[^{}]",
   "\"\\\\'\"", "\"\\\\\\\"\"", "[^']", "[0-9]", "[1-9]",
   "[a-zA-Z_]", "end of input", "[^\"]"];
+// Expectations of the exponent of a number (the other word is full)
+const E_EXP = 1 << 0, E_EXP_SIGN = 1 << 1;
+const E_DESCRIPTIONS = ["[eE]", "[+\\-]"];
 // The first terminals of ConstValue's alternatives: all of them fail on a character that starts none of them
 const X_CONST_START = X_TRUE | X_FALSE | X_HEX | X_SIGN | X_DIGIT | X_NONZERO_DIGIT | X_ZERO | X_LETTER |
   X_EMPTY_SQ | X_EMPTY_DQ | X_SQ | X_DQ;
@@ -108,6 +111,7 @@ class ExpressionParser {
   private maxFailPos: number = 0;
   private failedOps: number = 0;
   private failedOther: number = 0;
+  private failedExponent: number = 0;
   private wsStart: number = -1;
   private wsEnd: number = 0;
 
@@ -130,6 +134,9 @@ class ExpressionParser {
     for (let i = 0; i < X_DESCRIPTIONS.length; i++) {
       if ((this.failedOther & (1 << i)) !== 0) descriptions.push(X_DESCRIPTIONS[i]);
     }
+    for (let i = 0; i < E_DESCRIPTIONS.length; i++) {
+      if ((this.failedExponent & (1 << i)) !== 0) descriptions.push(E_DESCRIPTIONS[i]);
+    }
     // Each expectation has its own description, so there is nothing to deduplicate
     descriptions.sort();
     const last = descriptions.length - 1;
@@ -146,6 +153,7 @@ class ExpressionParser {
       this.maxFailPos = pos;
       this.failedOps = 0;
       this.failedOther = 0;
+      this.failedExponent = 0;
     }
     this.failedOps |= expected;
   }
@@ -155,8 +163,19 @@ class ExpressionParser {
       this.maxFailPos = pos;
       this.failedOps = 0;
       this.failedOther = 0;
+      this.failedExponent = 0;
     }
     this.failedOther |= expected;
+  }
+  private failExponent(pos: number, expected: number): void {
+    if (pos < this.maxFailPos) return;
+    if (pos > this.maxFailPos) {
+      this.maxFailPos = pos;
+      this.failedOps = 0;
+      this.failedOther = 0;
+      this.failedExponent = 0;
+    }
+    this.failedExponent |= expected;
   }
 
   private code(pos: number): number {
@@ -760,8 +779,32 @@ class ExpressionParser {
     }
     return c === 45 ? -num : num;
   }
-  // Number = Digits "." Digits / NonZeroDigits Digits? / "0"
+  // Number = Mantissa Exponent / Mantissa, Exponent = [eE] [+-]? Digits. When the exponent fails, the second alternative
+  // matches the same Mantissa again and records no other failure: the mantissa is parsed once.
   private parseNumber(start: number): number | undefined {
+    const num = this.parseMantissa(start);
+    if (num === undefined) return undefined;
+    const text = this.text;
+    let pos = this.pos;
+    const c = text.charCodeAt(pos);
+    if (c !== 101 && c !== 69) {
+      this.failExponent(pos, E_EXP);
+      return num;
+    }
+    pos++;
+    const sign = text.charCodeAt(pos);
+    if (sign === 43 || sign === 45) {
+      pos++;
+    } else {
+      this.failExponent(pos, E_EXP_SIGN);
+    }
+    const end = this.scanDigits(pos);
+    if (end === pos) return num;
+    this.pos = end;
+    return parseFloat(text.substring(start, end));
+  }
+  // Mantissa = Digits "." Digits / NonZeroDigits Digits? / "0"
+  private parseMantissa(start: number): number | undefined {
     const text = this.text;
     const intEnd = this.scanDigits(start);
     if (intEnd > start) {

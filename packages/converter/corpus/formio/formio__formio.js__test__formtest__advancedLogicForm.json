@@ -1,0 +1,60 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Checkbox",
+      "tableView": false,
+      "defaultValue": false,
+      "key": "requestedCovers.HOUSECONTENT_JEWELRY",
+      "type": "checkbox",
+      "input": true
+    },
+    {
+      "label": "Currency",
+      "mask": false,
+      "spellcheck": true,
+      "tableView": false,
+      "currency": "USD",
+      "inputFormat": "plain",
+      "key": "currency",
+      "logic": [
+        {
+          "name": "Logic",
+          "trigger": {
+            "type": "simple",
+            "simple": {
+              "show": true,
+              "when": "requestedCovers.HOUSECONTENT_JEWELRY",
+              "eq": "true"
+            }
+          },
+          "actions": [
+            {
+              "name": "Action",
+              "type": "property",
+              "property": {
+                "label": "Disabled",
+                "value": "disabled",
+                "type": "boolean"
+              },
+              "state": true
+            }
+          ]
+        }
+      ],
+      "type": "currency",
+      "input": true,
+      "delimiter": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "dotNotation",
+  "display": "form"
+}

@@ -1,0 +1,57 @@
+{
+  "type": "form",
+  "owner": "5e05a6b7549cdc2ece30c6b0",
+  "components": [
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Form",
+      "disabled": true,
+      "tableView": true,
+      "key": "form",
+      "type": "form",
+      "display": "form",
+      "components": [
+        {
+          "label": "Text Field",
+          "tableView": true,
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "label": "Text Field 2",
+          "tableView": true,
+          "key": "textField2",
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "type": "button",
+          "label": "Submit",
+          "key": "submit",
+          "disableOnInvalid": true,
+          "input": true,
+          "tableView": false
+        }
+      ],
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "FJS-1136",
+  "display": "form",
+  "name": "fjs1136"
+}

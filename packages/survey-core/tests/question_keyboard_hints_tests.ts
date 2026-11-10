@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
+import { KeyboardHintItem } from "../src/keyboard-hints";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionBooleanModel } from "../src/question_boolean";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
@@ -41,7 +42,11 @@ function hints(question: any, surveyExtra: any = {}): Array<{ text: string, keys
 }
 
 function shown(question: Question): Array<{ text: string, keys: string[] }> {
-  return question.getKeyboardHintModel().items.filter(item => !item.className.includes(hiddenClass)).map(rowOf);
+  const chips: KeyboardHintItem[] = [];
+  question.getKeyboardHintModel().items.forEach(item => {
+    chips.push(...(item.alternatives.length > 0 ? item.alternatives : [item]));
+  });
+  return chips.filter(item => !item.className.includes(hiddenClass)).map(rowOf);
 }
 
 function isToggleVisible(obj: any): boolean {
@@ -468,7 +473,7 @@ test("tagbox swaps enter to continue with space or enter to select", () => {
   expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to continue"]);
   q.dropdownListModel.popupModel.show();
   expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to select"]);
-  const select = q.getKeyboardHintModel().items[4];
+  const select = q.getKeyboardHintModel().items[3].alternatives[1];
   expect(rowOf(select)).toEqual(row("to select", [space, enter]));
   expect(select.parts.map(part => part.text)).toEqual([space, "or", enter, "to select"]);
   expect(select.parts.map(part => part.className)).toEqual(["sd-item__shortcut-key", "sd-question__keyboard-hint-or", "sd-item__shortcut-key", "sd-question__keyboard-hint-text"]);
@@ -731,7 +736,7 @@ test("inputPerPage select question keeps its row at its own step and yields it a
       ]
     });
     const q = survey.getQuestionByName("q") as Question;
-    q.value = value;
+    survey.data = { q: value };
     expect(q.singleInputQuestion, type).toBeUndefined();
     expect(q.canShowKeyboardHints(), type + " own step").toBe(true);
     expect(shown(q).length, type + " own step").toBeGreaterThan(0);
@@ -866,6 +871,12 @@ const keyDown = { keyCode: 40, preventDefault: () => { }, stopPropagation: () =>
 function enterKey(target: any = {}): any {
   return { key: "Enter", keyCode: 13, which: 13, target: target, preventDefault: () => { }, stopPropagation: () => { } };
 }
+// Text reads its input on keyup, so one press goes through both handlers.
+function pressEnterOnText(question: any, text: any): void {
+  const event = enterKey({ value: text });
+  question.onKeyDown(event);
+  question.onKeyUp(event);
+}
 
 test("an open dropdown hides the enter chip while enter would clear the value", () => {
   const survey = new SurveyModel({
@@ -941,12 +952,38 @@ test("a tagbox keeps both enter slots, so opening it does not resize the row", (
     ]
   });
   const q = survey.getQuestionByName("q") as any;
-  const slots = () => q.getKeyboardHintModel().items.slice(3).map(item => ({
-    text: rowOf(item).text, hidden: item.className.includes(hiddenClass)
-  }));
+  const slots = () => {
+    const items = q.getKeyboardHintModel().items;
+    expect(items.length).toBe(4);
+    expect(items[3].className).toBe("sd-question__keyboard-hint-slot");
+    expect(items[3].parts).toEqual([]);
+    return items[3].alternatives.map(item => ({ text: rowOf(item).text, hidden: item.className.includes(hiddenClass) }));
+  };
   expect(slots()).toEqual([{ text: "to continue", hidden: false }, { text: "to select", hidden: true }]);
   q.dropdownListModel.popupModel.show();
   expect(slots()).toEqual([{ text: "to continue", hidden: true }, { text: "to select", hidden: false }]);
+});
+
+test("only a tagbox with a closed enter chip shares a cell", () => {
+  const hasAlternatives = (question: any, surveyExtra: any = {}) => {
+    const survey = new SurveyModel(Object.assign({
+      showKeyboardHints: true,
+      pages: [
+        { elements: [Object.assign({ name: "q", choices: ["a", "b"] }, question)] },
+        { elements: [{ type: "text", name: "next" }] }
+      ]
+    }, surveyExtra));
+    const q = survey.getQuestionByName("q") as any;
+    const read = () => q.getKeyboardHintModel().items.some(item => item.alternatives.length > 0);
+    const closed = read();
+    q.dropdownListModel.popupModel.show();
+    expect(read()).toBe(closed);
+    return closed;
+  };
+  expect(hasAlternatives({ type: "tagbox" }, { autoAdvanceEnabled: true })).toBe(true);
+  expect(hasAlternatives({ type: "tagbox" })).toBe(false);
+  expect(hasAlternatives({ type: "dropdown" })).toBe(false);
+  expect(hasAlternatives({ type: "dropdown" }, { autoAdvanceEnabled: true })).toBe(false);
 });
 
 test("building hints does not walk the survey", () => {
@@ -986,30 +1023,31 @@ test("the enter chip says what the real key handler does", () => {
   const pressList = (q: any) => q.dropdownListModel.keyHandler(enterKey());
   const cases: Array<{ name: string, element: any, value?: any, press: (q: any) => void }> = [
     { name: "text", element: { type: "text" }, press: pressText },
+    { name: "unchanged text", element: { type: "text" }, value: "typed", press: (q: any) => pressEnterOnText(q, "typed") },
     { name: "radiogroup", element: { type: "radiogroup", choices: ["a", "b"] }, value: "a", press: pressRadio },
     { name: "tagbox", element: { type: "tagbox", choices: ["a", "b"] }, value: ["a"], press: pressList }
   ];
   cases.forEach(({ name, element, value, press }) => {
     const before = onPages(element);
-    before.q.value = value;
+    before.survey.data = { q: value };
     expect(enterChip(before.q), name).toBe("to continue");
     press(before.q);
     expect(before.survey.currentPageNo, name).toBe(1);
 
     const last = onPages(element, {}, 0);
-    last.q.value = value;
+    last.survey.data = { q: value };
     expect(enterChip(last.q), name).toBe("to submit");
     press(last.q);
     expect(last.survey.state, name).toBe("completed");
 
     const noComplete = onPages(element, { autoAdvanceAllowComplete: false }, 0);
-    noComplete.q.value = value;
+    noComplete.survey.data = { q: value };
     expect(enterChip(noComplete.q), name).toBeUndefined();
     press(noComplete.q);
     expect(noComplete.survey.state, name).toBe("running");
 
     const preview = onPages(element, { showPreviewBeforeComplete: true }, 0);
-    preview.q.value = value;
+    preview.survey.data = { q: value };
     expect(enterChip(preview.q), name).toBe("to continue");
     press(preview.q);
     expect(preview.survey.state, name).toBe("preview");
@@ -1040,6 +1078,13 @@ test("the enter chip says what the real key handler does", () => {
   expect(enterChip(inner)).toBeUndefined();
   pressRadio(inner);
   expect(nested.currentPageNo).toBe(0);
+
+  const inChoice = surveyWithChoiceNested({ type: "radiogroup", name: "inner", choices: ["x", "y"] });
+  const innerChoice = inChoice.getQuestionByName("inner") as any;
+  innerChoice.value = "x";
+  expect(enterChip(innerChoice)).toBeUndefined();
+  pressRadio(innerChoice);
+  expect(inChoice.currentPageNo).toBe(0);
 });
 
 // Multiple text holds Enter back until all its items are filled, so the items start filled.
@@ -1072,4 +1117,386 @@ test("inputPerPage: enter on a filled multiple text input does what its chip say
   expect(enterChip(last.singleInputQuestion)).toBe("to submit");
   press(last, "4");
   expect(lastSurvey.state).toBe("completed");
+});
+
+function surveyWithPages(firstPage: any[], extra: any = {}) {
+  settings.autoAdvanceDelay = 0;
+  const survey = new SurveyModel(Object.assign({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    pages: [
+      { elements: firstPage },
+      { elements: [{ type: "text", name: "next" }] },
+      { elements: [{ type: "text", name: "last" }] }
+    ]
+  }, extra));
+  const moves = { count: 0 };
+  survey.onCurrentPageChanged.add(() => { moves.count++; });
+  return { survey: survey, q: survey.getQuestionByName("q") as any, moves: moves };
+}
+
+function surveyWithText(element: any = {}, extra: any = {}) {
+  return surveyWithPages([Object.assign({ type: "text", name: "q" }, element)], extra);
+}
+
+function surveyWithChoiceNested(nested: any, extra: any = {}): SurveyModel {
+  settings.autoAdvanceDelay = 0;
+  const survey = new SurveyModel(Object.assign({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    pages: [
+      { elements: [{ type: "radiogroup", name: "q", choices: ["a", { value: "b", elements: [nested] }] }] },
+      { elements: [{ type: "text", name: "next" }] }
+    ]
+  }, extra));
+  survey.setValue("q", "b");
+  return survey;
+}
+
+test("text: enter on an unchanged value moves to the next page once", () => {
+  const { survey, q, moves } = surveyWithText();
+  survey.data = { q: "abc" };
+  pressEnterOnText(q, "abc");
+  expect(survey.currentPageNo).toBe(1);
+  expect(moves.count).toBe(1);
+  expect(q.value).toBe("abc");
+});
+
+test("text: enter moves on a value that came from the survey data", () => {
+  const { survey, q } = surveyWithText();
+  survey.data = { q: "abc" };
+  pressEnterOnText(q, "abc");
+  expect(survey.currentPageNo).toBe(1);
+  const withDefault = surveyWithText({ defaultValue: "abc" });
+  pressEnterOnText(withDefault.q, "abc");
+  expect(withDefault.survey.currentPageNo).toBe(1);
+});
+
+test("text: enter with new text moves once and stores the new value", () => {
+  const { survey, q, moves } = surveyWithText();
+  survey.data = { q: "abc" };
+  pressEnterOnText(q, "new");
+  expect(q.value).toBe("new");
+  expect(survey.currentPageNo).toBe(1);
+  expect(moves.count).toBe(1);
+});
+
+test("text: enter that differs only in case or spaces counts as new text", () => {
+  const { survey, q } = surveyWithText();
+  survey.data = { q: "abc" };
+  pressEnterOnText(q, "ABC ");
+  expect(q.value).toBe("ABC ");
+  expect(survey.currentPageNo).toBe(1);
+});
+
+test("text: enter waits for keyup when the input holds new text", () => {
+  const { survey, q } = surveyWithText();
+  survey.data = { q: "abc" };
+  q.onKeyDown(enterKey({ value: "new" }));
+  expect(survey.currentPageNo).toBe(0);
+  expect(q.value).toBe("abc");
+});
+
+test("text with a mask: enter on an unchanged value moves once", () => {
+  [
+    { mask: { maskType: "pattern", maskSettings: { pattern: "99-99" } }, value: "1234", text: "12-34" },
+    { mask: { maskType: "pattern", maskSettings: { pattern: "99-99", saveMaskedValue: true } }, value: "12-34", text: "12-34" },
+    { mask: { maskType: "numeric" }, value: 1234.5, text: "1,234.5" },
+    { mask: { maskType: "currency", maskSettings: { prefix: "$" } }, value: 1234, text: "$1,234" },
+    { mask: { maskType: "datetime", maskSettings: { pattern: "mm/dd/yyyy" } }, value: "2026-03-04", text: "03/04/2026" }
+  ].forEach(({ mask, value, text }) => {
+    const { survey, q, moves } = surveyWithText(mask);
+    survey.data = { q: value };
+    expect(q.inputValue, mask.maskType).toBe(text);
+    pressEnterOnText(q, text);
+    expect(survey.currentPageNo, mask.maskType).toBe(1);
+    expect(moves.count, mask.maskType).toBe(1);
+    expect(q.value, mask.maskType).toBe(value);
+  });
+});
+
+test("text with a mask: enter with new text moves once and stores the new value", () => {
+  const { survey, q, moves } = surveyWithText({ maskType: "pattern", maskSettings: { pattern: "99-99" } });
+  survey.data = { q: "1234" };
+  pressEnterOnText(q, "12-35");
+  expect(q.value).toBe("1235");
+  expect(survey.currentPageNo).toBe(1);
+  expect(moves.count).toBe(1);
+});
+
+test("text with onTyping update or a date input does not gain enter", () => {
+  const elements: Array<{ element: any, value: string }> = [
+    { element: { textUpdateMode: "onTyping" }, value: "abc" },
+    { element: { inputType: "date" }, value: "2026-01-02" },
+    { element: { inputType: "datetime-local" }, value: "2026-01-02T10:00" }
+  ];
+  elements.forEach(({ element, value }) => {
+    const { survey, q } = surveyWithText(element);
+    survey.data = { q: value };
+    const event = enterKey({ value: value });
+    const preventDefault = vi.spyOn(event, "preventDefault");
+    q.onKeyDown(event);
+    q.onKeyUp(event);
+    expect(survey.currentPageNo, JSON.stringify(element)).toBe(0);
+    expect(preventDefault, JSON.stringify(element)).not.toHaveBeenCalled();
+  });
+});
+
+test("text: enter on an empty value does not move", () => {
+  const { survey, q } = surveyWithText();
+  pressEnterOnText(q, "");
+  expect(survey.currentPageNo).toBe(0);
+});
+
+test("text: a key event without a target does not move and does not throw", () => {
+  const { survey, q } = surveyWithText();
+  survey.data = { q: "abc" };
+  q.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => { } });
+  expect(survey.currentPageNo).toBe(0);
+});
+
+test("number and range inputs: enter on an unchanged value moves, the input holds a string", () => {
+  ["number", "range"].forEach(inputType => {
+    const { survey, q, moves } = surveyWithText({ inputType: inputType });
+    survey.data = { q: 5 };
+    pressEnterOnText(q, "5");
+    expect(survey.currentPageNo, inputType).toBe(1);
+    expect(moves.count, inputType).toBe(1);
+    expect(q.value, inputType).toBe(5);
+  });
+});
+
+test("number input: enter on another way to write the same number moves", () => {
+  const { survey, q } = surveyWithText({ inputType: "number" });
+  survey.data = { q: 5 };
+  pressEnterOnText(q, "5.0");
+  expect(survey.currentPageNo).toBe(1);
+  expect(q.value).toBe(5);
+});
+
+test("moveToNextEditor on a filled page: enter on an unchanged value moves the survey and nothing throws", () => {
+  const { survey, q, moves } = surveyWithPages([{ type: "text", name: "q" }, { type: "text", name: "other" }]);
+  survey.enterKeyAction = "moveToNextEditor";
+  survey.data = { q: "abc", other: "def" };
+  const focus = vi.spyOn(survey.getQuestionByName("other"), "focus");
+  pressEnterOnText(q, "abc");
+  expect(focus).toHaveBeenCalledTimes(1);
+  expect(survey.currentPageNo).toBe(1);
+  expect(moves.count).toBe(1);
+});
+
+// The key action blurs the input and blur writes the text, so both the write and Enter ask to advance.
+test("an enter key action that writes new text on blur completes the survey once", () => {
+  ["moveToNextEditor", "loseFocus"].forEach(enterKeyAction => {
+    vi.useFakeTimers();
+    settings.autoAdvanceDelay = 10;
+    const survey = new SurveyModel({ autoAdvanceEnabled: true, elements: [{ type: "text", name: "q" }] });
+    survey.enterKeyAction = <any>enterKeyAction;
+    survey.data = { q: "abc" };
+    const q = survey.getQuestionByName("q") as any;
+    let completed = 0;
+    survey.onComplete.add(() => { completed++; });
+    const target = { value: "new", blur: () => q.onBlur({ target: target }) };
+    const event = enterKey(target);
+    q.onKeyDown(event);
+    q.onKeyUp(event);
+    vi.runAllTimers();
+    vi.useRealTimers();
+    expect(q.value, enterKeyAction).toBe("new");
+    expect(survey.state, enterKeyAction).toBe("completed");
+    expect(completed, enterKeyAction).toBe(1);
+  });
+});
+
+test("inputPerPage: an enter key action that writes new text on blur moves one item", () => {
+  ["moveToNextEditor", "loseFocus"].forEach(enterKeyAction => {
+    [0, 10].forEach(delay => {
+      vi.useFakeTimers();
+      settings.autoAdvanceDelay = delay;
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        questionsOnPageMode: "inputPerPage",
+        elements: [{ type: "multipletext", name: "q", items: [{ name: "a" }, { name: "b" }, { name: "c" }] }]
+      });
+      survey.enterKeyAction = <any>enterKeyAction;
+      survey.data = { q: { a: "1", b: "2", c: "3" } };
+      const q = survey.getQuestionByName("q") as any;
+      const editor = q.singleInputQuestion;
+      const target = { value: "new", blur: () => editor.onBlur({ target: target }) };
+      const event = enterKey(target);
+      editor.onKeyDown(event);
+      editor.onKeyUp(event);
+      vi.runAllTimers();
+      vi.useRealTimers();
+      expect(q.singleInputQuestion.name, enterKeyAction + " " + delay).toBe("b");
+    });
+  });
+});
+
+test("inputPerPage: a second enter during the delay does not skip a multiple text item", () => {
+  ["1", "new"].forEach(text => {
+    vi.useFakeTimers();
+    settings.autoAdvanceDelay = 10;
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [{ type: "multipletext", name: "q", items: [{ name: "a" }, { name: "b" }, { name: "c" }] }]
+    });
+    survey.data = { q: { a: "1", b: "2", c: "3" } };
+    const q = survey.getQuestionByName("q") as any;
+    const editor = q.singleInputQuestion;
+    pressEnterOnText(editor, text);
+    pressEnterOnText(editor, text);
+    vi.runAllTimers();
+    vi.useRealTimers();
+    expect(q.singleInputQuestion.name, text).toBe("b");
+  });
+});
+
+test("range: an enter released on an input nobody touched does not store its default", () => {
+  const { survey, q } = surveyWithPages([{ type: "text", name: "q" }]);
+  survey.data = { q: "abc" };
+  const range = survey.getQuestionByName("next") as any;
+  range.inputType = "range";
+  pressEnterOnText(q, "abc");
+  expect(survey.currentPageNo).toBe(1);
+  range.onKeyUp(enterKey({ value: "50" }));
+  expect(range.value).toBeUndefined();
+  expect(survey.currentPageNo).toBe(1);
+});
+
+test("range: enter still stores the value once the respondent presses a key on it", () => {
+  const { survey } = surveyWithPages([{ type: "text", name: "q", inputType: "range" }, { type: "text", name: "other" }]);
+  const range = survey.getQuestionByName("q") as any;
+  pressEnterOnText(range, "60");
+  expect(range.value).toBe(60);
+});
+
+test("multiple text: enter on an unchanged item moves once when every item is filled", () => {
+  const { survey, q, moves } = surveyWithPages([{ type: "multipletext", name: "q", items: [{ name: "a" }, { name: "b" }] }]);
+  survey.data = { q: { a: "1", b: "2" } };
+  expect(enterChip(q.items[0].editor)).toBe("to continue");
+  pressEnterOnText(q.items[0].editor, "1");
+  expect(survey.currentPageNo).toBe(1);
+  expect(moves.count).toBe(1);
+});
+
+test("multiple text: enter with new text moves once and stores the new value", () => {
+  const { survey, q, moves } = surveyWithPages([{ type: "multipletext", name: "q", items: [{ name: "a" }, { name: "b" }] }]);
+  survey.data = { q: { a: "1", b: "2" } };
+  pressEnterOnText(q.items[1].editor, "3");
+  expect(q.value).toEqual({ a: "1", b: "3" });
+  expect(survey.currentPageNo).toBe(1);
+  expect(moves.count).toBe(1);
+});
+
+test("multiple text: enter on an unchanged item waits for an empty item", () => {
+  const { survey, q } = surveyWithPages([{ type: "multipletext", name: "q", items: [{ name: "a" }, { name: "b" }] }]);
+  survey.data = { q: { a: "1" } };
+  pressEnterOnText(q.items[0].editor, "1");
+  expect(survey.currentPageNo).toBe(0);
+});
+
+test("multiple text in a dynamic panel: enter on an unchanged item does not move", () => {
+  const { survey, q } = surveyWithPages([{
+    type: "paneldynamic", name: "q", panelCount: 1,
+    templateElements: [{ type: "multipletext", name: "inner", items: [{ name: "a" }] }]
+  }]);
+  const inner = q.panels[0].getQuestionByName("inner");
+  inner.value = { a: "1" };
+  pressEnterOnText(inner.items[0].editor, "1");
+  expect(survey.currentPageNo).toBe(0);
+});
+
+test("inputPerPage: enter on an unchanged item goes to the next item", () => {
+  settings.autoAdvanceDelay = 0;
+  const survey = new SurveyModel({
+    autoAdvanceEnabled: true,
+    questionsOnPageMode: "inputPerPage",
+    elements: [
+      { type: "multipletext", name: "q", items: [{ name: "a" }, { name: "b" }], defaultValue: { a: "1", b: "2" } },
+      { type: "text", name: "next" }
+    ]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  expect(q.singleInputQuestion.name).toBe("a");
+  pressEnterOnText(q.singleInputQuestion, "1");
+  expect(q.singleInputQuestion.name).toBe("b");
+  pressEnterOnText(q.singleInputQuestion, "2");
+  expect(survey.currentSingleQuestion.name).toBe("next");
+});
+
+test("a question nested in a choice item has no enter chip, keeps its other chips, and enter does not move", () => {
+  const survey = surveyWithChoiceNested({ type: "radiogroup", name: "inner", choices: ["x", "y"] });
+  const inner = survey.getQuestionByName("inner") as any;
+  inner.value = "x";
+  expect(shown(inner)).toEqual([row("to select", [arrows])]);
+  expect(inner.canShowKeyboardHints()).toBe(true);
+  inner.onKeyDown(enterKey());
+  expect(survey.currentPageNo).toBe(0);
+
+  const withText = surveyWithChoiceNested({ type: "text", name: "inner" });
+  const innerText = withText.getQuestionByName("inner") as any;
+  innerText.value = "abc";
+  expect(enterChip(innerText)).toBeUndefined();
+  pressEnterOnText(innerText, "abc");
+  expect(withText.currentPageNo).toBe(0);
+});
+
+// The nested question is the screen here, so the survey does advance for it.
+test("inputPerPage: enter still moves on a question nested in a choice item", () => {
+  const nested: Array<{ element: any, value: any }> = [
+    { element: { type: "radiogroup", choices: ["x", "y"] }, value: "x" },
+    { element: { type: "checkbox", choices: ["x", "y"] }, value: ["x"] },
+    { element: { type: "comment" }, value: "abc" }
+  ];
+  nested.forEach(({ element, value }) => {
+    const survey = surveyWithChoiceNested(Object.assign({ name: "inner" }, element), { questionsOnPageMode: "inputPerPage" });
+    const q = survey.getQuestionByName("q") as any;
+    survey.performNext();
+    expect(q.singleInputQuestion.name, element.type).toBe("inner");
+    const inner = q.singleInputQuestion;
+    inner.value = value;
+    expect(survey.currentSingleQuestion.name, element.type).toBe("q");
+    expect(enterChip(inner), element.type).toBe("to continue");
+    inner.onKeyDown(enterKey({ value: value }));
+    expect(survey.currentSingleQuestion.name, element.type).toBe("next");
+  });
+});
+
+test("inputPerPage: a comment nested in a choice item keeps shift+enter, because enter leaves the step", () => {
+  const survey = surveyWithChoiceNested({ type: "comment", name: "inner" }, { questionsOnPageMode: "inputPerPage" });
+  const q = survey.getQuestionByName("q") as any;
+  survey.performNext();
+  expect(shown(q.singleInputQuestion).map(hint => hint.keys[0])).toEqual(["Shift+Enter", enter]);
+});
+
+test("questionPerPage: a question nested in a choice item has no enter chip", () => {
+  const survey = surveyWithChoiceNested({ type: "radiogroup", name: "inner", choices: ["x", "y"] }, { questionsOnPageMode: "questionPerPage" });
+  expect(enterChip(survey.getQuestionByName("inner") as Question)).toBeUndefined();
+});
+
+test("another empty input on the page keeps the chip and holds enter until it is filled", () => {
+  const { survey, q, moves } = surveyWithPages([{ type: "text", name: "q" }, { type: "text", name: "other" }]);
+  const other = survey.getQuestionByName("other") as any;
+  survey.data = { q: "abc" };
+  expect(enterChip(q)).toBe("to continue");
+  pressEnterOnText(q, "abc");
+  expect(survey.currentPageNo).toBe(0);
+  pressEnterOnText(other, "def");
+  expect(survey.currentPageNo).toBe(1);
+  expect(moves.count).toBe(1);
+});
+
+test("a question in a matrix detail panel has no enter chip", () => {
+  const { q } = surveyWithPages([{
+    type: "matrixdynamic", name: "q", rowCount: 1, columns: [{ name: "col", cellType: "text" }],
+    detailPanelMode: "underRow", detailElements: [{ type: "text", name: "inner" }]
+  }]);
+  const row = q.visibleRows[0];
+  row.cells[0].question.value = "abc";
+  row.showDetailPanel();
+  const inner = row.detailPanel.getQuestionByName("inner");
+  inner.value = "def";
+  expect(enterChip(inner)).toBeUndefined();
 });

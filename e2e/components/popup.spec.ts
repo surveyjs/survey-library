@@ -149,7 +149,8 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(1000);
+      // Autofocus runs after the render: survey.rootElement below is set.
+      await expect(page.locator("div[data-name=actions_question] input")).toBeFocused();
       // The popup container is rendered when the popup opens first: set its margins with a stylesheet.
       await page.evaluate(() => {
         const root = (window as any).survey.rootElement.getRootNode();
@@ -290,9 +291,9 @@ frameworks.forEach((framework) => {
 
       await clickButton.click();
       await expect(popupModalSelector).toBeVisible();
-      await page.waitForTimeout(1000);
+      // The popup handles Escape on its own keydown, and it moves the focus inside in a timer after it opens.
+      await expect.poll(() => popupModalSelector.evaluate(el => el.contains((el.getRootNode() as Document | ShadowRoot).activeElement))).toBe(true);
       await page.keyboard.press("Escape");
-      await page.waitForTimeout(1000);
       await expect(popupModalSelector).not.toBeVisible();
     });
 
@@ -473,7 +474,10 @@ frameworks.forEach((framework) => {
       const popupSelector = page.locator(".sv-popup .sv-popup__container").first();
       const clickButton = page.locator(".sd-action").first();
 
-      await page.waitForTimeout(500);
+      // Shift+Tab must start from the autofocused input.
+      await expect(page.locator("div[data-name=actions_question] input")).toBeFocused();
+      // Enter during the title action bar's first layout pass (opacity 0) does not open the popup.
+      await expect(page.locator("div[data-name=actions_question] .sd-action-title-bar")).toHaveCSS("opacity", "1");
       await page.keyboard.press("Shift+Tab");
       await expect(clickButton).toBeFocused();
       await page.keyboard.press("Enter");
@@ -687,39 +691,33 @@ frameworks.forEach((framework) => {
       await expect(item6Subitems).not.toBeVisible();
 
       await item5.hover();
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).toBeVisible();
+      await expect(titlePopup).toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
       await item6.hover();
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
-      await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).toBeVisible();
+      await expect(item5Subitems).not.toBeVisible();
+      await expect(titlePopup).toBeVisible();
 
       await titlePopup.locator(".sd-menu-list").first().evaluate(el => el.scrollBy(0, 1000));
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
-      await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
+      await expect(item5Subitems).not.toBeVisible();
+      await expect(titlePopup).toBeVisible();
 
       await titlePopup.locator(".sd-menu-list").first().evaluate(el => el.scrollBy(0, -1000));
       await item5.hover();
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).toBeVisible();
+      await expect(titlePopup).toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
       await expect(page.locator(".sd-menu-item").getByText("inner item1")).toHaveCount(2);
       await page.locator(".sd-menu-item").getByText("inner item1").first().click();
-      await page.waitForTimeout(300);
-      await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).not.toBeVisible();
+      await expect(titlePopup).toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
       await item6.click();
-      await page.waitForTimeout(300);
       await expect(titlePopup).not.toBeVisible();
       await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).not.toBeVisible();

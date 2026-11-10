@@ -1,0 +1,75 @@
+{
+  "_id": "68a599505fddd6a69fb39f2d",
+  "title": "test blur validation",
+  "name": "testBlurValidation",
+  "path": "testblurvalidation",
+  "type": "form",
+  "display": "wizard",
+  "components": [
+    {
+      "title": "Page 1",
+      "label": "Page 1",
+      "type": "panel",
+      "key": "page1",
+      "components": [
+        {
+          "label": "Text Field",
+          "applyMaskOn": "change",
+          "tableView": true,
+          "validateOn": "blur",
+          "validate": {
+            "minLength": 4
+          },
+          "validateWhenHidden": false,
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "label": "Number",
+          "applyMaskOn": "change",
+          "mask": false,
+          "tableView": false,
+          "delimiter": false,
+          "requireDecimal": false,
+          "inputFormat": "plain",
+          "truncateMultipleSpaces": false,
+          "validateOn": "blur",
+          "validate": {
+            "min": 1000
+          },
+          "validateWhenHidden": false,
+          "key": "number",
+          "type": "number",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    },
+    {
+      "title": "Page 2",
+      "label": "Page 2",
+      "type": "panel",
+      "key": "page2",
+      "components": [
+        {
+          "label": "Text Area",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "tableView": true,
+          "validateOn": "blur",
+          "validate": {
+            "minLength": 55
+          },
+          "validateWhenHidden": false,
+          "key": "textArea",
+          "type": "textarea",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    }
+  ]
+}

@@ -32,7 +32,6 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(500);
     });
 
     test("choose file", async ({ page }) => {
@@ -136,13 +135,11 @@ frameworks.forEach((framework) => {
     test("confirm remove file", async ({ page }) => {
       await page.locator("input[type=file]").setInputFiles(folderPath + "logo.jpg");
       await page.locator("input[type=file] + div label").click();
-      await page.waitForTimeout(500);
       await page.locator(".sd-action--alert").first().click();
       await page.locator(".sv-popup--confirm .sv-popup__button--cancel").first().click();
 
       let data = await getData(page);
       expect(data["image"][0].name).toBe("logo.jpg");
-      await page.waitForTimeout(100);
       await page.locator(".sd-action--alert").first().click();
       await page.locator(".sv-popup--confirm .sv-popup__button--apply").first().click();
 
@@ -226,7 +223,6 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(500);
     });
 
     test("Check file navigator appear on smaller screen", async ({ page }) => {
@@ -242,12 +238,10 @@ frameworks.forEach((framework) => {
     });
 
     test("check file question has correct root element", async ({ page }) => {
-      await page.waitForTimeout(500);
-      const testRootElement = await page.evaluate(() => {
+      await expect.poll(() => page.evaluate(() => {
         const rootElement = survey.getAllQuestions()[0].contentElement;
         return rootElement && rootElement.tagName == "DIV" && rootElement.classList.contains("sd-file");
-      });
-      expect(testRootElement).toBe(true);
+      })).toBe(true);
     });
   });
 });

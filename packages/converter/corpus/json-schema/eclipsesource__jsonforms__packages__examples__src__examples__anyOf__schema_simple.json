@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "foo": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "enum": [
+            "foo",
+            "bar"
+          ]
+        }
+      ]
+    }
+  }
+}

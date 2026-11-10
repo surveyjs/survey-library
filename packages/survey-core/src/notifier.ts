@@ -47,7 +47,9 @@ export class Notifier extends Base {
   updateActions(type: string): void {
     this.actionBar.actions.forEach(action => {
       action.visible = this.showActions && (this.actionsVisibility[action.id] === type);
-      action.appearance.style = type === "error" ? "alert" : (type === "success" ? "brand" : "neutral");
+      // A copy: an action without its own appearance returns the default object shared by all actions.
+      const style = type === "error" ? "alert" : (type === "success" ? "brand" : "neutral");
+      action.appearance = Object.assign({}, action.appearance, { style });
     });
   }
 

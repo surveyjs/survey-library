@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "comments": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 8,
+        "items": {
+          "type": "object",
+          "properties": {
+            "date": {
+              "type": "string",
+              "format": "date"
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 5
+            },
+            "enum": {
+              "type": "string",
+              "const": "foo"
+            }
+          }
+        }
+      },
+      "foo": {
+        "type": "string"
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/foo"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/comments",
+        "options": {
+          "showSortButtons": true,
+          "restrict": true
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "components": [
+    {
+      "label": "Email",
+      "tableView": true,
+      "multiple": true,
+      "validate": {
+        "required": true
+      },
+      "key": "email",
+      "type": "email",
+      "input": true
+    },
+    {
+      "type": "button",
+      "key": "submit"
+    }
+  ]
+}

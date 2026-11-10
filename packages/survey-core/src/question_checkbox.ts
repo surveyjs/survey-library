@@ -18,6 +18,7 @@ import { CustomError } from "./error";
 import { settings } from "./settings";
 import { PropertyNameArray } from "./propertyNameArray";
 import { QuestionValueType } from "./question";
+import { Scope } from "./utils/scope";
 
 // True when no choice but "Other" shows a comment area: the comment of "Other" lives next to the
 // question value, any other choice comment needs the object of its selected item. isOtherValue tells
@@ -485,6 +486,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     super.updateValueFromSurvey(newValue, clearData);
     this.invisibleOldValues = {};
   }
+  // The values a hidden choice took from the old record would be restored into the new one (Question.resetForAnotherRecord).
+  protected resetForAnotherRecord(): void {
+    super.resetForAnotherRecord();
+    this.invisibleOldValues = {};
+  }
   onSurveyLoad(): void {
     this.onItemHasCommentChanged();
     super.onSurveyLoad();
@@ -636,22 +642,25 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected clearDisabledValuesCore(): void {
     this.clearIncorrectAndDisabledValues(true);
   }
-  private isChangingValueOnClearIncorrect: boolean = false;
+  private changingValueOnClearIncorrectScope = new Scope();
+  private get isChangingValueOnClearIncorrect(): boolean {
+    return this.changingValueOnClearIncorrectScope.isActive;
+  }
   private clearIncorrectAndDisabledValues(clearDisabled: boolean) {
     var val = this.value;
     var hasChanged = false;
     var restoredValues = this.restoreValuesFromInvisible();
     if (!val && restoredValues.length == 0) return;
     if (!Array.isArray(val) || val.length == 0) {
-      this.isChangingValueOnClearIncorrect = true;
       if (!clearDisabled) {
-        if (this.showCommentArea) {
-          this.value = null;
-        } else {
-          this.clearValue(true);
-        }
+        this.changingValueOnClearIncorrectScope.run(() => this.runDeletingEmptyValues(() => {
+          if (this.showCommentArea) {
+            this.value = null;
+          } else {
+            this.clearValue(true);
+          }
+        }));
       }
-      this.isChangingValueOnClearIncorrect = false;
       if (restoredValues.length == 0) return;
       val = [];
     }
@@ -677,13 +686,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       hasChanged = true;
     }
     if (!hasChanged) return;
-    this.isChangingValueOnClearIncorrect = true;
-    if (newValue.length == 0) {
-      this.clearValue(true);
-    } else {
-      this.value = newValue;
-    }
-    this.isChangingValueOnClearIncorrect = false;
+    this.changingValueOnClearIncorrectScope.run(() => {
+      if (newValue.length == 0) {
+        this.clearValue(true);
+      } else {
+        this.value = newValue;
+      }
+    });
   }
   private restoreValuesFromInvisible(): Array<any> {
     var res = [];
@@ -692,7 +701,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       const item = visItems[i];
       if (item === this.selectAllItem) continue;
       var val = visItems[i].value;
-      if (Helpers.isTwoValueEquals(val, this.invisibleOldValues[val])) {
+      if (this.isTwoValueEqualsInSurvey(val, this.invisibleOldValues[val])) {
         if (!this.isItemSelected(item)) {
           res.push(val);
         }
@@ -711,7 +720,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return json;
   }
   public isAnswerCorrect(): boolean {
-    return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue());
+    return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue(), this.getSurveySettings());
   }
   protected setDefaultValueWithOthers() {
     this.value = this.renderedValueFromDataCore(this.defaultValue);
@@ -744,7 +753,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];
-    if (!this.hasActiveChoices) return val;
+    // No choices yet (e.g. choicesByUrl is not loaded): an unknown value may be a choice that has not arrived.
+    // Choices hidden by visibleIf are still known, so the text typed for Other is recognised (#12245).
+    if (!this.hasRegularChoices) return val;
     for (var i = 0; i < val.length; i++) {
       if (this.isOtherValue(val[i])) return val;
       if (this.hasUnknownValueItem(val[i], true, false)) {

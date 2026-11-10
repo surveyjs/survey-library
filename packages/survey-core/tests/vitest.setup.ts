@@ -1,15 +1,29 @@
 // Setup file for Vitest. Mirrors the side-effect imports and global settings
 // from the Karma+QUnit entry barrel at tests/entries/test.ts.
-import { afterEach, expect } from "vitest";
+import { afterAll, afterEach, chai, expect, vi } from "vitest";
 import "../src/localization/russian";
 import "../src/localization/french";
 import "../src/localization/finnish";
 import "../src/localization/german";
 import { settings } from "../src/settings";
+import { Base } from "../src/base";
+import { QuestionRecordItem } from "../src/question_records";
 import { ComponentCollection } from "../src/question_custom";
 import { surveyLocalization } from "../src/surveyStrings";
 import { _setIsTouch } from "../src/utils/devices";
 import { reducedMotionMediaQuery } from "../src/utils/reduced-motion";
+import { mediaQueries, restoreSettings, windowSize } from "./test-baseline";
+
+// jsdom has no constructable stylesheets, so each afterRenderSurvey falls to
+// applyBaseThemeVariablesInline in src/utils/base-theme-init.ts and writes 1,751
+// variables. cssstyle re-serializes the whole cssText on each setProperty, so one
+// render costs about 850 ms. Browsers do not take this path, so the stub lives here
+// and not in src. tests/csp_tests.ts removes it to test that fallback.
+(CSSStyleSheet.prototype as any).replaceSync = function () { /* no-op */ };
+// The array is kept from the first read on, so a push() is not lost the way a fresh [] would lose it.
+const adopted = { configurable: true, get(this: any) { return this.__adopted || (this.__adopted = []); }, set(this: any, v: any) { this.__adopted = v; } };
+Object.defineProperty(Document.prototype, "adoptedStyleSheets", adopted);
+Object.defineProperty(ShadowRoot.prototype, "adoptedStyleSheets", adopted);
 
 settings.animationEnabled = false;
 settings.dropdownSearchDelay = 0;
@@ -26,12 +40,11 @@ _setIsTouch(false);
 // jsdom does not implement matchMedia. SurveyJS responsive logic and popup
 // displayMode use it. Provide a controllable registry.
 if (typeof (globalThis as any).matchMedia === "undefined") {
-  const __mqRegistry: Map<string, { matches: boolean, listeners: Set<(e: any) => void> }> = new Map();
   (globalThis as any).matchMedia = function (query: string) {
-    let entry = __mqRegistry.get(query);
+    let entry = mediaQueries.get(query);
     if (!entry) {
       entry = { matches: false, listeners: new Set() };
-      __mqRegistry.set(query, entry);
+      mediaQueries.set(query, entry);
     }
     const captured = entry;
     return {
@@ -46,10 +59,10 @@ if (typeof (globalThis as any).matchMedia === "undefined") {
     };
   };
   (globalThis as any).__setMatchMedia = function (query: string, matches: boolean) {
-    let entry = __mqRegistry.get(query);
+    let entry = mediaQueries.get(query);
     if (!entry) {
       entry = { matches, listeners: new Set() };
-      __mqRegistry.set(query, entry);
+      mediaQueries.set(query, entry);
       return;
     }
     if (entry.matches === matches) return;
@@ -61,11 +74,28 @@ if (typeof (globalThis as any).matchMedia === "undefined") {
   }
 }
 
-// jsdom 25 does provide CSS.escape, but be defensive.
+// jsdom has no CSS.escape. The polyfill follows the CSSOM algorithm for the cases ids hit: a leading
+// digit (or "-" + digit) becomes a code point escape, so an id like "1-sq_0" gives a valid "#\31 -sq_0".
+const cssEscapePolyfill = (s: string): string => {
+  const str = String(s);
+  let res = "";
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charAt(i);
+    const isDigit = c >= "0" && c <= "9";
+    if (isDigit && (i === 0 || (i === 1 && str.charAt(0) === "-"))) {
+      res += "\\" + str.charCodeAt(i).toString(16) + " ";
+    } else if (i === 0 && c === "-" && str.length === 1) {
+      res += "\\-";
+    } else {
+      res += /[\w-]/.test(c) || str.charCodeAt(i) >= 0x80 ? c : "\\" + c;
+    }
+  }
+  return res;
+};
 if (typeof (globalThis as any).CSS === "undefined") {
-  (globalThis as any).CSS = { escape: (s: string) => String(s).replace(/[^\w-]/g, (c) => "\\" + c) };
+  (globalThis as any).CSS = { escape: cssEscapePolyfill };
 } else if (typeof (globalThis as any).CSS.escape !== "function") {
-  (globalThis as any).CSS.escape = (s: string) => String(s).replace(/[^\w-]/g, (c) => "\\" + c);
+  (globalThis as any).CSS.escape = cssEscapePolyfill;
 }
 
 // jsdom's `Selection` does not implement the non-standard `modify()` method.
@@ -310,9 +340,8 @@ if (typeof (globalThis as any).window !== "undefined" &&
 // browser-style default for the animation-* shorthand props.
 //
 // Re-applied in `afterEach` (see end of file) so tests that override
-// `window.getComputedStyle` and forget to restore it (or run interleaved with
-// such tests in the same worker under `--no-isolate`) cannot poison
-// downstream tests.
+// `window.getComputedStyle` and forget to restore it cannot poison downstream
+// tests.
 function __sv_installGetComputedStylePolyfills() {
   if (typeof (globalThis as any).window === "undefined" ||
       typeof (globalThis as any).window.getComputedStyle !== "function") {
@@ -627,6 +656,51 @@ expect.addEqualityTesters([
 ]);
 
 // ---------------------------------------------------------------------------
+// A failed assertion on a model object: no deep comparison, no print of the survey.
+// ---------------------------------------------------------------------------
+// A failed `toBe` runs a deep comparison to suggest `toEqual`, and every failed
+// assertion keeps `actual` and `expected`, which Vitest prints and diffs. A model
+// object reaches the whole survey, so a failed `expect(row).toBe(otherRow)` ended
+// in a stack overflow in `arrayValuesEqual` above, and a failed
+// `expect(matrix.renderedTable).toBe(other)` ran the worker out of memory, which
+// hid the real failure. For a model value, or an array that holds one, `toBe`
+// compares with `Object.is` only, and a failed assertion carries the class name
+// instead of the object. "Model" is `Base` or `QuestionRecordItem`: a matrix row
+// is not a `Base`. A failed `toEqual` is covered too: its deep comparison stops at
+// the first difference, and the print was what ran out of memory. The `toBe`
+// replacement runs outside Vitest's soft wrapper, so `expect.soft(model).toBe(...)`
+// fails at once, as `expect` does; survey-core tests do not use `expect.soft`.
+const isModel = (value: any): boolean => value instanceof Base || value instanceof QuestionRecordItem;
+const isModelValue = (value: any): boolean => isModel(value) || (Array.isArray(value) && value.some(isModel));
+const getModelText = (value: any): string => {
+  if (Array.isArray(value)) return "array of " + value.length + " items";
+  return isModel(value) ? value.constructor.name : String(value);
+};
+// The setup runs again for each test file while chai stays loaded (isolate: false), so the methods
+// are replaced once, and they read the checks of the latest run.
+const modelGuard: any = (<any>chai.Assertion).__sv_modelGuard || ((<any>chai.Assertion).__sv_modelGuard = {});
+modelGuard.isModelValue = isModelValue;
+modelGuard.getModelText = getModelText;
+if (!modelGuard.isInstalled) {
+  modelGuard.isInstalled = true;
+  chai.use((api: any, utils: any) => {
+    utils.overwriteMethod(api.Assertion.prototype, "toBe", (toBe: any) => function (this: any, expected: any) {
+      const actual = utils.flag(this, "object");
+      if (!modelGuard.isModelValue(actual) && !modelGuard.isModelValue(expected)) return toBe.call(this, expected);
+      this.assert(Object.is(actual, expected), "expected the same object", "expected another object",
+        modelGuard.getModelText(expected), modelGuard.getModelText(actual), false);
+    });
+    const assert = api.Assertion.prototype.assert;
+    api.Assertion.prototype.assert = function (...args: Array<any>) {
+      const actual = args.length > 4 ? args[4] : utils.flag(this, "object");
+      // utils.test applies the "not" flag: a passing expression fails a negated assertion.
+      if (utils.test(this, args) || (!modelGuard.isModelValue(actual) && !modelGuard.isModelValue(args[3]))) return assert.apply(this, args);
+      return assert.call(this, args[0], args[1], args[2], modelGuard.getModelText(args[3]), modelGuard.getModelText(actual), false);
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Generalizable singleton cleanup.
 // ---------------------------------------------------------------------------
 // QUnit tests historically called `ComponentCollection.Instance.clear()` (and
@@ -642,33 +716,21 @@ expect.addEqualityTesters([
 // `.clear()` lines for the same reason.
 //
 // To register a new singleton for cleanup, add a reset call below.
-const __defaultLocale = surveyLocalization.defaultLocale;
-afterEach(() => {
-  // ComponentCollection: registered custom question types (including internal:true)
-  ComponentCollection.Instance.clear(true);
-  // surveyLocalization: tests sometimes flip the default locale
-  surveyLocalization.defaultLocale = __defaultLocale;
-  // settings: re-apply our test defaults in case a test mutated them
-  settings.animationEnabled = false;
-  settings.animation.respectReducedMotion = true;
-  settings.dropdownSearchDelay = 0;
-  if (typeof (globalThis as any).__setMatchMedia === "function") {
-    (globalThis as any).__setMatchMedia(reducedMotionMediaQuery, false);
-  }
-  // settings.environment: tests in popuptests / svgRegistryTests swap
-  // `settings.environment` to point `root` at a detached shadow root. They
-  // restore it at the end of the test, but the restore captures whatever
-  // `document` was the live global at that moment.
-  //
-  // Vitest re-creates the jsdom realm for every test file even under
-  // `--no-isolate` (only the module graph is shared), so the `settings`
-  // singleton imported once at worker start retains an `environment.root`
-  // that points at the *previous* file's now-stale `document`. In a later
-  // file, `instanceof Document` checks on that stale root fail, breaking
-  // `getRootNode()` and `DragDropDOMAdapter.documentOrShadowRoot`.
-  //
-  // Re-anchor `environment.root` / `rootElement` / `popupMountContainer` to
-  // the live `document` whenever they have drifted away from it.
+// settings.environment: tests in popuptests / svgRegistryTests swap
+// `settings.environment` to point `root` at a detached shadow root. They
+// restore it at the end of the test, but the restore captures whatever
+// `document` was the live global at that moment.
+//
+// Vitest re-creates the jsdom realm for every test file while the module
+// graph stays shared by the worker, so the `settings` singleton imported
+// once at worker start retains an `environment.root` that points at the
+// *previous* file's now-stale `document`. In a later
+// file, `instanceof Document` checks on that stale root fail, breaking
+// `getRootNode()` and `DragDropDOMAdapter.documentOrShadowRoot`.
+//
+// Re-anchor `environment.root` / `rootElement` / `popupMountContainer` to
+// the live `document` whenever they have drifted away from it.
+function __sv_reanchorEnvironment() {
   const __envRoot: any = (settings as any).environment?.root;
   const __live = (globalThis as any).document;
   if (__live && __envRoot !== __live &&
@@ -681,9 +743,31 @@ afterEach(() => {
       popupMountContainer: __live.body,
     };
   }
+}
+// Now for the first test of this file, and after each test for the swaps above.
+__sv_reanchorEnvironment();
+
+const __defaultLocale = surveyLocalization.defaultLocale;
+afterAll(() => restoreSettings());
+afterEach(() => {
+  // Tests install fake timers and restore real ones at the end of their body; a failed
+  // expect skips that line and would leave fake timers to every later test in the worker.
+  if (vi.isFakeTimers()) vi.useRealTimers();
+  // ComponentCollection: registered custom question types (including internal:true)
+  ComponentCollection.Instance.clear(true);
+  // surveyLocalization: tests sometimes flip the default locale
+  surveyLocalization.defaultLocale = __defaultLocale;
+  // settings: re-apply our test defaults in case a test mutated them
+  settings.animationEnabled = false;
+  settings.animation.respectReducedMotion = true;
+  settings.dropdownSearchDelay = 0;
+  if (typeof (globalThis as any).__setMatchMedia === "function") {
+    (globalThis as any).__setMatchMedia(reducedMotionMediaQuery, false);
+  }
+  __sv_reanchorEnvironment();
+  Object.assign(window, windowSize);
   // Re-install jsdom polyfills if a test replaced `window.getComputedStyle`
   // (common pattern: `window.getComputedStyle = () => ({...})` without a
-  // try/finally restore). Under `--no-isolate` parallel files share the same
-  // jsdom and such leaks fail unrelated tests in another file.
+  // try/finally restore), so such a leak does not fail unrelated tests.
   __sv_installGetComputedStylePolyfills();
 });

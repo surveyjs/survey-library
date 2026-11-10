@@ -1,0 +1,21 @@
+{
+  "components": [
+    {
+      "type": "container",
+      "key": "container",
+      "hidden": true,
+      "clearOnHide": false,
+      "components": [
+        {
+          "type": "textfield",
+          "key": "foo",
+          "label": "Foo",
+          "validateWhenHidden": true,
+          "validate": {
+            "required": true
+          }
+        }
+      ]
+    }
+  ]
+}

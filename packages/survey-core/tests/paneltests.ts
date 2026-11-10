@@ -1619,6 +1619,41 @@ describe("Panel", () => {
       SurveyElement.ScrollElementToTop = oldScrollElementToTop;
     }
   });
+  test("scrollElementToTop does not dispatch the lazy rendering check without lazy rendering", () => {
+    const oldScrollElementToTop = SurveyElement.ScrollElementToTop;
+    vi.useFakeTimers();
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] });
+    const q1 = survey.getQuestionByName("q1");
+    const root = document.createElement("div");
+    const questionDiv = document.createElement("div");
+    questionDiv.id = q1.id;
+    root.appendChild(questionDiv);
+    document.body.appendChild(root);
+    let scrollEvents = 0;
+    const onScroll = () => scrollEvents++;
+    window.addEventListener("scroll", onScroll);
+    try {
+      expect(survey.isLazyRendering, "lazy rendering is off").toBe(false);
+      survey.rootElement = root;
+      let scrolledCallbacks = 0;
+      SurveyElement.ScrollElementToTop = ((el, _, __, doneCallback) => { doneCallback(); }) as any;
+      survey.scrollElementToTop(q1, q1, null, q1.id, false, undefined, undefined, () => scrolledCallbacks++);
+      vi.advanceTimersByTime(20);
+      expect(scrollEvents, "no synthetic scroll after scrolling to the element").toBe(0);
+
+      survey.autoCenterFocusedQuestion = true;
+      survey.scrollElementToTop(q1, q1, null, q1.id, false, undefined, undefined, () => scrolledCallbacks++);
+      vi.advanceTimersByTime(20);
+      expect(scrollEvents, "no synthetic scroll after centering the element").toBe(0);
+      expect(scrolledCallbacks, "both scrolls call back").toBe(2);
+    } finally {
+      SurveyElement.ScrollElementToTop = oldScrollElementToTop;
+      window.removeEventListener("scroll", onScroll);
+      vi.useRealTimers();
+      survey.dispose();
+      root.remove();
+    }
+  });
   test("row.isNeedRender & settings.lazyRowsRenderingStartRow", () => {
     const json = {
       pages: [
@@ -2820,6 +2855,79 @@ describe("Panel", () => {
     expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
     expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q7"]);
     expect(page.rows[4].visibleElements.map(q => q.name)).toEqual(["q5"]);
+  });
+  describe("several elements added to elements in one call each get a layout row", () => {
+    const containers: Array<{ name: string, create: () => PanelModel | PageModel }> = [
+      { name: "page", create: () => {
+        const survey = new SurveyModel({ elements: [{ type: "text", name: "q0" }, { type: "text", name: "q1" }] });
+        const page = survey.pages[0];
+        page.onFirstRendering();
+        return page;
+      } },
+      { name: "nested panel", create: () => {
+        const survey = new SurveyModel({ elements: [{ type: "panel", name: "panel",
+          elements: [{ type: "text", name: "q0" }, { type: "text", name: "q1" }] }] });
+        survey.pages[0].onFirstRendering();
+        const panel = <PanelModel>survey.getPanelByName("panel");
+        panel.onFirstRendering();
+        return panel;
+      } }
+    ];
+    const createQuestions = (startWithNewLine: boolean = true): Array<QuestionTextModel> => ["a", "b"].map(name => {
+      const question = new QuestionTextModel(name);
+      question.startWithNewLine = startWithNewLine;
+      return question;
+    });
+    const rowNames = (container: PanelModel | PageModel): Array<Array<string>> =>
+      container.rows.map(row => row.elements.map(el => el.name));
+    containers.forEach(container => {
+      test(container.name + ": push", () => {
+        const panel = container.create();
+        expect(rowNames(panel), "#1").toEqual([["q0"], ["q1"]]);
+        panel.elements.push(...createQuestions());
+        expect(rowNames(panel), "#2").toEqual([["q0"], ["q1"], ["a"], ["b"]]);
+      });
+      test(container.name + ": splice in the middle", () => {
+        const panel = container.create();
+        panel.elements.splice(1, 0, ...createQuestions());
+        expect(rowNames(panel), "#1").toEqual([["q0"], ["a"], ["b"], ["q1"]]);
+      });
+      test(container.name + ": unshift", () => {
+        const panel = container.create();
+        panel.elements.unshift(...createQuestions());
+        expect(rowNames(panel), "#1").toEqual([["a"], ["b"], ["q0"], ["q1"]]);
+      });
+      test(container.name + ": splice in the middle with the second element on the same line", () => {
+        const panel = container.create();
+        const questions = createQuestions();
+        questions[1].startWithNewLine = false;
+        panel.elements.splice(1, 0, ...questions);
+        expect(rowNames(panel), "#1").toEqual([["q0"], ["a", "b"], ["q1"]]);
+      });
+      test(container.name + ": push of two elements on the same line", () => {
+        const panel = container.create();
+        panel.elements.push(...createQuestions(false));
+        expect(rowNames(panel), "#1").toEqual([["q0"], ["q1", "a", "b"]]);
+      });
+    });
+    ["inputPerPage", "questionPerPage"].forEach(mode => {
+      test(mode + ": an element added next to the current one gets no row", () => {
+        const survey = new SurveyModel({ questionsOnPageMode: mode,
+          elements: [{ type: "text", name: "q0" }, { type: "text", name: "q1" }, { type: "text", name: "q2" }] });
+        const page = survey.pages[0];
+        page.onFirstRendering();
+        expect(survey.currentSingleElement.name, "#1: the current element").toBe("q0");
+        expect(rowNames(page), "#2").toEqual([["q0"]]);
+        page.elements.splice(2, 0, new QuestionTextModel("a"));
+        expect(rowNames(page), "#3: splice").toEqual([["q0"]]);
+        page.elements.unshift(new QuestionTextModel("b"));
+        expect(rowNames(page), "#4: unshift").toEqual([["q0"]]);
+        page.elements.push(...createQuestions());
+        expect(rowNames(page), "#5: push").toEqual([["q0"]]);
+        page.addNewQuestion("text", "c", 3);
+        expect(rowNames(page), "#6: addNewQuestion").toEqual([["q0"]]);
+      });
+    });
   });
   test("Check swnl changed: change swnl for first element on page", () => {
     const survey = new SurveyModel();
@@ -4644,5 +4752,15 @@ describe("Container visibility: childVisibilityChanged compares the stored isVis
     survey.showInvisibleElements = true;
     expect(page.isVisible, "isVisible, showInvisibleElements = true again").toBe(true);
     expect(events, "events after switching on").toEqual(["p2:false", "p2:true"]);
+  });
+  test("A row counts the UI components that render it and never goes below zero", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const row = survey.currentPage.rows[0];
+    expect(row.changeUIMountCount(1), "the first component mounts").toBe(1);
+    expect(row.changeUIMountCount(1), "the second component mounts").toBe(2);
+    expect(row.changeUIMountCount(-1), "one component is left").toBe(1);
+    expect(row.changeUIMountCount(-1), "no component is left").toBe(0);
+    expect(row.changeUIMountCount(-1), "an extra unmount keeps zero").toBe(0);
+    expect(row.changeUIMountCount(1), "a new mount counts from zero").toBe(1);
   });
 });

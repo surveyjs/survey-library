@@ -1,0 +1,27 @@
+{
+  "display": "form",
+  "components": [
+    {
+      "label": "Source",
+      "key": "dataSource",
+      "type": "hidden",
+      "persistent": "client-only",
+      "input": true
+    },
+    {
+      "label": "Text Field",
+      "key": "textField",
+      "type": "textfield",
+      "input": true,
+      "persistent": true,
+      "calculateValue": "value = data.dataSource[0]?.name"
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "action": "submit",
+      "input": true
+    }
+  ]
+}

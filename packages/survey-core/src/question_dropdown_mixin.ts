@@ -1,9 +1,8 @@
-import type { DropdownListModel } from "./dropdownListModel";
 import type { PopupModel } from "./popup";
 import type { EventBase } from "./event";
 import type { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
-import { keyboardHint, IKeyboardHintData, KeyboardHintKey } from "./keyboard-hints";
+import { keyboardHint, keyboardHintSlot, IKeyboardHintData, KeyboardHintKey } from "./keyboard-hints";
 import { LocalizableString } from "./localizablestring";
 import { dropdownQuestionMixin, IDropdownQuestion } from "./dropdownRenderState";
 
@@ -73,15 +72,17 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
     public supportsKeyboardHints(): boolean {
       return true;
     }
-    // Each state keeps the other's slot hidden, so that opening the popup does not resize the row.
+    // Each state keeps the other's hint hidden, so that opening the popup does not resize the row.
+    // The closed and select hints are never visible together, so they share one cell.
     protected getKeyboardHintsCore(): IKeyboardHintData[] {
       const isPopupVisible = this.isPopupVisible;
+      const closedHints = this.getClosedKeyboardHints().map(hint => ({ ...hint, visible: !isPopupVisible }));
+      const selectHint = keyboardHint(this, "keyboardHintSelectText", this.getSelectHintKeys(), isPopupVisible && !this.dropdownListModelValue?.isEnterClearingValue);
       return [
         keyboardHint(this, "keyboardHintOpenText", ["arrowDown"]),
         keyboardHint(this, "keyboardHintNavigateText", ["arrowsVertical"]),
         keyboardHint(this, "keyboardHintCloseText", ["esc"]),
-        ...this.getClosedKeyboardHints().map(hint => ({ ...hint, visible: !isPopupVisible })),
-        keyboardHint(this, "keyboardHintSelectText", this.getSelectHintKeys(), isPopupVisible && !this.dropdownListModelValue?.isEnterClearingValue)
+        closedHints.length > 0 ? keyboardHintSlot([...closedHints, selectHint]) : selectHint
       ];
     }
     protected getClosedKeyboardHints(): IKeyboardHintData[] {

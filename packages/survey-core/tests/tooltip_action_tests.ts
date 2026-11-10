@@ -2,23 +2,24 @@ import { Action } from "../src/actions/action";
 import { SurveyModel } from "../src/survey";
 import { describe, test, expect, vi } from "vitest";
 
-// Kept in its own file: tooltip listeners are installed once per document, so any
-// other test calling initTooltips() first would make this one pass vacuously.
 describe("Action tooltips", () => {
   test("rendering an action installs tooltip support for the document", () => {
     vi.useFakeTimers();
-    const button = document.createElement("button");
+    // A document of its own: tooltip listeners are installed once per document, and the
+    // global one already has them from the other files that run in this worker.
+    const doc = document.implementation.createHTMLDocument();
+    const button = doc.createElement("button");
     button.setAttribute("data-sv-tooltip", "Delete");
-    document.body.appendChild(button);
+    doc.body.appendChild(button);
 
     button.dispatchEvent(new MouseEvent("pointerover", { bubbles: true }));
     vi.advanceTimersByTime(200);
-    expect(document.body.querySelector(".sv-tooltip--visible")).toBeNull();
+    expect(doc.body.querySelector(".sv-tooltip--visible")).toBeNull();
 
     new Action({ id: "delete", iconName: "icon-delete", title: "Delete" }).setInputElement(button);
     button.dispatchEvent(new MouseEvent("pointerover", { bubbles: true }));
     vi.advanceTimersByTime(200);
-    expect(document.body.querySelector(".sv-tooltip--visible")?.textContent).toBe("Delete");
+    expect(doc.body.querySelector(".sv-tooltip--visible")?.textContent).toBe("Delete");
 
     button.remove();
     vi.useRealTimers();

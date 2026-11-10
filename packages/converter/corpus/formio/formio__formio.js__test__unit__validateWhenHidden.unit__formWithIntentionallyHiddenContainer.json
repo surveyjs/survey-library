@@ -1,0 +1,19 @@
+{
+  "components": [
+    {
+      "type": "container",
+      "key": "container",
+      "hidden": true,
+      "components": [
+        {
+          "type": "textfield",
+          "key": "foo",
+          "label": "Foo",
+          "validate": {
+            "required": true
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "description": "React 19 for the perf pages only (D07), installed by the browser perf suite into perf/react19/node_modules.",
+  "dependencies": {
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  }
+}

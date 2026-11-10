@@ -1928,6 +1928,16 @@ export class JsonObject {
     return !!value && typeof value === "object" && typeof value.getType !== "function" && value.value !== undefined
       && Serializer.isDescendantOf(className, "itemvalue");
   }
+  // A null/undefined item cannot be a serialized object, and it throws when the property has no item class
+  // (the type is read from the item) or the item class is registered (its properties are read from the item).
+  // Items of an unregistered class, such as string[], are kept as they were.
+  private isEmptyItemFatal(property: JsonObjectProperty): boolean {
+    if (!property || !property.className) return true;
+    let className = property.className.toLowerCase();
+    const classNamePart = property.classNamePart;
+    if (classNamePart && className.indexOf(classNamePart) < 0) className += classNamePart;
+    return !!Serializer.findClass(className);
+  }
   private getClassNameForNewObj(value: any, property: JsonObjectProperty): string {
     var res = property != null && property.className ? property.className : undefined;
     if (!res) {
@@ -2018,6 +2028,7 @@ export class JsonObject {
     options?: ILoadFromJSONOptions
   ) {
     for (var i = 0; i < value.length; i++) {
+      if ((value[i] === null || value[i] === undefined) && this.isEmptyItemFatal(property)) continue;
       var newValue = this.createNewObj(value[i], property);
       if (newValue.newObj) {
         if (!!value[i].name) {

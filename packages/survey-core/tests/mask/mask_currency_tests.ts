@@ -219,11 +219,12 @@ describe("Currency mask", () => {
     const maskInstance = new InputMaskCurrency();
     maskInstance.allowNegativeValues = false;
     maskInstance.prefix = "$ ";
-    expect(maskInstance.getMaskedValue("-123")).toBe("$ 123");
-    expect(maskInstance.getMaskedValue("12-34")).toBe("$ 1,234");
+    // a negative value is out of range here; an even count of minus signs is not negative
+    expect(maskInstance.getMaskedValue("-123")).toBeNull();
+    expect(maskInstance.getMaskedValue("12-34")).toBeNull();
     expect(maskInstance.getMaskedValue("-123-,456.78")).toBe("$ 123,456.78");
     expect(maskInstance.getMaskedValue("-123,45-678")).toBe("$ 12,345,678");
-    expect(maskInstance.getMaskedValue("123,4-56.789")).toBe("$ 123,456.78");
+    expect(maskInstance.getMaskedValue("123,4-56.789")).toBeNull();
     expect(maskInstance.getMaskedValue("123,45--6,78,101.12")).toBe("$ 12,345,678,101.12");
   });
 
@@ -587,6 +588,32 @@ describe("Currency mask", () => {
     expect(q.value, "in range").toBe(5);
   });
 
+  test("saveMaskedValue: a negative value on a currency mask that forbids negatives is stored as a value above max", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", maskType: "currency", maskSettings: { saveMaskedValue: true, min: 0, max: 100 } },
+        { type: "text", name: "q2", maskType: "currency", maskSettings: { saveMaskedValue: true, allowNegativeValues: false, max: 100 } }
+      ]
+    });
+    const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+
+    survey.data = { q1: 150, q2: 150 };
+    const dataAboveMax = survey.data;
+    survey.data = { q1: -5, q2: -5 };
+    expect(survey.data, "data").toEqual(dataAboveMax);
+    expect(survey.data, "data").toEqual({});
+
+    q1.value = 150;
+    const valueAboveMax = q1.value;
+    q1.value = -5;
+    q2.value = -5;
+    expect(q1.value, "q1 value").toBe(valueAboveMax);
+    expect(q2.value, "q2 value").toBe(valueAboveMax);
+    expect(q1.value, "q1 value").toBeNull();
+    expect(q1.inputValue, "the input is empty").toBe(q1.maskInstance.getMaskedValue(""));
+  });
+
   test("currency processInput: min & max", () => {
     const maskInstance = new InputMaskCurrency();
     maskInstance.prefix = "$ ";
@@ -645,6 +672,36 @@ describe("Currency mask", () => {
     result = maskInstance.processInput({ insertedChars: null, selectionStart: 5, selectionEnd: 6, prevValue: "$ 1.50", inputDirection: "backward" });
     expect(result.value, "the generated zero is kept").toBe("$ 1.50");
     expect(result.caretPosition, "the caret steps over the generated zero").toBe(5);
+  });
+
+  test.each([
+    { prefix: "$", suffix: "" },
+    { prefix: "", suffix: " USD" },
+    { prefix: "$ ", suffix: " USD" }
+  ])("precision 0 truncates the fraction: %j", ({ prefix, suffix }) => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.setData({ prefix, suffix, precision: 0 });
+    const wrap = (text: string): string => prefix + text + suffix;
+    expect(maskInstance.getMaskedValue(1234.5), "1234.5").toBe(wrap("1,234"));
+    expect(maskInstance.getMaskedValue(1234.4), "1234.4").toBe(wrap("1,234"));
+    expect(maskInstance.getMaskedValue(0.99), "0.99").toBe(wrap("0"));
+    expect(maskInstance.getMaskedValue(1234.56), "1234.56").toBe(wrap("1,234"));
+    expect(maskInstance.getMaskedValue(-1234.5), "-1234.5").toBe(maskInstance.getMaskedValue(-1234));
+
+    let result = maskInstance.processInput({ insertedChars: "1234.5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste 1234.5").toBe(wrap("1,234"));
+    result = maskInstance.processInput({ insertedChars: wrap("1,234.5"), selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste a formatted amount").toBe(wrap("1,234"));
+    result = maskInstance.processInput({ insertedChars: ".5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "paste .5").toBe(wrap("0"));
+
+    // a keystroke: the typed separator is dropped and the next digit appends
+    let value = "";
+    for (const char of ["1", "2", "3", "4", ".", "5"]) {
+      result = maskInstance.processInput({ insertedChars: char, selectionStart: value.length, selectionEnd: value.length, prevValue: value, inputDirection: "forward" });
+      value = result.value;
+    }
+    expect(value, "typed 1234.5").toBe(wrap("12,345"));
   });
 });
 
@@ -1157,10 +1214,13 @@ describe("Currency mask: the locale placed symbol", () => {
   test("allowNegativeValues false keeps the sign out of a locale placed affix", () => {
     const survey = createCurrencySurvey({ currencySymbol: euro, allowNegativeValues: false });
     const mask = getCurrencyMask(survey);
-    expect(mask.getMaskedValue("-1234.56")).toBe(euro + "1,234.56");
-    const result = mask.processInput({ insertedChars: "-", selectionStart: 1, selectionEnd: 1, prevValue: euro, inputDirection: "forward" });
+    expect(mask.getMaskedValue("1234.56")).toBe(euro + "1,234.56");
+    expect(mask.getMaskedValue("-1234.56"), "a negative value is out of range").toBeNull();
+    let result = mask.processInput({ insertedChars: "-", selectionStart: 1, selectionEnd: 1, prevValue: euro, inputDirection: "forward" });
     // an empty entry has no affixes of its own, as a currency mask has always rendered it
     expect(result.value, "the sign is not accepted").toBe("");
+    result = mask.processInput({ insertedChars: "-", selectionStart: 3, selectionEnd: 3, prevValue: euro + "12", inputDirection: "forward" });
+    expect(result.value, "the sign is not accepted in an entry").toBe(euro + "12");
   });
 
   test.each([

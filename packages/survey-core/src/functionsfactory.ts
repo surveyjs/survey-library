@@ -3,7 +3,7 @@ import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
 import { getQuestionErrorText } from "./expressions/expressionError";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { IValueGetterContext, ValueGetter } from "./conditions/conditionProcessValue";
+import { IValueGetterContext, IValueGetterItem, ValueGetter, VariableGetterContext, parseValuePath } from "./conditions/conditionProcessValue";
 
 export interface IFunctionCachedResult {
   result: any;
@@ -104,7 +104,9 @@ export class FunctionFactory {
       return res;
     });
   }
-  public run(name: string, params: any[], properties: HashTable<any>, originalParams: any[]): any {
+  // expressionContext: the values the expression runs on (the survey's, a panel's or row's, or those
+  // passed to runValues); the function reads it as this.expressionContext.
+  public run(name: string, params: any[], properties: HashTable<any>, originalParams: any[], expressionContext?: IValueGetterContext): any {
     if (!properties) {
       properties = {};
     }
@@ -132,6 +134,9 @@ export class FunctionFactory {
       } else {
         (<any>classRunner)[key] = properties[key];
       }
+    }
+    if (!!expressionContext) {
+      (<any>classRunner).expressionContext = expressionContext;
     }
     this.surveyCachedValues = funcInfo.useCache ? [] : undefined;
     this.objsCachedValues = funcInfo.useCache ? [] : undefined;
@@ -1086,6 +1091,55 @@ FunctionFactory.Instance.register({
     { name: "choiceValue", type: "any", optional: true },
   ],
   returnType: "string",
+  resultDependsOn: "survey",
+});
+
+function isRecordItemOf(obj: any, prefix: string): boolean {
+  return !!obj && typeof obj.getAllValues === "function" && typeof obj.getVariableName === "function" &&
+    String(obj.getVariableName()).toLowerCase() === prefix;
+}
+// The dynamic panel item or matrix row the expression runs in when the name starts with its variable
+// ('panel.q', 'row.col'). The properties hold it under that variable: the row itself, or the panel
+// whose data is the item (runPanelsCondition). 'panel[0].q' names a question "panel", not the item.
+// The item's own getter context is not reused: it answers template questions whatever the data holds.
+function getRecordItemByPrefix(self: any, path: Array<IValueGetterItem>): any {
+  if (path.length < 2 || path[0].index !== undefined) return undefined;
+  const prefix = path[0].name.toLowerCase();
+  for (const key in self) {
+    if (key.toLowerCase() !== prefix) continue;
+    const obj = self[key];
+    if (isRecordItemOf(obj, prefix)) return obj;
+    if (!!obj && isRecordItemOf(obj.data, prefix)) return obj.data;
+  }
+  return undefined;
+}
+// Whether the data holds the key, even with an empty value ("", null, {}, []): {q} empty cannot tell
+// such a key from a missing one. In a survey the stored data answers - not a question, a variable or a
+// calculated value; with no survey, the values passed to runValues. The name is a path as in {...}.
+function hasValue(params: any[]): boolean {
+  const name = Array.isArray(params) ? params[0] : undefined;
+  if (typeof name !== "string" || !name) return false;
+  const path = parseValuePath(name);
+  const item = getRecordItemByPrefix(this, path);
+  let context: IValueGetterContext;
+  if (!!item) {
+    path.shift();
+    context = new VariableGetterContext(item.getAllValues());
+  } else if (!!this.survey && typeof this.survey.getDataValueGetterContext === "function") {
+    context = this.survey.getDataValueGetterContext();
+  } else {
+    context = this.expressionContext;
+  }
+  const res = !!context ? context.getValue({ path: path, isRoot: true, index: -1 }) : undefined;
+  return !!res && res.isFound === true;
+}
+FunctionFactory.Instance.register({
+  name: "hasValue", func: hasValue,
+  description: "Returns true when the survey data holds the key, even when its value is empty (\"\", null, {} or []), and false when the key is missing.",
+  parameters: [
+    { name: "name", type: "string", description: "A value name or a path, quoted: 'q1', 'panel.q1', 'matrix.row1.col1'" },
+  ],
+  returnType: "boolean",
   resultDependsOn: "survey",
 });
 

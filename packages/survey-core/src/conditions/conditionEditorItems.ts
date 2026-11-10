@@ -1,6 +1,8 @@
 import { Helpers } from "../helpers";
 import { settings } from "../settings";
 import { ISurvey } from "../interfaces/survey-interfaces";
+import type { Question } from "../question";
+import { getDataScopeHost } from "../panel-data-scope";
 import { ConditionsParser } from "./conditionsParser";
 import { getConditionDefaultOperator } from "./conditionOperators";
 import { Operand, UnaryOperand, BinaryOperand, Variable, Const, ArrayOperand } from "../expressions/expressions";
@@ -114,12 +116,11 @@ export class SurveyConditionEditorItem extends ConditionEditorItem {
     super();
   }
   protected getVariableName(): string {
-    const question: any = this.survey.getQuestionByName(this.questionName);
-    // ISurvey and IQuestion have neither member: the survey and the question models do (R6, L1).
-    const path: Array<string> = !!question && typeof question.getDataPath === "function" ? question.getDataPath() : [];
+    const question = <Question>this.survey.getQuestionByName(this.questionName);
+    const path: Array<string> = !!question ? question.getDataPath() : [];
     if (path.length > 1 && this.questionName === question.name) {
-      const survey: any = this.survey;
-      const info = typeof survey.getQuestionByVariable === "function" ? survey.getQuestionByVariable(question.name) : null;
+      // A survey without the data-scope members cannot resolve the name: the path.
+      const info = getDataScopeHost(this.survey)?.getQuestionByVariable(question.name);
       return !!info && info.question === question && !info.rest ? question.name : path.join(".");
     }
     if (question && question.name != question.getValueName() && this.questionName != question.getValueName()) {

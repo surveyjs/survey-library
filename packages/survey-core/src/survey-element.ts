@@ -34,9 +34,9 @@ import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
-import { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
+import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
-import { IDataScope, getActiveDataScope } from "./panel-data-scope";
+import { IDataScope, getActiveDataScope, getDataScopeHost } from "./panel-data-scope";
 
 // The readOnlyMode serializer property shared by questions and panels; a new object per class.
 export function getReadOnlyModePropertyInfo(): any {
@@ -558,13 +558,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.runWithoutAnimations(() => { this.renderedIsExpanded = !this.isCollapsed; });
   }
   public getValueGetterContext(): IValueGetterContext {
-    const data = <IObjectValueContext><any>this.data;
+    const data = this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
   protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
-    const data = <IObjectValueContext><any>this.data;
-    if (!!data && typeof data.getValueGetterContext === "function") {
+    const data = this.data;
+    if (!!data) {
       const dataContext = data.getValueGetterContext();
       if (typeof dataContext?.getContextKeys === "function") {
         return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars, isClearedKeyChanged);
@@ -599,7 +599,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   // Nested data (decisions R6). The data scope this element's own value is a key of: the survey, or the
   // nearest active PanelDataScope above it. A question inside a record answers the survey.
   public getValueScope(): IDataScope {
-    return getActiveDataScope(this.data) || <IDataScope><any>this.survey;
+    return getActiveDataScope(this.data) || getDataScopeHost(this.survey);
   }
   // The keys from the survey data down to this element's value: ["q1"], ["page1", "address", "street"].
   // Empty for an element with no key of its own (a container that does not nest).
@@ -1057,7 +1057,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     (<any>this).prevSurvey = undefined;
     // The move sent no add or remove notification: the survey's data key index follows the element.
-    (<SurveyModel><any>this.survey)?.dataShapeChanged();
+    getDataScopeHost(this.survey)?.dataShapeChanged();
   }
   protected getSearchableLocKeys(keys: Array<string>) {
     keys.push("title");

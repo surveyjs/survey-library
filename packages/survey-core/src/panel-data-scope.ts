@@ -1,4 +1,7 @@
-import type { IQuestion, IElement, ISurvey, ISurveyImpl, ISurveyData, ISurveyDataElement, ITextProcessor } from "./base-interfaces";
+import type { IQuestion, IElement, IPanel, ISurvey, ISurveyImpl, ISurveyData, ISurveyDataElement, ITextProcessor } from "./base-interfaces";
+import type { Base } from "./base";
+import type { PanelModelBase } from "./panel";
+import type { IExpressionVariableInfo } from "./survey";
 import type { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ValueGetterContextCore } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
@@ -33,14 +36,31 @@ export interface IPanelDataScopeOwner extends ISurveyDataElement {
   getDataScope(): PanelDataScope;
   elements: Array<IElement>;
 }
-// The survey's counter of data shape changes (SurveyModel.getDataShapeVersion()): an index built at one
-// version is current until the counter changes.
-interface IDataShapeVersionOwner {
+// The survey as the root data scope, and its members the nested-data code calls: SurveyModel implements them.
+// They are not on ISurvey, so an ISurvey that is not a SurveyModel (a partial survey object in a test) needs
+// none of them.
+export interface ISurveyDataScopeHost extends IDataScope {
+  readonly dataNesting: string;
+  // The counter of data shape changes: an index built at one version is current until the counter changes.
   getDataShapeVersion(): number;
+  dataShapeChanged(): void;
+  isDataScopeUsed(): boolean;
+  dataScopeUsed(): void;
+  dataScopeChanged(panel?: PanelModelBase): void;
+  dataScopeValueChanged(scope: PanelDataScope): void;
+  getNewGeneratedName(elements: Array<any>, baseName: string): string;
+  getAllPanels(visibleOnly?: boolean, includeDesignTime?: boolean): Array<IPanel>;
+  getQuestionByVariable(name: string, context?: Base): IExpressionVariableInfo;
+}
+// The survey as the host of its data scopes, or undefined for a survey object without the members. The only
+// place that checks for them (getDataShapeVersion stands for all): a caller uses the optional chain and does
+// nothing without a host.
+export function getDataScopeHost(survey: ISurvey): ISurveyDataScopeHost {
+  const host: any = survey;
+  return !!host && typeof host.getDataShapeVersion === "function" ? <ISurveyDataScopeHost>host : undefined;
 }
 function getDataShapeVersion(survey: ISurvey): number {
-  const owner: any = survey;
-  return !!owner && typeof owner.getDataShapeVersion === "function" ? (<IDataShapeVersionOwner>owner).getDataShapeVersion() : undefined;
+  return getDataScopeHost(survey)?.getDataShapeVersion();
 }
 // The nearest active scope of an element's data, or null when its value is a key of the survey data (or of
 // a record): SurveyElement.getValueScope().
@@ -569,8 +589,7 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     return this.getParentValueGetterContext();
   }
   public getParentValueGetterContext(): IValueGetterContext {
-    const data: any = this.parentData;
-    return !!data && typeof data.getValueGetterContext === "function" ? data.getValueGetterContext() : undefined;
+    return this.parentData?.getValueGetterContext();
   }
   // The stored object, as an expression reads it.
   public getObjectValue(): any {
@@ -664,14 +683,14 @@ export class PanelDataScopeValueGetterContext extends DataLevelValueGetterContex
     return super.getValue(params);
   }
   getRootObj(): IObjectValueContext {
-    return <IObjectValueContext><any>this.scopes[0].parentData;
+    return this.scopes[0].parentData;
   }
   // The changed names a write reports, as the parent's context gives them: inside a record, the record's
   // (QuestionRecordItemGetterContext.getContextKeys), so an inner question's {street} re-runs on a write of the
   // record. The survey's context gives none.
   getContextKeys(keys?: any): { [key: string]: any } {
     const root = this.getRootObj();
-    const ctx = !!root && typeof root.getValueGetterContext === "function" ? root.getValueGetterContext() : undefined;
+    const ctx = root?.getValueGetterContext();
     return !!ctx && typeof ctx.getContextKeys === "function" ? ctx.getContextKeys(keys) : {};
   }
   // The scopes' indexes, letter case ignored: a question of the first scope that has one wins.

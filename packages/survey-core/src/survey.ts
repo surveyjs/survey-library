@@ -97,7 +97,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { PanelDataScope, PanelDataScopeValueGetterContext, getMetadataValueGetterContext, DataKeyIndex, IDataScope, isKnownDataKey, getNameOfCommentName, getElementDataScope, getActiveDataScope, getRecordDataScope, isContainerObjectKept } from "./panel-data-scope";
+import { PanelDataScope, PanelDataScopeValueGetterContext, getMetadataValueGetterContext, DataKeyIndex, IDataScope, isKnownDataKey, getNameOfCommentName, getElementDataScope, getActiveDataScope, getRecordDataScope, isContainerObjectKept, ISurveyDataScopeHost } from "./panel-data-scope";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { registerRecordsSortDialogSurvey } from "./records/records-sort-dialog";
@@ -268,7 +268,9 @@ export class SurveyModel extends SurveyElementCore
   ISurveyImpl,
   ISurveyTriggerOwner,
   ISurveyErrorOwner,
-  ISurveyTimerText {
+  ISurveyTimerText,
+  IDataScope,
+  ISurveyDataScopeHost {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   // public static get cssType(): string {

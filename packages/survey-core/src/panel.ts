@@ -38,7 +38,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
-import { PanelDataScope, getDataNestingKey, getRecordDataScope, isRecordData } from "./panel-data-scope";
+import { PanelDataScope, getDataNestingKey, getRecordDataScope, isRecordData, getDataScopeHost } from "./panel-data-scope";
 import { Scope } from "./utils/scope";
 
 // The lazily rendered rows waiting on one scroll container share a single "scroll" listener and a single
@@ -556,8 +556,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.getDataNestingKeyOfKind(kind);
   }
   private getDataNestingKeyOfKind(kind: string, valueName?: string, name?: string): string {
-    const survey: any = this.survey || this.getRecordTemplateOwnerSurvey();
-    return getDataNestingKey(!!survey ? survey.dataNesting : undefined, kind,
+    const host = getDataScopeHost(this.survey || this.getRecordTemplateOwnerSurvey());
+    return getDataNestingKey(host?.dataNesting, kind,
       valueName !== undefined ? valueName : this.valueName, name !== undefined ? name : this.name);
   }
   // The key this container nests under with these valueName and name (the Creator asks it before a rename),
@@ -605,7 +605,7 @@ export class PanelModelBase extends SurveyElement<Question>
     const scope = this.getDataScope();
     if (!scope || !scope.isActive) return;
     scope.notifyValueChanged();
-    (<SurveyModel><any>this.survey)?.dataScopeValueChanged(scope);
+    getDataScopeHost(this.survey)?.dataScopeValueChanged(scope);
   }
   // The questions read the stored object: newValue is its copy. clearData does not apply to a container.
   public updateValueFromSurvey(newValue: any, clearData: boolean): void {
@@ -639,7 +639,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.dataScopeValue.setParent(value);
     this.isDataScopeUsed = true;
     this.attachedDataScopeKey = this.getDataScopeKey();
-    (<SurveyModel><any>value.getSurvey())?.dataScopeUsed();
+    getDataScopeHost(value.getSurvey())?.dataScopeUsed();
     return this.dataScopeValue;
   }
   private canUseDataScope(value: ISurveyImpl): boolean {
@@ -707,11 +707,11 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!record) {
       // Inside a record the record's questions read it again (D8): the survey's indexes do not hold them.
       if (prevKey === this.attachedDataScopeKey) return;
-      (<SurveyModel><any>this.survey)?.dataShapeChanged();
+      getDataScopeHost(this.survey)?.dataShapeChanged();
       record.updateValuesFromData();
       return;
     }
-    (<SurveyModel><any>this.survey)?.dataScopeChanged(this);
+    getDataScopeHost(this.survey)?.dataScopeChanged(this);
   }
   // The container's key may have changed (its valueName or name, or the survey's dataNesting): a container
   // that starts to nest gets its scope and re-attaches its elements. The data does not move (D8).
@@ -930,7 +930,7 @@ export class PanelModelBase extends SurveyElement<Question>
       if (!!this.survey) {
         this.lifecycleCallbacks.questionTriggersChanged();
         // The data key index keeps document order.
-        (<SurveyModel><any>this.survey).dataShapeChanged();
+        getDataScopeHost(this.survey)?.dataShapeChanged();
       }
       this.updateRows();
       this.updateVisibleIndexes();
@@ -1912,9 +1912,9 @@ export class PanelModelBase extends SurveyElement<Question>
     const fireNotification = this.canFireAddRemoveNotifications(element);
     // Named before it is attached (survey.panelAdded names it otherwise): a by-name dataNesting mode nests
     // the panel's elements under the name.
-    if (fireNotification && element.isPanel && !element.name) {
-      const model = <SurveyModel><any>survey;
-      (<any>element).name = model.getNewGeneratedName(model.getAllPanels(false, true), "panel");
+    const host = fireNotification && element.isPanel && !element.name ? getDataScopeHost(survey) : undefined;
+    if (!!host) {
+      (<any>element).name = host.getNewGeneratedName(host.getAllPanels(false, true), "panel");
     }
     if (!!this.surveyImpl) {
       element.setSurveyImpl(this.getElementsSurveyImpl());

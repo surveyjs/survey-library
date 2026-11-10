@@ -35,7 +35,7 @@ import { Action } from "./actions/action";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { Scope, ValueScope } from "./utils/scope";
-import { ObjectDataScope, PanelDataScope, PanelDataScopeValueGetterContext, RecordKeyLevel, RecordKeyLevelValueGetterContext, getActiveDataScope, getElementDataScope, asScopeObject, hasRecordDataNesting, getNameOfCommentName } from "./panel-data-scope";
+import { ObjectDataScope, PanelDataScope, PanelDataScopeValueGetterContext, RecordKeyLevel, RecordKeyLevelValueGetterContext, getActiveDataScope, getElementDataScope, asScopeObject, hasRecordDataNesting, getNameOfCommentName, getDataScopeHost } from "./panel-data-scope";
 import { RecordsDataWaits } from "./records/records-data-waits";
 import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainerVisible } from "./records/records-hidden-answers";
 import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/records-cleanup-runner";
@@ -4540,8 +4540,7 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   public getNestedDataNames(): Array<string> {
     const res: Array<string> = [];
     // A survey where no container ever nested pays nothing: this runs on every expression check of a write.
-    const survey: any = this.getSurvey();
-    if (!survey || typeof survey.isDataScopeUsed !== "function" || !survey.isDataScopeUsed()) return res;
+    if (!getDataScopeHost(this.getSurvey())?.isDataScopeUsed()) return res;
     const add = (scope: PanelDataScope): void => {
       res.push(scope.key);
       scope.getDataKeyIndex().elements.forEach((el: ISurveyDataElement): void => {

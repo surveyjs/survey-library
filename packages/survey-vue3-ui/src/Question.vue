@@ -4,7 +4,7 @@
     :style="getRootStyle()"
     ref="root"
     v-on:focusin="element.focusIn()"
-    :id="element.id"
+    :id="element.renderedId"
     :role="element.ariaRole"
     :aria-required="element.ariaRequired"
     :aria-invalid="element.ariaInvalid"

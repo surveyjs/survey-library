@@ -1,5 +1,5 @@
 import { SurveyElement } from "./survey-element";
-import { classesToSelector } from "./utils/dom-utils";
+import { classesToSelector, getIdSelector } from "./utils/dom-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
@@ -130,7 +130,7 @@ export class PanelDynamicAnimation {
       getAnimatedElement: (panel) => {
         if (panel && question.cssContent) {
           const contentSelector = classesToSelector(question.cssContent);
-          return question.getWrapperElement()?.querySelector(`:scope ${contentSelector} #${panel.id}`)?.parentElement;
+          return question.getWrapperElement()?.querySelector(`:scope ${contentSelector} ${getIdSelector(panel.renderedId)}`)?.parentElement;
         }
       },
       getEnterOptions: () => {

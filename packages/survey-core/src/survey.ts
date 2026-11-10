@@ -59,7 +59,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
-import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode, getIdSelector } from "./utils/dom-utils";
 import { getClosestSurveyScroller } from "./utils/scroll-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
@@ -1650,7 +1650,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
     if (!!page) {
-      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(`#${page.id}`);
+      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(getIdSelector(page.renderedId));
       activateLazyRenderingChecks(htmlElement);
     }
   }
@@ -6739,11 +6739,11 @@ export class SurveyModel extends SurveyElementCore
           elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
         elementPage.forceRenderElement(elementToForceRender as IElement, () => {
-          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
+          const htmlElement = surveyRootElement?.querySelector(getIdSelector(options.elementId));
           this.suspendLazyRendering();
           SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
             this.releaseLazyRendering();
-            const pageRootElement = surveyRootElement.querySelector(`#${elementPage.id}`);
+            const pageRootElement = surveyRootElement.querySelector(getIdSelector(elementPage.renderedId));
             activateLazyRenderingChecks(pageRootElement);
             optOnScolledCallback && optOnScolledCallback();
           });
@@ -6753,7 +6753,7 @@ export class SurveyModel extends SurveyElementCore
           const elementToScroll = this.getPageScrollTarget(surveyRootElement);
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
-          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
+          const htmlElement = surveyRootElement?.querySelector(getIdSelector(options.elementId)) as HTMLElement;
           if (htmlElement && !element.isPage && this.autoCenterFocusedQuestion) {
             this.suspendLazyRendering();
             this.focusedQuestionScroll.scrollIntoView(htmlElement);

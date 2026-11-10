@@ -150,7 +150,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       <>
         <div
           ref={this.rootRef}
-          id={question.id}
+          id={question.renderedId}
           className={question.getRootCss()}
           style={rootStyle}
           data-name={question.name}

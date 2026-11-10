@@ -2009,7 +2009,7 @@ export class Question extends SurveyElement<Question>
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] && isAnimationEnabled() ? { behavior: "smooth" } : undefined;
         this.survey.scrollElementToTop({
-          element: this, question: this, id: this.id,
+          element: this, question: this, id: this.renderedId,
           scrollIfVisible, scrollIntoViewOptions: scrollOptions,
           onScolledCallback: () => { this.focusInputElement(onError); }
         });

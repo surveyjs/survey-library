@@ -9712,7 +9712,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public questionErrorComponent = "sv-question-error";
   private dropdownLoadingComponentValue = "sv-list-loading";
-  // Not serialized: set in code only, so loading a JSON schema keeps the value.
+  /**
+   * The name of a component used to display a loading indicator in drop-down lists.
+   *
+   * > This property can only be set in JavaScript code on a `SurveyModel` instance. It cannot be specified in the survey JSON schema.
+   */
   public get dropdownLoadingComponent(): string {
     return this.dropdownLoadingComponentValue;
   }

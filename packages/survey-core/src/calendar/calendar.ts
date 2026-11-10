@@ -46,6 +46,7 @@ export class CalendarModel extends Base {
   @property() weekDays: Array<string>;
 
   public onValueChanged: EventBase<CalendarModel, { value: any }> = this.addEvent<CalendarModel, { value: any }>();
+  public onSelectionCompleted: EventBase<CalendarModel, { value: any }> = this.addEvent<CalendarModel, { value: any }>();
   public onRangeStartSelected: EventBase<CalendarModel, { date: Date }> = this.addEvent<CalendarModel, { date: Date }>();
   public onZoomChanged: EventBase<CalendarModel, { zoom: CalendarZoom }> = this.addEvent<CalendarModel, { zoom: CalendarZoom }>();
 
@@ -109,9 +110,11 @@ export class CalendarModel extends Base {
     if (item.isOutside) {
       this.viewDate = item.date;
     }
-    if (isSameDay(this.value, item.date)) return;
-    this.value = item.date;
-    this.onValueChanged.fire(this, { value: this.value });
+    if (!isSameDay(this.value, item.date)) {
+      this.value = item.date;
+      this.onValueChanged.fire(this, { value: this.value });
+    }
+    this.onSelectionCompleted.fire(this, { value: this.value });
   }
   public hoverItem(item?: CalendarItem): void {
     if (!!item && item.isDisabled) return;
@@ -175,6 +178,7 @@ export class CalendarModel extends Base {
     if (isChanged) {
       this.onValueChanged.fire(this, { value: this.value });
     }
+    this.onSelectionCompleted.fire(this, { value: this.value });
   }
   private isSameRange(a: Array<Date>, b: Array<Date>): boolean {
     return !!a && !!b && isSameDay(a[0], b[0]) && isSameDay(a[1], b[1]);

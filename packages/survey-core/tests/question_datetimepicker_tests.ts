@@ -1,0 +1,332 @@
+import { SurveyModel } from "../src/survey";
+import { Serializer } from "../src/jsonobject";
+import { QuestionFactory } from "../src/questionfactory";
+import { QuestionDateTimePickerModel } from "../src/question_datetimepicker";
+import { CalendarModel } from "../src/calendar/calendar";
+import { CalendarItem } from "../src/calendar/interfaces";
+import { InputMaskDateTime } from "../src/mask/mask_datetime";
+
+import { describe, test, expect, vi, afterEach } from "vitest";
+
+function d(year: number, month: number, day: number): Date {
+  return new Date(year, month - 1, day);
+}
+function createQuestion(json: any = {}, surveyJson: any = {}): QuestionDateTimePickerModel {
+  const survey = new SurveyModel(Object.assign({ elements: [Object.assign({ type: "datetimepicker", name: "q1" }, json)] }, surveyJson));
+  return <QuestionDateTimePickerModel>survey.getQuestionByName("q1");
+}
+function findDay(calendar: CalendarModel, date: Date): CalendarItem {
+  return calendar.months[0].days.filter(item => !item.isOutside && item.date.getTime() === date.getTime())[0];
+}
+
+describe("QuestionDateTimePickerModel", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test("Registration and defaults", () => {
+    const q = createQuestion();
+    expect(q.getType()).toBe("datetimepicker");
+    expect(Serializer.createClass("datetimepicker")).toBeInstanceOf(QuestionDateTimePickerModel);
+    expect(QuestionFactory.Instance.createQuestion("datetimepicker", "q2")).toBeInstanceOf(QuestionDateTimePickerModel);
+    expect(q.pickerType).toBe("date");
+    expect(q.range).toBe(false);
+    expect(q.allowClear).toBe(true);
+    expect(q.min).toBeUndefined();
+    expect(q.max).toBeUndefined();
+    expect(q.getValueType()).toBe("string");
+    expect(Serializer.findProperty("datetimepicker", "pickerType").getChoices(q)).toEqual(["date"]);
+  });
+
+  test("The mask is a localeDate datetime mask", () => {
+    const q = createQuestion();
+    const mask = <InputMaskDateTime>q.maskSettings;
+    expect(mask.getType()).toBe("datetimemask");
+    expect(mask.patternPreset).toBe("localeDate");
+    expect(mask.activePattern).toBe("mm/dd/yyyy");
+    expect(q.inputValue).toBe("mm/dd/yyyy");
+  });
+
+  test("Calendar and popup", () => {
+    const q = createQuestion();
+    expect(q.calendar).toBeInstanceOf(CalendarModel);
+    expect(q.popupModel.contentComponentName).toBe("sv-calendar");
+    expect(q.popupModel.contentComponentData.model).toBe(q.calendar);
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("toJSON with defaults", () => {
+    const q = createQuestion();
+    expect(q.toJSON()).toEqual({ name: "q1" });
+  });
+
+  test("fromJSON / toJSON", () => {
+    const json = {
+      name: "q1",
+      min: "2026-01-01",
+      max: "2026-12-31",
+      minValueExpression: "today()",
+      maxValueExpression: "today(30)",
+      placeholder: "Pick a date",
+      allowClear: false,
+      maskSettings: { pattern: "dd.mm.yyyy" }
+    };
+    const q = new QuestionDateTimePickerModel("q1");
+    q.fromJSON(json);
+    expect(q.min).toBe("2026-01-01");
+    expect(q.max).toBe("2026-12-31");
+    expect(q.placeholder).toBe("Pick a date");
+    expect(q.allowClear).toBe(false);
+    expect((<InputMaskDateTime>q.maskSettings).pattern).toBe("dd.mm.yyyy");
+    expect(q.toJSON()).toEqual(json);
+  });
+
+  test("Value is shown in the input and in the calendar", () => {
+    const q = createQuestion();
+    q.value = "2026-11-09";
+    expect(q.inputValue).toBe("11/09/2026");
+    expect(q.calendar.value.getTime()).toBe(d(2026, 11, 9).getTime());
+    expect(q.calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+
+    q.clearValue();
+    expect(q.inputValue).toBe("mm/dd/yyyy");
+    expect(q.calendar.value).toBeUndefined();
+  });
+
+  test("Value from survey data", () => {
+    const q = createQuestion();
+    q.survey.data = { q1: "2025-03-17" };
+    expect(q.inputValue).toBe("03/17/2025");
+    expect(q.calendar.value.getTime()).toBe(d(2025, 3, 17).getTime());
+  });
+
+  test("A complete date in the input sets the value and the calendar month", () => {
+    const q = createQuestion();
+    q.inputValue = "12/25/2027";
+    expect(q.value).toBe("2027-12-25");
+    expect(q.calendar.value.getTime()).toBe(d(2027, 12, 25).getTime());
+    expect(q.calendar.viewDate.getTime()).toBe(d(2027, 12, 1).getTime());
+  });
+
+  test("An incomplete date in the input is kept and does not set the value", () => {
+    const q = createQuestion();
+    q.value = "2026-11-09";
+    q.inputValue = "12/25/yyyy";
+    expect(q.value).toBeUndefined();
+    expect(q.inputValue).toBe("12/25/yyyy");
+    expect(q.calendar.value).toBeUndefined();
+  });
+
+  test("Selecting a day in the calendar sets the value and closes the popup", () => {
+    const q = createQuestion();
+    q.value = "2026-11-09";
+    q.togglePopup();
+    expect(q.popupModel.isVisible).toBe(true);
+    q.calendar.selectItem(findDay(q.calendar, d(2026, 11, 20)));
+    expect(q.value).toBe("2026-11-20");
+    expect(q.inputValue).toBe("11/20/2026");
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("Opening the popup resets the calendar view", () => {
+    const q = createQuestion();
+    q.value = "2026-11-09";
+    q.calendar.zoom = "year";
+    q.calendar.next();
+    q.togglePopup();
+    expect(q.calendar.zoom).toBe("day");
+    expect(q.calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+    q.togglePopup();
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("Calendar button opens the popup", () => {
+    const q = createQuestion();
+    const button = q.editorButtons.getActionById("calendar");
+    expect(button).toBeTruthy();
+    expect(button.enabled).toBe(true);
+    button.action();
+    expect(q.popupModel.isVisible).toBe(true);
+    button.action();
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("Clear button", () => {
+    const q = createQuestion();
+    const button = q.editorButtons.getActionById("clear");
+    expect(button.visible).toBe(false);
+    q.value = "2026-11-09";
+    expect(button.visible).toBe(true);
+    button.action();
+    expect(q.isEmpty()).toBe(true);
+    expect(q.inputValue).toBe("mm/dd/yyyy");
+    expect(button.visible).toBe(false);
+
+    q.allowClear = false;
+    q.value = "2026-11-09";
+    expect(button.visible).toBe(false);
+  });
+
+  test("Clear button clears an incomplete entry", () => {
+    const q = createQuestion();
+    q.value = "2026-11-09";
+    q.inputValue = "12/25/yyyy";
+    q.clearInput();
+    expect(q.inputValue).toBe("mm/dd/yyyy");
+    expect(q.isEmpty()).toBe(true);
+  });
+
+  test("readOnly: the popup does not open", () => {
+    const q = createQuestion({ readOnly: true });
+    q.togglePopup();
+    expect(q.popupModel.isVisible).toBe(false);
+    expect(q.editorButtons.getActionById("calendar").enabled).toBe(false);
+
+    q.readOnly = false;
+    expect(q.editorButtons.getActionById("calendar").enabled).toBe(true);
+    q.togglePopup();
+    expect(q.popupModel.isVisible).toBe(true);
+    q.readOnly = true;
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("readOnly survey and design mode: the popup does not open", () => {
+    let q = createQuestion({}, { readOnly: true });
+    q.togglePopup();
+    expect(q.popupModel.isVisible).toBe(false);
+
+    q = createQuestion();
+    q.survey.setDesignMode(true);
+    q.togglePopup();
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("Clear button is hidden in readOnly mode", () => {
+    const q = createQuestion({ defaultValue: "2026-11-09" });
+    expect(q.editorButtons.getActionById("clear").visible).toBe(true);
+    q.readOnly = true;
+    expect(q.editorButtons.getActionById("clear").visible).toBe(false);
+  });
+
+  test("min and max are passed to the calendar", () => {
+    const q = createQuestion({ min: "2026-11-05", max: "2026-11-20" });
+    expect(q.renderedMin).toBe("2026-11-05");
+    expect(q.renderedMax).toBe("2026-11-20");
+    expect(q.calendar.min.getTime()).toBe(d(2026, 11, 5).getTime());
+    expect(q.calendar.max.getTime()).toBe(d(2026, 11, 20).getTime());
+
+    q.min = undefined;
+    expect(q.calendar.min).toBeUndefined();
+    q.max = "2026-12-31";
+    expect(q.calendar.max.getTime()).toBe(d(2026, 12, 31).getTime());
+  });
+
+  test("min cannot be greater than max", () => {
+    const q = createQuestion({ max: "2026-11-10" });
+    q.min = "2026-12-01";
+    expect(q.min).toBe("2026-11-10");
+    q.min = "2026-11-01";
+    q.max = "2026-10-01";
+    expect(q.max).toBe("2026-11-01");
+  });
+
+  test("min and max as expressions", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 9, 15, 0));
+    const q = createQuestion({ minValueExpression: "today()", maxValueExpression: "today(10)" });
+    expect(q.renderedMin).toBe("2026-11-09");
+    expect(q.renderedMax).toBe("2026-11-19");
+    expect(q.calendar.min.getTime()).toBe(d(2026, 11, 9).getTime());
+    expect(q.calendar.max.getTime()).toBe(d(2026, 11, 19).getTime());
+  });
+
+  test("min as =expression", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 9));
+    const q = createQuestion({ min: "=today(-1)" });
+    expect(q.minValueExpression).toBe("today(-1)");
+    expect(q.renderedMin).toBe("2026-11-08");
+  });
+
+  test("min and max expressions depending on another question", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "start", inputType: "date" },
+        { type: "datetimepicker", name: "q1", minValueExpression: "{start}" }
+      ]
+    });
+    const q = <QuestionDateTimePickerModel>survey.getQuestionByName("q1");
+    expect(q.calendar.min).toBeUndefined();
+    survey.setValue("start", "2026-11-15");
+    expect(q.renderedMin).toBe("2026-11-15");
+    expect(q.calendar.min.getTime()).toBe(d(2026, 11, 15).getTime());
+  });
+
+  test("Required error", () => {
+    const q = createQuestion({ isRequired: true });
+    expect(q.validate()).toBe(false);
+    expect(q.errors.map(error => error.getErrorType())).toEqual(["required"]);
+    q.value = "2026-11-09";
+    expect(q.validate()).toBe(true);
+  });
+
+  test("An incomplete entry reports the incomplete pattern error instead of required", () => {
+    const q = createQuestion({ isRequired: true });
+    q.inputValue = "12/25/yyyy";
+    expect(q.validate()).toBe(false);
+    expect(q.errors.map(error => error.getErrorType())).toEqual(["patternincompleteerror"]);
+
+    const q2 = createQuestion();
+    q2.inputValue = "12/yy/yyyy";
+    expect(q2.validate()).toBe(false);
+    expect(q2.errors.map(error => error.getErrorType())).toEqual(["patternincompleteerror"]);
+  });
+
+  test("min and max errors", () => {
+    const q = createQuestion({ min: "2026-11-05", max: "2026-11-20" });
+    q.value = "2026-11-04";
+    expect(q.validate()).toBe(false);
+    expect(q.errors).toHaveLength(1);
+    expect(q.errors[0].text).toBe("The value should not be less than 11/05/2026");
+
+    q.value = "2026-11-21";
+    expect(q.validate()).toBe(false);
+    expect(q.errors[0].text).toBe("The value should not be greater than 11/20/2026");
+
+    q.value = "2026-11-20";
+    expect(q.validate()).toBe(true);
+  });
+
+  test("Custom min and max error texts", () => {
+    const q = createQuestion({ min: "2026-11-05", minErrorText: "Not before {0}" });
+    q.value = "2026-11-01";
+    q.validate();
+    expect(q.errors[0].text).toBe("Not before 11/05/2026");
+    expect(q.toJSON().minErrorText).toBe("Not before {0}");
+  });
+
+  test("A value of a wrong type is reported", () => {
+    const survey = new SurveyModel({ elements: [{ type: "datetimepicker", name: "q1" }] });
+    expect(survey.setData({ q1: "2026-11-09" })).toEqual([]);
+    const issues = survey.setData({ q1: "not a date" });
+    expect(issues.map(issue => issue.type)).toEqual(["invalidValueType"]);
+    expect(survey.setData({ q1: "2026-13-45" }).map(issue => issue.type)).toEqual(["invalidValueType"]);
+    expect(survey.setData({ q1: 5 }).map(issue => issue.type)).toEqual(["invalidValueType"]);
+  });
+
+  test("Locale change updates the input", () => {
+    const q = createQuestion();
+    q.value = "2026-11-09";
+    q.survey.locale = "de";
+    expect(q.inputValue).toBe("09.11.2026");
+    q.survey.locale = "";
+    expect(q.inputValue).toBe("11/09/2026");
+  });
+
+  test("Mask pattern change updates the input", () => {
+    const q = createQuestion();
+    q.value = "2026-11-09";
+    (<InputMaskDateTime>q.maskSettings).pattern = "yyyy/mm/dd";
+    expect(q.inputValue).toBe("2026/11/09");
+  });
+});

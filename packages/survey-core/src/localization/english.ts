@@ -124,6 +124,7 @@ export var englishStrings = {
   timerLimitSurvey: "You have spent {0} of {1} in total.",
   clearCaption: "Clear",
   selectCaption: "Select",
+  openCalendarCaption: "Open calendar",
   signaturePlaceHolder: "Sign here",
   signaturePlaceHolderReadOnly: "No signature",
   chooseFileCaption: "Select File",

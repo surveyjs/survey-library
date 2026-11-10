@@ -229,6 +229,7 @@ export { QuestionHtmlModel } from "../../src/question_html";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";
+export { QuestionDateTimePickerModel } from "../../src/question_datetimepicker";
 export { QuestionExpressionModel } from "../../src/question_expression";
 export { QuestionTextBase, CharacterCounter, ICharacterCounterAction } from "../../src/question_textbase";
 export { QuestionTextModel } from "../../src/question_text";

@@ -264,6 +264,29 @@ describe("CalendarModel", () => {
     expect(findDay(calendar, d(2026, 11, 12)).css).toBe("sv-calendar__day sv-calendar__day--hovered");
     expect(findDay(calendar, d(2026, 10, 26), true).css).toBe("sv-calendar__day sv-calendar__day--outside");
   });
+
+  test("onSelectionCompleted fires on every day selection, even if the value is the same", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    const completed: Array<Date> = [];
+    let changedCount = 0;
+    calendar.onSelectionCompleted.add((_, options) => completed.push(options.value));
+    calendar.onValueChanged.add(() => changedCount++);
+    calendar.selectItem(findDay(calendar, d(2026, 11, 5)));
+    calendar.selectItem(findDay(calendar, d(2026, 11, 5)));
+    expect(completed.map(date => date.getTime())).toEqual([d(2026, 11, 5).getTime(), d(2026, 11, 5).getTime()]);
+    expect(changedCount).toBe(1);
+  });
+
+  test("onSelectionCompleted does not fire when the zoom changes", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    let count = 0;
+    calendar.onSelectionCompleted.add(() => count++);
+    calendar.zoom = "month";
+    calendar.selectItem(calendar.items[2]);
+    calendar.zoom = "year";
+    calendar.selectItem(calendar.items[2]);
+    expect(count).toBe(0);
+  });
 });
 
 describe("CalendarModel zoom", () => {
@@ -979,6 +1002,19 @@ describe("CalendarModel range", () => {
     expect(calendar.value.getTime()).toBe(d(2026, 11, 9).getTime());
     expect(calendar.months).toHaveLength(1);
     expect(days(calendar).every(item => item.rangePosition === undefined)).toBe(true);
+  });
+
+  test("onSelectionCompleted fires when the range end is selected, even if the range is the same", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
+    let count = 0;
+    calendar.onSelectionCompleted.add(() => count++);
+    calendar.selectItem(findDay(calendar, d(2026, 11, 5)));
+    expect(count).toBe(0);
+    calendar.selectItem(findDay(calendar, d(2026, 11, 10)));
+    expect(count).toBe(1);
+    calendar.selectItem(findDay(calendar, d(2026, 11, 5)));
+    calendar.selectItem(findDay(calendar, d(2026, 11, 10)));
+    expect(count).toBe(2);
   });
 
   test("Single mode ignores rangeStart", () => {

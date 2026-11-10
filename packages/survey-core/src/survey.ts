@@ -5839,6 +5839,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.currentPageNo = 0;
     if (!!this.currentPage) {
+      this.currentPage.onFirstRendering();
       this.currentPage.locStrsChanged();
     }
     return true;

@@ -22,6 +22,20 @@ describe("QuestionFilterModel", () => {
     expect(survey.data, "#1").toEqual({});
     expect(q.getAllErrors(), "#2").toHaveLength(0);
   });
+  test("a value expression authored in the JSON writes nothing into survey.data", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "t", defaultValue: 2 },
+      { type: "filter", name: "f1", defaultValueExpression: "{t} * 3" },
+      { type: "filter", name: "f2", setValueIf: "{t} = 1", setValueExpression: "{t} + 10" }] });
+    expect(survey.data, "#1: defaultValueExpression").toEqual({ t: 2 });
+    survey.setValue("t", 1);
+    expect(survey.data, "#2: setValueIf and setValueExpression").toEqual({ t: 1 });
+  });
+  test("the control takes no question number although it has a title", () => {
+    const survey = new SurveyModel({ showQuestionNumbers: "on", elements: [{ type: "text", name: "t1" },
+      { type: "filter", name: "f1", title: "Filter" }, { type: "text", name: "t2" }] });
+    expect(survey.getQuestionByName("f1").no, "#1").toBe("");
+    expect(survey.getQuestionByName("t2").no, "#2: the next question keeps its number").toBe("2.");
+  });
   test("fields and items load and save", () => {
     const json = { type: "filter", name: "f1",
       fields: [{ name: "country", fieldType: "dropdown", choices: ["de", "fr"] }, { name: "age" }],
@@ -49,6 +63,16 @@ describe("QuestionFilterModel", () => {
     const itemShown = ["name", "title", "kind", "expression", "prompt", "allowEdit", "allowDelete"];
     expect(visibility("filteritem", itemShown), "#3").toEqual(itemShown.map(() => true));
     expect(visibility("filteritem", ["allowCopy"]), "#4").toEqual([false]);
+  });
+  test("the Question properties a control has no use for are hidden, and the JSON still keeps them", () => {
+    const json = { type: "filter", name: "f1", title: "Filter", errorLocation: "top", setValueIf: "{t} = 1" };
+    // Numbering on: showNumber's own visibleIf would show it otherwise.
+    const survey = new SurveyModel({ showQuestionNumbers: "on", elements: [json] });
+    const q = survey.getQuestionByName("f1");
+    const hidden = ["showNumber", "descriptionLocation", "errorLocation", "defaultValueExpression",
+      "resetValueIf", "setValueIf", "setValueExpression", "defaultDisplayValue"];
+    expect(hidden.filter((name: string): boolean => Serializer.findProperty("filter", name).isVisible("", q)), "#1").toEqual([]);
+    expect(survey.toJSON().pages[0].elements[0], "#2").toEqual(json);
   });
   test("defaultItem offers the presets by name", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1",

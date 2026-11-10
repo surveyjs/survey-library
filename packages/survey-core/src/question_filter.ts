@@ -85,6 +85,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   public getType(): string { return "filter"; }
   // The one place this control parts company with html and image: it does have a title.
   protected get supportTitle(): boolean { return true; }
+  // The title does not make it a question: it takes no number and leaves the next question its own.
+  protected isVisibleIndexNegative(): boolean { return true; }
+  // What keeps it out of survey.data whatever assigns this.value: a value expression authored in the
+  // JSON (setValueIf, defaultValueExpression) or a call from the host.
+  protected canSetValueToSurvey(): boolean { return false; }
 
   public get source(): string { return this.getPropertyValue("source", ""); }
   public set source(val: string) { this.setPropertyValue("source", val); }
@@ -1859,6 +1864,17 @@ Serializer.addClass("filter", [
   { name: "readOnly", visible: true },
   { name: "enableIf", visible: true },
   { name: "readOnlyMode", visible: false },
+  // Question properties the non-value base leaves shown and the control has no use for: it holds no
+  // value (canSetValueToSurvey), shows no errors, takes no number (isVisibleIndexNegative), and the
+  // base hides its description. Hidden only: a JSON that sets them still loads and saves.
+  { name: "showNumber", visible: false },
+  { name: "descriptionLocation", visible: false },
+  { name: "errorLocation", visible: false },
+  { name: "defaultValueExpression", visible: false },
+  { name: "resetValueIf", visible: false },
+  { name: "setValueIf", visible: false },
+  { name: "setValueExpression", visible: false },
+  { name: "defaultDisplayValue", visible: false },
   { name: "source:question_filtersource" },
   // Needed only by a control with no source (the host filters through survey.onFilterChanged): a
   // bound control takes its fields from the source and ignores these, so the designer hides them.

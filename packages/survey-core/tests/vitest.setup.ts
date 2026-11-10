@@ -19,11 +19,14 @@ import { mediaQueries, restoreSettings, windowSize } from "./test-baseline";
 // variables. cssstyle re-serializes the whole cssText on each setProperty, so one
 // render costs about 850 ms. Browsers do not take this path, so the stub lives here
 // and not in src. tests/csp_tests.ts removes it to test that fallback.
-(CSSStyleSheet.prototype as any).replaceSync = function () { /* no-op */ };
-// The array is kept from the first read on, so a push() is not lost the way a fresh [] would lose it.
-const adopted = { configurable: true, get(this: any) { return this.__adopted || (this.__adopted = []); }, set(this: any, v: any) { this.__adopted = v; } };
-Object.defineProperty(Document.prototype, "adoptedStyleSheets", adopted);
-Object.defineProperty(ShadowRoot.prototype, "adoptedStyleSheets", adopted);
+// Files under `@vitest-environment node` (tests/interview) have no DOM to stub.
+if (typeof CSSStyleSheet !== "undefined") {
+  (CSSStyleSheet.prototype as any).replaceSync = function () { /* no-op */ };
+  // The array is kept from the first read on, so a push() is not lost the way a fresh [] would lose it.
+  const adopted = { configurable: true, get(this: any) { return this.__adopted || (this.__adopted = []); }, set(this: any, v: any) { this.__adopted = v; } };
+  Object.defineProperty(Document.prototype, "adoptedStyleSheets", adopted);
+  Object.defineProperty(ShadowRoot.prototype, "adoptedStyleSheets", adopted);
+}
 
 settings.animationEnabled = false;
 settings.dropdownSearchDelay = 0;
@@ -765,7 +768,7 @@ afterEach(() => {
     (globalThis as any).__setMatchMedia(reducedMotionMediaQuery, false);
   }
   __sv_reanchorEnvironment();
-  Object.assign(window, windowSize);
+  if (windowSize) Object.assign(window, windowSize);
   // Re-install jsdom polyfills if a test replaced `window.getComputedStyle`
   // (common pattern: `window.getComputedStyle = () => ({...})` without a
   // try/finally restore), so such a leak does not fail unrelated tests.

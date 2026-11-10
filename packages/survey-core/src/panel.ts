@@ -605,7 +605,6 @@ export class PanelModelBase extends SurveyElement<Question>
     const scope = this.getDataScope();
     if (!scope || !scope.isActive) return;
     scope.notifyValueChanged();
-    getDataScopeHost(this.survey)?.dataScopeValueChanged(scope);
   }
   // The questions read the stored object: newValue is its copy. clearData does not apply to a container.
   public updateValueFromSurvey(newValue: any, clearData: boolean): void {

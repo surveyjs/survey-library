@@ -47,7 +47,6 @@ export interface ISurveyDataScopeHost extends IDataScope {
   isDataScopeUsed(): boolean;
   dataScopeUsed(): void;
   dataScopeChanged(panel?: PanelModelBase): void;
-  dataScopeValueChanged(scope: PanelDataScope): void;
   getNewGeneratedName(elements: Array<any>, baseName: string): string;
   getAllPanels(visibleOnly?: boolean, includeDesignTime?: boolean): Array<IPanel>;
   getQuestionByVariable(name: string, context?: Base): IExpressionVariableInfo;

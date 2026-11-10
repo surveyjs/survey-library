@@ -28,11 +28,12 @@ describe("Nested data: the survey as the host of its data scopes", () => {
     expect((<any>item).getNestedDataNames(), "#1: the survey").toContain("home");
     vi.spyOn(<any>item, "getSurvey").mockReturnValue(partial);
     expect((<any>item).getNestedDataNames(), "#2: no host, no nesting walk").toEqual([]);
-    const spy = vi.spyOn(survey, "dataScopeValueChanged");
-    panel.onSurveyValueChanged({ street: "a" });
+    const spy = vi.spyOn(survey, "dataScopeChanged");
+    panel.valueName = "home";
     expect(spy, "#3: the survey").toHaveBeenCalledTimes(1);
     vi.spyOn(panel, "survey", "get").mockReturnValue(partial);
     expect(() => panel.onSurveyValueChanged({ street: "b" }), "#4: no host").not.toThrow();
+    expect(() => { panel.valueName = "address"; }, "#4a: no host").not.toThrow();
     expect(spy, "#5: the survey is not asked").toHaveBeenCalledTimes(1);
   });
   test("the condition editor writes a question's data path for a survey object without the members", () => {

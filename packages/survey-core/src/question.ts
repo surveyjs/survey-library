@@ -3815,7 +3815,7 @@ export class Question extends SurveyElement<Question>
   }
   protected requestAutoAdvance(): boolean {
     if (!this.isAutoAdvanceOwner) return false;
-    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomatic(this.getValueName(), this));
+    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomatic(this.getValueName(), { name: this.getValueName(), writer: this }));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();

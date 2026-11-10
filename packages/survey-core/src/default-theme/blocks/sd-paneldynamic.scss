@@ -152,9 +152,17 @@
 .sd-paneldynamic__panel-wrapper--in-row.sd-paneldynamic__panel-wrapper--in-row {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-end;
     position: relative;
     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+
+    // The button bottom lines up with the bottom of the last input, which sits above the panel's bottom paddings.
+    > .sd-action-bar__item {
+        margin-bottom: calc(
+            var(--sjs2-layout-component-panel-box-padding-bottom) +
+                var(--sjs2-layout-component-panel-content-area-padding-bottom)
+        );
+    }
 
     &:before {
         top: 0;

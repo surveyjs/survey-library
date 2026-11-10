@@ -20,10 +20,10 @@ import { FilterAIRequest } from "./filter/filter-ai";
 import { FilterAIDialog } from "./filter/filter-ai-dialog";
 import { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 import { ActionContainer } from "./actions/container";
-import { buildSearchFragment } from "./filter/filter-expression";
+import { buildSearchFragment, getFieldChoiceItems } from "./filter/filter-expression";
 import {
   conditionsToExpression, getFieldsByValueName, getFilterFieldOperators, getFilterValueEditorJson,
-  normalizeFilterCondition, normalizeFilterConditions, parseFilterExpression
+  normalizeFilterCondition, normalizeFilterConditions, parseFilterExpression, runWithFilterFieldCache
 } from "./filter/filter-conditions";
 import { FilterFieldEditorKind, getFilterChipText, getFilterFieldEditorKind } from "./filter/filter-field-kinds";
 import { IDynamicDataFilterField, getFilterFieldTitle } from "./dynamic-data/dynamic-data-filter-fields";
@@ -182,7 +182,12 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
 
   // Standalone or bound: one uniform field list, so nothing downstream has to know which one it is.
+  // While a pass over the toolbars runs it is the list that pass read (see updateToolbars).
   public getFilterFields(): Array<IDynamicDataFilterField> {
+    return this.passFields || this.buildFilterFields();
+  }
+  // A bound source builds its list anew on every call.
+  private buildFilterFields(): Array<IDynamicDataFilterField> {
     const source = this.filterSource;
     if (!!source) return source.getFilterFields();
     return this.fields.map((field: FilterField): IDynamicDataFilterField => field.getFilterField());
@@ -459,17 +464,19 @@ export class QuestionFilterModel extends QuestionNonValue {
       this.raiseUIStateChanged();
     }, true);
   }
-  // Deletes a preset (the Edit Presets dialog). The respondent's own goes away; an authored one is
-  // only hidden - items is the author's JSON - and remembered as deleted. A preset that is on goes
-  // off, and the filter with it: there is nothing left to filter by.
+  // Deletes a preset (the Edit Presets dialog). The respondent's own goes away, and is disposed once the
+  // toolbars have let go of its chip; an authored one is only hidden - items is the author's JSON - and
+  // remembered as deleted. A preset that is on goes off, and the filter with it: there is nothing left
+  // to filter by.
   public deleteItem(name: string): void {
     const item = this.getItemByName(name);
     if (!item || this.isDesignMode || !this.canDeleteItem(item)) return;
+    const isUser = this.isUserItem(item);
     this.runBatch((): void => {
       if (this.activeItemName === name) {
         this.activeItemName = "";
       }
-      if (this.isUserItem(item)) {
+      if (isUser) {
         this.userItemsValue.splice(this.userItemsValue.indexOf(item), 1);
         delete this.userItemConditions[name];
         this.onItemRemoved(item);
@@ -480,6 +487,9 @@ export class QuestionFilterModel extends QuestionNonValue {
       this.updateToolbars();
       this.raiseUIStateChanged();
     }, true);
+    if (isUser) {
+      item.dispose();
+    }
   }
   // The Edit Presets dialog's Apply: the changes of every preset as one change - one write into the
   // source and one onFilterChanged if the filter that applies changed, one onUIStateChanged - and
@@ -897,7 +907,7 @@ export class QuestionFilterModel extends QuestionNonValue {
         const container = this.createActionContainer(adaptive);
         container.locOwner = this;
         return container;
-      });
+      }, (): void => { this.updateToolbars(); });
     }
     return this.toolbarsValue;
   }
@@ -936,10 +946,54 @@ export class QuestionFilterModel extends QuestionNonValue {
   // Add New Preset (isEdit false) or Edit Presets over the Filters dialog - see FilterToolbars.
   public showPresetDialog(modal: FilterModal, isEdit: boolean): void { this.toolbars.showPresetDialog(modal, isEdit); }
   public showAIDialog(modal: FilterModal): void { this.toolbars.showAIDialog(modal); }
-  private updateToolbars(): void {
-    if (!!this.toolbarsValue && !this.isDisposed) {
+  // The field list one pass over the toolbars reads, once: the pass asks for it many times - the
+  // badges, each parse of the active preset, the counts - and a bound source builds it anew each time.
+  // Each field's operators and editor kind are read once in the pass too (runWithFilterFieldCache).
+  // Kept for the pass only: nothing tells the control when a bound list changes.
+  private passFields: Array<IDynamicDataFilterField>;
+  // What the toolbars showed of the fields after their last pass - see getToolbarFieldsSignature.
+  private toolbarFieldsSignature: string;
+  // fields: the list the caller has just read, to be used for the pass.
+  private updateToolbars(fields?: Array<IDynamicDataFilterField>): void {
+    if (!this.toolbarsValue || this.isDisposed) return;
+    if (!!this.passFields) {
       this.toolbarsValue.update();
+      return;
     }
+    this.passFields = fields || this.buildFilterFields();
+    try {
+      runWithFilterFieldCache((): void => {
+        if (!!this.toolbarsValue) {
+          this.toolbarsValue.update();
+        }
+      });
+      this.toolbarFieldsSignature = this.getToolbarFieldsSignature(this.passFields);
+    } finally {
+      this.passFields = undefined;
+    }
+  }
+  // A survey value change re-runs the control's conditions and its strings (runCondition,
+  // locStrsChanged). Neither is a change of the control - its own changes update the toolbars when they
+  // happen - but either is the only report it gets of a bound field list that changed with no
+  // notification: a column added, a cell type changed, a title or a choice that shows a value, a new
+  // locale. So the toolbars are updated when what they show of the fields is not what they showed
+  // after their last pass, and only then: the chips' editor kinds and the active preset's parse read
+  // each field's whole condition json.
+  private updateToolbarsIfFieldsChanged(): void {
+    if (!this.toolbarsValue || this.isDisposed || !!this.passFields) return;
+    const fields = this.buildFilterFields();
+    if (this.getToolbarFieldsSignature(fields) === this.toolbarFieldsSignature) return;
+    this.updateToolbars(fields);
+  }
+  // What the toolbars read off each field that can change with no notification to the control, and the
+  // locale every text they compose is in. The editor kind and the operators come from the template
+  // question's type (its object stands for it), its value type and the author's operators; the badges'
+  // texts from the title and the choices.
+  private getToolbarFieldsSignature(fields: Array<IDynamicDataFilterField>): string {
+    return JSON.stringify([this.getLocale(), fields.map((field: IDynamicDataFilterField): Array<any> => [
+      field.name, field.valueName, field.fieldType, field.valueType, !!field.isTypeless, field.showInFastMode, field.operators,
+      getFilterFieldTitle(field), !!field.templateQuestion ? field.templateQuestion.uniqueId : undefined,
+      getFieldChoiceItems(field).map((item: any): Array<any> => [item.value, item.calculatedText])])]);
   }
   // The element the survey this control is in rendered into: the advanced editor's dialog is
   // mounted there, inside that survey's theme and outside its <form>. undefined while that survey is
@@ -1187,12 +1241,23 @@ export class QuestionFilterModel extends QuestionNonValue {
       this.updateFilterSource();
     }
   }
+  // The toolbars go first: their chips borrow the presets' titles. Base.dispose reaches neither array,
+  // so the handlers come off here, without recomposing anything. The authored presets and fields are
+  // the author's JSON, which an application may still hold: they are let go of, not disposed. The
+  // respondent's own presets are the control's, and go with it.
   public dispose(): void {
     this.detachFromSource();
     if (!!this.toolbarsValue) {
       this.toolbarsValue.dispose();
       this.toolbarsValue = undefined;
     }
+    this.items.forEach((item: FilterItem): void => { this.unhookItem(item); });
+    this.fields.forEach((field: FilterField): void => { this.unhookField(field); });
+    this.userItemsValue.forEach((item: FilterItem): void => {
+      this.unhookItem(item);
+      item.dispose();
+    });
+    this.userItemsValue = [];
     super.dispose();
   }
   // Re-resolves the source and moves the filter with it: the question that is being left is cleared
@@ -1202,7 +1267,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const source = this.filterSource;
     if (source === this.attachedSource) {
       this.updateFilterExpression();
-      this.updateToolbars();
+      this.updateToolbarsIfFieldsChanged();
       return;
     }
     this.detachFromSource();
@@ -1441,10 +1506,15 @@ export class QuestionFilterModel extends QuestionNonValue {
   // A restore brings back the respondent's whole list, so it replaces the presets of theirs the
   // control has. Each is checked against the fields as restored conditions are and dropped when none
   // of its conditions is left; one whose name an authored preset has taken since gets a new name.
-  // Returns the names that changed, old to new.
+  // Returns the names that changed, old to new. The replaced presets are disposed: what still shows one
+  // (a chip until the next update, an open dialog's tab) reads its title and name, which stay, and
+  // finds the preset itself again by name.
   private restoreUserItems(list: Array<IFilterUserItemState>): HashTable<string> {
     const renamed: HashTable<string> = {};
-    this.userItemsValue.forEach((item: FilterItem): void => { this.onItemRemoved(item); });
+    this.userItemsValue.forEach((item: FilterItem): void => {
+      this.onItemRemoved(item);
+      item.dispose();
+    });
     this.userItemsValue = [];
     this.userItemConditions = {};
     const fields = this.getFilterFields();
@@ -1603,8 +1673,11 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.fields.forEach((field: FilterField): void => { field.locStrsChanged(); });
     this.items.forEach((item: FilterItem): void => { item.locStrsChanged(); });
     this.userItemsValue.forEach((item: FilterItem): void => { item.locStrsChanged(); });
-    if (!!this.toolbarsValue) {
+    // The survey calls this on every value change too, for the texts that show a value: the badges'
+    // texts are composed again only when what they are composed of changed.
+    if (!!this.toolbarsValue && !this.isDisposed) {
       this.toolbarsValue.locStrsChanged();
+      this.updateToolbarsIfFieldsChanged();
     }
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
@@ -1678,11 +1751,13 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.updateFilterExpression();
   }
   private onFieldRemoved(field: FilterField): void {
-    if (!!field) {
-      field.onPropertyChanged.remove(this.onFieldPropertyChanged);
-      field.fieldOwner = undefined;
-    }
+    this.unhookField(field);
     this.updateFilterExpression();
+  }
+  private unhookField(field: FilterField): void {
+    if (!field) return;
+    field.onPropertyChanged.remove(this.onFieldPropertyChanged);
+    field.fieldOwner = undefined;
   }
   private onItemAdded(item: FilterItem): void {
     if (!item) return;
@@ -1691,11 +1766,13 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.updateFilterExpression();
   }
   private onItemRemoved(item: FilterItem): void {
-    if (!!item) {
-      item.onPropertyChanged.remove(this.onItemPropertyChanged);
-      if (item.itemOwner === this) item.itemOwner = undefined;
-    }
+    this.unhookItem(item);
     this.updateFilterExpression();
+  }
+  private unhookItem(item: FilterItem): void {
+    if (!item) return;
+    item.onPropertyChanged.remove(this.onItemPropertyChanged);
+    if (item.itemOwner === this) item.itemOwner = undefined;
   }
   private calcSearchExpression(searchString: string = this.searchString): string {
     if (!this.showSearch) return "";

@@ -118,6 +118,48 @@ describe("FilterChipsLayout", () => {
       frames.uninstall();
     }
   });
+  test("the chips a rebuilt row no longer holds are not observed any more", () => {
+    // jsdom has no ResizeObserver: this one only records what it is asked to observe.
+    class FakeResizeObserver {
+      public static last: FakeResizeObserver;
+      public observed: Array<Element> = [];
+      public isDisconnected = false;
+      constructor() { FakeResizeObserver.last = this; }
+      observe(el: Element): void {
+        if (this.observed.indexOf(el) < 0) {
+          this.observed.push(el);
+        }
+      }
+      unobserve(el: Element): void { this.observed = this.observed.filter((e: Element) => e !== el); }
+      disconnect(): void { this.observed = []; this.isDisconnected = true; }
+    }
+    vi.stubGlobal("ResizeObserver", FakeResizeObserver);
+    try {
+      const layout = new TestLayout();
+      const container = createRow(300, [100, 100, 100], 80);
+      const bar = <HTMLElement>container.firstElementChild;
+      const children = (): Array<Element> => Array.prototype.slice.call(bar.children);
+      layout.attach(container);
+      const observer = FakeResizeObserver.last;
+      expect(observer.observed, "#1: the row and its items").toEqual([<Element>container].concat(children()));
+      children().forEach((el: Element) => { bar.removeChild(el); });
+      [100, 100, 80].forEach((width: number) => {
+        const el = document.createElement("div");
+        Object.defineProperty(el, "offsetWidth", { value: width });
+        bar.appendChild(el);
+      });
+      layout.update();
+      expect(observer.observed, "#2: the old items let go of, the new ones observed").toEqual([<Element>container].concat(children()));
+      layout.isMobile = true;
+      layout.update();
+      expect(observer.observed, "#3: a phone measures nothing").toEqual([<Element>container]);
+      layout.detach();
+      expect([observer.isDisconnected, observer.observed], "#4").toEqual([true, []]);
+      layout.dispose();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
   test("detach() forgets the row", () => {
     const layout = new TestLayout();
     layout.attach(createRow(300, [100, 100, 100], 80));

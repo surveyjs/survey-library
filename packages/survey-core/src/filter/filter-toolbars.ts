@@ -25,7 +25,9 @@ export { filterUIStrings } from "./filter-ui-strings";
 // before that is disposed. cssClasses are the control's: a popup and a dialog are drawn outside the
 // control's markup.
 // Whoever fills a holder empties it before disposing what it held (see FilterToolbars.release), so a
-// holder never holds a disposed model and the renderers don't ask: keep it that way.
+// holder never holds a disposed model and the renderers don't ask: keep it that way. A holder that is
+// done with - its dialog closed, its chip gone, the control disposed - is emptied first and disposed
+// after (FilterToolbars.releaseHolder).
 export class FilterEditorHolder extends Base {
   public getType(): string { return "filtereditorholder"; }
   @property() fieldPopup: FilterFieldPopup;
@@ -102,7 +104,9 @@ export class FilterToolbars {
   private clearAction: Action;
   private fieldChips: { [key: string]: { chip: Action, holder: FilterEditorHolder } } = {};
   private itemChips: Array<{ item: FilterItem, chip: Action }> = [];
-  private chipIds: Array<string>;
+  // The chips the row holds, in order. Compared by object and not by id: a preset replaced by another
+  // one of the same name (a restored uiState, a new items array) has a new chip with the same id.
+  private rowChips: Array<Action>;
   private advancedHolder: FilterEditorHolder;
   private advancedDialog: PopupModalViewModel;
   // The one dialog open over the Filters dialog - Add New Preset, Edit Presets or Create custom
@@ -117,7 +121,10 @@ export class FilterToolbars {
   // Taken at creation too: a dialog can open from code before any row is built.
   private wasControlReadOnly: boolean;
 
-  constructor(private owner: IFilterToolbarsOwner, private createContainer: (adaptive: boolean) => ActionContainer) {
+  // requestUpdate: how a row built on first request asks for its first update - through the control,
+  // which runs every update as one pass over its fields (QuestionFilterModel.updateToolbars).
+  constructor(private owner: IFilterToolbarsOwner, private createContainer: (adaptive: boolean) => ActionContainer,
+    private requestUpdate?: () => void) {
     this.wasControlReadOnly = !!owner.isControlReadOnly;
   }
 
@@ -125,23 +132,30 @@ export class FilterToolbars {
     if (!this.chipsToolbarValue) {
       this.chipsToolbarValue = this.createRow();
       this.chipsToolbarValue.setCssClasses({ itemMarkerIcon: this.cssClasses.chipMarker });
-      this.update();
+      this.updateNewRow();
     }
     return this.chipsToolbarValue;
   }
   public get clearToolbar(): ActionContainer {
     if (!this.clearToolbarValue) {
       this.clearToolbarValue = this.createRow();
-      this.update();
+      this.updateNewRow();
     }
     return this.clearToolbarValue;
   }
   public get searchToolbar(): ActionContainer {
     if (!this.searchToolbarValue) {
       this.searchToolbarValue = this.createRow();
-      this.update();
+      this.updateNewRow();
     }
     return this.searchToolbarValue;
+  }
+  private updateNewRow(): void {
+    if (!!this.requestUpdate) {
+      this.requestUpdate();
+    } else {
+      this.update();
+    }
   }
   public get layout(): FilterChipsLayout {
     if (!this.layoutValue) {
@@ -184,13 +198,13 @@ export class FilterToolbars {
     this.updateChipsRow();
     this.updateClearRow();
   }
-  // A locale change reaches the captions the library owns (Clear, Apply) through the containers; the
-  // chips' texts are composed here, so they are composed again.
+  // A locale change reaches the captions the library owns (Clear, Apply) through the containers. The
+  // chips' texts are composed by update(): the control runs it when what they are composed of changed
+  // (QuestionFilterModel.locStrsChanged).
   public locStrsChanged(): void {
     [this.chipsToolbarValue, this.clearToolbarValue, this.searchToolbarValue].forEach((c: ActionContainer): void => {
       if (!!c) c.locStrsChanged();
     });
-    this.update();
   }
   // The Filters dialog (FilterModal): settings.showDialog mounts it through a portal into the
   // survey's root element - outside the survey's <form>, still under its theme - the way Creator
@@ -213,7 +227,7 @@ export class FilterToolbars {
         return true;
       },
       onHide: (): void => {
-        this.release(holder);
+        this.releaseHolder(holder);
         this.advancedDialog = undefined;
         this.advancedHolder = undefined;
       },
@@ -315,7 +329,7 @@ export class FilterToolbars {
     this.subDialogHolder = undefined;
     this.subDialogModel = undefined;
     if (!!holder) {
-      this.release(holder);
+      this.releaseHolder(holder);
     }
     if (!!model && !model.isDisposed) model.dispose();
   }
@@ -368,6 +382,8 @@ export class FilterToolbars {
       new Action(apply)
     ]);
   }
+  // Every action is the toolbars' own - the chips, Filters, Show More, Save, Clear All - and the rows only
+  // show them: the rows are emptied and disposed first, then each action is disposed once.
   public dispose(): void {
     if (!!this.subDialog && !!this.subDialog.model) {
       this.subDialog.model.hide();
@@ -377,26 +393,30 @@ export class FilterToolbars {
       this.advancedDialog.model.hide();
     }
     if (!!this.advancedHolder) {
-      this.release(this.advancedHolder);
+      this.releaseHolder(this.advancedHolder);
     }
     this.advancedDialog = undefined;
     this.advancedHolder = undefined;
-    Object.keys(this.fieldChips).forEach((key: string): void => { this.disposeFieldChip(key); });
-    this.itemChips.forEach((entry: { item: FilterItem, chip: Action }): void => { entry.chip.dispose(); });
+    const actions: Array<Action> = Object.keys(this.fieldChips).map((key: string): Action => this.takeFieldChip(key));
+    this.itemChips.forEach((entry: { item: FilterItem, chip: Action }): void => { actions.push(entry.chip); });
     this.itemChips = [];
-    [this.chipsToolbarValue, this.clearToolbarValue, this.searchToolbarValue].forEach((c: ActionContainer): void => {
-      if (!!c) c.dispose();
-    });
-    this.chipsToolbarValue = undefined;
-    this.clearToolbarValue = undefined;
-    this.searchToolbarValue = undefined;
+    this.rowChips = undefined;
     [this.filtersAction, this.moreAction, this.saveAction, this.clearAction].forEach((a: Action): void => {
-      if (!!a) a.dispose();
+      if (!!a) actions.push(a);
     });
     this.filtersAction = undefined;
     this.moreAction = undefined;
     this.saveAction = undefined;
     this.clearAction = undefined;
+    [this.chipsToolbarValue, this.clearToolbarValue, this.searchToolbarValue].forEach((row: ActionContainer): void => {
+      if (!row) return;
+      row.actions.splice(0, row.actions.length);
+      row.dispose();
+    });
+    this.chipsToolbarValue = undefined;
+    this.clearToolbarValue = undefined;
+    this.searchToolbarValue = undefined;
+    actions.forEach((a: Action): void => { a.dispose(); });
     if (!!this.layoutValue) {
       this.layoutValue.dispose();
       this.layoutValue = undefined;
@@ -429,22 +449,22 @@ export class FilterToolbars {
   }
   // The chips in their order. The row is rebuilt only when that order changes - a chip that comes or
   // goes; otherwise the chips are updated in place, so a badge's open popup stays open while its
-  // text changes.
+  // text changes. A chip that is gone is disposed once the row no longer holds it.
   private updateChipsRow(): void {
     if (!this.chipsToolbarValue) return;
     const states = this.owner.isFastModeAvailable ? this.owner.getFastModeFieldStates() : [];
     const items = this.owner.visibleItems;
-    this.releaseGoneChips(states, items);
+    const gone = this.takeGoneChips(states, items);
     const chips: Array<Action> = [];
     if (!this.isFiltersInSearchRow && this.isFiltersShown) chips.push(this.getFiltersAction());
     states.forEach((state: IFilterFieldState): void => { chips.push(this.getFieldChip(state.key)); });
     items.forEach((item: FilterItem): void => { chips.push(this.getItemChip(item)); });
     chips.push(this.getMoreAction());
-    const ids = chips.map((a: Action): string => a.id);
-    if (!this.isSameList(this.chipIds, ids)) {
-      this.chipIds = ids;
+    if (!this.isSameList(this.rowChips, chips)) {
+      this.rowChips = chips;
       this.chipsToolbarValue.setItems(chips, false);
     }
+    gone.forEach((chip: Action): void => { chip.dispose(); });
     states.forEach((state: IFilterFieldState): void => { this.updateFieldChip(state); });
     this.itemChips.forEach((entry: { item: FilterItem, chip: Action }): void => { this.updateItemChip(entry.item, entry.chip); });
     this.updateFiltersAction();
@@ -626,28 +646,36 @@ export class FilterToolbars {
     chip.iconName = item.kind === "ai" ? "icon-sparkle-16x16" : undefined;
     chip.iconSize = "auto";
   }
-  // A field or a preset that is no longer shown takes its chip with it; an open popup is closed and
-  // what it held released first - a disposed popup never reports that it was hidden.
-  private releaseGoneChips(states: Array<IFilterFieldState>, items: Array<FilterItem>): void {
+  // A field or a preset that is no longer shown takes its chip with it: the chips that are gone, which
+  // the caller disposes once the row no longer holds them.
+  private takeGoneChips(states: Array<IFilterFieldState>, items: Array<FilterItem>): Array<Action> {
+    const res: Array<Action> = [];
     Object.keys(this.fieldChips).forEach((key: string): void => {
       if (!states.some((state: IFilterFieldState): boolean => state.key === key)) {
-        this.disposeFieldChip(key);
+        res.push(this.takeFieldChip(key));
       }
     });
     this.itemChips = this.itemChips.filter((entry: { item: FilterItem, chip: Action }): boolean => {
       if (items.indexOf(entry.item) > -1) return true;
-      entry.chip.dispose();
+      res.push(entry.chip);
       return false;
     });
+    return res;
   }
-  private disposeFieldChip(key: string): void {
+  // A badge's chip, let go of: its open popup is closed and its holder released at once - a disposed
+  // popup never reports that it was hidden. The caller disposes the chip, and the chip its popup.
+  private takeFieldChip(key: string): Action {
     const entry = this.fieldChips[key];
-    if (!entry) return;
     delete this.fieldChips[key];
     entry.chip.popupModel.hide();
-    this.release(entry.holder);
-    entry.chip.popupModel.dispose();
-    entry.chip.dispose();
+    this.releaseHolder(entry.holder);
+    return entry.chip;
+  }
+  // A holder that is done with: emptied, then disposed - the renderer that watches it unmounts first.
+  private releaseHolder(holder: FilterEditorHolder): void {
+    if (holder.isDisposed) return;
+    this.release(holder);
+    holder.dispose();
   }
   // The holder is emptied first: a renderer watching it unmounts what it held, and only then is that
   // disposed - a disposed question that re-renders has nothing left to render from.
@@ -662,7 +690,7 @@ export class FilterToolbars {
     if (!!fieldPopup) fieldPopup.dispose();
     if (!!presetDialog) presetDialog.dispose();
   }
-  private isSameList(a: Array<string>, b: Array<string>): boolean {
-    return !!a && a.length === b.length && a.every((v: string, i: number): boolean => v === b[i]);
+  private isSameList<T>(a: Array<T>, b: Array<T>): boolean {
+    return !!a && a.length === b.length && a.every((v: T, i: number): boolean => v === b[i]);
   }
 }

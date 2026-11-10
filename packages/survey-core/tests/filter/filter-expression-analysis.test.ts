@@ -1,6 +1,7 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi, afterEach } from "vitest";
 import { createFilter } from "./filter-test-helpers";
 import { analyzeFilterExpression } from "../../src/filter/filter-conditions";
+import { ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
 
 // Why a preset's text does or does not decompose into conditions: the check an AI answer is put to,
 // so the model can be told what to fix.
@@ -28,5 +29,37 @@ describe("analyzeFilterExpression", () => {
   });
   test("an operator the field does not offer", () => {
     expect(analyzeFilterExpression("{age} contains 1", fields)).toEqual({ problem: { code: "operator", field: "age", operator: "contains" } });
+  });
+});
+
+// The structural parse of a text is remembered for the last 200 texts of the page. The cache is the
+// module's, shared by every test: each test parses texts of its own.
+describe("analyzeFilterExpression: the parse cache", () => {
+  const fields = createFilter().getFilterFields();
+  const text = (prefix: string, n: number): string => "{age} > " + n + " and {name} = '" + prefix + "'";
+  afterEach(() => { vi.restoreAllMocks(); });
+  test("a text is parsed once", () => {
+    const build = vi.spyOn(ConditionEditorItemsBuilder.prototype, "build");
+    const first = analyzeFilterExpression(text("once", 1), fields);
+    const second = analyzeFilterExpression(text("once", 1), fields);
+    expect([build.mock.calls.length, second], "#1").toEqual([1, first]);
+  });
+  test("the oldest of 201 texts is parsed again", () => {
+    for (let i = 0; i <= 200; i++) analyzeFilterExpression(text("lru", i), fields);
+    const build = vi.spyOn(ConditionEditorItemsBuilder.prototype, "build");
+    analyzeFilterExpression(text("lru", 200), fields);
+    expect(build.mock.calls.length, "#1: the newest is kept").toBe(0);
+    analyzeFilterExpression(text("lru", 0), fields);
+    expect(build.mock.calls.length, "#2: the oldest was let go of").toBe(1);
+  });
+  test("a text read again is kept as the newest", () => {
+    for (let i = 0; i < 200; i++) analyzeFilterExpression(text("hit", i), fields);
+    analyzeFilterExpression(text("hit", 0), fields);
+    analyzeFilterExpression(text("hit", 200), fields);
+    const build = vi.spyOn(ConditionEditorItemsBuilder.prototype, "build");
+    analyzeFilterExpression(text("hit", 0), fields);
+    expect(build.mock.calls.length, "#1: read again, it outlived hit 1").toBe(0);
+    analyzeFilterExpression(text("hit", 1), fields);
+    expect(build.mock.calls.length, "#2").toBe(1);
   });
 });

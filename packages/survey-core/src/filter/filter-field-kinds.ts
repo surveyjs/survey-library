@@ -4,7 +4,7 @@ import { Helpers } from "../helpers";
 import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { getFieldChoiceItems } from "./filter-expression";
-import { getFilterConditionText, getFilterConditionValueText, getFilterFieldOperators } from "./filter-conditions";
+import { getFilterConditionText, getFilterConditionValueText, getFilterFieldOperators, getFilterFieldPassValue } from "./filter-conditions";
 
 // What a fast mode badge edits its field with. "single" is a list where a click picks one value
 // (equal), "multi" a list of checkboxes (anyof), "boolean" the two checkboxes Yes and No (equal, or
@@ -23,8 +23,12 @@ function isBooleanField(field: IDynamicDataFilterField): boolean {
 // Decided by the operators the author allows, not by the question type: a dropdown column filters
 // by several values at once when it offers anyof, and the author makes it a single pick with
 // filterOperators: ["equal"]. A list needs values to list: a field with no choices (yet - a
-// choicesByUrl that has not loaded) edits as a condition.
+// choicesByUrl that has not loaded) edits as a condition. Read once per field within a pass, as its
+// operators are (getFilterFieldPassValue).
 export function getFilterFieldEditorKind(field: IDynamicDataFilterField): FilterFieldEditorKind {
+  return getFilterFieldPassValue("kind", field, (): FilterFieldEditorKind => calcFilterFieldEditorKind(field));
+}
+function calcFilterFieldEditorKind(field: IDynamicDataFilterField): FilterFieldEditorKind {
   const operators = getFilterFieldOperators(field);
   if (isBooleanField(field)) return operators.indexOf("equal") > -1 ? "boolean" : "condition";
   if (getFieldChoiceItems(field).length > 0) {

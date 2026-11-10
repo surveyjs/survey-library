@@ -34,6 +34,8 @@ export class FilterChipsLayout extends Base {
   private container: HTMLElement;
   private resizeObserver: ResizeObserver;
   private mutationObserver: MutationObserver;
+  // The chips the resize observer watches besides the container: the items of the last measure.
+  private observedItems: Array<HTMLElement> = [];
   // "Show More" was clicked: every chip shows, in as many rows as they need.
   @property({ defaultValue: false }) isExpanded: boolean;
   // How many chips the collapsed row shows; -1 while every chip fits, or nothing was measured.
@@ -67,16 +69,19 @@ export class FilterChipsLayout extends Base {
       this.mutationObserver.disconnect();
       this.mutationObserver = undefined;
     }
+    this.observedItems = [];
     this.container = undefined;
   }
   public update(): void {
     const bar = !!this.container ? this.getRenderedChildren(this.container)[0] : undefined;
     if (!bar || this.isMobile) {
+      this.observe([]);
       this.fitCount = -1;
       return;
     }
     const items: Array<HTMLElement> = this.getRenderedChildren(bar);
     if (items.length < 2) {
+      this.observe([]);
       this.fitCount = -1;
       return;
     }
@@ -110,10 +115,24 @@ export class FilterChipsLayout extends Base {
     return !style || style.display !== "none";
   }
   // A chip whose text changes changes its width without resizing the row: each chip is observed too.
-  // Observing an element twice is a no-op, and a removed one reports nothing.
+  // The chips a rebuilt row no longer holds are unobserved - an observed element is kept alive by its
+  // observer until detach() - and only the new ones are observed: the observer reports every element
+  // once as it starts to observe it, so observing the whole row again on each measure (after a
+  // disconnect()) would measure it again, and again. The mutation observer that calls update() on a
+  // rebuilt row is what keeps this list in step with the row.
   private observe(items: Array<HTMLElement>): void {
     if (!this.resizeObserver) return;
-    items.forEach((el: HTMLElement): void => { this.resizeObserver.observe(el); });
+    this.observedItems.forEach((el: HTMLElement): void => {
+      if (items.indexOf(el) < 0) {
+        this.resizeObserver.unobserve(el);
+      }
+    });
+    items.forEach((el: HTMLElement): void => {
+      if (this.observedItems.indexOf(el) < 0) {
+        this.resizeObserver.observe(el);
+      }
+    });
+    this.observedItems = [].concat(items);
   }
   protected getWidth(el: HTMLElement): number {
     return el.offsetWidth || el.getBoundingClientRect().width;

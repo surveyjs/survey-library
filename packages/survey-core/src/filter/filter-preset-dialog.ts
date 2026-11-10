@@ -471,9 +471,13 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     owner.applyItemEdits(edits);
     return true;
   }
+  // Every tab's chip is the dialog's, a deleted tab's too - Delete only takes it out of the row: the
+  // row is emptied and disposed first, then each chip once.
   public dispose(): void {
     this.setAIPrompt(undefined, undefined);
+    this.tabsToolbarValue.actions.splice(0, this.tabsToolbarValue.actions.length);
     this.tabsToolbarValue.dispose();
+    this.tabs.forEach((tab: IFilterPresetTab): void => { tab.chip.dispose(); });
     this.actionsToolbarValue.dispose();
     super.dispose();
   }

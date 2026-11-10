@@ -105,6 +105,35 @@ function narrowTypelessOperators(names: Array<string>, valueType: string): Array
     op !== "less" && op !== "greater" && op !== "lessorequal" && op !== "greaterorequal");
 }
 
+// What is read off a field while one pass of a control over its toolbars runs
+// (QuestionFilterModel.updateToolbars): its operators and its editor's kind, by the field's
+// descriptor - the pass reads the field list once, so a field is the same object for all of it. Kept
+// for the length of the synchronous call and dropped at its end, never longer: a bound field list can
+// change with no notification (see filterExpressionParseCache), and a change of the source, its
+// columns or the locale comes as a pass of its own. A call inside a running pass shares its cache.
+let filterFieldPassCache: { [name: string]: Map<IDynamicDataFilterField, any> };
+export function runWithFilterFieldCache(fn: () => void): void {
+  if (!!filterFieldPassCache) {
+    fn();
+    return;
+  }
+  filterFieldPassCache = {};
+  try {
+    fn();
+  } finally {
+    filterFieldPassCache = undefined;
+  }
+}
+// What calc() gives for the field, remembered under name while a pass runs.
+export function getFilterFieldPassValue<T>(name: string, field: IDynamicDataFilterField, calc: () => T): T {
+  if (!filterFieldPassCache) return calc();
+  const values = filterFieldPassCache[name] || (filterFieldPassCache[name] = new Map<IDynamicDataFilterField, any>());
+  if (values.has(field)) return values.get(field);
+  const res = calc();
+  values.set(field, res);
+  return res;
+}
+
 // The condition operators a field's value editor takes, in the order editors have always listed
 // them (getConditionOperatorNames). qType is read once, off the editor json the default operator
 // would produce - the same thing Creator's condition editor does (condition-survey.ts:351) - and
@@ -115,7 +144,12 @@ function narrowTypelessOperators(names: Array<string>, valueType: string): Array
 // take is dropped, and when none is left the field keeps the whole set - a field no condition can
 // be written for would only be a dead badge. qType comes from the natural default operator and never
 // from the author's first one: anyof alone would read a dropdown field's editor as a checkbox.
+// The editor json is a whole toJsonObject of the template question, so within a pass the list is
+// read once per field (getFilterFieldPassValue), and handed out as a copy.
 export function getFilterFieldOperators(field: IDynamicDataFilterField): Array<string> {
+  return getFilterFieldPassValue("operators", field, (): Array<string> => calcFilterFieldOperators(field)).slice();
+}
+function calcFilterFieldOperators(field: IDynamicDataFilterField): Array<string> {
   const qType = getFilterValueEditorJson(field, getConditionDefaultOperator(field.fieldType)).type;
   let names = getConditionOperatorNames().filter((op: string): boolean => isConditionOperatorEnabled(qType, op));
   names = narrowTextOperators(names, field.valueType);
@@ -333,13 +367,33 @@ export function normalizeFilterConditions(conditions: Array<IFilterCondition>, f
 // list can change under it with no notification (a matrix row added or removed), so this is the
 // only part of parseFilterExpression safe to remember between calls; which of those rows still
 // name a real field, and whether their operators are still allowed, is checked fresh every time.
-const filterExpressionParseCache: Map<string, Array<ConditionEditorItem>> = new Map<string, Array<ConditionEditorItem>>();
-function buildFilterExpressionItems(text: string): Array<ConditionEditorItem> {
+// The cache is the page's, shared by every control on it, and keeps the texts read last: each
+// composed, saved or restored preset and each AI answer is a text of its own, and none of them is
+// forgotten otherwise. A Map keeps its keys in insertion order, so the first key is the one read
+// longest ago. The rows are plain frozen data, so nothing that reads them can change them.
+interface IFilterExpressionRow {
+  readonly conjunction: string;
+  readonly questionName: string;
+  readonly operator: string;
+  readonly value: any;
+}
+const FILTER_EXPRESSION_PARSE_CACHE_SIZE = 200;
+const filterExpressionParseCache: Map<string, ReadonlyArray<IFilterExpressionRow>> = new Map<string, ReadonlyArray<IFilterExpressionRow>>();
+function buildFilterExpressionItems(text: string): ReadonlyArray<IFilterExpressionRow> {
   const cached = filterExpressionParseCache.get(text);
-  if (!!cached) return cached;
-  const items = new ConditionEditorItemsBuilder().build(text);
-  filterExpressionParseCache.set(text, items);
-  return items;
+  if (!!cached) {
+    filterExpressionParseCache.delete(text);
+    filterExpressionParseCache.set(text, cached);
+    return cached;
+  }
+  const rows = Object.freeze(new ConditionEditorItemsBuilder().build(text).map((item: ConditionEditorItem): IFilterExpressionRow =>
+    Object.freeze({ conjunction: item.conjunction, questionName: item.questionName, operator: item.operator,
+      value: Array.isArray(item.value) ? Object.freeze([].concat(item.value)) : item.value })));
+  filterExpressionParseCache.set(text, rows);
+  if (filterExpressionParseCache.size > FILTER_EXPRESSION_PARSE_CACHE_SIZE) {
+    filterExpressionParseCache.delete(filterExpressionParseCache.keys().next().value);
+  }
+  return rows;
 }
 
 // Why a text is not the conditions a control edits with - what an AI answer is sent back with.
@@ -378,10 +432,11 @@ export function analyzeFilterExpression(text: string, fields: Array<IDynamicData
     if (getFilterFieldOperators(field).indexOf(item.operator) === -1) {
       return { problem: { code: "operator", field: valueName, operator: item.operator } };
     }
-    // item.value is read straight off the cached, module-wide parse (buildFilterExpressionItems):
-    // an array value must be copied out, or a caller that mutates its own condition's value (T7/T8
-    // keep parse results as their own conditions) would corrupt every later parse of this same text,
-    // in every control that happens to share it.
+    // item.value is read straight off the cached, module-wide parse (buildFilterExpressionItems), where
+    // an array is frozen. It is still copied out: a result goes on into the control's ownConditions,
+    // the editors' buffers and their questions' values, any of which may change an array in place -
+    // a frozen one would throw there. The copy is a few items; making sure no reader ever changes one
+    // in place would be an audit of every one of them.
     const value = Array.isArray(item.value) ? item.value.slice() : item.value;
     res.push({ field: valueName, operator: item.operator, value });
   }

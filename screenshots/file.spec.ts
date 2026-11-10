@@ -415,6 +415,10 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(1000);
       await page.setInputFiles(".sd-file input", "../../screenshots/files/Read Me.txt");
       await page.click(".sd-file input[type=file] + div label");
+      // The file is read asynchronously. Once the question becomes answered, its css is updated and
+      // the current mode is re-detected - "file", as the test browser has no camera. Wait for it, so
+      // that it can't override the "file-camera" mode set below.
+      await page.waitForFunction(() => (window as any).survey.getAllQuestions()[0].isAnswered);
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");
       });

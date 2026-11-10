@@ -1805,7 +1805,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
   }
   private getChoicesDisplayValue(items: ItemValue[], val: any, isReadOnly?: boolean): any {
-    if (this.isOtherValue(val)) {
+    if (this.isOtherValue(val) && !this.isCopiedOtherValue(items, val)) {
       if (isReadOnly) return this.locOtherText.textOrHtml;
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     }
@@ -1813,6 +1813,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!!selItem && this.isTwoValueEquals(selItem.value, val)) return selItem.locText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
+  }
+  // choicesFromQuestion (mode "selected") copies the source's Other as a regular item whose text is
+  // the source's typed text; its display value is that text, not this question's own Other text.
+  // The source's Other is copied only into a question without its own Other item, so the choices
+  // are searched only then: a question that shows Other pays nothing extra.
+  private isCopiedOtherValue(items: ItemValue[], val: any): boolean {
+    if (this.showOtherItem) return false;
+    const item = ItemValue.getItemByValue(items, val);
+    return !!item && !this.isBuiltInChoice(item);
   }
   protected getDisplayArrayValue(keysAsText: boolean, value: any,
     onGetValueCallback?: (index: number) => any, isReadOnly?: boolean): string {

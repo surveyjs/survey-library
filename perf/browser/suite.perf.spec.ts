@@ -19,7 +19,8 @@ const env = readEnv();
 const calibrationOnly = isCalibrationOnly(env.only);
 const split = calibrationOnly ? { run: [], notInSuite: [] } : splitOnly(env.only, suite);
 const pageUrl = "http://perf.local/page/" + uiPackage[suite].page;
-const loadOptions = { samples: 7, maxMs: 8000, minSamples: 5 };
+// maxMs 5 s (8 s before 2026-11-10), for action scenarios too: see scenario-process.ts.
+const loadOptions = { samples: 7, maxMs: 5000, minSamples: 5 };
 let browser: Browser;
 const failedRequests: Array<string> = [];
 

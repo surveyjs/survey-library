@@ -1,5 +1,5 @@
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
-import { loadModel, loadDesign, answerFirst, answerNext10, plannedHidden, nextPlannedVisible, nextPlannedHidden, outputScenarios } from "./common.ts";
+import { loadModel, loadDesign, answerFirst, answerNext, plannedHidden, nextPlannedVisible, nextPlannedHidden, outputScenarios } from "./common.ts";
 
 export function answerComplexLogic(ctx: PerfContext, survey: any): void {
   survey.setValue(ctx.fixture.meta.firstAnswer.name, ctx.fixture.meta.firstAnswer.value);
@@ -11,6 +11,6 @@ export function complexLogicScenarios(): Array<PerfScenario> {
     loadModel("complexLogic"),
     loadDesign("complexLogic"),
     answerFirst("complexLogic", ["plannedHidden"], plannedHidden),
-    answerNext10("complexLogic", ["nextPlannedVisible", "nextPlannedHidden", "expectHidden"], nextPlannedHidden, nextPlannedVisible)
+    answerNext("complexLogic", ["nextPlannedVisible", "nextPlannedHidden", "expectHidden"], nextPlannedHidden, nextPlannedVisible)
   ].concat(outputScenarios("complexLogic", "answerComplexLogic", answerComplexLogic));
 }

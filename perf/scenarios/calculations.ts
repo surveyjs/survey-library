@@ -1,6 +1,6 @@
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
 import { expectThat } from "../harness/scenario.ts";
-import { loadModel, answerFirst, answerNext10 } from "./common.ts";
+import { loadModel, answerFirst, answerNext, nextAnswerCount } from "./common.ts";
 
 // The answers reach the ends of their chains: the check reads the last value of each chain the answers start.
 export function chainEnd(ctx: PerfContext, start: string): string {
@@ -8,6 +8,8 @@ export function chainEnd(ctx: PerfContext, start: string): string {
   return chain.steps[chain.steps.length - 1].name;
 }
 
+// 10, not nextAnswerCount: answer/first shares this helper, and a change would re-hash it. It runs in the untimed
+// setup; nextChainsChanged reads only the first nextAnswerCount ends.
 export function chainEndsBefore(ctx: PerfContext, survey: any): any {
   const res: { [name: string]: any } = {};
   [ctx.fixture.meta.firstAnswer].concat(ctx.fixture.meta.nextAnswers.slice(0, 10)).forEach((a: any) => {
@@ -23,7 +25,7 @@ export function firstChainChanged(ctx: PerfContext, survey: any, before: any): v
 }
 
 export function nextChainsChanged(ctx: PerfContext, survey: any, before: any): void {
-  ctx.fixture.meta.nextAnswers.slice(0, 10).forEach((a: any) => {
+  ctx.fixture.meta.nextAnswers.slice(0, nextAnswerCount).forEach((a: any) => {
     const end = chainEnd(ctx, a.name);
     expectThat(survey.getVariable(end) !== before[end], "the end of the chain of " + a.name + " changed (" + end + ")");
   });
@@ -33,6 +35,6 @@ export function calculationsScenarios(): Array<PerfScenario> {
   return [
     loadModel("calculations"),
     answerFirst("calculations", ["chainEnd", "chainEndsBefore", "firstChainChanged"], firstChainChanged, chainEndsBefore),
-    answerNext10("calculations", ["chainEnd", "chainEndsBefore", "nextChainsChanged"], nextChainsChanged, chainEndsBefore)
+    answerNext("calculations", ["chainEnd", "chainEndsBefore", "nextChainsChanged"], nextChainsChanged, chainEndsBefore)
   ];
 }

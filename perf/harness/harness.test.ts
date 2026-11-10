@@ -9,7 +9,7 @@ import { sampleLoop, scenarioDriver } from "./sample.ts";
 import type { SampleDriver } from "./sample.ts";
 import { installFunnels, funnels } from "./counters.ts";
 import { calibrateOnce } from "./calibration.ts";
-import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, DROP_LIST } from "./ids.ts";
+import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, DROP_LIST, RENDER_SUBSET } from "./ids.ts";
 import { defineScenarios, fixtureOfId, missingRequirement } from "./scenario.ts";
 import { allScenarios } from "../scenarios/index.ts";
 import { runnerRoot } from "./node/build.ts";
@@ -100,9 +100,17 @@ describe("ids", () => {
     ids.forEach((id: string) => expect(FIXTURE_KEYS as ReadonlyArray<string>).toContain(fixtureOfId(id)));
     SCENARIO_IDS.forEach((s: any) => expect(s.suites.length).toBeGreaterThan(0));
     expect(allScenarios().map((s: any) => s.id).sort()).toEqual(ids.slice().sort());
-    expect(idsOfSuite("react")).toEqual(idsOfSuite("survey-js-ui"));
+    // survey-js-ui runs React's ids except the preview of all 4,500 questions.
+    expect(idsOfSuite("react").filter((id: string) => id !== "manyPages/pages/preview")).toEqual(idsOfSuite("survey-js-ui"));
     expect(idsOfSuite("react").length).toBe(24);
+    expect(suitesOf("manyPages/pages/preview")).toEqual(["core", "react"]);
+    expect(idsOfSuite("core").length).toBe(55);
+    expect(idsOfSuite("core").filter((id: string) => id.indexOf("records-1k/records/") === 0 && /@orders$/.test(id)))
+      .toEqual(["records-1k/records/filter-set@orders", "records-1k/records/next@orders", "records-1k/records/sort-1@orders"]);
     DROP_LIST.forEach((id: string) => expect(ids).toContain(id));
+    // The phase-2 browser suites' ids: browser ids that React runs.
+    RENDER_SUBSET.forEach((id: string) => expect(idsOfSuite("react")).toContain(id));
+    expect(RENDER_SUBSET.length).toBe(13);
   });
   test("the PERF_ONLY split", () => {
     expect(parseOnly(" a , b,,")).toEqual(["a", "b"]);

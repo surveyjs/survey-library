@@ -1,3 +1,5 @@
+export type CalendarZoom = "day" | "month" | "year";
+
 export interface CalendarItem {
   date: Date;
   text: string;

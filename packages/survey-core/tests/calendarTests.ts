@@ -265,3 +265,228 @@ describe("CalendarModel", () => {
     expect(findDay(calendar, d(2026, 10, 26), true).css).toBe("sv-calendar__day sv-calendar__day--outside");
   });
 });
+
+describe("CalendarModel zoom", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+  function texts(calendar: CalendarModel): Array<string> {
+    return calendar.items.map(item => item.text);
+  }
+  function findItem(calendar: CalendarModel, text: string): CalendarItem {
+    return calendar.items.filter(item => item.text === text)[0];
+  }
+
+  test("zoom is day by default", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    expect(calendar.zoom).toBe("day");
+    expect(calendar.title).toBe("November 2026");
+    expect(calendar.months).toHaveLength(1);
+    expect(calendar.items).toHaveLength(0);
+  });
+
+  test("zoomOut cycles day -> month -> year -> day", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.zoomOut();
+    expect(calendar.zoom).toBe("month");
+    calendar.zoomOut();
+    expect(calendar.zoom).toBe("year");
+    calendar.zoomOut();
+    expect(calendar.zoom).toBe("day");
+    calendar.zoomOut();
+    expect(calendar.zoom).toBe("month");
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+  });
+
+  test("Month zoom: title and items", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.zoomOut();
+    expect(calendar.title).toBe("2026");
+    expect(calendar.months).toHaveLength(0);
+    expect(texts(calendar)).toEqual(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]);
+    expect(calendar.items[0].date.getTime()).toBe(d(2026, 1, 1).getTime());
+    expect(calendar.items[11].date.getTime()).toBe(d(2026, 12, 1).getTime());
+    expect(calendar.items.every(item => !item.isOutside && !item.isDisabled)).toBe(true);
+  });
+
+  test("Year zoom: title and items", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.zoomOut();
+    calendar.zoomOut();
+    expect(calendar.title).toBe("2016 \u2013 2027");
+    expect(calendar.months).toHaveLength(0);
+    expect(texts(calendar)).toEqual(["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027"]);
+    expect(calendar.items[0].date.getTime()).toBe(d(2016, 1, 1).getTime());
+    expect(calendar.items.every(item => !item.isOutside && !item.isDisabled)).toBe(true);
+  });
+
+  test("Year ranges are aligned to 12", () => {
+    const check = (year: number, title: string) => {
+      const calendar = new CalendarModel({ viewDate: d(year, 5, 1) });
+      calendar.zoom = "year";
+      expect(calendar.title, year.toString()).toBe(title);
+    };
+    check(2016, "2016 \u2013 2027");
+    check(2027, "2016 \u2013 2027");
+    check(2028, "2028 \u2013 2039");
+    check(2039, "2028 \u2013 2039");
+    check(2040, "2040 \u2013 2051");
+    check(2015, "2004 \u2013 2015");
+  });
+
+  test("prev and next in the month zoom switch the year", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.zoom = "month";
+    calendar.next();
+    expect(calendar.viewDate.getTime()).toBe(d(2027, 11, 1).getTime());
+    expect(calendar.title).toBe("2027");
+    expect(calendar.items[0].date.getTime()).toBe(d(2027, 1, 1).getTime());
+    calendar.prev();
+    calendar.prev();
+    expect(calendar.title).toBe("2025");
+  });
+
+  test("prev and next in the year zoom switch the range by 12 years", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.zoom = "year";
+    calendar.next();
+    expect(calendar.title).toBe("2028 \u2013 2039");
+    expect(texts(calendar)[0]).toBe("2028");
+    calendar.prev();
+    calendar.prev();
+    expect(calendar.title).toBe("2004 \u2013 2015");
+    expect(texts(calendar)[11]).toBe("2015");
+  });
+
+  test("Selecting a month switches to the day zoom of that month", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.zoom = "month";
+    calendar.selectItem(findItem(calendar, "March"));
+    expect(calendar.zoom).toBe("day");
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 3, 1).getTime());
+    expect(calendar.title).toBe("March 2026");
+    expect(calendar.months).toHaveLength(1);
+    expect(calendar.items).toHaveLength(0);
+  });
+
+  test("Selecting a year switches to the month zoom of that year", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.zoom = "year";
+    calendar.selectItem(findItem(calendar, "2019"));
+    expect(calendar.zoom).toBe("month");
+    expect(calendar.title).toBe("2019");
+    expect(calendar.viewDate.getFullYear()).toBe(2019);
+  });
+
+  test("year -> month -> day", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.zoomOut();
+    calendar.zoomOut();
+    calendar.next();
+    calendar.selectItem(findItem(calendar, "2031"));
+    calendar.selectItem(findItem(calendar, "July"));
+    expect(calendar.zoom).toBe("day");
+    expect(calendar.viewDate.getTime()).toBe(d(2031, 7, 1).getTime());
+    expect(calendar.title).toBe("July 2031");
+  });
+
+  test("Selecting a month or a year does not change value", () => {
+    const calendar = new CalendarModel({ value: d(2026, 11, 9) });
+    let counter = 0;
+    calendar.onValueChanged.add(() => counter++);
+    calendar.zoom = "year";
+    calendar.selectItem(findItem(calendar, "2020"));
+    calendar.selectItem(findItem(calendar, "May"));
+    expect(calendar.value.getTime()).toBe(d(2026, 11, 9).getTime());
+    expect(counter).toBe(0);
+  });
+
+  test("Month and year items containing value are selected", () => {
+    const calendar = new CalendarModel({ value: d(2026, 11, 9) });
+    calendar.zoom = "month";
+    expect(calendar.items.filter(item => item.isSelected).map(item => item.text)).toEqual(["November"]);
+    calendar.next();
+    expect(calendar.items.filter(item => item.isSelected)).toHaveLength(0);
+
+    calendar.zoom = "year";
+    expect(calendar.items.filter(item => item.isSelected).map(item => item.text)).toEqual(["2026"]);
+    calendar.next();
+    expect(calendar.items.filter(item => item.isSelected)).toHaveLength(0);
+  });
+
+  test("Month and year items containing today are marked as today", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 9));
+    const calendar = new CalendarModel();
+    calendar.zoom = "month";
+    expect(calendar.items.filter(item => item.isToday).map(item => item.text)).toEqual(["November"]);
+    calendar.zoom = "year";
+    expect(calendar.items.filter(item => item.isToday).map(item => item.text)).toEqual(["2026"]);
+  });
+
+  test("Hover in the month and year zooms", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    calendar.zoom = "month";
+    calendar.hoverItem(findItem(calendar, "May"));
+    expect(calendar.items.filter(item => item.isHovered).map(item => item.text)).toEqual(["May"]);
+    calendar.zoom = "year";
+    expect(calendar.items.filter(item => item.isHovered)).toHaveLength(0);
+    calendar.hoverItem(findItem(calendar, "2020"));
+    expect(calendar.items.filter(item => item.isHovered).map(item => item.text)).toEqual(["2020"]);
+    calendar.hoverItem();
+    expect(calendar.items.filter(item => item.isHovered)).toHaveLength(0);
+  });
+
+  test("Month and year item css", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 9));
+    const calendar = new CalendarModel({ value: d(2026, 5, 20) });
+    calendar.zoom = "month";
+    expect(findItem(calendar, "January").css).toBe("sv-calendar__month");
+    expect(findItem(calendar, "May").css).toBe("sv-calendar__month sv-calendar__month--selected");
+    expect(findItem(calendar, "November").css).toBe("sv-calendar__month sv-calendar__month--today");
+    calendar.zoom = "year";
+    calendar.hoverItem(findItem(calendar, "2020"));
+    expect(findItem(calendar, "2020").css).toBe("sv-calendar__year sv-calendar__year--hovered");
+    expect(findItem(calendar, "2026").css).toBe("sv-calendar__year sv-calendar__year--today sv-calendar__year--selected");
+  });
+
+  test("onZoomChanged", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    const log: Array<string> = [];
+    calendar.onZoomChanged.add((_, options) => log.push(options.zoom));
+    calendar.zoomOut();
+    calendar.zoomOut();
+    calendar.selectItem(findItem(calendar, "2020"));
+    calendar.selectItem(findItem(calendar, "May"));
+    calendar.zoom = "day";
+    expect(log).toEqual(["month", "year", "month", "day"]);
+  });
+
+  test("resetView returns to the day zoom of the value month", () => {
+    const calendar = new CalendarModel({ value: d(2026, 11, 9) });
+    calendar.zoom = "year";
+    calendar.next();
+    calendar.resetView();
+    expect(calendar.zoom).toBe("day");
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+    expect(calendar.title).toBe("November 2026");
+  });
+
+  test("resetView without value returns to the current month", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 9));
+    const calendar = new CalendarModel({ viewDate: d(2020, 3, 1) });
+    calendar.zoom = "month";
+    calendar.resetView();
+    expect(calendar.zoom).toBe("day");
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+  });
+
+  test("resetView clears hover", () => {
+    const calendar = new CalendarModel({ value: d(2026, 11, 9) });
+    calendar.hoverItem(findDay(calendar, d(2026, 11, 12)));
+    calendar.resetView();
+    expect(days(calendar).filter(item => item.isHovered)).toHaveLength(0);
+  });
+});

@@ -5850,6 +5850,70 @@ describe("choicesFromQuestion, mode selected: the display value of a copied Othe
     expect(survey.getQuestionByName("q").displayValue, "displayValue").toBe("Something else");
   });
 });
+describe("setValueIf runs while the Other comment is written, Bug#12247", () => {
+  const knownAndBought = [
+    { type: "checkbox", name: "known", choices: ["Oatly", "Alpro"] },
+    { type: "checkbox", name: "bought", choicesFromQuestion: "known", choicesFromQuestionMode: "selected" }
+  ];
+  const cases = [
+    { type: "radiogroup", expression: "'Oatly'", other: "other" },
+    { type: "dropdown", expression: "'Oatly'", other: "other" },
+    { type: "checkbox", expression: "['Oatly']", other: ["other"] }
+  ];
+  for (const c of cases) {
+    test(c.type + ": the rule sets a choice the copy does not offer, no endless loop", () => {
+      const survey = new SurveyModel({ elements: [...knownAndBought,
+        { type: c.type, name: "most", choicesFromQuestion: "bought", choicesFromQuestionMode: "selected",
+          showOtherItem: true, setValueIf: "{known} allof ['Oatly']", setValueExpression: c.expression }] });
+      survey.setValue("known", ["Oatly", "Alpro"]);
+      survey.setValue("bought", ["Alpro"]);
+      const most = <QuestionSelectBase>survey.getQuestionByName("most");
+      most.value = c.other;
+      expect(() => { most.comment = "Hafervoll"; }, "typing the Other text").not.toThrow();
+      expect(most.isEmpty(), "the value the copy does not offer is cleared").toBe(true);
+      expect(most.isOtherSelected, "isOtherSelected").toBe(false);
+      expect(most.comment, "the comment is cleared with the value").toBe("");
+      expect(survey.data, "survey.data").toEqual({ known: ["Oatly", "Alpro"], bought: ["Alpro"] });
+    });
+  }
+  test("Plain choices: the rule sets an offered choice once, and the Other comment does not stay behind", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "checkbox", name: "known", choices: ["Oatly", "Alpro"] },
+      { type: "radiogroup", name: "most", choices: ["Oatly", "Alpro"], showOtherItem: true,
+        setValueIf: "{known} allof ['Oatly']", setValueExpression: "'Oatly'" }] });
+    survey.setValue("known", ["Oatly", "Alpro"]);
+    const most = <QuestionRadiogroupModel>survey.getQuestionByName("most");
+    most.value = "other";
+    expect(() => { most.comment = "Hafervoll"; }, "typing the Other text").not.toThrow();
+    expect(most.value, "the rule's value").toBe("Oatly");
+    expect(most.isOtherSelected, "isOtherSelected").toBe(false);
+    expect(most.comment, "the comment of the deselected Other is cleared").toBe("");
+    expect(survey.data, "survey.data").toEqual({ known: ["Oatly", "Alpro"], most: "Oatly" });
+  });
+  test("Without a rule, the typed Other text is kept", () => {
+    const survey = new SurveyModel({ elements: [...knownAndBought,
+      { type: "radiogroup", name: "most", choicesFromQuestion: "bought", choicesFromQuestionMode: "selected", showOtherItem: true }] });
+    survey.setValue("known", ["Oatly", "Alpro"]);
+    survey.setValue("bought", ["Alpro"]);
+    const most = <QuestionRadiogroupModel>survey.getQuestionByName("most");
+    most.value = "other";
+    most.comment = "Hafervoll";
+    expect(most.isOtherSelected, "isOtherSelected").toBe(true);
+    expect(most.comment, "comment").toBe("Hafervoll");
+    expect(survey.data, "survey.data").toEqual({ known: ["Oatly", "Alpro"], bought: ["Alpro"], most: "other", "most-Comment": "Hafervoll" });
+  });
+  test("onValueChanging changes the comment: the question gets the changed text", () => {
+    const survey = new SurveyModel({ elements: [{ type: "radiogroup", name: "most", choices: ["Oatly"], showOtherItem: true }] });
+    survey.onValueChanging.add((_, options) => {
+      if (options.name === "most-Comment") options.value = String(options.value).toUpperCase();
+    });
+    const most = <QuestionRadiogroupModel>survey.getQuestionByName("most");
+    most.value = "other";
+    most.comment = "hafervoll";
+    expect(most.comment, "comment").toBe("HAFERVOLL");
+    expect(survey.data, "survey.data").toEqual({ most: "other", "most-Comment": "HAFERVOLL" });
+  });
+});
 describe("Checkbox Other while every regular choice is hidden, Bug#12245", () => {
   const hiddenChoices = [
     { value: "Oatly", visibleIf: "{known} contains 'Oatly'" },

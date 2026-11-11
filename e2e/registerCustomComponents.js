@@ -61,7 +61,6 @@ export const registerCustomToolboxComponent = async (page, framework) => {
       });
     }
   }, framework);
-  await page.waitForTimeout(500);
 };
 
 export const registerCustomItemComponent = async (page, framework) => {
@@ -153,7 +152,6 @@ export const registerCustomItemComponent = async (page, framework) => {
       });
     }
   }, framework);
-  await page.waitForTimeout(500);
 };
 
 export const registerCustomListLoadingComponent = async (page, framework) => {
@@ -177,7 +175,6 @@ export const registerCustomListLoadingComponent = async (page, framework) => {
       register(lib, preact.createElement, preact.Component);
     }
   }, framework);
-  await page.waitForTimeout(500);
 };
 
 export const registerCustomItemContentComponent = async (page, framework) => {
@@ -296,5 +293,4 @@ export const registerCustomItemContentComponent = async (page, framework) => {
       });
     }
   }, framework);
-  await page.waitForTimeout(500);
 };

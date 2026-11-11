@@ -1,9 +1,8 @@
 import { describe, test, expect } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { Serializer } from "../../src/jsonobject";
-import { getDataNestingKey } from "../../src/data-nesting-key";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { lintSurvey, ILintFinding, ISurveyLintOptions, SurveyLintHintReasons } from "../../src/linter/index";
-import { getLintDataNestingKey } from "../../src/linter/data-nesting";
 import { expectFixSettles } from "./lint-test-helpers";
 
 // Nested data (decisions N1-N13 of prompts/nested-data): a panel or a page with a valueName - or every
@@ -40,19 +39,6 @@ function exampleSurvey(): any {
     ],
   };
 }
-
-describe("linter nested data: the key rule", () => {
-  test("the linter's copy of the key rule equals the core's getDataNestingKey", () => {
-    const modes = ["auto", "none", "panel", "page", "panelAndPage", "unknownMode", undefined];
-    // "record": a panel inside a dynamic panel's template or a matrix detail panel, which nests by its valueName only (RN3)
-    const kinds = ["panel", "page", "record", ""];
-    const keys = [["", ""], ["vn", ""], ["", "nm"], ["vn", "nm"]];
-    modes.forEach(mode => kinds.forEach(kind => keys.forEach(pair => {
-      expect(getLintDataNestingKey(mode, kind, pair[0], pair[1]), mode + "/" + kind + "/" + pair.join(","))
-        .toBe(getDataNestingKey(mode, kind, pair[0], pair[1]));
-    })));
-  });
-});
 
 describe("linter nested data: no false findings", () => {
   test("the design-01 example survey is clean, references included", () => {
@@ -466,7 +452,7 @@ describe("linter nested data: ignored and generated keys", () => {
     };
     const json: any = { elements: [{ type: "addr", name: "a1" }] };
     const findings = findingsOf(json, "nesting/ignored-key", options);
-    expect(brief(findings)).toEqual(["nesting/ignored-key/insideRecord @ components.addr.elementsJSON[0].valueName"]);
+    expect(brief(findings)).toEqual(["nesting/ignored-key/insideComposite @ components.addr.elementsJSON[0].valueName"]);
     expect(findings[0].severity).toBe("warning");
     expect(findings[0].messageData.recordName).toBe("addr");
     json.dataNesting = "none";
@@ -533,6 +519,16 @@ describe("linter nested data: ignored and generated keys", () => {
     expect(keys).toEqual(["page1", "panel2", "panel3", "panel4", "page2"]);
     json.pages[0].elements.push({ type: "text", name: "q", visibleIf: "{panel3.panel4.b} = 1 and {page2.d} = 1" });
     expect(brief(refFindings(json))).toEqual([]);
+  });
+  test("root elements in a page mode nest under the page the survey generates, as at runtime", () => {
+    const json: any = { dataNesting: "page", elements: [{ type: "text", name: "a" }] };
+    const survey = new SurveyModel(json);
+    survey.getQuestionByName("a").value = "x";
+    expect(survey.data).toEqual({ page1: { a: "x" } });
+    json.elements.push({ type: "text", name: "q", visibleIf: "{page1.a} = 1" });
+    expect(brief(refFindings(json))).toEqual([]);
+    json.elements[1].visibleIf = "{page2.a} = 1";
+    expect(brief(refFindings(json))).toEqual(["reference/unknown/notFound @ elements[1].visibleIf"]);
   });
 });
 
@@ -961,5 +957,33 @@ describe("linter nested data: trigger variables and built-in container keys", ()
     expect(brief(findings)).toEqual(["name/shadowing/builtInVariable @ pages[0].name"]);
     expect(findings[0].message).toBe("The name \"pageno\" of this page is also a built-in survey variable - " +
       "only the bare {pageno} reads the built-in value; {pageno.q1} still reaches the page's object.");
+  });
+});
+
+describe("linter nested data: the totals of a matrix class a host registers", () => {
+  test("a subclass of matrixdynamic writes its totals key, at the root and in a container's object", () => {
+    Serializer.addClass("lintmatrixsub", [], () => new QuestionMatrixDynamicModel(""), "matrixdynamic");
+    try {
+      const matrix = (name: string) => ({ type: "lintmatrixsub", name: name, rowCount: 1,
+        columns: [{ name: "c", cellType: "text", totalType: "sum" }] });
+      const json: any = {
+        elements: [
+          matrix("m"),
+          { type: "panel", name: "p", valueName: "addr", elements: [matrix("m2")] },
+          { type: "text", name: "q", visibleIf: "{m-total.c} > 0 and {addr.m2-total.c} > 0" },
+          { type: "text", name: "q2", visibleIf: "{m-total.nope} > 0" },
+        ],
+      };
+      const survey = new SurveyModel(json);
+      survey.getQuestionByName("m").visibleRows[0].cells[0].value = 1;
+      survey.getQuestionByName("m2").visibleRows[0].cells[0].value = 1;
+      expect(survey.data["m-total"]).toEqual({ c: 1 });
+      expect(survey.data.addr["m2-total"]).toEqual({ c: 1 });
+      const findings = refFindings(json);
+      expect(brief(findings)).toEqual(["reference/unknown/inContainer @ elements[3].visibleIf"]);
+      expect(findings[0].messageData.segment).toBe("nope");
+    } finally {
+      Serializer.removeClass("lintmatrixsub");
+    }
   });
 });

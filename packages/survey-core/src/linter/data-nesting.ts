@@ -1,17 +1,13 @@
-import { Serializer, getDataNestingKey } from "survey-core";
-import { CIMultiMap, DataScopeRecord, ElementRecord, SurveyIndex } from "./symbols";
+import { Serializer } from "survey-core";
+import type { DataNestingKind } from "survey-core";
+import { CIMultiMap, ContainerRecord, DataScopeRecord, ElementRecord, SurveyIndex } from "./symbols";
 
 // Nested data (prompts/nested-data/decisions.md): a panel or a page with a valueName - or every panel
 // and/or page in a by-name dataNesting mode - stores its questions' values in an object under its key.
 
-// The runtime's key rule (getDataNestingKey, src/data-nesting-key.ts), from the public "survey-core" entry.
-// kind is "panel" or "page", "record" for a panel inside a dynamic panel's template or a matrix detail panel
-// (no by-name mode lists it: it nests under its valueName only, RN3), "" for a container that never nests.
-export const getLintDataNestingKey: (dataNesting: string, kind: string, valueName: string, name: string) => string = getDataNestingKey;
-
-// Whether the mode nests a container of this kind by its name: the rule gives the name when there is no valueName.
-export function isByNameKind(dataNesting: string, kind: string): boolean {
-  return !!getDataNestingKey(dataNesting, kind, "", "name");
+// The kind the key rule looks a container up by: a dynamic panel's template is no container of its own.
+export function getContainerNestingKind(container: ContainerRecord): DataNestingKind {
+  return container.kind === "panel" || container.kind === "page" ? container.kind : "";
 }
 
 // The mode the survey runs in: the JSON's, else the serializer default - which a host may have set to
@@ -32,14 +28,21 @@ export function generateContainerName(base: string, taken: Set<string>): string 
   return base + index;
 }
 
+function createScope(kind: "survey" | "record"): DataScopeRecord {
+  return {
+    kind: kind, key: "", path: [], containers: [],
+    questions: new CIMultiMap<ElementRecord>(), children: new CIMultiMap<DataScopeRecord>(),
+  };
+}
+
 export function createRootScope(): DataScopeRecord {
-  return { key: "", path: [], containers: [], questions: new CIMultiMap<ElementRecord>(), children: new CIMultiMap<DataScopeRecord>() };
+  return createScope("survey");
 }
 
 // The record one panel of a dynamic panel or one row of a matrix is (records nesting 02, RN1): a root of
 // its own, as the survey data is. Its paths start at the record (RN4).
 export function createRecordScope(owner: ElementRecord): DataScopeRecord {
-  const res = createRootScope();
+  const res = createScope("record");
   res.recordOwner = owner;
   return res;
 }
@@ -47,8 +50,8 @@ export function createRecordScope(owner: ElementRecord): DataScopeRecord {
 // Whether the object is a record or lies inside one: a panel there nests by its valueName only (RN3).
 export function isInsideRecordScope(scope: DataScopeRecord): boolean {
   let current = scope;
-  while(!!current && !!current.parent) current = current.parent;
-  return !!current && !!current.recordOwner;
+  while(!!current && current.kind === "object") current = current.parent;
+  return !!current && current.kind === "record";
 }
 
 // The object of a nesting container inside parent: shared with every container on the same exact key
@@ -57,13 +60,13 @@ export function getChildScope(parent: DataScopeRecord, key: string, container: E
   let res = parent.children.get(key).filter(child => child.key === key)[0];
   if (!res) {
     res = {
-      key: key, path: parent.path.concat([key]), parent: parent, containers: [],
+      kind: "object", key: key, path: parent.path.concat([key]), parent: parent, containers: [],
       questions: new CIMultiMap<ElementRecord>(), children: new CIMultiMap<DataScopeRecord>(),
     };
+    // the object, not the container: no rule may take it for the panel or the page
     res.valueRecord = {
-      name: key, type: container.type, kind: "panel", path: container.path, json: container.json,
-      scope: [], isUnknownType: false, valueType: { shape: "object" }, dataScope: parent, isDataObject: true,
-      objectScope: res,
+      name: key, type: container.type, kind: "dataObject", path: container.path, json: container.json,
+      scope: [], isUnknownType: false, valueType: { shape: "object" }, dataScope: parent, objectScope: res,
     };
     parent.children.add(key, res);
   }
@@ -83,18 +86,20 @@ export function getOwnerDataScope(owner: ElementRecord | undefined, index: Surve
   return index.rootScope;
 }
 
-// A question that writes inside a nesting container's object rather than a key of the survey data (or
+// An element that writes inside a nesting container's object rather than a key of the survey data (or
 // of a record, which is a root of its own).
-export function isInNestedScope(record: ElementRecord, index: SurveyIndex): boolean {
-  return isInNestedObject(record);
-}
 export function isInNestedObject(record: ElementRecord): boolean {
-  return !!record.dataScope && !!record.dataScope.parent;
+  return !!record.dataScope && record.dataScope.kind === "object";
+}
+
+// The object a nesting panel's or page's elements write into; undefined for any other element.
+export function getNestedScope(record: ElementRecord): DataScopeRecord | undefined {
+  return !!record.container ? record.container.nestedScope : undefined;
 }
 
 // The property of a container that spells its key: what a finding about the key points at.
 export function getContainerKeyPath(record: ElementRecord): string {
-  if (!!record.keyPath) return record.keyPath;
+  if (!!record.container && !!record.container.keyPath) return record.container.keyPath;
   if (!!record.json && typeof record.json.valueName === "string" && !!record.json.valueName) return record.path + ".valueName";
   return record.name ? record.path + ".name" : record.path;
 }

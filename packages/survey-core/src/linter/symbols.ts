@@ -61,7 +61,10 @@ export class CIMultiMap<T> {
   }
 }
 
-export type ElementKind = "question" | "panel" | "page" | "column" | "multipletextitem";
+// "dataObject": the synthetic record {key} of a nesting container resolves to (DataScopeRecord.valueRecord).
+// It stands for the container's object, not for the container: it holds an object value, and its type is the
+// container's, which a message names.
+export type ElementKind = "question" | "panel" | "page" | "column" | "multipletextitem" | "dataObject";
 
 export interface ChoicesInfo {
   staticValues: Array<any>;
@@ -167,28 +170,29 @@ export interface ElementRecord {
   // page): the survey data, a record (a dynamic panel's panel, a matrix row: see recordScope), or a
   // nesting container's object. Unset for a matrix column and inside a composite definition.
   dataScope?: DataScopeRecord;
-  // a nesting panel or page: the object its elements write into, and the key it is stored under
-  nestedScope?: DataScopeRecord;
-  // the synthetic record {key} of a nesting container resolves to: its value is an object
-  isDataObject?: boolean;
-  // that synthetic record: the object it stands for, where a path into it continues ({panel.address.street})
+  // a panel or a page: its container record, which holds the nested-data facts (the key, where it comes
+  // from, the object the elements write into)
+  container?: ContainerRecord;
+  // a "dataObject" record: the object it stands for, where a path into it continues ({panel.address.street})
   objectScope?: DataScopeRecord;
   // a dynamic panel or a matrix: the record one of its panels or rows is, as a data scope (records
   // nesting 02); a nesting panel inside the template or the detail panel keys an object inside it
   recordScope?: DataScopeRecord;
-  // where a finding about a container key points when no property of the container spells it: the
-  // page the survey creates for root elements nests by dataNesting alone
-  keyPath?: string;
 }
 
 // Where a container's key comes from: its valueName, its name in a by-name dataNesting mode, or the
 // name the runtime generates for an unnamed container in such a mode.
 export type ContainerKeySource = "valueName" | "name" | "generated";
 
+// What a DataScopeRecord is: the survey data itself, a record of a dynamic panel or a matrix, or the
+// object of a nesting container inside one of them.
+export type DataScopeKind = "survey" | "record" | "object";
+
 // One object of the survey data: the survey data itself (key "", no parent), a record of a dynamic panel
-// or a matrix (key "", no parent, recordOwner set), or the object of a nesting container. Containers with
-// one key at one level share one object (decisions D4), so they share this.
+// or a matrix (key "", no parent, recordOwner set), or the object of a nesting container (parent set).
+// Containers with one key at one level share one object (decisions D4), so they share this.
 export interface DataScopeRecord {
+  kind: DataScopeKind;
   key: string;
   // the keys from the survey data down to this object: ["page1", "address"]
   path: Array<string>;
@@ -199,7 +203,7 @@ export interface DataScopeRecord {
   questions: CIMultiMap<ElementRecord>;
   // the objects of the nesting containers directly inside this one, by key
   children: CIMultiMap<DataScopeRecord>;
-  // what {key} resolves to; unset for the survey data and a record
+  // an object: what {key} resolves to, a "dataObject" record
   valueRecord?: ElementRecord;
   // a record: the dynamic panel or matrix whose panels or rows it describes. A record is a root of its
   // own: its keys never meet the survey data's, and a matrix record holds the columns too
@@ -353,13 +357,25 @@ export interface CalculatedValueRecord {
 
 export interface ContainerRecord {
   kind: "page" | "panel" | "panelDynamicTemplate";
+  // unset for the page the survey creates for root elements
   record?: ElementRecord;
   name?: string;
   path: string;
   children: Array<ElementRecord>;
-  // nested data: the key the container stores its elements' values under, when it nests
+  // nested data, set when the container nests: the key it stores its elements' values under, where the
+  // key comes from, and the object its elements write into
   dataKey?: string;
   dataKeySource?: ContainerKeySource;
+  nestedScope?: DataScopeRecord;
+  // where a finding about the key points when no property of the container spells it: the page the
+  // survey creates for root elements nests by dataNesting alone
+  keyPath?: string;
+}
+
+// A non-nesting container's valueName, and why it stores nothing: the hint a reference to it gets.
+export interface NonNestingKey {
+  container: ElementRecord;
+  why: string;
 }
 
 export interface Namespace {
@@ -379,8 +395,8 @@ export interface SurveyIndex {
   // nested data: the dataNesting mode of the survey, and the survey data's object
   dataNesting: string;
   rootScope: DataScopeRecord;
-  // panels and pages whose valueName stores nothing: "dataNesting": "none"
-  nonNestingKeys: CIMultiMap<ElementRecord>;
+  // panels and pages whose valueName stores nothing, by that valueName
+  nonNestingKeys: CIMultiMap<NonNestingKey>;
   // the records of the dynamic panels and matrices (ElementRecord.recordScope), in walk order
   recordScopes: Array<DataScopeRecord>;
   // every page, panel and question by name, scopes included: element names are unique across the
@@ -407,6 +423,8 @@ export interface SurveyIndex {
   // panel or page that nests and so describes an object variable, "users.tier" -> "question" for a
   // field. A flat definition holds its variables here as "question". Snapshotted with the names above.
   definitionPaths: CIMap<"object" | "question">;
+  // memoized by definition-variables.ts: the field paths among definitionPaths
+  definitionFieldPaths?: Array<string>;
   // The element a data key names: the runtime reads a value by name, and a valueName
   // replaces the name as that key.
   findByDataName(name: string): ElementRecord | undefined;

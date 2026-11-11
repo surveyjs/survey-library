@@ -11,7 +11,9 @@ import {
   ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
 import { getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields, isOwnField } from "./record-fields";
-import { getOwnerDataScope, isInNestedObject, isInNestedScope } from "./data-nesting";
+import { getNestedScope, getOwnerDataScope, isInNestedObject } from "./data-nesting";
+import { findDefinitionFieldByKey, getDefinitionFieldPaths, isUnknownDefinitionPath } from "./definition-variables";
+import { isMatrixDropdown } from "./metadata";
 
 export interface ParseOutcome {
   ast?: Operand;
@@ -178,54 +180,17 @@ function isKnownVariable(name: string, index: SurveyIndex, options: ISurveyLintO
   return isListedVariable(name, options);
 }
 
-function isListedVariable(name: string, options: ISurveyLintOptions): boolean {
+// A name the host listed in options.knownVariables.
+export function isListedVariable(name: string, options: ISurveyLintOptions): boolean {
   const vars = options.knownVariables;
   if (!Array.isArray(vars)) return false;
-  return vars.some(v => equalsCI(v, name));
+  return vars.some(v => typeof v === "string" && equalsCI(v, name));
 }
 
-// The fields of the definition's object variables ("users.tier"): what a condition can test below
-// a root variable.
-function getDefinitionFieldPaths(index: SurveyIndex): Array<string> {
-  const res: Array<string> = [];
-  index.definitionPaths.forEach((kind, path) => {
-    // a root variable is no field, a dotted one ("a.b" of a flat definition) included
-    if (kind === "question" && path.indexOf(".") > -1 && !index.definitionVariables.has(path)) res.push(path);
-  });
-  return res;
-}
-
-// The name a misspelled host variable most likely meant. An inner question's own name ({tier}) reads
-// nothing at runtime - the host sets { users: { tier } } - so a field of an object variable whose last
-// key is that name is the answer before any near miss. Then the closest of the root names and the
-// fields.
-export function suggestDefinitionVariable(name: string, index: SurveyIndex): string | undefined {
-  const field = findDefinitionFieldByKey(name, index);
-  if (!!field) return field;
-  return closestMatch(name, index.definitionVariables.names().concat(getDefinitionFieldPaths(index)));
-}
-
-function findDefinitionFieldByKey(name: string, index: SurveyIndex): string | undefined {
-  if (!name) return undefined;
-  const tail = "." + name.toLowerCase();
-  return getDefinitionFieldPaths(index).filter(path => path.toLowerCase().endsWith(tail))[0];
-}
-
-// {users.tier}: a variable the definition describes as an object (a panel or page that nests) has the
-// fields its questions write, and a field it does not declare reads undefined at runtime. Below a
-// question's field nothing is checked, as for a flat variable, and a variable also listed in
-// knownVariables has a shape the host did not describe. Segments are joined longest first: a key may
-// hold a dot (decisions D11).
+// {users.nope}: a path below an object variable of the definition that names none of its fields. A
+// variable also listed in knownVariables has a shape the host did not describe, so it is not checked.
 function validateDefinitionObjectPath(ref: ParsedRef, index: SurveyIndex, options: ISurveyLintOptions): void {
-  const segments = ref.segments;
-  const root = segments[0].name;
-  if (segments.length < 2 || index.definitionPaths.get(root) !== "object" || isListedVariable(root, options)) return;
-  for (let end = segments.length - 1; end > 0; end--) {
-    const kind = index.definitionPaths.get(segments.slice(0, end + 1).map(seg => seg.name).join("."));
-    if (!kind) continue;
-    if (end === segments.length - 1 || kind === "question") return;
-    break;
-  }
+  if (!isUnknownDefinitionPath(ref.segments, index) || isListedVariable(ref.segments[0].name, options)) return;
   ref.status = "unknown";
   ref.resolvedKind = undefined;
   ref.unknownSegmentIndex = 0;
@@ -254,9 +219,9 @@ function isRootRecordVisible(record: ElementRecord, nameOnly: boolean): boolean 
 // An element of the survey data itself, which the root answers before a container key: a question
 // writing a key of the survey data, or a panel or page that does not nest. A question inside a nesting
 // container and a nesting container's own name answer only after the container keys (report-04).
-function isTopLevelNamed(record: ElementRecord, index: SurveyIndex): boolean {
-  if (record.kind === "question") return !isInNestedScope(record, index) && isValueQuestion(record);
-  return !record.nestedScope;
+function isTopLevelNamed(record: ElementRecord): boolean {
+  if (record.kind === "question") return !isInNestedObject(record) && isValueQuestion(record);
+  return !getNestedScope(record);
 }
 
 // later: the stage the container keys of the survey data answer in, between the two (see
@@ -266,12 +231,12 @@ function findRootRecord(root: string, index: SurveyIndex, nameOnly: boolean, lat
   // byName is a multimap: a page and a question may share a name, and only the
   // question answers an expression reference
   const named = index.byName.get(root).filter(record => isRootRecordVisible(record, nameOnly));
-  const top = !later ? named[0] : named.filter(record => isTopLevelNamed(record, index))[0];
+  const top = !later ? named[0] : named.filter(record => isTopLevelNamed(record))[0];
   if (top) return top;
   const byValue = index.byValueName.first(root);
   if (byValue || !later) return byValue;
   // a nesting container holds no value under its name: its object is reached by its key alone
-  later.named = named.filter(record => !record.nestedScope)[0];
+  later.named = named.filter(record => !getNestedScope(record))[0];
   return undefined;
 }
 
@@ -408,7 +373,7 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
     ref.resolvedTo = record;
     // a nesting panel's object inside the record: the path continues inside it ({panel.address.street}), and
     // in the objects whose keys differ from it in letter case only, which the runtime merges with it
-    const unknown = record.isDataObject ? resolveInRecordObject(ref, found + 1, map.get(recordName), lintSettings) : undefined;
+    const unknown = record.kind === "dataObject" ? resolveInRecordObject(ref, found + 1, map.get(recordName), lintSettings) : undefined;
     if (!!unknown) return scopedUnknownWith(ref, prefix, unknown.index, unknown.suggestion);
     return ref;
   }
@@ -597,7 +562,7 @@ function validateRecordFieldPath(ref: ParsedRef, record: ElementRecord, level: S
   let field: ElementRecord;
   let fieldName = "";
   const end = findDottedName(ref.segments, 1, name => {
-    field = fields.get(name).filter(rec => rec.isDataObject)[0] || fields.first(name);
+    field = fields.get(name).filter(rec => rec.kind === "dataObject")[0] || fields.first(name);
     fieldName = name;
     return !!field;
   });
@@ -620,7 +585,7 @@ interface RecordObjectUnknown {
 }
 
 // Records nesting 02: a field of a panel or row object that is a nesting panel's object (its synthetic
-// record, isDataObject). fields are the record's fields on one key: objects whose keys differ in letter
+// record, of kind "dataObject"). fields are the record's fields on one key: objects whose keys differ in letter
 // case only are one object to the runtime. The segments from start continue inside them, in the
 // runtime's order: a question by value name, an object directly inside it by key, a display-only
 // question, a matrix's totals key, a question's comment key. A path never falls back to the record.
@@ -628,7 +593,7 @@ interface RecordObjectUnknown {
 // returned with its suggestion. Nothing to do for another field or no segments left.
 function resolveInRecordObject(ref: ParsedRef, start: number, fields: Array<ElementRecord>,
   lintSettings: ILintResolvedSettings): RecordObjectUnknown | undefined {
-  const objects = fields.filter(field => field.isDataObject && !!field.objectScope).map(field => field.objectScope);
+  const objects = fields.filter(field => field.kind === "dataObject").map(field => field.objectScope);
   if (objects.length === 0 || start >= ref.segments.length) return undefined;
   return resolveInRecordObjects(ref, start, objects, lintSettings);
 }
@@ -827,9 +792,9 @@ function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex)
   const base = stripTotalsSuffix(root, index.settings);
   if (base === undefined) return false;
   const record = index.findByDataName(base);
-  if (!record || (record.type !== "matrixdropdown" && record.type !== "matrixdynamic")) return false;
+  if (!record || !isMatrixWithTotals(record)) return false;
   // the total of a matrix inside a nesting container is stored inside the container's object
-  if (isInNestedScope(record, index)) return false;
+  if (isInNestedObject(record)) return false;
   ref.status = "resolved";
   ref.resolvedTo = record;
   ref.resolvedKind = "element";
@@ -885,8 +850,7 @@ function tryResolveArrayItem(ref: ParsedRef, scope: Array<ScopeFrame>, settings:
 // container directly inside it by key, a question's comment key, and a matrix's totals key. scopes are
 // the objects on one key: the runtime merges objects whose keys differ in letter case only. A container
 // key followed by more segments continues inside that container's object, which then answers the rest
-// or reports it unknown: a path never falls back to an outer object. childrenOnly: the survey data,
-// whose questions the root stages answer.
+// or reports it unknown: a path never falls back to an outer object.
 // flags.childrenOnly: the survey data, whose questions the root stages answer. flags.fromRoot: the path
 // started at the survey data, so the raw data answers what the scope context does not - the runtime's
 // scope context has no totals step, and only such a path reaches a matrix total ({address.m-total.c}).
@@ -961,7 +925,7 @@ function getDataScopeNames(scope: DataScopeRecord): Array<string> {
 
 // Only a matrix with rows of columns writes a totals key.
 function isMatrixWithTotals(record: ElementRecord): boolean {
-  return record.type === "matrixdropdown" || record.type === "matrixdynamic";
+  return isMatrixDropdown(getEffectiveType(record));
 }
 
 // A matrix's totals key inside a container's object ({address.m-total.c}): only a matrix writes one.
@@ -989,11 +953,11 @@ function resolveTotalsInDataScope(ref: ParsedRef, start: number, scopes: Array<D
 function resolveInSiteDataScopes(ref: ParsedRef, site: { owner?: ElementRecord }, index: SurveyIndex): boolean {
   let scope = getOwnerDataScope(site.owner, index);
   while(!!scope) {
-    if (!!scope.recordOwner) {
+    if (scope.kind === "record") {
       scope = getOwnerDataScope(scope.recordOwner, index);
       continue;
     }
-    if (!scope.parent) return false;
+    if (scope.kind === "survey") return false;
     if (resolveInDataScope(ref, 0, [scope], index, {})) return true;
     scope = scope.parent;
   }
@@ -1002,12 +966,10 @@ function resolveInSiteDataScopes(ref: ParsedRef, site: { owner?: ElementRecord }
 
 // The hint for a name that is a valueName of a container that stores nothing under it.
 function setNonNestingHint(ref: ParsedRef, root: string, index: SurveyIndex): void {
-  const container = index.nonNestingKeys.first(root);
-  if (!container || !!ref.scopeHint) return;
-  // only "none" leaves a valueName of a panel or page indexed here without an object (records nesting 02)
-  const why = "the survey's dataNesting is \"none\"";
-  ref.scopeHint = "\"" + root + "\" is the valueName of " + container.type + " \"" + container.name +
-    "\", which stores no object: " + why + ".";
+  const key = index.nonNestingKeys.first(root);
+  if (!key || !!ref.scopeHint) return;
+  ref.scopeHint = "\"" + root + "\" is the valueName of " + key.container.type + " \"" + key.container.name +
+    "\", which stores no object: " + key.why + ".";
   ref.hintReason = SurveyLintHintReasons.containerKeyNotNesting;
   ref.hintName = root;
 }
@@ -1258,7 +1220,7 @@ function getRecordObjectPathRecord(record: ElementRecord, segments: Array<Parsed
   const fields = getItemFields(record);
   let objects: Array<DataScopeRecord> = [];
   let end = findDottedName(segments, 1, name => {
-    objects = fields.get(name).filter(rec => rec.isDataObject && !!rec.objectScope).map(rec => rec.objectScope);
+    objects = fields.get(name).filter(rec => rec.kind === "dataObject").map(rec => rec.objectScope);
     return objects.length > 0;
   });
   const last = segments.length - 1;

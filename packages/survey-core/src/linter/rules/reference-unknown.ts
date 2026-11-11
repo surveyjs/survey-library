@@ -60,7 +60,7 @@ function buildMessage(ref: ParsedRef, context: string): string {
   const reason = getReason(ref);
   if (reason === reasons.scopedUnknown) {
     message = "\"" + segmentName(ref) + "\" is not found in the \"" + ref.scopePrefix + "\" scope of {" + ref.raw + "}.";
-  } else if (reason === reasons.inContainer && ref.resolvedTo.isDataObject) {
+  } else if (reason === reasons.inContainer && ref.resolvedTo.kind === "dataObject") {
     message = "\"" + segmentName(ref) + "\" is not found in \"" + ref.segments[0].name + "\", the object a " +
       ref.resolvedTo.type + " stores its questions' values in ({" + ref.raw + "}).";
   } else if (reason === reasons.inContainer) {

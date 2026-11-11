@@ -1,6 +1,7 @@
 import { ILintRule, LintContext } from "../rule";
 import { SurveyLintReasons } from "../reasons";
 import { isPanel } from "../metadata";
+import { forEachComponentElement } from "../walker";
 
 const reasons = SurveyLintReasons["nesting/ignored-key"];
 
@@ -8,31 +9,17 @@ function isKey(value: any): boolean {
   return typeof value === "string" && value.trim() !== "";
 }
 
-function report(ctx: LintContext, path: string, name: string, valueName: string, recordName: string,
-  recordType: string, what: string): void {
+// A panel of the composite definition typeName whose valueName stores nothing.
+function report(ctx: LintContext, panel: any, path: string, typeName: string): void {
+  const name = panel.name || "";
   ctx.report({
-    message: "The valueName \"" + valueName + "\" of panel \"" + name + "\" stores nothing: the panel is inside " + what +
-      ", whose value stays flat - its questions keep writing into the question's value directly.",
-    path: path,
-    reason: reasons.insideRecord,
-    messageData: { name: name, valueName: valueName, recordName: recordName, recordType: recordType },
+    message: "The valueName \"" + panel.valueName + "\" of panel \"" + name + "\" stores nothing: the panel is inside composite question \"" +
+      typeName + "\", whose value stays flat - its questions keep writing into the question's value directly.",
+    path: path + ".valueName",
+    reason: reasons.insideComposite,
+    messageData: { name: name, valueName: panel.valueName, recordName: typeName, recordType: typeName },
     elementName: name,
     elementType: "panel",
-  });
-}
-
-// The panels of a composite definition (options.components), at any depth: the walker does not
-// index them, since a definition is never part of the survey's own elements.
-function checkComponentElements(ctx: LintContext, elements: any, basePath: string, typeName: string): void {
-  if (!Array.isArray(elements)) return;
-  const keys = ctx.metadata.getElementsKeys().concat(ctx.metadata.getTemplateElementsKeys());
-  elements.forEach((el: any, i: number) => {
-    if (!el || typeof el !== "object") return;
-    const path = basePath + "[" + i + "]";
-    if (isPanel((el.type || "").toLowerCase()) && isKey(el.valueName)) {
-      report(ctx, path + ".valueName", el.name || "", el.valueName, typeName, typeName, "composite question \"" + typeName + "\"");
-    }
-    keys.forEach(key => checkComponentElements(ctx, el[key], path + "." + key, typeName));
   });
 }
 
@@ -41,7 +28,8 @@ function checkComponentElements(ctx: LintContext, elements: any, basePath: strin
 // inside a dynamic panel's template or a matrix detail panel nests by its valueName (records nesting 02,
 // RN3); the template panel and the detail panel themselves never nest (RN6), but the JSON gives them no
 // valueName to report. With "dataNesting": "none" every valueName is ignored by the author's own choice,
-// so nothing is reported there.
+// so nothing is reported there. The panels of a composite definition (options.components) are found at
+// any depth: the walker does not index them, since a definition is never part of the survey's own elements.
 export const nestingIgnoredKeyRule: ILintRule = {
   id: "nesting/ignored-key",
   defaultSeverity: "warning",
@@ -52,7 +40,9 @@ export const nestingIgnoredKeyRule: ILintRule = {
     Object.keys(components).forEach(typeName => {
       const def = components[typeName];
       if (!def) return;
-      checkComponentElements(ctx, def.elementsJSON, "components." + typeName + ".elementsJSON", typeName);
+      forEachComponentElement(ctx.metadata, def.elementsJSON, "components." + typeName + ".elementsJSON", (el, path) => {
+        if (isPanel((el.type || "").toLowerCase()) && isKey(el.valueName)) report(ctx, el, path, typeName);
+      });
     });
   },
 };

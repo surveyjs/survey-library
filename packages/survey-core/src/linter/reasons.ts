@@ -60,10 +60,10 @@ export const SurveyLintReasons = Object.freeze({
   "nesting/key-conflict": Object.freeze({
     questionKey: "questionKey",
   }),
-  // nested data: a panel valueName that stores nothing, inside a dynamic panel, a matrix detail panel
-  // or a composite question, whose record stays flat (decisions N5)
+  // nested data: a panel valueName that stores nothing, inside a composite question's definition, whose
+  // value stays flat (decisions N5). A panel inside a dynamic panel or a matrix detail panel nests (RN3).
   "nesting/ignored-key": Object.freeze({
-    insideRecord: "insideRecord",
+    insideComposite: "insideComposite",
   }),
   // nested data: a by-name dataNesting mode nests a container under a generated name, or under the
   // name the runtime generates for an unnamed one - renaming it moves the data

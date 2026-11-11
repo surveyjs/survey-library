@@ -1,6 +1,7 @@
 import { ILintRule, LintContext } from "../rule";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
 import { setFix } from "../fix-utils";
+import { getContainerNestingKind } from "../data-nesting";
 
 const reasons = SurveyLintReasons["nesting/generated-key"];
 const fixReasons = SurveyLintFixReasons["nesting/generated-key"];
@@ -20,11 +21,11 @@ export const nestingGeneratedKeyRule: ILintRule = {
   defaultSeverity: "info",
   run(ctx: LintContext): void {
     ctx.index.containers.forEach(container => {
-      const kind = container.kind === "panel" ? "panel" : "page";
+      const kind = getContainerNestingKind(container);
       const record = container.record;
       // root elements always land on the one page the survey creates, "page1": no order changes it,
-      // and there is no page in the JSON to name
-      if (!record) return;
+      // and there is no page in the JSON to name. A dynamic panel's template never nests.
+      if (!record || !kind) return;
       if (container.dataKeySource === "generated") {
         ctx.report({
           message: "This " + kind + " has no name: dataNesting \"" + ctx.index.dataNesting + "\" stores its questions' values under \"" +
@@ -37,7 +38,7 @@ export const nestingGeneratedKeyRule: ILintRule = {
         });
         return;
       }
-      if (container.dataKeySource !== "name" || !record || !GENERATED_NAME[kind].test(record.name)) return;
+      if (container.dataKeySource !== "name" || !GENERATED_NAME[kind].test(record.name)) return;
       ctx.report({
         message: "The " + kind + " \"" + record.name + "\" keeps a generated name, and dataNesting \"" + ctx.index.dataNesting +
           "\" stores its questions' values under it - renaming the " + kind + " moves them to another key." +

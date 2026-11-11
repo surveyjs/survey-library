@@ -1,3 +1,4 @@
+import type { IPanel, ISurveyElement } from "./base-interfaces";
 import { IncorrectValueError } from "./error";
 import { Helpers, ISurveyDateProvider } from "./helpers";
 import { ItemValue } from "./itemvalue";
@@ -238,7 +239,7 @@ export class SurveyVariablePresets {
       const node = this.addNode(path);
       // Two definition questions sharing a data key are one variable, as they are one data key.
       if (!node.question) {
-        node.question = <Question><any>element;
+        node.question = <Question>element;
         // A joined path is listed once: a dotted key "a.b" and a nesting key "a" holding "b" spell
         // the same path (D11), and the lookup answers it with the dotted key.
         const joined = this.getNodePath(node);
@@ -253,8 +254,9 @@ export class SurveyVariablePresets {
       // Two containers with one key share one object (D4): the first one describes it.
       if (!node.container) node.container = element;
     }
-    const elements: Array<SurveyElement> = (<any>element).elements;
-    if (Array.isArray(elements)) elements.forEach(el => this.addElement(el));
+    if (element.isPanel || element.isPage) {
+      (<IPanel><ISurveyElement>element).elements.forEach(el => this.addElement(<SurveyElement><ISurveyElement>el));
+    }
   }
   private addNode(path: Array<string>): IVariableNode {
     let node = this.rootValue;

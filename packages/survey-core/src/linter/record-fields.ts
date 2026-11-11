@@ -47,13 +47,13 @@ function getFrameDataKeys(frame: CapturingScopeFrame): CIMultiMap<ElementRecord>
   return frame.dataKeys;
 }
 
-// The questions writing a data key of a data scope: a nesting container's object (dataScope with a
-// parent, inside a record too), a dynamic-panel template or a matrix row (frame), or else the survey data
+// The questions writing a data key of a data scope: a nesting container's object (dataScope of kind
+// "object", inside a record too), a dynamic-panel template or a matrix row (frame), or else the survey data
 // or a record (dataScope, the survey data when unset). The runtime binds them by the exact key
 // (getQuestionsByValueName is case-sensitive), so the case-insensitive maps only narrow the search down.
 export function getDataKeyRecords(index: SurveyIndex, frame: CapturingScopeFrame | undefined, key: string,
   dataScope?: DataScopeRecord): Array<ElementRecord> {
-  const candidates = !!dataScope && !!dataScope.parent ? dataScope.questions.get(key)
+  const candidates = !!dataScope && dataScope.kind === "object" ? dataScope.questions.get(key)
     : !!frame ? getFrameDataKeys(frame).get(key) : (dataScope || index.rootScope).questions.get(key);
   return candidates.filter(record => getDataKey(record) === key);
 }

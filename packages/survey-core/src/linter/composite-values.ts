@@ -64,8 +64,9 @@ function checkRowObject(row: any, keys: CIMultiMap<ElementRecord>,
       ctx.issues.push({ kind: unknownKind, key: key, candidates: keys.names() });
       return;
     }
-    // a sub-panel groups questions without holding a value of its own
-    if (!found.record || found.record.kind === "panel") return;
+    // a sub-panel groups questions without holding a value of its own; a nesting panel's object is
+    // checked by no domain
+    if (!found.record || found.record.kind === "panel" || found.record.kind === "dataObject") return;
     checkCellValue(row[key], asSet(ctx.recordDomain(found.record)), ctx);
   });
 }

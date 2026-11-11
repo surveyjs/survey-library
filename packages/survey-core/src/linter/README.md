@@ -308,7 +308,7 @@ another one, and no property holds it.
 | `element/never-visible` | warning | An element dead through the cascade: its `visibleIf` demands a value of a question that can never become visible and that nothing (defaults, expressions, triggers, bindings) ever writes to. A question with `visible: false` is not a cascade source - hidden fields are routinely filled from application code. |
 | `mask/mismatch` | warning | An input mask the runtime resolves to something else than the JSON describes: an unknown `maskType` (which falls back to no mask), a `maskSettings` key that belongs to a different mask class, `maskSettings` written without a `maskType` (where only `saveMaskedValue` survives), a mask on an `inputType` other than `text`/`tel`, `datetime` bounds without a `pattern`, and a numeric `min` above its `max`. `maskSettings` is loaded through `setData`, which drops a foreign key without even a `JsonUnknownPropertyError`, so `property/unknown` deliberately stays out of it. |
 | `nesting/key-conflict` | error | Nested data: a nesting panel or page whose key equals the data key of a question in the same object - the survey data, a dynamic panel's or a matrix's record (a matrix row holds its columns too), or the object of the container around both. The container's object and the question's value then share one key: an answer to the question replaces the object, and the question shows it. Two containers on one key share one object and are not reported, nor is a container key equal to the name of a question inside the container (another level). Keys are compared exactly, as the runtime stores them. |
-| `nesting/ignored-key` | warning | Nested data: a panel `valueName` that stores nothing because the panel is inside a composite definition (`options.components`), whose value stays flat. A panel inside a dynamic-panel template or a matrix detail panel nests by its `valueName`. Not reported with `"dataNesting": "none"`, where every container key is ignored by the author's choice. |
+| `nesting/ignored-key` | warning | Nested data: a panel `valueName` that stores nothing because the panel is inside a composite definition (`options.components`), whose value stays flat (`insideComposite`). A panel inside a dynamic-panel template or a matrix detail panel nests by its `valueName`. Not reported with `"dataNesting": "none"`, where every container key is ignored by the author's choice. |
 | `nesting/generated-key` | info | Nested data: a by-name `dataNesting` mode (`"panel"`, `"page"`, `"panelAndPage"`) nesting a container under a generated name (`panel1`, `page2`), which a rename moves to another key (`generatedName`), or a container without a name, which nests under the name the runtime generates in load order (`unnamed`) - root `elements` in a page mode nest under `page1`. |
 | `page/empty` | warning | A page or panel with no element that can ever render, and a dynamic panel with an empty template. An element is counted out when it is statically hidden or its own `visibleIf` can never hold. Also `detailElements` of a matrix whose `detailPanelMode` stays `"none"` (the default). |
 
@@ -594,7 +594,8 @@ WARN  expression/unknown-choice
 | `index.ts` | `lintSurvey`, `getRules`, the run order and the result assembly. |
 | `types.ts` | The public interfaces (options, findings, result). |
 | `walker.ts` | Walks the JSON once and builds the index: elements, containers, name/valueName maps, calculated values, triggers, expression sites and their scopes. |
-| `data-nesting.ts` | Nested data: the key rule, the mode, generated container names and the object an element or an expression belongs to. |
+| `data-nesting.ts` | Nested data: the container kind the core's key rule looks up, the mode, generated container names and the object an element or an expression belongs to. |
+| `definition-variables.ts` | The fields of the host's variable definition: the paths below an object variable and the typo suggestion for a host variable. |
 | `symbols.ts` | The index data structures, including the case-insensitive maps used for user-supplied names. |
 | `metadata.ts` | Everything read from the `Serializer` at runtime (types, expression properties, trigger definitions, container keys). |
 | `catalog.ts` | The few linter semantics the serializer metadata cannot express. |
@@ -608,6 +609,7 @@ WARN  expression/unknown-choice
 | `condition-eval.ts` | Three-valued evaluation of a condition over the modules above. |
 | `graph.ts`, `levenshtein.ts` | Cycle detection and typo suggestions. |
 | `cycle-report.ts`, `message-utils.ts` | The shared halves of the cycle rules and of the sentences rules build. |
+| `name-shadowing-common.ts`, `name-shadowing-containers.ts` | The halves of `name/shadowing`: the comment and totals key check its element and container checks share, and the checks of nesting container keys. |
 | `fix-apply.ts` | `applyFix` — one fix onto a copy of the JSON. |
 | `fix-utils.ts` | The four edit shapes a rule's repair takes. |
 | `new-name.ts` | The name a fix gives a new element, asked of the host first. |

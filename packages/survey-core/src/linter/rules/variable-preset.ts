@@ -1,6 +1,6 @@
 import { ISurveyVariableError, ISurveyVariablePreset } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
-import { suggestDefinitionVariable } from "../expression-utils";
+import { suggestDefinitionVariable } from "../definition-variables";
 import { didYouMean } from "../message-utils";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";

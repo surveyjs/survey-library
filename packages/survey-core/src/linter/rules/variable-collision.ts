@@ -4,7 +4,7 @@ import { CalculatedValueRecord, ElementRecord, SurveyIndex } from "../symbols";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 import { getDataKey } from "../record-fields";
-import { isInNestedScope } from "../data-nesting";
+import { isInNestedObject } from "../data-nesting";
 
 const reasons = SurveyLintReasons["variable/collision"];
 
@@ -23,8 +23,8 @@ function definitionRelated(questionName: string): Array<ILintRelated> {
 // template or a matrix cell writes into its container's value, and its name is addressed through
 // that container's scope; a question inside a nesting panel or page writes into the container's
 // object. Display-only elements have no value to overwrite.
-function isRootDataKey(index: SurveyIndex, record: ElementRecord, name: string): boolean {
-  return record.kind === "question" && record.scope.length === 0 && !isInNestedScope(record, index) &&
+function isRootDataKey(record: ElementRecord, name: string): boolean {
+  return record.kind === "question" && record.scope.length === 0 && !isInNestedObject(record) &&
     record.valueType.shape !== "none" && equalsCI(getDataKey(record), name);
 }
 
@@ -32,9 +32,9 @@ function isRootDataKey(index: SurveyIndex, record: ElementRecord, name: string):
 // really write the key. findByDataName itself answers with the first record registered under the
 // name, which may be a template question that writes no root key at all.
 function findRootDataQuestion(index: SurveyIndex, name: string): ElementRecord | undefined {
-  const named = index.byName.get(name).filter(record => isRootDataKey(index, record, name));
+  const named = index.byName.get(name).filter(record => isRootDataKey(record, name));
   if (named.length > 0) return named[0];
-  return index.byValueName.get(name).filter(record => isRootDataKey(index, record, name))[0];
+  return index.byValueName.get(name).filter(record => isRootDataKey(record, name))[0];
 }
 
 function reportQuestion(ctx: LintContext, variable: string, definitionQuestion: string,

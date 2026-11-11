@@ -1,4 +1,5 @@
-import { SurveyVariablePresets, TextPreProcessor, buildTriggerExpression } from "survey-core";
+import { SurveyVariablePresets, TextPreProcessor, buildTriggerExpression, getDataNestingKey } from "survey-core";
+import type { DataNestingKind } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
 import {
   ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS, TEXT_TEMPLATE_PROPS,
@@ -8,15 +9,17 @@ import { parseExpressionText, splitRefSegments, takeInArrayConditions } from "./
 import { resolveLintSettings } from "./lint-settings";
 import {
   CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, DataScopeRecord, ElementRecord, ExpressionSite,
-  ExpressionSiteKind, getCapturingFrame, joinPath, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
+  ExpressionSiteKind, getCapturingFrame, joinPath, NonNestingKey, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
   ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
 import { annotateSharedValues, getDataKey, getFrameNames } from "./record-fields";
-import { createRecordScope, createRootScope, generateContainerName, getChildScope, getDataNestingMode, getLintDataNestingKey,
+import { createRecordScope, createRootScope, generateContainerName, getChildScope, getContainerNestingKind, getDataNestingMode,
   isInsideRecordScope } from "./data-nesting";
 
 const MAX_DEPTH = 128;
+// why a panel's or a page's valueName stores nothing: the hint of a reference to it
+const NON_NESTING_WHY = "the survey's dataNesting is \"none\"";
 
 interface WalkState {
   index: SurveyIndex;
@@ -138,6 +141,20 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   }
 }
 
+// Every element of a composite definition's elementsJSON at any depth - inside panels and dynamic-panel
+// templates too - each before the elements inside it, with its path below basePath.
+export function forEachComponentElement(metadata: LintMetadata, elements: any, basePath: string,
+  callback: (element: any, path: string) => void): void {
+  if (!Array.isArray(elements)) return;
+  const keys = metadata.getElementsKeys().concat(metadata.getTemplateElementsKeys());
+  elements.forEach((el: any, i: number) => {
+    if (!el || typeof el !== "object") return;
+    const path = basePath + "[" + i + "]";
+    callback(el, path);
+    keys.forEach(key => forEachComponentElement(metadata, el[key], path + "." + key, callback));
+  });
+}
+
 // The field names a composite definition declares. Memoized per definition: the JSON is
 // static, and a survey with many questions of one component type would otherwise walk it
 // once per question.
@@ -145,18 +162,9 @@ function getComponentFieldNames(state: WalkState, def: IComponentDef): CIMap<boo
   const cached = state.componentFields.get(def);
   if (cached) return cached;
   const res = new CIMap<boolean>();
-  const elementsKeys = state.metadata.getElementsKeys();
-  const templateKeys = state.metadata.getTemplateElementsKeys();
-  const collect = (elements: any) => {
-    if (!Array.isArray(elements)) return;
-    elements.forEach((el: any) => {
-      if (!el || typeof el !== "object") return;
-      if (isNonEmptyString(el.name)) res.set(el.name, true);
-      elementsKeys.forEach(key => collect(el[key]));
-      templateKeys.forEach(key => collect(el[key]));
-    });
-  };
-  collect(def.elementsJSON);
+  forEachComponentElement(state.metadata, def.elementsJSON, "", el => {
+    if (isNonEmptyString(el.name)) res.set(el.name, true);
+  });
   state.componentFields.set(def, res);
   return res;
 }
@@ -242,24 +250,26 @@ function walkElementsArray(state: WalkState, elements: Array<any>, basePath: str
 }
 
 // Nested data: whether the container stores its elements' values in an object, and under which key.
-// The key rule is the runtime's (getLintDataNestingKey); an unnamed container nests under the name the
+// The key rule is the runtime's (getDataNestingKey); an unnamed container nests under the name the
 // runtime generates for it. Answers the object its elements write into.
-function applyDataNesting(state: WalkState, record: ElementRecord, container: ContainerRecord, kind: string,
+function applyDataNesting(state: WalkState, record: ElementRecord, container: ContainerRecord,
   names: Set<string>, dataScope: DataScopeRecord): DataScopeRecord {
+  const kind = getContainerNestingKind(container);
   const name = record.name || generateContainerName(kind, names);
   names.add(name);
   const valueName = isNonEmptyString(record.json.valueName) ? record.json.valueName : "";
   // inside a record a panel nests by its valueName only (RN3): no by-name mode lists the kind "record"
-  const keyKind = !!dataScope && kind === "panel" && isInsideRecordScope(dataScope) ? "record" : kind;
-  const key = !!dataScope ? getLintDataNestingKey(state.index.dataNesting, keyKind, valueName, name) : "";
+  const keyKind: DataNestingKind = !!dataScope && kind === "panel" && isInsideRecordScope(dataScope) ? "record" : kind;
+  const key = !!dataScope ? getDataNestingKey(state.index.dataNesting, keyKind, valueName, name) : "";
   if (!key) {
-    if (valueName) state.index.nonNestingKeys.add(valueName, record);
+    // a valueName nests unless "none" switches nesting off (records nesting 02)
+    if (valueName) state.index.nonNestingKeys.add(valueName, { container: record, why: NON_NESTING_WHY });
     return dataScope;
   }
   container.dataKey = key;
   container.dataKeySource = valueName ? "valueName" : (record.name ? "name" : "generated");
-  record.nestedScope = getChildScope(dataScope, key, record);
-  return record.nestedScope;
+  container.nestedScope = getChildScope(dataScope, key, record);
+  return container.nestedScope;
 }
 
 // The record of a dynamic panel or a matrix, created on first use.
@@ -289,8 +299,9 @@ function walkPanel(state: WalkState, json: any, path: string, parent: ElementRec
   const container: ContainerRecord = {
     kind: "panel", record: record, name: record.name, path: path, children: [],
   };
+  record.container = container;
   state.index.containers.push(container);
-  const innerScope = applyDataNesting(state, record, container, "panel", state.panelNames, dataScope);
+  const innerScope = applyDataNesting(state, record, container, state.panelNames, dataScope);
   const inner = getElementsArray(state, json);
   if (inner) {
     walkElementsArray(state, inner.elements, joinPath(path, inner.key), record, scope,
@@ -564,8 +575,9 @@ function walkPage(state: WalkState, json: any, path: string): void {
   const container: ContainerRecord = {
     kind: "page", record: record, name: record.name, path: path, children: [],
   };
+  record.container = container;
   state.index.containers.push(container);
-  const innerScope = applyDataNesting(state, record, container, "page", state.pageNames, state.index.rootScope);
+  const innerScope = applyDataNesting(state, record, container, state.pageNames, state.index.rootScope);
   const inner = getElementsArray(state, json);
   if (inner) {
     walkElementsArray(state, inner.elements, joinPath(path, inner.key), record, [], [], container, innerScope);
@@ -677,7 +689,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     byValueName: new CIMultiMap<ElementRecord>(),
     dataNesting: getDataNestingMode(json),
     rootScope: createRootScope(),
-    nonNestingKeys: new CIMultiMap<ElementRecord>(),
+    nonNestingKeys: new CIMultiMap<NonNestingKey>(),
     recordScopes: [],
     elementNames: new CIMultiMap<ElementRecord>(),
     calculatedValues: new CIMap(),
@@ -725,15 +737,17 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
       index.containers.push(container);
       // the survey puts root elements on a page it names "page1", which nests in the page modes
       let dataScope = index.rootScope;
-      const key = getLintDataNestingKey(index.dataNesting, "page", "", "page1");
+      const key = getDataNestingKey(index.dataNesting, "page", "", "page1");
       if (key) {
         container.dataKey = key;
         container.dataKeySource = "generated";
+        container.keyPath = "dataNesting";
         const pageRecord: ElementRecord = {
           name: key, type: "page", kind: "page", path: inner.key, json: {}, scope: [],
-          isUnknownType: false, valueType: { shape: "none" }, dataScope: index.rootScope, keyPath: "dataNesting",
+          isUnknownType: false, valueType: { shape: "none" }, dataScope: index.rootScope, container: container,
         };
         dataScope = getChildScope(index.rootScope, key, pageRecord);
+        container.nestedScope = dataScope;
       }
       walkElementsArray(state, inner.elements, inner.key, undefined, [], [], container, dataScope);
     }

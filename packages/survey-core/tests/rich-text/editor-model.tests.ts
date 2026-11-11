@@ -58,8 +58,9 @@ afterEach(() => {
 });
 
 describe("rich text editor model", () => {
-  test("importing the plugin shows allowRichText and registers the renderer", () => {
+  test("importing the plugin shows allowRichText and richTextToolbarMode and registers the renderer", () => {
     expect(Serializer.findProperty("comment", "allowRichText").visible).toBe(true);
+    expect(Serializer.findProperty("comment", "richTextToolbarMode").visible).toBe(true);
     const question = new QuestionCommentModel("c");
     question.allowRichText = true;
     expect(question.getComponentName()).toBe("sv-rich-text-comment");
@@ -292,6 +293,84 @@ describe("rich text editor model", () => {
     model.run("removeFormat");
     element.dispatchEvent(new FocusEvent("blur"));
     expect(question.value).toBe("<p>one</p><p>two</p>");
+  });
+
+  test("none hides the toolbar and still runs shortcuts; onFocus is the default", () => {
+    const question = new QuestionCommentModel("c");
+    expect(question.richTextToolbarMode).toBe("onFocus");
+    const calls: string[] = [];
+    const element = document.createElement("div");
+    document.body.appendChild(element);
+    const model = new RichTextEditorModel(question, {
+      commands: { exec: (command: string) => { calls.push(command); } }
+    });
+    model.attach(element);
+    expect(model.toolbarMode).toBe("onFocus");
+    expect(model.hasToolbar).toBe(true);
+    expect(model.toolbarOpen).toBe(false);
+    question.richTextToolbarMode = "none";
+    expect(model.toolbarMode).toBe("none");
+    expect(model.hasToolbar).toBe(false);
+    element.innerHTML = "ab";
+    selectText(element, model, "ab", "ab");
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "b", ctrlKey: true }));
+    expect(calls).toEqual(["bold"]);
+    expect(model.toolbarOpen).toBe(false);
+    model.detach();
+  });
+
+  test("onSelection opens the toolbar for a selection and keeps it for the toolbar and the link dialog", () => {
+    const previous = settings.showDialog;
+    let dialog: any;
+    settings.showDialog = ((options: any): any => {
+      dialog = options;
+      return undefined;
+    }) as any;
+    const question = new QuestionCommentModel("c");
+    question.richTextToolbarMode = "onSelection";
+    const box = document.createElement("div");
+    box.className = "sd-rich-text sd-rich-text--toolbar-on-selection";
+    const element = document.createElement("div");
+    const button = document.createElement("button");
+    box.appendChild(element);
+    box.appendChild(button);
+    document.body.appendChild(box);
+    const model = new RichTextEditorModel(question);
+    try {
+      model.attach(element);
+      element.innerHTML = "abcdef";
+      expect(model.toolbarMode).toBe("onSelection");
+      expect(model.toolbarOpen).toBe(false);
+
+      selectText(element, model, "abc", "abc");
+      expect(model.toolbarOpen).toBe(true);
+      const caret = document.getSelection().getRangeAt(0);
+      caret.collapse(false);
+      document.getSelection().removeAllRanges();
+      document.getSelection().addRange(caret);
+      model.syncSelection();
+      expect(model.toolbarOpen).toBe(false);
+
+      selectText(element, model, "abc", "abc");
+      element.dispatchEvent(new FocusEvent("blur", { relatedTarget: button }));
+      document.getSelection().removeAllRanges();
+      model.syncSelection();
+      expect(model.toolbarOpen).toBe(true);
+      box.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
+      expect(model.toolbarOpen).toBe(false);
+
+      selectText(element, model, "abc", "abc");
+      model.run("createLink");
+      document.getSelection().removeAllRanges();
+      model.syncSelection();
+      expect(model.toolbarOpen).toBe(true);
+      element.focus();
+      dialog.onHide();
+      expect(model.toolbarOpen).toBe(false);
+    } finally {
+      settings.showDialog = previous;
+      model.detach();
+    }
   });
 
   test("the link dialog validates the url and stores a safe link", () => {

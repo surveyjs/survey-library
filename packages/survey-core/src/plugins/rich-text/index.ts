@@ -1,4 +1,4 @@
-// Importing the plugin shows allowRichText, registers the comment renderer and the toolbar icons.
+// Importing the plugin shows allowRichText and richTextToolbarMode, registers the comment renderer and the toolbar icons.
 // It does not attach event handlers. Survey strings change only when a customer adds renderStringHandler.
 
 import { RendererFactory, Serializer, SvgRegistry } from "survey-core";
@@ -8,6 +8,8 @@ import { RichText } from "./api";
 
 const allowRichText = Serializer.findProperty("comment", "allowRichText");
 if (allowRichText) allowRichText.visible = true;
+const richTextToolbarMode = Serializer.findProperty("comment", "richTextToolbarMode");
+if (richTextToolbarMode) richTextToolbarMode.visible = true;
 RendererFactory.Instance.registerRenderer("comment", "richtext", "sv-rich-text-comment");
 SvgRegistry.registerIcons(richTextIcons);
 

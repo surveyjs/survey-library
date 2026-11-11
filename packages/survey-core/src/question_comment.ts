@@ -96,6 +96,11 @@ export class QuestionCommentModel extends QuestionTextBase {
    */
   @property() allowResize: boolean | undefined;
   @property() allowRichText: boolean;
+  // "none": no toolbar, formatting via keyboard shortcuts only.
+  // "onFocus": floating toolbar shown while the editor has focus.
+  // "onSelection": floating toolbar shown only while text is selected.
+  // "static": always visible, takes its own space in the editor footer.
+  @property() richTextToolbarMode: "none" | "onFocus" | "onSelection" | "static";
   public get renderedAllowResize(): boolean {
     const res = this.allowResize;
     if (res === undefined && this.survey) {
@@ -213,6 +218,14 @@ Serializer.addClass(
     { name: "autoGrow:boolean", defaultFunc: () => undefined },
     { name: "allowResize:boolean", defaultFunc: () => undefined },
     { name: "allowRichText:boolean", default: false, visible: false },
+    {
+      name: "richTextToolbarMode",
+      default: "onFocus",
+      choices: ["none", "onFocus", "onSelection", "static"],
+      visible: false,
+      dependsOn: "allowRichText",
+      visibleIf: (obj: QuestionCommentModel) => !!obj.allowRichText
+    },
     { name: "acceptCarriageReturn:boolean", default: true, visible: false }
   ],
   function () {

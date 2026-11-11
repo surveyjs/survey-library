@@ -41,6 +41,9 @@ var json = {
         { type: "comment", name: "c_inline", title: "Inline mode", allowRichText: true, acceptCarriageReturn: false },
         { type: "comment", name: "c_max", title: "Max length 50", allowRichText: true, maxLength: 50 },
         { type: "comment", name: "c_rows", title: "Rows, autoGrow, resize", allowRichText: true, rows: 6, autoGrow: true, allowResize: true },
+        { type: "comment", name: "c_tb_none", title: "Toolbar: none (shortcuts only)", allowRichText: true, richTextToolbarMode: "none" },
+        { type: "comment", name: "c_tb_selection", title: "Toolbar: on selection", allowRichText: true, richTextToolbarMode: "onSelection" },
+        { type: "comment", name: "c_tb_static", title: "Toolbar: static", allowRichText: true, richTextToolbarMode: "static" },
         {
           type: "comment", name: "c_unsupported", title: "Unsupported stored content", allowRichText: true,
           defaultValue: "<p style=\"color:red\">Red</p><table><tr><td>cell</td></tr></table>"

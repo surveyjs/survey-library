@@ -57,6 +57,36 @@ describe("allowRichText on a comment question", () => {
     expect(restored.toJSON().pages[0].elements.filter((el: any) => el.name === "c_md")[0].allowRichText).toBe(true);
   });
 
+  test("richTextToolbarMode defaults to onFocus and only a non-default value is serialized", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "comment", name: "plain", allowRichText: true },
+        { type: "comment", name: "hidden", allowRichText: true, richTextToolbarMode: "none" },
+        { type: "comment", name: "selection", allowRichText: true, richTextToolbarMode: "onSelection" },
+        { type: "comment", name: "fixed", allowRichText: true, richTextToolbarMode: "static" }
+      ]
+    });
+    const plain = <QuestionCommentModel>survey.getQuestionByName("plain");
+    expect(plain.richTextToolbarMode).toBe("onFocus");
+    const elements = survey.toJSON().pages[0].elements;
+    const jsonOf = (name: string) => elements.filter((el: any) => el.name === name)[0];
+    expect(jsonOf("plain").richTextToolbarMode).toBeUndefined();
+    expect(jsonOf("hidden").richTextToolbarMode).toBe("none");
+    expect(jsonOf("selection").richTextToolbarMode).toBe("onSelection");
+    expect(jsonOf("fixed").richTextToolbarMode).toBe("static");
+
+    const restored = new SurveyModel(survey.toJSON());
+    expect((<QuestionCommentModel>restored.getQuestionByName("hidden")).richTextToolbarMode).toBe("none");
+    expect((<QuestionCommentModel>restored.getQuestionByName("selection")).richTextToolbarMode).toBe("onSelection");
+
+    const prop = Serializer.findProperty("comment", "richTextToolbarMode");
+    expect(prop.choices.map((choice: any) => choice.value !== undefined ? choice.value : choice)).toEqual(["none", "onFocus", "onSelection", "static"]);
+    expect(prop.visible).toBe(!!(globalThis as any).__surveyRichTextPlugin);
+    expect(prop.visibleIf(plain)).toBe(true);
+    plain.allowRichText = false;
+    expect(prop.visibleIf(plain)).toBe(false);
+  });
+
   test("the property stays hidden until a plugin shows it", () => {
     const prop = Serializer.findProperty("comment", "allowRichText");
     expect(prop).toBeTruthy();

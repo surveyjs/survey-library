@@ -29,11 +29,11 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   private bindQuestion(): void {
     const question = this.question;
     if (this.boundQuestion === question) return;
-    if (this.model && this.model.dispose) this.model.dispose();
-    else if (this.model) this.model.detach();
+    if (this.model && this.model.dispose)this.model.dispose();
+    else if (this.model)this.model.detach();
     this.boundQuestion = question;
     this.model = editorModel(question);
-    if (this.model) this.model.onState = (): void => this.forceUpdate();
+    if (this.model)this.model.onState = (): void => this.forceUpdate();
   }
 
   componentDidMount(): void {
@@ -101,8 +101,12 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
         </div>
       );
     }
+    const toolbarMode = this.model.toolbarMode || "onFocus";
+    // "static" has no layout yet, so it keeps the floating on-focus toolbar.
+    const toolbarClass = "sd-rich-text--toolbar-" + String(toolbarMode).replace(/[A-Z]/g, (letter: string) => "-" + letter.toLowerCase());
+    const openClass = toolbarMode === "onSelection" && this.model.toolbarOpen ? " sd-rich-text--toolbar-open" : "";
     return (
-      <div className={question.getRootClass() + " sd-rich-text"}>
+      <div className={question.getRootClass() + " sd-rich-text " + toolbarClass + openClass}>
         <div
           ref={this.hostRef}
           className={question.getControlClass() + " sd-rich-text__area"}
@@ -121,9 +125,11 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
           style={this.model.areaStyle}
         />
         {this.renderCounter()}
-        <div className="sd-rich-text__toolbar" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
-          {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.model.toolbar })}
-        </div>
+        {this.model.hasToolbar ? (
+          <div className="sd-rich-text__toolbar" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
+            {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.model.toolbar })}
+          </div>
+        ) : null}
       </div>
     );
   }

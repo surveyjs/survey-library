@@ -91,6 +91,18 @@
   max-width: 100%;
 }
 
+// "on-focus" and the not-yet-implemented "static" mode: the floating toolbar follows focus.
+// "on-selection" stays hidden until the model marks the box open (a selection, the toolbar or the link dialog).
 .sd-rich-text:focus-within .sd-rich-text__toolbar {
+  display: block;
+}
+
+.sd-rich-text--toolbar-on-selection .sd-rich-text__toolbar,
+.sd-rich-text--toolbar-on-selection:focus-within .sd-rich-text__toolbar {
+  display: none;
+}
+
+.sd-rich-text--toolbar-on-selection.sd-rich-text--toolbar-open .sd-rich-text__toolbar,
+.sd-rich-text--toolbar-on-selection.sd-rich-text--toolbar-open:focus-within .sd-rich-text__toolbar {
   display: block;
 }

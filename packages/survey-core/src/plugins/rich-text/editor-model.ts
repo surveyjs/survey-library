@@ -45,10 +45,22 @@ export class RichTextEditorModel {
   private sourceValue: string | undefined;
   private sourceFlag = false;
   private normalizing = false;
+  private selectionOpen = false;
+  private toolbarHeld = false;
+  private linkDialogOpen = false;
+  private toolbarOpenState = false;
+  private box: HTMLElement | undefined;
   public onState?: () => void;
-  private onSelection = (): void => this.rememberSelection();
+  private onSelectionChange = (): void => this.rememberSelection();
   private onProperty = (sender: any, options: { name: string }): void => {
     if (options.name === "value")this.onExternalValue();
+    if (options.name === "richTextToolbarMode")this.onToolbarMode();
+  };
+  private onBoxFocusOut = (event: FocusEvent): void => {
+    const next = event.relatedTarget as Node | null;
+    if (this.box && next && this.box.contains(next)) return;
+    if (this.linkDialogOpen || !this.toolbarHeld) return;
+    this.finishBlur();
   };
   private previousDesignMode: (() => void) | undefined;
   private designModeHandler: (() => void) | undefined;
@@ -95,6 +107,22 @@ export class RichTextEditorModel {
     return getRichTextString("richTextToolbar");
   }
 
+  public get toolbarMode(): "none" | "onFocus" | "onSelection" | "static" {
+    const mode = this.question ? this.question.richTextToolbarMode : undefined;
+    if (mode === "none" || mode === "onFocus" || mode === "onSelection" || mode === "static") return mode;
+    return "onFocus";
+  }
+
+  public get hasToolbar(): boolean {
+    return this.toolbarMode !== "none";
+  }
+
+  // True while the on-selection toolbar should stay open: a non-collapsed selection
+  // in the editor, focus in the toolbar, or the link dialog.
+  public get toolbarOpen(): boolean {
+    return this.toolbarOpenState;
+  }
+
   public get placeholder(): string {
     return this.question && this.question.renderedPlaceholder ? this.question.renderedPlaceholder : "";
   }
@@ -126,7 +154,8 @@ export class RichTextEditorModel {
     element.addEventListener("paste", this.onPaste as any);
     element.addEventListener("focus", this.onFocus);
     element.addEventListener("blur", this.onBlur);
-    if (DomDocumentHelper.isAvailable()) DomDocumentHelper.addEventListener("selectionchange", this.onSelection);
+    if (DomDocumentHelper.isAvailable()) DomDocumentHelper.addEventListener("selectionchange", this.onSelectionChange);
+    this.bindBox();
     if (this.question && !this.contentAgnostic) {
       const value = this.question.value;
       this.lastCommitted = value === undefined || value === null ? undefined : String(value);
@@ -148,7 +177,8 @@ export class RichTextEditorModel {
       this.element.removeEventListener("focus", this.onFocus);
       this.element.removeEventListener("blur", this.onBlur);
     }
-    if (DomDocumentHelper.isAvailable()) DomDocumentHelper.removeEventListener("selectionchange", this.onSelection);
+    if (DomDocumentHelper.isAvailable()) DomDocumentHelper.removeEventListener("selectionchange", this.onSelectionChange);
+    this.unbindBox();
     if (this.question)this.question.onPropertyChanged.remove(this.onProperty);
     this.element = undefined;
     this.saved = undefined;
@@ -269,19 +299,27 @@ export class RichTextEditorModel {
 
   private onFocus = (): void => {
     this.focused = true;
+    this.toolbarHeld = false;
     this.sourceValue = undefined;
     this.refreshLink();
     this.syncEmpty();
+    this.refreshToolbarOpen();
   };
 
   private onBlur = (event: FocusEvent): void => {
     const next = event.relatedTarget as Node | null;
-    if (next && this.element && dialogRoot(this.element).contains(next)) return;
+    if (next && this.element && dialogRoot(this.element).contains(next)) {
+      this.toolbarHeld = true;
+      this.refreshToolbarOpen();
+      return;
+    }
     this.finishBlur();
   };
 
   private finishBlur(): void {
     this.focused = false;
+    this.toolbarHeld = false;
+    this.selectionOpen = false;
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = undefined;
@@ -295,6 +333,7 @@ export class RichTextEditorModel {
       this.renderValue(next);
     }
     if (this.sourceMode)this.notify();
+    this.refreshToolbarOpen();
   }
 
   private scheduleCommit(): void {
@@ -344,11 +383,21 @@ export class RichTextEditorModel {
   private rememberSelection(): void {
     if (!this.element || !DomWindowHelper.isAvailable()) return;
     const selection = DomWindowHelper.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
+    if (!selection || selection.rangeCount === 0) {
+      this.selectionOpen = false;
+      this.refreshToolbarOpen();
+      return;
+    }
     const range = selection.getRangeAt(0);
-    if (!this.element.contains(range.commonAncestorContainer)) return;
+    if (!this.element.contains(range.commonAncestorContainer)) {
+      this.selectionOpen = false;
+      this.refreshToolbarOpen();
+      return;
+    }
     this.saved = range.cloneRange();
     this.updatePressed();
+    this.selectionOpen = !range.collapsed;
+    this.refreshToolbarOpen();
   }
 
   private restoreSelection(): void {
@@ -430,6 +479,8 @@ export class RichTextEditorModel {
 
   private openLinkDialog(): void {
     if (!this.element || typeof settings.showDialog !== "function") return;
+    this.linkDialogOpen = true;
+    this.refreshToolbarOpen();
     this.restoreSelection();
     const range = this.saved;
     const existing = range ? linkContaining(range, this.element) : undefined;
@@ -462,9 +513,11 @@ export class RichTextEditorModel {
       },
       onCancel: (): void => { this.restoreSelection(); },
       onHide: (): void => {
+        this.linkDialogOpen = false;
         const doc = DomDocumentHelper.getDocument();
         const active = doc && doc.activeElement;
         if (!this.element || !active || !this.element.contains(active))this.finishBlur();
+        else this.refreshToolbarOpen();
       }
     }, root);
   }
@@ -569,6 +622,37 @@ export class RichTextEditorModel {
       this.sourceFlag = getDisallowedHtml(value).length > 0;
     }
     return this.sourceFlag;
+  }
+
+  private onToolbarMode(): void {
+    this.toolbarOpenState = this.isToolbarOpen();
+    this.notify();
+  }
+
+  private isToolbarOpen(): boolean {
+    return this.toolbarMode === "onSelection" && (this.selectionOpen || this.toolbarHeld || this.linkDialogOpen);
+  }
+
+  private refreshToolbarOpen(): void {
+    const open = this.isToolbarOpen();
+    if (open === this.toolbarOpenState) return;
+    this.toolbarOpenState = open;
+    this.notify();
+  }
+
+  private bindBox(): void {
+    this.unbindBox();
+    if (!this.element || !this.element.closest) return;
+    const box = this.element.closest(".sd-rich-text") as HTMLElement | null;
+    if (!box) return;
+    this.box = box;
+    box.addEventListener("focusout", this.onBoxFocusOut);
+  }
+
+  private unbindBox(): void {
+    if (!this.box) return;
+    this.box.removeEventListener("focusout", this.onBoxFocusOut);
+    this.box = undefined;
   }
 
   private notify(): void {

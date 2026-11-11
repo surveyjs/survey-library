@@ -79,7 +79,7 @@ export interface IFilterConditionsEditorOptions {
   // setConditions(), not for the search box. The Filters dialog counts the records again on it.
   onFieldChanged?: () => void;
   // The survey the fields' panels are added to, instead of a survey of the editor's own: a dialog's,
-  // which also holds the description (Create custom filter, Edit Presets). It belongs to its owner,
+  // which also holds the description (Edit Presets). It belongs to its owner,
   // who sets it up (locale, mode, look - readOnly does not reach it: the owner sets display mode);
   // the editor takes its panels and values away on dispose(). Not with showSearch, which sets up a
   // survey of the editor's own.

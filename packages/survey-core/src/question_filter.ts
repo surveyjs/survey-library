@@ -17,7 +17,6 @@ import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter/filter-pre
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { FilterAIRequest } from "./filter/filter-ai";
-import { FilterAIDialog } from "./filter/filter-ai-dialog";
 import { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 import { ActionContainer } from "./actions/container";
 import { buildSearchFragment, getFieldChoiceItems } from "./filter/filter-expression";
@@ -33,8 +32,6 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 
 // What uiState keeps of the authored presets the respondent changed, by name.
 type FilterSavedItems = { [name: string]: IFilterSavedItemState };
-// How a preset is made: kind "ai" and the description it was made of, for one made with AI.
-type FilterItemOrigin = { kind?: "fields" | "ai", prompt?: string };
 // The operators whose value is a set of values - see isSameConditionSet().
 // The source is always the question findQuestionByName returns, asked by capability - see filterSource.
 type FilterSourceQuestion = Question & IDynamicDataFilterSource;
@@ -323,13 +320,12 @@ export class QuestionFilterModel extends QuestionNonValue {
     return this.items.filter((item: FilterItem): boolean => this.deletedItemNames.indexOf(item.name) < 0).concat(this.userItemsValue);
   }
   public get canAddItems(): boolean { return this.allowMultipleItems && this.allowAddItems; }
-  // Whether the application answers AI requests (survey.onAIFilterRequest has a handler): an AI
-  // preset may be asked about again (Make Changes). Never in the designer. Read when a dialog opens.
+  // Whether the application answers AI requests (survey.onAIFilterRequest has a handler): a preset
+  // dialog then offers to write or change a preset's filter with AI. Never in the designer. Read when
+  // a dialog opens.
   public get canRequestAI(): boolean {
     return !this.isDesignMode && !!this.survey && this.survey.isAIFilterRequestAvailable();
   }
-  // Create with AI: a new preset from a description, where presets may be added.
-  public get canCreateAIItems(): boolean { return this.canRequestAI && this.canAddItems; }
   public fireAIRequest(options: FilterAIRequestEvent): void {
     if (!!this.survey) {
       this.survey.aiFilterRequest(options);
@@ -339,10 +335,6 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The caller disposes it.
   public createAIRequest(): FilterAIRequest {
     return new FilterAIRequest(this);
-  }
-  // The Create custom filter dialog - see FilterAIDialog. The caller owns it and disposes it.
-  public createAIDialog(): FilterAIDialog {
-    return new FilterAIDialog(this);
   }
   public get canReorderItems(): boolean { return this.allowMultipleItems && this.allowReorderItems; }
   // The spec's rule: what may be done to an item is its own permission AND the control-level
@@ -370,38 +362,36 @@ export class QuestionFilterModel extends QuestionNonValue {
   // What a preset is in the JSON - its title and its conditions, null for a preset that does not
   // decompose - whatever the respondent changed since: what Reset brings back. A preset of the
   // respondent's own is what it is.
-  public getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null, prompt: string } {
+  public getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null } {
     const item = this.getItemByName(name);
     if (!item) return undefined;
-    if (!this.isItemModified(item)) return { title: item.title, conditions: this.parseItemConditions(item), prompt: item.prompt };
+    if (!this.isItemModified(item)) return { title: item.title, conditions: this.parseItemConditions(item) };
     const original = this.createOriginalItem(item.name);
-    const res = { title: original.title, conditions: this.parseItemConditions(original), prompt: original.prompt };
+    const res = { title: original.title, conditions: this.parseItemConditions(original) };
     original.dispose();
     return res;
   }
   // Whether a title and conditions are what the JSON made the preset: the Edit Presets dialog offers
   // Reset while they are not. conditions null - a preset that does not decompose - compares only with
   // an original that does not decompose either. A preset of the respondent's own is compared with
-  // what it is. prompt undefined is not compared.
-  public isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null, prompt?: string): boolean {
+  // what it is.
+  public isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null): boolean {
     const original = this.getOriginalItemState(name);
     if (!original) return true;
     if ((title || "").trim() !== original.title) return false;
-    if (prompt !== undefined && prompt.trim() !== original.prompt) return false;
     if (conditions === null || original.conditions === null) return conditions === original.conditions;
     return this.isSameConditionSet(normalizeFilterConditions(conditions, this.getFilterFields()), original.conditions);
   }
   // A preset of the respondent's own (the Filters dialog's Add Preset): the conditions it filters by,
   // normalized as an edit is, and a title. It goes after every other preset and is not turned on.
   // Nothing is added where presets cannot be added, in the designer, or for conditions none of which
-  // the fields can hold: a preset that filters by nothing is no preset. options: kind "ai" and its
-  // prompt for a preset made with AI (Create with AI).
-  public addItem(title: string, conditions: Array<IFilterCondition>, options?: FilterItemOrigin): FilterItem {
+  // the fields can hold: a preset that filters by nothing is no preset.
+  public addItem(title: string, conditions: Array<IFilterCondition>): FilterItem {
     if (!this.canAddItems || this.isDesignMode) return undefined;
     const fields = this.getFilterFields();
     const normalized = normalizeFilterConditions(conditions || [], fields);
     if (normalized.length === 0) return undefined;
-    const item = this.createUserItem(this.getNewItemName(), title, normalized, options);
+    const item = this.createUserItem(this.getNewItemName(), title, normalized);
     this.updateToolbars();
     this.raiseUIStateChanged();
     return item;
@@ -412,20 +402,17 @@ export class QuestionFilterModel extends QuestionNonValue {
   // An authored preset remembers what the JSON made it before its first change - resetItem() puts
   // that back - and a change that brings it back to that is a reset. A preset that is on filters by
   // its new conditions at once: one write, one onFilterChanged and one onUIStateChanged, none of
-  // them for a change that changes nothing. prompt: the new description of an AI preset; undefined or
-  // empty keeps the one it has, and a new one alone writes no filter.
-  public updateItem(name: string, title: string, conditions?: Array<IFilterCondition>, prompt?: string): void {
+  // them for a change that changes nothing.
+  public updateItem(name: string, title: string, conditions?: Array<IFilterCondition>): void {
     const item = this.getItemByName(name);
     if (!item || this.isDesignMode || !this.canEditItem(item)) return;
     const fields = this.getFilterFields();
     const text = (title || "").trim();
-    const promptText = (prompt || "").trim();
     const normalized = conditions !== undefined ? normalizeFilterConditions(conditions, fields) : [];
     const current = this.parseItemConditions(item);
     const isTitleChanged = !!text && text !== item.title;
     const isConditionsChanged = normalized.length > 0 && (current === null || !this.isSameConditionSet(normalized, current));
-    const isPromptChanged = !!promptText && promptText !== item.prompt;
-    if (!isTitleChanged && !isConditionsChanged && !isPromptChanged) return;
+    if (!isTitleChanged && !isConditionsChanged) return;
     this.runBatch((): void => {
       const isUser = this.isUserItem(item);
       if (!isUser) {
@@ -443,12 +430,6 @@ export class QuestionFilterModel extends QuestionNonValue {
           this.userItemConditions[item.name] = normalized;
         } else {
           this.savedItemConditions[item.name] = normalized;
-        }
-      }
-      if (isPromptChanged) {
-        this.setItemText(item.locPrompt, promptText);
-        if (!isUser) {
-          this.savedItemPrompts[item.name] = promptText;
         }
       }
       if (!isUser && this.isSameAsOriginal(item)) {
@@ -512,8 +493,8 @@ export class QuestionFilterModel extends QuestionNonValue {
         if (edit.isReset) {
           this.resetItem(edit.name);
         }
-        if (edit.title !== undefined || edit.conditions !== undefined || edit.prompt !== undefined) {
-          this.updateItem(edit.name, edit.title, edit.conditions, edit.prompt);
+        if (edit.title !== undefined || edit.conditions !== undefined) {
+          this.updateItem(edit.name, edit.title, edit.conditions);
         }
       });
     }, true);
@@ -527,15 +508,9 @@ export class QuestionFilterModel extends QuestionNonValue {
   // setOwnConditions().
   public get ownConditions(): Array<IFilterCondition> { return this.getPropertyValue("ownConditions", undefined); }
   // Not in design mode: filterExpression is never composed there, so an edit would change nothing
-  // anyone can see. With several presets an edit turns the active one off (editConditions), so an
-  // "ai" preset is left as it was and nothing is refused. Single mode edits over its preset instead,
-  // and an "ai" preset was written from a prompt and not from conditions: editing its fields would
-  // silently turn it into a different kind of filter.
+  // anyone can see.
   public get canEditConditions(): boolean {
-    if (this.isDesignMode) return false;
-    if (this.allowMultipleItems) return true;
-    const item = this.activeItem;
-    return !item || item.kind !== "ai";
+    return !this.isDesignMode;
   }
   // The control's own readOnly (enableIf sets it) locks its UI: the chips are disabled, no dialog or
   // popup opens and the search box is off, while the active preset still filters. Not isReadOnly:
@@ -930,8 +905,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   public get searchRootCss(): string { return toCssClasses(this.searchCss.root, this.cssClasses.search); }
   // The quick search box is off in the designer and while the control is read-only. The Filters
-  // dialog's box has its own rule (FilterModal.isSearchDisabled): it is also off for an AI preset in
-  // single mode, whose conditions can't be edited - the quick search is no condition edit.
+  // dialog's box has its own rule (FilterModal.isSearchDisabled): off whenever its conditions can't be
+  // edited.
   public get isSearchDisabled(): boolean { return this.isDesignMode || this.isControlReadOnly; }
   // The element the chips layout is attached to: expanded by Show More. A disposed control has
   // released its layout, and asking for it would build a new one.
@@ -950,7 +925,6 @@ export class QuestionFilterModel extends QuestionNonValue {
   public showAdvancedEditor(): void { this.toolbars.showAdvancedEditor(); }
   // Add New Preset (isEdit false) or Edit Presets over the Filters dialog - see FilterToolbars.
   public showPresetDialog(modal: FilterModal, isEdit: boolean): void { this.toolbars.showPresetDialog(modal, isEdit); }
-  public showAIDialog(modal: FilterModal): void { this.toolbars.showAIDialog(modal); }
   // The field list one pass over the toolbars reads, once: the pass asks for it many times - the
   // badges, each parse of the active preset, the counts - and a bound source builds it anew each time.
   // Each field's operators and editor kind are read once in the pass too (runWithFilterFieldCache).
@@ -1114,12 +1088,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The titles the respondent gave authored presets (updateItem), by name; their conditions are in
   // savedItemConditions.
   private savedItemTitles: HashTable<string> = {};
-  // The descriptions the respondent gave authored AI presets (updateItem), by name.
-  private savedItemPrompts: HashTable<string> = {};
   // What an authored preset was in the JSON before the respondent first changed it - its expression,
-  // and its title and prompt as JSON (a localized text stays localized) - by name. A preset with an
-  // entry here is modified (isItemModified); resetItem() puts it back and drops the entry.
-  private originalItems: HashTable<{ expression: string, title: any, prompt: any }> = {};
+  // and its title as JSON (a localized text stays localized) - by name. A preset with an entry here is
+  // modified (isItemModified); resetItem() puts it back and drops the entry.
+  private originalItems: HashTable<{ expression: string, title: any }> = {};
   // The respondent's own presets (addItem), in the order they were added. FilterItems like the
   // authored ones, but kept out of items: items is the survey JSON, and these are the respondent's
   // state, not the author's.
@@ -1129,13 +1101,9 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The authored presets the respondent deleted, by name: hidden from everything that looks presets
   // up, while items - the JSON - keeps them.
   private deletedItemNames: Array<string> = [];
-  private createUserItem(name: string, title: string, conditions: Array<IFilterCondition>, origin?: FilterItemOrigin): FilterItem {
+  private createUserItem(name: string, title: string, conditions: Array<IFilterCondition>): FilterItem {
     const item = new FilterItem(name);
     this.setItemText(item.locTitle, (title || "").trim());
-    if (!!origin && origin.kind === "ai") {
-      item.kind = "ai";
-      this.setItemText(item.locPrompt, (origin.prompt || "").trim());
-    }
     item.expression = conditionsToExpression(conditions, this.getFilterFields());
     this.userItemConditions[name] = conditions;
     this.userItemsValue.push(item);
@@ -1152,7 +1120,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   private isItemNameUsed(name: string): boolean {
     return this.items.some((item: FilterItem): boolean => item.name === name) || !!this.findUserItem(name);
   }
-  // A title or a prompt the respondent typed is the text in every locale: set as the default text,
+  // A title the respondent typed is the text in every locale: set as the default text,
   // with no translations left that would show the author's text in another locale.
   private setItemText(locStr: LocalizableString, text: any): void {
     locStr.setJson(!!text && typeof text === "object" ? Object.assign({}, text) : (text || null), true);
@@ -1160,7 +1128,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   private rememberOriginal(item: FilterItem): void {
     if (!this.originalItems[item.name]) {
-      this.originalItems[item.name] = { expression: item.expression, title: item.locTitle.getJson(), prompt: item.locPrompt.getJson() };
+      this.originalItems[item.name] = { expression: item.expression, title: item.locTitle.getJson() };
     }
   }
   // The preset as the JSON made it, as a FilterItem of its own, for comparing and reading its title
@@ -1170,7 +1138,6 @@ export class QuestionFilterModel extends QuestionNonValue {
     const item = new FilterItem(name);
     item.itemOwner = this;
     item.locTitle.setJson(original.title, true);
-    item.locPrompt.setJson(original.prompt, true);
     item.expression = original.expression;
     return item;
   }
@@ -1180,7 +1147,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const b = this.parseItemConditions(item);
     const isSameConditions = a === null || b === null
       ? (original.expression || "").trim() === (item.expression || "").trim() : this.isSameConditionSet(a, b);
-    const res = isSameConditions && original.title === item.title && original.prompt === item.prompt;
+    const res = isSameConditions && original.title === item.title;
     original.dispose();
     return res;
   }
@@ -1189,10 +1156,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     delete this.originalItems[item.name];
     delete this.savedItemConditions[item.name];
     delete this.savedItemTitles[item.name];
-    delete this.savedItemPrompts[item.name];
     if (!original) return;
     this.setItemText(item.locTitle, original.title);
-    this.setItemText(item.locPrompt, original.prompt);
     item.expression = original.expression;
   }
   // An array value is copied both ways: the caller's array must not be able to change the filter
@@ -1379,11 +1344,11 @@ export class QuestionFilterModel extends QuestionNonValue {
     Object.keys(pending).forEach((name: string): void => { add(name, pending[name]); });
     // A preset changed in this session wins over one still waiting for its source: it is newer.
     const names = Object.keys(this.savedItemConditions);
-    Object.keys(this.savedItemTitles).concat(Object.keys(this.savedItemPrompts)).forEach((name: string): void => {
+    Object.keys(this.savedItemTitles).forEach((name: string): void => {
       if (names.indexOf(name) < 0) names.push(name);
     });
     names.forEach((name: string): void => {
-      add(name, { conditions: this.savedItemConditions[name], title: this.savedItemTitles[name], prompt: this.savedItemPrompts[name] });
+      add(name, { conditions: this.savedItemConditions[name], title: this.savedItemTitles[name] });
     });
     return res;
   }
@@ -1394,13 +1359,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (this.userItemsValue.length === 0) return undefined;
     return this.userItemsValue.map((item: FilterItem): IFilterUserItemState => {
       const title = item.locTitle.getJson();
-      const res: IFilterUserItemState = { name: item.name, title: typeof title === "string" ? title : "",
+      return { name: item.name, title: typeof title === "string" ? title : "",
         conditions: this.userItemConditions[item.name].map((c: IFilterCondition): IFilterCondition => this.copyCondition(c)) };
-      if (item.kind === "ai") {
-        res.kind = "ai";
-        res.prompt = item.prompt;
-      }
-      return res;
     });
   }
   // The order is load-bearing. Deleted, saved and the respondent's own presets first: activeItemName
@@ -1481,12 +1441,6 @@ export class QuestionFilterModel extends QuestionNonValue {
         this.setItemText(item.locTitle, title);
         this.savedItemTitles[name] = title;
       }
-      const prompt = typeof entry.prompt === "string" ? entry.prompt.trim() : "";
-      if (!!prompt) {
-        this.rememberOriginal(item);
-        this.setItemText(item.locPrompt, prompt);
-        this.savedItemPrompts[name] = prompt;
-      }
       if (!Array.isArray(entry.conditions)) return;
       const conditions = normalizeFilterConditions(entry.conditions, fields);
       if (conditions.length === 0 && entry.conditions.length > 0) return;
@@ -1531,8 +1485,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (name !== entry.name) {
         renamed[entry.name] = name;
       }
-      this.createUserItem(name, typeof entry.title === "string" ? entry.title : "", conditions,
-        { kind: entry.kind, prompt: typeof entry.prompt === "string" ? entry.prompt : "" });
+      this.createUserItem(name, typeof entry.title === "string" ? entry.title : "", conditions);
     });
     return renamed;
   }
@@ -1553,7 +1506,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     });
     return res;
   }
-  // A saved preset's entry, copied: a string title and prompt, and the conditions that are objects.
+  // A saved preset's entry, copied: a string title, and the conditions that are objects.
   // undefined when nothing is left of it.
   private toSavedItemEntry(entry: IFilterSavedItemState): IFilterSavedItemState {
     if (!entry || typeof entry !== "object") return undefined;
@@ -1568,21 +1521,12 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (typeof entry.title === "string") {
       res.title = entry.title;
     }
-    if (typeof entry.prompt === "string") {
-      res.prompt = entry.prompt;
-    }
     return Object.keys(res).length > 0 ? res : undefined;
   }
   private copyUserItems(list: Array<IFilterUserItemState>): Array<IFilterUserItemState> {
     return list.filter((entry: IFilterUserItemState): boolean => !!entry && typeof entry === "object" && Array.isArray(entry.conditions))
-      .map((entry: IFilterUserItemState): IFilterUserItemState => {
-        const res: IFilterUserItemState = { name: entry.name, title: entry.title, conditions: this.copyConditionList(entry.conditions) };
-        if (entry.kind === "ai") {
-          res.kind = "ai";
-          res.prompt = typeof entry.prompt === "string" ? entry.prompt : "";
-        }
-        return res;
-      });
+      .map((entry: IFilterUserItemState): IFilterUserItemState =>
+        ({ name: entry.name, title: entry.title, conditions: this.copyConditionList(entry.conditions) }));
   }
   // A restored list is not trusted to hold only objects; normalizeFilterConditions() would drop
   // anything else later anyway, so it is dropped here, before copyCondition() would trip on it.
@@ -1590,8 +1534,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     return conditions.filter((c: IFilterCondition): boolean => !!c && typeof c === "object")
       .map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
   }
-  // Not over a preset that cannot be edited (an "ai" one) or in the designer: an edit could not have
-  // produced these there either.
+  // Not in the designer: an edit could not have produced these there either.
   private restoreConditions(conditions: Array<IFilterCondition>): void {
     if (!this.canEditConditions) return;
     // Restored conditions are edits, and with several presets an edit is never over a preset: a
@@ -1721,7 +1664,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const news = Array.isArray(newItems) ? newItems : [];
     const isKept = (name: string): boolean => olds.some((item: FilterItem): boolean =>
       !!item && item.name === name && news.indexOf(item) > -1);
-    [this.savedItemConditions, this.savedItemTitles, this.savedItemPrompts, this.originalItems].forEach((saved: HashTable<any>): void => {
+    [this.savedItemConditions, this.savedItemTitles, this.originalItems].forEach((saved: HashTable<any>): void => {
       Object.keys(saved).forEach((name: string): void => {
         if (!isKept(name)) delete saved[name];
       });

@@ -34,19 +34,15 @@ export interface IFilterItemEdit {
   name: string;
   title?: string;
   conditions?: Array<IFilterCondition>;
-  // the description an AI preset is asked about again with (Make Changes)
-  prompt?: string;
   isReset?: boolean;
   isDeleted?: boolean;
 }
 // A preset the respondent added, as uiState keeps it: its conditions and not its expression text,
-// as with saved presets. kind and prompt only for one made with AI ("ai").
+// as with saved presets.
 export interface IFilterUserItemState {
   name: string;
   title: string;
   conditions: Array<IFilterCondition>;
-  kind?: "fields" | "ai";
-  prompt?: string;
 }
 // The end-user state of a Filter Control. Only what the respondent changed is kept here: what the
 // JSON authored is already in the JSON and is restored by loading it.
@@ -63,7 +59,7 @@ export interface IFilterElementUIState {
   // Authored presets the respondent changed, by name: the conditions saved into one (Save in single
   // mode, the Edit Presets dialog) and the title given to one. Kept as conditions and not as
   // expression text: the preset's expression is rebuilt from them on restore, with nothing to parse
-  // back. prompt: the description given to an AI preset.
+  // back.
   items?: { [name: string]: IFilterSavedItemState };
   // The presets the respondent added, in their order.
   userItems?: Array<IFilterUserItemState>;
@@ -74,7 +70,6 @@ export interface IFilterElementUIState {
 export interface IFilterSavedItemState {
   conditions?: Array<IFilterCondition>;
   title?: string;
-  prompt?: string;
 }
 export interface IElementUIState {
   collapsed?: boolean;

@@ -1077,8 +1077,8 @@ export class SurveyModel extends SurveyElementCore
   // after a handler was added: with new SurveyModel(json) the load is over before there is anything
   // to raise it to.
   public onFilterChanged: EventBase<SurveyModel, FilterChangedEvent> = this.addEvent<SurveyModel, FilterChangedEvent>();
-  // Raised when a Filter Control asks the application's model for a filter (Create with AI, Make
-  // Changes) - see FilterAIRequestEvent. SurveyJS never calls a model: the handler sends systemPrompt
+  // Raised when a Filter Control asks the application's model for a filter (Make Changes in the
+  // preset dialogs) - see FilterAIRequestEvent. SurveyJS never calls a model: the handler sends systemPrompt
   // and messages to one and passes the answer to callback. The control offers AI only while this
   // event has a handler.
   public onAIFilterRequest: EventBase<SurveyModel, FilterAIRequestEvent> = this.addEvent<SurveyModel, FilterAIRequestEvent>();

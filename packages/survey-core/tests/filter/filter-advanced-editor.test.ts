@@ -403,21 +403,6 @@ describe("Advanced mode editor: multi-value values compare as sets", () => {
 });
 
 describe("Advanced mode editor: read-only", () => {
-  test("single mode, an ai preset: display-only, and apply() writes nothing", () => {
-    const q = createControl({ items: [{ name: "smart", kind: "ai", expression: "{age} > 18" }], defaultItem: "smart", allowMultipleItems: false });
-    const events = trackEvents(q);
-    const editor = q.createAdvancedModeEditor();
-    expect(editor.isReadOnly, "#1").toBe(true);
-    expect(editor.survey.mode, "#2").toBe("display");
-    valueQ(editor, "age").value = 5;
-    searchQ(editor).value = "an";
-    editor.apply();
-    expect(q.ownConditions, "#3").toBe(undefined);
-    expect(q.searchString, "#4").toBe("");
-    expect(q.filterExpression, "#5").toBe("{age} > 18");
-    expect(events, "#6").toEqual({ filter: 0, uiState: 0 });
-    editor.dispose();
-  });
   test("a fast mode editor has nothing to apply", () => {
     const q = createControl();
     const editor = q.createFastModeEditor("age");

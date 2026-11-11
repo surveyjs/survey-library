@@ -81,21 +81,17 @@ describe("Filter Control: the renderers' classes", () => {
 describe("Filter Control: the search boxes' disabled state", () => {
   test("the control's box is off in the designer only", () => {
     expect(createFilter({ fields: fields, showSearch: true }).isSearchDisabled, "#1").toBe(false);
-    const single = createFilter({ fields: fields, showSearch: true, allowMultipleItems: false,
-      items: [{ name: "smart", kind: "ai", expression: "{age} > 18" }], defaultItem: "smart" });
-    expect(single.isSearchDisabled, "#2: an active AI preset in single mode").toBe(false);
-    expect(designControl().isSearchDisabled, "#3").toBe(true);
+    expect(designControl().isSearchDisabled, "#2").toBe(true);
   });
   test("the Filters dialog's box is off while its conditions can't be edited", () => {
     const q = createFilter({ fields: fields, showSearch: true });
     const modal = q.createFilterModal();
     expect(modal.isSearchDisabled, "#1").toBe(false);
     modal.dispose();
-    const single = createFilter({ fields: fields, showSearch: true, allowMultipleItems: false,
-      items: [{ name: "smart", kind: "ai", expression: "{age} > 18" }], defaultItem: "smart" });
-    const singleModal = single.createFilterModal();
-    expect(singleModal.isReadOnly, "#2").toBe(true);
-    expect(singleModal.isSearchDisabled, "#3: an active AI preset in single mode").toBe(true);
-    singleModal.dispose();
+    const locked = createFilter({ fields: fields, showSearch: true, readOnly: true });
+    const lockedModal = locked.createFilterModal();
+    expect(lockedModal.isReadOnly, "#2").toBe(true);
+    expect(lockedModal.isSearchDisabled, "#3: a read-only control").toBe(true);
+    lockedModal.dispose();
   });
 });

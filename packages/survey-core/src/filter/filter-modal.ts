@@ -26,8 +26,6 @@ export interface IFilterModalOwner {
   canAddItems: boolean;
   getEditableItems(): Array<FilterItem>;
   showPresetDialog(modal: FilterModal, isEdit: boolean): void;
-  canCreateAIItems: boolean;
-  showAIDialog(modal: FilterModal): void;
 }
 // How long the dialog waits after a change before it counts the records again: a source on a
 // server is asked once for a burst of clicks, not once per click.
@@ -54,7 +52,6 @@ export class FilterModal extends Base {
   private creationToolbarValue: ActionContainer;
   private presetsTitleToolbarValue: ActionContainer;
   private addPresetAction: Action;
-  private createAIAction: Action;
   private editPresetsAction: Action;
   // The conditions of the buffer while no field is edited: the control's as the dialog opened, [] once
   // a preset is turned off or everything is cleared, undefined while a preset applies as it is. Once a
@@ -77,13 +74,9 @@ export class FilterModal extends Base {
     this.updatePresetChips();
     this.addPresetAction = new Action({ id: "sv-filter-modal-add-preset", title: filterUIStrings.addPreset, iconName: "icon-plus-24x24",
       iconSize: "auto", action: (): void => { this.owner.showPresetDialog(this, false); } });
-    // The mockup's light brand button (6435:19989), not the neutral one of Add Preset next to it.
-    this.createAIAction = new Action({ id: "sv-filter-modal-create-ai", title: filterUIStrings.createWithAI, iconName: "icon-sparkle-24x24",
-      iconSize: "auto", appearance: { style: "brand", mode: "secondary" }, action: (): void => { this.owner.showAIDialog(this); } });
     this.creationToolbarValue = new ActionContainer();
     this.creationToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
-    // Create with AI first, then Add Preset, as in the mockup.
-    this.creationToolbarValue.setItems([this.createAIAction, this.addPresetAction], false);
+    this.creationToolbarValue.setItems([this.addPresetAction], false);
     this.editPresetsAction = new Action({ id: "sv-filter-modal-edit-presets", title: filterUIStrings.editPresets, showTitle: false,
       tooltip: filterUIStrings.editPresets, iconName: "icon-edit-16x16", iconSize: "auto",
       action: (): void => { this.owner.showPresetDialog(this, true); } });
@@ -97,7 +90,7 @@ export class FilterModal extends Base {
   public get editor(): FilterConditionsEditor { return this.editorValue; }
   // The presets' chips; none in single mode, which has no preset to pick.
   public get presetsToolbar(): ActionContainer { return this.presetsToolbarValue; }
-  // The row under the search box: Add Preset and Create with AI.
+  // The row under the search box: Add Preset (which also writes a preset with AI, see FilterPresetDialog).
   public get creationToolbar(): ActionContainer { return this.creationToolbarValue; }
   // The pencil at the end of the presets' title, which opens Edit Presets.
   public get presetsTitleToolbar(): ActionContainer { return this.presetsTitleToolbarValue; }
@@ -124,7 +117,7 @@ export class FilterModal extends Base {
     this.updatePresetChips();
     this.updatePresetActions();
   }
-  // In the designer, for an AI preset in single mode, and while the control is read-only.
+  // In the designer and while the control is read-only.
   public get isReadOnly(): boolean { return !this.owner.canEditConditionsInUI; }
   public get showSearch(): boolean { return this.owner.showSearch; }
   public get searchPlaceholder(): string { return this.owner.searchPlaceholder; }
@@ -213,7 +206,6 @@ export class FilterModal extends Base {
       used[id] = true;
       // A toggle, as in the control's row: a checkbox.
       const chip = new Action({ id: id, enabled: !this.isReadOnly, iconSize: "auto", ariaRole: "checkbox", ariaChecked: false,
-        iconName: item.kind === "ai" ? "icon-sparkle-24x24" : undefined,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.togglePreset(item); } });
       chip.locTitle = item.locTitle;
       chip.data = item;
@@ -225,7 +217,6 @@ export class FilterModal extends Base {
   private updatePresetActions(): void {
     const isEditable = !this.isReadOnly && this.owner.allowMultipleItems;
     this.addPresetAction.visible = isEditable && this.owner.canAddItems;
-    this.createAIAction.visible = isEditable && this.owner.canCreateAIItems;
     this.editPresetsAction.visible = isEditable && this.owner.getEditableItems().length > 0;
   }
   private updatePresetChips(): void {

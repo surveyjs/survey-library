@@ -28,16 +28,12 @@ export const filterUIStrings = {
   deletePreset: "Delete",
   resetPreset: "Reset",
   addPreset: "Add Preset",
-  createWithAI: "Create with AI...",
-  aiDialogTitle: "Create custom filter",
   aiPromptNew: "Describe what you need - AI will do the rest.",
-  aiPromptChange: "Describe what to change - if needed.",
   aiPromptEdit: "Describe what to change - AI will do the rest.",
   aiCreate: "Create new filter",
   aiMakeChanges: "Make Changes",
   aiCreating: "Creating filter...",
   aiMakingChanges: "Making changes...",
-  aiRemoveField: "Remove",
   aiError: "AI could not make a filter. Try again.",
   aiEmpty: "AI could not make a filter of this description."
 };

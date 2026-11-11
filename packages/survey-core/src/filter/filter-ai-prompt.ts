@@ -18,26 +18,22 @@ import "../question_comment";
 export const filterAIPromptMaxLength = 500;
 
 export interface IFilterAIPromptOptions {
-  // the description the field starts with
-  prompt?: string;
-  // the filter exists: the request is "modify" from the start (an AI preset in Edit Presets)
+  // the filter exists: the request is "modify" from the start (a tab of Edit Presets)
   isModify?: boolean;
-  // the caption over the field once there is a filter; aiPromptChange when not given
-  modifyTitle?: string;
   // the filter as it is now, which "modify" sends
   getConditions: () => Array<IFilterCondition>;
   onAnswer: (conditions: Array<IFilterCondition>, title: string) => void;
   // The survey the description is added to, as a panel at the end of its first page: the dialog's
-  // survey (Create custom filter, Edit Presets), which the dialog owns and draws.
+  // survey (Edit Presets), which the dialog owns and draws.
   survey: SurveyModel;
   // The control's classes: the panel's frame (aiPrompt) and the row of its button (aiPromptRequest).
   css?: any;
 }
 
-// The description of a filter and its request button - "Create new filter", then "Make Changes" -
-// with the request's state: busy while the model answers, and what went wrong. The description is
-// what the filter is for: it stays in the field after an answer and is sent again, with the filter
-// as it is, by Make Changes. Owns the request and disposes it.
+// The description of what the filter needs or what to change in it, and its request button - "Create
+// new filter", then "Make Changes" - with the request's state: busy while the model answers, and what
+// went wrong. It starts empty and is not part of the preset: it stays in the field after an answer,
+// and Make Changes sends it again with the filter as it is. Owns the request and disposes it.
 // It is made of survey elements only, so a renderer draws it as the survey it is in: a panel titled
 // promptTitle with the description's comment question, the request button in the panel's footer and
 // errorText as the question's error.
@@ -67,7 +63,7 @@ export class FilterAIPrompt extends Base {
     this.requestActionValue = new Action({ id: "sv-filter-ai-request", iconName: "icon-sparkle-24x24", iconSize: "auto",
       appearance: { style: "brand", mode: "secondary", size: "medium" }, action: (): void => { this.request(); } });
     this.panelValue = this.createPanel();
-    this.surveyValue.setValue("prompt", options.prompt || "");
+    this.surveyValue.setValue("prompt", "");
     this.surveyValue.onValueChanged.add(this.onSurveyValueChanged);
     this.updateAction();
   }
@@ -77,7 +73,7 @@ export class FilterAIPrompt extends Base {
   public get prompt(): string { return this.surveyValue.getValue("prompt") || ""; }
   public set prompt(val: string) { this.surveyValue.setValue("prompt", val || ""); }
   public get promptTitle(): string {
-    return !this.isModify ? filterUIStrings.aiPromptNew : (this.options.modifyTitle || filterUIStrings.aiPromptChange);
+    return this.isModify ? filterUIStrings.aiPromptEdit : filterUIStrings.aiPromptNew;
   }
   public get requestAction(): Action { return this.requestActionValue; }
   // Asks the model: a new filter, or the filter as it is for the description as it is now. Nothing

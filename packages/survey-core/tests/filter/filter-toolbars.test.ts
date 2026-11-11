@@ -46,12 +46,10 @@ describe("FilterToolbars: the chips row", () => {
     q.clearFieldCondition("age");
     expect([age.title, !!age.active], "#5").toEqual(["age", false]);
   });
-  test("a preset's chip: titled by it, active while it is on, a sparkle for an ai preset", () => {
-    const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }, { name: "ai", kind: "ai", expression: "{age} > 60" }] });
+  test("a preset's chip: titled by it, active while it is on, no icon", () => {
+    const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }] });
     const adults = action(q.chipsToolbar, "sv-filter-item-adults");
-    const ai = action(q.chipsToolbar, "sv-filter-item-ai");
     expect([adults.title, !!adults.active, adults.iconName], "#1").toEqual(["adults", false, undefined]);
-    expect(ai.iconName, "#2").toBe("icon-sparkle-16x16");
     adults.action();
     expect([q.activeItemName, adults.active], "#3").toEqual(["adults", true]);
     q.items[0].title = "Adults";

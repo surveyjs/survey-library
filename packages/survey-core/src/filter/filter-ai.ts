@@ -13,11 +13,26 @@ import {
 } from "./filter-conditions";
 import { getFieldChoiceItems, toExpressionConst } from "./filter-expression";
 import { FilterFieldEditorKind, getFilterFieldListItems } from "./filter-field-kinds";
-import { filterPresetTitleMaxLength } from "./filter-preset-dialog";
+import { filterPresetTitleMaxLength, isFilterPresetTitleTaken } from "./filter-preset-dialog";
 
 // The AI side of a Filter Control: what the model is told about the control's fields, and how its
 // answer is read and checked. The answer is a filter the control can show as conditions - one per
 // field, joined by "and" - or it is sent back with what is wrong with it (see AIRequestSession).
+
+// The title of a preset written with AI: the model's, or the titles of the fields it filters by, cut
+// to a preset's length; one another preset has (compared as Add New Preset compares them) gets " 2",
+// " 3"..., the title cut further so the number still fits.
+export function makeFilterAITitle(title: string, fieldTitles: Array<string>, otherTitles: Array<string>): string {
+  const max = filterPresetTitleMaxLength;
+  const base = ((title || "").trim() || fieldTitles.filter((t: string): boolean => !!t).join(", ")).substring(0, max).trim();
+  const isTaken = (t: string): boolean => isFilterPresetTitleTaken(t, otherTitles);
+  if (!isTaken(base)) return base;
+  for (let n = 2; ; n++) {
+    const suffix = " " + n;
+    const res = base.substring(0, max - suffix.length).trim() + suffix;
+    if (!isTaken(res)) return res;
+  }
+}
 
 // Raise whenever the guide or the rules of the prompt change: a host that caches a prompt knows it is stale.
 export const filterAIGuideVersion = "1";

@@ -10,9 +10,7 @@ import { Action } from "../../src/actions/action";
 // lines thicker or thinner than the set's. A small or larger action shows an icon at 24px
 // (sd-action.scss), an x-small one at 16px; the chips row brings its actions' icons down to 16px
 // (sd-filter.scss).
-const presets = [
-  { name: "adults", title: "Adults", expression: "{age} > 18" },
-  { name: "smart", kind: "ai", expression: "{age} > 60" }];
+const presets = [{ name: "adults", title: "Adults", expression: "{age} > 18" }];
 function control(): QuestionFilterModel {
   return createFilter({ items: presets });
 }
@@ -21,11 +19,9 @@ function iconsOf(q: QuestionFilterModel): { [id: string]: string } {
   const res: { [id: string]: string } = {};
   const add = (a: Action): void => { res[a.id] = a.iconName; };
   add(q.clearToolbar.getActionById("sv-filter-clear"));
-  add(q.chipsToolbar.getActionById("sv-filter-item-smart"));
   const modal = q.createFilterModal();
   add(modal.creationToolbar.getActionById("sv-filter-modal-add-preset"));
   add(modal.presetsTitleToolbar.getActionById("sv-filter-modal-edit-presets"));
-  res["sv-filter-modal-item-smart"] = modal.presetsToolbar.getActionById("sv-filter-modal-item-smart").iconName;
   const edit = q.createEditPresetsDialog("adults");
   add(edit.actionsToolbar.getActionById("sv-filter-preset-delete"));
   add(edit.actionsToolbar.getActionById("sv-filter-preset-reset"));
@@ -42,10 +38,8 @@ describe("Filter: the icons of its buttons", () => {
   test("every button shows an icon drawn for its size: 16px in the chips row and the pencil, 24px elsewhere", () => {
     expect(iconsOf(control())).toEqual({
       "sv-filter-clear": "icon-close-16x16",
-      "sv-filter-item-smart": "icon-sparkle-16x16",
       "sv-filter-modal-add-preset": "icon-plus-24x24",
       "sv-filter-modal-edit-presets": "icon-edit-16x16",
-      "sv-filter-modal-item-smart": "icon-sparkle-24x24",
       "sv-filter-preset-delete": "icon-delete-24x24",
       "sv-filter-preset-reset": "icon-reset-24x24",
       "sv-filter-preset-add-field": "icon-plus-24x24"

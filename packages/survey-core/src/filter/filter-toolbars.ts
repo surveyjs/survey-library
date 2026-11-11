@@ -15,7 +15,6 @@ import { FilterFieldPopup } from "./filter-field-popup";
 import { FilterChipsLayout } from "./filter-chips-layout";
 import { FilterModal } from "./filter-modal";
 import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter-preset-dialog";
-import { FilterAIDialog } from "./filter-ai-dialog";
 import { filterUIStrings } from "./filter-ui-strings";
 export { filterUIStrings } from "./filter-ui-strings";
 
@@ -64,7 +63,6 @@ export interface IFilterToolbarsOwner {
   createFilterModal(): FilterModal;
   createAddPresetDialog(conditions: Array<IFilterCondition>): FilterPresetDialog;
   createEditPresetsDialog(activeItemName?: string): FilterEditPresetsDialog;
-  createAIDialog(): FilterAIDialog;
   getSurveyRootElement(): HTMLElement;
   getLocale(): string;
 }
@@ -109,11 +107,10 @@ export class FilterToolbars {
   private rowChips: Array<Action>;
   private advancedHolder: FilterEditorHolder;
   private advancedDialog: PopupModalViewModel;
-  // The one dialog open over the Filters dialog - Add New Preset, Edit Presets or Create custom
-  // filter: what the dialog host returned, its model, and the holder a preset dialog is drawn from
-  // (Create custom filter is a survey, drawn with no holder).
+  // The one dialog open over the Filters dialog - Add New Preset or Edit Presets: what the dialog host
+  // returned, its model, and the holder it is drawn from.
   private subDialog: PopupModalViewModel;
-  private subDialogModel: FilterPresetDialog | FilterAIDialog;
+  private subDialogModel: FilterPresetDialog;
   private subDialogHolder: FilterEditorHolder;
   private isUpdating: boolean;
   private isUpdatePending: boolean;
@@ -295,31 +292,6 @@ export class FilterToolbars {
     });
     this.setPresetDialogFooter(this.subDialog, dialogModel instanceof FilterEditPresetsDialog ? (): boolean => dialogModel.canApply : undefined);
   }
-  // Create custom filter (FilterAIDialog), over the Filters dialog that opened it, in the place of a
-  // preset dialog: one of them at a time. Its Apply adds the AI preset, refreshes that dialog's
-  // presets and turns the new one on there, so its count says what the preset leaves; any other way
-  // it closes writes nothing, and an answer that comes after is ignored. The dialog is one survey
-  // (FilterAIDialog.survey), drawn by the "survey" component every renderer registers, as the records'
-  // Sort by dialog is: no holder, the dialog is disposed once it closes.
-  public showAIDialog(modal: FilterModal): void {
-    if (!settings.showDialog || !!this.subDialog || !modal || modal.isDisposed) return;
-    const dialogModel = this.owner.createAIDialog();
-    this.subDialogModel = dialogModel;
-    this.subDialog = this.openDialog({
-      componentName: "survey",
-      data: { model: dialogModel.survey, survey: dialogModel.survey },
-      onApply: (): boolean => {
-        if (!dialogModel.apply()) return false;
-        modal.refreshPresets();
-        modal.togglePreset(dialogModel.createdItem);
-        return true;
-      },
-      onHide: (): void => { this.releaseSubDialog(); },
-      title: dialogModel.title,
-      cssClass: this.getSubDialogCss()
-    });
-    this.setPresetDialogFooter(this.subDialog, (): boolean => dialogModel.canApply);
-  }
   // The dialog over the Filters dialog is gone (closed, or the control disposed): what it was drawn
   // from is released and its model disposed, once - onHide may come after dispose().
   private releaseSubDialog(): void {
@@ -350,8 +322,7 @@ export class FilterToolbars {
   }
   private getSubDialogCss(): string {
     const css = this.cssClasses;
-    return toCssClasses(css.modal, css.presetDialog, this.subDialogModel instanceof FilterAIDialog && css.aiDialog,
-      this.owner.isMobile && css.modalMobile);
+    return toCssClasses(css.modal, css.presetDialog, this.owner.isMobile && css.modalMobile);
   }
   // The dialog host does not close a dialog on a rotation or a resize: the open dialogs follow the
   // control's isMobile - their frames and the surveys they show.
@@ -643,8 +614,6 @@ export class FilterToolbars {
     chip.active = item === this.owner.activeItem;
     chip.ariaChecked = chip.active;
     chip.enabled = !this.owner.isControlReadOnly;
-    chip.iconName = item.kind === "ai" ? "icon-sparkle-16x16" : undefined;
-    chip.iconSize = "auto";
   }
   // A field or a preset that is no longer shown takes its chip with it: the chips that are gone, which
   // the caller disposes once the row no longer holds them.

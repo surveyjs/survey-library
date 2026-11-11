@@ -1118,7 +1118,6 @@ export var defaultCss = {
     presetTabs: "sd-filter-preset-dialog__tabs",
     presetForm: "sd-filter-preset-dialog__form",
     presetFields: "sd-filter-preset-dialog__fields",
-    aiDialog: "sd-filter-ai-dialog",
     aiPrompt: "sd-filter-ai-prompt",
     aiPromptRequest: "sd-filter-ai-prompt__request"
   }

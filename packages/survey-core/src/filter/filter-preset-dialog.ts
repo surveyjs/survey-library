@@ -42,8 +42,6 @@ export interface IFilterPresetBuffer {
   item?: FilterItem;
   title: string;
   conditions: Array<IFilterCondition> | null;
-  // the description of an AI preset (Edit Presets)
-  prompt?: string;
 }
 
 // The Add New Preset dialog: the preset's title and what it contains - a dropdown per field, "+ Add"
@@ -317,9 +315,9 @@ export class FilterPresetDialog extends Base {
 export interface IFilterEditPresetsDialogOwner extends IFilterPresetDialogOwner {
   getEditableItems(): Array<FilterItem>;
   getItemConditions(name: string): Array<IFilterCondition> | null;
-  getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null, prompt?: string };
-  isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null, prompt?: string): boolean;
-  // an AI preset may be asked about again (Make Changes)
+  getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null };
+  isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null): boolean;
+  // a preset's filter may be changed with AI (Make Changes)
   canRequestAI: boolean;
   createAIRequest(): FilterAIRequest;
   canEditItem(item: FilterItem): boolean;
@@ -347,12 +345,11 @@ interface IFilterPresetTab extends IFilterPresetBuffer {
 // does not hold the others back. A preset that may not be edited shows read-only; one that does not
 // decompose has its title only, and no Contains.
 export class FilterEditPresetsDialog extends FilterPresetDialog {
-  // The description and Make Changes of the selected tab's AI preset (see canAskAI); undefined for
-  // any other tab. Made anew for another tab: an answer for the tab left is ignored.
+  // The description and Make Changes of the selected tab (see canAskAI); undefined for a tab that has
+  // none. Made anew, empty, for another tab: an answer for the tab left is ignored. The description is
+  // what to change and not part of the preset: typing it changes nothing in the tab.
   @property() aiPrompt: FilterAIPrompt;
   private aiPromptTab: IFilterPresetTab;
-  // The dialog survey's onValueChanged handler that writes the description into its tab.
-  private aiPromptHandler: (sender: SurveyModel, options: any) => void;
   private tabs: Array<IFilterPresetTab>;
   private tabsToolbarValue: ActionContainer;
   private actionsToolbarValue: ActionContainer;
@@ -379,7 +376,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
       const id = getUniqueFilterActionId("sv-filter-preset-tab-" + item.name, (candidate: string): boolean => !!used[candidate]);
       used[id] = true;
       const conditions = owner.getItemConditions(item.name);
-      const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions, prompt: item.prompt, isDeleted: false,
+      const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions, isDeleted: false,
         isReset: false, isTouched: false, chip: undefined };
       // One choice of several: a radio (aria-checked is not allowed on the default button role).
       tab.chip = new Action({ id: id, title: item.title, ariaRole: "radio", ariaChecked: false, activeAppearance: { style: "neutral", mode: "primary" },
@@ -426,19 +423,14 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     const original = this.editOwner.getOriginalItemState(tab.item.name);
     tab.title = original.title;
     tab.conditions = original.conditions;
-    tab.prompt = original.prompt || "";
     tab.isReset = true;
     tab.isTouched = true;
     this.showBuffer(tab);
-    if (!!this.aiPrompt) {
-      this.aiPrompt.prompt = tab.prompt;
-    }
     this.updateTabs();
   }
   // Checks every tab the respondent changed and writes all of them as one change. false keeps the
   // dialog open on the first tab with an error.
-  // Not while Make Changes waits for the model: the tab's description would be saved with a filter
-  // that is not its answer.
+  // Not while Make Changes waits for the model: the answer would come for a dialog that is gone.
   public get canApply(): boolean {
     return !this.aiPrompt || !this.aiPrompt.isBusy;
   }
@@ -459,10 +451,6 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
         edits.push({ name: name, isDeleted: true });
       } else if (tab.isTouched && owner.canEditItem(tab.item)) {
         const edit: IFilterItemEdit = { name: name, isReset: tab.isReset, title: tab.title.trim(), conditions: tab.conditions === null ? undefined : tab.conditions };
-        const prompt = (tab.prompt || "").trim();
-        if (!!prompt && prompt !== tab.item.prompt) {
-          edit.prompt = prompt;
-        }
         edits.push(edit);
       } else if (tab.isReset) {
         edits.push({ name: name, isReset: true });
@@ -482,10 +470,11 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     super.dispose();
   }
 
-  // Another tab gets its own description and Make Changes; the same tab drawn anew (Make Changes'
-  // answer, Reset) keeps them - and a request it may be waiting for. The old description goes before
-  // the new one is made: both are the "prompt" value of the dialog's survey. Its panel is added after
-  // the "fields" panel, so it stays last whenever the editor is made anew.
+  // Another tab gets its own, empty description and Make Changes; the same tab drawn anew (Make
+  // Changes' answer, Reset) keeps them - the description typed and a request it may be waiting for.
+  // The old description goes before the new one is made: both are the "prompt" value of the dialog's
+  // survey. Its panel is added after the "fields" panel, so it stays last whenever the editor is made
+  // anew.
   protected showBuffer(buffer: IFilterPresetBuffer): void {
     super.showBuffer(buffer);
     const tab = <IFilterPresetTab>buffer;
@@ -518,38 +507,22 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
 
   private get editOwner(): IFilterEditPresetsDialogOwner { return <IFilterEditPresetsDialogOwner>this.owner; }
   private get liveTabs(): Array<IFilterPresetTab> { return this.tabs.filter((tab: IFilterPresetTab): boolean => !tab.isDeleted); }
-  // An AI preset whose filter the tab shows as conditions, which the respondent may change, while
-  // the application answers AI requests.
+  // A preset whose filter the tab shows as conditions, which the respondent may change, while the
+  // application answers AI requests.
   private canAskAI(tab: IFilterPresetTab): boolean {
     const owner = this.editOwner;
-    return !!tab && !!tab.item && tab.item.kind === "ai" && tab.conditions !== null && owner.canEditItem(tab.item) && owner.canRequestAI;
+    return !!tab && !!tab.item && tab.conditions !== null && owner.canEditItem(tab.item) && owner.canRequestAI;
   }
   private createAIPrompt(tab: IFilterPresetTab): FilterAIPrompt {
-    return new FilterAIPrompt(this.editOwner.createAIRequest(), { prompt: tab.prompt, isModify: true,
-      modifyTitle: filterUIStrings.aiPromptEdit, survey: this.survey, css: this.owner.cssClasses,
+    return new FilterAIPrompt(this.editOwner.createAIRequest(), { isModify: true, survey: this.survey, css: this.owner.cssClasses,
       getConditions: (): Array<IFilterCondition> => !!this.editor ? this.editor.getConditions() : (tab.conditions || []),
       onAnswer: (conditions: Array<IFilterCondition>): void => { this.onAIAnswer(tab, conditions); } });
   }
-  // The handler that writes the description into its tab goes before the old prompt is disposed: the
-  // dispose clears the "prompt" value, and the handler would write "" into the tab that is left.
   private setAIPrompt(tab: IFilterPresetTab, prompt: FilterAIPrompt): void {
     const old = this.aiPrompt;
-    if (!!this.aiPromptHandler) {
-      this.survey.onValueChanged.remove(this.aiPromptHandler);
-      this.aiPromptHandler = undefined;
-    }
     this.aiPromptTab = tab;
     this.aiPrompt = prompt;
     if (!!old) old.dispose();
-    if (!!prompt) {
-      this.aiPromptHandler = (_: SurveyModel, options: any): void => {
-        if (options.name !== "prompt" || tab.prompt === prompt.prompt) return;
-        tab.prompt = prompt.prompt;
-        tab.isTouched = true;
-        this.updateTabs();
-      };
-      this.survey.onValueChanged.add(this.aiPromptHandler);
-    }
   }
   // The model's filter is the tab's now: its rows and editors are made anew, the title kept.
   private onAIAnswer(tab: IFilterPresetTab, conditions: Array<IFilterCondition>): void {
@@ -578,6 +551,6 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     });
     const owner = this.editOwner;
     this.deleteAction.visible = !!tab && owner.canDeleteItem(tab.item);
-    this.resetAction.visible = !!tab && !owner.isUserItem(tab.item) && !owner.isOriginalItemState(tab.item.name, tab.title, tab.conditions, tab.prompt);
+    this.resetAction.visible = !!tab && !owner.isUserItem(tab.item) && !owner.isOriginalItemState(tab.item.name, tab.title, tab.conditions);
   }
 }

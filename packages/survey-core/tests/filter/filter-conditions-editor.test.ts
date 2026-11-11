@@ -253,16 +253,6 @@ describe("FilterConditionsEditor: read-only", () => {
     expect(q.ownConditions, "#2").toBe(undefined);
     editor.dispose();
   });
-  test("single mode, an ai preset: display-only, and nothing changes the filter", () => {
-    const q = createControl({ items: [{ name: "smart", kind: "ai", expression: "{age} > 18" }], defaultItem: "smart", allowMultipleItems: false });
-    const editor = q.createFastModeEditor("age");
-    expect(editor.survey.mode, "#1").toBe("display");
-    operatorQ(editor).value = "less";
-    valueQ(editor).value = 5;
-    expect(q.ownConditions, "#2").toBe(undefined);
-    expect(q.filterExpression, "#3").toBe("{age} > 18");
-    editor.dispose();
-  });
 });
 
 describe("FilterConditionsEditor: dispose", () => {

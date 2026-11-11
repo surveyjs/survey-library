@@ -186,3 +186,28 @@ describe("FilterToolbars: the preset dialogs", () => {
     }
   });
 });
+
+describe("FilterToolbars: Edit Presets while Make Changes waits for the model", () => {
+  test("its Apply is off until the answer comes", () => {
+    const dialogs = stubDialogs();
+    try {
+      const q = control({ items: [{ name: "a1", title: "Adults", expression: "{age} > 18" }] });
+      const calls: Array<any> = [];
+      (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
+      const modal = q.createFilterModal();
+      editPresets(modal).action();
+      const edit: FilterEditPresetsDialog = dialogs.calls[0].options.data.holder.presetDialog;
+      const apply: Action = dialogs.calls[0].footerToolbar.actions[1];
+      expect(apply.enabled, "#1").toBe(true);
+      edit.aiPrompt.prompt = "over 21";
+      edit.aiPrompt.request();
+      expect(apply.enabled, "#2").toBe(false);
+      calls[0].callback({ data: { expression: "{age} > 21", title: "", explanation: "" } });
+      expect(apply.enabled, "#3").toBe(true);
+      dialogs.calls[0].cancel();
+      modal.dispose();
+    } finally {
+      dialogs.restore();
+    }
+  });
+});

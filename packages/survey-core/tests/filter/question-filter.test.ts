@@ -60,7 +60,7 @@ describe("QuestionFilterModel", () => {
     const filterHidden = ["fields", "allowReorderItems", "allowChangeSearchFields"];
     expect(visibility("filter", filterShown), "#1").toEqual(filterShown.map(() => true));
     expect(visibility("filter", filterHidden), "#2").toEqual(filterHidden.map(() => false));
-    const itemShown = ["name", "title", "kind", "expression", "prompt", "allowEdit", "allowDelete"];
+    const itemShown = ["name", "title", "expression", "allowEdit", "allowDelete"];
     expect(visibility("filteritem", itemShown), "#3").toEqual(itemShown.map(() => true));
     expect(visibility("filteritem", ["allowCopy"]), "#4").toEqual([false]);
   });

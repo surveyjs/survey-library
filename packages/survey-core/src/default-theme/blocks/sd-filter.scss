@@ -489,41 +489,8 @@
   border-radius: var(--sjs2-radius-x150);
 }
 
-// Create custom filter (FilterAIDialog): one survey - the model's filter as the fields' editors, then
-// the description in a frame - 24px apart, as in the mockup. The survey's own boxes add nothing around
-// them, as in the records' Sort by dialog: no background, padding, margin, shadow or width limit.
-.sd-filter-ai-dialog .sv-popup__content > .sd-root-modern {
-  background: transparent;
-  // Room for a focused action's ring at the bottom, as the other dialogs' content has.
-  padding-bottom: var(--sjs2-border-width-a11y);
-
-  // The survey's surface color.
-  &::before {
-    content: none;
-  }
-
-  .sd-root-modern__wrapper,
-  .sd-container-modern,
-  .sv-components-row,
-  .sv-components-column,
-  .sd-body,
-  .sd-page {
-    margin: 0;
-    padding: 0;
-    min-width: 0;
-    max-width: none;
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-  }
-
-  .sd-page__content {
-    row-gap: var(--sjs2-spacing-x300);
-  }
-}
-
 // The description, its caption over it and the button across under it, in a frame: the panel of
-// FilterAIPrompt, in Create custom filter and in the tab of an AI preset in Edit Presets.
+// FilterAIPrompt, in Add New Preset and in the tabs of Edit Presets.
 .sd-filter-editor .sd-panel.sd-filter-ai-prompt {
   --sd-panel-header-padding-block: 0 var(--sjs2-spacing-x300);
   box-sizing: border-box;

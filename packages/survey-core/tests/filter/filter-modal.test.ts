@@ -8,7 +8,7 @@ import { Action } from "../../src/actions/action";
 const presets = [
   { name: "adults", expression: "{age} > 18 and {country} = 'de'" },
   { name: "edges", expression: "{age} < 18 or {age} > 35" },
-  { name: "smart", kind: "ai", expression: "{age} > 60" }];
+  { name: "smart", expression: "{age} > 60" }];
 function control(over: any = {}): QuestionFilterModel {
   return <QuestionFilterModel>createSurvey(Object.assign({ items: presets, defaultItem: undefined }, over)).getQuestionByName("f1");
 }
@@ -41,7 +41,7 @@ describe("FilterModal: the buffer", () => {
     expect(modal.editor.getConditions(), "#2").toEqual([
       { field: "country", operator: "equal", value: "de" }, { field: "age", operator: "greater", value: 18 }]);
     expect([chip(modal, "adults").active, chip(modal, "edges").active], "#3").toEqual([true, false]);
-    expect(chip(modal, "smart").iconName, "#4").toBe("icon-sparkle-24x24");
+    expect(chip(modal, "smart").iconName, "#4: a preset's chip has no icon").toBeUndefined();
     modal.dispose();
   });
   test("nothing is written until apply(); apply() writes everything with one event of each", () => {

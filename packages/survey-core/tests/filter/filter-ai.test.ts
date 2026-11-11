@@ -4,7 +4,7 @@ import { analyzeFilterExpression } from "../../src/filter/filter-conditions";
 import { readAIJson } from "../../src/ai/ai-response";
 import {
   buildFilterAIContext, buildFilterAISystemPrompt, buildFilterAIInstruction, filterAIGuideExamples, filterAIMaxChoices,
-  filterAIResponseFormat, FilterAIFeature
+  filterAIResponseFormat, FilterAIFeature, makeFilterAITitle
 } from "../../src/filter/filter-ai";
 
 // What the model is told about a Filter Control's fields, and how its answer is read and checked.
@@ -120,5 +120,21 @@ describe("FilterAIFeature", () => {
       .toBe(JSON.stringify({ expression: "{age} > 18", title: "Adults", explanation: "" }));
     const text = feature.buildFixInstruction(answer("{price} > 1"), feature.validate(answer("{price} > 1"), "generate"));
     expect(text.indexOf("{price} > 1") > -1, "#2").toBe(true);
+  });
+});
+
+describe("makeFilterAITitle", () => {
+  test("the model's title, cut to a preset's length", () => {
+    expect(makeFilterAITitle("A very long title that is longer than allowed", [], [])).toBe("A very long title that is longer");
+  });
+  test("the fields' titles when the model gave none", () => {
+    expect(makeFilterAITitle("", ["Country", "Age"], [])).toBe("Country, Age");
+  });
+  test("a taken title gets a number, still within the length", () => {
+    expect(makeFilterAITitle("Adults", [], ["adults"]), "#1").toBe("Adults 2");
+    expect(makeFilterAITitle("Adults", [], ["Adults", "Adults 2"]), "#2").toBe("Adults 3");
+    const long = "x".repeat(32);
+    const res = makeFilterAITitle(long, [], [long]);
+    expect([res.length, res.substring(res.length - 2)], "#3").toEqual([32, " 2"]);
   });
 });

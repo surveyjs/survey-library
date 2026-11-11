@@ -27,7 +27,7 @@
 import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel } from "survey-core";
 import type { PageModel } from "survey-core";
-import { computed, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { useBase } from "./base";
 
 const props = defineProps<{
@@ -38,10 +38,15 @@ const props = defineProps<{
 
 const root = ref<HTMLElement>(null as any);
 
+// Fire after the whole render flush. onMounted runs before sibling components (the progress bar)
+// reach onUpdated, and useBase drops model changes until then, so a value set in an
+// onAfterRenderPage handler would not re-render them.
 const onAfterRender = () => {
-  if (props.survey && root.value) {
-    props.survey.afterRenderPage(root.value);
-  }
+  nextTick(() => {
+    if (props.survey && root.value) {
+      props.survey.afterRenderPage(root.value);
+    }
+  });
 };
 
 const showDescription = computed(() => {

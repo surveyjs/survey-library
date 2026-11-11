@@ -107,6 +107,8 @@ export var finnishSurveyStrings = {
   value: "arvo",
   // "Response required."
   requiredError: "Vastaa kysymykseen, kiitos.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Sinun täytyy valita Kyllä jatkaaksesi.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Arvo on väärä.",
   // [Auto-translated] "The value contains unknown keys: {0}."

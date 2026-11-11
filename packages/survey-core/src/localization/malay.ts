@@ -107,6 +107,8 @@ export var malaySurveyStrings = {
   value: "nilai",
   // "Response required."
   requiredError: "Respons diperlukan.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Anda mesti memilih Ya untuk meneruskan.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Nilainya salah.",
   // [Auto-translated] "The value contains unknown keys: {0}."

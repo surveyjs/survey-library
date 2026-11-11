@@ -107,6 +107,8 @@ export var vietnameseSurveyStrings = {
   value: "Giá trị",
   // "Response required."
   requiredError: "Vui lòng trả lời câu hỏi.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Bạn phải chọn Có để tiếp tục.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Giá trị không chính xác.",
   // [Auto-translated] "The value contains unknown keys: {0}."

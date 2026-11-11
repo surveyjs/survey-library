@@ -107,6 +107,8 @@ export var slovenianStrings = {
   value: "vrednost",
   // "Response required."
   requiredError: "Odgovor je obvezen.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Za nadaljevanje morate izbrati Da.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Vrednost je napačna.",
   // [Auto-translated] "The value contains unknown keys: {0}."

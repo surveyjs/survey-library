@@ -107,6 +107,8 @@ export var hebrewSurveyStrings = {
   value: "ערך",
   // "Response required."
   requiredError: "אנא השב על השאלה",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "עליך לבחור כן כדי להמשיך.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "הערך שגוי.",
   // [Auto-translated] "The value contains unknown keys: {0}."

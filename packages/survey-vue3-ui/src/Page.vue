@@ -41,7 +41,10 @@ const root = ref<HTMLElement>(null as any);
 // Fire after the whole render flush. onMounted runs before sibling components (the progress bar)
 // reach onUpdated, and useBase drops model changes until then, so a value set in an
 // onAfterRenderPage handler would not re-render them.
+// useBase calls this during setup too (immediate watch). There is no DOM yet and onMounted
+// fires it, so skip that call; otherwise both deferred calls would see root and fire twice.
 const onAfterRender = () => {
+  if (!root.value) return;
   nextTick(() => {
     if (props.survey && root.value) {
       props.survey.afterRenderPage(root.value);

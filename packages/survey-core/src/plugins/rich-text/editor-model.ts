@@ -225,7 +225,8 @@ export class RichTextEditorModel {
       return;
     }
     event.preventDefault();
-    this.restoreSelection();
+    // The caret is already in the editor. Restoring an older range would split somewhere else.
+    this.rememberSelection();
     if (!this.saved) return;
     if (event.shiftKey) insertBreak(this.saved);
     else splitBlock(this.element, this.saved);
@@ -761,6 +762,8 @@ function splitBlock(root: HTMLElement, range: Range): void {
   next.appendChild(tail);
   root.appendChild(before);
   root.appendChild(next);
+  ensureCaretLine(before);
+  ensureCaretLine(next);
   placeCaret(next);
 }
 
@@ -773,6 +776,8 @@ function splitElement(block: HTMLElement, range: Range, tag: string): void {
   const next = doc.createElement(tag);
   next.appendChild(tail);
   if (block.parentNode) block.parentNode.insertBefore(next, block.nextSibling);
+  ensureCaretLine(block);
+  ensureCaretLine(next);
   placeCaret(next);
 }
 
@@ -789,10 +794,22 @@ function leaveList(item: HTMLElement): void {
   placeCaret(paragraph);
 }
 
+function ensureCaretLine(element: HTMLElement): void {
+  if ((element.textContent || "").trim()) return;
+  const doc = element.ownerDocument;
+  while(element.firstChild) element.removeChild(element.firstChild);
+  element.appendChild(doc.createElement("br"));
+}
+
 function placeCaret(element: HTMLElement): void {
   const doc = element.ownerDocument;
   const range = doc.createRange();
-  range.selectNodeContents(element);
+  const br = !(element.textContent || "").trim() ? element.querySelector("br") : null;
+  if (br) range.setStartBefore(br);
+  else {
+    range.selectNodeContents(element);
+    range.collapse(true);
+  }
   range.collapse(true);
   selectRange(range);
 }

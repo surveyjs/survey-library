@@ -186,6 +186,26 @@ describe("rich text editor model", () => {
     expect(question.value).toBe("<p>a</p><p>b</p>");
   });
 
+  test("Enter at the end of a line keeps the line and moves the caret below it", () => {
+    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
+    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const { element, model } = mount(question);
+    element.innerHTML = "ab";
+    const caret = document.createRange();
+    caret.selectNodeContents(element);
+    caret.collapse(false);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(caret);
+    model.syncSelection();
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
+    const blocks = element.children;
+    expect(blocks.length).toBe(2);
+    expect(blocks[0].textContent).toBe("ab");
+    expect(blocks[1].innerHTML.toLowerCase()).toBe("<br>");
+    const selection = document.getSelection().getRangeAt(0);
+    expect(blocks[1] === selection.startContainer || blocks[1].contains(selection.startContainer)).toBe(true);
+  });
+
   test("content-agnostic attachEditor does not write a value", () => {
     const element = document.createElement("div");
     document.body.appendChild(element);

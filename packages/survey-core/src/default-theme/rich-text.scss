@@ -23,6 +23,19 @@
 .sd-rich-text__content {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+
+  // The user agent margin on a paragraph is a blank line above the text.
+  p,
+  div,
+  ul,
+  ol {
+    margin: 0;
+  }
+
+  p,
+  div {
+    min-height: 1lh;
+  }
 }
 
 .sd-rich-text__area {

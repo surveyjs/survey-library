@@ -330,6 +330,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "allowClear", visible: false },
     { name: "templateElements", visible: false },
     { name: "templateTitle", visible: true },
+    { name: "templateTitlePlaceholder", visible: true },
     { name: "templateTabTitle", visible: true },
     { name: "tabTitlePlaceholder", visible: true },
     { name: "templateDescription", visible: true },
@@ -393,7 +394,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
     parentName: "question",
     properties: [
       "allowClear",
-      "showCommentArea", "templateElements", "templateTitle", "templateTabTitle", "tabTitlePlaceholder",
+      "showCommentArea", "templateElements", "templateTitle", "templateTitlePlaceholder", "templateTabTitle", "tabTitlePlaceholder",
       "templateDescription", "noEntriesText", "allowAddPanel", "allowRemovePanel", "newPanelPosition",
       "panelCount", "panelCountExpression", "minPanelCount", "maxPanelCount", "defaultPanelValue",
       "copyDefaultValueFromLastEntry", "panelsState", "keyName", "keyDuplicationError", "confirmDelete",

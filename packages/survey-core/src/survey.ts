@@ -9349,7 +9349,9 @@ export class SurveyModel extends SurveyElementCore
     return this.focusQuestionByInstance(this.getQuestionByName(name, true));
   }
   focusQuestionByInstance(question: Question, onError: boolean = false): boolean {
-    if (!question || !question.isVisible || !question.page) return false;
+    // A hidden page cannot become current, so a question there would never be focused and its pending
+    // focus would block later focus calls for this question
+    if (!question || !question.page || !question.isVisibleWithParents) return false;
     const oldQuestion = this.focusingQuestionInfo?.question;
     if (oldQuestion === question) return false;
     this.focusingQuestionInfo = { question: question, onError: onError };

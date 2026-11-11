@@ -12326,6 +12326,80 @@ describe("Survey", () => {
     expect(survey.getPropertyValue("hasLogo")).toBeTruthy();
   });
 
+  test("Survey hasLogo & dynamic text in logo", () => {
+    const survey = new SurveyModel({ logo: "{logoUrl}" });
+    survey.setVariable("logoUrl", "https://surveyjs.io/logo.png");
+    expect(survey.locLogo.renderedHtml).toBe("https://surveyjs.io/logo.png");
+    expect(survey.hasLogo).toBeTruthy();
+    expect(survey.renderedHasLogo).toBeTruthy();
+
+    survey.setVariable("logoUrl", "");
+    expect(survey.locLogo.renderedHtml).toBeFalsy();
+    expect(survey.hasLogo).toBeFalsy();
+    expect(survey.renderedHasLogo).toBeFalsy();
+    expect(survey.isLogoBefore).toBeFalsy();
+    expect(survey.isLogoAfter).toBeFalsy();
+
+    survey.setVariable("logoUrl", null);
+    expect(survey.hasLogo).toBeFalsy();
+
+    survey.setVariable("logoUrl", "https://surveyjs.io/another-logo.png");
+    expect(survey.hasLogo).toBeTruthy();
+    expect(survey.isLogoBefore).toBeTruthy();
+  });
+
+  test("Survey hasLogo & dynamic text in logo, a variable named as the logo property", () => {
+    const survey = new SurveyModel({ logo: "{logo}" });
+    survey.setVariable("logo", "https://surveyjs.io/logo.png");
+    expect(survey.locLogo.renderedHtml).toBe("https://surveyjs.io/logo.png");
+    expect(survey.hasLogo).toBeTruthy();
+
+    survey.setVariable("logo", "");
+    expect(survey.hasLogo).toBeFalsy();
+  });
+
+  test("Survey hasLogo & dynamic text in logo, set into an empty value on start", () => {
+    const survey = new SurveyModel({ logo: "{logo}", logoPosition: "right" });
+    survey.setVariable("logo", null);
+    expect(survey.hasLogo).toBeFalsy();
+    expect(survey.renderedHasLogo).toBeFalsy();
+    expect(survey.isLogoAfter).toBeFalsy();
+  });
+
+  test("Survey hasLogo & dynamic text in logo, an unknown name", () => {
+    const survey = new SurveyModel({ logo: "{unknown}" });
+    expect(survey.locLogo.renderedHtml).toBe("{unknown}");
+    expect(survey.hasLogo).toBeTruthy();
+    expect(survey["hasLogoImage"]).toBe(true);
+  });
+
+  test("Survey hasLogo & dynamic text in logo, a question value, logoPosition none", () => {
+    const survey = new SurveyModel({
+      logo: "{q1}",
+      headerView: "advanced",
+      elements: [{ type: "text", name: "q1" }]
+    });
+    const cover = new Cover();
+    cover.survey = survey;
+    expect(survey.hasLogo, "q1 is empty").toBeFalsy();
+    expect(cover.isEmpty, "q1 is empty, header").toBeTruthy();
+
+    survey.setValue("q1", "https://surveyjs.io/logo.png");
+    expect(survey.hasLogo, "q1 has a value").toBeTruthy();
+    expect(cover.isEmpty, "q1 has a value, header").toBeFalsy();
+    expect(cover.cells.filter(cell => cell.showLogo).length, "q1 has a value, logo cells").toBe(1);
+
+    survey.logoPosition = "none";
+    expect(survey.hasLogo, "logoPosition is none").toBeFalsy();
+
+    survey.logoPosition = "left";
+    expect(survey.hasLogo, "logoPosition is left").toBeTruthy();
+
+    survey.clearValue("q1");
+    expect(survey.hasLogo, "q1 is cleared").toBeFalsy();
+    expect(cover.isEmpty, "q1 is cleared, header").toBeTruthy();
+  });
+
   test("Survey isLogoBefore/isLogoAfter", () => {
     var survey = new SurveyModel({});
     expect(!!survey.locLogo.renderedHtml).toBeFalsy();

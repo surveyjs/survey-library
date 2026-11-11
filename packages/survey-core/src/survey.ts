@@ -2529,7 +2529,9 @@ export class SurveyModel extends SurveyElementCore
    * @see logoPosition
    * @see logoFit
    */
-  @property({ localizable: true }) logo: string;
+  @property({ localizable: { onCreate: (obj: SurveyModel, locStr: LocalizableString) =>
+    locStr.onStringChanged.add(() => obj.resetHasLogo())
+  } }) logo: string;
   /**
    * A logo width in CSS-accepted values.
    *
@@ -2579,8 +2581,13 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   @property() logoPosition: string;
+  // The same value that the header renders into the image's src, so that visibility and src
+  // cannot disagree: dynamic text that resolves to an empty string means there is no image.
+  protected get hasLogoImage(): boolean {
+    return !!this.locLogo.renderedHtml;
+  }
   public get hasLogo(): boolean {
-    return this.getPropertyValue("hasLogo", undefined, () => !!this.logo && this.logoPosition !== "none");
+    return this.getPropertyValue("hasLogo", undefined, () => this.hasLogoImage && this.logoPosition !== "none");
   }
   private resetHasLogo(): void {
     this.resetPropertyValue("hasLogo");
@@ -2679,9 +2686,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public get isMobile() {
     return this._isMobile && !this.isDesignMode;
-  }
-  protected isLogoImageChoosen() {
-    return this.locLogo.renderedHtml;
   }
   public get titleMaxWidth(): string {
     return "";

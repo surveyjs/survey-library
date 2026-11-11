@@ -72,8 +72,10 @@ async function main(): Promise<void> {
     calibrate: (): number => calibrateOnce(now),
     installFunnels: () => installFunnels(Survey)
   });
+  // maxMs 3 s (5 s before 2026-11-10): the samples' spread is a few percent against a 25% threshold, so the extra
+  // samples bought little; at least 5 are kept either way.
   const res = await sampleLoop(driver, { warmup: scenario.warmup === undefined ? 2 : scenario.warmup, samples: scenario.samples || 12,
-    maxMs: scenario.maxMs || 5000, minSamples: 5, now: now });
+    maxMs: scenario.maxMs || 3000, minSamples: 5, now: now });
   (gc as () => void)();
   if (warnings.length > 0 && !isExtra) throw new Error("warnings during the scenario: " + warnings.slice(0, 3).join(" | "));
   const jsonErrors = ctx.cache.jsonErrors || 0;

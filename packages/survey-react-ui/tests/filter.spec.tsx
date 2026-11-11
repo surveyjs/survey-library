@@ -348,7 +348,7 @@ describe("SurveyFilterFieldPopup", () => {
   });
 });
 
-describe("Edit Presets: the AI description", () => {
+describe("The AI description of the preset dialogs", () => {
   function setup(json: any = {}): { q: QuestionFilterModel, calls: Array<any>, container: HTMLElement } {
     const survey = new SurveyModel({ elements: [Object.assign({ type: "filter", name: "f1",
       fields: [{ name: "age", fieldType: "text", inputType: "number" }] }, json)] });
@@ -363,6 +363,37 @@ describe("Edit Presets: the AI description", () => {
     ReactDOM.unmountComponentAtNode(container);
     container.remove();
   }
+  it("Add New Preset draws the description and its button; the fields and the name once the model answered", () => {
+    const { q, calls, container } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    const dialog = q.createAddPresetDialog([]);
+    holder.presetDialog = dialog;
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterPresetDialog, { holder: holder }), container);
+    });
+    const page = (): Element => container.querySelector(".sd-filter-preset-dialog__content .sd-filter-modal__editor");
+    const prompt = (): Element => page().querySelector(".sd-panel.sd-filter-ai-prompt");
+    const fields = (): Array<string> => Array.from(page().querySelectorAll(".sd-filter-preset-dialog__fields .sd-panel__title"))
+      .map((el: Element): string => el.textContent);
+    expect(prompt().querySelector(".sd-panel__title").textContent, "#1").toContain("Describe what you need - AI will do the rest.");
+    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#2").toContain("Create new filter");
+    expect(fields(), "#3: no fields yet").toEqual([]);
+    act(() => {
+      dialog.aiPrompt.prompt = "adults";
+      dialog.aiPrompt.request();
+    });
+    act(() => { calls[0].callback({ data: { expression: "{age} > 18", title: "Grown-ups", explanation: "" } }); });
+    expect(fields(), "#4").toEqual(["age"]);
+    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#5").toContain("Make Changes");
+    expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#6: the model's title").toBe("Grown-ups");
+    act(() => { dialog.aiPrompt.errorText = "Something went wrong"; });
+    expect(prompt().querySelector(".sd-question__erbox").textContent, "#7").toContain("Something went wrong");
+    act(() => { holder.presetDialog = undefined; });
+    dialog.dispose();
+    cleanup(container);
+  });
   it("Edit Presets shows the description and Make Changes in a preset's tab", () => {
     const { q, container } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
     const holder = new FilterEditorHolder();

@@ -159,9 +159,11 @@ export const expressionGuideSections: Array<IExpressionGuideSection> = [
 ];
 
 // The guide as plain text: one section after another, valid examples first, then what does not parse.
-export function getExpressionGuideText(): string {
+// sectionTitles: only these sections, in the guide's order (a Filter Control leaves out the ones about
+// survey questions); every section when not given.
+export function getExpressionGuideText(sectionTitles?: Array<string>): string {
   const lines: Array<string> = ["SurveyJS expression syntax (guide version " + expressionGuideVersion + ")"];
-  expressionGuideSections.forEach(section => {
+  expressionGuideSections.filter(section => !sectionTitles || sectionTitles.indexOf(section.title) > -1).forEach(section => {
     lines.push("");
     lines.push("## " + section.title);
     lines.push(section.text);

@@ -189,9 +189,9 @@ describe("FilterEditPresetsDialog: Make Changes", () => {
       .toEqual(["", "Describe what to change - AI will do the rest.", "Make Changes", true]);
     dialog.dispose();
   });
-  test("none for a preset that does not decompose, or with no handler", () => {
+  test("every editable tab has it, one edited as text too; none with no handler", () => {
     const raw = open(true, "raw");
-    expect(raw.dialog.aiPrompt, "#1").toBeUndefined();
+    expect([!!raw.dialog.aiPrompt, raw.dialog.aiPrompt.isModify], "#1: the text is the filter to change").toEqual([true, true]);
     raw.dialog.selectTab("adults2");
     expect(!!raw.dialog.aiPrompt, "#2: a preset of any origin").toBe(true);
     raw.dialog.selectTab("a1");
@@ -231,10 +231,11 @@ describe("FilterEditPresetsDialog: Make Changes", () => {
       .toEqual([{ filter: 0, uiState: 0 }, [{ field: "age", operator: "greater", value: 18 }], false]);
     dialog.dispose();
   });
-  test("Make Changes with every row removed asks for a new filter: there is nothing to change", () => {
+  test("with every row removed there is nothing to change: Create new filter asks for a new one", () => {
     const { dialog, calls } = open();
     (<any>dialog.form.getPanelByName("contains").elements[0]).clearValue();
-    expect([rows(dialog), dialog.editor, dialog.aiPrompt.isModify], "#1").toEqual([[], undefined, true]);
+    expect([rows(dialog), dialog.editor, dialog.aiPrompt.isModify, dialog.aiPrompt.requestAction.title, dialog.aiPrompt.promptTitle], "#1")
+      .toEqual([[], undefined, false, "Create new filter", "Describe what you need - AI will do the rest."]);
     dialog.aiPrompt.prompt = "adults";
     dialog.aiPrompt.request();
     expect([calls[0].action, calls[0].userPrompt], "#2").toEqual(["generate", "adults"]);

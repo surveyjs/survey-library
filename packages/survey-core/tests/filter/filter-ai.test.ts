@@ -18,7 +18,7 @@ describe("buildFilterAIContext", () => {
       choices: [{ value: "de", text: "Germany" }, { value: "fr", text: "France" }, { value: "gb", text: "Great Britain" }] });
     expect(ctx.fields[1].valueType, "#3").toBe("string");
     expect(ctx.fields[0].choices, "#4: no choices to list").toBeUndefined();
-    expect([ctx.truncated.choices, ctx.locales.survey, ctx.guideVersion], "#5").toEqual([false, "en", "1"]);
+    expect([ctx.truncated.choices, ctx.locales.survey, ctx.guideVersion], "#5").toEqual([false, "en", "2"]);
   });
   test("a field with more choices than are listed", () => {
     const choices = [];
@@ -87,13 +87,12 @@ describe("FilterAIFeature", () => {
   test("validate: conditions the control can show have no problems", () => {
     expect(feature.validate(answer("{age} > 18 and {country} anyof ['de', 'fr']"), "generate")).toEqual([]);
   });
-  test("validate: what does not decompose", () => {
-    const issues = feature.validate(answer("{age} > 1 or {age} < 5"), "generate");
-    expect(issues.map((i) => [i.code, i.severity])).toEqual([["filter:not-and", "error"]]);
+  test("validate: a filter that does not decompose has no problems - it is kept as text; one that does not parse is an error", () => {
+    expect(feature.validate(answer("{age} > 1 or {age} < 5"), "generate"), "#1").toEqual([]);
+    expect(feature.validate(answer("{age} >"), "generate").map((i) => [i.code, i.severity]), "#2").toEqual([["filter:syntax", "error"]]);
   });
-  test("validate: a field named in the message", () => {
-    const issues = feature.validate(answer("{price} > 1"), "generate");
-    expect([issues.length, issues[0].code, issues[0].message.indexOf("price") > -1]).toEqual([1, "filter:unknown-field", true]);
+  test("validate: a name the control has no field for is no problem either: the text is kept as written", () => {
+    expect(feature.validate(answer("{price} > 1"), "generate")).toEqual([]);
   });
   test("validate: a choice compared by its text", () => {
     const issues = feature.validate(answer("{country} = 'Germany'"), "generate");
@@ -118,8 +117,9 @@ describe("FilterAIFeature", () => {
   test("serialize and the fix instruction", () => {
     expect(feature.serialize({ expression: "{age} > 18", title: "Adults", explanation: "" }), "#1")
       .toBe(JSON.stringify({ expression: "{age} > 18", title: "Adults", explanation: "" }));
-    const text = feature.buildFixInstruction(answer("{price} > 1"), feature.validate(answer("{price} > 1"), "generate"));
-    expect(text.indexOf("{price} > 1") > -1, "#2").toBe(true);
+    const broken = answer("{age} >");
+    const text = feature.buildFixInstruction(broken, feature.validate(broken, "generate"));
+    expect([text.indexOf("{age} >") > -1, text.indexOf("not a valid SurveyJS expression") > -1], "#2").toEqual([true, true]);
   });
 });
 

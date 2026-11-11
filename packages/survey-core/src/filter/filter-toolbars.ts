@@ -291,7 +291,7 @@ export class FilterToolbars {
       title: dialogModel.title,
       cssClass: this.getSubDialogCss()
     });
-    this.setPresetDialogFooter(this.subDialog, dialogModel instanceof FilterEditPresetsDialog ? (): boolean => dialogModel.canApply : undefined);
+    this.setPresetDialogFooter(this.subDialog, (): boolean => dialogModel.canApply);
   }
   // The dialog over the Filters dialog is gone (closed, or the control disposed): what it was drawn
   // from is released and its model disposed, once - onHide may come after dispose().

@@ -6,7 +6,6 @@ import { PanelModel } from "../panel";
 import { Question } from "../question";
 import { CustomError } from "../error";
 import { Serializer } from "../jsonobject";
-import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import type { FilterAIRequest, FilterAIResult } from "./filter-ai";
 import { filterUIStrings } from "./filter-ui-strings";
@@ -18,13 +17,13 @@ import "../question_comment";
 export const filterAIPromptMaxLength = 500;
 
 export interface IFilterAIPromptOptions {
-  // the filter exists: the request is "modify" from the start (a tab of Edit Presets)
-  isModify?: boolean;
-  // the filter as it is now, which "modify" sends
-  getConditions: () => Array<IFilterCondition>;
-  onAnswer: (conditions: Array<IFilterCondition>, title: string) => void;
+  // The filter the dialog holds now, as text, "" for none: Make Changes sends it, and with none the
+  // request is for a new filter (Create new filter).
+  getExpression: () => string;
+  // the model's filter, as text, and the title it gave it
+  onAnswer: (expression: string, title: string) => void;
   // The survey the description is added to, as a panel at the end of its first page: the dialog's
-  // survey (Edit Presets), which the dialog owns and draws.
+  // survey (Add New Preset, Edit Presets), which the dialog owns and draws.
   survey: SurveyModel;
   // The control's classes: the panel's frame (aiPrompt) and the row of its button (aiPromptRequest).
   css?: any;
@@ -41,7 +40,8 @@ export class FilterAIPrompt extends Base {
   @property({ defaultValue: false }) isBusy: boolean;
   // "" while nothing went wrong
   @property({ defaultValue: "" }) errorText: string;
-  // There is a filter to change: the caption and the button say so, and a request is "modify".
+  // There is a filter to change: the caption and the button say so, and a request is "modify". Follows
+  // the dialog's filter (refresh).
   @property({ defaultValue: false }) isModify: boolean;
   private surveyValue: SurveyModel;
   private panelValue: PanelModel;
@@ -55,7 +55,6 @@ export class FilterAIPrompt extends Base {
 
   constructor(private aiRequest: FilterAIRequest, private options: IFilterAIPromptOptions) {
     super();
-    this.isModify = !!options.isModify;
     this.surveyValue = options.survey;
     // Listened to before the panel is made: the panel reads its classes when it is first drawn.
     this.surveyValue.onUpdatePanelCssClasses.add(this.onUpdatePanelCss);
@@ -65,6 +64,12 @@ export class FilterAIPrompt extends Base {
     this.panelValue = this.createPanel();
     this.surveyValue.setValue("prompt", "");
     this.surveyValue.onValueChanged.add(this.onSurveyValueChanged);
+    this.refresh();
+  }
+  // The dialog's filter changed: whether there is one to change now.
+  public refresh(): void {
+    if (this.isDisposed) return;
+    this.isModify = !!(this.options.getExpression() || "").trim();
     this.updateAction();
   }
   public getType(): string { return "filteraiprompt"; }
@@ -76,8 +81,8 @@ export class FilterAIPrompt extends Base {
     return this.isModify ? filterUIStrings.aiPromptEdit : filterUIStrings.aiPromptNew;
   }
   public get requestAction(): Action { return this.requestActionValue; }
-  // Asks the model: a new filter, or the filter as it is for the description as it is now. Nothing
-  // while a request runs or for a blank description.
+  // Asks the model: a new filter, or a change of the filter as it is now. Nothing while a request runs
+  // or for a blank description.
   public request(): void {
     const prompt = this.prompt.trim();
     if (this.isDisposed || this.isBusy || !prompt) return;
@@ -85,11 +90,9 @@ export class FilterAIPrompt extends Base {
     this.errorText = "";
     this.updateAction();
     const done = (res: FilterAIResult): void => { this.onResult(res); };
-    // A filter whose every condition was taken away has nothing to change: the request asks for a
-    // new one, and the button still says Make Changes.
-    const conditions = this.isModify ? this.options.getConditions() : [];
-    if (conditions.length > 0) {
-      this.aiRequest.modify(prompt, conditions, done);
+    const expression = (this.options.getExpression() || "").trim();
+    if (!!expression) {
+      this.aiRequest.modify(prompt, expression, done);
     } else {
       this.aiRequest.generate(prompt, done);
     }
@@ -158,10 +161,10 @@ export class FilterAIPrompt extends Base {
   private onResult(res: FilterAIResult): void {
     if (this.isDisposed) return;
     this.isBusy = false;
-    if (res.status === "answer") {
+    if (res.status === "answer" || res.status === "expression") {
       this.errorText = "";
-      this.isModify = true;
-      this.options.onAnswer(res.conditions, res.title);
+      const expression = res.status === "answer" ? this.aiRequest.toExpression(res.conditions) : res.expression;
+      this.options.onAnswer(expression, res.title);
     } else if (res.status === "empty") {
       this.errorText = res.explanation || filterUIStrings.aiEmpty;
     } else {

@@ -42,7 +42,6 @@ export class QuestionMatrixDropdownRenderedCell {
   public column: MatrixDropdownColumn;
   public row: MatrixDropdownRowModelBase;
   public question: Question;
-  public isRemoveRow: boolean;
   public choiceIndex: number;
   public isOtherChoice: boolean;
   public matrix: QuestionMatrixDropdownModelBase;

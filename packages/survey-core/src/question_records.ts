@@ -343,16 +343,6 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return this._recordTargets;
   }
-  // The state of the helpers under the names the question held it by, which the record-state tests read.
-  private get hiddenAnswerStates(): Map<any, HashTable<number>> {
-    return !!this._hiddenAnswers ? this._hiddenAnswers.hiddenAnswerStates : undefined;
-  }
-  private get heldRemoveTargets(): Array<IRecordTarget> {
-    return !!this._recordTargets ? this._recordTargets.heldRemoveTargets : undefined;
-  }
-  public get isCompositeQuestion(): boolean {
-    return true;
-  }
   public get isContainer(): boolean { return true; }
   public get isAllowTitleLeft(): boolean {
     return false;
@@ -952,11 +942,6 @@ export abstract class QuestionRecordsModel extends Question {
      pageVisibleIndex. 0 without a list. The questions convert through the two members below. */
   private get pageStartVisibleIndex(): number {
     return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex() : 0;
-  }
-  // The position of an object among the visible objects of the page (QuestionRecordItem.pageVisibleIndex); -1: not shown.
-  protected getItemPageVisibleIndex(item: QuestionRecordItem): number {
-    const visibleIndex = this.getItemVisibleIndex(item);
-    return visibleIndex < 0 ? -1 : this.getPositionAtVisibleIndex(visibleIndex);
   }
   // A position among the visible objects of the page -> the visible index of the whole view; -1 for no position.
   protected getVisibleIndexAtPosition(position: number): number {
@@ -4611,13 +4596,6 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     return DynamicDataList.isValueChanged(newValue, oldValue);
   }
 
-  protected getSharedQuestionByName(columnName: string): Question {
-    return this.data.getSharedQuestionFromArray(columnName, this.getIndex());
-  }
-  // The object's position among the visible objects: the page it is on, when the question pages; -1: not shown.
-  public get pageVisibleIndex(): number {
-    return !!this.data ? this.data["getItemPageVisibleIndex"](this) : -1;
-  }
   // The 0-based number the respondent sees for this object's record (getRecordNumberOf).
   protected getOwnRecordNumber(): number {
     return getRecordNumberOf(this);

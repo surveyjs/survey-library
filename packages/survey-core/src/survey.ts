@@ -7503,7 +7503,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.onExpressionRunning.isEmpty) return undefined;
     return this.questionTriggersKeys;
   }
-  // The skip check's parsed variable names (ValueGetter.isAnyKeyChangedCore), shared by every runner and trigger
+  // The skip check's parsed variable names (ValueGetter.isAnyKeyChanged), shared by every runner and trigger
   // of the survey and keyed by the exact name: a large survey has far fewer distinct names than runner slots.
   // An item depends on the name only: settings are read on every call, never kept in it, and an item never
   // reaches ValueGetter.run, which changes the path it parses. Built on the first keyed check; it lives as long
@@ -9438,10 +9438,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public getItemValueWrapperComponentData(item: ItemValue, question: QuestionSelectBase): any {
     return this.elementWrapperDataCore(item, question, "itemvalue", undefined, item);
-  }
-  public getMatrixCellTemplateData(cell: any): any {
-    const res: any = cell.question;
-    return this.elementWrapperDataCore(res, res, "cell");
   }
 
   public searchText(text: string): Array<IFindElement> {

@@ -14400,13 +14400,10 @@ describe("Survey", () => {
   });
   test("onElementWrapperComponentName event", () => {
     const survey = new SurveyModel({
-      elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] },
-        { type: "matrixdynamic", name: "q3", rowCount: 1, columns: [{ name: "col1" }] }
-      ]
+      elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] }]
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
-    const q3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q3");
     survey.onElementWrapperComponentData.add((sender, options) => {
       if (options.wrapperName === "component" && options.reason === "test1") {
         options.data = "#1";
@@ -14417,14 +14414,10 @@ describe("Survey", () => {
       if (options.wrapperName === "itemvalue" && options.item?.value === 1) {
         options.data = "#3";
       }
-      if (options.wrapperName === "cell" && options.element.name === "col1") {
-        options.data = "#4";
-      }
     });
     expect(survey.getElementWrapperComponentData(q1, "test1"), "#1").toBe("#1");
     expect(survey.getRowWrapperComponentData(new QuestionRowModel(survey.pages[0])), "#2").toBe("#2");
     expect(survey.getItemValueWrapperComponentData(q2.choices[0], q2), "#3").toBe("#3");
-    expect(survey.getMatrixCellTemplateData(q3.visibleRows[0].cells[0]), "#4").toBe("#4");
   });
   test("Skip trigger test and auto focus first question on the page", () => {
     var focusedQuestions = [];

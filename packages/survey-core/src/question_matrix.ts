@@ -403,9 +403,6 @@ export class QuestionMatrixModel
   protected get supportsQuestionView(): boolean {
     return false;
   }
-  public get isCompositeQuestion(): boolean {
-    return true;
-  }
   /**
    * Specifies whether to display the table header that contains column captions.
    *
@@ -1202,9 +1199,6 @@ export class QuestionMatrixModel
   }
   protected clearInvisibleColumnValues(): void {
     this.clearInvisibleValuesInRowsAndColumns(false, true, false);
-  }
-  protected clearInvisibleValuesInRows(): void {
-    this.clearInvisibleValuesInRowsAndColumns(true, false, false);
   }
   protected clearInvisibleValuesInRowsAndColumns(inRows: boolean, inColumns: boolean, inCorrectRows: boolean): void {
     if (this.isEmpty()) return;

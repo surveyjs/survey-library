@@ -28,7 +28,6 @@ import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
-import { AnimationProperty, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { PanelDynamicActions, PanelDynamicTabbedMenuItem } from "./paneldynamic-actions";
 import { PanelDynamicAnimation } from "./paneldynamic-animation";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
@@ -1247,18 +1246,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 
   public get renderedPanels(): Array<PanelModel> {
     return this._renderedPanels;
-  }
-  // The animation state under the names the question held it by, which the tests read and write.
-  private get leftVisibleIndex(): number { return this.dynamicAnimation.leftVisibleIndex; }
-  private get removedPanelIndex(): number { return this.dynamicAnimation.removedPanelIndex; }
-  private set removedPanelIndex(val: number) { this.dynamicAnimation.removedPanelIndex = val; }
-  private get focusNewPanelCallback(): () => void { return this.dynamicAnimation.focusNewPanelCallback; }
-  private set focusNewPanelCallback(val: () => void) { this.dynamicAnimation.focusNewPanelCallback = val; }
-  private getPanelsAnimationOptions(): IAnimationConsumer<[PanelModel]> {
-    return this.dynamicAnimation.getAnimationOptions();
-  }
-  get panelsAnimation(): AnimationProperty<Array<PanelModel>, IAnimationGroupConsumer<PanelModel>> {
-    return this.dynamicAnimation.panelsAnimation;
   }
 
   public onHidingContent(): void {
@@ -3643,10 +3630,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get tabbedMenu(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> | null {
     return this.isRenderModeTab ? this.dynamicActions.tabbedMenu : null;
   }
-  // The menu once it is created, which the tests read.
-  private get tabbedMenuValue(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> {
-    return this.actionsValue?.createdTabbedMenu;
-  }
   private updateTabbedMenuItems(): void {
     this.actionsValue?.updateTabbedMenuItems();
   }
@@ -3669,13 +3652,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public get ariaInvalid() {
     return null;
-  }
-  // The footer update under the names the question held it by: a callback assigned here is the one updateFooterActions runs.
-  private get updateFooterActionsCallback(): () => void {
-    return this.actionsValue?.updateFooterActionsCallback;
-  }
-  private set updateFooterActionsCallback(val: () => void) {
-    this.dynamicActions.updateFooterActionsCallback = val;
   }
   /* The footer follows the question properties it reads by itself (PanelDynamicActions). This update is
      for what is not a property: the current panel's visibleIndex, the panels a build or a removal

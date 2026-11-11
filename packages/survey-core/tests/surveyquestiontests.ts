@@ -5827,7 +5827,6 @@ describe("Survey_Questions", () => {
     };
     var survey = new SurveyModel(json);
     var question = <QuestionCheckboxModel>survey.getAllQuestions()[0];
-    expect(question.checkBoxSvgPath[0], "Obtain checkbox SVG path").toBe("M");
     expect(question.isOtherItem(question.choices[0]), "First item is not other").toBe(false);
     expect(question.isOtherItem(question.choices[2]), "Last item is other").toBe(true);
 

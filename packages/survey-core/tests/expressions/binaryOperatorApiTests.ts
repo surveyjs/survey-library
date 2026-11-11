@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { ExpressionRunner } from "../../src/expressions/expressionRunner";
-import { BinaryOperand, OperandMaker, hasBinaryOperator, runBinaryOperator } from "../../src/expressions/expressions";
+import { BinaryOperand, OperandMaker, runBinaryOperator } from "../../src/expressions/expressions";
 import { settings } from "../../src/settings";
 
 // runBinaryOperator is the public, model-free way to apply a condition operator.
@@ -93,24 +93,14 @@ describe("runBinaryOperator", () => {
   });
 
   test("an operator name from Object.prototype is not an operator", () => {
-    expect(hasBinaryOperator("constructor")).toBe(false);
-    expect(hasBinaryOperator("__proto__")).toBe(false);
-    expect(hasBinaryOperator("toString")).toBe(false);
+    expect(() => runBinaryOperator("__proto__", 1, 2)).toThrow();
+    expect(() => runBinaryOperator("toString", 1, 2)).toThrow();
     expect(() => runBinaryOperator("constructor", 1, 2)).toThrow();
     expect(() => new BinaryOperand("constructor", null, null)).toThrow();
   });
 
   test("the internal helpers of binaryFunctions are not operators", () => {
-    expect(hasBinaryOperator("arithmeticOp")).toBe(false);
-    expect(hasBinaryOperator("containsCore")).toBe(false);
+    expect(() => runBinaryOperator("arithmeticOp", 1, 2)).toThrow();
     expect(() => runBinaryOperator("containsCore", "abc", "a")).toThrow();
-  });
-
-  test("known operators are reported as known", () => {
-    ["equal", "notequal", "contains", "anyof", "allof", "noneof", "less", "plus"].forEach(op => {
-      expect(hasBinaryOperator(op)).toBe(true);
-    });
-    expect(hasBinaryOperator("")).toBe(false);
-    expect(hasBinaryOperator(undefined)).toBe(false);
   });
 });

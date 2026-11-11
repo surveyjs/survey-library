@@ -39,8 +39,8 @@ describe("QuestionFilterModel: uiState of the respondent's presets", () => {
     q.toggleItem("userItem1");
     const state = filterState(survey);
     expect(state, "#1").toEqual({ activeItemName: "userItem1",
-      items: { adults: { conditions: [{ field: "age", operator: "greater", value: 21 }], title: "Grown-ups" }, edges: { title: "Edges" } },
-      userItems: [{ name: "userItem1", title: "Old", conditions: [{ field: "age", operator: "greater", value: 60 }] }],
+      items: { adults: { expression: "{age} > 21", title: "Grown-ups" }, edges: { title: "Edges" } },
+      userItems: [{ name: "userItem1", title: "Old", expression: "{age} > 60" }],
       deletedItems: ["germans"] });
     const q2 = restored(state);
     expect(names(q2), "#2").toEqual(["adults", "edges", "userItem1"]);
@@ -64,7 +64,7 @@ describe("QuestionFilterModel: uiState of the respondent's presets", () => {
     q.addItem("A", [{ field: "age", operator: "less", value: 5 }]);
     let uiStateEvents = 0;
     survey.onUIStateChanged.add(() => { uiStateEvents++; });
-    survey.uiState = { questions: { f1: { filter: { userItems: [{ name: "userItem7", title: "B", conditions: [{ field: "age", operator: "less", value: 6 }] }] } } } };
+    survey.uiState = { questions: { f1: { filter: { userItems: [{ name: "userItem7", title: "B", expression: "{age} < 6" }] } } } };
     expect([names(q), titles(q), uiStateEvents], "#1").toEqual([["adults", "germans", "edges", "userItem7"], ["Adults", "germans", "edges", "B"], 0]);
   });
 });
@@ -76,7 +76,7 @@ describe("QuestionFilterModel: a restore after the chips row is drawn", () => {
     const chips = (): Array<string> => q.chipsToolbar.actions.map((a) => a.id).filter((id: string) => id.indexOf("sv-filter-item-") === 0);
     expect(chips(), "#1").toEqual(["sv-filter-item-adults", "sv-filter-item-germans", "sv-filter-item-edges"]);
     survey.uiState = { questions: { f1: { filter: { deletedItems: ["germans"],
-      userItems: [{ name: "userItem1", title: "Old", conditions: [{ field: "age", operator: "greater", value: 60 }] }] } } } };
+      userItems: [{ name: "userItem1", title: "Old", expression: "{age} > 60" }] } } } };
     expect(chips(), "#2").toEqual(["sv-filter-item-adults", "sv-filter-item-edges", "sv-filter-item-userItem1"]);
   });
 });
@@ -89,14 +89,14 @@ describe("QuestionFilterModel: what is not restored", () => {
     expect([names(q), titles(q)], "#1").toEqual([["adults", "germans"], ["adults", "germans"]]);
   });
   test("a respondent's preset none of whose conditions the fields hold; a broken entry", () => {
-    const q = restored({ userItems: [{ name: "userItem1", title: "Gone", conditions: [{ field: "nosuchfield", operator: "equal", value: 1 }] },
-      null, { name: "userItem2", title: "Kept", conditions: [{ field: "age", operator: "less", value: "5" }] }, { name: "userItem3", title: "No list" }] });
+    const q = restored({ userItems: [{ name: "userItem1", title: "Gone", expression: "{nosuchfield} = 1" },
+      null, { name: "userItem2", title: "Kept", expression: "{age} < '5'" }, { name: "userItem3", title: "No list" }] });
     expect(names(q), "#1").toEqual(["adults", "germans", "edges", "userItem2"]);
     expect(q.getItemByName("userItem2").expression, "#2: coerced as conditions are").toBe("{age} < 5");
   });
   test("a respondent's preset whose name an authored preset took since gets a new one, and stays on", () => {
     const q = restored({ activeItemName: "userItem1",
-      userItems: [{ name: "userItem1", title: "Mine", conditions: [{ field: "age", operator: "less", value: 5 }] }] },
+      userItems: [{ name: "userItem1", title: "Mine", expression: "{age} < 5" }] },
     { items: presets.concat([{ name: "userItem1", title: "Author's", expression: "{age} > 99" }]) });
     expect(titles(q), "#1").toEqual(["Adults", "germans", "edges", "Author's", "Mine"]);
     expect([q.activeItem.title, q.filterExpression], "#2").toEqual(["Mine", "{age} < 5"]);
@@ -115,12 +115,12 @@ describe("QuestionFilterModel: the respondent's presets restored before the boun
     survey.onFilterChanged.add((_, o) => { filters.push(o.filterExpression); });
     const state = { questions: { f1: { filter: { activeItemName: "userItem1", deletedItems: ["de"],
       items: { de: { title: "Germany" } },
-      userItems: [{ name: "userItem1", title: "Cheap", conditions: [{ field: "price", operator: "less", value: "100" }] }] } } } };
+      userItems: [{ name: "userItem1", title: "Cheap", expression: "{price} < '100'" }] } } } };
     survey.uiState = state;
     const q = control(survey);
     expect([names(q), q.filterExpression], "#1").toEqual([[], ""]);
     expect(filterState(survey), "#2").toEqual({ activeItemName: "userItem1", deletedItems: ["de"],
-      userItems: [{ name: "userItem1", title: "Cheap", conditions: [{ field: "price", operator: "less", value: "100" }] }] });
+      userItems: [{ name: "userItem1", title: "Cheap", expression: "{price} < '100'" }] });
     const matrix = new QuestionMatrixDynamicModel("m");
     matrix.addColumn("country");
     const price = matrix.addColumn("price");

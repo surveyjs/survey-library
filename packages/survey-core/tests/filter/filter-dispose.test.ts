@@ -38,7 +38,7 @@ function disposedTwice(counts: Map<any, number>): number {
   return Array.from(counts.values()).filter((n: number) => n > 1).length;
 }
 const userItem = (name: string, title: string, value: number): any =>
-  ({ name: name, title: title, conditions: [{ field: "age", operator: "less", value: value }] });
+  ({ name: name, title: title, expression: "{age} < " + value });
 
 describe("QuestionFilterModel: the presets and fields it lets go of", () => {
   afterEach(() => { vi.restoreAllMocks(); });

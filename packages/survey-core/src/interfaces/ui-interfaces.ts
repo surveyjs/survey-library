@@ -29,20 +29,21 @@ export interface IFilterState {
   searchString: string;
 }
 // One preset's change in the Edit Presets dialog, applied with the others as one change: deleted,
-// or reset to what the JSON authored and then given a new title and conditions - each optional.
+// or reset to what the JSON authored and then given a new title and filter - each optional. The
+// filter is conditions, or expression for a preset edited as text.
 export interface IFilterItemEdit {
   name: string;
   title?: string;
   conditions?: Array<IFilterCondition>;
+  expression?: string;
   isReset?: boolean;
   isDeleted?: boolean;
 }
-// A preset the respondent added, as uiState keeps it: its conditions and not its expression text,
-// as with saved presets.
+// A preset the respondent added, as uiState keeps it: its title and its expression.
 export interface IFilterUserItemState {
   name: string;
   title: string;
-  conditions: Array<IFilterCondition>;
+  expression: string;
 }
 // The end-user state of a Filter Control. Only what the respondent changed is kept here: what the
 // JSON authored is already in the JSON and is restored by loading it.
@@ -52,14 +53,12 @@ export interface IFilterElementUIState {
   activeItemName?: string;
   searchString?: string;
   searchFields?: Array<string>;
-  // The respondent's unsaved edits - the full set, not a diff against the preset. Stored only when
-  // there are any: over an active preset only when they change it ([] = its conditions were
-  // cleared), with no preset only when not empty.
-  conditions?: Array<IFilterCondition>;
-  // Authored presets the respondent changed, by name: the conditions saved into one (Save in single
-  // mode, the Edit Presets dialog) and the title given to one. Kept as conditions and not as
-  // expression text: the preset's expression is rebuilt from them on restore, with nothing to parse
-  // back.
+  // The respondent's unsaved edits - the full set, not a diff against the preset - as the expression
+  // they compose. Stored only when there are any: over an active preset only when they change it
+  // ("" = its conditions were cleared), with no preset only when not empty.
+  expression?: string;
+  // Authored presets the respondent changed, by name: the expression saved into one (Save in single
+  // mode, the Edit Presets dialog) and the title given to one.
   items?: { [name: string]: IFilterSavedItemState };
   // The presets the respondent added, in their order.
   userItems?: Array<IFilterUserItemState>;
@@ -68,7 +67,7 @@ export interface IFilterElementUIState {
 }
 // An authored preset the respondent changed, as uiState keeps it - see IFilterElementUIState.items.
 export interface IFilterSavedItemState {
-  conditions?: Array<IFilterCondition>;
+  expression?: string;
   title?: string;
 }
 export interface IElementUIState {

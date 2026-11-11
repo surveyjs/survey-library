@@ -103,7 +103,7 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", readOnly: true, fields: [{ name: "age" }],
       items: [{ name: "adults", expression: "{age} > 18" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    survey.uiState = { questions: { f1: { filter: { conditions: [{ field: "age", operator: "less", value: 5 }] } } } };
+    survey.uiState = { questions: { f1: { filter: { expression: "{age} < 5" } } } };
     expect(q.filterExpression, "#1: restored").toBe("{age} < 5");
     q.setFieldCondition("age", "greater", 30);
     expect(q.filterExpression, "#2: from code").toBe("{age} > 30");

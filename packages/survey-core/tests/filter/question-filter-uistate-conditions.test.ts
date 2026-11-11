@@ -37,10 +37,7 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     const expression = q.filterExpression;
     expect(expression, "#1").toBe("{age} > 21 and {country} = 'de' and {name} contains 'an'");
     const state = filterState(survey);
-    expect(state, "#2: the full set, not a diff").toEqual({ activeItemName: "", conditions: [
-      { field: "age", operator: "greater", value: 21 },
-      { field: "country", operator: "equal", value: "de" },
-      { field: "name", operator: "contains", value: "an" }] });
+    expect(state, "#2: the full set, not a diff").toEqual({ activeItemName: "", expression: "{age} > 21 and {country} = 'de' and {name} contains 'an'" });
     const restored = create();
     restored.uiState = survey.uiState;
     const q2 = control(restored);
@@ -52,8 +49,7 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     const q = control(survey);
     q.setFieldCondition("age", "greater", 21);
     const state = filterState(survey);
-    expect(state, "#1").toEqual({ conditions: [
-      { field: "age", operator: "greater", value: 21 }, { field: "country", operator: "equal", value: "de" }] });
+    expect(state, "#1").toEqual({ expression: "{age} > 21 and {country} = 'de'" });
     const restored = create({ allowMultipleItems: false });
     restored.uiState = survey.uiState;
     const q2 = control(restored);
@@ -63,8 +59,7 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
   });
   test("a restored state that names a preset and has conditions turns the preset off", () => {
     const restored = create();
-    restored.uiState = { questions: { f1: { filter: { activeItemName: "kids",
-      conditions: [{ field: "age", operator: "less", value: 5 }] } } } };
+    restored.uiState = { questions: { f1: { filter: { activeItemName: "kids", expression: "{age} < 5" } } } };
     const q = control(restored);
     expect(q.activeItemName, "#1").toBe("");
     expect(q.filterExpression, "#2").toBe("{age} < 5");
@@ -72,7 +67,7 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
   test("edits with no active preset round-trip", () => {
     const survey = create({ defaultItem: "" });
     control(survey).setFieldCondition("country", "equal", "fr");
-    expect(filterState(survey), "#1").toEqual({ conditions: [{ field: "country", operator: "equal", value: "fr" }] });
+    expect(filterState(survey), "#1").toEqual({ expression: "{country} = 'fr'" });
     const restored = create({ defaultItem: "" });
     restored.uiState = survey.uiState;
     expect(control(restored).filterExpression, "#2").toBe("{country} = 'fr'");
@@ -85,10 +80,10 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     expect(q.isActiveItemModified, "#1").toBe(false);
     expect(survey.uiState.questions, "#2").toBe(undefined);
   });
-  test("single mode: cleared conditions of the active preset round-trip as []", () => {
+  test("single mode: cleared conditions of the active preset round-trip as an empty expression", () => {
     const survey = create({ allowMultipleItems: false });
     control(survey).clearConditions();
-    expect(filterState(survey), "#1").toEqual({ conditions: [] });
+    expect(filterState(survey), "#1").toEqual({ expression: "" });
     const restored = create({ allowMultipleItems: false });
     restored.uiState = survey.uiState;
     const q2 = control(restored);
@@ -96,29 +91,28 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     expect(q2.ownConditions, "#3").toEqual([]);
     expect(q2.filterExpression, "#4").toBe("");
   });
-  test("single mode: a preset the respondent saved round-trips from its conditions, without parsing", () => {
+  test("single mode: a preset the respondent saved round-trips as its expression", () => {
     const survey = create({ allowMultipleItems: false });
     const q = control(survey);
     q.setFieldCondition("age", "greater", 30);
     q.saveActiveItem();
     expect(q.activeItem.expression, "#1").toBe("{age} > 30 and {country} = 'de'");
-    expect(filterState(survey), "#2: the preset is not modified").toEqual({ items: {
-      adults: { conditions: [{ field: "age", operator: "greater", value: 30 }, { field: "country", operator: "equal", value: "de" }] } } });
+    expect(filterState(survey), "#2: the preset is not modified").toEqual({ items: { adults: { expression: "{age} > 30 and {country} = 'de'" } } });
     const restored = create({ allowMultipleItems: false });
     const events = trackEvents(restored);
     restored.uiState = survey.uiState;
     const q2 = control(restored);
     expect(q2.activeItem.name, "#3").toBe("adults");
-    expect(q2.activeItem.expression, "#4: rebuilt from the conditions").toBe("{age} > 30 and {country} = 'de'");
+    expect(q2.activeItem.expression, "#4").toBe("{age} > 30 and {country} = 'de'");
     expect(q2.isActiveItemModified, "#5").toBe(false);
     expect(q2.filterExpression, "#6").toBe("{age} > 30 and {country} = 'de'");
     expect(events.filter, "#7").toEqual(["{age} > 30 and {country} = 'de'"]);
     expect(filterState(restored), "#8: and it is saved again").toEqual(filterState(survey));
   });
-  test("a saved preset is rebuilt from its conditions even when its text would not parse back", () => {
+  test("a saved expression replaces one that does not decompose", () => {
     const restored = create();
     restored.uiState = { questions: { f1: { filter: { activeItemName: "edges",
-      items: { edges: { conditions: [{ field: "age", operator: "less", value: 5 }] } } } } } };
+      items: { edges: { expression: "{age} < 5" } } } } } };
     const q = control(restored);
     expect(q.activeItem.expression, "#1").toBe("{age} < 5");
     expect(q.filterExpression, "#2").toBe("{age} < 5");
@@ -128,7 +122,7 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     const restored = create();
     const events = trackEvents(restored);
     restored.uiState = { questions: { f1: { filter: {
-      items: { gone: { conditions: [{ field: "age", operator: "less", value: 5 }] } } } } } };
+      items: { gone: { expression: "{age} < 5" } } } } } };
     const q = control(restored);
     expect(q.items.map(i => i.expression), "#1").toEqual(presets.map(p => p.expression));
     expect(q.filterExpression, "#2").toBe("{age} > 18 and {country} = 'de'");
@@ -137,25 +131,20 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
   });
   test("a condition on an unknown field or with a disallowed operator is dropped", () => {
     const restored = create({ defaultItem: "" });
-    restored.uiState = { questions: { f1: { filter: { conditions: [
-      { field: "nosuchfield", operator: "equal", value: 1 },
-      { field: "country", operator: "contains", value: "de" },
-      { field: "age", operator: "less", value: 10 }] } } } };
+    restored.uiState = { questions: { f1: { filter: {
+      expression: "{nosuchfield} = 1 and {country} contains 'de' and {age} < 10" } } } };
     const q = control(restored);
     expect(q.ownConditions, "#1").toEqual([{ field: "age", operator: "less", value: 10 }]);
     expect(q.filterExpression, "#2").toBe("{age} < 10");
   });
-  test("the same applies to a saved preset's conditions", () => {
+  test("the same applies to a saved preset's expression", () => {
     const restored = create();
-    restored.uiState = { questions: { f1: { filter: { items: { kids: { conditions: [
-      { field: "nosuchfield", operator: "equal", value: 1 },
-      { field: "age", operator: "less", value: 10 }] } } } } } };
+    restored.uiState = { questions: { f1: { filter: { items: { kids: { expression: "{nosuchfield} = 1 and {age} < 10" } } } } } };
     expect(control(restored).getItemByName("kids").expression).toBe("{age} < 10");
   });
   test("restored values are coerced the way composition coerces them", () => {
     const restored = create({ defaultItem: "" });
-    restored.uiState = { questions: { f1: { filter: { conditions: [
-      { field: "age", operator: "greater", value: "18" }] } } } };
+    restored.uiState = { questions: { f1: { filter: { expression: "{age} > '18'" } } } };
     const q = control(restored);
     expect(q.ownConditions, "#1").toEqual([{ field: "age", operator: "greater", value: 18 }]);
     expect(q.filterExpression, "#2").toBe("{age} > 18");
@@ -197,7 +186,7 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     q.setFieldCondition("age", "less", 10);
     q.saveActiveItem();
     const state = survey.uiState;
-    expect(state.questions["f1"].filter.items, "#1").toEqual({ kids: { conditions: [{ field: "age", operator: "less", value: 10 }] } });
+    expect(state.questions["f1"].filter.items, "#1").toEqual({ kids: { expression: "{age} < 10" } });
     const readOnly = presets.map(p => p.name === "kids" ? Object.assign({}, p, { allowEdit: false }) : p);
     const restored = create({ items: readOnly, allowMultipleItems: false, defaultItem: "kids" });
     restored.uiState = state;
@@ -211,35 +200,32 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
       { type: "filter", name: "f1", source: "m",
         items: [{ name: "de", expression: "{country} = 'de'", allowEdit: false }] }] });
     survey.uiState = { questions: { f1: { filter: {
-      items: { de: { conditions: [{ field: "country", operator: "equal", value: "fr" }] } } } } } };
+      items: { de: { expression: "{country} = 'fr'" } } } } } };
     expect(survey.uiState.questions).toBe(undefined);
   });
   test("a saved preset whose conditions are all dropped keeps the author's expression", () => {
     const restored = create();
-    restored.uiState = { questions: { f1: { filter: { items: { kids: { conditions: [
-      { field: "nosuchfield", operator: "equal", value: 1 },
-      { field: "country", operator: "contains", value: "de" }] } } } } } };
+    restored.uiState = { questions: { f1: { filter: { items: { kids: { expression: "{nosuchfield} = 1 and {country} contains 'de'" } } } } } };
     const q = control(restored);
     expect(q.getItemByName("kids").expression, "#1").toBe("{age} <= 18");
     expect(restored.uiState.questions, "#2: and it is not recorded as saved").toBe(undefined);
   });
-  test("a saved preset with an empty condition list is restored as empty", () => {
+  test("a saved preset with an empty expression is restored as empty", () => {
     const restored = create();
-    restored.uiState = { questions: { f1: { filter: { items: { kids: { conditions: [] } } } } } };
+    restored.uiState = { questions: { f1: { filter: { items: { kids: { expression: "" } } } } } };
     expect(control(restored).getItemByName("kids").expression).toBe("");
   });
-  test("clearActiveItem drops restored conditions still waiting for the bound source, and keeps saved presets", () => {
+  test("clearActiveItem drops restored edits still waiting for the bound source, and keeps saved presets", () => {
     const survey = new SurveyModel({ elements: [
       { type: "filter", name: "f1", source: "m",
         items: [{ name: "de", expression: "{country} = 'de'" }] }] });
     survey.uiState = { questions: { f1: { filter: {
-      items: { de: { conditions: [{ field: "country", operator: "equal", value: "gb" }] } },
-      conditions: [{ field: "country", operator: "equal", value: "fr" }] } } } };
+      items: { de: { expression: "{country} = 'gb'" } }, expression: "{country} = 'fr'" } } } };
     const q = control(survey);
     const events = trackEvents(survey);
     q.clearActiveItem();
     expect(events.uiState, "#1: the saved state changed").toBe(1);
-    expect(filterState(survey), "#2").toEqual({ items: { de: { conditions: [{ field: "country", operator: "equal", value: "gb" }] } } });
+    expect(filterState(survey), "#2").toEqual({ items: { de: { expression: "{country} = 'gb'" } } });
     const matrix = new QuestionMatrixDynamicModel("m");
     matrix.addColumn("country");
     survey.pages[0].addElement(matrix);
@@ -251,9 +237,9 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
   test("pending saved presets are copied, not shared with the caller's state", () => {
     const survey = new SurveyModel({ elements: [
       { type: "filter", name: "f1", source: "m", items: [{ name: "de", expression: "{country} = 'de'" }] }] });
-    const conditions = [{ field: "country", operator: "equal", value: "gb" }];
-    survey.uiState = { questions: { f1: { filter: { items: { de: { conditions: conditions } } } } } };
-    conditions[0].value = "xx";
+    const entry = { expression: "{country} = 'gb'" };
+    survey.uiState = { questions: { f1: { filter: { items: { de: entry } } } } };
+    entry.expression = "{country} = 'xx'";
     const matrix = new QuestionMatrixDynamicModel("m");
     matrix.addColumn("country");
     survey.pages[0].addElement(matrix);
@@ -298,8 +284,7 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
         items: [{ name: "de", expression: "{country} = 'de'" }, { name: "fr", expression: "{country} = 'fr'" }] }] });
     const events = trackEvents(survey);
     const state = { questions: { f1: { filter: {
-      items: { fr: { conditions: [{ field: "country", operator: "equal", value: "gb" }] } },
-      conditions: [{ field: "country", operator: "equal", value: "de" }, { field: "price", operator: "greater", value: "100" }] } } } };
+      items: { fr: { expression: "{country} = 'gb'" } }, expression: "{country} = 'de' and {price} > '100'" } } } };
     survey.uiState = state;
     const q = control(survey);
     expect(q.filterExpression, "#1: nothing to validate against yet").toBe("{country} = 'de'");
@@ -329,7 +314,7 @@ describe("QuestionFilterModel: uiState of normalized edits (single mode)", () =>
     q.setFieldCondition("age", "greater", "20");
     expect(q.isActiveItemModified, "#1").toBe(true);
     const state = filterState(survey);
-    expect(state, "#2").toEqual({ conditions: [{ field: "age", operator: "greater", value: 20 }] });
+    expect(state, "#2").toEqual({ expression: "{age} > 20" });
     const restored = create(typeless);
     restored.uiState = survey.uiState;
     const q2 = control(restored);
@@ -353,7 +338,7 @@ describe("QuestionFilterModel: saved presets after the host replaces items", () 
     const q = control(survey);
     q.setFieldCondition("age", "less", 10);
     q.saveActiveItem();
-    expect(filterState(survey).items, "#1").toEqual({ kids: { conditions: [{ field: "age", operator: "less", value: 10 }] } });
+    expect(filterState(survey).items, "#1").toEqual({ kids: { expression: "{age} < 10" } });
     const kids = new FilterItem("kids");
     kids.expression = "{age} < 3";
     q.items = [kids];
@@ -366,7 +351,7 @@ describe("QuestionFilterModel: saved presets after the host replaces items", () 
     const q = control(survey);
     q.setFieldCondition("age", "less", 10);
     q.saveActiveItem();
-    const saved = { kids: { conditions: [{ field: "age", operator: "less", value: 10 }] } };
+    const saved = { kids: { expression: "{age} < 10" } };
     q.items = [q.getItemByName("kids"), q.getItemByName("adults")];
     expect(filterState(survey).items, "#1: the same object, reordered").toEqual(saved);
     const extra = new FilterItem("extra");
@@ -378,7 +363,7 @@ describe("QuestionFilterModel: saved presets after the host replaces items", () 
     const survey = new SurveyModel({ elements: [
       { type: "filter", name: "f1", source: "m", items: [{ name: "de", expression: "{country} = 'de'" }] }] });
     survey.uiState = { questions: { f1: { filter: {
-      items: { de: { conditions: [{ field: "country", operator: "equal", value: "gb" }] } } } } } };
+      items: { de: { expression: "{country} = 'gb'" } } } } } };
     const q = control(survey);
     const de = new FilterItem("de");
     de.expression = "{country} = 'fr'";

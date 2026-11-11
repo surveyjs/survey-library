@@ -442,6 +442,24 @@ export function analyzeFilterExpression(text: string, fields: Array<IDynamicData
   }
   return { conditions: res };
 }
+// Whether a text is an expression at all: the one check a typed or a restored expression gets. ""
+// is none.
+export function canParseFilterExpression(text: string): boolean {
+  return !!text && ConditionEditorItemsBuilder.canParseExpression(text);
+}
+// A text as the rows it is made of, read without checking them against any field: the conditions of
+// a list joined by "and", each with the name it uses as its field. What a restore starts from - each
+// row is checked against the fields later (normalizeFilterConditions), so a field that is gone drops
+// its own condition and not the rest. null for a text that is not such a list (an "or", a function
+// call, a comparison of two fields, a text that does not parse); "" is the empty list.
+export function splitFilterExpression(text: string): Array<IFilterCondition> | null {
+  if (!text) return [];
+  const items = buildFilterExpressionItems(text);
+  if (items.length === 0) return null;
+  if (items.some((item: IFilterExpressionRow, index: number): boolean => index > 0 && item.conjunction !== "and")) return null;
+  return items.map((item: IFilterExpressionRow): IFilterCondition =>
+    ({ field: item.questionName, operator: item.operator, value: Array.isArray(item.value) ? item.value.slice() : item.value }));
+}
 // A preset's expression as the conditions it edits with, or null when it is not that kind of text
 // (see analyzeFilterExpression). null (not []) tells the caller the text is raw and has to stay raw.
 export function parseFilterExpression(text: string, fields: Array<IDynamicDataFilterField>): Array<IFilterCondition> | null {

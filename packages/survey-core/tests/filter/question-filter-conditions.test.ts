@@ -481,8 +481,8 @@ describe("QuestionFilterModel: saving after the field list changed", () => {
     q.saveActiveItem();
     expect(q.getItemByName("de").expression, "#1").toBe("{country} = 'fr'");
     expect(q.ownConditions === undefined, "#2").toBe(true);
-    expect(survey.uiState.questions["f1"].filter.items, "#3: the saved conditions are the ones that were saved")
-      .toEqual({ de: { conditions: [{ field: "country", operator: "equal", value: "fr" }] } });
+    expect(survey.uiState.questions["f1"].filter.items, "#3: the saved expression is the one that was saved")
+      .toEqual({ de: { expression: "{country} = 'fr'" } });
   });
 });
 

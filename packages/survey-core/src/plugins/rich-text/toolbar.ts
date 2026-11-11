@@ -11,6 +11,7 @@ export interface IRichTextToolbarHost {
 export function createRichTextToolbar(host: IRichTextToolbarHost, mode: "inline" | "block"): ActionContainer {
   const toolbar = new ActionContainer();
   toolbar.sizeMode = "small";
+  toolbar.setActionsAppearance({ style: "neutral", mode: "tertiary", size: "x-small" });
   const actions = [
     button(host, "rich-text-bold", "richTextBold", "bold"),
     button(host, "rich-text-italic", "richTextItalic", "italic"),
@@ -34,6 +35,7 @@ function button(host: IRichTextToolbarHost, id: string, labelKey: string, comman
     title: label,
     ariaLabel: label,
     iconName: "icon-" + id,
+    iconSize: 16,
     showTitle: false,
     action: () => host.run(command),
     onMouseDown: (event: any) => host.keepSelection(event)

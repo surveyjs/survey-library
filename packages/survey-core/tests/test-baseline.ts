@@ -12,7 +12,8 @@ export const coreFunctionNames: Array<string> = FunctionFactory.Instance.getAll(
 export const mediaQueries: Map<string, { matches: boolean, listeners: Set<(e: any) => void> }> = new Map();
 
 // jsdom's defaults: popup tests set their own sizes on the window that all files share.
-export const windowSize = { innerWidth: window.innerWidth, innerHeight: window.innerHeight };
+// Files under `@vitest-environment node` (tests/interview) have no window.
+export const windowSize = typeof window !== "undefined" ? { innerWidth: window.innerWidth, innerHeight: window.innerHeight } : undefined;
 
 function isPlain(v: any): boolean {
   return !!v && typeof v === "object" && (Array.isArray(v) || Object.getPrototypeOf(v) === Object.prototype);

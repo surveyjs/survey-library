@@ -6,11 +6,13 @@ import { ActionContainer } from "../actions/container";
 import { IFilterCondition, IFilterState } from "../interfaces/ui-interfaces";
 import { FilterItem, getUniqueFilterActionId } from "./filter-item";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
+import { FilterExpressionPanel } from "./filter-expression-panel";
 import { filterUIStrings } from "./filter-ui-strings";
 
 // What the Filters dialog reads from the control and calls on it: the control's public API only.
 export interface IFilterModalOwner {
   visibleItems: Array<FilterItem>;
+  activeItem: FilterItem;
   allowMultipleItems: boolean;
   showSearch: boolean;
   searchPlaceholder: string;
@@ -19,6 +21,7 @@ export interface IFilterModalOwner {
   cssClasses: any;
   getFilterState(): IFilterState;
   getItemConditions(name: string): Array<IFilterCondition> | null;
+  getRawItemExpression(state: IFilterState): string;
   composeFilterExpression(state: IFilterState): string;
   countFilterResults(expression: string): Promise<number | undefined>;
   applyFilterState(state: IFilterState): void;
@@ -35,7 +38,10 @@ export const filterModalCountDelay = 300;
 // does not see until apply() - the dialog's "Show N items". Closing the dialog any other way drops
 // it. The fields are an editor survey (FilterConditionsEditor, each field in the form of its kind);
 // a preset turned on here shows its conditions there, and the first edit of a field turns it off -
-// its conditions stay, with the edit. N is the number of records the buffer would leave, counted at
+// its conditions stay, with the edit. A preset that does not decompose has no conditions to show: while
+// it applies as it is, its text shows read-only - in place of the fields with several presets, over
+// them in single mode, where the first edit of a field starts from nothing and takes the text away.
+// N is the number of records the buffer would leave, counted at
 // once when the dialog opens and filterModalCountDelay after the changes stop. Made when the dialog
 // opens, disposed when it closes.
 export class FilterModal extends Base {
@@ -45,6 +51,8 @@ export class FilterModal extends Base {
   @property() resultCount: number;
   @property({ defaultValue: false }) isCounting: boolean;
   private editorValue: FilterConditionsEditor;
+  // The text of the buffer's preset that does not decompose, in the editor's survey.
+  private expressionPanel: FilterExpressionPanel;
   private presetsToolbarValue: ActionContainer;
   // The presets section is a group named by its title (aria-labelledby): the renderer gives the title
   // this id, made of the dialog's own element id.
@@ -68,6 +76,7 @@ export class FilterModal extends Base {
     this.conditions = state.conditions;
     this.setPropertyValue("searchString", state.searchString);
     this.editorValue = owner.createModalEditor((): void => { this.onFieldChanged(); });
+    this.updateExpression();
     this.presetsToolbarValue = new ActionContainer();
     this.presetsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
     this.presetsToolbarValue.setItems(this.createPresetChips(), false);
@@ -94,6 +103,11 @@ export class FilterModal extends Base {
   public get creationToolbar(): ActionContainer { return this.creationToolbarValue; }
   // The pencil at the end of the presets' title, which opens Edit Presets.
   public get presetsTitleToolbar(): ActionContainer { return this.presetsTitleToolbarValue; }
+  // The text of the buffer's preset while it applies as it is and does not decompose, "" otherwise:
+  // what the dialog shows of it, and what a new preset starts with instead of presetConditions.
+  public get presetExpression(): string {
+    return this.isFieldEdited ? "" : this.owner.getRawItemExpression(this.state);
+  }
   // The conditions the buffer filters by - a preset's that is on as it is, the fields' otherwise -
   // which a new preset starts with.
   public get presetConditions(): Array<IFilterCondition> {
@@ -170,10 +184,14 @@ export class FilterModal extends Base {
     if (this.isReadOnly || this.isDisposed) return;
     this.owner.applyFilterState(this.state);
   }
+  // The editor first: its survey goes with it, and the text's panel then leaves it alone.
   public dispose(): void {
     this.cancelCountTimer();
     this.countRequest++;
     this.editorValue.dispose();
+    if (!!this.expressionPanel) {
+      this.expressionPanel.dispose();
+    }
     this.presetsToolbarValue.dispose();
     this.creationToolbarValue.dispose();
     this.presetsTitleToolbarValue.dispose();
@@ -185,15 +203,37 @@ export class FilterModal extends Base {
     this.conditions = conditions;
     this.isFieldEdited = false;
     this.editorValue.setConditions(fields !== undefined ? fields : (conditions || []));
+    this.updateExpression();
     this.updatePresetChips();
     this.scheduleCount();
   }
+  // The text of the buffer's preset, made anew for every buffer (the preset, its title); the fields
+  // hidden under it with several presets.
+  private updateExpression(): void {
+    const text = this.presetExpression;
+    const old = this.expressionPanel;
+    this.expressionPanel = undefined;
+    if (!!old) old.dispose();
+    if (!!text) {
+      this.expressionPanel = new FilterExpressionPanel(this.editorValue.survey, text, { title: this.getPresetTitle(), readOnly: true, index: 0 });
+    }
+    this.editorValue.setFieldsVisible(!text || !this.owner.allowMultipleItems);
+  }
+  private getPresetTitle(): string {
+    const name = this.activeItemName;
+    const item = this.owner.allowMultipleItems ? this.owner.visibleItems.filter((i: FilterItem): boolean => i.name === name)[0] : this.owner.activeItem;
+    return !!item ? item.title : "";
+  }
   // The first edit of a field turns the buffer's preset off: from then on the fields are the filter.
   private onFieldChanged(): void {
+    const hadExpression = !!this.expressionPanel;
     this.isFieldEdited = true;
     if (!!this.activeItemName) {
       this.activeItemName = "";
       this.updatePresetChips();
+    }
+    if (hadExpression) {
+      this.updateExpression();
     }
     this.scheduleCount();
   }

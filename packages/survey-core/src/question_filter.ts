@@ -767,6 +767,15 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (own === undefined && !!this.activeItem) return { activeItemName: this.activeItemName, conditions: undefined, searchString: searchString };
     return { activeItemName: "", conditions: own !== undefined ? [].concat(own) : [], searchString: searchString };
   }
+  // The text of the preset a state applies as it is (conditions undefined), when that text does not
+  // decompose: what the Filters dialog shows of it, and what Add New Preset opened over it starts
+  // with. "" for any other state. Single mode's one preset is always the one it applies.
+  public getRawItemExpression(state: IFilterState): string {
+    if (!state || state.conditions !== undefined) return "";
+    const item = this.allowMultipleItems ? this.getItemByName(state.activeItemName) : this.activeItem;
+    if (!item || this.parseItemConditions(item) !== null) return "";
+    return (item.expression || "").trim();
+  }
   // A preset's text as conditions - what the Filters dialog shows in the fields when the preset is
   // turned on in it - or null when the text has none to offer, or there is no such preset.
   public getItemConditions(name: string): Array<IFilterCondition> | null {

@@ -185,6 +185,15 @@ export class FilterConditionsEditor {
     });
     return res;
   }
+  // The fields' panels shown or hidden - the Filters dialog hides them under the text of a preset that
+  // does not decompose. Their questions keep their values either way.
+  public setFieldsVisible(visible: boolean): void {
+    if (this.isDisposedValue) return;
+    this.names.forEach((_: string, index: number): void => {
+      const panel = this.getPanel(index);
+      if (!!panel) panel.visible = visible;
+    });
+  }
   // The fields show these conditions - a preset turned on in the Filters dialog, or everything
   // cleared - as the editor's new starting point: not a change of the respondent's, nothing is
   // reported, and the fields count as untouched again.

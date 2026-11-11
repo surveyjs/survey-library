@@ -61,7 +61,7 @@ export interface IFilterToolbarsOwner {
   getFastModeFieldStates(): Array<IFilterFieldState>;
   createFieldPopup(name: string, close: () => void): FilterFieldPopup;
   createFilterModal(): FilterModal;
-  createAddPresetDialog(conditions: Array<IFilterCondition>): FilterPresetDialog;
+  createAddPresetDialog(conditions: Array<IFilterCondition>, expression?: string): FilterPresetDialog;
   createEditPresetsDialog(activeItemName?: string): FilterEditPresetsDialog;
   getSurveyRootElement(): HTMLElement;
   getLocale(): string;
@@ -273,7 +273,8 @@ export class FilterToolbars {
   // open while the preset has errors; any other way it closes writes nothing. One at a time.
   public showPresetDialog(modal: FilterModal, isEdit: boolean): void {
     if (!settings.showDialog || !!this.subDialog || !modal || modal.isDisposed) return;
-    const dialogModel = isEdit ? this.owner.createEditPresetsDialog(modal.activeItemName) : this.owner.createAddPresetDialog(modal.presetConditions);
+    const dialogModel = isEdit ? this.owner.createEditPresetsDialog(modal.activeItemName)
+      : this.owner.createAddPresetDialog(modal.presetConditions, modal.presetExpression);
     const holder = this.createHolder();
     holder.presetDialog = dialogModel;
     this.subDialogHolder = holder;

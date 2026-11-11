@@ -2366,6 +2366,45 @@ describe("Survey_QuestionPanelDynamic", () => {
     panel.panelsState = "default";
     expect(panel.panels[0].locTitle.textOrHtml, "without collapse the empty title stays empty").toBeFalsy();
   });
+  test("templateTitlePlaceholder replaces an empty collapsed title", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        panelsState: "collapsed",
+        templateTitle: "{panel.q1}",
+        templateTitlePlaceholder: "Entry {panelIndex}",
+        templateElements: [{ type: "text", name: "q1" }]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.templateTitlePlaceholder, "the assigned placeholder").toBe("Entry {panelIndex}");
+    expect(panel.panels[0].locTitle.textOrHtml, "placeholder, #1").toBe("Entry 1");
+    expect(panel.panels[1].locTitle.textOrHtml, "placeholder, #2").toBe("Entry 2");
+    let changes = 0;
+    panel.panels[0].locTitle.onStringChanged.add(() => { changes++; });
+    panel.templateTitlePlaceholder = "No. {panelIndex}";
+    expect(changes, "the panel title is notified").toBe(1);
+    expect(panel.panels[0].locTitle.textOrHtml, "the new placeholder").toBe("No. 1");
+    panel.panels[0].getQuestionByName("q1").value = "Alpha";
+    expect(panel.panels[0].locTitle.textOrHtml, "a template value wins").toBe("Alpha");
+    panel.locTemplateTitlePlaceholder.clear();
+    panel.panels[0].getQuestionByName("q1").clearValue();
+    expect(panel.panels[0].locTitle.textOrHtml, "clearing the placeholder restores Panel N").toBe("Panel 1");
+    expect(panel.toJSON().templateTitlePlaceholder, "the default placeholder is not serialized").toBeUndefined();
+  });
+  test("templateTitlePlaceholder is editable in list mode when panels collapse", () => {
+    const prop = Serializer.findProperty("paneldynamic", "templateTitlePlaceholder");
+    const question = new QuestionPanelDynamicModel("q");
+    expect(prop.isVisible("", question), "panelsState is default").toBe(false);
+    question.panelsState = "collapsed";
+    expect(prop.isVisible("", question), "list and collapsed").toBe(true);
+    question.panelsState = "firstExpanded";
+    expect(prop.isVisible("", question), "list and firstExpanded").toBe(true);
+    question.displayMode = "tab";
+    expect(prop.isVisible("", question), "tabs keep tabTitlePlaceholder").toBe(false);
+  });
   test("collapsed panel keeps a template title that has text around an empty value", () => {
     const survey = new SurveyModel({
       elements: [{

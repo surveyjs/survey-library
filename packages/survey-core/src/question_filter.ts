@@ -23,7 +23,7 @@ import { buildSearchFragment, getFieldChoiceItems } from "./filter/filter-expres
 import {
   conditionsToExpression, getFieldsByValueName, getFilterFieldOperators, getFilterValueEditorJson,
   normalizeFilterCondition, normalizeFilterConditions, parseFilterExpression, runWithFilterFieldCache,
-  canParseFilterExpression, splitFilterExpression
+  canParseFilterExpression, splitFilterExpression, hasFilterConditionValue
 } from "./filter/filter-conditions";
 import { FilterFieldEditorKind, getFilterChipText, getFilterFieldEditorKind } from "./filter/filter-field-kinds";
 import { IDynamicDataFilterField, getFilterFieldTitle } from "./dynamic-data/dynamic-data-filter-fields";
@@ -697,7 +697,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // A text as the conditions the fields edit it with, or null when it is not that kind of text -
   // what decides whether a preset dialog shows a preset as fields or as text.
   public parseExpressionConditions(text: string): Array<IFilterCondition> | null {
-    return parseFilterExpression((text || "").trim(), this.getFilterFields());
+    return this.decomposeExpression(text);
   }
   // Conditions as the text the fields write them as.
   public getConditionsExpression(conditions: Array<IFilterCondition>): string {
@@ -1015,7 +1015,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   private parseItemConditions(item: FilterItem): Array<IFilterCondition> | null {
     if (!item) return null;
-    return parseFilterExpression((item.expression || "").trim(), this.getFilterFields());
+    return this.decomposeExpression(item.expression);
   }
   // The first edit decomposes the preset and changes one field in what it gives; a preset that does
   // not decompose (or no preset at all) starts from nothing. One edit is one write, one
@@ -1170,17 +1170,28 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.setItemText(item.locTitle, original.title);
     item.expression = original.expression;
   }
+  // A text as the conditions the fields hold it with (parseFilterExpression), or null when it is not
+  // that kind of text - and when the fields would lose a row of it (no value where the operator needs
+  // one - hasFilterConditionValue): written the way the fields write it, such a text would filter by
+  // less than it says, so it is a text of its own.
+  private decomposeExpression(text: string): Array<IFilterCondition> | null {
+    const fields = this.getFilterFields();
+    const conditions = parseFilterExpression((text || "").trim(), fields);
+    if (conditions === null) return null;
+    const byValueName = getFieldsByValueName(fields);
+    return conditions.every((c: IFilterCondition): boolean => hasFilterConditionValue(byValueName[c.field], c)) ? conditions : null;
+  }
   // The text a preset gets for an edit: conditions, normalized and composed (undefined when none of
-  // them is left), or a text - one that decomposes is normalized and composed the same way, so it
-  // reads as the fields would write it; any other is kept as typed, trimmed. A text that is empty or
-  // does not parse is undefined: no preset filters by nothing or by a broken text.
+  // them is left), or a text - one that decomposes (decomposeExpression) is normalized and composed
+  // the same way, so it reads as the fields would write it; any other is kept as typed, trimmed. A
+  // text that is empty or does not parse is undefined: no preset filters by nothing or by a broken text.
   private composeItemExpression(conditions: Array<IFilterCondition>, expression?: string): string {
     const fields = this.getFilterFields();
     let list = conditions || [];
     if (expression !== undefined) {
       const text = (expression || "").trim();
       if (!canParseFilterExpression(text)) return undefined;
-      const parsed = parseFilterExpression(text, fields);
+      const parsed = this.decomposeExpression(text);
       if (parsed === null) return text;
       list = parsed;
     }
@@ -1191,29 +1202,38 @@ export class QuestionFilterModel extends QuestionNonValue {
   // change), as trimmed text otherwise.
   private isSameExpression(a: string, b: string): boolean {
     const fields = this.getFilterFields();
-    const ca = parseFilterExpression((a || "").trim(), fields);
-    const cb = parseFilterExpression((b || "").trim(), fields);
+    const ca = this.decomposeExpression(a);
+    const cb = this.decomposeExpression(b);
     if (ca === null || cb === null) return (a || "").trim() === (b || "").trim();
     return this.isSameConditionSet(normalizeFilterConditions(ca, fields), normalizeFilterConditions(cb, fields));
   }
-  // A saved preset's text as it is restored. An "and" list with one condition per field is checked
-  // against the fields the way saved conditions always were: a condition the fields cannot hold is
-  // dropped, and undefined when none is left of a list that had some - rewriting a preset to "" would
-  // turn it into "no filter", which nobody saved. Any other text is the preset's own (an "or", a range
-  // on one field, a function) and comes back as it was saved; undefined when it does not parse.
+  // A saved preset's text as it is restored. While every field it names is still there, it is the
+  // text the respondent saved and comes back as it was saved: as the fields write it where it
+  // decomposes, as typed otherwise - Apply and an AI answer keep any text that parses. An "and" list
+  // with one condition per field that names a field no longer there was saved against other fields:
+  // it is checked against these the way saved conditions always were - a condition the fields cannot
+  // hold is dropped, and undefined when none is left of a list that had some (rewriting a preset to ""
+  // would turn it into "no filter", which nobody saved). Any other text (an "or", a range on one field,
+  // a function) comes back as it was saved; undefined when it does not parse.
   private restoreItemExpression(text: string): string {
     const rows = splitFilterExpression(text);
     const fields = this.getFilterFields();
-    if (rows !== null && !this.hasRepeatedField(rows)) {
+    if (rows !== null && !this.hasRepeatedField(rows) && this.hasMissingField(rows, fields)) {
       const conditions = normalizeFilterConditions(rows, fields);
       if (conditions.length === 0 && rows.length > 0) return undefined;
       return conditionsToExpression(conditions, fields);
     }
+    const decomposed = this.decomposeExpression(text);
+    if (decomposed !== null) return conditionsToExpression(normalizeFilterConditions(decomposed, fields), fields);
     return canParseFilterExpression(text) ? text.trim() : undefined;
   }
   private hasRepeatedField(conditions: Array<IFilterCondition>): boolean {
     return conditions.some((c: IFilterCondition, index: number): boolean =>
       conditions.some((other: IFilterCondition, i: number): boolean => i < index && other.field === c.field));
+  }
+  private hasMissingField(conditions: Array<IFilterCondition>, fields: Array<IDynamicDataFilterField>): boolean {
+    const byValueName = getFieldsByValueName(fields);
+    return conditions.some((c: IFilterCondition): boolean => !Object.prototype.hasOwnProperty.call(byValueName, c.field));
   }
   // An array value is copied both ways: the caller's array must not be able to change the filter
   // behind the control's back, and neither must the one it is given back.
@@ -1477,8 +1497,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   // A saved preset's text comes back checked against the fields (restoreItemExpression). A name that
   // no longer resolves to a preset is ignored - the author removed or renamed it - and so is a preset
   // the author has since made read-only (allowEdit: false): the respondent could not save into it
-  // now, and the author's text must win. A text with nothing left once it is checked (every field
-  // gone, every operator no longer offered) is ignored too, and so is one that does not parse. A
+  // now, and the author's text must win. A text that names a field no longer there and has nothing
+  // left once it is checked against the fields is ignored too, and so is one that does not parse. A
   // title the respondent gave the preset is restored by the same rules.
   private restoreItems(items: FilterSavedItems): void {
     if (!items) return;

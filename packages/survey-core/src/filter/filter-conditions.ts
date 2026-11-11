@@ -339,6 +339,14 @@ export function normalizeFilterCondition(field: IDynamicDataFilterField, conditi
   return { field: field.valueName, operator: operator, value: value };
 }
 
+// Whether a condition has the value its operator needs, once coerced to the field's type: the value
+// half of normalizeFilterCondition's check, for a condition whose operator is already the field's
+// (parseFilterExpression checked it) - it reads no field's operators again.
+export function hasFilterConditionValue(field: IDynamicDataFilterField, condition: IFilterCondition): boolean {
+  if (!field || !condition) return false;
+  return !isFilterConditionValueRequired(condition.operator) || !Helpers.isValueEmpty(coerceConditionValue(field.valueType, condition.value));
+}
+
 // Conditions that come from outside the control - a saved uiState - checked against the fields it
 // has now, with the same rules the control's own edits and parseFilterExpression follow: a field
 // that is no longer there, a second condition on a field that already has one, or a condition

@@ -89,6 +89,16 @@ describe("Add New Preset: a preset as text", () => {
     expect([item.title, item.expression], "#4").toEqual(["Ends", "{age} < 5 or {age} > 90"]);
     dialog.dispose();
   });
+  test("a condition with no value is added as typed, not dropped", () => {
+    const q = control();
+    const dialog = q.createAddPresetDialog([], "{age} < 5 or {age} > 90");
+    dialog.form.setValue("presetTitle", "Unnamed");
+    setText(dialog, "{name} = ''");
+    expect([dialog.canEditAsFields, dialog.apply()], "#1").toEqual([false, true]);
+    const item = q.getItemByName("userItem1");
+    expect(!!item ? item.expression : undefined, "#2").toBe("{name} = ''");
+    dialog.dispose();
+  });
 });
 
 describe("Edit Presets: a preset as text", () => {
@@ -143,6 +153,17 @@ describe("Edit Presets: a preset as text", () => {
     expect(dialog.apply(), "#1").toBe(false);
     expect([dialog.selectedName, errors(dialog)], "#2").toEqual(["edges", ["The expression is not valid."]]);
     expect(q.getItemByName("edges").expression, "#3").toBe("{age} < 18 or {age} > 35");
+    dialog.dispose();
+  });
+  test("a condition with no value is written as typed, and the preset opens as text again", () => {
+    const q = control();
+    let dialog = q.createEditPresetsDialog("edges");
+    setText(dialog, "{name} = ''");
+    expect([dialog.canEditAsFields, dialog.apply()], "#1").toEqual([false, true]);
+    dialog.dispose();
+    expect(q.getItemByName("edges").expression, "#2").toBe("{name} = ''");
+    dialog = q.createEditPresetsDialog("edges");
+    expect([panels(dialog), text(dialog)], "#3").toEqual([["presetName", "expression"], "{name} = ''"]);
     dialog.dispose();
   });
   test("a preset that may not be edited shows its text read-only, with no switch", () => {

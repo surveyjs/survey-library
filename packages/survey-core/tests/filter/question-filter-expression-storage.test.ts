@@ -119,6 +119,35 @@ describe("QuestionFilterModel: an authored preset saved as text", () => {
   });
 });
 
+describe("QuestionFilterModel: a text the fields would change is kept as typed", () => {
+  test("a respondent's text with an operator its field does not offer comes back after a restore", () => {
+    const q = control();
+    q.addItem("D", [], { expression: "{country} contains 'd'" });
+    const item = restore(filterState(q)).getItemByName("userItem1");
+    expect(!!item ? item.expression : undefined).toBe("{country} contains 'd'");
+  });
+  test("an authored preset changed to such a text comes back whole, not cut to what the fields hold", () => {
+    const q = control();
+    q.updateItem("adults", "", undefined, "{age} > 18 and {country} contains 'e'");
+    expect(q.getItemByName("adults").expression, "#1").toBe("{age} > 18 and {country} contains 'e'");
+    expect(restore(filterState(q)).getItemByName("adults").expression, "#2").toBe("{age} > 18 and {country} contains 'e'");
+  });
+  test("a condition with no value is not dropped from a text: the text is kept and does not decompose", () => {
+    const q = control();
+    const a = q.addItem("Empty", [], { expression: "{name} = ''" });
+    const b = q.addItem("Mixed", [], { expression: "{name} = '' and {age} > 1" });
+    expect([!!a ? a.expression : undefined, !!b ? b.expression : undefined], "#1").toEqual(["{name} = ''", "{name} = '' and {age} > 1"]);
+    expect([q.parseExpressionConditions("{name} = ''"), q.getItemConditions(!!b ? b.name : "")], "#2").toEqual([null, null]);
+    expect(restore(filterState(q)).visibleItems.map(i => i.expression), "#3")
+      .toEqual(["{age} > 18", "{age} < 18 or {age} > 35", "{name} = ''", "{name} = '' and {age} > 1"]);
+  });
+  test("such a text over a preset of the fields' kind is a change", () => {
+    const q = control();
+    q.updateItem("adults", "", undefined, "{name} = '' and {age} > 18");
+    expect(q.getItemByName("adults").expression).toBe("{name} = '' and {age} > 18");
+  });
+});
+
 describe("QuestionFilterModel: unsaved edits restored from text", () => {
   test("a text that is no list of conditions joined by and is no edit", () => {
     const q = restore({ expression: "{age} > 1 or {age} < 0" });

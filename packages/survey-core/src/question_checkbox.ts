@@ -722,9 +722,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public isAnswerCorrect(): boolean {
     return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue(), this.getSurveySettings());
   }
-  protected setDefaultValueWithOthers() {
-    this.value = this.renderedValueFromDataCore(this.defaultValue);
-  }
   protected getIsItemValue(val: any, item: ItemValue): boolean {
     if (!val || !Array.isArray(val)) return false;
     return val.indexOf(item.value) >= 0;

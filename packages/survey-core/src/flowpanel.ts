@@ -75,9 +75,6 @@ export class FlowPanelModel extends PanelModel {
     if (!!this.onGetHtmlForQuestion) return this.onGetHtmlForQuestion(question);
     return "";
   }
-  protected getQuestionHtmlId(question: Question): string {
-    return this.name + "_" + question.id;
-  }
   protected onAddElement(element: IElement, index: number) {
     super.onAddElement(element, index);
     this.addElementToContent(element);
@@ -88,7 +85,6 @@ export class FlowPanelModel extends PanelModel {
     this.content = this.content.replace(searchStr, "");
     super.onRemoveElement(element);
   }
-  dragDropMoveElement(src: IElement, target: IElement, targetIndex: number) {}
   private addElementToContent(element: IElement) {
     if (this.isLoadingFromJson) return;
     var text = this.getElementContentText(element);

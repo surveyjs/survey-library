@@ -176,9 +176,6 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     return this.dropdownRenderState.inputAvailable ? ["enter"] : ["space", "enter"];
   }
   public supportMultipleComment(item: ItemValue): boolean { return this.isOtherValue(item.value); }
-  public get a11yInputAriaRole(): string | null {
-    return "combobox";
-  }
   public getControlClass(): string {
     return toCssClasses(
       this.cssClasses.control,

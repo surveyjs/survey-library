@@ -52,7 +52,6 @@ export class QuestionMatrixDropdownRenderedCell {
   public isEmpty: boolean;
   public colSpans: number = 1;
   public panel: PanelModel;
-  public isShowHideDetail: boolean;
   public isActionsCell: boolean = false;
   public isErrorsCell: boolean = false;
   public isDetailRowCell: boolean = false;
@@ -314,7 +313,6 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   @property({ defaultValue: false }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
   @property({ defaultValue: true }) visible: boolean;
-  public onVisibilityChangedCallback: () => void;
   public hasEndActions: boolean = false;
   public row: MatrixDropdownRowModelBase;
   public isErrorsRow = false;

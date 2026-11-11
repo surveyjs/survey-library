@@ -987,9 +987,6 @@ export class Base implements IObjectValueContext {
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];
   }
-  public geValueFromHash(): any {
-    return this.propertyHash["value"];
-  }
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any, isCalcValue?: boolean): void {
     let reportError = false;
     if (this.setPropertyValueCoreHandler) {
@@ -1522,12 +1519,6 @@ export class Base implements IObjectValueContext {
     if (!str || !str.format) return "";
     return str.format(...args);
   }
-  protected createLocString(params: { name: string, owner?: ILocalizableOwner, supportsMarkdown?: boolean, translationKey?: string, hasTranslation?: boolean }): LocalizableString {
-    if (params.hasTranslation && !params.translationKey) {
-      params.translationKey = params.name;
-    }
-    return this.createLocalizableString(params.name, params.owner, params.supportsMarkdown, params.translationKey);
-  }
   protected createLocalizableString(
     name: string,
     owner?: ILocalizableOwner,
@@ -1558,11 +1549,6 @@ export class Base implements IObjectValueContext {
     }
     this.localizableStrings[name] = locStr;
     return locStr;
-  }
-  protected removeLocalizableString(name: string): void {
-    if (this.localizableStrings) {
-      delete this.localizableStrings[name];
-    }
   }
   public getLocalizableString(name: string): LocalizableString {
     const ls = this.localizableStrings;

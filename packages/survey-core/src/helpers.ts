@@ -539,15 +539,6 @@ export class Helpers {
     }
     return undefined;
   }
-  public static convertArrayObjectToValue(src: Array<any>, propName: string): Array<any> {
-    const res = new Array<any>();
-    if (!src || !Array.isArray(src)) return res;
-    for (var i = 0; i < src.length; i ++) {
-      const itemVal = !!src[i] ? src[i][propName] : undefined;
-      if (!Helpers.isValueEmpty(itemVal)) res.push(itemVal);
-    }
-    return res;
-  }
   public static convertDateToString(date: Date): string {
     const toStr = (val: number): string => {
       if (val < 10) return "0" + val.toString();

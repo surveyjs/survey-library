@@ -26,7 +26,6 @@ var defaultHeight = 200;
  */
 export class QuestionSignaturePadModel extends QuestionFileModelBase {
   @property({ defaultValue: false }) hasDrawnStroke: boolean;
-  @property({ defaultValue: false }) isReadyForUpload: boolean;
 
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -440,9 +439,6 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
         this.valueWasChangedFromLastUpload = false;
       }
     }
-  }
-  protected uploadResultItemToValue(r: any) {
-    return r.content;
   }
   protected setValueFromResult(arg: any) {
     this.internalValueUpdateScope.run(() => {

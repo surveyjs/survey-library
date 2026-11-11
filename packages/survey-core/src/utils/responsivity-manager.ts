@@ -1,10 +1,6 @@
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 import { isContainerVisible } from "./dom-utils";
-interface IDimensions {
-  scroll: number;
-  offset: number;
-}
 
 export class ResponsivityManager {
   private resizeObserver: ResizeObserver = undefined;
@@ -25,13 +21,6 @@ export class ResponsivityManager {
       });
       this.resizeObserver.observe(this.container.parentElement);
     }
-  }
-
-  protected getDimensions(element: HTMLElement): IDimensions {
-    return {
-      scroll: element.scrollWidth,
-      offset: element.offsetWidth,
-    };
   }
 
   protected getAvailableSpace(): number {
@@ -123,13 +112,6 @@ export class ResponsivityManager {
 export class VerticalResponsivityManager extends ResponsivityManager {
   constructor(container: HTMLDivElement, model: AdaptiveActionContainer) {
     super(container, model);
-  }
-
-  protected getDimensions(): IDimensions {
-    return {
-      scroll: this.container.scrollHeight,
-      offset: this.container.offsetHeight,
-    };
   }
 
   protected getAvailableSpace(): number {

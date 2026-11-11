@@ -764,10 +764,6 @@ export class OperandMaker {
     throw new Error("Invalid operator: '" + op + "'");
   }
 
-  static safeToString(operand: Operand, func: (op: Operand) => string): string {
-    return operand == null ? "" : operand.toString(func);
-  }
-
   static toOperandString(value: any): any {
     if (
       !!value &&
@@ -784,22 +780,6 @@ export class OperandMaker {
     if (typeof value !== "string") return false;
     const lower = value.toLowerCase();
     return lower === "true" || lower === "false";
-  }
-  static countDecimals(value: number): number {
-    if (Helpers.isNumber(value) && Math.floor(value) !== value) {
-      const strs = value.toString().split(".");
-      return strs.length > 1 && strs[1].length || 0;
-    }
-    return 0;
-  }
-  static plusMinus(a: number, b: number, res: number): number {
-    const digitsA = OperandMaker.countDecimals(a);
-    const digitsB = OperandMaker.countDecimals(b);
-    if (digitsA > 0 || digitsB > 0) {
-      const digits = Math.max(digitsA, digitsB);
-      res = parseFloat(res.toFixed(digits));
-    }
-    return res;
   }
 
   static unaryFunctions: HashTable<Function> = {

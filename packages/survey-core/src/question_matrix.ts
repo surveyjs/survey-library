@@ -153,9 +153,6 @@ export class MatrixCells extends Base {
       this.onValuesChanged();
     }
   }
-  public getDefaultCellLocText(column: any): LocalizableString {
-    return this.getCellLocCore(this.defaultRowValue, column);
-  }
   public getCellDisplayLocText(row: any, column: any): LocalizableString {
     return this.getCellLocCore(row, column);
   }

@@ -29,7 +29,7 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
-import { scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
+import { scrollElementToViewCore } from "./utils/scroll-utils";
 import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
@@ -207,9 +207,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  public static ScrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
-    scrollIntoView(el, scrollIntoViewOptions, doneCallback);
-  }
   public static ScrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
@@ -414,9 +411,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return true;
   }
-  public get hasStateButton(): boolean {
-    return this.isExpanded || this.isCollapsed;
-  }
   public get uiState(): IElementUIState {
     return this.getUIState();
   }
@@ -577,10 +571,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected get surveyImpl() {
     return this.surveyImplValue;
-  }
-  /* You shouldn't use this method ever */
-  __setData(data: ISurveyData) {
-    this.surveyDataValue = data;
   }
   public get data(): ISurveyData {
     return this.surveyDataValue;
@@ -982,10 +972,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected get textProcessor(): ITextProcessor {
     return this.textProcessorValue;
-  }
-  protected getProcessedHtml(html: string): string {
-    if (!html || !this.textProcessor) return html;
-    return this.textProcessor.processText(html, true);
   }
   protected onSetData(): void { }
   public get parent(): IPanel {

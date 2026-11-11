@@ -2,7 +2,6 @@ import { Base, ComputedUpdater } from "./base";
 
 export interface IPropertyDecoratorOptions<T = any> {
   defaultValue?: T;
-  defaultSource?: string;
   getDefaultValue?: (objectInstance?: any) => T;
   calcFunc?: (objectInstance?: any) => T;
   returnValue?: T;

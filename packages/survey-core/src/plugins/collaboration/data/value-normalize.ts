@@ -116,7 +116,3 @@ function setRowCount(matrix: QuestionMatrixDynamicModel, value: any): void {
   if (!Array.isArray(value) || !!matrix.dataSource) return;
   if (matrix.rowCount !== value.length) matrix.rowCount = value.length;
 }
-
-export function getQuestionValueName(question: Question): string {
-  return question.getValueName();
-}

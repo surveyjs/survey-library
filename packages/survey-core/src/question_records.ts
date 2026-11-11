@@ -3753,7 +3753,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
     const list = this._dataList;
     if (index === undefined || !list || list.hasPendingRead) return -1;
     this.focusIndexAfterRead = undefined;
-    return isFocusInsideOrIdle(this.id, this.getWrapperElement()) ? index : -1;
+    return isFocusInsideOrIdle(this.renderedId, this.getWrapperElement()) ? index : -1;
   }
   /* The list goes after the question's objects: it drops its pending-request counter, so a page or a
      push that is still in flight cannot write into a question that is gone. */

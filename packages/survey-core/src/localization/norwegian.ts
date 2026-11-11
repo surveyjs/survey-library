@@ -107,6 +107,8 @@ export var norwegianSurveyStrings = {
   value: "verdi",
   // "Response required."
   requiredError: "Vennligst svar på spørsmålet.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Du må velge Ja for å fortsette.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Verdien er feil.",
   // [Auto-translated] "The value contains unknown keys: {0}."

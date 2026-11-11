@@ -215,18 +215,36 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    */
   @property()
     valueFalse: any;
-  // A modifier of isRequired (and requiredIf): while the question is required, only valueTrue passes the
-  // required check, so a required "I agree" checkbox cannot be left unchecked. It changes nothing else:
-  // false stays an answer for isEmpty(), isAnswered, the empty operator, progress and the data.
-  @property({ defaultValue: false }) requiredTrue: boolean;
-  public hasRequiredError(): boolean {
-    if (super.hasRequiredError()) return true;
-    return this.isRequired && this.requiredTrue && this.booleanValue !== true;
+  /**
+   * Specifies whether respondents must give a positive answer to pass validation.
+   *
+   * Default value: `false`
+   *
+   * When this property is `true`, only a positive answer (`true` by default, or the custom value specified by [`valueTrue`](#valueTrue)) passes validation. A negative or empty answer displays the error message specified by [`requireTrueErrorText`](#requireTrueErrorText).
+   *
+   * > This validation applies independently of [`isRequired`](#isRequired) and [`requiredIf`](#requiredIf). Enabling `requireTrue` does not set `isRequired`, but the question displays a [required mark](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#requiredMark) as a required question does.
+   */
+  @property({ defaultValue: false }) requireTrue: boolean;
+  /**
+   * Specifies a custom error message displayed when [`requireTrue`](#requireTrue) is enabled and the answer is negative or empty.
+   */
+  @property({ localizable: true }) requireTrueErrorText: string;
+  declare readonly locRequireTrueErrorText: LocalizableString;
+  public get isRenderedRequired(): boolean {
+    return this.requireTrue || super.isRenderedRequired;
   }
-  // On a value change, Question checks required only for a cleared answer. A false that fails requiredTrue
+  public hasRequiredError(): boolean {
+    if (this.requireTrue) return this.booleanValue !== true;
+    return super.hasRequiredError();
+  }
+  protected getRequiredErrorText(): string {
+    if (!this.requireTrue) return super.getRequiredErrorText();
+    return this.requireTrueErrorText || this.getLocalizationString("requireTrueError");
+  }
+  // On a value change, Question checks required only for a cleared answer. A false that fails requireTrue
   // is a non-empty answer, so it is checked at once, as a validator would be.
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
-    if (isOnValueChanged && this.requiredTrue && !this.isEmpty()) isOnValueChanged = false;
+    if (isOnValueChanged && this.requireTrue && !this.isEmpty()) isOnValueChanged = false;
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
   }
 
@@ -488,8 +506,11 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     // as isRequired does when it is switched off
-    if (name === "requiredTrue" && !this.requiredTrue && this.errors.length > 0) {
-      this.validate();
+    if (name === "requireTrue") {
+      if (!this.requireTrue && this.errors.length > 0) {
+        this.validate();
+      }
+      this.onRenderedRequiredChanged();
     }
     if (name === "displayMode") {
       this.updateRenderAsOnDisplayModeChanged(oldValue, newValue);
@@ -554,11 +575,12 @@ Serializer.addClass(
     },
     "valueTrue",
     "valueFalse",
+    { name: "requireTrue:boolean" },
     {
-      name: "requiredTrue:boolean",
-      default: false,
-      dependsOn: ["isRequired", "requiredIf"],
-      visibleIf: (obj: any): boolean => !!obj && (!!obj.isRequired || !!obj.requiredIf)
+      name: "requireTrueErrorText:text",
+      serializationProperty: "locRequireTrueErrorText",
+      dependsOn: "requireTrue",
+      visibleIf: (obj: any): boolean => !!obj && !!obj.requireTrue
     },
     { name: "swapOrder:boolean" },
     {

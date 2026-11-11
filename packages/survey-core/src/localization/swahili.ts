@@ -107,6 +107,8 @@ export var swahiliStrings = {
   value: "thamani",
   // "Response required."
   requiredError: "Tafadhali jibu hili swali.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Lazima uchague Ndiyo ili kuendelea.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Thamani sio sahihi.",
   // [Auto-translated] "The value contains unknown keys: {0}."

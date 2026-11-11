@@ -107,6 +107,8 @@ export var indonesianStrings = {
   value: "nilai",
   // "Response required."
   requiredError: "Silahkan jawab pertanyaan berikut.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Anda harus memilih Ya untuk melanjutkan.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Nilainya salah.",
   // [Auto-translated] "The value contains unknown keys: {0}."

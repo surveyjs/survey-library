@@ -292,6 +292,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (name === "panelsState") {
       this.setPanelsState();
     }
+    if (name === "templateTitlePlaceholder") {
+      this.panelsCore.forEach((panel: PanelModel) => panel.locTitle.strChanged());
+    }
     // The pager shows in list mode only (showPager).
     if (name === "displayMode") {
       this.updateRecordsBar();
@@ -831,6 +834,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return super.getLocalizableString(name);
   }
   /**
+   * A placeholder for panel titles. Applies when [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"list"`, panels can be collapsed, and the [`templateTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTitle) expression doesn't produce a meaningful value.
+   *
+   * The property value can contain the same placeholders as `templateTitle`, including `{panelIndex}`.
+   *
+   * Default value: `"Panel {panelIndex}"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/334c618b4e6110249351a2a8cb9337e6269d1bd3/packages/survey-core/src/localization))
+   * @see templateTitle
+   * @see panelsState
+   */
+  @property({ localizable: { defaultStr: "panelDynamicTabTextFormat", markdown: true } }) templateTitlePlaceholder: string;
+  declare readonly locTemplateTitlePlaceholder: LocalizableString;
+  /**
    * A template for tab titles. Applies when [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"tab"`.
    *
    * The template can contain the following placeholders:
@@ -850,7 +864,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /**
    * A placeholder for tab titles that applies when the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) expression doesn't produce a meaningful value.
    *
-   * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization))
+   * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/334c618b4e6110249351a2a8cb9337e6269d1bd3/packages/survey-core/src/localization))
    */
   @property({ localizable: { defaultStr: true, markdown: true } }) tabTitlePlaceholder: string;
   declare readonly locTabTitlePlaceholder: LocalizableString;
@@ -1281,7 +1295,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /**
    * An error message displayed when users enter a duplicate value into a question that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
-   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
+   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/334c618b4e6110249351a2a8cb9337e6269d1bd3/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see keyName
    */
   @property({ localizable: { defaultStr: true } }) keyDuplicationError: string;
@@ -3255,6 +3269,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   private createNewPanelCore(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
+    /* Collapse shows the header. A template title that processes to nothing still needs one:
+       templateTitlePlaceholder, "Panel {panelIndex}" unless it was changed. */
+    this.setCollapsedTitleFallback(panel);
     var json = this.getNewPanelJson();
     // The panel runs no templateVisibleIf of its own while the records decide it (areRecordsDecidingVisibility).
     if (this.areRecordsDecidingVisibility) {
@@ -3297,6 +3314,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     if (position < 0) return;
     this.setItemRecordVisible(this.getRecordIndexAtCreatedPosition(position), panel.visible);
+  }
+  private setCollapsedTitleFallback(panel: PanelModel): void {
+    panel.locTitle.onGetTextCallback = (text: string): string => {
+      if (panel.state === "default" || !Helpers.isValueEmpty(text, true)) return text;
+      const fallback = this.getCollapsedPanelTitle(panel);
+      return !Helpers.isValueEmpty(fallback, true) ? fallback : panel.name;
+    };
+  }
+  private getCollapsedPanelTitle(panel: PanelModel): string {
+    const format = this.locTemplateTitlePlaceholder.text;
+    return !!format ? panel.getProcessedText(format) : "";
   }
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
@@ -3798,6 +3826,10 @@ Serializer.addClass(
       isLightSerializable: false
     },
     { name: "templateTitle:text", serializationProperty: "locTemplateTitle" },
+    {
+      name: "templateTitlePlaceholder", serializationProperty: "locTemplateTitlePlaceholder",
+      visibleIf: (obj: any) => { return obj.displayMode === "list" && obj.panelsState !== "default"; }
+    },
     {
       name: "templateTabTitle", serializationProperty: "locTemplateTabTitle",
       visibleIf: (obj: any) => { return obj.displayMode === "tab"; }

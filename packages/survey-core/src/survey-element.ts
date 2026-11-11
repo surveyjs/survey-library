@@ -668,6 +668,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get isVisible(): boolean {
     return true;
   }
+  // The element and every element above it are visible. A nested element (a dynamic panel's inner panel,
+  // a matrix cell) has no parent, so the walk goes on through its owner question.
+  public get isVisibleWithParents(): boolean {
+    let el: SurveyElement = this;
+    while(!!el) {
+      if (!el.isVisible) return false;
+      el = <SurveyElement><any>(el.parent || el.parentQuestion);
+    }
+    return true;
+  }
   /**
    * Returns `true` if the survey element or its parent element is read-only.
    *

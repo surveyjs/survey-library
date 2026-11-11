@@ -2,8 +2,8 @@
 
 Performance tests of survey-library: survey-core alone (Node) and rendered with React 19 and survey-js-ui in headless
 Chromium. They only measure: no markup checks, no screenshots. Every night the perf server (the private
-`surveyjs/surveyjs-performance-monitor` repository) builds `master`, runs these suites, compares them with a reference,
-posts the result to Discord and bisects a new regression to its PR. It uses this folder only through the runner
+`surveyjs/surveyjs-performance-monitor` repository) builds `master`, runs these suites, compares them with the previous
+nights, posts the result to Discord and bisects a new regression to its PR. It uses this folder only through the runner
 contract in [CONTRACT.md](CONTRACT.md).
 
 ## Layout
@@ -12,11 +12,11 @@ contract in [CONTRACT.md](CONTRACT.md).
 |---|---|
 | `fixtures/` | generated survey JSON and data (`large`, `expressions`, `calculations`, `complexLogic`, `manyPages`, `records-1k`, `records-10k`, `records-plain`) |
 | `scenarios/` | the operations measured on them; `revs.json` holds each scenario's `rev` and hash |
-| `harness/` | sample loop, stats, counters, calibration, ids; `harness/node/`: build checks, environment, machine key, dependency fingerprint, the result file |
+| `harness/` | sample loop, stats, counters, ids; `harness/node/`: build checks, environment, machine key, dependency fingerprint, the result file |
 | `core/` | the core suite: one fresh `node --expose-gc` process per scenario |
 | `browser/` | the browser suites: Playwright, one fresh page per scenario, pages served from the builds by `context.route` |
 | `react19/` | the pinned React 19 production build of the React suite |
-| `manifest.ts`, `CONTRACT.md` | the runner contract: the suites, their ids, budgets and commands, and the result file a caller reads |
+| `manifest.ts`, `CONTRACT.md` | the runner contract: the suites, their ids and commands, and the result file a caller reads |
 | `results/` | local output, git-ignored |
 
 ## Running locally
@@ -32,16 +32,20 @@ cd packages/survey-js-ui && npm run perf:ci          # survey-js-ui suite
 cd packages/survey-core && npm run perf:test         # the perf code's own unit tests
 ```
 
-* `PERF_ONLY=<id>,<id>` runs some scenarios (`perf/harness/ids.ts` lists them); `PERF_ONLY=calibration` runs only a
-  calibration process.
+* `PERF_ONLY=<id>,<id>` runs some scenarios (`perf/harness/ids.ts` lists them).
 * `PERF_CORE_DIR=<dir>` measures another survey-core build (a `packages/survey-core/build` folder, or an npm
   `node_modules/survey-core`); `PERF_UI_DIR=<dir>` another UI build. The tests always come from this checkout.
-* A baseline, a judged run or a whole night locally come from the perf server's command line, pointed at this
-  checkout (its README): `npm run baseline` / `npm run compare` on result files of these suites, and
-  `node src/nightly.ts --runner <this checkout> --dry-post`.
+* A judged run or a whole night locally come from the perf server's command line, pointed at this checkout (its
+  README), such as `node src/nightly.ts --runner <this checkout> --dry-post`.
+
+By default a scenario keeps up to 12 samples (core) or 7 (browser), and at least 5: `maxMs` (3 s core, 5 s browser,
+from the first warm-up) decides how many. The order is warm-ups, then the samples (each: setup, gc, the timed run,
+check, teardown), then one counter run. A browser load scenario has no warm-ups and opens a fresh page per sample
+instead of a teardown. A suite runs as long as it runs; a hung scenario is stopped by its hang guard (5 minutes) and
+fails alone (`CONTRACT.md`).
 
 ## Changing the suites
 
-A new scenario, fixture or suite needs no change on the server: it reads the ids, budgets and commands from
+A new scenario, fixture or suite needs no change on the server: it reads the ids and commands from
 `node perf/manifest.ts`. A change it has to follow (a renamed environment variable, a result file field that changes
 meaning, another way to run a suite) raises the contract version in `manifest.ts`, as `CONTRACT.md` says.

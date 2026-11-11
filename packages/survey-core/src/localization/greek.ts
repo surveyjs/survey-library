@@ -107,6 +107,8 @@ export var greekSurveyStrings = {
   value: "τιμή",
   // "Response required."
   requiredError: "Παρακαλώ απαντήστε στην ερώτηση.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Πρέπει να επιλέξετε Ναι για να συνεχίσετε.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Η τιμή είναι λανθασμένη.",
   // [Auto-translated] "The value contains unknown keys: {0}."

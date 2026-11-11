@@ -107,6 +107,8 @@ export var georgianSurveyStrings = {
   value: "ღირებულება",
   // "Response required."
   requiredError: "გთხოვთ უპასუხეთ კითხვას.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "გასაგრძელებლად უნდა აირჩიოთ დიახ.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "მნიშვნელობა არასწორია.",
   // [Auto-translated] "The value contains unknown keys: {0}."

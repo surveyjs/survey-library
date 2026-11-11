@@ -107,6 +107,8 @@ export var croatianStrings = {
   value: "vrijednost",
   // "Response required."
   requiredError: "Molim vas odgovorite na pitanje.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Morate odabrati Da da biste nastavili.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Vrijednost nije točna.",
   // [Auto-translated] "The value contains unknown keys: {0}."

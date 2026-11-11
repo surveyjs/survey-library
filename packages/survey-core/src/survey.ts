@@ -3262,6 +3262,8 @@ export class SurveyModel extends SurveyElementCore
   private progressTotal: number;
   public resetProgressTotal(): void {
     this.progressTotal = undefined;
+    // A question resets the total when its visible rows, columns or inputs change
+    this.visibilityChangeCount++;
   }
   public getProgressPosition(): { current: number, total: number } {
     const elements = this.getSingleElements();
@@ -7553,23 +7555,33 @@ export class SurveyModel extends SurveyElementCore
       atLoad.isCalculating = true;
       atLoad.changed.clear();
     }
+    let calculatedRuns: Set<CalculatedValue>;
     try {
-      for (var i = 0; i < this.calculatedValues.length; i++) {
-        this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
-      }
-      if (!!atLoad) {
-        this.repeatCalculatedValuesAtLoad(atLoad, properties);
-      }
+      calculatedRuns = CalculatedValue.collectRuns(() => {
+        for (let i = 0; i < this.calculatedValues.length; i++) {
+          this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
+        }
+        if (!!atLoad) {
+          this.repeatCalculatedValuesAtLoad(atLoad, properties);
+        }
+      });
     } finally {
       if (!!atLoad) {
         atLoad.isCalculating = false;
       }
     }
+    const visibilityChangeCount = this.visibilityChangeCount;
     super.runConditionCore(properties);
     for (let i = 0; i < pages.length; i++) {
       pages[i].runCondition(properties);
     }
+    if (visibilityChangeCount !== this.visibilityChangeCount) {
+      // A changed value requests another pass, so the conditions that read it run again
+      calculatedRuns.forEach(item => item.runAfterVisibilityChanged(properties));
+    }
   }
+  // Grows when a page, panel or question changes its visibility, or a question its visible rows, columns or inputs
+  private visibilityChangeCount: number = 0;
   // Set while the load runs its conditions, unless the load runs its whole passes as before
   private calculatedValuesAtLoad: ICalculatedValuesAtLoad;
   private createCalculatedValuesAtLoad(): ICalculatedValuesAtLoad {
@@ -8481,6 +8493,7 @@ export class SurveyModel extends SurveyElementCore
     return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean, resetIndexes: boolean): void {
+    this.visibilityChangeCount++;
     if (!newValue) {
       this.notifyElementHiddenOnComplete();
     }
@@ -8498,6 +8511,7 @@ export class SurveyModel extends SurveyElementCore
   }
   pageVisibilityChanged(page: PageModel, newValue: boolean) {
     if (this.isLoadingFromJson) return;
+    this.visibilityChangeCount++;
     if (!newValue) {
       this.notifyElementHiddenOnComplete();
     }
@@ -8522,6 +8536,7 @@ export class SurveyModel extends SurveyElementCore
     this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
+    this.visibilityChangeCount++;
     if (!newValue) {
       this.notifyElementHiddenOnComplete();
     }

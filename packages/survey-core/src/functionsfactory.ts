@@ -70,6 +70,10 @@ export class FunctionFactory {
     const funcInfo = this.functionHash[name];
     return !!funcInfo && funcInfo.isAsync;
   }
+  public getResultDependsOn(name: string): "parameters" | "survey" | "elements" {
+    const funcInfo = this.functionHash[name];
+    return !!funcInfo ? funcInfo.resultDependsOn : undefined;
+  }
   public clear(): void {
     this.functionHash = {};
     this.clearCache();

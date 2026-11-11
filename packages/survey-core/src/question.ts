@@ -734,7 +734,7 @@ export class Question extends SurveyElement<Question>
     this.updateIsReady();
   }
   protected ensureQuestionIsReady(): void {
-    const _displayValue = this.displayValue;
+    this.displayValue;
   }
   public waitForQuestionIsReady(callback?: () => void): Promise<void> {
     return new Promise((resolve: any) => {

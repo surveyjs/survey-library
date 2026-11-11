@@ -18,7 +18,7 @@ import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMa
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Question, QuestionValueType, IVerifyDataContext, readOnlyViewEmptyText } from "./question";
-import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
+import { ISurveyData, ITextProcessor, IQuestion } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { Scope } from "./utils/scope";

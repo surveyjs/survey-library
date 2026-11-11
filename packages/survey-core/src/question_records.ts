@@ -7,7 +7,6 @@ import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { getSettingsOfSurvey } from "./survey-settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
-import { toCssClasses } from "./utils/cssClassBuilder";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -51,7 +50,6 @@ import { ExpressionRunner } from "./expressions/expressionRunner";
 export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
 // Answers true to stop the walk, as a NestedElementVisit does.
 export type NestedWalkItemVisit = (item: NestedWalkItem, position: number, visible: boolean) => boolean | void;
-import type { ItemValue } from "./itemvalue";
 import type { ISurveyOldValueReads } from "./interfaces/survey-callbacks";
 
 export interface IDynamicDataRecordUniqueness {

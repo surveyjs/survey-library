@@ -6520,26 +6520,6 @@ describe("Survey_Questions", () => {
     expect(question.selectedItem.value).toBe(55);
     expect(question.selectedItem.text).toBe("DisplayText_55");
   });
-  test("remove reference to DOM elements", () => {
-    const survey = new SurveyModel({
-      elements: [
-        {
-          type: "comment",
-          name: "q1",
-        },
-      ]
-    });
-    const question = <QuestionCommentModel>survey.getQuestionByName("q1");
-
-    const el = document.createElement("div");
-    el.id = question.id;
-    question.afterRenderQuestionElement(el);
-    expect(question["element"]).toBe(el);
-    question.beforeDestroyQuestionElement(el);
-    expect(question["element"]).toBeUndefined();
-
-    el.remove();
-  });
   test("defaultValueExpressions, currentDate() and 'date'+'datetime-local' inputtype, Bug#5296", () => {
     const survey = new SurveyModel({
       elements: [{

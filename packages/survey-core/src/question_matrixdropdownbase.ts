@@ -3,7 +3,7 @@ import { property } from "./decorators";
 import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedElementVisit, NestedWalkBuild, getNestedElementQuestions } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
+import { IElement, IQuestion, ISurvey, ISurveyData, ISurveyImpl, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 
 import { ItemValue } from "./itemvalue";

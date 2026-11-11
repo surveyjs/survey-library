@@ -84,6 +84,30 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
       : null;
   }
 
+  private renderToolbar(floating: boolean): React.JSX.Element {
+    const bar = ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.model.toolbar });
+    if (!floating) return bar;
+    const question = this.question;
+    return (
+      <div className="sd-rich-text__toolbar" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
+        {bar}
+      </div>
+    );
+  }
+
+  // Static mode is an action bar in the comment footer: formatting on the left, the question's
+  // input actions (character counter, reset) on the right. It does not use the floating toolbar box.
+  private renderFooter(): React.JSX.Element {
+    const question = this.question;
+    return (
+      <div className="sd-action-bar sd-action-bar--small-size sd-question__bar--footer" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
+        {this.renderToolbar(false)}
+        {question.hasVisibleInputActions ? <div className="sd-action-bar__item--space" /> : null}
+        {this.renderCounter()}
+      </div>
+    );
+  }
+
   // read / edit / source are different hosts. One shared div keeps the previous node,
   // so a design-mode switch never replaces the contenteditable.
   protected renderElement(): React.JSX.Element {
@@ -102,9 +126,9 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
       );
     }
     const toolbarMode = this.model.toolbarMode || "onFocus";
-    // "static" has no layout yet, so it keeps the floating on-focus toolbar.
     const toolbarClass = "sd-rich-text--toolbar-" + String(toolbarMode).replace(/[A-Z]/g, (letter: string) => "-" + letter.toLowerCase());
     const openClass = toolbarMode === "onSelection" && this.model.toolbarOpen ? " sd-rich-text--toolbar-open" : "";
+    const staticToolbar = toolbarMode === "static";
     return (
       <div className={question.getRootClass() + " sd-rich-text " + toolbarClass + openClass}>
         <div
@@ -124,12 +148,8 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
           id={question.inputId}
           style={this.model.areaStyle}
         />
-        {this.renderCounter()}
-        {this.model.hasToolbar ? (
-          <div className="sd-rich-text__toolbar" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
-            {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.model.toolbar })}
-          </div>
-        ) : null}
+        {staticToolbar ? this.renderFooter() : this.renderCounter()}
+        {!staticToolbar && this.model.hasToolbar ? this.renderToolbar(true) : null}
       </div>
     );
   }

@@ -10,8 +10,6 @@ export interface IRichTextToolbarHost {
 
 export function createRichTextToolbar(host: IRichTextToolbarHost, mode: "inline" | "block"): ActionContainer {
   const toolbar = new ActionContainer();
-  toolbar.sizeMode = "small";
-  toolbar.setActionsAppearance({ style: "neutral", mode: "tertiary", size: "x-small" });
   const actions = [
     button(host, "rich-text-bold", "richTextBold", "bold"),
     button(host, "rich-text-italic", "richTextItalic", "italic"),
@@ -26,7 +24,22 @@ export function createRichTextToolbar(host: IRichTextToolbarHost, mode: "inline"
   actions[5].visible = mode === "block";
   actions[6].visible = mode === "block";
   toolbar.actions = actions;
+  applyRichTextToolbarChrome(toolbar, "floating");
   return toolbar;
+}
+
+// The floating toolbar uses compact x-small buttons. The static footer toolbar uses small buttons and the 24px icons.
+export function applyRichTextToolbarChrome(toolbar: ActionContainer, chrome: "floating" | "static"): void {
+  const floating = chrome === "floating";
+  const size = floating ? 16 : 24;
+  toolbar.sizeMode = "small";
+  toolbar.setActionsAppearance({ style: "neutral", mode: "tertiary", size: floating ? "x-small" : "small" });
+  for (let i = 0; i < toolbar.actions.length; i++) {
+    const action = toolbar.actions[i];
+    if (!action.iconName) continue;
+    action.iconName = String(action.iconName).replace(/-\d+x\d+$/, "-" + size + "x" + size);
+    action.iconSize = size;
+  }
 }
 
 function button(host: IRichTextToolbarHost, id: string, labelKey: string, command: RichTextCommand): Action {

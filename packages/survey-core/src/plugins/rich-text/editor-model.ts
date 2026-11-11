@@ -4,7 +4,7 @@ import DefaultLightPanelless from "../../themes/default-light-panelless";
 import { getRichTextString } from "./rich-text-strings";
 import { escapeHref, escapeText } from "./runs";
 import { getDisallowedHtml, hrefScheme, sanitizeHtml, schemeAllowed } from "./sanitizer";
-import { createRichTextToolbar, RichTextCommand } from "./toolbar";
+import { applyRichTextToolbarChrome, createRichTextToolbar, RichTextCommand } from "./toolbar";
 
 export type ToggleState = "all" | "none" | "mixed";
 
@@ -72,6 +72,7 @@ export class RichTextEditorModel {
     this.onInputCallback = options?.onInput;
     this.commands = options?.commands;
     this.toolbar = createRichTextToolbar(this, this.mode);
+    this.applyToolbarChrome();
     this.watchDesignMode();
   }
 
@@ -625,8 +626,13 @@ export class RichTextEditorModel {
   }
 
   private onToolbarMode(): void {
+    this.applyToolbarChrome();
     this.toolbarOpenState = this.isToolbarOpen();
     this.notify();
+  }
+
+  private applyToolbarChrome(): void {
+    applyRichTextToolbarChrome(this.toolbar, this.toolbarMode === "static" ? "static" : "floating");
   }
 
   private isToolbarOpen(): boolean {

@@ -86,12 +86,20 @@
   box-shadow: var(--sjs2-border-effect-floating-default);
 }
 
-.sd-rich-text__toolbar .sv-action-bar {
+.sd-rich-text__toolbar .sd-action-bar {
   flex-wrap: wrap;
   max-width: 100%;
 }
 
-// "on-focus" and the not-yet-implemented "static" mode: the floating toolbar follows focus.
+// The static toolbar is itself an action bar. It has to shrink so its buttons wrap
+// and the question's own action bar stays on the right.
+.sd-rich-text--toolbar-static > .sd-action-bar > .sd-action-bar {
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+// "on-focus": the floating toolbar follows focus.
 // "on-selection" stays hidden until the model marks the box open (a selection, the toolbar or the link dialog).
 .sd-rich-text:focus-within .sd-rich-text__toolbar {
   display: block;

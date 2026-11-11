@@ -319,6 +319,34 @@ describe("rich text editor model", () => {
     model.detach();
   });
 
+  test("the static toolbar uses small actions and 24px icons; other modes stay at 16px", () => {
+    const floating = new QuestionCommentModel("floating");
+    const floatingModel = new RichTextEditorModel(floating);
+    const floatingBold = floatingModel.toolbar.actions.filter(action => action.id === "rich-text-bold")[0];
+    expect(floatingBold.iconSize).toBe(16);
+    expect(floatingBold.iconName).toBe("icon-rich-text-bold-16x16");
+    expect(floatingBold.getActionBarItemCss().split(" ")).toContain("sd-action--x-small");
+
+    const question = new QuestionCommentModel("c");
+    question.richTextToolbarMode = "static";
+    const element = document.createElement("div");
+    document.body.appendChild(element);
+    const model = new RichTextEditorModel(question);
+    model.attach(element);
+    const bold = model.toolbar.actions.filter(action => action.id === "rich-text-bold")[0];
+    expect(model.toolbarMode).toBe("static");
+    expect(bold.iconSize).toBe(24);
+    expect(bold.iconName).toBe("icon-rich-text-bold-24x24");
+    expect(bold.getActionBarItemCss().split(" ")).toContain("sd-action--small");
+    expect(model.toolbar.sizeMode).toBe("small");
+
+    question.richTextToolbarMode = "onFocus";
+    expect(bold.iconSize).toBe(16);
+    expect(bold.iconName).toBe("icon-rich-text-bold-16x16");
+    expect(bold.getActionBarItemCss().split(" ")).toContain("sd-action--x-small");
+    model.detach();
+  });
+
   test("onSelection opens the toolbar for a selection and keeps it for the toolbar and the link dialog", () => {
     const previous = settings.showDialog;
     let dialog: any;

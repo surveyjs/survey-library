@@ -242,7 +242,12 @@ export type { FilterFieldEditorKind } from "../../src/filter/filter-field-kinds"
 export { FilterFieldPopup, filterListItemComponentName } from "../../src/filter/filter-field-popup";
 export { FilterChipsLayout } from "../../src/filter/filter-chips-layout";
 export { FilterModal } from "../../src/filter/filter-modal";
-export type { IFilterAIField, IFilterAIContext, IFilterAIResponse } from "../../src/filter/filter-ai";
+export type { IFilterAIField, IFilterAIContext, IFilterAIResponse, FilterAIResult } from "../../src/filter/filter-ai";
+// What Survey Creator's expression assistant writes a preset's filter with: the same context of the
+// control's fields, prompts and check of the answer the control's own preset dialogs use.
+export {
+  FilterAIFeature, buildFilterAIContext, buildFilterAISystemPrompt, buildFilterAIInstruction, filterAIResponseFormat
+} from "../../src/filter/filter-ai";
 export { FilterPresetDialog, FilterEditPresetsDialog } from "../../src/filter/filter-preset-dialog";
 export type {
   IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterSavedItemState, IFilterState, IFilterUserItemState

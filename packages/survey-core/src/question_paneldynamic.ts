@@ -830,9 +830,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /**
    * A placeholder for panel titles. Applies when [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"list"`, panels can be collapsed, and the [`templateTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTitle) expression doesn't produce a meaningful value.
    *
-   * The placeholder can contain the same placeholders as `templateTitle`, including `{panelIndex}`.
+   * The property value can contain the same placeholders as `templateTitle`, including `{panelIndex}`.
    *
-   * Default value: `"Panel {panelIndex}"` (the `panelDynamicTabTextFormat` string from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src/localization))
+   * Default value: `"Panel {panelIndex}"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/334c618b4e6110249351a2a8cb9337e6269d1bd3/packages/survey-core/src/localization))
    * @see templateTitle
    * @see panelsState
    */
@@ -858,7 +858,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /**
    * A placeholder for tab titles that applies when the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) expression doesn't produce a meaningful value.
    *
-   * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization))
+   * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/334c618b4e6110249351a2a8cb9337e6269d1bd3/packages/survey-core/src/localization))
    */
   @property({ localizable: { defaultStr: true, markdown: true } }) tabTitlePlaceholder: string;
   declare readonly locTabTitlePlaceholder: LocalizableString;
@@ -1289,7 +1289,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /**
    * An error message displayed when users enter a duplicate value into a question that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
-   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
+   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/334c618b4e6110249351a2a8cb9337e6269d1bd3/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see keyName
    */
   @property({ localizable: { defaultStr: true } }) keyDuplicationError: string;

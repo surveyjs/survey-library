@@ -761,6 +761,157 @@ describe("linter nested data: a nesting panel inside a record", () => {
   });
 });
 
+// The paths into a record's object resolve as at runtime. The runtime's answer is the value walk over data
+// that fills every key the definition writes: values, comments and totals. A total inside a record is
+// stored only once a cell of its matrix changes, so the runtime survey edits one. A display-only question
+// has no value: whether the runtime finds it is read off the metadata walk (getQuestionByVariable).
+function recordsParitySurvey(): any {
+  const json = recordsSurvey();
+  const tpl = json.elements[0].templateElements;
+  const address = tpl[1].elements;
+  address[0].showCommentArea = true;
+  address.push(
+    { type: "matrixdropdown", name: "m", rows: ["r"], columns: [{ name: "c", cellType: "text", totalType: "sum" }] },
+    { type: "multipletext", name: "mt", items: [{ name: "i1" }] },
+    { type: "html", name: "h" },
+    { type: "panel", name: "pin", valueName: "inner", elements: [{ type: "html", name: "h2" }, { type: "text", name: "w" }] });
+  tpl.push(
+    { type: "panel", name: "p1b", valueName: "Address", elements: [{ type: "text", name: "zip" }] },
+    { type: "panel", name: "pab", valueName: "a.b", elements: [{ type: "dropdown", name: "kind2", choices: ["home", "work"] }] },
+    { type: "text", name: "t1" });
+  const detail = json.elements[1].detailElements;
+  const home = detail[0].elements;
+  home[0].showCommentArea = true;
+  home.push(
+    { type: "matrixdropdown", name: "m2", rows: ["r"], columns: [{ name: "c", cellType: "text", totalType: "sum" }] },
+    { type: "multipletext", name: "mt2", items: [{ name: "i1" }] },
+    { type: "html", name: "h3" });
+  detail.push({ type: "text", name: "d1" });
+  json.elements[1].columns.push({ name: "col2" });
+  return json;
+}
+function recordsParityRuntime(json: any): { survey: SurveyModel, panel: any, row: any } {
+  const survey = new SurveyModel(json);
+  survey.data = {
+    items: [{ title: "A", address: { kind: "home", "kind-Comment": "cmt", street: "s", mt: { i1: "v" }, inner: { w: "W" } },
+      Address: { zip: "Z" }, "a.b": { kind2: "home" } }],
+    rows: [{ col1: 1, home: { street2: "s", "street2-Comment": "C2", mt2: { i1: "v" } } }],
+  };
+  const panel = (<any>survey.getQuestionByName("items")).panels[0];
+  const row = (<any>survey.getQuestionByName("rows")).visibleRows[0];
+  row.showDetailPanel();
+  panel.getQuestionByName("m").visibleRows[0].cells[0].question.value = 3;
+  row.detailPanel.getQuestionByName("m2").visibleRows[0].cells[0].question.value = 3;
+  return { survey: survey, panel: panel, row: row };
+}
+describe("linter nested data: runtime parity inside a record's object", () => {
+  test("the parity survey is clean", () => {
+    expect(brief(defects(recordsParitySurvey()))).toEqual([]);
+  });
+  test("a template question: the linter resolves a reference exactly when the runtime gives a value", () => {
+    const refs = ["panel.address.street", "panel.address.kind-Comment", "panel.address.m-total.c", "panel.address.m-total.nope",
+      "panel.address.zip", "panel.Address.street", "panel.a.b", "panel.a.b.kind2", "panel.address.inner.w", "panel.address.foo",
+      "panel.address.mt.i1", "panel.address.mt.nope", "panel.address"];
+    refs.forEach(ref => {
+      const json = recordsParitySurvey();
+      json.elements[0].templateElements[4].visibleIf = "{" + ref + "} notempty";
+      const runtimeVisible = recordsParityRuntime(json).panel.getQuestionByName("t1").isVisible;
+      expect(refFindings(json).length === 0, ref).toBe(runtimeVisible);
+    });
+  });
+  test("a column and a detail panel question: the linter resolves a reference exactly when the runtime gives a value", () => {
+    const refs = ["row.home.street2", "row.home.street2-Comment", "row.home.m2-total.c", "row.home.mt2.i1", "row.home.mt2.nope",
+      "row.home.foo", "row.home"];
+    refs.forEach(ref => {
+      const json = recordsParitySurvey();
+      json.elements[1].columns[1].visibleIf = "{" + ref + "} notempty";
+      json.elements[1].detailElements[1].visibleIf = "{" + ref + "} notempty";
+      const row = recordsParityRuntime(json).row;
+      const columnVisible = row.getQuestionByColumnName("col2").isVisible;
+      expect(row.detailPanel.getQuestionByName("d1").isVisible, ref).toBe(columnVisible);
+      // one finding per site: a site that resolves wrongly is not masked by the other
+      expect(refFindings(json).length, ref).toBe(columnVisible ? 0 : 2);
+    });
+  });
+  test("from the root: the linter resolves an indexed path exactly when the runtime gives a value", () => {
+    const refs = ["items[0].address.street", "items[0].address.kind-Comment", "items[0].address.m-total.c",
+      "items[0].address.zip", "items[0].a.b.kind2", "items[0].address.foo", "items[0].address.mt.nope",
+      "rows[0].home.street2", "rows[0].home.street2-Comment", "rows[0].home.m2-total.c", "rows[0].home.mt2.nope"];
+    refs.forEach(ref => {
+      const json = recordsParitySurvey();
+      json.elements.push({ type: "expression", name: "probe", expression: "{" + ref + "}" });
+      const value = recordsParityRuntime(json).survey.runExpression("{" + ref + "}");
+      expect(refFindings(json).length === 0, ref + " (runtime: " + JSON.stringify(value) + ")").toBe(value !== undefined && value !== null);
+    });
+  });
+  test("objects whose keys differ in letter case are merged at every level", () => {
+    const json: any = { elements: [
+      { type: "panel", name: "pa", valueName: "address", elements: [
+        { type: "panel", name: "i1", valueName: "inner", elements: [{ type: "text", name: "y" }] }] },
+      { type: "panel", name: "pb", valueName: "Address", elements: [
+        { type: "panel", name: "i2", valueName: "inner", elements: [{ type: "text", name: "x" }] }] },
+    ] };
+    ["address.inner.x", "Address.inner.y", "address.inner.nope"].forEach(ref => {
+      const lintJson = JSON.parse(JSON.stringify(json));
+      lintJson.elements.push({ type: "expression", name: "probe", expression: "{" + ref + "}" });
+      const survey = new SurveyModel(lintJson);
+      survey.data = { address: { inner: { y: "Y" } }, Address: { inner: { x: "X" } } };
+      const value = survey.runExpression("{" + ref + "}");
+      expect(refFindings(lintJson).length === 0, ref + " (runtime: " + JSON.stringify(value) + ")").toBe(value !== undefined && value !== null);
+    });
+  });
+  test("a display-only question inside a record's object is found, as the metadata walk finds it", () => {
+    const json = recordsParitySurvey();
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    const t1 = (<any>survey.getQuestionByName("items")).template.getQuestionByName("t1");
+    const d1 = (<any>survey.getQuestionByName("rows")).detailPanel.getQuestionByName("d1");
+    const cases: Array<{ ref: string, context: any, found: string | null }> = [
+      { ref: "panel.address.h", context: t1, found: "h" },
+      { ref: "panel.address.inner.h2", context: t1, found: "h2" },
+      { ref: "panel.address.nope", context: t1, found: null },
+      { ref: "row.home.h3", context: d1, found: "h3" },
+    ];
+    cases.forEach(c => {
+      const res = survey.getQuestionByVariable(c.ref, c.context);
+      expect(!!res ? res.question.name : null, c.ref).toBe(c.found);
+      const lintJson = recordsParitySurvey();
+      lintJson.elements[0].templateElements[4].visibleIf = c.context === t1 ? "{" + c.ref + "} notempty" : "";
+      lintJson.elements[1].detailElements[1].visibleIf = c.context === d1 ? "{" + c.ref + "} notempty" : "";
+      expect(refFindings(lintJson).length === 0, c.ref).toBe(c.found !== null);
+    });
+    // from the root the metadata walk stops at the records question ({items[0]...}); the path inside the
+    // object resolves as a value question's would
+    json.elements.push({ type: "expression", name: "probe", expression: "{items[0].address.h} + {rows[0].home.h3}" });
+    expect(brief(refFindings(json))).toEqual([]);
+  });
+  test("an unknown key below a question of a record's object is reported", () => {
+    const json = recordsParitySurvey();
+    json.elements[0].templateElements[4].visibleIf = "{panel.address.mt.i2} = 1";
+    json.elements[1].columns[1].visibleIf = "{row.home.mt2.i2} = 1";
+    json.elements.push({ type: "expression", name: "probe", expression: "{items[0].address.mt.i2}" });
+    const findings = refFindings(json);
+    expect(brief(findings)).toEqual([
+      "reference/unknown/scopedUnknown @ elements[0].templateElements[4].visibleIf",
+      "reference/unknown/scopedUnknown @ elements[1].columns[1].visibleIf",
+      "reference/unknown/inContainer @ elements[2].expression",
+    ]);
+    expect(findings.map(f => f.suggestion), "the items are suggested").toEqual(["i1", "i1", "i1"]);
+  });
+  test("a path through a dotted key of a record's object reaches the question, so its choices are checked", () => {
+    const json = recordsParitySurvey();
+    json.elements[0].templateElements[3].elements.push({ type: "dropdown", name: "xy", valueName: "x.y", choices: ["home"] });
+    json.elements.push({ type: "text", name: "q", visibleIf: "{items[0].a.b.kind2} = 'hom' or {items[0].a.b.x.y} = 'hom' or {items[0].a.b.kind2} = 'home'" });
+    json.elements[0].templateElements[4].visibleIf = "{panel.a.b.kind2} = 'hom'";
+    expect(brief(findingsOf(json, "expression/unknown-choice"))).toEqual([
+      "expression/unknown-choice/notAmongChoices @ elements[0].templateElements[4].visibleIf",
+      "expression/unknown-choice/notAmongChoices @ elements[2].visibleIf",
+      "expression/unknown-choice/notAmongChoices @ elements[2].visibleIf",
+    ]);
+  });
+});
+
 describe("linter nested data: trigger variables and built-in container keys", () => {
   test("cycle/trigger reads a fromName that names a variable or a calculated value", () => {
     const json: any = {

@@ -480,9 +480,14 @@ another one, and no property holds it.
     by its **name** (`{street}`), and its comment key (`{street-Comment}`);
   * inside a container - its questions by **value name**, the containers directly inside it by key, its
     comment keys, then the outer objects and the root. Inside a record the outer objects stop at the
-    record and go on around the dynamic panel or the matrix. A matrix total inside an object is reached by a
-    path from the survey data only (`{address.m-total.c}`), as at runtime. Display-only questions (html,
-    image) store nothing: a container key answers before them, and they conflict with no key. A path continues inside the
+    record and go on around the dynamic panel or the matrix. A matrix total inside an object of the survey
+    data is reached by a path from the survey data only (`{address.m-total.c}`), as at runtime. Inside a
+    record the runtime stores the total row in the record's object once a cell changes, and a path into
+    that object reaches it, from the record (`{panel.address.m-total.c}`, `{row.home.m-total.c}`) or from
+    the survey data (`{items[0].address.m-total.c}`), not its key alone from inside the object. A matrix
+    placed directly in a detail panel writes no total into the row, so `{row.m-total.c}` stays unknown.
+    Display-only questions (html, image) store nothing: a container key answers before them, and they
+    conflict with no key; inside a record's object they are found as in the survey data's. A path continues inside the
     object it names and never falls back: `{address.foo}` is reported though the runtime reads raw data
     for it, and there is no deep search - `{panel1.q1}` only works inside the page `panel1` is on;
   * a question's `valueName` inside a container answers only inside it, and a nesting container's name

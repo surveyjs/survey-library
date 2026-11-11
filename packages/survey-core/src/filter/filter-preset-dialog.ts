@@ -1,4 +1,4 @@
-import { Base } from "../base";
+import { Base, ComputedUpdater } from "../base";
 import { property } from "../decorators";
 import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
@@ -14,6 +14,7 @@ import { FilterConditionsEditor, IFilterConditionsEditorOwner, createFilterEdito
 import { getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import type { FilterAIRequest } from "./filter-ai";
 import { FilterAIPrompt } from "./filter-ai-prompt";
+import { FilterExpressionPanel, getFilterExpressionError } from "./filter-expression-panel";
 import { filterUIStrings } from "./filter-ui-strings";
 // The question types the form is made of; imported here, as FilterConditionsEditor imports its own.
 import "../question_text";
@@ -23,7 +24,9 @@ import "../question_dropdown";
 export interface IFilterPresetDialogOwner extends IFilterConditionsEditorOwner {
   visibleItems: Array<FilterItem>;
   getAllFieldKeys(): Array<string>;
-  addItem(title: string, conditions: Array<IFilterCondition>): FilterItem;
+  addItem(title: string, conditions: Array<IFilterCondition>, options?: { expression?: string }): FilterItem;
+  parseExpressionConditions(text: string): Array<IFilterCondition> | null;
+  getConditionsExpression(conditions: Array<IFilterCondition>): string;
   cssClasses: any;
   isMobile?: boolean;
 }
@@ -36,38 +39,50 @@ export function isFilterPresetTitleTaken(title: string, otherTitles: Array<strin
   return otherTitles.some((other: string): boolean => (other || "").trim().toLocaleLowerCase() === key);
 }
 
-// A preset as a dialog edits it: its title, and its conditions - null for a preset that does not
-// decompose, which has none to edit.
+// A preset as a dialog edits it: its title, and its conditions - or, null, the preset is edited as
+// text, which expression holds: one that does not decompose always is, any other when the respondent
+// asks for it (editAsText).
 export interface IFilterPresetBuffer {
   item?: FilterItem;
   title: string;
   conditions: Array<IFilterCondition> | null;
+  expression?: string;
 }
 
 // The Add New Preset dialog: the preset's title and what it contains - a dropdown per field, "+ Add"
 // for one more and the "x" of a dropdown for one less - and the fields' editors under them, in the
-// form of their kinds as in the Filters dialog. Two surveys: the form (the title and the dropdowns),
+// form of their kinds as in the Filters dialog - or, for a preset edited as text, the text in place of
+// Contains (FilterExpressionPanel), "Edit as text" and "Edit as fields" in the titles switching
+// between the two. Two surveys: the form (the title and the dropdowns or the text),
 // made anew for every preset shown, and the dialog's survey (survey), which lives as long as the
 // dialog: the fields' FilterConditionsEditor adds its panels to its "fields" panel - the frame - and
 // is made anew whenever the set of fields changes; Edit Presets adds the description after it. A
 // renderer watches the form and editor properties. Nothing reaches the control until apply(), which
 // checks the preset - a title that is given, not too long and no other preset's, and at least one
-// condition - and says whether the dialog may close. Made when the dialog opens, disposed when it
-// closes.
+// condition or a text that parses - and says whether the dialog may close. Made when the dialog
+// opens, disposed when it closes.
 export class FilterPresetDialog extends Base {
   @property() form: SurveyModel;
   // The fields' editors; undefined while no field is picked.
   @property() editor: FilterConditionsEditor;
+  // The text shown is the fields' kind of text: "Edit as fields" can show it as fields.
+  @property({ defaultValue: false }) canEditAsFields: boolean;
   protected buffer: IFilterPresetBuffer;
+  // The text of a preset edited as text, in the form.
+  private expressionPanel: FilterExpressionPanel;
   private surveyValue: SurveyModel;
   private fieldsPanelValue: PanelModel;
   private addFieldAction: Action;
   private rowCount: number = 0;
 
-  constructor(protected owner: IFilterPresetDialogOwner, conditions?: Array<IFilterCondition>) {
+  // Add New Preset starts with the conditions - or with the text, when one is given: the Filters
+  // dialog's preset that does not decompose.
+  constructor(protected owner: IFilterPresetDialogOwner, conditions?: Array<IFilterCondition>, expression?: string) {
     super();
     this.surveyValue = this.createSurvey();
-    if (conditions !== undefined) {
+    if (!!(expression || "").trim()) {
+      this.showBuffer({ title: "", conditions: null, expression: expression.trim() });
+    } else if (conditions !== undefined) {
       this.showBuffer({ title: "", conditions: [].concat(conditions || []) });
     }
   }
@@ -75,6 +90,29 @@ export class FilterPresetDialog extends Base {
   public get title(): string { return filterUIStrings.addPresetTitle; }
   // Whether the preset shown may be changed; a dialog that adds one always may.
   public get isReadOnly(): boolean { return false; }
+  // The preset shown is edited as text.
+  public get isTextMode(): boolean { return !!this.buffer && this.buffer.conditions === null; }
+  // Whether the dialog's survey has anything to draw: the fields' editors (or, in Edit Presets, the
+  // AI description). A renderer draws it only then.
+  public get hasSurveyContent(): boolean { return !!this.editor; }
+  // The preset as text: what the fields hold, as the fields write it.
+  public editAsText(): void {
+    if (this.isDisposed || !this.buffer || this.isTextMode || this.isReadOnly) return;
+    this.saveBuffer();
+    this.buffer.expression = this.owner.getConditionsExpression(this.buffer.conditions);
+    this.buffer.conditions = null;
+    this.showBuffer(this.buffer);
+  }
+  // The text as fields - only while it is the fields' kind of text (canEditAsFields).
+  public editAsFields(): void {
+    if (this.isDisposed || !this.isTextMode || this.isReadOnly) return;
+    this.saveBuffer();
+    const conditions = this.owner.parseExpressionConditions(this.buffer.expression);
+    if (conditions === null) return;
+    this.buffer.conditions = conditions;
+    this.buffer.expression = undefined;
+    this.showBuffer(this.buffer);
+  }
   // The control's classes (the "filter" entry of the theme): the dialog is drawn outside the
   // control's own markup.
   public get cssClasses(): any { return this.owner.cssClasses || {}; }
@@ -94,13 +132,19 @@ export class FilterPresetDialog extends Base {
     if (this.isDisposed) return false;
     this.saveBuffer();
     if (!this.validateBuffer()) return false;
-    this.owner.addItem(this.buffer.title.trim(), this.buffer.conditions);
+    if (this.isTextMode) {
+      this.owner.addItem(this.buffer.title.trim(), [], { expression: this.buffer.expression });
+    } else {
+      this.owner.addItem(this.buffer.title.trim(), this.buffer.conditions);
+    }
     return true;
   }
   // The dialog's survey goes last: the editor (and Edit Presets' description) take their panels out
   // of it first.
+  // The form before its text: the text's panel leaves a disposed survey alone, and taking it out of a
+  // live one would report a change of the form.
   public dispose(): void {
-    [this.editor, this.form, this.addFieldAction].forEach((part: { dispose(): void }): void => {
+    [this.editor, this.form, this.expressionPanel, this.addFieldAction].forEach((part: { dispose(): void }): void => {
       if (!!part) part.dispose();
     });
     super.dispose();
@@ -111,10 +155,14 @@ export class FilterPresetDialog extends Base {
   // preset, no form.
   protected showBuffer(buffer: IFilterPresetBuffer): void {
     const oldForm = this.form;
+    const oldPanel = this.expressionPanel;
+    this.expressionPanel = undefined;
     this.buffer = buffer;
     this.form = !!buffer ? this.createForm() : undefined;
     this.replaceEditor();
+    this.updateCanEditAsFields();
     if (!!oldForm) oldForm.dispose();
+    if (!!oldPanel) oldPanel.dispose();
   }
   // Reads what the form and the editors hold back into the preset shown.
   protected saveBuffer(): void {
@@ -122,6 +170,8 @@ export class FilterPresetDialog extends Base {
     this.buffer.title = this.form.getValue("presetTitle") || "";
     if (this.buffer.conditions !== null) {
       this.buffer.conditions = !!this.editor ? this.editor.getConditions() : [];
+    } else if (!!this.expressionPanel) {
+      this.buffer.expression = this.expressionPanel.text;
     }
   }
   protected validateBuffer(): boolean {
@@ -193,7 +243,10 @@ export class FilterPresetDialog extends Base {
     if (this.buffer.conditions !== null) {
       elements.push({ type: "panel", name: "contains", title: filterUIStrings.presetContains });
     }
+    // Before the elements exist: a panel asks for its title actions when it is first drawn.
+    const onGetTitleActions = (_: SurveyModel, options: any): void => { this.addModeAction(options); };
     const form = new SurveyModel({ showNavigationButtons: false, showQuestionNumbers: "off", elements: elements });
+    form.onGetPanelTitleActions.add(onGetTitleActions);
     form.locale = this.owner.getLocale();
     // Inside the dialog with no frames of its own, as the fields' editors are.
     form.isCompact = true;
@@ -204,6 +257,10 @@ export class FilterPresetDialog extends Base {
       form.mode = "display";
     }
     form.setValue("presetTitle", this.buffer.title);
+    if (this.buffer.conditions === null) {
+      this.expressionPanel = new FilterExpressionPanel(form, this.buffer.expression || "", { title: filterUIStrings.presetContains,
+        readOnly: this.isReadOnly, index: form.pages[0].elements.length, onChanged: (): void => { this.updateCanEditAsFields(); } });
+    }
     const panel = <PanelModel>form.getPanelByName("contains");
     if (!!panel) {
       this.rowCount = 0;
@@ -223,6 +280,26 @@ export class FilterPresetDialog extends Base {
     });
     this.updateRows(form);
     return form;
+  }
+  // "Edit as text" in the title of Contains, "Edit as fields" in the title of the text - a link, as
+  // Show More is - where the preset may be changed. One of each per form: a panel's title toolbar
+  // disposes its actions with the form.
+  private addModeAction(options: any): void {
+    if (this.isReadOnly) return;
+    const name = options.panel.name;
+    if (name !== "contains" && name !== "expression") return;
+    const isText = name === "contains";
+    const action = new Action({ id: isText ? "sv-filter-preset-edit-as-text" : "sv-filter-preset-edit-as-fields",
+      title: isText ? filterUIStrings.editAsText : filterUIStrings.editAsFields, innerCss: (this.owner.cssClasses || {}).link,
+      appearance: { style: "brand", mode: "tertiary", size: "x-small" },
+      action: (): void => { if (isText) { this.editAsText(); } else { this.editAsFields(); } } });
+    if (!isText) {
+      action.enabled = <any>new ComputedUpdater<boolean>((): boolean => this.canEditAsFields);
+    }
+    options.titleActions.push(action);
+  }
+  private updateCanEditAsFields(): void {
+    this.canEditAsFields = this.isTextMode && !!this.expressionPanel && this.owner.parseExpressionConditions(this.expressionPanel.text) !== null;
   }
   // A dropdown of fields; the respondent picks one, or the "x" takes the row away.
   private addRow(panel: PanelModel, key?: string): void {
@@ -316,7 +393,8 @@ export interface IFilterEditPresetsDialogOwner extends IFilterPresetDialogOwner 
   getEditableItems(): Array<FilterItem>;
   getItemConditions(name: string): Array<IFilterCondition> | null;
   getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null };
-  isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null): boolean;
+  getOriginalItemExpression(name: string): string;
+  isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null, expression?: string): boolean;
   // a preset's filter may be changed with AI (Make Changes)
   canRequestAI: boolean;
   createAIRequest(): FilterAIRequest;
@@ -343,7 +421,7 @@ interface IFilterPresetTab extends IFilterPresetBuffer {
 // change (applyItemEdits). A tab nobody touched is what the control has: it is neither checked nor
 // written, so an authored title longer than a typed one may be, or one two authored presets share,
 // does not hold the others back. A preset that may not be edited shows read-only; one that does not
-// decompose has its title only, and no Contains.
+// decompose is edited as text.
 export class FilterEditPresetsDialog extends FilterPresetDialog {
   // The description and Make Changes of the selected tab (see canAskAI); undefined for a tab that has
   // none. Made anew, empty, for another tab: an answer for the tab left is ignored. The description is
@@ -376,7 +454,8 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
       const id = getUniqueFilterActionId("sv-filter-preset-tab-" + item.name, (candidate: string): boolean => !!used[candidate]);
       used[id] = true;
       const conditions = owner.getItemConditions(item.name);
-      const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions, isDeleted: false,
+      const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions,
+        expression: conditions === null ? (item.expression || "").trim() : undefined, isDeleted: false,
         isReset: false, isTouched: false, chip: undefined };
       // One choice of several: a radio (aria-checked is not allowed on the default button role).
       tab.chip = new Action({ id: id, title: item.title, ariaRole: "radio", ariaChecked: false, activeAppearance: { style: "neutral", mode: "primary" },
@@ -390,6 +469,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
   public getType(): string { return "filtereditpresetsdialog"; }
   public get title(): string { return filterUIStrings.editPresets; }
   public get tabsToolbar(): ActionContainer { return this.tabsToolbarValue; }
+  public get hasSurveyContent(): boolean { return super.hasSurveyContent || !!this.aiPrompt; }
   // Delete and Reset of the selected preset.
   public get actionsToolbar(): ActionContainer { return this.actionsToolbarValue; }
   public get isReadOnly(): boolean {
@@ -412,7 +492,8 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     this.showBuffer(live[index + 1] || live[index - 1]);
     this.updateTabs();
   }
-  // Brings the JSON's title and conditions back into the selected tab.
+  // Brings the JSON's title and filter back into the selected tab - as fields or as text, as the
+  // JSON's text decomposes.
   public resetSelected(): void {
     const tab = <IFilterPresetTab>this.buffer;
     if (!tab || this.editOwner.isUserItem(tab.item)) return;
@@ -423,6 +504,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     const original = this.editOwner.getOriginalItemState(tab.item.name);
     tab.title = original.title;
     tab.conditions = original.conditions;
+    tab.expression = original.conditions === null ? this.editOwner.getOriginalItemExpression(tab.item.name) : undefined;
     tab.isReset = true;
     tab.isTouched = true;
     this.showBuffer(tab);
@@ -450,7 +532,12 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
       if (tab.isDeleted) {
         edits.push({ name: name, isDeleted: true });
       } else if (tab.isTouched && owner.canEditItem(tab.item)) {
-        const edit: IFilterItemEdit = { name: name, isReset: tab.isReset, title: tab.title.trim(), conditions: tab.conditions === null ? undefined : tab.conditions };
+        const edit: IFilterItemEdit = { name: name, isReset: tab.isReset, title: tab.title.trim() };
+        if (tab.conditions === null) {
+          edit.expression = (tab.expression || "").trim();
+        } else {
+          edit.conditions = tab.conditions;
+        }
         edits.push(edit);
       } else if (tab.isReset) {
         edits.push({ name: name, isReset: true });
@@ -478,7 +565,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
   protected showBuffer(buffer: IFilterPresetBuffer): void {
     super.showBuffer(buffer);
     const tab = <IFilterPresetTab>buffer;
-    if (tab === this.aiPromptTab && !!this.aiPrompt) return;
+    if (tab === this.aiPromptTab && !!this.aiPrompt && this.canAskAI(tab)) return;
     this.setAIPrompt(undefined, undefined);
     if (this.canAskAI(tab)) {
       this.setAIPrompt(tab, this.createAIPrompt(tab));
@@ -540,7 +627,8 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     this.updateTabs();
   }
   private hasError(tab: IFilterPresetTab): boolean {
-    return !!this.getTitleError(tab.title, this.getTitlesExcept(tab)) || (tab.conditions !== null && tab.conditions.length === 0);
+    if (!!this.getTitleError(tab.title, this.getTitlesExcept(tab))) return true;
+    return tab.conditions !== null ? tab.conditions.length === 0 : !!getFilterExpressionError(tab.expression);
   }
   private updateTabs(): void {
     const tab = <IFilterPresetTab>this.buffer;
@@ -551,6 +639,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     });
     const owner = this.editOwner;
     this.deleteAction.visible = !!tab && owner.canDeleteItem(tab.item);
-    this.resetAction.visible = !!tab && !owner.isUserItem(tab.item) && !owner.isOriginalItemState(tab.item.name, tab.title, tab.conditions);
+    this.resetAction.visible = !!tab && !owner.isUserItem(tab.item) &&
+      !owner.isOriginalItemState(tab.item.name, tab.title, tab.conditions, tab.conditions === null ? tab.expression : undefined);
   }
 }

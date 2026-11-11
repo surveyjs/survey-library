@@ -25,10 +25,9 @@ export class FilterPresetDialogComponent extends FilterHolderComponent {
     const edit = this.edit;
     return [this.dialog, edit?.tabsToolbar, edit?.actionsToolbar];
   }
-  // The page is empty with no field picked and no description (Add Preset, a plain tab).
+  // The page is empty with no field picked and no description (see hasSurveyContent).
   public get hasFields(): boolean {
-    const edit = this.edit;
-    return !!this.dialog.editor || (!!edit && !!edit.aiPrompt);
+    return this.dialog.hasSurveyContent;
   }
   public get actionsTitle(): string {
     return filterUIStrings.presetActions;

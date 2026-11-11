@@ -31,8 +31,8 @@ const dialog = (): FilterPresetDialog => {
 };
 const edit = (): FilterEditPresetsDialog => dialog() instanceof FilterEditPresetsDialog ? dialog() as FilterEditPresetsDialog : undefined as any;
 const css = (): any => dialog().cssClasses;
-// The page is empty with no field picked and no description (Add Preset, a plain tab).
-const hasFields = (): boolean => !!dialog().editor || (!!edit() && !!edit().aiPrompt);
+// The page is empty with no field picked and no description (see hasSurveyContent).
+const hasFields = (): boolean => dialog().hasSurveyContent;
 useBase(() => props.holder);
 useBase(() => dialog());
 useBase(() => edit()?.tabsToolbar);

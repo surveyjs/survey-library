@@ -202,8 +202,8 @@ export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: Filter
     const css = dialog.cssClasses;
     const edit = dialog instanceof FilterEditPresetsDialog ? dialog : undefined;
     const form = dialog.form;
-    // The page is empty with no field picked and no description (Add Preset, a plain tab).
-    const hasFields = !!dialog.editor || (!!edit && !!edit.aiPrompt);
+    // The page is empty with no field picked and no description (see hasSurveyContent).
+    const hasFields = dialog.hasSurveyContent;
     return <div className={dialog.contentCss}>
       {this.renderTabs(edit, css)}
       {!!form ? <FilterEditorPage key={form.uniqueId} editor={{ survey: form, isDisposed: dialog.isDisposed }}

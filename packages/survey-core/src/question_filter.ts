@@ -689,10 +689,20 @@ export class QuestionFilterModel extends QuestionNonValue {
   public createFilterModal(): FilterModal {
     return new FilterModal(this);
   }
-  // The Add New Preset dialog, its fields holding the given conditions - see FilterPresetDialog. The
-  // caller owns it and disposes it.
-  public createAddPresetDialog(conditions: Array<IFilterCondition>): FilterPresetDialog {
-    return new FilterPresetDialog(this, conditions || []);
+  // The Add New Preset dialog, its fields holding the given conditions - or, given a text, the text
+  // to edit as it is - see FilterPresetDialog. The caller owns it and disposes it.
+  public createAddPresetDialog(conditions: Array<IFilterCondition>, expression?: string): FilterPresetDialog {
+    return new FilterPresetDialog(this, conditions || [], expression);
+  }
+  // A text as the conditions the fields edit it with, or null when it is not that kind of text -
+  // what decides whether a preset dialog shows a preset as fields or as text.
+  public parseExpressionConditions(text: string): Array<IFilterCondition> | null {
+    return parseFilterExpression((text || "").trim(), this.getFilterFields());
+  }
+  // Conditions as the text the fields write them as.
+  public getConditionsExpression(conditions: Array<IFilterCondition>): string {
+    const fields = this.getFilterFields();
+    return conditionsToExpression(normalizeFilterConditions(conditions || [], fields), fields);
   }
   // The Edit Presets dialog, the named preset's tab selected - see FilterEditPresetsDialog. The
   // caller owns it and disposes it.

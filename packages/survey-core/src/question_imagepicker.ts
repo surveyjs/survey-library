@@ -56,6 +56,14 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
     return this.locOwner instanceof QuestionImagePickerModel && this.locOwner.contentMode == "video" ? this.videoNotLoaded : this.imageNotLoaded;
   }
 
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "imageLink") {
+      this.imageNotLoaded = false;
+      this.videoNotLoaded = false;
+    }
+  }
+
 }
 
 /**
@@ -77,10 +85,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     }
     if (name === "imageWidth" || name === "imageHeight") {
       this.calcIsResponsive();
-    }
-    if (name === "imageLink") {
-      this.imageNotLoaded = false;
-      this.videoNotLoaded = false;
     }
   }
   public getType(): string {

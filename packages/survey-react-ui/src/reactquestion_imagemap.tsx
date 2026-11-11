@@ -26,8 +26,8 @@ export class SurveyQuestionImageMap extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.cssClasses.root} ref={(root) => (this.setControl(root))}>
-        <img className={this.question.cssClasses.bg} id={`${this.question.id}-bg`} src={this.question.imageLink} role="presentation"/>
-        <svg className={this.question.cssClasses.svg} id={`${this.question.id}-svg`}></svg>
+        <img className={this.question.cssClasses.bg} id={`${this.question.renderedId}-bg`} src={this.question.imageLink} role="presentation"/>
+        <svg className={this.question.cssClasses.svg} id={`${this.question.renderedId}-svg`}></svg>
       </div>
     );
   }

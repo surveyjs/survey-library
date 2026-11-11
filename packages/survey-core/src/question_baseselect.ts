@@ -27,6 +27,7 @@ import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts";
 import { Scope } from "./utils/scope";
+import { getIdSelector } from "./utils/dom-utils";
 
 const OTHER_ITEM_VALUE = "other";
 // The key a choice comment is kept under in the object of a selected item (commentPropertyValue).
@@ -166,7 +167,7 @@ export class ChoiceItem extends ItemValue {
       const cssClasses = this.choiceOwner.getCssClassesForCommentPanelAnimation("panel");
       this.panelAnimationValue = new AnimationBoolean({
         getAnimatedElement: ()=> {
-          return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
+          return this.choiceOwner.getWrapperElement()?.querySelector(getIdSelector(this.panel.renderedId)) as HTMLElement;
         },
         getEnterOptions() {
           return { cssClass: cssClasses.onEnter,
@@ -1804,7 +1805,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
   }
   private getChoicesDisplayValue(items: ItemValue[], val: any, isReadOnly?: boolean): any {
-    if (this.isOtherValue(val)) {
+    if (this.isOtherValue(val) && !this.isCopiedOtherValue(items, val)) {
       if (isReadOnly) return this.locOtherText.textOrHtml;
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     }
@@ -1812,6 +1813,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!!selItem && this.isTwoValueEquals(selItem.value, val)) return selItem.locText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
+  }
+  // choicesFromQuestion (mode "selected") copies the source's Other as a regular item whose text is
+  // the source's typed text; its display value is that text, not this question's own Other text.
+  // The source's Other is copied only into a question without its own Other item, so the choices
+  // are searched only then: a question that shows Other pays nothing extra.
+  private isCopiedOtherValue(items: ItemValue[], val: any): boolean {
+    if (this.showOtherItem) return false;
+    const item = ItemValue.getItemByValue(items, val);
+    return !!item && !this.isBuiltInChoice(item);
   }
   protected getDisplayArrayValue(keysAsText: boolean, value: any,
     onGetValueCallback?: (index: number) => any, isReadOnly?: boolean): string {
@@ -1983,6 +1993,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       if (!this.isBuiltInChoice(choices[i])) return true;
     }
     return false;
+  }
+  // Unlike hasActiveChoices, a regular choice hidden by its visibleIf still counts:
+  // the question knows its choices even when none of them is visible right now.
+  protected get hasRegularChoices(): boolean {
+    if (this.activeChoices.some(item => !this.isBuiltInChoice(item))) return true;
+    // A copy of a ready question is complete even when it is empty (nothing is selected in the source);
+    // while the source still loads its choices (choicesByUrl), the copy may lack them.
+    const source = this.isUsingCarryForward ? this.getCarryForwardQuestion() : null;
+    return !!source && source.isReady;
   }
   public isBuiltInChoice(item: ItemValue): boolean {
     return !!item && [this.otherItemValue, this.noneItemValue, this.refuseItemValue, this.dontKnowItemValue, this.newItemValue].indexOf(item) > -1;

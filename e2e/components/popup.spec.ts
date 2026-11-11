@@ -149,7 +149,8 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(1000);
+      // Autofocus runs after the render: survey.rootElement below is set.
+      await expect(page.locator("div[data-name=actions_question] input")).toBeFocused();
       // The popup container is rendered when the popup opens first: set its margins with a stylesheet.
       await page.evaluate(() => {
         const root = (window as any).survey.rootElement.getRootNode();
@@ -473,7 +474,10 @@ frameworks.forEach((framework) => {
       const popupSelector = page.locator(".sv-popup .sv-popup__container").first();
       const clickButton = page.locator(".sd-action").first();
 
-      await page.waitForTimeout(500);
+      // Shift+Tab must start from the autofocused input.
+      await expect(page.locator("div[data-name=actions_question] input")).toBeFocused();
+      // Enter during the title action bar's first layout pass (opacity 0) does not open the popup.
+      await expect(page.locator("div[data-name=actions_question] .sd-action-title-bar")).toHaveCSS("opacity", "1");
       await page.keyboard.press("Shift+Tab");
       await expect(clickButton).toBeFocused();
       await page.keyboard.press("Enter");

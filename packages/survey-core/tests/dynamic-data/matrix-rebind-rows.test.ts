@@ -506,6 +506,17 @@ describe("Matrix rebind: the records follow the rows", () => {
       expect(surveyOf(matrix).data, "#3").toEqual(before);
     });
   });
+  test("choicesFromQuestion \"selected\" before its source: a sort keeps every answer, also after the next edit of the row", () => {
+    const columns = [plainColumns[0], { name: "dst", cellType: "dropdown", choicesFromQuestion: "row.src", choicesFromQuestionMode: "selected" },
+      { name: "src", cellType: "checkbox", choices: [1, 2, 3, 4] }];
+    const data = [{ key: 3, src: [1, 2], dst: 1 }, { key: 1, src: [3], dst: 3 }, { key: 5, src: [4, 2], dst: 4 }];
+    const matrix = render(createMatrix(columns, data));
+    matrix.sort(sortDesc);
+    expect(matrix.visibleRows.map((row: MatrixDropdownRowModelBase): any => row.getQuestionByColumnName("dst").value), "#1").toEqual([4, 1, 3]);
+    // A row composes its record from its cells: an empty dependent would drop the stored answer here.
+    matrix.visibleRows[0].getQuestionByColumnName("key").value = 50;
+    expect(storedRecords(matrix), "#2").toEqual([{ key: 3, src: [1, 2], dst: 1 }, { key: 1, src: [3], dst: 3 }, { key: 50, src: [4, 2], dst: 4 }]);
+  });
   test("an edit made after a rebind reaches the record its row shows, and only that record", () => {
     const matrix = render(createMatrix(plainColumns, plainData, { pageSize: 2 }));
     const rows = rowsOf(matrix);

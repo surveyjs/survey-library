@@ -153,6 +153,41 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
     super.updateQuestionFromRecord(question, record);
     question.initDataUI();
   }
+  /* A question of a new panel takes its record from the survey data (setSurveyImpl), not as a value
+     assigned to it: an empty field is taken as it is, a missing comment stays unset, and the value is
+     not changed directly - the same update an assignment from outside gives the panel. */
+  protected fillQuestionFromRecord(question: Question, record: any): void {
+    this.updateQuestionFromRecord(question, record);
+  }
+  /* The panel is kept for another record (QuestionPanelDynamicModel.rebindPanels). The base resets and
+     fills its questions; what the panel and its nested panels hold themselves goes too: their errors, and
+     the state a nested panel was collapsed or expanded to for the old record - a new panel takes the
+     template's. The panel's own state follows panelsState after the rebind (setPanelsState). */
+  public rebindToRecord(record: any): void {
+    super.rebindToRecord(record);
+    this.resetPanelForAnotherRecord(this.panel, this.data.template);
+  }
+  // The panel's visibleIf (the template's, unless the records decide it) or a nested panel's.
+  public isAsyncConditionRunning(): boolean {
+    const isRunning = (panel: PanelModelBase): boolean => panel.isAsyncExpressionRunning ||
+      panel.elements.some((el: IElement): boolean => el.isPanel && isRunning(<PanelModelBase><any>el));
+    return isRunning(this.panel);
+  }
+  private resetPanelForAnotherRecord(panel: PanelModelBase, template: PanelModelBase): void {
+    panel.errors = [];
+    panel.elements.forEach((el: IElement): void => {
+      if (!el.isPanel) return;
+      const nested = <PanelModel><any>el;
+      const templateEl = <PanelModel><any>template.getElementByName(nested.name);
+      const state = !!templateEl ? templateEl.state : "default";
+      if (nested.state !== state) {
+        nested.state = state;
+      }
+      this.resetPanelForAnotherRecord(nested, template);
+    });
+    // The mark of the last validation, which the title classes read: after the nested elements', which it reads.
+    panel.updateContainsErrors();
+  }
   // The panel clears its nested panels' own errors and its own as well.
   public clearErrors(): void {
     this.panel.clearErrors();
@@ -182,6 +217,14 @@ interface IPanelRemoval extends IRecordRemoval {
 
 // The count properties of the dynamic panel: getRecordCountNames and the Serializer entries read them.
 const panelCountNames = getRecordCountNamesOf("Panel");
+/* PB01: the survey events a new panel fires for its questions, its element and its actions
+   (canRebindOwnItems). A handler sets them up for the record of the panel, and a kept panel is neither
+   created nor mounted again for the new record. The css class events too: an element keeps the classes a
+   handler computed for its record. onDynamicPanelAdded: what a handler set up on an added panel would
+   stay with the panel's position and reach another record; a rebuild drops it. */
+const panelCreationEvents = ["onQuestionCreated", "onAfterRenderQuestion", "onAfterRenderQuestionInput", "onAfterRenderPanel",
+  "onGetQuestionTitleActions", "onGetPanelTitleActions", "onGetPanelFooterActions", "onUpdateQuestionCssClasses",
+  "onUpdatePanelCssClasses", "onDynamicPanelAdded"];
 /* A copy of the plain objects and arrays of a JSON. Any other value - a Date or a class instance a property
    holds - stays the same reference, as toJSON hands it to every panel: a JSON.stringify round trip would
    turn a Date into a string. */
@@ -461,24 +504,33 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      The panels it replaces are disposed: a page visit would otherwise leave every dropdown of the
      page registered with its choicesFromQuestion source.
      QuestionRecordsModel hook: the panels' side of a list change (onDataListChanged). */
-  protected rebuildFromDataList(isPageMove: boolean = false): void {
+  protected rebuildFromDataList(isPageMove: boolean = false, isSort: boolean = false): void {
     if (this.isLoadingFromJson || this.useTemplatePanel || !this.hasPanelBuildFirstTime) return;
     // A page size that changed resets the list, and the reset has rebuilt the panels already.
     if (this.syncListPageSize()) return;
     // Every panel that is created asks for a render and a paging sync: they are collapsed into one.
-    this.runWithOneRender((): void => this.rebuildPanelsFromDataListCore(isPageMove));
+    this.runWithOneRender((): void => this.rebuildPanelsFromDataListCore(isPageMove, isSort));
   }
-  private rebuildPanelsFromDataListCore(isPageMove: boolean): void {
+  private rebuildPanelsFromDataListCore(isPageMove: boolean, isSort: boolean): void {
     this.rebuildingViewScope.run((): void => {
-      this.runCurrentPanelChange((): void => { this.rebuildPanelsForView(isPageMove); });
+      this.runCurrentPanelChange((): void => { this.rebuildPanelsForView(isPageMove, isSort); });
     });
   }
   // While the panels are rebuilt for the view, the ones added and removed select nothing: restoreCurrentPanel chooses.
   private rebuildingViewScope: Scope = new Scope();
-  private rebuildPanelsForView(isPageMove: boolean): void {
+  private rebuildPanelsForView(isPageMove: boolean, isSort: boolean): void {
     this.decideRecordsVisibility();
     if (!this.isWritingRecords) {
       this.disposeLeftPanels(this._renderedPanels);
+    }
+    /* A sort, a cleared sort and a page move the list cuts keep the panels in list mode: each panel takes
+       the record its position holds now (rebindPanels), and a renderer keeps their elements. Every other
+       change, and every case getRebindRecordIndexes refuses, is rebuilt below. */
+    const items = this.panelsCore.map((panel: PanelModel): QuestionRecordItem => <QuestionRecordItem>panel.data);
+    const indexes = this.getRebindRecordIndexes(items, isPageMove, isSort);
+    if (!!indexes) {
+      this.rebindPanels(indexes);
+      return;
     }
     const currentRecord = isPageMove || !this.getPropertyValue("currentPanel", null) ? -1 : this.getCurrentRecordIndex();
     /* Carousel and tab mode show one record: a rebuild that is not a page move - records replaced, a
@@ -509,6 +561,31 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.fireCallback(this.panelCountChangedCallback);
     this.updateTabbedMenuItems();
     this.disposePanels(oldPanels);
+  }
+  /* The panels follow a view change by rebinding (rebindItems): each one keeps its elements and takes
+     the record its position holds now, and drops what it held for the old one (QuestionPanelDynamicItem
+     .rebindToRecord). What a rebuild gives a new panel follows: its state from panelsState, the
+     conditions, the footer actions and the question numbers. */
+  private rebindPanels(indexes: Array<number>): void {
+    const items = this.panelsCore.map((panel: PanelModel): QuestionPanelDynamicItem => <QuestionPanelDynamicItem>panel.data);
+    this.rebindItems(items, indexes, (recordIndex: number): any => this.getListRecordAt(recordIndex));
+    /* The texts that read the record or the panel number ({panelIndex}, {panel.x}) - titles, descriptions,
+       markdown - announce their new values, as a panel's first rendering does (panelOnFirstRendering). */
+    this.panelsCore.forEach((panel: PanelModel): void => { panel.locStrsChanged(); });
+    this.setPanelsState();
+    this.reRunCondition();
+    this.updateFooterActions();
+    this.updateNewPanelsVisibleIndex(0);
+    this.fireCallback(this.panelCountChangedCallback);
+  }
+  // The panel's own reasons to rebuild on a sort and a page move; the common ones are canRebindItems'.
+  protected canRebindOwnItems(): boolean {
+    // Carousel and tab mode show one panel and keep their current record (showPageOfRecord).
+    if (!this.isRenderModeList) return false;
+    // PB01: a handler sets up a question, its element or its actions for the record of its panel.
+    if (this.hasSurveyHandlers(panelCreationEvents)) return false;
+    // Every question of the template, nested panels included.
+    return this.template.questions.every((question: Question): boolean => this.canRebindTemplateQuestion(question));
   }
   private rebuildingPanelsScope: Scope = new Scope();
   private get isRebuildingPanels(): boolean {

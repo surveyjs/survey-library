@@ -615,7 +615,7 @@ export class DropdownListModel extends Base {
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
-    this.setLoadingComponent(this.question.loadingComponent);
+    this.updateLoadingComponent();
     this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.setInputPlaceholder(this.question.placeholder);
     this.updateAfterListModelCreated(this.listModel);
@@ -715,6 +715,9 @@ export class DropdownListModel extends Base {
 
   public setLoadingComponent(newValue: string): void {
     this.listModel.loadingComponent = newValue || "sv-list-loading";
+  }
+  public updateLoadingComponent(): void {
+    this.setLoadingComponent((this.question.survey as SurveyModel)?.dropdownLoadingComponent);
   }
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {

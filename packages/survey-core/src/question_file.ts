@@ -8,7 +8,7 @@ import { EventBase } from "./event";
 import { UploadingFileError, ExceedSizeError, ExceedFilesCountError } from "./error";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
-import { classesToSelector, isElementVisible } from "./utils/dom-utils";
+import { classesToSelector, getIdSelector, isElementVisible } from "./utils/dom-utils";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { detectIEOrEdge } from "./utils/browser";
 import { loadFileFromBase64 } from "./utils/file-utils";
@@ -1207,7 +1207,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         };
       },
       getAnimatedElement: (page: QuestionFilePage) => {
-        return this.contentElement?.querySelector(`#${page.id}`);
+        return this.contentElement?.querySelector(getIdSelector(page.renderedId));
       },
       isAnimationEnabled: () => {
         return this.animationAllowed && !!this.contentElement;

@@ -59,7 +59,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
-import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode, getIdSelector } from "./utils/dom-utils";
 import { getClosestSurveyScroller } from "./utils/scroll-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
@@ -1667,7 +1667,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
     if (!!page) {
-      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(`#${page.id}`);
+      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(getIdSelector(page.renderedId));
       activateLazyRenderingChecks(htmlElement);
     }
   }
@@ -5856,6 +5856,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.currentPageNo = 0;
     if (!!this.currentPage) {
+      this.currentPage.onFirstRendering();
       this.currentPage.locStrsChanged();
     }
     return true;
@@ -6770,11 +6771,11 @@ export class SurveyModel extends SurveyElementCore
           elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
         elementPage.forceRenderElement(elementToForceRender as IElement, () => {
-          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
+          const htmlElement = surveyRootElement?.querySelector(getIdSelector(options.elementId));
           this.suspendLazyRendering();
           SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
             this.releaseLazyRendering();
-            const pageRootElement = surveyRootElement.querySelector(`#${elementPage.id}`);
+            const pageRootElement = surveyRootElement.querySelector(getIdSelector(elementPage.renderedId));
             activateLazyRenderingChecks(pageRootElement);
             optOnScolledCallback && optOnScolledCallback();
           });
@@ -6784,18 +6785,19 @@ export class SurveyModel extends SurveyElementCore
           const elementToScroll = this.getPageScrollTarget(surveyRootElement);
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
-          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
+          const htmlElement = surveyRootElement?.querySelector(getIdSelector(options.elementId)) as HTMLElement;
           if (htmlElement && !element.isPage && this.autoCenterFocusedQuestion) {
             this.suspendLazyRendering();
             this.focusedQuestionScroll.scrollIntoView(htmlElement);
             this.releaseLazyRendering();
-            activateLazyRenderingChecks(htmlElement);
+            // Without lazy rendering no row waits for the check, and its synthetic scroll is not needed.
+            if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
           } else {
             this.suspendLazyRendering();
             SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
               this.releaseLazyRendering();
-              activateLazyRenderingChecks(htmlElement);
+              if (this.isLazyRendering) activateLazyRenderingChecks(htmlElement);
               optOnScolledCallback && optOnScolledCallback();
             });
           }
@@ -8474,10 +8476,6 @@ export class SurveyModel extends SurveyElementCore
     var question = this.getQuestionByValueName(name);
     if (question) {
       this.fireOnValueChanged(commentName, newValue, question);
-      question.comment = newValue;
-      if (question.comment != newValue) {
-        question.comment = newValue;
-      }
     }
   }
   /**
@@ -9703,7 +9701,7 @@ export class SurveyModel extends SurveyElementCore
     return this.focusedQuestionScrollValue;
   }
 
-  public onScroll(): void {
+  public onScroll(event?: Event): void {
     if (!!this.rootElement) {
       if (this._isElementShouldBeSticky(".sv-components-container-center")) {
         this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
@@ -9714,12 +9712,14 @@ export class SurveyModel extends SurveyElementCore
         this.tocModel.updateStickyTOCSize(this.rootElement);
       }
     }
-    if (this.onScrollCallback) {
+    // A scroll event dispatched by script (the lazy rendering check) must not close an open popup.
+    // A call without an event (the popup survey window) still closes it.
+    if (this.onScrollCallback && event?.isTrusted !== false) {
       this.onScrollCallback();
     }
   }
   public addScrollEventListener(): void {
-    this.scrollHandler = () => { this.onScroll(); };
+    this.scrollHandler = (event: Event) => { this.onScroll(event); };
     this.rootElement.addEventListener("scroll", this.scrollHandler);
     if (!!this.rootElement.getElementsByTagName("form")[0]) {
       this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);
@@ -9740,6 +9740,25 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public questionErrorComponent = "sv-question-error";
+  private dropdownLoadingComponentValue = "sv-list-loading";
+  /**
+   * The name of a component used to display a loading indicator in drop-down lists.
+   *
+   * > This property can only be set in JavaScript code on a `SurveyModel` instance. It cannot be specified in the survey JSON schema.
+   */
+  public get dropdownLoadingComponent(): string {
+    return this.dropdownLoadingComponentValue;
+  }
+  public set dropdownLoadingComponent(val: string) {
+    const newValue = val || "sv-list-loading";
+    if (this.dropdownLoadingComponentValue === newValue) return;
+    this.dropdownLoadingComponentValue = newValue;
+    // The design-time questions too (choice panels, a dynamic panel's template); matrix columns are listed
+    // there and are not questions. Each question forwards to its nested instances.
+    this.getAllQuestions(false, true).forEach(q => {
+      if (q.isQuestion) q.onSurveyDropdownLoadingComponentChanged();
+    });
+  }
 
   public confirmActionAsync(message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): void {
     settings.confirmActionAsync(message, callback, { rootElement: this.rootElement, ...options });

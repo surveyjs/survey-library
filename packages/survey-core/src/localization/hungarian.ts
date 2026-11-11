@@ -107,6 +107,8 @@ export var hungarianSurveyStrings = {
   value: "érték",
   // "Response required."
   requiredError: "Kérjük, válaszolja meg ezt a kérdést!",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "A folytatáshoz Igent kell választanod.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Az érték helytelen.",
   // [Auto-translated] "The value contains unknown keys: {0}."

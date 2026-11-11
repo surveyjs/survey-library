@@ -107,6 +107,8 @@ export var frenchSurveyStrings = {
   value: "valeur",
   // "Response required."
   requiredError: "La réponse à cette question est obligatoire.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Vous devez sélectionner Oui pour continuer.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "La valeur est incorrecte.",
   // [Auto-translated] "The value contains unknown keys: {0}."

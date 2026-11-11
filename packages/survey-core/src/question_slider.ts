@@ -9,7 +9,7 @@ import { Question, QuestionValueType, IVerifyDataContext } from "./question";
 import { QuestionFactory } from "./questionfactory";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
-import { getRootNode } from "./utils/dom-utils";
+import { getIdSelector, getRootNode } from "./utils/dom-utils";
 
 interface ISliderLabelItemOwner extends ILocalizableOwner{
   getTextByItem(item: ItemValue):string;
@@ -526,7 +526,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     //const inputNode = this.rangeInputRef.current;
     const rootNode = getRootNode(questionRootNode);
     if (!rootNode) return;
-    const inputNode = <HTMLInputElement>rootNode.querySelector("#" + this.id + "-sjs-slider-input-range-input");
+    const inputNode = <HTMLInputElement>rootNode.querySelector(getIdSelector(this.renderedId + "-sjs-slider-input-range-input"));
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "20px");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", "initial");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "static");
@@ -582,7 +582,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     if (!allowDragRange) return;
     if (!inputRef && !this.questionRootElement) return;
     //if (!this.rangeInputRef.current) return;
-    const input:HTMLElement = inputRef || this.questionRootElement.querySelector("#" + this.id + "-sjs-slider-input-range-input"); //TODO
+    const input:HTMLElement = inputRef || this.questionRootElement.querySelector(getIdSelector(this.renderedId + "-sjs-slider-input-range-input")); //TODO
 
     if (!input) return;
     const percentLastValue = getPercent(renderedValue[renderedValue.length - 1]);
@@ -712,7 +712,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     const { step, renderedValue } = this;
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
-        const input:any = this.questionRootElement.querySelector("#" + this.id + `-sjs-slider-input-${i}`); //TODO
+        const input:any = this.questionRootElement.querySelector(getIdSelector(this.renderedId + `-sjs-slider-input-${i}`)); //TODO
         input.step = 0.01;
       }
     }
@@ -736,7 +736,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
         renderedValue[i] = getClosestToStepValue(renderedValue[i]);
-        const input:any = this.questionRootElement.querySelector("#" + this.id + `-sjs-slider-input-${i}`); //TODO
+        const input:any = this.questionRootElement.querySelector(getIdSelector(this.renderedId + `-sjs-slider-input-${i}`)); //TODO
         input.step = step;
       }
     }

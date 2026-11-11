@@ -107,6 +107,8 @@ export var ukrainianSurveyStrings = {
   value: "значення",
   // "Response required."
   requiredError: "Будь ласка, дайте відповідь.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Ви повинні обрати Так, щоб продовжити.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Значення неправильне.",
   // [Auto-translated] "The value contains unknown keys: {0}."

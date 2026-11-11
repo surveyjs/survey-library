@@ -107,6 +107,8 @@ export var hindiStrings = {
   value: "मूल्य",
   // "Response required."
   requiredError: "कृपया प्रश्न का उत्तर दें",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "जारी रखने के लिए आपको हाँ का चयन करना होगा.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "मान गलत है।",
   // [Auto-translated] "The value contains unknown keys: {0}."

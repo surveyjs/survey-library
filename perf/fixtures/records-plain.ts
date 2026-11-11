@@ -6,6 +6,9 @@ import type { Rng } from "./random.ts";
 // matrices, so a sort measures the matrix alone. Nothing in it makes a sort rebuild the rows rather than rebind
 // them: no detail panel, no column default or default row value, no showInMultipleColumns, no file or signature
 // cell, no row reorder. The id is distinct and shuffled, so a sort by id reorders every page.
+// Two dynamic panels of the same record follow, each on a page of its own too: panels30 and panelsPaged. Nothing in
+// them makes a sort or a page move rebuild the panels rather than rebind them: list mode, no template default, no
+// nested records question, no file or signature question, and the survey has no handler.
 export interface RecordsPlainOptions {
   seed?: number;
   rows?: number;
@@ -29,6 +32,16 @@ function columns(customers: Array<any>): Array<any> {
     { name: "paid", cellType: "boolean" },
     { name: "note", cellType: "comment" }
   ];
+}
+
+// The same fields as the matrix columns, as the questions of a panel template.
+function templateElements(customers: Array<any>): Array<any> {
+  return columns(customers).map((column: any): any => {
+    const res: any = Object.assign({}, column, { type: column.cellType });
+    delete res.cellType;
+    if (res.type === "expression") res.expression = "{panel.qty} * 10";
+    return res;
+  });
 }
 
 function records(rng: Rng, count: number, customers: number): Array<any> {
@@ -62,25 +75,33 @@ export function generateRecordsPlain(options?: RecordsPlainOptions): { json: any
   for (let i = 0; i < 50; i++) customers.push({ value: "c" + i, text: rng.words(2) });
   const matrix = (name: string, title: string, extra: any): any => Object.assign({ type: "matrixdynamic", name: name, title: title,
     columns: columns(customers), rowCount: 0, allowSort: true }, extra);
+  const panel = (name: string, title: string, extra: any): any => Object.assign({ type: "paneldynamic", name: name, title: title,
+    templateElements: templateElements(customers), templateTitle: "Order {panelIndex}", panelCount: 0, allowSort: true }, extra);
   const json = {
     title: "Plain records",
     pages: [
       { name: "orders30", elements: [matrix("orders30", "Orders", {})] },
-      { name: "ordersPaged", elements: [matrix("ordersPaged", "Orders by page", { pageSize: o.pageSize })] }
+      { name: "ordersPaged", elements: [matrix("ordersPaged", "Orders by page", { pageSize: o.pageSize })] },
+      { name: "panels30", elements: [panel("panels30", "Order panels", {})] },
+      { name: "panelsPaged", elements: [panel("panelsPaged", "Order panels by page", { pageSize: o.pageSize })] }
     ]
   };
-  const data = { orders30: records(rng, o.rows, customers.length), ordersPaged: records(rng, o.pagedRecords, customers.length) };
+  // The matrices' records are generated first, so they stay what they were before the panels were added.
+  const data: any = { orders30: records(rng, o.rows, customers.length), ordersPaged: records(rng, o.pagedRecords, customers.length) };
+  data.panels30 = records(rng, o.rows, customers.length);
+  data.panelsPaged = records(rng, o.pagedRecords, customers.length);
   const meta = {
     records: o.rows,
     pagedRecords: o.pagedRecords,
     pageSize: o.pageSize,
-    pages: 2,
+    pages: 4,
     panels: 0,
-    questionsWithCells: 2,
-    questions: 2,
-    visibleQuestions: 2,
+    questionsWithCells: 4,
+    questions: 4,
+    visibleQuestions: 4,
     calculatedValues: 0,
     matrices: ["orders30", "ordersPaged"],
+    panelQuestions: ["panels30", "panelsPaged"],
     sortField: "id",
     expectedLintFindings: []
   };

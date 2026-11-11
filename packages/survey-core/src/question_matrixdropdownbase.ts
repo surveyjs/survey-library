@@ -16,7 +16,7 @@ import { getSurveySetting } from "./survey-settings";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
-import { Scope } from "./utils/scope";
+import { Scope, ValueScope } from "./utils/scope";
 import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMatrixTableWrapperCss, isMatrixColumnsAutoWidth } from "./utils/matrix-table";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
@@ -462,7 +462,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     return this.detailPanelValue;
   }
   public get detailPanelId(): string {
-    return !!this.detailPanel ? this.detailPanel.id : "";
+    return !!this.detailPanel ? this.detailPanel.renderedId : "";
   }
   public get isDetailPanelShowing(): boolean {
     return !!this.data ? this.data.getIsDetailPanelShowing(this) : false;
@@ -884,7 +884,8 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       // created. That nested call finds no panel yet; the call that is creating it validates it.
       if (!this.detailPanel) return res;
       const isValid = this.detailPanel.validateElement(context);
-      if (!context.hideErroredPanel && !isValid && context.fireCallback) {
+      // A value-change validation keeps a closed panel closed: the respondent is typing elsewhere.
+      if (!context.hideErroredPanel && !isValid && context.fireCallback && !context.isOnValueChanged && !context.isOnValueChanging) {
         if (context.isSingleDetailPanel) {
           context.hideErroredPanel = true;
         }
@@ -2975,11 +2976,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     });
     return res;
   }
-  // The duplicates are marked once the rows exist; every duplicate cell is an error of the validation.
+  /* The duplicates are marked once the rows exist; every duplicate cell is an error of the validation.
+     A value-change validation marks a detail panel question without opening its panel. */
   private isValueDuplicated(context: ValidationContext): boolean {
     if (!this.generatedVisibleRows) return false;
-    return this.checkRecordsUniqueness(context.fireCallback, undefined, (question: Question): void => context.setErrorElement(question)).length > 0;
+    return this.keepsDetailPanelsClosedScope.run(context.isOnValueChanged || context.isOnValueChanging, (): boolean =>
+      this.checkRecordsUniqueness(context.fireCallback, undefined, (question: Question): void => context.setErrorElement(question)).length > 0);
   }
+  // On while a value-change validation checks the duplicates. Off by default: onRowChanged opens the panel.
+  private keepsDetailPanelsClosedScope: ValueScope<boolean> = new ValueScope<boolean>(false);
   // The isUnique columns in column order, then the key: the order decides which question gets the focus.
   protected getUniqueColumnsNames(): Array<string> {
     const res = new Array<string>();
@@ -2997,11 +3002,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.keyDuplicationError;
   }
   /* A unique field is a column name: the cell, or the detail panel question of that name. A unique
-     column in the detail panel opens the panel to show the error. */
+     column in the detail panel opens the panel to show the error; during a value-change validation the
+     panel is only created, so the error still lands. */
   protected getUniquenessQuestion(item: QuestionRecordItem, field: string, isShowingError: boolean): Question {
     const row = <MatrixDropdownRowModelBase>item;
     if (isShowingError && !!this.detailPanelValue?.getQuestionByName(field)) {
-      row.showDetailPanel();
+      if (this.keepsDetailPanelsClosedScope.value) {
+        row.ensureDetailPanel();
+      } else {
+        row.showDetailPanel();
+      }
     }
     return row.getQuestionByName(field);
   }
@@ -3415,28 +3425,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     // A hidden row takes no page slot: the page count follows row visibility (setItemRecordVisible).
     this.setItemRecordVisible(!!this.dataListValue ? this.getRecordIndexOf(row) : -1, row.isVisible);
   }
-  /* Without paging the error walks keep the scope they have always had: every row's cells report
-     their errors, a hidden row's included, and the cells of the visible rows are cleared; the detail
-     panels take part in neither. With paging they walk the objects of the page, as the validation
-     does. */
-  protected clearItemErrors(): void {
-    if (this.isPagingActive) {
-      super.clearItemErrors();
-      return;
-    }
-    this.runFuncForCellQuestions((q: Question): void => { q.clearErrors(); });
-  }
+  /* Without paging a matrix reports, row by row, the errors of its cells, a hidden row's included, then
+     those of the visible questions of its detail panel, open or closed, in a visible row only. A hidden
+     matrix reports none. The visibility is checked only for a question that has errors: the walk runs on
+     every value change while the matrix holds an error. With paging the errors are those of the objects
+     of the page, as the validation walks them. The base clearErrors() walk clears every row that exists,
+     its cells and its detail panel. */
   protected getItemErrors(): Array<SurveyError> {
     if (this.isPagingActive) return super.getItemErrors();
     let res: Array<SurveyError> = [];
-    (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase): void => {
-      row.cells.forEach((cell: MatrixDropdownCell): void => {
-        const errors = cell.question.getAllErrors();
-        if (errors && errors.length > 0) {
-          res = res.concat(errors);
-        }
+    if (!this.isVisibleInSurvey) return res;
+    this.forEachNestedElement(info => {
+      if (info.role === "total" || info.role === "detail" && !info.visible) return;
+      getNestedElementQuestions(info).forEach(q => {
+        const errors = q.getAllErrors();
+        if (errors.length > 0 && (info.role !== "detail" || q.isVisibleInSurvey)) res = res.concat(errors);
       });
-    });
+    }, { build: "none", visibleOnly: false });
     return res;
   }
   protected clearValueIfInvisibleCore(reason: string): void {

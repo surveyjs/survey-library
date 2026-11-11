@@ -16,11 +16,56 @@ export interface AsyncFunctionItem {
   children?: Array<AsyncFunctionItem>;
 }
 
+// Hooks for Operand.toString. A hook that returns undefined or "" keeps the default text.
+// operandToString is called first for every node and replaces the whole node, as the toString(func) callback does.
+export interface IOperandToStringContext {
+  operandToString?(op: Operand): string;
+  variableToString?(op: Variable): string;
+  // comparedWith is the variable on the other side of a comparison, for a const that is the comparison's direct
+  // operand or an item of an array that is. Elsewhere (function parameters, arithmetic) it is undefined.
+  constToString?(op: Const, comparedWith: Variable): string;
+  operatorToString?(operatorName: string, op: Operand): string;
+  skipRootBrackets?: boolean;
+}
+
+// Set by static blocks in Operand and ArrayOperand: a node renders its children through these. A static block can call
+// the protected toStringCore (and ArrayOperand's private itemsToString) of another instance, so the traversal stays out
+// of the public API. Its state (the root, the compared variable) is passed as arguments and never stored on the
+// context, so one context object can be reused, also by a hook that renders another expression in the middle of a
+// traversal.
+let renderOperand: (op: Operand, context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable) => string;
+let renderArrayItems: (op: ArrayOperand, context: IOperandToStringContext) => string;
+
+const emptyToStringContext: IOperandToStringContext = {};
+function toOperandToStringContext(func: ((op: Operand) => string) | IOperandToStringContext): IOperandToStringContext {
+  if (!func) return emptyToStringContext;
+  // the callback is called as a plain function, as before
+  if (typeof func === "function") return { operandToString: (op: Operand) => func(op) };
+  return func;
+}
+function operatorText(context: IOperandToStringContext, operatorName: string, op: Operand): string {
+  const res = !!context.operatorToString ? context.operatorToString(operatorName, op) : undefined;
+  return !!res ? res : OperandMaker.operatorToString(operatorName);
+}
+
 export abstract class Operand {
   private static counter = 1;
   private _id: number = Operand.counter ++;
+  static {
+    renderOperand = (op: Operand, context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string => {
+      if (!!context.operandToString) {
+        const res = context.operandToString(op);
+        if (!!res) return res;
+      }
+      return op.toStringCore(context, isRoot, comparedWith);
+    };
+  }
   public get id(): number { return this._id; }
-  public toString(func: (op: Operand) => string = undefined): string {
+  public toString(func?: ((op: Operand) => string) | IOperandToStringContext): string {
+    return renderOperand(this, toOperandToStringContext(func), true, undefined);
+  }
+  // Renders the node itself: the context's operandToString has already been asked and kept the default.
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
     return "";
   }
   public abstract getType(): string;
@@ -217,20 +262,17 @@ export class BinaryOperand extends Operand {
     return this.consumer.call(this, left, right, strictCompare, surveySettings);
   }
 
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
-      if (!!res) return res;
-    }
-    return (
-      "(" +
-      OperandMaker.safeToString(this.left, func) +
-      " " +
-      OperandMaker.operatorToString(this.operatorName) +
-      " " +
-      OperandMaker.safeToString(this.right, func) +
-      ")"
-    );
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    const opText = operatorText(context, this.operatorName, this);
+    const isComparison = !this.isArithmetic && !this.isConjunction;
+    const text = this.childToString(this.left, context, isComparison ? this.right : undefined) + " " + opText + " " +
+      this.childToString(this.right, context, isComparison ? this.left : undefined);
+    return isRoot && context.skipRootBrackets ? text : "(" + text + ")";
+  }
+  // other is the operand on the other side of a comparison: a variable there is what a const child is compared with
+  private childToString(op: Operand, context: IOperandToStringContext, other: Operand): string {
+    if (!op) return "";
+    return renderOperand(op, context, false, !!other && other.getType() === "variable" ? <Variable>other : undefined);
   }
 
   public setVariables(variables: Array<string>) {
@@ -314,14 +356,10 @@ export class UnaryOperand extends Operand {
   public getType(): string {
     return "unary";
   }
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
-      if (!!res) return res;
-    }
-    const opName = OperandMaker.operatorToString(this.operator);
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    const opName = operatorText(context, this.operator, this);
     // a null operand is the "null"/"undefined" literal
-    const exp = !!this.expression ? this.expression.toString(func) : "null";
+    const exp = !!this.expression ? renderOperand(this.expression, context, false, undefined) : "null";
     return this.isRigtOperator ? exp + " " + opName : opName + " " + exp;
   }
   private get isRigtOperator(): boolean {
@@ -370,20 +408,27 @@ export class ArrayOperand extends Operand {
   public getType(): string {
     return "array";
   }
-  public toString(func: (op: Operand) => string = undefined, noBrackets?: boolean): string {
-    if (!!func) {
-      const res = func(this);
-      if (!!res) return res;
-    }
-
-    // a null item is the "null"/"undefined" literal
-    let res = this.values
-      .map(function(el: Operand) {
-        return el == null ? "null" : el.toString(func);
-      })
+  static {
+    // Function parameters: the items without the brackets
+    renderArrayItems = (op: ArrayOperand, context: IOperandToStringContext): string => {
+      if (!!context.operandToString) {
+        const res = context.operandToString(op);
+        if (!!res) return res;
+      }
+      return op.itemsToString(context, undefined);
+    };
+  }
+  public toString(func?: ((op: Operand) => string) | IOperandToStringContext, noBrackets?: boolean): string {
+    return noBrackets ? renderArrayItems(this, toOperandToStringContext(func)) : super.toString(func);
+  }
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    return "[" + this.itemsToString(context, comparedWith) + "]";
+  }
+  private itemsToString(context: IOperandToStringContext, comparedWith: Variable): string {
+    // a null item is the "null"/"undefined" literal; only a const item is compared with the variable
+    return this.values
+      .map((el: Operand) => el == null ? "null" : renderOperand(el, context, false, el.getType() === "const" ? comparedWith : undefined))
       .join(", ");
-
-    return !noBrackets ? "[" + res + "]" : res;
   }
 
   public evaluate(processValue?: ProcessValue): Array<any> {
@@ -441,9 +486,9 @@ export class Const extends Operand {
   public getType(): string {
     return "const";
   }
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    if (!!context.constToString) {
+      const res = context.constToString(this, comparedWith);
       if (!!res) return res;
     }
     if (this.value === "") return "''";
@@ -538,9 +583,9 @@ export class Variable extends Const {
   public getType(): string {
     return "variable";
   }
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    if (!!context.variableToString) {
+      const res = context.variableToString(this);
       if (!!res) return res;
     }
     var prefix = this.useValueAsItIs ? Variable.DisableConversionChar : "";
@@ -657,13 +702,8 @@ export class FunctionOperand extends Operand {
     }
     return res;
   }
-  public toString(func: (op: Operand) => string = undefined): string {
-    if (!!func) {
-      var res = func(this);
-      if (!!res) return res;
-    }
-
-    return this.originalValue + "(" + this.parameters.toString(func, true) + ")";
+  protected toStringCore(context: IOperandToStringContext, isRoot: boolean, comparedWith: Variable): string {
+    return this.originalValue + "(" + renderArrayItems(this.parameters, context) + ")";
   }
   public setVariables(variables: Array<string>): void {
     this.parameters.setVariables(variables);

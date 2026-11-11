@@ -668,13 +668,11 @@ frameworks.forEach((framework) => {
           {
             type: "dropdown",
             name: "withItems",
-            choicesLazyLoadEnabled: true,
-            loadingComponent: "my-list-loading"
+            choicesLazyLoadEnabled: true
           }, {
             type: "dropdown",
             name: "noItems",
-            choicesLazyLoadEnabled: true,
-            loadingComponent: "my-list-loading"
+            choicesLazyLoadEnabled: true
           }
         ]
       };
@@ -690,6 +688,7 @@ frameworks.forEach((framework) => {
           }, 500);
         });
         window["survey"].fromJSON(json);
+        window["survey"].dropdownLoadingComponent = "my-list-loading";
       }, json);
 
       const customLoading = page.locator(".my-list-loading");

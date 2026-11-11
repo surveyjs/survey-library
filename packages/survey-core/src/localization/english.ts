@@ -55,6 +55,7 @@ export var englishStrings = {
   buttongroupOptionsCaption: "Select...",
   value: "value",
   requiredError: "Response required.",
+  requireTrueError: "You must select Yes to continue.",
   incorrectValueError: "The value is incorrect.",
   incorrectValueUnknownKeysError: "The value contains unknown keys: {0}.",
   requiredErrorInPanel: "Response required: answer at least one question.",

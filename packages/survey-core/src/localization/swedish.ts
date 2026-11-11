@@ -107,6 +107,8 @@ export var swedishSurveyStrings = {
   value: "värde",
   // "Response required."
   requiredError: "Frågan är obligatorisk.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Du måste välja Ja för att fortsätta.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Värdet är felaktigt.",
   // [Auto-translated] "The value contains unknown keys: {0}."

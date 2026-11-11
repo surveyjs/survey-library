@@ -14619,6 +14619,71 @@ describe("Survey", () => {
     nested.visible = false;
     expect(all(), "only the nested question is hidden").toEqual([true, true, true, false, true]);
   });
+  test("isVisibleWithParents checks the owner of a detail panel question and of a choice panel question", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "panel", name: "panel1", visibleIf: "{a} <> 'hidePanel'", elements: [
+          { type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "col1", cellType: "text" }],
+            detailPanelMode: "underRow", detailElements: [{ type: "text", name: "note" }] },
+          { type: "radiogroup", name: "rg", choices: [{ value: "item1", elements: [{ type: "text", name: "inChoice" }] }] }
+        ] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    const note = row.detailPanel.getQuestionByName("note");
+    const rg = <QuestionRadiogroupModel>survey.getQuestionByName("rg");
+    const inChoice = (<any>rg.choices[0]).panel.getQuestionByName("inChoice");
+    const cellQuestion = row.cells[0].question;
+    const all = () => [note, inChoice, cellQuestion].map(el => el.isVisibleWithParents);
+    expect(all(), "everything is visible").toEqual([true, true, true]);
+    survey.setValue("a", "hidePanel");
+    expect(note.isVisible, "the detail question itself is visible").toBe(true);
+    expect(all(), "panel1 is hidden").toEqual([false, false, false]);
+    survey.setValue("a", "");
+    matrix.visible = false;
+    rg.visible = false;
+    expect(all(), "the owners are hidden").toEqual([false, false, false]);
+    matrix.visible = true;
+    rg.visible = true;
+    expect(all(), "everything is visible again").toEqual([true, true, true]);
+  });
+  test("focus() does nothing for a question in a hidden panel on the current page", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "panel1", visibleIf: "{q1} = 'show'", state: "collapsed", elements: [{ type: "text", name: "q2" }] },
+        { type: "panel", name: "panel2", visibleIf: "{q1} = 'show'", elements: [
+          { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "d" }] },
+          { type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "col1", cellType: "text" }] }
+        ] },
+        { type: "panel", name: "panel3", elements: [{ type: "text", name: "q3" }] }
+      ]
+    });
+    let log = "";
+    survey.onScrollToTop.add((_, o) => { log += "->" + o.element.name; });
+    const q2 = survey.getQuestionByName("q2");
+    const panel1 = <PanelModel>survey.getPanelByName("panel1");
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const nested = <Question>dp.panels[0].getQuestionByName("d");
+    const cellQuestion = (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows[0].cells[0].question;
+    q2.focus();
+    expect(log, "a question in a hidden panel is not scrolled to").toBe("");
+    expect(panel1.state, "the hidden panel stays collapsed").toBe("collapsed");
+    nested.focus();
+    expect(log, "a dynamic panel question in a hidden panel is not scrolled to").toBe("");
+    cellQuestion.focus();
+    expect(log, "a cell question of a matrix in a hidden panel is not scrolled to").toBe("");
+    survey.getQuestionByName("q3").focus();
+    expect(log, "a question in a visible panel is scrolled to").toBe("->q3");
+    log = "";
+    survey.setValue("q1", "show");
+    q2.focus();
+    expect(log, "the question is scrolled to once its panel is shown").toBe("->q2");
+    expect(panel1.state, "the panel is expanded").toBe("expanded");
+  });
   test("A nested question is not focused when its owner is in a hidden panel, Bug#12283", () => {
     const survey = new SurveyModel({
       pages: [

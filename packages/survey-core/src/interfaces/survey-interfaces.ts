@@ -63,10 +63,10 @@ export interface ISurveyTitleSettings {
   ): Array<IAction>;
 }
 export interface ISurveySingleInput {
-  currentSingleQuestion: IQuestion;
+  currentSingleQuestion: IQuestion | undefined;
   isSingleVisibleInput: boolean;
   updateNavigationElements(): void;
-  currentSingleElement: IElement;
+  currentSingleElement: IElement | undefined;
   supportsNestedSingleInput(question: IQuestion): boolean;
   updateNestedSingleQuestions(question: IQuestion, nestedQuestions: Array<IQuestion>): void;
 }

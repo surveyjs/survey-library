@@ -3859,7 +3859,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return result;
   }
-  getFilteredValues(): any {
+  getFilteredValues(): { [index: string]: any } {
     const values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     this.addCalculatedValuesIntoFilteredValues(values);
@@ -5469,7 +5469,7 @@ export class SurveyModel extends SurveyElementCore
     });
     this.updateButtonsVisibility();
   }
-  private currentSingleElementValue: IElement;
+  private currentSingleElementValue: IElement | undefined;
   private getSingleElements(includeEl?: IElement): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
@@ -5488,10 +5488,10 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public get currentSingleElement(): IElement {
+  public get currentSingleElement(): IElement | undefined {
     return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
-  public set currentSingleElement(val: IElement) {
+  public set currentSingleElement(val: IElement | undefined) {
     if (!!val && val.isQuestion && this.isSingleVisibleQuestionVal(this.questionsOnPageMode)) {
       while(val.parent && val.parent.isPanel) {
         val = <IElement>(<any>val.parent);
@@ -5533,11 +5533,11 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  public get currentSingleQuestion(): Question {
+  public get currentSingleQuestion(): Question | undefined {
     const res = this.currentSingleElement;
     return !!res && res.isQuestion ? <Question>res : undefined;
   }
-  public set currentSingleQuestion(val: Question) {
+  public set currentSingleQuestion(val: Question | undefined) {
     this.currentSingleElement = val;
   }
   public supportsNestedSingleInput(question: IQuestion): boolean {

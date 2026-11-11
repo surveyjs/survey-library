@@ -63,6 +63,21 @@ export class CalendarModel extends Base {
   public getType(): string {
     return "calendar";
   }
+  public get cssClasses(): typeof calendarCssClasses {
+    return calendarCssClasses;
+  }
+  public get isDayZoom(): boolean {
+    return this.zoom === "day";
+  }
+  public get showMonthTitles(): boolean {
+    return this.monthCount > 1;
+  }
+  public get rootCss(): string {
+    return new CssClassBuilder()
+      .append(calendarCssClasses.root)
+      .append(calendarCssClasses.rootRange, this.monthCount > 1)
+      .toString();
+  }
   // A Date, or an array of two dates [start, end] if range is true. The value is always a new
   // object, so an array passed in or handed out is never changed by the calendar.
   public get value(): any {

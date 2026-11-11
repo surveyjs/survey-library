@@ -1,0 +1,21 @@
+@use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
+
+.sd-datetimepicker {
+  position: relative;
+}
+
+.sd-datetimepicker__input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sd-datetimepicker--range .sd-datetimepicker__input {
+  flex: 1 1 0;
+}
+
+.sd-datetimepicker__separator {
+  @include sjs2--typography--component--input--content;
+  flex-shrink: 0;
+  color: $foreground-light;
+}

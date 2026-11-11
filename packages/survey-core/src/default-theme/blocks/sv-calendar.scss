@@ -1,0 +1,197 @@
+@use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
+
+.sv-calendar {
+  --sv-calendar-cell-size: var(--sjs2-size-x500);
+  --sv-calendar-cell-radius: var(--sjs2-radius-component-drop-item);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x100);
+  box-sizing: border-box;
+  padding: var(--sjs2-spacing-x200);
+  font-family: $font-family;
+  color: $foreground;
+  user-select: none;
+}
+
+.sv-calendar__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sjs2-spacing-x100);
+}
+
+.sv-calendar__nav-button,
+.sv-calendar__title {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border: none;
+  border-radius: var(--sv-calendar-cell-radius);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color $transition-duration;
+
+  &:hover:not(:disabled) {
+    background-color: $background-dark;
+  }
+}
+
+.sv-calendar__nav-button {
+  flex-shrink: 0;
+  width: var(--sv-calendar-cell-size);
+  height: var(--sv-calendar-cell-size);
+  padding: 0;
+
+  svg {
+    display: block;
+    width: var(--sjs2-size-x200);
+    height: var(--sjs2-size-x200);
+    fill: $foreground-light;
+  }
+
+  &:disabled {
+    cursor: default;
+
+    svg {
+      fill: var(--sjs2-color-fg-basic-primary-disabled);
+    }
+  }
+}
+
+.sv-calendar__title {
+  @include sjs2--typography--default-strong;
+  height: var(--sv-calendar-cell-size);
+  padding: 0 var(--sjs2-spacing-x150);
+}
+
+.sv-calendar__months {
+  display: flex;
+  gap: var(--sjs2-spacing-x300);
+}
+
+.sv-calendar__month-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x050);
+}
+
+.sv-calendar__month-title {
+  @include sjs2--typography--default-strong;
+  text-align: center;
+  line-height: var(--sv-calendar-cell-size);
+}
+
+.sv-calendar__weekdays,
+.sv-calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, var(--sv-calendar-cell-size));
+}
+
+.sv-calendar__weekday {
+  @include sjs2--typography--small;
+  line-height: var(--sv-calendar-cell-size);
+  text-align: center;
+  color: $foreground-light;
+}
+
+.sv-calendar__days {
+  row-gap: var(--sjs2-spacing-x025);
+}
+
+.sv-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sjs2-spacing-x100);
+  width: calc(var(--sv-calendar-cell-size) * 7);
+}
+
+.sv-calendar__day,
+.sv-calendar__month,
+.sv-calendar__year {
+  @include sjs2--typography--default;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: var(--sv-calendar-cell-size);
+  border-radius: var(--sv-calendar-cell-radius);
+  cursor: pointer;
+  transition:
+    background-color $transition-duration,
+    color $transition-duration;
+}
+
+.sv-calendar__day--hovered,
+.sv-calendar__month--hovered,
+.sv-calendar__year--hovered {
+  background-color: $background-dark;
+}
+
+.sv-calendar__day--outside {
+  color: $foreground-light;
+}
+
+.sv-calendar__day--hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sv-calendar__day--today,
+.sv-calendar__month--today,
+.sv-calendar__year--today {
+  @include sjs2--typography--default-strong;
+  color: var(--sjs2-color-fg-brand-primary);
+}
+
+.sv-calendar__day--range-middle {
+  border-radius: 0;
+  background-color: var(--sjs2-color-bg-brand-tertiary);
+  color: $foreground;
+
+  &.sv-calendar__day--hovered {
+    background-color: var(--sjs2-color-bg-brand-tertiary-dim);
+  }
+}
+
+.sv-calendar__day--selected,
+.sv-calendar__month--selected,
+.sv-calendar__year--selected {
+  &:not(.sv-calendar__day--range-middle) {
+    background-color: $primary;
+    color: $primary-foreground;
+  }
+
+  &.sv-calendar__day--hovered:not(.sv-calendar__day--range-middle),
+  &.sv-calendar__month--hovered,
+  &.sv-calendar__year--hovered {
+    background-color: var(--sjs2-color-bg-brand-primary-dim);
+  }
+}
+
+.sv-calendar__day--range-start {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+.sv-calendar__day--range-end {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.sv-calendar__day--disabled,
+.sv-calendar__month--disabled,
+.sv-calendar__year--disabled {
+  cursor: default;
+  color: var(--sjs2-color-fg-basic-primary-disabled);
+
+  &:not(.sv-calendar__day--selected, .sv-calendar__month--selected, .sv-calendar__year--selected) {
+    background-color: transparent;
+  }
+}

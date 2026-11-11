@@ -125,6 +125,7 @@ export var englishStrings = {
   clearCaption: "Clear",
   selectCaption: "Select",
   openCalendarCaption: "Open calendar",
+  dateRangeError: "The start date cannot be later than the end date.",
   signaturePlaceHolder: "Sign here",
   signaturePlaceHolderReadOnly: "No signature",
   chooseFileCaption: "Select File",

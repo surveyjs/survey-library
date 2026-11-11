@@ -330,3 +330,282 @@ describe("QuestionDateTimePickerModel", () => {
     expect(q.inputValue).toBe("2026/11/09");
   });
 });
+
+function findRangeDay(calendar: CalendarModel, date: Date): CalendarItem {
+  for (const month of calendar.months) {
+    const item = month.days.filter(day => !day.isOutside && day.date.getTime() === date.getTime())[0];
+    if (!!item) return item;
+  }
+  return undefined;
+}
+function errorTypes(q: QuestionDateTimePickerModel): Array<string> {
+  return q.errors.map(error => error.getErrorType());
+}
+
+describe("QuestionDateTimePickerModel range", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test("Range properties: defaults and serialization", () => {
+    const q = createQuestion({ range: true });
+    expect(q.getValueType()).toBe("array");
+    expect(q.calendar.range).toBe(true);
+    expect(q.startPlaceholder).toBeFalsy();
+    expect(q.endPlaceholder).toBeFalsy();
+    expect(q.rangeErrorText).toBe("The start date cannot be later than the end date.");
+    expect(q.toJSON()).toEqual({ name: "q1", range: true });
+
+    const json = { name: "q1", range: true, startPlaceholder: "From", endPlaceholder: "To", rangeErrorText: "Wrong range" };
+    const q2 = new QuestionDateTimePickerModel("q1");
+    q2.fromJSON(json);
+    expect(q2.startPlaceholder).toBe("From");
+    expect(q2.endPlaceholder).toBe("To");
+    expect(q2.rangeErrorText).toBe("Wrong range");
+    expect(q2.toJSON()).toEqual(json);
+  });
+
+  test("Range properties are visible only in range mode", () => {
+    const q = createQuestion();
+    ["startPlaceholder", "endPlaceholder", "rangeErrorText"].forEach(name => {
+      const prop = Serializer.findProperty("datetimepicker", name);
+      q.range = false;
+      expect(prop.isVisible("", q), name + " hidden").toBe(false);
+      q.range = true;
+      expect(prop.isVisible("", q), name + " visible").toBe(true);
+    });
+  });
+
+  test("Value is shown in both fields and in the calendar", () => {
+    const q = createQuestion({ range: true });
+    expect(q.startInputValue).toBe("mm/dd/yyyy");
+    expect(q.endInputValue).toBe("mm/dd/yyyy");
+    q.value = ["2026-11-05", "2026-11-12"];
+    expect(q.startInputValue).toBe("11/05/2026");
+    expect(q.endInputValue).toBe("11/12/2026");
+    expect(q.calendar.value.map((date: Date) => date.getTime())).toEqual([d(2026, 11, 5).getTime(), d(2026, 11, 12).getTime()]);
+    q.clearValue();
+    expect(q.startInputValue).toBe("mm/dd/yyyy");
+    expect(q.endInputValue).toBe("mm/dd/yyyy");
+    expect(q.calendar.value).toBeUndefined();
+  });
+
+  test("Value is written only when both fields are complete and start <= end", () => {
+    const q = createQuestion({ range: true });
+    q.startInputValue = "11/05/2026";
+    expect(q.isEmpty()).toBe(true);
+    expect(q.startInputValue).toBe("11/05/2026");
+    q.endInputValue = "11/1m/yyyy";
+    expect(q.isEmpty()).toBe(true);
+    q.endInputValue = "11/12/2026";
+    expect(q.value).toEqual(["2026-11-05", "2026-11-12"]);
+    q.endInputValue = "11/05/2026";
+    expect(q.value, "a single day range").toEqual(["2026-11-05", "2026-11-05"]);
+  });
+
+  test("A previously written value is cleared, drafts are kept", () => {
+    const q = createQuestion({ range: true });
+    q.value = ["2026-11-05", "2026-11-12"];
+    q.endInputValue = "11/1m/yyyy";
+    expect(q.isEmpty()).toBe(true);
+    expect(q.startInputValue).toBe("11/05/2026");
+    expect(q.endInputValue).toBe("11/1m/yyyy");
+
+    q.value = ["2026-11-05", "2026-11-12"];
+    q.startInputValue = "11/20/2026";
+    expect(q.isEmpty(), "start > end").toBe(true);
+    expect(q.startInputValue).toBe("11/20/2026");
+    expect(q.endInputValue).toBe("11/12/2026");
+    q.endInputValue = "11/25/2026";
+    expect(q.value).toEqual(["2026-11-20", "2026-11-25"]);
+  });
+
+  test("A complete date in a field updates the calendar view and selection", () => {
+    const q = createQuestion({ range: true });
+    q.startInputValue = "03/10/2027";
+    expect(q.calendar.viewDate.getTime()).toBe(d(2027, 3, 1).getTime());
+    expect(q.calendar.rangeStart.getTime()).toBe(d(2027, 3, 10).getTime());
+    q.endInputValue = "05/02/2027";
+    expect(q.calendar.viewDate.getTime()).toBe(d(2027, 5, 1).getTime());
+    expect(q.calendar.rangeStart).toBeUndefined();
+    expect(q.calendar.value.map((date: Date) => date.getTime())).toEqual([d(2027, 3, 10).getTime(), d(2027, 5, 2).getTime()]);
+  });
+
+  test("Selecting a range in the calendar fills both fields and closes the popup", () => {
+    const q = createQuestion({ range: true });
+    q.value = ["2026-11-05", "2026-11-12"];
+    q.togglePopup();
+    q.calendar.selectItem(findRangeDay(q.calendar, d(2026, 11, 20)));
+    expect(q.startInputValue).toBe("11/20/2026");
+    expect(q.endInputValue).toBe("mm/dd/yyyy");
+    expect(q.isEmpty()).toBe(true);
+    expect(q.popupModel.isVisible).toBe(true);
+    q.calendar.selectItem(findRangeDay(q.calendar, d(2026, 11, 3)));
+    expect(q.value).toEqual(["2026-11-03", "2026-11-20"]);
+    expect(q.startInputValue).toBe("11/03/2026");
+    expect(q.endInputValue).toBe("11/20/2026");
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("First click, close, open, second click", () => {
+    const q = createQuestion({ range: true });
+    q.togglePopup();
+    q.calendar.selectItem(findRangeDay(q.calendar, d(2026, 11, 10)));
+    q.togglePopup();
+    expect(q.popupModel.isVisible).toBe(false);
+    expect(q.startInputValue).toBe("11/10/2026");
+    expect(q.isEmpty()).toBe(true);
+
+    q.calendar.setRangeStart(undefined);
+    q.togglePopup();
+    expect(q.calendar.rangeStart.getTime()).toBe(d(2026, 11, 10).getTime());
+    expect(q.calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+    q.calendar.selectItem(findRangeDay(q.calendar, d(2026, 11, 15)));
+    expect(q.value).toEqual(["2026-11-10", "2026-11-15"]);
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("Opening the popup with an edited start draft takes it as rangeStart", () => {
+    const q = createQuestion({ range: true });
+    q.startInputValue = "02/14/2027";
+    q.calendar.setRangeStart(undefined);
+    q.togglePopup();
+    expect(q.calendar.rangeStart.getTime()).toBe(d(2027, 2, 14).getTime());
+    expect(q.calendar.viewDate.getTime()).toBe(d(2027, 2, 1).getTime());
+  });
+
+  test("Calendar button and clear button in range mode", () => {
+    const q = createQuestion({ range: true });
+    expect(q.editorButtons.actions.filter(action => action.id === "calendar")).toHaveLength(1);
+    const clear = q.editorButtons.getActionById("clear");
+    q.startInputValue = "11/05/2026";
+    expect(clear.visible, "a draft can be cleared").toBe(true);
+    clear.action();
+    expect(q.startInputValue).toBe("mm/dd/yyyy");
+    expect(q.calendar.rangeStart).toBeUndefined();
+    q.value = ["2026-11-05", "2026-11-12"];
+    clear.action();
+    expect(q.isEmpty()).toBe(true);
+    expect(q.startInputValue).toBe("mm/dd/yyyy");
+    expect(q.endInputValue).toBe("mm/dd/yyyy");
+    expect(clear.visible).toBe(false);
+  });
+
+  test("Required: both fields are needed", () => {
+    const q = createQuestion({ range: true, isRequired: true });
+    expect(q.validate()).toBe(false);
+    expect(errorTypes(q)).toEqual(["required"]);
+    q.startInputValue = "11/05/2026";
+    expect(q.validate()).toBe(false);
+    expect(errorTypes(q)).toEqual(["required"]);
+    q.endInputValue = "11/12/2026";
+    expect(q.validate()).toBe(true);
+  });
+
+  test("An incomplete field replaces required with the incomplete pattern error", () => {
+    const q = createQuestion({ range: true, isRequired: true });
+    q.startInputValue = "11/05/2026";
+    q.endInputValue = "11/1m/yyyy";
+    expect(q.validate()).toBe(false);
+    expect(errorTypes(q)).toEqual(["patternincompleteerror"]);
+
+    const q2 = createQuestion({ range: true });
+    q2.startInputValue = "1m/dd/yyyy";
+    expect(q2.validate()).toBe(false);
+    expect(errorTypes(q2)).toEqual(["patternincompleteerror"]);
+  });
+
+  test("start > end reports the range error", () => {
+    const q = createQuestion({ range: true, isRequired: true });
+    q.startInputValue = "11/20/2026";
+    q.endInputValue = "11/12/2026";
+    expect(q.validate()).toBe(false);
+    expect(q.errors).toHaveLength(1);
+    expect(q.errors[0].text).toBe("The start date cannot be later than the end date.");
+    q.endInputValue = "11/25/2026";
+    expect(q.validate()).toBe(true);
+  });
+
+  test("The range error text follows the locale", () => {
+    const q = createQuestion({ range: true, rangeErrorText: { default: "Wrong range", de: "Falscher Bereich" } });
+    q.startInputValue = "11/20/2026";
+    q.endInputValue = "11/12/2026";
+    q.validate();
+    expect(q.errors[0].text).toBe("Wrong range");
+    q.survey.locale = "de";
+    expect(q.startInputValue, "the drafts are reformatted").toBe("20.11.2026");
+    expect(q.endInputValue).toBe("12.11.2026");
+    expect(q.errors[0].text).toBe("Falscher Bereich");
+    q.survey.locale = "";
+  });
+
+  test("min and max errors for each field", () => {
+    const q = createQuestion({ range: true, min: "2026-11-05", max: "2026-11-20" });
+    q.startInputValue = "11/01/2026";
+    q.endInputValue = "11/10/2026";
+    expect(q.validate()).toBe(false);
+    expect(q.errors.map(error => error.text)).toEqual(["The value should not be less than 11/05/2026"]);
+    q.startInputValue = "11/06/2026";
+    q.endInputValue = "11/25/2026";
+    expect(q.validate()).toBe(false);
+    expect(q.errors.map(error => error.text)).toEqual(["The value should not be greater than 11/20/2026"]);
+    q.endInputValue = "11/20/2026";
+    expect(q.validate()).toBe(true);
+  });
+
+  test("A value of a wrong type is reported in range mode", () => {
+    const survey = new SurveyModel({ elements: [{ type: "datetimepicker", name: "q1", range: true }] });
+    expect(survey.setData({ q1: ["2026-11-05", "2026-11-12"] })).toEqual([]);
+    expect(survey.setData({ q1: "2026-11-05" }).map(issue => issue.type)).toEqual(["invalidValueType"]);
+    expect(survey.setData({ q1: ["2026-11-05"] }).map(issue => issue.type)).toEqual(["invalidValueType"]);
+    expect(survey.setData({ q1: ["2026-11-05", "bad"] }).map(issue => issue.type)).toEqual(["invalidValueType"]);
+    expect(survey.setData({ q1: ["2026-11-12", "2026-11-05"] }).map(issue => issue.type)).toEqual(["invalidValueType"]);
+  });
+
+  test("Switching range converts the value", () => {
+    const q = createQuestion();
+    q.value = "2026-11-05";
+    q.range = true;
+    expect(q.value).toEqual(["2026-11-05", "2026-11-05"]);
+    expect(q.startInputValue).toBe("11/05/2026");
+    expect(q.endInputValue).toBe("11/05/2026");
+    expect(q.calendar.range).toBe(true);
+    q.value = ["2026-11-05", "2026-11-12"];
+    q.range = false;
+    expect(q.value).toBe("2026-11-05");
+    expect(q.inputValue).toBe("11/05/2026");
+    expect(q.calendar.range).toBe(false);
+    expect(q.calendar.value.getTime()).toBe(d(2026, 11, 5).getTime());
+    expect(q.getValueType()).toBe("string");
+  });
+
+  test("Switching range drops the drafts", () => {
+    const q = createQuestion({ range: true });
+    q.startInputValue = "11/05/2026";
+    q.range = false;
+    expect(q.isEmpty()).toBe(true);
+    expect(q.inputValue).toBe("mm/dd/yyyy");
+    q.range = true;
+    expect(q.startInputValue).toBe("mm/dd/yyyy");
+  });
+
+  test("Range value from JSON and survey data", () => {
+    const survey = new SurveyModel({ elements: [{ type: "datetimepicker", name: "q1", range: true, defaultValue: ["2026-01-02", "2026-01-09"] }] });
+    const q = <QuestionDateTimePickerModel>survey.getQuestionByName("q1");
+    expect(q.startInputValue).toBe("01/02/2026");
+    expect(q.endInputValue).toBe("01/09/2026");
+    survey.data = { q1: ["2026-02-02", "2026-02-09"] };
+    expect(q.startInputValue).toBe("02/02/2026");
+    expect(q.endInputValue).toBe("02/09/2026");
+  });
+
+  test("Single mode is not affected", () => {
+    const q = createQuestion();
+    q.inputValue = "11/05/2026";
+    expect(q.value).toBe("2026-11-05");
+    q.togglePopup();
+    q.calendar.selectItem(findDay(q.calendar, d(2026, 11, 7)));
+    expect(q.value).toBe("2026-11-07");
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+});

@@ -265,6 +265,20 @@ describe("CalendarModel", () => {
     expect(findDay(calendar, d(2026, 10, 26), true).css).toBe("sv-calendar__day sv-calendar__day--outside");
   });
 
+  test("Render helpers: cssClasses, rootCss and isDayZoom", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    expect(calendar.cssClasses.root).toBe("sv-calendar");
+    expect(calendar.rootCss).toBe("sv-calendar");
+    expect(calendar.isDayZoom).toBe(true);
+    expect(calendar.showMonthTitles).toBe(false);
+    calendar.range = true;
+    expect(calendar.rootCss).toBe("sv-calendar sv-calendar--range");
+    expect(calendar.showMonthTitles).toBe(true);
+    calendar.zoom = "month";
+    expect(calendar.isDayZoom).toBe(false);
+    expect(calendar.rootCss, "one block in the month zoom").toBe("sv-calendar");
+  });
+
   test("onSelectionCompleted fires on every day selection, even if the value is the same", () => {
     const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
     const completed: Array<Date> = [];

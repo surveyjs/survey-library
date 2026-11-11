@@ -13,14 +13,19 @@ import { Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { CalendarModel } from "./calendar/calendar";
 import { parseISODate } from "./calendar/date-utils";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 function toISODate(val: any): Date {
   return parseISODate(typeof val === "string" ? val.substring(0, 10) : val);
 }
+function isRangeValue(val: any): boolean {
+  return Array.isArray(val) && val.length === 2 && !!parseISODate(val[0]) && !!parseISODate(val[1]) && val[0] <= val[1];
+}
 
 export class QuestionDateTimePickerModel extends Question {
-  private inputElement: HTMLInputElement;
-  private maskInputAdapter: InputElementAdapter;
+  private inputElements: Array<HTMLInputElement> = [];
+  private maskInputAdapters: Array<InputElementAdapter> = [];
+  private endMaskValue: InputMaskBase;
   private doNotUpdateInputValue: boolean = false;
   private calendarValue: CalendarModel;
   private popupModelValue: PopupModel;
@@ -31,7 +36,12 @@ export class QuestionDateTimePickerModel extends Question {
     this.setPropertyValue("maskSettings", this.createMaskSettings());
     this.calendarValue = new CalendarModel();
     this.calendarValue.onValueChanged.add((_, options) => {
-      this.value = !!options.value ? Helpers.convertDateToString(options.value) : undefined;
+      this.value = this.calendarToQuestionValue(options.value);
+    });
+    this.calendarValue.onRangeStartSelected.add((_, options) => {
+      this._startInputValue = this.maskSettings.getMaskedValue(Helpers.convertDateToString(options.date));
+      this._endInputValue = undefined;
+      this.onRangeInputChanged();
     });
     this.calendarValue.onSelectionCompleted.add(() => {
       this.popupModel.hide();
@@ -41,18 +51,23 @@ export class QuestionDateTimePickerModel extends Question {
     return "datetimepicker";
   }
   public getValueType(): QuestionValueType {
-    return "string";
+    return this.range ? "array" : "string";
   }
 
   @property({ defaultValue: "date" }) pickerType: string;
   @property({ defaultValue: false }) range: boolean;
   @property({ defaultValue: true }) allowClear: boolean;
   @property({ localizable: true }) placeholder: string;
+  @property({ localizable: true }) startPlaceholder: string;
+  @property({ localizable: true }) endPlaceholder: string;
   @property() minValueExpression: string;
   @property() maxValueExpression: string;
   @property({ localizable: { defaultStr: "minError", markdown: true } }) minErrorText: string;
   @property({ localizable: { defaultStr: "maxError", markdown: true } }) maxErrorText: string;
+  @property({ localizable: { defaultStr: "dateRangeError", markdown: true } }) rangeErrorText: string;
   @property() _inputValue: string;
+  @property() _startInputValue: string;
+  @property() _endInputValue: string;
 
   public get min(): string {
     return this.getPropertyValue("min");
@@ -94,23 +109,88 @@ export class QuestionDateTimePickerModel extends Question {
     mask.owner = this;
     mask.onPropertyChanged.add((_, options) => {
       this.onNestedPropertyChanged.fire(this, { name: "maskSettings", newValue: options.newValue, nestedName: options.name });
-      this.updateInputValue();
+      this.onMaskChanged();
     });
     return mask;
+  }
+  // Each input element adapter keeps its own entry state in the mask, so the end field gets a copy of maskSettings.
+  private get endMask(): InputMaskBase {
+    if (!this.endMaskValue) {
+      const mask = Serializer.createClass("datetimemask");
+      mask.owner = this;
+      mask.setData(this.maskSettings.getData());
+      this.endMaskValue = mask;
+    }
+    return this.endMaskValue;
+  }
+  private onMaskChanged(): void {
+    if (!!this.endMaskValue) {
+      this.endMaskValue.dispose();
+      this.endMaskValue = undefined;
+    }
+    this.updateInputValue();
+    if (this.maskInputAdapters.length > 0) {
+      this.createMaskAdapters();
+    }
   }
 
   public get calendar(): CalendarModel {
     return this.calendarValue;
   }
+  public getRootClass(): string {
+    return toCssClasses(
+      this.cssClasses.root,
+      this.range && this.cssClasses.rootRange,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDisabledStyle && this.cssClasses.rootDisabled,
+      this.isReadOnlyStyle && this.cssClasses.rootReadOnly,
+      this.isPreviewStyle && this.cssClasses.rootPreview
+    );
+  }
+  public getControlClass(): string {
+    return this.cssClasses.control;
+  }
+  public get startInputId(): string {
+    return this.inputId;
+  }
+  public get endInputId(): string {
+    return this.inputId + "_end";
+  }
+  public get rangeSeparatorText(): string {
+    return "\u2013";
+  }
+  private getRenderedText(text: string): string {
+    return this.hasInputText(text) ? text : "";
+  }
+  public get renderedInputValue(): string {
+    return this.getRenderedText(this._inputValue);
+  }
+  public get renderedStartInputValue(): string {
+    return this.getRenderedText(this._startInputValue);
+  }
+  public get renderedEndInputValue(): string {
+    return this.getRenderedText(this._endInputValue);
+  }
+  public get renderedPlaceholder(): string {
+    return this.placeholder || this.emptyInputText;
+  }
+  public get renderedStartPlaceholder(): string {
+    return this.startPlaceholder || this.emptyInputText;
+  }
+  public get renderedEndPlaceholder(): string {
+    return this.endPlaceholder || this.emptyInputText;
+  }
   public get popupModel(): PopupModel {
     if (!this.popupModelValue) {
       this.popupModelValue = new PopupModel("sv-calendar", { model: this.calendar },
         { verticalPosition: "bottom", horizontalPosition: "center", showPointer: false });
+      this.popupModelValue.cssClass = this.cssClasses?.popup || "";
       this.popupModelValue.positionMode = "fixed";
       this.popupModelValue.isFocusedContainer = false;
       this.popupModelValue.locale = this.getLocale();
       this.popupModelValue.onVisibilityChanged.add((_, options: { isVisible: boolean }) => {
         if (options.isVisible) {
+          this.updateCalendarValue();
           this.calendar.resetView();
         }
         const button = this.editorButtons.getActionById("calendar");
@@ -157,7 +237,7 @@ export class QuestionDateTimePickerModel extends Question {
         new Action({
           id: "calendar",
           css: "sd-editor-calendar-button",
-          iconName: this.cssClasses?.calendarButtonIconId || "icon-calendar",
+          iconName: this.cssClasses?.calendarButtonIconId || "icon-calendar-24x24",
           iconSize: "auto",
           showTitle: false,
           locTitle: this.locOpenCalendarCaption,
@@ -171,7 +251,9 @@ export class QuestionDateTimePickerModel extends Question {
     return this.editorButtonsValue;
   }
   private get isClearButtonVisible(): boolean {
-    return this.allowClear && !this.isEmpty() && !this.isReadOnly;
+    if (!this.allowClear || this.isReadOnly) return false;
+    if (!this.isEmpty()) return true;
+    return this.range && (this.hasInputText(this._startInputValue) || this.hasInputText(this._endInputValue));
   }
   private updateEditorButtons(): void {
     if (!this.editorButtonsValue) return;
@@ -180,13 +262,36 @@ export class QuestionDateTimePickerModel extends Question {
   }
   public clearInput(): void {
     this._inputValue = undefined;
+    this._startInputValue = undefined;
+    this._endInputValue = undefined;
     this.clearValueFromUI();
     this.updateInputValue();
     this.updateCalendarValue();
+    this.updateEditorButtons();
+  }
+
+  private get emptyInputText(): string {
+    return this.maskSettings.getMaskedValue("");
+  }
+  private hasInputText(text: string): boolean {
+    return !!text && text !== this.emptyInputText;
+  }
+  // The ISO date of a complete and correct entry; undefined otherwise.
+  private getInputISODate(text: string): string {
+    if (!text) return undefined;
+    const value = this.maskSettings.getUnmaskedValue(text);
+    return !!value && !!parseISODate(value) ? value : undefined;
+  }
+  private isInputIncomplete(text: string): boolean {
+    return this.hasInputText(text) && !this.getInputISODate(text);
+  }
+  private normalizeInputText(text: string): string {
+    const iso = this.getInputISODate(text);
+    return !!iso ? this.maskSettings.getMaskedValue(iso) : text;
   }
 
   public get inputValue(): string {
-    return this._inputValue || this.maskSettings.getMaskedValue("");
+    return this._inputValue || this.emptyInputText;
   }
   public set inputValue(val: string) {
     let value: string = this.maskSettings.getUnmaskedValue(val);
@@ -199,19 +304,89 @@ export class QuestionDateTimePickerModel extends Question {
       this.doNotUpdateInputValue = false;
     }
   }
+  public get startInputValue(): string {
+    return this._startInputValue || this.emptyInputText;
+  }
+  public set startInputValue(val: string) {
+    this._startInputValue = this.normalizeInputText(val);
+    this.onRangeInputChanged(this.getInputISODate(val));
+  }
+  public get endInputValue(): string {
+    return this._endInputValue || this.emptyInputText;
+  }
+  public set endInputValue(val: string) {
+    this._endInputValue = this.normalizeInputText(val);
+    this.onRangeInputChanged(this.getInputISODate(val));
+  }
+  // The fields are drafts: the value is [start, end] only while both are complete and ordered.
+  private onRangeInputChanged(viewISODate?: string): void {
+    const start = this.getInputISODate(this._startInputValue);
+    const end = this.getInputISODate(this._endInputValue);
+    const value = !!start && !!end && start <= end ? [start, end] : undefined;
+    if (!Helpers.isTwoValueEquals(this.value, value, false, true, false)) {
+      this.doNotUpdateInputValue = true;
+      this.value = value;
+      this.doNotUpdateInputValue = false;
+    }
+    this.updateCalendarValue(viewISODate);
+    this.updateEditorButtons();
+  }
   private updateInputValue(): void {
     if (this.doNotUpdateInputValue) return;
     const value = this.value;
-    this._inputValue = this.maskSettings.getMaskedValue(value);
-    if (!!this.maskInputAdapter) {
-      this.maskInputAdapter.updateInputElementValue(value);
+    if (this.range) {
+      const hasValue = Array.isArray(value);
+      this._startInputValue = hasValue ? this.maskSettings.getMaskedValue(value[0]) : undefined;
+      this._endInputValue = hasValue ? this.maskSettings.getMaskedValue(value[1]) : undefined;
+    } else {
+      this._inputValue = this.maskSettings.getMaskedValue(typeof value === "string" ? value : "");
     }
+    this.updateMaskAdapterValues();
   }
-  private updateCalendarValue(): void {
+  private calendarToQuestionValue(val: any): any {
+    if (Array.isArray(val)) return val.map(date => Helpers.convertDateToString(date));
+    return !!val ? Helpers.convertDateToString(val) : undefined;
+  }
+  private updateCalendarValue(viewISODate?: string): void {
+    if (this.range) {
+      const value = isRangeValue(this.value) ? this.value : undefined;
+      const start = this.getInputISODate(this._startInputValue);
+      const hasEnd = !!this.getInputISODate(this._endInputValue);
+      this.calendar.value = !!value ? [toISODate(value[0]), toISODate(value[1])] : undefined;
+      this.calendar.setRangeStart(!value && !!start && !hasEnd ? toISODate(start) : undefined);
+      const viewDate = toISODate(viewISODate);
+      if (!!viewDate) {
+        this.calendar.viewDate = viewDate;
+      }
+      return;
+    }
     const date = toISODate(this.value);
     this.calendar.value = date;
     if (!!date) {
       this.calendar.viewDate = date;
+    }
+  }
+  private onRangeChanged(): void {
+    this.calendar.range = this.range;
+    if (this.isLoadingFromJson) return;
+    this._inputValue = undefined;
+    this._startInputValue = undefined;
+    this._endInputValue = undefined;
+    const val = this.value;
+    let newValue: any = undefined;
+    if (this.range) {
+      if (!!parseISODate(val)) newValue = [val, val];
+    } else if (Array.isArray(val) && !!parseISODate(val[0])) {
+      newValue = val[0];
+    }
+    if (!Helpers.isTwoValueEquals(this.value, newValue)) {
+      this.value = newValue;
+    }
+    this.updateInputValue();
+    this.updateCalendarValue();
+    this.updateEditorButtons();
+    if (this.maskInputAdapters.length > 0) {
+      this.createMaskAdapters();
     }
   }
   protected onChangeQuestionValue(newValue: any): void {
@@ -227,9 +402,15 @@ export class QuestionDateTimePickerModel extends Question {
     super.onSetData();
   }
   public localeChanged(): void {
+    // The drafts are read in the current format before the mask switches to the new one.
+    const drafts = [this.getInputISODate(this._startInputValue), this.getInputISODate(this._endInputValue)];
     super.localeChanged();
     this.maskSettings.localeChanged();
     this.updateInputValue();
+    if (this.range) {
+      this._startInputValue = !!drafts[0] ? this.maskSettings.getMaskedValue(drafts[0]) : undefined;
+      this._endInputValue = !!drafts[1] ? this.maskSettings.getMaskedValue(drafts[1]) : undefined;
+    }
     if (!!this.popupModelValue) {
       this.popupModelValue.locale = this.getLocale();
     }
@@ -246,6 +427,9 @@ export class QuestionDateTimePickerModel extends Question {
     if (["min", "max", "minValueExpression", "maxValueExpression"].indexOf(name) > -1) {
       this.setRenderedMinMax();
     }
+    if (name === "range") {
+      this.onRangeChanged();
+    }
     if (["value", "allowClear"].indexOf(name) > -1) {
       this.updateEditorButtons();
     }
@@ -253,6 +437,7 @@ export class QuestionDateTimePickerModel extends Question {
 
   public onSurveyLoad(): void {
     super.onSurveyLoad();
+    this.calendar.range = this.range;
     this.setRenderedMinMax();
     this.updateInputValue();
     this.updateCalendarValue();
@@ -282,82 +467,137 @@ export class QuestionDateTimePickerModel extends Question {
   }
 
   private isMaskInputIncomplete(): boolean {
-    if (!this.isEmpty()) return false;
-    const inputVal = this._inputValue;
-    return !!inputVal && inputVal !== this.maskSettings.getMaskedValue("");
+    if (this.range) return this.isInputIncomplete(this._startInputValue) || this.isInputIncomplete(this._endInputValue);
+    return this.isEmpty() && this.hasInputText(this._inputValue);
+  }
+  private get isRangeReversed(): boolean {
+    if (!this.range) return false;
+    const start = this.getInputISODate(this._startInputValue);
+    const end = this.getInputISODate(this._endInputValue);
+    return !!start && !!end && start > end;
+  }
+  // The dates to check against min and max: the value, or both complete fields in range mode.
+  private getCheckedDates(): Array<Date> {
+    const dates = this.range
+      ? [this.getInputISODate(this._startInputValue), this.getInputISODate(this._endInputValue)]
+      : [this.value];
+    return dates.map(val => toISODate(val)).filter(date => !!date);
   }
   private get isValueLessMin(): boolean {
     const min = toISODate(this.renderedMin);
-    const value = toISODate(this.value);
-    return !!min && !!value && value.getTime() < min.getTime();
+    return !!min && this.getCheckedDates().some(date => date.getTime() < min.getTime());
   }
   private get isValueGreaterMax(): boolean {
     const max = toISODate(this.renderedMax);
-    const value = toISODate(this.value);
-    return !!max && !!value && value.getTime() > max.getTime();
+    return !!max && this.getCheckedDates().some(date => date.getTime() > max.getTime());
   }
   private getMinMaxErrorText(errorText: string, value: string): string {
     if (Helpers.isValueEmpty(value)) return errorText;
     return errorText.replace("{0}", this.maskSettings.getMaskedValue(Helpers.convertDateToString(toISODate(value))));
   }
-  private createMinMaxError(getText: () => string): SurveyError {
+  private createUpdatableError(getText: () => string): SurveyError {
     const error = new CustomError(getText(), this);
     error.onUpdateErrorTextCallback = err => { err.text = getText(); };
     return error;
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if (this.isMaskInputIncomplete()) {
+    const removeRequiredError = (): void => {
       const reqIdx = errors.findIndex(e => e.getErrorType() === "required");
       if (reqIdx >= 0) errors.splice(reqIdx, 1);
+    };
+    if (this.isMaskInputIncomplete()) {
+      removeRequiredError();
       errors.push(new PatternIncompleteError(null, this));
+    } else if (this.isRangeReversed) {
+      removeRequiredError();
+      errors.push(this.createUpdatableError(() => this.rangeErrorText));
     }
     if (this.isValueLessMin) {
-      errors.push(this.createMinMaxError(() => this.getMinMaxErrorText(this.minErrorText, this.renderedMin)));
+      errors.push(this.createUpdatableError(() => this.getMinMaxErrorText(this.minErrorText, this.renderedMin)));
     }
     if (this.isValueGreaterMax) {
-      errors.push(this.createMinMaxError(() => this.getMinMaxErrorText(this.maxErrorText, this.renderedMax)));
+      errors.push(this.createUpdatableError(() => this.getMinMaxErrorText(this.maxErrorText, this.renderedMax)));
     }
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (Helpers.isValueEmpty(val) || !!parseISODate(val)) return true;
+    if (Helpers.isValueEmpty(val)) return true;
+    if (this.range ? isRangeValue(val) : !!parseISODate(val)) return true;
     if (context.checks.reportInvalidValueTypes) {
       context.addIssue("invalidValueType", undefined, val, this);
     }
     return false;
   }
 
+  private setInputText(target: any, text: string): void {
+    if (!this.range) {
+      this.inputValue = text;
+      return;
+    }
+    const index = this.inputElements.indexOf(target);
+    if (index === 0) {
+      this.startInputValue = text;
+    } else if (index === 1) {
+      this.endInputValue = text;
+    }
+  }
   protected onBlurCore(event: any): void {
-    if (!!event && !!event.target && event.target.value !== undefined) {
-      this.inputValue = event.target.value;
+    const target = event?.target;
+    if (!!target && typeof target.value === "string") {
+      this.setInputText(target, target.value);
     }
     super.onBlurCore(event);
   }
   public onKeyUp = (event: any): void => {
-    const text = event?.target?.value;
-    if (typeof text === "string" && !!this.maskSettings.getUnmaskedValue(text)) {
-      this.inputValue = text;
+    const target = event?.target;
+    if (!!target && typeof target.value === "string" && !!this.getInputISODate(target.value)) {
+      this.setInputText(target, target.value);
     }
   };
+  private createMaskAdapters(): void {
+    this.deleteMaskAdapters();
+    const elements = this.inputElements;
+    if (this.range) {
+      const value = Array.isArray(this.value) ? this.value : [];
+      if (!!elements[0]) {
+        this.maskInputAdapters.push(new InputElementAdapter(this.maskSettings, elements[0], value[0]));
+      }
+      if (!!elements[1]) {
+        this.maskInputAdapters.push(new InputElementAdapter(this.endMask, elements[1], value[1]));
+      }
+    } else if (!!elements[0]) {
+      this.maskInputAdapters.push(new InputElementAdapter(this.maskSettings, elements[0], this.value));
+    }
+  }
+  private deleteMaskAdapters(): void {
+    this.maskInputAdapters.forEach(adapter => adapter.dispose());
+    this.maskInputAdapters = [];
+  }
+  private updateMaskAdapterValues(): void {
+    if (this.maskInputAdapters.length === 0) return;
+    const values = this.range ? (Array.isArray(this.value) ? this.value : []) : [this.value];
+    this.maskInputAdapters.forEach((adapter, index) => adapter.updateInputElementValue(values[index]));
+  }
   public afterRenderQuestionElement(el: HTMLElement): void {
     if (!!el) {
-      this.inputElement = el instanceof HTMLInputElement ? el : el.querySelector("input");
-      if (!!this.inputElement) {
-        this.maskInputAdapter = new InputElementAdapter(this.maskSettings, this.inputElement, this.value);
-      }
+      const inputs = el instanceof HTMLInputElement ? [el] : Array.prototype.slice.call(el.querySelectorAll("input"));
+      this.inputElements = inputs.slice(0, 2);
+      this.createMaskAdapters();
     }
     super.afterRenderQuestionElement(el);
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
-    if (!!this.maskInputAdapter) {
-      this.maskInputAdapter.dispose();
-      this.maskInputAdapter = undefined;
-    }
-    this.inputElement = undefined;
+    this.deleteMaskAdapters();
+    this.inputElements = [];
     super.beforeDestroyQuestionElement(el);
   }
   public dispose(): void {
+    this.deleteMaskAdapters();
+    if (!!this.endMaskValue) {
+      this.endMaskValue.dispose();
+      this.endMaskValue = undefined;
+    }
     if (!!this.popupModelValue) {
       this.popupModelValue.dispose();
       this.popupModelValue = undefined;
@@ -379,6 +619,7 @@ function getCorrectMinMax(min: any, max: any, isMax: boolean): any {
   if (dMin.getTime() > dMax.getTime()) return isMax ? min : max;
   return val;
 }
+const isRangeMode = (obj: any): boolean => !!obj && !!obj.range;
 
 Serializer.addClass(
   "datetimepicker",
@@ -398,7 +639,10 @@ Serializer.addClass(
     "maxValueExpression:expression",
     { name: "minErrorText", serializationProperty: "locMinErrorText" },
     { name: "maxErrorText", serializationProperty: "locMaxErrorText" },
+    { name: "rangeErrorText", serializationProperty: "locRangeErrorText", dependsOn: "range", visibleIf: isRangeMode },
     { name: "placeholder", serializationProperty: "locPlaceholder" },
+    { name: "startPlaceholder", serializationProperty: "locStartPlaceholder", dependsOn: "range", visibleIf: isRangeMode },
+    { name: "endPlaceholder", serializationProperty: "locEndPlaceholder", dependsOn: "range", visibleIf: isRangeMode },
     {
       name: "maskSettings:masksettings",
       className: "datetimemask",

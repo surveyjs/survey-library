@@ -26,6 +26,7 @@ export * from "./etalon_expression";
 export * from "./etalon_layout";
 export * from "./etalon_buttongroup";
 export * from "./etalon_slider";
+export * from "./etalon_datetimepicker";
 export * from "./etalon_imagemap";
 export { markupTests } from "./helper";
 

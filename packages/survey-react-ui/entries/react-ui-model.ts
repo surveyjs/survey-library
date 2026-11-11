@@ -75,6 +75,7 @@ export { SurveyProgressToc } from "../src/progressToc";
 export { SurveyQuestionRating } from "../src/reactquestion_rating";
 export { SurveyQuestionRatingDropdown } from "../src/rating-dropdown";
 export { SurveyQuestionSlider } from "../src/reactquestion_slider";
+export { SurveyQuestionDateTimePicker } from "../src/reactquestion_datetimepicker";
 export { SurveyQuestionExpression } from "../src/reactquestion_expression";
 export { SurveyQuestionView } from "../src/reactquestion_view";
 export { PopupSurvey, SurveyWindow } from "../src/react-popup-survey";
@@ -107,6 +108,7 @@ export { SurveyMatrixHeaderSortButton } from "../src/components/matrix/header-so
 export { SurveyQuestionPanelDynamicProgressText } from "../src/components/paneldynamic-actions/paneldynamic-progress-text";
 export { QuestionErrorComponent } from "../src/components/question-error";
 export { SliderLabelItem } from "../src/components/slider/slider-label-item";
+export { SurveyCalendar } from "../src/components/calendar/calendar";
 
 export { MatrixRow } from "../src/components/matrix/row";
 export { Skeleton } from "../src/components/skeleton";

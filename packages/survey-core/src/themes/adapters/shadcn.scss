@@ -386,10 +386,10 @@
   --sjs2-layout-component-panel-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-box-padding-top: 0;
   --sjs2-layout-component-panel-box-padding-bottom: 0;
-  --sjs2-layout-component-panel-box-gap-vertical: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-box-gap-vertical: 0;
 
   --sjs2-layout-component-panel-header-padding-top: var(--sjs2-shadcn-card-edge-spacing);
-  --sjs2-layout-component-panel-header-padding-bottom: 0;
+  --sjs2-layout-component-panel-header-padding-bottom: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-header-padding-left: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-header-padding-right: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-header-gap-vertical: calc(var(--spacing) * 1.5);

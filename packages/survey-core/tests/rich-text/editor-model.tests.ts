@@ -92,7 +92,7 @@ describe("rich text editor model", () => {
     expect(question.value).toBe("Please <strong>r</strong>ead the <em>terms</em> carefully");
   });
 
-  test("shortcuts dispatch the same commands and Ctrl+U is blocked", () => {
+  test("shortcuts dispatch the same commands", () => {
     const calls: string[] = [];
     const question = new QuestionCommentModel("c");
     const element = document.createElement("div");
@@ -105,10 +105,8 @@ describe("rich text editor model", () => {
     selectText(element, model, "ab", "ab");
     element.dispatchEvent(new KeyboardEvent("keydown", { key: "b", ctrlKey: true }));
     element.dispatchEvent(new KeyboardEvent("keydown", { key: "i", ctrlKey: true }));
-    const blocked = new KeyboardEvent("keydown", { key: "u", ctrlKey: true, cancelable: true });
-    element.dispatchEvent(blocked);
-    expect(calls).toEqual(["bold", "italic"]);
-    expect(blocked.defaultPrevented).toBe(true);
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "u", ctrlKey: true }));
+    expect(calls).toEqual(["bold", "italic", "underline"]);
     model.detach();
   });
 

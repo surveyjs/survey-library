@@ -4,9 +4,22 @@ import { createEsmConfig, createUmdConfig, createCssConfig } from "../../rollup.
 import fs from "fs-extra";
 import process from "process";
 import pkg from "./package.json" with { type: "json" };
+import svgo from "rollup-plugin-svgo";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
+
+function svgPlugin() {
+  return svgo({
+    plugins: [
+      { name: "removeDimensions", active: true },
+      { name: "removeTitle", active: true },
+      { name: "removeDesc", active: true },
+      { name: "removeUselessDefs", active: true },
+      { name: "removeXMLNS", active: false },
+    ]
+  });
+}
 
 // survey-core/rich-text consumes survey-core as an external dependency, the same way
 // the collaboration plugin does: one Serializer, one settings object, one Base identity.
@@ -33,6 +46,7 @@ export default (options = {}) => {
       dir: resolve(buildPath, "./fesm"),
       version: pkg.version,
       noEmitOnError: !options.watch,
+      extraPlugins: [svgPlugin()],
     }),
     createUmdConfig({
       input: {
@@ -47,6 +61,7 @@ export default (options = {}) => {
       globals: { "survey-core": "Survey" },
       version: pkg.version,
       noEmitOnError: !options.watch,
+      extraPlugins: [svgPlugin()],
     }),
     createCssConfig({
       input: {

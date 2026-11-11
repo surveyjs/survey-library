@@ -1,7 +1,17 @@
 import { defineConfig } from "vitest/config";
 import * as path from "path";
+import * as fs from "fs";
 
 export default defineConfig({
+  plugins: [
+    {
+      name: "svg-string",
+      transform(_code, id) {
+        if (!id.endsWith(".svg")) return;
+        return { code: "export default " + JSON.stringify(fs.readFileSync(id, "utf8")) + ";", map: null };
+      }
+    }
+  ],
   test: {
     environment: "jsdom",
     globals: false,

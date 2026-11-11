@@ -2,6 +2,7 @@ export const richTextStrings: { [index: string]: string } = {
   richTextToolbar: "Formatting",
   richTextBold: "Bold",
   richTextItalic: "Italic",
+  richTextUnderline: "Underline",
   richTextStrikethrough: "Strikethrough",
   richTextLink: "Link",
   richTextBulletedList: "Bulleted list",

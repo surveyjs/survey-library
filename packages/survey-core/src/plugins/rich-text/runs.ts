@@ -4,6 +4,7 @@
 export interface Marks {
   strong: boolean;
   em: boolean;
+  u: boolean;
   s: boolean;
   href?: string;
 }
@@ -18,6 +19,7 @@ export interface RichRun {
   text: string;
   strong?: boolean;
   em?: boolean;
+  u?: boolean;
   s?: boolean;
   href?: string;
 }
@@ -26,22 +28,23 @@ interface Char {
   ch: string;
   strong: boolean;
   em: boolean;
+  u: boolean;
   s: boolean;
   href?: string;
 }
 
-type MarkId = "link" | "strong" | "em" | "s";
+type MarkId = "link" | "strong" | "em" | "u" | "s";
 
 export function emptyMarks(): Marks {
-  return { strong: false, em: false, s: false };
+  return { strong: false, em: false, u: false, s: false };
 }
 
 export function copyMarks(marks: Marks): Marks {
-  return { strong: marks.strong, em: marks.em, s: marks.s, href: marks.href };
+  return { strong: marks.strong, em: marks.em, u: marks.u, s: marks.s, href: marks.href };
 }
 
 export function sameMarks(a: Marks, b: Marks): boolean {
-  return a.strong === b.strong && a.em === b.em && a.s === b.s && a.href === b.href;
+  return a.strong === b.strong && a.em === b.em && a.u === b.u && a.s === b.s && a.href === b.href;
 }
 
 export function serializePieces(pieces: Piece[]): string {
@@ -68,12 +71,13 @@ export function runsFromPieces(pieces: Piece[]): RichRun[] {
     const ch = chars[i];
     const text = ch.ch === "\n" ? "\n" : ch.ch;
     const prev = runs[runs.length - 1];
-    if (prev && prev.strong === ch.strong && prev.em === ch.em && prev.s === ch.s && prev.href === ch.href && prev.text !== "\n" && text !== "\n") {
+    if (prev && prev.strong === ch.strong && prev.em === ch.em && prev.u === ch.u && prev.s === ch.s && prev.href === ch.href && prev.text !== "\n" && text !== "\n") {
       prev.text += text;
     } else {
       const run: RichRun = { text: text };
       if (ch.strong) run.strong = true;
       if (ch.em) run.em = true;
+      if (ch.u) run.u = true;
       if (ch.s) run.s = true;
       if (ch.href) run.href = ch.href;
       runs.push(run);
@@ -83,7 +87,7 @@ export function runsFromPieces(pieces: Piece[]): RichRun[] {
 }
 
 function marksOf(run: RichRun): Marks {
-  return { strong: !!run.strong, em: !!run.em, s: !!run.s, href: run.href };
+  return { strong: !!run.strong, em: !!run.em, u: !!run.u, s: !!run.s, href: run.href };
 }
 
 function piecesToChars(pieces: Piece[]): Char[] {
@@ -103,12 +107,13 @@ function piecesToChars(pieces: Piece[]): Char[] {
 }
 
 function charOf(ch: string, marks: Marks): Char {
-  return { ch: ch, strong: marks.strong, em: marks.em, s: marks.s, href: marks.href };
+  return { ch: ch, strong: marks.strong, em: marks.em, u: marks.u, s: marks.s, href: marks.href };
 }
 
 function trimMarkEdges(chars: Char[]): void {
   trimRange(chars, (ch) => ch.strong, (ch) => { ch.strong = false; });
   trimRange(chars, (ch) => ch.em, (ch) => { ch.em = false; });
+  trimRange(chars, (ch) => ch.u, (ch) => { ch.u = false; });
   trimRange(chars, (ch) => ch.s, (ch) => { ch.s = false; });
   trimRange(chars, (ch) => !!ch.href, (ch) => { ch.href = undefined; }, true);
 }
@@ -171,6 +176,7 @@ function activeMarks(ch: Char): MarkId[] {
   if (ch.href) ids.push("link");
   if (ch.strong) ids.push("strong");
   if (ch.em) ids.push("em");
+  if (ch.u) ids.push("u");
   if (ch.s) ids.push("s");
   return ids;
 }
@@ -192,13 +198,15 @@ function orderMarks(chars: Char[], index: number, ids: MarkId[]): MarkId[] {
 function markRank(id: MarkId): number {
   if (id === "strong") return 0;
   if (id === "em") return 1;
-  return 2;
+  if (id === "u") return 2;
+  return 3;
 }
 
 function hasMark(ch: Char, id: MarkId, href?: string): boolean {
   if (id === "link") return ch.href === href;
   if (id === "strong") return ch.strong;
   if (id === "em") return ch.em;
+  if (id === "u") return ch.u;
   return ch.s;
 }
 
@@ -222,6 +230,7 @@ function openTag(id: MarkId, href?: string): string {
   }
   if (id === "strong") return "<strong>";
   if (id === "em") return "<em>";
+  if (id === "u") return "<u>";
   return "<s>";
 }
 
@@ -229,6 +238,7 @@ function closeTag(id: MarkId): string {
   if (id === "link") return "</a>";
   if (id === "strong") return "</strong>";
   if (id === "em") return "</em>";
+  if (id === "u") return "</u>";
   return "</s>";
 }
 

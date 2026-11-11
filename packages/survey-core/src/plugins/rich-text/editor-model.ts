@@ -22,6 +22,7 @@ export interface IRichTextEditorOptions {
 const MARKS: { [command: string]: string[] } = {
   bold: ["strong", "b"],
   italic: ["em", "i"],
+  underline: ["u"],
   strikeThrough: ["s", "strike", "del"]
 };
 
@@ -175,7 +176,7 @@ export class RichTextEditorModel {
     this.afterEdit();
   }
 
-  public toggleState(command: "bold" | "italic" | "strikeThrough" | "insertUnorderedList" | "insertOrderedList"): ToggleState {
+  public toggleState(command: "bold" | "italic" | "underline" | "strikeThrough" | "insertUnorderedList" | "insertOrderedList"): ToggleState {
     if (!this.element || !this.saved) return "none";
     if (command === "insertUnorderedList" || command === "insertOrderedList") {
       const tag = command === "insertUnorderedList" ? "ul" : "ol";
@@ -213,6 +214,7 @@ export class RichTextEditorModel {
     }
     if (meta && key === "u") {
       event.preventDefault();
+      this.run("underline");
       return;
     }
     if (key === "tab") return;
@@ -356,8 +358,8 @@ export class RichTextEditorModel {
   }
 
   private updatePressed(): void {
-    const commands: Array<"bold" | "italic" | "strikeThrough" | "insertUnorderedList" | "insertOrderedList"> = [
-      "bold", "italic", "strikeThrough", "insertUnorderedList", "insertOrderedList"
+    const commands: Array<"bold" | "italic" | "underline" | "strikeThrough" | "insertUnorderedList" | "insertOrderedList"> = [
+      "bold", "italic", "underline", "strikeThrough", "insertUnorderedList", "insertOrderedList"
     ];
     for (let i = 0; i < this.toolbar.actions.length; i++) {
       const action = this.toolbar.actions[i];
@@ -372,7 +374,7 @@ export class RichTextEditorModel {
   private apply(command: RichTextCommand): void {
     if (!this.element || !this.saved) return;
     const range = this.saved;
-    if (command === "bold" || command === "italic" || command === "strikeThrough") {
+    if (command === "bold" || command === "italic" || command === "underline" || command === "strikeThrough") {
       const tags = MARKS[command];
       const remove = this.markState(range, tags) === "all";
       replaceRange(range, markHtml(range, tags, remove));
@@ -600,6 +602,7 @@ export class RichTextEditorModel {
 function commandId(command: string): string {
   if (command === "bold") return "rich-text-bold";
   if (command === "italic") return "rich-text-italic";
+  if (command === "underline") return "rich-text-underline";
   if (command === "strikeThrough") return "rich-text-strikethrough";
   if (command === "createLink") return "rich-text-link";
   if (command === "insertUnorderedList") return "rich-text-list-bulleted";
@@ -671,7 +674,7 @@ function listHtml(range: Range, tag: "ul" | "ol", remove: boolean): string {
 
 function clearHtml(range: Range): string {
   const contents = range.cloneContents();
-  unwrap(contents, ["strong", "b", "em", "i", "s", "strike", "del", "a", "ul", "ol", "li"]);
+  unwrap(contents, ["strong", "b", "em", "i", "u", "s", "strike", "del", "a", "ul", "ol", "li"]);
   return htmlOf(contents);
 }
 
@@ -904,7 +907,7 @@ function liftListItem(item: HTMLElement): void {
   const doc = item.ownerDocument;
   const paragraph = doc.createElement("p");
   while(item.firstChild) paragraph.appendChild(item.firstChild);
-  unwrap(paragraph, ["strong", "b", "em", "i", "s", "strike", "del", "a"]);
+  unwrap(paragraph, ["strong", "b", "em", "i", "u", "s", "strike", "del", "a"]);
   const parent = list.parentNode;
   const rest = doc.createElement(list.tagName.toLowerCase());
   let sibling = item.nextSibling;

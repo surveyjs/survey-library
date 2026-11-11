@@ -41,7 +41,7 @@ Provide a rich text editor that can be used in:
 | Storage format | Always HTML: canonical HTML (§3.2) with minimal escaping, so unformatted text is stored as typed. No format property in JSON. |
 | Processing | Built-in allow-list HTML sanitizer only. No Markdown, no converters, no converter registry. |
 | Features | Bold, italic, strikethrough, link, bulleted list, numbered list, line breaks/paragraphs, clear formatting. |
-| Not supported | Tables, images, headings, colors, font size/family, alignment, underline, nested lists, code, blockquotes. |
+| Not supported | Tables, images, headings, colors, font size/family, alignment, nested lists, code, blockquotes. |
 | Distribution | Separate entry point of the `survey-core` npm package: `survey-core/rich-text` (ESM + UMD + CSS), same pattern as `survey-core/collaboration`. Designed so it can later move into the main bundle without breaking changes (§11.2). |
 | Activation — comment answers | By survey JSON: boolean comment property `allowRichText` (declared in core, made visible by the plugin). No handler is needed. |
 | Activation — survey strings | By customer code: attach `RichText.renderStringHandler` to `survey.onTextMarkdown`. No JSON property, no setting. |
@@ -65,7 +65,7 @@ There is no format property in JSON, neither for survey strings nor for comment 
 
 Canonical HTML is the only HTML the plugin writes. It is produced by the sanitizer (§3.4), both for storage and for display.
 
-- **Tags:** `strong`, `em`, `s`, `a`, `ul`, `ol`, `li`, `p`, `br`.
+- **Tags:** `strong`, `em`, `u`, `s`, `a`, `ul`, `ol`, `li`, `p`, `br`.
 - **Attributes:** only on `a`: `href` with an `http:`, `https:` or `mailto:` URL, followed by `target="_blank" rel="noopener noreferrer"`. Every link carries these two attributes (navigating away would lose survey answers), so stored HTML is safe to render as is by any consumer. A link with any other scheme is unwrapped (its text is kept).
 - **Blocks (block context):** the content is a sequence of paragraphs and lists. A single paragraph alone is written **without** a `<p>` wrapper. When there are two or more blocks (paragraphs or lists), every paragraph is wrapped in `<p>`. A line break inside a paragraph or list item is `<br>`. Lists are not nested. Empty paragraphs and empty list items are removed.
 - **Inline context:** no blocks. Blocks are joined with `<br>` into one paragraph without a wrapper; list items become lines. Used for single-line strings, whose serializer type is not `text` (§6.2, §6.3): choice texts and the survey title. Question, page and panel titles are type `text`, so they use the block context.
@@ -114,7 +114,7 @@ Unknown tags are reported by `getDisallowedHtml`, so such values open in source 
 
 Two functions in `sanitizer.ts`: `sanitizeHtml(html, inline)` and `getDisallowedHtml(html)`. They are used for every display of rich content (§6.4), for storing editor content (§6.4, §9.2), for paste (§7.4), and are available as `RichText.sanitizeHtml` / `RichText.getDisallowedHtml` (§4.1).
 
-- **Input accepted:** `b`/`strong`, `i`/`em`, `s`/`strike`/`del`, `a[href]`, `ul`/`ol`/`li`, `p`/`div`, `br`. They are renamed to canonical tags (§3.2).
+- **Input accepted:** `b`/`strong`, `i`/`em`, `u`, `s`/`strike`/`del`, `a[href]`, `ul`/`ol`/`li`, `p`/`div`, `br`. They are renamed to canonical tags (§3.2).
 - **Unknown elements** are unwrapped, keeping their text. Block-level unknown elements (`div` inside content, `h1`–`h6`, `table`, `tr`, `td`, `blockquote`, `pre`, …) become paragraph/line boundaries so text does not run together.
 - **Dropped with their content:** `script`, `style`, `iframe`, `object`, `embed`, `template`, `noscript`.
 - **Attributes:** all are removed except `a[href]` with an allowed scheme. `target` and `rel` on `a` are removed **without being reported** and replaced by the canonical pair (§3.2), so canonical HTML is never reported.
@@ -195,7 +195,7 @@ type RichTextEditMode = "none" | "inline" | "block";
 ```
 
 - `none`: the plain (existing) editor.
-- `inline`: bold, italic, strikethrough, link, clear formatting.
+- `inline`: bold, italic, underline, strikethrough, link, clear formatting.
 - `block`: `inline` plus bulleted list and numbered list.
 - The **bold** button is always available, including on strings the theme renders bold (titles). There is no special handling for such strings: in a host that is already bold, `execCommand("bold")` un-bolds the text with a `<span style>` that the sanitizer drops, so the button may have no effect on the stored value. This is accepted.
 
@@ -270,7 +270,7 @@ Comment answers never pass through events. The plugin renders and stores them it
 ### 6.5 Strings and localization
 
 - `src/plugins/rich-text/rich-text-strings.ts`, same pattern as `collaboration-strings.ts` (own English strings + `setRichTextStrings`).
-- Keys: `richTextToolbar` "Formatting", `richTextBold` "Bold", `richTextItalic` "Italic", `richTextStrikethrough` "Strikethrough", `richTextLink` "Link", `richTextBulletedList` "Bulleted list", `richTextNumberedList` "Numbered list", `richTextClearFormatting` "Clear formatting", `richTextLinkUrl` "URL", `richTextLinkInvalid` "Enter a link that starts with http://, https://, or mailto:", `richTextSourceMode` "This text contains formatting the editor cannot change. You are editing its source.", `richTextEditAnyway` "Edit as rich text (unsupported formatting will be removed)".
+- Keys: `richTextToolbar` "Formatting", `richTextBold` "Bold", `richTextItalic` "Italic", `richTextUnderline` "Underline", `richTextStrikethrough` "Strikethrough", `richTextLink` "Link", `richTextBulletedList` "Bulleted list", `richTextNumberedList` "Numbered list", `richTextClearFormatting` "Clear formatting", `richTextLinkUrl` "URL", `richTextLinkInvalid` "Enter a link that starts with http://, https://, or mailto:", `richTextSourceMode` "This text contains formatting the editor cannot change. You are editing its source.", `richTextEditAnyway` "Edit as rich text (unsupported formatting will be removed)".
 
 ---
 
@@ -292,7 +292,7 @@ The model is framework-agnostic and attaches to any `contenteditable` element (`
 - Clicking a toolbar button must not lose the selection: the model saves the selection `Range` on every `selectionchange` inside the element and restores it (and focus) before executing a command.
 - Toggle state is computed by the model (not `queryCommandState`): walk text nodes in the selection → `all` / `none` / `mixed`. A button is pressed (`aria-pressed="true"`) only for `all`. Command semantics: `all` → remove; `none`/`mixed` → apply to the whole selection.
 - Collapsed selection: the command sets the typing style for subsequent input (native behavior); the button reflects it.
-- Keyboard: Ctrl/Cmd+B and Ctrl/Cmd+I run the same model actions (respecting the button's visibility and enabled state); Ctrl/Cmd+U is blocked.
+- Keyboard: Ctrl/Cmd+B, Ctrl/Cmd+I and Ctrl/Cmd+U run the same model actions (respecting the button's visibility and enabled state).
 - **Link:** opens a dialog through `settings.showDialog` with `componentName: "survey"` and a small `SurveyModel` containing one text question (`url`), same approach as `showRecordsSortDialog`.
   - The dialog survey uses the `DefaultLightPanelless` theme, so the single field has no panel chrome.
   - The URL field is pre-filled with the `href` of the existing link when the whole selection (or the caret) is inside one link; otherwise it is empty.
@@ -300,7 +300,7 @@ The model is framework-agnostic and attaches to any `contenteditable` element (`
   - Validation: allowed schemes only. On Apply, an invalid URL shows the `richTextLinkInvalid` message under the field and the dialog stays open.
   - Apply: an empty URL removes the link. When the selection is inside one existing link, its `href` is replaced in place: the link text is kept and the selection is restored to the same text offsets. With a collapsed selection outside a link, the URL is inserted as the link text. Otherwise the selection becomes the link text.
   - If `settings.showDialog` is not set, the link action is hidden; visibility is re-checked on attach, because the dialog host may mount after the first toolbar is built.
-- **Clear formatting:** removes bold/italic/strike/link from the selection and converts list items in the selection to paragraphs.
+- **Clear formatting:** removes bold/italic/underline/strike/link from the selection and converts list items in the selection to paragraphs.
 
 ### 7.3 Keys
 
@@ -520,7 +520,7 @@ All test suites below are required deliverables.
 - **comment-answer.tests.ts:** display of `""`, of plain text with `&`, `<` and line breaks, of HTML, and of XSS vectors set through `setValue`; inline context for `acceptCarriageReturn: false`; source mode condition: plain text and canonical HTML → `false`, a table / `style` / `img` / `<Enter>` → `true`; without a DOM, values render as escaped text.
 - **unsupported.tests.ts:** `findUnsupported` reports HTML strings with disallowed content in every locale, skips plain and canonical strings, skips non-`useMarkdown` strings, reports rich comment answers with disallowed content and skips plain answers.
 - **edit-mode.tests.ts:** default modes by serializer type (`text` → block for a question title and a description, `string` → inline for a choice text and the survey title, `useMarkdown === false` → none even for type `text`, `html` type → none, a detached owner still resolves by property type); `RichText.getEditMode` override through `getStringEditMode`; comment answer mode from `acceptCarriageReturn`.
-- **editor-model.tests.ts** (mocked command adapter): toggle state `all`/`none`/`mixed`; selection save/restore; command dispatch for buttons and shortcuts; Ctrl+U blocked; commit on blur and debounced input per `isInputTextUpdate`; stored value is `sanitizeHtml` output (unformatted text stored as typed); no write on focus/blur without input (including a legacy plain value with line breaks); external value update and deferral while focused; paste sanitized in both modes; source mode and "edit anyway"; `maxLength` counts visible characters, blocks typing and paste at the limit, and formatting does not change the count; placeholder emptiness; link dialog: panelless theme, the URL pre-filled from the link under the selection, the validation message shown on Apply, empty-URL unlink, editing an existing link replaces only `href` and restores the selection, the dialog root is the `.sd-rich-text` box and never the editing element; link action visibility re-checked on attach; content-agnostic mode of `RichText.attachEditor` (toolbar profile per mode, no value writes, no source mode, `detach` removes listeners).
+- **editor-model.tests.ts** (mocked command adapter): toggle state `all`/`none`/`mixed`; selection save/restore; command dispatch for buttons and shortcuts; commit on blur and debounced input per `isInputTextUpdate`; stored value is `sanitizeHtml` output (unformatted text stored as typed); no write on focus/blur without input (including a legacy plain value with line breaks); external value update and deferral while focused; paste sanitized in both modes; source mode and "edit anyway"; `maxLength` counts visible characters, blocks typing and paste at the limit, and formatting does not change the count; placeholder emptiness; link dialog: panelless theme, the URL pre-filled from the link under the selection, the validation message shown on Apply, empty-URL unlink, editing an existing link replaces only `href` and restores the selection, the dialog root is the `.sd-rich-text` box and never the editing element; link action visibility re-checked on attach; content-agnostic mode of `RichText.attachEditor` (toolbar profile per mode, no value writes, no source mode, `detach` removes listeners).
 
 ### 13.2 Markup tests — UI packages
 
@@ -661,7 +661,7 @@ Automated: corresponding `editor-model.tests.ts` cases; React markup etalons for
 - [ ] Bulleted/numbered list; Enter adds an item; Enter on an empty item leaves the list.
 - [x] Enter → two `<p>` paragraphs in data; Shift+Enter → `<br>`.
 - [x] Typing `Tom & Jerry` without formatting stores `Tom & Jerry` as typed.
-- [x] Ctrl/Cmd+U does nothing; Ctrl/Cmd+Z undoes the last formatting.
+- [ ] Ctrl/Cmd+U applies underline; Ctrl/Cmd+Z undoes the last formatting.
 - [x] `c_md` updates the value on blur; `c_typing` updates while typing (event log).
 - [x] Focus and leave `c_md` without typing → no new entry in the event log.
 - [ ] Clear formatting removes marks and turns list items into paragraphs.

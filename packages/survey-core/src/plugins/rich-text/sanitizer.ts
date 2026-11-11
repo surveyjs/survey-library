@@ -19,7 +19,7 @@ interface ListBlock {
 type Block = Para | ListBlock;
 
 const DROPPED = new Set(["script", "style", "iframe", "object", "embed", "template", "noscript"]);
-const ALLOWED = new Set(["b", "strong", "i", "em", "s", "strike", "del", "a", "ul", "ol", "li", "p", "div", "br"]);
+const ALLOWED = new Set(["b", "strong", "i", "em", "u", "s", "strike", "del", "a", "ul", "ol", "li", "p", "div", "br"]);
 const BLOCK_UNKNOWN = new Set([
   "address", "article", "aside", "blockquote", "caption", "dd", "dl", "dt", "fieldset", "figcaption", "figure",
   "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "legend", "main", "nav", "pre",
@@ -121,6 +121,7 @@ function walk(node: Node, builder: Builder): void {
   }
   if (tag === "b" || tag === "strong") return withMark(builder, "strong", () => walkChildren(el, builder));
   if (tag === "i" || tag === "em") return withMark(builder, "em", () => walkChildren(el, builder));
+  if (tag === "u") return withMark(builder, "u", () => walkChildren(el, builder));
   if (tag === "s" || tag === "strike" || tag === "del") return withMark(builder, "s", () => walkChildren(el, builder));
   if (tag === "a") return walkLink(el, builder);
   if (tag === "p" || tag === "div") {
@@ -145,7 +146,7 @@ function walkChildren(el: HTMLElement, builder: Builder): void {
   for (let i = 0; i < el.childNodes.length; i++) walk(el.childNodes[i], builder);
 }
 
-function withMark(builder: Builder, key: "strong" | "em" | "s", run: () => void): void {
+function withMark(builder: Builder, key: "strong" | "em" | "u" | "s", run: () => void): void {
   const prev = builder.marks[key];
   builder.marks[key] = true;
   run();

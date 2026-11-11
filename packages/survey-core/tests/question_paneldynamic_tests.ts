@@ -2342,6 +2342,73 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.panels[1].state, "panelsState = 'default', the second panel has default state").toBe("default");
   });
 
+  test("collapsed panel shows Panel N when the template title is empty", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        panelsState: "collapsed",
+        templateTitle: "{panel.q1}",
+        templateElements: [{ type: "text", name: "q1" }]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels[0].locTitle.textOrHtml, "empty template title, #1").toBe("Panel 1");
+    expect(panel.panels[1].locTitle.textOrHtml, "empty template title, #2").toBe("Panel 2");
+    panel.panels[0].getQuestionByName("q1").value = "Alpha";
+    expect(panel.panels[0].locTitle.textOrHtml, "the entered value replaces the fallback").toBe("Alpha");
+    expect(panel.panels[1].locTitle.textOrHtml, "the other panel stays on the fallback").toBe("Panel 2");
+    panel.panels[0].getQuestionByName("q1").clearValue();
+    expect(panel.panels[0].locTitle.textOrHtml, "clearing the value brings the fallback back").toBe("Panel 1");
+    panel.panelsState = "expanded";
+    expect(panel.panels[0].locTitle.textOrHtml, "expanded uses the same fallback").toBe("Panel 1");
+    panel.panelsState = "default";
+    expect(panel.panels[0].locTitle.textOrHtml, "without collapse the empty title stays empty").toBeFalsy();
+  });
+  test("collapsed panel keeps a template title that has text around an empty value", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        panelsState: "collapsed",
+        templateTitle: "Name: {panel.q1}",
+        templateElements: [{ type: "text", name: "q1" }]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels[0].locTitle.textOrHtml, "the prefix stays").toBe("Name: ");
+    panel.panels[1].getQuestionByName("q1").value = "Beta";
+    expect(panel.panels[1].locTitle.textOrHtml, "the value is shown").toBe("Name: Beta");
+  });
+  test("collapsed panel treats a whitespace-only template title as empty", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        panelsState: "firstExpanded",
+        templateTitle: "{panel.first} {panel.last}",
+        templateElements: [
+          { type: "text", name: "first" },
+          { type: "text", name: "last" }
+        ]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels[0].state, "the first panel is expanded").toBe("expanded");
+    expect(panel.panels[1].state, "the second panel is collapsed").toBe("collapsed");
+    expect(panel.panels[0].locTitle.textOrHtml, "expanded empty title").toBe("Panel 1");
+    expect(panel.panels[1].locTitle.textOrHtml, "collapsed empty title").toBe("Panel 2");
+    panel.panels[1].getQuestionByName("last").value = "Lee";
+    expect(panel.panels[1].locTitle.textOrHtml, "a value in the template is shown").toBe(" Lee");
+    panel.addPanel();
+    expect(panel.panels[2].locTitle.textOrHtml, "a new panel gets the next number").toBe("Panel 3");
+    panel.removePanel(0);
+    expect(panel.panels[0].locTitle.textOrHtml, "indexes follow the panels that remain").toBe(" Lee");
+    expect(panel.panels[1].locTitle.textOrHtml, "the added panel is renumbered").toBe("Panel 2");
+  });
   test("matrixDynamic.panelsState and not panel.title", () => {
     var panel = new QuestionPanelDynamicModel("panel");
     panel.template.addNewQuestion("text", "q1");

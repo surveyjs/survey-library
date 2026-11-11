@@ -3236,6 +3236,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   private createNewPanelCore(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
+    /* Collapse shows the header. A template title that processes to nothing still needs one,
+       the same text the tabs use by default: "Panel {panelIndex}". */
+    this.setCollapsedTitleFallback(panel);
     var json = this.getNewPanelJson();
     // The panel runs no templateVisibleIf of its own while the records decide it (areRecordsDecidingVisibility).
     if (this.areRecordsDecidingVisibility) {
@@ -3278,6 +3281,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     if (position < 0) return;
     this.setItemRecordVisible(this.getRecordIndexAtCreatedPosition(position), panel.visible);
+  }
+  private setCollapsedTitleFallback(panel: PanelModel): void {
+    panel.locTitle.onGetTextCallback = (text: string): string => {
+      if (panel.state === "default" || !Helpers.isValueEmpty(text, true)) return text;
+      const fallback = this.getCollapsedPanelTitle(panel);
+      return !Helpers.isValueEmpty(fallback, true) ? fallback : panel.name;
+    };
+  }
+  private getCollapsedPanelTitle(panel: PanelModel): string {
+    const format = this.getLocalizationString("panelDynamicTabTextFormat");
+    return !!format ? panel.getProcessedText(format) : "";
   }
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();

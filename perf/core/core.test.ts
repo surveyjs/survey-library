@@ -4,6 +4,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { runnerRoot } from "../harness/node/build.ts";
+import { resultSchema } from "../manifest.ts";
 
 // 01 check 8 extended to the core entry points (02): run.ts and scenario-process.ts load in plain Node with nothing
 // on stderr, and write a result file of 00's format.
@@ -18,18 +19,30 @@ describe("the core runner", () => {
     expect(res.stderr).toBe("");
     expect(res.status).toBe(0);
     const result = JSON.parse(fs.readFileSync(file, "utf8"));
-    expect(result.schema).toBe(1);
+    expect(result.schema).toBe(resultSchema);
     expect(result.suite).toBe("core");
     expect(result.requested).toEqual({ only: ["calculations/load/model", "large/load/model"], notInSuite: [] });
     expect(result.results.map((r: any) => r.id)).toEqual(["calculations/load/model", "large/load/model"]);
     const r = result.results[0];
     expect(r.samples.length).toBeGreaterThanOrEqual(5);
     expect(r.median).toBeGreaterThan(0);
-    expect(Object.keys(r.calibration)).toEqual(["median", "before", "after"]);
+    expect("calibration" in r).toBe(false);
     expect(r.counters.expressionRuns.kind).toBe("work");
     expect(result.fixtures.calculations.hash).toMatch(/^[0-9a-f]{40}$/);
     expect(result.machine.key).toMatch(/^[a-z0-9.-]+$/);
     expect(result.failed).toEqual([]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+  test("run.ts refuses PERF_ONLY=calibration as an id in no suite, and writes no result file", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "perf-core-"));
+    const file = path.join(dir, "core.json");
+    const res = spawnSync(process.execPath, [path.join(runnerRoot, "perf", "core", "run.ts")], {
+      encoding: "utf8",
+      env: Object.assign({}, process.env, { PERF_ONLY: "calibration", PERF_RESULT_FILE: file, PERF_CORE_DIR: "" })
+    });
+    expect(res.status).not.toBe(0);
+    expect(res.stderr).toMatch(/PERF_ONLY names ids that are in no suite: calibration/);
+    expect(fs.existsSync(file)).toBe(false);
     fs.rmSync(dir, { recursive: true, force: true });
   });
   test("extra/* is exempt from the warning rule (D03): an invalid expression is counted, not a failure", () => {

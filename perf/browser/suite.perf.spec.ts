@@ -1,11 +1,10 @@
 import { test, chromium } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
-import { splitOnly, isCalibrationOnly } from "../harness/ids.ts";
+import { splitOnly } from "../harness/ids.ts";
 import { scenarioById } from "../scenarios/index.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { readEnv } from "../harness/node/env.ts";
 import { summarize, median } from "../harness/stats.ts";
-import { calibrationResult } from "../harness/calibration.ts";
 import { sampleLoop } from "../harness/sample.ts";
 import type { ResultEntry } from "../harness/node/result.ts";
 import { suiteOf, resolveUrl, uiPackage } from "./paths.ts";
@@ -15,9 +14,7 @@ import { suiteOf, resolveUrl, uiPackage } from "./paths.ts";
 // host fails at once (B01).
 const suite = suiteOf();
 const env = readEnv();
-// PERF_ONLY=calibration: only the "calibration" test, the spacer between two reruns of a single suspect.
-const calibrationOnly = isCalibrationOnly(env.only);
-const split = calibrationOnly ? { run: [], notInSuite: [] } : splitOnly(env.only, suite);
+const split = splitOnly(env.only, suite);
 const pageUrl = "http://perf.local/page/" + uiPackage[suite].page;
 // maxMs 5 s (8 s before 2026-11-10), for action scenarios too: see scenario-process.ts.
 const loadOptions = { samples: 7, maxMs: 5000, minSamples: 5 };
@@ -66,7 +63,7 @@ function entryOf(id: string, r: any, samples: Array<number>, phases: any): Resul
     }
   }
   const entry: ResultEntry = { id: id, rev: r.rev, unit: "ms", samples: samples.map((v: number) => Math.round(v * 100) / 100), median: stats.median,
-    min: stats.min, max: stats.max, mad: stats.mad, calibration: r.calibration, phases: ph, counters: r.counters, info: r.info,
+    min: stats.min, max: stats.max, mad: stats.mad, phases: ph, counters: r.counters, info: r.info,
     jsonErrors: r.jsonErrors, tolerance: r.tolerance === undefined ? null : r.tolerance, local: false };
   if (r.repeat) entry.repeat = r.repeat;
   if (r.counterOnly) entry.counterOnly = true;
@@ -88,24 +85,14 @@ async function runAction(id: string, fixture: any): Promise<any> {
   }
 }
 
-// A load scenario: Node runs the sample loop; each sample is a new context, a page and one evaluate. Calibration
-// runs in a fresh page of its own before the first sample and after the last.
+// A load scenario: Node runs the sample loop; each sample is a new context, a page and one evaluate, and so is the
+// counter run.
 async function runLoad(id: string, fixture: any): Promise<any> {
-  let calibrationPage: { context: BrowserContext, page: Page } | undefined;
   let skipped = "";
   let last: any = {};
   const longTasks: Array<number> = [];
-  const closeCalibration = async(): Promise<void> => {
-    if (calibrationPage) await calibrationPage.context.close();
-    calibrationPage = undefined;
-  };
   const res = await sampleLoop({
-    calibrate: async(): Promise<number> => {
-      if (!calibrationPage) calibrationPage = await openPage();
-      return calibrationPage.page.evaluate(() => (window as any).PerfPage.calibrate());
-    },
     sample: async(): Promise<any> => {
-      await closeCalibration();
       if (skipped) return { ms: 0 };
       const { context, page } = await openPage();
       try {
@@ -130,33 +117,13 @@ async function runLoad(id: string, fixture: any): Promise<any> {
       }
     }
   }, { warmup: 0, samples: loadOptions.samples, maxMs: loadOptions.maxMs, minSamples: loadOptions.minSamples, now: () => performance.now() });
-  await closeCalibration();
   if (skipped) return { skipped: skipped };
-  const r = Object.assign({}, last, { calibration: calibrationResult(res.calibrationBefore, res.calibrationAfter), counters: res.counters,
+  const r = Object.assign({}, last, { counters: res.counters,
     info: { kept: res.samples.length, warmups: 0, wallMs: Math.round(res.wallMs), longTaskMs: longTasks.length ? median(longTasks) : 0, heapMB: last.heapMB } });
   return { entry: entryOf(id, r, res.samples, res.phases) };
 }
 
-if (calibrationOnly) {
-  test("calibration", async() => {
-    const { context, page } = await openPage();
-    try {
-      const samples = await page.evaluate(() => {
-        const P = (window as any).PerfPage;
-        const res: Array<number> = [];
-        const start = performance.now();
-        while(res.length < 5 || performance.now() - start < 3000) res.push(P.calibrate());
-        return res;
-      });
-      console.log("calibration only: median " + Math.round(median(samples) * 100) / 100 + " ms, " + samples.length + " samples");
-    } finally {
-      await context.close();
-    }
-  });
-}
-
 test("environment", async({ browserName }, testInfo: any) => {
-  test.skip(calibrationOnly, "calibration only");
   const { context, page } = await openPage();
   try {
     const probe = await page.evaluate(() => (window as any).PerfPage.nextPageProbe());

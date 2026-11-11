@@ -75,23 +75,6 @@ export const SCENARIO_IDS: ReadonlyArray<ScenarioIdInfo> = Array.from(new Set(co
   return { id: id, suites: suites };
 });
 
-// Remedy 2 of 00, Budgets: when a suite is over budget, drop scenarios from the end of this list first.
-export const DROP_LIST: ReadonlyArray<string> = [
-  "records-1k/records/sort-1@ordersPanel",
-  "records-10k/records/filter-change@orders",
-  "large/output/dispose",
-  "complexLogic/output/dispose",
-  "records-10k/records/prev@orders"
-];
-
-// PERF_ONLY=calibration: one calibration-only process, the spacer between the two reruns of a single suspect (04,
-// Rerun spacing). It writes no result file.
-export const CALIBRATION_ONLY = "calibration";
-
-export function isCalibrationOnly(only: ReadonlyArray<string> | null): boolean {
-  return !!only && only.length === 1 && only[0] === CALIBRATION_ONLY;
-}
-
 export function isExtraId(id: string): boolean {
   return id.indexOf("extra/") === 0;
 }

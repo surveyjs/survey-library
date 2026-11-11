@@ -2583,7 +2583,7 @@ export class SurveyModel extends SurveyElementCore
   @property() logoPosition: string;
   // The same value that the header renders into the image's src, so that visibility and src
   // cannot disagree: dynamic text that resolves to an empty string means there is no image.
-  private get hasLogoImage(): boolean {
+  protected get hasLogoImage(): boolean {
     return !!this.locLogo.renderedHtml;
   }
   public get hasLogo(): boolean {

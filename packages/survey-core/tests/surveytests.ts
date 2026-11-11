@@ -12370,7 +12370,7 @@ describe("Survey", () => {
     const survey = new SurveyModel({ logo: "{unknown}" });
     expect(survey.locLogo.renderedHtml).toBe("{unknown}");
     expect(survey.hasLogo).toBeTruthy();
-    expect(survey["isLogoImageChoosen"]()).toBe(true);
+    expect(survey["hasLogoImage"]).toBe(true);
   });
 
   test("Survey hasLogo & dynamic text in logo, a question value, logoPosition none", () => {

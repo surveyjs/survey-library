@@ -2,68 +2,22 @@ import type { IQuestion, IElement, IPanel, ISurvey, ISurveyImpl, ISurveyData, IS
 import type { Base } from "./base";
 import type { PanelModelBase } from "./panel";
 import type { IExpressionVariableInfo } from "./survey";
-import type { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
-import { ValueGetterContextCore } from "./conditions/conditionProcessValue";
+import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
-import { Helpers, HashTable } from "./helpers";
-import { settings } from "./settings";
+import type { DataNestingPlace } from "./data-nesting-key";
+import { Helpers } from "./helpers";
+import { IDataScope, DataKeyIndex, DataScopeWalk, IDataScopeLookup, IndexedDataScopeLookup, WalkingDataScopeLookup,
+  getElementDataScope, isKnownDataKey } from "./data-key-index";
+import { ObjectKeyKind, asScopeObject, setObjectKey } from "./data-object-utils";
+import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
 
-// Where a container is for nested data, found by ContainerDataNesting.getPlace:
-//   "survey": on the survey's data (or in a nesting container on it); the dataNesting table applies (N3);
-//   "record": a panel inside a dynamic panel's or a matrix detail panel's record, at any depth: it nests under
-//   its valueName only, and "none" switches it off (RN3);
-//   "template": a panel inside such a record's template (the designer's dynamic panel template, a matrix's
-//   detail panel template): it never nests there, its valueName applies to the records built from it;
-//   "": never - a record panel itself (RN6), a composite's content panel and the panels in it (N5).
-export type DataNestingPlace = "survey" | "record" | "template" | "";
-// The kind of container the dataNesting table looks up: "panel" or "page" on the survey's data, "record" for a
-// panel inside a record, "" for a container that never nests.
-export type DataNestingKind = "panel" | "page" | "record" | "";
-// The kind the table looks up for a container of containerKind at place. A template panel never nests itself,
-// while the records built from it nest a panel under its valueName: forRecords asks for that key instead (the
-// Creator asks it before a rename, on the template).
-export function getDataNestingKindAt(place: DataNestingPlace, containerKind: DataNestingKind, forRecords: boolean): DataNestingKind {
-  if (place === "survey") return containerKind;
-  return place === "record" || place === "template" && forRecords ? "record" : "";
-}
-// What holds a panel at the top of a container chain answers where the panels in it keep their values: the
-// question the panel is a template or a record panel of (a dynamic panel, a matrix), or the panel's data (a
-// record item, a nesting scope, a composite). The place detection asks it, so a new container-like question
-// implements it instead of adding a branch to the panel.
-export interface IDataNestingPlaceOwner {
-  // The place of the panels inside panel; undefined when panel is not one this object holds. A question is asked
-  // about the panels it is the design owner or the parent question of; a panel's data only about a panel at the
-  // top of a chain, so it may answer without checking the panel.
-  getChildDataNestingPlace(panel: IPanel): DataNestingPlace;
-  // A record item: the records question of the panels it is the data of. A question that answers "template" is the
-  // records question itself and needs no such member.
-  getRecordsQuestion?(): Question;
-}
-export function getDataNestingPlaceOwner(obj: any): IDataNestingPlaceOwner {
-  return !!obj && typeof obj.getChildDataNestingPlace === "function" ? <IDataNestingPlaceOwner>obj : undefined;
-}
-
-// The dataNesting modes that nest a container without a valueName under its name, and the container
-// kinds each applies to (decisions N3).
-const byNameModes: { [mode: string]: Array<string> } = {
-  panel: ["panel"],
-  page: ["page"],
-  panelAndPage: ["panel", "page"]
-};
-// The rule of decisions N3: the key a container stores its elements' values under, or "" when it does
-// not nest. kind is "panel" or "page", "record" for a panel inside a dynamic panel's or a detail panel's
-// record, "" for a container that never nests (the single-page container, a record panel itself, a
-// composite's content).
-//   "none": never; "auto" (and an unknown mode): under valueName;
-//   "panel" / "page" / "panelAndPage": under valueName, else name for the containers of that kind.
-// No by-name mode lists "record": inside a record only an explicit valueName nests (RN3). Where a container
-// is, is the owner's: PanelModelBase.getDataScopeKey().
-export function getDataNestingKey(dataNesting: string, kind: string, valueName: string, name: string): string {
-  if (dataNesting === "none" || !kind) return "";
-  if (!!valueName) return valueName;
-  const kinds = byNameModes[dataNesting];
-  return !!kinds && kinds.indexOf(kind) > -1 ? name || "" : "";
-}
+// The nested-data module is split by what changes together:
+//   data-nesting-key.ts: the dataNesting rule (getDataNestingKey) and the place types;
+//   data-key-index.ts: a scope's key index and the two ways a scope looks its keys up;
+//   record-key-level.ts: the static keys of the records a template builds;
+//   data-object-utils.ts: plain-object paths and the keep-empty rule;
+//   data-scope-contexts.ts / data-scope-metadata.ts: the expression contexts and the design-time chain;
+//   this file: the runtime scopes and the survey as their host.
 
 // The panel or page that owns a scope. A type, not an import of PanelModelBase: panel.ts imports this file.
 export interface IPanelDataScopeOwner extends ISurveyDataElement {
@@ -113,234 +67,12 @@ export function getRecordDataScope(data: any): ObjectDataScope {
 // or a scope); null inside a record (a dynamic panel's item, a matrix row): a record item removes every empty
 // value, and records are a survey-settings follow-up, so a nesting container or a composite inside one keeps
 // none either. The walk goes up through the scopes and through a custom question (its content's data).
+// Here and not with the object utilities: it tells the scopes apart.
 export function getEmptyValuesSurvey(data: any, survey: ISurvey): ISurvey {
   while(data instanceof PanelDataScope || !!data && data.isQuestion === true) {
     data = data instanceof PanelDataScope ? data.parentData : data.data;
   }
   return data instanceof ObjectDataScope ? null : survey;
-}
-// A key's value as a scope's object: an object, not an array; undefined for another value.
-export function asScopeObject(val: any): any {
-  return !!val && typeof val === "object" && !Array.isArray(val) ? val : undefined;
-}
-// The scope of an index entry that is a container; null for a question.
-export function getElementDataScope(el: ISurveyDataElement): PanelDataScope {
-  return !el.isQuestion ? (<IPanelDataScopeOwner>el).getDataScope() : null;
-}
-
-// A data scope (decisions R6): the survey, the root, or an active PanelDataScope. Its elements' values are
-// keys of its data, found through its index; getDataPath() gives the keys from the survey data down to it.
-export interface IDataScope {
-  getDataKeyIndex(): DataKeyIndex;
-  getDataPath(): Array<string>;
-  getValue(name: string): any;
-  getComment(name: string): string;
-  // The unknown-key rule (D6): clearIncorrectValues(true) keeps a known key, setData() reports another.
-  isKnownKey(key: string): boolean;
-}
-// A key an element of the index owns, or a question's comment or totals key: the part of the unknown-key
-// rule every scope shares.
-export function isKnownDataKey(index: DataKeyIndex, key: string): boolean {
-  if (index.getElements(key).length > 0) return true;
-  return [settings.commentSuffix, settings.matrix.totalsSuffix].some(suffix =>
-    !!suffix && key.endsWith(suffix) && index.getQuestions(key.substring(0, key.length - suffix.length)).length > 0);
-}
-
-const noElements: Array<any> = Object.freeze(<Array<any>>[]) as Array<any>;
-// One kind of element under its keys, exact and lower-case. Null-prototype hashes (Bug#11858).
-class DataKeyHash {
-  private exact: HashTable<Array<ISurveyDataElement>> = Object.create(null);
-  private lower: HashTable<Array<ISurveyDataElement>> = Object.create(null);
-  public add(key: string, el: ISurveyDataElement): void {
-    DataKeyHash.addTo(this.exact, key, el);
-    DataKeyHash.addTo(this.lower, key.toLowerCase(), el);
-  }
-  public remove(key: string, el: ISurveyDataElement): void {
-    DataKeyHash.removeFrom(this.exact, key, el);
-    DataKeyHash.removeFrom(this.lower, key.toLowerCase(), el);
-  }
-  // The list as stored, or a shared empty one: callers only read it.
-  public get(key: string, caseInsensitive?: boolean): Array<ISurveyDataElement> {
-    if (!key) return noElements;
-    return (caseInsensitive ? this.lower[key.toLowerCase()] : this.exact[key]) || noElements;
-  }
-  private static addTo(hash: HashTable<Array<ISurveyDataElement>>, key: string, el: ISurveyDataElement): void {
-    const list = hash[key];
-    if (!list) {
-      hash[key] = [el];
-    } else if (list.indexOf(el) < 0) {
-      list.push(el);
-    }
-  }
-  private static removeFrom(hash: HashTable<Array<ISurveyDataElement>>, key: string, el: ISurveyDataElement): void {
-    const list = hash[key];
-    const index = !!list ? list.indexOf(el) : -1;
-    if (index < 0) return;
-    list.splice(index, 1);
-    if (list.length === 0) delete hash[key];
-  }
-}
-
-// The keys of one data scope and the elements that own them (decisions R2): the questions whose value
-// scope it is, under their value name, and the active containers directly inside it, under their key. Two
-// elements may share a key (D4). A key is found exact or lower-case; for one key the questions come first.
-// A scope's index is built by a walk (add): elements keeps document order. The survey's root index uses
-// addKey only and leaves elements empty: its questions are added and removed one by one (removeKey) and,
-// once a container nests, synced with the pages after the data shape changed; its containers are added again
-// after clearContainers() then.
-export class DataKeyIndex {
-  private questions = new DataKeyHash();
-  private containers = new DataKeyHash();
-  public readonly elements: Array<ISurveyDataElement> = [];
-  public add(key: string, el: ISurveyDataElement): void {
-    this.elements.push(el);
-    this.addKey(key, el);
-  }
-  public addKey(key: string, el: ISurveyDataElement): void {
-    if (!key) return;
-    this.getHash(el).add(key, el);
-  }
-  public removeKey(key: string, el: ISurveyDataElement): void {
-    if (!key) return;
-    this.getHash(el).remove(key, el);
-  }
-  public clearQuestions(): void {
-    this.questions = new DataKeyHash();
-  }
-  public clearContainers(): void {
-    this.containers = new DataKeyHash();
-  }
-  private getHash(el: ISurveyDataElement): DataKeyHash {
-    return el.isQuestion ? this.questions : this.containers;
-  }
-  public getElements(key: string, caseInsensitive?: boolean): Array<ISurveyDataElement> {
-    const questions = this.questions.get(key, caseInsensitive);
-    const containers = this.containers.get(key, caseInsensitive);
-    return containers.length === 0 ? questions : questions.concat(containers);
-  }
-  // The list as stored: read it, do not change it.
-  public getQuestions(key: string, caseInsensitive?: boolean): Array<Question> {
-    return <Array<Question>><any>this.questions.get(key, caseInsensitive);
-  }
-  public getScopes(key: string, caseInsensitive?: boolean): Array<PanelDataScope> {
-    return this.containers.get(key, caseInsensitive).map(el => getElementDataScope(el));
-  }
-}
-
-// The keys of one level of the records a template builds (RN3): its questions under their value names and its
-// nesting panels under their keys (PanelModelBase.getRecordDataNestingKey), each with the level of its own
-// keys. Built from the elements whatever they are attached to: a dynamic panel's template, a matrix's detail
-// panel template, or the panel of one record. The owner-level rules of the records read it.
-export class RecordKeyLevel {
-  public readonly index = new DataKeyIndex();
-  private levels = new Map<ISurveyDataElement, RecordKeyLevel>();
-  constructor(elements: Array<IElement>) {
-    this.addElements(elements);
-  }
-  private addElements(elements: Array<IElement>): void {
-    (elements || []).forEach((el: any): void => {
-      if (el.isPanel) {
-        const key = el.getRecordDataNestingKey();
-        if (!key) {
-          this.addElements(el.elements);
-        } else {
-          this.index.add(key, el);
-          this.levels.set(el, new RecordKeyLevel(el.elements));
-        }
-      } else if (el.isQuestion) {
-        this.index.add(el.getValueName(), el);
-      }
-    });
-  }
-  // The levels of the nesting panels on a key: panels sharing a key share its object (D4).
-  public getLevels(key: string, caseInsensitive?: boolean): Array<RecordKeyLevel> {
-    return this.index.getElements(key, caseInsensitive).filter(el => !el.isQuestion).map(el => this.levels.get(el));
-  }
-  public getQuestion(key: string, caseInsensitive?: boolean): Question {
-    return this.index.getQuestions(key, caseInsensitive)[0] || undefined;
-  }
-  public isKnownKey(key: string): boolean {
-    return isKnownDataKey(this.index, key);
-  }
-  // The paths of the keys no element of the levels knows inside the objects of obj's nesting keys:
-  // [["address", "foo"]]. obj's own keys are the owner's rule (isRecordKeyUnknown).
-  public getNestedUnknownPaths(obj: any): Array<Array<string>> {
-    const res: Array<Array<string>> = [];
-    const collect = (levels: Array<RecordKeyLevel>, val: any, path: Array<string>): void => {
-      const inner = asScopeObject(val);
-      if (!inner) return;
-      Object.keys(inner).forEach(key => {
-        const next: Array<RecordKeyLevel> = [];
-        levels.forEach(level => next.push(...level.getLevels(key)));
-        if (next.length > 0) {
-          collect(next, inner[key], path.concat([key]));
-        } else if (!levels.some(level => level.isKnownKey(key))) {
-          res.push(path.concat([key]));
-        }
-      });
-    };
-    const record = asScopeObject(obj);
-    if (!!record) {
-      Object.keys(record).forEach(key => {
-        const levels = this.getLevels(key);
-        if (levels.length > 0) collect(levels, record[key], [key]);
-      });
-    }
-    return res;
-  }
-}
-// Whether a panel among the elements, at any depth, nests in the records built from them (RN3).
-export function hasRecordDataNesting(elements: Array<IElement>): boolean {
-  return (elements || []).some((el: any): boolean => el.isPanel && (!!el.getRecordDataNestingKey() || hasRecordDataNesting(el.elements)));
-}
-// Removes the keys at the paths from obj, in place, copying the objects on the way; an object that becomes
-// empty goes too (D6).
-export function deleteObjectPaths(obj: any, paths: Array<Array<string>>): void {
-  paths.forEach(path => {
-    const objects: Array<any> = [obj];
-    let cur = obj;
-    for (let i = 0; i < path.length - 1; i++) {
-      const next = asScopeObject(cur[path[i]]);
-      if (!next) return;
-      cur = cur[path[i]] = Object.assign({}, next);
-      objects.push(cur);
-    }
-    delete cur[path[path.length - 1]];
-    for (let i = objects.length - 1; i > 0; i--) {
-      if (Object.keys(objects[i]).length > 0) break;
-      delete objects[i - 1][path[i - 1]];
-    }
-  });
-}
-
-// What a key of an object holds, for data.keepEmptyValues (decisions K1-K3): "value" a question's value,
-// "comment" a comment key (never kept, K2), "container" the object of a nesting container inside (K3).
-export type ObjectKeyKind = "value" | "comment" | "container";
-// K3: with data.keepEmptyValues on, a container's object is removed only when it has no keys left. One that
-// still has keys stays, even deep empty ({ street: "" }) and in a system clear. undefined when the rule does
-// not apply (no survey, the key off, or the value is no object): the caller's own rule decides. The survey asks
-// it for a root container's key, an outer scope for the key of a container inside it.
-export function isContainerObjectKept(survey: ISurvey, value: any): boolean {
-  const obj = asScopeObject(value);
-  if (!obj || !survey || !survey.getSettings().data.keepEmptyValues) return undefined;
-  return Object.keys(obj).length > 0;
-}
-function isEmptyObjectKeyKept(value: any, survey: ISurvey, kind: ObjectKeyKind): boolean {
-  if (!survey || kind === "comment") return false;
-  const kept = kind === "container" ? isContainerObjectKept(survey, value) : undefined;
-  return kept !== undefined ? kept : survey.isEmptyValueKept(value);
-}
-// A copy of obj with one key set, or removed when the value is empty. The other keys are kept, including keys
-// no question owns. With a survey, an empty value stays when the survey keeps it (data.keepEmptyValues, K1);
-// without one (no survey, a record) every empty value is removed.
-export function setObjectKey(obj: any, name: string, value: any, survey?: ISurvey, kind: ObjectKeyKind = "value"): any {
-  const res = Object.assign({}, obj);
-  if (Helpers.isValueEmpty(value) && !isEmptyObjectKeyKept(value, survey, kind)) {
-    delete res[name];
-  } else {
-    res[name] = Helpers.getUnbindValue(value);
-  }
-  return res;
 }
 
 // The values of a group of elements kept as keys of one object (decisions N8): a question reads
@@ -354,10 +86,17 @@ export abstract class ObjectDataScope {
   protected abstract getScopeElements(): Array<IElement>;
   // Whether the object holds this question's value (the walk reached it through panels that do not nest).
   protected abstract isScopeQuestion(q: Question): boolean;
-  // The survey's data shape version: an index built at one version is current until the version changes.
-  // undefined builds the index on every read.
-  protected getIndexVersion(): number {
-    return undefined;
+  // How this scope looks its keys up, picked once, on the first lookup. The default walks the elements on
+  // every read: a record item and a composite's content have no data shape version to keep an index by.
+  protected createLookup(walk: DataScopeWalk): IDataScopeLookup {
+    return new WalkingDataScopeLookup(walk);
+  }
+  private lookupValue: IDataScopeLookup;
+  private get lookup(): IDataScopeLookup {
+    if (!this.lookupValue) {
+      this.lookupValue = this.createLookup((add, withKeys) => this.walkScope(add, withKeys));
+    }
+    return this.lookupValue;
   }
   getValue(name: string): any {
     return this.getObjectKey(this.getObject(), name);
@@ -368,21 +107,9 @@ export abstract class ObjectDataScope {
   protected getObjectKey(obj: any, name: string): any {
     return !!obj ? Helpers.getUnbindValue(obj[name]) : undefined;
   }
-  private indexValue: DataKeyIndex;
-  private indexVersion: number;
   // The index of this scope's keys: its questions and the active containers directly inside it.
   public getDataKeyIndex(): DataKeyIndex {
-    const version = this.getIndexVersion();
-    if (!this.indexValue || version === undefined || version !== this.indexVersion) {
-      this.indexValue = this.buildIndex();
-      this.indexVersion = version;
-    }
-    return this.indexValue;
-  }
-  private buildIndex(): DataKeyIndex {
-    const res = new DataKeyIndex();
-    this.walkScope((el: ISurveyDataElement, key: string): void => res.add(key, el), true);
-    return res;
+    return this.lookup.getIndex();
   }
   // The questions whose values this scope's object holds (directly, or through panels that do not nest)
   // and the active containers directly inside it: the one walk of a container's elements, in document order.
@@ -405,37 +132,17 @@ export abstract class ObjectDataScope {
     };
     walk(this.getScopeElements());
   }
-  // The index's elements. A scope whose index is rebuilt on every read (no version) walks without building
-  // the key hashes: the loops read the elements only.
+  // The index's elements: read them, do not change them.
   protected getIndexElements(): Array<ISurveyDataElement> {
-    if (this.getIndexVersion() !== undefined) return this.getDataKeyIndex().elements;
-    const res: Array<ISurveyDataElement> = [];
-    this.walkScope((el: ISurveyDataElement): void => { res.push(el); }, false);
-    return res;
+    return this.lookup.getElements();
   }
-  // The index's questions on a key, as a new array. A scope with no version compares the keys during one walk
-  // and builds no hashes: a record item answers every {row.x} / {panel.x} this way.
+  // The index's questions on a key, as a new array.
   protected getIndexQuestions(name: string, caseInsensitive?: boolean): Array<Question> {
-    if (this.getIndexVersion() !== undefined) return this.getDataKeyIndex().getQuestions(name, caseInsensitive).slice();
-    const res: Array<Question> = [];
-    if (!name) return res;
-    const key = caseInsensitive ? name.toLowerCase() : name;
-    this.walkScope((el: ISurveyDataElement, elKey: string): void => {
-      if (el.isQuestion && !!elKey && (caseInsensitive ? elKey.toLowerCase() : elKey) === key) res.push(<Question>el);
-    }, true);
-    return res;
+    return this.lookup.getQuestions(name, caseInsensitive);
   }
-  // The active scopes directly inside this one on a key. A scope with no version compares the keys during one
-  // walk, as getIndexQuestions does.
+  // The active scopes directly inside this one on a key.
   protected getIndexScopes(name: string, caseInsensitive?: boolean): Array<PanelDataScope> {
-    if (this.getIndexVersion() !== undefined) return this.getDataKeyIndex().getScopes(name, caseInsensitive);
-    const res: Array<PanelDataScope> = [];
-    if (!name) return res;
-    const key = caseInsensitive ? name.toLowerCase() : name;
-    this.walkScope((el: ISurveyDataElement, elKey: string): void => {
-      if (!el.isQuestion && !!elKey && (caseInsensitive ? elKey.toLowerCase() : elKey) === key) res.push(getElementDataScope(el));
-    }, true);
-    return res;
+    return this.lookup.getScopes(name, caseInsensitive);
   }
   // The questions read their values from the stored object again; the scopes inside follow.
   public updateValuesFromData(): void {
@@ -509,11 +216,27 @@ export abstract class ObjectDataScope {
 // once it has had a key, and switching nesting on or off does not re-attach its elements.
 export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISurveyData, IObjectValueContext, IDataScope {
   private parentImpl: ISurveyImpl;
+  // The owner's key, read once per data shape version: every read and write asks for it, often more than once.
+  // It changes with the owner's valueName or name (the owner attaches again: resetKey), with where the owner
+  // is attached (resetKey too) and with the survey's dataNesting. A dataNesting change re-attaches the
+  // containers on the survey's data, not a panel inside a record, whose key follows the mode ("none" switches
+  // it off): the shape version, which the change moves, covers it.
+  private keyValue: string;
+  private keyVersion: number;
   constructor(public readonly owner: IPanelDataScopeOwner) {
     super();
   }
   public get key(): string {
-    return this.owner.getDataScopeKey();
+    const version = getDataShapeVersion(this.getSurvey());
+    if (this.keyValue === undefined || version === undefined || version !== this.keyVersion) {
+      this.keyValue = this.owner.getDataScopeKey();
+      this.keyVersion = version;
+    }
+    return this.keyValue;
+  }
+  // The owner was attached again: its key is read again on the next use.
+  public resetKey(): void {
+    this.keyValue = undefined;
   }
   public get isActive(): boolean {
     return !!this.key;
@@ -636,8 +359,8 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
   }
   // The index of this active scope's keys is built on its first read after the survey's data shape changed
   // (SurveyModel.dataShapeChanged()): shape changes are rare, and every write reads it.
-  protected getIndexVersion(): number {
-    return getDataShapeVersion(this.getSurvey());
+  protected createLookup(walk: DataScopeWalk): IDataScopeLookup {
+    return new IndexedDataScopeLookup(walk, () => getDataShapeVersion(this.getSurvey()));
   }
   protected getScopeElements(): Array<IElement> {
     return this.isActive ? this.owner.elements : [];
@@ -656,197 +379,4 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     }
     return false;
   }
-}
-
-// The name step of a context over the keys of one data level, ignoring letter case: a question of the level
-// (by value name; an empty question still answers), then an inner level (by key), then, for a comment key
-// ({kind-Comment}), the comment a question of the level stores. The metadata mode (getQuestionByVariable)
-// gives the question instead of the comment. A scope's context (PanelDataScopeValueGetterContext) and a
-// records template's level (RecordKeyLevelValueGetterContext) share it.
-abstract class DataLevelValueGetterContext extends ValueGetterContextCore {
-  protected isSearchNameRevert(): boolean { return true; }
-  protected abstract findQuestion(name: string): Question;
-  protected abstract findInnerContext(name: string): IValueGetterContext;
-  protected abstract getCommentValue(owner: Question): any;
-  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const postfix = settings.expressionVariables.unwrapPostfix;
-    if (!!postfix && name.endsWith(postfix)) {
-      name = name.substring(0, name.length - postfix.length);
-      if (res.isMetadata) res.isUnwrapped = true;
-    }
-    const question = this.findQuestion(name);
-    if (!!question) {
-      res.isFound = true;
-      res.obj = question;
-      res.context = question.getValueGetterContext();
-      return;
-    }
-    const inner = this.findInnerContext(name);
-    if (!!inner) {
-      res.isFound = true;
-      res.context = inner;
-      return;
-    }
-    const baseName = getNameOfCommentName(name);
-    const owner = !!baseName ? this.findQuestion(baseName) : null;
-    if (!!owner) {
-      // The stored comment, as a top-level {q-Comment} reads the raw data key; the metadata mode names the
-      // question instead.
-      res.isFound = true;
-      if (res.isMetadata) {
-        res.obj = owner;
-        res.isComment = true;
-        return;
-      }
-      res.value = this.getCommentValue(owner);
-    }
-  }
-}
-
-// The expression context of the active scopes that share one key (D4, one scope unless two containers
-// share it), with DataLevelValueGetterContext's name step. A path with no items left ({address}) gives the
-// stored object.
-// As an inner element's context (the scope's getValueGetterContext) an unanswered name falls back to the
-// parent's context through getRootObj; reached through a path from outside ({address.street}) it answers
-// the rest of the path only, and the survey falls back to the raw data.
-export class PanelDataScopeValueGetterContext extends DataLevelValueGetterContext {
-  constructor(private scopes: Array<PanelDataScope>) {
-    super();
-  }
-  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
-    if (params.path.length === 0) return { isFound: true, value: this.scopes[0].getObjectValue(), context: this };
-    return super.getValue(params);
-  }
-  getRootObj(): IObjectValueContext {
-    return this.scopes[0].parentData;
-  }
-  // The changed names a write reports, as the parent's context gives them: inside a record, the record's
-  // (QuestionRecordItemGetterContext.getContextKeys), so an inner question's {street} re-runs on a write of the
-  // record. The survey's context gives none.
-  getContextKeys(keys?: any): { [key: string]: any } {
-    const root = this.getRootObj();
-    const ctx = root?.getValueGetterContext();
-    return !!ctx && typeof ctx.getContextKeys === "function" ? ctx.getContextKeys(keys) : {};
-  }
-  // The scopes' indexes, letter case ignored: a question of the first scope that has one wins.
-  protected findQuestion(name: string): Question {
-    for (let i = 0; i < this.scopes.length; i++) {
-      const res = this.scopes[i].getDataKeyIndex().getQuestions(name, true);
-      if (res.length > 0) return res[0];
-    }
-    return null;
-  }
-  protected findInnerContext(name: string): IValueGetterContext {
-    const inner: Array<PanelDataScope> = [];
-    this.scopes.forEach(scope => inner.push(...scope.getDataKeyIndex().getScopes(name, true)));
-    return inner.length > 0 ? new PanelDataScopeValueGetterContext(inner) : undefined;
-  }
-  protected getCommentValue(owner: Question): any {
-    return owner.getValueScope().getValue(Helpers.getCommentKey(owner.getValueName()));
-  }
-}
-// The levels a records template's nesting panels build (RecordKeyLevel), as an expression context of the
-// metadata mode at design time: a template's nesting panel has no scope (place "template"), so its keys come
-// from the template's elements. It holds no values. rootObj: where an unanswered name goes on to.
-export class RecordKeyLevelValueGetterContext extends DataLevelValueGetterContext {
-  constructor(private levels: Array<RecordKeyLevel>, private rootObj?: IObjectValueContext) {
-    super();
-  }
-  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
-    if (params.path.length === 0) return { isFound: true, value: undefined, context: this };
-    return super.getValue(params);
-  }
-  getRootObj(): IObjectValueContext {
-    return this.rootObj;
-  }
-  protected findQuestion(name: string): Question {
-    for (let i = 0; i < this.levels.length; i++) {
-      const res = this.levels[i].getQuestion(name, true);
-      if (!!res) return res;
-    }
-    return null;
-  }
-  protected findInnerContext(name: string): IValueGetterContext {
-    const inner: Array<RecordKeyLevel> = [];
-    this.levels.forEach(level => inner.push(...level.getLevels(name, true)));
-    return inner.length > 0 ? new RecordKeyLevelValueGetterContext(inner) : undefined;
-  }
-  protected getCommentValue(owner: Question): any {
-    return undefined;
-  }
-}
-// The metadata mode's start context of an element inside a records template (design time): the element's own
-// context, then the levels of the template's nesting panels around it, innermost first, then the template's
-// record, then the records question's own metadata context (an outer template's levels come after an inner
-// template's record). A matrix's detail panel template has no data: the matrix's design row stands for its
-// record. A matrix column goes on to its matrix's metadata context. The element's own context otherwise.
-// A panel's own expressions run in its parent's scope, so its levels start at its parent; a template panel's
-// own expressions run in its record.
-export function getMetadataValueGetterContext(el: any): IValueGetterContext {
-  const cxt: IValueGetterContext = el.getValueGetterContext();
-  if (!!el.colOwner) return withOwnerRoot(cxt, el.colOwner);
-  const template = isTemplatePanel(el) ? el : getRecordTemplatePanel(el);
-  if (!template) return cxt;
-  const chain = getRecordTemplateKeyLevels(el, template);
-  const record: IObjectValueContext = !el.data ? getDesignRecordObj(template) : (el.isQuestion ?
-    (!!cxt && !!cxt.getRootObj ? cxt.getRootObj() : undefined) : { getValueGetterContext: () => cxt });
-  let root: IObjectValueContext = !record ? record :
-    { getValueGetterContext: () => withOwnerRoot(record.getValueGetterContext(), template.getRecordsOwner()) };
-  for (let i = chain.length - 1; i >= 0; i--) {
-    const levels = chain[i];
-    const next = root;
-    root = { getValueGetterContext: () => new RecordKeyLevelValueGetterContext(levels, next) };
-  }
-  const first = root;
-  if (!el.isQuestion || !cxt) return !!first ? first.getValueGetterContext() : cxt;
-  return { getValue: params => cxt.getValue(params), getRootObj: () => first };
-}
-// A context that goes on, when a name is not found, to the owner's metadata context: each step moves to a
-// records question strictly outside the template, so the chain ends at the survey.
-function withOwnerRoot(cxt: IValueGetterContext, owner: any): IValueGetterContext {
-  if (!cxt || !owner) return cxt;
-  return { getValue: params => cxt.getValue(params),
-    getRootObj: () => ({ getValueGetterContext: () => getMetadataValueGetterContext(owner) }) };
-}
-function isTemplatePanel(panel: any): boolean {
-  return !!panel && typeof panel.isRecordTemplatePanel === "function" && panel.isRecordTemplatePanel();
-}
-// The records template around an element, or null.
-function getRecordTemplatePanel(el: any): any {
-  let panel = el.parent;
-  while(!!panel && !isTemplatePanel(panel)) panel = panel.parent;
-  return panel || null;
-}
-// The record of a template with no data (a matrix's detail panel template): the matrix's design row.
-function getDesignRecordObj(template: any): IObjectValueContext {
-  const owner: any = template.getRecordsOwner();
-  if (!owner || typeof owner.getDesignRowContext !== "function") return undefined;
-  return { getValueGetterContext: () => owner.getDesignRowContext() };
-}
-// The levels of the template's nesting panels around an element, innermost first; empty when no panel around
-// it nests in the records.
-function getRecordTemplateKeyLevels(el: any, template: any): Array<Array<RecordKeyLevel>> {
-  const panels: Array<any> = [];
-  let panel = el === template ? null : el.parent;
-  while(!!panel && panel !== template) {
-    panels.unshift(panel);
-    panel = panel.parent;
-  }
-  const res: Array<Array<RecordKeyLevel>> = [];
-  let levels = [new RecordKeyLevel(template.elements)];
-  for (let i = 0; i < panels.length && levels.length > 0; i++) {
-    const key = panels[i].getRecordDataNestingKey();
-    if (!key) continue;
-    const next: Array<RecordKeyLevel> = [];
-    levels.forEach(level => next.push(...level.getLevels(key)));
-    levels = next;
-    if (levels.length > 0) res.unshift(levels);
-  }
-  return res;
-}
-// The value name a comment key names, ignoring letter case ({Kind-comment} -> "Kind"); "" for another name.
-export function getNameOfCommentName(name: string): string {
-  const suffix = settings.commentSuffix;
-  if (!suffix || name.length <= suffix.length) return "";
-  return name.toLowerCase().endsWith(suffix.toLowerCase()) ? name.substring(0, name.length - suffix.length) : "";
 }

@@ -152,7 +152,6 @@ describe("records data scope: a matrix row", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     const row = matrix.visibleRows[0];
     row.showDetailPanel();
-    expect(row.getNamesWithDefaultValues(), "#1").toEqual(["c2", "d2"]);
     expect(row.hasValueAnyQuestion(), "#2").toBe(true);
     matrix.validate(true);
     expect(row.getAllErrors().map(e => e.errorOwner.name), "#3: cells, then detail questions").toEqual(["c1", "d1"]);

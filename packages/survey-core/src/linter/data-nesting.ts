@@ -4,7 +4,7 @@ import { CIMultiMap, DataScopeRecord, ElementRecord, SurveyIndex } from "./symbo
 // Nested data (prompts/nested-data/decisions.md): a panel or a page with a valueName - or every panel
 // and/or page in a by-name dataNesting mode - stores its questions' values in an object under its key.
 
-// The runtime's key rule (getDataNestingKey, src/panel-data-scope.ts), from the public "survey-core" entry.
+// The runtime's key rule (getDataNestingKey, src/data-nesting-key.ts), from the public "survey-core" entry.
 // kind is "panel" or "page", "record" for a panel inside a dynamic panel's template or a matrix detail panel
 // (no by-name mode lists it: it nests under its valueName only, RN3), "" for a container that never nests.
 export const getLintDataNestingKey: (dataNesting: string, kind: string, valueName: string, name: string) => string = getDataNestingKey;

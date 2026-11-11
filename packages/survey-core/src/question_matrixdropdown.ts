@@ -1,3 +1,4 @@
+import { deleteObjectPaths } from "./data-object-utils";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
@@ -594,20 +595,14 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     super.clearGeneratedRows();
   }
   // The keys of a row's default values are removed: the new row's questions apply their defaults again. A
-  // default inside a nesting panel's object is removed from a copy of that object (RN3).
+  // default inside a nesting panel's object is removed from a copy of that object (RN3), and an object it
+  // leaves empty goes too; a path through a value that is no object (an array) is skipped.
   private getRowValueForCreation(val: any, rowName: any): any {
     const res = val[rowName];
     if (!res) return res;
     const paths: Array<Array<string>> = this.defaultValuesInRows[rowName];
     if (!Array.isArray(paths) || paths.length === 0) return res;
-    paths.forEach(path => {
-      let obj = res;
-      for (let i = 0; i < path.length - 1; i++) {
-        if (!obj[path[i]] || typeof obj[path[i]] !== "object") return;
-        obj = obj[path[i]] = Object.assign({}, obj[path[i]]);
-      }
-      delete obj[path[path.length - 1]];
-    });
+    deleteObjectPaths(res, paths);
     return res;
   }
   // One row per record the view holds - every record, in record order, without one.

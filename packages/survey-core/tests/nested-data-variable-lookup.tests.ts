@@ -5,7 +5,7 @@ import { Base } from "../src/base";
 import { settings } from "../src/settings";
 import { ValueGetter, parseValuePath } from "../src/conditions/conditionProcessValue";
 import { SurveyConditionEditorItem } from "../src/conditions/conditionEditorItems";
-import { getDataNestingKey } from "../src/panel-data-scope";
+import { getDataNestingKey } from "../src/data-nesting-key";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 import { QuestionTextModel } from "../src/question_text";

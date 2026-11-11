@@ -2,8 +2,9 @@ import type { IPanel, ISurvey, ISurveyImpl } from "./base-interfaces";
 import type { PanelModelBase } from "./panel";
 import type { Question } from "./question";
 import { Helpers } from "./helpers";
-import { PanelDataScope, DataNestingPlace, DataNestingKind, IDataNestingPlaceOwner, getDataNestingPlaceOwner,
-  getDataNestingKey, getDataNestingKindAt, getDataScopeHost, getRecordDataScope } from "./panel-data-scope";
+import { DataNestingPlace, DataNestingKind, IDataNestingPlaceOwner, getDataNestingPlaceOwner, getDataNestingKey,
+  getDataNestingKindAt } from "./data-nesting-key";
+import { PanelDataScope, getDataScopeHost, getRecordDataScope } from "./panel-data-scope";
 
 // An owner's answer about a panel it holds: the owner and the place of the panels inside the panel.
 interface IOwnerAnswer {
@@ -89,6 +90,9 @@ export class ContainerDataNesting {
   }
   // The survey impl the container's elements get: its scope when it nests, else value.
   public attach(value: ISurveyImpl): ISurveyImpl {
+    // The scope keeps its key between reads: the place and the survey change here, and a valueName or name
+    // change comes here too (onKeyChanged).
+    this.scope?.resetKey();
     this.isUsed = false;
     this.attachedKey = "";
     this.place = ContainerDataNesting.getPlace(this.container);

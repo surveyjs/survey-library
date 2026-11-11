@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { Serializer } from "../../src/jsonobject";
-import { getDataNestingKey } from "../../src/panel-data-scope";
+import { getDataNestingKey } from "../../src/data-nesting-key";
 import { lintSurvey, ILintFinding, ISurveyLintOptions, SurveyLintHintReasons } from "../../src/linter/index";
 import { getLintDataNestingKey } from "../../src/linter/data-nesting";
 import { expectFixSettles } from "./lint-test-helpers";

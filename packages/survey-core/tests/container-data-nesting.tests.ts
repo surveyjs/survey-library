@@ -5,7 +5,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ComponentCollection } from "../src/question_custom";
 import { ContainerDataNesting } from "../src/container-data-nesting";
-import { getDataNestingKindAt } from "../src/panel-data-scope";
+import { getDataNestingKindAt } from "../src/data-nesting-key";
 
 // Where a container sits for nested data (its data nesting place), pinned for every kind of place: on the
 // survey, in a records question's template, in a record, in a composite's content. The owners of a panel's data

@@ -38,7 +38,8 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
-import type { PanelDataScope, DataNestingKind, DataNestingPlace } from "./panel-data-scope";
+import type { PanelDataScope } from "./panel-data-scope";
+import type { DataNestingKind, DataNestingPlace } from "./data-nesting-key";
 import { getDataScopeHost } from "./panel-data-scope";
 import { ContainerDataNesting } from "./container-data-nesting";
 import { Scope } from "./utils/scope";
@@ -637,6 +638,9 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
+    // A valueName set while loading (fromJSON on an attached panel) sends no notification: the scope reads its
+    // key again, as it did on every read before the key was kept.
+    this.getDataScope()?.resetKey();
     this.markQuestionListDirty();
     this.onRowsChanged();
     if (this.isColumnsUpdatePending) {

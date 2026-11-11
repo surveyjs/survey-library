@@ -28,13 +28,16 @@ import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
-  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
+  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, IRecordsTemplateOwner, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 import type { QuestionExpressionModel } from "./question_expression";
-import { PanelDataScope, getActiveDataScope, getElementDataScope, asScopeObject, deleteObjectPaths, DataNestingPlace } from "./panel-data-scope";
+import { PanelDataScope, getActiveDataScope } from "./panel-data-scope";
+import { getElementDataScope } from "./data-key-index";
+import { asScopeObject, deleteObjectPaths } from "./data-object-utils";
+import type { DataNestingPlace } from "./data-nesting-key";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
    rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */
@@ -411,16 +414,27 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   public get filteredValue(): any {
     return this.getValueCore(true);
   }
-  /* The row value from the index walk: the cells come first (getScopeElements), then the detail questions;
-     a detail question on a cell's value name gives no key. A nesting panel of the detail panel gives its key
-     with its object, composed as the row composes its own value (composeScopeObject, RN3). */
+  /* The row value: the cells first, then the rest of the index walk - the detail questions, where one on a
+     cell's value name gives no key, and the nesting panels of the detail panel, each with its key and its
+     object, composed as the row composes its own value (composeScopeObject, RN3). */
   private getValueCore(isFiltered: boolean): any {
     const result: any = {};
     const cellValueNames: any = {};
-    const cellCount = this.getCellQuestions().length;
     const survey = this.getSurvey();
     const storeComments = !!survey && survey.storeOthersAsComment;
-    let position = 0;
+    const addQuestion = (question: Question, valueName: string): void => {
+      if (!question.isEmpty()) {
+        result[valueName] = isFiltered ? question.getFilteredValue() : question.value;
+      }
+      if (!!question.comment && storeComments) {
+        result[Helpers.getCommentKey(valueName)] = question.comment;
+      }
+    };
+    this.getCellQuestions().forEach((question: Question): void => {
+      const valueName = question.getValueName();
+      cellValueNames[valueName] = true;
+      addQuestion(question, valueName);
+    });
     let stored: any;
     this.getIndexElements().forEach((el: ISurveyDataElement): void => {
       const scope = getElementDataScope(el);
@@ -434,17 +448,11 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         }
         return;
       }
+      // A cell is skipped here too: its value name is a cell's.
       const question = <Question><any>el;
       const valueName = question.getValueName();
-      if (position++ < cellCount) {
-        cellValueNames[valueName] = true;
-      } else if (cellValueNames[valueName]) return;
-      if (!question.isEmpty()) {
-        result[valueName] = isFiltered ? question.getFilteredValue() : question.value;
-      }
-      if (!!question.comment && storeComments) {
-        result[Helpers.getCommentKey(valueName)] = question.comment;
-      }
+      if (cellValueNames[valueName]) return;
+      addQuestion(question, valueName);
     });
     return result;
   }
@@ -603,10 +611,6 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
      keys (RN3), as the index walk keys them. Without a nesting panel these are the value names of questions. */
   public getOwnRecordKeys(): Array<string> {
     return this.getIndexElements().map((el: ISurveyDataElement): string => el.getValueName());
-  }
-  // The value names of the row's own questions that hold their default values.
-  public getNamesWithDefaultValues(): Array<string> {
-    return this.getDefaultValuePaths().filter(path => path.length === 1).map(path => path[0]);
   }
   // The paths in the record of the questions that hold their default values: a question inside a nesting
   // panel has its data path, which starts at the record (RN4).
@@ -790,7 +794,8 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   }
   // A row whose detail panel is not built has the keys of the matrix's detail panel template (the design row).
   public getRecordKeyElements(): Array<IElement> {
-    const template = !this.detailPanel && !!this.data ? this.data["getRecordSortTemplate"]() : undefined;
+    const owner: IRecordsTemplateOwner = this.data;
+    const template = !this.detailPanel && !!owner ? owner.getRecordSortTemplate() : undefined;
     return !!template ? (<Array<IElement>>this.getCellQuestions()).concat(template.elements) : super.getRecordKeyElements();
   }
   // The cells' questions, then the detail panel's elements once the panel exists.
@@ -1303,7 +1308,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return super.isTemplateQuestionSortable(q) && ((<any>q).contentQuestion || q).getType() !== "expression";
   }
   // Without a detail panel mode nothing reads detailPanel, which would build a panel for a matrix that has none.
-  protected getRecordSortTemplate(): PanelModelBase {
+  public getRecordSortTemplate(): PanelModelBase {
     return this.detailPanelMode !== "none" ? this.detailPanel : undefined;
   }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows

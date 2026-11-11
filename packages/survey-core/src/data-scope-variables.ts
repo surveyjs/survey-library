@@ -4,7 +4,10 @@ import type { IExpressionScopePath, IExpressionVariableInfo } from "./survey";
 import type { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ValueGetter } from "./conditions/conditionProcessValue";
 import { Helpers } from "./helpers";
-import { IDataScope, PanelDataScopeValueGetterContext, getMetadataValueGetterContext, getNameOfCommentName } from "./panel-data-scope";
+import type { IDataScope } from "./data-key-index";
+import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
+import { getMetadataValueGetterContext } from "./data-scope-metadata";
+import { getNameOfCommentName } from "./data-object-utils";
 
 // The survey members the expression variable lookup reads. The survey is the root data scope: an element
 // whose value scope is it is a top-level element.

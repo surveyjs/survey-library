@@ -8,7 +8,7 @@ import {
   IElementUIState,
 } from "./base-interfaces";
 import { PanelModelBase, PanelModel } from "./panel";
-import type { DataNestingKind } from "./panel-data-scope";
+import type { DataNestingKind } from "./data-nesting-key";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 

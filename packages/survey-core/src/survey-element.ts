@@ -36,7 +36,8 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
 import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
-import { IDataScope, getActiveDataScope, getDataScopeHost } from "./panel-data-scope";
+import type { IDataScope } from "./data-key-index";
+import { getActiveDataScope, getDataScopeHost } from "./panel-data-scope";
 
 // The readOnlyMode serializer property shared by questions and panels; a new object per class.
 export function getReadOnlyModePropertyInfo(): any {

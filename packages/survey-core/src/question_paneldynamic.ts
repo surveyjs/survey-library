@@ -42,7 +42,8 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
 } from "./question_records";
-import { deleteObjectPaths, DataNestingPlace } from "./panel-data-scope";
+import { deleteObjectPaths } from "./data-object-utils";
+import type { DataNestingPlace } from "./data-nesting-key";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
   protected getNextName(): string {
@@ -262,11 +263,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.template.selectedElementInDesign = this;
 
     this.template.addElementCallback = (element) => {
+      this.resetRecordKeyLevels();
       this.watchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();
     };
     this.template.removeElementCallback = (element) => {
+      this.resetRecordKeyLevels();
       this.unwatchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();
@@ -449,7 +452,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.getRecordTemplateFieldQuestions(this.template));
   }
-  protected getRecordSortTemplate(): PanelModelBase {
+  public getRecordSortTemplate(): PanelModelBase {
     return this.template;
   }
   protected refreshRenderedPage(): void {

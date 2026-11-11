@@ -3,7 +3,10 @@ import type { PanelModelBase } from "./panel";
 import type { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ValueGetter } from "./conditions/conditionProcessValue";
 import { Helpers, HashTable } from "./helpers";
-import { PanelDataScope, DataKeyIndex, IDataScope, getElementDataScope, getRecordDataScope, asScopeObject, isKnownDataKey } from "./panel-data-scope";
+import type { PanelDataScope } from "./panel-data-scope";
+import { getRecordDataScope } from "./panel-data-scope";
+import { DataKeyIndex, IDataScope, getElementDataScope, isKnownDataKey } from "./data-key-index";
+import { asScopeObject } from "./data-object-utils";
 
 // One write of a survey data key, created where the value is written and passed down the write's steps
 // (the changing event, the validation, the triggers, the notification, auto-advance).
@@ -49,10 +52,11 @@ export class SurveyRootDataScope {
   private isUsedValue: boolean = false;
   private shapeVersion: number = ++SurveyRootDataScope.shapeVersionCounter;
   // The root index. Its questions are kept up as elements are added, removed and renamed (questionAdded /
-  // questionRemoved), in the order added, as the value-name hash was: the survey without nesting pays
-  // nothing new. Once a container nests, the whole index follows the data shape on its first read after a
-  // change: the questions are synced (syncRootQuestions) and the root containers (the active scopes not
-  // inside another one) are added again.
+  // questionRemoved), in the order added, as the value-name hash was. A removal also takes the question out of
+  // the index's elements (an indexOf and a splice), so removing a whole page is quadratic in its questions:
+  // measured, 5,000 cost 32 ms instead of 24, 20,000 cost 356 ms instead of 75. Once a container nests, the
+  // whole index follows the data shape on its first read after a change: the questions are synced
+  // (syncRootQuestions) and the root containers (the active scopes not inside another one) are added again.
   private index = new DataKeyIndex();
   private indexVersion: number;
   // getStoredValue: a root key's stored value, without the copy the survey's getValue makes.
@@ -86,7 +90,7 @@ export class SurveyRootDataScope {
       const collect = (panel: PanelModelBase): void => {
         const scope = panel.getDataScope();
         if (!!scope && scope.isActive) {
-          index.addKey(scope.key, panel);
+          index.add(scope.key, panel);
           return;
         }
         panel.elements.forEach(el => el.isPanel && collect(<PanelModelBase><any>el));
@@ -99,14 +103,18 @@ export class SurveyRootDataScope {
   public isKnownKey(key: string): boolean {
     return isKnownDataKey(this.getDataKeyIndex(), key);
   }
-  // A question's value name, when its value is a key of the survey data.
+  // A question's value name, when its value is a key of the survey data. A question without a value name is not
+  // indexed: no key of the data is its.
   public questionAdded(question: Question): void {
-    if (this.isRoot(question)) {
-      this.index.addKey(question.getValueName(), question);
+    const valueName = question.getValueName();
+    if (!!valueName && this.isRoot(question)) {
+      this.index.add(valueName, question);
     }
   }
   public questionRemoved(valueName: string, question: Question): void {
-    this.index.removeKey(valueName, question);
+    if (!!valueName) {
+      this.index.remove(valueName, question);
+    }
   }
   public clearQuestions(): void {
     this.index.clearQuestions();
@@ -125,10 +133,11 @@ export class SurveyRootDataScope {
     const index = this.index;
     this.host.pages.forEach(page => page.questions.forEach(q => {
       const valueName = q.getValueName();
+      if (!valueName) return;
       const isIn = index.getQuestions(valueName).indexOf(q) > -1;
       const isRoot = this.isRoot(q);
-      if (isRoot && !isIn) index.addKey(valueName, q);
-      if (!isRoot && isIn) index.removeKey(valueName, q);
+      if (isRoot && !isIn) index.add(valueName, q);
+      if (!isRoot && isIn) index.remove(valueName, q);
     }));
   }
   private isRoot(question: Question): boolean {

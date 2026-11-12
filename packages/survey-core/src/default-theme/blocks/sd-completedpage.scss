@@ -14,6 +14,7 @@
   }
   &:not(:has(> *)) {
     @include mixins.articleLargeFont;
+    color: var(--sjs2-color-component-page-default-title);
     padding: calc(var(--sjs2-base-unit-spacing) * 17) 0 var(--sjs2-spacing-x600) 0;
   }
 }

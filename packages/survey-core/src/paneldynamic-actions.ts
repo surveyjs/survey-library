@@ -118,9 +118,11 @@ export class PanelDynamicActions {
       prevTextBtn.visible = showNavigation && question.currentIndex > 0;
       nextTextBtn.visible = showNavigation && this.owner.canGoToNextRecord;
       nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
+      const showNoEntriesPlaceholder = question.getShowNoEntriesPlaceholder();
       addBtn.visible = question.canAddPanel;
       addBtn.needSpace = question.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
-      progressText.visible = !question.isRenderModeList && !isMobile && !question.getShowNoEntriesPlaceholder();
+      addBtn.ariaDescribedBy = showNoEntriesPlaceholder ? question.noEntriesTextId : undefined;
+      progressText.visible = !question.isRenderModeList && !isMobile && !showNoEntriesPlaceholder;
       progressText.needSpace = !question.isMobile;
     };
     this.updateFooterActionsCallback();

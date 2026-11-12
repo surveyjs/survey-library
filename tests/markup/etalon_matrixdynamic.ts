@@ -166,6 +166,26 @@ registerMarkupTests(
       }
     },
     {
+      name: "Test matrixdynamic question without rows and hideColumnsIfEmpty markup",
+      json: {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "titleLocation": "hidden",
+            "name": "matrix",
+            "rowCount": 0,
+            "hideColumnsIfEmpty": true,
+            "columns": [
+              {
+                "name": "Column 1"
+              }
+            ]
+          }
+        ]
+      },
+      snapshot: "matrixdynamic-no-rows"
+    },
+    {
       name: "Test matrixdynamic question with detail panel",
       json: {
         "elements": [

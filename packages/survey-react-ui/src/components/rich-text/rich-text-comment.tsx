@@ -1,9 +1,10 @@
 import * as React from "react";
-import { QuestionCommentModel } from "survey-core";
+import { QuestionCommentModel, ResizeManager } from "survey-core";
 import { SurveyQuestionUncontrolledElement } from "../../reactquestion_element";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
 import { ReactElementFactory } from "../../element-factory";
 import { TextAreaComponent } from "../text-area";
+import { SvgIcon } from "../svg-icon/svg-icon";
 
 function editorModel(question: QuestionCommentModel): any {
   const host = globalThis as any;
@@ -15,12 +16,17 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   private model: any;
   private boundQuestion: QuestionCommentModel;
   private hostRef: React.RefObject<HTMLDivElement>;
+  private gripRef: React.RefObject<HTMLDivElement>;
+  private resizeManager: ResizeManager;
+  private resizeTarget: HTMLElement;
+  private resizeMode: string;
 
   constructor(props: any) {
     super(props);
     this.boundQuestion = props.question;
     this.model = editorModel(props.question);
     this.hostRef = React.createRef();
+    this.gripRef = React.createRef();
     if (this.model)this.model.onState = (): void => this.forceUpdate();
   }
 
@@ -39,15 +45,18 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   componentDidMount(): void {
     super.componentDidMount();
     this.attach();
+    this.updateSizer();
   }
 
   componentDidUpdate(prevProps: any, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
     if (this.model && this.model.isAttached && !this.hostRef.current)this.model.detach();
     this.attach();
+    this.updateSizer();
   }
 
   componentWillUnmount(): void {
+    this.disposeSizer();
     if (this.model && this.model.dispose)this.model.dispose();
     else if (this.model)this.model.detach();
     super.componentWillUnmount();
@@ -55,6 +64,40 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
 
   private attach(): void {
     if (this.model && this.hostRef.current && !this.model.isAttached)this.model.attach(this.hostRef.current);
+  }
+
+  // The comment's grip, not the browser handle. It resizes the editing area the same way the textarea does.
+  private updateSizer(): void {
+    const question = this.question;
+    const grip = this.gripRef.current;
+    const target = this.hostRef.current;
+    const mode = question.resizeStyle;
+    if (mode === "none" || !grip || !target) {
+      this.disposeSizer();
+      return;
+    }
+    if (this.resizeManager && this.resizeTarget === target && this.resizeMode === mode) return;
+    this.disposeSizer();
+    this.resizeTarget = target;
+    this.resizeMode = mode;
+    this.resizeManager = new ResizeManager(grip, target, mode);
+  }
+
+  private disposeSizer(): void {
+    if (this.resizeManager) this.resizeManager.dispose();
+    this.resizeManager = undefined;
+    this.resizeTarget = undefined;
+    this.resizeMode = undefined;
+  }
+
+  private renderSizer(): React.JSX.Element | null {
+    const question = this.question;
+    if (question.resizeStyle === "none") return null;
+    return (
+      <div className={question.cssClasses.grip} ref={this.gripRef}>
+        <SvgIcon iconName={question.cssClasses.gripIconId} size={"auto"}></SvgIcon>
+      </div>
+    );
   }
 
   // Design, display and read-only keep the comment formbox: the value sits in the
@@ -150,6 +193,7 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
         />
         {staticToolbar ? this.renderFooter() : this.renderCounter()}
         {!staticToolbar && this.model.hasToolbar ? this.renderToolbar(true) : null}
+        {this.renderSizer()}
       </div>
     );
   }

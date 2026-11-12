@@ -128,16 +128,15 @@ export class RichTextEditorModel {
     return this.question && this.question.renderedPlaceholder ? this.question.renderedPlaceholder : "";
   }
 
-  public get areaStyle(): { minHeight: string, height?: string, overflow?: string, resize?: string } {
+  public get areaStyle(): { minHeight: string, height?: string, overflow?: string } {
     const rows = this.question && this.question.rows ? this.question.rows : 4;
     const minHeight = "calc(" + rows + " * 1lh)";
-    const style: { minHeight: string, height?: string, overflow?: string, resize?: string } = { minHeight: minHeight };
+    const style: { minHeight: string, height?: string, overflow?: string } = { minHeight: minHeight };
     const grow = !!this.question && this.question.renderedAutoGrow;
     if (!grow) {
       style.height = minHeight;
       style.overflow = "auto";
     }
-    if (this.question && this.question.renderedAllowResize) style.resize = "vertical";
     return style;
   }
 

@@ -7,14 +7,13 @@
   box-sizing: border-box;
   text-align: center;
   height: auto;
+  padding: calc(var(--sjs2-base-unit-spacing) * 17) 0 var(--sjs2-spacing-x600) 0;
   
   &:has(> *) {
     @include mixins.articleHtml;
-    padding: calc(var(--sjs2-base-unit-spacing) * 13) 0 var(--sjs2-spacing-x200) 0;
   }
   &:not(:has(> *)) {
     @include mixins.articleLargeFont;
     color: var(--sjs2-color-component-page-default-title);
-    padding: calc(var(--sjs2-base-unit-spacing) * 17) 0 var(--sjs2-spacing-x600) 0;
   }
 }

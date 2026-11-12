@@ -169,11 +169,35 @@
   pointer-events: none;
 }
 
+// The today frame is drawn above the background, so it stays visible in every state.
 .sv-calendar__day--today,
 .sv-calendar__month--today,
 .sv-calendar__year--today {
-  @include sjs2--typography--default-strong;
-  color: var(--sjs2-color-fg-brand-primary);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-brand-primary);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+}
+
+.sv-calendar__day--today.sv-calendar__day--selected:not(.sv-calendar__day--range-middle),
+.sv-calendar__month--today.sv-calendar__month--selected,
+.sv-calendar__year--today.sv-calendar__year--selected {
+  &::after {
+    inset: var(--sjs2-border-width-x200);
+    border-color: var(--sjs2-color-border-brand-on-primary);
+  }
+}
+
+.sv-calendar__day--today.sv-calendar__day--disabled,
+.sv-calendar__month--today.sv-calendar__month--disabled,
+.sv-calendar__year--today.sv-calendar__year--disabled {
+  &::after {
+    border-color: var(--sjs2-color-border-basic-secondary);
+  }
 }
 
 .sv-calendar__day--in-range {

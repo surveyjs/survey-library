@@ -217,10 +217,17 @@ export class CalendarModel extends Base {
   // day) takes the place of the committed value while it lasts.
   private getSelectedRange(): Array<Date> {
     if (!this.range) return !!this.value ? [this.value, this.value] : undefined;
-    if (!this.rangeStart) return this.value;
+    if (!this.rangeStart) return this.clipRange(this.value);
     const hovered = this.hoveredItem;
     if (!hovered || this.zoom !== "day") return [this.rangeStart, this.rangeStart];
-    return this.normalizeValue([this.rangeStart, hovered.date]);
+    return this.clipRange(this.normalizeValue([this.rangeStart, hovered.date]));
+  }
+  // Disabled dates are never a part of the range, so its rendered boundaries move inside [min, max].
+  private clipRange(range: Array<Date>): Array<Date> {
+    if (!range) return undefined;
+    const start = !!this.min && range[0].getTime() < this.min.getTime() ? this.min : range[0];
+    const end = !!this.max && range[1].getTime() > this.max.getTime() ? this.max : range[1];
+    return start.getTime() > end.getTime() ? undefined : [start, end];
   }
   private getRangePosition(date: Date, range: Array<Date>): CalendarRangePosition {
     if (!this.range || !range) return undefined;
@@ -360,17 +367,19 @@ export class CalendarModel extends Base {
   private createItem(kind: CalendarZoom, date: Date, text: string, state: ICalendarItemState): CalendarItem {
     const isOutside = !!state.isOutside;
     const hovered = this.hoveredItem;
+    // An unavailable date is always rendered as disabled and unselected.
+    const rangePosition = state.isDisabled ? undefined : state.rangePosition;
     const item: CalendarItem = {
       date: date,
       text: text,
-      isSelected: state.isSelected,
-      isInRange: !!state.rangePosition,
+      isSelected: state.isSelected && !state.isDisabled,
+      isInRange: !!rangePosition,
       isHovered: !state.isDisabled && !!hovered && isSameDay(hovered.date, date) && hovered.isOutside === isOutside,
       isToday: state.isToday,
       isOutside: isOutside,
       isHidden: !!state.isHidden,
       isDisabled: state.isDisabled,
-      rangePosition: state.rangePosition,
+      rangePosition: rangePosition,
       css: ""
     };
     item.css = this.getItemCss(kind, item);

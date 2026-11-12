@@ -547,6 +547,14 @@ describe("CalendarModel min and max", () => {
     expect(calendar.max.getTime()).toBe(d(2026, 11, 20).getTime());
   });
 
+  test("A disabled day is not selected in the single mode", () => {
+    const calendar = new CalendarModel({ value: d(2026, 11, 3), min: d(2026, 11, 5) });
+    const day = findDay(calendar, d(2026, 11, 3));
+    expect(day.isDisabled).toBe(true);
+    expect(day.isSelected).toBe(false);
+    expect(day.css).toBe("sv-calendar__day sv-calendar__day--disabled");
+  });
+
   test("Days outside [min, max] are disabled", () => {
     const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 11, 5), max: d(2026, 11, 20) });
     expect(findDay(calendar, d(2026, 11, 4)).isDisabled).toBe(true);
@@ -977,11 +985,30 @@ describe("CalendarModel range", () => {
     expect(days(calendar)[0].text).toBe("26");
   });
 
-  test("Disabled days inside the range are allowed", () => {
-    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true, min: d(2026, 11, 5) });
+  test("Disabled days are not part of the range, the range is clipped by min and max", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true, min: d(2026, 11, 5), max: d(2026, 11, 20) });
     calendar.value = [d(2026, 11, 2), d(2026, 11, 8)];
-    expect(rangeDay(calendar, d(2026, 11, 3)).isDisabled).toBe(true);
-    expect(rangeDay(calendar, d(2026, 11, 3)).rangePosition).toBe("middle");
+    const disabled = rangeDay(calendar, d(2026, 11, 3));
+    expect(disabled.isDisabled).toBe(true);
+    expect(disabled.isSelected).toBe(false);
+    expect(disabled.isInRange).toBe(false);
+    expect(disabled.rangePosition).toBeUndefined();
+    expect(disabled.css).toBe("sv-calendar__day sv-calendar__day--disabled");
+    expect(positions(calendar)).toEqual({ "5": "start", "6": "middle", "7": "middle", "8": "end" });
+
+    calendar.value = [d(2026, 11, 18), d(2026, 11, 25)];
+    expect(positions(calendar)).toEqual({ "18": "start", "19": "middle", "20": "end" });
+
+    calendar.value = [d(2026, 11, 1), d(2026, 11, 3)];
+    expect(positions(calendar)).toEqual({});
+  });
+
+  test("A disabled month or year is not selected", () => {
+    const calendar = new CalendarModel({ value: d(2026, 3, 10), min: d(2026, 6, 1) });
+    calendar.zoom = "month";
+    const march = calendar.items.filter(item => item.text === "March")[0];
+    expect(march.isDisabled).toBe(true);
+    expect(march.isSelected).toBe(false);
   });
 
   test("A disabled day cannot be a range boundary", () => {

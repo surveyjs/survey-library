@@ -927,7 +927,7 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => {
         (window as any).survey.endLoading();
-        (window as any).survey.loadingHtml = "<h3>Loading</h3><button style='display: inline-block;'>OK</button>";
+        (window as any).survey.loadingHtml = "<h3>Please wait</h3><p>The survey is still loading.</p>";
         (window as any).survey.beginLoading();
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-loading.png");

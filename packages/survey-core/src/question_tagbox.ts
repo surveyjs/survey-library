@@ -5,7 +5,6 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionCheckboxModel } from "./question_checkbox";
-import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
 import { DropdownMultiSelectRenderState, DropdownRenderState } from "./dropdownRenderState";
 import { EventBase } from "./event";

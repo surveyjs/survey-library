@@ -333,6 +333,22 @@ Specifies whether to display a comment area.
 
 **Related APIs:** [`comment`](#comment), [`commentText`](#commentText), [`showOtherItem`](#showOtherItem)
 
+### `showKeyboardHints`
+
+**Type**: `boolean`
+
+Specifies whether to display keyboard shortcut hints for this question.
+
+Default value: `undefined` (inherits the survey's [`showKeyboardHints`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showKeyboardHints) setting)
+
+Hints describe available keyboard actions, such as selecting choices or pressing Enter to continue. Displayed hints depend on the question type and settings.
+
+Keyboard hints are hidden on touch devices, in read-only or preview mode, for collapsed questions, and in matrix cells.
+
+[Demo: Keyboard Hints](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+
+Available since: v3.2.4
+
 ### `showNumber`
 
 **Type**: `boolean`

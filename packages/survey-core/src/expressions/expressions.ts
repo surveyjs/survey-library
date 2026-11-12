@@ -1018,10 +1018,6 @@ function getUnaryOperatorFunc(operatorName: string): Function {
   return typeof res === "function" ? res : undefined;
 }
 
-export function hasBinaryOperator(operatorName: string): boolean {
-  return !!getBinaryOperatorFunc(operatorName);
-}
-
 // Applies a condition operator exactly as the expression runtime does, without
 // building an expression. Arithmetic operators return their computed value, the
 // rest return a boolean. Throws on an unknown operator, like BinaryOperand does.

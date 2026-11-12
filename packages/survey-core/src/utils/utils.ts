@@ -1,5 +1,4 @@
 import { DomDocumentHelper } from "../global_variables_utils";
-import { settings } from "../settings";
 
 export function unwrap<T>(value: T | (() => T)): T {
   if (typeof value !== "function") {

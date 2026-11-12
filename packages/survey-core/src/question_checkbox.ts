@@ -810,9 +810,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     this.value = newVal;
   }
-  public get checkBoxSvgPath(): string {
-    return "M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z";
-  }
 
   //a11y
   public get isNewA11yStructure(): boolean {

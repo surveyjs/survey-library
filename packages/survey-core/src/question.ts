@@ -726,7 +726,7 @@ export class Question extends SurveyElement<Question>
     this.updateIsReady();
   }
   protected ensureQuestionIsReady(): void {
-    const _displayValue = this.displayValue;
+    this.displayValue;
   }
   public waitForQuestionIsReady(callback?: () => void): Promise<void> {
     return new Promise((resolve: any) => {
@@ -1145,7 +1145,7 @@ export class Question extends SurveyElement<Question>
     if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
-    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo(), undefined, this.getSurveyVariableNamesInfo()) ? "var" : "";
+    return new ValueGetter().isAnyKeyChanged(keys, vars, undefined, runner.getVariablesInfo(), this.getSurveyVariableNamesInfo()) ? "var" : "";
   }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:
@@ -1655,9 +1655,6 @@ export class Question extends SurveyElement<Question>
       this.localeChangedCallback();
     }
   }
-  public get isCompositeQuestion(): boolean {
-    return false;
-  }
   public get isContainer(): boolean { return false; }
   // A container that keeps the saved masked text of its nested question on a locale change (QuestionTextModel.localeChanged).
   protected keepsSavedTextOnLocaleChange(question: Question): boolean { return false; }
@@ -1994,7 +1991,7 @@ export class Question extends SurveyElement<Question>
    * @param onError Pass `true` if you want to focus an input field with the first validation error. Default value: `false` (focuses the first input field). Applies to question types with multiple input fields.
    */
   public focus(onError: boolean = false, scrollIfVisible?: boolean): void {
-    if (this.isDesignMode || !this.isVisible || this.isReadOnly || !this.survey) return;
+    if (this.isDesignMode || !this.isVisibleWithParents || this.isReadOnly || !this.survey) return;
     let page = this.page;
     const shouldChangePage = !!page && this.survey.activePage !== page;
     const isSingleInput = this.isSingleInputMode;
@@ -2433,7 +2430,7 @@ export class Question extends SurveyElement<Question>
   }
   public get hasFilteredValue(): boolean { return false; }
   public getFilteredValue(isUnwrapped?: boolean): any { return this.value; }
-  public getFilteredName(): any { return this.getValueName(); }
+  public getFilteredName(): string { return this.getValueName(); }
   public get valueForSurvey(): any {
     return this.valueForSurveyCore(this.value);
   }
@@ -4205,9 +4202,6 @@ export class Question extends SurveyElement<Question>
   public get a11y_input_ariaErrormessage(): string {
     return null;
     //return this.hasCssError() ? this.id + "_errors" : null; // due to https://cerovac.com/a11y/2024/06/support-for-aria-errormessage-is-getting-better-but-still-not-there-yet/
-  }
-  public get a11y_input_ariaExpanded(): "true" | "false" {
-    return this.getPropertyValue("ariaExpanded");
   }
   //EO new a11y
 

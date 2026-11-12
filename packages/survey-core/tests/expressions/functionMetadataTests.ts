@@ -1,4 +1,4 @@
-import { FunctionFactory, registerFunction, unregisterFunction } from "../../src/functionsfactory";
+import { FunctionFactory, registerFunction } from "../../src/functionsfactory";
 import { coreFunctionNames } from "../test-baseline";
 
 import { describe, test, expect } from "vitest";
@@ -18,7 +18,7 @@ describe("Function metadata", () => {
     reg.parameters[0].name = "changed";
     const again = FunctionFactory.Instance.getRegistrations().filter(r => r.name === "aiexMeta")[0];
     expect(again.parameters[0].name).toBe("value");
-    unregisterFunction("aiexMeta");
+    FunctionFactory.Instance.unregister("aiexMeta");
   });
   test("a registration without metadata has none", () => {
     FunctionFactory.Instance.register("aiexPlain", () => 1);
@@ -27,7 +27,7 @@ describe("Function metadata", () => {
     expect(reg.parameters).toBeUndefined();
     expect(reg.returnType).toBeUndefined();
     expect(Object.keys(reg).sort()).toEqual(["func", "isAsync", "name", "useCache"]);
-    unregisterFunction("aiexPlain");
+    FunctionFactory.Instance.unregister("aiexPlain");
   });
   test("every built-in function is described", () => {
     const builtIns = ["sum", "min", "max", "count", "avg", "round", "trunc", "sumInArray", "minInArray", "maxInArray",
@@ -56,7 +56,7 @@ describe("Function metadata", () => {
     registerFunction({ name: "aiexDepends", func: () => 1, resultDependsOn: "parameters" });
     const reg = FunctionFactory.Instance.getRegistrations().filter(r => r.name === "aiexDepends")[0];
     expect(reg.resultDependsOn).toBe("parameters");
-    unregisterFunction("aiexDepends");
+    FunctionFactory.Instance.unregister("aiexDepends");
   });
   test("every function survey-core registers says what its result depends on", () => {
     expect(coreFunctionNames.length > 0, "survey-core registers functions").toBe(true);

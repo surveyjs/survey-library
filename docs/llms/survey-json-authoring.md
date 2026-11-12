@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 3.2.4 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 3.2.5 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.2.4/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.2.5/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 
@@ -130,6 +130,7 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `readOnly` | `boolean` |  | Enables the read-only mode. |
 | `requiredMark` | `string` | `"*"` | Specifies one or multiple characters that designate required questions. |
 | `showCompletePage` | `boolean` | `true` | Specifies whether to show the complete page. |
+| `showKeyboardHints` | `boolean` | `false` | Specifies whether to display keyboard shortcut hints for questions that support them. |
 | `showNavigationButtons` | `boolean` | `true` | Gets or sets the visibility of the Start, Next, Previous, and Complete navigation buttons. |
 | `showPageNumbers` | `boolean` |  | Specifies whether page titles contain page numbers. |
 | `showPageTitles` | `boolean` | `true` | Specifies whether to display page titles. |
@@ -146,7 +147,6 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `title` *(loc)* | `string` |  | A title for the survey element. |
 | `validateVisitedEmptyFields` | `boolean` |  | Specifies whether to trigger validation when a user focuses on an empty input field and then leaves it without making any changes. |
 | `width` | `string` |  | A survey width in CSS values. |
-| `showKeyboardHints` | `boolean` | `false` |  |
 
 ## Shared question properties
 
@@ -259,6 +259,7 @@ A base class for all questions. Required: `name`.
 | `minWidth` | `string` |  | Gets or sets minimum survey element width in CSS values. |
 | `readOnly` | `boolean` |  | Makes the survey element read-only. |
 | `requiredErrorText` *(loc)* | `string` |  | Specifies a custom error message for a required form field. |
+| `showKeyboardHints` | `boolean` |  | Specifies whether to display keyboard shortcut hints for this question. |
 | `showNumber` | `boolean` | `true` | Specifies whether to show a number for this question. |
 | `startWithNewLine` | `boolean` | `true` | Disable this property if you want to render the current question on the same line or row with the previous question or panel. |
 | `title` *(loc)* | `string` |  | A title for the survey element. |
@@ -267,7 +268,6 @@ A base class for all questions. Required: `name`.
 | `visible` | `boolean` | `true` | Gets or sets question visibility. |
 | `width` | `string` |  | Sets survey element width in CSS values. |
 | `bindings` | `string` |  |  |
-| `showKeyboardHints` | `boolean` |  |  |
 
 ### `selectbase`
 
@@ -317,6 +317,8 @@ A class that describes the Yes/No (Boolean) question type. Inherits the properti
 | `displayMode` | `segmented, radio, checkbox, switch` | `"segmented"` | Specifies the visual representation of the Yes/No question. |
 | `labelFalse` *(loc)* | `string` |  | Gets or sets a text label that corresponds to a negative answer. |
 | `labelTrue` *(loc)* | `string` |  | Gets or sets a text label that corresponds to a positive answer. |
+| `requireTrue` | `boolean` |  | Specifies whether respondents must give a positive answer to pass validation. |
+| `requireTrueErrorText` *(loc)* | `string` |  | Specifies a custom error message displayed when `requireTrue` is enabled and the answer is negative or empty. |
 | `swapOrder` | `boolean` |  | Specifies whether to swap the order of the Yes and No answers. |
 | `valueFalse` | `string` |  | A value to save in survey results when respondents give a negative answer. |
 | `valueTrue` | `string` |  | A value to save in survey results when respondents give a positive answer. |
@@ -768,6 +770,7 @@ A class that describes the Dynamic Panel question type. Inherits the properties 
 | `templateQuestionTitleWidth` | `string` |  | Sets consistent width for question titles in CSS values. |
 | `templateTabTitle` *(loc)* | `string` |  | A template for tab titles. |
 | `templateTitle` *(loc)* | `string` |  | A template for panel titles. |
+| `templateTitlePlaceholder` *(loc)* | `string` |  | A placeholder for panel titles. |
 
 ```json
 {
@@ -1037,7 +1040,7 @@ Write a question's value as its name in braces: `{age}`. String literals are quo
 
 **Operators.** `!=` (or `notequal`, `<>`), `%`, `*`, `+`, `-`, `/`, `<` (or `less`), `<=` (or `lessorequal`), `==` (or `equal`, `=`), `>` (or `greater`), `>=` (or `greaterorequal`), `^` (or `power`), `allof`, `and`, `anyof`, `contains`, `empty`, `noneof`, `notcontains`, `notempty`, `or`.
 
-**Functions.** `age()`, `avg()`, `avgInArray()`, `count()`, `countInArray()`, `currentDate()`, `currentYear()`, `dateAdd()`, `dateDiff()`, `day()`, `diffDays()`, `displayValue()`, `getComment()`, `getDate()`, `getYear()`, `iif()`, `isContainerReady()`, `isDisplayMode()`, `max()`, `maxInArray()`, `min()`, `minInArray()`, `month()`, `propertyValue()`, `round()`, `substring()`, `sum()`, `sumInArray()`, `today()`, `trunc()`, `weekday()`, `year()`.
+**Functions.** `age()`, `avg()`, `avgInArray()`, `count()`, `countInArray()`, `currentDate()`, `currentYear()`, `dateAdd()`, `dateDiff()`, `day()`, `diffDays()`, `displayValue()`, `getComment()`, `getDate()`, `getYear()`, `hasValue()`, `iif()`, `isContainerReady()`, `isDisplayMode()`, `max()`, `maxInArray()`, `min()`, `minInArray()`, `month()`, `propertyValue()`, `round()`, `substring()`, `sum()`, `sumInArray()`, `today()`, `trunc()`, `weekday()`, `year()`.
 
 ## Triggers
 

@@ -108,7 +108,7 @@ You can specify this setting for an individual survey: [`commentSuffix`](https:/
 
 ### `comparator`
 
-**Type**: `{ trimStrings: boolean; caseSensitive: boolean; normalizeTextCallback: (str: string, reason: string) => string; }`
+**Type**: `{ trimStrings: boolean; caseSensitive: boolean; numericTextAsText: boolean; strictEquality: boolean; normalizeTextCallback: (str: string, reason: string) => string; }`
 
 An object that configures string comparison.
 

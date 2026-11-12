@@ -3,7 +3,6 @@ import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import SignaturePad from "signature_pad";
 import { toCssClasses } from "./utils/cssClassBuilder";
-import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
 import { dataUrl2File, FileLoader, QuestionFileModelBase } from "./question_file";

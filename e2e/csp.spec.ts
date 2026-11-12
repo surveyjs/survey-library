@@ -8,8 +8,9 @@ const NONCE = "e2e-nonce";
 
 // Strict for everything the library is responsible for (style-src, font-src, img-src).
 // The script-src allowances cover the needs of the test pages themselves: the react
-// page loads jquery/showdown from cdnjs and react from esm.sh, and carries one inline
-// module script (stamped with the nonce by the route rewrite below). The test pages
+// and survey-js-ui pages load showdown from cdnjs, and the react page loads react from
+// esm.sh and carries one inline module script (stamped with the nonce by the route
+// rewrite below). The test pages
 // supply Open Sans from their own server through their fonts.css, while the library
 // itself requests no font at all.
 const CSP = [

@@ -315,7 +315,7 @@ export async function visibleInViewportForShadowDom (page: Page, selector: strin
 }
 
 // Every test gets a new browser context, and a context starts with an empty HTTP cache, so
-// each test downloaded the test pages' CDN scripts (jQuery, showdown, React from esm.sh)
+// each test downloaded the test pages' CDN scripts (showdown, React from esm.sh)
 // again. The responses are kept in memory for the life of the worker process instead.
 // The pattern stays narrow on purpose: every request it matches makes a round trip to the
 // test process. Routes set by a test with page.route run first and still win.

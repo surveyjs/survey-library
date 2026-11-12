@@ -35,6 +35,7 @@ export { hasLicense, glc } from "./license";
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
 export type { ISurveySettings, ISurveySettingsComparator, ISurveySettingsData, ISurveyOptions, SurveyEventHandlers } from "../../src/survey-settings";
+export type { IPropertyDefaults, PropertyDefaultValue } from "../../src/survey-property-defaults";
 export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
 export {
   SurveyVariablePresets,

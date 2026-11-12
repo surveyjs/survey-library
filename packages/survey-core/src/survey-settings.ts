@@ -3,6 +3,7 @@ import type { ISurvey } from "./interfaces/survey-interfaces";
 import type { SurveyModel } from "./survey";
 import { Event } from "./event";
 import { ConsoleWarnings } from "./console-warnings";
+import type { IPropertyDefaults } from "./survey-property-defaults";
 
 // settings.comparator.normalizeTextCallback stays global only: no converter needs it per survey (decisions.md, C3)
 export interface ISurveySettingsComparator {
@@ -37,6 +38,8 @@ export type SurveyEventHandlers = {
 };
 export interface ISurveyOptions extends ISurveySettings {
   events?: SurveyEventHandlers;
+  // Not a settings group: it does not mirror the global settings (decisions.md, S2). See SurveyModel.propertyDefaults().
+  propertyDefaults?: IPropertyDefaults;
 }
 
 // The global settings every survey value falls back to (the same object, not a copy).
@@ -53,7 +56,12 @@ const surveySettingsKeys: SurveySettingsKeys = {
   comparator: { trimStrings: true, caseSensitive: true, numericTextAsText: true, strictEquality: true },
   data: { keepEmptyValues: true }
 };
-const reservedOptionKeys = ["events"];
+const reservedOptionKeys = ["events", "propertyDefaults"];
+// What survey.settings() suggests instead of a reserved option key
+const reservedOptionHints: { [key: string]: string } = {
+  events: "Use survey.onX.add() to handle events after the survey is created.",
+  propertyDefaults: "Use survey.propertyDefaults() to set property defaults after the survey is created."
+};
 
 function hasOwn(obj: any, key: string): boolean {
   return Object.prototype.hasOwnProperty.call(obj, key);
@@ -147,7 +155,7 @@ export class SurveySettingsValues {
       const group = groups[i];
       if (reservedOptionKeys.indexOf(group) > -1) {
         if (!isOptions) {
-          ConsoleWarnings.warn("survey.settings() does not take \"" + group + "\". Use survey.onX.add() to handle events after the survey is created.");
+          ConsoleWarnings.warn("survey.settings() does not take \"" + group + "\". " + reservedOptionHints[group]);
         }
         continue;
       }

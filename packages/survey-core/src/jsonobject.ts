@@ -2,6 +2,7 @@ import type { Base } from "./base";
 import { Helpers, HashTable } from "./helpers";
 import { ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { settings } from "./settings";
+import { propertyDefaultsState, propertyDefaultNotSet } from "./survey-property-defaults-state";
 
 function getLocalizablePropertyName(propertyName: string): string {
   return "loc" + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
@@ -218,6 +219,11 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   }
   public isDefaultValueByObj(obj: Base, value: any): boolean {
     if (this.isLocalizable) return value === null || value === undefined;
+    // A survey's own property defaults: a value equal to the survey's default is the default in that survey
+    if (propertyDefaultsState.liveLayerCount > 0 && !!obj && typeof obj.getSurveyPropertyDefault === "function") {
+      const surveyDefault = obj.getSurveyPropertyDefault(this.name);
+      if (surveyDefault !== propertyDefaultNotSet) return value === surveyDefault;
+    }
     const dValue = this.getDefaultValue(obj);
     if (dValue !== undefined) {
       if (typeof dValue !== "object") return dValue === value;
@@ -1659,6 +1665,10 @@ export class JsonObject {
         || !Serializer.isDescendantOf(objType, "itemvalue"));
     }
     if (!properties) return;
+    // An object loaded before it is in a survey (a copy, a matrix cell) reads these defaults while it loads
+    if (!!options && !!options.propertyDefaults) {
+      obj.propertyDefaultsOfLoad = options.propertyDefaults;
+    }
     if (obj.startLoadingFromJson) {
       obj.startLoadingFromJson(jsonObj);
     }

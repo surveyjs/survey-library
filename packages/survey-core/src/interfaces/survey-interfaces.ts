@@ -12,6 +12,7 @@ import type { DragDropAllowEvent } from "../survey-events-api";
 import type { PopupModel } from "../popup";
 import type { ItemValue } from "../itemvalue";
 import type { ISurveySettings } from "../survey-settings";
+import type { PropertyDefaultsLayer } from "../survey-property-defaults";
 import type {
   ISurveyElementLifecycle,
   ISurveyFileCallbacks,
@@ -95,6 +96,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   getSettings(): ISurveySettings;
   // The settings comparisons pass on: undefined when the survey sets no key itself (the global settings apply)
   getOwnSettings(): ISurveySettings;
+  // The survey's own property defaults, or undefined. Optional: an owner's getSurvey() can return another object.
+  getOwnPropertyDefaults?(): PropertyDefaultsLayer;
   // A system clear: an empty value set while func runs removes the key even with data.keepEmptyValues on
   runDeletingEmptyValues<T>(func: () => T): T;
   //#endregion

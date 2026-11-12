@@ -698,7 +698,6 @@ export class DynamicDataList {
   public getCreatedIndexes(): Array<number> {
     return this.membership.getCreatedIndexes();
   }
-  public createdIndexToIndex(createdIndex: number): number { return this.viewIndexes.createdIndexToIndex(createdIndex); }
   public indexToCreatedIndex(index: number): number { return this.viewIndexes.indexToCreatedIndex(index); }
   // A filter or a sort is set: without one the created indexes are the record indexes and the owner
   // keeps one object per record.

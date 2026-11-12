@@ -301,7 +301,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   public showHideDetailPanelClick: any;
   public onDetailPanelShowingChanged: () => void;
   // The row's position among the visible records of the whole list: a matrix that pages holds one
-  // page of them as rows (see pageVisibleIndex).
+  // page of them as rows.
   public visibleIndex: number = -1;
 
   constructor(public data: QuestionMatrixDropdownModelBase, value: any) {
@@ -1063,15 +1063,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   private detailPanelValue: PanelModel;
   private useCaseSensitiveComparisonValue: boolean;
-  /* The matrix is writing its records itself (see QuestionRecordsModel.writeRecords). A subclass may
-     still set it, as it could before: the value it sets counts too. */
-  private isRowChangingValue: boolean = false;
-  protected get isRowChanging(): boolean {
-    return this.isRowChangingValue || this.isWritingRecords;
-  }
-  protected set isRowChanging(val: boolean) {
-    this.isRowChangingValue = val;
-  }
   onRenderedTableResetCallback: () => void;
   /* Fires once per rendered table, when the first read of renderedTable (the renderer's or code's) has
      built and stored it: only the table that is shown is built, so a page that is never shown fires

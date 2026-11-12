@@ -1019,7 +1019,7 @@ describe("Fixed matrix pages its rows under a sort and a filter", () => {
     matrix.nextPage();
     const row = matrix.visibleRows[1];
     expect(row.rowName, "#1: page 1 holds Delta and Echo").toBe("r2");
-    expect([row.getIndex(), row.visibleIndex, row.pageVisibleIndex], "#2: record 1, visible 3, page-local 1").toEqual([1, 3, 1]);
+    expect([row.getIndex(), row.visibleIndex, matrix.visibleRows.indexOf(row)], "#2: record 1, visible 3, page-local 1").toEqual([1, 3, 1]);
     row.cells[0].question.value = "echo";
     expect(matrix.value, "#3: the row's own key").toEqual({ r2: { a: "echo" } });
   });

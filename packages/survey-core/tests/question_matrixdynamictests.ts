@@ -3119,7 +3119,6 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(cells[1].hasTitle, "col1").toBe(true);
     expect(cells[1].hasQuestion, "no question").toBe(false);
     expect(cells[1].minWidth, "col1.minWidth").toBe("");
-    expect(cells[1].isRemoveRow, "do not have remove row").toBeFalsy();
     expect(cells[1].locTitle.renderedHtml, "col1").toBe("col1");
     expect(cells[2].locTitle.renderedHtml, "col2").toBe("col2");
     expect(cells[2].minWidth, "col2.minWidth").toBe("100px");
@@ -3166,7 +3165,6 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(cells[0].hasTitle, "col1").toBe(true);
     expect(cells[0].hasQuestion, "no question").toBe(false);
     expect(cells[0].locTitle.renderedHtml, "col1").toBe("col1");
-    expect(cells[0].isRemoveRow, "do not have remove row").toBeFalsy();
     expect(cells[1].locTitle.renderedHtml, "col2").toBe("col2");
     expect(cells[2].hasTitle, "remove row").toBe(false);
     matrix.minRowCount = 3;
@@ -3204,12 +3202,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(cells[1].hasTitle, "col1").toBe(false);
     expect(cells[1].hasQuestion, "col1 question").toBe(true);
     expect(cells[1].question.getType(), "col1.cellType").toBe("text");
-    expect(cells[1].isRemoveRow, "col1 do not have remove row").toBeFalsy();
 
     expect(cells[2].hasTitle, "col2").toBe(false);
     expect(cells[2].hasQuestion, "col2 question").toBe(true);
     expect(cells[2].question.getType(), "col2.cellType").toBe("dropdown");
-    expect(cells[2].isRemoveRow, "col1 do not have remove row").toBeFalsy();
 
     cells = rows[5].cells;
     expect(cells[0].locTitle.renderedHtml, "row3").toBe("row3");
@@ -10943,7 +10939,7 @@ describe("Survey_QuestionMatrixDynamic: rows follow the view", () => {
     // record in both.
     const byRecord = <Question>survey.getQuestionByValueNameFromRecord("shared", "c3", 0);
     expect(byRecord.value, "#4: record 0 in the bound panel").toBe("p0");
-    const shared = m1.allRows[0].getSharedQuestionByName("c3");
+    const shared = m1.getSharedQuestionByName("c3", m1.allRows[0]);
     expect(!!shared, "#5: the row found the question of its own record").toBe(true);
     expect(shared.value, "#6").toBe("p0");
   });
@@ -12587,21 +12583,6 @@ describe("disposing inside the question's own write", () => {
     expect(cells.map(cell => cell.isDisposed), "#1").toEqual([true, true]);
     expect(matrix.visibleRows[0].cells[0].question.isDisposed, "#2: the new rows stay").toBe(false);
     expect(survey.data, "#3").toEqual({ m: [{ a: 5 }, { a: 2 }] });
-  });
-});
-
-describe("a matrix subclass and the row-changing flag", () => {
-  class RowChangingMatrix extends QuestionMatrixDynamicModel {
-    public setRowChanging(val: boolean): void { this.isRowChanging = val; }
-    public get rowChanging(): boolean { return this.isRowChanging; }
-  }
-  test("a matrix subclass may assign isRowChanging", () => {
-    const matrix = new RowChangingMatrix("m");
-    expect(matrix.rowChanging, "#1").toBe(false);
-    matrix.setRowChanging(true);
-    expect(matrix.rowChanging, "#2").toBe(true);
-    matrix.setRowChanging(false);
-    expect(matrix.rowChanging, "#3").toBe(false);
   });
 });
 

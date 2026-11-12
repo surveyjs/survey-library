@@ -168,11 +168,11 @@ describe("PanelDynamicActions: the remove buttons", () => {
 describe("PanelDynamicActions: the tabbed menu", () => {
   test("one tab per visible panel; a tab whose panel leaves is handed to the owner as a left object", () => {
     const { question, owner, actions } = createActions({ panelCount: 3, displayMode: "tab" });
-    expect(actions.createdTabbedMenu, "#1: created on first use").toBeUndefined();
+    expect(actions["tabbedMenuValue"], "#1: created on first use").toBeUndefined();
     const menu = actions.tabbedMenu;
-    expect(actions.createdTabbedMenu, "#2").toBe(menu);
+    expect(actions["tabbedMenuValue"], "#2").toBe(menu);
     const tabs = menu.actions.slice();
-    expect(tabs.map(tab => tab.panelId), "#3").toEqual(question.visiblePanels.map(panel => panel.id));
+    expect(tabs.map(tab => tab.id), "#3").toEqual(question.visiblePanels.map(panel => question.id + "_tab_" + panel.id));
     question.removePanel(2);
     actions.updateTabbedMenuItems();
     expect(menu.actions.length, "#4").toBe(2);

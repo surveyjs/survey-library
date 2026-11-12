@@ -981,7 +981,7 @@ describe("choice badges bind only the questions that can show them", () => {
     allContainerQuestions(survey).forEach(q => {
       const updater: any = q.dependencies["choiceKeyState"];
       expect(!!updater, q.name + " bound").toBe(true);
-      registrations.push(...updater.getDependencies().dependencies);
+      registrations.push(...updater.dependencies.dependencies);
     });
     expect(registrations.length > 0).toBe(true);
     survey.dispose();

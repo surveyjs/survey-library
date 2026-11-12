@@ -11,7 +11,7 @@ export interface IValueGetterItem {
   from?: number;
   to?: number;
 }
-// What ValueGetter.isAnyKeyChangedCore reads from a name, built once per name
+// What ValueGetter.isAnyKeyChanged reads from a name, built once per name
 export interface IValueGetterNameInfo {
   name: string;
   lowerName: string;
@@ -128,16 +128,13 @@ export class ValueGetter {
   // isClearedKeyChanged: a path under a key whose value has been cleared ({m.row1} for a cleared m)
   // counts as changed. Elements leave it off: a matrix cell expression re-run while a handler clears
   // the matrix writes its result back into the cleared rows.
-  public isAnyKeyChanged(keys: any, usedNames: string[], isClearedKeyChanged?: boolean): boolean {
-    return this.isAnyKeyChangedCore(keys, usedNames, undefined, isClearedKeyChanged);
-  }
   // namesInfo keeps the parsed parts of usedNames between calls, one item per name, filled as the
   // loop reaches a name (an expression runner owns it, see ExpressionRunnerBase.getVariablesInfo).
   // Without it the parts are parsed and dropped, as each name is reached. An item is rebuilt when
   // its name differs: a trigger may push a name into the runner's variables (CopyValueTrigger).
   // sharedNamesInfo (the survey's, see SurveyModel.getVariableNamesInfo) holds the items by their exact
   // name: a name is looked up there before it is parsed, and an item built here is stored there.
-  public isAnyKeyChangedCore(keys: any, usedNames: string[], namesInfo: Array<IValueGetterNameInfo>, isClearedKeyChanged?: boolean,
+  public isAnyKeyChanged(keys: any, usedNames: string[], isClearedKeyChanged?: boolean, namesInfo?: Array<IValueGetterNameInfo>,
     sharedNamesInfo?: Map<string, IValueGetterNameInfo>): boolean {
     // Settings are read on every call, never kept in a name's information: tests change them at runtime
     const propPrefix = settings.expressionElementPropertyPrefix;

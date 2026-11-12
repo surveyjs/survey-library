@@ -59,7 +59,7 @@ describe("Bindings", () => {
       bindings.getPropertiesByValueName("valueName"),
       "Two bindings"
     ).toEqual(["defaultValue", "min"]);
-    bindings.clearBinding("min");
+    bindings.setBinding("min", "");
     expect(bindings.isEmpty(), "There is still on binding").toBe(false);
     expect(
       bindings.getValueNameByPropertyName("min"),
@@ -246,7 +246,7 @@ describe("Bindings", () => {
     expect(e_oldValue, "#1, oldValue").toBeFalsy();
     expect(e_newValue, "#1, newValue").toEqual(bindingJSON);
     expect(e_sender.name, "#1, sender").toBe("matrix1");
-    matrix.bindings.clearBinding("rowCount");
+    matrix.bindings.setBinding("rowCount", "");
     expect(counter, "#2, Binding is changed").toBe(2);
     expect(e_name, "#2, name").toBe("bindings");
     expect(e_oldValue, "#2, oldValue").toEqual(bindingJSON);

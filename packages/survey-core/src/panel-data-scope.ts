@@ -55,7 +55,7 @@ function getDataShapeVersion(survey: ISurvey): number {
 export function getActiveDataScope(data: any): PanelDataScope {
   return data instanceof PanelDataScope ? data.getActiveScope() : null;
 }
-// The root scope an element's data ends at: a record item (a dynamic panel's item, a matrix row, RN1), or
+// The root scope an element's data ends at: a record item (a dynamic panel's item, a matrix row), or
 // null for the survey data.
 export function getRecordDataScope(data: any): ObjectDataScope {
   while(data instanceof PanelDataScope) {
@@ -75,7 +75,7 @@ export function getEmptyValuesSurvey(data: any, survey: ISurvey): ISurvey {
   return data instanceof ObjectDataScope ? null : survey;
 }
 
-// The values of a group of elements kept as keys of one object (decisions N8): a question reads
+// The values of a group of elements kept as keys of one object: a question reads
 // object[valueName], its comment object[valueName + commentSuffix]. PanelDataScope keeps the object under its
 // key in its parent's data; a composite question keeps it as its value (CompositeDataScope, question_custom.ts); a
 // record item (a dynamic panel's item, a matrix row) keeps it as its record (QuestionRecordItem, question_records.ts).
@@ -251,9 +251,10 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     const data = this.parentData;
     return data instanceof PanelDataScope ? data : null;
   }
-  // The one parent link (RN2): the scope whose object holds this scope's key. The nearest active scope above
-  // it, or the record item it is inside (a dynamic panel's item, a matrix row: a root scope, RN1); null when
-  // the key is a key of the survey data. Prompt 11's step 2 (a composite's content) plugs in here.
+  // The one parent link: the scope whose object holds this scope's key. The nearest active scope above it, or
+  // the record item it is inside (a dynamic panel's item, a matrix row: a root scope); null when the key is a
+  // key of the survey data. A composite's content never reaches here yet: no panel inside a composite gets a
+  // scope; once one does, the CompositeDataScope is its parent through the ObjectDataScope branch.
   public getParentActiveScope(): ObjectDataScope {
     const data: any = this.parentData;
     if (data instanceof PanelDataScope) return data.isActive ? data : data.getParentActiveScope();
@@ -267,7 +268,7 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     return parent instanceof PanelDataScope ? parent : null;
   }
   // The keys from the survey data down to this scope's object: ["page1", "address"]. Inside a record they
-  // start at the record (RN4): ["address"]. A survey path would need the record's index, which a sort, a
+  // start at the record: ["address"]. A survey path would need the record's index, which a sort, a
   // filter or a page changes.
   public getDataPath(): Array<string> {
     const parent = this.getParentActiveScope();
@@ -306,7 +307,7 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     if (!data) return;
     if (!this.isActive) return data.setValue(name, newValue, locNotification, allowNotifyValueChanged, questionName);
     // The kind matters for an empty value only. By key: a question whose value name equals a container key
-    // here (D4, a linter error) shares the container's object and gets its rule.
+    // here (allowed at runtime, a linter error) shares the container's object and gets its rule.
     const isContainer = Helpers.isValueEmpty(newValue) && this.getDataKeyIndex().getScopes(name).length > 0;
     this.setObjectValue(name, newValue, isContainer ? "container" : "value", locNotification, allowNotifyValueChanged, questionName);
   }
@@ -330,7 +331,7 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     }
     if (this.getComment(name) === (newValue || "")) return;
     const question = this.getDataKeyIndex().getQuestions(name)[0];
-    // K2: an empty comment key is removed whatever data.keepEmptyValues says, as SurveyModel.setComment does.
+    // An empty comment key is removed whatever data.keepEmptyValues says, as SurveyModel.setComment does.
     this.setObjectValue(Helpers.getCommentKey(name), newValue, "comment", locNotification, true, !!question ? question.name : undefined);
   }
   getFilteredProperties(): any {
@@ -341,7 +342,7 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
   }
   //IObjectValueContext
   // An inactive scope resolves as its parent does. An active one answers with its own questions and the
-  // containers inside it first, then falls back to the parent (design-01 1.1).
+  // containers inside it first, then falls back to the parent.
   getValueGetterContext(): IValueGetterContext {
     if (this.isActive) return new PanelDataScopeValueGetterContext([this]);
     return this.getParentValueGetterContext();

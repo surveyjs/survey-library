@@ -52,7 +52,7 @@ abstract class DataLevelValueGetterContext extends ValueGetterContextCore {
   }
 }
 
-// The expression context of the active scopes that share one key (D4, one scope unless two containers
+// The expression context of the active scopes that share one key (one scope unless two containers
 // share it), with DataLevelValueGetterContext's name step. A path with no items left ({address}) gives the
 // stored object.
 // As an inner element's context (the scope's getValueGetterContext) an unanswered name falls back to the

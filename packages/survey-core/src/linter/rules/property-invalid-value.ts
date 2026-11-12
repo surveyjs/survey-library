@@ -136,7 +136,7 @@ function checkRange(ctx: LintContext, site: PropertySite): void {
 
 // A dot makes the runtime read the name as a path into another key, so the flat data key the
 // author wrote can never be addressed. A panel's or a page's valueName is a container key, which the
-// runtime does address with its dots ({a.b.street}, decisions D11).
+// runtime does address with its dots ({a.b.street}).
 function checkValueName(ctx: LintContext, site: PropertySite): void {
   if (site.key !== "valueName" || typeof site.value !== "string" || site.value.indexOf(".") < 0) return;
   if (isDescendantOf(site.className, "panelbase")) return;

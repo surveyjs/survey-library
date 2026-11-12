@@ -1211,10 +1211,11 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   }
 }
 
-// The content panel's values as keys of the composite's value (decisions N8). The composite stays its
+// The content panel's values as keys of the composite's value. The composite stays its
 // questions' data and keeps its own write pipeline (hooks, conversions, the Creator's editing object); the
 // scope gives it the reads, the key index and the loops that push a value into its questions.
-// It is no PanelDataScope: a content question's value scope stays the survey (N5).
+// It is no PanelDataScope but a root scope over the composite's value, as a record item is: a content
+// question's value scope stays the survey.
 class CompositeDataScope extends ObjectDataScope {
   constructor(private question: QuestionCompositeModel) {
     super();
@@ -1231,7 +1232,8 @@ class CompositeDataScope extends ObjectDataScope {
     const panel = this.question.contentPanel;
     return !!panel ? panel.elements : [];
   }
-  // No panel inside a composite nests (N5): the walk reaches every content question.
+  // No panel inside a composite nests: the walk reaches every content question ("Limitations" in
+  // docs/design-survey-nested-data.md).
   protected isScopeQuestion(q: Question): boolean {
     return true;
   }
@@ -1543,7 +1545,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     if (!val) val = this.buildContentPanelValue(this.getStoredValue());
     return this.customQuestion.setValueToQuestion(val);
   }
-  // The content panel's values, with the empty values the key kept taken from stored (K5).
+  // The content panel's values, plus the empty values that data.keepEmptyValues kept, taken from the stored
+  // value.
   private buildContentPanelValue(stored: any): any {
     return this.addKeptEmptyValues(this.contentPanel.getValue(), stored);
   }
@@ -1558,14 +1561,14 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   private getEmptyValuesSurvey(): ISurvey {
     return getEmptyValuesSurvey(this.data, this.survey);
   }
-  // K5: the composite's object is built from two sources. The answers come from the content panel's build
+  // The composite's object is built from two sources. The answers come from the content panel's build
   // (PanelModelBase.getValue), not from the stored value: a content question can change while the composite
   // writes (an onValueChanged hook sets a sibling, newValueSettingScope keeps that write out of the data), and
   // only the build sees it. The build skips an empty question, so with data.keepEmptyValues on, an empty value
   // the key kept comes from the stored value (the survey data, or the value being set), for a key a content
-  // question owns: a key no content question owns is still dropped (D5, report-11). Not from the content
-  // questions' values: an untouched checkbox's value is [], and a question keeps a value a system clear
-  // removed from the data.
+  // question owns: a key no content question owns is still dropped, as a composite's write always did (a
+  // nesting panel's object keeps such keys). Not from the content questions' values: an untouched checkbox's
+  // value is [], and a question keeps a value a system clear removed from the data.
   private addKeptEmptyValues(val: any, stored: any): any {
     if (this.isEditingSurveyElement || !this.contentPanel) return val;
     const survey = this.getEmptyValuesSurvey();
@@ -1612,7 +1615,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     let val = !!this.contentPanel && !this.isEditingSurveyElement ?
       this.contentPanel.getValue() : this.getValueForContentPanel(this.value);
     if (!this.isEditingSurveyElement && !(!!val && val.getType)) {
-      // A whitespace-only answer is empty here (Question.isValueEmpty trims): it is no answer, not a kept "" (K5).
+      // A whitespace-only answer is empty here (Question.isValueEmpty trims): it is no answer, not a kept "".
       if (this.isValueEmpty(newValue) && !Helpers.isValueEmpty(newValue)) newValue = undefined;
       return this.getContentPanelValue(setObjectKey(this.addKeptEmptyValues(val || {}, this.getStoredValue()), name, newValue, this.getEmptyValuesSurvey()));
     }

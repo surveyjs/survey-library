@@ -2656,7 +2656,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   /* QuestionRecordsModel hook of isRecordKeyUnknown, as released: a key a question of the record's panel
      - of the template for a record without a panel - stores under its value name, or a comment or
-     totals key of such a question by its name, the suffix at the end. With a nesting panel (RN3) a key of
+     totals key of such a question by its name, the suffix at the end. With a nesting panel a key of
      the record is one of the panel's level: a question's value name or comment key, or a nesting panel's key. */
   protected isRecordKeyOfType(key: string, item: QuestionRecordItem): boolean {
     const panel = !!item ? (<QuestionPanelDynamicItem>item).panel : this.template;
@@ -2681,7 +2681,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.clearIncorrectValuesInPanel(i);
     }
   }
-  // A key of the record: a question inside a nesting panel stores a key of the panel's object (RN3).
+  // A key of the record: a question inside a nesting panel stores a key of the panel's object.
   protected getRecordTemplateQuestion(key: string): Question {
     const level = this.getRecordKeyLevel();
     if (!!level) return level.getQuestion(key);
@@ -2744,7 +2744,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const record = index < 0 ? undefined : this.getListRecordAt(index);
     if (!record) return;
     const keys = this.getRecordUnknownKeys(index, record, <QuestionPanelDynamicItem>panel.data);
-    // The unknown keys inside a nesting panel's object go in the same write (D6: removed on request).
+    // The unknown keys inside a nesting panel's object go in the same write.
     const paths = this.getRecordNestedUnknownPaths(record);
     if (keys.length === 0 && paths.length === 0) return;
     this.writeRecordAt(index, (values: any): void => {
@@ -3200,7 +3200,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // Without a view a record without a panel is shown as it is stored, as released.
     if (!item) return this.hasDataListView ? this.formatRecordWithoutObject(keysAsText, record, recordIndex) : record;
     const panel = (<QuestionPanelDynamicItem>item).panel;
-    // With a nesting panel (RN3) the panel's own questions format its keys, and a nesting panel's object.
+    // With a nesting panel the panel's own questions format its keys, and a nesting panel's object.
     const level = this.getRecordKeyLevel(panel.elements);
     return this.formatRecordDisplayValue(keysAsText, record, (key: string): Question =>
       (!!level ? level.getQuestion(key) : <Question>panel.getQuestionByValueName(key)) || this.getSharedQuestionFromArray(key, recordIndex), level);

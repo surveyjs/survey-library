@@ -597,8 +597,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get data(): ISurveyData {
     return this.surveyDataValue;
   }
-  // Nested data (decisions R6). The data scope this element's own value is a key of: the survey, or the
-  // nearest active PanelDataScope above it. A question inside a record answers the survey.
+  // Nested data. The data scope this element's own value is a key of: the survey, or the nearest active
+  // PanelDataScope above it. A question directly in a record answers the survey.
   public getValueScope(): IDataScope {
     return getActiveDataScope(this.data) || getDataScopeHost(this.survey);
   }

@@ -2,7 +2,7 @@ import { Serializer } from "survey-core";
 import type { DataNestingKind } from "survey-core";
 import { CIMultiMap, ContainerRecord, DataScopeRecord, ElementRecord, SurveyIndex } from "./symbols";
 
-// Nested data (prompts/nested-data/decisions.md): a panel or a page with a valueName - or every panel
+// Nested data (docs/design-survey-nested-data.md): a panel or a page with a valueName - or every panel
 // and/or page in a by-name dataNesting mode - stores its questions' values in an object under its key.
 
 // The kind the key rule looks a container up by: a dynamic panel's template is no container of its own.
@@ -11,7 +11,7 @@ export function getContainerNestingKind(container: ContainerRecord): DataNesting
 }
 
 // The mode the survey runs in: the JSON's, else the serializer default - which a host may have set to
-// "none" once in code (decisions N2), and which the linter shares through the one module closure.
+// "none" once in code, and which the linter shares through the one module closure.
 export function getDataNestingMode(json: any): string {
   if (typeof json.dataNesting === "string") return json.dataNesting;
   const prop = Serializer.findProperty("survey", "dataNesting");
@@ -39,15 +39,17 @@ export function createRootScope(): DataScopeRecord {
   return createScope("survey");
 }
 
-// The record one panel of a dynamic panel or one row of a matrix is (records nesting 02, RN1): a root of
-// its own, as the survey data is. Its paths start at the record (RN4).
+// The record one panel of a dynamic panel or one row of a matrix is: a root of its own, as the survey
+// data is. Its paths start at the record: a survey path would need the record's index, which a sort, a
+// filter or a page changes.
 export function createRecordScope(owner: ElementRecord): DataScopeRecord {
   const res = createScope("record");
   res.recordOwner = owner;
   return res;
 }
 
-// Whether the object is a record or lies inside one: a panel there nests by its valueName only (RN3).
+// Whether the object is a record or lies inside one: a panel there nests by its valueName only, so no
+// by-name dataNesting mode changes a record's shape.
 export function isInsideRecordScope(scope: DataScopeRecord): boolean {
   let current = scope;
   while(!!current && current.kind === "object") current = current.parent;
@@ -55,7 +57,7 @@ export function isInsideRecordScope(scope: DataScopeRecord): boolean {
 }
 
 // The object of a nesting container inside parent: shared with every container on the same exact key
-// at that level (D4) - the runtime stores data keys case-sensitively.
+// at that level - the runtime stores data keys case-sensitively.
 export function getChildScope(parent: DataScopeRecord, key: string, container: ElementRecord): DataScopeRecord {
   let res = parent.children.get(key).filter(child => child.key === key)[0];
   if (!res) {

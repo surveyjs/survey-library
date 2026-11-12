@@ -61,7 +61,8 @@ export const SurveyLintReasons = Object.freeze({
     questionKey: "questionKey",
   }),
   // nested data: a panel valueName that stores nothing, inside a composite question's definition, whose
-  // value stays flat (decisions N5). A panel inside a dynamic panel or a matrix detail panel nests (RN3).
+  // value stays flat ("Limitations" in docs/design-survey-nested-data.md). A panel inside a dynamic panel
+  // or a matrix detail panel nests.
   "nesting/ignored-key": Object.freeze({
     insideComposite: "insideComposite",
   }),

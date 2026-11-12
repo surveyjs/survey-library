@@ -29,8 +29,8 @@ function isElementQuestion(q: Question): boolean {
   return !!parent && (parent.isPanel || parent.isPage);
 }
 // SurveyModel.getQuestionByVariable: which question an expression variable reads ({street}, {address.street},
-// {m.r1}, {kind-Comment}), found by the runtime's own walk in its metadata mode, without values (decisions
-// L1-L5). context is the object whose expression it is (a question, a panel, a page, a matrix column); the
+// {m.r1}, {kind-Comment}), found by the runtime's own walk in its metadata mode, without values.
+// context is the object whose expression it is (a question, a panel, a page, a matrix column); the
 // survey when it is omitted. null when the runtime answers the name with no element question: a built-in, a
 // property path, a variable, a container's object, the raw data, a matrix cell or an item editor.
 // rest is the exact tail of the name after the question's part ("", ".r1", "[0].q1"), so the head a rename
@@ -47,10 +47,10 @@ export function getQuestionByVariable(survey: IDataScopeVariablesSurvey, name: s
   return res;
 }
 // SurveyModel.getExpressionScopePaths: the data paths an object's expressions resolve their names in,
-// innermost first, ending with the survey's [] (decisions L6): the prefixes of its value scope's data path;
+// innermost first, ending with the survey's []: the prefixes of its value scope's data path;
 // a panel's and a page's own expressions run in their parent's scope. Inside a record (a template element at
 // design time, a record's element, a matrix column) the paths relative to the record come first, tagged with
-// the records question (RN4), then the records question's own paths.
+// the records question, then the records question's own paths.
 export function getExpressionScopePaths(survey: IDataScopeVariablesSurvey, context: Base): Array<IExpressionScopePath> {
   const el: any = context;
   if (!el || el === survey) return [{ path: [] }];
@@ -75,7 +75,7 @@ export function getExpressionScopePaths(survey: IDataScopeVariablesSurvey, conte
 }
 // SurveyModel.findDataScopeValueContext: the root expression lookup (SurveyValueGetterContext), in this
 // order: the root index, a question by value name (the exact name first), then a container by key; then a
-// question by name whose value scope is not the root (names are unique, design-01 1.1). A comment key
+// question by name whose value scope is not the root (names are unique). A comment key
 // ({kind-Comment}) of such a question gives the comment it stores (value, no context), as a top-level
 // {q-Comment} reads the raw data key; isMetadata (getQuestionByVariable) gives the question instead, marked
 // isComment, and reads nothing.

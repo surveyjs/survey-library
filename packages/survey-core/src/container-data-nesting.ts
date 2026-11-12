@@ -73,7 +73,7 @@ export class ContainerDataNesting {
     const kind = getDataNestingKindAt(ContainerDataNesting.getPlace(this.container), this.getContainerKind(), true);
     return this.getKeyOfKind(kind, valueName || "", name || "");
   }
-  // The key a panel inside a record's template nests under in the records built from it (RN3).
+  // The key a panel inside a record's template nests under in the records built from it.
   public getRecordKey(): string {
     return this.getKeyOfKind("record");
   }
@@ -81,7 +81,9 @@ export class ContainerDataNesting {
     const scope = this.getScope();
     return !!scope && scope.isActive;
   }
-  // Writes the container's stored object into data under its key, as one value (D7).
+  // Writes the container's stored object into data under its key, as one value: every structured data view
+  // shows a nesting container as <key>: <object> ("Structured Data Views" in
+  // docs/design-survey-nested-data.md).
   public collectValue(data: any): void {
     const val = this.getScope().getObjectValue();
     if (!Helpers.isValueEmpty(val)) {
@@ -109,7 +111,7 @@ export class ContainerDataNesting {
   private canAttach(value: ISurveyImpl): boolean {
     const place = this.place;
     // Inside a record a panel with valueName keeps a scope under "none" too: the survey's dataNesting changes
-    // reach no panel inside a record, and its key turns on when the mode does (D8).
+    // reach no panel inside a record, and its key turns on when the mode does.
     const isRecordKey = place === "record" && !!this.container.valueName;
     if (!this.scope && !this.getPlaceKey() && !isRecordKey) return false;
     return !!value.getSurveyData() && (place === "survey" || place === "record");
@@ -123,7 +125,7 @@ export class ContainerDataNesting {
     const container = this.container;
     const record = this.place === "record" ? getRecordDataScope(container.data) : null;
     if (!!record) {
-      // Inside a record the record's questions read it again (D8): the survey's indexes do not hold them.
+      // Inside a record the record's questions read it again: the survey's indexes do not hold them.
       if (prevKey === this.attachedKey) return;
       getDataScopeHost(container.survey)?.dataShapeChanged();
       record.updateValuesFromData();
@@ -132,7 +134,8 @@ export class ContainerDataNesting {
     getDataScopeHost(container.survey)?.dataScopeChanged(container);
   }
   // The container's key may have changed (its valueName or name, or the survey's dataNesting): a container that
-  // starts to nest gets its scope and re-attaches its elements. The data does not move (D8).
+  // starts to nest gets its scope and re-attaches its elements. The data does not move ("Limitations" in
+  // docs/design-survey-nested-data.md).
   public updateAttachment(impl: ISurveyImpl): void {
     const prevImpl = this.getScope() || impl;
     const elementsImpl = this.attach(impl);

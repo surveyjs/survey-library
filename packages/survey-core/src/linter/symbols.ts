@@ -190,7 +190,7 @@ export type DataScopeKind = "survey" | "record" | "object";
 
 // One object of the survey data: the survey data itself (key "", no parent), a record of a dynamic panel
 // or a matrix (key "", no parent, recordOwner set), or the object of a nesting container (parent set).
-// Containers with one key at one level share one object (decisions D4), so they share this.
+// Containers with one key at one level share one object, so they share this.
 export interface DataScopeRecord {
   kind: DataScopeKind;
   key: string;
@@ -419,7 +419,7 @@ export interface SurveyIndex {
   // SurveyVariablePresets - empty when no definition was given. The value is the
   // definition's own spelling of the name, which a finding quotes.
   definitionVariables: CIMap<string>;
-  // Every path into the definition's data (nested data, decisions V1-V5): "users" -> "object" for a
+  // Every path into the definition's data: "users" -> "object" for a
   // panel or page that nests and so describes an object variable, "users.tier" -> "question" for a
   // field. A flat definition holds its variables here as "question". Snapshotted with the names above.
   definitionPaths: CIMap<"object" | "question">;

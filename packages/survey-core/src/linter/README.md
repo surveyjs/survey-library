@@ -501,7 +501,7 @@ another one, and no property holds it.
   type and bounds, and `{address}` is an object. A name that is the `valueName` of a container that stores
   nothing (`"dataNesting": "none"`) gets the `containerKeyNotNesting` hint. Trigger targets take
   the same names, paths and container keys, in the expression order: `setToName: "address"` writes the
-  object even when a question inside it is named `address` (D13). Data keys meet within one object: two
+  object even when a question inside it is named `address`. Data keys meet within one object: two
   questions sharing a `valueName` in different containers share nothing. Keys that differ only in letter
   case are one object to a reference, as at runtime.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,
@@ -551,7 +551,7 @@ under new reasons instead of needing a new rule id.
   writes a whole container object (`setToName: "address"`) is no write of the questions inside it for the
   cycle rules. A composite registered in `ComponentCollection` without an `options.components` entry is
   not scanned for `nesting/ignored-key`. A generated name is recognized by the English `pageN` / `panelN`
-  spelling the runtime uses. Two containers sharing one key (D4) answer each other's relative names here
+  spelling the runtime uses. Two containers sharing one key answer each other's relative names here
   (`{st2}` inside the other container), while the runtime's scope context reads the own container only.
 * A custom trigger type is not covered by the target and cycle checks.
 * A dotted sub-path into a definition variable (`{profile.city}`) is not validated — only its

@@ -10,7 +10,7 @@ export function asScopeObject(val: any): any {
   return !!val && typeof val === "object" && !Array.isArray(val) ? val : undefined;
 }
 // Removes the keys at the paths from obj, in place, copying the objects on the way; an object that becomes
-// empty goes too (D6). A path through a value that is no object (an array included) is skipped.
+// empty goes too. A path through a value that is no object (an array included) is skipped.
 export function deleteObjectPaths(obj: any, paths: Array<Array<string>>): void {
   paths.forEach(path => {
     const objects: Array<any> = [obj];
@@ -29,10 +29,10 @@ export function deleteObjectPaths(obj: any, paths: Array<Array<string>>): void {
   });
 }
 
-// What a key of an object holds, for data.keepEmptyValues (decisions K1-K3): "value" a question's value,
-// "comment" a comment key (never kept, K2), "container" the object of a nesting container inside (K3).
+// What a key of an object holds, for data.keepEmptyValues: "value" a question's value, "comment" a comment key
+// (never kept, as at the top level), "container" the object of a nesting container inside.
 export type ObjectKeyKind = "value" | "comment" | "container";
-// K3: with data.keepEmptyValues on, a container's object is removed only when it has no keys left. One that
+// With data.keepEmptyValues on, a container's object is removed only when it has no keys left. One that
 // still has keys stays, even deep empty ({ street: "" }) and in a system clear. undefined when the rule does
 // not apply (no survey, the key off, or the value is no object): the caller's own rule decides. The survey asks
 // it for a root container's key, an outer scope for the key of a container inside it.
@@ -47,7 +47,7 @@ function isEmptyObjectKeyKept(value: any, survey: ISurvey, kind: ObjectKeyKind):
   return kept !== undefined ? kept : survey.isEmptyValueKept(value);
 }
 // A copy of obj with one key set, or removed when the value is empty. The other keys are kept, including keys
-// no question owns. With a survey, an empty value stays when the survey keeps it (data.keepEmptyValues, K1);
+// no question owns. With a survey, an empty value stays when the survey keeps it (data.keepEmptyValues);
 // without one (no survey, a record) every empty value is removed.
 export function setObjectKey(obj: any, name: string, value: any, survey?: ISurvey, kind: ObjectKeyKind = "value"): any {
   const res = Object.assign({}, obj);

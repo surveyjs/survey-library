@@ -939,7 +939,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
     this.forEachStoredRecord(this.loadedRecordCount, (index: number, item: QuestionRecordItem): void => {
       const record = source["readRecordInAnswer"](val, index);
       const keys = this.getRecordUnknownKeys(index, record, item);
-      // The keys inside a nesting panel's object, by their path (D6), with their values.
+      // The keys inside a nesting panel's object, by their path, with their values.
       const nested = !!level ? level.getNestedUnknownKeys(record) : [];
       if (keys.length === 0 && nested.length === 0) return;
       context.pushSegment(source["getRecordSegment"](index));
@@ -953,7 +953,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
       context.popSegment();
     });
   }
-  /* The keys of the records the template builds (RN3), when a panel of it nests: the template's questions and
+  /* The keys of the records the template builds, when a panel of it nests: the template's questions and
      nesting panels, each panel with its own keys. undefined for flat records: their rules stay as released.
      elements: the elements of one record's panel instead of the template's. */
   protected getRecordKeyLevel(elements?: Array<IElement>): RecordKeyLevel {
@@ -984,13 +984,14 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   protected resetRecordKeyLevels(): void {
     this.recordKeyLevels = undefined;
   }
-  // The keys inside the nesting panels' objects of a record that no question stores (D6).
+  // The keys inside the nesting panels' objects of a record that no question stores.
   public getRecordNestedUnknownPaths(record: any): Array<Array<string>> {
     const level = this.getRecordKeyLevel();
     return !!level ? level.getNestedUnknownPaths(record) : [];
   }
   /* The template's questions whose values are keys of the record itself: a question inside a nesting panel
-     is a key of the panel's object, no field of the record (RN5). */
+     is a key of the panel's object, no field of the record ("Limitations" in
+     docs/design-survey-nested-data.md). */
   protected getRecordTemplateFieldQuestions(template: PanelModelBase): Array<Question> {
     const questions = template.questions;
     if (!hasRecordDataNesting(template.elements)) return questions;
@@ -1092,7 +1093,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   /* The display values of one record, formatted key by key in place: getQuestion names the question
      that formats a key - one of the record's object, of the template or a shared one - and a key
      without a question keeps its value. With keysAsText a key whose question has another title is
-     renamed to the title. Returns the record. A nesting panel's key (level, RN3) keeps its key, and its
+     renamed to the title. Returns the record. A nesting panel's key (level) keeps its key, and its
      object is formatted by the questions of the panel, at any depth. */
   protected formatRecordDisplayValue(keysAsText: boolean, record: any, getQuestion: (key: string) => Question, level?: RecordKeyLevel): any {
     return this.formatObjectDisplayValue(keysAsText, record, getQuestion, (key: string): Array<RecordKeyLevel> => !!level ? level.getLevels(key) : []);
@@ -2652,7 +2653,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   /* Every value-sortable question of a record template, nested panels included (their values live in
      the same record), under the value name the list knows it by (getFieldsOfQuestions). A question
      hidden in the template is left out; one a visibleIf hides in some records is not: the sort covers
-     those records too. A question inside a nesting panel is no field of the record (RN5). */
+     those records too. A question inside a nesting panel is no field of the record. */
   private getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
     const res: Array<{ field: string, title: string }> = [];
     this.getRecordTemplateFieldQuestions(template).forEach((q: Question): void => {
@@ -3409,7 +3410,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   protected getRecordFieldQuestion(item: QuestionRecordItem, field: string): Question {
     if (!item || !field) return undefined;
     const name = Helpers.getNameOfCommentKey(field) ?? field;
-    // A nesting panel's key: the question inside it that writes (RN3).
+    // A nesting panel's key: the question inside it that writes.
     const writer: IRecordItemContainerWrite = item;
     return item.getQuestionsByValueName(name)[0] || writer.getContainerWriteQuestion(field) || undefined;
   }
@@ -4501,11 +4502,11 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
   }
 }
 
-/* The data of one record's questions (decisions RN1): a root data scope over the record, as the survey is
-   (R6) and a composite's content is. ObjectDataScope gives the reads, the key index and the loops that push
+/* The data of one record's questions: a root data scope over the record, as the survey is and a
+   composite's content is. ObjectDataScope gives the reads, the key index and the loops that push
    a record into the questions; the per-type differences are the subclasses' overrides. It is no
-   PanelDataScope and no IDataScope: a question directly in a record has the survey as its value scope (RN4).
-   A panel with valueName inside the record nests (RN3): its PanelDataScope has the item as its parent, the
+   PanelDataScope and no IDataScope: a question directly in a record has the survey as its value scope.
+   A panel with valueName inside the record nests: its PanelDataScope has the item as its parent, the
    item's walk sees it as one key, and its questions' data paths start at the record. */
 export abstract class QuestionRecordItem extends ObjectDataScope implements ISurveyData, ISurveyImpl, IObjectValueContext, IRecordItemContainerWrite {
 
@@ -4551,7 +4552,7 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   public getRecordKeyElements(): Array<IElement> {
     return this.getScopeElements();
   }
-  // The record's nesting panels' scopes on a key (RN3).
+  // The record's nesting panels' scopes on a key.
   public getDataScopesByKey(name: string, caseInsensitive?: boolean): Array<PanelDataScope> {
     return this.getIndexScopes(name, caseInsensitive);
   }
@@ -4603,7 +4604,7 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
     this.writeRecordValue(name, newValue, false, questionName);
   }
   // The record pushed into the questions again from the owner's storage: a panel inside it started or
-  // stopped nesting (D8). A row's own object composes its questions' current values, so it is not read here.
+  // stopped nesting. A row's own object composes its questions' current values, so it is not read here.
   public updateValuesFromData(): void {
     this.updateFromRecord(this.data.getItemData(this));
   }
@@ -4634,7 +4635,7 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
       const fieldName = isComment ? Helpers.getCommentKey(name) : name;
       if (!this.isValueChanged(fieldName, write.fieldValue)) return;
       if (!this.data["writeItemValue"](this, fieldName, write.ownerValue, write.isDeleting)) return;
-      // The nesting panels on the key read the stored object: a panel sharing it (D4), and a value a
+      // The nesting panels on the key read the stored object: a panel sharing it, and a value a
       // changing event replaced. Read from the owner's storage: a row's own object composes its questions.
       if (scopes.length > 0) {
         const stored = this.data.getItemData(this);
@@ -4647,7 +4648,7 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
       this.containerWrite = prevWrite;
     }
   }
-  /* A write of a nesting panel's key (RN3): the scopes on the key, and the question inside one of them that
+  /* A write of a nesting panel's key: the scopes on the key, and the question inside one of them that
      wrote (the survey passes the question's name with a write). The owner reads it for the questions the
      write validates and touches (getRecordFieldQuestion). */
   protected containerWrite: { scopes: Array<PanelDataScope>, writer: Question };
@@ -4703,7 +4704,7 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
     this.assignQuestionFromRecord(question, question.getValueName(), this.getQuestionRecordObject(question, record), true);
   }
   /* The object of a record that holds a question's value: the record, or for a question inside a nesting
-     panel the object at its data path, which starts at the record (RN4). */
+     panel the object at its data path, which starts at the record. */
   protected getQuestionRecordObject(question: Question, record: any): any {
     if (!getActiveDataScope(question.data)) return record;
     const path = question.getDataPath();

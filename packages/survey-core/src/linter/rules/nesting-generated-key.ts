@@ -11,10 +11,10 @@ const GENERATED_NAME: { [kind: string]: RegExp } = { page: /^page[0-9]+$/i, pane
 
 // Nested data: a by-name dataNesting mode ("panel", "page", "panelAndPage") stores a container's
 // values under its name when it has no valueName. A generated name is a placeholder an author renames
-// sooner or later, and the rename moves the data to another key (decisions D8: the data never moves,
-// the elements read from the new place). A hint, not a defect: the survey works as it is. The repair
-// pins the key: valueName set to the current name keeps the data where it is, whatever the name
-// becomes. An unnamed container nests under the name the runtime generates for it in load order,
+// sooner or later, and after the rename the elements read another key while the data stays under the
+// old one ("Limitations" in docs/design-survey-nested-data.md). A hint, not a defect: the survey works
+// as it is. The repair pins the key: valueName set to the current name keeps the data where it is,
+// whatever the name becomes. An unnamed container nests under the name the runtime generates for it in load order,
 // which the JSON does not state at all - it carries no fix, since that name depends on the order.
 export const nestingGeneratedKeyRule: ILintRule = {
   id: "nesting/generated-key",

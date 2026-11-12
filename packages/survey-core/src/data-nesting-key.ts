@@ -2,12 +2,13 @@ import type { IPanel } from "./base-interfaces";
 import type { Question } from "./question";
 
 // Where a container is for nested data, found by ContainerDataNesting.getPlace:
-//   "survey": on the survey's data (or in a nesting container on it); the dataNesting table applies (N3);
+//   "survey": on the survey's data (or in a nesting container on it); the dataNesting table applies;
 //   "record": a panel inside a dynamic panel's or a matrix detail panel's record, at any depth: it nests under
-//   its valueName only, and "none" switches it off (RN3);
+//   its valueName only (no by-name mode changes a record's shape), and "none" switches it off;
 //   "template": a panel inside such a record's template (the designer's dynamic panel template, a matrix's
 //   detail panel template): it never nests there, its valueName applies to the records built from it;
-//   "": never - a record panel itself (RN6), a composite's content panel and the panels in it (N5).
+//   "": never - a record panel itself (it is the record), a composite's content panel and the panels in it
+//   (the composite's value is an object of its own).
 export type DataNestingPlace = "survey" | "record" | "template" | "";
 // The kind of container the dataNesting table looks up: "panel" or "page" on the survey's data, "record" for a
 // panel inside a record, "" for a container that never nests.
@@ -37,20 +38,20 @@ export function getDataNestingPlaceOwner(obj: any): IDataNestingPlaceOwner {
 }
 
 // The dataNesting modes that nest a container without a valueName under its name, and the container
-// kinds each applies to (decisions N3).
+// kinds each applies to ("Nest Every Panel or Page" in docs/design-survey-nested-data.md).
 const byNameModes: { [mode: string]: Array<string> } = {
   panel: ["panel"],
   page: ["page"],
   panelAndPage: ["panel", "page"]
 };
-// The rule of decisions N3: the key a container stores its elements' values under, or "" when it does
+// The dataNesting rule: the key a container stores its elements' values under, or "" when it does
 // not nest. kind is "panel" or "page", "record" for a panel inside a dynamic panel's or a detail panel's
 // record, "" for a container that never nests (the single-page container, a record panel itself, a
 // composite's content).
 //   "none": never; "auto" (and an unknown mode): under valueName;
 //   "panel" / "page" / "panelAndPage": under valueName, else name for the containers of that kind.
-// No by-name mode lists "record": inside a record only an explicit valueName nests (RN3). Where a container
-// is, is the owner's: PanelModelBase.getDataScopeKey().
+// No by-name mode lists "record": inside a record only an explicit valueName nests, so no by-name mode
+// changes a record's shape. Where a container is, is the owner's: PanelModelBase.getDataScopeKey().
 export function getDataNestingKey(dataNesting: string, kind: string, valueName: string, name: string): string {
   if (dataNesting === "none" || !kind) return "";
   if (!!valueName) return valueName;

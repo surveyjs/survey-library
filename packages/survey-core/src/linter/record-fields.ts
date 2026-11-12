@@ -35,7 +35,7 @@ export function getFrameNames(frame: CapturingScopeFrame): CIMultiMap<ElementRec
 }
 
 // The questions (and columns) of a panel's or row's record by data key, built once per scope. A question
-// inside a nesting panel there writes into that panel's object, not into the record (records nesting 02).
+// inside a nesting panel there writes into that panel's object, not into the record.
 function getFrameDataKeys(frame: CapturingScopeFrame): CIMultiMap<ElementRecord> {
   if (!frame.dataKeys) {
     const keys = new CIMultiMap<ElementRecord>();

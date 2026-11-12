@@ -19,7 +19,7 @@ export interface IRecordCleanupRunnerOwner {
   // The records a clean-up pass changed, written in one batch of the list as the question's own change.
   writeRecordChanges(changes: Array<{ index: number, record: any }>): void;
   getRecordUnknownKeys(recordIndex: number, record: any, item: QuestionRecordItem): Array<string>;
-  // The unknown keys inside a record's nesting panels' objects, by path (RN3, D6). An owner without it has none.
+  // The unknown keys inside a record's nesting panels' objects, by path. An owner without it has none.
   getRecordNestedUnknownPaths?(record: any): Array<Array<string>>;
   getRecordTemplateQuestion(key: string): Question;
   createRecordCleanupObject(index: number, record: any): IRecordCleanupObject;

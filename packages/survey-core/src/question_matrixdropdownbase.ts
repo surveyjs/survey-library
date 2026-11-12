@@ -416,7 +416,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   }
   /* The row value: the cells first, then the rest of the index walk - the detail questions, where one on a
      cell's value name gives no key, and the nesting panels of the detail panel, each with its key and its
-     object, composed as the row composes its own value (composeScopeObject, RN3). */
+     object, composed as the row composes its own value (composeScopeObject). */
   private getValueCore(isFiltered: boolean): any {
     const result: any = {};
     const cellValueNames: any = {};
@@ -456,8 +456,9 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     });
     return result;
   }
-  /* A nesting panel's object in the row value: a copy of the stored object - the keys no question owns stay
-     (D5) - with the current values of the panel's questions, and the objects of the panels inside it. */
+  /* A nesting panel's object in the row value: a copy of the stored object - the keys no question owns stay,
+     as in every nesting object - with the current values of the panel's questions, and the objects of the
+     panels inside it. */
   private composeScopeObject(scope: PanelDataScope, stored: any, isFiltered: boolean, storeComments: boolean): any {
     const res = Object.assign({}, asScopeObject(stored));
     scope.getDataKeyIndex().elements.forEach((el: ISurveyDataElement): void => {
@@ -608,12 +609,12 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     }
   }
   /* The keys of the record the row's own elements store: its questions' value names and its nesting panels'
-     keys (RN3), as the index walk keys them. Without a nesting panel these are the value names of questions. */
+     keys, as the index walk keys them. Without a nesting panel these are the value names of questions. */
   public getOwnRecordKeys(): Array<string> {
     return this.getIndexElements().map((el: ISurveyDataElement): string => el.getValueName());
   }
   // The paths in the record of the questions that hold their default values: a question inside a nesting
-  // panel has its data path, which starts at the record (RN4).
+  // panel has its data path, which starts at the record.
   public getDefaultValuePaths(): Array<Array<string>> {
     const res: Array<Array<string>> = [];
     this.forEachQuestion((q: Question): void => {
@@ -653,10 +654,10 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       isDeleting: newValue == null && !changedQuestion || isComment && !newValue && !!changedQuestion
     };
   }
-  /* A write of a nesting panel's key (RN3): the proposed row holds the object the panel's scope wrote. The
-     cell-changing event reports the key and the object, as a survey-level write reports a container key
-     (D1); a handler's object is written, and the panel's questions read it after the write. The question
-     inside the panel that wrote is validated, the others are not. */
+  /* A write of a nesting panel's key: the proposed row holds the object the panel's scope wrote. The
+     cell-changing event reports the key and the object, as a survey-level write reports a container key with
+     its whole object. A handler's object is written, and the panel's questions read it after the write. The
+     question inside the panel that wrote is validated, the others are not. */
   private prepareContainerWrite(name: string, newValue: any, writer: Question): IRecordItemWrite {
     const rowValue = this.value;
     const setKey = (val: any): void => {
@@ -825,8 +826,8 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       }
     }
   }
-  /* A nesting panel's key (RN3): the panel's questions clear their values, and the keys of its object no
-     question stores go, in one write of the object (D6: removed on request). */
+  /* A nesting panel's key: the panel's questions clear their values, and the keys of its object no
+     question stores go, in one write of the object. */
   private clearIncorrectValuesInObject(key: string): void {
     this.getIndexScopes(key).forEach((scope: PanelDataScope): void => scope.forEachQuestion((q: Question): void => q.clearIncorrectValues()));
     const stored = this.getDataRowValue();
@@ -2029,7 +2030,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      the name in front of the suffix -, or a key with the totals suffix anywhere in it. */
   protected isRecordKeyOfType(key: string, row: QuestionRecordItem): boolean {
     if (!!this.getRecordTemplateQuestion(this.getRecordKeyValueName(key)) || key.indexOf(settings.matrix.totalsSuffix) > -1) return true;
-    // A nesting panel's key of the detail panel (RN3).
+    // A nesting panel's key of the detail panel.
     const level = this.getRecordKeyLevel();
     return !!level && level.getLevels(key).length > 0;
   }
@@ -2080,7 +2081,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       const question = this.columns[i].templateQuestion;
       if (!!question && question.getValueName() === key) return question;
     }
-    // A question inside a nesting panel of the detail panel stores a key of the panel's object (RN3).
+    // A question inside a nesting panel of the detail panel stores a key of the panel's object.
     const level = this.getRecordKeyLevel();
     if (!!level) return level.getQuestion(key);
     return <Question>this.getRecordSortTemplate()?.getQuestionByValueName(key) || undefined;
@@ -2652,7 +2653,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   ): any {
     if (!rowValue) return rowValue;
     if (!!row.editingObj) return rowValue;
-    // A nesting panel's object is formatted by the questions of the row's detail panel, or of the template (RN3).
+    // A nesting panel's object is formatted by the questions of the row's detail panel, or of the template.
     const level = this.getRecordKeyLevel(!!row.detailPanel ? row.detailPanel.elements : undefined);
     return this.formatRecordDisplayValue(keysAsText, rowValue,
       (key: string): Question => row.getQuestionByName(key) || this.getSharedQuestionByName(key, row), level);

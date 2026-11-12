@@ -10,7 +10,7 @@ export interface IRecordNestedKey {
   value: any;
 }
 
-// The keys of one level of the records a template builds (RN3): its questions under their value names and its
+// The keys of one level of the records a template builds: its questions under their value names and its
 // nesting panels under their keys (PanelModelBase.getRecordDataNestingKey), each with the level of its own
 // keys. Built from the elements whatever they are attached to: a dynamic panel's template, a matrix's detail
 // panel template, or the panel of one record. The owner-level rules of the records read it.
@@ -35,7 +35,7 @@ export class RecordKeyLevel {
       }
     });
   }
-  // The levels of the nesting panels on a key: panels sharing a key share its object (D4).
+  // The levels of the nesting panels on a key: panels sharing a key share its object.
   public getLevels(key: string, caseInsensitive?: boolean): Array<RecordKeyLevel> {
     return this.index.getElements(key, caseInsensitive).filter(el => !el.isQuestion).map(el => this.levels.get(el));
   }
@@ -45,7 +45,7 @@ export class RecordKeyLevel {
   public isKnownKey(key: string): boolean {
     return isKnownDataKey(this.index, key);
   }
-  // The levels that share one key (D4) read as one: the question of the first level that has one, and the
+  // The levels that share one key read as one: the question of the first level that has one, and the
   // levels on a key of all of them.
   public static getQuestionOf(levels: Array<RecordKeyLevel>, key: string, caseInsensitive?: boolean): Question {
     for (let i = 0; i < levels.length; i++) {
@@ -89,7 +89,7 @@ export class RecordKeyLevel {
     return this.getNestedUnknownKeys(obj).map(item => item.path);
   }
 }
-// Whether a panel among the elements, at any depth, nests in the records built from them (RN3).
+// Whether a panel among the elements, at any depth, nests in the records built from them.
 export function hasRecordDataNesting(elements: Array<IElement>): boolean {
   return (elements || []).some((el: any): boolean => el.isPanel && (!!el.getRecordDataNestingKey() || hasRecordDataNesting(el.elements)));
 }

@@ -49,7 +49,7 @@ export interface ISurveyVariableValidationResult {
 }
 
 // One data key of the definition: a variable at the root, a field of an object variable below it.
-// A key may carry both a question and a nesting container (decisions D4 allows that at runtime), and
+// A key may carry both a question and a nesting container (the runtime allows that), and
 // two containers with one key are one node with the fields of both.
 interface IVariableNode {
   key: string;
@@ -233,11 +233,12 @@ export class SurveyVariablePresets {
     this.rootValue = { key: "", children: Object.create(null) };
     const model = this.getModel();
     if (!model) return;
-    // The elements in document order, keyed by their data paths (decisions R6): a question is a leaf,
+    // The elements in document order, keyed by their data paths: a question is a leaf,
     // a panel or a page that nests is an object variable. The walk never enters a question, so a
     // question inside a dynamic panel template, a matrix cell or a composite's content produces no
-    // key: the question that holds the record is the one variable (N5; the data path of a question
-    // inside a record is relative to the record, records-nesting RN4). A container that does not nest
+    // key: the question that holds it (the dynamic panel, the matrix, the composite) is the one variable, as
+    // their values are part of its value (the data path of a question inside a record is relative to the
+    // record). A container that does not nest
     // has no data path and is transparent.
     model.pages.forEach(page => this.addElement(page));
   }
@@ -262,7 +263,7 @@ export class SurveyVariablePresets {
     }
     if (path.length > 0) {
       const node = this.addNode(path);
-      // Two containers with one key share one object (D4): the first one describes it.
+      // Two containers with one key share one object: the first one describes it.
       if (!node.container) node.container = element;
     }
     if (element.isPanel || element.isPage) {
@@ -340,7 +341,7 @@ export class SurveyVariablePresets {
     res: ISurveyVariableValidationResult, invalidNodes: Array<IVariableNode>): any {
     // A question owns its value as a whole: a multiple text's or a dynamic panel's object is checked
     // by the question itself. That holds when a question and a nesting container share the key too
-    // (allowed at runtime by D4, a linter error): which one owns the object is ambiguous, so its keys
+    // (allowed at runtime, a linter error): which one owns the object is ambiguous, so its keys
     // are neither respelled nor checked.
     if (!!node.question || !node.container) return value;
     // An absent object variable is no value: its fields validate as empty, a required one included.

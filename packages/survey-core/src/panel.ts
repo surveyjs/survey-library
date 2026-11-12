@@ -554,14 +554,14 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   // The key this container nests under with these valueName and name (the Creator asks it before a rename),
   // for where it is now: the dataNesting table on the survey; inside a record and in a records template
-  // (RN3) under valueName only; "" for a record panel itself and inside a composite. A template panel
+  // under valueName only; "" for a record panel itself and inside a composite. A template panel
   // answers with the key of the records built from it (getRecordDataNestingKey), not with its own,
   // which is "" at design time.
   public getDataNestingKeyFor(valueName: string, name: string): string {
     return this.containerNesting.getKeyFor(valueName, name);
   }
   // The key a panel inside a record's template (a dynamic panel's template, a matrix's detail panel) nests
-  // under in the records built from it (RN3), whatever the template is attached to; "" when it does not.
+  // under in the records built from it, whatever the template is attached to; "" when it does not.
   public getRecordDataNestingKey(): string {
     return this.containerNesting.getRecordKey();
   }
@@ -570,7 +570,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.containerNesting.isNesting;
   }
   // ISurveyDataElement: a nesting container owns its key in the data of its parent scope, as a question
-  // owns its value name (decisions R3). The survey reaches it through its data key index.
+  // owns its value name. The survey reaches it through its data key index.
   public getValueName(): string {
     return this.getDataScopeKey();
   }
@@ -589,7 +589,9 @@ export class PanelModelBase extends SurveyElement<Question>
       scope.updateValuesFromData();
     }
   }
-  // Writes this nesting container's stored object into data under its key, as one value (D7).
+  // Writes this nesting container's stored object into data under its key, as one value: every structured
+  // data view shows a nesting container as <key>: <object> ("Structured Data Views" in
+  // docs/design-survey-nested-data.md).
   collectDataNestingValue(data: any): void {
     this.containerNesting.collectValue(data);
   }
@@ -617,7 +619,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   // Whether this container's key is ignored where it is: on a record panel itself (its object is the record) and
   // inside a composite (the component owns the shape of its value). The Creator hides the valueName property
-  // there; it shows it on a panel inside a dynamic panel or a detail panel (RN3).
+  // there; it shows it on a panel inside a dynamic panel or a detail panel.
   public isDataNestingIgnored(): boolean {
     return this.getDataNestingPlace() === "";
   }
@@ -626,7 +628,8 @@ export class PanelModelBase extends SurveyElement<Question>
     this.containerNesting.onKeyChanged(this.surveyImpl);
   }
   // The container's key may have changed (its valueName or name, or the survey's dataNesting): a container
-  // that starts to nest gets its scope and re-attaches its elements. The data does not move (D8).
+  // that starts to nest gets its scope and re-attaches its elements. The data does not move ("Limitations"
+  // in docs/design-survey-nested-data.md).
   public updateDataScopeAttachment(): void {
     if (!this.surveyImpl) return;
     this.containerNesting.updateAttachment(this.surveyImpl);
@@ -1024,7 +1027,8 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see getDisplayValue
    */
   public getValue(): any {
-    // A nesting container's value is its stored object (nested data, design-01 7).
+    // A nesting container's value is its stored object ("Structured Data Views" in
+    // docs/design-survey-nested-data.md).
     if (this.isDataNesting) {
       const val = this.getDataScope().getObjectValue();
       return Helpers.isValueObject(val, true) && !Array.isArray(val) ? Helpers.getUnbindValue(val) : {};
@@ -1044,7 +1048,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return false;
   }
   // level 0 writes the questions flat, walking through the panels. A nesting container inside is one
-  // value at any level, <key>: <its stored object> (nested data, D7).
+  // value at any level, <key>: <its stored object>, as in every structured data view.
   collectValues(data: any, level: number): boolean {
     const elements = this.elements;
     let hasValue = false;
@@ -1093,7 +1097,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return data;
   }
   // The questions flat, walking through the panels, as getValue() does: a nesting container inside is one
-  // value, under its title (keysAsText) or its key (nested data, D7).
+  // value, under its title (keysAsText) or its key.
   private collectDisplayValues(data: any, keysAsText: boolean): void {
     const elements = this.elements;
     for (let i = 0; i < elements.length; i++) {

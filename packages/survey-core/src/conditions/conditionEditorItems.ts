@@ -110,7 +110,7 @@ export class ConditionEditorItem {
 }
 // A row of a survey's condition: a question whose valueName differs from its name is named in the text
 // by its valueName. A question inside a nesting container is named by its name when the root resolves
-// that name to it, else by its data path ({address.town}): its value name is no key of the survey data (D9).
+// that name to it, else by its data path ({address.town}): its value name is no key of the survey data.
 export class SurveyConditionEditorItem extends ConditionEditorItem {
   public constructor(public survey: ISurvey) {
     super();

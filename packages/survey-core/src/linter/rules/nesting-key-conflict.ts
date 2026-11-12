@@ -6,13 +6,13 @@ import { getDataKeyRecords } from "../record-fields";
 
 const reasons = SurveyLintReasons["nesting/key-conflict"];
 
-// Nested data, design-01 4.2 and decisions D4: a nesting container's key equal to the data key of a
-// question in the same object puts the container's object and the question's value under one key. The
-// runtime allows it - last write wins - but it is never intended: the question shows the object, and
-// an answer to it replaces every value of the container. Two containers on one key share one object
-// (D4), and a key equal to the name of a question inside the container is another level (4.4): neither
-// is reported. Keys are compared exactly, as the runtime stores them. Inside a dynamic panel or a matrix
-// each record is a level of its own (records nesting 02): a matrix record holds its columns too.
+// Nested data: a nesting container's key equal to the data key of a question in the same object puts the
+// container's object and the question's value under one key. The runtime allows it - last write wins - but
+// it is never intended: the question shows the object, and an answer to it replaces every value of the
+// container. Two containers on one key share one object (an address split across two pages), and a key
+// equal to the name of a question inside the container is another level: neither is reported. Keys are
+// compared exactly, as the runtime stores them. Inside a dynamic panel or a matrix each record is a level
+// of its own: a matrix record holds its columns too.
 function checkScope(ctx: LintContext, scope: DataScopeRecord): void {
   scope.children.forEach(children => children.forEach(child => {
     checkScope(ctx, child);

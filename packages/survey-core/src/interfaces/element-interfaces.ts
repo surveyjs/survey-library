@@ -111,7 +111,7 @@ export interface IPage extends IPanel, IConditionRunner {
   isStartPage: boolean;
 }
 // An element that owns a key of its data scope (the survey data, or a nesting container's object): a
-// question under its value name, a nesting panel or page under its key (decisions R3). The survey
+// question under its value name, a nesting panel or page under its key. The survey
 // dispatches a written key to both through this.
 export interface ISurveyDataElement {
   readonly isQuestion: boolean;

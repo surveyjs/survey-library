@@ -258,11 +258,11 @@ function applyDataNesting(state: WalkState, record: ElementRecord, container: Co
   const name = record.name || generateContainerName(kind, names);
   names.add(name);
   const valueName = isNonEmptyString(record.json.valueName) ? record.json.valueName : "";
-  // inside a record a panel nests by its valueName only (RN3): no by-name mode lists the kind "record"
+  // inside a record a panel nests by its valueName only: no by-name mode lists the kind "record"
   const keyKind: DataNestingKind = !!dataScope && kind === "panel" && isInsideRecordScope(dataScope) ? "record" : kind;
   const key = !!dataScope ? getDataNestingKey(state.index.dataNesting, keyKind, valueName, name) : "";
   if (!key) {
-    // a valueName nests unless "none" switches nesting off (records nesting 02)
+    // a valueName nests unless "none" switches nesting off
     if (valueName) state.index.nonNestingKeys.add(valueName, { container: record, why: NON_NESTING_WHY });
     return dataScope;
   }
@@ -663,7 +663,7 @@ function addInArrayConditionSites(state: WalkState): void {
 
 // The fields come from the companion's leaves; the objects on the way to them are their prefixes,
 // one per key: no variable key holds a dot. A prefix the companion answers with a question (a
-// question and a container sharing a key, D4) is no object.
+// question and a container sharing a key, which the runtime allows) is no object.
 function snapshotDefinitionPaths(index: SurveyIndex, variablePresets: SurveyVariablePresets): void {
   const paths = index.definitionPaths;
   const addObject = (path: string): void => {

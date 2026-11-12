@@ -23,10 +23,10 @@ function report(ctx: LintContext, panel: any, path: string, typeName: string): v
   });
 }
 
-// Nested data, decisions N5: a composite question's content panel is a value of its own, and a panel
-// inside it never nests - its valueName is ignored in every mode (until prompt 11's step 2). A panel
-// inside a dynamic panel's template or a matrix detail panel nests by its valueName (records nesting 02,
-// RN3); the template panel and the detail panel themselves never nest (RN6), but the JSON gives them no
+// Nested data: a composite question's content panel is a value of its own, and a panel inside it never
+// nests - its valueName is ignored in every mode ("Limitations" in docs/design-survey-nested-data.md). A
+// panel inside a dynamic panel's template or a matrix detail panel nests by its valueName; the template
+// panel and the detail panel themselves never nest, as they are the record, but the JSON gives them no
 // valueName to report. With "dataNesting": "none" every valueName is ignored by the author's own choice,
 // so nothing is reported there. The panels of a composite definition (options.components) are found at
 // any depth: the walker does not index them, since a definition is never part of the survey's own elements.

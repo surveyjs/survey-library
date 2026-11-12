@@ -1,8 +1,9 @@
 import { closestMatch } from "./levenshtein";
 import { ParsedRefSegment, SurveyIndex } from "./symbols";
 
-// The host's variable definition (decisions V1-V5), as the walker snapshots it into the index:
-// index.definitionVariables holds its root variables, index.definitionPaths every path into its data.
+// The host's variable definition ("Host Variables" in docs/design-survey-nested-data.md), as the walker
+// snapshots it into the index: index.definitionVariables holds its root variables, index.definitionPaths
+// every path into its data.
 
 // The fields of the definition's object variables ("users.tier"): what a condition can test below
 // a root variable. Built on the first ask and kept on the index for the run.

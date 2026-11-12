@@ -3818,8 +3818,8 @@ export class Question extends SurveyElement<Question>
   // The survey is given the question (requestAutoAdvance), but a question whose value is a key of the
   // survey data must also be the one getQuestionByValueName finds: a nested question with the same name
   // must not advance on behalf of that other question. Inside a container the value name is no key of
-  // the survey data (nested data, D9), and the question is its own owner. Inside a record's nesting panel
-  // (RN4) a question answers as one directly in the record does.
+  // the survey data, and the question is its own owner. Inside a record's nesting panel a question answers
+  // as one directly in the record does.
   protected get isAutoAdvanceOwner(): boolean {
     const survey = this.survey as SurveyModel;
     if (!survey) return false;

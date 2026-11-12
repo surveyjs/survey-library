@@ -218,7 +218,9 @@ function isRootRecordVisible(record: ElementRecord, nameOnly: boolean): boolean 
 
 // An element of the survey data itself, which the root answers before a container key: a question
 // writing a key of the survey data, or a panel or page that does not nest. A question inside a nesting
-// container and a nesting container's own name answer only after the container keys (report-04).
+// container answers only after the container keys - the runtime's root lookup tries a container key before
+// an inner question's name - and a nesting container's own name never answers a value: it is no key of the
+// data.
 function isTopLevelNamed(record: ElementRecord): boolean {
   if (record.kind === "question") return !isInNestedObject(record) && isValueQuestion(record);
   return !getNestedScope(record);
@@ -1116,7 +1118,7 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
 // Resolves a runtime name (a trigger target) through the same chain as expression
 // references, so both stay consistent by construction.
 // asValue: the name addresses a value (a trigger's setToName / fromName), which the runtime looks up in
-// the expression order - a container key before an inner question's name (setTriggerValue, D13). A
+// the expression order - a container key before an inner question's name (setTriggerValue). A
 // gotoName or a function argument names an element, and keeps the plain order.
 export function classifyTargetName(raw: string, index: SurveyIndex, options: ISurveyLintOptions, asValue?: boolean): ParsedRef {
   return classifyRefCore(raw, { scope: [] }, index, options, { nameOnly: true, asValue: asValue === true });
@@ -1211,7 +1213,7 @@ export function getSubPathRecord(ref: ParsedRef | undefined): ElementRecord | un
 }
 
 // {pd[0].address.street}, {mdyn[0].home.street2}: the question a path into a nesting panel's object
-// inside one record lands on (records nesting 02). It steps through the object as resolveInRecordObjects
+// inside one record lands on. It steps through the object as resolveInRecordObjects
 // does: dotted names longest first ({pd[0].a.b.kind} for a key "a.b"), objects whose keys differ in letter
 // case only merged, a question before an object. An index inside the object, or a sub-path of the question
 // found, is not modelled.

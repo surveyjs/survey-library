@@ -144,7 +144,7 @@ export class SurveyRootDataScope {
     return question.getValueScope() === <IDataScope>this.host;
   }
   // A container's key or the survey's dataNesting (no panel) changed: the containers whose key changed
-  // re-attach their elements (D8), and the root index's questions and the values of the questions follow.
+  // re-attach their elements, and the root index's questions and the values of the questions follow.
   // The data does not move.
   public dataScopeChanged(panel?: PanelModelBase): void {
     if (!panel) {
@@ -183,7 +183,7 @@ export class SurveyRootDataScope {
     return this.getRootScopes(key).length > 0;
   }
   // The scopes whose object is at the data path: [] gives the survey, ["address"] the root containers with
-  // the key "address", ["page1", "address"] the containers with the key "address" inside them (D4: each may
+  // the key "address", ["page1", "address"] the containers with the key "address" inside them (each may
   // be more than one).
   public getScopesByPath(path: Array<string>): Array<IDataScope> {
     let res: Array<IDataScope> = [this.host];
@@ -195,9 +195,9 @@ export class SurveyRootDataScope {
     return res;
   }
   // The questions that hold the same value as question: its value name in the indexes of the scopes at its
-  // value scope's data path (D4: two containers sharing a key share their object). At the root these are
+  // value scope's data path (two containers sharing a key share their object). At the root these are
   // the survey's getQuestionsByValueName. A question inside a record is looked up at the root, as one
-  // directly in a record always was: its data path starts at the record (RN4), not at the survey data.
+  // directly in a record always was: its data path starts at the record, not at the survey data.
   public getQuestionsSharingValue(question: Question): Array<Question> {
     const res: Array<Question> = [];
     const path = !getRecordDataScope(question.data) ? question.getValueScope().getDataPath() : [];
@@ -209,14 +209,14 @@ export class SurveyRootDataScope {
   // The question that wrote the key valueName through a data scope, found by the name a scope's write passes
   // (ISurveyData.setValue carries a question's name, not the question): its data path goes below the key.
   // Only then: a top-level writer would change the question onValueChanging reports and which questions
-  // sharing a value name are validated (D1).
+  // sharing a value name are validated.
   public getWriter(valueName: string, questionName: string): Question {
     if (!questionName || !this.isUsedValue) return undefined;
     const q = this.host.getQuestionByName(questionName);
     const path = !!q ? q.getDataPath() : [];
     return path.length > 1 && path[0] === valueName ? q : undefined;
   }
-  // D13: a code write of a key reports the question named like it, unless the key is a container key or that
+  // A code write of a key reports the question named like it, unless the key is a container key or that
   // question's value lives inside a container (its name is no key of the survey data).
   public isCodeWriteQuestionName(name: string): boolean {
     if (!this.isUsedValue) return true;
@@ -226,7 +226,8 @@ export class SurveyRootDataScope {
 
   // The changed keys below a container key, with their old and new values: the value name and the name of
   // each inner question whose value or comment changed (and its comment key), and the key of each inner
-  // container whose object changed (design-01 1.5). Empty for a key that is no container key.
+  // container whose object changed, so an expression reading {street} re-runs. Empty for a key that is
+  // no container key.
   public getChangedKeys(key: string, newValue: any, oldValue: any): HashTable<{ newValue: any, oldValue: any }> {
     const res: HashTable<{ newValue: any, oldValue: any }> = {};
     if (!this.isUsedValue) return res;
@@ -264,7 +265,7 @@ export class SurveyRootDataScope {
     this.getRootScopes(key).forEach(scope => collect(scope, oldValue, newValue));
     return res;
   }
-  // The trigger keys of a question's value (design-01 1.5): each key of its data path with its value,
+  // The trigger keys of a question's value: each key of its data path with its value,
   // and below the root its name ({street} finds an inner question by its name). A key already there stays.
   // belowRoot: only a path that goes below the root, as runTriggers and performNext add (their root keys come
   // from the data and the question's name); returns whether the keys were added.
@@ -288,7 +289,7 @@ export class SurveyRootDataScope {
   }
   // ISurveyTriggerOwner: whether the changed keys are only the ones a write of the question that name resolves
   // to reports (its data path and its name): a setvalue / copyvalue trigger then skips the change of its own
-  // target (design-01 1.8). A top-level question's write reports one key, which the trigger checks itself.
+  // target. A top-level question's write reports one key, which the trigger checks itself.
   public isOwnValueKeys(name: string, keys: Array<string>): boolean {
     if (!this.isUsedValue || !name || keys.length === 0) return false;
     const info = new ValueGetter().getValueInfo({ name: name, context: this.host.getValueGetterContext() });

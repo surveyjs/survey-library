@@ -4,14 +4,14 @@ import type { PanelDataScope, IPanelDataScopeOwner } from "./panel-data-scope";
 import { HashTable } from "./helpers";
 import { settings } from "./settings";
 
-// A data scope (decisions R6): the survey, the root, or an active PanelDataScope. Its elements' values are
+// A data scope: the survey, the root, or an active PanelDataScope. Its elements' values are
 // keys of its data, found through its index; getDataPath() gives the keys from the survey data down to it.
 export interface IDataScope {
   getDataKeyIndex(): DataKeyIndex;
   getDataPath(): Array<string>;
   getValue(name: string): any;
   getComment(name: string): string;
-  // The unknown-key rule (D6): clearIncorrectValues(true) keeps a known key, setData() reports another.
+  // The unknown-key rule: clearIncorrectValues(true) keeps a known key, setData() reports another.
   isKnownKey(key: string): boolean;
 }
 // A key an element of the index owns, or a question's comment or totals key: the part of the unknown-key
@@ -68,9 +68,10 @@ class DataKeyHash {
   }
 }
 
-// The keys of one data scope and the elements that own them (decisions R2): the questions whose value
-// scope it is, under their value name, and the active containers directly inside it, under their key. Two
-// elements may share a key (D4). A key is found exact or lower-case; for one key the questions come first.
+// The keys of one data scope and the elements that own them: the questions whose value scope it is, under
+// their value name, and the active containers directly inside it, under their key. Two elements may share a
+// key: questions sharing a valueName, containers sharing one object, or a question and a container (allowed
+// at runtime, a linter error). A key is found exact or lower-case; for one key the questions come first.
 // elements holds every element of the index once, in the order added. A scope's index is built by a walk, so
 // its elements keep document order. The survey's root index is kept up element by element instead: its
 // questions are added and removed one by one and, once a container nests, synced with the pages after the

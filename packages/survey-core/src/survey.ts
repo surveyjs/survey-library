@@ -159,7 +159,7 @@ interface ICalculatedValuesAtLoad {
 }
 
 // SurveyModel.getExpressionScopePaths: a data path an expression resolves names in; record: the records question
-// the path is relative to (RN4), none for a path from the survey data.
+// the path is relative to, none for a path from the survey data.
 export interface IExpressionScopePath {
   path: Array<string>;
   record?: Question;
@@ -218,7 +218,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       name = name.substring(0, name.length - unWrappedNameSuffix.length);
       if (res.isMetadata) res.isUnwrapped = true;
     }
-    // Before the raw data: the root data scope's key, then an inner question by its name (design-01 1.1).
+    // Before the raw data: the root data scope's key, then an inner question by its name.
     const info = this.survey.findDataScopeValueContext(name, res.isMetadata);
     if (!!info) {
       res.isFound = true;
@@ -3749,7 +3749,7 @@ export class SurveyModel extends SurveyElementCore
     if (level === 0) return this.data;
     const data: any = {};
     this.pages.forEach(p => {
-      // A nesting page is one value, <key>: <its stored object>, in every view (D7).
+      // A nesting page is one value, <key>: <its stored object>, in every view.
       if (p.isDataNesting) {
         p.collectDataNestingValue(data);
         return;
@@ -3771,7 +3771,7 @@ export class SurveyModel extends SurveyElementCore
     for (let key in data) {
       const q = this.getQuestionByValueName(key);
       if (q || this.isDataScopeKey(key)) {
-        // A question's value, or a nesting container's object as one value (D7).
+        // A question's value, or a nesting container's object as one value.
         res[key] = data[key];
       } else {
         let panel: PanelModelBase = this.getPageByName(key);
@@ -3795,7 +3795,7 @@ export class SurveyModel extends SurveyElementCore
       if (!!el && !el.isPanel) {
         output[key] = data[key];
       } else if (this.hasDataNestingContainer(panel, key)) {
-        // A nesting container at this level: its object is one value (D7).
+        // A nesting container at this level: its object is one value.
         output[key] = data[key];
       } else if (!!el && !(<PanelModelBase><any>el).isDataNesting) {
         this.collectDataFromPanel(<PanelModel>el, output, data[key]);
@@ -3883,7 +3883,7 @@ export class SurveyModel extends SurveyElementCore
       var resultItem = (<Question>question).getPlainData(options);
       if (!!resultItem) {
         result.push(resultItem);
-        // The first key of its data path: an inner question's is its container's key, never an extra item (D9).
+        // The first key of its data path: an inner question's is its container's key, never an extra item.
         questionValueNames.push(question.getDataPath()[0]);
       }
     });
@@ -5029,7 +5029,7 @@ export class SurveyModel extends SurveyElementCore
     const calcValue = this.getCalculatedValueByName(key);
     return !!calcValue && calcValue.includeIntoResult;
   }
-  // The keys of obj that no element of the scopes owns (D6), and in the objects of the containers inside them
+  // The keys of obj that no element of the scopes owns, and in the objects of the containers inside them
   // (scopes that share one key share its object). With a context setData() reports them by path; without one
   // clearIncorrectValues(true) removes them from obj (a copy), and an object that becomes empty goes too.
   // isCopy: obj's objects are copies already (below the root call).
@@ -7073,7 +7073,8 @@ export class SurveyModel extends SurveyElementCore
    * @see getQuestionByName
    */
   public getQuestionsByValueName(valueName: string, caseInsensitive: boolean = false): Array<Question> {
-    // The root index's questions (D9), kept up as elements change: a hash read, the exact name first.
+    // The root index's questions, kept up as elements change: a hash read, the exact name first. It holds
+    // top-level keys only: an inner question's value name is no key of the survey data.
     const index = this.getDataKeyIndex();
     let res = index.getQuestions(valueName);
     if (res.length === 0 && caseInsensitive) res = index.getQuestions(valueName, true);
@@ -7420,7 +7421,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   //#region Nested data (PanelDataScope)
-  // The survey is the root data scope (decisions R6): an element's value is a key of its value scope's data,
+  // The survey is the root data scope: an element's value is a key of its value scope's data,
   // and getDataPath() gives its keys from the survey data down. A top-level question's path has one key.
   // The root index, the data shape version and the trigger keys are the root data scope's; the expression
   // variable lookup is data-scope-variables.ts.
@@ -7552,7 +7553,7 @@ export class SurveyModel extends SurveyElementCore
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     const conditionKeys: HashTable<any> = {};
     conditionKeys[name] = newValue;
-    // A container key: the inner names whose values changed are keys too, so {street} re-runs (design-01 1.5).
+    // A container key: the inner names whose values changed are keys too, so {street} re-runs.
     const innerKeys = this.rootDataScope.getChangedKeys(name, newValue, oldValue);
     for (const key in innerKeys) {
       if (Object.prototype.hasOwnProperty.call(triggerKeys, key)) continue;
@@ -8412,7 +8413,7 @@ export class SurveyModel extends SurveyElementCore
   }
   // data.keepEmptyValues: an empty value ("", null, [], {}) set outside a system clear stays in the data.
   // undefined always removes the key: it is what Question.clearValue() assigns. ISurvey: the containers that
-  // keep values as keys of one object ask it (nested data, K1).
+  // keep values as keys of one object ask it (nested data).
   isEmptyValueKept(val: any): boolean {
     return val !== undefined && !this.deletingEmptyValuesScope.isActive && !!this.getSettings().data.keepEmptyValues;
   }
@@ -8424,9 +8425,10 @@ export class SurveyModel extends SurveyElementCore
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
     if (!this.isValueEmpty(val, false)) return false;
     if (!this.editingObj) {
-      // K3: a root container's object is removed only when it has no keys left (with the key on). A question's
+      // A root container's object is removed only when it has no keys left (with the key on). A question's
       // own object value keeps the rule below; the key tells them apart through the root index (a question
-      // whose value name equals a container key, D4, shares the container's object and gets its rule).
+      // whose value name equals a container key, allowed at runtime, shares the container's object and gets
+      // its rule).
       const isContainerKept = isContainerObjectKept(this, val);
       if (isContainerKept !== undefined && this.isDataScopeKey(name)) return !isContainerKept;
       if (this.isEmptyValueKept(val)) return false;

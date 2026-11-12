@@ -3,7 +3,7 @@ import { DomDocumentHelper } from "../global_variables_utils";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
-import { DragDropAllowEvent, MatrixRowDragOverEvent } from "src/survey-events-api";
+import { MatrixRowDragOverEvent } from "src/survey-events-api";
 import { Question } from "src/question";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {
   private draggedRenderedRow;

@@ -15,7 +15,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedElementVisit, NestedWalkBuild } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, NestedElementVisit, NestedWalkBuild } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";

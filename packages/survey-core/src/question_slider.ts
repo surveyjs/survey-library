@@ -728,7 +728,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     const { step, focusedThumb, allowSwap, renderedMinRangeLength, getClosestToStepValue, refreshInputRange, setSliderValue } = this;
     let renderedValue = this.renderedValue;
     const focusedThumbValue = renderedValue[focusedThumb];
-    const inputNode = <HTMLInputElement>event.target;
 
     renderedValue.sort((a, b)=>a - b);
 
@@ -808,7 +807,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public getLabelPosition = (labelNumber: number):number => {
-    const { max, min, renderedLabelCount: labelCount, customLabels } = this;
+    const { max, min, renderedLabelCount: labelCount } = this;
     const count = labelCount - 1;
     if (count === 0) return 0;
     const fullRange = max - min;

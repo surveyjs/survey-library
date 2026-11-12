@@ -471,7 +471,7 @@ export class VariableGetterContext extends ValueGetterContextCore {
 export class PropertyGetterContext extends VariableGetterContext {
   private lastObj: any;
   private lastName: string;
-  constructor(private obj: any) {
+  constructor(obj: any) {
     super(obj);
   }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {

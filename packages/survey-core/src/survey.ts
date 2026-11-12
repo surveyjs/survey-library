@@ -40,7 +40,7 @@ import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
-import { getLocaleString, surveyLocalization } from "./surveyStrings";
+import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
@@ -113,7 +113,6 @@ import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
 import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
 import DefaultLightTheme from "./themes/default-light";
-import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
 
@@ -5219,7 +5218,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isValidateOnComplete) {
       this.cancelPreview();
     }
-    let res = this.doCurrentPageComplete(true);
+    this.doCurrentPageComplete(true);
     return this.isCompleted;
   }
   /**

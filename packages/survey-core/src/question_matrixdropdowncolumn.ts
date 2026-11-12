@@ -1,7 +1,7 @@
 import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question } from "./question";
-import { Base, ArrayChanges } from "./base";
+import { Base } from "./base";
 import { ISurvey, IWrapperObject } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";

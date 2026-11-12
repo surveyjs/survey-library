@@ -1899,10 +1899,6 @@ export class Base implements IObjectValueContext {
       Base.copyObject(dest, source);
     }
   }
-  private getValueInLowCase(val: any): any {
-    if (!!val && typeof val == "string") return val.toLowerCase();
-    return val;
-  }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];
   }

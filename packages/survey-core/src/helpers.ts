@@ -533,12 +533,6 @@ export class Helpers {
     }
     return res;
   }
-  private static findObjByPropValue(arr: Array<any>, propName: string, val: any): any {
-    for (var i = 0; i < arr.length; i ++) {
-      if (Helpers.isTwoValueEquals(arr[i][propName], val)) return arr[i];
-    }
-    return undefined;
-  }
   public static convertArrayObjectToValue(src: Array<any>, propName: string): Array<any> {
     const res = new Array<any>();
     if (!src || !Array.isArray(src)) return res;

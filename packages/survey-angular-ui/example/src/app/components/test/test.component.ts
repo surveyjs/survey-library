@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component } from "@angular/core";
 import { SurveyModel } from "survey-core";
 import * as Survey from "survey-core";
-import "survey-core/survey.i18n";
+// The locale bundle is a lazy chunk: only the tests that show a non-English survey load it (e2e/helper.ts).
+(window as any).loadSurveyLocales = () => import("survey-core/survey.i18n");
 @Component({
   selector: "test",
   template: "",

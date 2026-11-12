@@ -113,6 +113,16 @@ export async function resizeToDesktop(page: Page, width: number = 1920, height: 
   await expect(page.locator(".sd-root-modern")).not.toHaveClass(/sd-root-modern--mobile/);
 }
 
+// The test pages do not load the survey-core locale bundle. A test that shows a survey in another locale
+// loads it with this helper after page.goto and before initSurvey: a new page.goto drops it again.
+export async function loadSurveyLocales(page: Page, framework: string): Promise<void> {
+  if (framework === "react" || framework === "survey-js-ui") {
+    await page.addScriptTag({ url: "../../node_modules/survey-core/survey.i18n.min.js" });
+  } else {
+    await page.evaluate(async () => { await (window as any).loadSurveyLocales(); });
+  }
+}
+
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any, afterInitializeModelCallback?: () => Promise<void>) => {
   await waitForFonts(page);
   if (!!props) {
@@ -153,6 +163,16 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     }
     model.onComplete.add(surveyComplete);
     (window as any).survey = model;
+    // Without the locale bundle the survey falls back to English silently, so a test that shows another
+    // locale must call loadSurveyLocales after page.goto.
+    const locales = (window as any).Survey.surveyLocalization.locales;
+    const checkLocale = (locale: string) => {
+      if (!!locale && !locales[locale] && !locales[locale.split("-")[0]]) {
+        throw new Error(`The survey locale "${locale}" is not loaded: call loadSurveyLocales(page, framework) after page.goto.`);
+      }
+    };
+    checkLocale(model.locale);
+    model.onLocaleChangedEvent.add((sender) => checkLocale(sender.locale));
   }, [json, isDesignMode, props]);
   afterInitializeModelCallback && await afterInitializeModelCallback();
 

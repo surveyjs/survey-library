@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, checkSurveyWithEmptyQuestion, test, expect, getVisibleSelectListItemByText, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, checkSurveyWithEmptyQuestion, test, expect, getVisibleSelectListItemByText, getButtonByText, loadSurveyLocales } from "../helper";
 import { registerCustomItemComponent, registerCustomListLoadingComponent } from "../registerCustomComponents";
 
 const title = "Dropdown question";
@@ -1167,6 +1167,7 @@ frameworks.forEach((framework) => {
     });
 
     test("test locale", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       const json = { elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }] };
       await initSurvey(page, framework, json);
       await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Select...");
@@ -2093,6 +2094,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Check item title changes when locale is changed", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       const json = {
         locale: "de",
         elements: [

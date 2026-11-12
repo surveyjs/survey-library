@@ -8,7 +8,6 @@ import type { Base } from "../base";
 import type { IAction } from "../actions/action";
 import type { PanelModel } from "../panel";
 import type { QuestionPanelDynamicModel } from "../question_paneldynamic";
-import type { DragDropAllowEvent } from "../survey-events-api";
 import type { PopupModel } from "../popup";
 import type { ItemValue } from "../itemvalue";
 import type { ISurveySettings } from "../survey-settings";
@@ -63,10 +62,10 @@ export interface ISurveyTitleSettings {
   ): Array<IAction>;
 }
 export interface ISurveySingleInput {
-  currentSingleQuestion: IQuestion;
+  currentSingleQuestion: IQuestion | undefined;
   isSingleVisibleInput: boolean;
   updateNavigationElements(): void;
-  currentSingleElement: IElement;
+  currentSingleElement: IElement | undefined;
   supportsNestedSingleInput(question: IQuestion): boolean;
   updateNestedSingleQuestions(question: IQuestion, nestedQuestions: Array<IQuestion>): void;
 }
@@ -184,7 +183,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   onCorrectQuestionAnswer(question: IQuestion, options: any): void;
   processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
   processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
-  dragAndDropAllow(options: DragDropAllowEvent): boolean;
   scrollElementToTop(options: IScrollElementToTopOptions): any;
   scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
   //#endregion

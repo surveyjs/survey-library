@@ -112,12 +112,6 @@ Default value: `"Create \"{0}\" item..."`
 
 Available since: v2.5.17
 
-### `loadingComponent`
-
-**Type**: `string`
-
-The name of the component used to render the dropdown's loading indicator and/or text.
-
 ### `placeholder`
 
 **Type**: `string`

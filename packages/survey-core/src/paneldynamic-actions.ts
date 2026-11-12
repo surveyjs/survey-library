@@ -8,14 +8,7 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import type { PanelModel } from "./panel";
 import type { QuestionPanelDynamicModel } from "./question_paneldynamic";
 
-interface IPanelDynamicTabbedMenuItem extends IAction {
-  panelId: string;
-}
 export class PanelDynamicTabbedMenuItem extends Action {
-  public panelId: string;
-  constructor(innerItem: IPanelDynamicTabbedMenuItem) {
-    super(innerItem);
-  }
 }
 
 // What the actions read from the dynamic panel besides its public members.
@@ -185,10 +178,6 @@ export class PanelDynamicActions {
     const canRemove = question.canRemovePanel;
     return (side !== undefined ? question.removePanelButtonLocation === side : true) && canRemove;
   }
-  // The menu once it is created; the question asks for it in tab mode only.
-  public get createdTabbedMenu(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> {
-    return this.tabbedMenuValue;
-  }
   public get tabbedMenu(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> {
     if (!this.tabbedMenuValue) {
       Base.runUntracked(() => {
@@ -246,7 +235,6 @@ export class PanelDynamicActions {
     const isActive = (): boolean => question.getPropertyValue("currentPanelId") === panelId;
     const newItem = new PanelDynamicTabbedMenuItem({
       id: `${question.id}_tab_${panelId}`,
-      panelId: panelId,
       active: <any>new ComputedUpdater<boolean>(isActive),
       locTitle: locTitle,
       disableHide: <any>new ComputedUpdater<boolean>(isActive),

@@ -87,7 +87,7 @@ describe("Expressions", () => {
   });
 
   function checkItemCondition(op: string, expectedOp: string): boolean {
-    let expr = new ConditionsParser().createCondition("'a'" + op + "2");
+    let expr = new ConditionsParser().parseExpression("'a'" + op + "2");
     return (<any>expr).operatorName === expectedOp;
   }
 
@@ -1517,7 +1517,7 @@ describe("Expressions", () => {
 
     runner = new ExpressionRunner("{#val1} + {#val2}");
     expect(runner.runValues(values), "do not convert the value").toBe("1102");
-    let expr = new ConditionsParser().createCondition("{#val1} + {#val2}");
+    let expr = new ConditionsParser().parseExpression("{#val1} + {#val2}");
     expect(expr.toString(), "Do not loose '#'").toBe("({#val1} + {#val2})");
   });
 

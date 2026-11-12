@@ -1,6 +1,5 @@
 import { ILayoutElementModel, LayoutElementContainer, ISurveyLayoutElement } from "./base-interfaces";
 import { ActionContainer } from "./actions/container";
-import type { SurveyModel } from "./survey";
 
 interface ISurveyNavigationLayout {
   navigationBar: ActionContainer;

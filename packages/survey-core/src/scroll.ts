@@ -1,5 +1,5 @@
 
-import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { DomWindowHelper } from "./global_variables_utils";
 export class ScrollViewModel {
   private _containerElementValue: HTMLElement;
   private _scrollbarElement: HTMLElement;

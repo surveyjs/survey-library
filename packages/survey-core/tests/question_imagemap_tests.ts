@@ -285,7 +285,7 @@ describe("imagemap", () => {
     });
     const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-    expect(q1.getCSSVariables(), "question css variables empty by default").toBe("");
+    expect(q1.getCSSVariablesMap(), "question css variables empty by default").toEqual({});
 
     q1.idleFillColor = "dfc";
     q1.idleStrokeColor = "dsc";
@@ -297,11 +297,19 @@ describe("imagemap", () => {
     q1.selectedStrokeColor = "dsc";
     q1.selectedStrokeWidth = 3;
 
-    expect(q1.getCSSVariables(), "question css variables correct").toBe("--sd-imagemap-idle-fill-color: dfc; --sd-imagemap-idle-stroke-color: dsc; --sd-imagemap-idle-stroke-width: 1; --sd-imagemap-hover-fill-color: dhc; --sd-imagemap-hover-stroke-color: dsc; --sd-imagemap-hover-stroke-width: 2; --sd-imagemap-selected-fill-color: dsc; --sd-imagemap-selected-stroke-color: dsc; --sd-imagemap-selected-stroke-width: 3");
+    expect(q1.getCSSVariablesMap(), "question css variables correct").toEqual({
+      "--sd-imagemap-idle-fill-color": "dfc", "--sd-imagemap-idle-stroke-color": "dsc", "--sd-imagemap-idle-stroke-width": "1",
+      "--sd-imagemap-hover-fill-color": "dhc", "--sd-imagemap-hover-stroke-color": "dsc", "--sd-imagemap-hover-stroke-width": "2",
+      "--sd-imagemap-selected-fill-color": "dsc", "--sd-imagemap-selected-stroke-color": "dsc", "--sd-imagemap-selected-stroke-width": "3"
+    });
 
-    expect(q1.areas[0].getCSSVariables(), "area[1] css variables correct").toBe("");
+    expect(q1.areas[0].getCSSVariablesMap(), "area[1] css variables correct").toEqual({});
 
-    expect(q1.areas[1].getCSSVariables(), "area[1] css variables correct").toBe("--sd-imagemap-idle-fill-color: ifc; --sd-imagemap-idle-stroke-color: isc; --sd-imagemap-idle-stroke-width: 1; --sd-imagemap-hover-fill-color: hfc; --sd-imagemap-hover-stroke-color: hsc; --sd-imagemap-hover-stroke-width: 2; --sd-imagemap-selected-fill-color: sfc; --sd-imagemap-selected-stroke-color: ssc; --sd-imagemap-selected-stroke-width: 3");
+    expect(q1.areas[1].getCSSVariablesMap(), "area[1] css variables correct").toEqual({
+      "--sd-imagemap-idle-fill-color": "ifc", "--sd-imagemap-idle-stroke-color": "isc", "--sd-imagemap-idle-stroke-width": "1",
+      "--sd-imagemap-hover-fill-color": "hfc", "--sd-imagemap-hover-stroke-color": "hsc", "--sd-imagemap-hover-stroke-width": "2",
+      "--sd-imagemap-selected-fill-color": "sfc", "--sd-imagemap-selected-stroke-color": "ssc", "--sd-imagemap-selected-stroke-width": "3"
+    });
   });
 
   test("Check set value and multiSelect change with valuePropertyName", () => {

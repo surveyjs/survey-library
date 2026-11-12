@@ -707,6 +707,17 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
     options: { variablePresets: { definition: VARIABLE_DEFINITION } },
   },
   {
+    ruleId: "variable/dotted-key", reason: "questionKey",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: { variablePresets: { definition: { elements: [{ type: "text", name: "t", valueName: "a.b" }] } } },
+  },
+  {
+    ruleId: "variable/dotted-key", reason: "containerKey",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: { variablePresets: { definition: { elements: [
+      { type: "panel", name: "p", valueName: "a.b", elements: [{ type: "text", name: "t" }] }] } } },
+  },
+  {
     ruleId: "variable/preset", reason: "definitionNotAnObject",
     json: { elements: [{ type: "text", name: "q1" }] },
     options: { variablePresets: { definition: "x" } },

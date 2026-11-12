@@ -427,11 +427,15 @@ describe("SurveyVariablePresets with a nested definition", () => {
     expect(presets.getVariableElement("")).toBeUndefined();
     presets.dispose();
   });
-  test("a flat definition: the paths are the names", () => {
-    const presets = create({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", valueName: "a.b" }] });
-    expect(presets.getVariableNames()).toEqual(["q1", "a.b"]);
-    expect(presets.getVariablePaths()).toEqual(["q1", "a.b"]);
-    expect(presets.getVariableQuestion("a.b").name).toBe("q2");
+  test("a flat definition: the paths are the names, and a dotted key is no variable", () => {
+    const presets = create({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", valueName: "a.b" },
+      { type: "text", name: "c.d" }] });
+    expect(presets.getVariableNames()).toEqual(["q1"]);
+    expect(presets.getVariablePaths()).toEqual(["q1"]);
+    expect(presets.hasVariable("a.b")).toBe(false);
+    expect(presets.getVariableQuestion("a.b")).toBeUndefined();
+    expect(presets.getDottedKeyElements().map(el => el.name)).toEqual(["q2", "c.d"]);
+    expect(presets.validateVariables({ q1: 1, "a.b": 2 })).toEqual({ unknownVariables: ["a.b"], errors: [], isValid: false });
     presets.dispose();
   });
   test("no definition and a disposed companion have no paths", () => {
@@ -540,28 +544,42 @@ describe("SurveyVariablePresets with a nested definition", () => {
       [{ variable: "users.name", question: "name", errors: ["Response required."] }]);
     presets.dispose();
   });
-  test("D11: a dotted inner valueName is one key, matched longest first", () => {
+  test("a dotted inner key declares no variable, and nothing inside a dotted container does", () => {
     const presets = create({ elements: [{ type: "panel", name: "user", valueName: "users", elements: [
-      { type: "text", name: "q1", valueName: "a.b" }, { type: "text", name: "q2", valueName: "a" }] }] });
-    expect(presets.getVariablePaths()).toEqual(["users.a.b", "users.a"]);
-    expect(presets.hasVariable("users.a.b")).toBe(true);
-    expect(presets.getVariableQuestion("users.a.b").name).toBe("q1");
-    expect(presets.getVariableQuestion("USERS.A.B").name).toBe("q1");
+      { type: "text", name: "q1", valueName: "a.b", isRequired: true }, { type: "text", name: "q2", valueName: "a" },
+      { type: "panel", name: "xy", valueName: "x.y", elements: [
+        { type: "text", name: "z", isRequired: true },
+        { type: "panel", name: "inner", valueName: "w.v", elements: [{ type: "text", name: "t" }] }] }] }] });
+    expect(presets.getVariablePaths()).toEqual(["users.a"]);
+    expect(presets.hasVariable("users.a.b")).toBe(false);
+    expect(presets.hasVariable("users.x")).toBe(false);
+    expect(presets.hasVariable("users.x.y.z")).toBe(false);
     expect(presets.getVariableQuestion("users.a").name).toBe("q2");
-    expect(presets.validateVariables({ users: { "A.B": "x", a: "y" } }).isValid).toBe(true);
+    // the outer dotted container is the defect; what lies inside it is not listed again
+    expect(presets.getDottedKeyElements().map(el => el.name)).toEqual(["q1", "xy"]);
+    // an input key is never split, and a required question under a dotted key reports nothing
+    expect(presets.validateVariables({ users: { "A.B": "x", a: "y" } })).toEqual(
+      { unknownVariables: ["users.A.B"], errors: [], isValid: false });
+    expect(presets.validateVariables({ users: { a: "y" } })).toEqual({ unknownVariables: [], errors: [], isValid: true });
     presets.dispose();
-    const survey = new SurveyModel({ elements: [{ type: "text", name: "q", title: "{users.a.b}" }] });
-    survey.setVariables({ users: { "a.b": "dotted" } });
-    expect(survey.getQuestionByName("q").locTitle.renderedHtml).toBe("dotted");
-    survey.dispose();
+    expect(presets.getDottedKeyElements()).toEqual([]);
   });
-  test("D11: a dotted key and a nesting key spelling one path list it once", () => {
+  test("a dotted key beside the nesting chain that spells it: only the chain is a variable", () => {
     const presets = create({ elements: [{ type: "panel", name: "user", valueName: "users", elements: [
       { type: "text", name: "ab", valueName: "a.b" },
       { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "b" }] }] }] });
     expect(presets.getVariablePaths()).toEqual(["users.a.b"]);
-    expect(presets.getVariableQuestion("users.a.b").name).toBe("ab");
+    expect(presets.getVariableQuestion("users.a.b").name).toBe("b");
+    expect(presets.getDottedKeyElements().map(el => el.name)).toEqual(["ab"]);
     presets.dispose();
+  });
+  test("a dotted key of a definition model the host built is no variable either", () => {
+    const model = new SurveyModel({ elements: [{ type: "text", name: "ok" }, { type: "text", name: "no.pe" }] });
+    const presets = new SurveyVariablePresets({}, { definitionModel: model });
+    expect(presets.getVariableNames()).toEqual(["ok"]);
+    expect(presets.getDottedKeyElements().map(el => el.name)).toEqual(["no.pe"]);
+    presets.dispose();
+    model.dispose();
   });
   test("runtime round trip: a preset's variables applied to an edited survey", () => {
     const presets = new SurveyVariablePresets({ definition: nestedDefinition(), presets: [

@@ -396,6 +396,44 @@ describe("The tester and a nested variable definition", () => {
     expect(result.tests[0].variables, "the result says what the case asked for").toEqual(variables);
     expect(variables.users, "the case is not changed").toEqual({ tier: "gold", nope: 1 });
   });
+  test("A dotted root key spelling a field's path is removed; the field is kept", async () => {
+    const record = factoryRecord();
+    const result = await run(nestedSurvey, {
+      variablePresets: { definition: nestedDefinition },
+      variables: { "users.tier": "silver", users: { tier: "gold" } },
+      tests: [{ name: "dotted", steps: [{ expect: { q2: { visible: true } } }] }],
+    }, withFactory(record));
+    expect(result.tests[0].status).toEqual("passed");
+    expect(issueOf(result, SurveyTestIssueCodes.variableNotDefined).data.name).toEqual("users.tier");
+    expect(record.models[0].getVariableNames(), "the dotted root key is not applied").toEqual(["users"]);
+    expect(record.models[0].getVariable("users"), "the field is applied").toEqual({ tier: "gold" });
+  });
+  test("A dotted root key spelling a path into a question's value is removed; the question's value is kept", async () => {
+    const record = factoryRecord();
+    const result = await run(nestedSurvey, {
+      variablePresets: { definition: { elements: [{ type: "multipletext", name: "users", items: [{ name: "tier" }] }] } },
+      variables: { "users.tier": 1, users: { tier: "gold" } },
+      tests: [{ name: "dotted", steps: [] }],
+    }, withFactory(record));
+    expect(result.tests[0].status).toEqual("passed");
+    expect(issueOf(result, SurveyTestIssueCodes.variableNotDefined).data.name).toEqual("users.tier");
+    expect(record.models[0].getVariableNames()).toEqual(["users"]);
+    expect(record.models[0].getVariable("users"), "the question's value is applied whole").toEqual({ tier: "gold" });
+  });
+  test("A definition question with a dotted key is no variable, so the case's value for it is removed", async () => {
+    const record = factoryRecord();
+    const result = await run(nestedSurvey, {
+      variablePresets: { definition: { elements: [
+        { type: "text", name: "dotted", valueName: "users.tier", isRequired: true },
+        { type: "panel", name: "user", valueName: "users", elements: [{ type: "text", name: "tier" }] }] } },
+      variables: { "users.tier": 1, users: { tier: "gold" } },
+      tests: [{ name: "dotted", steps: [] }],
+    }, withFactory(record));
+    expect(result.tests[0].status).toEqual("passed");
+    expect(issueOf(result, SurveyTestIssueCodes.variableNotDefined).data.name).toEqual("users.tier");
+    expect(record.models[0].getVariableNames()).toEqual(["users"]);
+    expect(record.models[0].getVariable("users")).toEqual({ tier: "gold" });
+  });
   test("A misspelled object variable is suggested by its root name", async () => {
     const result = await run(nestedSurvey, {
       variablePresets: { definition: nestedDefinition },

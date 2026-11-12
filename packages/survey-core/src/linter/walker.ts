@@ -661,9 +661,9 @@ function addInArrayConditionSites(state: WalkState): void {
   }
 }
 
-// The fields come from the companion's leaves; the objects on the way to them are the prefixes the
-// companion answers with an element that is no question. A prefix is tried at every dot because a
-// key may hold one (decisions D11): "users.a" of the leaf "users.a.b" is nothing when "a.b" is one key.
+// The fields come from the companion's leaves; the objects on the way to them are their prefixes,
+// one per key: no variable key holds a dot. A prefix the companion answers with a question (a
+// question and a container sharing a key, D4) is no object.
 function snapshotDefinitionPaths(index: SurveyIndex, variablePresets: SurveyVariablePresets): void {
   const paths = index.definitionPaths;
   const addObject = (path: string): void => {

@@ -10,8 +10,8 @@ export function getDefinitionFieldPaths(index: SurveyIndex): Array<string> {
   if (!index.definitionFieldPaths) {
     const res: Array<string> = [];
     index.definitionPaths.forEach((kind, path) => {
-      // a root variable is no field, a dotted one ("a.b" of a flat definition) included
-      if (kind === "question" && path.indexOf(".") > -1 && !index.definitionVariables.has(path)) res.push(path);
+      // no variable key holds a dot, so a dotted path is below a root variable
+      if (kind === "question" && path.indexOf(".") > -1) res.push(path);
     });
     index.definitionFieldPaths = res;
   }
@@ -37,15 +37,16 @@ export function findDefinitionFieldByKey(name: string, index: SurveyIndex): stri
 // {users.tier}: a variable the definition describes as an object (a panel or page that nests) has the
 // fields its questions write, and a field it does not declare reads undefined at runtime. Whether the
 // segments name a path below such a variable that the definition does not declare. Below a question's
-// field nothing is checked, as for a flat variable. Segments are joined longest first: a key may hold a
-// dot (decisions D11).
+// field nothing is checked, as for a flat variable. No variable key holds a dot, so each segment is one
+// key.
 export function isUnknownDefinitionPath(segments: Array<ParsedRefSegment>, index: SurveyIndex): boolean {
   if (segments.length < 2 || index.definitionPaths.get(segments[0].name) !== "object") return false;
-  for (let end = segments.length - 1; end > 0; end--) {
-    const kind = index.definitionPaths.get(segments.slice(0, end + 1).map(seg => seg.name).join("."));
-    if (!kind) continue;
-    if (end === segments.length - 1 || kind === "question") return false;
-    break;
+  let path = segments[0].name;
+  for (let i = 1; i < segments.length; i++) {
+    path += "." + segments[i].name;
+    const kind = index.definitionPaths.get(path);
+    if (!kind) return true;
+    if (kind === "question") return false;
   }
-  return true;
+  return false;
 }

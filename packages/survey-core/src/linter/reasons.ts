@@ -238,6 +238,11 @@ export const SurveyLintReasons = Object.freeze({
     questionShadowed: "questionShadowed",
     calculatedValueShadowed: "calculatedValueShadowed",
   }),
+  // an element of the variable definition whose data key holds a dot, so it declares no variable
+  "variable/dotted-key": Object.freeze({
+    questionKey: "questionKey",
+    containerKey: "containerKey",
+  }),
   // a defect of the variable presets object itself: its structure, or a preset value the
   // variable definition does not accept
   "variable/preset": Object.freeze({

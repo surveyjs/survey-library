@@ -588,26 +588,28 @@ describe("the linter with a nested variable definition", () => {
     expect(findings[0].messageData.name).toBe("tier");
     expect(findings[0].suggestion).toBe("users.tier");
   });
-  test("a dotted root variable of a flat definition is no field: {b} gets no suggestion", () => {
+  test("a dotted key of a flat definition is no variable: {a.b} is unknown and nothing suggests it", () => {
     const options: ISurveyLintOptions = { variablePresets: { definition: { elements: [{ type: "text", name: "x", valueName: "a.b" }] },
-      presets: [{ name: "P", variables: { b: 1 } }] } };
+      presets: [{ name: "P", variables: { b: 1, "a.b": 2 } }] } };
     const findings = refs(withCondition("{b} = 1 and {a.b} = 1"), options);
-    expect(findings.map(f => f.messageData.name)).toEqual(["b"]);
-    expect(findings[0].suggestion).toBeUndefined();
+    expect(findings.map(f => f.messageData.name)).toEqual(["b", "a.b"]);
+    expect(findings.map(f => f.suggestion)).toEqual([undefined, undefined]);
     const preset = presetFindings(EMPTY_SURVEY, options);
-    expect(preset.map(f => f.reason)).toEqual(["unknownVariable"]);
-    expect(preset[0].suggestion).toBeUndefined();
+    expect(preset.map(f => f.reason + " @ " + f.path)).toEqual([
+      "unknownVariable @ variablePresets.presets[0].variables.a.b",
+      "unknownVariable @ variablePresets.presets[0].variables.b"]);
+    expect(byRule(EMPTY_SURVEY, "variable/dotted-key", options).map(f => f.reason)).toEqual(["questionKey"]);
   });
   test("a path below a question field is not checked, as for a flat variable", () => {
     expect(refs(withCondition("{users.tier.length} > 1 and {role.x} = 1"), nestedOptions())).toHaveLength(0);
   });
-  test("two levels and a dotted inner valueName", () => {
+  test("two levels, and a dotted inner valueName that declares nothing", () => {
     const options: ISurveyLintOptions = { variablePresets: { definition: { pages: [{ name: "p1", valueName: "page", elements: [
       { type: "panel", name: "user", valueName: "users", elements: [
         { type: "text", name: "tier" }, { type: "text", name: "q2", valueName: "a.b" }] }] }] } } };
-    expect(refs(withCondition("{page.users.tier} = 1 and {page.users.a.b} = 1 and {page.users} notempty"), options)).toHaveLength(0);
-    const findings = refs(withCondition("{page.users.tiir} = 1 and {page.user.tier} = 1 and {page.users.a} = 1"), options);
-    expect(findings.map(f => f.messageData.name)).toEqual(["page.users.tiir", "page.user.tier", "page.users.a"]);
+    expect(refs(withCondition("{page.users.tier} = 1 and {page.users} notempty"), options)).toHaveLength(0);
+    const findings = refs(withCondition("{page.users.tiir} = 1 and {page.user.tier} = 1 and {page.users.a} = 1 and {page.users.a.b} = 1"), options);
+    expect(findings.map(f => f.messageData.name)).toEqual(["page.users.tiir", "page.user.tier", "page.users.a", "page.users.a.b"]);
     expect(findings[0].suggestion).toBe("page.users.tier");
   });
   test("a knownVariables entry of the same name keeps the object unchecked", () => {
@@ -644,6 +646,20 @@ describe("the linter with a nested variable definition", () => {
     expect(findings[2].messageData).toMatchObject({ variable: "users", question: "user", errors: ["The value is incorrect."] });
     expect(findings[2].related).toEqual([{ path: "variablePresets.definition", elementName: "user" }]);
   });
+  test("variable/preset: a dotted input key spelling a field's path does not take the field's findings", () => {
+    const options: ISurveyLintOptions = { variablePresets: {
+      definition: { elements: [
+        { type: "panel", name: "user", valueName: "users", elements: [{ type: "text", name: "tier", isRequired: true }] }] },
+      presets: [{ name: "P", variables: { "Users.Tier": 1, users: { TIER: "" } } }] } };
+    const findings = presetFindings(EMPTY_SURVEY, options);
+    expect(findings.map(f => f.reason + " @ " + f.path)).toEqual([
+      "unknownVariable @ variablePresets.presets[0].variables.Users.Tier",
+      "invalidValue @ variablePresets.presets[0].variables.users.TIER"]);
+    expect(findings[1].messageData).toMatchObject({ variable: "users.tier", question: "tier" });
+    // the declared field it spells is not offered back as a suggestion
+    expect(findings[0].suggestion).toBeUndefined();
+    expect(findings[0].message).toBe("Preset \"P\" sets \"Users.Tier\", which the variable definition does not declare.");
+  });
   test("variable/preset: a valid nested preset is clean", () => {
     expect(presetFindings(EMPTY_SURVEY, nestedOptions([
       { name: "Gold", variables: { users: { tier: "gold", name: "Ann" }, role: "admin" } }]))).toEqual([]);
@@ -666,5 +682,50 @@ describe("the linter with a nested variable definition", () => {
     const findings = byRule(json, "name/shadowing", nestedOptions());
     expect(findings.map(f => f.reason + " @ " + f.path)).toEqual(["containerKeyShadowed @ elements[0].valueName"]);
     expect(findings[0].messageData.kind).toBe("variable");
+  });
+});
+
+describe("variable/dotted-key", () => {
+  const dottedKeys = (options: ISurveyLintOptions): Array<ILintFinding> => byRule(EMPTY_SURVEY, "variable/dotted-key", options);
+  const withDefinition = (definition: any): ISurveyLintOptions => ({ variablePresets: { definition: definition } });
+
+  test("a question whose data key holds a dot is reported on the definition", () => {
+    const findings = dottedKeys(withDefinition({ elements: [
+      { type: "text", name: "tier" }, { type: "text", name: "q2", valueName: "a.b" }, { type: "dropdown", name: "c.d" }] }));
+    expect(findings.map(f => f.reason + " @ " + f.path)).toEqual([
+      "questionKey @ variablePresets.definition", "questionKey @ variablePresets.definition"]);
+    expect(findings.map(f => f.severity)).toEqual(["error", "error"]);
+    expect(findings[0].messageData).toMatchObject({ name: "q2", key: "a.b", property: "valueName", elementType: "text" });
+    expect(findings[1].messageData).toMatchObject({ name: "c.d", key: "c.d", property: "name", elementType: "dropdown" });
+    expect(findings[0].related).toEqual([{ path: "variablePresets.definition", elementName: "q2" }]);
+    expect(findings[0].message).toBe("The variable definition question \"q2\" has the data key \"a.b\", which holds a dot. " +
+      "A variable key cannot hold one, so the question declares no variable.");
+  });
+  test("a nesting panel or page whose key holds a dot is reported once, not its questions", () => {
+    const findings = dottedKeys(withDefinition({ pages: [
+      { name: "p1", elements: [{ type: "panel", name: "user", valueName: "us.ers", elements: [
+        { type: "text", name: "tier" }, { type: "text", name: "x.y" }] }] },
+      { name: "p2", valueName: "pa.ge", elements: [{ type: "text", name: "role" }] }] }));
+    expect(findings.map(f => f.reason + " " + f.messageData.name + " " + f.messageData.key)).toEqual([
+      "containerKey user us.ers", "containerKey p2 pa.ge"]);
+    expect(findings[1].message).toBe("The variable definition page \"p2\" has the data key \"pa.ge\", which holds a dot. " +
+      "A variable key cannot hold one, so the page declares no object variable and none of its questions is a variable.");
+  });
+  test("a numeric valueName is still reported as the valueName", () => {
+    const findings = dottedKeys(withDefinition({ elements: [{ type: "text", name: "q1", valueName: 1.5 }] }));
+    expect(findings.map(f => f.messageData)).toMatchObject([{ name: "q1", key: "1.5", property: "valueName" }]);
+  });
+  test("a dotted panel name that writes no key is not reported", () => {
+    // without a valueName a panel does not nest in the default mode, so its name is no data key
+    expect(dottedKeys(withDefinition({ elements: [
+      { type: "panel", name: "a.b", elements: [{ type: "text", name: "tier" }] }] }))).toEqual([]);
+  });
+  test("a definition model is checked too; no definition reports nothing", () => {
+    const model = new SurveyModel({ elements: [{ type: "text", name: "a.b" }] });
+    const findings = dottedKeys({ variablePresets: {}, variableDefinitionModel: model });
+    expect(findings.map(f => f.messageData.name)).toEqual(["a.b"]);
+    model.dispose();
+    expect(dottedKeys({ variablePresets: { presets: [] } })).toEqual([]);
+    expect(dottedKeys({})).toEqual([]);
   });
 });

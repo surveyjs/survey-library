@@ -74,6 +74,7 @@ export class SurveyVariablePresets {
   private isDisposedValue: boolean;
   private namesValue: Array<string>;
   private pathsValue: Array<string>;
+  private dottedKeyElementsValue: Array<SurveyElement>;
   private rootValue: IVariableNode;
 
   // definitionModel is the definition the host built itself. A JSON definition is what a document
@@ -109,6 +110,12 @@ export class SurveyVariablePresets {
   public getVariablePaths(): Array<string> {
     this.getNames();
     return this.pathsValue.slice();
+  }
+  // The definition elements that declare no variable because their data key holds a dot ("a.b"), in
+  // document order. An element inside one of them is not listed: the outer one is the defect.
+  public getDottedKeyElements(): Array<SurveyElement> {
+    this.getNames();
+    return this.dottedKeyElementsValue.slice();
   }
   // name is a root key or a path into an object variable; every segment matches ignoring case, as
   // the runtime reads a variable's object. An object variable is a variable, but no question.
@@ -165,6 +172,7 @@ export class SurveyVariablePresets {
     this.isDisposedValue = true;
     this.namesValue = undefined;
     this.pathsValue = undefined;
+    this.dottedKeyElementsValue = undefined;
     this.rootValue = undefined;
     // Only a model this companion created is disposed: a definition model the host handed in is the
     // host's object and may well outlive the check it was borrowed for.
@@ -219,6 +227,7 @@ export class SurveyVariablePresets {
   private buildNames(): void {
     this.namesValue = [];
     this.pathsValue = [];
+    this.dottedKeyElementsValue = [];
     // Object.create(null): a variable named "constructor" or "toString" has to be addressable rather
     // than resolve to a prototype member.
     this.rootValue = { key: "", children: Object.create(null) };
@@ -234,18 +243,20 @@ export class SurveyVariablePresets {
   }
   private addElement(element: SurveyElement): void {
     const path = element.getDataPath();
+    // A variable key holds no dot, so a path joined with "." always names one key per segment. An
+    // element whose own key holds one ("a.b") declares no variable, and nothing inside it does either:
+    // the walk does not enter it. The linter reports it (variable/dotted-key).
+    if (path.length > 0 && path[path.length - 1].indexOf(".") > -1) {
+      this.dottedKeyElementsValue.push(element);
+      return;
+    }
     if (element.isQuestion) {
       if (path.length === 0) return;
       const node = this.addNode(path);
       // Two definition questions sharing a data key are one variable, as they are one data key.
       if (!node.question) {
         node.question = <Question>element;
-        // A joined path is listed once: a dotted key "a.b" and a nesting key "a" holding "b" spell
-        // the same path (D11), and the lookup answers it with the dotted key.
-        const joined = this.getNodePath(node);
-        if (this.pathsValue.indexOf(joined) < 0) {
-          this.pathsValue.push(joined);
-        }
+        this.pathsValue.push(this.getNodePath(node));
       }
       return;
     }
@@ -283,22 +294,15 @@ export class SurveyVariablePresets {
     }
     return keys.join(".");
   }
-  // A path is split at "." but a key may hold a dot itself (decisions D11: a dotted valueName is a
-  // literal key, and the runtime resolves {users.a.b} to it), so at every level the longest run of
-  // segments that is a key is tried first, and a shorter one when the rest of the path finds nothing.
+  // No key holds a dot, so each segment of the path is one key.
   private findNode(name: string): IVariableNode {
     if (!name || typeof name !== "string") return undefined;
-    return this.findNodeIn(this.getRoot(), name.toLowerCase().split("."), 0);
-  }
-  private findNodeIn(parent: IVariableNode, segments: Array<string>, start: number): IVariableNode {
-    for (let end = segments.length; end > start; end--) {
-      const child = parent.children[segments.slice(start, end).join(".")];
-      if (!child) continue;
-      if (end === segments.length) return child;
-      const res = this.findNodeIn(child, segments, end);
-      if (!!res) return res;
+    let node = this.getRoot();
+    const segments = name.toLowerCase().split(".");
+    for (let i = 0; i < segments.length && !!node; i++) {
+      node = node.children[segments[i]];
     }
-    return undefined;
+    return node;
   }
   private getNames(): Array<string> {
     if (!this.namesValue) {
@@ -317,7 +321,7 @@ export class SurveyVariablePresets {
   // while the runtime reads {users.tier} from it. Two input keys differing only by case are one
   // variable, and the last one in input order wins: that is what the Object.keys order gives, and no
   // consumer produces such a pair. An input key is a literal key, never a path: the host sets
-  // { users: { tier } }, and a key "users.tier" is a variable of that very name.
+  // { users: { tier } }, and a key "users.tier" is unknown, since no variable key holds a dot.
   private mapRecord(values: any, parent: IVariableNode, prefix: string,
     res: ISurveyVariableValidationResult, invalidNodes: Array<IVariableNode>): any {
     const data: any = {};
@@ -369,6 +373,8 @@ export class SurveyVariablePresets {
     const visibleQuestions = model.getAllQuestions(true);
     model.getAllQuestions().forEach(question => {
       const path = question.getDataPath();
+      // a question under a dotted key is no variable, so its errors are nobody's
+      if (path.some(key => key.indexOf(".") > -1)) return;
       if (this.isInInvalidNode(path, invalidNodes)) return;
       // getAllErrors(), not errors: a dynamic panel or a matrix keeps its own errors empty and reports
       // through the nested question that failed. Every nested error is attributed to the variable that

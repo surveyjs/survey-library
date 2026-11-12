@@ -7,6 +7,7 @@ import { nameShadowingRule } from "./name-shadowing";
 import { nameReservedRule } from "./name-reserved";
 import { variableCollisionRule } from "./variable-collision";
 import { variablePresetRule } from "./variable-preset";
+import { variableDottedKeyRule } from "./variable-dotted-key";
 import { elementUnknownTypeRule } from "./element-unknown-type";
 import { propertyUnknownRule } from "./property-unknown";
 import { propertyDeadRule } from "./property-dead";
@@ -50,6 +51,7 @@ export const allRules: Array<ILintRule> = [
   nameReservedRule,
   variableCollisionRule,
   variablePresetRule,
+  variableDottedKeyRule,
   elementUnknownTypeRule,
   propertyUnknownRule,
   propertyDeadRule,

@@ -57,7 +57,9 @@ function checkUnknownVariables(ctx: LintContext, preset: ISurveyVariablePreset, 
   unknown: Array<string>): void {
   // a key is a root key or a path into an object variable ("users.nope"), in the preset's spelling
   unknown.forEach(key => {
-    const suggestion = suggestDefinitionVariable(key, ctx.index);
+    let suggestion = suggestDefinitionVariable(key, ctx.index);
+    // a dotted key spelling a declared field's path ({ "users.tier": 1 }) is not offered itself back
+    if (!!suggestion && suggestion.toLowerCase() === key.toLowerCase()) suggestion = undefined;
     ctx.report({
       message: "Preset " + presetLabel(preset, index) + " sets \"" + key +
         "\", which the variable definition does not declare." + didYouMean(suggestion),
@@ -70,34 +72,24 @@ function checkUnknownVariables(ctx: LintContext, preset: ISurveyVariablePreset, 
 }
 
 // Validation normalizes keys to the definition's spelling at every level of an object variable;
-// paths address the preset itself, so an error's path is spelled back key by key. The longest key
-// first, since a key may hold a dot (decisions D11); among case variants the last one, matching
-// validateVariables' assignment order. A key the preset leaves out (a required field) keeps the
-// definition's spelling.
+// paths address the preset itself, so an error's path is spelled back key by key. No variable key
+// holds a dot, so the path splits into its keys; a dotted input key is never one of them. Among case
+// variants the last one, matching validateVariables' assignment order. A key the preset leaves out
+// (a required field) keeps the definition's spelling.
 function toInputPath(values: any, path: string): string {
-  let res = "";
-  let rest = path;
   let obj = values;
-  while(!!rest) {
-    const key = isRecord(obj) ? findInputKey(obj, rest) : undefined;
-    if (key === undefined) return res + rest;
-    res += key;
-    rest = rest.substring(key.length);
-    if (!rest) break;
-    res += ".";
-    rest = rest.substring(1);
-    obj = obj[key];
-  }
-  return res;
+  return path.split(".").map(key => {
+    const inputKey = isRecord(obj) ? findInputKey(obj, key) : undefined;
+    obj = inputKey !== undefined ? obj[inputKey] : undefined;
+    return inputKey !== undefined ? inputKey : key;
+  }).join(".");
 }
 
-function findInputKey(obj: any, rest: string): string | undefined {
-  const lowerRest = rest.toLowerCase();
+function findInputKey(obj: any, key: string): string | undefined {
+  const lowerKey = key.toLowerCase();
   let res: string;
-  Object.keys(obj).forEach(key => {
-    const lowerKey = key.toLowerCase();
-    if (lowerRest !== lowerKey && !lowerRest.startsWith(lowerKey + ".")) return;
-    if (res === undefined || key.length >= res.length) res = key;
+  Object.keys(obj).forEach(name => {
+    if (name.toLowerCase() === lowerKey) res = name;
   });
   return res;
 }

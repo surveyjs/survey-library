@@ -342,7 +342,10 @@ panel or page of the definition that nests describes an **object variable**: `{ 
 "name": "user", "valueName": "users", "elements": [{ "type": "text", "name": "tier" }] }` declares the
 variable `users`, set as `"variables": { "users": { "tier": "gold" } }` and read as `{users.tier}`. Its
 fields are checked one by one, and a field the definition does not declare is reported by its path
-(`users.nope`) and removed from what is applied, as an unknown name is. `survey-core` derives all of
+(`users.nope`) and removed from what is applied, as an unknown name is. A variable key holds no dot: a
+definition question or nesting container whose key has one (`"valueName": "a.b"`) declares no variable,
+so a case key `"a.b"` is an unknown name, and `{ "users.tier": 1, "users": { "tier": "gold" } }` loses
+the dotted key and keeps the field. `survey-core` derives all of
 that; the tester only reports what it says.
 
 **What the tester does with it.** Before the model of a test is created — after the structural and

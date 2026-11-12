@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { QuestionText } from "../e2e/questionHelper";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, setRowItemFlowDirection, getButtonByText, baseTest as test } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, setRowItemFlowDirection, getButtonByText, resizeToDesktop, baseTest as test } from "../e2e/helper";
 
 const title = "Question Screenshot";
 
@@ -336,8 +336,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await compareScreenshot(page, qRoot, "responsiveness-question-with-error.png");
 
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await expect(page.locator(".sd-root-modern")).not.toHaveClass(/sd-root-modern--mobile/);
+      await resizeToDesktop(page);
       await page.fill(".sd-formbox__input", "some-text");
       await page.click(".sd-navigation__complete-btn");
       await resetFocusToBody(page);

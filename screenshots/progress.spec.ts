@@ -1,5 +1,5 @@
 import { Page, Locator, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, getButtonByText, baseTest as test } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, getButtonByText, resizeToMobile, baseTest as test } from "../e2e/helper";
 
 const title = "Survey Progress Screenshot";
 
@@ -202,8 +202,7 @@ frameworks.forEach(framework => {
       await page.click("li:nth-child(2)");
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons.png");
 
-      await page.setViewportSize({ width: 600, height: 1000 });
-      await expect(page.locator(".sd-root-modern")).toHaveClass(/sd-root-modern--mobile/);
+      await resizeToMobile(page);
       await page.setViewportSize({ width: 500, height: 1080 });
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-mobile.png");
     });
@@ -220,8 +219,7 @@ frameworks.forEach(framework => {
       await page.click("li:nth-child(2)");
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons.png");
 
-      await page.setViewportSize({ width: 600, height: 1000 });
-      await expect(page.locator(".sd-root-modern")).toHaveClass(/sd-root-modern--mobile/);
+      await resizeToMobile(page);
       await page.setViewportSize({ width: 500, height: 1080 });
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-mobile.png");
     });
@@ -238,8 +236,7 @@ frameworks.forEach(framework => {
       await page.click("li:nth-child(2)");
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons.png");
 
-      await page.setViewportSize({ width: 600, height: 1000 });
-      await expect(page.locator(".sd-root-modern")).toHaveClass(/sd-root-modern--mobile/);
+      await resizeToMobile(page);
       await page.setViewportSize({ width: 500, height: 1080 });
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons-mobile.png");
     });
@@ -778,8 +775,7 @@ frameworks.forEach(framework => {
       // Desktop screenshot
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-background.png");
 
-      await page.setViewportSize({ width: 600, height: 1000 });
-      await expect(page.locator(".sd-root-modern")).toHaveClass(/sd-root-modern--mobile/);
+      await resizeToMobile(page);
       await page.setViewportSize({ width: 500, height: 1080 });
 
       // Mobile screenshot

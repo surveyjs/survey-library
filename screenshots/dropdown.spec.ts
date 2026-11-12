@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, waitUntilAllImagesLoad, baseTest as test } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, waitUntilAllImagesLoad, resizeToMobile, baseTest as test } from "../e2e/helper";
 import { registerCustomItemComponent } from "../e2e/registerCustomComponents";
 
 const title = "Dropdown Screenshot";
@@ -292,8 +292,7 @@ frameworks.forEach(framework => {
       await page.locator(".sd-dropdown__filter-string-input").fill("test");
       await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-empty-list.png");
       await page.locator(".sd-dropdown__filter-string-input").click();
-      await page.setViewportSize({ width: 300, height: 500 });
-      await expect(page.locator(".sd-root-modern")).toHaveClass(/sd-root-modern--mobile/);
+      await resizeToMobile(page, 300, 500);
       await page.locator(".sd-dropdown__filter-string-input").pressSequentially("1");
       await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-small-window-empty-list.png");
     });

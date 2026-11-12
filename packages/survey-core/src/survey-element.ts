@@ -642,12 +642,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return true;
   }
   // The element and every element above it are visible. A nested element (a dynamic panel's inner panel,
-  // a matrix cell) has no parent, so the walk goes on through its owner question.
+  // a matrix cell) has no parent, so the walk goes on through its owner question. The parent chain of a
+  // matrix detail panel or a composite's content panel ends before the owner question, and a choice panel's
+  // parent skips it, so the owner is checked on its own there. When the parent leads to the same owner,
+  // the walk reaches it anyway and the extra check is skipped.
   public get isVisibleWithParents(): boolean {
     let el: SurveyElement = this;
     while(!!el) {
       if (!el.isVisible) return false;
-      el = <SurveyElement><any>(el.parent || el.parentQuestion);
+      const owner = <SurveyElement><any>el.parentQuestion;
+      const parent: any = el.parent;
+      if (!!owner && !!parent && parent.parentQuestion !== owner && !owner.isVisibleWithParents) return false;
+      el = <SurveyElement><any>(parent || owner);
     }
     return true;
   }

@@ -1,8 +1,7 @@
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { IElement, IQuestion } from "./base-interfaces";
+import { IElement } from "./base-interfaces";
 import { PanelModel } from "./panel";
-import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";
 import { DomWindowHelper } from "./global_variables_utils";
 

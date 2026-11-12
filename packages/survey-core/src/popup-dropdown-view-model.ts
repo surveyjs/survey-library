@@ -7,7 +7,6 @@ import { IsTouch } from "./utils/devices";
 import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { IAction } from "./actions/action";
-import { defaultActionBarCss } from "./actions/actionBarCss";
 import { findScrollableParent, getRootNode } from "./utils/dom-utils";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {

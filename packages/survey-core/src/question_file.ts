@@ -1,4 +1,4 @@
-import { IPlainDataOptions, ISurvey, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
+import { IPlainDataOptions, ISurvey, ISurveyFileCallbacks } from "./base-interfaces";
 import { IQuestionPlainData, Question, QuestionValueType, IVerifyDataContext } from "./question";
 import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -8,7 +8,7 @@ import { EventBase } from "./event";
 import { UploadingFileError, ExceedSizeError, ExceedFilesCountError } from "./error";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
-import { classesToSelector, getIdSelector, isElementVisible } from "./utils/dom-utils";
+import { classesToSelector, getIdSelector } from "./utils/dom-utils";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { detectIEOrEdge } from "./utils/browser";
 import { loadFileFromBase64 } from "./utils/file-utils";
@@ -169,7 +169,7 @@ export class QuestionFileModelBase extends Question {
 
 export class QuestionFilePage extends Base {
   @propertyArray({}) public items: Array<any>;
-  constructor(private question: QuestionFileModel, private index: number) {
+  constructor(private question: QuestionFileModel, index: number) {
     super();
   }
   protected getIdPrefix(): string { return "sv_sfp"; }

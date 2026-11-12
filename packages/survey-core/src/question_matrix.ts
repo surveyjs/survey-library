@@ -18,7 +18,7 @@ import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMa
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Question, QuestionValueType, IVerifyDataContext, readOnlyViewEmptyText } from "./question";
-import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
+import { ISurveyData, ITextProcessor, IQuestion } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { Scope } from "./utils/scope";
@@ -402,9 +402,6 @@ export class QuestionMatrixModel
   }
   protected get supportsQuestionView(): boolean {
     return false;
-  }
-  public get isCompositeQuestion(): boolean {
-    return true;
   }
   /**
    * Specifies whether to display the table header that contains column captions.
@@ -1202,9 +1199,6 @@ export class QuestionMatrixModel
   }
   protected clearInvisibleColumnValues(): void {
     this.clearInvisibleValuesInRowsAndColumns(false, true, false);
-  }
-  protected clearInvisibleValuesInRows(): void {
-    this.clearInvisibleValuesInRowsAndColumns(true, false, false);
   }
   protected clearInvisibleValuesInRowsAndColumns(inRows: boolean, inColumns: boolean, inCorrectRows: boolean): void {
     if (this.isEmpty()) return;

@@ -1129,7 +1129,7 @@ describe("the work an assignment of the value costs", () => {
     question.dataSource = source;
     await flush();
     let footerUpdates = 0;
-    (<any>question).updateFooterActionsCallback = (): void => { footerUpdates++; };
+    (<any>question).dynamicActions.updateFooterActionsCallback = (): void => { footerUpdates++; };
     question.dataSource = source;
     expect(footerUpdates, "#1: the footer is told").toBe(1);
   });
@@ -1232,7 +1232,7 @@ describe("the record list's lifecycle: it is disposed after the objects that rea
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
     const first = panel.currentPanel;
     // The carousel animates the panel out: it stays rendered while Next replaces it.
-    const animation: any = panel.panelsAnimation;
+    const animation: any = panel["dynamicAnimation"].panelsAnimation;
     animation.sync = (): void => { };
     panel["_renderedPanels"] = [first];
     panel.goToNextPanel();
@@ -1255,7 +1255,7 @@ describe("the record list's lifecycle: it is disposed after the objects that rea
   test("panel: a panel kept for a later dispose is disposed with the question", () => {
     const panel = createCarousel(2);
     const first = panel.currentPanel;
-    const animation: any = panel.panelsAnimation;
+    const animation: any = panel["dynamicAnimation"].panelsAnimation;
     animation.sync = (): void => { };
     panel["_renderedPanels"] = [first];
     panel.goToNextPanel();
@@ -1268,7 +1268,7 @@ describe("the record list's lifecycle: it is disposed after the objects that rea
   test("panel: Next animates as a move, not as a removal, and the leaving panel is disposed when its animation ends", () => {
     const question = createCarousel(5);
     const first = question.currentPanel;
-    const animation: any = question.panelsAnimation;
+    const animation: any = question["dynamicAnimation"].panelsAnimation;
     const sync = animation.sync.bind(animation);
     let running: any;
     animation.sync = (val: any): void => { running = val; };
@@ -1276,7 +1276,7 @@ describe("the record list's lifecycle: it is disposed after the objects that rea
     question.goToNextPanel();
     const next = question.currentPanel;
     question["_renderedPanels"] = [first, next];
-    const options = question["getPanelsAnimationOptions"]();
+    const options = question["dynamicAnimation"].getAnimationOptions();
     const enterCss = options.getEnterOptions(next).cssClass;
     expect(enterCss.indexOf("sv-pd-animation-removing"), "#1: not a removal: " + enterCss).toBe(-1);
     expect(enterCss.indexOf("sv-pd-animation-left") > -1, "#2: a move forward: " + enterCss).toBe(true);

@@ -2,7 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { LocalizableString, LocalizableStrings } from "./localizablestring";
+import { LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable, createDate } from "./helpers";
 import { EmailValidator } from "./validator";
 import { SurveyError } from "./survey-error";

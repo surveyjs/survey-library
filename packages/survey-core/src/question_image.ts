@@ -28,9 +28,6 @@ export class QuestionImageModel extends QuestionNonValue {
   public getType(): string {
     return "image";
   }
-  public get isCompositeQuestion(): boolean {
-    return false;
-  }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
     this.calculateRenderedMode();

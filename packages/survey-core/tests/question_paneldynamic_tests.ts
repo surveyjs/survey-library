@@ -6174,7 +6174,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     });
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
     const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-    expect(!!panel["tabbedMenuValue"], "tabbedMenuValue exist").toBeTruthy();
+    expect(!!panel["actionsValue"]?.["tabbedMenuValue"], "tabbedMenuValue exist").toBeTruthy();
     expect(panel.isRenderModeTab, "isRenderModeTab").toBeTruthy();
     expect(panel.currentIndex, "currentIndex is 0").toBe(0);
     expect(panelTabToolbar.actions.length, "2 panels").toBe(2);
@@ -7822,20 +7822,20 @@ describe("Survey_QuestionPanelDynamic", () => {
       ]
     });
     const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeTruthy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeFalsy();
 
     question.displayMode = "tab";
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeFalsy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeTruthy();
 
     question.displayMode = "carousel";
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeFalsy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeTruthy();
 
     question.displayMode = "list";
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeTruthy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeFalsy();
   });
   test("paneldynamic: Do not call onFirstRendered for hidden panels, Issue#10501", () => {
     const survey = new SurveyModel({
@@ -8044,7 +8044,7 @@ describe("Survey_QuestionPanelDynamic", () => {
       }
     };
     const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-    const options = question["getPanelsAnimationOptions"]();
+    const options = question["dynamicAnimation"].getAnimationOptions();
     const panelsContainer = document.createElement("div");
     const panelContainer2 = document.createElement("div");
     const panelContainer1 = document.createElement("div");
@@ -8108,7 +8108,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
     expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
 
-    question["focusNewPanelCallback"] = () => {};
+    question["dynamicAnimation"].focusNewPanelCallback = () => {};
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toBe("enter sv-pd-animation-adding sv-pd-animation-left");
@@ -8126,7 +8126,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     question.removePanel(removedPanel);
     question["_renderedPanels"] = [question.panels[0], removedPanel];
 
-    question["removedPanelIndex"] = 0;
+    question["dynamicAnimation"].removedPanelIndex = 0;
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toBe("enter sv-pd-animation-removing sv-pd-animation-left");
@@ -8140,7 +8140,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
     expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
 
-    question["removedPanelIndex"] = 1;
+    question["dynamicAnimation"].removedPanelIndex = 1;
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toBe("enter sv-pd-animation-removing sv-pd-animation-right");

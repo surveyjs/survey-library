@@ -1,5 +1,5 @@
 import type { Base } from "./base";
-import { Helpers, HashTable } from "./helpers";
+import { Helpers } from "./helpers";
 import { ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { settings } from "./settings";
 
@@ -838,7 +838,6 @@ export class JsonMetadataClass {
       }
       if (propInfo.serializationProperty) {
         prop.serializationProperty = propInfo.serializationProperty;
-        var s: string;
         if (
           prop.serializationProperty &&
           prop.serializationProperty.indexOf("loc") == 0

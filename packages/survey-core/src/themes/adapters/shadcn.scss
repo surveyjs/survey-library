@@ -865,7 +865,7 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   border-top: none;
 }
 
-.sd-panel__expandable-content {
+.sd-element--expandable {
   padding-bottom: calc(var(--sjs2-layout-component-panel-header-padding-top) - var(--sjs2-layout-component-panel-header-padding-bottom));
 }
 

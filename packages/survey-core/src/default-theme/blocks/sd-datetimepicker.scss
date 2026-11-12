@@ -3,15 +3,19 @@
 
 .sd-datetimepicker {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sjs2-spacing-x150);
+}
+
+.sd-datetimepicker__field {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .sd-datetimepicker__input {
   flex: 1 1 auto;
   min-width: 0;
-}
-
-.sd-datetimepicker--range .sd-datetimepicker__input {
-  flex: 1 1 0;
 }
 
 .sd-datetimepicker__separator {

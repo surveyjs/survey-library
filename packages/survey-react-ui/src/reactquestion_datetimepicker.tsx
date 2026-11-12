@@ -45,23 +45,31 @@ export class SurveyQuestionDateTimePicker extends SurveyQuestionElementBase {
       />
     );
   }
-  private renderInputs(): React.JSX.Element | Array<React.JSX.Element> {
+  private renderField(index: number, id: string, text: string, placeholder: string): React.JSX.Element {
+    const q = this.question;
+    return (
+      <div key={id} className={q.getFieldClass()}>
+        {this.renderInput(index, id, text, placeholder)}
+        <SurveyActionBar model={q.getEditorButtons(index)}></SurveyActionBar>
+      </div>
+    );
+  }
+  private renderFields(): React.JSX.Element | Array<React.JSX.Element> {
     const q = this.question;
     if (!q.range) {
-      return this.renderInput(0, q.inputId, q.renderedInputValue, q.renderedPlaceholder);
+      return this.renderField(0, q.inputId, q.renderedInputValue, q.renderedPlaceholder);
     }
     return [
-      this.renderInput(0, q.startInputId, q.renderedStartInputValue, q.renderedStartPlaceholder),
+      this.renderField(0, q.startInputId, q.renderedStartInputValue, q.renderedStartPlaceholder),
       <span key="separator" className={q.cssClasses.rangeSeparator}>{q.rangeSeparatorText}</span>,
-      this.renderInput(1, q.endInputId, q.renderedEndInputValue, q.renderedEndPlaceholder)
+      this.renderField(1, q.endInputId, q.renderedEndInputValue, q.renderedEndPlaceholder)
     ];
   }
   protected renderElement(): React.JSX.Element {
     const q = this.question;
     return (
       <div key={q.range ? "range" : "single"} className={q.getRootClass()} ref={(div) => this.setControl(div)}>
-        {this.renderInputs()}
-        <SurveyActionBar model={q.editorButtons}></SurveyActionBar>
+        {this.renderFields()}
         {q.isInputReadOnly ? null : <Popup model={q.popupModel}></Popup>}
       </div>
     );

@@ -561,21 +561,60 @@ describe("QuestionDateTimePickerModel range", () => {
     expect(q.calendar.viewDate.getTime()).toBe(d(2027, 2, 1).getTime());
   });
 
-  test("Calendar button and clear button in range mode", () => {
+  test("Each range field has its own calendar and clear buttons", () => {
     const q = createQuestion({ range: true });
-    expect(q.editorButtons.actions.filter(action => action.id === "calendar")).toHaveLength(1);
-    const clear = q.editorButtons.getActionById("clear");
+    expect(q.getEditorButtons(0)).toBe(q.startEditorButtons);
+    expect(q.getEditorButtons(1)).toBe(q.endEditorButtons);
+    expect(q.startEditorButtons).not.toBe(q.endEditorButtons);
+    [q.startEditorButtons, q.endEditorButtons].forEach(buttons => {
+      expect(buttons.actions.map(action => action.id)).toEqual(["clear", "calendar"]);
+    });
+
+    q.endEditorButtons.getActionById("calendar").action();
+    expect(q.popupModel.isVisible).toBe(true);
+    expect(q.startEditorButtons.getActionById("calendar").popupActive).toBe(true);
+    expect(q.endEditorButtons.getActionById("calendar").popupActive).toBe(true);
+    q.popupModel.hide();
+    expect(q.endEditorButtons.getActionById("calendar").popupActive).toBe(false);
+  });
+
+  test("A range clear button clears its own field", () => {
+    const q = createQuestion({ range: true });
+    const startClear = q.startEditorButtons.getActionById("clear");
+    const endClear = q.endEditorButtons.getActionById("clear");
+    expect(startClear.visible).toBe(false);
+    expect(endClear.visible).toBe(false);
+
     q.startInputValue = "11/05/2026";
-    expect(clear.visible, "a draft can be cleared").toBe(true);
-    clear.action();
+    expect(startClear.visible, "a draft can be cleared").toBe(true);
+    expect(endClear.visible).toBe(false);
+    startClear.action();
     expect(q.startInputValue).toBe("mm/dd/yyyy");
     expect(q.calendar.rangeStart).toBeUndefined();
+
     q.value = ["2026-11-05", "2026-11-12"];
-    clear.action();
-    expect(q.isEmpty()).toBe(true);
-    expect(q.startInputValue).toBe("mm/dd/yyyy");
+    expect(startClear.visible).toBe(true);
+    expect(endClear.visible).toBe(true);
+    endClear.action();
+    expect(q.isEmpty(), "the value needs both fields").toBe(true);
+    expect(q.startInputValue).toBe("11/05/2026");
     expect(q.endInputValue).toBe("mm/dd/yyyy");
-    expect(clear.visible).toBe(false);
+    expect(endClear.visible).toBe(false);
+    expect(startClear.visible).toBe(true);
+  });
+
+  test("A range clear button updates its input element", () => {
+    const q = createQuestion({ range: true, defaultValue: ["2026-11-05", "2026-11-12"] });
+    const root = document.createElement("div");
+    root.appendChild(document.createElement("input"));
+    root.appendChild(document.createElement("input"));
+    q.afterRenderQuestionElement(root);
+    const inputs = root.querySelectorAll("input");
+    expect(inputs[1].value).toBe("11/12/2026");
+    q.endEditorButtons.getActionById("clear").action();
+    expect(inputs[0].value).toBe("11/05/2026");
+    expect(inputs[1].value).toBe("mm/dd/yyyy");
+    q.beforeDestroyQuestionElement(root);
   });
 
   test("Required: both fields are needed", () => {
@@ -688,7 +727,9 @@ describe("QuestionDateTimePickerModel range", () => {
 
   test("Render helpers", () => {
     const q = createQuestion();
-    expect(q.getRootClass()).toBe("sd-formbox sd-datetimepicker");
+    expect(q.getRootClass()).toBe("sd-datetimepicker");
+    expect(q.getFieldClass()).toBe("sd-formbox sd-datetimepicker__field");
+    expect(q.getEditorButtons(0)).toBe(q.editorButtons);
     expect(q.getControlClass()).toBe("sd-formbox__input sd-datetimepicker__input");
     expect(q.startInputId).toBe(q.inputId);
     expect(q.endInputId).toBe(q.inputId + "_end");
@@ -704,7 +745,8 @@ describe("QuestionDateTimePickerModel range", () => {
     q.inputValue = "11/0d/yyyy";
     expect(q.renderedInputValue).toBe("11/0d/yyyy");
     q.range = true;
-    expect(q.getRootClass()).toBe("sd-formbox sd-datetimepicker sd-datetimepicker--range");
+    expect(q.getRootClass()).toBe("sd-datetimepicker sd-datetimepicker--range");
+    expect(q.getFieldClass()).toBe("sd-formbox sd-datetimepicker__field");
     expect(q.renderedStartInputValue).toBe("");
     expect(q.renderedEndInputValue).toBe("");
     expect(q.renderedStartPlaceholder).toBe("mm/dd/yyyy");
@@ -713,7 +755,10 @@ describe("QuestionDateTimePickerModel range", () => {
     expect(q.renderedStartInputValue).toBe("11/05/2026");
     expect(q.renderedEndPlaceholder).toBe("To");
     q.readOnly = true;
-    expect(q.getRootClass()).toBe("sd-formbox sd-datetimepicker sd-datetimepicker--range sd-formbox--readonly");
+    expect(q.getRootClass()).toBe("sd-datetimepicker sd-datetimepicker--range");
+    expect(q.getFieldClass()).toBe("sd-formbox sd-datetimepicker__field sd-formbox--readonly");
+    expect(q.startEditorButtons.getActionById("calendar").enabled).toBe(false);
+    expect(q.endEditorButtons.getActionById("calendar").enabled).toBe(false);
   });
 
   test("Single mode is not affected", () => {

@@ -29,7 +29,7 @@ export class QuestionDateTimePickerModel extends Question {
   private doNotUpdateInputValue: boolean = false;
   private calendarValue: CalendarModel;
   private popupModelValue: PopupModel;
-  private editorButtonsValue: ActionContainer;
+  private editorButtonsValue: { [field: string]: ActionContainer } = {};
 
   constructor(name: string) {
     super(name);
@@ -159,9 +159,12 @@ export class QuestionDateTimePickerModel extends Question {
     return this.calendarValue;
   }
   public getRootClass(): string {
+    return toCssClasses(this.cssClasses.root, this.range && this.cssClasses.rootRange);
+  }
+  // In range mode each of the two fields is a separate box.
+  public getFieldClass(): string {
     return toCssClasses(
-      this.cssClasses.root,
-      this.range && this.cssClasses.rootRange,
+      this.cssClasses.field,
       this.hasCssError() && this.cssClasses.onError,
       this.isDisabledStyle && this.cssClasses.rootDisabled,
       this.isReadOnlyStyle && this.cssClasses.rootReadOnly,
@@ -214,10 +217,9 @@ export class QuestionDateTimePickerModel extends Question {
           this.updateCalendarValue();
           this.calendar.resetView();
         }
-        const button = this.editorButtons.getActionById("calendar");
-        if (!!button) {
-          button.popupActive = options.isVisible;
-        }
+        this.forEachEditorButtons((container) => {
+          container.getActionById("calendar").popupActive = options.isVisible;
+        });
       });
     }
     return this.popupModelValue;
@@ -236,50 +238,90 @@ export class QuestionDateTimePickerModel extends Question {
   public get locClearCaption(): LocalizableString {
     return this.getLocalizableString("clearCaption") || this.createLocalizableString("clearCaption", this, false, true);
   }
+  // The buttons of the single field.
   public get editorButtons(): ActionContainer {
-    if (!this.editorButtonsValue) {
-      const container = new ActionContainer();
-      container.locOwner = this;
-      container.containerCss = this.cssClasses?.group;
-      container.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
-      container.setItems([
-        new Action({
-          id: "clear",
-          css: "sd-editor-clean-button",
-          iconName: this.cssClasses?.cleanButtonIconId || "icon-cancel-24x24",
-          iconSize: "auto",
-          showTitle: false,
-          locTitle: this.locClearCaption,
-          disableTabStop: true,
-          enabled: !this.isInputReadOnly,
-          visible: this.isClearButtonVisible,
-          action: () => this.clearInput()
-        }),
-        new Action({
-          id: "calendar",
-          css: "sd-editor-calendar-button",
-          iconName: this.cssClasses?.calendarButtonIconId || "icon-calendar-24x24",
-          iconSize: "auto",
-          showTitle: false,
-          locTitle: this.locOpenCalendarCaption,
-          disableTabStop: true,
-          enabled: !this.isInputReadOnly,
-          action: () => this.togglePopup()
-        })
-      ]);
-      this.editorButtonsValue = container;
-    }
-    return this.editorButtonsValue;
+    return this.getEditorButtonsByField("single");
   }
-  private get isClearButtonVisible(): boolean {
+  public get startEditorButtons(): ActionContainer {
+    return this.getEditorButtonsByField("start");
+  }
+  public get endEditorButtons(): ActionContainer {
+    return this.getEditorButtonsByField("end");
+  }
+  // The buttons of a rendered field by its index: the single field, or start (0) / end (1) in range mode.
+  public getEditorButtons(index: number): ActionContainer {
+    if (!this.range) return this.editorButtons;
+    return index === 0 ? this.startEditorButtons : this.endEditorButtons;
+  }
+  private getEditorButtonsByField(field: string): ActionContainer {
+    if (!this.editorButtonsValue[field]) {
+      this.editorButtonsValue[field] = this.createEditorButtons(field);
+    }
+    return this.editorButtonsValue[field];
+  }
+  private forEachEditorButtons(callback: (container: ActionContainer, field: string) => void): void {
+    Object.keys(this.editorButtonsValue).forEach(field => callback(this.editorButtonsValue[field], field));
+  }
+  private createEditorButtons(field: string): ActionContainer {
+    const container = new ActionContainer();
+    container.locOwner = this;
+    container.containerCss = this.cssClasses?.group;
+    container.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
+    container.setItems([
+      new Action({
+        id: "clear",
+        css: "sd-editor-clean-button",
+        iconName: this.cssClasses?.cleanButtonIconId || "icon-cancel-24x24",
+        iconSize: "auto",
+        showTitle: false,
+        locTitle: this.locClearCaption,
+        disableTabStop: true,
+        enabled: !this.isInputReadOnly,
+        visible: this.isClearButtonVisible(field),
+        action: () => this.clearField(field)
+      }),
+      new Action({
+        id: "calendar",
+        css: "sd-editor-calendar-button",
+        iconName: this.cssClasses?.calendarButtonIconId || "icon-calendar-24x24",
+        iconSize: "auto",
+        showTitle: false,
+        locTitle: this.locOpenCalendarCaption,
+        disableTabStop: true,
+        enabled: !this.isInputReadOnly,
+        action: () => this.togglePopup()
+      })
+    ]);
+    return container;
+  }
+  private isClearButtonVisible(field: string): boolean {
     if (!this.allowClear || this.isReadOnly) return false;
-    if (!this.isEmpty()) return true;
-    return this.range && (this.hasInputText(this._startInputValue) || this.hasInputText(this._endInputValue));
+    if (field === "start") return this.hasInputText(this._startInputValue);
+    if (field === "end") return this.hasInputText(this._endInputValue);
+    return !this.isEmpty();
   }
   private updateEditorButtons(): void {
-    if (!this.editorButtonsValue) return;
-    this.editorButtonsValue.actions.forEach(action => action.setEnabled(!this.isInputReadOnly));
-    this.editorButtonsValue.getActionById("clear").setVisible(this.isClearButtonVisible);
+    this.forEachEditorButtons((container, field) => {
+      container.actions.forEach(action => action.setEnabled(!this.isInputReadOnly));
+      container.getActionById("clear").setVisible(this.isClearButtonVisible(field));
+    });
+  }
+  private clearField(field: string): void {
+    if (field !== "start" && field !== "end") {
+      this.clearInput();
+      return;
+    }
+    const index = field === "start" ? 0 : 1;
+    if (index === 0) {
+      this._startInputValue = undefined;
+    } else {
+      this._endInputValue = undefined;
+    }
+    this.onRangeInputChanged();
+    const adapter = this.maskInputAdapters[index];
+    if (!!adapter) {
+      adapter.updateInputElementValue(undefined);
+    }
   }
   public clearInput(): void {
     this._inputValue = undefined;
@@ -625,10 +667,8 @@ export class QuestionDateTimePickerModel extends Question {
       this.popupModelValue.dispose();
       this.popupModelValue = undefined;
     }
-    if (!!this.editorButtonsValue) {
-      this.editorButtonsValue.dispose();
-      this.editorButtonsValue = undefined;
-    }
+    this.forEachEditorButtons(container => container.dispose());
+    this.editorButtonsValue = {};
     this.calendarValue.dispose();
     super.dispose();
   }

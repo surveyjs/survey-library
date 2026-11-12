@@ -833,8 +833,9 @@ export var defaultCss = {
     clearButton: "",
   },
   datetimepicker: {
-    root: "sd-formbox sd-datetimepicker",
+    root: "sd-datetimepicker",
     rootRange: "sd-datetimepicker--range",
+    field: "sd-formbox sd-datetimepicker__field",
     rootDisabled: "sd-formbox--disabled",
     rootReadOnly: "sd-formbox--readonly",
     rootPreview: "sd-formbox--preview",

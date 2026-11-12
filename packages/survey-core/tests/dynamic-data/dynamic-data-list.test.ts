@@ -1321,9 +1321,7 @@ describe("DynamicDataList: created indexes", () => {
     const list = createList(createRecords(3));
     expect(list.hasView, "#1: no view").toBe(false);
     expect(list.getCreatedIndexes(), "#2").toEqual([0, 1, 2]);
-    expect(list.createdIndexToIndex(2), "#3").toBe(2);
     expect(list.indexToCreatedIndex(2), "#4").toBe(2);
-    expect(list.createdIndexToIndex(3), "#5: out of range").toBe(-1);
     expect(list.indexToCreatedIndex(3), "#6: out of range").toBe(-1);
   });
   test("a filter drops the records it excludes from the created indexes", () => {
@@ -1331,7 +1329,6 @@ describe("DynamicDataList: created indexes", () => {
     list.filter = "{a} = 1";
     expect(list.hasView, "#1").toBe(true);
     expect(list.getCreatedIndexes(), "#2").toEqual([0, 2]);
-    expect(list.createdIndexToIndex(1), "#3").toBe(2);
     expect(list.indexToCreatedIndex(2), "#4").toBe(1);
     expect(list.indexToCreatedIndex(1), "#5: the record has no object").toBe(-1);
     expect(list.count, "#6: the storage count does not change").toBe(3);
@@ -1341,7 +1338,6 @@ describe("DynamicDataList: created indexes", () => {
     const list = createList(records);
     list.sort = [{ field: "a", direction: "asc" }];
     expect(list.getCreatedIndexes(), "#1").toEqual([1, 2, 0]);
-    expect(list.createdIndexToIndex(0), "#2").toBe(1);
     expect(list.indexToCreatedIndex(0), "#3").toBe(2);
     expect(records.map(r => r.a), "#4: the records kept their order").toEqual([3, 1, 2]);
   });
@@ -1901,7 +1897,6 @@ describe("DynamicDataList: a read-through count does not compose the records", (
     const start = compositions();
     expect(list.count, "#1").toBe(10);
     expect(list.loadedCount, "#2").toBe(10);
-    expect(list.createdIndexToIndex(3), "#3").toBe(3);
     expect(list.indexToCreatedIndex(3), "#4").toBe(3);
     expect(list.visibleCount, "#5").toBe(10);
     expect(compositions() - start, "#6: no composition").toBe(0);

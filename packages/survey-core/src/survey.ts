@@ -40,7 +40,7 @@ import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
-import { getLocaleString, surveyLocalization } from "./surveyStrings";
+import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
@@ -113,7 +113,6 @@ import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
 import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
 import DefaultLightTheme from "./themes/default-light";
-import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
 
@@ -1380,9 +1379,6 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() sjsVersion: string;
   @property() $schema: string;
-  processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
-    throw new Error("Method not implemented.");
-  }
   protected createTryAgainAction(): IAction {
     return <IAction>{
       id: "save-again",
@@ -3859,7 +3855,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return result;
   }
-  getFilteredValues(): any {
+  getFilteredValues(): { [index: string]: any } {
     const values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     this.addCalculatedValuesIntoFilteredValues(values);
@@ -5219,7 +5215,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isValidateOnComplete) {
       this.cancelPreview();
     }
-    let res = this.doCurrentPageComplete(true);
+    this.doCurrentPageComplete(true);
     return this.isCompleted;
   }
   /**
@@ -5469,7 +5465,7 @@ export class SurveyModel extends SurveyElementCore
     });
     this.updateButtonsVisibility();
   }
-  private currentSingleElementValue: IElement;
+  private currentSingleElementValue: IElement | undefined;
   private getSingleElements(includeEl?: IElement): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
@@ -5488,10 +5484,10 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public get currentSingleElement(): IElement {
+  public get currentSingleElement(): IElement | undefined {
     return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
-  public set currentSingleElement(val: IElement) {
+  public set currentSingleElement(val: IElement | undefined) {
     if (!!val && val.isQuestion && this.isSingleVisibleQuestionVal(this.questionsOnPageMode)) {
       while(val.parent && val.parent.isPanel) {
         val = <IElement>(<any>val.parent);
@@ -5533,11 +5529,11 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  public get currentSingleQuestion(): Question {
+  public get currentSingleQuestion(): Question | undefined {
     const res = this.currentSingleElement;
     return !!res && res.isQuestion ? <Question>res : undefined;
   }
-  public set currentSingleQuestion(val: Question) {
+  public set currentSingleQuestion(val: Question | undefined) {
     this.currentSingleElement = val;
   }
   public supportsNestedSingleInput(question: IQuestion): boolean {
@@ -6591,10 +6587,6 @@ export class SurveyModel extends SurveyElementCore
     this.heldCompletion = undefined;
     this.doCurrentPageComplete(true);
   }
-  dragAndDropAllow(options: DragDropAllowEvent): boolean {
-    this.onDragDropAllow.fire(this, options);
-    return options.allow;
-  }
   elementContentVisibilityChanged(element: ISurveyElement): void {
     if (this.currentPage) {
       this.currentPage.ensureRowsVisibility();
@@ -7503,7 +7495,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.onExpressionRunning.isEmpty) return undefined;
     return this.questionTriggersKeys;
   }
-  // The skip check's parsed variable names (ValueGetter.isAnyKeyChangedCore), shared by every runner and trigger
+  // The skip check's parsed variable names (ValueGetter.isAnyKeyChanged), shared by every runner and trigger
   // of the survey and keyed by the exact name: a large survey has far fewer distinct names than runner slots.
   // An item depends on the name only: settings are read on every call, never kept in it, and an item never
   // reaches ValueGetter.run, which changes the path it parses. Built on the first keyed check; it lives as long
@@ -9438,10 +9430,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public getItemValueWrapperComponentData(item: ItemValue, question: QuestionSelectBase): any {
     return this.elementWrapperDataCore(item, question, "itemvalue", undefined, item);
-  }
-  public getMatrixCellTemplateData(cell: any): any {
-    const res: any = cell.question;
-    return this.elementWrapperDataCore(res, res, "cell");
   }
 
   public searchText(text: string): Array<IFindElement> {

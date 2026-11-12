@@ -2452,7 +2452,7 @@ export class Question extends SurveyElement<Question>
   }
   public get hasFilteredValue(): boolean { return false; }
   public getFilteredValue(isUnwrapped?: boolean): any { return this.value; }
-  public getFilteredName(): any { return this.getValueName(); }
+  public getFilteredName(): string { return this.getValueName(); }
   public get valueForSurvey(): any {
     return this.valueForSurveyCore(this.value);
   }

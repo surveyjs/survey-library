@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { QuestionCommentModel } from "../../src/question_comment";
 import { Serializer } from "../../src/jsonobject";
 import { SurveyModel } from "../../src/survey";
 import { settings } from "../../src/settings";
 import { RichTextEditorModel } from "../../src/plugins/rich-text/editor-model";
 import { RichText } from "../../src/plugins/rich-text/api";
+import { QuestionRichTextModel } from "../../src/plugins/rich-text/question";
 import "../../src/plugins/rich-text/index";
 
-function mount(question: QuestionCommentModel, mode?: "inline" | "block"): { element: HTMLDivElement, model: RichTextEditorModel } {
+function mount(question: QuestionRichTextModel, mode?: "inline" | "block"): { element: HTMLDivElement, model: RichTextEditorModel } {
   const element = document.createElement("div");
   document.body.appendChild(element);
   const model = new RichTextEditorModel(question, mode ? { mode: mode } : undefined);
@@ -58,16 +58,17 @@ afterEach(() => {
 });
 
 describe("rich text editor model", () => {
-  test("importing the plugin shows allowRichText and richTextToolbarMode and registers the renderer", () => {
-    expect(Serializer.findProperty("comment", "allowRichText").visible).toBe(true);
-    expect(Serializer.findProperty("comment", "richTextToolbarMode").visible).toBe(true);
-    const question = new QuestionCommentModel("c");
-    question.allowRichText = true;
-    expect(question.getComponentName()).toBe("sv-rich-text-comment");
+  test("importing the plugin registers the richtext question and its renderer", () => {
+    expect(Serializer.findProperty("comment", "allowRichText")).toBeFalsy();
+    expect(Serializer.findProperty("comment", "richTextToolbarMode")).toBeFalsy();
+    const question = new QuestionRichTextModel("c");
+    expect(question.getType()).toBe("richtext");
+    expect(question.getComponentName()).toBe("sv-rich-text");
+    expect(question.richTextToolbarMode).toBe("static");
   });
 
   test("toggle state is all, none, or mixed from the selection", () => {
-    const question = new QuestionCommentModel("c");
+    const question = new QuestionRichTextModel("c");
     const { element, model } = mount(question);
     element.innerHTML = "<strong>ab</strong>cd<em>ef</em>";
     selectText(element, model, "ab", "ab");
@@ -79,8 +80,8 @@ describe("rich text editor model", () => {
   });
 
   test("bold on a mixed selection stores the worked example", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     question.value = "Please <strong>read</strong> the <em>terms</em> carefully";
     const { element, model } = mount(question);
     selectText(element, model, "ead the ter", "ead the ter");
@@ -95,7 +96,7 @@ describe("rich text editor model", () => {
 
   test("shortcuts dispatch the same commands", () => {
     const calls: string[] = [];
-    const question = new QuestionCommentModel("c");
+    const question = new QuestionRichTextModel("c");
     const element = document.createElement("div");
     document.body.appendChild(element);
     const model = new RichTextEditorModel(question, {
@@ -112,8 +113,8 @@ describe("rich text editor model", () => {
   });
 
   test("blur commits sanitized html and focus without input does not", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     question.value = "Tom & Jerry";
     const { element } = mount(question);
     element.dispatchEvent(new FocusEvent("focus"));
@@ -127,8 +128,8 @@ describe("rich text editor model", () => {
 
   test("onTyping commits after the debounce and a legacy value is not rewritten", () => {
     vi.useFakeTimers();
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true, textUpdateMode: "onTyping" }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c", textUpdateMode: "onTyping" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     question.value = "a\nb";
     const { element } = mount(question);
     element.dispatchEvent(new FocusEvent("focus"));
@@ -143,8 +144,8 @@ describe("rich text editor model", () => {
   });
 
   test("an external value updates the editor and waits while it is focused", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     const { element, model } = mount(question);
     question.value = "<strong>now</strong>";
     expect(element.innerHTML).toBe("<strong>now</strong>");
@@ -157,7 +158,7 @@ describe("rich text editor model", () => {
   });
 
   test("inline mode hides list buttons and blocks Enter", () => {
-    const question = new QuestionCommentModel("c");
+    const question = new QuestionRichTextModel("c");
     question.acceptCarriageReturn = false;
     const { element, model } = mount(question);
     expect(model.mode).toBe("inline");
@@ -171,8 +172,8 @@ describe("rich text editor model", () => {
   });
 
   test("Enter in block mode splits a paragraph and Shift+Enter inserts a break", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     const { element, model } = mount(question);
     element.innerHTML = "ab";
     selectText(element, model, "a", "a");
@@ -186,8 +187,8 @@ describe("rich text editor model", () => {
   });
 
   test("Enter at the end of a line keeps the line and moves the caret below it", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     const { element, model } = mount(question);
     element.innerHTML = "ab";
     const caret = document.createRange();
@@ -218,8 +219,8 @@ describe("rich text editor model", () => {
   });
 
   test("unsupported html stays in source mode until edit anyway, and a plain blur does not rewrite it", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     question.value = "<p style=\"color:red\">Red</p><table><tr><td>cell</td></tr></table>";
     const model = new RichTextEditorModel(question);
     expect(model.sourceMode).toBe(true);
@@ -235,8 +236,8 @@ describe("rich text editor model", () => {
   });
 
   test("paste drops unsupported formatting and keeps the text", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     const { element, model } = mount(question);
     element.focus();
     const range = document.createRange();
@@ -262,8 +263,8 @@ describe("rich text editor model", () => {
   });
 
   test("the counter uses visible characters and typing stops at the limit", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true, maxLength: 3 }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c", maxLength: 3 }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     const { element, model } = mount(question);
     element.innerHTML = "<strong>ab</strong>";
     element.dispatchEvent(new Event("input"));
@@ -285,8 +286,8 @@ describe("rich text editor model", () => {
   });
 
   test("clear formatting turns list items into paragraphs", () => {
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     question.value = "<ul><li>one</li><li>two</li></ul>";
     const { element, model } = mount(question);
     selectText(element, model, "one", "two");
@@ -295,9 +296,9 @@ describe("rich text editor model", () => {
     expect(question.value).toBe("<p>one</p><p>two</p>");
   });
 
-  test("none hides the toolbar and still runs shortcuts; onFocus is the default", () => {
-    const question = new QuestionCommentModel("c");
-    expect(question.richTextToolbarMode).toBe("onFocus");
+  test("static is the default; none hides the toolbar and still runs shortcuts", () => {
+    const question = new QuestionRichTextModel("c");
+    expect(question.richTextToolbarMode).toBe("static");
     const calls: string[] = [];
     const element = document.createElement("div");
     document.body.appendChild(element);
@@ -305,7 +306,7 @@ describe("rich text editor model", () => {
       commands: { exec: (command: string) => { calls.push(command); } }
     });
     model.attach(element);
-    expect(model.toolbarMode).toBe("onFocus");
+    expect(model.toolbarMode).toBe("static");
     expect(model.hasToolbar).toBe(true);
     expect(model.toolbarOpen).toBe(false);
     question.richTextToolbarMode = "none";
@@ -320,15 +321,15 @@ describe("rich text editor model", () => {
   });
 
   test("the static toolbar uses small actions and 24px icons; other modes stay at 16px", () => {
-    const floating = new QuestionCommentModel("floating");
+    const floating = new QuestionRichTextModel("floating");
+    floating.richTextToolbarMode = "onFocus";
     const floatingModel = new RichTextEditorModel(floating);
     const floatingBold = floatingModel.toolbar.actions.filter(action => action.id === "rich-text-bold")[0];
     expect(floatingBold.iconSize).toBe(16);
     expect(floatingBold.iconName).toBe("icon-rich-text-bold-16x16");
     expect(floatingBold.getActionBarItemCss().split(" ")).toContain("sd-action--x-small");
 
-    const question = new QuestionCommentModel("c");
-    question.richTextToolbarMode = "static";
+    const question = new QuestionRichTextModel("c");
     const element = document.createElement("div");
     document.body.appendChild(element);
     const model = new RichTextEditorModel(question);
@@ -354,7 +355,7 @@ describe("rich text editor model", () => {
       dialog = options;
       return undefined;
     }) as any;
-    const question = new QuestionCommentModel("c");
+    const question = new QuestionRichTextModel("c");
     question.richTextToolbarMode = "onSelection";
     const box = document.createElement("div");
     box.className = "sd-rich-text sd-rich-text--toolbar-on-selection";
@@ -403,8 +404,8 @@ describe("rich text editor model", () => {
 
   test("the link dialog validates the url and stores a safe link", () => {
     const previous = settings.showDialog;
-    const survey = new SurveyModel({ elements: [{ type: "comment", name: "c", allowRichText: true }] });
-    const question = survey.getQuestionByName("c") as QuestionCommentModel;
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     question.value = "read this";
     let options: any;
     settings.showDialog = ((dialog: any): any => {

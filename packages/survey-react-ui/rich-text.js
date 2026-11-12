@@ -8,10 +8,10 @@ var json = {
       name: "editor",
       title: "Editor",
       elements: [
-        { type: "comment", name: "c_tb_none", title: "Toolbar: none (shortcuts only)", allowRichText: true, richTextToolbarMode: "none" },
-        { type: "comment", name: "c_tb_focus", title: "Toolbar: on focus", allowRichText: true, richTextToolbarMode: "onFocus" },
-        { type: "comment", name: "c_tb_selection", title: "Toolbar: on selection", allowRichText: true, richTextToolbarMode: "onSelection" },
-        { type: "comment", name: "c_tb_static", title: "Toolbar: static", allowRichText: true, richTextToolbarMode: "static" }
+        { type: "richtext", name: "c_tb_none", title: "Toolbar: none (shortcuts only)", richTextToolbarMode: "none" },
+        { type: "richtext", name: "c_tb_focus", title: "Toolbar: on focus", richTextToolbarMode: "onFocus" },
+        { type: "richtext", name: "c_tb_selection", title: "Toolbar: on selection", richTextToolbarMode: "onSelection" },
+        { type: "richtext", name: "c_tb_default", title: "Toolbar: static (default)" }
       ]
     }
   ]

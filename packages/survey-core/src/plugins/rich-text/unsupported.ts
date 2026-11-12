@@ -53,9 +53,8 @@ function reportStrings(obj: Base, out: UnsupportedRichText[]): void {
 }
 
 function reportComment(obj: Base, out: UnsupportedRichText[]): void {
-  if (obj.getType() !== "comment") return;
+  if (obj.getType() !== "richtext") return;
   const question = obj as QuestionCommentModel;
-  if (!question.allowRichText) return;
   const value = question.value;
   if (value === undefined || value === null || value === "") return;
   const text = String(value);

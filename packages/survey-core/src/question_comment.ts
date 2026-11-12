@@ -6,8 +6,6 @@ import { QuestionTextBase } from "./question_textbase";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Helpers } from "./helpers";
 import { IsTouch } from "./utils/devices";
-import { RendererFactory } from "./rendererFactory";
-
 /**
  * A class that describes the Long Text question type.
  *
@@ -95,12 +93,6 @@ export class QuestionCommentModel extends QuestionTextBase {
    * @see autoGrow
    */
   @property() allowResize: boolean | undefined;
-  @property() allowRichText: boolean;
-  // "none": no toolbar, formatting via keyboard shortcuts only.
-  // "onFocus": floating toolbar shown while the editor has focus.
-  // "onSelection": floating toolbar shown only while text is selected.
-  // "static": always visible, takes its own space in the editor footer.
-  @property() richTextToolbarMode: "none" | "onFocus" | "onSelection" | "static";
   public get renderedAllowResize(): boolean {
     const res = this.allowResize;
     if (res === undefined && this.survey) {
@@ -109,21 +101,11 @@ export class QuestionCommentModel extends QuestionTextBase {
       return !!res;
     }
   }
-  public get resizeStyle() {
+  public get resizeStyle(): "none" | "horizontal" | "vertical" | "both" {
     return this.renderedAllowResize ? "both" : "none";
   }
   public getType(): string {
     return "comment";
-  }
-  // Registered on the "comment" type, so a subclass and a matrix cell (cellType "comment")
-  // both find it. Checked before the view-mode fallback, so display and read-only use it too.
-  // With no renderer registered, getRenderer returns "default" and the textarea stays.
-  public getComponentName(): string {
-    if (this.allowRichText) {
-      const rich = RendererFactory.Instance.getRenderer("comment", "richtext");
-      if (rich !== "default") return rich;
-    }
-    return super.getComponentName();
   }
   supportAutoAdvance(): boolean {
     return this.isAutoAdvanceRequested === true;
@@ -217,15 +199,6 @@ Serializer.addClass(
     },
     { name: "autoGrow:boolean", defaultFunc: () => undefined },
     { name: "allowResize:boolean", defaultFunc: () => undefined },
-    { name: "allowRichText:boolean", default: false, visible: false },
-    {
-      name: "richTextToolbarMode",
-      default: "onFocus",
-      choices: ["none", "onFocus", "onSelection", "static"],
-      visible: false,
-      dependsOn: "allowRichText",
-      visibleIf: (obj: QuestionCommentModel) => !!obj.allowRichText
-    },
     { name: "acceptCarriageReturn:boolean", default: true, visible: false }
   ],
   function () {

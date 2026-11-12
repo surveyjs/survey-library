@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { LocalizableString } from "../../src/localizablestring";
 import { PageModel } from "../../src/page";
 import { PanelModel } from "../../src/panel";
-import { QuestionCommentModel } from "../../src/question_comment";
+import { Serializer } from "../../src/jsonobject";
 import { QuestionTextModel } from "../../src/question_text";
 import { SurveyModel } from "../../src/survey";
 import { RichText } from "../../src/plugins/rich-text/index";
@@ -172,6 +172,6 @@ describe("edit mode is not a render switch", () => {
     const panel = new PanelModel("panel");
     panel.description = "a\nb";
     expect(RichText.getStringEditMode(panel, "description", panel.locDescription)).toBe("block");
-    expect(new QuestionCommentModel("c").allowRichText).toBe(false);
+    expect(Serializer.findProperty("comment", "allowRichText")).toBeFalsy();
   });
 });

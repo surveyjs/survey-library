@@ -29,8 +29,8 @@ describe("findUnsupported", () => {
         { type: "text", name: "s5", title: "Table", description: "<table><tr><td>a</td><td>b</td></tr></table>" },
         { type: "text", name: "s7", title: "Styled string", description: stored },
         { type: "text", name: "s8", description: "Plain line one\nPlain line two", requiredErrorText: "<table><tr><td>no</td></tr></table>" },
-        { type: "comment", name: "plain", allowRichText: true, defaultValue: "Typed: a < b & c\nSecond line" },
-        { type: "comment", name: "c_unsupported", allowRichText: true, defaultValue: stored }
+        { type: "richtext", name: "plain", defaultValue: "Typed: a < b & c\nSecond line" },
+        { type: "richtext", name: "c_unsupported", defaultValue: stored }
       ]
     });
     const s3 = survey.getQuestionByName("s3");

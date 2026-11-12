@@ -19,7 +19,6 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   private gripRef: React.RefObject<HTMLDivElement>;
   private resizeManager: ResizeManager;
   private resizeTarget: HTMLElement;
-  private resizeMode: string;
 
   constructor(props: any) {
     super(props);
@@ -66,28 +65,25 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
     if (this.model && this.hostRef.current && !this.model.isAttached)this.model.attach(this.hostRef.current);
   }
 
-  // The comment's grip, not the browser handle. It resizes the editing area the same way the textarea does.
+  // The comment's grip. It changes the height of the editing area and leaves the width alone.
   private updateSizer(): void {
     const question = this.question;
     const grip = this.gripRef.current;
     const target = this.hostRef.current;
-    const mode = question.resizeStyle;
-    if (mode === "none" || !grip || !target) {
+    if (question.resizeStyle === "none" || !grip || !target) {
       this.disposeSizer();
       return;
     }
-    if (this.resizeManager && this.resizeTarget === target && this.resizeMode === mode) return;
+    if (this.resizeManager && this.resizeTarget === target) return;
     this.disposeSizer();
     this.resizeTarget = target;
-    this.resizeMode = mode;
-    this.resizeManager = new ResizeManager(grip, target, mode);
+    this.resizeManager = new ResizeManager(grip, target, "vertical");
   }
 
   private disposeSizer(): void {
-    if (this.resizeManager) this.resizeManager.dispose();
+    if (this.resizeManager)this.resizeManager.dispose();
     this.resizeManager = undefined;
     this.resizeTarget = undefined;
-    this.resizeMode = undefined;
   }
 
   private renderSizer(): React.JSX.Element | null {
@@ -103,15 +99,29 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   // Design, display and read-only keep the comment formbox: the value sits in the
   // input, the same element the textarea and the editor use. Putting the HTML on
   // the formbox itself makes that box the flex column and drops the input styles.
+  private classes(...names: Array<string | undefined | false>): string {
+    return names.filter(name => !!name).join(" ");
+  }
+
+  private toolbarModifierClass(): string {
+    const css = this.question.cssClasses;
+    const mode = this.model && this.model.toolbarMode ? this.model.toolbarMode : "static";
+    if (mode === "none") return css.toolbarNone;
+    if (mode === "onSelection") return css.toolbarOnSelection;
+    if (mode === "onFocus") return css.toolbarOnFocus;
+    return css.toolbarStatic;
+  }
+
   private renderReadOnly(): React.JSX.Element {
     const question = this.question;
+    const css = question.cssClasses;
     const html = this.model ? this.model.displayHtml : "";
     const area = this.model ? this.model.areaStyle : undefined;
     const style = area ? { minHeight: area.minHeight, height: area.height, overflow: area.overflow } : undefined;
     return (
       <div className={question.getRootClass()}>
         <div
-          className={question.getControlClass() + " sd-rich-text__content"}
+          className={this.classes(question.getControlClass(), css.display)}
           style={style}
           data-placeholder={!html && this.model && this.model.placeholder ? this.model.placeholder : undefined}
           dangerouslySetInnerHTML={{ __html: html }}
@@ -132,7 +142,7 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
     if (!floating) return bar;
     const question = this.question;
     return (
-      <div className="sd-rich-text__toolbar" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
+      <div className={question.cssClasses.toolbar} role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
         {bar}
       </div>
     );
@@ -142,10 +152,11 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   // input actions (character counter, reset) on the right. It does not use the floating toolbar box.
   private renderFooter(): React.JSX.Element {
     const question = this.question;
+    const css = question.cssClasses;
     return (
-      <div className="sd-action-bar sd-action-bar--small-size" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
+      <div className={css.footer} role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
         {this.renderToolbar(false)}
-        {question.hasVisibleInputActions ? <div className="sd-action-bar__item--space" /> : null}
+        {question.hasVisibleInputActions ? <div className={css.footerSpace} /> : null}
         {this.renderCounter()}
       </div>
     );
@@ -159,24 +170,24 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
     if (!this.model || !this.model.isEditing) {
       return this.renderReadOnly();
     }
+    const css = question.cssClasses;
     if (this.model.sourceMode) {
       return (
-        <div className="sd-rich-text sd-rich-text--source">
-          <div className="sd-rich-text__notice">{this.model.sourceNotice}</div>
-          <button type="button" className="sd-rich-text__edit-anyway" onClick={() => this.model.editAnyway()}>{this.model.editAnywayLabel}</button>
+        <div className={css.source}>
+          <div className={css.notice}>{this.model.sourceNotice}</div>
+          <button type="button" className={css.editAnyway} onClick={() => this.model.editAnyway()}>{this.model.editAnywayLabel}</button>
           {React.createElement(TextAreaComponent, { viewModel: question.textAreaModel })}
         </div>
       );
     }
-    const toolbarMode = this.model.toolbarMode || "onFocus";
-    const toolbarClass = "sd-rich-text--toolbar-" + String(toolbarMode).replace(/[A-Z]/g, (letter: string) => "-" + letter.toLowerCase());
-    const openClass = toolbarMode === "onSelection" && this.model.toolbarOpen ? " sd-rich-text--toolbar-open" : "";
+    const toolbarMode = this.model.toolbarMode || "static";
+    const openClass = toolbarMode === "onSelection" && this.model.toolbarOpen ? css.toolbarOpen : "";
     const staticToolbar = toolbarMode === "static";
     return (
-      <div className={question.getRootClass() + " sd-rich-text " + toolbarClass + openClass}>
+      <div className={this.classes(question.getRootClass(), css.editor, this.toolbarModifierClass(), openClass)}>
         <div
           ref={this.hostRef}
-          className={question.getControlClass() + " sd-rich-text__area"}
+          className={this.classes(question.getControlClass(), css.area)}
           contentEditable={true}
           role="textbox"
           aria-multiline={this.model.mode === "block" ? true : undefined}
@@ -199,6 +210,6 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("sv-rich-text-comment", (props) => {
+ReactQuestionFactory.Instance.registerQuestion("sv-rich-text", (props) => {
   return React.createElement(SurveyQuestionRichTextComment, props);
 });

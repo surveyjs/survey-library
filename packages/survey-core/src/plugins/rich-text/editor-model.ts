@@ -1,4 +1,6 @@
-import { ActionContainer, DomDocumentHelper, DomWindowHelper, QuestionCommentModel, settings, SurveyModel } from "survey-core";
+import { ActionContainer, DomDocumentHelper, DomWindowHelper, settings, SurveyModel } from "survey-core";
+import { richTextCss } from "./defaultCss";
+import { QuestionRichTextModel } from "./question";
 import type { IDialogOptions } from "survey-core";
 import DefaultLightPanelless from "../../themes/default-light-panelless";
 import { getRichTextString } from "./rich-text-strings";
@@ -29,7 +31,7 @@ const MARKS: { [command: string]: string[] } = {
 export class RichTextEditorModel {
   public toolbar: ActionContainer;
   public readonly mode: "inline" | "block";
-  private readonly question?: QuestionCommentModel;
+  private readonly question?: QuestionRichTextModel;
   private readonly contentAgnostic: boolean;
   private readonly onInputCallback?: () => void;
   private readonly commands?: IRichTextCommandAdapter;
@@ -65,7 +67,7 @@ export class RichTextEditorModel {
   private previousDesignMode: (() => void) | undefined;
   private designModeHandler: (() => void) | undefined;
 
-  public constructor(question?: QuestionCommentModel, options?: IRichTextEditorOptions) {
+  public constructor(question?: QuestionRichTextModel, options?: IRichTextEditorOptions) {
     this.question = question;
     this.contentAgnostic = !question || !!options?.contentAgnostic;
     this.mode = options?.mode || (question && question.acceptCarriageReturn === false ? "inline" : "block");
@@ -111,7 +113,8 @@ export class RichTextEditorModel {
   public get toolbarMode(): "none" | "onFocus" | "onSelection" | "static" {
     const mode = this.question ? this.question.richTextToolbarMode : undefined;
     if (mode === "none" || mode === "onFocus" || mode === "onSelection" || mode === "static") return mode;
-    return "onFocus";
+    // A question with no mode uses the richtext default. Creator's content-agnostic editor has no question and stays floating.
+    return this.question ? "static" : "onFocus";
   }
 
   public get hasToolbar(): boolean {
@@ -648,7 +651,7 @@ export class RichTextEditorModel {
   private bindBox(): void {
     this.unbindBox();
     if (!this.element || !this.element.closest) return;
-    const box = this.element.closest(".sd-rich-text") as HTMLElement | null;
+    const box = this.element.closest("." + richTextCss.editor) as HTMLElement | null;
     if (!box) return;
     this.box = box;
     box.addEventListener("focusout", this.onBoxFocusOut);
@@ -956,7 +959,7 @@ function escapePlain(text: string): string {
 }
 
 function dialogRoot(element: HTMLElement): HTMLElement {
-  const box = element.closest ? element.closest(".sd-rich-text") : null;
+  const box = element.closest ? element.closest("." + richTextCss.editor) : null;
   if (box) return box as HTMLElement;
   return element.parentElement || element;
 }

@@ -6,6 +6,11 @@
   align-items: stretch;
 }
 
+// The grip is the comment handle. Rich text changes the height of the editing area only.
+.sd-rich-text .sd-rich-text__grip {
+  cursor: ns-resize;
+}
+
 // The link dialog is rendered inside this formbox. A nested formbox is display:contents,
 // which drops the URL field's border. The dialog window grows with the survey body instead
 // of the default 452px, which is narrower than that body.

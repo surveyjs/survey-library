@@ -47,7 +47,7 @@ export class ExpressionRunnerBase {
     return this.variables;
   }
   // The parsed parts of getVariables() for the value-change skip check, one item per variable.
-  // ValueGetter.isAnyKeyChangedCore fills it as it reaches a variable and rebuilds an item whose name differs.
+  // ValueGetter.isAnyKeyChanged fills it as it reaches a variable and rebuilds an item whose name differs.
   public getVariablesInfo(): Array<IValueGetterNameInfo> {
     if (this.variablesInfo === undefined) {
       const vars = this.getVariables();

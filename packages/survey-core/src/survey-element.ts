@@ -29,7 +29,7 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
-import { scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
+import { scrollElementToViewCore } from "./utils/scroll-utils";
 import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
@@ -207,9 +207,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  public static ScrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
-    scrollIntoView(el, scrollIntoViewOptions, doneCallback);
-  }
   public static ScrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
@@ -414,9 +411,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return true;
   }
-  public get hasStateButton(): boolean {
-    return this.isExpanded || this.isCollapsed;
-  }
   public get uiState(): IElementUIState {
     return this.getUIState();
   }
@@ -578,10 +572,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected get surveyImpl() {
     return this.surveyImplValue;
   }
-  /* You shouldn't use this method ever */
-  __setData(data: ISurveyData) {
-    this.surveyDataValue = data;
-  }
   public get data(): ISurveyData {
     return this.surveyDataValue;
   }
@@ -635,6 +625,22 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return !!this.survey && this.survey.areInvisibleElementsShowing && (!this.isDesignMode || !this.isContentElement);
   }
   public get isVisible(): boolean {
+    return true;
+  }
+  // The element and every element above it are visible. A nested element (a dynamic panel's inner panel,
+  // a matrix cell) has no parent, so the walk goes on through its owner question. The parent chain of a
+  // matrix detail panel or a composite's content panel ends before the owner question, and a choice panel's
+  // parent skips it, so the owner is checked on its own there. When the parent leads to the same owner,
+  // the walk reaches it anyway and the extra check is skipped.
+  public get isVisibleWithParents(): boolean {
+    let el: SurveyElement = this;
+    while(!!el) {
+      if (!el.isVisible) return false;
+      const owner = <SurveyElement><any>el.parentQuestion;
+      const parent: any = el.parent;
+      if (!!owner && !!parent && parent.parentQuestion !== owner && !owner.isVisibleWithParents) return false;
+      el = <SurveyElement><any>(parent || owner);
+    }
     return true;
   }
   /**
@@ -972,10 +978,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected get textProcessor(): ITextProcessor {
     return this.textProcessorValue;
-  }
-  protected getProcessedHtml(html: string): string {
-    if (!html || !this.textProcessor) return html;
-    return this.textProcessor.processText(html, true);
   }
   protected onSetData(): void { }
   public get parent(): IPanel {

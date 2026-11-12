@@ -722,9 +722,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public isAnswerCorrect(): boolean {
     return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue(), this.getSurveySettings());
   }
-  protected setDefaultValueWithOthers() {
-    this.value = this.renderedValueFromDataCore(this.defaultValue);
-  }
   protected getIsItemValue(val: any, item: ItemValue): boolean {
     if (!val || !Array.isArray(val)) return false;
     return val.indexOf(item.value) >= 0;
@@ -812,9 +809,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       newVal.push(this.otherItem.value);
     }
     this.value = newVal;
-  }
-  public get checkBoxSvgPath(): string {
-    return "M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z";
   }
 
   //a11y

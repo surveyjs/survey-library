@@ -64,12 +64,6 @@ Specifies whether to close the drop-down menu after a user selects a value.
 
 Specifies whether to remove selected items from the drop-down list.
 
-### `loadingComponent`
-
-**Type**: `string`
-
-The name of the component used to render the dropdown's loading indicator and/or text.
-
 ### `placeholder`
 
 **Type**: `string`

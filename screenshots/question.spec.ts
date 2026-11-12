@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { QuestionText } from "../e2e/questionHelper";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, setRowItemFlowDirection, getButtonByText, baseTest as test } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, setRowItemFlowDirection, getButtonByText, resizeToDesktop, baseTest as test } from "../e2e/helper";
 
 const title = "Question Screenshot";
 
@@ -336,8 +336,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await compareScreenshot(page, qRoot, "responsiveness-question-with-error.png");
 
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.waitForTimeout(500);
+      await resizeToDesktop(page);
       await page.fill(".sd-formbox__input", "some-text");
       await page.click(".sd-navigation__complete-btn");
       await resetFocusToBody(page);
@@ -712,10 +711,8 @@ frameworks.forEach(framework => {
         (window as any).survey.allowResizeComment = false;
         (window as any).survey.autoGrowComment = true;
       });
-      await page.waitForTimeout(500);
       const questionRoot = page.locator(".sd-question");
       await questionRoot.click();
-      await page.waitForTimeout(500);
       await page.hover("body", { position: { x: 0, y: 0 } });
       //await page.keyboard.press("Tab"); We do not focus readonly question on expand after fixing #10434 bug. So we do not need press tab to leave the comment, since it was not focused.
       await compareScreenshot(page, questionRoot, "question-comment-ajust-height.png");
@@ -750,7 +747,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.waitForTimeout(500);
+      await expect(page.locator(".sd-question__content--text").first()).toBeVisible();
       await page.keyboard.press("Tab");
 
       await compareScreenshot(page, page.locator(".sd-question__content--text"), "question-text-remaining-character-counter-mobile-view-with-focus.png");
@@ -876,7 +873,8 @@ frameworks.forEach(framework => {
           }]
       });
 
-      await page.waitForTimeout(500);
+      // autoFocusFirstQuestion focuses the first cell on a 1 ms timer after the render: the Tabs below start from it.
+      await expect(page.locator(".sd-question .sd-table input").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await compareScreenshot(page, page.locator(".sd-question"), "question-matrixdynamic-remaining-character-counter.png");

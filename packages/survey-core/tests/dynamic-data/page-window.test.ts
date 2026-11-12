@@ -94,7 +94,7 @@ describe("Page window: the objects that exist are the page", () => {
     expect(row.getQuestionByName("prev").value, "#4: the previous row is record 19").toBe(19);
     expect(row.getQuestionByName("vis").value, "#5: {visibleRowIndex} is 1-based in the whole list").toBe(21);
     expect(row.visibleIndex, "#6: the row's visibleIndex").toBe(20);
-    expect(row.pageVisibleIndex, "#7: and its pageVisibleIndex").toBe(0);
+    expect(matrix.visibleRows.indexOf(row), "#7: and its pageVisibleIndex").toBe(0);
   });
   test("a key typed on page 0 that repeats an off-page record is reported on value change and on validation", () => {
     const survey = createPanelSurvey({ pageSize: 20, keyName: "name" }, records(100));
@@ -876,7 +876,7 @@ describe("Page window: three indexes", () => {
     expect(panel.getQuestionByName("rec").value, "#2: the record index").toBe(visibleIds[20]);
     expect(panel.getQuestionByName("vis").value, "#3: the visibleIndex").toBe(20);
     expect((<any>panel.data).visibleIndex, "#4").toBe(20);
-    expect((<any>panel.data).pageVisibleIndex, "#5: the pageVisibleIndex").toBe(0);
+    expect(question.visiblePanels.indexOf(panel), "#5: the pageVisibleIndex").toBe(0);
     const matrix = createMatrix({
       pageSize: 20, sortCriteria: [{ field: "id", direction: "desc" }], rowsVisibleIf: "{row.id} % 5 != 0",
       columns: [{ name: "id", cellType: "text" }, { name: "rec", cellType: "expression", expression: "{rowIndex}" }]
@@ -886,18 +886,18 @@ describe("Page window: three indexes", () => {
     expect(row.getQuestionByName("id").value, "#6").toBe(visibleIds[20]);
     expect(row.getQuestionByName("rec").value, "#7: {rowIndex} is 1-based").toBe(visibleIds[20] + 1);
     expect(row.visibleIndex, "#8").toBe(20);
-    expect(row.pageVisibleIndex, "#9").toBe(0);
+    expect(matrix.visibleRows.indexOf(row), "#9").toBe(0);
   });
   test("currentIndex is a visibleIndex: 45 moves to page 2 and selects pageVisibleIndex 5", () => {
     const question = createPanel({ displayMode: "tab", pageSize: 20, sortCriteria: [{ field: "id", direction: "desc" }], templateVisibleIf: "{panel.id} % 5 != 0" }, records(100));
     question.currentIndex = 45;
     expect(question.pageIndex, "#1").toBe(2);
-    expect((<any>question.currentPanel.data).pageVisibleIndex, "#2").toBe(5);
+    expect(question.visiblePanels.indexOf(question.currentPanel), "#2").toBe(5);
     expect(question.currentPanel.getQuestionByName("id").value, "#3").toBe(visibleIds[45]);
     expect(question.currentIndex, "#4").toBe(45);
     const unpaged = createPanel({ templateVisibleIf: "{panel.id} % 5 != 0" }, records(20));
     unpaged.visiblePanels.forEach(p => {
-      expect((<any>p.data).visibleIndex, "#5: without paging the two are one").toBe((<any>p.data).pageVisibleIndex);
+      expect((<any>p.data).visibleIndex, "#5: without paging the two are one").toBe(unpaged.visiblePanels.indexOf(p));
     });
   });
   test("without paging the created and the visible positions keep their meaning, hidden record 0 included", () => {
@@ -1122,10 +1122,10 @@ describe("Page window: carousel, tab and design mode", () => {
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
     const check = (message: string): void => {
       const actions = question.tabbedMenu.actions;
-      expect(actions.map(a => a.panelId), message + ": the tabs are the page").toEqual(question.visiblePanels.map(p => p.id));
+      expect(actions.map(a => a.id), message + ": the tabs are the page").toEqual(question.visiblePanels.map(p => question.id + "_tab_" + p.id));
       const active = actions.filter(a => a.active);
       expect(active.length, message + ": one active tab").toBe(1);
-      expect(active[0].panelId, message + ": the current panel's").toBe(question.currentPanel.id);
+      expect(active[0].id, message + ": the current panel's").toBe(question.id + "_tab_" + question.currentPanel.id);
     };
     check("#1 first build");
     question.addPanel(1);
@@ -1150,7 +1150,7 @@ describe("Page window: carousel, tab and design mode", () => {
     await flush();
     remote.goToPage(1);
     await flush();
-    expect(remote.tabbedMenu.actions.map(a => a.panelId), "#10: a remote read").toEqual(remote.visiblePanels.map(p => p.id));
+    expect(remote.tabbedMenu.actions.map(a => a.id), "#10: a remote read").toEqual(remote.visiblePanels.map(p => remote.id + "_tab_" + p.id));
   });
   test("a tab title from the event's visiblePanelIndex is right after an insert in the middle", () => {
     const survey = createPanelSurvey({ displayMode: "tab" }, records(5));

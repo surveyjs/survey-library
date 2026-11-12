@@ -3,7 +3,7 @@ import { EventBase } from "./event";
 import { IAction } from "./actions/action";
 import { property } from "./decorators";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";
-import { calculateIsTablet, IsTouch } from "./utils/devices";
+import { IsTouch } from "./utils/devices";
 
 type DisplayPopupMode = "modal-popup" | "modal-overlay" | "menu-overlay" | "menu-popup-overlay" | "menu-popup";
 export interface IPopupOptionsBase {

@@ -22,7 +22,7 @@ import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
-import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditions/conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ActionContainer } from "./actions/container";
 import { ComputedUpdater } from "./base";
 import { Base } from "./base";

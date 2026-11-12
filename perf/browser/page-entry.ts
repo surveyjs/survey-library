@@ -1,6 +1,5 @@
 import { scenarioById } from "../scenarios/index.ts";
 import { sampleLoop, scenarioDriver } from "../harness/sample.ts";
-import { calibrateOnce, calibrationResult } from "../harness/calibration.ts";
 import { installFunnels, dom } from "../harness/counters.ts";
 import { median, round2 } from "../harness/stats.ts";
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
@@ -77,8 +76,8 @@ function longTaskMsPerSample(): number {
   return per.length ? round2(median(per)) : 0;
 }
 
-// An action scenario: the page loaded and rendered the fixture already; calibration, warm-ups, samples and
-// statistics run here, in one evaluate.
+// An action scenario: the page loaded and rendered the fixture already; warm-ups, samples and statistics run here,
+// in one evaluate.
 async function runAction(id: string, fixture: any, options: any): Promise<any> {
   const scenario = getScenario(id);
   const skip = missingRequirement(W.Survey, scenario.requires);
@@ -86,7 +85,7 @@ async function runAction(id: string, fixture: any, options: any): Promise<any> {
   const ctx = context(scenario, fixture);
   const frames: Array<number> = [];
   const driver = scenarioDriver(scenario, ctx, {
-    now: now, gc: gc, calibrate: (): number => calibrateOnce(now),
+    now: now, gc: gc,
     installFunnels: () => installFunnels(W.Survey),
     afterRun: async(t0: number, t1: number): Promise<void> => {
       windows.push([t0, t1]);
@@ -100,7 +99,7 @@ async function runAction(id: string, fixture: any, options: any): Promise<any> {
     maxMs: scenario.maxMs || options.maxMs, minSamples: 5, now: now });
   res.counters.domNodes = dom(rootElement().querySelectorAll("*").length);
   return {
-    samples: res.samples, phases: res.phases, calibration: calibrationResult(res.calibrationBefore, res.calibrationAfter), counters: res.counters,
+    samples: res.samples, phases: res.phases, counters: res.counters,
     info: { kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), frameMs: round2(median(frames)),
       longTaskMs: longTaskMsPerSample(), heapMB: heapMB() },
     jsonErrors: ctx.cache.jsonErrors || 0, repeat: scenario.repeat, counterOnly: scenario.counterOnly, tolerance: scenario.tolerance, rev: scenario.rev
@@ -164,4 +163,4 @@ async function nextPageProbe(): Promise<any> {
 }
 
 W.PerfPage = { ready: ready, prepare: prepare, runAction: runAction, loadSample: loadSample, loadCounters: loadCounters,
-  calibrate: (): number => calibrateOnce(now), nextPageProbe: nextPageProbe };
+  nextPageProbe: nextPageProbe };

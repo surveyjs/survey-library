@@ -323,6 +323,28 @@ test("check contentNotLoaded and contentMode flags behavior", () => {
   expect(choice.contentNotLoaded).toBeTruthy();
 });
 
+test("a new imageLink clears contentNotLoaded left by a failed load", () => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "imagepicker",
+      name: "logos",
+      choices: [{ value: "A", imageLink: "https://example.org/missing.png" }]
+    }]
+  });
+  const question = <QuestionImagePickerModel>survey.getQuestionByName("logos");
+  const choice = <ImageItemValue>question.choices[0];
+
+  choice.onErrorHandler();
+  question.contentMode = "video";
+  choice.onErrorHandler();
+  expect(choice.contentNotLoaded).toBeTruthy();
+
+  choice.imageLink = "https://example.org/fine.png";
+  expect(choice.contentNotLoaded).toBeFalsy();
+  question.contentMode = "image";
+  expect(choice.contentNotLoaded).toBeFalsy();
+});
+
 test("check reCalcGap", () => {
   const survey = new SurveyModel(
     {

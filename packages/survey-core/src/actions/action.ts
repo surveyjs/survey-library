@@ -224,8 +224,6 @@ export abstract class BaseAction extends Base implements IAction {
   @property() css?: string;
   minDimension: number;
   maxDimension: number;
-  public addVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
-  public removeVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   public get renderedId(): string {
     const raw = this.getPropertyValue("renderedIdRaw", undefined, () => this.getIdGenerator().next("sv-action"));
     return this.composeElementId(raw);

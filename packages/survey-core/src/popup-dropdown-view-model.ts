@@ -7,11 +7,9 @@ import { IsTouch } from "./utils/devices";
 import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { IAction } from "./actions/action";
-import { defaultActionBarCss } from "./actions/actionBarCss";
 import { findScrollableParent, getRootNode } from "./utils/dom-utils";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
-  static readonly tabletSizeBreakpoint = 600;
   private scrollEventTargets: Array<EventTarget> = undefined;
   private scrollEventCallBack = (event: any) => {
     // A scroll event dispatched by script (the survey's lazy rendering check) is not a scroll of the page.

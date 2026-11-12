@@ -46,9 +46,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.waitForTimeout(1000);
       await page.setViewportSize({ width: 1000, height: 600 });
-      await page.waitForTimeout(1000);
 
       await page.click('.sd-action-bar__item:has-text("Long List")');
       await compareScreenshot(page, undefined, "popup-dropdown-long-list.png");
@@ -83,9 +81,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.waitForTimeout(1000);
       await page.setViewportSize({ width: 1000, height: 600 });
-      await page.waitForTimeout(1000);
 
       await page.click('.sd-action-bar__item:has-text("Long List")');
       await compareScreenshot(page, undefined, "popup-dropdown-separators-long-list.png");
@@ -114,9 +110,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.waitForTimeout(1000);
       await page.setViewportSize({ width: 1000, height: 600 });
-      await page.waitForTimeout(1000);
 
       await page.click('.sd-action-bar__item:has-text("List Icons")');
       await compareScreenshot(page, undefined, "popup-dropdown-list-with-icons.png");
@@ -142,12 +136,11 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(1000);
       await page.setViewportSize({ width: 1000, height: 600 });
-      await page.waitForTimeout(1000);
 
       await page.click('.sd-action-bar__item:has-text("Long List")');
-      await page.waitForTimeout(1000);
+      // The list scrolls the selected item into view after two 110 ms timers.
+      await expect(page.getByRole("menuitem", { name: "item39" })).toBeInViewport({ ratio: 1 });
       await compareScreenshot(page, ".sv-popup .sv-popup__container", "popup-dropdown-list-with-scroll-to-selected-items.png");
     });
 
@@ -361,11 +354,11 @@ frameworks.forEach(framework => {
 
       await page.click(".sd-action-bar__item");
       await page.getByRole("menuitem", { name: "item5 has items" }).hover();
-      await page.waitForTimeout(300);
+      // Sub-items open after the list's subItemsShowDelay (300 ms).
+      await expect(page.getByRole("menuitem", { name: "item5 has items" }).getByRole("menu")).toBeVisible();
       await compareScreenshot(page, ".sv-popup.sv-popup--menu-popup", "popup-with-subitems-right.png");
 
       await page.getByRole("menuitem", { name: "inner item0" }).hover();
-      await page.waitForTimeout(300);
       await compareScreenshot(page, ".sv-popup.sv-popup--menu-popup", "popup-with-subitems-right-hover-sub-item.png");
     });
 
@@ -405,9 +398,9 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
       await page.click(".sd-action-bar__item");
-      await page.waitForTimeout(300);
       await page.getByRole("menuitem", { name: "item5 has items" }).hover();
-      await page.waitForTimeout(300);
+      // Sub-items open after the list's subItemsShowDelay (300 ms).
+      await expect(page.getByRole("menuitem", { name: "item5 has items" }).getByRole("menu")).toBeVisible();
       await compareScreenshot(page, ".sv-popup.sv-popup--menu-popup", "popup-with-subitems-left.png");
     });
 
@@ -449,7 +442,8 @@ frameworks.forEach(framework => {
 
       await page.click(".sd-action-bar__item");
       await page.getByRole("menuitem", { name: "item5 has items" }).hover();
-      await page.waitForTimeout(300);
+      // Sub-items open after the list's subItemsShowDelay (300 ms).
+      await expect(page.getByRole("menuitem", { name: "item5 has items" }).getByRole("menu")).toBeVisible();
       await compareScreenshot(page, ".sv-popup.sv-popup--menu-popup", "popup-with-subitems-with-selected-elements.png");
     });
     test("Popup modal with close button", async ({ page }) => {
@@ -468,7 +462,6 @@ frameworks.forEach(framework => {
 
       await compareScreenshot(page, ".sv-popup__container", "popup-modal-close-button.png");
       await page.locator(".sv-popup__close-button").hover({ position: { x: 5, y: 10 } });
-      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup__container", "popup-modal-close-button-hover.png");
     });
   });

@@ -3,7 +3,7 @@ import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
-import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedElementInfo, INestedWalkOptions, NestedElementVisit, NestedWalkBuild } from "./question";
+import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedWalkOptions, NestedElementVisit, NestedWalkBuild } from "./question";
 import { ItemValue } from "./itemvalue";
 import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
@@ -2856,9 +2856,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return item;
   }
-  public ariaItemChecked(item: ItemValue) {
-    return this.renderedValue === item.value ? "true" : "false";
-  }
   public isOtherItem(item: ItemValue) {
     return this.showOtherItem && this.isOtherValue(item.value);
   }
@@ -2879,9 +2876,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return true;
   }
 
-  public getAriaItemLabel(item: ItemValue) {
-    return item.locText.renderedHtml;
-  }
   public getItemId(item: ItemValue) {
     return this.inputId + "_" + this.getItemIndex(item);
   }

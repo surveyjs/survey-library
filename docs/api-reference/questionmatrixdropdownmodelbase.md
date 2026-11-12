@@ -195,7 +195,7 @@ Use the [`detailElements`](#detailElements) property to specify content of detai
 
 ### `displayMode`
 
-**Type**: `"auto" | "table" | "list"`
+**Type**: `"auto" | "list" | "table"`
 
 Specifies how to arrange matrix questions.
 

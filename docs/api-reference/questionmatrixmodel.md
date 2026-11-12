@@ -99,7 +99,7 @@ Refer to the following help topic for more information: [Conditional Visibility]
 
 ### `displayMode`
 
-**Type**: `"auto" | "table" | "list"`
+**Type**: `"auto" | "list" | "table"`
 
 Specifies how to arrange matrix questions.
 

@@ -70,6 +70,10 @@ export class FunctionFactory {
     const funcInfo = this.functionHash[name];
     return !!funcInfo && funcInfo.isAsync;
   }
+  public getResultDependsOn(name: string): "parameters" | "survey" | "elements" {
+    const funcInfo = this.functionHash[name];
+    return !!funcInfo ? funcInfo.resultDependsOn : undefined;
+  }
   public clear(): void {
     this.functionHash = {};
     this.clearCache();
@@ -265,9 +269,6 @@ export interface IFunctionParameter {
 }
 export function registerFunction(info: IFunctionRegistration): void {
   FunctionFactory.Instance.register(info);
-}
-export function unregisterFunction(name: string): void {
-  FunctionFactory.Instance.unregister(name);
 }
 
 function getParamsAsArray(value: any, arr: any[]) {

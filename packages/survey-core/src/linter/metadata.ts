@@ -109,19 +109,6 @@ export function isComponentType(type: string): boolean {
   return !!type && !!ComponentCollection.Instance.getCustomQuestionByName(type);
 }
 
-// The class chain of a type, from the type itself up to the root.
-export function getClassChain(type: string): Array<string> {
-  const res: Array<string> = [];
-  let name = (type || "").toLowerCase();
-  while(!!name) {
-    const cls = findMetaClass(name);
-    if (!cls) break;
-    res.push(cls.name || name);
-    name = cls.parentName;
-  }
-  return res;
-}
-
 export function isSelectBase(type: string): boolean {
   return isDescendantOf(type, "selectbase");
 }

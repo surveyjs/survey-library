@@ -1,8 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
-import { splitOnly, isCalibrationOnly, CALIBRATION_ONLY } from "../harness/ids.ts";
+import { splitOnly } from "../harness/ids.ts";
 import { fixtureOfId } from "../harness/scenario.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { getExtraFixtures } from "../fixtures/extra.ts";
@@ -15,7 +15,7 @@ import { dependencyInfo } from "../harness/node/deps.ts";
 import { buildPart, resultFilePath, writeJsonAtomic } from "../harness/node/result.ts";
 import { sha1, fixtureHashes } from "../harness/node/fixture-hash.ts";
 import type { ResultFile, ResultEntry } from "../harness/node/result.ts";
-import { scenarioTimeoutMs } from "../manifest.ts";
+import { scenarioTimeoutMs, resultSchema } from "../manifest.ts";
 
 // The core suite (02): every core scenario in its own fresh `node --expose-gc` process, in a fixed order sorted by
 // id, against the target build (PERF_CORE_DIR, default the runner's). It writes one result file.
@@ -31,14 +31,6 @@ if (!env.coreDir) {
   checkBuildExists([mainFile, german]);
   const version = JSON.parse(fs.readFileSync(path.join(core.dir, "package.json"), "utf8")).version;
   console.log("PERF_CORE_DIR " + core.dir + ": survey-core " + version + ", built " + new Date(fs.statSync(mainFile).mtimeMs).toISOString());
-}
-
-// PERF_ONLY=calibration: the spacer between two reruns of a single suspect, a fresh process that only calibrates.
-if (isCalibrationOnly(env.only)) {
-  const res = spawnSync(process.execPath, ["--expose-gc", processScript, CALIBRATION_ONLY], { cwd: runnerRoot, env: process.env, encoding: "utf8" });
-  const line = String(res.stdout || "").trim().split("\n").filter((l: string) => l.charAt(0) === "{").pop();
-  console.log("core: calibration only: " + (line || "no result") + (res.stderr ? " " + String(res.stderr).trim().substring(0, 500) : ""));
-  process.exit(line && line.indexOf("\"calibration\"") > -1 && !res.stderr ? 0 : 1);
 }
 
 const split = splitOnly(env.only, "core");
@@ -68,7 +60,7 @@ const depsDirs = fs.existsSync(path.join(targetRoot, "packages", "survey-core", 
 const runnerCommit = headCommit(runnerRoot);
 const date = new Date();
 const result: ResultFile = {
-  schema: 1, suite: "core", kind: env.kind, label: env.label, ref: env.ref, commit: runnerCommit, previousCommit: env.previousCommit,
+  schema: resultSchema, suite: "core", kind: env.kind, label: env.label, ref: env.ref, commit: runnerCommit, previousCommit: env.previousCommit,
   date: date.toISOString(),
   requested: { only: env.only, notInSuite: split.notInSuite },
   incomplete: null,
@@ -96,7 +88,7 @@ function write(final?: boolean): void {
   writeJsonAtomic(file, result);
 }
 
-// SIGTERM (05 stops a suite over its budget): write what was collected, with the rest as unrun.
+// SIGTERM (a caller or a person may stop a suite): write what was collected, with the rest as unrun.
 const stop = (reason: "timeout" | "killed"): void => {
   if (stopping) return;
   stopping = true;
@@ -151,7 +143,7 @@ async function main(): Promise<void> {
     if (msg.type === "entry") {
       const e: ResultEntry = msg.entry;
       result.results.push(e);
-      console.log(id.padEnd(46) + String(e.median).padStart(10) + " ms  n=" + e.samples.length + "  cal " + e.calibration.median + "  (" + sec + " s)");
+      console.log(id.padEnd(46) + String(e.median).padStart(10) + " ms  n=" + e.samples.length + "  (" + sec + " s)");
     } else if (msg.type === "skipped") {
       result.skipped.push({ id: id, reason: msg.reason });
       console.log(id.padEnd(46) + "   skipped: " + msg.reason);

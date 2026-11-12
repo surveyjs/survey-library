@@ -150,11 +150,6 @@ export class ExpressionExecutorRunner {
 }
 
 export class ExpressionExecutor implements IExpressionExecutor {
-  public static createExpressionExecutor: (expression: string) => IExpressionExecutor =
-    (expression: string) => { return new ExpressionExecutor(expression); };
-  public static getQuestionErrorText(properties: HashTable<any>): string {
-    return getQuestionErrorText(properties);
-  }
   public onComplete: (res: any, id: number) => void;
   private expressionValue: string;
   private operand: Operand;

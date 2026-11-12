@@ -31,7 +31,12 @@ export class SurveyCalendar extends SurveyElementBase<ICalendarProps, any> {
         </div>
       );
     }
-    return <button type="button" className={css.title} onClick={() => this.model.zoomOut()}>{this.model.title}</button>;
+    return (
+      <button type="button" className={css.title} onClick={() => this.model.zoomOut()}>
+        {this.model.title}
+        <SvgIcon iconName={css.titleIconId} size={"auto"}></SvgIcon>
+      </button>
+    );
   }
   private renderToolbar(): React.JSX.Element {
     const css = this.model.cssClasses;

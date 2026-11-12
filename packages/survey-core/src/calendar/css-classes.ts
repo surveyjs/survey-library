@@ -6,6 +6,7 @@ export const calendarCssClasses = {
   prevIconId: "icon-chevronleft-16x16",
   nextIconId: "icon-chevronright-16x16",
   title: "sv-calendar__title",
+  titleIconId: "icon-chevrondown-16x16",
   months: "sv-calendar__months",
   monthView: "sv-calendar__month-view",
   monthTitles: "sv-calendar__month-titles",

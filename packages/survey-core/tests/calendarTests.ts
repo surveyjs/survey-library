@@ -268,6 +268,7 @@ describe("CalendarModel", () => {
   test("Render helpers: cssClasses, rootCss and isDayZoom", () => {
     const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
     expect(calendar.cssClasses.root).toBe("sv-calendar");
+    expect(calendar.cssClasses.titleIconId).toBe("icon-chevrondown-16x16");
     expect(calendar.rootCss).toBe("sv-calendar");
     expect(calendar.isDayZoom).toBe(true);
     expect(calendar.showMonthTitles).toBe(false);

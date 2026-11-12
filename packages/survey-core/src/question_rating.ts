@@ -1166,9 +1166,6 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
   }
 
   //a11y
-  public get a11yInputAriaRole(): string | null {
-    return this.isDropdown ? "combobox" : null;
-  }
   public get isNewA11yStructure(): boolean {
     return true;
   }

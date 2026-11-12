@@ -290,14 +290,6 @@ export class QuestionSingleInputBehavior {
     return !!childQ && this.singleInputQuestion !== this.question;
   }
 
-  private set singleInputHasActionsValue(val: boolean) {
-    this.question.setPropertyValue("singleInputHasActions", val);
-  }
-
-  private get singleInputParentQuestion(): Question {
-    return this.singleInputQuestion?.parentQuestion || this.question;
-  }
-
   private createSingleInputActions() {
     if ((<any>this.survey)?.currentSingleQuestion !== this.question) return undefined;
     const singleInputActions = new ActionContainer();

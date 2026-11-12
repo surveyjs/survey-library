@@ -1,20 +1,4 @@
 import { DomDocumentHelper } from "../global_variables_utils";
-import { settings } from "../settings";
-
-export function compareVersions(a: any, b: any): number {
-  const regExStrip0: RegExp = /(\.0+)+$/;
-  const segmentsA: string[] = a.replace(regExStrip0, "").split(".");
-  const segmentsB: string[] = b.replace(regExStrip0, "").split(".");
-  const len: number = Math.min(segmentsA.length, segmentsB.length);
-  for (let i: number = 0; i < len; i++) {
-    const diff: number =
-      parseInt(segmentsA[i], 10) - parseInt(segmentsB[i], 10);
-    if (diff) {
-      return diff;
-    }
-  }
-  return segmentsA.length - segmentsB.length;
-}
 
 export function unwrap<T>(value: T | (() => T)): T {
   if (typeof value !== "function") {

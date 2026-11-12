@@ -1461,10 +1461,8 @@ frameworks.forEach(framework => {
       };
 
       await initSurvey(page, framework, json);
-      await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-no-scrolling.png");
       await page.click(".sd-navigation__next-btn");
-      await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-scrolling-second-page.png");
     });
 
@@ -1487,7 +1485,6 @@ frameworks.forEach(framework => {
       };
 
       await initSurvey(page, framework, json);
-      await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-scrolling.png");
     });
     test("Check survey navigation bar top", async({ page }) => {

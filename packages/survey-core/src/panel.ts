@@ -8,7 +8,6 @@ import {
   IPanel,
   IConditionRunner,
   IElement,
-  ISurveyElement,
   IQuestion,
   ISurveyErrorOwner,
   ITitleOwner,
@@ -1344,13 +1343,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return null;
   }
-  getFirstVisibleQuestion(): Question {
-    const qs = this.questions;
-    for (let i = 0; i < qs.length; i++) {
-      if (qs[i].isVisible) return qs[i];
-    }
-    return null;
-  }
   getFirstVisibleElement(): IElement {
     const els = this.elements;
     for (let i = 0; i < els.length; i++) {
@@ -1587,10 +1579,6 @@ export class PanelModelBase extends SurveyElement<Question>
     } finally {
       this._columnsReady = true;
     }
-  }
-  private createGridLayoutColumns(): Array<PanelLayoutColumnModel> {
-    this.generateColumns([]);
-    return this._columns;
   }
   public updateGridColumns(): void {
     this.updateColumns();

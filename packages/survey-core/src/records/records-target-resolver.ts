@@ -66,9 +66,6 @@ export class RecordTargetResolver implements IRecordIndexFollower {
   // The last removeTarget removed a record (a handler may cancel it, or it may find nothing to remove).
   private isLastTargetRemoved: boolean = false;
   constructor(private owner: IRecordTargetResolverOwner) { }
-  public get heldRemoveTargets(): Array<IRecordTarget> {
-    return this.held;
-  }
   /* The start of a removal, with no change: everything that depends on the object being among the
      objects is read now - after the splice a row has no position, and a panel that is not among the
      panels is taken for one being appended. undefined: the target's object is no longer among them.

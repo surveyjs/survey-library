@@ -45,7 +45,6 @@ frameworks.forEach(framework => {
     });
 
     test("Check survey advanced header with overlap", async ({ page }) => {
-      if (framework === "vue") return;
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,
@@ -86,7 +85,6 @@ frameworks.forEach(framework => {
     });
 
     test("Check survey TOC + advanced header with overlap", async ({ page }) => {
-      if (framework === "vue") return;
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,
@@ -146,7 +144,8 @@ frameworks.forEach(framework => {
         (window as any).survey.applyTheme({ "cssVariables": {}, "header": {}, "headerView": "advanced" });
       });
 
-      await page.waitForTimeout(500);
+      // autoFocusFirstQuestion focuses q1 on a 1 ms timer after the render: blur it only after that.
+      await expect(page.locator(".sd-question input").first()).toBeFocused();
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-none.png");
 
@@ -154,7 +153,6 @@ frameworks.forEach(framework => {
         (window as any).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-survey-header-default-title": "var(--sjs2-color-fg-brand-on-primary)", "--sjs2-color-component-survey-header-default-description": "var(--sjs2-color-fg-brand-on-primary)" }, "header": {}, "headerView": "advanced" });
       });
 
-      await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-accent.png");
 
@@ -162,7 +160,6 @@ frameworks.forEach(framework => {
         (window as any).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
       });
 
-      await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-none.png");
 
@@ -170,7 +167,6 @@ frameworks.forEach(framework => {
         (window as any).survey.applyTheme({ "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" });
       });
 
-      await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-set.png");
     });
@@ -210,7 +206,6 @@ frameworks.forEach(framework => {
           },
           "headerView": "advanced" });
       });
-      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-text-alignment.png");
     });
 

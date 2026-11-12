@@ -1,4 +1,4 @@
-import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, INestedElementInfo, NestedElementVisit, NestedWalkBuild } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, NestedElementVisit, NestedWalkBuild } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {

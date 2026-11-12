@@ -116,9 +116,6 @@ export class Bindings {
     }
     this.onChangedJSON(oldValue);
   }
-  public clearBinding(propertyName: string) {
-    this.setBinding(propertyName, "");
-  }
   public isEmpty(): boolean {
     if (!this.values) return true;
     for (var key in this.values) return false;
@@ -237,9 +234,6 @@ export class ComputedUpdater<T = any> {
   public setDependencies(dependencies: Dependencies): void {
     this.clearDependencies();
     this.dependencies = dependencies;
-  }
-  protected getDependencies(): Dependencies {
-    return this.dependencies;
   }
   private clearDependencies() {
     if (this.dependencies) {
@@ -987,9 +981,6 @@ export class Base implements IObjectValueContext {
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];
   }
-  public geValueFromHash(): any {
-    return this.propertyHash["value"];
-  }
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any, isCalcValue?: boolean): void {
     let reportError = false;
     if (this.setPropertyValueCoreHandler) {
@@ -1306,7 +1297,7 @@ export class Base implements IObjectValueContext {
       varsInfo = runner.getVariablesInfo();
     }
     if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChangedCore(keys, vars, varsInfo, isClearedKeyChanged, this.getSurveyVariableNamesInfo());
+    return !new ValueGetter().isAnyKeyChanged(keys, vars, isClearedKeyChanged, varsInfo, this.getSurveyVariableNamesInfo());
   }
   // The parsed variable names shared by every runner of the survey (SurveyModel.getVariableNamesInfo),
   // also for the names a trigger passes. Without a survey (a new Base()) each runner keeps its own items.
@@ -1522,12 +1513,6 @@ export class Base implements IObjectValueContext {
     if (!str || !str.format) return "";
     return str.format(...args);
   }
-  protected createLocString(params: { name: string, owner?: ILocalizableOwner, supportsMarkdown?: boolean, translationKey?: string, hasTranslation?: boolean }): LocalizableString {
-    if (params.hasTranslation && !params.translationKey) {
-      params.translationKey = params.name;
-    }
-    return this.createLocalizableString(params.name, params.owner, params.supportsMarkdown, params.translationKey);
-  }
   protected createLocalizableString(
     name: string,
     owner?: ILocalizableOwner,
@@ -1558,11 +1543,6 @@ export class Base implements IObjectValueContext {
     }
     this.localizableStrings[name] = locStr;
     return locStr;
-  }
-  protected removeLocalizableString(name: string): void {
-    if (this.localizableStrings) {
-      delete this.localizableStrings[name];
-    }
   }
   public getLocalizableString(name: string): LocalizableString {
     const ls = this.localizableStrings;
@@ -1730,9 +1710,6 @@ export class Base implements IObjectValueContext {
       }
     }
   }
-  public get hasActiveUISubscribers(): boolean {
-    return !!this.onPropertyValueCoreChanged;
-  }
   protected createNewArrayCore(name: string, isCalcValue?: boolean): Array<any> {
     var res = null;
     if (!!this.createArrayCoreHandler) {
@@ -1898,10 +1875,6 @@ export class Base implements IObjectValueContext {
     } else {
       Base.copyObject(dest, source);
     }
-  }
-  private getValueInLowCase(val: any): any {
-    if (!!val && typeof val == "string") return val.toLowerCase();
-    return val;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];

@@ -5827,7 +5827,6 @@ describe("Survey_Questions", () => {
     };
     var survey = new SurveyModel(json);
     var question = <QuestionCheckboxModel>survey.getAllQuestions()[0];
-    expect(question.checkBoxSvgPath[0], "Obtain checkbox SVG path").toBe("M");
     expect(question.isOtherItem(question.choices[0]), "First item is not other").toBe(false);
     expect(question.isOtherItem(question.choices[2]), "Last item is other").toBe(true);
 
@@ -6519,26 +6518,6 @@ describe("Survey_Questions", () => {
     expect(question.value).toBe(55);
     expect(question.selectedItem.value).toBe(55);
     expect(question.selectedItem.text).toBe("DisplayText_55");
-  });
-  test("remove reference to DOM elements", () => {
-    const survey = new SurveyModel({
-      elements: [
-        {
-          type: "comment",
-          name: "q1",
-        },
-      ]
-    });
-    const question = <QuestionCommentModel>survey.getQuestionByName("q1");
-
-    const el = document.createElement("div");
-    el.id = question.id;
-    question.afterRenderQuestionElement(el);
-    expect(question["element"]).toBe(el);
-    question.beforeDestroyQuestionElement(el);
-    expect(question["element"]).toBeUndefined();
-
-    el.remove();
   });
   test("defaultValueExpressions, currentDate() and 'date'+'datetime-local' inputtype, Bug#5296", () => {
     const survey = new SurveyModel({

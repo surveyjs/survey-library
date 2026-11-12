@@ -69,7 +69,7 @@ describe("QuestionDateTimePickerModel", () => {
       maxValueExpression: "today(30)",
       placeholder: "Pick a date",
       allowClear: false,
-      maskSettings: { pattern: "dd.mm.yyyy" }
+      pattern: "dd.mm.yyyy"
     };
     const q = new QuestionDateTimePickerModel("q1");
     q.fromJSON(json);
@@ -77,8 +77,65 @@ describe("QuestionDateTimePickerModel", () => {
     expect(q.max).toBe("2026-12-31");
     expect(q.placeholder).toBe("Pick a date");
     expect(q.allowClear).toBe(false);
+    expect(q.pattern).toBe("dd.mm.yyyy");
     expect((<InputMaskDateTime>q.maskSettings).pattern).toBe("dd.mm.yyyy");
     expect(q.toJSON()).toEqual(json);
+  });
+
+  test("The mask settings are not serializable, only the pattern is", () => {
+    expect(Serializer.findProperty("datetimepicker", "maskSettings")).toBeFalsy();
+    expect(Serializer.findProperty("datetimepicker", "pattern")).toBeTruthy();
+    const q = createQuestion({ pattern: "yyyy-mm-dd", min: "2026-01-01" });
+    q.value = "2026-11-09";
+    expect(q.inputValue).toBe("2026-11-09");
+    expect(q.toJSON()).toEqual({ name: "q1", pattern: "yyyy-mm-dd", min: "2026-01-01" });
+    q.pattern = "";
+    expect(q.inputValue).toBe("11/09/2026");
+    expect(q.toJSON()).toEqual({ name: "q1", min: "2026-01-01" });
+  });
+
+  test("min and max are passed to the mask", () => {
+    const q = createQuestion({ min: "2026-01-01", max: "2026-12-31" });
+    const mask = <InputMaskDateTime>q.maskSettings;
+    expect(mask.min).toBe("2026-01-01");
+    expect(mask.max).toBe("2026-12-31");
+    q.min = "2026-02-01";
+    expect(mask.min).toBe("2026-02-01");
+    q.max = undefined;
+    expect(mask.max).toBeUndefined();
+  });
+
+  test("min and max expressions are passed to the mask", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 9, 15, 30));
+    const q = createQuestion({ minValueExpression: "today(-1)", maxValueExpression: "today(30)" });
+    const mask = <InputMaskDateTime>q.maskSettings;
+    expect(mask.min).toBe("2026-11-08");
+    expect(mask.max).toBe("2026-12-09");
+  });
+
+  test("The mask rejects a manually typed date out of min and max", () => {
+    const q = createQuestion({ min: "2026-01-01", max: "2026-12-31" });
+    const result = q.maskSettings.processInput({ insertedChars: "1", selectionStart: 6, selectionEnd: 6, prevValue: "04/05/yyyy", inputDirection: "forward" });
+    expect(result.value).toBe("04/05/yyyy");
+    const accepted = q.maskSettings.processInput({ insertedChars: "2", selectionStart: 6, selectionEnd: 6, prevValue: "04/05/yyyy", inputDirection: "forward" });
+    expect(accepted.value).toBe("04/05/2yyy");
+  });
+
+  test("Changing min and max keeps the input adapters, changing the pattern recreates them", () => {
+    const q = createQuestion();
+    const root = document.createElement("div");
+    root.appendChild(document.createElement("input"));
+    q.afterRenderQuestionElement(root);
+    const adapters = (<any>q).maskInputAdapters.slice();
+    expect(adapters).toHaveLength(1);
+    q.min = "2026-01-01";
+    q.maxValueExpression = "today(30)";
+    expect((<any>q).maskInputAdapters).toEqual(adapters);
+    q.pattern = "dd.mm.yyyy";
+    expect((<any>q).maskInputAdapters[0]).not.toBe(adapters[0]);
+    expect(root.querySelector("input").value).toBe("dd.mm.yyyy");
+    q.beforeDestroyQuestionElement(root);
   });
 
   test("Value is shown in the input and in the calendar", () => {
@@ -326,7 +383,7 @@ describe("QuestionDateTimePickerModel", () => {
   test("Mask pattern change updates the input", () => {
     const q = createQuestion();
     q.value = "2026-11-09";
-    (<InputMaskDateTime>q.maskSettings).pattern = "yyyy/mm/dd";
+    q.pattern = "yyyy/mm/dd";
     expect(q.inputValue).toBe("2026/11/09");
   });
 });
@@ -363,6 +420,36 @@ describe("QuestionDateTimePickerModel range", () => {
     expect(q2.endPlaceholder).toBe("To");
     expect(q2.rangeErrorText).toBe("Wrong range");
     expect(q2.toJSON()).toEqual(json);
+  });
+
+  test("Both field masks get min and max, before and after the end mask is created", () => {
+    const q = createQuestion({ range: true, min: "2026-01-01" });
+    const root = document.createElement("div");
+    root.appendChild(document.createElement("input"));
+    root.appendChild(document.createElement("input"));
+    q.afterRenderQuestionElement(root);
+    const endMask = <InputMaskDateTime>(<any>q).endMask;
+    expect(endMask).not.toBe(q.maskSettings);
+    expect(endMask.min).toBe("2026-01-01");
+    q.max = "2026-12-31";
+    expect(endMask.max).toBe("2026-12-31");
+    expect((<InputMaskDateTime>q.maskSettings).max).toBe("2026-12-31");
+    q.beforeDestroyQuestionElement(root);
+  });
+
+  test("The pattern changes the format of both fields", () => {
+    const q = createQuestion({ range: true, defaultValue: ["2026-11-05", "2026-11-09"] });
+    const root = document.createElement("div");
+    root.appendChild(document.createElement("input"));
+    root.appendChild(document.createElement("input"));
+    q.afterRenderQuestionElement(root);
+    q.pattern = "dd.mm.yyyy";
+    expect(q.startInputValue).toBe("05.11.2026");
+    expect(q.endInputValue).toBe("09.11.2026");
+    const inputs = root.querySelectorAll("input");
+    expect(inputs[0].value).toBe("05.11.2026");
+    expect(inputs[1].value).toBe("09.11.2026");
+    q.beforeDestroyQuestionElement(root);
   });
 
   test("Range properties are visible only in range mode", () => {

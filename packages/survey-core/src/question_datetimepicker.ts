@@ -60,6 +60,7 @@ export class QuestionDateTimePickerModel extends Question {
   @property({ localizable: true }) placeholder: string;
   @property({ localizable: true }) startPlaceholder: string;
   @property({ localizable: true }) endPlaceholder: string;
+  @property() pattern: string;
   @property() minValueExpression: string;
   @property() maxValueExpression: string;
   @property({ localizable: { defaultStr: "minError", markdown: true } }) minErrorText: string;
@@ -96,21 +97,15 @@ export class QuestionDateTimePickerModel extends Question {
     return this.getPropertyValue("renderedMax");
   }
 
+  // The mask is internal: only the pattern is serialized, min and max come from the question.
+  // The question changes the mask explicitly instead of listening to it, because a change of
+  // the format and a change of the limits need different updates.
   public get maskSettings(): InputMaskBase {
     return this.getPropertyValue("maskSettings");
-  }
-  public set maskSettings(val: InputMaskBase) {
-    if (!val) return;
-    this.maskSettings.fromJSON(val.toJSON());
-    this.updateInputValue();
   }
   private createMaskSettings(): InputMaskBase {
     const mask = Serializer.createClass("datetimemask");
     mask.owner = this;
-    mask.onPropertyChanged.add((_, options) => {
-      this.onNestedPropertyChanged.fire(this, { name: "maskSettings", newValue: options.newValue, nestedName: options.name });
-      this.onMaskChanged();
-    });
     return mask;
   }
   // Each input element adapter keeps its own entry state in the mask, so the end field gets a copy of maskSettings.
@@ -123,15 +118,41 @@ export class QuestionDateTimePickerModel extends Question {
     }
     return this.endMaskValue;
   }
-  private onMaskChanged(): void {
+  private applyPattern(): void {
+    (<any>this.maskSettings).pattern = this.pattern || undefined;
+  }
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    this.applyPattern();
+    this.onMaskFormatChanged();
+  }
+  private disposeEndMask(): void {
     if (!!this.endMaskValue) {
       this.endMaskValue.dispose();
       this.endMaskValue = undefined;
     }
+  }
+  private onMaskFormatChanged(): void {
+    this.disposeEndMask();
     this.updateInputValue();
     if (this.maskInputAdapters.length > 0) {
       this.createMaskAdapters();
     }
+  }
+  // The masks read min and max on every input, and the adapters refresh themselves on a mask
+  // property change, so the limits do not recreate the adapters and do not break an entry in progress.
+  private updateMaskLimits(): void {
+    const min = this.toMaskLimit(this.renderedMin);
+    const max = this.toMaskLimit(this.renderedMax);
+    [<any>this.maskSettings, <any>this.endMaskValue].forEach(mask => {
+      if (!mask) return;
+      if (mask.min !== min) mask.min = min;
+      if (mask.max !== max) mask.max = max;
+    });
+  }
+  private toMaskLimit(val: string): string {
+    const date = toISODate(val);
+    return !!date ? Helpers.convertDateToString(date) : undefined;
   }
 
   public get calendar(): CalendarModel {
@@ -397,7 +418,7 @@ export class QuestionDateTimePickerModel extends Question {
   }
   protected onSetData(): void {
     if (this.maskSettings.updateFormatFromSurvey()) {
-      this.updateInputValue();
+      this.onMaskFormatChanged();
     }
     super.onSetData();
   }
@@ -406,7 +427,7 @@ export class QuestionDateTimePickerModel extends Question {
     const drafts = [this.getInputISODate(this._startInputValue), this.getInputISODate(this._endInputValue)];
     super.localeChanged();
     this.maskSettings.localeChanged();
-    this.updateInputValue();
+    this.onMaskFormatChanged();
     if (this.range) {
       this._startInputValue = !!drafts[0] ? this.maskSettings.getMaskedValue(drafts[0]) : undefined;
       this._endInputValue = !!drafts[1] ? this.maskSettings.getMaskedValue(drafts[1]) : undefined;
@@ -429,6 +450,10 @@ export class QuestionDateTimePickerModel extends Question {
     }
     if (name === "range") {
       this.onRangeChanged();
+    }
+    if (name === "pattern") {
+      this.applyPattern();
+      this.onMaskFormatChanged();
     }
     if (["value", "allowClear"].indexOf(name) > -1) {
       this.updateEditorButtons();
@@ -464,6 +489,7 @@ export class QuestionDateTimePickerModel extends Question {
     if (!this.runExpressionByProperty("maxValueExpression", properties, setMax)) {
       setMax(this.max);
     }
+    this.updateMaskLimits();
   }
 
   private isMaskInputIncomplete(): boolean {
@@ -594,10 +620,7 @@ export class QuestionDateTimePickerModel extends Question {
   }
   public dispose(): void {
     this.deleteMaskAdapters();
-    if (!!this.endMaskValue) {
-      this.endMaskValue.dispose();
-      this.endMaskValue = undefined;
-    }
+    this.disposeEndMask();
     if (!!this.popupModelValue) {
       this.popupModelValue.dispose();
       this.popupModelValue = undefined;
@@ -643,18 +666,7 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "startPlaceholder", serializationProperty: "locStartPlaceholder", dependsOn: "range", visibleIf: isRangeMode },
     { name: "endPlaceholder", serializationProperty: "locEndPlaceholder", dependsOn: "range", visibleIf: isRangeMode },
-    {
-      name: "maskSettings:masksettings",
-      className: "datetimemask",
-      onGetValue: (obj: any): any => obj.maskSettings.getData(),
-      onSerializeValue: (obj: any): any => {
-        const data = obj.maskSettings.getData();
-        return Object.keys(data).length > 0 ? data : undefined;
-      },
-      onSetValue: (obj: any, value: any): void => {
-        obj.maskSettings.setData(value);
-      }
-    },
+    "pattern",
     { name: "allowClear:boolean", default: true }
   ],
   () => new QuestionDateTimePickerModel(""),

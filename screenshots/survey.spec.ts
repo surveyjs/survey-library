@@ -890,20 +890,7 @@ frameworks.forEach(framework => {
 
     test("Survey complete pages plain text", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 900 });
-      const json = {
-        showQuestionNumbers: true,
-        pages: [
-          {
-            elements: [
-              {
-                type: "text",
-                name: "name",
-                title: "Name"
-              }
-            ]
-          }
-        ]
-      };
+      const json = { pages: [{ elements: [{ type: "text", name: "name", title: "Name" }] }] };
       await initSurvey(page, framework, json);
       await page.click(".sd-navigation__complete-btn");
       await compareScreenshot(page, ".sd-root-modern", "survey-completed-plain-text.png");
@@ -917,22 +904,16 @@ frameworks.forEach(framework => {
 
     test("Survey loading page", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 900 });
-      const json = {
-        showQuestionNumbers: true,
-        pages: [
-          {
-            elements: [
-              {
-                type: "text",
-                name: "name",
-                title: "Name"
-              }
-            ]
-          }
-        ]
-      };
+      const json = { pages: [{ elements: [{ type: "text", name: "name", title: "Name" }] }] };
       await initSurvey(page, framework, json);
       await page.evaluate(() => {
+        (window as any).survey.beginLoading();
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-loading-plain-text.png");
+
+      await page.evaluate(() => {
+        (window as any).survey.endLoading();
+        (window as any).survey.loadingHtml = "<h3>Loading</h3><button style='display: inline-block;'>OK</button>";
         (window as any).survey.beginLoading();
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-loading.png");

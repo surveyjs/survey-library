@@ -45,8 +45,6 @@ export interface IMatrixDropdownData extends IObjectValueContext, ILocalizableOw
   getItemIndex(item: ISurveyData): number;
   getValueGetterContext(): IValueGetterContext;
   getFilteredData(): any;
-  getBindedQuestions(): IQuestion[];
-  getSharedQuestionFromArray(name: string, index: number): Question;
   updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): any;
   onRowChanging(
     row: MatrixDropdownRowModelBase,
@@ -756,7 +754,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     this.ensureDetailPanel();
     for (var key in val) {
       // A key is resolved by valueName, the way isUnknownValueKey() does it, so that clearing
-      // removes exactly what getUnknownValueKeys() reports.
+      // removes exactly the keys that verification reports as unknown.
       var question = this.getQuestionsByValueName(key)[0];
       if (question) {
         var qVal = question.value;
@@ -771,23 +769,10 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       }
     }
   }
-  // Lists the keys of a row value that no cell question stores. It does not modify the value.
-  public getUnknownValueKeys(val: any): Array<string> {
-    // A row edits an object, not a JSON value, when the survey is used as an object editor.
-    if (!!val && typeof val.getType === "function") return [];
-    // A row value of another shape is a valueType finding of the question, not an unknown key one.
-    if (!Helpers.isValueObject(val, true)) return [];
-    this.ensureDetailPanel();
-    const res: Array<string> = [];
-    for (var key in val) {
-      if (this.isUnknownValueKey(key)) res.push(key);
-    }
-    return res;
-  }
   private deleteUnknownValueKey(key: string): void {
     // setValue() resolves a key by the question name and keeps a key that a question of the row is
     // named after, even when that question stores its value under another valueName. Such a key has
-    // to be removed from the row value directly, so that clearing removes what getUnknownValueKeys() reports.
+    // to be removed from the row value directly, so that clearing removes what verification reports.
     if (!this.getQuestionByName(key)) {
       this.setValue(key, null);
     } else {
@@ -2077,9 +2062,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     this.updateShowTable();
   }
-  protected shouldRunColumnExpression(): boolean {
-    return false;
-  }
   private isRunningCellsCondition: boolean;
   // The values the cells compute are not edits (runComputedWrites).
   protected runCellsCondition(properties: HashTable<any>): boolean {
@@ -3067,14 +3049,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   get isValidateOnValueChanging(): boolean {
     return !!this.survey ? this.validationCallbacks.isValidateOnValueChanging : false;
-  }
-  protected get hasInvisibleRows(): boolean {
-    const rows = this.generatedVisibleRows;
-    if (!Array.isArray(rows)) return false;
-    for (let i = 0; i < rows.length; i ++) {
-      if (!rows[i].isVisible) return true;
-    }
-    return false;
   }
   // An empty matrix, the property grid's and a plain one before its rows exist; before the rows of a view or a page exist the records answer.
   protected isValueFilteredData(): boolean {

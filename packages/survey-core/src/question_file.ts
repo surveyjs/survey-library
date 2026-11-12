@@ -1101,9 +1101,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public getImageWrapperCss(data: any): string {
     return toCssClasses(this.cssClasses.imageWrapper, this.defaultImage(data) && this.cssClasses.imageWrapperDefaultImage);
   }
-  protected getActionsContainerCss(css: any): string {
-    return toCssClasses(css.actionsContainer, this.isAnswered && css.actionsContainerAnswered);
-  }
   private removeFileButtonMap: Map<Object, Action> = new Map<Object, Action>();
   public getRemoveFileButton(item: any): Action {
     if (!item) return null;

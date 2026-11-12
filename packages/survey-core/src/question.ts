@@ -107,11 +107,6 @@ export class QuestionValueGetterContext implements IValueGetterContext {
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   getQuestion(): IQuestion { return this.question; }
-  protected getSurveyValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
-    const survey = this.question.getSurvey();
-    if (survey) return (<any>survey).getValueGetterContext().getValue({ path, isRoot: false, index });
-    return undefined;
-  }
   private getQuestionValue(index: number, isOriginalValue?: boolean): IValueGetterInfo {
     const q = this.question;
     // The plain {name} exposes the unwrapped value by default (the "-unwrapped" suffix is kept for
@@ -197,7 +192,6 @@ export interface IValidationContextParams {
   isOnValueChanged?: boolean;
   isOnValueChanging?: boolean;
   focusOnFirstError?: boolean;
-  firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
   callbackResult?: (res: boolean, element: IElement) => void;
   /* false: the validation shows errors and changes no value. A question that pages its records
@@ -238,7 +232,6 @@ export interface IVerifyDataContext {
   // as something is found. setData() never sets it.
   stopOnFirst: boolean;
   readonly hasIssues: boolean;
-  readonly issueCount: number;
   pushSegment(segment: string | number): void;
   popSegment(): void;
   // lastSegment is appended for this issue only: an unknown key, the array index of an offending item.
@@ -318,7 +311,6 @@ class VerifyDataContext implements IVerifyDataContext {
   constructor(public checks: IDataVerificationOptions) {
   }
   public get hasIssues(): boolean { return this.issues.length > 0; }
-  public get issueCount(): number { return this.issues.length; }
   public pushSegment(segment: string | number): void {
     this.segmentsScope.value.push(segment);
   }
@@ -1386,9 +1378,6 @@ export class Question extends SurveyElement<Question>
   public get singleInputHasActions(): boolean {
     return this.singleInputBehavior.singleInputHasActions;
   }
-  protected singleInputMoveToFirst(): void {
-    this.singleInputBehavior.singleInputMoveToFirst();
-  }
   //#endregion
   /**
    * Returns `false` if the `titleLocation` property is set to `"hidden"` or if the question cannot have a title (for example, an [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question).
@@ -1926,11 +1915,6 @@ export class Question extends SurveyElement<Question>
   public getHeaderAndContentContainerCss(): string {
     return toCssClasses(this.cssClasses.headerAndContentContainer);
   }
-  public get isComplexQuestion(): boolean {
-    const rootCss = this.getRootCss() || "";
-    return rootCss.indexOf("sd-element--complex") > -1;
-    // return this.isContainer || !!this.singleInputQuestion;
-  }
   public getQuestionRootCss() {
     return toCssClasses(this.cssClasses.root, this.isMobile && this.cssClasses.rootMobile);
   }
@@ -2180,9 +2164,6 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly || this.isDesignMode;
   }
   public get renderedInputReadOnly(): string {
-    return this.isInputReadOnly ? "" : undefined;
-  }
-  public get renderedInputDisabled(): string {
     return this.isInputReadOnly ? "" : undefined;
   }
   public get isReadOnlyAttr(): boolean {
@@ -2548,9 +2529,6 @@ export class Question extends SurveyElement<Question>
       visible: <any>new ComputedUpdater(isVisible),
       ariaLabelledBy: this.a11y_input_ariaLabelledBy
     });
-  }
-  clearValueOnly(): void {
-    this.clearValue(true);
   }
   public unbindValue(): void {
     this.clearValue();
@@ -3950,8 +3928,6 @@ export class Question extends SurveyElement<Question>
     }
   }
 
-  public transformToMobileView(): void { }
-  public transformToDesktopView(): void { }
   public needResponsiveWidth() {
     return false;
   }

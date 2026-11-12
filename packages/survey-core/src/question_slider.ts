@@ -797,15 +797,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     return this.labelFormat.replace("{0}", "" + res);
   }
 
-  public getLabelText = (labelNumber: number):string => {
-    const { step, renderedMax: max, renderedMin: min, renderedLabelCount: labelCount, formatNumber } = this;
-    const fullRange = max - min;
-    const isDecimal = step % 1 != 0;
-    const count = labelCount - 1;
-    let labelStep = count === 0 ? 0 : labelNumber * fullRange / count;
-    return isDecimal ? "" + formatNumber(labelStep + min) : "" + Math.round(labelStep + min);
-  };
-
   public getLabelPosition = (labelNumber: number):number => {
     const { max, min, renderedLabelCount: labelCount } = this;
     const count = labelCount - 1;

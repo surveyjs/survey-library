@@ -5233,15 +5233,8 @@ export class SurveyModel extends SurveyElementCore
   private resetNavigationButton() {
     this.isNavigationButtonPressed = false;
   }
-  private mouseDownPage: any = null;
   public nextPageUIClick(): boolean {
-    if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return false;
-    this.mouseDownPage = null;
     return this.performNext();
-  }
-  public nextPageMouseDown(): boolean {
-    this.mouseDownPage = this.activePage;
-    return this.navigationMouseDown();
   }
   /**
    * Displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Returns `false` if the preview cannot be displayed because of validation errors.

@@ -546,7 +546,6 @@ frameworks.forEach(framework => {
       };
 
       await initSurvey(page, framework, json);
-      await page.waitForTimeout(100);
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
       await compareScreenshot(page, paneldynamicRoot, "panel-dynamic-comment.png");
     });

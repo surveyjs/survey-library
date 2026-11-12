@@ -101,6 +101,18 @@ export async function resetFocusToBody(page: Page): Promise<void> {
     document.body.focus();
   });
 }
+
+// The survey switches its layout on a ResizeObserver callback, so wait for the root class instead of a fixed timeout.
+export async function resizeToMobile(page: Page, width: number = 600, height: number = 1000): Promise<void> {
+  await page.setViewportSize({ width, height });
+  await expect(page.locator(".sd-root-modern")).toHaveClass(/sd-root-modern--mobile/);
+}
+
+export async function resizeToDesktop(page: Page, width: number = 1920, height: number = 1080): Promise<void> {
+  await page.setViewportSize({ width, height });
+  await expect(page.locator(".sd-root-modern")).not.toHaveClass(/sd-root-modern--mobile/);
+}
+
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any, afterInitializeModelCallback?: () => Promise<void>) => {
   await waitForFonts(page);
   if (!!props) {

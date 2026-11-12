@@ -1379,9 +1379,6 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() sjsVersion: string;
   @property() $schema: string;
-  processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
-    throw new Error("Method not implemented.");
-  }
   protected createTryAgainAction(): IAction {
     return <IAction>{
       id: "save-again",
@@ -6589,10 +6586,6 @@ export class SurveyModel extends SurveyElementCore
     if (this.questionsWithPendingWrites.length > 0) return;
     this.heldCompletion = undefined;
     this.doCurrentPageComplete(true);
-  }
-  dragAndDropAllow(options: DragDropAllowEvent): boolean {
-    this.onDragDropAllow.fire(this, options);
-    return options.allow;
   }
   elementContentVisibilityChanged(element: ISurveyElement): void {
     if (this.currentPage) {

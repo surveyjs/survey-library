@@ -245,6 +245,7 @@ frameworks.forEach((framework) => {
       // The list is rendered when the popup opens first; the keyboard below works without it.
       await expect(listItems).toHaveCount(0);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
+      await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
@@ -341,6 +342,7 @@ frameworks.forEach((framework) => {
       await expect(listItems).toHaveCount(0);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
+      await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");

@@ -202,6 +202,7 @@ frameworks.forEach((framework) => {
     });
 
     test("ranking: keyboard", async ({ page }) => {
+      await expect(page.locator(".sv-ranking-item").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowUp");
@@ -325,6 +326,7 @@ frameworks.forEach((framework) => {
         ]
       };
       await initSurvey(page, framework, json);
+      await expect(page.locator(".sv-ranking-item").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
 

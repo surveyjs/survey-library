@@ -207,6 +207,7 @@ frameworks.forEach((framework) => {
           return (window as any).survey.getAllQuestions()[0].value;
         });
       };
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       expect(await page.locator("input").first().inputValue()).toBe("_____");
       expect(await getQuestionValue()).toBeUndefined();
 
@@ -295,6 +296,7 @@ frameworks.forEach((framework) => {
         ]
       });
 
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       expect(await page.locator("input").first().inputValue()).toBe("");
 
       await page.keyboard.press("1");
@@ -325,8 +327,9 @@ frameworks.forEach((framework) => {
         ]
       });
 
-      await page.keyboard.press("Tab");
       const inputElement = page.getByRole("textbox", { name: "q1" });
+      await expect(inputElement).toBeVisible();
+      await page.keyboard.press("Tab");
       expect(await inputElement.inputValue()).toBe("");
 
       let activeElement = await page.evaluate(() => { return (window as any).survey.rootElement.getRootNode().activeElement?.tagName; });

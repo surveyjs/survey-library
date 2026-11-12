@@ -1092,83 +1092,40 @@ json = {
 }
 
 json = {
-  title: "Allow Clear",
-  showQuestionNumbers: "off",
-  widthMode: "static",
-  width: "860px",
-  elements: [
+  "completedHtml": "Thank you for completing the sudfgrvey",
+  "pages": [
     {
-      type: "radiogroup",
-      name: "radio",
-      title: "Radio Button Group",
-      allowClear: true,
-      defaultValue: "Paris",
-      choices: ["Paris", "London", "Madrid"]
-    },
-    {
-      type: "slider",
-      name: "slider",
-      title: "Slider",
-      allowClear: true,
-      defaultValue: 40
-    },
-    {
-      type: "boolean",
-      name: "boolean",
-      title: "Yes/No",
-      allowClear: true,
-      defaultValue: true
-    },
-    {
-      type: "boolean",
-      name: "boolean-radio",
-      title: "Yes/No as radio buttons",
-      displayMode: "radio",
-      allowClear: true,
-      defaultValue: false
-    },
-    {
-      type: "boolean",
-      name: "boolean-checkbox",
-      title: "Yes/No as checkbox",
-      displayMode: "checkbox",
-      allowClear: true,
-      defaultValue: true
-    },
-    {
-      type: "boolean",
-      name: "boolean-switch",
-      title: "Yes/No as switch",
-      displayMode: "switch",
-      allowClear: true,
-      defaultValue: true
-    },
-    {
-      type: "imagepicker",
-      name: "image",
-      title: "Image Picker",
-      allowClear: true,
-      defaultValue: "lion",
-      choices: [
-        { value: "lion", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg" },
-        { value: "giraffe", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg" },
-        { value: "panda", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg" }
-      ]
-    },
-    {
-      type: "matrix",
-      name: "matrix",
-      title: "Single-Select Matrix",
-      allowClear: true,
-      defaultValue: { affordable: 5, "easy-to-use": 4 },
-      columns: [
-        { value: 5, text: "Agree" },
-        { value: 3, text: "Neutral" },
-        { value: 1, text: "Disagree" }
-      ],
-      rows: [
-        { value: "affordable", text: "Product is affordable" },
-        { value: "easy-to-use", text: "Product is easy to use" }
+      "name": "page1",
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "contacts",
+          "title": "Contacts",
+          "defaultValue": [
+            {
+              "fullName": "sss"
+            },
+            {
+              "fullName": "ssssaas"
+            }
+          ],
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "fullName",
+              "title": "Full name",
+              "isRequired": true
+            }
+          ],
+          "panelCount": 1,
+          "minPanelCount": 1,
+          "maxPanelCount": 6,
+          "defaultPanelValue": {
+            "fullName": "sss"
+          },
+          "panelsState": "collapsed",
+          "addPanelText": "Add a contact"
+        }
       ]
     }
   ]

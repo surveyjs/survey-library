@@ -723,3 +723,7 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
 .sd-matrixdynamic__content > div > .sd-question__bar--footer {
   border-top: none;
 }
+
+.sd-panel__expandable-content {
+  padding-bottom: calc(var(--sjs2-layout-component-panel-header-padding-top) - var(--sjs2-layout-component-panel-header-padding-bottom));
+}

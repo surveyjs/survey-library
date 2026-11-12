@@ -22,12 +22,23 @@ export class SurveyCalendar extends SurveyElementBase<ICalendarProps, any> {
       </button>
     );
   }
+  private renderTitle(): React.JSX.Element {
+    const css = this.model.cssClasses;
+    if (this.model.showMonthTitles) {
+      return (
+        <div className={css.monthTitles}>
+          {this.model.months.map((month, i) => <div key={i} className={css.monthTitle}>{month.title}</div>)}
+        </div>
+      );
+    }
+    return <button type="button" className={css.title} onClick={() => this.model.zoomOut()}>{this.model.title}</button>;
+  }
   private renderToolbar(): React.JSX.Element {
     const css = this.model.cssClasses;
     return (
       <div className={css.toolbar}>
         {this.renderNavButton(css.prevIconId, this.model.canPrev, () => this.model.prev())}
-        <button type="button" className={css.title} onClick={() => this.model.zoomOut()}>{this.model.title}</button>
+        {this.renderTitle()}
         {this.renderNavButton(css.nextIconId, this.model.canNext, () => this.model.next())}
       </div>
     );
@@ -45,7 +56,6 @@ export class SurveyCalendar extends SurveyElementBase<ICalendarProps, any> {
     const css = this.model.cssClasses;
     return (
       <div key={index} className={css.monthView}>
-        {this.model.showMonthTitles ? <div className={css.monthTitle}>{month.title}</div> : null}
         <div className={css.weekDays}>
           {this.model.weekDays.map((name, i) => <div key={i} className={css.weekDay}>{name}</div>)}
         </div>

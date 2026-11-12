@@ -81,8 +81,34 @@
   gap: var(--sjs2-spacing-x050);
 }
 
+// The range toolbar is one row: the arrows sit on top of the edges, and each title is centered
+// above its month, so the titles row repeats the layout of the months row.
+.sv-calendar--range .sv-calendar__toolbar {
+  position: relative;
+}
+
+.sv-calendar--range .sv-calendar__nav-button {
+  position: absolute;
+  top: 0;
+
+  &:first-child {
+    inset-inline-start: 0;
+  }
+
+  &:last-child {
+    inset-inline-end: 0;
+  }
+}
+
+.sv-calendar__month-titles {
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--sjs2-spacing-x300);
+}
+
 .sv-calendar__month-title {
   @include sjs2--typography--default-strong;
+  flex: 1 1 0;
   text-align: center;
   line-height: var(--sv-calendar-cell-size);
 }
@@ -150,14 +176,17 @@
   color: var(--sjs2-color-fg-brand-primary);
 }
 
-.sv-calendar__day--range-middle {
-  border-radius: 0;
-  background-color: var(--sjs2-color-bg-brand-tertiary);
+.sv-calendar__day--in-range {
+  background-color: var(--sjs2-color-bg-brand-secondary);
   color: $foreground;
 
   &.sv-calendar__day--hovered {
-    background-color: var(--sjs2-color-bg-brand-tertiary-dim);
+    background-color: var(--sjs2-color-bg-brand-secondary-dim);
   }
+}
+
+.sv-calendar__day--range-middle {
+  border-radius: 0;
 }
 
 .sv-calendar__day--selected,

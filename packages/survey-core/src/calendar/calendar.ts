@@ -25,6 +25,7 @@ interface ICalendarItemState {
   isToday: boolean;
   isDisabled: boolean;
   isOutside?: boolean;
+  isHidden?: boolean;
   rangePosition?: CalendarRangePosition;
 }
 
@@ -36,7 +37,6 @@ export class CalendarModel extends Base {
   @property() max: Date;
   @property({ defaultValue: false }) range: boolean;
   @property() rangeStart: Date;
-  @property({ defaultValue: "day" }) zoom: CalendarZoom;
   @property({ defaultValue: 1 }) firstDayOfWeek: number;
   @property() title: string;
   @property({ defaultValue: true }) canPrev: boolean;
@@ -69,6 +69,9 @@ export class CalendarModel extends Base {
   public get isDayZoom(): boolean {
     return this.zoom === "day";
   }
+  public get canZoom(): boolean {
+    return !this.range;
+  }
   public get showMonthTitles(): boolean {
     return this.monthCount > 1;
   }
@@ -86,6 +89,14 @@ export class CalendarModel extends Base {
   public set value(val: any) {
     this.setPropertyValue("value", this.normalizeValue(val));
   }
+  // The range mode shows days only.
+  public get zoom(): CalendarZoom {
+    return this.getPropertyValue("zoom", "day");
+  }
+  public set zoom(val: CalendarZoom) {
+    if (!this.canZoom && val !== "day") return;
+    this.setPropertyValue("zoom", val);
+  }
   public setRangeStart(date: Date): void {
     this.rangeStart = date;
   }
@@ -98,6 +109,7 @@ export class CalendarModel extends Base {
     this.shiftView(1);
   }
   public zoomOut(): void {
+    if (!this.canZoom) return;
     this.zoom = nextZoom[this.zoom];
   }
   public resetView(): void {
@@ -107,7 +119,7 @@ export class CalendarModel extends Base {
     this.updateView();
   }
   public selectItem(item: CalendarItem): void {
-    if (!item || item.isDisabled) return;
+    if (!item || item.isDisabled || item.isHidden) return;
     if (this.zoom === "month") {
       this.viewDate = item.date;
       this.zoom = "day";
@@ -132,7 +144,7 @@ export class CalendarModel extends Base {
     this.onSelectionCompleted.fire(this, { value: this.value });
   }
   public hoverItem(item?: CalendarItem): void {
-    if (!!item && item.isDisabled) return;
+    if (!!item && (item.isDisabled || item.isHidden)) return;
     this.hoveredItem = item;
     this.updateView();
   }
@@ -156,6 +168,9 @@ export class CalendarModel extends Base {
     if (name === "range") {
       this.setPropertyValue("value", this.normalizeValue(this.value));
       this.rangeStart = undefined;
+      if (!this.canZoom) {
+        this.zoom = "day";
+      }
     }
     if (name === "zoom") {
       this.hoveredItem = undefined;
@@ -292,15 +307,22 @@ export class CalendarModel extends Base {
     const month = monthStart.getMonth();
     const offset = (monthStart.getDay() - this.firstDayOfWeek + 7) % 7;
     const today = this.getToday();
+    // With several months side by side, a neighbour month's day would repeat a day of the next block.
+    const hideOutside = this.monthCount > 1;
     const days: Array<CalendarItem> = [];
     for (let i = 0; i < daysInGrid; i++) {
       const date = new Date(year, month, 1 - offset + i);
+      const isOutside = date.getMonth() !== month;
+      if (isOutside && hideOutside) {
+        days.push(this.createItem("day", date, "", { isSelected: false, isToday: false, isDisabled: false, isOutside: true, isHidden: true }));
+        continue;
+      }
       const rangePosition = this.getRangePosition(date, selectedRange);
       days.push(this.createItem("day", date, date.getDate().toString(), {
         isSelected: this.range ? !!rangePosition : isSameDay(this.value, date),
         isToday: isSameDay(today, date),
         isDisabled: this.isOutside(date, date),
-        isOutside: date.getMonth() !== month,
+        isOutside: isOutside,
         rangePosition: rangePosition
       }));
     }
@@ -342,9 +364,11 @@ export class CalendarModel extends Base {
       date: date,
       text: text,
       isSelected: state.isSelected,
+      isInRange: !!state.rangePosition,
       isHovered: !state.isDisabled && !!hovered && isSameDay(hovered.date, date) && hovered.isOutside === isOutside,
       isToday: state.isToday,
       isOutside: isOutside,
+      isHidden: !!state.isHidden,
       isDisabled: state.isDisabled,
       rangePosition: state.rangePosition,
       css: ""
@@ -357,8 +381,10 @@ export class CalendarModel extends Base {
     return new CssClassBuilder()
       .append(classes[kind])
       .append(classes[kind + "Outside"], item.isOutside)
+      .append(classes[kind + "Hidden"], item.isHidden)
       .append(classes[kind + "Today"], item.isToday)
       .append(classes[kind + "Selected"], item.isSelected)
+      .append(classes[kind + "InRange"], item.isInRange)
       .append(classes[kind + "Hovered"], item.isHovered)
       .append(classes[kind + "Disabled"], item.isDisabled)
       .append(rangePositionCss[item.rangePosition], !!item.rangePosition)

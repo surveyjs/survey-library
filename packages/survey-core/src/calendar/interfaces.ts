@@ -5,9 +5,12 @@ export interface CalendarItem {
   date: Date;
   text: string;
   isSelected: boolean;
+  // the day is between the range start and end (inclusive), committed or being selected
+  isInRange: boolean;
   isHovered: boolean;
   isToday: boolean;
   isOutside: boolean;
+  isHidden: boolean;
   isDisabled: boolean;
   rangePosition?: CalendarRangePosition;
   css: string;

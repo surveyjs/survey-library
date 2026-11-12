@@ -271,12 +271,14 @@ describe("CalendarModel", () => {
     expect(calendar.rootCss).toBe("sv-calendar");
     expect(calendar.isDayZoom).toBe(true);
     expect(calendar.showMonthTitles).toBe(false);
-    calendar.range = true;
-    expect(calendar.rootCss).toBe("sv-calendar sv-calendar--range");
-    expect(calendar.showMonthTitles).toBe(true);
+    expect(calendar.canZoom).toBe(true);
     calendar.zoom = "month";
     expect(calendar.isDayZoom).toBe(false);
-    expect(calendar.rootCss, "one block in the month zoom").toBe("sv-calendar");
+    calendar.range = true;
+    expect(calendar.isDayZoom).toBe(true);
+    expect(calendar.rootCss).toBe("sv-calendar sv-calendar--range");
+    expect(calendar.showMonthTitles).toBe(true);
+    expect(calendar.canZoom).toBe(false);
   });
 
   test("onSelectionCompleted fires on every day selection, even if the value is the same", () => {
@@ -796,16 +798,36 @@ describe("CalendarModel range", () => {
     expect(calendar.canPrev).toBe(true);
   });
 
-  test("The month and year zooms show one block", () => {
+  test("The zoom is always day in the range mode", () => {
     const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
-    calendar.zoom = "month";
-    expect(calendar.months).toHaveLength(0);
-    expect(calendar.items).toHaveLength(12);
+    const zooms: Array<string> = [];
+    calendar.onZoomChanged.add((_, options) => zooms.push(options.zoom));
+    calendar.zoomOut();
+    expect(calendar.zoom).toBe("day");
     calendar.zoom = "year";
-    expect(calendar.months).toHaveLength(0);
-    expect(calendar.items).toHaveLength(12);
-    calendar.zoom = "day";
+    expect(calendar.zoom).toBe("day");
     expect(calendar.months).toHaveLength(2);
+    expect(calendar.items).toHaveLength(0);
+    expect(zooms).toEqual([]);
+
+    calendar.range = false;
+    calendar.zoomOut();
+    expect(calendar.zoom).toBe("month");
+    calendar.range = true;
+    expect(calendar.zoom).toBe("day");
+    expect(calendar.months.map(month => month.title)).toEqual(["November 2026", "December 2026"]);
+  });
+
+  test("The range mode shows the current month and the next one by default", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 11, 9, 15, 30));
+    const calendar = new CalendarModel({ range: true });
+    expect(calendar.months.map(month => month.title)).toEqual(["December 2026", "January 2027"]);
+    calendar.next();
+    expect(calendar.months.map(month => month.title)).toEqual(["January 2027", "February 2027"]);
+    calendar.resetView();
+    expect(calendar.months.map(month => month.title)).toEqual(["December 2026", "January 2027"]);
+    vi.useRealTimers();
   });
 
   test("The first click sets rangeStart", () => {
@@ -836,6 +858,25 @@ describe("CalendarModel range", () => {
 
     calendar.hoverItem();
     expect(positions(calendar)).toEqual({ "5": "single" });
+  });
+
+  test("isInRange marks the days of the committed range and of the range being selected", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true, value: [d(2026, 11, 5), d(2026, 11, 7)] });
+    const inRange = () => calendar.months[0].days.filter(item => item.isInRange).map(item => item.text);
+    expect(inRange()).toEqual(["5", "6", "7"]);
+    expect(rangeDay(calendar, d(2026, 11, 6)).css).toBe("sv-calendar__day sv-calendar__day--selected sv-calendar__day--in-range sv-calendar__day--range-middle");
+    expect(rangeDay(calendar, d(2026, 11, 8)).isInRange).toBe(false);
+
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 10)));
+    expect(inRange()).toEqual(["10"]);
+    calendar.hoverItem(rangeDay(calendar, d(2026, 11, 13)));
+    expect(inRange()).toEqual(["10", "11", "12", "13"]);
+    expect(rangeDay(calendar, d(2026, 11, 11)).css.indexOf("sv-calendar__day--in-range") > -1).toBe(true);
+  });
+
+  test("isInRange is false in the single mode", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), value: d(2026, 11, 5) });
+    expect(days(calendar).every(item => !item.isInRange)).toBe(true);
   });
 
   test("Hover without rangeStart shows no preview", () => {
@@ -904,12 +945,36 @@ describe("CalendarModel range", () => {
     expect(positions(calendar, 1)).toEqual({ "1": "middle", "2": "middle", "3": "end" });
   });
 
-  test("Clicking a day of a neighbour month does not move the months", () => {
+  test("Days of neighbour months are hidden when two months are shown", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true, value: [d(2026, 11, 20), d(2026, 12, 10)] });
+    calendar.months.forEach(month => {
+      expect(month.days).toHaveLength(42);
+      const outside = month.days.filter(item => item.isOutside);
+      expect(outside.length > 0).toBe(true);
+      expect(outside.every(item => item.isHidden && item.text === "" && !item.isSelected && !item.rangePosition)).toBe(true);
+      expect(outside.every(item => item.css.indexOf("sv-calendar__day--hidden") > -1)).toBe(true);
+      expect(month.days.filter(item => !item.isOutside).every(item => !item.isHidden)).toBe(true);
+    });
+    expect(positions(calendar, 1)).toEqual({ "1": "middle", "2": "middle", "3": "middle", "4": "middle", "5": "middle",
+      "6": "middle", "7": "middle", "8": "middle", "9": "middle", "10": "end" });
+  });
+
+  test("A hidden day cannot be selected or hovered", () => {
     const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
-    const outside = calendar.months[0].days.filter(item => item.isOutside)[0];
-    calendar.selectItem(outside);
-    expect(calendar.rangeStart.getTime()).toBe(outside.date.getTime());
-    expect(calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
+    const hidden = calendar.months[0].days.filter(item => item.isHidden)[0];
+    calendar.selectItem(hidden);
+    expect(calendar.rangeStart).toBeUndefined();
+
+    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
+    calendar.hoverItem(rangeDay(calendar, d(2026, 11, 8)));
+    calendar.hoverItem(hidden);
+    expect(positions(calendar)).toEqual({ "5": "start", "6": "middle", "7": "middle", "8": "end" });
+  });
+
+  test("Days of neighbour months are not hidden with one month", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    expect(days(calendar).every(item => !item.isHidden)).toBe(true);
+    expect(days(calendar)[0].text).toBe("26");
   });
 
   test("Disabled days inside the range are allowed", () => {
@@ -935,35 +1000,11 @@ describe("CalendarModel range", () => {
     expect(dates(calendar.value)).toEqual([d(2026, 11, 5).getTime(), d(2026, 11, 20).getTime()]);
   });
 
-  test("Month and year zooms only navigate in the range mode", () => {
-    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
-    calendar.selectItem(rangeDay(calendar, d(2026, 11, 5)));
-    calendar.zoom = "year";
-    calendar.selectItem(calendar.items.filter(item => item.text === "2027")[0]);
-    calendar.selectItem(calendar.items.filter(item => item.text === "March")[0]);
-    expect(calendar.zoom).toBe("day");
-    expect(calendar.rangeStart.getTime()).toBe(d(2026, 11, 5).getTime());
-    expect(calendar.value).toBeUndefined();
-    expect(calendar.months.map(month => month.title)).toEqual(["March 2027", "April 2027"]);
-
-    calendar.selectItem(rangeDay(calendar, d(2027, 3, 10)));
-    expect(dates(calendar.value)).toEqual([d(2026, 11, 5).getTime(), d(2027, 3, 10).getTime()]);
-  });
-
-  test("Month and year items containing the range are selected", () => {
-    const calendar = new CalendarModel({ value: [d(2026, 11, 25), d(2027, 1, 5)], range: true });
-    calendar.zoom = "month";
-    expect(calendar.items.filter(item => item.isSelected).map(item => item.text)).toEqual(["November", "December"]);
-    calendar.zoom = "year";
-    expect(calendar.items.filter(item => item.isSelected).map(item => item.text)).toEqual(["2026", "2027"]);
-  });
-
   test("resetView keeps rangeStart and shows its month", () => {
     const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), range: true });
     calendar.selectItem(rangeDay(calendar, d(2026, 12, 10), 1));
     calendar.next();
     calendar.next();
-    calendar.zoom = "year";
     calendar.resetView();
     expect(calendar.zoom).toBe("day");
     expect(calendar.rangeStart.getTime()).toBe(d(2026, 12, 10).getTime());

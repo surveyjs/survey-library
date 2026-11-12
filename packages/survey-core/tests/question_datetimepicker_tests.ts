@@ -599,6 +599,36 @@ describe("QuestionDateTimePickerModel range", () => {
     expect(q.endInputValue).toBe("02/09/2026");
   });
 
+  test("Render helpers", () => {
+    const q = createQuestion();
+    expect(q.getRootClass()).toBe("sd-formbox sd-datetimepicker");
+    expect(q.getControlClass()).toBe("sd-formbox__input sd-datetimepicker__input");
+    expect(q.startInputId).toBe(q.inputId);
+    expect(q.endInputId).toBe(q.inputId + "_end");
+    expect(q.rangeSeparatorText).toBe("\u2013");
+    expect(q.popupModel.cssClass).toBe("sv-datetimepicker-popup");
+    expect(q.editorButtons.containerCss).toBe("sd-formbox__group");
+    expect(q.editorButtons.getActionById("calendar").iconName).toBe("icon-calendar-24x24");
+    expect(q.editorButtons.getActionById("clear").iconName).toBe("icon-cancel-24x24");
+    expect(q.renderedInputValue, "an empty mask is not rendered").toBe("");
+    expect(q.renderedPlaceholder, "the mask pattern is the default placeholder").toBe("mm/dd/yyyy");
+    q.placeholder = "Pick a date";
+    expect(q.renderedPlaceholder).toBe("Pick a date");
+    q.inputValue = "11/0d/yyyy";
+    expect(q.renderedInputValue).toBe("11/0d/yyyy");
+    q.range = true;
+    expect(q.getRootClass()).toBe("sd-formbox sd-datetimepicker sd-datetimepicker--range");
+    expect(q.renderedStartInputValue).toBe("");
+    expect(q.renderedEndInputValue).toBe("");
+    expect(q.renderedStartPlaceholder).toBe("mm/dd/yyyy");
+    q.startInputValue = "11/05/2026";
+    q.endPlaceholder = "To";
+    expect(q.renderedStartInputValue).toBe("11/05/2026");
+    expect(q.renderedEndPlaceholder).toBe("To");
+    q.readOnly = true;
+    expect(q.getRootClass()).toBe("sd-formbox sd-datetimepicker sd-datetimepicker--range sd-formbox--readonly");
+  });
+
   test("Single mode is not affected", () => {
     const q = createQuestion();
     q.inputValue = "11/05/2026";

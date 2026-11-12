@@ -890,7 +890,14 @@ frameworks.forEach(framework => {
 
     test("Survey complete pages plain text", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 900 });
-      const json = { pages: [{ elements: [{ type: "text", name: "name", title: "Name" }] }] };
+      const json = {
+        pages: [{
+          elements: [
+            { type: "text", name: "name", title: "Name" },
+            { type: "checkbox", name: "os", title: "OS", choices: ["Windows", "Linux", "Macintosh OSX"] }
+          ]
+        }]
+      };
       await initSurvey(page, framework, json);
       await page.click(".sd-navigation__complete-btn");
       await compareScreenshot(page, ".sd-root-modern", "survey-completed-plain-text.png");
@@ -904,7 +911,14 @@ frameworks.forEach(framework => {
 
     test("Survey loading page", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 900 });
-      const json = { pages: [{ elements: [{ type: "text", name: "name", title: "Name" }] }] };
+      const json = {
+        pages: [{
+          elements: [
+            { type: "text", name: "name", title: "Name" },
+            { type: "checkbox", name: "os", title: "OS", choices: ["Windows", "Linux", "Macintosh OSX"] }
+          ]
+        }]
+      };
       await initSurvey(page, framework, json);
       await page.evaluate(() => {
         (window as any).survey.beginLoading();

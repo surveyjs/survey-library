@@ -119,7 +119,7 @@ export class PanelDynamicActions {
     this.updateFooterActionsCallback();
     // Before the toolbar exists there is nothing to update. The handlers are on the question and go with it.
     question.registerPropertyChangedHandlers(footerPropertyNames, (): void => { this.updateFooterActions(); }, "panelDynamicFooter");
-    this.footerToolbarValue.setItems(items);
+    this.footerToolbarValue.setItems(question.survey ? question.titleSettings.getUpdatedQuestionFooterActions(question, items) : items);
     this.footerToolbar.containerCss = question.cssClasses.toolbar;
     this.footerToolbar.flushUpdates();
     question._showFooterToolbar = new ComputedUpdater<boolean>(() => this.footerToolbarValue?.hasVisibleActions) as any as boolean;

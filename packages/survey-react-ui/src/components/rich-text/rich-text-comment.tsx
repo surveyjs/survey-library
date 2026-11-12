@@ -100,7 +100,7 @@ export class SurveyQuestionRichTextComment extends SurveyQuestionUncontrolledEle
   private renderFooter(): React.JSX.Element {
     const question = this.question;
     return (
-      <div className="sd-action-bar sd-action-bar--small-size sd-question__bar--footer" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
+      <div className="sd-action-bar sd-action-bar--small-size" role="toolbar" aria-label={this.model.toolbarLabel} aria-controls={question.inputId}>
         {this.renderToolbar(false)}
         {question.hasVisibleInputActions ? <div className="sd-action-bar__item--space" /> : null}
         {this.renderCounter()}

@@ -240,8 +240,6 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  if (framework == "vue") return;
-
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);

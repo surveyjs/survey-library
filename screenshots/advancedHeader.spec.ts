@@ -45,7 +45,6 @@ frameworks.forEach(framework => {
     });
 
     test("Check survey advanced header with overlap", async ({ page }) => {
-      if (framework === "vue") return;
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,
@@ -86,7 +85,6 @@ frameworks.forEach(framework => {
     });
 
     test("Check survey TOC + advanced header with overlap", async ({ page }) => {
-      if (framework === "vue") return;
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,

@@ -500,4 +500,213 @@ describe("rich text editor model", () => {
       settings.showDialog = previous;
     }
   });
+
+  test("list buttons follow the selected lines and are never both pressed", () => {
+    const question = new QuestionRichTextModel("c");
+    const { element, model } = mount(question);
+    loadMarked(element, model, "<ul><li>[a</li><li>b]</li></ul>");
+    expect(model.toggleState("insertUnorderedList")).toBe("all");
+    expect(model.toggleState("insertOrderedList")).toBe("none");
+    const pressed = (id: string): boolean => model.toolbar.actions.filter(action => action.id === id)[0].ariaPressed === true;
+    expect(pressed("rich-text-list-bulleted")).toBe(true);
+    expect(pressed("rich-text-list-numbered")).toBe(false);
+    loadMarked(element, model, "<ul><li>[a</li></ul><p>b]</p>");
+    expect(model.toggleState("insertUnorderedList")).toBe("mixed");
+    expect(model.toggleState("insertOrderedList")).toBe("none");
+    expect(pressed("rich-text-list-bulleted")).toBe(false);
+    loadMarked(element, model, "<ul><li>[a</li></ul><ol><li>b]</li></ol>");
+    expect(model.toggleState("insertUnorderedList")).toBe("mixed");
+    expect(model.toggleState("insertOrderedList")).toBe("mixed");
+    expect(pressed("rich-text-list-bulleted")).toBe(false);
+    expect(pressed("rich-text-list-numbered")).toBe(false);
+  });
+
+  test("list commands match the specification examples", () => {
+    const cases: Array<[string, "insertUnorderedList" | "insertOrderedList", string]> = [
+      ["<ul><li>[a</li><li>b]</li></ul>", "insertUnorderedList", "<p>a</p><p>b</p>"],
+      ["<ul><li>[a]</li></ul>", "insertUnorderedList", "a"],
+      ["<ul><li>a</li><li>[b]</li><li>c</li></ul>", "insertUnorderedList", "<ul><li>a</li></ul><p>b</p><ul><li>c</li></ul>"],
+      ["<ol><li>a</li><li>[b]</li><li>c</li></ol>", "insertOrderedList", "<ol><li>a</li></ol><p>b</p><ol><li>c</li></ol>"],
+      ["<ul><li>[a<br>b]</li></ul>", "insertUnorderedList", "a<br>b"],
+      ["<p>[a</p><p>b]</p>", "insertUnorderedList", "<ul><li>a</li><li>b</li></ul>"],
+      ["[a<br>b]", "insertOrderedList", "<ol><li>a</li><li>b</li></ol>"],
+      ["o[ne<br>tw]o", "insertUnorderedList", "<ul><li>one</li><li>two</li></ul>"],
+      ["<p>a</p><p>b|</p>", "insertUnorderedList", "<p>a</p><ul><li>b</li></ul>"],
+      ["<p>[<strong>a</strong></p><p>b]</p>", "insertUnorderedList", "<ul><li><strong>a</strong></li><li>b</li></ul>"],
+      ["<ol><li>[a</li><li>b]</li></ol>", "insertUnorderedList", "<ul><li>a</li><li>b</li></ul>"],
+      ["<ol><li>a</li><li>b|</li></ol>", "insertUnorderedList", "<ul><li>a</li><li>b</li></ul>"],
+      ["<ul><li>a</li></ul><p>[b]</p>", "insertUnorderedList", "<ul><li>a</li><li>b</li></ul>"],
+      ["<ul><li>[a</li></ul><p>b]</p>", "insertUnorderedList", "<ul><li>a</li><li>b</li></ul>"],
+      ["<ul><li>[a</li></ul><ol><li>b]</li></ol>", "insertOrderedList", "<ol><li>a</li><li>b</li></ol>"],
+      ["<ul><li>a</li></ul><p>[b]</p>", "insertOrderedList", "<ul><li>a</li></ul><ol><li>b</li></ol>"]
+    ];
+    for (let i = 0; i < cases.length; i++) {
+      const marked = cases[i][0];
+      const command = cases[i][1];
+      const expected = cases[i][2];
+      const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" + i }] });
+      const question = survey.getQuestionByName("c" + i) as QuestionRichTextModel;
+      const { element, model } = mount(question);
+      loadMarked(element, model, marked);
+      model.run(command);
+      element.dispatchEvent(new FocusEvent("blur"));
+      expect(question.value, marked).toBe(expected);
+    }
+  });
+
+  test("a list command keeps the selected text and skips empty lines", () => {
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
+    const { element, model } = mount(question);
+    loadMarked(element, model, "o[ne<br>tw]o");
+    model.run("insertUnorderedList");
+    expect(document.getSelection().toString().replace(/\n/g, "")).toBe("netw");
+    loadMarked(element, model, "<p>[a</p><p><br></p><p>b]</p>");
+    model.run("insertUnorderedList");
+    element.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("<ul><li>a</li><li>b</li></ul>");
+  });
+
+  test("a collapsed caret on an empty line creates one empty item", () => {
+    const question = new QuestionRichTextModel("c");
+    const { element, model } = mount(question);
+    loadMarked(element, model, "|");
+    model.run("insertUnorderedList");
+    expect(element.querySelectorAll("li").length).toBe(1);
+    expect(element.querySelector("li").textContent).toBe("");
+    expect(normalizeMarked(htmlWithCaret(element))).toBe("<ul><li>|</li></ul>");
+    loadMarked(element, model, "<p>a</p><p>|</p>");
+    model.run("insertOrderedList");
+    expect(normalizeMarked(htmlWithCaret(element))).toBe("<p>a</p><ol><li>|</li></ol>");
+  });
+
+  test("a list command and Enter are each one undo step", () => {
+    const question = new QuestionRichTextModel("c");
+    const { element, model } = mount(question);
+    const calls: string[] = [];
+    const doc = element.ownerDocument as any;
+    const previous = doc.execCommand;
+    doc.execCommand = (command: string): boolean => {
+      calls.push(command);
+      return false;
+    };
+    try {
+      loadMarked(element, model, "<p>[a</p><p>b]</p>");
+      model.run("insertUnorderedList");
+      expect(calls.filter(command => command === "insertHTML").length).toBe(1);
+      calls.length = 0;
+      loadMarked(element, model, "<ul><li>ab|cd</li></ul>");
+      element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
+      expect(calls.filter(command => command === "insertHTML").length).toBe(1);
+    } finally {
+      doc.execCommand = previous;
+    }
+  });
+
+  test("Enter inside a list item matches the specification examples", () => {
+    const cases: Array<[string, string, boolean]> = [
+      ["<ul><li>ab|cd</li></ul>", "<ul><li>ab</li><li>|cd</li></ul>", false],
+      ["<ul><li>ab|</li></ul>", "<ul><li>ab</li><li>|</li></ul>", false],
+      ["<ul><li>|ab</li></ul>", "<ul><li></li><li>|ab</li></ul>", false],
+      ["<ul><li>a[bc]d</li></ul>", "<ul><li>a</li><li>|d</li></ul>", false],
+      ["<ul><li><strong>ab|cd</strong></li></ul>", "<ul><li><strong>ab</strong></li><li><strong>|cd</strong></li></ul>", false],
+      ["<ol><li>ab|cd</li></ol>", "<ol><li>ab</li><li>|cd</li></ol>", false],
+      ["<ul><li>ab|cd</li></ul>", "<ul><li>ab<br>|cd</li></ul>", true],
+      ["<ul><li>a</li><li>|</li></ul>", "<ul><li>a</li></ul><p>|</p>", false],
+      ["<ul><li>a</li><li>|</li><li>b</li></ul>", "<ul><li>a</li></ul><p>|</p><ul><li>b</li></ul>", false]
+    ];
+    for (let i = 0; i < cases.length; i++) {
+      const question = new QuestionRichTextModel("c");
+      const { element, model } = mount(question);
+      loadMarked(element, model, cases[i][0]);
+      element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: cases[i][2], cancelable: true }));
+      expect(normalizeMarked(htmlWithCaret(element)), cases[i][0]).toBe(cases[i][1]);
+    }
+  });
+
+  test("Backspace and Delete at the edge of a list item", () => {
+    const question = new QuestionRichTextModel("c");
+    const { element, model } = mount(question);
+    loadMarked(element, model, "<ul><li>|a</li><li>b</li></ul>");
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace", cancelable: true }));
+    expect(normalizeMarked(htmlWithCaret(element))).toBe("<p>|a</p><ul><li>b</li></ul>");
+    loadMarked(element, model, "<ul><li>a</li><li>|b</li></ul>");
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace", cancelable: true }));
+    expect(normalizeMarked(htmlWithCaret(element))).toBe("<ul><li>a|b</li></ul>");
+    loadMarked(element, model, "<ul><li>ab|</li></ul><p>cd</p>");
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", cancelable: true }));
+    expect(normalizeMarked(htmlWithCaret(element))).toBe("<ul><li>ab|cd</li></ul>");
+    loadMarked(element, model, "<ul><li>a[bc]d</li><li>e</li></ul>");
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace", cancelable: true }));
+    expect(element.innerHTML.toLowerCase()).toBe("<ul><li>ad</li><li>e</li></ul>");
+  });
 });
+
+function loadMarked(element: HTMLElement, model: { syncSelection(): void }, marked: string): void {
+  let html = "";
+  let inTag = false;
+  for (let i = 0; i < marked.length; i++) {
+    const ch = marked[i];
+    if (ch === "<") inTag = true;
+    if (!inTag && (ch === "|" || ch === "[")) html += "\uE000";
+    else if (!inTag && ch === "]") html += "\uE001";
+    else html += ch;
+    if (ch === ">") inTag = false;
+  }
+  element.innerHTML = html;
+  const marks: Array<{ node: Text, offset: number, kind: "start" | "end" }> = [];
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode() as Text;
+  while(node) {
+    const text = node.textContent || "";
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === "\uE000") marks.push({ node: node, offset: i, kind: "start" });
+      if (text[i] === "\uE001") marks.push({ node: node, offset: i, kind: "end" });
+    }
+    node = walker.nextNode() as Text;
+  }
+  let start: { node: Node, offset: number } = { node: element, offset: 0 };
+  let end: { node: Node, offset: number } = { node: element, offset: 0 };
+  let hasEnd = false;
+  for (let i = marks.length - 1; i >= 0; i--) {
+    const mark = marks[i];
+    mark.node.deleteData(mark.offset, 1);
+    let point: { node: Node, offset: number };
+    if (!mark.node.textContent && mark.node.parentNode) {
+      const parent = mark.node.parentNode;
+      let index = 0;
+      for (let j = 0; j < parent.childNodes.length; j++) if (parent.childNodes[j] === mark.node) index = j;
+      parent.removeChild(mark.node);
+      point = { node: parent, offset: index };
+    } else point = { node: mark.node, offset: mark.offset };
+    if (mark.kind === "start") {
+      if (hasEnd && end.node === mark.node && end.offset > mark.offset) end.offset -= 1;
+      start = point;
+    } else {
+      hasEnd = true;
+      end = point;
+    }
+  }
+  if (!hasEnd) end = start;
+  const range = document.createRange();
+  range.setStart(start.node, start.offset);
+  range.setEnd(end.node, end.offset);
+  const selection = document.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+  model.syncSelection();
+}
+
+function htmlWithCaret(element: HTMLElement): string {
+  const range = document.getSelection().getRangeAt(0).cloneRange();
+  range.collapse(true);
+  const marker = document.createTextNode("|");
+  range.insertNode(marker);
+  const html = element.innerHTML;
+  if (marker.parentNode) marker.parentNode.removeChild(marker);
+  return html;
+}
+
+function normalizeMarked(html: string): string {
+  return html.toLowerCase().replace(/<([a-z0-9]+)>(\|)?<br\s*\/?><\/\1>/g, "<$1>$2</$1>");
+}

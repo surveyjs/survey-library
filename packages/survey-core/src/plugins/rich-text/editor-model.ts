@@ -214,9 +214,7 @@ export class RichTextEditorModel {
     if (!this.element || !this.saved) return "none";
     if (command === "insertUnorderedList" || command === "insertOrderedList") {
       const tag = command === "insertUnorderedList" ? "ul" : "ol";
-      return this.saved.collapsed
-        ? (closest(this.saved.startContainer, this.element, [tag]) ? "all" : "none")
-        : (this.nodesAllHave(this.saved, [tag]) ? "all" : (this.nodesNoneHave(this.saved, [tag]) ? "none" : "mixed"));
+      return listToggleState(this.element, this.saved, tag);
     }
     return this.markState(this.saved, MARKS[command]);
   }
@@ -252,6 +250,14 @@ export class RichTextEditorModel {
       return;
     }
     if (key === "tab") return;
+    if ((key === "backspace" || key === "delete") && !meta && !event.altKey && this.mode !== "inline" && this.element) {
+      this.rememberSelection();
+      if (this.saved && editListKey(this.element, this.saved, key)) {
+        event.preventDefault();
+        this.afterEdit();
+        return;
+      }
+    }
     if (key !== "enter" || !this.element) return;
     if (this.mode === "inline") {
       const question = this.question as any;
@@ -264,8 +270,7 @@ export class RichTextEditorModel {
     // The caret is already in the editor. Restoring an older range would split somewhere else.
     this.rememberSelection();
     if (!this.saved) return;
-    if (event.shiftKey) insertBreak(this.saved);
-    else splitBlock(this.element, this.saved);
+    editEnter(this.element, this.saved, !!event.shiftKey);
     this.afterEdit();
   };
 
@@ -432,9 +437,9 @@ export class RichTextEditorModel {
       const remove = this.markState(range, tags) === "all";
       replaceRange(range, markHtml(range, tags, remove));
     } else if (command === "insertUnorderedList" || command === "insertOrderedList") {
+      if (this.mode === "inline") return;
       const tag = command === "insertUnorderedList" ? "ul" : "ol";
-      const remove = !!closest(range.startContainer, this.element, [tag]);
-      replaceRange(range, listHtml(range, tag, remove));
+      applyListCommand(this.element, range, tag);
     } else if (command === "removeFormat") {
       const items = listItemsOverlapping(this.element, range);
       if (items.length) convertItemsToParagraphs(items);
@@ -457,14 +462,6 @@ export class RichTextEditorModel {
     if (all) return "all";
     if (none) return "none";
     return "mixed";
-  }
-
-  private nodesAllHave(range: Range, tags: string[]): boolean {
-    return this.markState(range, tags) === "all";
-  }
-
-  private nodesNoneHave(range: Range, tags: string[]): boolean {
-    return this.markState(range, tags) === "none";
   }
 
   private afterEdit(): void {
@@ -597,6 +594,8 @@ export class RichTextEditorModel {
   private syncEmpty(): void {
     if (this.normalizing || !this.element || !isVisuallyEmpty(this.element)) return;
     if (!this.element.innerHTML) return;
+    // An empty list item is a place to type, not the placeholder break.
+    if (this.element.querySelector("ul, ol")) return;
     this.normalizing = true;
     this.element.innerHTML = "";
     this.normalizing = false;
@@ -751,20 +750,6 @@ function markHtml(range: Range, tags: string[], remove: boolean): string {
   return htmlOf(contents);
 }
 
-function listHtml(range: Range, tag: "ul" | "ol", remove: boolean): string {
-  const doc = range.startContainer.ownerDocument;
-  const contents = range.cloneContents();
-  if (remove) {
-    unwrap(contents, ["ul", "ol", "li"]);
-    return htmlOf(contents);
-  }
-  const list = doc.createElement(tag);
-  const item = doc.createElement("li");
-  item.appendChild(contents);
-  list.appendChild(item);
-  return list.outerHTML;
-}
-
 function clearHtml(range: Range): string {
   const contents = range.cloneContents();
   unwrap(contents, ["strong", "b", "em", "i", "u", "s", "strike", "del", "a", "ul", "ol", "li"]);
@@ -825,28 +810,461 @@ function selectRange(range: Range): void {
   selection.addRange(range);
 }
 
-function insertBreak(range: Range): void {
-  const doc = range.startContainer.ownerDocument;
-  const br = doc.createElement("br");
-  range.insertNode(br);
+interface DomPoint {
+  node: Node;
+  offset: number;
+}
+interface Locator {
+  path: number[];
+  text: number;
+  br: number;
+}
+interface Line {
+  html: string;
+  text: string;
+  empty: boolean;
+  selected: boolean;
+  caret: boolean;
+}
+interface Block {
+  type: "para" | "list";
+  listTag?: "ul" | "ol";
+  listId?: number;
+  wrap?: boolean;
+  originalHtml?: string;
+  lines: Line[];
+}
+
+// One insertHTML, so the browser records the change as a single undo step.
+function commitCopy(root: HTMLElement, range: Range, mutate: (copy: HTMLElement, mapped: Range) => DomPoint): void {
+  const doc = root.ownerDocument;
+  const copy = doc.createElement("div");
+  copy.innerHTML = root.innerHTML;
+  const mapped = doc.createRange();
+  const start = pointFromLocator(copy, locatorFrom(root, { node: range.startContainer, offset: range.startOffset }));
+  const end = pointFromLocator(copy, locatorFrom(root, { node: range.endContainer, offset: range.endOffset }));
+  mapped.setStart(start.node, start.offset);
+  mapped.setEnd(end.node, end.offset);
+  const point = mutate(copy, mapped);
+  const caret = locatorFrom(copy, point);
+  replaceElementContents(root, copy.innerHTML);
+  const live = pointFromLocator(root, caret);
   const next = doc.createRange();
-  next.setStartAfter(br);
+  next.setStart(live.node, Math.min(live.offset, nodeLength(live.node)));
   next.collapse(true);
   selectRange(next);
 }
 
-function splitBlock(root: HTMLElement, range: Range): void {
+function editEnter(root: HTMLElement, range: Range, shift: boolean): void {
+  commitCopy(root, range, (copy, mapped) => {
+    if (!mapped.collapsed) {
+      mapped.deleteContents();
+      mapped.collapse(true);
+    }
+    if (shift) return insertBreakPoint(mapped);
+    return splitBlockPoint(copy, mapped);
+  });
+}
+
+function editListKey(root: HTMLElement, range: Range, key: string): boolean {
+  if (!range.collapsed) {
+    if (!closest(range.startContainer, root, ["li"]) && !closest(range.endContainer, root, ["li"])) return false;
+    commitCopy(root, range, (copy, mapped) => {
+      mapped.deleteContents();
+      mapped.collapse(true);
+      return { node: mapped.startContainer, offset: mapped.startOffset };
+    });
+    return true;
+  }
+  const item = closest(range.startContainer, root, ["li"]) as HTMLElement | undefined;
+  if (!item) return false;
+  if (key === "backspace" && atEdge(item, range, "start")) {
+    commitCopy(root, range, (copy, mapped) => {
+      const copyItem = closest(mapped.startContainer, copy, ["li"]) as HTMLElement;
+      if (siblingItem(copyItem, "prev")) return joinWithPrevious(copyItem);
+      return liftFirstItem(copyItem);
+    });
+    return true;
+  }
+  if (key === "delete" && atEdge(item, range, "end")) {
+    const list = item.parentElement;
+    if (!list || siblingItem(item, "next") || !paragraphAfter(list)) return false;
+    commitCopy(root, range, (copy, mapped) => {
+      const copyItem = closest(mapped.startContainer, copy, ["li"]) as HTMLElement;
+      return joinNextParagraph(copyItem);
+    });
+    return true;
+  }
+  return false;
+}
+
+function applyListCommand(root: HTMLElement, range: Range, tag: "ul" | "ol"): void {
+  const start = textOffset(root, range.startContainer, range.startOffset);
+  const end = textOffset(root, range.endContainer, range.endOffset);
+  const blocks = readBlocks(root, range);
+  if (blocks.length === 0) {
+    blocks.push({ type: "para", wrap: true, lines: [{ html: "", text: "", empty: true, selected: true, caret: true }] });
+  }
+  const state = listState(blocks, tag);
+  const next = state === "all" ? removeList(blocks, tag) : applyList(blocks, tag);
+  replaceElementContents(root, renderBlocks(mergeAdjacent(next)));
+  const marker = root.querySelector("[data-rt-caret]");
+  if (marker) {
+    marker.removeAttribute("data-rt-caret");
+    placeCaret(marker as HTMLElement);
+    return;
+  }
+  selectOffsets(root, start, end);
+}
+
+function listToggleState(root: HTMLElement, range: Range, tag: "ul" | "ol"): ToggleState {
+  return listState(readBlocks(root, range), tag);
+}
+
+function listState(blocks: Block[], tag: "ul" | "ol"): ToggleState {
+  let selected = 0;
+  let matched = 0;
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    for (let j = 0; j < block.lines.length; j++) {
+      if (!block.lines[j].selected) continue;
+      selected++;
+      if (block.type === "list" && block.listTag === tag) matched++;
+    }
+  }
+  if (selected === 0 || matched === 0) return "none";
+  if (matched === selected) return "all";
+  return "mixed";
+}
+
+function readBlocks(root: HTMLElement, range: Range): Block[] {
+  let hasBlock = false;
+  const children = root.childNodes;
+  for (let i = 0; i < children.length; i++) {
+    if (blockKind(children[i])) hasBlock = true;
+  }
+  if (!hasBlock) {
+    if (!children.length) return [];
+    return [{ type: "para", wrap: false, originalHtml: root.innerHTML, lines: linesIn(root, 0, children.length, range) }];
+  }
+  const blocks: Block[] = [];
+  let loose: Node[] = [];
+  let listId = 0;
+  const flush = (): void => {
+    if (!loose.length) return;
+    const start = indexInParent(loose[0]);
+    const end = indexInParent(loose[loose.length - 1]) + 1;
+    blocks.push({
+      type: "para",
+      wrap: false,
+      originalHtml: htmlOfNodes(loose),
+      lines: linesIn(root, start, end, range)
+    });
+    loose = [];
+  };
+  for (let i = 0; i < children.length; i++) {
+    const kind = blockKind(children[i]);
+    if (!kind) {
+      loose.push(children[i]);
+      continue;
+    }
+    flush();
+    const element = children[i] as HTMLElement;
+    if (kind === "list") {
+      listId++;
+      blocks.push(listBlock(element, range, listId));
+    } else {
+      blocks.push({
+        type: "para",
+        wrap: true,
+        originalHtml: element.outerHTML,
+        lines: linesIn(element, 0, element.childNodes.length, range)
+      });
+    }
+  }
+  flush();
+  return blocks;
+}
+
+function listBlock(list: HTMLElement, range: Range, listId: number): Block {
+  const lines: Line[] = [];
+  const items = list.children;
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].tagName.toLowerCase() !== "li") continue;
+    const item = items[i] as HTMLElement;
+    const probe = item.ownerDocument.createRange();
+    probe.selectNodeContents(item);
+    const selected = touched(probe, range, true);
+    lines.push({
+      html: item.innerHTML,
+      text: item.textContent || "",
+      empty: !(item.textContent || "").trim(),
+      selected: selected,
+      caret: selected && range.collapsed
+    });
+  }
+  return {
+    type: "list",
+    listTag: list.tagName.toLowerCase() === "ol" ? "ol" : "ul",
+    listId: listId,
+    originalHtml: list.outerHTML,
+    lines: lines
+  };
+}
+
+function linesIn(container: HTMLElement, start: number, end: number, range: Range): Line[] {
+  const slice = container.ownerDocument.createRange();
+  slice.setStart(container, start);
+  slice.setEnd(container, end);
+  const holder = container.ownerDocument.createElement("div");
+  holder.appendChild(slice.cloneContents());
+  // A block whose only content is a break is one empty line. The break holds the caret; it is not a line separator.
+  if (!(holder.textContent || "").trim()) {
+    const probe = container.ownerDocument.createRange();
+    probe.setStart(container, start);
+    probe.setEnd(container, end);
+    const selected = touched(probe, range, true);
+    return [{ html: holder.innerHTML, text: "", empty: true, selected: selected, caret: selected && range.collapsed }];
+  }
+  const ranges = lineRanges(container, start, end);
+  const lines: Line[] = [];
+  for (let i = 0; i < ranges.length; i++) {
+    const frag = ranges[i].cloneContents();
+    const text = frag.textContent || "";
+    const html = htmlOf(frag);
+    const empty = !text.trim();
+    const selected = touched(ranges[i], range, i === ranges.length - 1);
+    lines.push({ html: html, text: text, empty: empty, selected: selected, caret: selected && range.collapsed });
+  }
+  return lines;
+}
+
+function lineRanges(container: HTMLElement, start: number, end: number): Range[] {
+  const doc = container.ownerDocument;
+  const brs: HTMLElement[] = [];
+  for (let i = start; i < end; i++) collectBrs(container.childNodes[i], brs);
+  const ranges: Range[] = [];
+  let fromNode: Node = container;
+  let fromOffset = start;
+  for (let i = 0; i < brs.length; i++) {
+    const br = brs[i];
+    const parent = br.parentNode;
+    if (!parent) continue;
+    const line = doc.createRange();
+    line.setStart(fromNode, fromOffset);
+    line.setEnd(parent, indexInParent(br));
+    ranges.push(line);
+    fromNode = parent;
+    fromOffset = indexInParent(br) + 1;
+  }
+  const last = doc.createRange();
+  last.setStart(fromNode, fromOffset);
+  last.setEnd(container, end);
+  ranges.push(last);
+  return ranges;
+}
+
+function collectBrs(node: Node, brs: HTMLElement[]): void {
+  if (node.nodeType !== 1) return;
+  const element = node as HTMLElement;
+  if (element.tagName.toLowerCase() === "br") {
+    brs.push(element);
+    return;
+  }
+  const children = element.childNodes;
+  for (let i = 0; i < children.length; i++) collectBrs(children[i], brs);
+}
+
+// compareBoundaryPoints names the point on this range first and the point on the source range second:
+// START_TO_END compares this end with the source start.
+function comparePoints(a: Range, aEnd: boolean, b: Range, bEnd: boolean): number {
+  if (!aEnd && !bEnd) return a.compareBoundaryPoints(Range.START_TO_START, b);
+  if (!aEnd && bEnd) return a.compareBoundaryPoints(Range.END_TO_START, b);
+  if (aEnd && !bEnd) return a.compareBoundaryPoints(Range.START_TO_END, b);
+  return a.compareBoundaryPoints(Range.END_TO_END, b);
+}
+
+function touched(line: Range, selection: Range, isLast: boolean): boolean {
+  const startVsEnd = comparePoints(selection, false, line, true);
+  if (selection.collapsed) {
+    const afterStart = comparePoints(selection, false, line, false) >= 0;
+    return afterStart && (isLast ? startVsEnd <= 0 : startVsEnd < 0);
+  }
+  const startsBeforeEnd = startVsEnd < 0;
+  const endsAfterStart = comparePoints(selection, true, line, false) > 0;
+  return startsBeforeEnd && endsAfterStart;
+}
+
+function applyList(blocks: Block[], tag: "ul" | "ol"): Block[] {
+  const selected = selectedLines(blocks);
+  const multiple = selected.length > 1;
+  const convert: number[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    if (block.type !== "list" || block.listTag === tag || block.listId === undefined) continue;
+    for (let j = 0; j < block.lines.length; j++) {
+      if (block.lines[j].selected && convert.indexOf(block.listId) < 0) convert.push(block.listId);
+    }
+  }
+  const out: Block[] = [];
+  let pending: Line[] = [];
+  const flush = (): void => {
+    if (!pending.length) return;
+    out.push({ type: "list", listTag: tag, lines: pending.slice() });
+    pending = [];
+  };
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    if (block.type === "list") {
+      const asTag = block.listTag === tag || (block.listId !== undefined && convert.indexOf(block.listId) >= 0);
+      if (!asTag) {
+        flush();
+        out.push(block);
+        continue;
+      }
+      for (let j = 0; j < block.lines.length; j++) pending.push(block.lines[j]);
+      continue;
+    }
+    let any = false;
+    for (let j = 0; j < block.lines.length; j++) if (block.lines[j].selected) any = true;
+    if (!any) {
+      flush();
+      out.push(block);
+      continue;
+    }
+    for (let j = 0; j < block.lines.length; j++) {
+      const line = block.lines[j];
+      if (line.selected && !(line.empty && multiple)) pending.push(line);
+      else if (!(line.selected && line.empty)) {
+        flush();
+        out.push({ type: "para", wrap: true, lines: [line] });
+      }
+    }
+  }
+  flush();
+  return out;
+}
+
+function removeList(blocks: Block[], tag: "ul" | "ol"): Block[] {
+  const out: Block[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    if (block.type !== "list" || block.listTag !== tag) {
+      out.push(block);
+      continue;
+    }
+    let group: Line[] = [];
+    const flush = (): void => {
+      if (!group.length) return;
+      out.push({ type: "list", listTag: tag, lines: group.slice(), listId: block.listId });
+      group = [];
+    };
+    for (let j = 0; j < block.lines.length; j++) {
+      const line = block.lines[j];
+      if (!line.selected) {
+        group.push(line);
+        continue;
+      }
+      flush();
+      out.push({ type: "para", wrap: true, lines: [line] });
+    }
+    flush();
+  }
+  return out;
+}
+
+function selectedLines(blocks: Block[]): Line[] {
+  const lines: Line[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    for (let j = 0; j < blocks[i].lines.length; j++) {
+      if (blocks[i].lines[j].selected) lines.push(blocks[i].lines[j]);
+    }
+  }
+  return lines;
+}
+
+function mergeAdjacent(blocks: Block[]): Block[] {
+  const out: Block[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    if (block.type === "list" && block.lines.length === 0) continue;
+    const prev = out[out.length - 1];
+    if (block.type === "list" && prev && prev.type === "list" && prev.listTag === block.listTag) {
+      prev.lines = prev.lines.concat(block.lines);
+      prev.originalHtml = undefined;
+      continue;
+    }
+    out.push(block);
+  }
+  return out;
+}
+
+function renderBlocks(blocks: Block[]): string {
+  let html = "";
+  for (let i = 0; i < blocks.length; i++) html += renderBlock(blocks[i]);
+  return html;
+}
+
+function renderBlock(block: Block): string {
+  const marked = caretLine(block);
+  if (block.originalHtml !== undefined && !marked) return block.originalHtml;
+  if (block.type === "list") {
+    let html = "<" + block.listTag + ">";
+    for (let i = 0; i < block.lines.length; i++) {
+      const line = block.lines[i];
+      html += "<li" + caretAttr(line) + ">" + lineInner(line) + "</li>";
+    }
+    return html + "</" + block.listTag + ">";
+  }
+  if (block.wrap === false && block.lines.length === 1 && !block.lines[0].caret) return block.lines[0].html;
+  let inner = "";
+  for (let i = 0; i < block.lines.length; i++) {
+    if (i > 0) inner += "<br>";
+    inner += lineInner(block.lines[i]);
+  }
+  const attr = block.lines.length === 1 ? caretAttr(block.lines[0]) : "";
+  return "<p" + attr + ">" + inner + "</p>";
+}
+
+function caretLine(block: Block): Line | undefined {
+  for (let i = 0; i < block.lines.length; i++) {
+    if (block.lines[i].caret && block.lines[i].empty) return block.lines[i];
+  }
+  return undefined;
+}
+
+function caretAttr(line: Line): string {
+  if (line.caret && line.empty) return " data-rt-caret=\"1\"";
+  return "";
+}
+
+function lineInner(line: Line): string {
+  if (line.empty) return "<br>";
+  return line.html;
+}
+
+function replaceElementContents(root: HTMLElement, html: string): void {
+  const doc = root.ownerDocument;
+  const range = doc.createRange();
+  range.selectNodeContents(root);
+  replaceRange(range, html);
+}
+
+function insertBreakPoint(range: Range): DomPoint {
+  const doc = range.startContainer.ownerDocument;
+  const br = doc.createElement("br");
+  range.insertNode(br);
+  return { node: br.parentNode as Node, offset: indexInParent(br) + 1 };
+}
+
+function splitBlockPoint(root: HTMLElement, range: Range): DomPoint {
   const item = closest(range.startContainer, root, ["li"]);
   if (item) {
-    if (!item.textContent) leaveList(item as HTMLElement);
-    else splitElement(item as HTMLElement, range, "li");
-    return;
+    if (!(item.textContent || "").trim()) return leaveListPoint(item as HTMLElement);
+    return caretIn(splitElement(item as HTMLElement, range, "li"));
   }
   const block = closest(range.startContainer, root, ["p", "div"]);
-  if (block) {
-    splitElement(block as HTMLElement, range, "p");
-    return;
-  }
+  if (block) return caretIn(splitElement(block as HTMLElement, range, "p"));
   const doc = root.ownerDocument;
   const after = doc.createRange();
   after.selectNodeContents(root);
@@ -860,10 +1278,10 @@ function splitBlock(root: HTMLElement, range: Range): void {
   root.appendChild(next);
   ensureCaretLine(before);
   ensureCaretLine(next);
-  placeCaret(next);
+  return caretIn(next);
 }
 
-function splitElement(block: HTMLElement, range: Range, tag: string): void {
+function splitElement(block: HTMLElement, range: Range, tag: string): HTMLElement {
   const doc = block.ownerDocument;
   const after = doc.createRange();
   after.selectNodeContents(block);
@@ -874,20 +1292,231 @@ function splitElement(block: HTMLElement, range: Range, tag: string): void {
   if (block.parentNode) block.parentNode.insertBefore(next, block.nextSibling);
   ensureCaretLine(block);
   ensureCaretLine(next);
-  placeCaret(next);
+  return next;
 }
 
-function leaveList(item: HTMLElement): void {
+function leaveListPoint(item: HTMLElement): DomPoint {
   const list = item.parentElement;
   const doc = item.ownerDocument;
   const paragraph = doc.createElement("p");
   paragraph.appendChild(doc.createElement("br"));
   if (list && list.parentNode) {
+    const rest = doc.createElement(list.tagName.toLowerCase());
+    let sibling = item.nextSibling;
+    while(sibling) {
+      const next = sibling.nextSibling;
+      rest.appendChild(sibling);
+      sibling = next;
+    }
     list.parentNode.insertBefore(paragraph, list.nextSibling);
+    if (rest.childNodes.length) list.parentNode.insertBefore(rest, paragraph.nextSibling);
     if (item.parentNode) item.parentNode.removeChild(item);
-    if (!list.textContent && list.parentNode) list.parentNode.removeChild(list);
+    if (!list.childNodes.length && list.parentNode) list.parentNode.removeChild(list);
   }
-  placeCaret(paragraph);
+  return caretIn(paragraph);
+}
+
+function joinWithPrevious(item: HTMLElement): DomPoint {
+  const prev = siblingItem(item, "prev") as HTMLElement;
+  const cleared = !(prev.textContent || "").trim();
+  const point = cleared ? { node: prev, offset: 0 } : endPoint(prev);
+  if (cleared) while(prev.firstChild) prev.removeChild(prev.firstChild);
+  while(item.firstChild) prev.appendChild(item.firstChild);
+  if (item.parentNode) item.parentNode.removeChild(item);
+  if (cleared) return caretIn(prev);
+  return point;
+}
+
+function liftFirstItem(item: HTMLElement): DomPoint {
+  const list = item.parentElement;
+  const doc = item.ownerDocument;
+  const paragraph = doc.createElement("p");
+  while(item.firstChild) paragraph.appendChild(item.firstChild);
+  if (!(paragraph.textContent || "").trim() && !paragraph.querySelector("br")) paragraph.appendChild(doc.createElement("br"));
+  if (list && list.parentNode) list.parentNode.insertBefore(paragraph, list);
+  if (item.parentNode) item.parentNode.removeChild(item);
+  if (list && !list.childNodes.length && list.parentNode) list.parentNode.removeChild(list);
+  return caretIn(paragraph);
+}
+
+function joinNextParagraph(item: HTMLElement): DomPoint {
+  const list = item.parentElement;
+  const para = list ? paragraphAfter(list) : undefined;
+  if (!para) return caretIn(item);
+  const cleared = !(item.textContent || "").trim();
+  const point = cleared ? { node: item, offset: 0 } : endPoint(item);
+  if (cleared) while(item.firstChild) item.removeChild(item.firstChild);
+  while(para.firstChild) item.appendChild(para.firstChild);
+  if (para.parentNode) para.parentNode.removeChild(para);
+  if (cleared) return caretIn(item);
+  return point;
+}
+
+function siblingItem(item: HTMLElement, dir: "prev" | "next"): HTMLElement | undefined {
+  let node = dir === "prev" ? item.previousSibling : item.nextSibling;
+  while(node) {
+    if (node.nodeType === 1 && (node as HTMLElement).tagName.toLowerCase() === "li") return node as HTMLElement;
+    if (node.nodeType === 1 || (node.nodeType === 3 && (node.textContent || "").trim())) return undefined;
+    node = dir === "prev" ? node.previousSibling : node.nextSibling;
+  }
+  return undefined;
+}
+
+function paragraphAfter(list: HTMLElement): HTMLElement | undefined {
+  let node = list.nextSibling;
+  while(node && node.nodeType === 3 && !(node.textContent || "").trim()) node = node.nextSibling;
+  if (!node || node.nodeType !== 1) return undefined;
+  const tag = (node as HTMLElement).tagName.toLowerCase();
+  if (tag === "p" || tag === "div") return node as HTMLElement;
+  return undefined;
+}
+
+function atEdge(block: HTMLElement, range: Range, edge: "start" | "end"): boolean {
+  if (!range.collapsed) return false;
+  const doc = block.ownerDocument;
+  const probe = doc.createRange();
+  probe.selectNodeContents(block);
+  if (edge === "start") probe.setEnd(range.startContainer, range.startOffset);
+  else probe.setStart(range.startContainer, range.startOffset);
+  if (probe.toString().length > 0) return false;
+  const holder = doc.createElement("div");
+  holder.appendChild(probe.cloneContents());
+  return holder.querySelector("br") === null;
+}
+
+function endPoint(element: HTMLElement): DomPoint {
+  const range = element.ownerDocument.createRange();
+  range.selectNodeContents(element);
+  range.collapse(false);
+  return { node: range.startContainer, offset: range.startOffset };
+}
+
+function caretIn(element: HTMLElement): DomPoint {
+  if ((element.textContent || "").trim()) {
+    const text = firstText(element);
+    if (text) return { node: text, offset: 0 };
+  }
+  const br = element.querySelector("br");
+  if (br && br.parentNode) return { node: br.parentNode, offset: indexInParent(br) };
+  return { node: element, offset: 0 };
+}
+
+function firstText(element: HTMLElement): Text | undefined {
+  const walker = element.ownerDocument.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode() as Text;
+  while(node) {
+    if (node.textContent) return node;
+    node = walker.nextNode() as Text;
+  }
+  return undefined;
+}
+
+function blockKind(node: Node): "list" | "para" | undefined {
+  if (node.nodeType !== 1) return undefined;
+  const tag = (node as HTMLElement).tagName.toLowerCase();
+  if (tag === "ul" || tag === "ol") return "list";
+  if (tag === "p" || tag === "div") return "para";
+  return undefined;
+}
+
+function htmlOfNodes(nodes: Node[]): string {
+  const doc = nodes[0].ownerDocument;
+  if (!doc) return "";
+  const holder = doc.createElement("div");
+  for (let i = 0; i < nodes.length; i++) holder.appendChild(nodes[i].cloneNode(true));
+  return holder.innerHTML;
+}
+
+function locatorFrom(root: HTMLElement, point: DomPoint): Locator {
+  const scope = scopeElement(root, point.node);
+  const doc = root.ownerDocument;
+  const probe = doc.createRange();
+  try {
+    probe.selectNodeContents(scope);
+    probe.setEnd(point.node, Math.min(point.offset, nodeLength(point.node)));
+  } catch(e) {
+    return { path: elementPath(root, scope), text: 0, br: 0 };
+  }
+  const holder = doc.createElement("div");
+  holder.appendChild(probe.cloneContents());
+  return { path: elementPath(root, scope), text: probe.toString().length, br: holder.querySelectorAll("br").length };
+}
+
+function pointFromLocator(root: HTMLElement, locator: Locator): DomPoint {
+  const scope = elementFromPath(root, locator.path);
+  const found = walkPoint(scope, locator, { text: 0, br: 0 });
+  if (found) return found;
+  return { node: scope, offset: scope.childNodes.length };
+}
+
+function walkPoint(node: Node, locator: Locator, seen: { text: number, br: number }): DomPoint | undefined {
+  if (node.nodeType === 3) {
+    const length = (node.textContent || "").length;
+    if (seen.br === locator.br && seen.text + length >= locator.text) return { node: node, offset: locator.text - seen.text };
+    seen.text += length;
+    return undefined;
+  }
+  if (node.nodeType !== 1) return undefined;
+  const element = node as HTMLElement;
+  if (element.tagName.toLowerCase() === "br") {
+    if (seen.br === locator.br && seen.text >= locator.text && element.parentNode) return { node: element.parentNode, offset: indexInParent(element) };
+    seen.br += 1;
+    return undefined;
+  }
+  const children = element.childNodes;
+  for (let i = 0; i < children.length; i++) {
+    const found = walkPoint(children[i], locator, seen);
+    if (found) return found;
+  }
+  return undefined;
+}
+
+function scopeElement(root: HTMLElement, node: Node): HTMLElement {
+  const item = closest(node, root, ["li"]);
+  if (item) return item as HTMLElement;
+  const block = closest(node, root, ["p", "div"]);
+  if (block) return block as HTMLElement;
+  return root;
+}
+
+function elementPath(root: HTMLElement, element: HTMLElement): number[] {
+  const path: number[] = [];
+  let current = element;
+  while(current !== root) {
+    const parent = current.parentElement;
+    if (!parent) break;
+    let index = 0;
+    for (let i = 0; i < parent.children.length; i++) {
+      if (parent.children[i] === current) {
+        index = i;
+        break;
+      }
+    }
+    path.unshift(index);
+    current = parent;
+  }
+  return path;
+}
+
+function elementFromPath(root: HTMLElement, path: number[]): HTMLElement {
+  let current = root;
+  for (let i = 0; i < path.length; i++) {
+    const next = current.children[path[i]] as HTMLElement;
+    if (!next) return current;
+    current = next;
+  }
+  return current;
+}
+
+function indexInParent(node: Node): number {
+  const parent = node.parentNode;
+  if (!parent) return 0;
+  for (let i = 0; i < parent.childNodes.length; i++) if (parent.childNodes[i] === node) return i;
+  return 0;
+}
+
+function nodeLength(node: Node): number {
+  return node.nodeType === 3 ? (node.textContent || "").length : node.childNodes.length;
 }
 
 function ensureCaretLine(element: HTMLElement): void {

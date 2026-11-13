@@ -310,7 +310,7 @@ The model is framework-agnostic and attaches to any `contenteditable` element (`
 
 ### 7.3 Keys
 
-- `richtext` question, `block` mode: Enter → new paragraph; Shift+Enter → line break; Enter inside a list item → new item; Enter in an empty list item → leaves the list.
+- `richtext` question, `block` mode: Enter splits the current block at the caret. A paragraph becomes two paragraphs. A list item becomes two items, or leaves the list when the item is empty (§7.6). Shift+Enter inserts a line break (`<br>`) at the caret and does not split the block. A non-collapsed selection is deleted first, and the split or the line break happens where the selection was. Undo (Ctrl/Cmd+Z) reverts the key in one step.
 - `inline` mode (`acceptCarriageReturn === false`): Enter is blocked (existing auto-advance behavior via `isAutoAdvanceEnter` is preserved).
 - Tab is never captured (it moves focus).
 
@@ -334,6 +334,78 @@ The model is framework-agnostic and attaches to any `contenteditable` element (`
 - Accessibility: editing element `role="textbox"`, `aria-multiline="true"` in block mode, and `aria-label`/`aria-labelledby`/`aria-describedby`/`aria-required`/`aria-invalid`/`aria-errormessage` from the question's `a11y_input_*` properties (same sources as `TextAreaModel`). Toolbar: `role="toolbar"`, `aria-label` = `richTextToolbar`, `aria-controls` = editing element id (no toolbar element in `"none"` mode).
 - `isEmpty` and required validation work without changes: content without text is stored as `""` (§3.2).
 - Out of scope: the comment area under choice questions (`commentTextAreaModel`, "Other"), a survey-level default for `richTextToolbarMode`.
+
+### 7.6 List formatting
+
+Applies to the bulleted list and numbered list commands in `block` mode, in value mode and content-agnostic mode alike. In `inline` mode the list buttons are not shown (§4.3) and lists cannot be created.
+
+**Lines.** List commands work on whole lines, never on parts of a line. A line is a paragraph, a list item, or a part of a paragraph separated by a line break (`<br>`). The selected lines are every line that the selection touches, even partly. With a collapsed caret, the selected line is the line that contains the caret. A line break inside a list item (Shift+Enter, §7.3) does not start a new line for list commands: the item stays one line.
+
+**Button state.** For each list type, the toggle state of §7.2 is computed over the selected lines: `all` when every selected line is an item of a list of that type, `none` when none is, `mixed` otherwise. A button is pressed only for `all`, so the two list buttons are never pressed at the same time.
+
+**Commands.**
+
+1. **Apply a list** (state `none` or `mixed`). Every selected line becomes a separate item of a list of the button's type. A paragraph with line breaks becomes one item per line. Selected lines that are items of the other type are converted to the button's type (rule 3).
+2. **Remove a list** (state `all`). Every selected item becomes a separate paragraph, in the same order. Items outside the selection stay in their list. When the selection is in the middle of a list, the list is split: the items before it and the items after it stay as two lists of the original type. A line break inside an item stays a line break inside the paragraph.
+3. **Change the list type.** When the selection touches a list of the other type, that whole list changes type, including its items outside the selection. Nothing else changes: the items, their order and their content stay the same. This is the result of the button of the other type, whether the selection is the whole list, a few items, or a collapsed caret in one item.
+4. **Merging.** After a command, adjacent lists of the same type are joined into one list. Lists of different types, or lists separated by a paragraph, stay separate.
+
+**Content and selection.**
+
+- List commands keep inline formatting and links. Only clear formatting (§7.2) removes both the list and the marks.
+- Empty lines in a selection of several lines do not become items. A collapsed caret on an empty line, or in an empty editor, creates one empty item, so the user can start typing it. An empty item is removed when the value is stored (§3.2).
+- After a command, the same text stays selected (or the caret stays at the same text position), so the other list button can be clicked or the command repeated without selecting again.
+- Undo (Ctrl/Cmd+Z) reverts a list command in one step.
+- Lists are not nested (§2). Tab is not captured (§7.3) and creates no sub-list. Pasted nested lists are flattened (§3.4).
+- A numbered list always starts at 1. Canonical HTML has no `start` attribute (§3.2), so the second part of a split numbered list is numbered from 1 again.
+- The result does not depend on the browser. The model performs list commands on the DOM itself rather than through the browser's list commands, and applies the change as one edit so native undo works.
+
+**Keys inside lists.** In addition to §7.3:
+
+- **Enter** with the caret inside an item splits that item. The text before the caret stays in the current item. The text after the caret moves into a new item of the same list, placed directly after it, and the caret goes to the start of the new item. The list type does not change, so a numbered list renumbers. Enter at the end of an item adds an empty item below the caret. Enter at the start of an item adds an empty item above it, and the caret stays with the text, at the start of the item that holds it.
+- A non-collapsed selection is deleted first (§7.3). The item then splits where the selection was.
+- Inline formatting and links split with the text. Each part keeps the formatting of the text it holds, and the caret is placed inside that formatting, so characters typed right after Enter keep the formatting of the text that moved.
+- Enter in an empty item leaves the list. The empty item is removed and a paragraph is inserted in its place, with the caret in the paragraph. Items before it and items after it stay as two lists of the original type, so an empty item in the middle splits the list around the paragraph.
+- Shift+Enter inserts a `<br>` inside the same item and does not add an item. The item stays one line for list commands.
+- Backspace at the start of the first item turns that item into a paragraph. Backspace at the start of any other item joins its text to the end of the previous item. Delete at the end of the last item joins the following paragraph to that item. A non-collapsed selection is deleted and does not join items or leave the list.
+- Each of these keys is one undo step (Ctrl/Cmd+Z).
+
+Examples (each must be a unit test). `[` and `]` mark the selection, `|` marks a collapsed caret. For the button table the result is the stored value. For the key table the result is the editor content, because storing removes an empty item (§3.2).
+
+Key examples:
+
+| Content and caret | Key | Result |
+|---|---|---|
+| `<ul><li>ab\|cd</li></ul>` | Enter | `<ul><li>ab</li><li>\|cd</li></ul>` |
+| `<ul><li>ab\|</li></ul>` | Enter | `<ul><li>ab</li><li>\|</li></ul>` |
+| `<ul><li>\|ab</li></ul>` | Enter | `<ul><li></li><li>\|ab</li></ul>` |
+| `<ul><li>a[bc]d</li></ul>` | Enter | `<ul><li>a</li><li>\|d</li></ul>` |
+| `<ul><li><strong>ab\|cd</strong></li></ul>` | Enter | `<ul><li><strong>ab</strong></li><li><strong>\|cd</strong></li></ul>` |
+| `<ol><li>ab\|cd</li></ol>` | Enter | `<ol><li>ab</li><li>\|cd</li></ol>` |
+| `<ul><li>ab\|cd</li></ul>` | Shift+Enter | `<ul><li>ab<br>\|cd</li></ul>` |
+| `<ul><li>a</li><li>\|</li></ul>` | Enter | `<ul><li>a</li></ul><p>\|</p>` |
+| `<ul><li>a</li><li>\|</li><li>b</li></ul>` | Enter | `<ul><li>a</li></ul><p>\|</p><ul><li>b</li></ul>` |
+
+Button examples:
+
+| Content and selection | Button | Result |
+|---|---|---|
+| `<ul><li>[a</li><li>b]</li></ul>` | Bulleted | `<p>a</p><p>b</p>` |
+| `<ul><li>[a]</li></ul>` | Bulleted | `a` |
+| `<ul><li>a</li><li>[b]</li><li>c</li></ul>` | Bulleted | `<ul><li>a</li></ul><p>b</p><ul><li>c</li></ul>` |
+| `<ol><li>a</li><li>[b]</li><li>c</li></ol>` | Numbered | `<ol><li>a</li></ol><p>b</p><ol><li>c</li></ol>` (the last list is numbered from 1) |
+| `<ul><li>[a<br>b]</li></ul>` | Bulleted | `a<br>b` |
+| `<p>[a</p><p>b]</p>` | Bulleted | `<ul><li>a</li><li>b</li></ul>` |
+| `[a<br>b]` | Numbered | `<ol><li>a</li><li>b</li></ol>` |
+| `o[ne<br>tw]o` | Bulleted | `<ul><li>one</li><li>two</li></ul>` |
+| `<p>a</p><p>b\|</p>` | Bulleted | `<p>a</p><ul><li>b</li></ul>` |
+| `<p>[<strong>a</strong></p><p>b]</p>` | Bulleted | `<ul><li><strong>a</strong></li><li>b</li></ul>` |
+| `<ol><li>[a</li><li>b]</li></ol>` | Bulleted | `<ul><li>a</li><li>b</li></ul>` |
+| `<ol><li>a</li><li>b\|</li></ol>` | Bulleted | `<ul><li>a</li><li>b</li></ul>` |
+| `<ul><li>a</li></ul><p>[b]</p>` | Bulleted | `<ul><li>a</li><li>b</li></ul>` |
+| `<ul><li>[a</li></ul><p>b]</p>` | Bulleted | `<ul><li>a</li><li>b</li></ul>` |
+| `<ul><li>[a</li></ul><ol><li>b]</li></ol>` | Numbered | `<ol><li>a</li><li>b</li></ol>` |
+| `<ul><li>a</li></ul><p>[b]</p>` | Numbered | `<ul><li>a</li></ul><ol><li>b</li></ol>` |
 
 ---
 
@@ -408,7 +480,7 @@ Creator never imports the plugin. Without a registered editor, Creator behaves e
 - In `"inline"`/`"block"` mode the editor edits HTML (`editAsText = false`) regardless of the `onHtmlToMarkdown` probe.
 - Saving (`getClearedText`) in `"inline"`/`"block"` mode: fire `onHtmlToMarkdown` with the element's `innerHTML`, as today. When a handler sets `options.text` (not `null`), store it (customer override, §4.2). Otherwise store `editor.sanitizeHtml(innerHTML, { inline: mode === "inline" })`: canonical HTML, where unformatted text is stored as typed (§3.2). Empty content stores an empty string. In `"none"` mode saving is unchanged.
 - `checkConstraints`: allow Ctrl+B/Ctrl+I in rich mode (routed to the editor); keep blocking Ctrl+Z/Ctrl+Y (Creator undo works per committed value; Escape restores the value from before the edit).
-- Enter: commits (unchanged), except inside a list item in `block` mode (new item / leave list).
+- Enter: commits (unchanged), except inside a list item in `block` mode, where it splits the item or leaves the list (§7.6).
 
 ### 9.3 Creator UI packages (React incl. creator-js via Preact, Angular, Vue)
 
@@ -531,7 +603,7 @@ All test suites below are required deliverables.
 - **comment-answer.tests.ts:** display of `""`, of plain text with `&`, `<` and line breaks, of HTML, and of XSS vectors set through `setValue`; inline context for `acceptCarriageReturn: false`; source mode condition: plain text and canonical HTML → `false`, a table / `style` / `img` / `<Enter>` → `true`; without a DOM, values render as escaped text.
 - **unsupported.tests.ts:** `findUnsupported` reports HTML strings with disallowed content in every locale, skips plain and canonical strings, skips non-`useMarkdown` strings, reports `richtext` answers with disallowed content and skips plain answers.
 - **edit-mode.tests.ts:** default modes by serializer type (`html` → block, including `completedHtml` and a page description whose type was set to `html`; `inlinehtml` → inline; `text`, `string` and an unregistered property → none, including a question title, a question description, the survey title and a choice text at their registered types); `RichText.getEditMode` override through `getStringEditMode`; comment answer mode from `acceptCarriageReturn`.
-- **editor-model.tests.ts** (mocked command adapter): toggle state `all`/`none`/`mixed`; selection save/restore; command dispatch for buttons and shortcuts; commit on blur and debounced input per `isInputTextUpdate`; stored value is `sanitizeHtml` output (unformatted text stored as typed); no write on focus/blur without input (including a legacy plain value with line breaks); external value update and deferral while focused; paste sanitized in both modes; source mode and "edit anyway"; `maxLength` counts visible characters, blocks typing and paste at the limit, and formatting does not change the count; placeholder emptiness; link dialog: panelless theme, the URL pre-filled from the link under the selection, the validation message shown on Apply, empty-URL unlink, editing an existing link replaces only `href` and restores the selection, the dialog root is the `.sd-rich-text` box and never the editing element; link action visibility re-checked on attach; toolbar modes: `"static"` is the default and uses 24px icons, `"none"` exposes no toolbar while shortcuts still run commands, `"onSelection"` toolbar visibility follows a non-collapsed selection and stays on while focus is in the toolbar or the link dialog, `"onFocus"` uses 16px icons, a mode change at runtime updates the state; content-agnostic mode of `RichText.attachEditor` has no question and uses the floating `"onSelection"` toolbar (no value writes, no source mode, `detach` removes listeners).
+- **editor-model.tests.ts** (mocked command adapter): toggle state `all`/`none`/`mixed`; selection save/restore; command dispatch for buttons and shortcuts; commit on blur and debounced input per `isInputTextUpdate`; stored value is `sanitizeHtml` output (unformatted text stored as typed); no write on focus/blur without input (including a legacy plain value with line breaks); external value update and deferral while focused; paste sanitized in both modes; source mode and "edit anyway"; `maxLength` counts visible characters, blocks typing and paste at the limit, and formatting does not change the count; placeholder emptiness; link dialog: panelless theme, the URL pre-filled from the link under the selection, the validation message shown on Apply, empty-URL unlink, editing an existing link replaces only `href` and restores the selection, the dialog root is the `.sd-rich-text` box and never the editing element; link action visibility re-checked on attach; toolbar modes: `"static"` is the default and uses 24px icons, `"none"` exposes no toolbar while shortcuts still run commands, `"onSelection"` toolbar visibility follows a non-collapsed selection and stays on while focus is in the toolbar or the link dialog, `"onFocus"` uses 16px icons, a mode change at runtime updates the state; content-agnostic mode of `RichText.attachEditor` has no question and uses the floating `"onSelection"` toolbar (no value writes, no source mode, `detach` removes listeners); list formatting (§7.6): the examples table, button state per line (`all`/`none`/`mixed`, never both buttons pressed), selection kept after the command, empty lines skipped and an empty item created at a collapsed caret on an empty line, Backspace/Delete at item edges; the key examples of §7.6 (Enter splits an item at the caret, a selection is deleted first, formatting is kept and the caret stays inside it, an empty item leaves the list and splits it when it is in the middle, Shift+Enter inserts a line break, each key is one undo step).
 
 ### 13.2 Markup tests — UI packages
 
@@ -546,7 +618,8 @@ Each package's test page/example app must load the `rich-text` bundle and CSS.
 - Type text; apply bold/italic/strikethrough via toolbar and via Ctrl/Cmd+B/I; assert the stored HTML via `survey.data`.
 - Text without formatting is stored as typed (`Tom & Jerry`, `a < b`).
 - Mixed-selection toggle (worked example of §3.2).
-- Bulleted/numbered lists via toolbar; Enter creates an item; Enter on an empty item leaves the list.
+- Bulleted/numbered lists via toolbar. Enter in the middle of an item splits it into two items and keeps the formatting of the text that moves; a selected range is deleted before the split; Enter on an empty item leaves the list; Ctrl/Cmd+Z undoes the key in one step.
+- List formatting (§7.6): three typed lines become three items; removing the list from the whole list gives three paragraphs; removing it from the middle item splits the list; the other list button changes the type of the whole list; Ctrl/Cmd+Z reverts each command in one step.
 - Enter (paragraph, `<p>`) and Shift+Enter (line break, `<br>`).
 - Link dialog: add, edit (the field shows the current URL; the link text is kept), remove; an invalid scheme shows the message and keeps the dialog open; the dialog is not part of the edited text; the stored link carries the canonical `target`/`rel`.
 - Paste rich HTML (styles, table) → sanitized result.
@@ -671,7 +744,8 @@ Automated: corresponding `editor-model.tests.ts` cases; React markup etalons for
 - [ ] Bold/italic/strikethrough via buttons and via Ctrl/Cmd+B/I; the pressed state follows the caret.
 - [ ] Worked example of §3.2 (start with "Set value externally"): the data panel shows exactly `Please <strong>read the </strong><em><strong>ter</strong>ms</em> carefully`, then `Please <strong>r</strong>ead the <em>terms</em> carefully` after the second click.
 - [x] Clicking a toolbar button keeps the selection.
-- [ ] Bulleted/numbered list; Enter adds an item; Enter on an empty item leaves the list.
+- [ ] Bulleted/numbered list in `c_md`. Type `abcd` in one item, put the caret between `b` and `c` and press Enter: two items, `ab` and `cd`, with the caret at the start of `cd`. Make `abcd` bold first: both items stay bold, and a character typed after Enter is bold. Select `bc` and press Enter: the item splits into `a` and `d`. Press Enter in an empty item: the list ends and a paragraph follows. Ctrl/Cmd+Z undoes each of these in one step.
+- [ ] List formatting (§7.6) in `c_md`: type three lines with Enter, select them and click "Bulleted list" → three bullets, data shows `<ul>` with three `<li>`. Click "Numbered list" → numbers 1–3, data shows `<ol>`. Click "Numbered list" again → three paragraphs (`<p>`), each item's text on its own line. Select only the middle line of a list and click its button → the list splits around a paragraph. In `c_legacy`, select both lines and click "Bulleted list" → two bullets.
 - [x] Enter → two `<p>` paragraphs in data; Shift+Enter → `<br>`.
 - [x] Typing `Tom & Jerry` without formatting stores `Tom & Jerry` as typed.
 - [ ] Ctrl/Cmd+U applies underline; Ctrl/Cmd+Z undoes the last formatting.

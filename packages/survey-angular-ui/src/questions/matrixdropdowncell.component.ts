@@ -33,14 +33,6 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   public get row(): MatrixDropdownRowModelBase {
     return this.cell.row;
   }
-  public override ngDoCheck(): void {
-    super.ngDoCheck();
-    if ((this.cell.isErrorsCell || this.cell.showErrors) && this.cell?.question) {
-      this.cell.question.registerFunctionOnPropertiesValueChanged(["errors", "visible"], () => {
-        this.update();
-      }, "__ngSubscription");
-    }
-  }
   public get panelComponentName(): string {
     const panel = this.cell.panel;
     const survey = <SurveyModel>panel.survey;
@@ -91,12 +83,6 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
       };
       this.question.survey.matrixAfterCellRender(options);
       cellQ.afterRenderCore(el);
-    }
-  }
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
-    if (this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.unRegisterFunctionOnPropertiesValueChanged(["errors", "visible"], "__ngSubscription");
     }
   }
   public get canRender() {

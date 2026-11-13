@@ -17,6 +17,10 @@ export class MatrixQuestionComponent extends QuestionAngular<QuestionMatrixModel
     };
     super.ngOnInit();
   }
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.model.visibleRowsChangedCallback = () => {};
+  }
   public onCellChanged(row: any, column: any): void {
     row.cellClick(column);
     this.update();

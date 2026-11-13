@@ -11,10 +11,20 @@ import { SurveyBaseProviders } from "../../../component-depth";
 export class DropdownOptionItemComponent extends BaseAngular {
   @Input() item: any;
   protected override onModelChanged(): void {
+    const prevItem: any = this.previousModel;
+    if (!!prevItem?.locText) {
+      prevItem.locText.onChanged = () => {};
+    }
     if (!this.item.locText) return;
     this.item.locText.onChanged = () => {
       this.update();
     };
+  }
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    if (!!this.item?.locText) {
+      this.item.locText.onChanged = () => {};
+    }
   }
   protected getModel() {
     return this.item;

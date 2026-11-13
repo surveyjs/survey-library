@@ -17,10 +17,9 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       key: key
     });
   }
-  private allowUpdate: boolean = false;
   private update = (stateElement: Base, options: IPropertyValueChangedEvent) => {
     const key = options.name;
-    if (!this.canUsePropInState(key) || !this.allowUpdate) return;
+    if (!this.canUsePropInState(key)) return;
     this.changedStatePropNameValue = key;
     this.setState((state: any) => {
       var newState: { [index: string]: any } = {};
@@ -58,12 +57,10 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   componentDidMount() {
     this.enableStateElementsRerenderEvent(this.getStateElements());
-    this.allowUpdate = true;
     this.propertyAccessTracker.subscribe();
   }
   componentWillUnmount() {
     this.disableStateElementsRerenderEvent(this.getStateElements());
-    this.allowUpdate = false;
     this.propertyAccessTracker.unsubscribe();
   }
   componentDidUpdate(prevProps: any, prevState: any) {

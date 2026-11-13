@@ -71,9 +71,8 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.previousModel = model;
   }
   protected onModelChanged() { }
-  private isDestroyed: boolean = false;
   ngOnDestroy() {
-    this.isDestroyed = true;
+    getUpdateManager().removeTask(this.updateTask);
     this.propertyAccessTracker.unsubscribe();
     this.getModel()?.disableOnElementRerenderedEvent();
     this.previousModel = undefined;
@@ -98,7 +97,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     return [];
   }
   protected detectChanges(isSync: boolean = true) {
-    if (this.isDestroyed) return;
+    getUpdateManager().completeTask(this.updateTask);
     this.beforeUpdate();
     this.propertyAccessTracker.startTracking();
     this.embeddedView?.detectChanges();

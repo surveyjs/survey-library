@@ -536,8 +536,17 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
-      (this.isDesignMode && !this.isPanel && this.showTitle && settings.designMode.showEmptyTitles)
+      (this.isDesignMode && !this.isPanel && this.showTitle && this.showEmptyTitlesInDesignMode)
     );
+  }
+  // The survey may override settings.designMode (ISurvey members are optional, so an unset one falls back to the setting).
+  private get showEmptyTitlesInDesignMode(): boolean {
+    const res = this.survey?.showEmptyTitlesInDesignMode;
+    return Helpers.isValueUndefined(res) ? settings.designMode.showEmptyTitles : res;
+  }
+  private get showEmptyDescriptionsInDesignMode(): boolean {
+    const res = this.survey?.showEmptyDescriptionsInDesignMode;
+    return Helpers.isValueUndefined(res) ? settings.designMode.showEmptyDescriptions : res;
   }
   public delete(doDispose: boolean = true): void {
     this.deletePanel();
@@ -571,7 +580,7 @@ export class PanelModelBase extends SurveyElement<Question>
       const hasEnteredDescription = survey && survey.showPageTitles && !!this.description;
       let show = this.hasTitle &&
         (hasEnteredDescription ||
-          (this.showDescription && settings.designMode.showEmptyDescriptions));
+          (this.showDescription && this.showEmptyDescriptionsInDesignMode));
       if (!!survey && !!survey.beforeShowInplaceDescriptionEditorCallback) {
         show = survey.beforeShowInplaceDescriptionEditorCallback(this, !!show);
       }

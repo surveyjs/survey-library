@@ -2999,6 +2999,21 @@ export class SurveyModel extends SurveyElementCore
   @property({ localizable: { defaultStr: true } }) editText: string;
 
   public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
+  // A survey-level override of settings.designMode.showEmptyTitles / showEmptyDescriptions. Survey Creator sets it
+  // on its own design surveys: its page edit mode belongs to one creator, while the setting is global.
+  // undefined (the default) follows the setting. Design-time options, so not registered in Serializer (not in toJSON).
+  public get showEmptyTitlesInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyTitlesInDesignMode", settings.designMode.showEmptyTitles);
+  }
+  public set showEmptyTitlesInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyTitlesInDesignMode", val);
+  }
+  public get showEmptyDescriptionsInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyDescriptionsInDesignMode", settings.designMode.showEmptyDescriptions);
+  }
+  public set showEmptyDescriptionsInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyDescriptionsInDesignMode", val);
+  }
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };

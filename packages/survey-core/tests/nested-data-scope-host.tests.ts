@@ -36,7 +36,7 @@ describe("Nested data: the survey as the host of its data scopes", () => {
     expect(() => { panel.valueName = "address"; }, "#4a: no host").not.toThrow();
     expect(spy, "#5: the survey is not asked").toHaveBeenCalledTimes(1);
   });
-  test("the condition editor writes a question's data path for a survey object without the members", () => {
+  test("the condition editor writes the name as it is for a survey object without the members", () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "top", valueName: "city" },
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "city", valueName: "town" }] }
@@ -44,11 +44,11 @@ describe("Nested data: the survey as the host of its data scopes", () => {
     const item = new SurveyConditionEditorItem(survey);
     item.questionName = "city";
     item.value = 1;
-    expect(item.toExpression(), "#1: the survey, {city} is the top-level value name: the path").toBe("{address.town} = 1");
+    expect(item.toExpression(), "#1: the survey, {city} is the top-level value name: top's row").toBe("{city} = 1");
     const partial = <ISurvey><any>{ getQuestionByName: (name: string) => survey.getQuestionByName(name) };
     const item2 = new SurveyConditionEditorItem(partial);
     item2.questionName = "city";
     item2.value = 1;
-    expect(item2.toExpression(), "#2: no host to resolve the name: the path").toBe("{address.town} = 1");
+    expect(item2.toExpression(), "#2: no host to resolve the name: as it is").toBe("{city} = 1");
   });
 });

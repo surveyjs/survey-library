@@ -39,6 +39,7 @@ export interface ISurveyDataScopeHost extends IDataScope {
   getNewGeneratedName(elements: Array<any>, baseName: string): string;
   getAllPanels(visibleOnly?: boolean, includeDesignTime?: boolean): Array<IPanel>;
   getQuestionByVariable(name: string, context?: Base): IExpressionVariableInfo;
+  getExpressionVariableName(name: string): string;
 }
 // The survey as the host of its data scopes, or undefined for a survey object without the members. The only
 // place that checks for them (getDataShapeVersion stands for all): a caller uses the optional chain and does

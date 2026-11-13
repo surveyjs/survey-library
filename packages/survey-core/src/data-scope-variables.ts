@@ -46,6 +46,32 @@ export function getQuestionByVariable(survey: IDataScopeVariablesSurvey, name: s
   if (info.isUnwrapped) res.isUnwrapped = true;
   return res;
 }
+// SurveyModel.getQuestionVariableName, the reverse of getQuestionByVariable: the variable a root expression
+// names question by. A top-level question: its value name. An inner question: its name when the root
+// resolves that name to it ({city}, which survives a change of its container's key or of dataNesting), else
+// its data path ({address.town}): its value name is no key of the survey data, and a top-level value name
+// may take its name. A question no root variable reaches (one inside a container of a record) keeps its
+// name, as the record's own expressions read it: its data path starts at the record, not at the survey data.
+export function getQuestionVariableName(survey: IDataScopeVariablesSurvey, question: Question): string {
+  const path = question.getDataPath();
+  if (path.length < 2) return question.getValueName();
+  const isNamedBy = (name: string): boolean => {
+    const info = getQuestionByVariable(survey, name);
+    return !!info && info.question === question && !info.rest;
+  };
+  if (isNamedBy(question.name)) return question.name;
+  const pathName = path.join(".");
+  return isNamedBy(pathName) ? pathName : question.name;
+}
+// SurveyModel.getExpressionVariableName: the variable a root expression writes for name. A name the root reads
+// as a question's value goes as it is (a value name, a data path, {m.r1}); a question's name gives the variable
+// the survey names the question by (getQuestionVariableName): {q1} with valueName "val1" is {val1}. Any other
+// name (a variable, a calculated value) goes as it is.
+export function getExpressionVariableName(survey: IDataScopeVariablesSurvey, name: string): string {
+  if (!name || !!getQuestionByVariable(survey, name)) return name;
+  const question = survey.getQuestionByName(name);
+  return !!question ? getQuestionVariableName(survey, question) : name;
+}
 // SurveyModel.getExpressionScopePaths: the data paths an object's expressions resolve their names in,
 // innermost first, ending with the survey's []: the prefixes of its value scope's data path;
 // a panel's and a page's own expressions run in their parent's scope. Inside a record (a template element at

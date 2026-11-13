@@ -538,7 +538,56 @@ describe("nested data 17: exports and helpers (L6)", () => {
     const item2 = new SurveyConditionEditorItem(shadowed);
     item2.value = 1;
     item2.questionName = "city";
-    expect(item2.toExpression(), "#4: {city} is the top-level value name, so the path").toBe("{address.town} = 1");
+    expect(item2.toExpression(), "#4: {city} is the top-level value name: top's row").toBe("{city} = 1");
+    item2.questionName = "address.town";
+    expect(item2.toExpression(), "#4a: the shadowed inner question goes by its path").toBe("{address.town} = 1");
+    item2.questionName = "top";
+    expect(item2.toExpression(), "#4b: top by its name").toBe("{city} = 1");
     expect(show(shadowed.getQuestionByVariable("address.town"))).toBe("city|");
+  });
+  test("getQuestionVariableName is the reverse of getQuestionByVariable", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1", valueName: "val1" }, { type: "text", name: "top", valueName: "city" },
+      { type: "panel", name: "panel1", valueName: "address", elements: [
+        { type: "text", name: "city", valueName: "town" }, { type: "text", name: "street" },
+        { type: "panel", name: "panel2", valueName: "geo", elements: [{ type: "text", name: "lat" }] }] }
+    ] });
+    const name = (qName: string): string => survey.getQuestionVariableName(survey.getQuestionByName(qName));
+    expect(name("q1"), "#1: a top-level question, its value name").toBe("val1");
+    expect(name("top"), "#2").toBe("city");
+    expect(name("street"), "#3: an inner question, its name").toBe("street");
+    expect(name("lat"), "#4: two levels down").toBe("lat");
+    expect(name("city"), "#5: a top-level value name takes the name, so the path").toBe("address.town");
+    ["q1", "top", "street", "lat", "city"].forEach(qName => {
+      expect(survey.getQuestionByVariable(name(qName)).question.name, "the name resolves back: " + qName).toBe(qName);
+    });
+    const pageSurvey = new SurveyModel({ dataNesting: "page", pages: [{ name: "page1", elements: [{ type: "text", name: "q1", valueName: "v1" }] }] });
+    expect(pageSurvey.getQuestionVariableName(pageSurvey.getQuestionByName("q1")), "#6: dataNesting: the name").toBe("q1");
+    const dpSurvey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "dp", templateElements: [
+      { type: "panel", name: "addr", valueName: "a", elements: [{ type: "text", name: "ps" }] }] }] });
+    const dp = <QuestionPanelDynamicModel>dpSurvey.getQuestionByName("dp");
+    dp.panelCount = 1;
+    const ps = dp.panels[0].getQuestionByName("ps");
+    expect(ps.getDataPath(), "a record question's path starts at the record").toEqual(["a", "ps"]);
+    expect(dpSurvey.getQuestionVariableName(ps), "#7: no root variable reaches it: its name, not a.ps").toBe("ps");
+  });
+  test("getExpressionVariableName: a variable as it is, a question's name as the question's variable", () => {
+    const survey = new SurveyModel({ calculatedValues: [{ name: "total", expression: "1" }], elements: [
+      { type: "text", name: "q1", valueName: "val1" }, { type: "text", name: "top", valueName: "city" },
+      { type: "matrix", name: "m", valueName: "mv", rows: ["r1"], columns: ["c1"] },
+      { type: "panel", name: "panel1", valueName: "address", elements: [
+        { type: "text", name: "city", valueName: "town" }, { type: "text", name: "street" }] }
+    ] });
+    const name = (text: string): string => survey.getExpressionVariableName(text);
+    expect(name("q1"), "#1: a question's name: its value name").toBe("val1");
+    expect(name("val1"), "#2: a value name").toBe("val1");
+    expect(name("top"), "#3").toBe("city");
+    expect(name("city"), "#4: the top-level value name, not the inner city").toBe("city");
+    expect(name("address.town"), "#5: a data path").toBe("address.town");
+    expect(name("street"), "#6: an inner question's name the root resolves").toBe("street");
+    expect(name("mv.r1"), "#7: a sub-entry").toBe("mv.r1");
+    expect(name("total"), "#8: a calculated value").toBe("total");
+    expect(name("nosuchname"), "#9").toBe("nosuchname");
+    expect(name(""), "#10").toBe("");
   });
 });

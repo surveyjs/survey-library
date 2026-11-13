@@ -1,7 +1,6 @@
 import { Helpers } from "../helpers";
 import { settings } from "../settings";
 import { ISurvey } from "../interfaces/survey-interfaces";
-import type { Question } from "../question";
 import { getDataScopeHost } from "../panel-data-scope";
 import { ConditionsParser } from "./conditionsParser";
 import { getConditionDefaultOperator } from "./conditionOperators";
@@ -108,25 +107,14 @@ export class ConditionEditorItem {
     return ch == "'" || ch == "\"";
   }
 }
-// A row of a survey's condition: a question whose valueName differs from its name is named in the text
-// by its valueName. A question inside a nesting container is named by its name when the root resolves
-// that name to it, else by its data path ({address.town}): its value name is no key of the survey data.
+// A row of a survey's condition: the text names the row's question by the variable the survey gives
+// questionName (SurveyModel.getExpressionVariableName). A survey object without the member: as it is.
 export class SurveyConditionEditorItem extends ConditionEditorItem {
   public constructor(public survey: ISurvey) {
     super();
   }
   protected getVariableName(): string {
-    const question = <Question>this.survey.getQuestionByName(this.questionName);
-    const path: Array<string> = !!question ? question.getDataPath() : [];
-    if (path.length > 1 && this.questionName === question.name) {
-      // A survey without the data-scope members cannot resolve the name: the path.
-      const info = getDataScopeHost(this.survey)?.getQuestionByVariable(question.name);
-      return !!info && info.question === question && !info.rest ? question.name : path.join(".");
-    }
-    if (question && question.name != question.getValueName() && this.questionName != question.getValueName()) {
-      return this.questionName.replace(question.name, question.getValueName());
-    }
-    return this.questionName;
+    return getDataScopeHost(this.survey)?.getExpressionVariableName(this.questionName) || this.questionName;
   }
 }
 

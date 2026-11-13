@@ -101,7 +101,8 @@ import { getActiveDataScope, ISurveyDataScopeHost } from "./panel-data-scope";
 import type { DataKeyIndex, IDataScope } from "./data-key-index";
 import { getNameOfCommentName, isContainerObjectKept } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite, setValueByPath } from "./survey-root-data-scope";
-import { getQuestionByVariable, getExpressionScopePaths, findDataScopeValueContext } from "./data-scope-variables";
+import { getQuestionByVariable, getQuestionVariableName, getExpressionVariableName, getExpressionScopePaths,
+  findDataScopeValueContext } from "./data-scope-variables";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { registerRecordsSortDialogSurvey } from "./records/records-sort-dialog";
@@ -7439,6 +7440,12 @@ export class SurveyModel extends SurveyElementCore
   }
   public getQuestionByVariable(name: string, context?: Base): IExpressionVariableInfo {
     return getQuestionByVariable(this, name, context);
+  }
+  public getQuestionVariableName(question: Question): string {
+    return getQuestionVariableName(this, question);
+  }
+  public getExpressionVariableName(name: string): string {
+    return getExpressionVariableName(this, name);
   }
   public getExpressionScopePaths(context: Base): Array<IExpressionScopePath> {
     return getExpressionScopePaths(this, context);

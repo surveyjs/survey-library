@@ -112,6 +112,8 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
 import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
+import { IPropertyDefaults, PropertyDefaultsLayer } from "./survey-property-defaults";
+import { propertyDefaultsState } from "./survey-property-defaults-state";
 import DefaultLightTheme from "./themes/default-light";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
@@ -1249,6 +1251,10 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     );
+    // Before the settings and the JSON: everything loaded reads the survey's own property defaults
+    if (isPlainObject(options) && options.propertyDefaults !== undefined) {
+      this.propertyDefaults(options.propertyDefaults);
+    }
     // Before the JSON is loaded: nothing has run yet, so nothing re-runs. A value that is not a plain object is ignored.
     this.surveySettingsValues.merge(options, true);
     // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
@@ -1444,6 +1450,30 @@ export class SurveyModel extends SurveyElementCore
   public getOwnSettings(): ISurveySettings {
     const values = this.surveySettingsValuesValue;
     return !!values && values.hasOwnValues ? values.view : undefined;
+  }
+  private propertyDefaultsLayerValue: PropertyDefaultsLayer;
+  private isPropertyDefaultsLayerLive: boolean;
+  // Merges per (class, property), as settings() does. Only later reads change: nothing computed during the load is
+  // recomputed and no change notification fires, so a rendered survey does not re-render, and layout built at load
+  // (pages merged by questionsOnPageMode, matrix cells) is not rebuilt. A global Serializer default change behaves the same.
+  public propertyDefaults(value: IPropertyDefaults): void {
+    if (this.isDisposed) return;
+    if (!this.propertyDefaultsLayerValue) {
+      this.propertyDefaultsLayerValue = new PropertyDefaultsLayer();
+    }
+    this.propertyDefaultsLayerValue.merge(value);
+    this.updatePropertyDefaultsLayerCount();
+  }
+  // For Base.getDefaultPropertyValue: the layer when it has values, else undefined
+  public getOwnPropertyDefaults(): PropertyDefaultsLayer {
+    return this.isPropertyDefaultsLayerLive ? this.propertyDefaultsLayerValue : undefined;
+  }
+  // propertyDefaultsState.liveLayerCount counts the live surveys with a layer that has values
+  private updatePropertyDefaultsLayerCount(): void {
+    const isLive = !this.isDisposed && !!this.propertyDefaultsLayerValue && this.propertyDefaultsLayerValue.hasValues;
+    if (isLive === !!this.isPropertyDefaultsLayerLive) return;
+    this.isPropertyDefaultsLayerLive = isLive;
+    propertyDefaultsState.liveLayerCount += isLive ? 1 : -1;
   }
   public updateSurvey(newProps: any, oldProps?: any) {
     for (var key in newProps) {
@@ -7769,6 +7799,11 @@ export class SurveyModel extends SurveyElementCore
     this.jsonErrors = null;
     this.sjsVersion = undefined;
     const jsonConverter = new JsonObject();
+    const ownDefaults = this.getOwnPropertyDefaults();
+    if (!!ownDefaults && !(options && options.propertyDefaults)) {
+      // Elements read the survey's defaults while they load, before they are added to a page
+      options = Object.assign({}, options, { propertyDefaults: ownDefaults });
+    }
     jsonConverter.toObject(json, this, options);
     if (jsonConverter.errors.length > 0) {
       this.jsonErrors = jsonConverter.errors;
@@ -9629,6 +9664,11 @@ export class SurveyModel extends SurveyElementCore
     this.tocModelValue?.dispose();
     this.resetRegionalFormat();
     super.dispose();
+    if (!!this.propertyDefaultsLayerValue) {
+      // Objects loaded with these defaults may outlive the survey: they read the global defaults from now on
+      this.propertyDefaultsLayerValue.merge({ classes: undefined });
+    }
+    this.updatePropertyDefaultsLayerCount();
     this.editingObj = null;
     if (!this.pages) return;
     this.currentPage = null;

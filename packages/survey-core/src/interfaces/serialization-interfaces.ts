@@ -1,3 +1,4 @@
+import type { PropertyDefaultsLayer } from "../survey-property-defaults";
 import type { Base } from "../base";
 import type { LocalizableString } from "../localizablestring";
 
@@ -21,6 +22,8 @@ export interface IPlainDataOptions {
 }
 export interface ILoadFromJSONOptions {
   validatePropertyValues?: boolean;
+  // A survey's property defaults (survey.getOwnPropertyDefaults()) for objects loaded before they are added to it
+  propertyDefaults?: PropertyDefaultsLayer;
 }
 /**
  * An interface with configuration options that control how a `SurveyModel` instance is serialized by the [`toJSON()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#toJSON) method.

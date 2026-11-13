@@ -1660,3 +1660,114 @@ describe("Question triggers: the survey walks only the questions that have them"
     expect(survey.getValue("q2"), "q2 after the removed current question").toBe("second");
   });
 });
+describe("Expression question: custom functions that read element state", () => {
+  const registerRowShown = (): void => {
+    FunctionFactory.Instance.register("rowShown", function (this: any) {
+      const row = this.survey.getQuestionByName("m").rows.filter((r: any) => r.value === "r2")[0];
+      return !!row && row.isVisible;
+    });
+  };
+  // One expression question only: a change of a second one would request another pass that runs the first again
+  const getJson = (name: string, isAbove: boolean, gateDefault?: string): any => {
+    const expression = { type: "expression", name: name, expression: "rowShown({gate}, {note})" };
+    const matrix = { type: "matrix", name: "m", columns: [1, 2], rows: ["r1", { value: "r2", visibleIf: "{gate} = 'show'" }] };
+    return {
+      elements: [
+        { type: "radiogroup", name: "gate", choices: ["show", "hide"], defaultValue: gateDefault },
+        isAbove ? expression : matrix,
+        isAbove ? matrix : expression,
+        { type: "text", name: "note" },
+        { type: "text", name: "q", visibleIf: "{" + name + "} = true" }
+      ]
+    };
+  };
+  const checkRowShown = (name: string, isAbove: boolean): void => {
+    registerRowShown();
+    try {
+      const survey = new SurveyModel(getJson(name, isAbove));
+      const row = survey.getQuestionByName("m").rows[1];
+      expect(row.isVisible, "r2 is hidden after load").toBe(false);
+      expect(survey.getValue(name), name + " after load").toBe(false);
+      survey.setValue("gate", "show");
+      expect(row.isVisible, "r2 is visible").toBe(true);
+      expect(survey.getValue(name), name + " after gate = show").toBe(true);
+      expect(survey.getQuestionByName("q").isVisible, "q reads the new value of " + name).toBe(true);
+      survey.setValue("gate", "hide");
+      expect(row.isVisible, "r2 is hidden again").toBe(false);
+      expect(survey.getValue(name), name + " after gate = hide").toBe(false);
+      expect(survey.getQuestionByName("q").isVisible, "q is hidden again").toBe(false);
+      survey.setValue("note", "x");
+      expect(survey.getValue(name), name + " after note changed").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("rowShown");
+    }
+  };
+  test("an expression question above a matrix sees the matrix row shown in the same pass, #12316", () => {
+    checkRowShown("above", true);
+  });
+  test("an expression question below a matrix sees the matrix row shown in the same pass", () => {
+    checkRowShown("below", false);
+  });
+  test("an expression question above a matrix sees the matrix row shown at load, #12316", () => {
+    registerRowShown();
+    try {
+      const survey = new SurveyModel(getJson("above", true, "show"));
+      expect(survey.getQuestionByName("m").rows[1].isVisible, "r2 is visible after load").toBe(true);
+      expect(survey.getValue("above"), "above after load").toBe(true);
+      expect(survey.getQuestionByName("q").isVisible, "q is visible after load").toBe(true);
+      survey.data = { gate: "hide" };
+      expect(survey.getValue("above"), "above after data is set").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("rowShown");
+    }
+  });
+  test("an expression question in a matrix cell sees the matrix row shown in the same pass, #12316", () => {
+    registerRowShown();
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "radiogroup", name: "gate", choices: ["show", "hide"] },
+          { type: "matrixdropdown", name: "md", rows: ["a"],
+            columns: [{ name: "col1", cellType: "expression", expression: "iif(rowShown({gate}), 'yes', 'no')" }] },
+          { type: "matrix", name: "m", columns: [1, 2], rows: ["r1", { value: "r2", visibleIf: "{gate} = 'show'" }] }
+        ]
+      });
+      const cell = (<QuestionMatrixDropdownModel>survey.getQuestionByName("md")).visibleRows[0].cells[0].question;
+      survey.setValue("gate", "hide");
+      expect(cell.value, "col1 after gate = hide").toBe("no");
+      survey.setValue("gate", "show");
+      expect(cell.value, "col1 after gate = show").toBe("yes");
+      survey.setValue("gate", "hide");
+      expect(cell.value, "col1 after gate = hide again").toBe("no");
+    } finally {
+      FunctionFactory.Instance.unregister("rowShown");
+    }
+  });
+  test("an expression question whose functions depend on their parameters only does not run again after a visibility change", () => {
+    const counts: { [name: string]: number } = {};
+    FunctionFactory.Instance.register({
+      name: "loadCount",
+      func: (params: any[]) => {
+        counts[params[0]] = (counts[params[0]] || 0) + 1;
+        return params[1];
+      },
+      resultDependsOn: "parameters"
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "x" },
+          { type: "expression", name: "e", expression: "loadCount('e', {x})" },
+          { type: "text", name: "q1", visibleIf: "{x} = 1" }
+        ]
+      });
+      for (const key in counts) delete counts[key];
+      survey.setValue("x", 1);
+      expect(survey.getQuestionByName("q1").isVisible, "q1 is visible").toBe(true);
+      expect(survey.getValue("e"), "e").toBe(1);
+      expect(counts, "evaluations after x = 1: the change of e requests one more pass").toEqual({ e: 2 });
+    } finally {
+      FunctionFactory.Instance.unregister("loadCount");
+    }
+  });
+});

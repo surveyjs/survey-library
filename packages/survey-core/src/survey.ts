@@ -36,6 +36,7 @@ import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
+import { QuestionExpressionModel } from "./question_expression";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -7575,13 +7576,16 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     const visibilityChangeCount = this.visibilityChangeCount;
-    super.runConditionCore(properties);
-    for (let i = 0; i < pages.length; i++) {
-      pages[i].runCondition(properties);
-    }
+    const expressionRuns = QuestionExpressionModel.collectRuns(() => {
+      super.runConditionCore(properties);
+      for (let i = 0; i < pages.length; i++) {
+        pages[i].runCondition(properties);
+      }
+    });
     if (visibilityChangeCount !== this.visibilityChangeCount) {
       // A changed value requests another pass, so the conditions that read it run again
       calculatedRuns.forEach(item => item.runAfterVisibilityChanged(properties));
+      expressionRuns.forEach((runProperties, item) => item.runAfterVisibilityChanged(runProperties));
     }
   }
   // Grows when a page, panel or question changes its visibility, or a question its visible rows, columns or inputs

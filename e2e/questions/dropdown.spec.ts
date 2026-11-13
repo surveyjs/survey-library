@@ -1486,10 +1486,13 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("3");
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
       await expect(dropdown1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
-      const offsetTop2 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop2).toEqual(questionOffsetTopConst);
-      const offsetHeight2 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight2).toEqual(singleListItemHeight);
+      // The popup is positioned on a timer after the list re-renders or the window resizes, so retry the reads.
+      await expect(async () => {
+        const offsetTop2 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop2).toEqual(questionOffsetTopConst);
+        const offsetHeight2 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight2).toEqual(singleListItemHeight);
+      }).toPass();
 
       await page.keyboard.press("Enter");
       await expect(dropdown1).not.toBeVisible();
@@ -1499,20 +1502,24 @@ frameworks.forEach((framework) => {
       await expect(dropdown2).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
       await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
-      const offsetTop3 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop3).toBeGreaterThanOrEqual(174);
-      expect(offsetTop3).toBeLessThanOrEqual(238);
-      const offsetHeight3 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight3).toBeGreaterThanOrEqual(480);
-      expect(offsetHeight3).toBeLessThanOrEqual(500);
+      await expect(async () => {
+        const offsetTop3 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop3).toBeGreaterThanOrEqual(174);
+        expect(offsetTop3).toBeLessThanOrEqual(238);
+        const offsetHeight3 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight3).toBeGreaterThanOrEqual(480);
+        expect(offsetHeight3).toBeLessThanOrEqual(500);
+      }).toPass();
 
       await page.keyboard.press("3");
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
       await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
-      const offsetTop4 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop4).toEqual(720);
-      const offsetHeight4 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight4).toEqual(singleListItemHeight);
+      await expect(async () => {
+        const offsetTop4 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop4).toEqual(720);
+        const offsetHeight4 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight4).toEqual(singleListItemHeight);
+      }).toPass();
 
       await page.keyboard.press("Enter");
       await expect(dropdown2).not.toBeVisible();
@@ -1650,48 +1657,54 @@ frameworks.forEach((framework) => {
       await expect(popupContainer).not.toBeVisible();
       await page.locator(".sd-dropdown").nth(1).click();
       await expect(popupContainer).toBeVisible();
-      const offsetTop1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop1).toBeGreaterThanOrEqual(160);
-      expect(offsetTop1).toBeLessThanOrEqual(170);
-      const offsetLeft1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
-      expect(offsetLeft1).toBeGreaterThanOrEqual(490);
-      expect(offsetLeft1).toBeLessThanOrEqual(510);
-      const offsetHeight1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight1).toBeGreaterThanOrEqual(410);
-      expect(offsetHeight1).toBeLessThanOrEqual(424);
-      const offsetWidth1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
-      expect(offsetWidth1).toBeGreaterThanOrEqual(310);
-      expect(offsetWidth1).toBeLessThanOrEqual(320);
+      await expect(async () => {
+        const offsetTop1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop1).toBeGreaterThanOrEqual(160);
+        expect(offsetTop1).toBeLessThanOrEqual(170);
+        const offsetLeft1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
+        expect(offsetLeft1).toBeGreaterThanOrEqual(490);
+        expect(offsetLeft1).toBeLessThanOrEqual(510);
+        const offsetHeight1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight1).toBeGreaterThanOrEqual(410);
+        expect(offsetHeight1).toBeLessThanOrEqual(424);
+        const offsetWidth1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
+        expect(offsetWidth1).toBeGreaterThanOrEqual(310);
+        expect(offsetWidth1).toBeLessThanOrEqual(320);
+      }).toPass();
 
       await page.setViewportSize({ width: 1280, height: 1100 });
       await expect(popupContainer).toBeVisible();
-      const offsetTop2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop2).toBeGreaterThanOrEqual(160);
-      expect(offsetTop2).toBeLessThanOrEqual(170);
-      const offsetLeft2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
-      expect(offsetLeft2).toBeGreaterThanOrEqual(680);
-      expect(offsetLeft2).toBeLessThanOrEqual(700);
-      const offsetHeight2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight2).toBeGreaterThanOrEqual(910);
-      expect(offsetHeight2).toBeLessThanOrEqual(924);
-      const offsetWidth2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
-      expect(offsetWidth2).toBeGreaterThanOrEqual(500);
-      expect(offsetWidth2).toBeLessThanOrEqual(510);
+      await expect(async () => {
+        const offsetTop2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop2).toBeGreaterThanOrEqual(160);
+        expect(offsetTop2).toBeLessThanOrEqual(170);
+        const offsetLeft2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
+        expect(offsetLeft2).toBeGreaterThanOrEqual(680);
+        expect(offsetLeft2).toBeLessThanOrEqual(700);
+        const offsetHeight2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight2).toBeGreaterThanOrEqual(910);
+        expect(offsetHeight2).toBeLessThanOrEqual(924);
+        const offsetWidth2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
+        expect(offsetWidth2).toBeGreaterThanOrEqual(500);
+        expect(offsetWidth2).toBeLessThanOrEqual(510);
+      }).toPass();
 
       await page.setViewportSize({ width: 900, height: 600 });
       await expect(popupContainer).toBeVisible();
-      const offsetTop3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop3).toBeGreaterThanOrEqual(160);
-      expect(offsetTop3).toBeLessThanOrEqual(170);
-      const offsetLeft3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
-      expect(offsetLeft3).toBeGreaterThanOrEqual(490);
-      expect(offsetLeft3).toBeLessThanOrEqual(510);
-      const offsetHeight3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight3).toBeGreaterThanOrEqual(410);
-      expect(offsetHeight3).toBeLessThanOrEqual(460);
-      const offsetWidth3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
-      expect(offsetWidth3).toBeGreaterThanOrEqual(310);
-      expect(offsetWidth3).toBeLessThanOrEqual(320);
+      await expect(async () => {
+        const offsetTop3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetTop);
+        expect(offsetTop3).toBeGreaterThanOrEqual(160);
+        expect(offsetTop3).toBeLessThanOrEqual(170);
+        const offsetLeft3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
+        expect(offsetLeft3).toBeGreaterThanOrEqual(490);
+        expect(offsetLeft3).toBeLessThanOrEqual(510);
+        const offsetHeight3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
+        expect(offsetHeight3).toBeGreaterThanOrEqual(410);
+        expect(offsetHeight3).toBeLessThanOrEqual(460);
+        const offsetWidth3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
+        expect(offsetWidth3).toBeGreaterThanOrEqual(310);
+        expect(offsetWidth3).toBeLessThanOrEqual(320);
+      }).toPass();
     });
 
     test("check dropdown after navigating between pages", async ({ page }) => {

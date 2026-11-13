@@ -204,7 +204,10 @@ frameworks.forEach((framework) => {
     test("ranking: keyboard", async ({ page }) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
+      await expect(page.locator(".sv-ranking-item").nth(1)).toBeFocused();
       await page.keyboard.press("ArrowUp");
+      // the moved item can lose the focus while the renderer moves its node; the question gives it back on a timer
+      await expect(page.locator(".sv-ranking-item").first()).toBeFocused();
 
       let data = await getData(page);
       expect(data["smartphone-features"]).toEqual([

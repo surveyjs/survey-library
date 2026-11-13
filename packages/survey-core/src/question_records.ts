@@ -38,7 +38,7 @@ import { ObjectDataScope, PanelDataScope, getActiveDataScope, getDataScopeHost }
 import { getElementDataScope } from "./data-key-index";
 import { RecordKeyLevel, hasRecordDataNesting } from "./record-key-level";
 import { PanelDataScopeValueGetterContext, RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
-import { asScopeObject, getNameOfCommentName } from "./data-object-utils";
+import { asScopeObject, getNameOfCommentName, getValueByPath } from "./data-object-utils";
 import type { DataNestingPlace } from "./data-nesting-key";
 import { RecordsDataWaits } from "./records/records-data-waits";
 import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainerVisible } from "./records/records-hidden-answers";
@@ -4691,11 +4691,7 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   protected getQuestionRecordObject(question: Question, record: any): any {
     if (!getActiveDataScope(question.data)) return record;
     const path = question.getDataPath();
-    let obj = record;
-    for (let i = 0; i < path.length - 1 && !!obj; i++) {
-      obj = asScopeObject(obj[path[i]]);
-    }
-    return obj;
+    return asScopeObject(getValueByPath(record, path.slice(0, path.length - 1)));
   }
   /* A question takes the record's field name: an empty field leaves it as it is, and the comment comes
      with a value only. The question writes nothing back while it has no data or the item sets values. */

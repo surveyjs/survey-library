@@ -3,11 +3,30 @@ import { Helpers } from "./helpers";
 import { settings } from "./settings";
 
 // The plain-object side of nested data: a key's value read as an object, a key set or removed in a copy, the
-// keys at paths removed, and the data.keepEmptyValues rule for the keys of an object. No scope or element here.
+// value at a path read and written, the keys at paths removed, and the data.keepEmptyValues rule for the keys
+// of an object. No scope or element here.
 
 // A key's value as a scope's object: an object, not an array; undefined for another value.
 export function asScopeObject(val: any): any {
   return !!val && typeof val === "object" && !Array.isArray(val) ? val : undefined;
+}
+// The value at the path in obj, through the objects on the way; undefined when a key on the way holds no object
+// (an array included). An empty path gives obj.
+export function getValueByPath(obj: any, path: Array<string>): any {
+  for (let i = 0; i < path.length && obj !== undefined; i++) {
+    obj = asScopeObject(obj)?.[path[i]];
+  }
+  return obj;
+}
+// Writes value into obj under the path, copying the objects on the way (obj may hold the stored objects).
+// isOwnObj: obj and the objects in it were built by the caller (server data), no copy is needed.
+export function setValueByPath(obj: any, path: Array<string>, value: any, isOwnObj?: boolean): void {
+  for (let i = 0; i < path.length - 1; i++) {
+    const cur = asScopeObject(obj[path[i]]);
+    obj[path[i]] = !cur ? {} : isOwnObj ? cur : Object.assign({}, cur);
+    obj = obj[path[i]];
+  }
+  obj[path[path.length - 1]] = value;
 }
 // Removes the keys at the paths from obj, in place, copying the objects on the way; an object that becomes
 // empty goes too. A path through a value that is no object (an array included) is skipped.

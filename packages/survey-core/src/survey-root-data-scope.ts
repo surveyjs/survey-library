@@ -31,17 +31,6 @@ export interface ISurveyRootDataScopeHost extends IDataScope {
   getValueGetterContext(): IValueGetterContext;
 }
 
-// Writes value into obj under the path, copying the objects on the way (obj may hold the stored objects).
-// isOwnObj: obj and the objects in it were built by the caller (server data), no copy is needed.
-export function setValueByPath(obj: any, path: Array<string>, value: any, isOwnObj?: boolean): void {
-  for (let i = 0; i < path.length - 1; i++) {
-    const cur = asScopeObject(obj[path[i]]);
-    obj[path[i]] = !cur ? {} : isOwnObj ? cur : Object.assign({}, cur);
-    obj = obj[path[i]];
-  }
-  obj[path[path.length - 1]] = value;
-}
-
 // The survey's part of nested data: the root data-key index (top-level questions and root containers), the
 // data shape version, the root containers by key and by path, and the keys a write of a container key
 // changes for triggers and conditions. The survey owns one and delegates to it; it reaches the survey only

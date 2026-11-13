@@ -99,8 +99,8 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { getActiveDataScope, ISurveyDataScopeHost } from "./panel-data-scope";
 import type { DataKeyIndex, IDataScope } from "./data-key-index";
-import { getNameOfCommentName, isContainerObjectKept } from "./data-object-utils";
-import { SurveyRootDataScope, IValueWrite, setValueByPath } from "./survey-root-data-scope";
+import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
+import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
 import { getQuestionByVariable, getQuestionVariableName, getExpressionVariableName, getExpressionScopePaths,
   findDataScopeValueContext } from "./data-scope-variables";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";

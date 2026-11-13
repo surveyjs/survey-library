@@ -5,10 +5,11 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { DataKeyIndex, IndexedDataScopeLookup, WalkingDataScopeLookup, DataScopeWalk } from "../src/data-key-index";
 import { RecordKeyLevel } from "../src/record-key-level";
+import { getValueByPath, setValueByPath } from "../src/data-object-utils";
 import { describe, test, expect } from "vitest";
 
 // The seams of the split nested-data module: the cached scope key, the cached record key levels, the two lookup
-// strategies of a scope, the root index's elements, and the row value of a matrix row.
+// strategies of a scope, the root index's elements, the row value of a matrix row, and the plain-object path helpers.
 
 const panelOf = (survey: SurveyModel, name: string): PanelModel => <PanelModel>survey.getPanelByName(name);
 
@@ -288,5 +289,33 @@ describe("a matrix row's value", () => {
     const row = (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows[0];
     row.showDetailPanel();
     expect(row.getDefaultValuePaths()).toEqual([["c2"], ["d2"], ["obj", "d3"]]);
+  });
+});
+
+describe("the value at a data path of a plain object", () => {
+  test("getValueByPath reads through the objects on the way", () => {
+    const obj = { address: { geo: { lat: 1 }, list: [{ a: 1 }] }, q1: "v" };
+    expect(getValueByPath(obj, ["address", "geo", "lat"]), "#1").toBe(1);
+    expect(getValueByPath(obj, ["address", "geo"]), "#2").toBe(obj.address.geo);
+    expect(getValueByPath(obj, ["q1"]), "#3").toBe("v");
+    expect(getValueByPath(obj, []), "#4: an empty path").toBe(obj);
+    expect(getValueByPath(obj, ["address", "zip", "x"]), "#5: a missing key on the way").toBeUndefined();
+    expect(getValueByPath(obj, ["q1", "length"]), "#6: a string on the way").toBeUndefined();
+    expect(getValueByPath(obj, ["address", "list", "0"]), "#7: an array on the way").toBeUndefined();
+    expect(getValueByPath(undefined, ["a"]), "#8").toBeUndefined();
+  });
+  test("setValueByPath writes into copies of the objects on the way, unless they are the caller's own", () => {
+    const stored = { geo: { lat: 1 } };
+    const obj: any = { address: stored };
+    setValueByPath(obj, ["address", "geo", "lng"], 2);
+    expect(obj, "#1").toEqual({ address: { geo: { lat: 1, lng: 2 } } });
+    expect(stored, "#2: the stored objects are not changed").toEqual({ geo: { lat: 1 } });
+    setValueByPath(obj, ["address", "list", "x"], 3);
+    expect(obj.address.list, "#3: a missing object is created").toEqual({ x: 3 });
+    const own: any = { address: { street: "a" } };
+    const inner = own.address;
+    setValueByPath(own, ["address", "zip"], "z", true);
+    expect(own.address, "#4: isOwnObj writes in place").toBe(inner);
+    expect(inner, "#5").toEqual({ street: "a", zip: "z" });
   });
 });

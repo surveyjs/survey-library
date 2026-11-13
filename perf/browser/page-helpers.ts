@@ -2,7 +2,7 @@ import type { PerfPage } from "../harness/scenario.ts";
 
 // The page helpers that take part in a browser sample's time (03, the clock): the end of the framework update, the
 // settle, the UI triggers, rendering. revs.ts adds this file's source to the rev hash of every browser id, so a change
-// here asks for a rev bump. Bundled into the page by page-entry.ts.
+// here asks for a rev bump (so does a change in angular-entry.ts). Bundled into the page by page-entry.ts.
 const W: any = globalThis;
 const hop = (): Promise<void> => new Promise((resolve: () => void) => {
   const channel = new MessageChannel();
@@ -17,12 +17,26 @@ export function rootElement(): any {
 }
 
 let reactRoot: any;
+let vueModel: any;
 let shown: any;
 
+// One root per page: the next survey is rendered into the same root (React, Vue: a new model prop; Angular: the
+// model input of the same <survey>, angular-entry.ts).
 function mount(survey: any): void {
   if (W.SurveyReact) {
     if (!reactRoot) reactRoot = W.ReactDOMClient.createRoot(rootElement());
     reactRoot.render(W.React.createElement(W.SurveyReact.Survey, { model: survey }));
+  } else if (W.SurveyVue) {
+    if (vueModel) {
+      vueModel.value = survey;
+      return;
+    }
+    vueModel = W.Vue.shallowRef(survey);
+    const app = W.Vue.createApp({ render: () => W.Vue.h(W.SurveyVue.SurveyComponent, { model: vueModel.value }) });
+    app.use(W.SurveyVue.surveyPlugin);
+    app.mount(rootElement());
+  } else if (W.SurveyNgPerf) {
+    W.SurveyNgPerf.render(survey, rootElement());
   } else {
     W.SurveyUI.renderSurvey(survey, rootElement());
   }
@@ -53,7 +67,7 @@ function setNative(el: any, value: string): void {
 const fire = (el: any, type: string): void => { el.dispatchEvent(new Event(type, { bubbles: true })); };
 
 export const page: PerfPage = {
-  framework: W.SurveyReact ? "react" : "survey-js-ui",
+  framework: W.SurveyReact ? "react" : W.SurveyVue ? "vue3" : W.SurveyNgPerf ? "angular" : "survey-js-ui",
   show: async(survey: any): Promise<void> => {
     const previous = shown;
     mount(survey);

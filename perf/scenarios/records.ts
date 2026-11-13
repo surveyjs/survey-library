@@ -2,7 +2,7 @@ import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
 import { expectThat, expectEqual } from "../harness/scenario.ts";
 import { RECORD_OPS_1K } from "../harness/ids.ts";
 import { loadModel, outputScenarios } from "./common.ts";
-import { loadSurvey, cachedSurvey, releaseSurvey, sortRecords, filterRecords, sum, firstShown, renderedCell, showPageOf, expectSortedPage, recordsShown, shownIds } from "./helpers.ts";
+import { loadSurvey, cachedSurvey, releaseSurvey, sortRecords, filterRecords, sum, firstShown, renderedCell, rowCells, showPageOf, expectSortedPage, recordsShown, shownIds } from "./helpers.ts";
 
 // Records on the matrix orders (1k and 10k) and a few on the bound panel ordersPanel (1k). One survey with the data
 // per process or page; setup restores the page, the sort and the filter instead of reloading (00, Budgets). Every
@@ -73,7 +73,8 @@ export function renderedIds(ctx: PerfContext, question: any): Array<string> | un
   if (question.getType() !== "paneldynamic") {
     const index = question.renderedTable.headerRow.cells.map((c: any) => c.column && c.column.name).indexOf("id");
     return ctx.page.queryAll(root + "tbody tr.sd-table__row").map((tr: any) => {
-      const input = tr.children[index] ? tr.children[index].querySelector("input") : undefined;
+      const cell = rowCells(tr)[index];
+      const input = cell ? cell.querySelector("input") : undefined;
       return input ? input.value : undefined;
     });
   }
@@ -91,10 +92,11 @@ export function renderedFirst(ctx: PerfContext, question: any, field: string): s
   return input ? input.value : undefined;
 }
 
+// rev 2 of the records ids (2026-11-13): the rendered cells of a row are its td elements (rowCells), not its children.
 function base(fixture: string, op: string, target: string, uses: Array<string>): any {
   const ready = target === "orders" ? "ordersReady" : "panelReady";
   const sort = target === "orders" ? "defaultSort" : "panelSort";
-  return { id: fixture + "/records/" + op + "@" + target, rev: 1, fixture: fixture, kind: "action", requires: requires,
+  return { id: fixture + "/records/" + op + "@" + target, rev: 2, fixture: fixture, kind: "action", requires: requires,
     uses: ["loadSurvey", "recordsSurvey", "resetView", "currentOrders", "firstShown", "showPageOf", "renderedFirst", "renderedCell", "expectRendered", "shownIds", ready, sort].concat(uses), counters: recordsShown };
 }
 
@@ -398,7 +400,7 @@ export function expectPlainSorted(ctx: PerfContext, s: any): void {
 }
 
 function plainBase(op: string, name: string, uses: Array<string>): any {
-  return { id: "records-plain/records/" + op + "@" + name, rev: 1, fixture: "records-plain", kind: "action", requires: plainRequires,
+  return { id: "records-plain/records/" + op + "@" + name, rev: 2, fixture: "records-plain", kind: "action", requires: plainRequires,
     uses: ["plainReady", "expectPlainSorted"].concat(uses), counters: recordsShown };
 }
 
@@ -465,7 +467,7 @@ export function expectPlainPanels(ctx: PerfContext, s: any, criteria: Array<any>
 }
 
 function plainPanelBase(op: string, name: string, uses: Array<string>): any {
-  return { id: "records-plain/records/" + op + "@" + name, rev: 1, fixture: "records-plain", kind: "action",
+  return { id: "records-plain/records/" + op + "@" + name, rev: 2, fixture: "records-plain", kind: "action",
     requires: ["paneldynamic.pageSize", "paneldynamic.allowSort"],
     uses: ["plainPanelReady", "expectPlainPanels", "renderedIds"].concat(uses), counters: recordsShown };
 }

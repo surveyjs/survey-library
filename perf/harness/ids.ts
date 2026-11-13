@@ -1,13 +1,13 @@
 // The fixture keys and every scenario id with the suites that run it (00, Ids). The same operation has the same id
-// in core and in the browser. 03 adds the browser suites.
+// in core and in the browser. 03 adds the browser suites; vue3 and angular run RENDER_SUBSET.
 export const FIXTURE_KEYS = ["large", "expressions", "calculations", "complexLogic", "manyPages", "records-1k", "records-10k", "records-plain"] as const;
 export type FixtureKey = typeof FIXTURE_KEYS[number];
 // records-plain serves the plain-matrix sorts only: no load/model or load/paint of it, which would add suite time and
 // measure a load the records fixtures measure already.
 const loadKeys = FIXTURE_KEYS.filter((key: string) => key !== "records-plain");
 
-export type Suite = "core" | "react" | "survey-js-ui";
-export const SUITES: ReadonlyArray<Suite> = ["core", "react", "survey-js-ui"];
+export type Suite = "core" | "react" | "survey-js-ui" | "vue3" | "angular";
+export const SUITES: ReadonlyArray<Suite> = ["core", "react", "survey-js-ui", "vue3", "angular"];
 
 export interface ScenarioIdInfo {
   id: string;
@@ -59,9 +59,9 @@ plainPanels.forEach((question: string) => react.push("records-plain/records/sort
 react.push("records-plain/records/next@panelsPaged");
 const jsUi = react.filter((id: string) => id !== "manyPages/pages/preview");
 
-// The ids a phase-2 browser suite (vue3, angular) runs: the loads with paint and the actions whose cost is mostly
-// rendering. The plain-matrix sorts keep (rebind) the rows, so their cost is how the framework updates kept rows.
-// The rest exercise the model code that core and React already measure.
+// The ids the vue3 and angular suites run: the loads with paint and the actions whose cost is mostly rendering. The
+// plain-matrix sorts keep (rebind) the rows, so their cost is how the framework updates kept rows. The rest exercise
+// the model code that core and React already measure.
 export const RENDER_SUBSET: ReadonlyArray<string> = loadKeys.map((key: string) => key + "/load/paint").concat([
   "complexLogic/answer/type", "manyPages/pages/next10", "records-10k/records/sort-header@orders", "records-10k/records/edit-cell@orders"],
 plainMatrices.map((question: string) => "records-plain/records/sort-header@" + question));
@@ -72,6 +72,7 @@ export const SCENARIO_IDS: ReadonlyArray<ScenarioIdInfo> = Array.from(new Set(co
   if (core.indexOf(id) > -1) suites.push("core");
   if (react.indexOf(id) > -1) suites.push("react");
   if (jsUi.indexOf(id) > -1) suites.push("survey-js-ui");
+  if (RENDER_SUBSET.indexOf(id) > -1) suites.push("vue3", "angular");
   return { id: id, suites: suites };
 });
 

@@ -6,7 +6,7 @@ import type { MachineInfo } from "./machine.ts";
 import type { DepsInfo } from "./deps.ts";
 
 // The result file of one suite run (00, Result file).
-export type Suite = "core" | "react" | "survey-js-ui";
+export type Suite = "core" | "react" | "survey-js-ui" | "vue3" | "angular";
 
 export interface ResultEntry {
   id: string;

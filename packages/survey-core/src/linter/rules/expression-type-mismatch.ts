@@ -1,4 +1,4 @@
-import { BinaryOperand } from "survey-core";
+import { BinaryOperand, Helpers } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
 import { SurveyLintReasons, SurveyLintSuggestionReasons } from "../reasons";
 import {
@@ -7,6 +7,7 @@ import {
 } from "../expression-utils";
 import { quoteValue } from "../message-utils";
 import { ElementRecord } from "../symbols";
+import { runtimeEquals } from "../value-domain";
 import { isTextInputQuestion } from "../value-types";
 
 const reasons = SurveyLintReasons["expression/type-mismatch"];
@@ -39,10 +40,14 @@ function checkNoValue(record: ElementRecord): Mismatch | undefined {
   };
 }
 
-function checkNumberVsString(record: ElementRecord, constValue: any): Mismatch | undefined {
+// Equality and ordering convert a numeric string to a number at runtime, so "{n} = '5'" holds.
+// Arithmetic does not: "+" joins a string, so "{n} + '3'" is still reported.
+function checkNumberVsString(record: ElementRecord, constValue: any,
+  operatorClass: OperatorClass): Mismatch | undefined {
   if (record.valueType.scalarType !== "number" || typeof constValue !== "string" || constValue === "") {
     return undefined;
   }
+  if (operatorClass !== "arithmetic" && Helpers.isConvertibleToNumber(constValue)) return undefined;
   return {
     reason: "number-vs-string",
     detail: "\"" + record.name + "\" is numeric - comparing it to the string \"" + constValue + "\" cannot hold.",
@@ -83,7 +88,7 @@ function checkOrdering(record: ElementRecord, constValue: any,
         constValue + " cannot hold.",
     };
   }
-  return checkNumberVsString(record, constValue);
+  return checkNumberVsString(record, constValue, operatorClass);
 }
 
 function checkEquality(record: ElementRecord, constValue: any): Mismatch | undefined {
@@ -97,15 +102,17 @@ function checkEquality(record: ElementRecord, constValue: any): Mismatch | undef
       suggestionReason: SurveyLintSuggestionReasons.useContainsOrAnyof,
     };
   }
+  // the runtime comparison converts "true" and 1 to a boolean, unless comparator.strictEquality is on
   if (valueType.scalarType === "boolean" && typeof constValue !== "boolean" &&
-    constValue !== null && constValue !== undefined && constValue !== "") {
+    constValue !== null && constValue !== undefined && constValue !== "" &&
+    !runtimeEquals(true, constValue) && !runtimeEquals(false, constValue)) {
     return {
       reason: "boolean-vs-const",
       detail: "\"" + record.name + "\" is a boolean question - comparing it to " +
         quoteValue(constValue) + " cannot hold.",
     };
   }
-  return checkNumberVsString(record, constValue);
+  return checkNumberVsString(record, constValue, "equality");
 }
 
 export const expressionTypeMismatchRule: ILintRule = {

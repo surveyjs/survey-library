@@ -1841,6 +1841,10 @@ export class JsonObject {
   }
   public valueToObj(value: any, obj: any, property: JsonObjectProperty, jsonObj?: any, options?: ILoadFromJSONOptions): void {
     if (value === null || value === undefined) return;
+    if (this.isIncorrectForStringChoices(property, obj, value)) {
+      this.addNewError(new JsonIncorrectPropertyValueError(property, value), jsonObj, obj);
+      return;
+    }
     this.removePos(property, value);
     if (property != null && property.hasToUseSetValue) {
       property.setValue(obj, value, this);
@@ -1878,6 +1882,17 @@ export class JsonObject {
         obj[property.name] = value;
       }
     }
+  }
+  // Setters of string properties with string choices call string methods on the value, so a number, a boolean
+  // or an object that is not one of the choices or acceptedValues would throw. It is always checked, unlike
+  // options.validatePropertyValues. Numeric choices, arrays and sets are left out: they accept values that are not
+  // in the choices and do not throw.
+  private isIncorrectForStringChoices(property: JsonObjectProperty, obj: any, value: any): boolean {
+    if (!property || typeof value === "string" || property.isArray) return false;
+    if (property.type === "multiplevalues" || property.type === "set") return false;
+    const choices = property.getChoices(obj, () => { });
+    if (!Array.isArray(choices) || choices.length === 0 || typeof choices[0] !== "string") return false;
+    return !property.validateValue(obj, value);
   }
   private removePosOnValueToJson(property: JsonObjectProperty, value: any): any {
     if (!property.isCustom || !value) return value;

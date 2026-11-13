@@ -7777,7 +7777,7 @@ export class SurveyModel extends SurveyElementCore
     this.endLoading();
     this.updateState();
     if (!!this.sjsVersion && !!settings.version) {
-      if (Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
+      if (Helpers.compareVerions(String(this.sjsVersion), settings.version) > 0) {
         ConsoleWarnings.warn("The version of the survey JSON schema (v"
           + this.sjsVersion + ") is newer than your current Form Library version ("
           + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");

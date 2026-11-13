@@ -7,6 +7,8 @@ import { COMPONENT_DEPTH, SurveyBaseProviders } from "./component-depth";
 
 const wrappedHookKey = "__surveyRunWithUpdateAccess";
 function wrapAfterViewInitHooks(instance: any): void {
+  const resolvedHook = instance.ngAfterViewInit;
+  if (typeof resolvedHook !== "function" || resolvedHook[wrappedHookKey]) return;
   let proto = Object.getPrototypeOf(instance);
   while(!!proto && proto !== Object.prototype) {
     if (Object.prototype.hasOwnProperty.call(proto, "ngAfterViewInit")) {

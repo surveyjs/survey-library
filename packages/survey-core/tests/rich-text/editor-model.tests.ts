@@ -212,6 +212,7 @@ describe("rich text editor model", () => {
     element.innerHTML = "keep";
     const handle = RichText.attachEditor(element, { mode: "inline" });
     expect(handle.toolbar.actions.length).toBeGreaterThan(0);
+    expect(new RichTextEditorModel(undefined, { mode: "inline", contentAgnostic: true }).toolbarMode).toBe("onSelection");
     element.dispatchEvent(new Event("input"));
     element.dispatchEvent(new FocusEvent("blur"));
     expect(element.innerHTML).toBe("keep");

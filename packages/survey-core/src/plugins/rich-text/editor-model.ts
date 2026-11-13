@@ -113,8 +113,9 @@ export class RichTextEditorModel {
   public get toolbarMode(): "none" | "onFocus" | "onSelection" | "static" {
     const mode = this.question ? this.question.richTextToolbarMode : undefined;
     if (mode === "none" || mode === "onFocus" || mode === "onSelection" || mode === "static") return mode;
-    // A question with no mode uses the richtext default. Creator's content-agnostic editor has no question and stays floating.
-    return this.question ? "static" : "onFocus";
+    // A question with no mode uses the richtext default. The string editor has no question:
+    // its toolbar appears when text is selected.
+    return this.question ? "static" : "onSelection";
   }
 
   public get hasToolbar(): boolean {

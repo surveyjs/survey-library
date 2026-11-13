@@ -10,9 +10,9 @@ const setupSurvey = async (page: Page) => {
       var countryName = options.data["country"];
       //If the question is empty then do nothing
       if (!countryName) options.complete();
-      //call the ajax method
-      window["$"].ajax({
-        url: "http://127.0.0.1:8080/test-resources/countriesMock.json"
+      //request the country list
+      fetch("http://127.0.0.1:8080/test-resources/countriesMock.json").then(function(response) {
+        return response.json();
       }).then(function(data) {
         var found = false;
         var countries = data.RestResponse.result;

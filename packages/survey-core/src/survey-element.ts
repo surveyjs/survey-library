@@ -1146,7 +1146,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   private setRootStyle() {
-    this.rootStyle = this.calcRootStyle();
+    const style = this.calcRootStyle();
+    if (!Helpers.isTwoValueEquals(this.rootStyle, style)) {
+      this.rootStyle = style;
+    }
   }
   /**
    * A total width, in percent, of the grid layout columns this element occupies, or 0 when the grid layout is disabled.

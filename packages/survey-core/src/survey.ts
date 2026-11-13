@@ -1253,8 +1253,7 @@ export class SurveyModel extends SurveyElementCore
     this.surveySettingsValues.merge(options, true);
     // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
     addEventHandlersFromOptions(this, options);
-
-    this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
+    this.locTitle.onStringChanged.add(() => this.setPropertyValue("titleIsEmpty", this.getTitleIsEmpty()));
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
         jsonObj = JSON.parse(jsonObj as string);
@@ -2526,7 +2525,7 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   @property({ localizable: { onCreate: (obj: SurveyModel, locStr: LocalizableString) =>
-    locStr.onStringChanged.add(() => obj.resetHasLogo())
+    locStr.onStringChanged.add(() => obj.setPropertyValue("hasLogo", obj.getHasLogo()))
   } }) logo: string;
   /**
    * A logo width in CSS-accepted values.
@@ -2582,8 +2581,11 @@ export class SurveyModel extends SurveyElementCore
   protected get hasLogoImage(): boolean {
     return !!this.locLogo.renderedHtml;
   }
+  protected getHasLogo() {
+    return this.hasLogoImage && this.logoPosition !== "none";
+  }
   public get hasLogo(): boolean {
-    return this.getPropertyValue("hasLogo", undefined, () => this.hasLogoImage && this.logoPosition !== "none");
+    return this.getPropertyValue("hasLogo", undefined, () => this.getHasLogo());
   }
   private resetHasLogo(): void {
     this.resetPropertyValue("hasLogo");
@@ -2611,8 +2613,11 @@ export class SurveyModel extends SurveyElementCore
     };
     return toCssClasses(this.css.logo, logoClasses[this.logoPosition]);
   }
+  private getTitleIsEmpty(): boolean {
+    return this.locTitle.isEmpty;
+  }
   public get titleIsEmpty(): boolean {
-    return this.getPropertyValue("titleIsEmpty", undefined, () => this.locTitle.isEmpty);
+    return this.getPropertyValue("titleIsEmpty", undefined, () => this.getTitleIsEmpty());
   }
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");

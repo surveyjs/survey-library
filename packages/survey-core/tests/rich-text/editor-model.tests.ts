@@ -297,6 +297,44 @@ describe("rich text editor model", () => {
     expect(question.value).toBe("<p>one</p><p>two</p>");
   });
 
+  test("a matrix cell defaults to onSelection; an explicit mode is kept", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdropdown",
+        name: "m",
+        columns: [
+          { name: "notes", cellType: "richtext" },
+          { name: "fixed", cellType: "richtext", richTextToolbarMode: "static" },
+          { name: "focus", cellType: "richtext", richTextToolbarMode: "onFocus" },
+          { name: "hidden", cellType: "richtext", richTextToolbarMode: "none" }
+        ],
+        rows: ["Row 1"]
+      }]
+    });
+    const matrix = survey.getQuestionByName("m") as any;
+    const cell = (name: string): QuestionRichTextModel => {
+      const index = matrix.columns.map((column: any) => column.name).indexOf(name);
+      return matrix.visibleRows[0].cells[index].question;
+    };
+    const notes = cell("notes");
+    expect(notes.inMatrixMode).toBe(true);
+    expect(notes.richTextToolbarMode).toBe("onSelection");
+    expect(new RichTextEditorModel(notes).toolbarMode).toBe("onSelection");
+    expect(cell("fixed").richTextToolbarMode).toBe("static");
+    expect(new RichTextEditorModel(cell("fixed")).toolbarMode).toBe("static");
+    expect(cell("focus").richTextToolbarMode).toBe("onFocus");
+    expect(new RichTextEditorModel(cell("focus")).toolbarMode).toBe("onFocus");
+    expect(cell("hidden").richTextToolbarMode).toBe("none");
+    expect(new RichTextEditorModel(cell("hidden")).toolbarMode).toBe("none");
+
+    const columns = survey.toJSON().pages[0].elements[0].columns;
+    const jsonOf = (name: string) => columns.filter((column: any) => column.name === name)[0];
+    expect(jsonOf("notes").richTextToolbarMode).toBeUndefined();
+    expect(jsonOf("fixed").richTextToolbarMode).toBe("static");
+    expect(jsonOf("focus").richTextToolbarMode).toBe("onFocus");
+    expect(jsonOf("hidden").richTextToolbarMode).toBe("none");
+  });
+
   test("static is the default; none hides the toolbar and still runs shortcuts", () => {
     const question = new QuestionRichTextModel("c");
     expect(question.richTextToolbarMode).toBe("static");

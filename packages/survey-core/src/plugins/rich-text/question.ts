@@ -9,6 +9,7 @@ export class QuestionRichTextModel extends QuestionCommentModel {
   // "onFocus": floating toolbar shown while the editor has focus.
   // "onSelection": floating toolbar shown only while text is selected.
   // "static": always visible, in the editor footer. This is the default.
+  // A matrix cell defaults to "onSelection": the footer toolbar does not fit the row.
   @property() richTextToolbarMode: RichTextToolbarMode;
 
   public getType(): string {
@@ -39,11 +40,26 @@ export class QuestionRichTextModel extends QuestionCommentModel {
   }
 }
 
+// The column and its template question carry the cell default, so a matrix cell and the JSON
+// of its column agree. A question in a matrix detail panel is not a cell and keeps "static".
+function defaultRichTextToolbarMode(obj: any): RichTextToolbarMode {
+  if (!obj) return "static";
+  // The template exists before its column is attached to the matrix. isEditableTemplateElement
+  // marks it then, so an explicit "static" is stored instead of matching a "static" default.
+  if (obj.inMatrixMode || obj.isEditableTemplateElement) return "onSelection";
+  if (isMatrixDropdownQuestion(obj.colOwner)) return "onSelection";
+  return "static";
+}
+function isMatrixDropdownQuestion(question: any): boolean {
+  return !!question && typeof question.getType === "function" && Serializer.isDescendantOf(question.getType(), "matrixdropdownbase");
+}
+
 Serializer.addClass(
   "richtext",
   [{
     name: "richTextToolbarMode",
     default: "static",
+    defaultFunc: defaultRichTextToolbarMode,
     choices: ["none", "onFocus", "onSelection", "static"]
   }],
   function () {

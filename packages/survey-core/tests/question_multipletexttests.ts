@@ -341,4 +341,21 @@ describe("Survey_QuestionMultipleText", () => {
     expect(focusedId, "the item with an error").toBe(q1.items[1].editor.inputId);
     SurveyElement.FocusElement = oldFunc;
   });
+  test("root css reports the rendered column count", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "multipletext",
+        name: "q1",
+        items: [{ name: "a" }, { name: "b" }, { name: "c" }]
+      }]
+    });
+    const q1 = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+    expect(q1.getQuestionRootCss(), "#1").toBe("sd-multipletext sd-multipletext--col-count-1");
+    q1.colCount = 2;
+    expect(q1.getQuestionRootCss(), "#2").toBe("sd-multipletext sd-multipletext--col-count-2");
+    q1.colCount = 5;
+    expect(q1.getQuestionRootCss(), "#3 limited by the item count").toBe("sd-multipletext sd-multipletext--col-count-3");
+    q1.items = [];
+    expect(q1.getQuestionRootCss(), "#4 no items").toBe("sd-multipletext sd-multipletext--col-count-1");
+  });
 });

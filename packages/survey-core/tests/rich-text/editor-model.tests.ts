@@ -219,6 +219,38 @@ describe("rich text editor model", () => {
     handle.detach();
   });
 
+  test("content-agnostic attachEditor opens the toolbar only for a selection", async () => {
+    const element = document.createElement("div");
+    document.body.appendChild(element);
+    element.innerHTML = "abcdef";
+    let updates = 0;
+    const handle = RichText.attachEditor(element, { mode: "inline", onState: () => { updates += 1; } });
+    expect(handle.toolbarOpen).toBe(false);
+
+    const text = element.firstChild;
+    const range = document.createRange();
+    range.setStart(text, 0);
+    range.setEnd(text, 3);
+    const selection = document.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    document.dispatchEvent(new Event("selectionchange"));
+    expect(handle.toolbarOpen).toBe(true);
+
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    document.dispatchEvent(new Event("selectionchange"));
+    expect(handle.toolbarOpen).toBe(false);
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(updates).toBe(2);
+    handle.detach();
+    document.dispatchEvent(new Event("selectionchange"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(updates).toBe(2);
+  });
+
   test("unsupported html stays in source mode until edit anyway, and a plain blur does not rewrite it", () => {
     const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
     const question = survey.getQuestionByName("c") as QuestionRichTextModel;

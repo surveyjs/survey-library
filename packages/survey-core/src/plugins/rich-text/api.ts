@@ -11,6 +11,14 @@ export type { RichTextEditMode } from "./edit-mode";
 export interface IRichTextEditorOptions {
   mode: "inline" | "block";
   onInput?: () => void;
+  // Fires when toolbarOpen changes. The string editor has no question, so the toolbar is on-selection.
+  onState?: () => void;
+}
+
+export interface IRichTextEditorHandle {
+  toolbar: ActionContainer;
+  readonly toolbarOpen: boolean;
+  detach(): void;
 }
 
 export class RichText {
@@ -38,14 +46,23 @@ export class RichText {
   public static getStringEditMode(owner: Base, name: string, locStr: LocalizableString): RichTextEditMode {
     return RichText.getEditMode(owner, name, locStr, getDefaultEditMode(owner, name, locStr));
   }
-  public static attachEditor(element: HTMLElement, options: IRichTextEditorOptions): { toolbar: ActionContainer, detach(): void } {
+  public static attachEditor(element: HTMLElement, options: IRichTextEditorOptions): IRichTextEditorHandle {
     const model = new RichTextEditorModel(undefined, {
       mode: options.mode,
       contentAgnostic: true,
       onInput: options.onInput
     });
+    model.onState = options.onState;
     model.attach(element);
-    return { toolbar: model.toolbar, detach: (): void => model.detach() };
+    model.syncSelection();
+    return {
+      toolbar: model.toolbar,
+      get toolbarOpen(): boolean { return model.toolbarOpen; },
+      detach: (): void => {
+        model.onState = undefined;
+        model.detach();
+      }
+    };
   }
 }
 

@@ -22,4 +22,4 @@ export { QuestionRichTextModel } from "./question";
 export type { RichTextToolbarMode } from "./question";
 export { setRichTextStrings } from "./rich-text-strings";
 export type { RichTextEditMode } from "./edit-mode";
-export type { IRichTextEditorOptions, UnsupportedRichText } from "./api";
+export type { IRichTextEditorHandle, IRichTextEditorOptions, UnsupportedRichText } from "./api";

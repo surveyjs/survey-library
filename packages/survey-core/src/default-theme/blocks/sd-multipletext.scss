@@ -81,7 +81,7 @@
   display: grid;
   grid-template-columns: repeat(
     var(--sd-multipletext-col-count, 1),
-    fit-content(var(--sd-multipletext-title-track-max)) minmax(0, 1fr)
+    fit-content(var(--sd-multipletext-title-track-max)) minmax(auto, 1fr)
   );
   height: auto;
 
@@ -122,6 +122,21 @@
       height: auto;
       align-self: stretch;
     }
+  }
+
+  // Text inputs keep a zero minimum so a long title still wraps inside the cap.
+  // A date-like control's own minimum is the browser's full field, which is wider than a
+  // narrow question and would squeeze the title down to one letter. A fixed floor leaves
+  // the format hint (mm/dd/yyyy and the like) visible and lets the title give up only that much.
+  .sd-multipletext__item {
+    min-width: 0;
+  }
+  .sd-multipletext__item:has(input[type="date"]),
+  .sd-multipletext__item:has(input[type="time"]),
+  .sd-multipletext__item:has(input[type="datetime-local"]),
+  .sd-multipletext__item:has(input[type="month"]),
+  .sd-multipletext__item:has(input[type="week"]) {
+    min-width: 9.5em;
   }
 }
 

@@ -3603,6 +3603,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get locNoEntriesText(): LocalizableString {
     return this.getOrCreateLocStr("noEntriesText", false, this.getNoEntriesLocalizationName());
   }
+  public get noEntriesTextId(): string {
+    return this.renderedId + "_noEntriesText";
+  }
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0;
   }

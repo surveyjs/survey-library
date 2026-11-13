@@ -42,6 +42,12 @@
         cursor: default;
     }
 }
+.sd-formbox--readonly:where(:focus-within) {
+    background: var(--sjs2-color-component-formbox-focused-bg);
+    box-shadow:
+        var(--sjs2-border-effect-component-formbox-default-reset), var(--sjs2-border-effect-component-formbox-focused),
+        var(--sjs2-border-effect-component-formbox-a11y);
+}
 .sd-formbox--preview {
     background: none;
     box-shadow: none;

@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect, getButtonByText, loadSurveyLocales } from "../helper";
 
 const title = "Input mask";
 
@@ -34,6 +34,7 @@ frameworks.forEach((framework) => {
     });
 
     test("RTL survey: masked value keeps its field order and the caret stays logical", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       await initSurvey(page, framework, {
         locale: "ar",
         autoFocusFirstQuestion: true,
@@ -85,6 +86,7 @@ frameworks.forEach((framework) => {
     });
 
     test("RTL survey: Arabic-Indic digits are accepted and stored as ASCII", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       await initSurvey(page, framework, {
         locale: "ar",
         autoFocusFirstQuestion: true,

@@ -6,10 +6,11 @@ import * as Survey from "survey-core";
 (window as any).jQuery = (window as any).$ = $;
 (window as any).showdown = showdown;
 (window as any).Survey = Object.assign({}, Survey);
+// The locale bundle is a lazy chunk: only the tests that show a non-English survey load it (e2e/helper.ts).
+(window as any).loadSurveyLocales = () => import("survey-core/survey.i18n");
 </script>
 <script setup lang="ts">
 import { SurveyModel } from "survey-core";
-import "survey-core/survey.i18n";
 import { SurveyComponent, PopupSurveyComponent } from "survey-vue3-ui";
 import { shallowRef } from "vue";
 const survey = shallowRef();

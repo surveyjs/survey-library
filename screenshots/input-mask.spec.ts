@@ -1,5 +1,5 @@
 import { expect, Locator } from "@playwright/test";
-import { frameworks, url, initSurvey, resetFocusToBody, compareScreenshot, baseTest as test } from "../e2e/helper";
+import { frameworks, url, initSurvey, resetFocusToBody, compareScreenshot, baseTest as test, loadSurveyLocales } from "../e2e/helper";
 
 const title = "Input mask Screenshot";
 
@@ -29,6 +29,7 @@ frameworks.forEach(framework => {
     });
 
     test("Check masked inputs in an rtl locale", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         locale: "ar",

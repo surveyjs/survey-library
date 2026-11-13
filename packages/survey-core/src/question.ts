@@ -2724,7 +2724,7 @@ export class Question extends SurveyElement<Question>
    * @see resetValueIf
    */
   @property() setValueExpression: string;
-  public get resizeStyle() {
+  public get resizeStyle(): "none" | "horizontal" | "vertical" | "both" {
     return this.allowResizeComment ? "both" : "none";
   }
   /**

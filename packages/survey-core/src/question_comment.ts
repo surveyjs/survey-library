@@ -6,7 +6,6 @@ import { QuestionTextBase } from "./question_textbase";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Helpers } from "./helpers";
 import { IsTouch } from "./utils/devices";
-
 /**
  * A class that describes the Long Text question type.
  *
@@ -101,7 +100,7 @@ export class QuestionCommentModel extends QuestionTextBase {
       return !!res;
     }
   }
-  public get resizeStyle() {
+  public get resizeStyle(): "none" | "horizontal" | "vertical" | "both" {
     return this.renderedAllowResize ? "both" : "none";
   }
   public getType(): string {

@@ -1,7 +1,17 @@
 import { defineConfig } from "vitest/config";
 import * as path from "path";
+import * as fs from "fs";
 
 export default defineConfig({
+  plugins: [
+    {
+      name: "svg-string",
+      transform(_code, id) {
+        if (!id.endsWith(".svg")) return;
+        return { code: "export default " + JSON.stringify(fs.readFileSync(id, "utf8")) + ";", map: null };
+      }
+    }
+  ],
   test: {
     environment: "jsdom",
     globals: false,
@@ -32,6 +42,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // The longer path first: the aliases are prefix matches applied in order.
+      "survey-core/rich-text": path.resolve(__dirname, "./entries/rich-text.ts"),
       "survey-core/collaboration": path.resolve(__dirname, "./entries/collaboration.ts"),
       "survey-core/tester": path.resolve(__dirname, "./entries/tester.ts"),
       "survey-core": path.resolve(__dirname, "./entries/index.ts"),

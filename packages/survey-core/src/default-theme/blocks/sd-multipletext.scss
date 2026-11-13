@@ -81,7 +81,7 @@
   display: grid;
   grid-template-columns: repeat(
     var(--sd-multipletext-col-count, 1),
-    fit-content(var(--sd-multipletext-title-track-max)) minmax(0, 1fr)
+    minmax(auto, var(--sd-multipletext-title-track-max)) minmax(auto, 1fr)
   );
   height: auto;
 
@@ -114,10 +114,9 @@
     display: grid;
     grid-template-columns: subgrid;
 
-    // A track never gets narrower than its items' minimum, so a long word would push the input out.
+    // The label keeps its 30% max-width and automatic minimum. It shrinks to the longest
+    // word when the input needs the room, and a word longer than the cap wraps inside it.
     .sd-multipletext__item-title {
-      max-width: none;
-      min-width: 0;
       overflow-wrap: break-word;
       height: auto;
       align-self: stretch;

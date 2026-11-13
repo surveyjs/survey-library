@@ -211,6 +211,8 @@ frameworks.forEach((framework) => {
       await expectFirstPage(page);
       expect(await getSurveyData(page)).toEqual({});
       await page.keyboard.press("ArrowDown");
+      // the moved item can lose the focus while the renderer moves its node; the question gives it back on a timer
+      await expect(page.locator(".sv-ranking-item").nth(1)).toBeFocused();
       await expectFirstPage(page);
       await page.keyboard.press("Enter");
       await expectSecondPage(page);

@@ -2007,7 +2007,6 @@ frameworks.forEach((framework) => {
     });
 
     test("Fix react dropdown value after matrix row re-render #9001", async ({ page }) => {
-      if (framework == "vue") return;
       const json = {
         elements: [
           {

@@ -28,6 +28,8 @@ When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that 
 
 Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
 
+[Demo: Letter Shortcuts](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+
 Available since: v3.2.2
 
 ### `colCount`

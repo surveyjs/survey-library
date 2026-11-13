@@ -86,7 +86,7 @@ describe("RecordTargetResolver: a removal follows its record through the removin
     const { owner, resolver } = create(4);
     const record = owner.records[2];
     const removal = resolver.removeTarget({ recordIndex: 2 }, (resolved: IRecordRemoval): boolean => {
-      expect(resolver.heldRemoveTargets.map((t: IRecordTarget) => t.recordIndex), "#1: held while the handler runs").toEqual([2]);
+      expect(resolver["held"].map((t: IRecordTarget) => t.recordIndex), "#1: held while the handler runs").toEqual([2]);
       owner.records.splice(0, 0, { id: "new" });
       resolver.follow(insertAt(0));
       owner.records.splice(4, 1);
@@ -96,7 +96,7 @@ describe("RecordTargetResolver: a removal follows its record through the removin
     expect(removal.recordIndex, "#2: found again at its new index").toBe(3);
     expect(owner.removed.length, "#3").toBe(1);
     expect(owner.records.indexOf(record), "#4: removed").toBe(-1);
-    expect(resolver.heldRemoveTargets, "#5: released").toEqual([]);
+    expect(resolver["held"], "#5: released").toEqual([]);
     resolver.keepFocusForReadAfterRemoval(5);
     expect(owner.focused, "#6: a removal happened").toEqual([5]);
   });
@@ -121,7 +121,7 @@ describe("RecordTargetResolver: a removal follows its record through the removin
     expect(removal, "#2").toBeUndefined();
     expect(extended, "#3: the type decides nothing").toBe(0);
     expect(owner.removed.length, "#4").toBe(1);
-    expect(resolver.heldRemoveTargets, "#5").toEqual([]);
+    expect(resolver["held"], "#5").toEqual([]);
     resolver.keepFocusForReadAfterRemoval(1);
     expect(owner.focused, "#6: the last removal was cancelled").toEqual([]);
   });
@@ -156,7 +156,7 @@ describe("RecordTargetResolver: a confirmation answers later", () => {
       answer(true);
     });
     expect(removed, "#4: found again at its new index").toEqual([{ recordIndex: 3, visibleIndex: 3, record: record }]);
-    expect(resolver.heldRemoveTargets, "#5: no longer held").toEqual([]);
+    expect(resolver["held"], "#5: no longer held").toEqual([]);
   });
   test("a confirmation that answers after the record left removes nothing", () => {
     const { owner, resolver } = create(3);
@@ -177,7 +177,7 @@ describe("RecordTargetResolver: a confirmation answers later", () => {
       resolver.runRecordRemoval({ recordIndex: 1, record: record }, true, "Remove?", (current: IRecordTarget): void => { removed.push(current); });
       owner.records.reverse();
       resolver.follow({ kind: "reload", oldRecords: [], newRecords: [], getRemap: () => (): number => -1 });
-      expect(resolver.heldRemoveTargets, "#1").toBeUndefined();
+      expect(resolver["held"], "#1").toBeUndefined();
       answer(true);
     });
     expect(removed, "#2").toEqual([{ recordIndex: 1, visibleIndex: 1, record: record }]);
@@ -190,7 +190,7 @@ describe("RecordTargetResolver: a confirmation answers later", () => {
     const remove = (current: IRecordTarget): void => { removed.push(current); };
     holdConfirmation((answer: (yes: boolean) => void): void => {
       resolver.runRecordRemoval({ recordIndex: 0, item: item }, true, "Remove?", remove);
-      expect(resolver.heldRemoveTargets, "#1: a target with an object is not held").toBeUndefined();
+      expect(resolver["held"], "#1: a target with an object is not held").toBeUndefined();
       owner.items = [itemOf(1)];
       answer(true);
       resolver.runRecordRemoval({ recordIndex: 1, item: owner.items[0] }, true, "Remove?", remove);

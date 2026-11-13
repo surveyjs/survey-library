@@ -40,7 +40,7 @@ const reachedMembers: Array<{ owner: string, members: Array<string>, classes: Ar
   {
     owner: "QuestionRecordsModel",
     members: ["getItemRecordIndex", "getItemVisibleIndex", "getItemByVisibleIndex", "getItemByRecordIndex", "getExpressionItem",
-      "syncPageSizeWithMode", "writeItemValue", "getRecordAddText", "addRecordFromUI", "isRecordKeyUnknown", "getItemPageVisibleIndex"],
+      "syncPageSizeWithMode", "writeItemValue", "getRecordAddText", "addRecordFromUI", "isRecordKeyUnknown"],
     classes: [QuestionMatrixDynamicModel, QuestionMatrixDropdownModel, QuestionPanelDynamicModel]
   },
   {

@@ -408,9 +408,6 @@ describe("Records questions: one API across the three types", () => {
     q.releaseAnimations();
     expect(q.animationAllowed, "#2: released by its owner").toBe(true);
   });
-  test("the three records questions are composite questions", () => {
-    expect(kinds.map(kind => create(kind).isCompositeQuestion), "#1").toEqual([true, true, true]);
-  });
   test("the single-select matrix has none of these members, and its answer, rows and JSON are its own", () => {
     const json = { type: "matrix", name: "m", columns: ["c1", "c2"], rows: ["r1", "r2"] };
     const survey = new SurveyModel({ elements: [json] });

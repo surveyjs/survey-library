@@ -187,7 +187,6 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(500);
 
       await page.locator(".sd-editor-chevron-button").click();
       await page.getByText("item1", { exact: true }).first().click();
@@ -196,7 +195,6 @@ frameworks.forEach(framework => {
       await page.locator("span").filter({ hasText: "Cancel" }).click();
       await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sd-selectlist__filter input").fill("item1");
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-popup.png");
     });
 
@@ -218,14 +216,12 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.waitForTimeout(500);
 
       const popupSelector = page.locator(".sv-popup.sv-multi-select-list");
 
       await page.locator(".sd-editor-chevron-button").click();
       await popupSelector.waitFor({ state: "visible" });
       await page.locator(".sd-selectlist__filter input").fill("item1");
-      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup.png");
 
       await page.locator(".sd-root-modern").click({ position: { x: 10, y: 10 } });
@@ -233,7 +229,6 @@ frameworks.forEach(framework => {
       await page.locator(".sd-editor-chevron-button").click();
       await popupSelector.waitFor({ state: "visible" });
       await page.locator(".sd-selectlist__filter input").fill("item");
-      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-big.png");
 
       await page.locator(".sd-root-modern").click({ position: { x: 10, y: 10 } });
@@ -241,7 +236,6 @@ frameworks.forEach(framework => {
       await page.locator(".sd-editor-chevron-button").click();
       await popupSelector.waitFor({ state: "visible" });
       await page.locator(".sd-selectlist__filter input").fill("item3");
-      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-small.png");
     });
 
@@ -259,7 +253,6 @@ frameworks.forEach(framework => {
           "choices": ["English: American Literature", "English: British and World Literature", "Math: Consumer Math", "Math: Practical Math", "Math: Developmental Algebra", "Math: Continuing Algebra", "Math: Pre-Algebra", "Math: Algebra", "Math: Geometry", "Math: Integrated Mathematics", "Science: Physical Science", "Science: Earth Science", "Science: Biology", "Science: Chemistry", "History: World History", "History: Modern World Studies", "History: U.S. History", "History: Modern U.S. History", "Social Sciences: U.S. Government and Politics", "Social Sciences: U.S. and Global Economics", "World Languages: Spanish", "World Languages: French", "World Languages: German", "World Languages: Latin", "World Languages: Chinese", "World Languages: Japanese"]
         }]
       });
-      await page.waitForTimeout(500);
       await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-popup.sv-multi-select-list").waitFor({ state: "visible" });
       await page.evaluate(() => document.fonts.ready);

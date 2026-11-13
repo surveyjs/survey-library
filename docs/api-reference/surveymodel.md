@@ -163,7 +163,11 @@ You can override this setting for individual questions using their `choiceShortc
 
 Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
 
+[Demo: Letter Shortcuts](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+
 Available since: v3.2.2
+
+**Related APIs:** [`showKeyboardHints`](#showKeyboardHints)
 
 ### `clearDisabledChoices`
 
@@ -371,6 +375,14 @@ When you set the `data` property in code, the new object overrides the old objec
 If you assign a new object while a respondent takes the survey, set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to 0 to start the survey from the beginning. This will also cause the survey to re-evaluate the [`visibleIf`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIf), [`enableIf`](https://surveyjs.io/form-library/documentation/api-reference/question#enableIf), and other [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
 
 **Related APIs:** [`setValue`](#setValue), [`getValue`](#getValue)
+
+### `dropdownLoadingComponent`
+
+**Type**: `string`
+
+The name of a component used to display a loading indicator in drop-down lists.
+
+> This property can only be set in JavaScript code on a `SurveyModel` instance. It cannot be specified in the survey JSON schema.
 
 ### `editText`
 
@@ -1064,6 +1076,26 @@ Possible values:
 Specifies whether to show all survey elements, regardless of their visibility.
 
 Default value: `false`
+
+### `showKeyboardHints`
+
+**Type**: `boolean`
+
+Specifies whether to display keyboard shortcut hints for questions that support them.
+
+Default value: `false`
+
+Hints describe available keyboard actions, such as selecting choices or pressing Enter to continue. Displayed hints depend on the question type and settings.
+
+Keyboard hints are hidden on touch devices, in read-only or preview mode, for collapsed questions, and in matrix cells.
+
+You can override this setting for individual questions using their [`showKeyboardHints`](https://surveyjs.io/form-library/documentation/api-reference/question#showKeyboardHints) property.
+
+[Demo: Keyboard Hints](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+
+Available since: v3.2.4
+
+**Related APIs:** [`choiceShortcutsEnabled`](#choiceShortcutsEnabled)
 
 ### `showNavigationButtons`
 
@@ -3906,7 +3938,7 @@ Parameters:
 
  - `sender`: `SurveyModel`  
 A survey instance that raised the event.
-- `options.element`: `Question | PanelModel | SurveyModel | PageModel`  
+- `options.element`: `Question | PanelModel | PageModel | SurveyModel`  
 A survey element (question, panel, page, or survey) for which the event is raised.
 - `options.name`: `string`  
 The name of the property that contains the text to process.

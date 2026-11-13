@@ -28,7 +28,6 @@ frameworks.forEach(framework => {
       });
 
       const questionRoot = page.locator(".sd-question--html");
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "html-question.png");
     });
 
@@ -51,7 +50,6 @@ frameworks.forEach(framework => {
       });
 
       const questionRoot = page.locator(".sd-question--html");
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "html-question-wrapping.png");
     });
   });

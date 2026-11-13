@@ -270,9 +270,6 @@ export interface IFunctionParameter {
 export function registerFunction(info: IFunctionRegistration): void {
   FunctionFactory.Instance.register(info);
 }
-export function unregisterFunction(name: string): void {
-  FunctionFactory.Instance.unregister(name);
-}
 
 function getParamsAsArray(value: any, arr: any[]) {
   if (value === undefined || value === null) return;

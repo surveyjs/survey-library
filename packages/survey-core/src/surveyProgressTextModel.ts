@@ -1,5 +1,4 @@
 import { Base } from "./base";
-import { property } from "./decorators";
 import { getLocaleString } from "./surveyStrings";
 import { SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";

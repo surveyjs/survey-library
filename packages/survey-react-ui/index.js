@@ -1134,8 +1134,8 @@ json = {
       displayMode: "checkbox",
       allowClear: true,
       defaultValue: true
-    },
-    {
+            },
+            {
       type: "boolean",
       name: "boolean-switch",
       title: "Yes/No as switch",

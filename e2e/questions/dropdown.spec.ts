@@ -742,6 +742,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
 
+      await expect(page.locator(".sd-dropdown").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
@@ -800,6 +801,7 @@ frameworks.forEach((framework) => {
 
       await expect(popupContainer).not.toBeVisible();
 
+      await expect(page.locator(".sd-dropdown__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("a");
       await expect(popupContainer).toBeVisible();
 
@@ -848,6 +850,7 @@ frameworks.forEach((framework) => {
 
       await expect(popupContainer).not.toBeVisible();
 
+      await expect(page.locator(".sd-dropdown__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("a");
       await expect(popupContainer).toBeVisible();
 
@@ -902,6 +905,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
 
+      await expect(page.locator(".sd-dropdown").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
@@ -946,6 +950,7 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
 
+      await expect(page.locator(".sd-dropdown").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
@@ -973,6 +978,7 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
 
+      await expect(page.locator(".sd-dropdown").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.type("em 2");
       await page.keyboard.press("Enter");
@@ -998,6 +1004,7 @@ frameworks.forEach((framework) => {
       await expect(listItems).toHaveCount(0);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
+      await expect(page.locator(".sd-dropdown__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
       await expect(popupContainer).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
@@ -1038,6 +1045,7 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
 
+      await expect(page.locator(".sd-dropdown").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
@@ -1093,6 +1101,7 @@ frameworks.forEach((framework) => {
       await expect(listItems).toHaveCount(0);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
+      await expect(page.locator(".sd-dropdown__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
       await expect(page.locator(".sd-editor-clean-button")).not.toBeVisible();
 
@@ -1156,6 +1165,7 @@ frameworks.forEach((framework) => {
       await expect(questionValueText).toHaveText("Volkswagen");
       await expect(oldDropdown).toHaveValue("Mercedes-Benz");
 
+      await expect(page.locator(".sd-dropdown").first()).toBeFocused();
       await page.keyboard.press("Delete");
       await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Select...");
       await expect(oldDropdown).toHaveValue("Mercedes-Benz");
@@ -1197,6 +1207,7 @@ frameworks.forEach((framework) => {
       const focusedItem = page.locator(".sd-selectlist__item--focused span");
       await page.setViewportSize({ width: 1280, height: 600 });
 
+      await expect(page.locator(".sd-dropdown").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
       await expect(focusedItem).toBeVisible();
@@ -1575,6 +1586,7 @@ frameworks.forEach((framework) => {
       const str = page.locator(".sd-dropdown__input .sv-string-viewer");
 
       await expect(popupContainer).not.toBeVisible();
+      await expect(page.locator(".sd-dropdown__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await expect(popupContainer).toBeVisible();
       await expect(input).toHaveValue("item1");
@@ -2309,6 +2321,7 @@ frameworks.forEach((framework) => {
           choices: Array.from({ length: 100 }, (_, i) => `item${i + 1}`)
         }]
       });
+      await expect(page.locator(".sd-dropdown").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
       await expect(page.getByRole("option", { name: "item80", exact: true })).toBeInViewport();

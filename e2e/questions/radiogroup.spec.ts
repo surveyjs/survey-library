@@ -579,6 +579,7 @@ frameworks.forEach((framework) => {
     });
 
     test("readonly:keyboard disabled", async ({ page }) => {
+      await expect(page.locator("input[value=BMW]")).toBeChecked();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
       const getValue = async () => {

@@ -5,11 +5,10 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ComponentCollection } from "../src/question_custom";
 import { ContainerDataNesting } from "../src/container-data-nesting";
-import { getDataNestingKindAt } from "../src/data-nesting-key";
 
 // Where a container sits for nested data (its data nesting place), pinned for every kind of place: on the
-// survey, in a records question's template, in a record, in a composite's content. The owners of a panel's data
-// answer the place (ContainerDataNesting); these answers must not change.
+// survey, in a records question's template, in a record, in a composite's content. ContainerDataNesting
+// answers the place; these answers must not change.
 
 const json = {
   dataNesting: "panelAndPage",
@@ -133,28 +132,6 @@ describe("container data nesting: the place of a container", () => {
     expect(inner["getDataNestingPlace"]()).toBe("survey");
     expect(inner.getDataScopeKey()).toBe("address");
     expect(survey.pages[0].getDataScopeKey()).toBe("pg");
-  });
-  test("one mapping from a place to the kind the dataNesting table looks up", () => {
-    const rows = (["survey", "record", "template", ""] as const).map(place =>
-      [place, getDataNestingKindAt(place, "page", false), getDataNestingKindAt(place, "page", true)]);
-    expect(rows).toEqual([
-      ["survey", "page", "page"],
-      ["record", "record", "record"],
-      ["template", "", "record"],
-      ["", "", ""]
-    ]);
-  });
-  test("a panel's data that answers the place decides it", () => {
-    const survey = new SurveyModel({ elements: [
-      { type: "panel", name: "root", elements: [{ type: "panel", name: "inner", elements: [{ type: "text", name: "q1" }] }] }] });
-    const root = <PanelModelBase>survey.getPanelByName("root");
-    const inner = <PanelModelBase>survey.getPanelByName("inner");
-    const owner = { getChildDataNestingPlace: (panel: any): string => panel === root ? "record" : undefined };
-    root.parent = null;
-    Object.defineProperty(root, "data", { get: () => owner, configurable: true });
-    expect(ContainerDataNesting.getPlace(root), "the panel the owner holds").toBe("");
-    expect(ContainerDataNesting.getPlace(inner), "a panel inside it").toBe("record");
-    expect(root.isDataNestingIgnored()).toBe(true);
   });
   [false, true].forEach(isDesign => {
     test((isDesign ? "design" : "runtime") + ", dataNesting none: a template's key is looked up on its owner's survey, also for a choice panel", () => {

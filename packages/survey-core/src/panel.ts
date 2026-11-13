@@ -38,7 +38,7 @@ import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
 import type { PanelDataScope } from "./panel-data-scope";
-import type { DataNestingKind, DataNestingPlace } from "./data-nesting-key";
+import type { DataNestingPlace } from "./container-data-nesting";
 import { getDataScopeHost } from "./panel-data-scope";
 import { ContainerDataNesting } from "./container-data-nesting";
 import { Scope } from "./utils/scope";
@@ -595,7 +595,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.containerNesting.collectValue(data);
   }
   // Which by-name modes of dataNesting nest this container: "panel" or "page" (PageModel), or "" for none.
-  protected getDataNestingKind(): DataNestingKind {
+  protected getDataNestingKind(): string {
     return "panel";
   }
   protected getElementsSurveyImpl(): ISurveyImpl {

@@ -4,7 +4,6 @@ import type { PanelModelBase } from "./panel";
 import type { IExpressionVariableInfo } from "./survey";
 import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
-import type { DataNestingPlace } from "./data-nesting-key";
 import { Helpers } from "./helpers";
 import { IDataScope, DataKeyIndex, DataScopeWalk, IDataScopeLookup, IndexedDataScopeLookup, WalkingDataScopeLookup,
   getElementDataScope, isKnownDataKey } from "./data-key-index";
@@ -12,7 +11,7 @@ import { ObjectKeyKind, asScopeObject, setObjectKey } from "./data-object-utils"
 import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
 
 // The nested-data module is split by what changes together:
-//   data-nesting-key.ts: the dataNesting rule (getDataNestingKey) and the place types;
+//   data-nesting-key.ts: the dataNesting rule (getDataNestingKey);
 //   data-key-index.ts: a scope's key index and the two ways a scope looks its keys up;
 //   record-key-level.ts: the static keys of the records a template builds;
 //   data-object-utils.ts: plain-object paths and the keep-empty rule;
@@ -282,11 +281,6 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     const data = this.parentData;
     if (!data) return undefined;
     return asScopeObject(data.getValue(this.key));
-  }
-  // IDataNestingPlaceOwner: a panel at the top of a chain whose data is a scope counts as being on the survey's
-  // data. The scope answers without looking at where it is itself.
-  getChildDataNestingPlace(panel: IPanel): DataNestingPlace {
-    return "survey";
   }
   //ISurveyImpl
   getSurveyData(): ISurveyData {

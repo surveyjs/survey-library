@@ -1,12 +1,11 @@
 import { Serializer } from "survey-core";
-import type { DataNestingKind } from "survey-core";
 import { CIMultiMap, ContainerRecord, DataScopeRecord, ElementRecord, SurveyIndex } from "./symbols";
 
 // Nested data (docs/design-survey-nested-data.md): a panel or a page with a valueName - or every panel
 // and/or page in a by-name dataNesting mode - stores its questions' values in an object under its key.
 
 // The kind the key rule looks a container up by: a dynamic panel's template is no container of its own.
-export function getContainerNestingKind(container: ContainerRecord): DataNestingKind {
+export function getContainerNestingKind(container: ContainerRecord): string {
   return container.kind === "panel" || container.kind === "page" ? container.kind : "";
 }
 

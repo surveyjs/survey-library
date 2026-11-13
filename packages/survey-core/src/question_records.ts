@@ -1,5 +1,5 @@
 import { Base } from "./base";
-import { IElement, IPanel, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyDataElement, ISurveyImpl, ITextProcessor } from "./base-interfaces";
+import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyDataElement, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
@@ -39,7 +39,6 @@ import { getElementDataScope } from "./data-key-index";
 import { RecordKeyLevel, hasRecordDataNesting } from "./record-key-level";
 import { PanelDataScopeValueGetterContext, RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
 import { asScopeObject, getNameOfCommentName, getValueByPath } from "./data-object-utils";
-import type { DataNestingPlace } from "./data-nesting-key";
 import { RecordsDataWaits } from "./records/records-data-waits";
 import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainerVisible } from "./records/records-hidden-answers";
 import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/records-cleanup-runner";
@@ -4516,14 +4515,6 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   }
   getTextProcessor(): ITextProcessor {
     return this.textPreProcessor;
-  }
-  // IDataNestingPlaceOwner: a panel whose data is the record (a dynamic panel's panel, a row's detail panel) is
-  // the record panel, and the panels inside it are in the record.
-  public getChildDataNestingPlace(panel: IPanel): DataNestingPlace {
-    return "record";
-  }
-  public getRecordsQuestion(): Question {
-    return this.data;
   }
 
   // The record's questions on a value name, as the key index has them: in document order, a row's cells first.

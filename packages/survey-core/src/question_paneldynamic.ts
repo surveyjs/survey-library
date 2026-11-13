@@ -42,7 +42,6 @@ import {
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
 } from "./question_records";
 import { deleteObjectPaths } from "./data-object-utils";
-import type { DataNestingPlace } from "./data-nesting-key";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
   protected getNextName(): string {
@@ -772,12 +771,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    */
   public get template(): PanelModel {
     return this.templateValue;
-  }
-  // IDataNestingPlaceOwner: the panels inside the template are in a records template, the panels inside a
-  // panel of this question are in a record; undefined for a panel that is neither.
-  public getChildDataNestingPlace(panel: IPanel): DataNestingPlace {
-    if (panel === this.template) return "template";
-    return (<PanelModel>panel).parentQuestion === this ? "record" : undefined;
   }
   public getPanelInDesignMode() : PanelModel { return this.template; }
   public getPanels(): Array<IPanel> {

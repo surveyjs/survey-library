@@ -1,5 +1,4 @@
 import { SurveyVariablePresets, TextPreProcessor, buildTriggerExpression, getDataNestingKey } from "survey-core";
-import type { DataNestingKind } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
 import {
   ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS, TEXT_TEMPLATE_PROPS,
@@ -259,7 +258,7 @@ function applyDataNesting(state: WalkState, record: ElementRecord, container: Co
   names.add(name);
   const valueName = isNonEmptyString(record.json.valueName) ? record.json.valueName : "";
   // inside a record a panel nests by its valueName only: no by-name mode lists the kind "record"
-  const keyKind: DataNestingKind = !!dataScope && kind === "panel" && isInsideRecordScope(dataScope) ? "record" : kind;
+  const keyKind: string = !!dataScope && kind === "panel" && isInsideRecordScope(dataScope) ? "record" : kind;
   const key = !!dataScope ? getDataNestingKey(state.index.dataNesting, keyKind, valueName, name) : "";
   if (!key) {
     // a valueName nests unless "none" switches nesting off

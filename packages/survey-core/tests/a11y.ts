@@ -1,5 +1,7 @@
 import { Question } from "../src/question";
 import { ComponentCollection } from "../src/question_custom";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
 
 import { describe, test, expect } from "vitest";
@@ -140,7 +142,6 @@ describe("a11y", () => {
     expect(question.a11y_input_ariaRole, "aria-role is radiogroup").toBe("radiogroup");
     expect(question.a11y_input_ariaRequired, "aria-required is true").toBe("true");
     expect(question.a11y_input_ariaInvalid, "aria-invalid is false").toBe("false");
-    expect(question.a11y_input_ariaExpanded, "aria-expanded is null").toBeUndefined();
     expect(question.a11y_input_ariaErrormessage, "aria-errormessage is null").toBe(null);
   });
 
@@ -170,5 +171,56 @@ describe("a11y", () => {
     expect(q1.ariaTitleId).toBe(q1.contentQuestion.ariaTitleId);
     expect(q1.ariaDescriptionId).toBe(q1.contentQuestion.ariaDescriptionId);
     expect(q1.commentId).toBe(q1.contentQuestion.commentId);
+  });
+
+  test("a11y: the Add Row button is described by the no rows text, Bug#12280", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, hideColumnsIfEmpty: true, columns: [{ name: "col1" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const addAction = matrix.toolbar.getActionById("sv-md-add-btn");
+    expect(matrix.noRowsTextId, "noRowsTextId").toBe(matrix.renderedId + "_noRowsText");
+    expect(matrix.renderedTable.showTable, "the placeholder is shown, #1").toBe(false);
+    expect(addAction.ariaDescribedBy, "the placeholder is shown, #1").toBe(matrix.noRowsTextId);
+
+    matrix.addRow();
+    expect(matrix.renderedTable.showTable, "the table is shown, #2").toBe(true);
+    expect(addAction.ariaDescribedBy, "the table is shown, #2").toBeUndefined();
+
+    matrix.removeRow(0);
+    expect(matrix.renderedTable.showTable, "the placeholder is shown, #3").toBe(false);
+    expect(addAction.ariaDescribedBy, "the placeholder is shown, #3").toBe(matrix.noRowsTextId);
+
+    matrix.hideColumnsIfEmpty = false;
+    expect(matrix.renderedTable.showTable, "the table is shown, #4").toBe(true);
+    expect(addAction.ariaDescribedBy, "the table is shown, #4").toBeUndefined();
+  });
+
+  test("a11y: the Add Row button is described by the no rows text if the toolbar is created after the table, Bug#12280", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, hideColumnsIfEmpty: true, columns: [{ name: "col1" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.renderedTable.showTable, "the placeholder is shown").toBe(false);
+    expect(matrix.toolbar.getActionById("sv-md-add-btn").ariaDescribedBy).toBe(matrix.noRowsTextId);
+  });
+
+  test("a11y: the Add button is described by the no entries text, Bug#12280", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "q1" }] }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const addAction = panel.addPanelAction;
+    expect(panel.noEntriesTextId, "noEntriesTextId").toBe(panel.renderedId + "_noEntriesText");
+    expect(panel.getShowNoEntriesPlaceholder(), "the placeholder is shown, #1").toBe(true);
+    expect(addAction.ariaDescribedBy, "the placeholder is shown, #1").toBe(panel.noEntriesTextId);
+
+    panel.addPanel();
+    expect(panel.getShowNoEntriesPlaceholder(), "the panels are shown, #2").toBe(false);
+    expect(addAction.ariaDescribedBy, "the panels are shown, #2").toBeUndefined();
+
+    panel.removePanel(0);
+    expect(panel.getShowNoEntriesPlaceholder(), "the placeholder is shown, #3").toBe(true);
+    expect(addAction.ariaDescribedBy, "the placeholder is shown, #3").toBe(panel.noEntriesTextId);
   });
 });

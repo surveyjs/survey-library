@@ -70,7 +70,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property({ defaultValue: false }) disableSearch: boolean;
   @property({ defaultValue: "sv-list-loading" }) loadingComponent: string;
 
-  public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
   public scrollHandler: (e?: any) => void;
   public loadingIndicatorVisibilityObserver: (isVisible: boolean) => void;
@@ -291,11 +290,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       itemValue.css
     );
   };
-
-  // public getItemIndent = (itemValue: any) => {
-  //   const level: number = itemValue.level || 0;
-  //   return (level + 1) * ListModel.INDENT + "px";
-  // };
 
   public getItemStyle = (itemValue: any) => {
     const level: number = itemValue.level || 0;

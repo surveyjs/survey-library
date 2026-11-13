@@ -851,7 +851,7 @@ describe("Base", () => {
   @property({ defaultValue: 2 }) propB: number;
   }
   const depsToArray = (updater: ComputedUpdater): Array<{ obj: Base, prop: string }> =>
-    updater["getDependencies"]().dependencies.map(d => ({ obj: d.obj, prop: d.prop }));
+    updater["dependencies"].dependencies.map(d => ({ obj: d.obj, prop: d.prop }));
   test("Collect dependencies: a property read twice is one dependency", () => {
     const a = new BaseTester5();
     const b = new BaseTester5();
@@ -1040,9 +1040,9 @@ describe("Base", () => {
       enabled: <any>updater2,
     });
 
-    const dependencies1 = updater1["getDependencies"]();
+    const dependencies1 = updater1["dependencies"];
     expect(dependencies1.dependencies.length, "active dependencies count = 1").toBe(1);
-    const dependencies2 = updater1["getDependencies"]();
+    const dependencies2 = updater1["dependencies"];
     expect(dependencies2.dependencies.length, "enabled dependencies count = 1").toBe(1);
 
     expect(updaterCallCount1, "first time calculation - active").toBe(1);
@@ -1104,7 +1104,7 @@ describe("Base", () => {
 
     expect(Object.keys(base3.dependencies).length, "one computed").toBe(1);
     expect(Object.keys(base3.dependencies)[0], "propC").toBe("propC");
-    expect(base3.dependencies["propC"]["getDependencies"]().dependencies.length, "depends on two properties").toBe(2);
+    expect(base3.dependencies["propC"]["dependencies"].dependencies.length, "depends on two properties").toBe(2);
 
     expect(base1["onPropChangeFunctions"].length, "base1 one subscription").toBe(1);
     expect(base1["onPropChangeFunctions"][0].name, "base1 one subscription to A").toBe("propA");
@@ -1120,7 +1120,7 @@ describe("Base", () => {
     base3.dispose();
 
     expect(Object.keys(base3.dependencies).length, "one computed").toBe(1);
-    expect(base3.dependencies["propC"]["getDependencies"](), "no dependencies").toBe(undefined);
+    expect(base3.dependencies["propC"]["dependencies"], "no dependencies").toBe(undefined);
 
     expect(base1["onPropChangeFunctions"].length, "base1 no subscriptions").toBe(0);
     expect(base2["onPropChangeFunctions"].length, "base2 no subscriptions").toBe(0);

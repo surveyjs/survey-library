@@ -107,6 +107,8 @@ export var urduSurveyStrings = {
   value: "قدر",
   // "Response required."
   requiredError: "براہ کرم سوال کا جواب دیں۔",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "آگے بڑھنے کے لیے آپ کو ہاں منتخب کرنا ہوگا۔",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "ویلیو غلط ہے۔",
   // [Auto-translated] "The value contains unknown keys: {0}."

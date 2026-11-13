@@ -14,10 +14,6 @@ const json = {
 
 export async function disposeSurvey(page, framework) {
   await page.evaluate((framework) => {
-    if (framework === "vue") {
-      window["vueApp"].$destroy();
-      window["vueApp"].$el.parentNode.removeChild(window["vueApp"].$el);
-    }
     if (framework === "react") {
       window["root"].unmount();
     }

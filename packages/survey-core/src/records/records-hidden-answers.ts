@@ -72,10 +72,6 @@ export function isHiddenAnswerContainerVisible(isVisible: (el: PanelModelBase) =
 export class HiddenAnswerTracker implements IRecordIndexFollower {
   private states: Map<any, HashTable<number>>;
   constructor(private owner: IHiddenAnswerTrackerOwner) { }
-  // The flags kept per record; undefined before the first walk.
-  public get hiddenAnswerStates(): Map<any, HashTable<number>> {
-    return this.states;
-  }
   /* The visibility of a template element - a question of a record, a panel around it - in a record that
      has no object: its visible, or its visibleIf run over the record (the record item is the {row} /
      {panel} variable, see createRecordVisibilityScope); once per element and record, one runner per

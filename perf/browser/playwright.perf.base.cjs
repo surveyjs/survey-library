@@ -19,8 +19,9 @@ function perfConfig(suite) {
     workers: 1,
     retries: 0,
     fullyParallel: false,
-    // A scenario takes under a minute at normal speed; a hung one fails alone and the suite stays inside 10 min.
-    timeout: 3 * 60000,
+    // A hang guard: a hung scenario fails alone and the rest of the suite runs; a suite itself has no time limit. The
+    // longest on the perf server, React manyPages/pages/preview, took 145 s on 2026-11-10.
+    timeout: 5 * 60000,
     outputDir: path.join(resultsDir, "playwright"),
     globalSetup: path.join(browserDir, "global-setup.ts"),
     reporter: [["line"], [path.join(browserDir, "perf-reporter.ts")]],

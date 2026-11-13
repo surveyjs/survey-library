@@ -107,6 +107,8 @@ export var simplifiedChineseSurveyStrings = {
   value: "值",
   // "Response required."
   requiredError: "请填写此问题",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "您必须选择“是”才能继续。",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "数值是错误的。",
   // [Auto-translated] "The value contains unknown keys: {0}."

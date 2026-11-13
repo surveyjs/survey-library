@@ -1,6 +1,5 @@
 import type { SurveyAsyncOperationType } from "survey-core";
-import { DEFAULT_SURVEY_ASYNC_TIMEOUT, getSurveyAsyncReasonText, getSurveyAsyncTimeout, getSurveyBusyState as getBusyState,
-  ISurveyBusyState, waitForSurveyOperations } from "../utils/survey-async";
+import { getSurveyAsyncReasonText, getSurveyAsyncTimeout, ISurveyBusyState, waitForSurveyOperations } from "../utils/survey-async";
 import { ISurveyTestContext } from "./test-context";
 import { createCaseError, SurveyTestCaseError } from "./test-error";
 import { ISurveyTestOptions } from "./test-json";
@@ -14,26 +13,18 @@ import { SurveyTestIssueCodes } from "./test-result";
 // step after, and let the survey complete itself once the run is over. So a command is not finished
 // until the model it acted on has settled.
 
-// The budget for the whole wait, chained operations included, in milliseconds. It is wall-clock time
-// and it is deliberately not the pinned clock of the test: what is bounded here is how long a real
-// handler may take, not what the survey believes the date is. The waiting itself lives in
-// src/utils/survey-async.ts, which the interview shares.
-export const DEFAULT_TEST_ASYNC_TIMEOUT = DEFAULT_SURVEY_ASYNC_TIMEOUT;
-
 // The reasons are the operation types of SurveyModel.getRunningAsyncOperations(): the model owns the
 // list of its asynchronous mechanisms, and the tester reports them under the names the model gave.
 export type SurveyTestBusyReason = SurveyAsyncOperationType;
 
 export type ISurveyTestBusyState = ISurveyBusyState;
 
+// The budget for the whole wait, chained operations included, in milliseconds. It is wall-clock time
+// and it is deliberately not the pinned clock of the test: what is bounded here is how long a real
+// handler may take, not what the survey believes the date is. The waiting itself lives in
+// src/utils/survey-async.ts, which the interview shares.
 export function getAsyncTimeout(options: ISurveyTestOptions): number {
   return getSurveyAsyncTimeout(!!options ? options.asyncTimeout : undefined);
-}
-
-// The first reason found, and everything running for that reason. Undefined means the model is
-// settled: everything the last interaction started has landed on it.
-export function getSurveyBusyState(survey: any): ISurveyTestBusyState {
-  return getBusyState(survey);
 }
 
 // "what" names the action the wait belongs to, as a phrase: the "complete" command, the start state

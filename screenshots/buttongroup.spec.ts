@@ -60,7 +60,6 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question__content", "buttongroup-renderas-default.png");
 
       await page.setViewportSize({ width: 500, height: 1000 });
-      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-question__content", "buttongroup-renderas-dropdown.png");
     });
   });

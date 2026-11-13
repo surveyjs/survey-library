@@ -107,6 +107,8 @@ export var welshSurveyStrings = {
   value: "gwerth",
   // "Response required."
   requiredError: "Atebwch y cwestiwn.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Rhaid i chi ddewis Ydw i barhau.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Mae'r gwerth yn anghywir.",
   // [Auto-translated] "The value contains unknown keys: {0}."

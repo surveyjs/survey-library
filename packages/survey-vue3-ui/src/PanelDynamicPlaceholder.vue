@@ -2,7 +2,7 @@
   <div
     :class="question.cssClasses.noEntriesPlaceholder"
   >
-    <span>
+    <span :id="question.noEntriesTextId">
       <SvComponent
         :is="'survey-string'"
         :locString="question.locNoEntriesText"

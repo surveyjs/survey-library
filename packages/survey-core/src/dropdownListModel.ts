@@ -457,9 +457,6 @@ export class DropdownListModel extends Base {
     this._loadQuestionChoices(callbackAfterItemsLoaded);
   }
 
-  public get canShowSelectedItem(): boolean {
-    return this.renderState.canShowSelectedItem;
-  }
   public get markdownMode(): boolean {
     return this._markdownMode;
   }
@@ -615,7 +612,7 @@ export class DropdownListModel extends Base {
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
-    this.setLoadingComponent(this.question.loadingComponent);
+    this.updateLoadingComponent();
     this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.setInputPlaceholder(this.question.placeholder);
     this.updateAfterListModelCreated(this.listModel);
@@ -668,14 +665,8 @@ export class DropdownListModel extends Base {
   public get filterReadOnly(): boolean {
     return this.renderState.filterReadOnly;
   }
-  public get filterStringEnabled(): boolean {
-    return this.renderState.filterStringEnabled;
-  }
   public get inputMode(): "none" | "text" {
     return this.renderState.inputMode;
-  }
-  public get popupEnabled(): boolean {
-    return this.renderState.popupEnabled;
   }
 
   public get ariaQuestionRole(): string | undefined { return this.renderState.ariaQuestionRole; }
@@ -715,6 +706,9 @@ export class DropdownListModel extends Base {
 
   public setLoadingComponent(newValue: string): void {
     this.listModel.loadingComponent = newValue || "sv-list-loading";
+  }
+  public updateLoadingComponent(): void {
+    this.setLoadingComponent((this.question.survey as SurveyModel)?.dropdownLoadingComponent);
   }
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {

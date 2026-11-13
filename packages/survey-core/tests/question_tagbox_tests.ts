@@ -47,22 +47,22 @@ describe("Tagbox question", () => {
     }]
   };
 
-  test("tagbox loadingComponent replaces the whole loading view", () => {
+  test("survey dropdownLoadingComponent reaches a tagbox inside a dynamic panel", () => {
     const survey = new SurveyModel({
       elements: [{
-        type: "tagbox",
-        name: "q1",
-        choicesLazyLoadEnabled: true,
-        loadingComponent: "my-loading"
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 1,
+        templateElements: [{ type: "tagbox", name: "q1", choicesLazyLoadEnabled: true }]
       }]
     });
-    const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+    const panelQuestion = <any>survey.getQuestionByName("panel1");
+    const question = <QuestionTagboxModel>panelQuestion.panels[0].getQuestionByName("q1");
     const list: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
-    expect(list.loadingComponent).toBe("my-loading");
-    expect(list.loadingState).toBe("loading");
-
-    question.loadingComponent = "";
     expect(list.loadingComponent).toBe("sv-list-loading");
+
+    survey.dropdownLoadingComponent = "my-loading";
+    expect(list.loadingComponent).toBe("my-loading");
   });
 
   test("clearValue", () => {

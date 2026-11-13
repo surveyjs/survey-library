@@ -1,5 +1,5 @@
 <template>
-  <div :class="page.css" :id="page.id">
+  <div :class="page.css" :id="page.renderedId">
     <SvComponent
       :is="'sv-file-item'"
       v-for="item of page.items"

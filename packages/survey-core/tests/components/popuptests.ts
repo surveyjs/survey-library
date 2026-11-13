@@ -2193,6 +2193,81 @@ describe("Popup", () => {
       vi.useRealTimers();
     }
   });
+  function setupFocusedPopup(isModal: boolean = false) {
+    const targetElement: HTMLElement = document.createElement("div");
+    addElementIntoBody(targetElement);
+    const model: PopupModel = new PopupModel("sv-list", {}, { isFocusedContent: true, isModal });
+    const viewModel: PopupBaseViewModel = createPopupViewModelTest(model, targetElement);
+    viewModel.initializePopupContainer();
+    viewModel.container.innerHTML = "<div class=\"sv-popup\"><div class=\"sv-popup__container\"><div class=\"sv-popup__body-content\">" +
+      "<div class=\"sv-popup__scrolling-content\"><div class=\"sv-popup__content\"><input id=\"popupInput1\" /><input id=\"popupInput2\" />" +
+      "</div></div></div></div></div>";
+    const input1 = viewModel.container.querySelector("#popupInput1") as HTMLElement;
+    const input2 = viewModel.container.querySelector("#popupInput2") as HTMLElement;
+    return { targetElement, model, viewModel, input1, input2 };
+  }
+  test("A popup shown twice in a row focuses its first input once, 100 ms after the last show, and keeps a later focus", () => {
+    vi.useFakeTimers();
+    const { targetElement, model, viewModel, input1, input2 } = setupFocusedPopup();
+    try {
+      model.isVisible = true;
+      viewModel.updateOnShowing();
+      vi.advanceTimersByTime(50);
+      viewModel.updateOnShowing();
+      vi.advanceTimersByTime(50);
+      expect(document.activeElement === input1, "#1: not focused 100 ms after the first show").toBe(false);
+      vi.advanceTimersByTime(50);
+      expect(document.activeElement === input1, "#2: focused 100 ms after the second show").toBe(true);
+      input2.focus();
+      vi.advanceTimersByTime(200);
+      expect(document.activeElement === input2, "#3: the second input keeps the focus").toBe(true);
+    } finally {
+      viewModel.dispose();
+      targetElement.remove();
+      vi.useRealTimers();
+    }
+  });
+  test("A popup hidden before its first input is focused does not take the focus afterwards", () => {
+    vi.useFakeTimers();
+    const { targetElement, model, viewModel } = setupFocusedPopup();
+    try {
+      model.isVisible = true;
+      viewModel.updateOnShowing();
+      vi.advanceTimersByTime(50);
+      model.isVisible = false;
+      expect(viewModel.isVisible, "#1: hidden").toBe(false);
+      vi.advanceTimersByTime(200);
+      expect(viewModel.container.contains(document.activeElement), "#2: the focus is not inside the popup").toBe(false);
+    } finally {
+      viewModel.dispose();
+      targetElement.remove();
+      vi.useRealTimers();
+    }
+  });
+  test("Disposing a popup before its first input is focused cancels the pending focus", () => {
+    vi.useFakeTimers();
+    try {
+      [false, true].forEach((isModal) => {
+        const { targetElement, model, viewModel } = setupFocusedPopup(isModal);
+        const caption = isModal ? "modal" : "dropdown";
+        try {
+          model.isVisible = true;
+          viewModel.updateOnShowing();
+          vi.advanceTimersByTime(50);
+          const activeElement = document.activeElement;
+          expect(vi.getTimerCount(), `#1 ${caption}: the focus is pending`).toBe(1);
+          viewModel.dispose();
+          expect(vi.getTimerCount(), `#2 ${caption}: the pending focus is cancelled`).toBe(0);
+          expect(() => vi.advanceTimersByTime(200), `#3 ${caption}`).not.toThrow();
+          expect(document.activeElement === activeElement, `#4 ${caption}: the focus did not move`).toBe(true);
+        } finally {
+          targetElement.remove();
+        }
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
   test("hasBeenShown: turns true on the first show and stays true after hiding", () => {
     const model: PopupModel = new PopupModel("sv-list", {});
     const viewModel = createPopupViewModel(model);

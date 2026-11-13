@@ -353,6 +353,35 @@ describe("Survey", () => {
     expect(survey.activePage.rows.length, "rows #6").toBe(1);
     expect(survey.isShowPrevButton, "isShowPrevButton #6").toBe(false);
   });
+  test("firstPageIsStartPage & questionsOnPageMode, rows update after clear() and start()", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "info" }] },
+        { name: "quiz", elements: [
+          { type: "radiogroup", name: "q1", choices: [1, 2] },
+          { type: "radiogroup", name: "q2", choices: [1, 2] },
+          { type: "radiogroup", name: "q3", choices: [1, 2] }
+        ] }
+      ],
+      firstPageIsStartPage: true,
+      questionsOnPageMode: "questionPerPage"
+    });
+    const getRowNames = () => survey.activePage.rows.map(row => row.elements.map(el => el.name).join(",")).join(";");
+    survey.clear(false, true);
+    survey.start();
+    expect(survey.activePage.name, "active page #1").toBe("quiz");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #1").toBe("q1");
+    expect(getRowNames(), "rows #1").toBe("q1");
+    survey.nextPage();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #2").toBe("q2");
+    expect(getRowNames(), "rows #2").toBe("q2");
+    survey.nextPage();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #3").toBe("q3");
+    expect(getRowNames(), "rows #3").toBe("q3");
+    survey.prevPage();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #4").toBe("q2");
+    expect(getRowNames(), "rows #4").toBe("q2");
+  });
   test("Check page num when first page is started", () => {
     var survey = new SurveyModel({
       pages: [
@@ -12297,6 +12326,80 @@ describe("Survey", () => {
     expect(survey.getPropertyValue("hasLogo")).toBeTruthy();
   });
 
+  test("Survey hasLogo & dynamic text in logo", () => {
+    const survey = new SurveyModel({ logo: "{logoUrl}" });
+    survey.setVariable("logoUrl", "https://surveyjs.io/logo.png");
+    expect(survey.locLogo.renderedHtml).toBe("https://surveyjs.io/logo.png");
+    expect(survey.hasLogo).toBeTruthy();
+    expect(survey.renderedHasLogo).toBeTruthy();
+
+    survey.setVariable("logoUrl", "");
+    expect(survey.locLogo.renderedHtml).toBeFalsy();
+    expect(survey.hasLogo).toBeFalsy();
+    expect(survey.renderedHasLogo).toBeFalsy();
+    expect(survey.isLogoBefore).toBeFalsy();
+    expect(survey.isLogoAfter).toBeFalsy();
+
+    survey.setVariable("logoUrl", null);
+    expect(survey.hasLogo).toBeFalsy();
+
+    survey.setVariable("logoUrl", "https://surveyjs.io/another-logo.png");
+    expect(survey.hasLogo).toBeTruthy();
+    expect(survey.isLogoBefore).toBeTruthy();
+  });
+
+  test("Survey hasLogo & dynamic text in logo, a variable named as the logo property", () => {
+    const survey = new SurveyModel({ logo: "{logo}" });
+    survey.setVariable("logo", "https://surveyjs.io/logo.png");
+    expect(survey.locLogo.renderedHtml).toBe("https://surveyjs.io/logo.png");
+    expect(survey.hasLogo).toBeTruthy();
+
+    survey.setVariable("logo", "");
+    expect(survey.hasLogo).toBeFalsy();
+  });
+
+  test("Survey hasLogo & dynamic text in logo, set into an empty value on start", () => {
+    const survey = new SurveyModel({ logo: "{logo}", logoPosition: "right" });
+    survey.setVariable("logo", null);
+    expect(survey.hasLogo).toBeFalsy();
+    expect(survey.renderedHasLogo).toBeFalsy();
+    expect(survey.isLogoAfter).toBeFalsy();
+  });
+
+  test("Survey hasLogo & dynamic text in logo, an unknown name", () => {
+    const survey = new SurveyModel({ logo: "{unknown}" });
+    expect(survey.locLogo.renderedHtml).toBe("{unknown}");
+    expect(survey.hasLogo).toBeTruthy();
+    expect(survey["hasLogoImage"]).toBe(true);
+  });
+
+  test("Survey hasLogo & dynamic text in logo, a question value, logoPosition none", () => {
+    const survey = new SurveyModel({
+      logo: "{q1}",
+      headerView: "advanced",
+      elements: [{ type: "text", name: "q1" }]
+    });
+    const cover = new Cover();
+    cover.survey = survey;
+    expect(survey.hasLogo, "q1 is empty").toBeFalsy();
+    expect(cover.isEmpty, "q1 is empty, header").toBeTruthy();
+
+    survey.setValue("q1", "https://surveyjs.io/logo.png");
+    expect(survey.hasLogo, "q1 has a value").toBeTruthy();
+    expect(cover.isEmpty, "q1 has a value, header").toBeFalsy();
+    expect(cover.cells.filter(cell => cell.showLogo).length, "q1 has a value, logo cells").toBe(1);
+
+    survey.logoPosition = "none";
+    expect(survey.hasLogo, "logoPosition is none").toBeFalsy();
+
+    survey.logoPosition = "left";
+    expect(survey.hasLogo, "logoPosition is left").toBeTruthy();
+
+    survey.clearValue("q1");
+    expect(survey.hasLogo, "q1 is cleared").toBeFalsy();
+    expect(cover.isEmpty, "q1 is cleared, header").toBeTruthy();
+  });
+
   test("Survey isLogoBefore/isLogoAfter", () => {
     var survey = new SurveyModel({});
     expect(!!survey.locLogo.renderedHtml).toBeFalsy();
@@ -14297,13 +14400,10 @@ describe("Survey", () => {
   });
   test("onElementWrapperComponentName event", () => {
     const survey = new SurveyModel({
-      elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] },
-        { type: "matrixdynamic", name: "q3", rowCount: 1, columns: [{ name: "col1" }] }
-      ]
+      elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] }]
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
-    const q3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q3");
     survey.onElementWrapperComponentData.add((sender, options) => {
       if (options.wrapperName === "component" && options.reason === "test1") {
         options.data = "#1";
@@ -14314,14 +14414,10 @@ describe("Survey", () => {
       if (options.wrapperName === "itemvalue" && options.item?.value === 1) {
         options.data = "#3";
       }
-      if (options.wrapperName === "cell" && options.element.name === "col1") {
-        options.data = "#4";
-      }
     });
     expect(survey.getElementWrapperComponentData(q1, "test1"), "#1").toBe("#1");
     expect(survey.getRowWrapperComponentData(new QuestionRowModel(survey.pages[0])), "#2").toBe("#2");
     expect(survey.getItemValueWrapperComponentData(q2.choices[0], q2), "#3").toBe("#3");
-    expect(survey.getMatrixCellTemplateData(q3.visibleRows[0].cells[0]), "#4").toBe("#4");
   });
   test("Skip trigger test and auto focus first question on the page", () => {
     var focusedQuestions = [];
@@ -14425,6 +14521,201 @@ describe("Survey", () => {
     expect(survey.currentPage.name, "We moved to third page").toBe("page3");
     survey.prevPage();
     expect(survey.currentPage.name, "We returned to second page").toBe("page2");
+  });
+  test("Skip trigger moves to a question after another skip trigger to it failed while it was hidden, Bug#12283", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "radiogroup", name: "a", choices: ["yes", "no"] }, { type: "radiogroup", name: "b", choices: ["yes", "no"] }] },
+        { name: "page2", elements: [{ type: "text", name: "x" }] },
+        { name: "page3", visibleIf: "{a} = 'no'", elements: [{ type: "text", name: "d" }] },
+        { name: "page4", elements: [{ type: "text", name: "e" }] }
+      ],
+      triggers: [
+        { type: "skip", expression: "{a} = 'yes'", gotoName: "d" },
+        { type: "skip", expression: "{b} = 'yes'", gotoName: "d" }
+      ]
+    });
+    survey.setValue("a", "yes");
+    expect(survey.currentPage.name, "page3 is hidden, the survey stays on page1").toBe("page1");
+    survey.setValue("a", "no");
+    expect(survey.getPageByName("page3").isVisible, "page3 is visible").toBe(true);
+    expect(survey.currentPage.name, "a = 'no' does not skip").toBe("page1");
+    survey.setValue("b", "yes");
+    expect(survey.currentPage.name, "b = 'yes' skips to d").toBe("page3");
+  });
+  test("focusQuestion returns false for a question on a hidden page and focuses it once the page is visible, Bug#12283", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "a" }] },
+        { name: "page2", visibleIf: "{a} = 'show'", elements: [{ type: "text", name: "d" }] }
+      ]
+    });
+    expect(survey.focusQuestion("d"), "page2 is hidden").toBe(false);
+    expect(survey.currentPage.name, "the survey stays on page1").toBe("page1");
+    survey.setValue("a", "show");
+    expect(survey.focusQuestion("d"), "page2 is visible").toBe(true);
+    expect(survey.currentPage.name, "the survey moves to page2").toBe("page2");
+  });
+  test("focusQuestion returns false for a question in a hidden panel, Bug#12283", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "a" }] },
+        { name: "page2", elements: [
+          { type: "text", name: "x" },
+          { type: "panel", name: "outer", elements: [
+            { type: "panel", name: "inner", visibleIf: "{a} = 'show'", elements: [{ type: "text", name: "d" }] }
+          ] }
+        ] }
+      ]
+    });
+    expect(survey.getQuestionByName("d").isVisible, "d itself is visible").toBe(true);
+    expect(survey.focusQuestion("d"), "the inner panel is hidden").toBe(false);
+    expect(survey.currentPage.name, "the survey stays on page1").toBe("page1");
+    survey.setValue("a", "show");
+    expect(survey.focusQuestion("d"), "the inner panel is visible").toBe(true);
+    expect(survey.currentPage.name, "the survey moves to page2").toBe("page2");
+  });
+  test("isVisibleWithParents checks the element, its panels and page, and the owners of a nested element, Bug#12283", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] },
+        { name: "page2", visibleIf: "{b} <> 'hidePage'", elements: [
+          { type: "text", name: "x" },
+          { type: "panel", name: "panel1", visibleIf: "{a} <> 'hidePanel'", elements: [
+            { type: "text", name: "q1" },
+            { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
+              { type: "panel", name: "innerPanel", elements: [{ type: "text", name: "d" }, { type: "text", name: "d2" }] }
+            ] },
+            { type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "col1", cellType: "text" }] }
+          ] }
+        ] }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const innerPanel = <PanelModel>dp.panels[0].getElementByName("innerPanel");
+    const nested = <Question>dp.panels[0].getQuestionByName("d");
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const cellQuestion = matrix.visibleRows[0].cells[0].question;
+    const all = () => [q1, dp, innerPanel, nested, cellQuestion].map(el => el.isVisibleWithParents);
+    expect(all(), "everything is visible").toEqual([true, true, true, true, true]);
+    survey.setValue("a", "hidePanel");
+    expect(cellQuestion.isVisible, "the cell question itself is visible").toBe(true);
+    expect(all(), "panel1 is hidden").toEqual([false, false, false, false, false]);
+    survey.setValue("a", "");
+    survey.setValue("b", "hidePage");
+    expect(all(), "page2 is hidden").toEqual([false, false, false, false, false]);
+    survey.setValue("b", "");
+    dp.visible = false;
+    expect(all(), "the dynamic panel is hidden").toEqual([true, false, false, false, true]);
+    dp.visible = true;
+    nested.visible = false;
+    expect(all(), "only the nested question is hidden").toEqual([true, true, true, false, true]);
+  });
+  test("isVisibleWithParents checks the owner of a detail panel question and of a choice panel question", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "panel", name: "panel1", visibleIf: "{a} <> 'hidePanel'", elements: [
+          { type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "col1", cellType: "text" }],
+            detailPanelMode: "underRow", detailElements: [{ type: "text", name: "note" }] },
+          { type: "radiogroup", name: "rg", choices: [{ value: "item1", elements: [{ type: "text", name: "inChoice" }] }] }
+        ] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    const note = row.detailPanel.getQuestionByName("note");
+    const rg = <QuestionRadiogroupModel>survey.getQuestionByName("rg");
+    const inChoice = (<any>rg.choices[0]).panel.getQuestionByName("inChoice");
+    const cellQuestion = row.cells[0].question;
+    const all = () => [note, inChoice, cellQuestion].map(el => el.isVisibleWithParents);
+    expect(all(), "everything is visible").toEqual([true, true, true]);
+    survey.setValue("a", "hidePanel");
+    expect(note.isVisible, "the detail question itself is visible").toBe(true);
+    expect(all(), "panel1 is hidden").toEqual([false, false, false]);
+    survey.setValue("a", "");
+    matrix.visible = false;
+    rg.visible = false;
+    expect(all(), "the owners are hidden").toEqual([false, false, false]);
+    matrix.visible = true;
+    rg.visible = true;
+    expect(all(), "everything is visible again").toEqual([true, true, true]);
+  });
+  test("focus() does nothing for a question in a hidden panel on the current page", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "panel1", visibleIf: "{q1} = 'show'", state: "collapsed", elements: [{ type: "text", name: "q2" }] },
+        { type: "panel", name: "panel2", visibleIf: "{q1} = 'show'", elements: [
+          { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "d" }] },
+          { type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "col1", cellType: "text" }] }
+        ] },
+        { type: "panel", name: "panel3", elements: [{ type: "text", name: "q3" }] }
+      ]
+    });
+    let log = "";
+    survey.onScrollToTop.add((_, o) => { log += "->" + o.element.name; });
+    const q2 = survey.getQuestionByName("q2");
+    const panel1 = <PanelModel>survey.getPanelByName("panel1");
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const nested = <Question>dp.panels[0].getQuestionByName("d");
+    const cellQuestion = (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows[0].cells[0].question;
+    q2.focus();
+    expect(log, "a question in a hidden panel is not scrolled to").toBe("");
+    expect(panel1.state, "the hidden panel stays collapsed").toBe("collapsed");
+    nested.focus();
+    expect(log, "a dynamic panel question in a hidden panel is not scrolled to").toBe("");
+    cellQuestion.focus();
+    expect(log, "a cell question of a matrix in a hidden panel is not scrolled to").toBe("");
+    survey.getQuestionByName("q3").focus();
+    expect(log, "a question in a visible panel is scrolled to").toBe("->q3");
+    log = "";
+    survey.setValue("q1", "show");
+    q2.focus();
+    expect(log, "the question is scrolled to once its panel is shown").toBe("->q2");
+    expect(panel1.state, "the panel is expanded").toBe("expanded");
+  });
+  test("A nested question is not focused when its owner is in a hidden panel, Bug#12283", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "a" }] },
+        { name: "page2", elements: [
+          { type: "text", name: "x" },
+          { type: "panel", name: "panel1", visibleIf: "{a} = 'show'", elements: [
+            { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "d" }] }
+          ] }
+        ] }
+      ]
+    });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const nested = <Question>dp.panels[0].getQuestionByName("d");
+    expect(nested.isVisible, "the nested question itself is visible").toBe(true);
+    expect(dp.isVisible, "its owner itself is visible").toBe(true);
+    expect(survey.focusQuestionByInstance(nested), "the owner's panel is hidden").toBe(false);
+    expect(survey.currentPage.name, "the survey stays on page1").toBe("page1");
+    survey.setValue("a", "show");
+    expect(survey.focusQuestionByInstance(nested), "the owner's panel is visible").toBe(true);
+    expect(survey.currentPage.name, "the survey moves to page2").toBe("page2");
+  });
+  test("A skip trigger that failed on a hidden page does not change Previous navigation, Bug#12283", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "radiogroup", name: "a", choices: ["yes", "no"] }] },
+        { name: "page2", elements: [{ type: "text", name: "x" }] },
+        { name: "page3", visibleIf: "{a} = 'no'", elements: [{ type: "text", name: "d" }] }
+      ],
+      triggers: [{ type: "skip", expression: "{a} = 'yes'", gotoName: "d" }]
+    });
+    survey.setValue("a", "yes");
+    expect(survey.currentPage.name, "page3 is hidden, the survey stays on page1").toBe("page1");
+    survey.setValue("a", "no");
+    survey.nextPage();
+    survey.nextPage();
+    expect(survey.currentPage.name, "the respondent reaches page3 through page2").toBe("page3");
+    survey.prevPage();
+    expect(survey.currentPage.name, "Previous returns to page2").toBe("page2");
   });
   test("Skip trigger test and navigate back & questionPerPage, Bug#9886", () => {
     const survey = new SurveyModel({

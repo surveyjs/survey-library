@@ -25,8 +25,9 @@ export class RichText {
     const locStr = owner && typeof owner.getLocalizableString === "function"
       ? owner.getLocalizableString(options.name)
       : undefined;
-    const inline = RichText.getStringEditMode(owner, options.name, locStr) !== "block";
-    applyStringHtml(options, inline);
+    const mode = RichText.getStringEditMode(owner, options.name, locStr);
+    if (mode === "none") return;
+    applyStringHtml(options, mode !== "block");
   }
   public static findUnsupported(survey: SurveyModel): UnsupportedRichText[] {
     return findUnsupported(survey);

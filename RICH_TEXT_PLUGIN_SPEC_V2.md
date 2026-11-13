@@ -49,7 +49,7 @@ Provide a rich text editor that can be used in:
 | Events | None added, none changed. `survey.onTextMarkdown` renders survey strings through `RichText.renderStringHandler`. Creator's `onHtmlToMarkdown` stays an optional customer override; no plugin handler is attached to it. |
 | Source location | `packages/survey-core/src/plugins/rich-text/` + thin wrappers in UI packages. |
 | Core ↔ plugin contract | None. Core does not declare rich-text properties and does not register a renderer. The plugin registers the `richtext` question, its renderer and its CSS class names. Core never imports the plugin and has no rich-text slot in `settings`. |
-| Creator ↔ plugin contract | Creator never imports the plugin. The customer registers it explicitly: `creator.registerRichTextEditor(RichText)` (§9). Creator enables the rich toolbar for survey strings when an editor is registered **and** the designed survey has an `onTextMarkdown` handler, and saves rich strings with the editor's `sanitizeHtml`. |
+| Creator ↔ plugin contract | Creator never imports the plugin. The customer registers it explicitly: `creator.registerRichTextEditor(RichText)` (§9). A registered editor is enough: Creator edits a string as rich text only when its serializer type is `html` (block) or `inlinehtml` (inline). It does not read `onTextMarkdown`. It saves rich strings with the editor's `sanitizeHtml`. |
 
 ---
 
@@ -60,7 +60,7 @@ Provide a rich text editor that can be used in:
 There is no format property in JSON, neither for survey strings nor for comment answers.
 
 - **Rich text answers** (`type: "richtext"`): the value is always HTML. The plugin writes `""` or canonical HTML. Values written by other code (`setValue`, `defaultValue`, collaboration, data from a server) are read as HTML too and sanitized on display (§3.3, §6.4).
-- **Survey strings**: with `RichText.renderStringHandler` attached (§4.1), every string is read as HTML. Strings saved by the Creator rich editor are canonical HTML. Without the handler, strings render as plain text, as today.
+- **Survey strings**: with `RichText.renderStringHandler` attached (§4.1), a string is read as HTML only when its serializer type is `html` or `inlinehtml` (§6.2). Every other string stays on today's plain-text path, handler or not. Strings saved by the Creator rich editor are canonical HTML.
 
 ### 3.2 Canonical HTML
 
@@ -69,7 +69,8 @@ Canonical HTML is the only HTML the plugin writes. It is produced by the sanitiz
 - **Tags:** `strong`, `em`, `u`, `s`, `a`, `ul`, `ol`, `li`, `p`, `br`.
 - **Attributes:** only on `a`: `href` with an `http:`, `https:` or `mailto:` URL, followed by `target="_blank" rel="noopener noreferrer"`. Every link carries these two attributes (navigating away would lose survey answers), so stored HTML is safe to render as is by any consumer. A link with any other scheme is unwrapped (its text is kept).
 - **Blocks (block context):** the content is a sequence of paragraphs and lists. A single paragraph alone is written **without** a `<p>` wrapper. When there are two or more blocks (paragraphs or lists), every paragraph is wrapped in `<p>`. A line break inside a paragraph or list item is `<br>`. Lists are not nested. Empty paragraphs and empty list items are removed.
-- **Inline context:** no blocks. Blocks are joined with `<br>` into one paragraph without a wrapper; list items become lines. Used for single-line strings, whose serializer type is not `text` (§6.2, §6.3): choice texts and the survey title. Question, page and panel titles are type `text`, so they use the block context.
+- **Inline context:** no blocks. Blocks are joined with `<br>` into one paragraph without a wrapper; list items become lines. Used when the serializer type is `inlinehtml` (§6.2, §6.3).
+- **Block context** is used when the serializer type is `html`. A property of type `text` or `string` is not rich text.
 - **Marks:** adjacent runs with identical marks are merged. Whitespace at the edges of a mark span is moved outside the mark (`<strong>word </strong>` → `<strong>word</strong> `). Nesting order: a link is always outermost; among other marks, the mark that ends first is inside.
 - **Escaping (minimal):** in text, `&` is escaped only when followed by a letter, a digit or `#`, and `<` only when followed by a letter, `/`, `!` or `?`. These are exactly the cases where the HTML parser would read a character reference or markup; in every other case the parser keeps the character as is. `>` and `"` are not escaped in text. In `href`, `&` and `"` are escaped. So `Tom & Jerry` and `a < b` are written as typed.
 - **Line feeds:** a line feed (`\n`, `\r\n` or `\r`) inside text is a line break and is written as `<br>`. Line feeds and other whitespace at the start and end of a paragraph or list item, and whitespace-only text between blocks, are removed. Other whitespace is kept. Canonical HTML never contains a raw line feed.
@@ -157,7 +158,7 @@ export interface IRichTextEditorOptions { mode: "inline" | "block"; onInput?: ()
 export interface IRichTextEditorHandle { toolbar: ActionContainer; detach(): void; }
 ```
 
-- `renderStringHandler` computes `html = sanitizeHtml(options.text, { inline })`, with `inline = getStringEditMode(options.element, options.name, locStr) !== "block"` (§6.3), and assigns it to `options.html` when it differs from `options.text`. When they are equal, the string has no markup and the HTML rendering would be identical to the plain one, so the handler leaves `options.html` untouched and the string keeps today's plain-text path (`LocalizableString.hasHtml === false`). This compares output with input; it does not classify the content. The handler is needed because survey-core renders a string as HTML only when an `onTextMarkdown` handler sets `options.html`.
+- `renderStringHandler` resolves the mode with `getStringEditMode` (§6.2). Mode `"none"` leaves the string on today's plain-text path: the handler does not set `options.html`. Otherwise it computes `html = sanitizeHtml(options.text, { inline })`, with `inline = mode !== "block"`, and assigns it to `options.html` when it differs from `options.text` or the text contains markup the HTML parser would read. When the sanitized output equals the input and the input has no such markup, the handler leaves `options.html` untouched (`LocalizableString.hasHtml === false`). This compares output with input; it does not classify the content. The handler is needed because survey-core renders a string as HTML only when an `onTextMarkdown` handler sets `options.html`.
 - There is no save handler. Comment answers are saved by the plugin (§6.4); strings edited in Creator are saved by Creator through the registered editor's `sanitizeHtml` (§9.2).
 - `findUnsupported` reports every `useMarkdown` string in every locale, and every non-empty value of a `richtext` question, for which `getDisallowedHtml` is not empty.
 - `attachEditor` adds the toolbar and keyboard behavior to a `contenteditable` element and never reads or writes a value. The caller owns the content (Creator: saves `sanitizeHtml(innerHTML)`, §9.2). Paste is sanitized (§7.4).
@@ -237,22 +238,22 @@ The edit mode of a rich text editor comes from an existing property: `"inline"` 
 
 ```ts
 function getDefaultEditMode(owner: Base, name: string, locStr: LocalizableString): RichTextEditMode {
-  if (!locStr || !locStr.useMarkdown) return "none";
   const type = Serializer.findProperty(owner.getType?.(), name)?.type;
-  if (type === "html") return "none";
-  return type === "text" ? "block" : "inline";
+  if (type === "inlinehtml") return "inline";
+  if (type === "html") return "block";
+  return "none";
 }
 ```
 
-The mode is decided by the serializer property type, not by the property name. Type `text` is the multiline string: in the property grid, `PropertyGridEditorText` matches `prop.type === "text"` and creates a question of type `comment`. That is the same condition as `SurveyElementCore.getAllowLineBreaks`. Every other rich string is `inline`, including type `string`, which `PropertyGridEditorString` edits as a single-line `text` question.
+The mode is decided only by the serializer property type, not by the property name and not by `useMarkdown`. `html` is the block string. `inlinehtml` is the one-line string. Every other type, including `text` and `string`, is `"none"`: the plain editor, and `renderStringHandler` does not render it. A property that is not registered is `"none"`.
 
-Consequences of the registered types: question, page and panel `title` and `description` are `text`, so they are `block`; the survey `title` and a choice `text` (`itemvalue`) are `string`, so they are `inline`. A string with `useMarkdown === false` is `none` even when its type is `text` (`requiredErrorText`). A property that is not registered is `inline`.
+Registered types stay as they are. An application that wants a particular string edited and rendered as rich text changes that property's type. The Creator example does this for the strings it demonstrates: survey `description` and page `description` become `html`; question `title` and choice `text` (`itemvalue`, and `choiceitem` which uses the same property) become `inlinehtml`. Survey `title` stays `string` and question `description` stays `text`, so both stay plain.
 
-The result is passed to `RichText.getEditMode(owner, name, locStr, defaultMode)` (customer override). Used by the handlers to choose the inline or block context, and by Creator to choose the toolbar profile. Whether survey strings render as HTML at all is decided by the customer's handlers, not here.
+The result is passed to `RichText.getEditMode(owner, name, locStr, defaultMode)` (customer override). `locStr` is part of the override signature; the default does not read it. Used by the handlers to choose the inline or block context. Creator resolves the same two types itself and does not call `getStringEditMode` (§9.2). Whether a string renders as HTML still requires the customer's `onTextMarkdown` handler; the mode only decides whether that handler treats the string as rich text.
 
 ### 6.3 Rendering context
 
-- Survey strings: `inline` = `getStringEditMode(...)` is not `"block"`.
+- Survey strings: mode `"none"` is not rendered. `"inline"` uses the inline context. `"block"` uses the block context (§6.2).
 - Rich text answers: `inline` = `acceptCarriageReturn === false` (§6.1).
 
 ### 6.4 Rich text answers
@@ -293,7 +294,7 @@ The model is framework-agnostic and attaches to any `contenteditable` element (`
   - `"static"` (default): always visible in edit mode. It is an `sd-action-bar` (`sd-action-bar--small-size`) in the question footer, not the floating toolbar box. `sd-action-bar__item--space` keeps the question's input action bar — the character counter, and a reset button when the question has one — on the right. `sd-question__bar--footer` draws the top border. The row takes space in the layout. Its actions are small, with 24px icons (the floating toolbar stays x-small, with 16px icons). `rows` and `autoGrow` apply to the editing area only (§7.5). The class names are `question.cssClasses.footer` and `question.cssClasses.footerSpace` (§6.1).
 - In every mode the toolbar is not rendered in read-only, disabled, display and design mode (§7.5), and source mode (§7.4) shows no toolbar.
 - The floating box (`"onFocus"`, `"onSelection"`) uses the dropdown popup chrome: a 2px gap below the field (the same offset as `.sv-dropdown-popup.sv-popup--menu-popup.sv-popup--bottom`), `padding: var(--sjs2-spacing-x050)` (the popup list padding), and the border, radius, background and shadow of `.sv-popup--menu-popup > .sv-popup__container`. The action bar is the only content inside that box.
-- The Creator inline string editor uses the same floating toolbar as `"onFocus"` (§9.2). `RichText.attachEditor` has no question, so its toolbar mode stays `"onFocus"` even though a `richtext` question defaults to `"static"`. `richTextToolbarMode` applies to `richtext` questions only.
+- The Creator inline string editor uses the same floating toolbar as `"onSelection"` (§9.2). `RichText.attachEditor` has no question, so its toolbar mode is `"onSelection"` even though a `richtext` question defaults to `"static"`. `richTextToolbarMode` applies to `richtext` questions only.
 - Clicking a toolbar button must not lose the selection: the model saves the selection `Range` on every `selectionchange` inside the element and restores it (and focus) before executing a command.
 - Toggle state is computed by the model (not `queryCommandState`): walk text nodes in the selection → `all` / `none` / `mixed`. A button is pressed (`aria-pressed="true"`) only for `all`. Command semantics: `all` → remove; `none`/`mixed` → apply to the whole selection.
 - Collapsed selection: the command sets the typing style for subsequent input (native behavior); the button reflects it.
@@ -365,28 +366,31 @@ Creator never imports the plugin. Without a registered editor, Creator behaves e
 
   ```ts
   interface ICreatorRichTextEditor {
-    getStringEditMode(owner: Base, name: string, locStr: LocalizableString): "none" | "inline" | "block";
     attachEditor(element: HTMLElement, options: { mode: "inline" | "block"; onInput?: () => void }): { toolbar: ActionContainer; detach(): void };
     sanitizeHtml(html: string, options?: { inline?: boolean }): string;
   }
   ```
 
-- **Rich strings are enabled** when an editor is registered **and** the designed survey (`creator.survey`, area `"designer-tab"`) has an `onTextMarkdown` handler (`!creator.survey.onTextMarkdown.isEmpty`). Without that handler the design surface renders stored HTML as text, and saving it would store the text escaped. Otherwise every Creator editor behaves exactly as today. Creator only reads the event's state; it does not attach or change handlers.
-- The `checkMarkdownToTextConversion` probe of `creator.onHtmlToMarkdown` is no longer part of the condition. It keeps deciding `editAsText` for strings whose rich mode is `"none"`, exactly as today.
-- Documented setup:
+- **Rich strings are enabled** when an editor is registered (`creator.isRichStringsEnabled()`). Creator does not read `onTextMarkdown`. Which strings use the editor is `richTextModeForProperty`: serializer type `html` → `"block"`, `inlinehtml` → `"inline"`, anything else → `"none"`. The same two types are what `getDefaultEditMode` returns (§6.2). Without a registered editor every Creator editor behaves exactly as today.
+- The `checkMarkdownToTextConversion` probe of `creator.onHtmlToMarkdown` is not part of the condition. It keeps deciding `editAsText` for strings whose rich mode is `"none"`, exactly as today.
+- Documented setup. Changing a property's serializer type is what turns that string into a rich editor; the handler only renders the stored HTML:
 
   ```js
   import { RichText } from "survey-core/rich-text";
+
+  Serializer.findProperty("survey", "description").type = "html";
+  Serializer.findProperty("page", "description").type = "html";
+  Serializer.findProperty("question", "title").type = "inlinehtml";
+  Serializer.findProperty("itemvalue", "text").type = "inlinehtml";
+  // survey title stays "string"; question description stays "text"
+
   creator.registerRichTextEditor(RichText);
   creator.onSurveyInstanceCreated.add((_, options) => {
-    if (["designer-tab", "preview-tab", "theme-tab", "translation-tab:source-survey",
-         "translation-tab:target-survey", "matrix-cell-question-popup-editor"].indexOf(options.area) > -1) {
-      options.survey.onTextMarkdown.add(RichText.renderStringHandler);
-    }
+    options.survey.onTextMarkdown.add(RichText.renderStringHandler);
   });
   ```
 
-- The `onTextMarkdown` handler is required for rich strings (see the condition above); the documentation states this next to the sample. No `creator.onHtmlToMarkdown` handler is needed.
+- The handler is not required for the editor to open. It is required for the design surface to show stored HTML instead of the raw tags. No `creator.onHtmlToMarkdown` handler is needed. `renderStringHandler` does nothing for types other than `html` and `inlinehtml`, so a property-grid hint handler on the same survey is left alone.
 - `richtext` questions need no setup: they are rich editors in the preview and theme tabs whenever the plugin is loaded. Their toolbar defaults to `"static"`.
 - Customers whose handlers store another format (e.g. markdown-it + turndown) do not register the editor (§4.2).
 
@@ -398,9 +402,9 @@ Creator never imports the plugin. Without a registered editor, Creator behaves e
 
 ### 9.2 Inline string editor (`StringEditorViewModelBase`, `survey-creator-core/src/components/string-editor.ts`)
 
-- Mode resolution in `setLocString`: when rich strings are enabled (§9.0) and not `isInplaceForEditValues` → `editor.getStringEditMode(owner, name, locStr)`; otherwise `"none"`. Translation-surface strings are not excluded: `isInplaceForEditValues` is already `false` for them, so their choice texts get the rich editor (§9.5).
-- The mode does not depend on `locStr.hasHtml`: a plain-text string still gets the toolbar, so authors can format it.
-- On focus in `"inline"`/`"block"` mode: `editor.attachEditor(element, { mode })` and show its toolbar (floating, §7.2). Detach on blur. No source mode: strings are author content, rendered through the customer's handler.
+- Mode resolution in `setLocString`: when an editor is registered (§9.0) → `richTextModeForProperty(owner, name)` (§6.2); otherwise `"none"`. `isInplaceForEditValues` does not change the mode: a choice text whose type is `inlinehtml` stays inline while its value is edited in place.
+- The mode does not depend on `locStr.hasHtml` or on `onTextMarkdown`: a plain-text string of type `html` or `inlinehtml` still gets the toolbar, so authors can format it.
+- On focus in `"inline"`/`"block"` mode: `editor.attachEditor(element, { mode })` and show its toolbar. The toolbar mode is `"onSelection"` because the editor has no question (§7.2). Detach on blur. No source mode: strings are author content, rendered through the customer's handler.
 - In `"inline"`/`"block"` mode the editor edits HTML (`editAsText = false`) regardless of the `onHtmlToMarkdown` probe.
 - Saving (`getClearedText`) in `"inline"`/`"block"` mode: fire `onHtmlToMarkdown` with the element's `innerHTML`, as today. When a handler sets `options.text` (not `null`), store it (customer override, §4.2). Otherwise store `editor.sanitizeHtml(innerHTML, { inline: mode === "inline" })`: canonical HTML, where unformatted text is stored as typed (§3.2). Empty content stores an empty string. In `"none"` mode saving is unchanged.
 - `checkConstraints`: allow Ctrl+B/Ctrl+I in rich mode (routed to the editor); keep blocking Ctrl+Z/Ctrl+Y (Creator undo works per committed value; Escape restores the value from before the edit).
@@ -414,7 +418,7 @@ Creator never imports the plugin. Without a registered editor, Creator behaves e
 
 ### 9.4 Property grid (`survey-creator-core/src/property-grid/index.ts`)
 
-`applyRichTextPropertyEditor` runs for both editors of a string property: `PropertyGridEditorText` (serializer type `text`, already a `comment` question) and `PropertyGridEditorString` (type `string`, a single-line `text` question). When rich strings are enabled (§9.0) and `editor.getStringEditMode(...)` is not `"none"`, it sets `type: "richtext"`, `richTextToolbarMode: "onFocus"` and `acceptCarriageReturn` to `true` for `"block"` and `false` for `"inline"`; the editor takes its mode from `acceptCarriageReturn` (§6.1). It does not compute the mode again: a `text` property is `block` and a `string` property is `inline` only because §6.2 says so. An `"inline"` cell also stays one line (`rows: 1`, `allowResize: false`). `richTextToolbarMode` is set to `"onFocus"` explicitly, because the question default is `"static"` and a static bar would change the row height. The cell edits the stored string directly: it renders and stores it by the rules of §6.4, which match what `RichText.renderStringHandler` and the inline string editor (§9.2) do on the design surface. `html`-type properties (`PropertyGridEditorHtml`) are unchanged.
+`applyRichTextPropertyEditor` runs from `PropertyGridEditorHtml` (serializer type `html`) and `PropertyGridEditorInlineHtml` (type `inlinehtml`). `PropertyGridEditorText` (type `text`) and `PropertyGridEditorString` (type `string`) are unchanged. When an editor is registered (§9.0) and `richTextModeForProperty` is not `"none"`, it sets `type: "richtext"` and `acceptCarriageReturn` to `true` for `"block"` and `false` for `"inline"`; the editor takes its mode from `acceptCarriageReturn` (§6.1). An `"inline"` cell also stays one line (`rows: 1`, `allowResize: false`). It does not set `richTextToolbarMode`, so the question default `"static"` applies. The cell edits the stored string directly: it renders and stores it by the rules of §6.4, which match what `RichText.renderStringHandler` and the inline string editor (§9.2) do on the design surface. Without a registered editor, an `html` property stays the plain `comment` editor (`allowResize: true`, `autoGrow: false`) and an `inlinehtml` property stays a single-line `text` editor.
 
 `richtext` is its own question type, so the property grid lists it in the toolbox when the plugin is loaded. There is no "Enable rich text formatting" switch on `comment`. On a `richtext` question, `richTextToolbarMode` is listed next to `autoGrow` and `allowResize`. Display name `pe.richTextToolbarMode` "Formatting toolbar"; choice names in `pv`: `none` "Hidden (keyboard shortcuts only)", `onFocus` "Floating, on focus", `onSelection` "Floating, on text selection", `static` "Always visible, below the text" (the default).
 
@@ -428,9 +432,9 @@ The translation tab edits strings in three places. All of them already write thr
 
 Changes:
 
-- **Grid and dialog cells** (both `onMatrixCellCreated` handlers): when rich strings are enabled (§9.0), resolve the mode with `editor.getStringEditMode(item.context, item.locString.name, item.locString)`; force `"none"` for multi-value strings (`locString.getIsMultiple()`). When it is not `"none"`, set the cell question `type` to `"richtext"`, `richTextToolbarMode` to `"onFocus"` and `acceptCarriageReturn` to `(mode === "block")`, replacing the plain-cell value (`isMultiLine || allowLineBreaks`); the editor takes its mode from `acceptCarriageReturn` (§6.1). With the default modes of §6.2 the two values are the same; they differ only when `RichText.getEditMode` is overridden. The existing `rows`, `maxLength` (counts visible characters, §7.5) and `autoGrow` settings stay as they are. `"onFocus"` is set explicitly so the toolbar floats and row heights do not change; the question default `"static"` would add a footer.
+- **Grid and dialog cells:** on `onMatrixCellCreating`, when `richTextModeForProperty(item.context, item.locString.name)` is not `"none"`, set `cellType` to `"richtext"`. Multi-value strings (`locString.getIsMultiple()`) stay `"none"`. `onMatrixCellCreated` then sets `acceptCarriageReturn` to `(mode === "block")`, replacing the plain-cell value (`isMultiLine || allowLineBreaks`); the editor takes its mode from `acceptCarriageReturn` (§6.1). `richTextToolbarMode` is not set, so the question default `"static"` applies. The existing `rows`, `maxLength` (counts visible characters, §7.5) and `autoGrow` settings stay as they are.
 - **Placeholders** of rich cells (`setPlaceHolder`, `item.getPlaceholder`) show the source-locale text, which may be HTML. For rich cells, pass the plain text instead: the text content of `RichText.sanitizeHtml(...)`.
-- **Target pane:** covered by §9.2 (no translation-surface exclusion). The toolbar is floating, so the row equalizer (`translation-row-equalizer.ts`) is unaffected.
+- **Target pane:** covered by §9.2. The toolbar is the string editor's `"onSelection"` toolbar (§7.2). The row equalizer (`translation-row-equalizer.ts`) is unaffected while the toolbar is hidden.
 - **Source pane** renders formatted strings when the customer wires `translation-tab:source-survey` (§9.0 sample).
 - **Read-only translation** (`translation.readOnly`): cells render formatted, non-editable HTML (§7.5).
 - **Machine translation** sends and receives the stored value unchanged (HTML for formatted strings; most services have an HTML mode). A service may return damaged markup; the sanitizer cleans it on display and translators fix it in the cell.
@@ -466,7 +470,7 @@ Changes:
 The feature ships as a plugin first. After one or two minor releases it may move into the main `survey-core` bundle; signals for the move are noticeable adoption, support requests about HTML shown as raw text in runners that do not load the plugin, the measured bundle size within the §12 target, and an API that did not change since the first release. The plugin must be built so that this move needs **no change in customer code or JSON**:
 
 1. **Explicit switches only.** Rich text answers are switched on by the JSON type `richtext` (§6.1); survey strings by a handler the customer attaches (§4.1). Importing the plugin alone never changes an existing survey (§11.1). After the move, the same JSON and the same handler code (`RichText` re-exported, item 3) behave identically; a survey without a handler still renders strings as plain text.
-2. **Small public surface.** Documented API is limited to the `RichText` facade and its types (§4.1), the question type `richtext` and its `richTextToolbarMode` property, Creator's `registerRichTextEditor` (§9.0), and the CSS classes and CSS variables introduced by `rich-text.scss` and `plugins/rich-text/defaultCss.ts`. `RichText.attachEditor` and `RichText.getStringEditMode` exist for Survey Creator and stay out of the documentation. Creator ships with the same survey-core version, so these may change during the move.
+2. **Small public surface.** Documented API is limited to the `RichText` facade and its types (§4.1), the question type `richtext` and its `richTextToolbarMode` property, Creator's `registerRichTextEditor` (§9.0), and the CSS classes and CSS variables introduced by `rich-text.scss` and `plugins/rich-text/defaultCss.ts`. `RichText.attachEditor` and `RichText.getStringEditMode` stay out of the documentation. Creator resolves edit mode from the serializer type itself (§9.2) and does not call `getStringEditMode`. Creator ships with the same survey-core version, so these may change during the move.
 3. **Entry points stay.** After the move, `survey-core/rich-text` (ESM, UMD with the `SurveyRichText` global) remains as a thin alias that re-exports `RichText` from the main bundle, and `rich-text.css` remains as a file (possibly empty), so existing imports and `<link>` tags keep working.
 4. **One package, one version.** The plugin is an entry of the `survey-core` npm package, not a separate package, so customers' dependencies do not change.
 5. **Stable string keys.** The `richText*` keys (§6.5) keep their names. After the move they live in `english.ts` and the regular translations; `setRichTextStrings` keeps working.
@@ -522,12 +526,12 @@ All test suites below are required deliverables.
 - **sanitizer.tests.ts:** the examples table of §3.2; allow-list; renaming to canonical tags; unknown elements unwrapped with text kept; block elements → boundaries; one paragraph unwrapped, two or more blocks wrapped (including a list followed by text); inline context joins blocks and list items with `<br>`; minimal escaping (`Tom & Jerry`, `a < b`, `x > y` and quotes unchanged; `R&D`, `&#1`, `a<b`, `</`, `<!`, `<?` escaped; `&` and `"` escaped in `href`); line feeds (`\n`, `\r\n`, `\r` → `<br>`; line feeds at block edges and whitespace-only text between blocks removed); the paste option collapses whitespace instead; the table of §3.3; empty and text-less content → `""`; dropped elements with content; attribute stripping; canonical `target`/`rel` on links, not reported; `href` schemes; nested lists flattened and reported; idempotence on a corpus; XSS vectors (§10); `getDisallowedHtml` reports removed elements/attributes/schemes but not canonical renaming; SSR (no DOM) returns `""` and `[]`.
 - **serializer.tests.ts:** DOM-shape normalization (`b`/`strong`, `i`/`em`, `div`/`p`, duplicated nested tags, `span[style]` unwrapped); merging of adjacent runs; whitespace at mark edges; overlapping marks including the worked example of §3.2; link outermost.
 - **roundtrip.tests.ts:** corpus + deterministic generated run sequences: `sanitizeHtml(sanitizeHtml(x)) === sanitizeHtml(x)`; flatten(render(runs)) equals runs; for every generated text (including `&`, `<`, `>`, `"`, `#`, digits and letters after `&` and `<`), parsing the escaped output as HTML returns the original text.
-- **survey-strings.tests.ts:** plugin loaded without a handler → survey strings render as plain text (no `options.html` pre-fill); `renderStringHandler` renders a `text`-typed string (a question title, a description) in block context and a `string`-typed string (a choice text, the survey title) in inline context; strings whose sanitized output equals the input (`Tom & Jerry`, `a < b`) keep `hasHtml === false`; a plain multi-line description renders with `<br>`; Markdown strings stay plain (`**a**` rendered literally); `useMarkdown === false` strings untouched; a conditional customer handler calling `sanitizeHtml` for some strings only; a pass-through handler (`options.html = options.text`) is unaffected by the plugin; `RichText` has no `textMarkdownHandler`, `htmlToMarkdownHandler`, `valueToHtml`, `htmlToValue`, `markdownToHtml`, `htmlToMarkdown`, `isLossless`, `getUnsupportedMarkdown`, `registerFormat`, `getFormat`.
+- **survey-strings.tests.ts:** plugin loaded without a handler → survey strings render as plain text (no `options.html` pre-fill); with `renderStringHandler`, type `text` and type `string` stay plain (a question description, the survey title); after the example type changes (§6.2), a survey description (`html`) renders in block context and a question title and a choice text (`inlinehtml`) render in inline context, and a list in an `inlinehtml` title is joined with `<br>`; choice HTML is in `text`, not in `value`; strings whose sanitized output equals the input (`Tom & Jerry`, `a < b`) keep `hasHtml === false`; Markdown strings stay plain (`**a**` rendered literally); a conditional customer handler calling `sanitizeHtml` for some strings only; a pass-through handler (`options.html = options.text`) is unaffected by the plugin; `RichText` has no `textMarkdownHandler`, `htmlToMarkdownHandler`, `valueToHtml`, `htmlToValue`, `markdownToHtml`, `htmlToMarkdown`, `isLossless`, `getUnsupportedMarkdown`, `registerFormat`, `getFormat`.
 - **comment-rich-text.tests.ts** (plugin loaded): `type: "richtext"` round-trips; `allowRichText` is not a property of `comment` or `richtext`; `richTextToolbarMode` default `"static"` is not serialized, each non-default value (`none`, `onFocus`, `onSelection`) survives a load/save round trip, choices are `none`/`onFocus`/`onSelection`/`static`; `resizeStyle` is `"vertical"` on a survey (survey `allowResizeComment` defaults to true) and `"none"` when `allowResize` is false; CSS class names (`editor`, `area`, `display`, `toolbar`, `footer`, `toolbarStatic`, grip) come from the question and the comment theme classes stay; `getComponentName` for a richtext question and a matrix cell with `cellType: "richtext"`, including display mode; without the renderer the component name is `"comment"`; `richTextEditMode`, `richTextToolbarVisibility`, `richTextDisableBold`, `richTextConverter` and `textFormat` are not registered; the survey has no `onHtmlToMarkdown` event and no `getSurveyHtmlToMarkdown` method; `settings` has no `richText` key; an `onTextMarkdown` handler is never called with `name: "value"` for a richtext question, in edit and display mode.
 - **comment-answer.tests.ts:** display of `""`, of plain text with `&`, `<` and line breaks, of HTML, and of XSS vectors set through `setValue`; inline context for `acceptCarriageReturn: false`; source mode condition: plain text and canonical HTML → `false`, a table / `style` / `img` / `<Enter>` → `true`; without a DOM, values render as escaped text.
 - **unsupported.tests.ts:** `findUnsupported` reports HTML strings with disallowed content in every locale, skips plain and canonical strings, skips non-`useMarkdown` strings, reports `richtext` answers with disallowed content and skips plain answers.
-- **edit-mode.tests.ts:** default modes by serializer type (`text` → block for a question title and a description, `string` → inline for a choice text and the survey title, `useMarkdown === false` → none even for type `text`, `html` type → none, a detached owner still resolves by property type); `RichText.getEditMode` override through `getStringEditMode`; comment answer mode from `acceptCarriageReturn`.
-- **editor-model.tests.ts** (mocked command adapter): toggle state `all`/`none`/`mixed`; selection save/restore; command dispatch for buttons and shortcuts; commit on blur and debounced input per `isInputTextUpdate`; stored value is `sanitizeHtml` output (unformatted text stored as typed); no write on focus/blur without input (including a legacy plain value with line breaks); external value update and deferral while focused; paste sanitized in both modes; source mode and "edit anyway"; `maxLength` counts visible characters, blocks typing and paste at the limit, and formatting does not change the count; placeholder emptiness; link dialog: panelless theme, the URL pre-filled from the link under the selection, the validation message shown on Apply, empty-URL unlink, editing an existing link replaces only `href` and restores the selection, the dialog root is the `.sd-rich-text` box and never the editing element; link action visibility re-checked on attach; toolbar modes: `"static"` is the default and uses 24px icons, `"none"` exposes no toolbar while shortcuts still run commands, `"onSelection"` toolbar visibility follows a non-collapsed selection and stays on while focus is in the toolbar or the link dialog, `"onFocus"` uses 16px icons, a mode change at runtime updates the state; content-agnostic mode of `RichText.attachEditor` has no question and keeps the floating `"onFocus"` toolbar (no value writes, no source mode, `detach` removes listeners).
+- **edit-mode.tests.ts:** default modes by serializer type (`html` → block, including `completedHtml` and a page description whose type was set to `html`; `inlinehtml` → inline; `text`, `string` and an unregistered property → none, including a question title, a question description, the survey title and a choice text at their registered types); `RichText.getEditMode` override through `getStringEditMode`; comment answer mode from `acceptCarriageReturn`.
+- **editor-model.tests.ts** (mocked command adapter): toggle state `all`/`none`/`mixed`; selection save/restore; command dispatch for buttons and shortcuts; commit on blur and debounced input per `isInputTextUpdate`; stored value is `sanitizeHtml` output (unformatted text stored as typed); no write on focus/blur without input (including a legacy plain value with line breaks); external value update and deferral while focused; paste sanitized in both modes; source mode and "edit anyway"; `maxLength` counts visible characters, blocks typing and paste at the limit, and formatting does not change the count; placeholder emptiness; link dialog: panelless theme, the URL pre-filled from the link under the selection, the validation message shown on Apply, empty-URL unlink, editing an existing link replaces only `href` and restores the selection, the dialog root is the `.sd-rich-text` box and never the editing element; link action visibility re-checked on attach; toolbar modes: `"static"` is the default and uses 24px icons, `"none"` exposes no toolbar while shortcuts still run commands, `"onSelection"` toolbar visibility follows a non-collapsed selection and stays on while focus is in the toolbar or the link dialog, `"onFocus"` uses 16px icons, a mode change at runtime updates the state; content-agnostic mode of `RichText.attachEditor` has no question and uses the floating `"onSelection"` toolbar (no value writes, no source mode, `detach` removes listeners).
 
 ### 13.2 Markup tests — UI packages
 
@@ -570,8 +574,8 @@ Edit mode with toolbar, `"static"` toolbar, `"none"` mode, read-only mode, sourc
 
 ### 13.6 Survey Creator tests (survey-creator repository)
 
-- Unit (`survey-creator-core/tests`): `registerRichTextEditor` with a fake editor; the "rich strings" condition of §9.0 (no editor → today's behavior; editor but no `onTextMarkdown` handler on `creator.survey` → today's behavior; both → rich, with or without a `creator.onHtmlToMarkdown` handler); string editor mode resolution (none/inline/block, in-place values, translation surface, plain string without `hasHtml` still rich); rich saving stores `editor.sanitizeHtml(innerHTML)` (formatted → canonical HTML, unformatted → the text as typed, empty → `""`), and a `creator.onHtmlToMarkdown` handler that sets `options.text` overrides it; `"none"` mode saving unchanged; Ctrl+B/I allowed only in rich mode; internal UI surveys do not render HTML strings; property grid editor JSON (`type: "richtext"`, `richTextToolbarMode: "onFocus"`, `acceptCarriageReturn` `true` for block and `false` for inline, no `textFormat`, no `allowRichText`, `html` type untouched); translation cells get `acceptCarriageReturn` from the mode and `richTextToolbarMode: "onFocus"`; a property-grid cell renders an HTML string formatted and stores canonical HTML although the property-grid survey has no handlers; `comment` has no `allowRichText` property; a `richtext` question lists `richTextToolbarMode` (default `"static"`); property grid and translation rich cells set `richTextToolbarMode` to `"onFocus"`; translation tab: grid and dialog cell setup (rich for `useMarkdown` strings, plain for multi-value and non-`useMarkdown` strings), plain-text placeholders, the target-pane string editor gets the rich mode, edits written through `setItemLocText` store the value unchanged, CSV export/import round trip of formatted strings; behavior without a registered editor unchanged.
-- E2E: format a question title (block, lists, bold available) and a description (block, lists) on the design surface; a choice text stays inline (no lists); Escape restores; Enter commits except inside a list item; the JSON tab shows canonical HTML for formatted strings and the text as typed for unformatted ones (`Tom & Jerry`); property grid rich editor edits title/description and syncs with the surface; preview tab renders formatting, and a `richtext` question is a rich editor there that stores HTML; translation tab: format a translation in a grid cell, in the element strings dialog and in the side-by-side target pane, and verify the stored locale text and the designer rendering in that locale.
+- Unit (`survey-creator-core/tests/rich-text.tests.ts`): `registerRichTextEditor` with a fake editor; rich strings turn on when an editor is registered, and `onTextMarkdown` does not change that; `onHtmlToMarkdown` does not enable or disable them; with the example types of §6.2, the string editor is `"none"` for the survey title and the question description, `"block"` for the survey description and the page description, and `"inline"` for the question title and the choice text (including while `inplaceEditChoiceValues` is on); rich saving stores `editor.sanitizeHtml(innerHTML)` (formatted → canonical HTML, unformatted → the text as typed, empty → `""`), and a `creator.onHtmlToMarkdown` handler that sets `options.text` overrides it; `"none"` mode saving unchanged; Ctrl+B/I allowed only in rich mode; registering an editor does not itself render HTML strings; property grid JSON is `type: "richtext"` with `acceptCarriageReturn` `true` for `html` and `false` for `inlinehtml` (`rows: 1`, `allowResize: false`), a `string` property stays a `text` editor, a `text` property stays a `comment`, and without a registered editor an `html` property stays the plain comment; translation cells use `richtext` for those same `html` and `inlinehtml` strings and a plain comment otherwise (`choiceitem` text, not `itemvalue`), placeholders have no tags, and edits through `setItemLocText` plus CSV export/import store the value unchanged.
+- E2E: on the Creator demo page (§9.0), format a survey description and a page description (block, lists) and a question title and a choice text (inline, no lists; the choice value stays plain); the survey title and the question description stay plain; Escape restores; Enter commits except inside a list item; the string-editor toolbar appears when text is selected; the JSON tab shows canonical HTML for formatted strings and the text as typed for unformatted ones (`Tom & Jerry`); property grid rich editors match those types and sync with the surface; preview tab renders formatting, and a `richtext` question is a rich editor there that stores HTML; translation tab: the same types are rich cells, and a stored locale text round-trips.
 - Screenshots: floating toolbar over a title and over a description; property grid rich editor; translation grid with a focused rich cell and with formatted read-only cells; side-by-side panes with formatted strings.
 
 ---
@@ -642,10 +646,10 @@ Automated: `comment-rich-text.tests.ts`; the full existing survey-core suite is 
 
 Automated: `sanitizer`, `serializer`, `roundtrip`, `value`, `survey-strings`, `unsupported`, `edit-mode` unit tests.
 
-**CP2 — survey strings render rich text; the sanitizer is inspectable.** React demo page (plugin on, string handler "built-in"), page "Strings".
-- [x] Survey title, question titles, descriptions and choice texts show bold/italic/strikethrough/links; links open in a new tab.
-- [x] The description of `s1` shows two lines, a paragraph break and a bulleted list.
-- [x] The title of `s6` (a list in a question title) is shown as a bulleted list (block context: a question title is serializer type `text`).
+**CP2 — survey strings render rich text; the sanitizer is inspectable.** React demo page (plugin on, string handler "built-in"), page "Strings". With the registered serializer types, `text` and `string` stay plain (§6.2). Formatting on this page requires the same type changes as the Creator example: survey and page `description` → `html`, question `title` and choice `text` → `inlinehtml`.
+- [ ] After those type changes, the survey description shows paragraphs, question titles and choice texts show inline formatting, and links open in a new tab. The survey title and `s1`'s description stay plain, tags included.
+- [ ] The description of `s1` stays plain text (type `text`), including its tags.
+- [ ] The title of `s6` (a list in a question title of type `inlinehtml`) is one line, items joined with a line break, not a bulleted list.
 - [x] `s2`: `Markdown **is not** rendered` shows the asterisks; `Tom & Jerry` shows one ampersand.
 - [x] Plain strings, including the multi-line description of `s8`, look exactly as with `?plugin=off`.
 - [x] String handler "none": the whole page "Strings" looks exactly as with `?plugin=off`; switching back to "built-in" restores formatting without reloading.
@@ -763,38 +767,39 @@ Scope: documentation article: enabling the plugin; the `richtext` question type 
 
 #### C1–C5 — Survey Creator integration (survey-creator repository, §9)
 
-**C1 — registration and rendering (§9.0, §9.1).** CP-C1 on the Creator demo page (demo survey of Appendix A loaded into Creator; the page runs the §9.0 setup sample, with toggles to skip `registerRichTextEditor` and to skip the `onTextMarkdown` handler of the designer survey):
-- [ ] The designer, preview, theme and translation source/target surveys show formatted titles/descriptions/choices.
-- [ ] Property grid labels and property hints look exactly as with `?plugin=off`.
-- [ ] Preview tab shows formatted strings and working rich comment editors; a typed answer is stored as HTML.
-- [ ] Without `registerRichTextEditor`: strings still render formatted (the `onTextMarkdown` handler is attached), and every string editor behaves exactly as today (no toolbar).
-- [ ] With `registerRichTextEditor` but without the designer survey's `onTextMarkdown` handler: HTML strings show as raw tags, and every string editor behaves exactly as today (no toolbar).
-- [ ] With `?plugin=off` (no handlers, no registration), Creator looks and behaves as before.
+**C1 — registration and rendering (§9.0, §9.1).** CP-C1 on `packages/survey-creator-react/rich-text.html`. The page has no side panel: it sets the example types (§6.2), calls `registerRichTextEditor(RichText)` and attaches `RichText.renderStringHandler`.
+- [ ] The survey description and the page description render as blocks. Question titles and choice texts render inline. The survey title and the question description show their tags as text.
+- [ ] Property grid labels and property hints look as they do without the plugin.
+- [ ] Preview tab shows the same formatted strings, and the `richtext` question stores HTML.
+- [ ] Without `registerRichTextEditor`: strings still render when the handler is attached, and every string editor behaves exactly as today (no toolbar).
+- [ ] With `registerRichTextEditor` but without the handler: `html` and `inlinehtml` editors still open, and stored HTML shows as raw tags.
+- [ ] Without the plugin, Creator looks and behaves as before.
 
 **C2 — inline string editor (§9.2, §9.3).** CP-C2:
-- [ ] Click a question title: floating toolbar with bold and lists (the title property is type `text`, so the mode is block, §6.2); the bold button is enabled, and pressing it on the bold title may change nothing (§4.3); Enter in a list item adds an item; Enter elsewhere commits; Escape restores the previous text.
-- [ ] Click a description: the same block toolbar; Enter in a list item adds an item; Enter elsewhere commits.
-- [ ] A plain title also gets the toolbar; making a word italic stores `<em>word</em>`; editing a plain title such as `Tom & Jerry` without formatting keeps it as typed in the JSON tab. This works without any `creator.onHtmlToMarkdown` handler.
-- [ ] With a demo `creator.onHtmlToMarkdown` handler that sets `options.text = options.html.toUpperCase()`, the stored string is that handler's result (customer override).
+- [ ] Click a question title: the toolbar appears when text is selected (`"onSelection"`), inline mode, no list buttons (§6.2). Enter commits. Escape restores the previous text.
+- [ ] Click the survey description or the page description: block toolbar, including lists. Enter in a list item adds an item; Enter elsewhere commits.
+- [ ] The survey title and the question description have the plain editor.
+- [ ] Making a word italic in a question title stores `<em>word</em>`. Editing an unformatted `html` or `inlinehtml` string such as `Tom & Jerry` without formatting keeps it as typed. This works without any `creator.onHtmlToMarkdown` handler.
+- [ ] With a `creator.onHtmlToMarkdown` handler that sets `options.text = options.html.toUpperCase()`, the stored string is that handler's result (customer override).
 - [ ] Ctrl/Cmd+B/I work in rich strings; after commit, Creator undo/redo reverts/reapplies the change.
-- [ ] Choice texts get the inline toolbar; with `inplaceEditChoiceValues` the plain editor is used.
+- [ ] Choice texts get the inline toolbar. The choice value stays plain. `inplaceEditChoiceValues` does not turn the text editor off.
 
 **C3 — property grid (§9.4).** CP-C3:
-- [ ] Question title and description editors are rich block editors (both properties are type `text`); the survey title editor is a one-line inline editor (type `string`); edits appear on the design surface and vice versa.
-- [ ] `requiredErrorText` and `completedHtml` editors stay plain.
-- [ ] Adding a Rich Text question (plugin loaded) shows a formatted default value on the design surface and a rich editor in the preview tab, with the static toolbar. With `?plugin=off` the question type is not available. A Long Text question has no "Enable rich text formatting" switch.
+- [ ] Survey description and page description editors are rich block editors. The question title and the choice text are one-line rich editors. The survey title stays a one-line plain editor. The question description stays a plain comment. Edits appear on the design surface and vice versa.
+- [ ] A property whose type was not changed (`requiredErrorText`, and `completedHtml` unless its type is left as `html`) follows §6.2. `completedHtml` is type `html`, so with a registered editor it is a block rich editor.
+- [ ] Adding a Rich Text question (plugin loaded) shows a formatted default value on the design surface and a rich editor in the preview tab, with the static toolbar. With the plugin not loaded the question type is not available. A Long Text question has no "Enable rich text formatting" switch.
 - [ ] "Formatting toolbar" is a property of the rich text question. The default is "Always visible, below the text". Choosing "Floating, on focus" shows the floating toolbar in the preview tab.
 
 **C4 — translation tab (§9.5).** CP-C4 on the Creator demo page, after adding German (`de`) in the translation tab:
-- [ ] Strings grid: rich strings show the toolbar only in the focused cell, floating, without changing row heights; question titles and descriptions get the block toolbar, choice texts the inline toolbar.
-- [ ] Empty `de` cells show the default-locale text as a plain-text placeholder (no tags).
-- [ ] Format a `de` translation of `s1`'s title; switching the designer to `de` shows the formatted title; the JSON tab stores canonical HTML under `"de"`.
-- [ ] Strings without `useMarkdown` and multi-value strings stay plain.
+- [ ] Strings grid: survey and page descriptions are block rich cells; question titles and choice texts are inline rich cells. The survey title and the question description stay plain comments.
+- [ ] Empty `de` cells of a rich string show the default-locale text as a plain-text placeholder (no tags).
+- [ ] Format a `de` translation of a question title; switching the designer to `de` shows the formatted title; the JSON tab stores canonical HTML under `"de"`. The choice value is unchanged.
+- [ ] Multi-value strings stay plain. A `text` or `string` property stays plain even when its text contains tags.
 - [ ] Element strings dialog: same behavior as the grid; edits appear in the grid and the side-by-side panes.
-- [ ] Side-by-side view: the source pane shows formatted read-only strings; the target pane edits with the floating toolbar; rows of both panes stay aligned while editing.
-- [ ] Read-only translation: cells show formatted, non-editable HTML.
+- [ ] Side-by-side view: the source pane shows formatted read-only strings where the handler is attached; the target pane edits with the `"onSelection"` toolbar; rows of both panes stay aligned while editing.
+- [ ] Read-only translation: rich cells show formatted, non-editable HTML.
 - [ ] Export to CSV and import back: formatted translations are unchanged.
-- [ ] With `?plugin=off` or without `registerRichTextEditor`, the translation tab editors behave as before.
+- [ ] Without `registerRichTextEditor`, the translation tab editors behave as before.
 
 **C5 — Creator automated tests (§13.6).** CP-C5:
 - [ ] Unit, e2e and screenshot suites are green; new screenshot etalons are reviewed by a person.
@@ -841,7 +846,12 @@ Used by every demo page (§14.2). Keep the copies in all demo pages identical. S
         },
         {
           "type": "radiogroup", "name": "s2", "title": "Plain title",
-          "choices": ["<strong>Bold</strong> choice", "Plain choice", "Markdown **is not** rendered", "Tom & Jerry"]
+          "choices": [
+            { "value": "bold", "text": "<strong>Bold</strong> choice" },
+            { "value": "plain", "text": "Plain choice" },
+            { "value": "markdown", "text": "Markdown **is not** rendered" },
+            { "value": "tom", "text": "Tom & Jerry" }
+          ]
         },
         { "type": "text", "name": "s3", "title": "Raw <b>html</b> and <script>alert(1)</script>" },
         { "type": "text", "name": "s4", "title": "<a href=\"javascript:alert(1)\">js link</a>" },

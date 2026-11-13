@@ -2,12 +2,34 @@ import { describe, expect, test } from "vitest";
 import { QuestionCommentModel } from "../../src/question_comment";
 import { QuestionTextModel } from "../../src/question_text";
 import { SurveyModel } from "../../src/survey";
+import { PageModel } from "../../src/page";
+import { Serializer } from "../../src/jsonobject";
 import { RichText } from "../../src/plugins/rich-text/index";
 import { getCommentEditMode } from "../../src/plugins/rich-text/edit-mode";
 import { LocalizableString } from "../../src/localizablestring";
 
 describe("getStringEditMode", () => {
-  test("text properties are block and string properties are inline", () => {
+  test("html is block and inlinehtml is inline", () => {
+    const survey = new SurveyModel();
+    const completed = new LocalizableString(survey, false, "completedHtml");
+    expect(RichText.getStringEditMode(survey, "completedHtml", completed)).toBe("block");
+
+    const pageDescription = Serializer.findProperty("page", "description");
+    const previous = pageDescription.type;
+    pageDescription.type = "html";
+    Serializer.addProperty("survey", { name: "promo:inlinehtml" });
+    try {
+      const page = new PageModel("page");
+      expect(RichText.getStringEditMode(page, "description", page.locDescription)).toBe("block");
+      const promo = new LocalizableString(survey, false, "promo");
+      expect(RichText.getStringEditMode(survey, "promo", promo)).toBe("inline");
+    } finally {
+      pageDescription.type = previous;
+      Serializer.removeProperty("survey", "promo");
+    }
+  });
+
+  test("text, string and a missing property are none", () => {
     const survey = new SurveyModel({
       elements: [{
         type: "radiogroup", name: "s2", title: "Plain",
@@ -15,28 +37,15 @@ describe("getStringEditMode", () => {
       }]
     });
     const question = survey.getQuestionByName("s2");
-    expect(RichText.getStringEditMode(question, "title", question.locTitle)).toBe("block");
-    expect(RichText.getStringEditMode(question, "description", question.locDescription)).toBe("block");
+    expect(RichText.getStringEditMode(question, "title", question.locTitle)).toBe("none");
+    expect(RichText.getStringEditMode(question, "description", question.locDescription)).toBe("none");
+    expect(RichText.getStringEditMode(survey, "title", survey.locTitle)).toBe("none");
     const choice = (question as any).choices[0];
-    expect(RichText.getStringEditMode(choice, "text", choice.locText)).toBe("inline");
-    expect(RichText.getStringEditMode(survey, "title", survey.locTitle)).toBe("inline");
-  });
+    expect(RichText.getStringEditMode(choice, "text", choice.locText)).toBe("none");
 
-  test("useMarkdown false and html properties are none", () => {
-    const question = new QuestionTextModel("q");
-    expect(question.locRequiredErrorText.useMarkdown).toBeFalsy();
-    expect(RichText.getStringEditMode(question, "requiredErrorText", question.locRequiredErrorText)).toBe("none");
-
-    const survey = new SurveyModel();
-    const html = new LocalizableString(survey, true, "completedHtml");
-    expect(RichText.getStringEditMode(survey, "completedHtml", html)).toBe("none");
-  });
-
-  test("a question that is not on a survey still resolves by property type", () => {
-    const question = new QuestionTextModel("q");
-    expect(question.survey).toBeFalsy();
-    expect(RichText.getStringEditMode(question, "title", question.locTitle)).toBe("block");
-    expect(RichText.getStringEditMode(question, "missing", question.locTitle)).toBe("inline");
+    const text = new QuestionTextModel("q");
+    expect(RichText.getStringEditMode(text, "requiredErrorText", text.locRequiredErrorText)).toBe("none");
+    expect(RichText.getStringEditMode(text, "missing", text.locTitle)).toBe("none");
   });
 
   test("getEditMode replaces the default", () => {

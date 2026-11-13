@@ -1,0 +1,171 @@
+import { describe, test, expect, vi } from "vitest";
+import { FilterChipsLayout, fitFilterChips } from "../../src/filter/filter-chips-layout";
+import { AnimationFrameQueue } from "../test-helpers";
+
+// jsdom lays nothing out: the widths and the gap a browser would report are given here.
+class TestLayout extends FilterChipsLayout {
+  public gap: number = 8;
+  protected getGap(): number { return this.gap; }
+}
+// A container holding an action bar with chips of these widths and a "Show More" link last.
+function createRow(available: number, chipWidths: Array<number>, moreWidth: number): HTMLElement {
+  const container = document.createElement("div");
+  const bar = document.createElement("div");
+  container.appendChild(bar);
+  Object.defineProperty(bar, "clientWidth", { value: available });
+  chipWidths.concat([moreWidth]).forEach((width: number) => {
+    const el = document.createElement("div");
+    Object.defineProperty(el, "offsetWidth", { value: width });
+    bar.appendChild(el);
+  });
+  return container;
+}
+// The same row as Angular draws it: an empty host element, hidden, before the bar and before every item.
+function createAngularRow(available: number, chipWidths: Array<number>, moreWidth: number): HTMLElement {
+  const container = createRow(available, chipWidths, moreWidth);
+  const createHost = (): HTMLElement => {
+    const host = document.createElement("div");
+    host.style.display = "none";
+    return host;
+  };
+  const bar = <HTMLElement>container.firstElementChild;
+  Array.prototype.slice.call(bar.children).forEach((item: HTMLElement) => { bar.insertBefore(createHost(), item); });
+  container.insertBefore(createHost(), bar);
+  return container;
+}
+
+describe("fitFilterChips", () => {
+  test("everything fits: no link", () => {
+    expect(fitFilterChips([100, 100, 100], 316, 8, 80)).toBe(-1);
+  });
+  test("an overflow: the chips that fit together with the link", () => {
+    expect(fitFilterChips([100, 100, 100], 300, 8, 80), "#1: 80 + 108 + 108 = 296").toBe(2);
+    expect(fitFilterChips([100, 100, 100], 290, 8, 80), "#2").toBe(1);
+  });
+  test("at least one chip, however narrow the row", () => {
+    expect(fitFilterChips([300, 100], 100, 8, 80)).toBe(1);
+  });
+});
+
+describe("FilterChipsLayout", () => {
+  test("measures the attached row: its chips, the gap and the link", () => {
+    const layout = new TestLayout();
+    expect(layout.fitCount, "#1: nothing attached").toBe(-1);
+    layout.attach(createRow(300, [100, 100, 100], 80));
+    expect(layout.fitCount, "#2").toBe(2);
+    layout.attach(createRow(500, [100, 100, 100], 80));
+    expect(layout.fitCount, "#3: a new row is measured at once").toBe(-1);
+    layout.dispose();
+  });
+  test("Angular host elements around the bar and the chips are not measured", () => {
+    const layout = new TestLayout();
+    layout.attach(createAngularRow(300, [100, 100, 100], 80));
+    expect(layout.fitCount).toBe(2);
+    layout.dispose();
+  });
+  test("on a phone nothing is measured: the row scrolls instead", () => {
+    const layout = new TestLayout();
+    layout.isMobile = true;
+    layout.attach(createRow(300, [100, 100, 100], 80));
+    expect(layout.fitCount).toBe(-1);
+    layout.dispose();
+  });
+  test("a chip added under the bar measures the row again", async () => {
+    const layout = new TestLayout();
+    const container = createRow(300, [100, 100, 100], 80);
+    layout.attach(container);
+    const update = vi.spyOn(layout, "update");
+    const chip = document.createElement("div");
+    container.firstElementChild.insertBefore(chip, container.firstElementChild.firstElementChild);
+    await Promise.resolve();
+    expect(update, "#1: a chip added").toHaveBeenCalledTimes(1);
+    chip.textContent = "Country: Germany";
+    await Promise.resolve();
+    expect(update, "#2: a chip's text changed").toHaveBeenCalledTimes(2);
+    layout.detach();
+    container.firstElementChild.appendChild(document.createElement("div"));
+    await Promise.resolve();
+    expect(update, "#3: nothing after detach").toHaveBeenCalledTimes(2);
+    layout.dispose();
+  });
+  test("leaving the phone layout measures the row in the next frame", () => {
+    const frames = new AnimationFrameQueue();
+    frames.install();
+    try {
+      const layout = new TestLayout();
+      layout.isMobile = true;
+      layout.attach(createRow(300, [100, 100, 100], 80));
+      expect(layout.fitCount, "#1: a phone").toBe(-1);
+      layout.isMobile = false;
+      expect(layout.fitCount, "#2: not measured yet").toBe(-1);
+      frames.runFrame();
+      expect(layout.fitCount, "#3: measured").toBe(2);
+      layout.isMobile = true;
+      expect(frames.pendingCount, "#4: a phone needs no frame").toBe(0);
+      layout.isMobile = false;
+      layout.detach();
+      const update = vi.spyOn(layout, "update");
+      frames.runFrame();
+      expect(update, "#5: detached by then").not.toHaveBeenCalled();
+      layout.attach(createRow(300, [100, 100, 100], 80));
+      update.mockClear();
+      layout.isMobile = true;
+      layout.isMobile = false;
+      layout.dispose();
+      frames.runFrame();
+      expect(update, "#6: disposed by then").not.toHaveBeenCalled();
+    } finally {
+      frames.uninstall();
+    }
+  });
+  test("the chips a rebuilt row no longer holds are not observed any more", () => {
+    // jsdom has no ResizeObserver: this one only records what it is asked to observe.
+    class FakeResizeObserver {
+      public static last: FakeResizeObserver;
+      public observed: Array<Element> = [];
+      public isDisconnected = false;
+      constructor() { FakeResizeObserver.last = this; }
+      observe(el: Element): void {
+        if (this.observed.indexOf(el) < 0) {
+          this.observed.push(el);
+        }
+      }
+      unobserve(el: Element): void { this.observed = this.observed.filter((e: Element) => e !== el); }
+      disconnect(): void { this.observed = []; this.isDisconnected = true; }
+    }
+    vi.stubGlobal("ResizeObserver", FakeResizeObserver);
+    try {
+      const layout = new TestLayout();
+      const container = createRow(300, [100, 100, 100], 80);
+      const bar = <HTMLElement>container.firstElementChild;
+      const children = (): Array<Element> => Array.prototype.slice.call(bar.children);
+      layout.attach(container);
+      const observer = FakeResizeObserver.last;
+      expect(observer.observed, "#1: the row and its items").toEqual([<Element>container].concat(children()));
+      children().forEach((el: Element) => { bar.removeChild(el); });
+      [100, 100, 80].forEach((width: number) => {
+        const el = document.createElement("div");
+        Object.defineProperty(el, "offsetWidth", { value: width });
+        bar.appendChild(el);
+      });
+      layout.update();
+      expect(observer.observed, "#2: the old items let go of, the new ones observed").toEqual([<Element>container].concat(children()));
+      layout.isMobile = true;
+      layout.update();
+      expect(observer.observed, "#3: a phone measures nothing").toEqual([<Element>container]);
+      layout.detach();
+      expect([observer.isDisconnected, observer.observed], "#4").toEqual([true, []]);
+      layout.dispose();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+  test("detach() forgets the row", () => {
+    const layout = new TestLayout();
+    layout.attach(createRow(300, [100, 100, 100], 80));
+    layout.detach();
+    layout.update();
+    expect(layout.fitCount).toBe(-1);
+    layout.dispose();
+  });
+});

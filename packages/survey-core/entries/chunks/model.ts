@@ -226,6 +226,33 @@ export { QuestionDropdownModel } from "../../src/question_dropdown";
 export { QuestionFactory, ElementFactory } from "../../src/questionfactory";
 export { QuestionFileModelBase, QuestionFileModel, QuestionFilePage } from "../../src/question_file";
 export { QuestionHtmlModel } from "../../src/question_html";
+// Value exports on purpose: FilterField and FilterItem register themselves with the Serializer as an
+// import side effect, and "export type" would not run it.
+export { QuestionFilterModel } from "../../src/question_filter";
+export { FilterField } from "../../src/filter/filter-field";
+export { FilterItem } from "../../src/filter/filter-item";
+// The rest of the filter is what an application or a renderer uses: the classes and component names
+// the renderers draw, and the types of the question's public API and of onAIFilterRequest. Everything
+// else in src/filter is internal.
+export {
+  FilterEditorHolder, filterUIStrings, filterModalComponentName, filterPresetDialogComponentName, filterFieldPopupComponentName,
+  filterChipComponentName
+} from "../../src/filter/filter-toolbars";
+export type { IFilterFieldState } from "../../src/filter/filter-toolbars";
+export type { FilterFieldEditorKind } from "../../src/filter/filter-field-kinds";
+export { FilterFieldPopup, filterListItemComponentName } from "../../src/filter/filter-field-popup";
+export { FilterChipsLayout } from "../../src/filter/filter-chips-layout";
+export { FilterModal } from "../../src/filter/filter-modal";
+export type { IFilterAIField, IFilterAIContext, IFilterAIResponse, FilterAIResult } from "../../src/filter/filter-ai";
+// What Survey Creator's expression assistant writes a preset's filter with: the same context of the
+// control's fields, prompts and check of the answer the control's own preset dialogs use.
+export {
+  FilterAIFeature, buildFilterAIContext, buildFilterAISystemPrompt, buildFilterAIInstruction, filterAIResponseFormat
+} from "../../src/filter/filter-ai";
+export { FilterPresetDialog, FilterEditPresetsDialog } from "../../src/filter/filter-preset-dialog";
+export type {
+  IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterSavedItemState, IFilterState, IFilterUserItemState
+} from "../../src/interfaces/ui-interfaces";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";
@@ -249,8 +276,9 @@ export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dyna
 export type {
   IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, ISortCriterion, IDynamicDataField,
   SortDirection,
-  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation
+  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation, IDynamicDataFilterSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
+export type { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-filter-fields";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";
 export { SurveyProgressTextModel } from "../../src/surveyProgressTextModel";
@@ -263,7 +291,7 @@ export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/su
 export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export type {
-  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent,
+  AIMessage, AIResponseFormat, AIRequestIssue, AIResponse, AIRequestEvent, ExpressionAIRequestEvent, FilterAIRequestEvent,
 } from "../../src/interfaces/ai-interfaces";
 export { isAIObject, getAIFencedText, getAIFencedBlocks, readAIJson } from "../../src/ai/ai-response";
 export { AIRequestSession } from "../../src/ai/ai-request";

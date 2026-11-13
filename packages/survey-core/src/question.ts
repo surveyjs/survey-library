@@ -33,6 +33,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
+import { getFilterOperatorChoices, isFilterFieldInReach } from "./filter/filter-field-properties";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -869,6 +870,20 @@ export class Question extends SurveyElement<Question>
   public get hasPlainInput(): boolean {
     return this.hasInput;
   }
+  // Whether a Filter Control can offer this question as a filter field. A question whose value is a
+  // record or a table of its own is not a field - its children may be.
+  public get isFilterable(): boolean {
+    return this.getValueType() !== "object";
+  }
+  // Whether a Filter Control walks into a question that is not a field for the fields of its own:
+  // a record whose nested questions write directly under its value, so {address.city} reaches them.
+  public get hasNestedFilterFields(): boolean {
+    return this.getValueType() === "object";
+  }
+  @property({ defaultValue: true }) allowFiltering: boolean;
+  // The operators a Filter Control offers for this question's field, in this order. Empty = every
+  // operator the question's value editor takes; see getFilterFieldOperators.
+  @property() filterOperators: Array<string>;
   /* Whether records can be ordered by this question's value: a scalar value only. It reads
      getValueType() on every call, so it follows a type switch (multiSelect) as it happens. Not
      hasInput: an expression has a value to sort by although nobody types it. */
@@ -4337,6 +4352,17 @@ Serializer.addClass("question", [
   { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
   getReadOnlyModePropertyInfo(),
+  /* The Filter Control offers this question as a filter field unless the author opts it out. It is
+     shown only where a Filter Control can reach the question (isFilterFieldInReach), on a question
+     that is a field and on one whose children are (a composite question, a Multiple Textboxes):
+     allowFiltering: false there opts all of them out (collectFilterFields). */
+  { name: "allowFiltering:boolean", default: true,
+    visibleIf: (obj: any): boolean => !!obj && (!!obj.isFilterable || !!obj.hasNestedFilterFields) && isFilterFieldInReach(obj) },
+  // Applies only where the question is a filter field: filterable, within reach and not opted out.
+  // A text question's override adds inputType to dependsOn: its operators follow it.
+  { name: "filterOperators:string[]", dependsOn: "allowFiltering",
+    choices: (obj: any): Array<string> => getFilterOperatorChoices(obj),
+    visibleIf: (obj: any): boolean => !!obj && !!obj.isFilterable && obj.allowFiltering !== false && isFilterFieldInReach(obj) },
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

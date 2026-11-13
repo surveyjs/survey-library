@@ -45,6 +45,13 @@
     ></SvComponent>
 
     <StringViewer v-if="item.hasTitle" :model="item.locTitle" :textClass="item.getActionBarItemTitleCss()" />
+    <SvComponent
+      :is="'sv-svg-icon'"
+      v-if="item.markerIconName"
+      :className="item.cssClasses.itemMarkerIcon"
+      :iconName="item.markerIconName"
+      :size="'auto'"
+    ></SvComponent>
   </button>
 </template>
 <script lang="ts">

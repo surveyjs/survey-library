@@ -1,0 +1,13 @@
+<ng-template #template>
+  <div *ngIf="!!dialog" [class]="dialog.contentCss">
+    <div *ngIf="!!edit && edit.tabsToolbar.hasActions" [class]="dialog.cssClasses.presetTabs">
+      <sv-ng-action-bar [model]="edit.tabsToolbar"></sv-ng-action-bar>
+    </div>
+    <sv-ng-filter-editor-page *ngIf="!!dialog.form" [survey]="dialog.form" [disposed]="dialog.isDisposed" [className]="dialog.formCss"></sv-ng-filter-editor-page>
+    <sv-ng-filter-editor-page *ngIf="hasFields" [survey]="dialog.survey" [disposed]="dialog.isDisposed" [className]="dialog.editorCss"></sv-ng-filter-editor-page>
+    <div *ngIf="!!edit && edit.actionsToolbar.hasVisibleActions" [class]="dialog.cssClasses.modalSection" role="group" [attr.aria-labelledby]="edit.actionsTitleId">
+      <div [class]="dialog.cssClasses.modalSectionTitle" [attr.id]="edit.actionsTitleId">{{ actionsTitle }}</div>
+      <sv-ng-action-bar [model]="edit.actionsToolbar"></sv-ng-action-bar>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,23 @@
+<ng-template #template>
+  <div *ngIf="!!modal" [class]="modal.cssClasses.modalContent">
+    <div *ngIf="modal.showSearch" [class]="modal.cssClasses.modalSection">
+      <div [class]="modal.searchCss.root">
+        <svg [iconName]="'icon-search-24x24'" [size]="'auto'" [partCss]="modal.cssClasses.searchIcon" sv-ng-svg-icon></svg>
+        <input type="text" [class]="modal.searchCss.control" [value]="modal.searchString" [attr.placeholder]="modal.searchPlaceholder"
+          [attr.aria-label]="searchLabel" [disabled]="modal.isSearchDisabled" (input)="onSearchInput($event)" />
+      </div>
+    </div>
+    <div *ngIf="modal.creationToolbar.hasVisibleActions" [class]="modal.cssClasses.modalSection">
+      <sv-ng-action-bar [model]="modal.creationToolbar"></sv-ng-action-bar>
+    </div>
+    <div *ngIf="modal.presetsToolbar.hasActions" [class]="modal.cssClasses.modalSection" role="group" [attr.aria-labelledby]="modal.presetsTitleId">
+      <div [class]="modal.cssClasses.modalSectionHeader">
+        <div [class]="modal.cssClasses.modalSectionTitle" [attr.id]="modal.presetsTitleId">{{ presetsTitle }}</div>
+        <sv-ng-action-bar [model]="modal.presetsTitleToolbar"></sv-ng-action-bar>
+      </div>
+      <sv-ng-action-bar [model]="modal.presetsToolbar"></sv-ng-action-bar>
+    </div>
+    <sv-ng-filter-editor-page *ngIf="!!modal.editor" [survey]="modal.editor.survey" [disposed]="modal.editor.isDisposed"
+      [className]="modal.editorCss"></sv-ng-filter-editor-page>
+  </div>
+</ng-template>

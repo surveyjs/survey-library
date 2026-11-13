@@ -1,0 +1,4 @@
+<ng-template #template>
+  <sv-action-bar-item *ngIf="model" [model]="model"></sv-action-bar-item>
+  <sv-ng-popup *ngIf="model && model.popupModel" [popupModel]="model.popupModel"></sv-ng-popup>
+</ng-template>

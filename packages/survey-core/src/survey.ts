@@ -90,7 +90,7 @@ import {
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
   IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent,
-  DynamicDataErrorEvent
+  DynamicDataErrorEvent, FilterChangedEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -115,6 +115,7 @@ import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, a
 import DefaultLightTheme from "./themes/default-light";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
+import type { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 
 export var DefaultTheme = DefaultLightTheme;
 
@@ -1064,6 +1065,22 @@ export class SurveyModel extends SurveyElementCore
      a page that could not be read, an edit the server rejected, or a number naming a record the loaded
      page does not hold. The survey does nothing on its own: the records the question shows are kept. */
   public onDynamicDataError: EventBase<SurveyModel, DynamicDataErrorEvent> = this.addEvent<SurveyModel, DynamicDataErrorEvent>();
+  // An event that is raised whenever a Filter Control composes a new filter expression, whoever
+  // caused it: the end user picked another filter item or typed in the quick search, an authored
+  // defaultItem was applied as the survey loaded, a saved uiState was restored, or the control was
+  // pointed at another source. It answers "the effective filter is now X", not "the respondent
+  // changed something" - that one is onUIStateChanged, which stays silent for an authored default.
+  // A control bound to a Dynamic Matrix or a Dynamic Panel has already re-filtered that question by
+  // the time the event is raised, so a handler that looks into the source sees the records it shows
+  // now. The load-time raise is only observable when the JSON arrives through survey.fromJSON()
+  // after a handler was added: with new SurveyModel(json) the load is over before there is anything
+  // to raise it to.
+  public onFilterChanged: EventBase<SurveyModel, FilterChangedEvent> = this.addEvent<SurveyModel, FilterChangedEvent>();
+  // Raised when a Filter Control asks the application's model for a filter (Create new filter and
+  // Make Changes in the preset dialogs) - see FilterAIRequestEvent. SurveyJS never calls a model: the handler sends systemPrompt
+  // and messages to one and passes the answer to callback. The control offers AI only while this
+  // event has a handler.
+  public onAIFilterRequest: EventBase<SurveyModel, FilterAIRequestEvent> = this.addEvent<SurveyModel, FilterAIRequestEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
    * @hidden
@@ -6496,6 +6513,21 @@ export class SurveyModel extends SurveyElementCore
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
     this.doUIStateChanged("activePanelIndex", question);
   }
+  // ISurveyFilterCallbacks: the Filter Control is a non-value question, so nothing it does reaches
+  // survey.data. Its end-user state travels through uiState instead, and this is how it says so.
+  filterStateChanged(question: IQuestion): void {
+    this.doUIStateChanged("filter", question);
+  }
+  filterChanged(question: IQuestion, filterExpression: string, sourceQuestion: IQuestion): void {
+    this.onFilterChanged.fire(this, { question: <Question>question,
+      filterExpression: filterExpression, sourceQuestion: <Question>sourceQuestion });
+  }
+  isAIFilterRequestAvailable(): boolean {
+    return !this.onAIFilterRequest.isEmpty;
+  }
+  aiFilterRequest(options: FilterAIRequestEvent): void {
+    this.onAIFilterRequest.fire(this, options);
+  }
   // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
   // console for an error an application is expected to handle, the way onServerValidateQuestions
   // failures are the application's business too.
@@ -6592,7 +6624,7 @@ export class SurveyModel extends SurveyElementCore
   pageShown(page: IPage): void {
     this.doUIStateChanged("shown", page);
   }
-  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown", element: ISurveyElement): void {
+  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown" | "filter", element: ISurveyElement): void {
     if (this.onUIStateChanged.isEmpty) return;
     this.onUIStateChanged.fire(this, { changedProperty: reason, element });
   }

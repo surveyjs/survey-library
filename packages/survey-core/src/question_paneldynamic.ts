@@ -35,6 +35,7 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { getFilterFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange, toKnownRemap } from "./records/records-index-followers";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
@@ -454,6 +455,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.template.questions);
   }
+  public getFilterFields(): Array<IDynamicDataFilterField> {
+    return getFilterFieldsForQuestions(this.template.questions);
+  }
   protected getRecordSortTemplate(): PanelModelBase {
     return this.template;
   }
@@ -745,6 +749,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public getValueType(): QuestionValueType {
     return "array";
+  }
+  // A table of its own: its template questions are the filter fields, the panel itself is not one.
+  public get isFilterable(): boolean {
+    return false;
   }
   protected get hasMinWidth(): boolean { return false; }
   protected getAllChildren(): Base[] {

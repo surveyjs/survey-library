@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, test, expect, getButtonByText, loadSurveyLocales } from "../helper";
 
 const title = "localization";
 
@@ -84,6 +84,7 @@ frameworks.forEach(framework => {
   test.describe(`${framework} ${title}`, () => {
     test("next", async ({ page }) => {
       await page.goto(`${url}${framework}`);
+      await loadSurveyLocales(page, framework);
       await initSurvey(page, framework, json);
       await page.evaluate(() => {
         window["survey"].locale = "ru";
@@ -113,6 +114,7 @@ frameworks.forEach(framework => {
 
     test("check dropdown localization", async ({ page }) => {
       await page.goto(`${url}${framework}`);
+      await loadSurveyLocales(page, framework);
       await initSurvey(page, framework, json);
       const questionDropdownSelect = page.locator(".sd-dropdown");
 

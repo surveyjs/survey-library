@@ -52,6 +52,7 @@ frameworks.forEach((framework) => {
         elements: [{ type: "radiogroup", name: "q", choices: numberedChoices(4) }]
       });
       const radios = page.locator("input[type=radio]");
+      await expect(radios).toHaveCount(4);
       await page.keyboard.press("Tab");
       await expect(radios.first()).toBeFocused();
       await page.keyboard.press("c");

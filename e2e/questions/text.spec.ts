@@ -191,6 +191,7 @@ frameworks.forEach((framework) => {
           }]
       });
 
+      await expect(page.locator(".sd-formbox .sd-formbox__input").first()).toBeFocused();
       expect(await characterCounter.textContent()).toBe("0/10");
 
       await page.keyboard.press("A");

@@ -1,5 +1,5 @@
 <div [class]="question.cssClasses.noRowsSection">
-  <div [class]="question.cssClasses.noRowsText">
+  <div [attr.id]="question.noRowsTextId" [class]="question.cssClasses.noRowsText">
     <sv-ng-string [model]="question.locNoRowsText"></sv-ng-string>
   </div>
   <sv-ng-action-bar *ngIf="question.getShowPlaceholderToolbar()" [model]="question.toolbar"></sv-ng-action-bar>

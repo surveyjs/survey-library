@@ -11,15 +11,24 @@ import { page, updated, settle, frame, delay, rootElement } from "./page-helpers
 const W: any = globalThis;
 const now = (): number => performance.now();
 if (W.Survey) W.Survey.settings.animationEnabled = false;
-// Page ready (03): the framework entry, React's createPortal and flushSync, a stylesheet that defines .sd-root-modern,
-// the fonts.
-function ready(): Array<string> {
+// Page ready (03): the framework entry, React's createPortal and flushSync, Vue's app API and the survey plugin, the
+// Angular app booted, a stylesheet that defines .sd-root-modern, the fonts.
+async function ready(): Promise<Array<string>> {
   const problems: Array<string> = [];
   if (!W.Survey || !W.Survey.Model) problems.push("window.Survey is missing");
   if (W.SurveyReact) {
     if (!W.React || !W.ReactDOMClient || typeof W.ReactDOMClient.createRoot !== "function") problems.push("React 19 is missing");
     if (!W.ReactDOM || typeof W.ReactDOM.createPortal !== "function") problems.push("ReactDOM.createPortal is not a function");
     if (!W.ReactDOM || typeof W.ReactDOM.flushSync !== "function") problems.push("ReactDOM.flushSync is not a function");
+  } else if (W.SurveyVue) {
+    if (!W.Vue || typeof W.Vue.createApp !== "function" || typeof W.Vue.shallowRef !== "function") problems.push("Vue 3 is missing");
+    if (!W.SurveyVue.SurveyComponent || !W.SurveyVue.surveyPlugin) problems.push("SurveyVue.SurveyComponent or surveyPlugin is missing");
+  } else if (W.SurveyNgPerf) {
+    try {
+      await W.SurveyNgPerf.ready;
+    } catch(e: any) {
+      problems.push("the Angular app did not boot: " + String(e && e.message || e));
+    }
   } else if (!W.SurveyUI || typeof W.SurveyUI.renderSurvey !== "function") {
     problems.push("SurveyUI.renderSurvey is missing");
   }

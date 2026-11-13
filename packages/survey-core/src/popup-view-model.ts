@@ -269,6 +269,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
 
   public updateOnHiding(): void {
+    this.clearFocusFirstInputTimer();
     if (this.isFocusedContent && this.prevActiveElement) {
       this.prevActiveElement.focus({ preventScroll: true });
     }
@@ -278,8 +279,19 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     const popup = (<HTMLElement>this.container.querySelector(this.popupSelector));
     popup?.focus();
   }
+  // The renderers may call updateOnShowing() more than once for one show (React StrictMode, Vue onUpdated).
+  // A single pending timer gives one focus, 100 ms after the last call.
+  private focusFirstInputTimer: ReturnType<typeof setTimeout>;
+  private clearFocusFirstInputTimer(): void {
+    if (this.focusFirstInputTimer !== undefined) {
+      clearTimeout(this.focusFirstInputTimer);
+      this.focusFirstInputTimer = undefined;
+    }
+  }
   private focusFirstInput() {
-    setTimeout(() => {
+    this.clearFocusFirstInputTimer();
+    this.focusFirstInputTimer = setTimeout(() => {
+      this.focusFirstInputTimer = undefined;
       if (!this.container) return;
       var el = this.container.querySelector(this.model.focusFirstInputSelector || FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
@@ -303,6 +315,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
   public dispose(): void {
     super.dispose();
+    this.clearFocusFirstInputTimer();
     if (this.model) {
       this.model.onVisibilityChanged.remove(this.onModelIsVisibleChangedCallback);
     }

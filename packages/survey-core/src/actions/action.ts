@@ -160,6 +160,7 @@ export interface IAction {
   ariaExpanded?: boolean;
   ariaControls?: string;
   ariaLabelledBy?: string;
+  ariaDescribedBy?: string;
   // The accessible name when the visible text does not say everything (the pager's page dropdown).
   ariaLabel?: string;
   ariaRole?: string;
@@ -210,6 +211,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaChecked: boolean;
   @property() ariaExpanded: boolean;
   @property() ariaLabelledBy: string;
+  @property() ariaDescribedBy: string;
   @property() ariaLabel: string;
   @property() ariaControls: string;
   @property({ defaultValue: "button" }) ariaRole: string;

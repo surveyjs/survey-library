@@ -252,6 +252,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.setRootStyle();
     return this.getPropertyValue("effectiveColSpan");
   }
+  // effectiveColSpan is computed from colSpan. A value set from JSON, the property grid or Serializer goes to colSpan.
+  public set effectiveColSpan(val: number) {
+    this.colSpan = val;
+  }
   /**
    * Specifies how many columns this survey element spans in the grid layout. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true` and define the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation/api-reference/page-model#gridLayoutColumns) array for the parent page or panel.
    *
@@ -824,6 +828,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   protected getValidName(name: string): string {
+    // A number is valid JSON for a name, so it is kept as its string. Any other value that is not a string is not a name.
+    if (typeof name === "number") name = String(name);
+    else if (name !== undefined && name !== null && typeof name !== "string") name = "";
     if (!!name) {
       name = name.trim();
       const sep = settings.itemValueSeparator;
@@ -1051,6 +1058,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       survey.pages.forEach((page: IPage) => {
         if (<any>newPage === page.name) newPage = page;
       });
+    }
+    // A page name that does not resolve, such as a page that is not loaded yet, leaves the element where it is.
+    if (!!newPage && typeof newPage.addElement !== "function") {
+      (<any>this).prevSurvey = undefined;
+      return;
     }
 
     if (oldPage === newPage) return;

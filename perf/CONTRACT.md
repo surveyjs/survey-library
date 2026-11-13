@@ -27,7 +27,9 @@ JSON. It needs no build and no installed package.
       "script": "node_modules/@playwright/test/cli.js", "args": ["test", "-c", "playwright.perf.config.ts"],
       "package": "survey-react-ui", "buildFile": "survey-react-ui.min.js",
       "src": ["packages/survey-react-ui/src", "packages/survey-react-ui/entries"] },
-    "survey-js-ui": { "...": "..." }
+    "survey-js-ui": { "...": "..." },
+    "vue3": { "...": "..." },
+    "angular": { "...": "...", "buildFile": "fesm2015/survey-angular-ui.js" }
   },
   "machine": { "key": "...", "os": "...", "cpu": "...", "cores": 16, "availableParallelism": 16, "node": "24.12.0", "chromium": null, "extra": "..." }
 }
@@ -37,15 +39,17 @@ JSON. It needs no build and no installed package.
   fixture is the part before the group (`extra/<name>` for the local-only extra fixtures), as `scenarioIdPattern` in
   `perf/harness/scenario.ts` reads it.
 * `cwd`, `script`, `args`: paths relative to the checkout root. Run `node <script> <args...>` in `cwd`.
-* `package`, `buildFile`, `src` (browser suites): the UI package to build, its main build file, and the folders its
-  build reads (a caller can reuse a UI build when none of them changed).
+* `package`, `buildFile`, `src` (browser suites): the UI package to build, its main build file (for Angular, the
+  partial-Ivy module the suite links into its page), and the folders its build reads. A caller can reuse a UI build
+  when none of those folders changed.
 * `machine`: the machine block of this process with `PERF_MACHINE_EXTRA` and no Chromium. Its `key` is how result
   files are grouped: results with different keys are never compared.
 
 ## Running a suite
 
-Prerequisites: the checkout's root and `packages/survey-core` installed; for a browser suite also its UI package (the
-React suite installs its pinned React 19 into `perf/react19` by itself, so that folder must be writable). The target
+Prerequisites: the checkout's root and `packages/survey-core` installed; for a browser suite also its UI package. The
+React, Vue 3 and Angular suites install their pinned framework into `perf/react19`, `perf/vue3` and `perf/angular` by
+themselves, so those folders must be writable. The target
 builds are any survey-core and UI builds; without `PERF_CORE_DIR` / `PERF_UI_DIR` a suite measures the checkout's own
 builds and refuses stale ones.
 

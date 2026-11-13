@@ -4,6 +4,27 @@ import { ConsoleWarnings } from "./console-warnings";
 import { getQuestionErrorText } from "./expressions/expressionError";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { IValueGetterContext, IValueGetterItem, ValueGetter, VariableGetterContext, parseValuePath } from "./conditions/conditionProcessValue";
+import type { ExpressionRunner } from "./expressions/expressionRunner";
+
+// A function registered without resultDependsOn, or with "elements", may read element state
+export function canFunctionReadElements(name: string): boolean {
+  const dependsOn = FunctionFactory.Instance.getResultDependsOn(name);
+  return dependsOn !== "parameters" && dependsOn !== "survey";
+}
+// The expression calls a registered, non-async function that may read element state (a matrix row's
+// isVisible). The survey runs such an expression once more when a visibility changed in its conditions
+// pass (Bug#12284, Bug#12316). An unknown function is left out, it only warns, and so is an async one:
+// a second run sends a second request.
+export function isExpressionReadingElements(runner: ExpressionRunner): boolean {
+  if (!runner.hasFunction() || runner.isAsync) return false;
+  const functionNames = runner.getFunctionNames();
+  if (!functionNames) return false;
+  for (let i = 0; i < functionNames.length; i++) {
+    const name = functionNames[i];
+    if (FunctionFactory.Instance.hasFunction(name) && canFunctionReadElements(name)) return true;
+  }
+  return false;
+}
 
 export interface IFunctionCachedResult {
   result: any;

@@ -15,7 +15,9 @@ import type { PerfScenario } from "../harness/scenario.ts";
 const fileArg = process.argv.indexOf("--file");
 const revsFile = fileArg > -1 ? path.resolve(process.argv[fileArg + 1]) : path.join(path.dirname(fileURLToPath(import.meta.url)), "revs.json");
 
-const pageHelpersSource = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "browser", "page-helpers.ts"), "utf8");
+// The page code a browser sample's time depends on: the page helpers and the Angular mount they call.
+const pageHelpersSource = ["page-helpers.ts", "angular-entry.ts"]
+  .map((file: string) => fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "browser", file), "utf8")).join("\n");
 const sourceOf = (value: any): string => (typeof value === "function" ? String(value) : JSON.stringify(value));
 
 // The names of perf/scenarios exports a source reads: a call for a function, any mention for a constant.
@@ -43,7 +45,7 @@ export function scenarioHash(s: PerfScenario, helpers: { [name: string]: any }):
   text += JSON.stringify({ repeat: s.repeat, counterOnly: s.counterOnly, requires: s.requires, samples: s.samples, warmup: s.warmup,
     maxMs: s.maxMs, tolerance: s.tolerance, browser: s.browser });
   closureOf(s, helpers).forEach((name: string) => { text += name + "=" + sourceOf(helpers[name]); });
-  // A browser sample's time also depends on the page helpers (perf/browser/page-helpers.ts).
+  // A browser sample's time also depends on the page code (perf/browser/page-helpers.ts, angular-entry.ts).
   if (suitesOf(s.id).some((suite: string) => suite !== "core")) text += pageHelpersSource;
   return createHash("sha1").update(text.replace(/\s+/g, "")).digest("hex");
 }

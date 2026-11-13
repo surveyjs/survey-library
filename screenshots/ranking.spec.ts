@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, compareScreenshot, doDrag, applyTheme, baseTest as test } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, doDrag, applyTheme, baseTest as test, loadSurveyLocales } from "../e2e/helper";
 import { registerCustomItemContentComponent } from "../e2e/registerCustomComponents";
 
 const title = "Ranking Screenshot";
@@ -231,6 +231,7 @@ frameworks.forEach(framework => {
     });
 
     test("RTL", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         "locale": "ar",

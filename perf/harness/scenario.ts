@@ -17,7 +17,7 @@ export interface PerfFixture {
 // The page side of a browser suite (03); element arguments are DOM elements, typed loosely so the harness stays
 // platform-neutral.
 export interface PerfPage {
-  framework: "react" | "survey-js-ui";
+  framework: "react" | "survey-js-ui" | "vue3" | "angular";
   // Renders the survey into #root (the survey shown before is unmounted and disposed), then settles.
   show(survey: any): Promise<void>;
   // The end of the framework update: two MessageChannel hops, then a forced layout (03, the clock).

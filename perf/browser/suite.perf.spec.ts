@@ -127,7 +127,11 @@ test("environment", async({ browserName }, testInfo: any) => {
   const { context, page } = await openPage();
   try {
     const probe = await page.evaluate(() => (window as any).PerfPage.nextPageProbe());
-    const framework = await page.evaluate(() => ({ react: (window as any).React ? (window as any).React.version : undefined }));
+    const framework = await page.evaluate(() => {
+      const W: any = window;
+      return { react: W.React ? W.React.version : undefined, vue: W.Vue ? W.Vue.version : undefined,
+        angular: W.SurveyNgPerf ? W.SurveyNgPerf.version : undefined };
+    });
     await testInfo.attach("perf-environment", { contentType: "application/json",
       body: JSON.stringify({ chromium: browser.version(), framework: framework, nextPageProbe: probe, notInSuite: split.notInSuite }) });
     if (!probe.found) throw new Error("survey.nextPage() from page code: the new page is not in the DOM at the end of the update");

@@ -38,12 +38,18 @@ export function questionElement(ctx: PerfContext, question: any): any {
   return ctx.page ? ctx.page.query("[data-name=\"" + question.name + "\"]") : undefined;
 }
 
+// The cells of a rendered table row, in order. Angular renders a component host element (sv-ng-matrixdropdown-cell)
+// beside each cell, so a row's children are not its cells there.
+export function rowCells(tr: any): Array<any> {
+  return Array.prototype.filter.call(tr.children, (el: any) => el.tagName === "TD" || el.tagName === "TH");
+}
+
 // The text of the first data row's cell of a column of a rendered matrix (03: record a DOM fact).
 export function renderedCell(ctx: PerfContext, question: any, column: string): string | undefined {
   if (!ctx.page) return undefined;
   const index = question.renderedTable.headerRow.cells.map((c: any) => c.column && c.column.name).indexOf(column);
   const row = ctx.page.query("[data-name=\"" + question.name + "\"] tbody tr.sd-table__row");
-  const cell = row ? row.children[index] : undefined;
+  const cell = row ? rowCells(row)[index] : undefined;
   if (!cell) return undefined;
   const input = cell.querySelector("input, textarea");
   return input ? input.value : (cell.textContent || "").trim();

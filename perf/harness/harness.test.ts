@@ -10,7 +10,8 @@ import type { SampleDriver } from "./sample.ts";
 import { installFunnels, funnels } from "./counters.ts";
 import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, RENDER_SUBSET } from "./ids.ts";
 import { defineScenarios, fixtureOfId, missingRequirement } from "./scenario.ts";
-import { allScenarios } from "../scenarios/index.ts";
+import { allScenarios, PAGE_REV } from "../scenarios/index.ts";
+import { suiteOf, resolveUrl, uiPackage, cacheDir } from "../browser/paths.ts";
 import { runnerRoot } from "./node/build.ts";
 import { machineKey, slug } from "./node/machine.ts";
 import { dependencyInfo } from "./node/deps.ts";
@@ -100,9 +101,13 @@ describe("ids", () => {
     expect(idsOfSuite("core").length).toBe(55);
     expect(idsOfSuite("core").filter((id: string) => id.indexOf("records-1k/records/") === 0 && /@orders$/.test(id)))
       .toEqual(["records-1k/records/filter-set@orders", "records-1k/records/next@orders", "records-1k/records/sort-1@orders"]);
-    // The phase-2 browser suites' ids: browser ids that React runs.
+    // vue3 and angular run RENDER_SUBSET: browser ids that React runs.
     RENDER_SUBSET.forEach((id: string) => expect(idsOfSuite("react")).toContain(id));
     expect(RENDER_SUBSET.length).toBe(13);
+    expect(idsOfSuite("vue3")).toEqual(RENDER_SUBSET.slice().sort());
+    expect(idsOfSuite("angular")).toEqual(RENDER_SUBSET.slice().sort());
+    expect(suitesOf("manyPages/pages/next10")).toEqual(["core", "react", "survey-js-ui", "vue3", "angular"]);
+    expect(suitesOf("large/load/paint")).toEqual(["react", "survey-js-ui", "vue3", "angular"]);
   });
   test("the PERF_ONLY split", () => {
     expect(parseOnly(" a , b,,")).toEqual(["a", "b"]);
@@ -193,6 +198,37 @@ describe("revs", () => {
     expect(res.stderr).toBe("");
     expect(res.stdout).toContain("all hashes match");
     expect(res.status).toBe(0);
+  });
+});
+
+describe("revs: the page code's rev", () => {
+  test("a browser id's rev adds PAGE_REV - 1 to its own; a core-only id keeps its own", () => {
+    const rev = (id: string): number => allScenarios().filter((s: any) => s.id === id)[0].rev;
+    expect(PAGE_REV).toBe(2);
+    expect(rev("large/load/paint")).toBe(1 + PAGE_REV - 1);
+    expect(rev("manyPages/pages/next10")).toBe(1 + PAGE_REV - 1);
+    expect(rev("records-plain/records/sort-header@orders30")).toBe(2 + PAGE_REV - 1);
+    expect(rev("large/load/model")).toBe(1);
+    expect(rev("records-10k/records/prev@orders")).toBe(2);
+  });
+});
+
+describe("browser suites", () => {
+  test("PERF_SUITE names a UI package, and the pinned frameworks are served from the cache", () => {
+    ["react", "survey-js-ui", "vue3", "angular"].forEach((suite: string) => expect(suiteOf({ PERF_SUITE: suite })).toBe(suite));
+    expect(() => suiteOf({ PERF_SUITE: "constructor" })).toThrow(/PERF_SUITE must be one of react, survey-js-ui, vue3, angular/);
+    expect(() => suiteOf({})).toThrow(/PERF_SUITE/);
+    expect(uiPackage.angular.file).toBe("fesm2015/survey-angular-ui.js");
+    const cached = path.join(cacheDir, "perf-paths-test.js");
+    fs.mkdirSync(cacheDir, { recursive: true });
+    fs.writeFileSync(cached, "");
+    try {
+      ["react19", "vue3", "angular"].forEach((root: string) => expect(resolveUrl("http://perf.local/" + root + "/perf-paths-test.js", "vue3")).toBe(cached));
+      expect(resolveUrl("http://perf.local/other/perf-paths-test.js", "vue3")).toBeUndefined();
+      expect(resolveUrl("http://other.local/vue3/perf-paths-test.js", "vue3")).toBeUndefined();
+    } finally {
+      fs.rmSync(cached, { force: true });
+    }
   });
 });
 

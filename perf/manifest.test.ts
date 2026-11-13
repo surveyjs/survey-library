@@ -21,6 +21,10 @@ describe("the runner contract", () => {
       expect(fs.existsSync(path.join(runnerRoot, s.cwd, s.args[2]))).toBe(true);
       (s.src as Array<string>).forEach((dir: string) => expect(fs.existsSync(path.join(runnerRoot, dir))).toBe(true));
     });
+    expect(m.suites.vue3).toMatchObject({ cwd: "packages/survey-vue3-ui", package: "survey-vue3-ui", buildFile: "survey-vue3-ui.umd.js",
+      src: ["packages/survey-vue3-ui/src"] });
+    expect(m.suites.angular).toMatchObject({ cwd: "packages/survey-angular-ui", package: "survey-angular-ui", buildFile: "fesm2015/survey-angular-ui.js",
+      src: ["packages/survey-angular-ui/src"] });
     expect(m.machine.chromium).toBeNull();
     expect(m.machine.key).toMatch(/-x$/);
   });

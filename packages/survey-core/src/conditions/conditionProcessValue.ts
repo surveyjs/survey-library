@@ -29,6 +29,13 @@ export interface IValueGetterInfo {
   requireStrictCompare?: boolean;
   isFound?: boolean;
   value?: any;
+  // The metadata mode (IValueGetterContextGetValueParams.isMetadata, ValueGetter.getQuestionInfo): the walk
+  // stops at the first question found (obj); the name step marks a comment key and a stripped unwrap postfix.
+  isMetadata?: boolean;
+  isComment?: boolean;
+  isUnwrapped?: boolean;
+  // Where the path left after the question starts in the name's text (the question's item "to").
+  restFrom?: number;
 }
 export interface IObjectValueContext {
   getValueGetterContext(): IValueGetterContext;
@@ -42,6 +49,9 @@ export interface IValueGetterContextGetValueParams {
   isOriginalValue?: boolean;
   // The reader holds no object of its own: a records question answers with a row or a panel it already has, and builds none for the read.
   existingObjectsOnly?: boolean;
+  // Which question a name reads, without values: no value is read and the walk stops at the first question
+  // (ValueGetter.getQuestionInfo). A context that rebuilds the params passes it on.
+  isMetadata?: boolean;
 }
 export interface IValueGetterContext {
   getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
@@ -91,15 +101,10 @@ export class ValueGetter {
   }
   private getValueInfoCore(params: IValueInfoParams): IReturnValue {
     const name = params.name;
-    const cxt = params.context;
-    let info = this.run(params.name, cxt, params.createObjects, params.isOriginalValue);
-    if ((!info || !info.isFound) && cxt && cxt.getRootObj) {
-      const obj = cxt.getRootObj();
-      if (!!obj) {
-        params.context = obj.getValueGetterContext();
-        return this.getValueInfo(params);
-      }
-    }
+    const info = this.runInContexts(params.context, (cxt: IValueGetterContext): IValueGetterInfo => {
+      params.context = cxt;
+      return this.run(params.name, cxt, params.createObjects, params.isOriginalValue);
+    });
     const res: IReturnValue = { isFound: false, value: undefined };
     if (!info || !info.isFound) return res;
     res.isFound = true;
@@ -117,6 +122,31 @@ export class ValueGetter {
       }
     }
     return res;
+  }
+  // The question a name reads, as the runtime walk finds it, reading no values (the metadata mode): info.obj
+  // is the first question the walk reaches, info.restFrom where the rest of the name starts. Undefined when
+  // the walk ends without a question, or the name is a property path ({$page1.title}).
+  public getQuestionInfo(name: string, context: IValueGetterContext): IValueGetterInfo {
+    if (!name || !context) return undefined;
+    const propPrefix = settings.expressionElementPropertyPrefix;
+    if (!!propPrefix && name[0] === propPrefix) return undefined;
+    const info = this.runInContexts(context, (cxt: IValueGetterContext): IValueGetterInfo => {
+      const res = cxt.getValue({ path: parseValuePath(name, true), isRoot: true, index: -1, isMetadata: true });
+      return res?.isFound ? res : undefined;
+    });
+    return !!info && !!info.obj ? info : undefined;
+  }
+  // Runs a name in a context and, while it is not found, in the context's root object's context: an element
+  // inside a container falls back outward to the survey (the one fallback of the runtime and the metadata mode).
+  private runInContexts(context: IValueGetterContext, run: (cxt: IValueGetterContext) => IValueGetterInfo): IValueGetterInfo {
+    let cxt = context;
+    for (;;) {
+      const info = run(cxt);
+      if (!!info && info.isFound || !cxt || !cxt.getRootObj) return info;
+      const obj = cxt.getRootObj();
+      if (!obj) return info;
+      cxt = obj.getValueGetterContext();
+    }
   }
   public getValue(name: string, context: IValueGetterContext, isText?: boolean, isDisplayValue?: boolean): any {
     const res = this.getValueInfo({ name: name, context: context, isText: isText, isDisplayValue: isDisplayValue });
@@ -338,9 +368,13 @@ export class ValueGetterContextCore implements IValueGetterContext {
     let pIndex = 0;
     const path = params.path;
     const res: IValueGetterInfo = { isFound: false, value: this.getInitialvalue(), context: this };
+    if (params.isMetadata) res.isMetadata = true;
     while(pIndex < path.length) {
       pIndex = this.checkValueByPath(path, pIndex, res);
       if (!res.isFound) return undefined;
+      if (params.isMetadata && !!res.obj && (<any>res.obj).isQuestion) {
+        return { isFound: true, obj: res.obj, isComment: res.isComment, isUnwrapped: res.isUnwrapped, restFrom: path[pIndex].to };
+      }
       if (params.isProperty) {
         if (!!res.obj) return new PropertyGetterContext(res.obj).getValue({ path: path.slice(1), isRoot: false, index: -1, isProperty: true });
         if (!res.context) return undefined;
@@ -348,7 +382,7 @@ export class ValueGetterContextCore implements IValueGetterContext {
       const item = path[pIndex];
       pIndex++;
       if (res.context !== this && !!res.context) {
-        return res.context.getValue({ path: path.slice(pIndex), isRoot: false, index: item.index, createObjects: params.createObjects, isProperty: params.isProperty, isOriginalValue: params.isOriginalValue });
+        return res.context.getValue({ path: path.slice(pIndex), isRoot: false, index: item.index, createObjects: params.createObjects, isProperty: params.isProperty, isOriginalValue: params.isOriginalValue, isMetadata: params.isMetadata });
       }
       if (item.index !== undefined) {
         this.updateItemByIndex(item.index, res);
@@ -361,6 +395,10 @@ export class ValueGetterContextCore implements IValueGetterContext {
   private checkValueByPath(path: Array<IValueGetterItem>, pIndex: number, res: IValueGetterInfo): number {
     res.isFound = false;
     return findNameByPath(path, pIndex, this.isSearchNameRevert(), name => {
+      if (res.isMetadata) {
+        res.isComment = undefined;
+        res.isUnwrapped = undefined;
+      }
       this.updateValueByItem(name, res);
       return res.isFound;
     });

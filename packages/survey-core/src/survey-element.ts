@@ -34,8 +34,10 @@ import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
-import { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
+import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
+import type { IDataScope } from "./data-key-index";
+import { getActiveDataScope, getDataScopeHost } from "./panel-data-scope";
 
 // The readOnlyMode serializer property shared by questions and panels; a new object per class.
 export function getReadOnlyModePropertyInfo(): any {
@@ -46,6 +48,16 @@ export function getReadOnlyModePropertyInfo(): any {
     dependsOn: ["readOnly"],
     visibleIf: (obj: any) => !!obj && !!obj.readOnly
   };
+}
+// A valid name or value name of a question, panel or page: trimmed, without braces and a leading
+// expression conversion character.
+export function makeNameValid(str: string): string {
+  if (!str) return str;
+  str = str.trim().replace(/[\{\}]+/g, "");
+  while(!!str && str[0] === settings.expressionDisableConversionChar) {
+    str = str.substring(1);
+  }
+  return str;
 }
 
 /**
@@ -545,13 +557,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.runWithoutAnimations(() => { this.renderedIsExpanded = !this.isCollapsed; });
   }
   public getValueGetterContext(): IValueGetterContext {
-    const data = <IObjectValueContext><any>this.data;
+    const data = this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
   protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
-    const data = <IObjectValueContext><any>this.data;
-    if (!!data && typeof data.getValueGetterContext === "function") {
+    const data = this.data;
+    if (!!data) {
       const dataContext = data.getValueGetterContext();
       if (typeof dataContext?.getContextKeys === "function") {
         return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars, isClearedKeyChanged);
@@ -578,6 +590,25 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public get data(): ISurveyData {
     return this.surveyDataValue;
+  }
+  // Nested data. The data scope this element's own value is a key of: the survey, or the nearest active
+  // PanelDataScope above it. A question directly in a record answers the survey.
+  public getValueScope(): IDataScope {
+    return getActiveDataScope(this.data) || getDataScopeHost(this.survey);
+  }
+  // The keys from the survey data down to this element's value: ["q1"], ["page1", "address", "street"].
+  // Empty for an element with no key of its own (a container that does not nest).
+  public getDataPath(): Array<string> {
+    const key = this.getDataKey();
+    const scope = !!key ? this.getValueScope() : null;
+    if (!scope) return [];
+    const res = scope.getDataPath();
+    res.push(key);
+    return res;
+  }
+  // The element's own key in its value scope: a question's value name, a nesting container's key.
+  protected getDataKey(): string {
+    return "";
   }
   /**
    * Returns the survey object.

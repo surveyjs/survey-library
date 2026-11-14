@@ -1,5 +1,6 @@
 import { ISurveyVariablePreset, ISurveyVariablePresets, SurveyVariablePresets } from "survey-core";
 import { SurveyModel } from "../src/survey";
+import { getLocaleString } from "../src/surveyStrings";
 import { ISurveyVariableValidationResult, SurveyVariablePresets as SurveyVariablePresetsFromSrc } from "../src/variablePresets";
 
 import { describe, expect, test, vi } from "vitest";
@@ -352,6 +353,264 @@ describe("SurveyVariablePresets (issue #11814)", () => {
     const preset: ISurveyVariablePreset = presets.getPreset("Gold");
     const res: ISurveyVariableValidationResult = presets.validateVariables(preset.variables);
     expect(res.isValid).toBe(true);
+    presets.dispose();
+  });
+});
+
+// Nested data (prompt 15, decisions V1-V4): the definition's data is the shape of the variables, so a
+// panel or a page that nests describes an object variable.
+describe("SurveyVariablePresets with a nested definition", () => {
+  const nestedDefinition = (dataNesting?: string, withValueName: boolean = true): any => {
+    const panel: any = { type: "panel", name: "user", title: "User", elements: [
+      { type: "dropdown", name: "tier", title: "Tier", choices: ["gold", "silver"], isRequired: true },
+      { type: "text", name: "name", title: "Name" }] };
+    if (withValueName) panel.valueName = "users";
+    const res: any = { elements: [panel, { type: "text", name: "role" }] };
+    if (!!dataNesting) res.dataNesting = dataNesting;
+    return res;
+  };
+  const create = (definition: any): SurveyVariablePresets => new SurveyVariablePresets({ definition: definition });
+  const notInChoices = (val: string): string => (<any>getLocaleString("variableValueNotInChoices"))["format"](val);
+
+  test.each(["auto", "panel"])("V1/V3: names are the root keys, paths the leaves (%s)", mode => {
+    const presets = create(nestedDefinition(mode));
+    expect(presets.getVariableNames()).toEqual(["users", "role"]);
+    expect(presets.getVariablePaths()).toEqual(["users.tier", "users.name", "role"]);
+    presets.dispose();
+  });
+  test("V1: \"panel\" mode keys a panel without valueName by its name", () => {
+    const presets = create(nestedDefinition("panel", false));
+    expect(presets.getVariableNames()).toEqual(["user", "role"]);
+    expect(presets.getVariablePaths()).toEqual(["user.tier", "user.name", "role"]);
+    expect(presets.getVariableQuestion("user.tier").name).toBe("tier");
+    presets.dispose();
+  });
+  test.each(["page", "panelAndPage"])("V1: in \"%s\" mode the root elements land on page1", mode => {
+    const presets = create(nestedDefinition(mode));
+    expect(presets.getVariableNames()).toEqual(["page1"]);
+    expect(presets.getVariablePaths()).toEqual(["page1.users.tier", "page1.users.name", "page1.role"]);
+    expect(presets.getVariableElement("page1").getType()).toBe("page");
+    expect(presets.getVariableQuestion("page1.users.tier").name).toBe("tier");
+    const res = presets.validateVariables({ page1: { users: { tier: "gold" }, role: "a" } });
+    expect(res).toEqual({ unknownVariables: [], errors: [], isValid: true });
+    presets.dispose();
+  });
+  test("\"none\": the definition is flat, as today", () => {
+    const presets = create(nestedDefinition("none"));
+    expect(presets.getVariableNames()).toEqual(["tier", "name", "role"]);
+    expect(presets.getVariablePaths()).toEqual(["tier", "name", "role"]);
+    expect(presets.hasVariable("users")).toBe(false);
+    expect(presets.validateVariables({ tier: "gold" }).isValid).toBe(true);
+    presets.dispose();
+  });
+  test("V2/V3: lookups by root key and by path", () => {
+    const presets = create(nestedDefinition());
+    expect(presets.hasVariable("users")).toBe(true);
+    expect(presets.getVariableQuestion("users")).toBeUndefined();
+    expect(presets.getVariableElement("users").name).toBe("user");
+    expect(presets.hasVariable("users.tier")).toBe(true);
+    expect(presets.getVariableQuestion("users.tier").name).toBe("tier");
+    expect(presets.getVariableElement("users.tier").name).toBe("tier");
+    expect(presets.hasVariable("Users.Tier")).toBe(true);
+    expect(presets.getVariableQuestion("Users.Tier").name).toBe("tier");
+    expect(presets.getVariableElement("USERS").name).toBe("user");
+    // an inner question is no variable: the host never sets it at the root
+    expect(presets.hasVariable("tier")).toBe(false);
+    expect(presets.getVariableQuestion("tier")).toBeUndefined();
+    expect(presets.getVariableElement("tier")).toBeUndefined();
+    expect(presets.hasVariable("users.nope")).toBe(false);
+    expect(presets.getVariableQuestion("users.nope")).toBeUndefined();
+    expect(presets.getVariableElement("users.nope")).toBeUndefined();
+    expect(presets.hasVariable("role")).toBe(true);
+    expect(presets.getVariableElement("role").name).toBe("role");
+    expect(presets.getVariableElement(undefined)).toBeUndefined();
+    expect(presets.getVariableElement("")).toBeUndefined();
+    presets.dispose();
+  });
+  test("a flat definition: the paths are the names, and a dotted key is no variable", () => {
+    const presets = create({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", valueName: "a.b" },
+      { type: "text", name: "c.d" }] });
+    expect(presets.getVariableNames()).toEqual(["q1"]);
+    expect(presets.getVariablePaths()).toEqual(["q1"]);
+    expect(presets.hasVariable("a.b")).toBe(false);
+    expect(presets.getVariableQuestion("a.b")).toBeUndefined();
+    expect(presets.getDottedKeyElements().map(el => el.name)).toEqual(["q2", "c.d"]);
+    expect(presets.validateVariables({ q1: 1, "a.b": 2 })).toEqual({ unknownVariables: ["a.b"], errors: [], isValid: false });
+    presets.dispose();
+  });
+  test("no definition and a disposed companion have no paths", () => {
+    expect(new SurveyVariablePresets().getVariablePaths()).toEqual([]);
+    const presets = create(nestedDefinition());
+    presets.getVariablePaths();
+    presets.dispose();
+    expect(presets.getVariablePaths()).toEqual([]);
+    expect(presets.getVariableElement("users")).toBeUndefined();
+  });
+  test("V4: a valid nested preset", () => {
+    const presets = create(nestedDefinition());
+    const res = presets.validateVariables({ users: { tier: "gold", name: "Ann" }, role: "admin" });
+    expect(res).toEqual({ unknownVariables: [], errors: [], isValid: true });
+    presets.dispose();
+  });
+  test("V4: keys are mapped to the definition's spelling at every level", () => {
+    const presets = create(nestedDefinition());
+    expect(presets.validateVariables({ Users: { Tier: "gold" } })).toEqual({ unknownVariables: [], errors: [], isValid: true });
+    presets.dispose();
+  });
+  test("V4: an inner value outside the choices is reported on its path", () => {
+    const presets = create(nestedDefinition());
+    const res = presets.validateVariables({ users: { tier: "bronze" } });
+    expect(res.isValid).toBe(false);
+    expect(res.errors).toEqual([{ variable: "users.tier", question: "tier", errors: [notInChoices("bronze")] }]);
+    presets.dispose();
+  });
+  test("V4: a missing required inner value, and a missing or null object variable", () => {
+    const presets = create(nestedDefinition());
+    [{ users: { name: "Ann" } }, {}, { users: null }].forEach(vars => {
+      const res = presets.validateVariables(vars);
+      expect(res.unknownVariables).toEqual([]);
+      expect(res.errors).toEqual([{ variable: "users.tier", question: "tier", errors: ["Response required."] }]);
+    });
+    presets.dispose();
+  });
+  test("V4: an unknown inner key is a path in the input's spelling", () => {
+    const presets = create(nestedDefinition());
+    let res = presets.validateVariables({ users: { tier: "gold", nope: 1 } });
+    expect(res.unknownVariables).toEqual(["users.nope"]);
+    expect(res.errors).toEqual([]);
+    expect(res.isValid).toBe(false);
+    res = presets.validateVariables({ Users: { Tier: "gold", Nope: 1 }, other: 2 });
+    expect(res.unknownVariables).toEqual(["Users.Nope", "other"]);
+    presets.dispose();
+  });
+  test.each([["a string", "gold"], ["a number", 5], ["an array", ["gold"]]])("V4: %s for an object variable is one error", (_, val) => {
+    const presets = create(nestedDefinition());
+    const res = presets.validateVariables({ users: val, role: "a" });
+    expect(res.unknownVariables).toEqual([]);
+    expect(res.errors).toEqual([{ variable: "users", question: "user", errors: ["The value is incorrect."] }]);
+    expect(res.isValid).toBe(false);
+    presets.dispose();
+  });
+  test("V4: a flat value of an inner question is an unknown root key", () => {
+    const presets = create(nestedDefinition());
+    const res = presets.validateVariables({ tier: "gold", users: { tier: "gold" } });
+    expect(res.unknownVariables).toEqual(["tier"]);
+    expect(res.errors).toEqual([]);
+    presets.dispose();
+  });
+  test("two levels: a panel with valueName in a page with valueName", () => {
+    const presets = create({ pages: [{ name: "p1", valueName: "page", elements: [
+      { type: "panel", name: "user", valueName: "users", elements: [{ type: "text", name: "tier", isRequired: true }] },
+      { type: "text", name: "role" }] }] });
+    expect(presets.getVariableNames()).toEqual(["page"]);
+    expect(presets.getVariablePaths()).toEqual(["page.users.tier", "page.role"]);
+    expect(presets.getVariableElement("page").name).toBe("p1");
+    expect(presets.getVariableElement("page.users").name).toBe("user");
+    expect(presets.getVariableQuestion("Page.Users.Tier").name).toBe("tier");
+    expect(presets.validateVariables({ page: { users: { tier: "x" } } }).isValid).toBe(true);
+    let res = presets.validateVariables({ page: { users: "x", nope: 1 } });
+    expect(res.unknownVariables).toEqual(["page.nope"]);
+    expect(res.errors).toEqual([{ variable: "page.users", question: "user", errors: ["The value is incorrect."] }]);
+    res = presets.validateVariables({ page: { users: {} } });
+    expect(res.errors).toEqual([{ variable: "page.users.tier", question: "tier", errors: ["Response required."] }]);
+    presets.dispose();
+  });
+  test("N5: a dynamic panel is one variable; inside a nesting panel it is one path", () => {
+    const presets = create({ elements: [
+      { type: "paneldynamic", name: "sites", templateElements: [{ type: "text", name: "city" },
+        { type: "panel", name: "addr", valueName: "address", elements: [{ type: "text", name: "street" }] }] },
+      { type: "panel", name: "user", valueName: "users", elements: [
+        { type: "paneldynamic", name: "items", templateElements: [{ type: "text", name: "item" }] }] }] });
+    expect(presets.getVariableNames()).toEqual(["sites", "users"]);
+    expect(presets.getVariablePaths()).toEqual(["sites", "users.items"]);
+    expect(presets.hasVariable("sites.city")).toBe(false);
+    expect(presets.hasVariable("sites.address")).toBe(false);
+    expect(presets.getVariableQuestion("users.items").name).toBe("items");
+    const res = presets.validateVariables({ sites: [{ city: "Oslo", address: { street: "Main" } }], users: { items: [{ item: "a" }] } });
+    expect(res).toEqual({ unknownVariables: [], errors: [], isValid: true });
+    presets.dispose();
+  });
+  test("D4: two containers with one key are one variable with the leaves of both", () => {
+    const presets = create({ elements: [
+      { type: "panel", name: "p1", valueName: "users", elements: [{ type: "text", name: "tier" }] },
+      { type: "text", name: "role" },
+      { type: "panel", name: "p2", valueName: "users", elements: [{ type: "text", name: "name", isRequired: true }] }] });
+    expect(presets.getVariableNames()).toEqual(["users", "role"]);
+    expect(presets.getVariablePaths()).toEqual(["users.tier", "role", "users.name"]);
+    expect(presets.getVariableElement("users").name).toBe("p1");
+    expect(presets.getVariableQuestion("users.name").name).toBe("name");
+    expect(presets.validateVariables({ users: { tier: "a", name: "b" } }).isValid).toBe(true);
+    expect(presets.validateVariables({ users: { tier: "a" } }).errors).toEqual(
+      [{ variable: "users.name", question: "name", errors: ["Response required."] }]);
+    presets.dispose();
+  });
+  test("a dotted inner key declares no variable, and nothing inside a dotted container does", () => {
+    const presets = create({ elements: [{ type: "panel", name: "user", valueName: "users", elements: [
+      { type: "text", name: "q1", valueName: "a.b", isRequired: true }, { type: "text", name: "q2", valueName: "a" },
+      { type: "panel", name: "xy", valueName: "x.y", elements: [
+        { type: "text", name: "z", isRequired: true },
+        { type: "panel", name: "inner", valueName: "w.v", elements: [{ type: "text", name: "t" }] }] }] }] });
+    expect(presets.getVariablePaths()).toEqual(["users.a"]);
+    expect(presets.hasVariable("users.a.b")).toBe(false);
+    expect(presets.hasVariable("users.x")).toBe(false);
+    expect(presets.hasVariable("users.x.y.z")).toBe(false);
+    expect(presets.getVariableQuestion("users.a").name).toBe("q2");
+    // the outer dotted container is the defect; what lies inside it is not listed again
+    expect(presets.getDottedKeyElements().map(el => el.name)).toEqual(["q1", "xy"]);
+    // an input key is never split, and a required question under a dotted key reports nothing
+    expect(presets.validateVariables({ users: { "A.B": "x", a: "y" } })).toEqual(
+      { unknownVariables: ["users.A.B"], errors: [], isValid: false });
+    expect(presets.validateVariables({ users: { a: "y" } })).toEqual({ unknownVariables: [], errors: [], isValid: true });
+    presets.dispose();
+    expect(presets.getDottedKeyElements()).toEqual([]);
+  });
+  test("a dotted key beside the nesting chain that spells it: only the chain is a variable", () => {
+    const presets = create({ elements: [{ type: "panel", name: "user", valueName: "users", elements: [
+      { type: "text", name: "ab", valueName: "a.b" },
+      { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "b" }] }] }] });
+    expect(presets.getVariablePaths()).toEqual(["users.a.b"]);
+    expect(presets.getVariableQuestion("users.a.b").name).toBe("b");
+    expect(presets.getDottedKeyElements().map(el => el.name)).toEqual(["ab"]);
+    presets.dispose();
+  });
+  test("a dotted key of a definition model the host built is no variable either", () => {
+    const model = new SurveyModel({ elements: [{ type: "text", name: "ok" }, { type: "text", name: "no.pe" }] });
+    const presets = new SurveyVariablePresets({}, { definitionModel: model });
+    expect(presets.getVariableNames()).toEqual(["ok"]);
+    expect(presets.getDottedKeyElements().map(el => el.name)).toEqual(["no.pe"]);
+    presets.dispose();
+    model.dispose();
+  });
+  test("runtime round trip: a preset's variables applied to an edited survey", () => {
+    const presets = new SurveyVariablePresets({ definition: nestedDefinition(), presets: [
+      { name: "Gold", variables: { users: { tier: "gold", name: "Ann" }, role: "admin" } },
+      { name: "Silver", variables: { users: { tier: "silver", name: "Bob" }, role: "user" } }] });
+    presets.getPresetNames().forEach(name => expect(presets.validateVariables(presets.getPreset(name).variables).isValid).toBe(true));
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", visibleIf: "{users.tier} = 'gold'", title: "Hi {users.name}" },
+        { type: "expression", name: "e1", expression: "{users.tier}" }],
+      calculatedValues: [{ name: "greeting", expression: "{users.name} + '!'" }] });
+    const q1 = survey.getQuestionByName("q1");
+    survey.setVariables(presets.getPreset("Gold").variables);
+    expect(q1.isVisible).toBe(true);
+    expect(q1.locTitle.renderedHtml).toBe("Hi Ann");
+    expect(survey.getQuestionByName("e1").value).toBe("gold");
+    expect(survey.getVariable("greeting")).toBe("Ann!");
+    survey.setVariables(presets.getPreset("Silver").variables);
+    expect(q1.isVisible).toBe(false);
+    expect(q1.locTitle.renderedHtml).toBe("Hi Bob");
+    expect(survey.getQuestionByName("e1").value).toBe("silver");
+    expect(survey.getVariable("greeting")).toBe("Bob!");
+    survey.setVariables({ users: { tier: "gold" } });
+    expect(q1.isVisible).toBe(true);
+    // The clear is asserted through runCondition only: a visibleIf, an expression question and a title
+    // keep the old object value after setVariables({}, true), while a flat variable updates (a known
+    // runtime defect, also on master; report-15, open points).
+    survey.setVariables({}, true);
+    expect(survey.getVariable("users")).toBeUndefined();
+    expect(survey.runCondition("{users.tier} empty")).toBe(true);
+    survey.dispose();
     presets.dispose();
   });
 });

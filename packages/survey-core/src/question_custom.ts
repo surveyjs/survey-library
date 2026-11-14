@@ -27,6 +27,8 @@ import { settings } from "./settings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 import { Scope } from "./utils/scope";
+import { ObjectDataScope, getEmptyValuesSurvey } from "./panel-data-scope";
+import { setObjectKey, asScopeObject } from "./data-object-utils";
 
 /**
  * An interface used to create custom question types.
@@ -1208,6 +1210,47 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   }
 }
 
+// The content panel's values as keys of the composite's value. The composite stays its
+// questions' data and keeps its own write pipeline (hooks, conversions, the Creator's editing object); the
+// scope gives it the reads, the key index and the loops that push a value into its questions.
+// It is no PanelDataScope but a root scope over the composite's value, as a record item is: a content
+// question's value scope stays the survey.
+class CompositeDataScope extends ObjectDataScope {
+  constructor(private question: QuestionCompositeModel) {
+    super();
+  }
+  protected getObject(): any {
+    return this.question.value;
+  }
+  // The key as stored, not a copy: a content question may share it (the Creator binds Base values). Never null:
+  // a dynamic panel tells an undefined value apart.
+  protected getObjectKey(obj: any, name: string): any {
+    return !!obj ? obj[name] : undefined;
+  }
+  protected getScopeElements(): Array<IElement> {
+    const panel = this.question.contentPanel;
+    return !!panel ? panel.elements : [];
+  }
+  // No panel inside a composite nests: the walk reaches every content question ("Limitations" in
+  // docs/design-survey-nested-data.md).
+  protected isScopeQuestion(q: Question): boolean {
+    return true;
+  }
+  // The composite sets a value through the question's setters, so the question's own value-changed path
+  // runs. An undefined key does not clear a question that is still empty (it may hold its default value).
+  protected updateQuestionFrom(q: Question, obj: any): void {
+    const key = q.getValueName();
+    const val = !!obj ? obj[key] : undefined;
+    const commentVal = !!obj && obj[Helpers.getCommentKey(key)] || "";
+    if (!this.isScopeValueEqual(q.value, val) && (val !== undefined || !q.isEmpty())) {
+      q.value = val;
+    }
+    if (q.comment !== commentVal) {
+      q.comment = commentVal;
+    }
+  }
+}
+
 export class QuestionCompositeModel extends QuestionCustomModelBase {
   private panelWrapper: PanelModel;
   private textProcessing: TextContextProcessor;
@@ -1406,16 +1449,18 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   onSurveyValueChanged(newValue: any): void {
     super.onSurveyValueChanged(newValue);
-    const val = !!newValue ? newValue : {};
-    if (!!this.contentPanel) {
-      this.contentPanel.questions.forEach(q => {
-        q.onSurveyValueChanged(val[q.getValueName()]);
-      });
-    }
+    this.dataScope.notifyValueChangedFrom(newValue);
   }
   getValue(name: string): any {
-    var val = this.value;
-    return !!val ? val[name] : null;
+    return this.dataScope.getValue(name);
+  }
+  // Created on first use, as newValueSettingScope below.
+  private dataScopeValue: CompositeDataScope;
+  private get dataScope(): CompositeDataScope {
+    if (!this.dataScopeValue) {
+      this.dataScopeValue = new CompositeDataScope(this);
+    }
+    return this.dataScopeValue;
   }
   protected getQuestionByName(name: string): IQuestion {
     return !!this.contentPanel ? this.contentPanel.getQuestionByName(name) : undefined;
@@ -1451,14 +1496,19 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
   }
   setComment(name: string, newValue: string): any {
-    let val = this.getUnbindValue(this.value);
     const commentName = Helpers.getCommentKey(name);
-    if (!val && !newValue || !!newValue && !!val && val[commentName] === newValue) return;
-    if (!!newValue) {
-      if (!val) { val = {}; }
-      val[commentName] = newValue;
+    const stored = this.value;
+    if (!stored && !newValue || !!newValue && !!stored && stored[commentName] === newValue) return;
+    let val = this.getUnbindValue(stored);
+    if (!!val && val.getType) {
+      // The Creator's editing object: a Base value is changed in place.
+      if (!!newValue) {
+        val[commentName] = newValue;
+      } else {
+        delete val[commentName];
+      }
     } else {
-      delete val[commentName];
+      val = setObjectKey(val, commentName, newValue, this.getEmptyValuesSurvey(), "comment");
     }
     const q = <Question>this.getQuestionByName(name);
     if (!!q && q.comment !== newValue) {
@@ -1470,9 +1520,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   getComment(name: string): string {
     const q = <Question>this.getQuestionByName(name);
-    if (!!q) return q.comment;
-    const val = this.value;
-    return !!val && val[Helpers.getCommentKey(name)] || "";
+    return !!q ? q.comment : this.dataScope.getComment(name);
   }
   private runPanelTriggers(name: string, value: any): void {
     if (!!this.contentPanel) {
@@ -1488,11 +1536,46 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     return true;
   }
   private getContentPanelValue(val?: any): any {
-    if (!val) val = this.contentPanel.getValue();
+    if (!val) val = this.buildContentPanelValue(this.getStoredValue());
     return this.customQuestion.setValueToQuestion(val);
+  }
+  // The content panel's values, plus the empty values that data.keepEmptyValues kept, taken from the stored
+  // value.
+  private buildContentPanelValue(stored: any): any {
+    return this.addKeptEmptyValues(this.contentPanel.getValue(), stored);
+  }
+  // The composite's value as the survey data holds it, in the question's form. Not the value core: the content
+  // panel's build rewrites it before each write, and it still holds a value a system clear removed.
+  private getStoredValue(): any {
+    return !!this.data ? this.valueFromDataCore(this.data.getValue(this.getValueName())) : undefined;
   }
   private getValueForContentPanel(val: any): any {
     return this.customQuestion.getValueFromQuestion(val);
+  }
+  private getEmptyValuesSurvey(): ISurvey {
+    return getEmptyValuesSurvey(this.data, this.survey);
+  }
+  // The composite's object is built from two sources. The answers come from the content panel's build
+  // (PanelModelBase.getValue), not from the stored value: a content question can change while the composite
+  // writes (an onValueChanged hook sets a sibling, newValueSettingScope keeps that write out of the data), and
+  // only the build sees it. The build skips an empty question, so with data.keepEmptyValues on, an empty value
+  // the key kept comes from the stored value (the survey data, or the value being set), for a key a content
+  // question owns: a key no content question owns is still dropped, as a composite's write always did (a
+  // nesting panel's object keeps such keys). Not from the content questions' values: an untouched checkbox's
+  // value is [], and a question keeps a value a system clear removed from the data.
+  private addKeptEmptyValues(val: any, stored: any): any {
+    if (this.isEditingSurveyElement || !this.contentPanel) return val;
+    const survey = this.getEmptyValuesSurvey();
+    if (!survey || !survey.getSettings().data.keepEmptyValues) return val;
+    const src = asScopeObject(this.getValueForContentPanel(Helpers.getUnbindValue(stored)));
+    if (!src) return val;
+    this.contentPanel.questions.forEach(q => {
+      const key = q.getValueName();
+      const item = src[key];
+      if (item === undefined || !Helpers.isValueEmpty(item) || key in val) return;
+      val[key] = Helpers.getUnbindValue(item);
+    });
+    return val;
   }
   private setNewValueIntoQuestion(name: string, newValue: any): void {
     var q = this.getQuestionByName(name);
@@ -1520,9 +1603,17 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
     return includeItSelf && !!this.contentPanel;
   }
+  // The object written is built from the content panel's values, not from the stored value: a key no content
+  // question owns is dropped.
   protected convertDataValue(name: string, newValue: any): any {
-    var val = !!this.contentPanel && !this.isEditingSurveyElement ?
+    let val = !!this.contentPanel && !this.isEditingSurveyElement ?
       this.contentPanel.getValue() : this.getValueForContentPanel(this.value);
+    if (!this.isEditingSurveyElement && !(!!val && val.getType)) {
+      // A whitespace-only answer is empty here (Question.isValueEmpty trims): it is no answer, not a kept "".
+      if (this.isValueEmpty(newValue) && !Helpers.isValueEmpty(newValue)) newValue = undefined;
+      return this.getContentPanelValue(setObjectKey(this.addKeptEmptyValues(val || {}, this.getStoredValue()), name, newValue, this.getEmptyValuesSurvey()));
+    }
+    // The Creator's editing object keeps an empty value, and a Base object is changed in place.
     if (!val) val = {};
     if (!val.getType) {
       val = Helpers.getUnbindValue(val);
@@ -1537,29 +1628,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected setQuestionValue(newValue: any, updateIsAnswered = true): void {
     this.setValuesIntoQuestions(newValue);
     if (!this.isEditingSurveyElement && !!this.contentPanel) {
-      newValue = this.getContentPanelValue();
+      // The kept empty values come from the value being set: the data still holds the old value here.
+      newValue = this.getContentPanelValue(this.buildContentPanelValue(newValue));
     }
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   private setValuesIntoQuestions(newValue: any): void {
     if (!this.contentPanel || this.newValueSettingScope.isActive) return;
     newValue = this.getValueForContentPanel(newValue);
-    this.newValueSettingScope.run(() => {
-      const questions = this.contentPanel.questions;
-      for (var i = 0; i < questions.length; i++) {
-        const q = questions[i];
-        const key = q.getValueName();
-        const commentKey = Helpers.getCommentKey(key);
-        const val = !!newValue ? newValue[key] : undefined;
-        const commentVal = !!newValue && newValue[commentKey] || "";
-        if (!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
-          q.value = val;
-        }
-        if (q.comment !== commentVal) {
-          q.comment = commentVal;
-        }
-      }
-    });
+    this.newValueSettingScope.run(() => this.dataScope.updateValuesFrom(newValue));
   }
   public getValueGetterContext(): IValueGetterContext {
     return new CompositeValueGetterContext(this);

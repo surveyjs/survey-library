@@ -1,5 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
-import { classifySiteRefs, equalsCI } from "../expression-utils";
+import { canonicalTargetSlot, classifySiteRefs, equalsCI } from "../expression-utils";
 import { collectAmbiguousNames } from "../constant-env";
 import { findCycles } from "../graph";
 import { ExpressionSite, TriggerRecord } from "../symbols";
@@ -100,13 +100,15 @@ function buildTriggerWriter(ctx: LintContext, trigger: TriggerRecord): ValueWrit
     .concat(trigger.extraSites || []);
   sites.forEach(site => getSiteReads(ctx, site).forEach(read => reads.push(read)));
   const fromName = trigger.json ? trigger.json.fromName : undefined;
-  if (typeof fromName === "string" && fromName) reads.push(canonicalSlot(ctx, fromName));
+  if (typeof fromName === "string" && fromName) {
+    reads.push(canonicalTargetSlot(fromName, ctx.index, ctx.options, canonicalSlot(ctx, fromName)));
+  }
   return {
     id: trigger.path,
     kind: "trigger",
     path: trigger.path,
     label: trigger.path + " (" + (trigger.type || "trigger") + " -> " + trigger.setToName + ")",
-    slot: canonicalSlot(ctx, trigger.setRoot),
+    slot: canonicalTargetSlot(trigger.setToName, ctx.index, ctx.options, canonicalSlot(ctx, trigger.setRoot)),
     reads: reads,
     usesDefaultValueExpression: false,
   };

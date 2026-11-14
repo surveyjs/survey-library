@@ -707,6 +707,17 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
     options: { variablePresets: { definition: VARIABLE_DEFINITION } },
   },
   {
+    ruleId: "variable/dotted-key", reason: "questionKey",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: { variablePresets: { definition: { elements: [{ type: "text", name: "t", valueName: "a.b" }] } } },
+  },
+  {
+    ruleId: "variable/dotted-key", reason: "containerKey",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: { variablePresets: { definition: { elements: [
+      { type: "panel", name: "p", valueName: "a.b", elements: [{ type: "text", name: "t" }] }] } } },
+  },
+  {
     ruleId: "variable/preset", reason: "definitionNotAnObject",
     json: { elements: [{ type: "text", name: "q1" }] },
     options: { variablePresets: { definition: "x" } },
@@ -780,6 +791,42 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
         detailElements: [{ type: "text", name: "d1" }],
       }],
     },
+  },
+  {
+    ruleId: "name/shadowing", reason: "containerKeyShadowed",
+    json: {
+      elements: [{ type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "q1" }] }],
+      calculatedValues: [{ name: "address", expression: "1" }],
+    },
+  },
+  {
+    ruleId: "name/reserved", reason: "containerKey",
+    json: { elements: [{ type: "panel", name: "p1", valueName: "constructor", elements: [{ type: "text", name: "q1" }] }] },
+  },
+  {
+    ruleId: "nesting/key-conflict", reason: "questionKey",
+    json: {
+      elements: [
+        { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "q1" }] },
+        { type: "text", name: "address" },
+      ],
+    },
+  },
+  {
+    ruleId: "nesting/ignored-key", reason: "insideComposite",
+    // a panel inside a dynamic panel's template nests (records nesting 02): a composite's still does not
+    json: { elements: [{ type: "addr", name: "a1" }] },
+    options: { components: { addr: { elementsJSON: [
+      { type: "panel", name: "p1", valueName: "box", elements: [{ type: "text", name: "q1" }] },
+    ] } } },
+  },
+  {
+    ruleId: "nesting/generated-key", reason: "generatedName",
+    json: { dataNesting: "panel", elements: [{ type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }] },
+  },
+  {
+    ruleId: "nesting/generated-key", reason: "unnamed",
+    json: { dataNesting: "page", pages: [{ elements: [{ type: "text", name: "q1" }] }] },
   },
 ];
 
@@ -861,6 +908,17 @@ describe("linter reasons - every finding carries one", () => {
 });
 
 describe("linter reasons - the scope hint", () => {
+  test("a valueName that stores no object reports the containerKeyNotNesting hint", () => {
+    const findings = findingsOf({
+      dataNesting: "none",
+      elements: [
+        { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] },
+        { type: "text", name: "q1", visibleIf: "{address.street} = 1" },
+      ],
+    }, "reference/unknown");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].hint).toEqual({ reason: SurveyLintHintReasons.containerKeyNotNesting, name: "address" });
+  });
   test("an inactive row scope reports the hint reason and the variable it is about", () => {
     const findings = findingsOf({
       elements: [{ type: "text", name: "q1", visibleIf: "{row.col1} = 1" }],

@@ -71,6 +71,7 @@ export type {
   IParentElement,
   IPanel,
   IPage,
+  ISurveyDataElement,
   ITitleOwner,
   IProgressInfo,
 } from "./interfaces/element-interfaces";

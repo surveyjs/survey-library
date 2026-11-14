@@ -41,6 +41,7 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
 } from "./question_records";
+import { deleteObjectPaths } from "./data-object-utils";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
   protected getNextName(): string {
@@ -124,11 +125,11 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
   public getVariableName(): string {
     return settings.expressionVariables.panel;
   }
-  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
-    return this.panel.getQuestionsByValueName(name, caseInsensitive);
-  }
   protected getQuestionByName(name: string): IQuestion {
     return this.panel.getQuestionByName(name);
+  }
+  protected getScopeElements(): Array<IElement> {
+    return this.panel.elements;
   }
   // The window-local RECORD index: what the owner's storage is addressed by. The number the
   // respondent sees ({panelIndex}) adds the window offset of a source that pages itself.
@@ -143,19 +144,15 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
   public get questions(): Array<Question> {
     return this.panel.questions;
   }
-  public getComment(name: string): string {
-    var result = this.getValue(Helpers.getCommentKey(name));
-    return result ? result : "";
-  }
-  protected updateQuestionFromRecord(question: Question, record: any): void {
-    super.updateQuestionFromRecord(question, record);
+  protected updateQuestionFrom(question: Question, record: any): void {
+    super.updateQuestionFrom(question, record);
     question.initDataUI();
   }
   /* A question of a new panel takes its record from the survey data (setSurveyImpl), not as a value
      assigned to it: an empty field is taken as it is, a missing comment stays unset, and the value is
      not changed directly - the same update an assignment from outside gives the panel. */
   protected fillQuestionFromRecord(question: Question, record: any): void {
-    this.updateQuestionFromRecord(question, record);
+    this.updateQuestionFrom(question, this.getQuestionRecordObject(question, record));
   }
   /* The panel is kept for another record (QuestionPanelDynamicModel.rebindPanels). The base resets and
      fills its questions; what the panel and its nested panels hold themselves goes too: their errors, and
@@ -452,9 +449,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return item instanceof QuestionPanelDynamicItem ? item.panel.questions : undefined;
   }
   protected getFields(): Array<IDynamicDataField> {
-    return this.getFieldsOfQuestions(this.template.questions);
+    return this.getFieldsOfQuestions(this.getRecordTemplateFieldQuestions(this.template));
   }
-  protected getRecordSortTemplate(): PanelModelBase {
+  public getRecordSortTemplate(): PanelModelBase {
     return this.template;
   }
   protected refreshRenderedPage(): void {
@@ -2637,10 +2634,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   /* QuestionRecordsModel hook of isRecordKeyUnknown, as released: a key a question of the record's panel
      - of the template for a record without a panel - stores under its value name, or a comment or
-     totals key of such a question by its name, the suffix at the end. */
+     totals key of such a question by its name, the suffix at the end. With a nesting panel a key of
+     the record is one of the panel's level: a question's value name or comment key, or a nesting panel's key. */
   protected isRecordKeyOfType(key: string, item: QuestionRecordItem): boolean {
     const panel = !!item ? (<QuestionPanelDynamicItem>item).panel : this.template;
-    return !!panel.getQuestionByValueName(key) || this.isCorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
+    const level = this.getRecordKeyLevel(panel.elements);
+    const isKnown = !!level ? level.isKnownKey(key) : !!panel.getQuestionByValueName(key);
+    return isKnown || this.isCorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
       this.isCorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
   // "none" and "rows": the panels that exist; "all": panels, which builds them.
@@ -2659,7 +2659,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.clearIncorrectValuesInPanel(i);
     }
   }
+  // A key of the record: a question inside a nesting panel stores a key of the panel's object.
   protected getRecordTemplateQuestion(key: string): Question {
+    const level = this.getRecordKeyLevel();
+    if (!!level) return level.getQuestion(key);
     return <Question>this.template.getQuestionByValueName(key) || undefined;
   }
   /* QuestionRecordsModel hook: a temporary panel for a record without one, built from the template as
@@ -2719,8 +2722,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const record = index < 0 ? undefined : this.getListRecordAt(index);
     if (!record) return;
     const keys = this.getRecordUnknownKeys(index, record, <QuestionPanelDynamicItem>panel.data);
-    if (keys.length === 0) return;
-    this.writeRecordAt(index, (values: any): void => { keys.forEach((key: string): void => { delete values[key]; }); });
+    // The unknown keys inside a nesting panel's object go in the same write.
+    const paths = this.getRecordNestedUnknownPaths(record);
+    if (keys.length === 0 && paths.length === 0) return;
+    this.writeRecordAt(index, (values: any): void => {
+      keys.forEach((key: string): void => { delete values[key]; });
+      deleteObjectPaths(values, paths);
+    });
   }
   private isCorrectValueWithPostPrefix(
     panel: PanelModel,
@@ -3170,8 +3178,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // Without a view a record without a panel is shown as it is stored, as released.
     if (!item) return this.hasDataListView ? this.formatRecordWithoutObject(keysAsText, record, recordIndex) : record;
     const panel = (<QuestionPanelDynamicItem>item).panel;
-    return this.formatRecordDisplayValue(keysAsText, record,
-      (key: string): Question => <Question>panel.getQuestionByValueName(key) || this.getSharedQuestionFromArray(key, recordIndex));
+    // With a nesting panel the panel's own questions format its keys, and a nesting panel's object.
+    const level = this.getRecordKeyLevel(panel.elements);
+    return this.formatRecordDisplayValue(keysAsText, record, (key: string): Question =>
+      (!!level ? level.getQuestion(key) : <Question>panel.getQuestionByValueName(key)) || this.getSharedQuestionFromArray(key, recordIndex), level);
   }
   /* The panels are validated before the duplicate check: a panel's validation resets the errors of its
      key question, and the check adds them. The focus goes where the first error is: the first panel

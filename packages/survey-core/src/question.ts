@@ -4,7 +4,7 @@ import { property } from "./decorators";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IDataVerificationOptions, IDataIssue, DataIssueType } from "./base-interfaces";
 import { Base, ComputedUpdater } from "./base";
 import { EventBase } from "./event";
-import { SurveyElement, getReadOnlyModePropertyInfo } from "./survey-element";
+import { SurveyElement, getReadOnlyModePropertyInfo, makeNameValid } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
@@ -33,6 +33,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
+import { getRecordDataScope } from "./panel-data-scope";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -90,7 +91,9 @@ export class QuestionValueGetterContext implements IValueGetterContext {
           new QuestionArrayGetterContext(panel.questions).getValue(params);
       }
     }
-    if (!this.question.isEmpty()) {
+    // The own value answers a name first ({r1.c1} in a matrix's own expressions). The metadata mode reads no
+    // value, so it skips the step: the name goes on to the question's container.
+    if (!params.isMetadata && !this.question.isEmpty()) {
       let val = this.question.value;
       if (index >= 0) {
         if (!Array.isArray(val || index >= val.length)) return undefined;
@@ -123,7 +126,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
 export abstract class QuestionItemValueGetterContext extends ValueGetterContextCore {
   protected abstract getIndex(): number;
   protected abstract getQuestionData(): Question;
-  protected getValueFromBindedQuestions(path: Array<IValueGetterItem>, objValue: any): IValueGetterInfo {
+  protected getValueFromBindedQuestions(path: Array<IValueGetterItem>, objValue: any, isMetadata?: boolean): IValueGetterInfo {
     if (typeof objValue !== "object") {
       objValue = undefined;
     }
@@ -135,7 +138,7 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       if (!!name && q.valuePropertyName === name && !!objValue && objValue.hasOwnProperty(name)) {
         return { isFound: true, value: objValue[name], context: q.getValueGetterContext() };
       }
-      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex(), existingObjectsOnly: this.readsExistingObjectsOnly() });
+      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex(), existingObjectsOnly: this.readsExistingObjectsOnly(), isMetadata });
       if (!!res && res.isFound) return res;
     }
     return undefined;
@@ -681,6 +684,9 @@ export class Question extends SurveyElement<Question>
   public getValueName(): string {
     if (!!this.valueName) return this.valueName.toString();
     return this.name;
+  }
+  protected getDataKey(): string {
+    return this.getValueName();
   }
   /**
    * Specifies an object property that should store the question value.
@@ -3784,10 +3790,16 @@ export class Question extends SurveyElement<Question>
   protected get isSurveyAutoAdvanceEnabled(): boolean {
     return (this.survey as SurveyModel)?.autoAdvanceEnabled === true;
   }
-  // getQuestionByValueName only sees top-level questions. A nested question with the same
-  // name must not advance on behalf of that other question.
+  // The survey is given the question (requestAutoAdvance), but a question whose value is a key of the
+  // survey data must also be the one getQuestionByValueName finds: a nested question with the same name
+  // must not advance on behalf of that other question. Inside a container the value name is no key of
+  // the survey data, and the question is its own owner. Inside a record's nesting panel a question answers
+  // as one directly in the record does.
   protected get isAutoAdvanceOwner(): boolean {
-    return (this.survey as SurveyModel)?.getQuestionByValueName(this.getValueName()) === this;
+    const survey = this.survey as SurveyModel;
+    if (!survey) return false;
+    const isInSurveyContainer = this.getValueScope() !== survey && !getRecordDataScope(this.data);
+    return isInSurveyContainer || survey.getQuestionByValueName(this.getValueName()) === this;
   }
   // A question nested in a choice item is found by value name, but it is not in the page's question
   // list, so the survey advances for it only when it is the single input on screen.
@@ -3797,7 +3809,7 @@ export class Question extends SurveyElement<Question>
   }
   protected requestAutoAdvance(): boolean {
     if (!this.isAutoAdvanceOwner) return false;
-    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomatic(this.getValueName()));
+    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomatic(this.getValueName(), { name: this.getValueName(), writer: this }));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();
@@ -4212,15 +4224,6 @@ export class Question extends SurveyElement<Question>
   @property() randomize: boolean;
   @property() randomizeCategory: string;
 }
-function makeNameValid(str: string): string {
-  if (!str) return str;
-  str = str.trim().replace(/[\{\}]+/g, "");
-  while(!!str && str[0] === settings.expressionDisableConversionChar) {
-    str = str.substring(1);
-  }
-  return str;
-}
-
 Serializer.addClass("question", [
   { name: "!name", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   {

@@ -1,9 +1,12 @@
+import type { IPanel, ISurveyElement } from "./base-interfaces";
+import { IncorrectValueError } from "./error";
 import { Helpers, ISurveyDateProvider } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { SurveyModel } from "./survey";
+import { SurveyElement } from "./survey-element";
 import { getLocaleString } from "./surveyStrings";
 
 // A host application injects runtime values into a survey through setVariable() - a customer tier, a
@@ -13,7 +16,9 @@ import { getLocaleString } from "./surveyStrings";
 // the variable definition - one ordinary survey JSON whose questions are the variables - and the
 // named presets of values for it. A definition question's data key (valueName when set, otherwise
 // name) is the variable name; its type, choices and validators are everything that is known about
-// the variable. There is no second schema.
+// the variable. There is no second schema. The definition's data is the shape of the variables: a
+// panel or a page that nests its questions' values (nested data) describes an object variable, set
+// as { users: { tier: "gold" } } and read as {users.tier}.
 export interface ISurveyVariablePreset {
   name: string;
   description?: string;
@@ -24,18 +29,35 @@ export interface ISurveyVariablePresets {
   presets?: Array<ISurveyVariablePreset>;
 }
 export interface ISurveyVariableError {
-  // the data key - the variable name as the host sets it
+  // the variable name or the path into an object variable, as the host sets it ("users.tier"), in
+  // the definition's spelling
   variable: string;
-  // the definition question's name; differs from "variable" when valueName is set
+  // the definition question's name; differs from "variable" when valueName is set or the question is
+  // inside an object variable. For an object variable given a value that is no object, the name of
+  // the panel or page that describes it.
   question: string;
   // the error texts as the survey renders them
   errors: Array<string>;
 }
 export interface ISurveyVariableValidationResult {
-  // keys of the checked object that are no variable of the definition, in input order
+  // keys of the checked object that are no variable of the definition, in input order, and keys
+  // inside an object variable that it does not declare, as paths ("users.nope"); both in the input's
+  // spelling
   unknownVariables: Array<string>;
   errors: Array<ISurveyVariableError>;
   isValid: boolean;
+}
+
+// One data key of the definition: a variable at the root, a field of an object variable below it.
+// A key may carry both a question and a nesting container (the runtime allows that), and
+// two containers with one key are one node with the fields of both.
+interface IVariableNode {
+  key: string;
+  parent?: IVariableNode;
+  question?: Question;
+  container?: SurveyElement;
+  // lower-cased key -> node; Object.create(null), as the root table
+  children: { [key: string]: IVariableNode };
 }
 
 // The runtime companion of the container above: it builds the definition model, derives the variable
@@ -51,7 +73,9 @@ export class SurveyVariablePresets {
   private surveyValue: SurveyModel;
   private isDisposedValue: boolean;
   private namesValue: Array<string>;
-  private questionsValue: { [name: string]: Question };
+  private pathsValue: Array<string>;
+  private dottedKeyElementsValue: Array<SurveyElement>;
+  private rootValue: IVariableNode;
 
   // definitionModel is the definition the host built itself. A JSON definition is what a document
   // stores, but an application that already has the model - one with custom question types, custom
@@ -76,15 +100,37 @@ export class SurveyVariablePresets {
     if (this.isDisposedValue) return false;
     return !!this.definitionModel || this.isRecord(this.sourceValue.definition);
   }
+  // The root data keys: what the host passes to setVariables. An object variable is one name.
   public getVariableNames(): Array<string> {
     return this.getNames().slice();
   }
+  // The leaves a condition can test: every question of the definition outside a record, as its data
+  // path joined with "." ("users.tier"), in document order. Without nesting it equals
+  // getVariableNames(). The Creator's condition editor and expression assistant list these.
+  public getVariablePaths(): Array<string> {
+    this.getNames();
+    return this.pathsValue.slice();
+  }
+  // The definition elements that declare no variable because their data key holds a dot ("a.b"), in
+  // document order. An element inside one of them is not listed: the outer one is the defect.
+  public getDottedKeyElements(): Array<SurveyElement> {
+    this.getNames();
+    return this.dottedKeyElementsValue.slice();
+  }
+  // name is a root key or a path into an object variable; every segment matches ignoring case, as
+  // the runtime reads a variable's object. An object variable is a variable, but no question.
   public hasVariable(name: string): boolean {
-    return !!this.getVariableQuestion(name);
+    return !!this.findNode(name);
   }
   public getVariableQuestion(name: string): Question {
-    if (!name || typeof name !== "string") return undefined;
-    return this.getQuestions()[name.toLowerCase()];
+    const node = this.findNode(name);
+    return !!node ? node.question : undefined;
+  }
+  // The question, or the panel or page that describes an object variable ("users"), for a root key
+  // or a path. The definition model stays private: this is how a consumer reaches one of its elements.
+  public getVariableElement(name: string): SurveyElement {
+    const node = this.findNode(name);
+    return !!node ? node.question || node.container : undefined;
   }
   // Preset names are case-sensitive: a name is an identifier the author typed, like a start name in
   // the tester. Variable names are not: setVariable() lower-cases what the host sets.
@@ -104,20 +150,8 @@ export class SurveyVariablePresets {
     // A non-object argument is nothing to check, not something wrong: a test or a preset that carries
     // no variables validates clean.
     if (this.isRecord(variables)) {
-      const data: any = {};
-      Object.keys(variables).forEach(key => {
-        const question = this.getVariableQuestion(key);
-        if (!question) {
-          res.unknownVariables.push(key);
-        } else {
-          // The value hash is case-sensitive - getDataFromValueHash is a plain valuesHash[key] - so a
-          // known key is stored under the definition's spelling: { Tier: "gold" } assigned as written
-          // would leave the definition question "tier" empty and a required one failing. Two input
-          // keys differing only by case are one variable, and the last one in input order wins: that
-          // is what the Object.keys order gives, and no consumer produces such a pair.
-          data[question.getValueName()] = variables[key];
-        }
-      });
+      const invalidNodes: Array<IVariableNode> = [];
+      const data = this.mapRecord(variables, this.getRoot(), "", res, invalidNodes);
       const model = this.getModel();
       if (!!model) {
         this.assignData(model, data);
@@ -125,7 +159,7 @@ export class SurveyVariablePresets {
         // flag, so with false every question reads as clean afterwards. Asynchronous validators of the
         // definition are not awaited - the synchronous verdict is what a preset check reports.
         model.validate(true, false);
-        this.collectErrors(model, res.errors);
+        this.collectErrors(model, res.errors, invalidNodes);
       }
     }
     res.isValid = res.unknownVariables.length === 0 && res.errors.length === 0;
@@ -137,7 +171,9 @@ export class SurveyVariablePresets {
     // keep working: they need no model.
     this.isDisposedValue = true;
     this.namesValue = undefined;
-    this.questionsValue = undefined;
+    this.pathsValue = undefined;
+    this.dottedKeyElementsValue = undefined;
+    this.rootValue = undefined;
     // Only a model this companion created is disposed: a definition model the host handed in is the
     // host's object and may well outlive the check it was borrowed for.
     if (!!this.surveyValue && this.surveyValue !== this.definitionModel) {
@@ -190,22 +226,84 @@ export class SurveyVariablePresets {
   }
   private buildNames(): void {
     this.namesValue = [];
+    this.pathsValue = [];
+    this.dottedKeyElementsValue = [];
     // Object.create(null): a variable named "constructor" or "toString" has to be addressable rather
     // than resolve to a prototype member.
-    this.questionsValue = Object.create(null);
+    this.rootValue = { key: "", children: Object.create(null) };
     const model = this.getModel();
     if (!model) return;
-    // The default arguments: top-level questions only. A question inside a dynamic panel template or
-    // a matrix cell produces no root data key - the panel or the matrix itself is the one variable.
-    model.getAllQuestions().forEach(question => {
-      const name = question.getValueName();
-      if (!name) return;
-      const key = name.toLowerCase();
-      // Two definition questions sharing a valueName are one variable, as they are one data key.
-      if (!!this.questionsValue[key]) return;
-      this.questionsValue[key] = question;
-      this.namesValue.push(name);
+    // The elements in document order, keyed by their data paths: a question is a leaf,
+    // a panel or a page that nests is an object variable. The walk never enters a question, so a
+    // question inside a dynamic panel template, a matrix cell or a composite's content produces no
+    // key: the question that holds it (the dynamic panel, the matrix, the composite) is the one variable, as
+    // their values are part of its value (the data path of a question inside a record is relative to the
+    // record). A container that does not nest
+    // has no data path and is transparent.
+    model.pages.forEach(page => this.addElement(page));
+  }
+  private addElement(element: SurveyElement): void {
+    const path = element.getDataPath();
+    // A variable key holds no dot, so a path joined with "." always names one key per segment. An
+    // element whose own key holds one ("a.b") declares no variable, and nothing inside it does either:
+    // the walk does not enter it. The linter reports it (variable/dotted-key).
+    if (path.length > 0 && path[path.length - 1].indexOf(".") > -1) {
+      this.dottedKeyElementsValue.push(element);
+      return;
+    }
+    if (element.isQuestion) {
+      if (path.length === 0) return;
+      const node = this.addNode(path);
+      // Two definition questions sharing a data key are one variable, as they are one data key.
+      if (!node.question) {
+        node.question = <Question>element;
+        this.pathsValue.push(this.getNodePath(node));
+      }
+      return;
+    }
+    if (path.length > 0) {
+      const node = this.addNode(path);
+      // Two containers with one key share one object: the first one describes it.
+      if (!node.container) node.container = element;
+    }
+    if (element.isPanel || element.isPage) {
+      (<IPanel><ISurveyElement>element).elements.forEach(el => this.addElement(<SurveyElement><ISurveyElement>el));
+    }
+  }
+  private addNode(path: Array<string>): IVariableNode {
+    let node = this.rootValue;
+    path.forEach(key => {
+      const lowerKey = key.toLowerCase();
+      let child = node.children[lowerKey];
+      if (!child) {
+        child = { key: key, parent: node, children: Object.create(null) };
+        node.children[lowerKey] = child;
+        const isRoot = node === this.rootValue;
+        if (isRoot) {
+          this.namesValue.push(key);
+        }
+      }
+      node = child;
     });
+    return node;
+  }
+  // The path of a node in the definition's spelling: the first element that wrote a key spells it.
+  private getNodePath(node: IVariableNode): string {
+    const keys: Array<string> = [];
+    for (let cur = node; !!cur && cur !== this.rootValue; cur = cur.parent) {
+      keys.unshift(cur.key);
+    }
+    return keys.join(".");
+  }
+  // No key holds a dot, so each segment of the path is one key.
+  private findNode(name: string): IVariableNode {
+    if (!name || typeof name !== "string") return undefined;
+    let node = this.getRoot();
+    const segments = name.toLowerCase().split(".");
+    for (let i = 0; i < segments.length && !!node; i++) {
+      node = node.children[segments[i]];
+    }
+    return node;
   }
   private getNames(): Array<string> {
     if (!this.namesValue) {
@@ -213,11 +311,52 @@ export class SurveyVariablePresets {
     }
     return this.namesValue;
   }
-  private getQuestions(): { [name: string]: Question } {
-    if (!this.questionsValue) {
-      this.buildNames();
+  private getRoot(): IVariableNode {
+    this.getNames();
+    return this.rootValue;
+  }
+  // The input keys of one object, mapped to the definition's spelling. The value hash and a nesting
+  // container's object are case-sensitive - getDataFromValueHash is a plain valuesHash[key] - so a
+  // known key is stored under the definition's spelling at every level: { Users: { Tier: "gold" } }
+  // assigned as written would leave the definition question "tier" empty and a required one failing,
+  // while the runtime reads {users.tier} from it. Two input keys differing only by case are one
+  // variable, and the last one in input order wins: that is what the Object.keys order gives, and no
+  // consumer produces such a pair. An input key is a literal key, never a path: the host sets
+  // { users: { tier } }, and a key "users.tier" is unknown, since no variable key holds a dot.
+  private mapRecord(values: any, parent: IVariableNode, prefix: string,
+    res: ISurveyVariableValidationResult, invalidNodes: Array<IVariableNode>): any {
+    const data: any = {};
+    Object.keys(values).forEach(key => {
+      const node = parent.children[key.toLowerCase()];
+      if (!node) {
+        // in the input's spelling at every level, so that a consumer can address the key it was given
+        res.unknownVariables.push(prefix + key);
+        return;
+      }
+      data[node.key] = this.mapValue(values[key], node, prefix + key, res, invalidNodes);
+    });
+    return data;
+  }
+  private mapValue(value: any, node: IVariableNode, inputPath: string,
+    res: ISurveyVariableValidationResult, invalidNodes: Array<IVariableNode>): any {
+    // A question owns its value as a whole: a multiple text's or a dynamic panel's object is checked
+    // by the question itself. That holds when a question and a nesting container share the key too
+    // (allowed at runtime, a linter error): which one owns the object is ambiguous, so its keys
+    // are neither respelled nor checked.
+    if (!!node.question || !node.container) return value;
+    // An absent object variable is no value: its fields validate as empty, a required one included.
+    if (value === undefined || value === null) return value;
+    if (!this.isRecord(value)) {
+      // One error on the object variable. Its fields stay empty, and the errors that only follow from
+      // that (a required field) are not reported in addition: collectErrors skips them. A shape check,
+      // made before the data is assigned, so it does not depend on the container's visibility - as
+      // an unknown key does not.
+      invalidNodes.push(node);
+      const error = new IncorrectValueError(null, <any>node.container);
+      res.errors.push({ variable: this.getNodePath(node), question: node.container.name, errors: [error.locText.textOrHtml] });
+      return undefined;
     }
-    return this.questionsValue;
+    return this.mapRecord(value, node, inputPath + ".", res, invalidNodes);
   }
   private assignData(model: SurveyModel, data: any): void {
     // Errors are cleared by hand: validate() rewrites the errors of the questions it reaches, but a
@@ -231,9 +370,13 @@ export class SurveyVariablePresets {
     // survey is the caller's decision.
     model.data = data;
   }
-  private collectErrors(model: SurveyModel, errors: Array<ISurveyVariableError>): void {
+  private collectErrors(model: SurveyModel, errors: Array<ISurveyVariableError>, invalidNodes: Array<IVariableNode>): void {
     const visibleQuestions = model.getAllQuestions(true);
     model.getAllQuestions().forEach(question => {
+      const path = question.getDataPath();
+      // a question under a dotted key is no variable, so its errors are nobody's
+      if (path.some(key => key.indexOf(".") > -1)) return;
+      if (this.isInInvalidNode(path, invalidNodes)) return;
       // getAllErrors(), not errors: a dynamic panel or a matrix keeps its own errors empty and reports
       // through the nested question that failed. Every nested error is attributed to the variable that
       // owns it - the variable is the unit the host sets, and which cell failed is in the error text.
@@ -242,8 +385,19 @@ export class SurveyVariablePresets {
         this.addChoiceErrors(question, texts);
       }
       if (texts.length === 0) return;
-      errors.push({ variable: question.getValueName(), question: question.name, errors: texts });
+      // the path the host sets; for a question outside an object variable that is its value name
+      errors.push({ variable: path.length > 0 ? path.join(".") : question.getValueName(), question: question.name, errors: texts });
     });
+  }
+  // Whether the question's key lies under an object variable that was given a value that is no object.
+  private isInInvalidNode(path: Array<string>, invalidNodes: Array<IVariableNode>): boolean {
+    if (invalidNodes.length === 0) return false;
+    let node = this.getRoot();
+    for (let i = 0; i < path.length - 1 && !!node; i++) {
+      node = node.children[path[i].toLowerCase()];
+      if (invalidNodes.indexOf(node) > -1) return true;
+    }
+    return false;
   }
   // No validator checks that a value is one of the choices: the survey clears such a value instead,
   // and this model keeps it (keepIncorrectValues). So the membership is checked here, and only for the

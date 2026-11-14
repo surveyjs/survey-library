@@ -1,6 +1,7 @@
 import { Helpers } from "../helpers";
 import { settings } from "../settings";
 import { ISurvey } from "../interfaces/survey-interfaces";
+import { getDataScopeHost } from "../panel-data-scope";
 import { ConditionsParser } from "./conditionsParser";
 import { getConditionDefaultOperator } from "./conditionOperators";
 import { Operand, UnaryOperand, BinaryOperand, Variable, Const, ArrayOperand } from "../expressions/expressions";
@@ -106,18 +107,14 @@ export class ConditionEditorItem {
     return ch == "'" || ch == "\"";
   }
 }
-// A row of a survey's condition: a question whose valueName differs from its name is named in the text
-// by its valueName.
+// A row of a survey's condition: the text names the row's question by the variable the survey gives
+// questionName (SurveyModel.getExpressionVariableName). A survey object without the member: as it is.
 export class SurveyConditionEditorItem extends ConditionEditorItem {
   public constructor(public survey: ISurvey) {
     super();
   }
   protected getVariableName(): string {
-    const question = this.survey.getQuestionByName(this.questionName);
-    if (question && question.name != question.getValueName() && this.questionName != question.getValueName()) {
-      return this.questionName.replace(question.name, question.getValueName());
-    }
-    return this.questionName;
+    return getDataScopeHost(this.survey)?.getExpressionVariableName(this.questionName) || this.questionName;
   }
 }
 

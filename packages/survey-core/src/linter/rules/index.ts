@@ -7,6 +7,7 @@ import { nameShadowingRule } from "./name-shadowing";
 import { nameReservedRule } from "./name-reserved";
 import { variableCollisionRule } from "./variable-collision";
 import { variablePresetRule } from "./variable-preset";
+import { variableDottedKeyRule } from "./variable-dotted-key";
 import { elementUnknownTypeRule } from "./element-unknown-type";
 import { propertyUnknownRule } from "./property-unknown";
 import { propertyDeadRule } from "./property-dead";
@@ -33,6 +34,9 @@ import { elementCountContradictionRule } from "./count-contradiction";
 import { elementNeverVisibleRule } from "./element-never-visible";
 import { maskMismatchRule } from "./mask-mismatch";
 import { pageEmptyRule } from "./page-empty";
+import { nestingKeyConflictRule } from "./nesting-key-conflict";
+import { nestingIgnoredKeyRule } from "./nesting-ignored-key";
+import { nestingGeneratedKeyRule } from "./nesting-generated-key";
 
 // The run order, which the findings are sorted out of anyway (by path, then rule id): a rule
 // never reads what another one reported, so the order is a reading order, not a dependency.
@@ -47,6 +51,7 @@ export const allRules: Array<ILintRule> = [
   nameReservedRule,
   variableCollisionRule,
   variablePresetRule,
+  variableDottedKeyRule,
   elementUnknownTypeRule,
   propertyUnknownRule,
   propertyDeadRule,
@@ -73,4 +78,7 @@ export const allRules: Array<ILintRule> = [
   elementNeverVisibleRule,
   maskMismatchRule,
   pageEmptyRule,
+  nestingKeyConflictRule,
+  nestingIgnoredKeyRule,
+  nestingGeneratedKeyRule,
 ];

@@ -1,5 +1,5 @@
 import { Base } from "./base";
-import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
+import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyDataElement, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
@@ -34,6 +34,11 @@ import { Action } from "./actions/action";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { Scope, ValueScope } from "./utils/scope";
+import { ObjectDataScope, PanelDataScope, getActiveDataScope, getDataScopeHost } from "./panel-data-scope";
+import { getElementDataScope } from "./data-key-index";
+import { RecordKeyLevel, hasRecordDataNesting } from "./record-key-level";
+import { PanelDataScopeValueGetterContext, RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
+import { asScopeObject, getNameOfCommentName, getValueByPath } from "./data-object-utils";
 import { RecordsDataWaits } from "./records/records-data-waits";
 import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainerVisible } from "./records/records-hidden-answers";
 import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/records-cleanup-runner";
@@ -99,6 +104,15 @@ interface IRecordExpressionFields {
   built: Set<number>;
   scope?: IDynamicDataRecordScope;
 }
+// The members a records question and its record items call on each other, public for that only (not public API):
+// the inner question that writes a nesting panel's key in a write the item runs, and the template the records
+// are built from.
+export interface IRecordItemContainerWrite {
+  getContainerWriteQuestion(field: string): Question;
+}
+export interface IRecordsTemplateOwner {
+  getRecordSortTemplate(): PanelModelBase;
+}
 // The types of the removal flow keep importing these from here.
 export type { IRecordTarget, IRecordRemoval } from "./records/records-target-resolver";
 /* A field is used for sorting only (the filter is an expression and needs no typing), so a value type
@@ -125,7 +139,7 @@ const rebindableQuestionTypes = ["text", "comment", "dropdown", "checkbox", "rad
  * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
  * @since 3.2.2
  */
-export abstract class QuestionRecordsModel extends Question {
+export abstract class QuestionRecordsModel extends Question implements IRecordsTemplateOwner {
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;
@@ -210,6 +224,7 @@ export abstract class QuestionRecordsModel extends Question {
       getListRecordAt: (index: number): any => question.getListRecordAt(index),
       getRecordUnknownKeys: (recordIndex: number, record: any, item: QuestionRecordItem): Array<string> =>
         question.getRecordUnknownKeys(recordIndex, record, item),
+      getRecordNestedUnknownPaths: (record: any): Array<Array<string>> => question.getRecordNestedUnknownPaths(record),
       createRecordCleanupObject: (index: number, record: any): IRecordCleanupObject => question.createRecordCleanupObject(index, record),
       getDataFilteredProperties: (): HashTable<any> => question.getDataFilteredProperties(),
       isRecordCleanupSkipped: (q: Question): boolean => question.isRecordCleanupSkipped(q),
@@ -559,8 +574,10 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // Record-aware: an object judges the record it holds, and a record without one is judged by a temporary object.
   protected clearIncorrectNestedValues(): void {
-    this.clearIncorrectValuesInObjects();
-    this.recordCleanup.clearIncorrectValuesWithoutObjects();
+    this.withRecordKeyLevels((): void => {
+      this.clearIncorrectValuesInObjects();
+      this.recordCleanup.clearIncorrectValuesWithoutObjects();
+    });
   }
   protected abstract clearIncorrectValuesInObjects(): void;
   // data.keepEmptyValues: the records are added and removed, never cleared by the respondent. An empty
@@ -894,26 +911,80 @@ export abstract class QuestionRecordsModel extends Question {
      with the object that holds it, or with the question's templates. This is a live path - text piping
      and displayValue() call it - so nothing is built for it. values is a copy the caller owns. */
   protected getRecordsDisplayValue(keysAsText: boolean, values: Array<any>): Array<any> {
-    this.forEachStoredRecord(values.length, (index: number, item: QuestionRecordItem): void => {
+    this.withRecordKeyLevels((): void => this.forEachStoredRecord(values.length, (index: number, item: QuestionRecordItem): void => {
       const record = values[index];
       if (!!record) {
         values[index] = this.getRecordDisplayValue(keysAsText, item, record, index);
       }
-    });
+    }));
     return values;
   }
   /* The keys of the value that no question of a record stores, for every loaded record, whatever hides
      it - the page, the filter, the owner's visibility: an unknown key is a property of the value, not
      of the view. A source that pages itself checks its window. */
   protected verifyRecordsUnknownKeys(val: any, context: IVerifyDataContext): void {
+    this.withRecordKeyLevels((): void => this.verifyRecordsUnknownKeysCore(val, context));
+  }
+  private verifyRecordsUnknownKeysCore(val: any, context: IVerifyDataContext): void {
     const source = this.recordsSource;
+    const level = this.getRecordKeyLevel();
     this.forEachStoredRecord(this.loadedRecordCount, (index: number, item: QuestionRecordItem): void => {
       const record = source["readRecordInAnswer"](val, index);
       const keys = this.getRecordUnknownKeys(index, record, item);
-      if (keys.length === 0) return;
+      // The keys inside a nesting panel's object, by their path, with their values.
+      const nested = !!level ? level.getNestedUnknownKeys(record) : [];
+      if (keys.length === 0 && nested.length === 0) return;
       context.pushSegment(source["getRecordSegment"](index));
       keys.forEach(key => context.addIssue("unknownProperty", key, record[key], this));
+      nested.forEach(({ path, value }) => {
+        const objPath = path.slice(0, path.length - 1);
+        objPath.forEach(segment => context.pushSegment(segment));
+        context.addIssue("unknownProperty", path[path.length - 1], value, this);
+        objPath.forEach(() => context.popSegment());
+      });
       context.popSegment();
+    });
+  }
+  /* The keys of the records the template builds, when a panel of it nests: the template's questions and
+     nesting panels, each panel with its own keys. undefined for flat records: their rules stay as released.
+     elements: the elements of one record's panel instead of the template's. Built on every call, except
+     inside withRecordKeyLevels. */
+  protected getRecordKeyLevel(elements?: Array<IElement>): RecordKeyLevel {
+    const template = this.getRecordSortTemplate();
+    // A record's own panel may nest where its template does not (a valueName set on a built panel).
+    const own = elements || (!!template ? template.elements : undefined);
+    if (!own) return undefined;
+    const levels = this.recordKeyLevels.value;
+    if (!!levels && levels.has(own)) return levels.get(own);
+    const level = hasRecordDataNesting(own) ? new RecordKeyLevel(own) : undefined;
+    levels?.set(own, level);
+    return level;
+  }
+  /* One operation over the records (a verification, a clean-up, a display value) builds each level once:
+     its rules read a level for every key of every record, through hooks other code calls too. The levels
+     go when the operation ends, so nothing has to tell them about a template change. */
+  private recordKeyLevels = new ValueScope<Map<Array<IElement>, RecordKeyLevel>>();
+  protected withRecordKeyLevels(run: () => void): void {
+    this.recordKeyLevels.run(this.recordKeyLevels.value || new Map(), run);
+  }
+  // The keys inside the nesting panels' objects of a record that no question stores.
+  public getRecordNestedUnknownPaths(record: any): Array<Array<string>> {
+    const level = this.getRecordKeyLevel();
+    return !!level ? level.getNestedUnknownPaths(record) : [];
+  }
+  /* The template's questions whose values are keys of the record itself: a question inside a nesting panel
+     is a key of the panel's object, no field of the record ("Limitations" in
+     docs/design-survey-nested-data.md). */
+  protected getRecordTemplateFieldQuestions(template: PanelModelBase): Array<Question> {
+    const questions = template.questions;
+    if (!hasRecordDataNesting(template.elements)) return questions;
+    return questions.filter((q: Question): boolean => {
+      let el: any = q.parent;
+      while(!!el && el !== template) {
+        if (!!el.getRecordDataNestingKey()) return false;
+        el = el.parent;
+      }
+      return true;
     });
   }
   /* Adds one record's inputs to a progress count. inputs are what a record has questions for (the
@@ -1000,22 +1071,38 @@ export abstract class QuestionRecordsModel extends Question {
   /* The display values of one record, formatted key by key in place: getQuestion names the question
      that formats a key - one of the record's object, of the template or a shared one - and a key
      without a question keeps its value. With keysAsText a key whose question has another title is
-     renamed to the title. Returns the record. */
-  protected formatRecordDisplayValue(keysAsText: boolean, record: any, getQuestion: (key: string) => Question): any {
-    const keys = Object.keys(record);
+     renamed to the title. Returns the record. A nesting panel's key (level) keeps its key, and its
+     object is formatted by the questions of the panel, at any depth. */
+  protected formatRecordDisplayValue(keysAsText: boolean, record: any, getQuestion: (key: string) => Question, level?: RecordKeyLevel): any {
+    return this.formatObjectDisplayValue(keysAsText, record, getQuestion, (key: string): Array<RecordKeyLevel> => !!level ? level.getLevels(key) : []);
+  }
+  /* One object of a display value, key by key in place: the record, or a copy of a nesting panel's object. A
+     key with a question is formatted, and renamed to the question's title with keysAsText. A key of nesting
+     panels (getLevels) has its object formatted by the questions on the levels of the panels that share it. */
+  private formatObjectDisplayValue(keysAsText: boolean, obj: any, getQuestion: (key: string) => Question,
+    getLevels: (key: string) => Array<RecordKeyLevel>): any {
+    const keys = Object.keys(obj);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       const question = getQuestion(key);
-      if (!question) continue;
-      const displayValue = question.getDisplayValue(keysAsText, record[key]);
-      if (keysAsText && !!question.title && question.title !== key) {
-        record[question.title] = displayValue;
-        delete record[key];
-      } else {
-        record[key] = displayValue;
+      if (!!question) {
+        const displayValue = question.getDisplayValue(keysAsText, obj[key]);
+        if (keysAsText && !!question.title && question.title !== key) {
+          obj[question.title] = displayValue;
+          delete obj[key];
+        } else {
+          obj[key] = displayValue;
+        }
+        continue;
+      }
+      const levels = getLevels(key);
+      if (levels.length > 0 && !!asScopeObject(obj[key])) {
+        obj[key] = this.formatObjectDisplayValue(keysAsText, Object.assign({}, obj[key]),
+          (inner: string): Question => RecordKeyLevel.getQuestionOf(levels, inner),
+          (inner: string): Array<RecordKeyLevel> => RecordKeyLevel.getLevelsOf(levels, inner));
       }
     }
-    return record;
+    return obj;
   }
   /* The total record count a type allows while its list does not page (settings.matrix.maxRowCount,
      settings.panel.maxPanelCount). A type without a record count of its own has no such limit. */
@@ -2532,7 +2619,7 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* The panel whose questions fill a record and are offered by the sort bar: the template of a dynamic
      panel, the detail panel of a matrix. */
-  protected getRecordSortTemplate(): PanelModelBase {
+  public getRecordSortTemplate(): PanelModelBase {
     return undefined;
   }
   /* The fields a designer can sort by (getDesignSortFields): every field whose values sort, whatever allowSort
@@ -2544,10 +2631,10 @@ export abstract class QuestionRecordsModel extends Question {
   /* Every value-sortable question of a record template, nested panels included (their values live in
      the same record), under the value name the list knows it by (getFieldsOfQuestions). A question
      hidden in the template is left out; one a visibleIf hides in some records is not: the sort covers
-     those records too. */
+     those records too. A question inside a nesting panel is no field of the record. */
   private getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
     const res: Array<{ field: string, title: string }> = [];
-    template.questions.forEach((q: Question): void => {
+    this.getRecordTemplateFieldQuestions(template).forEach((q: Question): void => {
       if (!this.isTemplateQuestionSortable(q) || !isVisibleInTemplate(q, template)) return;
       res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q, this) });
     });
@@ -3298,7 +3385,9 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordFieldQuestion(item: QuestionRecordItem, field: string): Question {
     if (!item || !field) return undefined;
     const name = Helpers.getNameOfCommentKey(field) ?? field;
-    return item.getQuestionsByValueName(name)[0] || undefined;
+    // A nesting panel's key: the question inside it that writes.
+    const writer: IRecordItemContainerWrite = item;
+    return item.getQuestionsByValueName(name)[0] || writer.getContainerWriteQuestion(field) || undefined;
   }
   // The question's add: the records it inserts are touched as they enter the list. Nothing is created
   // for it: without a list there is no view to keep them in.
@@ -3816,7 +3905,8 @@ export abstract class QuestionRecordsModel extends Question {
      (getRecordTemplateQuestion), then a question that shares the value name and reads the record. */
   protected formatRecordWithoutObject(keysAsText: boolean, record: any, recordIndex: number): any {
     return this.formatRecordDisplayValue(keysAsText, record, (key: string): Question =>
-      this.getRecordTemplateQuestion(key) || (recordIndex > -1 ? this.getSharedQuestionFromArray(key, recordIndex) : undefined));
+      this.getRecordTemplateQuestion(key) || (recordIndex > -1 ? this.getSharedQuestionFromArray(key, recordIndex) : undefined),
+    this.getRecordKeyLevel());
   }
   /* The keys of one record that no question of the type stores - for verifyRecordsUnknownKeys and the
      clean-ups -, with or without the record's object: the walk is shared, the rule for a key
@@ -4270,7 +4360,7 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
       if (!!res && res.isFound) return res;
       const allValues = this.item.getAllValues();
       if (params.isRoot) {
-        res = this.getValueFromBindedQuestions(path, allValues);
+        res = this.getValueFromBindedQuestions(path, allValues, params.isMetadata);
         if (!!res) return res;
       }
       return new VariableGetterContext(allValues).getValue(params);
@@ -4283,6 +4373,44 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
       res.isFound = true;
       res.obj = qs[0];
       res.context = qs[0].getValueGetterContext();
+      return;
+    }
+    // A nesting panel's key ({panel.address.street}, {row.address}): its scope answers the rest of the path.
+    const scopes = this.item.getDataScopesByKey(name, true);
+    if (scopes.length > 0) {
+      res.isFound = true;
+      res.context = new PanelDataScopeValueGetterContext(scopes);
+      return;
+    }
+    // The metadata mode at design time: a template's nesting panels have no scope, and a row's detail panel is
+    // not built; the template's keys answer.
+    if (res.isMetadata) {
+      const level = new RecordKeyLevel(this.item.getRecordKeyElements());
+      const q = level.getQuestion(name, true);
+      if (!!q) {
+        res.isFound = true;
+        res.obj = q;
+        res.context = q.getValueGetterContext();
+        return;
+      }
+      const levels = level.getLevels(name, true);
+      if (levels.length > 0) {
+        res.isFound = true;
+        res.context = new RecordKeyLevelValueGetterContext(levels);
+        return;
+      }
+      // A record-level comment key ({panel.kind-Comment}), which the runtime reads from the record's values:
+      // it names the question, as the root does for a top-level comment key.
+      const baseName = getNameOfCommentName(name);
+      if (!!baseName) {
+        const owners = this.item.getQuestionsByValueName(baseName, true);
+        const owner = owners.length > 0 ? owners[0] : level.getQuestion(baseName, true);
+        if (!!owner) {
+          res.isFound = true;
+          res.obj = owner;
+          res.isComment = true;
+        }
+      }
     }
   }
   /* The neighbour comes from the view, not from the objects that exist: the first panel or row of a
@@ -4311,7 +4439,7 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
     let names = this.getItemVariableNames();
     if (!keys || !this.isItemDependenciesTrackable() || this.isContainerValueChanged(keys)) {
       names = names.concat([this.variableName, this.questionName, this.getPrevName(), this.getNextName()])
-        .concat(this.getRelatedItemNames());
+        .concat(this.getRelatedItemNames()).concat(this.item.getNestedDataNames());
     }
     names.forEach((name) => {
       if (name) {
@@ -4349,7 +4477,13 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
   }
 }
 
-export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IObjectValueContext {
+/* The data of one record's questions: a root data scope over the record, as the survey is and a
+   composite's content is. ObjectDataScope gives the reads, the key index and the loops that push
+   a record into the questions; the per-type differences are the subclasses' overrides. It is no
+   PanelDataScope and no IDataScope: a question directly in a record has the survey as its value scope.
+   A panel with valueName inside the record nests: its PanelDataScope has the item as its parent, the
+   item's walk sees it as one key, and its questions' data paths start at the record. */
+export abstract class QuestionRecordItem extends ObjectDataScope implements ISurveyData, ISurveyImpl, IObjectValueContext, IRecordItemContainerWrite {
 
   private settingValueScope: Scope = new Scope();
   protected get isSettingValue(): boolean {
@@ -4357,6 +4491,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   }
   private textPreProcessor: TextContextProcessor;
   constructor(public data: QuestionRecordsModel) {
+    super();
     this.textPreProcessor = new TextContextProcessor(this);
   }
   // The record this object holds, and its position among the visible records of the whole view: the
@@ -4375,7 +4510,43 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     return this.textPreProcessor;
   }
 
-  public abstract getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question>;
+  // The record's questions on a value name, as the key index has them: in document order, a row's cells first.
+  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
+    return this.getIndexQuestions(name, caseInsensitive);
+  }
+  // The elements the record's keys come from, for the metadata mode (getQuestionByVariable): the record's own
+  // (the panel's; a row's cells and detail panel).
+  public getRecordKeyElements(): Array<IElement> {
+    return this.getScopeElements();
+  }
+  // The record's nesting panels' scopes on a key.
+  public getDataScopesByKey(name: string, caseInsensitive?: boolean): Array<PanelDataScope> {
+    return this.getIndexScopes(name, caseInsensitive);
+  }
+  /* The names an expression inside a nesting panel reads the record's objects by ({street}, {address},
+     {address.street}): the keys of the nesting panels and the names and value names of their questions,
+     at any depth. A write of the record may change any of them. Empty for a record without one. */
+  public getNestedDataNames(): Array<string> {
+    const res: Array<string> = [];
+    // A survey where no container ever nested pays nothing: this runs on every expression check of a write.
+    if (!getDataScopeHost(this.getSurvey())?.isDataScopeUsed()) return res;
+    const add = (scope: PanelDataScope): void => {
+      res.push(scope.key);
+      scope.getDataKeyIndex().elements.forEach((el: ISurveyDataElement): void => {
+        const inner = getElementDataScope(el);
+        if (!!inner) {
+          add(inner);
+        } else {
+          res.push((<Question>el).name, el.getValueName());
+        }
+      });
+    };
+    this.getIndexElements().forEach((el: ISurveyDataElement): void => {
+      const scope = getElementDataScope(el);
+      if (!!scope) add(scope);
+    });
+    return res;
+  }
   public abstract getVariableName(): string;
   protected abstract getQuestionByName(name: string): IQuestion;
 
@@ -4384,18 +4555,31 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   getSurvey(): ISurvey {
     return this.data ? this.data.getSurvey() : null;
   }
-  getValue(name: string): any {
-    return this.getAllValues()[name];
+  // The record as getAllValues() reads it: a row's includes its questions' current values.
+  protected getObject(): any {
+    return this.getAllValues();
   }
-  public setValue(name: string, newValue: any): void {
-    this.writeRecordValue(name, newValue, false);
+  // The key as stored, not a copy, as getValue has always read it.
+  protected getObjectKey(obj: any, name: string): any {
+    return !!obj ? obj[name] : undefined;
+  }
+  // The questions whose values are keys of the record itself, not of a nesting panel's object inside it.
+  protected isScopeQuestion(q: Question): boolean {
+    return !getActiveDataScope(q.data);
+  }
+  public setValue(name: string, newValue: any, locNotification?: any, allowNotifyValueChanged?: boolean, questionName?: string): void {
+    this.writeRecordValue(name, newValue, false, questionName);
+  }
+  // The record pushed into the questions again from the owner's storage: a panel inside it started or
+  // stopped nesting. A row's own object composes its questions' current values, so it is not read here.
+  public updateValuesFromData(): void {
+    this.updateFromRecord(this.data.getItemData(this));
   }
 
   getAllValues(): any {
     return this.data.getItemData(this);
   }
 
-  abstract getComment(name: string): string;
   public setComment(name: string, newValue: string, locNotification: any): void {
     this.writeRecordValue(name, newValue, true);
   }
@@ -4404,19 +4588,49 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
      value first: a matrix row composes the record it proposes from its questions, and a stale twin
      would put the old value back. The item prepares the write and may refuse it; a field that would
      not change stops the write before the owner, the triggers and the notification. */
-  private writeRecordValue(name: string, newValue: any, isComment: boolean): void {
+  private writeRecordValue(name: string, newValue: any, isComment: boolean, questionName?: string): void {
     if (this.isSettingValue) return;
     if (!isComment) {
       this.updateSharedQuestionsValue(name, newValue);
     }
-    const write = this.prepareRecordWrite(name, newValue, isComment);
-    if (!write) return;
-    const fieldName = isComment ? Helpers.getCommentKey(name) : name;
-    if (!this.isValueChanged(fieldName, write.fieldValue)) return;
-    if (!this.data["writeItemValue"](this, fieldName, write.ownerValue, write.isDeleting)) return;
-    this.runTriggersOnSetValue(fieldName, newValue);
-    this.notifyRecordWritten();
-    this.onRecordWritten(name, isComment);
+    const scopes = !isComment ? this.getIndexScopes(name) : [];
+    const prevWrite = this.containerWrite;
+    this.containerWrite = scopes.length > 0 ? { scopes: scopes, writer: this.getContainerWriter(scopes, questionName) } : undefined;
+    try {
+      const write = this.prepareRecordWrite(name, newValue, isComment);
+      if (!write) return;
+      const fieldName = isComment ? Helpers.getCommentKey(name) : name;
+      if (!this.isValueChanged(fieldName, write.fieldValue)) return;
+      if (!this.data["writeItemValue"](this, fieldName, write.ownerValue, write.isDeleting)) return;
+      // The nesting panels on the key read the stored object: a panel sharing it, and a value a
+      // changing event replaced. Read from the owner's storage: a row's own object composes its questions.
+      if (scopes.length > 0) {
+        const stored = this.data.getItemData(this);
+        this.runSettingValue((): void => scopes.forEach(scope => scope.updateValuesFrom(asScopeObject(!!stored ? stored[name] : undefined))));
+      }
+      this.runTriggersOnSetValue(fieldName, newValue);
+      this.notifyRecordWritten();
+      this.onRecordWritten(name, isComment);
+    } finally {
+      this.containerWrite = prevWrite;
+    }
+  }
+  /* A write of a nesting panel's key: the scopes on the key, and the question inside one of them that
+     wrote (the survey passes the question's name with a write). The owner reads it for the questions the
+     write validates and touches (getRecordFieldQuestion). */
+  protected containerWrite: { scopes: Array<PanelDataScope>, writer: Question };
+  private getContainerWriter(scopes: Array<PanelDataScope>, questionName: string): Question {
+    // Looked up inside the scopes' panels: a cell named like the inner question must not hide it.
+    if (!questionName) return undefined;
+    for (let i = 0; i < scopes.length; i++) {
+      const q = <Question>(<any>scopes[i].owner).getQuestionByName(questionName);
+      if (!!q && scopes[i].containsQuestion(q)) return q;
+    }
+    return undefined;
+  }
+  public getContainerWriteQuestion(name: string): Question {
+    const write = this.containerWrite;
+    return !!write && write.scopes[0].key === name ? write.writer : undefined;
   }
   /* Returns undefined to refuse the write. The default hands the owner the field value, unbound: the
      owner stores it, and the question keeps its own. */
@@ -4428,12 +4642,10 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   /* The owner's value was assigned from outside the item: the record is pushed into the questions,
      which do not write it back. */
   public updateFromRecord(record: any): void {
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      this.updateQuestionFromRecord(questions[i], record);
-    }
+    this.updateValuesFrom(record);
   }
-  protected updateQuestionFromRecord(question: Question, record: any): void {
+  // A record item sets each question, without comparing its value first.
+  protected updateQuestionFrom(question: Question, record: any): void {
     const name = question.getValueName();
     question.updateValueFromSurvey(!!record ? record[name] : undefined);
     question.updateCommentFromSurvey(!!record ? record[Helpers.getCommentKey(name)] : undefined);
@@ -4444,15 +4656,10 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
      object (fillQuestionFromRecord). The questions write nothing back. */
   public rebindToRecord(record: any): void {
     this.runSettingValue((): void => {
-      const questions = this.questions;
       // Every question drops the old record before any takes the new one: a question filled first would
       // otherwise follow another that still shows the old record, and that one's reset would clear it.
-      for (let i = 0; i < questions.length; i++) {
-        questions[i]["resetForAnotherRecord"]();
-      }
-      for (let i = 0; i < questions.length; i++) {
-        this.fillQuestionFromRecord(questions[i], record);
-      }
+      this.forEachQuestion((q: Question): void => q["resetForAnotherRecord"]());
+      this.forEachQuestion((q: Question): void => this.fillQuestionFromRecord(q, record));
     });
   }
   // An async condition of the object itself (not of its questions) is still running: its result would land in another record.
@@ -4461,7 +4668,14 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   }
   // How a question of a new object takes its record: by its value name, with the comment.
   protected fillQuestionFromRecord(question: Question, record: any): void {
-    this.assignQuestionFromRecord(question, question.getValueName(), record, true);
+    this.assignQuestionFromRecord(question, question.getValueName(), this.getQuestionRecordObject(question, record), true);
+  }
+  /* The object of a record that holds a question's value: the record, or for a question inside a nesting
+     panel the object at its data path, which starts at the record. */
+  protected getQuestionRecordObject(question: Question, record: any): any {
+    if (!getActiveDataScope(question.data)) return record;
+    const path = question.getDataPath();
+    return asScopeObject(getValueByPath(record, path.slice(0, path.length - 1)));
   }
   /* A question takes the record's field name: an empty field leaves it as it is, and the comment comes
      with a value only. The question writes nothing back while it has no data or the item sets values. */
@@ -4499,15 +4713,12 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   public abstract get questions(): Array<Question>;
   public runTriggers(name: string, value: any, keys?: any): void {
     if (!name && !keys) return;
-    this.questions.forEach(q => q.runTriggers(name, value, keys));
+    this.forEachQuestion((q: Question): void => q.runTriggers(name, value, keys));
   }
   /* The questions of a panel item are the panel's, nested panels included, in the order
      PanelModel.onAnyValueChanged reaches them through its elements. */
   public onAnyValueChanged(name: string, questionName: string): void {
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      questions[i].onAnyValueChanged(name, questionName);
-    }
+    this.forEachQuestion((q: Question): void => q.onAnyValueChanged(name, questionName));
   }
   /* After a write of this item reached the owner: its own questions re-run what reads the record
      through the item variable ({row.x}, {panel.x}). The other items are not told. */
@@ -4520,31 +4731,26 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
      errors: the walk runs on every value change while the owner holds an error. */
   public getAllErrors(): Array<SurveyError> {
     let res: Array<SurveyError> = [];
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      const errors = questions[i].getAllErrors();
-      if (errors && errors.length > 0 && questions[i].isVisibleInSurvey) {
+    this.forEachQuestion((q: Question): void => {
+      const errors = q.getAllErrors();
+      if (errors && errors.length > 0 && q.isVisibleInSurvey) {
         res = res.concat(errors);
       }
-    }
+    });
     return res;
   }
   public isRunningValidators(): boolean {
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      if (questions[i].isRunningValidators) return true;
-    }
-    return false;
+    let res = false;
+    this.forEachQuestion((q: Question): void => {
+      res = res || q.isRunningValidators;
+    });
+    return res;
   }
   public clearErrors(): void {
-    const questions = this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      questions[i].clearErrors();
-    }
+    this.forEachQuestion((q: Question): void => q.clearErrors());
   }
 
   protected runTriggersOnSetValue(name: string, newValue: any): void {
-    const questions = this.questions;
     const commentOf = Helpers.getNameOfCommentKey(name);
     if (commentOf !== undefined) {
       name = commentOf;
@@ -4554,13 +4760,12 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
       }
     }
     const triggerName = this.getVariableName() + "." + name;
-    for (var i = 0; i < questions.length; i++) {
-      const q = questions[i];
+    this.forEachQuestion((q: Question): void => {
       if (q.getValueName() !== name) {
         q.checkBindings(name, newValue);
       }
       q.runTriggers(triggerName, newValue);
-    }
+    });
     /* The record index, not the position of this item: a question bound to the same value may have
        created its objects for a different set of records or in a different order. */
     const index = this.getOwnRecordIndex();
@@ -4622,9 +4827,6 @@ class RecordValueItem extends QuestionRecordItem {
   public getValueGetterContext(): IValueGetterContext {
     return this.createContext(this);
   }
-  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
-    return [];
-  }
   public getVariableName(): string {
     return this.variableName;
   }
@@ -4638,12 +4840,12 @@ class RecordValueItem extends QuestionRecordItem {
     return this.record || {};
   }
   public setValue(name: string, newValue: any): void { }
-  public getComment(name: string): string {
-    const res = this.getAllValues()[Helpers.getCommentKey(name)];
-    return !!res ? res : "";
-  }
   public setComment(name: string, newValue: string, locNotification: boolean): void { }
   public get questions(): Array<Question> {
+    return [];
+  }
+  // A scope with no elements.
+  protected getScopeElements(): Array<IElement> {
     return [];
   }
 }

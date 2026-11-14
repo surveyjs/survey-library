@@ -3,7 +3,7 @@ import { property } from "./decorators";
 import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedElementVisit, NestedWalkBuild, getNestedElementQuestions } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurvey, ISurveyData, ISurveyImpl, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
+import { IElement, IQuestion, ISurvey, ISurveyData, ISurveyDataElement, ISurveyImpl, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 
 import { ItemValue } from "./itemvalue";
@@ -28,12 +28,15 @@ import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
-  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
+  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, IRecordsTemplateOwner, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 import type { QuestionExpressionModel } from "./question_expression";
+import { PanelDataScope, getActiveDataScope } from "./panel-data-scope";
+import { getElementDataScope } from "./data-key-index";
+import { asScopeObject, deleteObjectPaths } from "./data-object-utils";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
    rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */
@@ -385,7 +388,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     if (!!cell && cell.question === question) {
       this.assignQuestionFromRecord(question, cell.column.name, record, true);
     } else {
-      this.assignQuestionFromRecord(question, question.getValueName(), record, false);
+      this.assignQuestionFromRecord(question, question.getValueName(), this.getQuestionRecordObject(question, record), false);
     }
   }
   /* The row notifies each question right after updating it, and it keeps a comment the question
@@ -393,7 +396,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
      of its value: a question may adjust the value it is given in place (a checkbox puts its other item
      in), and the record keeps the stored answer, as released. A survey element the row edits in place is
      not copied. */
-  protected updateQuestionFromRecord(question: Question, record: any): void {
+  protected updateQuestionFrom(question: Question, record: any): void {
     const cellValue = this.getRecordFieldValue(record, question.getValueName());
     const val = !this.editingObj ? Helpers.getUnbindValue(cellValue) : cellValue;
     const oldComment = question.comment;
@@ -408,42 +411,73 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   public get filteredValue(): any {
     return this.getValueCore(true);
   }
+  /* The row value: the cells first, then the rest of the index walk - the detail questions, where one on a
+     cell's value name gives no key, and the nesting panels of the detail panel, each with its key and its
+     object, composed as the row composes its own value (composeScopeObject). */
   private getValueCore(isFiltered: boolean): any {
-    var result: any = {};
-    var cellValueNames: any = {};
-    for (var i = 0; i < this.cells.length; i++) {
-      var question = this.cells[i].question;
-      if (!question) continue;
-      var valueName = question.getValueName();
+    const result: any = {};
+    const cellValueNames: any = {};
+    const survey = this.getSurvey();
+    const storeComments = !!survey && survey.storeOthersAsComment;
+    const addQuestion = (question: Question, valueName: string): void => {
+      if (!question.isEmpty()) {
+        result[valueName] = isFiltered ? question.getFilteredValue() : question.value;
+      }
+      if (!!question.comment && storeComments) {
+        result[Helpers.getCommentKey(valueName)] = question.comment;
+      }
+    };
+    this.getCellQuestions().forEach((question: Question): void => {
+      const valueName = question.getValueName();
       cellValueNames[valueName] = true;
-      if (!question.isEmpty()) {
-        result[valueName] = isFiltered ? question.getFilteredValue() : question.value;
+      addQuestion(question, valueName);
+    });
+    let stored: any;
+    this.getIndexElements().forEach((el: ISurveyDataElement): void => {
+      const scope = getElementDataScope(el);
+      if (!!scope) {
+        const key = scope.key;
+        if (cellValueNames[key]) return;
+        if (stored === undefined) stored = this.getDataRowValue() || {};
+        const obj = this.composeScopeObject(scope, result[key] !== undefined ? result[key] : stored[key], isFiltered, storeComments);
+        if (!Helpers.isValueEmpty(obj)) {
+          result[key] = obj;
+        }
+        return;
       }
-      if (
-        !!question.comment &&
-        !!this.getSurvey() &&
-        this.getSurvey().storeOthersAsComment
-      ) {
-        result[Helpers.getCommentKey(valueName)] = question.comment;
-      }
-    }
-    var detailQuestions = !!this.detailPanel ? this.detailPanel.questions : [];
-    for (var i = 0; i < detailQuestions.length; i++) {
-      var question = detailQuestions[i];
-      var valueName = question.getValueName();
-      if (cellValueNames[valueName]) continue;
-      if (!question.isEmpty()) {
-        result[valueName] = isFiltered ? question.getFilteredValue() : question.value;
-      }
-      if (
-        !!question.comment &&
-        !!this.getSurvey() &&
-        this.getSurvey().storeOthersAsComment
-      ) {
-        result[Helpers.getCommentKey(valueName)] = question.comment;
-      }
-    }
+      // A cell is skipped here too: its value name is a cell's.
+      const question = <Question><any>el;
+      const valueName = question.getValueName();
+      if (cellValueNames[valueName]) return;
+      addQuestion(question, valueName);
+    });
     return result;
+  }
+  /* A nesting panel's object in the row value: a copy of the stored object - the keys no question owns stay,
+     as in every nesting object - with the current values of the panel's questions, and the objects of the
+     panels inside it. */
+  private composeScopeObject(scope: PanelDataScope, stored: any, isFiltered: boolean, storeComments: boolean): any {
+    const res = Object.assign({}, asScopeObject(stored));
+    scope.getDataKeyIndex().elements.forEach((el: ISurveyDataElement): void => {
+      const inner = getElementDataScope(el);
+      const key = !!inner ? inner.key : el.getValueName();
+      let val: any;
+      if (!!inner) {
+        val = this.composeScopeObject(inner, res[key], isFiltered, storeComments);
+      } else {
+        const question = <Question><any>el;
+        val = question.isEmpty() ? undefined : (isFiltered ? question.getFilteredValue() : Helpers.getUnbindValue(question.value));
+        if (!!question.comment && storeComments) {
+          res[Helpers.getCommentKey(key)] = question.comment;
+        }
+      }
+      if (Helpers.isValueEmpty(val)) {
+        delete res[key];
+      } else {
+        res[key] = val;
+      }
+    });
+    return res;
   }
   public get locText(): LocalizableString {
     return null;
@@ -506,12 +540,11 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
     this.creatingDetailPanelScope.run((): void => {
       this.detailPanelValue = this.data.createRowDetailPanel(this);
-      var questions = this.detailPanelValue.questions;
-      var value = this.getDataRowValue();
+      const value = this.getDataRowValue();
+      /* The new detail questions take the record as rebindToRecord fills them (fillQuestionFromRecord), before
+         they have data. The panel's own questions, not the index: the cells were filled when they were built. */
       if (!Helpers.isValueEmpty(value)) {
-        for (var i = 0; i < questions.length; i++) {
-          this.assignQuestionFromRecord(questions[i], questions[i].getValueName(), value, false);
-        }
+        this.detailPanelValue.questions.forEach((q: Question): void => this.fillQuestionFromRecord(q, value));
       }
       this.detailPanelValue.setSurveyImpl(this);
     });
@@ -572,20 +605,24 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       this.detailPanel.updateElementVisibility();
     }
   }
-  public getNamesWithDefaultValues(): Array<string> {
-    const res: Array<string> = [];
-    this.questions.forEach(q => {
+  /* The keys of the record the row's own elements store: its questions' value names and its nesting panels'
+     keys, as the index walk keys them. Without a nesting panel these are the value names of questions. */
+  public getOwnRecordKeys(): Array<string> {
+    return this.getIndexElements().map((el: ISurveyDataElement): string => el.getValueName());
+  }
+  // The paths in the record of the questions that hold their default values: a question inside a nesting
+  // panel has its data path, which starts at the record.
+  public getDefaultValuePaths(): Array<Array<string>> {
+    const res: Array<Array<string>> = [];
+    this.forEachQuestion((q: Question): void => {
       if (q.isValueDefault) {
-        res.push(q.getValueName());
+        res.push(!!getActiveDataScope(q.data) ? q.getDataPath() : [q.getValueName()]);
       }
     });
     return res;
   }
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-    var questions = this.questions;
-    for (var i = 0; i < questions.length; i++) {
-      questions[i].clearValue(keepComment, fromUI);
-    }
+    this.forEachQuestion((q: Question): void => q.clearValue(keepComment, fromUI));
   }
   public getDataValueCore(valuesHash: any, key: string): any {
     var survey = this.getSurvey();
@@ -603,6 +640,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
      when the matrix validates on value changing, after the cell passed. */
   protected prepareRecordWrite(name: string, newValue: any, isComment: boolean): IRecordItemWrite {
     if (this.creatingDetailPanelScope.isActive) return undefined;
+    if (!!this.containerWrite) return this.prepareContainerWrite(name, newValue, this.containerWrite.writer);
     const changedQuestion = this.getQuestionByName(name);
     const rowValue = this.onCellValueChanging(changedQuestion, this.value, isComment);
     if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return undefined;
@@ -613,8 +651,26 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       isDeleting: newValue == null && !changedQuestion || isComment && !newValue && !!changedQuestion
     };
   }
+  /* A write of a nesting panel's key: the proposed row holds the object the panel's scope wrote. The
+     cell-changing event reports the key and the object, as a survey-level write reports a container key with
+     its whole object. A handler's object is written, and the panel's questions read it after the write. The
+     question inside the panel that wrote is validated, the others are not. */
+  private prepareContainerWrite(name: string, newValue: any, writer: Question): IRecordItemWrite {
+    const rowValue = this.value;
+    const setKey = (val: any): void => {
+      if (Helpers.isValueEmpty(val)) {
+        delete rowValue[name];
+      } else {
+        rowValue[name] = Helpers.getUnbindValue(val);
+      }
+    };
+    setKey(newValue);
+    setKey(this.data.onRowChanging(this, name, rowValue));
+    if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(writer)) return undefined;
+    return { fieldValue: rowValue[name], ownerValue: rowValue, isDeleting: Helpers.isValueEmpty(rowValue[name]) };
+  }
   protected onRecordWritten(name: string, isComment: boolean): void {
-    if (isComment) return;
+    if (isComment || !!this.containerWrite) return;
     const changedQuestion = this.getQuestionByName(name);
     const survey = this.getSurvey();
     if (changedQuestion && survey && survey.isValidateOnValueChanged) {
@@ -666,11 +722,11 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     }
   }
   public hasValueAnyQuestion(visibleOnly?: boolean): boolean {
-    const questions = visibleOnly ? this.visibleQuestions : this.questions;
-    for (let i = 0; i < questions.length; i++) {
-      if (!questions[i].isEmpty()) return true;
-    }
-    return false;
+    let res = false;
+    this.forEachQuestion((q: Question): void => {
+      res = res || (!visibleOnly || q.isVisible) && !q.isEmpty();
+    });
+    return res;
   }
   public getQuestionByColumn(column: MatrixDropdownColumn): Question {
     var cell = this.getCellByColumn(column);
@@ -727,27 +783,23 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     }
     return res;
   }
-  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
-    if (caseInsensitive) {
-      name = name.toLocaleLowerCase();
-    }
-    let res = [];
-    for (var i = 0; i < this.cells.length; i++) {
-      const cell = this.cells[i];
-      const q = cell.question;
-      if (!q) continue;
-      let valueName = q.getValueName();
-      if (caseInsensitive) {
-        valueName = valueName.toLocaleLowerCase();
-      }
-      if (valueName === name) {
-        res.push(cell.question);
-      }
-    }
-    if (!!this.detailPanel) {
-      res = res.concat(this.detailPanel.getQuestionsByValueName(name, caseInsensitive));
-    }
+  private getCellQuestions(): Array<Question> {
+    const res: Array<Question> = [];
+    this.cells.forEach((cell: MatrixDropdownCell): void => {
+      if (!!cell.question) res.push(cell.question);
+    });
     return res;
+  }
+  // A row whose detail panel is not built has the keys of the matrix's detail panel template (the design row).
+  public getRecordKeyElements(): Array<IElement> {
+    const owner: IRecordsTemplateOwner = this.data;
+    const template = !this.detailPanel && !!owner ? owner.getRecordSortTemplate() : undefined;
+    return !!template ? (<Array<IElement>>this.getCellQuestions()).concat(template.elements) : super.getRecordKeyElements();
+  }
+  // The cells' questions, then the detail panel's elements once the panel exists.
+  protected getScopeElements(): Array<IElement> {
+    const res: Array<IElement> = this.getCellQuestions();
+    return !!this.detailPanel ? res.concat(this.detailPanel.elements) : res;
   }
   public clearIncorrectValues(val: any): void {
     // The keys of the detail panel questions are known once the panel is created.
@@ -762,12 +814,27 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         if (!this.isTwoValueEquals(qVal, question.value)) {
           this.setValue(key, question.value);
         }
+      } else if (this.getIndexScopes(key).length > 0) {
+        this.clearIncorrectValuesInObject(key);
       } else {
         if (this.isUnknownValueKey(key)) {
           this.deleteUnknownValueKey(key);
         }
       }
     }
+  }
+  /* A nesting panel's key: the panel's questions clear their values, and the keys of its object no
+     question stores go, in one write of the object. */
+  private clearIncorrectValuesInObject(key: string): void {
+    this.getIndexScopes(key).forEach((scope: PanelDataScope): void => scope.forEachQuestion((q: Question): void => q.clearIncorrectValues()));
+    const stored = this.getDataRowValue();
+    if (!stored) return;
+    const obj: any = {};
+    obj[key] = stored[key];
+    const paths = this.data.getRecordNestedUnknownPaths(obj);
+    if (paths.length === 0) return;
+    deleteObjectPaths(obj, paths);
+    this.setValue(key, obj[key]);
   }
   private deleteUnknownValueKey(key: string): void {
     // setValue() resolves a key by the question name and keeps a key that a question of the row is
@@ -1217,7 +1284,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return super.isTemplateQuestionSortable(q) && ((<any>q).contentQuestion || q).getType() !== "expression";
   }
   // Without a detail panel mode nothing reads detailPanel, which would build a panel for a matrix that has none.
-  protected getRecordSortTemplate(): PanelModelBase {
+  public getRecordSortTemplate(): PanelModelBase {
     return this.detailPanelMode !== "none" ? this.detailPanel : undefined;
   }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows
@@ -1932,7 +1999,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      released: a key a column or a detail panel question stores under its value name - a comment key by
      the name in front of the suffix -, or a key with the totals suffix anywhere in it. */
   protected isRecordKeyOfType(key: string, row: QuestionRecordItem): boolean {
-    return !!this.getRecordTemplateQuestion(this.getRecordKeyValueName(key)) || key.indexOf(settings.matrix.totalsSuffix) > -1;
+    if (!!this.getRecordTemplateQuestion(this.getRecordKeyValueName(key)) || key.indexOf(settings.matrix.totalsSuffix) > -1) return true;
+    // A nesting panel's key of the detail panel.
+    const level = this.getRecordKeyLevel();
+    return !!level && level.getLevels(key).length > 0;
   }
   protected getRecordKeyValueName(key: string): string {
     return Helpers.getNameOfCommentKey(key) ?? key;
@@ -1981,6 +2051,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       const question = this.columns[i].templateQuestion;
       if (!!question && question.getValueName() === key) return question;
     }
+    // A question inside a nesting panel of the detail panel stores a key of the panel's object.
+    const level = this.getRecordKeyLevel();
+    if (!!level) return level.getQuestion(key);
     return <Question>this.getRecordSortTemplate()?.getQuestionByValueName(key) || undefined;
   }
   // QuestionRecordsModel hook of updateRecordsExpressionFields: the cell questions of the expression columns.
@@ -2488,8 +2561,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.setRowValueCore(<MatrixDropdownRowModelBase>target.item, rowValue);
       return;
     }
-    const questions = this.columns.map(column => column.templateQuestion).filter(question => !!question);
-    this.writeRecordWithoutItem(target, (record: any): void => { this.mergeRecordFields(record, questions, rowValue); });
+    const keys = this.columns.map(column => column.templateQuestion).filter(question => !!question).map(question => question.getValueName());
+    this.writeRecordWithoutItem(target, (record: any): void => { this.mergeRecordFields(record, keys, rowValue); });
   }
   // setRowValue assigned the row before the write: a refusal puts it back as well.
   private setRowValueCore(row: MatrixDropdownRowModelBase, rowValue: any): void {
@@ -2547,8 +2620,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   ): any {
     if (!rowValue) return rowValue;
     if (!!row.editingObj) return rowValue;
+    // A nesting panel's object is formatted by the questions of the row's detail panel, or of the template.
+    const level = this.getRecordKeyLevel(!!row.detailPanel ? row.detailPanel.elements : undefined);
     return this.formatRecordDisplayValue(keysAsText, rowValue,
-      (key: string): Question => row.getQuestionByName(key) || this.getSharedQuestionByName(key, row));
+      (key: string): Question => row.getQuestionByName(key) || this.getSharedQuestionByName(key, row), level);
   }
   /* The display values of a record: its row's cells format them, and a record without a row - off
      the page or never built - is formatted by its columns' template questions, so nothing is built
@@ -2750,7 +2825,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     });
     // The columns first: a key they share with the detail panel keeps the column's type.
     const template = this.getRecordSortTemplate();
-    return this.getFieldsOfQuestions(!!template ? questions.concat(template.questions) : questions);
+    return this.getFieldsOfQuestions(!!template ? questions.concat(this.getRecordTemplateFieldQuestions(template)) : questions);
   }
   protected refreshRenderedPage(): void {
     this.resetRenderedTable();
@@ -3143,12 +3218,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (isDeletingValue) {
       delete rowValue[columnName];
     }
-    this.mergeRecordFields(rowValue, row.questions, newRowValue);
+    this.mergeRecordFields(rowValue, row.getOwnRecordKeys(), newRowValue);
   }
-  // The fields of the questions give way to the non-empty values of newRowValue; the other fields stay.
-  private mergeRecordFields(rowValue: any, questions: Array<Question>, newRowValue: any): void {
-    questions.forEach(q => {
-      delete rowValue[q.getValueName()];
+  // The fields of the keys give way to the non-empty values of newRowValue; the other fields stay.
+  private mergeRecordFields(rowValue: any, keys: Array<string>, newRowValue: any): void {
+    keys.forEach(key => {
+      delete rowValue[key];
     });
     if (newRowValue) {
       newRowValue = JSON.parse(JSON.stringify(newRowValue));

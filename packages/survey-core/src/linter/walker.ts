@@ -1,4 +1,4 @@
-import { SurveyVariablePresets, TextPreProcessor, buildTriggerExpression } from "survey-core";
+import { SurveyVariablePresets, TextPreProcessor, buildTriggerExpression, getDataNestingKey } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
 import {
   ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS, TEXT_TEMPLATE_PROPS,
@@ -7,14 +7,18 @@ import { ExpressionPropDef, LintMetadata, isMatrixDropdown, isPanel, isSelectBas
 import { parseExpressionText, splitRefSegments, takeInArrayConditions } from "./expression-utils";
 import { resolveLintSettings } from "./lint-settings";
 import {
-  CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite,
-  ExpressionSiteKind, getCapturingFrame, joinPath, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
+  CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, DataScopeRecord, ElementRecord, ExpressionSite,
+  ExpressionSiteKind, getCapturingFrame, joinPath, NonNestingKey, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
   ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
-import { annotateSharedValues, getFrameNames } from "./record-fields";
+import { annotateSharedValues, getDataKey, getFrameNames } from "./record-fields";
+import { createRecordScope, createRootScope, generateContainerName, getChildScope, getContainerNestingKind, getDataNestingMode,
+  isInsideRecordScope } from "./data-nesting";
 
 const MAX_DEPTH = 128;
+// why a panel's or a page's valueName stores nothing: the hint of a reference to it
+const NON_NESTING_WHY = "the survey's dataNesting is \"none\"";
 
 interface WalkState {
   index: SurveyIndex;
@@ -24,6 +28,10 @@ interface WalkState {
   depth: number;
   // one component definition is walked once, however many questions instantiate it
   componentFields: Map<IComponentDef, CIMap<boolean>>;
+  // the names of the pages and panels walked so far, in document order: the runtime names an
+  // unnamed one after them (generateContainerName)
+  pageNames: Set<string>;
+  panelNames: Set<string>;
 }
 
 function isNonEmptyString(value: any): boolean {
@@ -119,7 +127,8 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
       getFrameNames(frame).add(record.name, record);
     } else {
       state.index.byName.add(record.name, record);
-      if (record.valueName) state.index.byValueName.add(record.valueName, record);
+      // a valueName inside a nesting container keys that container's object, not the survey data
+      if (record.valueName && record.dataScope === state.index.rootScope) state.index.byValueName.add(record.valueName, record);
     }
   }
   if (record.kind === "question") {
@@ -131,6 +140,20 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   }
 }
 
+// Every element of a composite definition's elementsJSON at any depth - inside panels and dynamic-panel
+// templates too - each before the elements inside it, with its path below basePath.
+export function forEachComponentElement(metadata: LintMetadata, elements: any, basePath: string,
+  callback: (element: any, path: string) => void): void {
+  if (!Array.isArray(elements)) return;
+  const keys = metadata.getElementsKeys().concat(metadata.getTemplateElementsKeys());
+  elements.forEach((el: any, i: number) => {
+    if (!el || typeof el !== "object") return;
+    const path = basePath + "[" + i + "]";
+    callback(el, path);
+    keys.forEach(key => forEachComponentElement(metadata, el[key], path + "." + key, callback));
+  });
+}
+
 // The field names a composite definition declares. Memoized per definition: the JSON is
 // static, and a survey with many questions of one component type would otherwise walk it
 // once per question.
@@ -138,18 +161,9 @@ function getComponentFieldNames(state: WalkState, def: IComponentDef): CIMap<boo
   const cached = state.componentFields.get(def);
   if (cached) return cached;
   const res = new CIMap<boolean>();
-  const elementsKeys = state.metadata.getElementsKeys();
-  const templateKeys = state.metadata.getTemplateElementsKeys();
-  const collect = (elements: any) => {
-    if (!Array.isArray(elements)) return;
-    elements.forEach((el: any) => {
-      if (!el || typeof el !== "object") return;
-      if (isNonEmptyString(el.name)) res.set(el.name, true);
-      elementsKeys.forEach(key => collect(el[key]));
-      templateKeys.forEach(key => collect(el[key]));
-    });
-  };
-  collect(def.elementsJSON);
+  forEachComponentElement(state.metadata, def.elementsJSON, "", el => {
+    if (isNonEmptyString(el.name)) res.set(el.name, true);
+  });
   state.componentFields.set(def, res);
   return res;
 }
@@ -218,28 +232,63 @@ function getElementsArray(state: WalkState, json: any): { key: string, elements:
   return getArrayByKeys(json, state.metadata.getElementsKeys());
 }
 
+// dataScope is the object the elements write into: the survey data, a record (a dynamic-panel template,
+// a matrix detail panel) or a nesting container's object.
 function walkElementsArray(state: WalkState, elements: Array<any>, basePath: string,
   parent: ElementRecord, scope: Array<ScopeFrame>, ancestorPanels: Array<ElementRecord>,
-  container: ContainerRecord): void {
+  container: ContainerRecord, dataScope: DataScopeRecord): void {
   elements.forEach((element: any, i: number) => {
     if (!element || typeof element !== "object" || Array.isArray(element)) return;
     const path = basePath + "[" + i + "]";
     const type = (element.type || "").toLowerCase();
     const record = isPanel(type)
-      ? walkPanel(state, element, path, parent, scope, ancestorPanels)
-      : walkQuestion(state, element, path, parent, scope, ancestorPanels);
+      ? walkPanel(state, element, path, parent, scope, ancestorPanels, dataScope)
+      : walkQuestion(state, element, path, parent, scope, ancestorPanels, dataScope);
     if (record && container) container.children.push(record);
   });
 }
 
+// Nested data: whether the container stores its elements' values in an object, and under which key.
+// The key rule is the runtime's (getDataNestingKey); an unnamed container nests under the name the
+// runtime generates for it. Answers the object its elements write into.
+function applyDataNesting(state: WalkState, record: ElementRecord, container: ContainerRecord,
+  names: Set<string>, dataScope: DataScopeRecord): DataScopeRecord {
+  const kind = getContainerNestingKind(container);
+  const name = record.name || generateContainerName(kind, names);
+  names.add(name);
+  const valueName = isNonEmptyString(record.json.valueName) ? record.json.valueName : "";
+  // inside a record a panel nests by its valueName only: no by-name mode lists the kind "record"
+  const keyKind: string = !!dataScope && kind === "panel" && isInsideRecordScope(dataScope) ? "record" : kind;
+  const key = !!dataScope ? getDataNestingKey(state.index.dataNesting, keyKind, valueName, name) : "";
+  if (!key) {
+    // a valueName nests unless "none" switches nesting off
+    if (valueName) state.index.nonNestingKeys.add(valueName, { container: record, why: NON_NESTING_WHY });
+    return dataScope;
+  }
+  container.dataKey = key;
+  container.dataKeySource = valueName ? "valueName" : (record.name ? "name" : "generated");
+  container.nestedScope = getChildScope(dataScope, key, record);
+  return container.nestedScope;
+}
+
+// The record of a dynamic panel or a matrix, created on first use.
+function getRecordScope(state: WalkState, owner: ElementRecord): DataScopeRecord {
+  if (!owner.recordScope) {
+    owner.recordScope = createRecordScope(owner);
+    state.index.recordScopes.push(owner.recordScope);
+  }
+  return owner.recordScope;
+}
+
 function walkPanel(state: WalkState, json: any, path: string, parent: ElementRecord,
-  scope: Array<ScopeFrame>, ancestorPanels: Array<ElementRecord>): ElementRecord {
+  scope: Array<ScopeFrame>, ancestorPanels: Array<ElementRecord>, dataScope: DataScopeRecord): ElementRecord {
   if (!guardEnter(state, json)) return undefined;
   const record: ElementRecord = {
     name: nameOf(json.name), type: (json.type || "").toLowerCase(), kind: "panel",
     path: path, json: json, parent: parent, scope: scope.slice(),
     isUnknownType: false, valueType: { shape: "none" },
     panelDescendantNames: new CIMap<ElementRecord>(),
+    dataScope: dataScope,
   };
   registerRecord(state, record, ancestorPanels);
   addSitesFromProps(state, json, path,
@@ -249,11 +298,13 @@ function walkPanel(state: WalkState, json: any, path: string, parent: ElementRec
   const container: ContainerRecord = {
     kind: "panel", record: record, name: record.name, path: path, children: [],
   };
+  record.container = container;
   state.index.containers.push(container);
+  const innerScope = applyDataNesting(state, record, container, state.panelNames, dataScope);
   const inner = getElementsArray(state, json);
   if (inner) {
     walkElementsArray(state, inner.elements, joinPath(path, inner.key), record, scope,
-      ancestorPanels.concat([record]), container);
+      ancestorPanels.concat([record]), container, innerScope);
   }
   guardLeave(state);
   return record;
@@ -294,7 +345,11 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
         columnRecord.choicesInfo = choicesInfo;
       }
       state.index.allElements.push(columnRecord);
-      if (columnRecord.name) frame.columns.add(columnRecord.name, columnRecord);
+      if (columnRecord.name) {
+        frame.columns.add(columnRecord.name, columnRecord);
+        // a cell writes into the row's record, next to the detail-panel questions
+        getRecordScope(state, record).questions.add(columnRecord.name, columnRecord);
+      }
       addSitesFromProps(state, columnJson, columnPath,
         state.metadata.getCellExpressionProps(effectiveCellType), columnRecord, rowScope);
       addTextRefsFromProps(state, columnJson, columnPath,
@@ -304,7 +359,8 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
     });
   }
   if (Array.isArray(json.detailElements)) {
-    walkElementsArray(state, json.detailElements, path + ".detailElements", record, rowScope, [], undefined);
+    walkElementsArray(state, json.detailElements, path + ".detailElements", record, rowScope, [], undefined,
+      getRecordScope(state, record));
   }
   return rowScope;
 }
@@ -340,7 +396,7 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
 }
 
 function walkQuestion(state: WalkState, json: any, path: string, parent: ElementRecord,
-  scope: Array<ScopeFrame>, ancestorPanels: Array<ElementRecord>): ElementRecord {
+  scope: Array<ScopeFrame>, ancestorPanels: Array<ElementRecord>, dataScope: DataScopeRecord): ElementRecord {
   if (!guardEnter(state, json)) return undefined;
   const type = (json.type || "").toLowerCase();
   // components is a caller-supplied plain object: guard against inherited keys
@@ -354,11 +410,13 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     componentDef: componentDef,
     valueType: getValueTypeInfo(type, json),
     choicesInfo: getChoicesInfo(json, type),
+    dataScope: dataScope,
   };
   if (componentDef && componentDef.elementsJSON) {
     record.componentFieldNames = getComponentFieldNames(state, componentDef);
   }
   registerRecord(state, record, ancestorPanels);
+  if (!!dataScope && !!record.name) dataScope.questions.add(getDataKey(record), record);
 
   // the dynamic-panel template frame is built before the expression pass because
   // templateVisibleIf is evaluated inside it (see TEMPLATE_SCOPED_PROPS)
@@ -383,7 +441,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
       json.choices.forEach((choice: any, i: number) => {
         if (!choice || typeof choice !== "object" || !Array.isArray(choice.elements)) return;
         walkElementsArray(state, choice.elements, path + ".choices[" + i + "].elements",
-          record, scope, ancestorPanels, undefined);
+          record, scope, ancestorPanels, undefined, dataScope);
       });
     }
     if (json.choicesByUrl && typeof json.choicesByUrl === "object") {
@@ -428,7 +486,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     state.index.containers.push(container);
     if (template) {
       walkElementsArray(state, template.elements, joinPath(path, template.key), record,
-        templateScope, [], container);
+        templateScope, [], container, getRecordScope(state, record));
     }
   }
   // after the matrix/panel branches: a title template scoped to a row or a panel needs the
@@ -508,7 +566,7 @@ function walkPage(state: WalkState, json: any, path: string): void {
   if (!guardEnter(state, json)) return;
   const record: ElementRecord = {
     name: nameOf(json.name), type: "page", kind: "page", path: path, json: json,
-    scope: [], isUnknownType: false, valueType: { shape: "none" },
+    scope: [], isUnknownType: false, valueType: { shape: "none" }, dataScope: state.index.rootScope,
   };
   registerRecord(state, record, []);
   addSitesFromProps(state, json, path, state.metadata.getExpressionProps("page"), record, []);
@@ -516,10 +574,12 @@ function walkPage(state: WalkState, json: any, path: string): void {
   const container: ContainerRecord = {
     kind: "page", record: record, name: record.name, path: path, children: [],
   };
+  record.container = container;
   state.index.containers.push(container);
+  const innerScope = applyDataNesting(state, record, container, state.pageNames, state.index.rootScope);
   const inner = getElementsArray(state, json);
   if (inner) {
-    walkElementsArray(state, inner.elements, joinPath(path, inner.key), record, [], [], container);
+    walkElementsArray(state, inner.elements, joinPath(path, inner.key), record, [], [], container, innerScope);
   }
   guardLeave(state);
 }
@@ -600,12 +660,36 @@ function addInArrayConditionSites(state: WalkState): void {
   }
 }
 
+// The fields come from the companion's leaves; the objects on the way to them are their prefixes,
+// one per key: no variable key holds a dot. A prefix the companion answers with a question (a
+// question and a container sharing a key, which the runtime allows) is no object.
+function snapshotDefinitionPaths(index: SurveyIndex, variablePresets: SurveyVariablePresets): void {
+  const paths = index.definitionPaths;
+  const addObject = (path: string): void => {
+    if (paths.has(path)) return;
+    const element = variablePresets.getVariableElement(path);
+    if (!!element && !element.isQuestion) paths.set(path, "object");
+  };
+  variablePresets.getVariablePaths().forEach(path => {
+    paths.set(path, "question");
+    for (let i = path.indexOf("."); i > -1; i = path.indexOf(".", i + 1)) {
+      addObject(path.substring(0, i));
+    }
+  });
+  // an object variable without a field is still one
+  variablePresets.getVariableNames().forEach(addObject);
+}
+
 export function buildIndex(json: any, options: ISurveyLintOptions, metadata: LintMetadata,
   variablePresets?: SurveyVariablePresets): SurveyIndex {
   const index: SurveyIndex = {
     json: json,
     byName: new CIMultiMap<ElementRecord>(),
     byValueName: new CIMultiMap<ElementRecord>(),
+    dataNesting: getDataNestingMode(json),
+    rootScope: createRootScope(),
+    nonNestingKeys: new CIMultiMap<NonNestingKey>(),
+    recordScopes: [],
     elementNames: new CIMultiMap<ElementRecord>(),
     calculatedValues: new CIMap(),
     calculatedValueList: [],
@@ -617,6 +701,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     namespaces: [],
     settings: resolveLintSettings(),
     definitionVariables: new CIMap<string>(),
+    definitionPaths: new CIMap<"object" | "question">(),
     findByDataName(name: string): ElementRecord | undefined {
       return this.byName.first(name) || this.byValueName.first(name);
     },
@@ -625,6 +710,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   // names costs the companion its definition model on the first ask.
   if (!!variablePresets) {
     variablePresets.getVariableNames().forEach(name => index.definitionVariables.set(name, name));
+    snapshotDefinitionPaths(index, variablePresets);
   }
   // one namespace for every page, panel and question - a dynamic-panel template shares it, the
   // way the Creator's designer keeps element names unique across the whole survey
@@ -632,6 +718,8 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   const state: WalkState = {
     index: index, options: options, metadata: metadata, visited: new WeakSet(), depth: 0,
     componentFields: new Map<IComponentDef, CIMap<boolean>>(),
+    pageNames: new Set<string>(),
+    panelNames: new Set<string>(),
   };
 
   const pages = asElementArray(json.pages);
@@ -646,7 +734,21 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
         kind: "page", path: inner.key, children: [],
       };
       index.containers.push(container);
-      walkElementsArray(state, inner.elements, inner.key, undefined, [], [], container);
+      // the survey puts root elements on a page it names "page1", which nests in the page modes
+      let dataScope = index.rootScope;
+      const key = getDataNestingKey(index.dataNesting, "page", "", "page1");
+      if (key) {
+        container.dataKey = key;
+        container.dataKeySource = "generated";
+        container.keyPath = "dataNesting";
+        const pageRecord: ElementRecord = {
+          name: key, type: "page", kind: "page", path: inner.key, json: {}, scope: [],
+          isUnknownType: false, valueType: { shape: "none" }, dataScope: index.rootScope, container: container,
+        };
+        dataScope = getChildScope(index.rootScope, key, pageRecord);
+        container.nestedScope = dataScope;
+      }
+      walkElementsArray(state, inner.elements, inner.key, undefined, [], [], container, dataScope);
     }
   }
 

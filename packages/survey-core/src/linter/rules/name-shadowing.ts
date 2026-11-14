@@ -1,22 +1,13 @@
 import { ILintRule, LintContext } from "../rule";
-import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix, stripTotalsSuffix } from "../expression-utils";
+import { isBuiltInVariable } from "../expression-utils";
 import { ElementRecord, getCapturingFrame, getEffectiveType, TriggerRecord } from "../symbols";
-import { isMatrixDropdown, isPropertyOn } from "../metadata";
-import { hasOtherItem } from "../value-types";
-import { addsItemFieldsTo, getDataKey, getDataKeyRecords, getListedRows, getSharedValueShape, getSharingRecords } from "../record-fields";
-import { ILintRelated } from "../types";
+import { addsItemFieldsTo, getDataKey, getListedRows, getSharedValueShape, getSharingRecords } from "../record-fields";
+import { isInNestedObject } from "../data-nesting";
 import { SurveyLintReasons } from "../reasons";
+import { builtInSpelling, relatedOf, reportDerivedKeyCollision } from "../name-shadowing-common";
+import { checkContainerKeys } from "../name-shadowing-containers";
 
 const reasons = SurveyLintReasons["name/shadowing"];
-
-function relatedOf(records: Array<ElementRecord>): Array<ILintRelated> {
-  return records.map(record => ({ path: record.path, elementName: record.name }));
-}
-
-function builtInSpelling(name: string): string {
-  const match = builtInVariableNames().filter(v => equalsCI(v, name));
-  return match.length > 0 ? match[0] : name;
-}
 
 // The survey answers a built-in name itself, before it looks at any value, so whatever the
 // JSON declares under that name is unreachable in expressions.
@@ -24,13 +15,19 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
   record?: ElementRecord): void {
   if (!isBuiltInVariable(name)) return;
   const owner = nameKind === "calculatedValue" ? "calculated value" : (record ? record.type : "element");
+  // nested data: a question inside a nesting container answers its own name inside the container
+  // first, and by its path everywhere; only the bare name outside the container reads the built-in
+  const dataPath = !!record && record.kind === "question" && isInNestedObject(record)
+    ? record.dataScope.path.join(".") : undefined;
+  const tail = dataPath === undefined ? "} answers the built-in value, so this one is unreachable in expressions."
+    : "} outside its container answers the built-in value - reference it there as {" + dataPath + "." + name + "}.";
   ctx.report({
     message: "The " + nameKind + " \"" + name + "\" of this " + owner +
-      " is also a built-in survey variable - {" + name +
-      "} answers the built-in value, so this one is unreachable in expressions.",
+      " is also a built-in survey variable - {" + name + tail,
     path: path,
     reason: reasons.builtInVariable,
-    messageData: { name: name, nameKind: nameKind, builtIn: builtInSpelling(name) },
+    messageData: dataPath === undefined ? { name: name, nameKind: nameKind, builtIn: builtInSpelling(name) }
+      : { name: name, nameKind: nameKind, builtIn: builtInSpelling(name), dataPath: dataPath },
     elementName: record ? record.name : name,
     elementType: record ? record.type : "calculatedvalue",
   });
@@ -68,57 +65,6 @@ function checkValueNameOverName(ctx: LintContext, record: ElementRecord): void {
     elementType: record.type,
     related: relatedOf([record].concat(shadowed)),
   });
-}
-
-// A question writes a comment when it has a comment area, and when its Other item stores the
-// text as one (storeOthersAsComment defaults to true).
-function writesComment(record: ElementRecord): boolean {
-  const json = record.json;
-  if (!json) return false;
-  if (isPropertyOn(json, "question", "showCommentArea")) return true;
-  if (json.storeOthersAsComment === false) return false;
-  return hasOtherItem(json);
-}
-
-function hasTotals(record: ElementRecord): boolean {
-  if (!isMatrixDropdown(getEffectiveType(record))) return false;
-  const columns = record.json.columns;
-  if (!Array.isArray(columns)) return false;
-  return columns.some(column => !!column && typeof column === "object" &&
-    ((!!column.totalType && column.totalType !== "none") || !!column.totalExpression));
-}
-
-// A data key the runtime derives from another one: <name>-Comment and <matrix>-total. An
-// element whose own key spells one of those overwrites it, in whichever order they are written.
-function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void {
-  if (record.kind !== "question") return;
-  const dataName = getDataKey(record);
-  const settings = ctx.index.settings;
-  const commentBase = stripCommentSuffix(dataName, settings);
-  const totalBase = stripTotalsSuffix(dataName, settings);
-  const check = (base: string, suffix: string, reason: string, owns: (rec: ElementRecord) => boolean,
-    what: string): void => {
-    if (!base) return;
-    // the questions writing the base key in the record's data scope: a question of a dynamic-panel
-    // template writes into its panel's record, one of a matrix detail panel into its row's record
-    // next to the columns, every other question into the survey data
-    const owner = getDataKeyRecords(ctx.index, getCapturingFrame(record.scope), base)
-      .filter(other => other !== record && owns(other))[0];
-    if (!owner) return;
-    ctx.report({
-      message: "The data key \"" + dataName + "\" of \"" + record.name + "\" is also the " + what +
-        " key of \"" + owner.name + "\" (its data key plus \"" + suffix +
-        "\") - one write silently overwrites the other.",
-      path: record.path,
-      reason: reason,
-      messageData: { name: record.name, dataName: dataName, base: base, suffix: suffix },
-      elementName: record.name,
-      elementType: record.type,
-      related: relatedOf([record, owner]),
-    });
-  };
-  check(commentBase, settings.commentSuffix, reasons.commentKeyCollision, writesComment, "comment");
-  check(totalBase, settings.matrixTotalsSuffix, reasons.totalKeyCollision, hasTotals, "totals");
 }
 
 // The keys a question on the data key fills with a single value: the rows of a single-choice matrix
@@ -242,10 +188,14 @@ export const nameShadowingRule: ILintRule = {
     const reportedRows = new Set<string>();
     ctx.index.allElements.forEach(record => {
       checkValueNameOverName(ctx, record);
-      checkDerivedKeyCollision(ctx, record);
+      // a data key the runtime derives from another one: <name>-Comment and <matrix>-total
+      if (record.kind === "question") {
+        reportDerivedKeyCollision(ctx, record, getDataKey(record), record.dataScope, getCapturingFrame(record.scope), record.path);
+      }
       checkDropdownRowConflict(ctx, record, reportedRows);
       checkValueShapeConflict(ctx, record);
     });
     ctx.index.triggers.forEach(trigger => checkVariableTrigger(ctx, trigger));
+    checkContainerKeys(ctx);
   },
 };

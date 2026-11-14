@@ -5,6 +5,7 @@ import { closestMatch } from "../levenshtein";
 import { didYouMean, ownerText, quoteValues } from "../message-utils";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
 import { removeFix, setFix } from "../fix-utils";
+import { isDescendantOf } from "../metadata";
 
 const reasons = SurveyLintReasons["property/invalid-value"];
 const fixReasons = SurveyLintFixReasons["property/invalid-value"];
@@ -134,9 +135,11 @@ function checkRange(ctx: LintContext, site: PropertySite): void {
 }
 
 // A dot makes the runtime read the name as a path into another key, so the flat data key the
-// author wrote can never be addressed.
+// author wrote can never be addressed. A panel's or a page's valueName is a container key, which the
+// runtime does address with its dots ({a.b.street}).
 function checkValueName(ctx: LintContext, site: PropertySite): void {
   if (site.key !== "valueName" || typeof site.value !== "string" || site.value.indexOf(".") < 0) return;
+  if (isDescendantOf(site.className, "panelbase")) return;
   // className is lower-cased by the walk; choicesByUrl.valueName names a property of each response item
   // and is read as a path on purpose
   if (site.className === "choicesbyurl") return;

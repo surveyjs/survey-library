@@ -188,6 +188,9 @@ export interface ISurveyTriggerOwner {
   setTriggerValue(name: string, value: any, isVariable: boolean): any;
   copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void;
   focusQuestion(name: string): boolean;
+  // Whether keys are only the changed keys a write of name reports when name is not a top-level key
+  // (a question inside a nesting panel or page reports its container key too).
+  isOwnValueKeys?(name: string, keys: Array<string>): boolean;
 }
 
 export class SurveyTrigger extends Trigger {
@@ -211,6 +214,12 @@ export class SurveyTrigger extends Trigger {
   }
   protected isRealExecution(): boolean {
     return true;
+  }
+  // A setvalue / copyvalue trigger does not run on a change of its own target only.
+  protected isOwnTargetKeys(setToName: string, keys: Array<string>): boolean {
+    if (keys.length === 1 && keys[0] === setToName) return true;
+    const owner = this.owner;
+    return keys.length > 1 && !!owner && typeof owner.isOwnValueKeys === "function" && owner.isOwnValueKeys(setToName, keys);
   }
   protected onSuccessExecuted(): void {
     if (!!this.owner && this.isRealExecution()) {
@@ -288,7 +297,7 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
     return !isOnNextPage && !!this.setToName;
   }
   protected canBeExecuteOnKeysChange(keys: any[]) {
-    if (keys.length === 1 && keys[0] === this.setToName) return false;
+    if (this.isOwnTargetKeys(this.setToName, keys)) return false;
     return super.canBeExecuteOnKeysChange(keys);
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
@@ -365,7 +374,7 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
     return "copyvaluetrigger";
   }
   protected canBeExecuteOnKeysChange(keys: any[]) {
-    if (keys.length === 1 && keys[0] === this.setToName) return false;
+    if (this.isOwnTargetKeys(this.setToName, keys)) return false;
     return super.canBeExecuteOnKeysChange(keys);
   }
   protected onSuccess(properties: HashTable<any>): void {

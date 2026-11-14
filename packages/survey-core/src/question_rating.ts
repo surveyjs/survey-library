@@ -647,8 +647,7 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     const prevValue = this.value;
     this.value = val;
     if (prevValue === this.value && !this.isEmpty()) {
-      const survey = this.survey as SurveyModel;
-      survey?.tryGoNextPageAutomatic(this.getValueName());
+      this.requestAutoAdvance();
     }
     this.isEnterKey = false;
   }

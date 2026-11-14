@@ -29,11 +29,11 @@ const spyValidate = (survey: SurveyModel): { [name: string]: number } => {
 };
 
 // A root data scope built over the survey, apart from the survey's own: its questions are added again from
-// the pages, its containers on the first read.
+// the pages, its containers found on a read.
 const createRootDataScope = (survey: SurveyModel): SurveyRootDataScope => {
   const root = new SurveyRootDataScope(survey, (key: string) => survey.getDataValueCore(survey.data, key));
   if (survey.isDataScopeUsed()) root.used();
-  root.rebuildRootQuestions();
+  survey.pages.forEach(page => page.questions.forEach(q => root.questionAdded(q)));
   return root;
 };
 const checkIndex = (json: any, expected: { [key: string]: Array<string> }): void => {

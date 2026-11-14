@@ -640,9 +640,6 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
-    // A valueName set while loading (fromJSON on an attached panel) sends no notification: the scope reads its
-    // key again, as it did on every read before the key was kept.
-    this.getDataScope()?.resetKey();
     this.markQuestionListDirty();
     this.onRowsChanged();
     if (this.isColumnsUpdatePending) {
@@ -849,8 +846,6 @@ export class PanelModelBase extends SurveyElement<Question>
       this.setArrayPropertyDirectly("elements", newElements, false);
       if (!!this.survey) {
         this.lifecycleCallbacks.questionTriggersChanged();
-        // The data key index keeps document order.
-        getDataScopeHost(this.survey)?.dataShapeChanged();
       }
       this.updateRows();
       this.updateVisibleIndexes();

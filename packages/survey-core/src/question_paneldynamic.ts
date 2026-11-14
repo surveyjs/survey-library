@@ -261,13 +261,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.template.selectedElementInDesign = this;
 
     this.template.addElementCallback = (element) => {
-      this.resetRecordKeyLevels();
       this.watchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();
     };
     this.template.removeElementCallback = (element) => {
-      this.resetRecordKeyLevels();
       this.unwatchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();

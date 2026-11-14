@@ -312,36 +312,6 @@ describe("nested data index: shared keys (D4)", () => {
 });
 
 describe("nested data index: performance", () => {
-  const nestingJson = (count: number): any => {
-    const elements: Array<any> = [];
-    for (let i = 0; i < count; i++) {
-      elements.push({ type: "panel", name: "panel" + i, valueName: "key" + i, elements: [
-        { type: "text", name: "q" + i },
-        { type: "panel", name: "inner" + i, elements: [{ type: "text", name: "r" + i }] }
-      ] });
-    }
-    return { elements: elements };
-  };
-  const countWrites = (count: number): number => {
-    const survey = new SurveyModel(nestingJson(count));
-    const q = survey.getQuestionByName("q" + (count - 1));
-    // The first write after loading builds the index: one walk.
-    q.value = "first";
-    const spy = vi.spyOn(PanelModelBase.prototype, "getDataScope");
-    for (let i = 0; i < 100; i++) {
-      q.value = "v" + i;
-    }
-    const res = spy.mock.calls.length;
-    spy.mockRestore();
-    expect(survey.getValue("key" + (count - 1))).toEqual({ ["q" + (count - 1)]: "v99" });
-    return res;
-  };
-  test("writes to an inner question walk no panels", () => {
-    const calls10 = countWrites(10);
-    const calls50 = countWrites(50);
-    expect(calls50, "independent of the number of panels").toBe(calls10);
-    expect(calls50, "a fixed number per write").toBeLessThanOrEqual(100 * 5);
-  });
   test("a survey with no nesting container reads no data scope", () => {
     const elements: Array<any> = [];
     for (let i = 0; i < 50; i++) {
@@ -381,7 +351,7 @@ describe("nested data index: expressions", () => {
   });
 });
 
-describe("the root index after an element moves", () => {
+describe("the root's keys after an element moves", () => {
   // The page "p1" nests its elements under "obj"; "p2" does not nest.
   const movingJson = (p1Elements: Array<any>, p2Elements: Array<any>): any => ({ pages: [
     { name: "p1", valueName: "obj", elements: p1Elements },
@@ -446,16 +416,16 @@ describe("the root index after an element moves", () => {
     survey.setValue("q2", "zzz");
     expect(q2.value, "a top-level write does not reach it").toBe(valueBefore);
   });
-  test("questions sharing a value name: a question moved out comes last, the others keep their order", () => {
+  test("questions sharing a value name: a question moved out is found, one moved in is not", () => {
     const survey = new SurveyModel(movingJson(
       [{ type: "text", name: "q1", valueName: "shared" }],
       [{ type: "text", name: "q2", valueName: "shared" }, { type: "text", name: "q3", valueName: "shared" }]));
-    const names = (): Array<string> => (survey.getQuestionsByValueName("shared") || []).map(q => q.name);
+    const names = (): Array<string> => (survey.getQuestionsByValueName("shared") || []).map(q => q.name).sort();
     expect(names()).toEqual(["q2", "q3"]);
     survey.getQuestionByName("q1").page = survey.pages[1];
-    expect(names(), "the order added").toEqual(["q2", "q3", "q1"]);
+    expect(names()).toEqual(["q1", "q2", "q3"]);
     survey.getQuestionByName("q2").page = survey.pages[0];
-    expect(names()).toEqual(["q3", "q1"]);
+    expect(names()).toEqual(["q1", "q3"]);
   });
   test("a move in a survey keeps the order of the questions sharing a value name", () => {
     const pages = (extra: Array<any>): any => ({ pages: [

@@ -5,14 +5,13 @@ import type { IExpressionVariableInfo } from "./survey";
 import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
 import { Helpers } from "./helpers";
-import { IDataScope, DataKeyIndex, DataScopeWalk, IDataScopeLookup, IndexedDataScopeLookup, WalkingDataScopeLookup,
-  getElementDataScope, isKnownDataKey } from "./data-key-index";
+import { IDataScope, IDataKeys, DataKeyIndex, getElementDataScope, isKnownDataKey } from "./data-key-index";
 import { ObjectKeyKind, asScopeObject, setObjectKey } from "./data-object-utils";
 import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
 
 // The nested-data module is split by what changes together:
 //   data-nesting-key.ts: the dataNesting rule (getDataNestingKey);
-//   data-key-index.ts: a scope's key index and the two ways a scope looks its keys up;
+//   data-key-index.ts: a scope's key index;
 //   record-key-level.ts: the static keys of the records a template builds;
 //   data-object-utils.ts: plain-object paths and the keep-empty rule;
 //   data-scope-contexts.ts / data-scope-metadata.ts: the expression contexts and the design-time chain;
@@ -29,9 +28,6 @@ export interface IPanelDataScopeOwner extends ISurveyDataElement {
 // none of them.
 export interface ISurveyDataScopeHost extends IDataScope {
   readonly dataNesting: string;
-  // The counter of data shape changes: an index built at one version is current until the counter changes.
-  getDataShapeVersion(): number;
-  dataShapeChanged(): void;
   isDataScopeUsed(): boolean;
   dataScopeUsed(): void;
   dataScopeChanged(panel?: PanelModelBase): void;
@@ -41,14 +37,11 @@ export interface ISurveyDataScopeHost extends IDataScope {
   getExpressionVariableName(name: string): string;
 }
 // The survey as the host of its data scopes, or undefined for a survey object without the members. The only
-// place that checks for them (getDataShapeVersion stands for all): a caller uses the optional chain and does
+// place that checks for them (isDataScopeUsed stands for all): a caller uses the optional chain and does
 // nothing without a host.
 export function getDataScopeHost(survey: ISurvey): ISurveyDataScopeHost {
   const host: any = survey;
-  return !!host && typeof host.getDataShapeVersion === "function" ? <ISurveyDataScopeHost>host : undefined;
-}
-function getDataShapeVersion(survey: ISurvey): number {
-  return getDataScopeHost(survey)?.getDataShapeVersion();
+  return !!host && typeof host.isDataScopeUsed === "function" ? <ISurveyDataScopeHost>host : undefined;
 }
 // The nearest active scope of an element's data, or null when its value is a key of the survey data (or of
 // a record): SurveyElement.getValueScope().
@@ -86,18 +79,6 @@ export abstract class ObjectDataScope {
   protected abstract getScopeElements(): Array<IElement>;
   // Whether the object holds this question's value (the walk reached it through panels that do not nest).
   protected abstract isScopeQuestion(q: Question): boolean;
-  // How this scope looks its keys up, picked once, on the first lookup. The default walks the elements on
-  // every read: a record item and a composite's content have no data shape version to keep an index by.
-  protected createLookup(walk: DataScopeWalk): IDataScopeLookup {
-    return new WalkingDataScopeLookup(walk);
-  }
-  private lookupValue: IDataScopeLookup;
-  private get lookup(): IDataScopeLookup {
-    if (!this.lookupValue) {
-      this.lookupValue = this.createLookup((add, withKeys) => this.walkScope(add, withKeys));
-    }
-    return this.lookupValue;
-  }
   getValue(name: string): any {
     return this.getObjectKey(this.getObject(), name);
   }
@@ -107,9 +88,12 @@ export abstract class ObjectDataScope {
   protected getObjectKey(obj: any, name: string): any {
     return !!obj ? Helpers.getUnbindValue(obj[name]) : undefined;
   }
-  // The index of this scope's keys: its questions and the active containers directly inside it.
+  // The index of this scope's keys: its questions and the active containers directly inside it. Built by a
+  // walk on every call: a caller that reads it more than once keeps it.
   public getDataKeyIndex(): DataKeyIndex {
-    return this.lookup.getIndex();
+    const res = new DataKeyIndex();
+    this.walkScope((el: ISurveyDataElement, key: string): void => res.add(key, el), true);
+    return res;
   }
   // The questions whose values this scope's object holds (directly, or through panels that do not nest)
   // and the active containers directly inside it: the one walk of a container's elements, in document order.
@@ -132,17 +116,28 @@ export abstract class ObjectDataScope {
     };
     walk(this.getScopeElements());
   }
-  // The index's elements: read them, do not change them.
+  // The index's elements, by a walk that reads no keys.
   protected getIndexElements(): Array<ISurveyDataElement> {
-    return this.lookup.getElements();
+    const res: Array<ISurveyDataElement> = [];
+    this.walkScope((el: ISurveyDataElement): void => { res.push(el); }, false);
+    return res;
   }
-  // The index's questions on a key, as a new array.
+  // The index's questions on a key, and the active scopes directly inside this one on a key: one walk that
+  // compares the keys, no hashes.
   protected getIndexQuestions(name: string, caseInsensitive?: boolean): Array<Question> {
-    return this.lookup.getQuestions(name, caseInsensitive);
+    return <Array<Question>><any>this.getIndexElementsByKey(name, caseInsensitive, true);
   }
-  // The active scopes directly inside this one on a key.
   protected getIndexScopes(name: string, caseInsensitive?: boolean): Array<PanelDataScope> {
-    return this.lookup.getScopes(name, caseInsensitive);
+    return this.getIndexElementsByKey(name, caseInsensitive, false).map(el => getElementDataScope(el));
+  }
+  private getIndexElementsByKey(name: string, caseInsensitive: boolean, isQuestion: boolean): Array<ISurveyDataElement> {
+    const res: Array<ISurveyDataElement> = [];
+    if (!name) return res;
+    const key = caseInsensitive ? name.toLowerCase() : name;
+    this.walkScope((el: ISurveyDataElement, elKey: string): void => {
+      if (!!el.isQuestion === isQuestion && !!elKey && (caseInsensitive ? elKey.toLowerCase() : elKey) === key) res.push(el);
+    }, true);
+    return res;
   }
   // The questions read their values from the stored object again; the scopes inside follow.
   public updateValuesFromData(): void {
@@ -216,27 +211,12 @@ export abstract class ObjectDataScope {
 // once it has had a key, and switching nesting on or off does not re-attach its elements.
 export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISurveyData, IObjectValueContext, IDataScope {
   private parentImpl: ISurveyImpl;
-  // The owner's key, read once per data shape version: every read and write asks for it, often more than once.
-  // It changes with the owner's valueName or name (the owner attaches again: resetKey), with where the owner
-  // is attached (resetKey too) and with the survey's dataNesting. A dataNesting change re-attaches the
-  // containers on the survey's data, not a panel inside a record, whose key follows the mode ("none" switches
-  // it off): the shape version, which the change moves, covers it.
-  private keyValue: string;
-  private keyVersion: number;
   constructor(public readonly owner: IPanelDataScopeOwner) {
     super();
   }
+  // Read live: the owner's place is stored at attach, the rest is a property read.
   public get key(): string {
-    const version = getDataShapeVersion(this.getSurvey());
-    if (this.keyValue === undefined || version === undefined || version !== this.keyVersion) {
-      this.keyValue = this.owner.getDataScopeKey();
-      this.keyVersion = version;
-    }
-    return this.keyValue;
-  }
-  // The owner was attached again: its key is read again on the next use.
-  public resetKey(): void {
-    this.keyValue = undefined;
+    return this.owner.getDataScopeKey();
   }
   public get isActive(): boolean {
     return !!this.key;
@@ -303,7 +283,7 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     if (!this.isActive) return data.setValue(name, newValue, locNotification, allowNotifyValueChanged, questionName);
     // The kind matters for an empty value only. By key: a question whose value name equals a container key
     // here (allowed at runtime, a linter error) shares the container's object and gets its rule.
-    const isContainer = Helpers.isValueEmpty(newValue) && this.getDataKeyIndex().getScopes(name).length > 0;
+    const isContainer = Helpers.isValueEmpty(newValue) && this.getIndexScopes(name).length > 0;
     this.setObjectValue(name, newValue, isContainer ? "container" : "value", locNotification, allowNotifyValueChanged, questionName);
   }
   private setObjectValue(name: string, newValue: any, kind: ObjectKeyKind, locNotification: boolean | "text", allowNotifyValueChanged: boolean, questionName: string): void {
@@ -325,7 +305,7 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
       return !!data ? data.setComment(name, newValue, locNotification) : undefined;
     }
     if (this.getComment(name) === (newValue || "")) return;
-    const question = this.getDataKeyIndex().getQuestions(name)[0];
+    const question = this.getIndexQuestions(name)[0];
     // An empty comment key is removed whatever data.keepEmptyValues says, as SurveyModel.setComment does.
     this.setObjectValue(Helpers.getCommentKey(name), newValue, "comment", locNotification, true, !!question ? question.name : undefined);
   }
@@ -350,13 +330,8 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     const data = this.parentData;
     return !!data ? data.getValue(this.key) : undefined;
   }
-  public isKnownKey(key: string): boolean {
-    return isKnownDataKey(this.getDataKeyIndex(), key);
-  }
-  // The index of this active scope's keys is built on its first read after the survey's data shape changed
-  // (SurveyModel.dataShapeChanged()): shape changes are rare, and every write reads it.
-  protected createLookup(walk: DataScopeWalk): IDataScopeLookup {
-    return new IndexedDataScopeLookup(walk, () => getDataShapeVersion(this.getSurvey()));
+  public isKnownKey(key: string, index?: IDataKeys): boolean {
+    return isKnownDataKey(index || this.getDataKeyIndex(), key);
   }
   protected getScopeElements(): Array<IElement> {
     return this.isActive ? this.owner.elements : [];

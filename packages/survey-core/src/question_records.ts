@@ -574,8 +574,10 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   }
   // Record-aware: an object judges the record it holds, and a record without one is judged by a temporary object.
   protected clearIncorrectNestedValues(): void {
-    this.clearIncorrectValuesInObjects();
-    this.recordCleanup.clearIncorrectValuesWithoutObjects();
+    this.withRecordKeyLevels((): void => {
+      this.clearIncorrectValuesInObjects();
+      this.recordCleanup.clearIncorrectValuesWithoutObjects();
+    });
   }
   protected abstract clearIncorrectValuesInObjects(): void;
   // data.keepEmptyValues: the records are added and removed, never cleared by the respondent. An empty
@@ -909,18 +911,21 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
      with the object that holds it, or with the question's templates. This is a live path - text piping
      and displayValue() call it - so nothing is built for it. values is a copy the caller owns. */
   protected getRecordsDisplayValue(keysAsText: boolean, values: Array<any>): Array<any> {
-    this.forEachStoredRecord(values.length, (index: number, item: QuestionRecordItem): void => {
+    this.withRecordKeyLevels((): void => this.forEachStoredRecord(values.length, (index: number, item: QuestionRecordItem): void => {
       const record = values[index];
       if (!!record) {
         values[index] = this.getRecordDisplayValue(keysAsText, item, record, index);
       }
-    });
+    }));
     return values;
   }
   /* The keys of the value that no question of a record stores, for every loaded record, whatever hides
      it - the page, the filter, the owner's visibility: an unknown key is a property of the value, not
      of the view. A source that pages itself checks its window. */
   protected verifyRecordsUnknownKeys(val: any, context: IVerifyDataContext): void {
+    this.withRecordKeyLevels((): void => this.verifyRecordsUnknownKeysCore(val, context));
+  }
+  private verifyRecordsUnknownKeysCore(val: any, context: IVerifyDataContext): void {
     const source = this.recordsSource;
     const level = this.getRecordKeyLevel();
     this.forEachStoredRecord(this.loadedRecordCount, (index: number, item: QuestionRecordItem): void => {
@@ -942,34 +947,25 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   }
   /* The keys of the records the template builds, when a panel of it nests: the template's questions and
      nesting panels, each panel with its own keys. undefined for flat records: their rules stay as released.
-     elements: the elements of one record's panel instead of the template's. */
+     elements: the elements of one record's panel instead of the template's. Built on every call, except
+     inside withRecordKeyLevels. */
   protected getRecordKeyLevel(elements?: Array<IElement>): RecordKeyLevel {
     const template = this.getRecordSortTemplate();
     // A record's own panel may nest where its template does not (a valueName set on a built panel).
     const own = elements || (!!template ? template.elements : undefined);
     if (!own) return undefined;
-    // Kept per elements array and data shape version: the rules read it once per key of every record. Without
-    // a survey there is no version, and it is built on every read. So is a template on no survey (a matrix's
-    // detail panel template): a valueName loaded into one of its elements (fromJSON) moves no version and
-    // reaches no template watch.
-    const isOffSurveyTemplate = !elements && !!template && !template.survey;
-    const version = !isOffSurveyTemplate ? getDataScopeHost(this.survey)?.getDataShapeVersion() : undefined;
-    const cached = !!this.recordKeyLevels ? this.recordKeyLevels.get(own) : undefined;
-    if (!!cached && version !== undefined && cached.version === version) return cached.level;
+    const levels = this.recordKeyLevels.value;
+    if (!!levels && levels.has(own)) return levels.get(own);
     const level = hasRecordDataNesting(own) ? new RecordKeyLevel(own) : undefined;
-    if (version !== undefined) {
-      if (!this.recordKeyLevels) {
-        this.recordKeyLevels = new WeakMap();
-      }
-      this.recordKeyLevels.set(own, { version: version, level: level });
-    }
+    levels?.set(own, level);
     return level;
   }
-  private recordKeyLevels: WeakMap<Array<IElement>, { version: number, level: RecordKeyLevel }>;
-  /* A template element was added, removed or changed. Not every such change moves the data shape version: a
-     template's panel cannot nest, so its valueName change does not. The template watch sees it. */
-  protected resetRecordKeyLevels(): void {
-    this.recordKeyLevels = undefined;
+  /* One operation over the records (a verification, a clean-up, a display value) builds each level once:
+     its rules read a level for every key of every record, through hooks other code calls too. The levels
+     go when the operation ends, so nothing has to tell them about a template change. */
+  private recordKeyLevels = new ValueScope<Map<Array<IElement>, RecordKeyLevel>>();
+  protected withRecordKeyLevels(run: () => void): void {
+    this.recordKeyLevels.run(this.recordKeyLevels.value || new Map(), run);
   }
   // The keys inside the nesting panels' objects of a record that no question stores.
   public getRecordNestedUnknownPaths(record: any): Array<Array<string>> {
@@ -2652,16 +2648,13 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
      panel brings its elements, and its later ones through the nested callbacks. It ends when the
      element leaves the template, and with the question. */
   private onTemplateElementPropertyChangedHandler = (element: any, options: any): void => {
-    this.resetRecordKeyLevels();
     this.onTemplateElementPropertyChanged(element, options);
   };
   private onNestedTemplateElementAdded = (element: IElement): void => {
-    this.resetRecordKeyLevels();
     this.watchRecordTemplateElement(<SurveyElement><any>element);
     this.updateRecordsBar();
   };
   private onNestedTemplateElementRemoved = (element: IElement): void => {
-    this.resetRecordKeyLevels();
     this.unwatchRecordTemplateElement(<SurveyElement><any>element);
     this.updateRecordsBar();
   };

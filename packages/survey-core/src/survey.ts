@@ -99,7 +99,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { getActiveDataScope, ISurveyDataScopeHost } from "./panel-data-scope";
-import type { DataKeyIndex, IDataScope } from "./data-key-index";
+import type { IDataKeys, IDataScope } from "./data-key-index";
 import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
 import { getQuestionByVariable, getQuestionVariableName, getExpressionVariableName, getExpressionScopePaths,
@@ -1265,7 +1265,6 @@ export class SurveyModel extends SurveyElementCore
       (value: PageModel) => {
         // The page leaves the pages now, even when doOnPageRemoved runs later
         this.containerHashesRemoved(value);
-        this.dataShapeChanged();
         this.questionTriggersChanged();
         if (!value.isReadyForClean) {
           value.isReadyForCleanChangedCallback = () => {
@@ -5039,8 +5038,8 @@ export class SurveyModel extends SurveyElementCore
   }
   // IDataScope: the root keys clearIncorrectValues(true) keeps are a scope's (an element's key, a question's
   // comment or totals key) and a calculated value that is a part of the result.
-  public isKnownKey(key: string): boolean {
-    if (this.rootDataScope.isKnownKey(key)) return true;
+  public isKnownKey(key: string, index?: IDataKeys): boolean {
+    if (this.rootDataScope.isKnownKey(key, index)) return true;
     const calcValue = this.getCalculatedValueByName(key);
     return !!calcValue && calcValue.includeIntoResult;
   }
@@ -5051,9 +5050,11 @@ export class SurveyModel extends SurveyElementCore
   private checkUnknownDataKeys(scopes: Array<IDataScope>, obj: any, context?: IVerifyDataContext, isCopy?: boolean): boolean {
     if (!Helpers.isValueObject(obj, true) || Array.isArray(obj)) return false;
     let res = false;
+    // Built once: each key reads them twice, and a scope's index is a walk.
+    const indexes = scopes.map(scope => scope.getDataKeyIndex());
     Object.keys(obj).forEach(key => {
       const inner: Array<IDataScope> = [];
-      scopes.forEach(scope => inner.push(...scope.getDataKeyIndex().getScopes(key)));
+      indexes.forEach(index => inner.push(...index.getScopes(key)));
       if (inner.length > 0) {
         if (!context && !isCopy) obj[key] = Helpers.getUnbindValue(obj[key]);
         context?.pushSegment(key);
@@ -5061,7 +5062,7 @@ export class SurveyModel extends SurveyElementCore
         context?.popSegment();
         if (isChanged && !context && Helpers.isValueEmpty(obj[key])) delete obj[key];
         res = res || isChanged;
-      } else if (!scopes.some(scope => scope.isKnownKey(key))) {
+      } else if (!scopes.some((scope, i) => scope.isKnownKey(key, indexes[i]))) {
         res = true;
         if (!!context) {
           context.addIssue("unknownProperty", key, obj[key], undefined);
@@ -5644,7 +5645,6 @@ export class SurveyModel extends SurveyElementCore
   private pageChangeFromPreviewScope = new Scope();
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview || this.isDesignMode) return;
-    this.dataShapeChanged();
     this.skippedPages = [];
     this.currentSingleElement = undefined;
     if (oldValue === "singlePage") {
@@ -7077,8 +7077,8 @@ export class SurveyModel extends SurveyElementCore
    * @see getQuestionByName
    */
   public getQuestionsByValueName(valueName: string, caseInsensitive: boolean = false): Array<Question> {
-    // The root index's questions, kept up as elements change: a hash read, the exact name first. It holds
-    // top-level keys only: an inner question's value name is no key of the survey data.
+    // The value-name hash, the exact name first. Top-level keys only: an inner question's value name is no key
+    // of the survey data.
     const index = this.getDataKeyIndex();
     let res = index.getQuestions(valueName);
     if (res.length === 0 && caseInsensitive) res = index.getQuestions(valueName, true);
@@ -7427,7 +7427,7 @@ export class SurveyModel extends SurveyElementCore
   //#region Nested data (PanelDataScope)
   // The survey is the root data scope: an element's value is a key of its value scope's data,
   // and getDataPath() gives its keys from the survey data down. A top-level question's path has one key.
-  // The root index, the data shape version and the trigger keys are the root data scope's; the expression
+  // The root's keys and the trigger keys are the root data scope's; the expression
   // variable lookup is data-scope-variables.ts.
   private rootDataScope = new SurveyRootDataScope(this, (key: string) => this.getDataValueCore(this.valuesHash, key));
   private get isDataScopeUsedValue(): boolean {
@@ -7439,13 +7439,7 @@ export class SurveyModel extends SurveyElementCore
   isDataScopeUsed(): boolean {
     return this.rootDataScope.isUsed;
   }
-  dataShapeChanged(): void {
-    this.rootDataScope.shapeChanged();
-  }
-  getDataShapeVersion(): number {
-    return this.rootDataScope.getShapeVersion();
-  }
-  public getDataKeyIndex(): DataKeyIndex {
+  public getDataKeyIndex(): IDataKeys {
     return this.rootDataScope.getDataKeyIndex();
   }
   public getDataPath(): Array<string> {
@@ -7933,7 +7927,6 @@ export class SurveyModel extends SurveyElementCore
     this.resetPropertyValue("titleIsEmpty");
     this.elementNameHashesClear();
     this.rootDataScope.clearQuestions();
-    this.dataShapeChanged();
     // A JSON without pages keeps the pages: they and their panels stay found, as when they were scanned.
     // Their questions are not, as before (the question hash was cleared here). A JSON with pages removes them.
     this.pages.forEach(page => {
@@ -8030,11 +8023,6 @@ export class SurveyModel extends SurveyElementCore
     this.isEndLoadingFromJson = "processing";
     this.onFirstPageIsStartedChanged();
     super.endLoadingFromJson();
-    // Questions are hashed while they load, before a dataNesting written after the pages applies.
-    this.dataShapeChanged();
-    if (this.isDataScopeUsedValue) {
-      this.rootDataScope.rebuildRootQuestions();
-    }
     if (this.hasCookie) {
       this.isCompletedBefore = true;
     }
@@ -8449,7 +8437,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isValueEmpty(val, false)) return false;
     if (!this.editingObj) {
       // A root container's object is removed only when it has no keys left (with the key on). A question's
-      // own object value keeps the rule below; the key tells them apart through the root index (a question
+      // own object value keeps the rule below; the key tells them apart through the root's keys (a question
       // whose value name equals a container key, allowed at runtime, shares the container's object and gets
       // its rule).
       const isContainerKept = isContainerObjectKept(this, val);
@@ -8499,7 +8487,6 @@ export class SurveyModel extends SurveyElementCore
     page.setSurveyImpl(this);
     this.elementNameAdded(page);
     this.containerContentHashesAdded(page, true);
-    this.dataShapeChanged();
     this.updateVisibleIndexes();
     if (!!this.runningPages) return;
     if (!this.isLoadingFromJson) {
@@ -8742,7 +8729,6 @@ export class SurveyModel extends SurveyElementCore
     if (!!(<Question>question).page) {
       this.questionHashesAdded(<Question>question);
     }
-    this.dataShapeChanged();
     this.questionTriggersChanged();
     if (!this.isLoadingFromJson) {
       if (!this.currentPage) {
@@ -8773,7 +8759,6 @@ export class SurveyModel extends SurveyElementCore
       question.name,
       question.getValueName()
     );
-    this.dataShapeChanged();
     this.questionTriggersChanged();
     this.updateVisibleIndexes(question.page);
     this.onQuestionRemoved.fire(this, {
@@ -8789,12 +8774,10 @@ export class SurveyModel extends SurveyElementCore
   ): any {
     this.questionHashesRemoved(<Question>question, oldName, oldValueName);
     this.questionHashesAdded(<Question>question);
-    this.dataShapeChanged();
   }
   // A panel or a page was renamed. Only an element the hash holds moves: a panel of a dynamic panel's
   // template is not added by its rename.
   elementRenamed(element: ISurveyElement, oldName: string): void {
-    this.dataShapeChanged();
     const list = this.elementNameHashes.names[oldName || ""];
     if (!list || list.indexOf(element) < 0) return;
     this.elementNameRemoved(element, oldName);
@@ -8863,7 +8846,7 @@ export class SurveyModel extends SurveyElementCore
     panels.forEach(panel => this.elementNameRemoved(panel, panel.name));
     container.questions.forEach(q => this.questionHashesRemoved(q, q.name, q.getValueName()));
   }
-  // A question's name, and its value name in the root index when its value is a key of the survey data.
+  // A question's name, and its value name in the root data scope's hash.
   private questionHashesAdded(question: Question) {
     this.elementNameAdded(question);
     this.rootDataScope.questionAdded(question);
@@ -8909,7 +8892,6 @@ export class SurveyModel extends SurveyElementCore
       this.elementNameAdded(panel);
     }
     this.containerContentHashesAdded(<PanelModelBase>(<any>panel), hasPage);
-    this.dataShapeChanged();
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
     if (this.canFireAddElement()) {
@@ -8926,7 +8908,6 @@ export class SurveyModel extends SurveyElementCore
   }
   panelRemoved(panel: PanelModel): void {
     this.containerHashesRemoved(<PanelModelBase>(<any>panel));
-    this.dataShapeChanged();
     this.dropRemovedQuestionsWithPendingWrites();
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);

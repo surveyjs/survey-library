@@ -3,17 +3,17 @@ import { Question } from "../src/question";
 import { PanelModel } from "../src/panel";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { DataKeyIndex, IndexedDataScopeLookup, WalkingDataScopeLookup, DataScopeWalk } from "../src/data-key-index";
+import { DataKeyIndex } from "../src/data-key-index";
 import { RecordKeyLevel } from "../src/record-key-level";
 import { getValueByPath, setValueByPath } from "../src/data-object-utils";
 import { describe, test, expect } from "vitest";
 
-// The seams of the split nested-data module: the cached scope key, the cached record key levels, the two lookup
-// strategies of a scope, the root index's elements, the row value of a matrix row, and the plain-object path helpers.
+// The seams of the split nested-data module: the scope key, the record key levels, a scope's walk-built index,
+// the root's keys, the row value of a matrix row, and the plain-object path helpers.
 
 const panelOf = (survey: SurveyModel, name: string): PanelModel => <PanelModel>survey.getPanelByName(name);
 
-describe("PanelDataScope.key is cached and follows each change", () => {
+describe("PanelDataScope.key follows each change", () => {
   test("the owner's valueName", () => {
     const survey = new SurveyModel({ elements: [{ type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] }] });
     const panel = panelOf(survey, "p1");
@@ -45,7 +45,7 @@ describe("PanelDataScope.key is cached and follows each change", () => {
     expect(innerScope.key, "#2").toBe("address");
     survey.dataNesting = "none";
     expect(scope.key, "#3").toBe("");
-    // A panel inside a record is not attached again: the data shape version tells its scope.
+    // A panel inside a record is not attached again: its scope reads the mode with the key.
     expect(innerScope.key, "#4").toBe("");
     survey.dataNesting = "auto";
     expect(innerScope.key, "#5").toBe("address");
@@ -64,82 +64,83 @@ describe("PanelDataScope.key is cached and follows each change", () => {
     expect(scope.key, "#2").toBe("");
     expect(panel.getDataScope(), "#3").toBeNull();
   });
-  test("a valueName loaded into an attached panel (fromJSON) sends no notification: the load end resets the key", () => {
+  test("a valueName loaded into an attached panel (fromJSON) sends no notification: the key follows it", () => {
     const survey = new SurveyModel({ elements: [{ type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] }] });
     const panel = panelOf(survey, "p1");
     const scope = panel.getDataScope();
     expect(scope.key, "#1").toBe("a");
-    const version = survey.getDataShapeVersion();
     panel.fromJSON({ valueName: "b" });
-    expect(survey.getDataShapeVersion(), "#2").toBe(version);
-    expect(scope.key, "#3").toBe("b");
+    expect(scope.key, "#2").toBe("b");
     survey.getQuestionByName("q1").value = 1;
-    expect(survey.data, "#4").toEqual({ b: { q1: 1 } });
+    expect(survey.data, "#3").toEqual({ b: { q1: 1 } });
   });
-  test("detached without a data shape change: the attach resets the key", () => {
+  test("a detached panel's scope has no key", () => {
     const survey = new SurveyModel({ elements: [{ type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] }] });
     const panel = panelOf(survey, "p1");
     const scope = panel.getDataScope();
     expect(scope.key, "#1").toBe("a");
-    const version = survey.getDataShapeVersion();
     panel.setSurveyImpl(undefined);
-    expect(survey.getDataShapeVersion(), "#2").toBe(version);
-    expect(scope.key, "#3").toBe("");
+    expect(scope.key, "#2").toBe("");
   });
 });
 
-describe("the records question keeps its RecordKeyLevel", () => {
+describe("a records question's RecordKeyLevel", () => {
   const pdJson = { elements: [{ type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
     { type: "text", name: "title" },
     { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }] }] };
   const levelOf = (q: Question, elements?: Array<any>): RecordKeyLevel => (<any>q).getRecordKeyLevel(elements);
-  test("one instance at one data shape version; a template change gives a new one", () => {
+  test("a template change: the level sees an added question and a template panel's valueName", () => {
     const survey = new SurveyModel(pdJson);
     const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
-    const level = levelOf(pd);
-    expect(level, "#1").toBeInstanceOf(RecordKeyLevel);
-    expect(levelOf(pd), "#2 the same version").toBe(level);
+    expect(levelOf(pd), "#1").toBeInstanceOf(RecordKeyLevel);
     pd.template.addNewQuestion("text", "q2");
-    const level2 = levelOf(pd);
-    expect(level2, "#3 an element added").not.toBe(level);
-    expect(level2.getQuestion("q2"), "#4").toBeTruthy();
-    // The template's panel does not nest itself, so its valueName change moves no data shape version: the template
-    // watch drops the level.
-    const version = survey.getDataShapeVersion();
+    expect(levelOf(pd).getQuestion("q2"), "#2 an element added").toBeTruthy();
+    // The template's panel does not nest itself: its valueName change re-attaches nothing.
     (<PanelModel>pd.template.getElementByName("p1")).valueName = "addr";
-    expect(survey.getDataShapeVersion(), "#5").toBe(version);
-    const level3 = levelOf(pd);
-    expect(level3, "#6 a template panel's valueName").not.toBe(level2);
-    expect(level3.getLevels("addr"), "#7").toHaveLength(1);
-    expect(level3.getLevels("address"), "#8").toHaveLength(0);
+    expect(levelOf(pd).getLevels("addr"), "#3 a template panel's valueName").toHaveLength(1);
+    expect(levelOf(pd).getLevels("address"), "#4").toHaveLength(0);
+    expect(pd.getRecordNestedUnknownPaths({ addr: { street: "s", foo: 1 } }), "#5").toEqual([["addr", "foo"]]);
   });
-  test("a record's own panel has its own level, kept per elements array", () => {
+  test("a record's own panel has its own level; none once no panel nests", () => {
     const survey = new SurveyModel(pdJson);
     const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
     const elements = pd.panels[0].elements;
-    const level = levelOf(pd, elements);
-    expect(level, "#1").not.toBe(levelOf(pd));
-    expect(levelOf(pd, elements), "#2").toBe(level);
+    expect(levelOf(pd, elements), "#1").toBeInstanceOf(RecordKeyLevel);
+    expect(levelOf(pd, elements), "#2").not.toBe(levelOf(pd));
     survey.dataNesting = "none";
     expect(levelOf(pd, elements), "#3 no panel nests").toBeUndefined();
   });
-  test("a matrix's detail panel template is on no survey: its level is built on every read", () => {
+  test("a matrix's detail panel template is on no survey: its level sees an added question and a valueName loaded through fromJSON", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "rows", rowCount: 1, detailPanelMode: "underRow",
       columns: [{ name: "col1", cellType: "text" }],
       detailElements: [{ type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("rows");
     expect(matrix.detailPanel.survey, "#1").toBeFalsy();
-    expect(levelOf(matrix), "#2 no version to keep it by").not.toBe(levelOf(matrix));
-    const version = survey.getDataShapeVersion();
     (<PanelModel>matrix.detailPanel.getElementByName("p1")).addNewQuestion("text", "zip");
-    expect(survey.getDataShapeVersion(), "#3").toBe(version);
-    expect(levelOf(matrix).getLevels("address")[0].getQuestion("zip"), "#4").toBeTruthy();
-    // A valueName loaded into a template element sends no notification and moves no version.
+    expect(levelOf(matrix).getLevels("address")[0].getQuestion("zip"), "#2").toBeTruthy();
+    // A valueName loaded into a template element sends no notification.
     (<Question>matrix.detailPanel.getQuestionByName("street")).fromJSON({ valueName: "st" });
-    expect(survey.getDataShapeVersion(), "#5").toBe(version);
-    expect(matrix.getRecordNestedUnknownPaths({ address: { st: "x", street: "y" } }), "#6").toEqual([["address", "street"]]);
+    expect(matrix.getRecordNestedUnknownPaths({ address: { st: "x", street: "y" } }), "#3").toEqual([["address", "street"]]);
     matrix.detailPanelMode = "none";
-    expect(levelOf(matrix), "#7 no detail panel").toBeUndefined();
+    expect(levelOf(matrix), "#4 no detail panel").toBeUndefined();
+  });
+  test("one operation over the records builds each level once; outside one it is built on every read", () => {
+    const survey = new SurveyModel(pdJson);
+    const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
+    const elements = pd.panels[0].elements;
+    const inside: Array<RecordKeyLevel> = [];
+    (<any>pd).withRecordKeyLevels(() => {
+      inside.push(levelOf(pd), levelOf(pd), levelOf(pd, elements));
+      (<any>pd).withRecordKeyLevels(() => inside.push(levelOf(pd)));
+      inside.push(levelOf(pd, elements));
+    });
+    // toBe on these objects: a failed match prints the levels' elements, which reach the survey.
+    expect(inside[1] === inside[0], "#1 the template's").toBe(true);
+    expect(inside[3] === inside[0], "#2 a nested operation keeps the outer one's").toBe(true);
+    expect(inside[4] === inside[2], "#3 a record panel's").toBe(true);
+    expect(inside[2] === inside[0], "#4").toBe(false);
+    expect(levelOf(pd) === inside[0], "#5 the operation ended").toBe(false);
+    expect(levelOf(pd) === levelOf(pd), "#6").toBe(false);
   });
   test("the unknown keys inside a record's object come with their values", () => {
     const survey = new SurveyModel(pdJson);
@@ -162,73 +163,37 @@ describe("the records question keeps its RecordKeyLevel", () => {
   });
 });
 
-describe("the two lookup strategies of a scope", () => {
-  // A walk over a fixed list of elements: a question and a container, with their keys.
-  const createWalk = (counter: { walks: number }): DataScopeWalk => {
-    const question: any = { isQuestion: true, getValueName: () => "Street" };
-    const container: any = { isQuestion: false, getDataScope: () => "scope-of-address" };
-    return (add, withKeys) => {
-      counter.walks++;
-      add(question, withKeys ? "Street" : undefined);
-      add(container, withKeys ? "address" : undefined);
-    };
-  };
-  test("the walking one walks on every read", () => {
-    const counter = { walks: 0 };
-    const lookup = new WalkingDataScopeLookup(createWalk(counter));
-    expect(lookup.getElements(), "#1").toHaveLength(2);
-    expect(lookup.getQuestions("street", true), "#2").toHaveLength(1);
-    expect(lookup.getQuestions("street"), "#3 exact").toHaveLength(0);
-    expect(<any>lookup.getScopes("ADDRESS", true), "#4").toEqual(["scope-of-address"]);
-    expect(lookup.getIndex(), "#5 a new index").not.toBe(lookup.getIndex());
-    expect(counter.walks, "#6").toBe(6);
-  });
-  test("the indexed one keeps its index per version, and builds it on every read without one", () => {
-    const counter = { walks: 0 };
-    let version: number = 1;
-    const lookup = new IndexedDataScopeLookup(createWalk(counter), () => version);
-    const index = lookup.getIndex();
-    expect(lookup.getElements(), "#1").toBe(index.elements);
-    expect(lookup.getQuestions("street", true), "#2").toHaveLength(1);
-    expect(lookup.getQuestions("Street"), "#3 a new array").not.toBe(index.getQuestions("Street"));
-    expect(<any>lookup.getScopes("address"), "#4").toEqual(["scope-of-address"]);
-    expect(counter.walks, "#5").toBe(1);
-    version = 2;
-    expect(lookup.getIndex(), "#6").not.toBe(index);
-    version = undefined;
-    lookup.getIndex();
-    lookup.getIndex();
-    expect(counter.walks, "#7").toBe(4);
-  });
-  test("a nesting panel's scope reads a cached index; a record item walks", () => {
+describe("a scope's index is built by a walk", () => {
+  test("a nesting panel's scope and a record item build it on every read", () => {
     const survey = new SurveyModel({ elements: [
       { type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] },
       { type: "paneldynamic", name: "items", panelCount: 1, templateElements: [{ type: "text", name: "t1" }] }] });
     const scope = panelOf(survey, "p1").getDataScope();
-    expect(scope.getDataKeyIndex(), "#1").toBe(scope.getDataKeyIndex());
+    expect(scope.getDataKeyIndex() === scope.getDataKeyIndex(), "#1").toBe(false);
+    expect(scope.getDataKeyIndex().getQuestions("Q1", true).map(q => q.name), "#2").toEqual(["q1"]);
     const item = (<any>survey.getQuestionByName("items")).panels[0].data;
-    expect(item.getDataKeyIndex(), "#2").not.toBe(item.getDataKeyIndex());
-    expect(item.getQuestionsByValueName("t1"), "#3").toHaveLength(1);
+    expect(item.getDataKeyIndex() === item.getDataKeyIndex(), "#3").toBe(false);
+    expect(item.getQuestionsByValueName("t1"), "#4").toHaveLength(1);
   });
 });
 
-describe("the survey's root index holds its elements too", () => {
-  test("top-level questions and root containers, added and removed with them", () => {
+describe("the survey's root keys", () => {
+  test("top-level questions and root containers, after a removal and key changes", () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "q1" },
       { type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q2" }] },
       { type: "panel", name: "p2", elements: [{ type: "text", name: "q3" }] }] });
-    const names = (): Array<string> => survey.getDataKeyIndex().elements.map(el => (<any>el).name).sort();
-    expect(names(), "#1").toEqual(["p1", "q1", "q3"]);
+    const keys = (key: string): Array<string> => survey.getDataKeyIndex().getElements(key).map(el => (<any>el).name);
+    expect([keys("q1"), keys("a"), keys("q2"), keys("q3")], "#1").toEqual([["q1"], ["p1"], [], ["q3"]]);
     survey.pages[0].removeElement(survey.getQuestionByName("q1"));
-    expect(names(), "#2").toEqual(["p1", "q3"]);
+    expect(keys("q1"), "#2").toEqual([]);
     panelOf(survey, "p1").valueName = "";
-    expect(names(), "#3 p1 no longer nests").toEqual(["q2", "q3"]);
+    expect([keys("a"), keys("q2")], "#3 p1 no longer nests").toEqual([[], ["q2"]]);
     panelOf(survey, "p2").valueName = "b";
-    expect(names(), "#4").toEqual(["p2", "q2"]);
+    expect([keys("b"), keys("q3")], "#4").toEqual([["p2"], []]);
     survey.getQuestionByName("q2").valueName = "q2v";
-    expect(survey.getDataKeyIndex().getQuestions("q2v").map(q => q.name), "#5").toEqual(["q2"]);
-    expect(names(), "#6 once").toEqual(["p2", "q2"]);
+    expect([keys("q2v"), keys("q2")], "#5").toEqual([["q2"], []]);
+    expect(survey.getQuestionByValueName("Q2V", true).name, "#6").toBe("q2");
   });
   test("DataKeyIndex: an element is in elements once, with or without its keys", () => {
     const index = new DataKeyIndex();
@@ -238,16 +203,7 @@ describe("the survey's root index holds its elements too", () => {
     index.add("x", q);
     index.add("y", c);
     expect(index.elements, "#1").toEqual([q, c]);
-    index.remove("z", q);
-    expect(index.elements, "#2 not under z").toEqual([q, c]);
-    index.clearQuestions();
-    expect(index.elements, "#3").toEqual([c]);
-    index.add("x", q);
-    index.clearContainers();
-    expect(index.elements, "#4").toEqual([q]);
-    index.remove("x", q);
-    expect(index.elements, "#5").toEqual([]);
-    expect(index.getQuestions("x"), "#6").toHaveLength(0);
+    expect(index.getElements("X", true), "#2").toEqual([q]);
   });
 });
 

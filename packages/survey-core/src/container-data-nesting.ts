@@ -72,8 +72,6 @@ export class ContainerDataNesting {
   }
   // The survey impl the container's elements get: its scope when it nests, else value.
   public attach(value: ISurveyImpl): ISurveyImpl {
-    // The place, the survey, the valueName or the name may have changed: the scope reads its key again.
-    this.scope?.resetKey();
     this.place = ContainerDataNesting.getPlace(this.container);
     this.isUsed = !!value && this.canAttach(value);
     if (this.isUsed && !this.scope) {
@@ -104,7 +102,6 @@ export class ContainerDataNesting {
       host?.dataScopeChanged(this.container);
     } else if (prevKey !== this.attachedKey) {
       // The survey's indexes do not hold a record's questions: they read the record again.
-      host?.dataShapeChanged();
       record.updateValuesFromData();
     }
   }

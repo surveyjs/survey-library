@@ -5,7 +5,8 @@ import { ValueGetter } from "./conditions/conditionProcessValue";
 import { Helpers, HashTable } from "./helpers";
 import type { PanelDataScope } from "./panel-data-scope";
 import { getRecordDataScope } from "./panel-data-scope";
-import { DataKeyIndex, IDataScope, getElementDataScope, isKnownDataKey } from "./data-key-index";
+import type { ISurveyDataElement } from "./base-interfaces";
+import { DataKeyHash, DataKeyIndex, IDataKeys, IDataScope, getElementDataScope, isKnownDataKey } from "./data-key-index";
 import { asScopeObject } from "./data-object-utils";
 
 // One write of a survey data key, created where the value is written and passed down the write's steps
@@ -31,51 +32,28 @@ export interface ISurveyRootDataScopeHost extends IDataScope {
   getValueGetterContext(): IValueGetterContext;
 }
 
-// The survey's part of nested data: the root data-key index (top-level questions and root containers), the
-// data shape version, the root containers by key and by path, and the keys a write of a container key
-// changes for triggers and conditions. The survey owns one and delegates to it; it reaches the survey only
-// through the host.
-export class SurveyRootDataScope {
-  // One counter for every survey: a panel moved to another survey must not find its index current there.
-  private static shapeVersionCounter: number = 0;
-  private isUsedValue: boolean = false;
-  private shapeVersion: number = ++SurveyRootDataScope.shapeVersionCounter;
-  // The root index. Its questions are kept up as elements are added, removed and renamed (questionAdded /
-  // questionRemoved), in the order added, as the value-name hash was. A removal also takes the question out of
-  // the index's elements (an indexOf and a splice), so removing a whole page is quadratic in its questions:
-  // measured, 5,000 cost 32 ms instead of 24, 20,000 cost 356 ms instead of 75. Once a container nests, the
-  // whole index follows the data shape on its first read after a change: the questions are synced
-  // (syncRootQuestions) and the root containers (the active scopes not inside another one) are added again.
-  private index = new DataKeyIndex();
-  private indexVersion: number;
-  // getStoredValue: a root key's stored value, without the copy the survey's getValue makes.
-  constructor(private host: ISurveyRootDataScopeHost, private getStoredValue: (key: string) => any) { }
-
-  // Whether a container of this survey has nested once: the records skip their nesting walks until then.
-  public get isUsed(): boolean {
-    return this.isUsedValue;
+// The root's keys for one read: the survey's questions whose value is a key of the survey data, and the
+// root containers (the active scopes not inside another one). The containers are found by a walk of the
+// pages on the first read that needs them; it stops at the first active scope on each branch. Before a
+// container has nested, the hash is the root as it is.
+class RootDataKeys implements IDataKeys {
+  private containers: DataKeyIndex;
+  constructor(private host: ISurveyRootDataScopeHost, private questions: DataKeyHash, private isUsed: boolean) { }
+  public getQuestions(key: string, caseInsensitive?: boolean): Array<Question> {
+    const list = <Array<Question>><any>this.questions.get(key, caseInsensitive);
+    return this.isUsed ? list.filter(q => q.getValueScope() === <IDataScope>this.host) : list;
   }
-  public used(): void {
-    if (this.isUsedValue) return;
-    this.isUsedValue = true;
-    this.shapeChanged();
+  public getScopes(key: string, caseInsensitive?: boolean): Array<PanelDataScope> {
+    return this.isUsed ? this.getContainers().getScopes(key, caseInsensitive) : [];
   }
-  // The scopes' indexes (PanelDataScope.getDataKeyIndex()) and the root's containers are built, and the root's
-  // questions synced, on their first read after the data shape changed: an element added, removed, moved or
-  // renamed, a container key or dataNesting changed, a survey loaded. Shape changes are rare; a write reads
-  // the index.
-  public shapeChanged(): void {
-    this.shapeVersion = ++SurveyRootDataScope.shapeVersionCounter;
+  public getElements(key: string, caseInsensitive?: boolean): Array<ISurveyDataElement> {
+    const questions: Array<ISurveyDataElement> = this.getQuestions(key, caseInsensitive);
+    const containers = this.isUsed ? this.getContainers().getElements(key, caseInsensitive) : [];
+    return containers.length === 0 ? questions : questions.concat(containers);
   }
-  public getShapeVersion(): number {
-    return this.shapeVersion;
-  }
-  public getDataKeyIndex(): DataKeyIndex {
-    if (this.isUsedValue && this.indexVersion !== this.shapeVersion) {
-      this.indexVersion = this.shapeVersion;
-      this.syncRootQuestions();
-      const index = this.index;
-      index.clearContainers();
+  private getContainers(): DataKeyIndex {
+    if (!this.containers) {
+      const index = new DataKeyIndex();
       const collect = (panel: PanelModelBase): void => {
         const scope = panel.getDataScope();
         if (!!scope && scope.isActive) {
@@ -85,64 +63,64 @@ export class SurveyRootDataScope {
         panel.elements.forEach(el => el.isPanel && collect(<PanelModelBase><any>el));
       };
       this.host.pages.forEach(page => collect(page));
+      this.containers = index;
     }
-    return this.index;
+    return this.containers;
+  }
+}
+
+// The survey's part of nested data: the root's keys (top-level questions and root containers), the root
+// containers by key and by path, and the keys a write of a container key changes for triggers and
+// conditions. The survey owns one and delegates to it; it reaches the survey only through the host.
+export class SurveyRootDataScope {
+  private isUsedValue: boolean = false;
+  // The survey's questions by value name, kept up as they are added, removed and renamed, in the order added:
+  // the value-name hash. Whether a question is top-level is checked when it is read, so a move, a container
+  // key or a dataNesting change has nothing to update here.
+  private questions = new DataKeyHash();
+  // getStoredValue: a root key's stored value, without the copy the survey's getValue makes.
+  constructor(private host: ISurveyRootDataScopeHost, private getStoredValue: (key: string) => any) { }
+
+  // Whether a container of this survey has nested once: the records skip their nesting walks until then.
+  public get isUsed(): boolean {
+    return this.isUsedValue;
+  }
+  public used(): void {
+    this.isUsedValue = true;
+  }
+  // Read anew on every call: a caller that reads it more than once keeps it.
+  public getDataKeyIndex(): IDataKeys {
+    return new RootDataKeys(this.host, this.questions, this.isUsedValue);
   }
   // The root's part of the unknown-key rule: an element's key, a question's comment or totals key.
-  public isKnownKey(key: string): boolean {
-    return isKnownDataKey(this.getDataKeyIndex(), key);
+  public isKnownKey(key: string, index?: IDataKeys): boolean {
+    return isKnownDataKey(index || this.getDataKeyIndex(), key);
   }
-  // A question's value name, when its value is a key of the survey data. A question without a value name is not
-  // indexed: no key of the data is its.
+  // A question without a value name is not hashed: no key of the data is its.
   public questionAdded(question: Question): void {
     const valueName = question.getValueName();
-    if (!!valueName && this.isRoot(question)) {
-      this.index.add(valueName, question);
+    if (!!valueName) {
+      this.questions.add(valueName, question);
     }
   }
   public questionRemoved(valueName: string, question: Question): void {
     if (!!valueName) {
-      this.index.remove(valueName, question);
+      this.questions.remove(valueName, question);
     }
   }
   public clearQuestions(): void {
-    this.index.clearQuestions();
-  }
-  // A container key or dataNesting changed which questions are top-level: they are added again, in document order.
-  public rebuildRootQuestions(): void {
-    this.index.clearQuestions();
-    this.host.pages.forEach(page => page.questions.forEach(q => this.questionAdded(q)));
-  }
-  // An element moved with `page = otherPage` sends no add or remove notification, yet a nesting page it leaves or
-  // enters changes whether its questions are top-level. Each page question is added when it became top-level
-  // and removed when it no longer is; the others keep their place, so the order added stays. A question the
-  // pages do not hold (a dynamic panel's template) is left as the incremental path put it. A move and its
-  // reverse between two reads leave a question where it was; with a read between them, it comes last.
-  private syncRootQuestions(): void {
-    const index = this.index;
-    this.host.pages.forEach(page => page.questions.forEach(q => {
-      const valueName = q.getValueName();
-      if (!valueName) return;
-      const isIn = index.getQuestions(valueName).indexOf(q) > -1;
-      const isRoot = this.isRoot(q);
-      if (isRoot && !isIn) index.add(valueName, q);
-      if (!isRoot && isIn) index.remove(valueName, q);
-    }));
+    this.questions = new DataKeyHash();
   }
   private isRoot(question: Question): boolean {
     return question.getValueScope() === <IDataScope>this.host;
   }
   // A container's key or the survey's dataNesting (no panel) changed: the containers whose key changed
-  // re-attach their elements, and the root index's questions and the values of the questions follow.
-  // The data does not move.
+  // re-attach their elements, and the values of the questions follow. The data does not move.
   public dataScopeChanged(panel?: PanelModelBase): void {
     if (!panel) {
       this.updateDataScopeAttachments();
     }
-    this.shapeChanged();
-    if (!this.isUsedValue) return;
-    this.rebuildRootQuestions();
-    if (this.host.isLoadingFromJson) return;
+    if (!this.isUsedValue || this.host.isLoadingFromJson) return;
     const questions = !!panel ? panel.questions : this.host.getAllQuestions();
     questions.forEach(q => {
       const data = q.getValueScope();

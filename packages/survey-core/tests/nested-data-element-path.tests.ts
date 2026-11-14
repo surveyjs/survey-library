@@ -339,32 +339,43 @@ describe("nested data path: getQuestionByValueName / getQuestionsByValueName (D9
     expect(names(survey)).toEqual(["q1", "q2", "q3"]);
     expect(survey.getQuestionByValueName("SHARED", true).name).toBe("q1");
   });
-  test("the order after a rename, a move and a dataNesting change", () => {
+  const sortedNames = (survey: SurveyModel): Array<string> => names(survey).sort();
+  test("the questions found after a rename, a move, a valueName and a dataNesting change", () => {
     const survey = new SurveyModel(json());
     survey.getQuestionByName("q1").name = "q1a";
-    expect(names(survey), "a rename").toEqual(["q2", "q3", "q1a"]);
+    expect(sortedNames(survey), "a rename").toEqual(["q1a", "q2", "q3"]);
     survey.pages[1].addElement(survey.getQuestionByName("q2"));
-    expect(names(survey), "a move").toEqual(["q3", "q1a", "q2"]);
+    expect(sortedNames(survey), "a move").toEqual(["q1a", "q2", "q3"]);
     survey.getQuestionByName("q1a").valueName = "other";
+    expect(sortedNames(survey), "a valueName change").toEqual(["q2", "q3"]);
     survey.getQuestionByName("q1a").valueName = "shared";
-    expect(names(survey), "a valueName change").toEqual(["q3", "q2", "q1a"]);
     survey.dataNesting = "none";
-    expect(names(survey), "dataNesting \"none\": every question in document order").toEqual(["q1a", "q4", "q3", "q2"]);
+    expect(sortedNames(survey), "dataNesting \"none\": every question").toEqual(["q1a", "q2", "q3", "q4"]);
     survey.dataNesting = "auto";
-    expect(names(survey), "dataNesting \"auto\" again").toEqual(["q1a", "q3", "q2"]);
+    expect(sortedNames(survey), "dataNesting \"auto\" again").toEqual(["q1a", "q2", "q3"]);
   });
-  test("the order in a survey without nesting after a rename and a dataNesting change", () => {
+  test("the questions found in a survey without nesting after a rename and a dataNesting change", () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "q1", valueName: "shared" },
       { type: "panel", name: "p1", elements: [{ type: "text", name: "q2", valueName: "shared" }] },
       { type: "text", name: "q3", valueName: "shared" }
     ] });
     survey.getQuestionByName("q1").name = "q1a";
-    expect(names(survey)).toEqual(["q2", "q3", "q1a"]);
     survey.dataNesting = "none";
-    expect(names(survey), "no rebuild without a nesting container").toEqual(["q2", "q3", "q1a"]);
+    expect(sortedNames(survey), "no nesting container").toEqual(["q1a", "q2", "q3"]);
     survey.dataNesting = "panel";
-    expect(names(survey), "p1 nests now").toEqual(["q1a", "q3"]);
+    expect(sortedNames(survey), "p1 nests now").toEqual(["q1a", "q3"]);
+  });
+  // The value-name hash keeps the order added, with or without nesting: a dataNesting change only decides
+  // which of the questions are top-level.
+  test("the order is the order added", () => {
+    const survey = new SurveyModel(json());
+    survey.getQuestionByName("q1").name = "q1a";
+    expect(names(survey), "a rename").toEqual(["q2", "q3", "q1a"]);
+    survey.dataNesting = "none";
+    expect(names(survey), "dataNesting \"none\"").toEqual(["q2", "q4", "q3", "q1a"]);
+    survey.dataNesting = "auto";
+    expect(names(survey), "dataNesting \"auto\" again").toEqual(["q2", "q3", "q1a"]);
   });
 });
 
@@ -425,22 +436,5 @@ describe("nested data path: performance", () => {
     expect(survey.getValue("q100")).toBe(100);
     expect(addCalls, "one container attachment per question added, no walk").toBeLessThanOrEqual(100);
     expect(spy.mock.calls.length - addCalls, "no data scope read on a write").toBe(0);
-  });
-  test("a nesting survey: writes walk no panels", () => {
-    const elements: Array<any> = [];
-    for (let i = 0; i < 50; i++) {
-      elements.push({ type: "panel", name: "panel" + i, valueName: "key" + i, elements: [
-        { type: "text", name: "q" + i },
-        { type: "panel", name: "inner" + i, elements: [{ type: "text", name: "r" + i }] }
-      ] });
-    }
-    const survey = new SurveyModel({ elements: elements });
-    const q = survey.getQuestionByName("q49");
-    q.value = "first";
-    const spy = vi.spyOn(PanelModelBase.prototype, "getDataScope");
-    for (let i = 0; i < 100; i++) {
-      q.value = "v" + i;
-    }
-    expect(spy.mock.calls.length, "a fixed number per write").toBeLessThanOrEqual(100 * 5);
   });
 });

@@ -100,7 +100,7 @@ export function getExpressionScopePaths(survey: IDataScopeVariablesSurvey, conte
   return getPathPrefixes(!!scope ? scope.getDataPath() : []).map(path => <IExpressionScopePath>{ path: path });
 }
 // SurveyModel.findDataScopeValueContext: the root expression lookup (SurveyValueGetterContext), in this
-// order: the root index, a question by value name (the exact name first), then a container by key; then a
+// order: the root's keys, a question by value name (the exact name first), then a container by key; then a
 // question by name whose value scope is not the root (names are unique). A comment key
 // ({kind-Comment}) of such a question gives the comment it stores (value, no context), as a top-level
 // {q-Comment} reads the raw data key; isMetadata (getQuestionByVariable) gives the question instead, marked

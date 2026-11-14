@@ -102,6 +102,7 @@ import { getActiveDataScope, ISurveyDataScopeHost } from "./panel-data-scope";
 import type { IDataKeys, IDataScope } from "./data-key-index";
 import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
+import { ElementIndex } from "./element-index";
 import { getQuestionByVariable, getQuestionVariableName, getExpressionVariableName, getExpressionScopePaths,
   findDataScopeValueContext } from "./data-scope-variables";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
@@ -126,15 +127,16 @@ import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-inte
 
 export var DefaultTheme = DefaultLightTheme;
 
-// A hash keyed by names an author chooses (question names, value names, variable names)
+// A hash keyed by names an author chooses (value names, variable names)
 function createHash(): HashTable<any> {
   return Object.create(null);
 }
-// The kinds of the element name hash. A page is a PageModel of survey.pages, whatever its isPage says: inside
-// the single-page container a page has a parent and reports isPage: false. Only pages enter the hash as pages.
-function isQuestionInNameHash(el: Base): boolean { return el.isQuestion; }
-function isPageInNameHash(el: Base): boolean { return el instanceof PageModel; }
-function isPanelInNameHash(el: Base): boolean { return !el.isQuestion && !(el instanceof PageModel); }
+// The kinds the survey asks its element index for. A page is a PageModel of survey.pages, whatever its isPage
+// says: inside the single-page container a page has a parent and reports isPage: false. Only pages enter the
+// index as pages.
+function isQuestionKind(el: ISurveyElement): boolean { return el.isQuestion; }
+function isPageKind(el: ISurveyElement): boolean { return el instanceof PageModel; }
+function isPanelKind(el: ISurveyElement): boolean { return !el.isQuestion && !(el instanceof PageModel); }
 // Every key of the variables hash is lower-case (setVariableCore lower-cases the names), so the one
 // key that can answer a name ignoring letter case is the name's lower-case form: no key scan
 function createVariablesContext(variablesHash: HashTable<any>): VariableGetterContext {
@@ -318,6 +320,9 @@ export class SurveyModel extends SurveyElementCore
   // the hash. Reset whenever the hash gains or loses a key or is replaced.
   private valuesKeyIndex: HashKeyIndex = new HashKeyIndex();
   private variablesHash: HashTable<any> = createHash();
+  // Questions, panels and pages by name, and questions by value name (the root data scope reads those).
+  // Declared before rootDataScope, which is created with it.
+  private elementIndex = new ElementIndex();
   private editingObjValue: Base;
 
   //#region Event declarations
@@ -1264,7 +1269,7 @@ export class SurveyModel extends SurveyElementCore
       },
       (value: PageModel) => {
         // The page leaves the pages now, even when doOnPageRemoved runs later
-        this.containerHashesRemoved(value);
+        this.containerRemovedFromIndex(value);
         this.questionTriggersChanged();
         if (!value.isReadyForClean) {
           value.isReadyForCleanChangedCallback = () => {
@@ -7050,7 +7055,7 @@ export class SurveyModel extends SurveyElementCore
    * @see getQuestionByValueName
    */
   public getQuestionByName(name: string, caseInsensitive: boolean = false): Question {
-    return this.findElementInNameHash(name, caseInsensitive, true, isQuestionInNameHash);
+    return this.elementIndex.find(name, isQuestionKind, caseInsensitive, true);
   }
   findQuestionByName(name: string): IQuestion {
     return this.getQuestionByName(name);
@@ -7077,8 +7082,8 @@ export class SurveyModel extends SurveyElementCore
    * @see getQuestionByName
    */
   public getQuestionsByValueName(valueName: string, caseInsensitive: boolean = false): Array<Question> {
-    // The value-name hash, the exact name first. Top-level keys only: an inner question's value name is no key
-    // of the survey data.
+    // The exact value name first. Top-level keys only: an inner question's value name is no key of the survey
+    // data.
     const index = this.getDataKeyIndex();
     let res = index.getQuestions(valueName);
     if (res.length === 0 && caseInsensitive) res = index.getQuestions(valueName, true);
@@ -7128,7 +7133,7 @@ export class SurveyModel extends SurveyElementCore
    * @returns A page with the specified name.
    */
   public getPageByName(name: string): PageModel {
-    return this.findElementInNameHash(name, false, true, isPageInNameHash);
+    return this.elementIndex.find(name, isPageKind);
   }
   public getPagesByNames(names: string[]): PageModel[] {
     var result: PageModel[] = [];
@@ -7208,9 +7213,9 @@ export class SurveyModel extends SurveyElementCore
     name: string,
     caseInsensitive: boolean = false
   ): PanelModel {
-    // Ignoring letter case, the first matching panel in the hash wins, even when another one has the exact name.
-    // The hash keeps document order after loading, and insertion order for panels added at runtime.
-    return this.findElementInNameHash(name, caseInsensitive, false, isPanelInNameHash);
+    // Ignoring letter case, the first matching panel in the index wins, even when another one has the exact name.
+    // The index keeps document order after loading, and insertion order for panels added at runtime.
+    return this.elementIndex.find(name, isPanelKind, caseInsensitive, false);
   }
   /**
    * Returns a list of all [panels](https://surveyjs.io/form-library/documentation/api-reference/panel-model) in the survey.
@@ -7429,7 +7434,7 @@ export class SurveyModel extends SurveyElementCore
   // and getDataPath() gives its keys from the survey data down. A top-level question's path has one key.
   // The root's keys and the trigger keys are the root data scope's; the expression
   // variable lookup is data-scope-variables.ts.
-  private rootDataScope = new SurveyRootDataScope(this, (key: string) => this.getDataValueCore(this.valuesHash, key));
+  private rootDataScope = new SurveyRootDataScope(this, this.elementIndex, (key: string) => this.getDataValueCore(this.valuesHash, key));
   private get isDataScopeUsedValue(): boolean {
     return this.rootDataScope.isUsed;
   }
@@ -7925,13 +7930,13 @@ export class SurveyModel extends SurveyElementCore
     if (!json) return;
     this.resetHasLogo();
     this.resetPropertyValue("titleIsEmpty");
-    this.elementNameHashesClear();
-    this.rootDataScope.clearQuestions();
+    this.elementIndex.clear();
     // A JSON without pages keeps the pages: they and their panels stay found, as when they were scanned.
-    // Their questions are not, as before (the question hash was cleared here). A JSON with pages removes them.
+    // Their questions are not, as before: the index is cleared, and only the pages and their panels are added
+    // again. A JSON with pages removes them.
     this.pages.forEach(page => {
-      this.elementNameAdded(page);
-      this.innerPanelNamesAdded(page);
+      this.elementIndex.add(page);
+      this.innerPanelsAdded(page);
     });
     this.jsonErrors = null;
     this.sjsVersion = undefined;
@@ -8485,8 +8490,8 @@ export class SurveyModel extends SurveyElementCore
     // Named before it is attached: a by-name dataNesting mode nests the page's elements under the name.
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     page.setSurveyImpl(this);
-    this.elementNameAdded(page);
-    this.containerContentHashesAdded(page, true);
+    this.elementIndex.add(page);
+    this.containerContentAdded(page, true);
     this.updateVisibleIndexes();
     if (!!this.runningPages) return;
     if (!this.isLoadingFromJson) {
@@ -8727,7 +8732,7 @@ export class SurveyModel extends SurveyElementCore
       question.name = this.generateNewName(this.getAllQuestions(false, true), "question");
     }
     if (!!(<Question>question).page) {
-      this.questionHashesAdded(<Question>question);
+      this.elementIndex.add(question);
     }
     this.questionTriggersChanged();
     if (!this.isLoadingFromJson) {
@@ -8754,11 +8759,7 @@ export class SurveyModel extends SurveyElementCore
   }
   questionRemoved(question: Question): void {
     this.dropRemovedQuestionsWithPendingWrites();
-    this.questionHashesRemoved(
-      <Question>question,
-      question.name,
-      question.getValueName()
-    );
+    this.elementIndex.remove(question);
     this.questionTriggersChanged();
     this.updateVisibleIndexes(question.page);
     this.onQuestionRemoved.fire(this, {
@@ -8772,119 +8773,43 @@ export class SurveyModel extends SurveyElementCore
     oldName: string,
     oldValueName: string
   ): any {
-    this.questionHashesRemoved(<Question>question, oldName, oldValueName);
-    this.questionHashesAdded(<Question>question);
+    // Taken out and added again, not moved: a question the index does not hold yet (one inside a dynamic
+    // panel, which questionAdded did not add) is added by its rename, and the question goes after the others
+    // of its name, as before. The index knows the names it holds the question under.
+    this.elementIndex.remove(question);
+    this.elementIndex.add(question);
   }
-  // A panel or a page may have a new name. The hash knows the name it holds the element under: a name set
-  // while the JSON loads (in onPageAdded / onPanelAdded, or a JSON "name": "") sends no notification, so the
-  // panel reports at its load end too. Only an element the hash holds moves: a panel of a dynamic panel's
-  // template is not added by its rename.
+  // A panel or a page may have a new name: a name set while the JSON loads (in onPageAdded / onPanelAdded, or
+  // a JSON "name": "") sends no notification, so the panel reports at its load end too. Only an element the
+  // index holds moves: a panel of a dynamic panel's template is not added by its rename.
   elementRenamed(element: ISurveyElement): void {
-    const oldName = this.elementHashedNames.get(element);
-    if (oldName === undefined || oldName === (element.name || "")) return;
-    this.elementNameRemoved(element, oldName);
-    this.elementNameAdded(element);
+    this.elementIndex.renamed(element);
   }
-  // Questions, panels and pages by name, exact and lower-case. The library does not keep names unique across
-  // types (the Creator does), so an entry is an array, and each getter takes the first element of its kind.
-  // The members are those of today's lookups: the questions below, the panels getAllPanels() returns, and
-  // survey.pages. Null-prototype hashes: "constructor", "toString" or "valueOf" must not resolve to an
-  // Object.prototype member (Bug#11858).
-  private elementNameHashes = {
-    names: createHash(),
-    namesInsensitive: createHash(),
-  };
-  // The name each element is held under in elementNameHashes.
-  private elementHashedNames = new WeakMap<ISurveyElement, string>();
-  private elementNameHashesClear(): void {
-    this.elementNameHashes.names = createHash();
-    this.elementNameHashes.namesInsensitive = createHash();
-    this.elementHashedNames = new WeakMap<ISurveyElement, string>();
-  }
-  // An element without a name is kept under "" (a JSON may set "name": ""), so a later rename finds it.
-  // No getter looks a name "" up.
-  private elementNameAdded(element: ISurveyElement): void {
-    const name = element.name || "";
-    this.questionHashAddedCore(this.elementNameHashes.names, element, name);
-    this.questionHashAddedCore(this.elementNameHashes.namesInsensitive, element, name.toLowerCase());
-    this.elementHashedNames.set(element, name);
-  }
-  private elementNameRemoved(element: ISurveyElement, name: string): void {
-    name = name || "";
-    this.questionHashRemovedCore(this.elementNameHashes.names, element, name);
-    this.questionHashRemovedCore(this.elementNameHashes.namesInsensitive, element, name.toLowerCase());
-    if (this.elementHashedNames.get(element) === name) {
-      this.elementHashedNames.delete(element);
-    }
-  }
-  // exactFirst: ignoring letter case, an element with the exact name wins (questions); otherwise the first
-  // one whose lower-case name matches (panels and pages, as their scans did).
-  private findElementInNameHash(name: string, caseInsensitive: boolean, exactFirst: boolean, isKind: (el: Base) => boolean): any {
-    if (!name) return null;
-    if (!caseInsensitive || exactFirst) {
-      const res = this.findElementOfKind(this.elementNameHashes.names[name], isKind);
-      if (!!res || !caseInsensitive) return res;
-    }
-    return this.findElementOfKind(this.elementNameHashes.namesInsensitive[name.toLowerCase()], isKind);
-  }
-  private findElementOfKind(list: Array<Base>, isKind: (el: Base) => boolean): Base {
-    if (!list) return null;
-    for (let i = 0; i < list.length; i++) {
-      if (isKind(list[i])) return list[i];
-    }
-    return null;
-  }
+  // Which elements enter elementIndex is the survey's decision, made in the helpers below and the callbacks
+  // that call them: survey.pages, the panels getAllPanels() returns, the questions questionAdded reports with a
+  // page, the questions of a panel panelAdded reports (with a page or not), and any question questionRenamed
+  // reports.
+
   // The panels and questions inside a panel or a page. While the survey loads, each of them is added
   // by its own notification.
-  private containerContentHashesAdded(container: PanelModelBase, addPanels: boolean): void {
+  private containerContentAdded(container: PanelModelBase, addPanels: boolean): void {
     if (this.isLoadingFromJson) return;
     if (addPanels) {
-      this.innerPanelNamesAdded(container);
+      this.innerPanelsAdded(container);
     }
-    container.questions.forEach(q => this.questionHashesAdded(q));
+    container.questions.forEach(q => this.elementIndex.add(q));
   }
-  private innerPanelNamesAdded(container: PanelModelBase): void {
+  private innerPanelsAdded(container: PanelModelBase): void {
     const panels: Array<IPanel> = [];
     container.addPanelsIntoList(panels);
-    panels.forEach(panel => this.elementNameAdded(panel));
+    panels.forEach(panel => this.elementIndex.add(panel));
   }
-  private containerHashesRemoved(container: PanelModelBase): void {
-    this.elementNameRemoved(container, container.name);
+  private containerRemovedFromIndex(container: PanelModelBase): void {
+    this.elementIndex.remove(container);
     const panels: Array<IPanel> = [];
     container.addPanelsIntoList(panels);
-    panels.forEach(panel => this.elementNameRemoved(panel, panel.name));
-    container.questions.forEach(q => this.questionHashesRemoved(q, q.name, q.getValueName()));
-  }
-  // A question's name, and its value name in the root data scope's hash.
-  private questionHashesAdded(question: Question) {
-    this.elementNameAdded(question);
-    this.rootDataScope.questionAdded(question);
-  }
-  private questionHashesRemoved(question: Question, name: string, valueName: string) {
-    this.elementNameRemoved(question, name);
-    this.rootDataScope.questionRemoved(valueName, question);
-  }
-  private questionHashAddedCore(hash: any, question: ISurveyElement, name: string) {
-    var res = hash[name];
-    if (!!res) {
-      var res = hash[name];
-      if (res.indexOf(question) < 0) {
-        res.push(question);
-      }
-    } else {
-      hash[name] = [question];
-    }
-  }
-  private questionHashRemovedCore(hash: any, question: ISurveyElement, name: string) {
-    var res = hash[name];
-    if (!res) return;
-    var index = res.indexOf(question);
-    if (index > -1) {
-      res.splice(index, 1);
-    }
-    if (res.length == 0) {
-      delete hash[name];
-    }
+    panels.forEach(panel => this.elementIndex.remove(panel));
+    container.questions.forEach(q => this.elementIndex.remove(q));
   }
   panelAdded(panel: PanelModel, index: number, parentPanel: any, rootPanel: any): void {
     if (!panel.name) {
@@ -8898,9 +8823,9 @@ export class SurveyModel extends SurveyElementCore
     // they always were.
     const hasPage = !!panel.page;
     if (hasPage) {
-      this.elementNameAdded(panel);
+      this.elementIndex.add(panel);
     }
-    this.containerContentHashesAdded(<PanelModelBase>(<any>panel), hasPage);
+    this.containerContentAdded(<PanelModelBase>(<any>panel), hasPage);
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
     if (this.canFireAddElement()) {
@@ -8916,7 +8841,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   panelRemoved(panel: PanelModel): void {
-    this.containerHashesRemoved(<PanelModelBase>(<any>panel));
+    this.containerRemovedFromIndex(<PanelModelBase>(<any>panel));
     this.dropRemovedQuestionsWithPendingWrites();
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
@@ -8966,8 +8891,8 @@ export class SurveyModel extends SurveyElementCore
   }
   public getValueGetterContext(): IValueGetterContext {
     return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex,
-      (name: string): Base => this.findElementInNameHash(name, true, false, isPageInNameHash) ||
-        this.findElementInNameHash(name, true, false, isPanelInNameHash));
+      (name: string): Base => this.elementIndex.find(name, isPageKind, true, false) ||
+        this.elementIndex.find(name, isPanelKind, true, false));
   }
   // The stored data alone: no question, variable or calculated value answers a name, so a key that
   // holds an empty value is found and a missing key is not. The hasValue('name') expression function reads it.

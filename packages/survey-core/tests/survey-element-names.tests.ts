@@ -184,6 +184,28 @@ describe("Survey element names: one hash for questions, panels and pages", () =>
     expect(id(survey.getQuestionByName("q1Again"))).toBe(id(q1));
     expect(id(survey.getQuestionByName("newQ1"))).toBeNull();
   });
+  test("renaming a question whose valueName is a number in the JSON", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1", valueName: 5 },
+      { type: "text", name: "q2", valueName: 5 }
+    ] });
+    const q1 = survey.getQuestionByName("q1");
+    q1.name = "q3";
+    expect(id(survey.getQuestionByName("q3"))).toBe(id(q1));
+    expect(id(survey.getQuestionByName("q1"))).toBeNull();
+    expect(survey.getQuestionsByValueName("5").map(q => q.name)).toEqual(["q2", "q3"]);
+  });
+  test("a question renamed without a notification and then deleted is not found by its old name", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] });
+    const q1 = survey.getQuestionByName("q1");
+    // A name loaded into a question in place sends no notification: the index still holds it under "q1"
+    q1.fromJSON({ name: "q7" });
+    q1.delete();
+    expect(id(survey.getQuestionByName("q1"))).toBeNull();
+    expect(id(survey.getQuestionByName("q7"))).toBeNull();
+    expect(survey.getQuestionByValueName("q1")).toBeNull();
+    expect(survey.getQuestionByName("q2").name).toBe("q2");
+  });
   test("a panel renamed inside a dynamic panel's template is not found", () => {
     const survey = new SurveyModel(treeJson());
     const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");

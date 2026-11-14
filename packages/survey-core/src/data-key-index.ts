@@ -28,29 +28,29 @@ export function getElementDataScope(el: ISurveyDataElement): PanelDataScope {
 }
 
 const noElements: Array<any> = Object.freeze(<Array<any>>[]) as Array<any>;
-// Elements under their keys, exact and lower-case: one kind of a scope's index, or the survey's value-name
-// hash of its questions. Null-prototype hashes (Bug#11858).
-export class DataKeyHash {
-  private exact: HashTable<Array<ISurveyDataElement>> = Object.create(null);
-  private lower: HashTable<Array<ISurveyDataElement>> = Object.create(null);
+// Elements under their keys, exact and lower-case: one kind of a scope's index, or the names or the value
+// names of an ElementIndex. Null-prototype hashes (Bug#11858).
+export class DataKeyHash<T = ISurveyDataElement> {
+  private exact: HashTable<Array<T>> = Object.create(null);
+  private lower: HashTable<Array<T>> = Object.create(null);
   // Whether el was not under key yet.
-  public add(key: string, el: ISurveyDataElement): boolean {
+  public add(key: string, el: T): boolean {
     if (!DataKeyHash.addTo(this.exact, key, el)) return false;
     DataKeyHash.addTo(this.lower, key.toLowerCase(), el);
     return true;
   }
   // The lower-case list is left alone when el is not under the exact key: another key may differ in case only.
-  public remove(key: string, el: ISurveyDataElement): void {
+  public remove(key: string, el: T): void {
     if (DataKeyHash.removeFrom(this.exact, key, el)) {
       DataKeyHash.removeFrom(this.lower, key.toLowerCase(), el);
     }
   }
   // The list as stored, or a shared empty one: callers only read it.
-  public get(key: string, caseInsensitive?: boolean): Array<ISurveyDataElement> {
+  public get(key: string, caseInsensitive?: boolean): Array<T> {
     if (!key) return noElements;
     return (caseInsensitive ? this.lower[key.toLowerCase()] : this.exact[key]) || noElements;
   }
-  private static addTo(hash: HashTable<Array<ISurveyDataElement>>, key: string, el: ISurveyDataElement): boolean {
+  private static addTo<T>(hash: HashTable<Array<T>>, key: string, el: T): boolean {
     const list = hash[key];
     if (!list) {
       hash[key] = [el];
@@ -60,7 +60,7 @@ export class DataKeyHash {
     list.push(el);
     return true;
   }
-  private static removeFrom(hash: HashTable<Array<ISurveyDataElement>>, key: string, el: ISurveyDataElement): boolean {
+  private static removeFrom<T>(hash: HashTable<Array<T>>, key: string, el: T): boolean {
     const list = hash[key];
     const index = !!list ? list.indexOf(el) : -1;
     if (index < 0) return false;

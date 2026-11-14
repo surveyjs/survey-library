@@ -6,8 +6,9 @@ import { Helpers, HashTable } from "./helpers";
 import type { PanelDataScope } from "./panel-data-scope";
 import { getRecordDataScope } from "./panel-data-scope";
 import type { ISurveyDataElement } from "./base-interfaces";
-import { DataKeyHash, DataKeyIndex, IDataKeys, IDataScope, getElementDataScope, isKnownDataKey } from "./data-key-index";
+import { DataKeyIndex, IDataKeys, IDataScope, getElementDataScope, isKnownDataKey } from "./data-key-index";
 import { asScopeObject } from "./data-object-utils";
+import type { ElementIndex } from "./element-index";
 
 // One write of a survey data key, created where the value is written and passed down the write's steps
 // (the changing event, the validation, the triggers, the notification, auto-advance).
@@ -35,12 +36,12 @@ export interface ISurveyRootDataScopeHost extends IDataScope {
 // The root's keys for one read: the survey's questions whose value is a key of the survey data, and the
 // root containers (the active scopes not inside another one). The containers are found by a walk of the
 // pages on the first read that needs them; it stops at the first active scope on each branch. Before a
-// container has nested, the hash is the root as it is.
+// container has nested, the survey's questions by value name are the root as they are.
 class RootDataKeys implements IDataKeys {
   private containers: DataKeyIndex;
-  constructor(private host: ISurveyRootDataScopeHost, private questions: DataKeyHash, private isUsed: boolean) { }
+  constructor(private host: ISurveyRootDataScopeHost, private elements: ElementIndex, private isUsed: boolean) { }
   public getQuestions(key: string, caseInsensitive?: boolean): Array<Question> {
-    const list = <Array<Question>><any>this.questions.get(key, caseInsensitive);
+    const list = this.elements.getQuestionsByValueName(key, caseInsensitive);
     return this.isUsed ? list.filter(q => q.getValueScope() === <IDataScope>this.host) : list;
   }
   public getScopes(key: string, caseInsensitive?: boolean): Array<PanelDataScope> {
@@ -74,12 +75,11 @@ class RootDataKeys implements IDataKeys {
 // conditions. The survey owns one and delegates to it; it reaches the survey only through the host.
 export class SurveyRootDataScope {
   private isUsedValue: boolean = false;
-  // The survey's questions by value name, kept up as they are added, removed and renamed, in the order added:
-  // the value-name hash. Whether a question is top-level is checked when it is read, so a move, a container
-  // key or a dataNesting change has nothing to update here.
-  private questions = new DataKeyHash();
+  // elements: the survey's element index. Its questions by value name are every question of the survey, in the
+  // order added. Whether a question is top-level is checked when it is read, so a move, a container key or a
+  // dataNesting change has nothing to update there.
   // getStoredValue: a root key's stored value, without the copy the survey's getValue makes.
-  constructor(private host: ISurveyRootDataScopeHost, private getStoredValue: (key: string) => any) { }
+  constructor(private host: ISurveyRootDataScopeHost, private elements: ElementIndex, private getStoredValue: (key: string) => any) { }
 
   // Whether a container of this survey has nested once: the records skip their nesting walks until then.
   public get isUsed(): boolean {
@@ -90,26 +90,11 @@ export class SurveyRootDataScope {
   }
   // Read anew on every call: a caller that reads it more than once keeps it.
   public getDataKeyIndex(): IDataKeys {
-    return new RootDataKeys(this.host, this.questions, this.isUsedValue);
+    return new RootDataKeys(this.host, this.elements, this.isUsedValue);
   }
   // The root's part of the unknown-key rule: an element's key, a question's comment or totals key.
   public isKnownKey(key: string, index?: IDataKeys): boolean {
     return isKnownDataKey(index || this.getDataKeyIndex(), key);
-  }
-  // A question without a value name is not hashed: no key of the data is its.
-  public questionAdded(question: Question): void {
-    const valueName = question.getValueName();
-    if (!!valueName) {
-      this.questions.add(valueName, question);
-    }
-  }
-  public questionRemoved(valueName: string, question: Question): void {
-    if (!!valueName) {
-      this.questions.remove(valueName, question);
-    }
-  }
-  public clearQuestions(): void {
-    this.questions = new DataKeyHash();
   }
   private isRoot(question: Question): boolean {
     return question.getValueScope() === <IDataScope>this.host;

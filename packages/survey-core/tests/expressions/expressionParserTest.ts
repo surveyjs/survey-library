@@ -537,6 +537,31 @@ describe("Expressions", () => {
     (<any>values).d1 = undefined;
     expect(runner.runValues(values), "a value is undefined").toBeNull();
   });
+  test("dateAdd() returns the same date when the amount is 0, #12323", () => {
+    const d1 = new Date("2024-01-05T00:00:00");
+    const units = ["days", "months", "years", "hours", "minutes", "seconds"];
+    units.forEach(unit => {
+      expect(new ExpressionRunner("dateAdd({d1}, 0, '" + unit + "')").runValues({ d1: d1 }), "literal 0 " + unit).toEqual(d1);
+      expect(new ExpressionRunner("dateAdd({d1}, {n}, '" + unit + "')").runValues({ d1: d1, n: 0 }), "variable 0 " + unit).toEqual(d1);
+    });
+    expect(new ExpressionRunner("dateAdd({d1}, 0)").runValues({ d1: d1 }), "0 with the default interval").toEqual(d1);
+  });
+  test("dateAdd() converts a string amount to a number, #12323", () => {
+    const d1 = new Date("2024-01-05T00:00:00");
+    const values = { d1: d1, n: "2" };
+    expect(new ExpressionRunner("dateAdd({d1}, '1', 'days')").runValues(values), "'1' days").toEqual(new Date("2024-01-06T00:00:00"));
+    expect(new ExpressionRunner("dateAdd({d1}, '-1', 'days')").runValues(values), "'-1' days").toEqual(new Date("2024-01-04T00:00:00"));
+    expect(new ExpressionRunner("dateAdd({d1}, {n}, 'months')").runValues(values), "'2' months from a variable").toEqual(new Date("2024-03-05T00:00:00"));
+    expect(new ExpressionRunner("dateAdd({d1}, '1', 'years')").runValues(values), "'1' years").toEqual(new Date("2025-01-05T00:00:00"));
+    expect(new ExpressionRunner("dateAdd({d1}, '1', 'hours')").runValues(values), "'1' hours").toEqual(new Date("2024-01-05T01:00:00"));
+  });
+  test("dateAdd() returns null when the amount is empty or not a number, #12323", () => {
+    const d1 = new Date("2024-01-05T00:00:00");
+    expect(new ExpressionRunner("dateAdd({d1}, {n})").runValues({ d1: d1 }), "the amount is undefined").toBeNull();
+    expect(new ExpressionRunner("dateAdd({d1}, {n})").runValues({ d1: d1, n: null }), "the amount is null").toBeNull();
+    expect(new ExpressionRunner("dateAdd({d1}, {n})").runValues({ d1: d1, n: "" }), "the amount is an empty string").toBeNull();
+    expect(new ExpressionRunner("dateAdd({d1}, 'abc')").runValues({ d1: d1 }), "the amount is not a number").toBeNull();
+  });
   test("Run getYear() function", () => {
     var runner = new ExpressionRunner("getYear({birthday})");
     var values = { birthday: new Date(1974, 1, 1) };

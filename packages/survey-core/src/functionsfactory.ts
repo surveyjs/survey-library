@@ -762,9 +762,12 @@ FunctionFactory.Instance.register({
 });
 
 function dateAdd(params: any[]): any {
-  if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
+  if (!Array.isArray(params) || params.length < 2 || !params[0]) return null;
+  // 0 is a valid amount, so check for a number instead of a truthy value
+  // (getNumber gives NaN for an empty amount); a string amount ("1") must be added as a number, not concatenated.
+  const valToAdd = Helpers.getNumber(params[1]);
+  if (isNaN(valToAdd)) return null;
   const date = createDate("function-dateAdd", params[0]);
-  const valToAdd = params[1];
   const interval = params[2] || "days";
   if (interval === "days") {
     date.setDate(date.getDate() + valToAdd);

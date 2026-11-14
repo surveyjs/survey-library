@@ -1123,6 +1123,7 @@ export interface GetPanelFooterActionsEvent extends GetActionsEventMixin, PanelE
    */
   question?: QuestionPanelDynamicModel;
 }
+export interface GetQuestionFooterActionsEvent extends QuestionEventMixin, GetActionsEventMixin { }
 export interface GetMatrixRowActionsEvent extends QuestionEventMixin, GetActionsEventMixin {
   /**
    * A matrix row for which the event is raised.

@@ -87,7 +87,7 @@ import {
   MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent,
   DynamicPanelItemValueChangedEvent, DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent,
   DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
-  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
+  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetQuestionFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
   IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent,
@@ -1154,6 +1154,23 @@ export class SurveyModel extends SurveyElementCore
    * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetPanelFooterActions: EventBase<SurveyModel, GetPanelFooterActionsEvent> = this.addEvent<SurveyModel, GetPanelFooterActionsEvent>();
+  /**
+   * An event that allows you to add, delete, or modify actions in the footer toolbar of a question. Currently, only [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model) questions have a footer toolbar. It contains the Previous, Next, and Add Panel buttons and the progress text. Their IDs are `"sv-pd-prev-btn"`, `"sv-pd-next-btn"`, `"sv-pd-add-btn"`, and `"sv-pd-progress-text"`.
+   *
+   * The event is raised once, when the footer toolbar is created (it is created when the question is rendered for the first time). To customize actions of individual panels within a Dynamic Panel, handle the [`onGetPanelFooterActions`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetPanelFooterActions) event instead.
+   *
+   * ```js
+   * survey.onGetQuestionFooterActions.add((_, options) => {
+   *   if (options.question.name !== "vacation-info") return;
+   *   // Remove the Previous and Next buttons
+   *   options.actions = options.actions.filter(
+   *     action => action.id !== "sv-pd-prev-btn" && action.id !== "sv-pd-next-btn"
+   *   );
+   * });
+   * ```
+   * @see IAction
+   */
+  public onGetQuestionFooterActions: EventBase<SurveyModel, GetQuestionFooterActionsEvent> = this.addEvent<SurveyModel, GetQuestionFooterActionsEvent>();
   /**
    * An event that allows you to add, delete, or modify actions in rows of a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    *
@@ -6611,6 +6628,16 @@ export class SurveyModel extends SurveyElementCore
   private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown", element: ISurveyElement): void {
     if (this.onUIStateChanged.isEmpty) return;
     this.onUIStateChanged.fire(this, { changedProperty: reason, element });
+  }
+  public getUpdatedQuestionFooterActions(
+    question: IQuestion,
+    actions: Array<IAction>): Array<IAction> {
+    const options: GetQuestionFooterActionsEvent = {
+      question: <Question>question,
+      actions: actions,
+    };
+    this.onGetQuestionFooterActions.fire(this, options);
+    return options.actions;
   }
   public getUpdatedPanelFooterActions(
     panel: PanelModel,

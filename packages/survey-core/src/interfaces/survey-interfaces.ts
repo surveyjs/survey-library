@@ -57,6 +57,10 @@ export interface ISurveyTitleSettings {
     row: MatrixDropdownRowModelBase,
     actions: Array<IAction>
   ): Array<IAction>;
+  getUpdatedQuestionFooterActions(
+    question: IQuestion,
+    actions: Array<IAction>
+  ): Array<IAction>;
   getUpdatedPanelFooterActions(
     panel: PanelModel,
     actions: Array<IAction>,

@@ -136,6 +136,30 @@ describe("Survey element names: one hash for questions, panels and pages", () =>
     panel.name = "panelY";
     expect(id(survey.getPanelByName("panelY")), "renamed through an empty name").toBe(id(panel));
   });
+  test("a page and a panel renamed in onPageAdded / onPanelAdded while the JSON loads", () => {
+    const json = { pages: [{ title: "Page title", elements: [{ type: "panel", title: "Panel title", elements: [{ type: "text", name: "q1" }] }] }] };
+    const check = (survey: SurveyModel): void => {
+      const page = survey.pages[0];
+      const panel = survey.getAllPanels()[0];
+      expect(page.name).toBe("y_page1");
+      expect(panel.name).toBe("x_panel1");
+      expect(id(survey.getPageByName("y_page1"))).toBe(id(page));
+      expect(id(survey.getPanelByName("x_panel1"))).toBe(id(panel));
+      expect(id(survey.getElementByName("x_panel1"))).toBe(id(panel));
+      expect(survey.runExpression("{$x_panel1.title}")).toBe("Panel title");
+      expect(id(survey.getPageByName("page1")), "the generated name").toBeNull();
+      expect(id(survey.getPanelByName("panel1")), "the generated name").toBeNull();
+    };
+    check(new SurveyModel(json, { events: {
+      onPageAdded: (_, o) => { o.page.name = "y_" + o.page.name; },
+      onPanelAdded: (_, o) => { o.panel.name = "x_" + o.panel.name; }
+    } }));
+    const survey = new SurveyModel();
+    survey.onPageAdded.add((_, o) => { o.page.name = "y_" + o.page.name; });
+    survey.onPanelAdded.add((_, o) => { o.panel.name = "x_" + o.panel.name; });
+    survey.fromJSON(json);
+    check(survey);
+  });
   test("a duplicate inserted at runtime before an existing one: the existing one stays first", () => {
     // The hash keeps insertion order for elements added at runtime; scanning gave document order (report-12).
     const survey = new SurveyModel(treeJson());

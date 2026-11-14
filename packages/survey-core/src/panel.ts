@@ -497,7 +497,7 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
     if (name === "name" && !!this.survey) {
-      this.lifecycleCallbacks.elementRenamed(this, oldValue);
+      this.lifecycleCallbacks.elementRenamed(this);
     }
     if (name === "valueName" || name === "name") {
       this.onDataScopeKeyChanged();
@@ -633,11 +633,6 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!this.surveyImpl) return;
     this.containerNesting.updateAttachment(this.surveyImpl);
   }
-  private nameOnLoadingStart: string;
-  startLoadingFromJson(json?: any): void {
-    super.startLoadingFromJson(json);
-    this.nameOnLoadingStart = this.name;
-  }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     this.markQuestionListDirty();
@@ -645,12 +640,9 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.isColumnsUpdatePending) {
       this.updateColumns();
     }
-    // A name set while loading sends no notification: a JSON "name": "" replaces the name generated when
-    // the page or panel was added, and the survey's name hash still holds the generated one.
-    const oldName = this.nameOnLoadingStart;
-    this.nameOnLoadingStart = undefined;
-    if (oldName !== undefined && oldName !== this.name && !!this.survey) {
-      this.lifecycleCallbacks.elementRenamed(this, oldName);
+    // A name set while loading sends no notification (a JSON "name": "", or a rename in onPanelAdded)
+    if (!!this.survey) {
+      this.lifecycleCallbacks.elementRenamed(this);
     }
   }
 

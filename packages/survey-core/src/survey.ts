@@ -8775,11 +8775,13 @@ export class SurveyModel extends SurveyElementCore
     this.questionHashesRemoved(<Question>question, oldName, oldValueName);
     this.questionHashesAdded(<Question>question);
   }
-  // A panel or a page was renamed. Only an element the hash holds moves: a panel of a dynamic panel's
+  // A panel or a page may have a new name. The hash knows the name it holds the element under: a name set
+  // while the JSON loads (in onPageAdded / onPanelAdded, or a JSON "name": "") sends no notification, so the
+  // panel reports at its load end too. Only an element the hash holds moves: a panel of a dynamic panel's
   // template is not added by its rename.
-  elementRenamed(element: ISurveyElement, oldName: string): void {
-    const list = this.elementNameHashes.names[oldName || ""];
-    if (!list || list.indexOf(element) < 0) return;
+  elementRenamed(element: ISurveyElement): void {
+    const oldName = this.elementHashedNames.get(element);
+    if (oldName === undefined || oldName === (element.name || "")) return;
     this.elementNameRemoved(element, oldName);
     this.elementNameAdded(element);
   }
@@ -8792,9 +8794,12 @@ export class SurveyModel extends SurveyElementCore
     names: createHash(),
     namesInsensitive: createHash(),
   };
+  // The name each element is held under in elementNameHashes.
+  private elementHashedNames = new WeakMap<ISurveyElement, string>();
   private elementNameHashesClear(): void {
     this.elementNameHashes.names = createHash();
     this.elementNameHashes.namesInsensitive = createHash();
+    this.elementHashedNames = new WeakMap<ISurveyElement, string>();
   }
   // An element without a name is kept under "" (a JSON may set "name": ""), so a later rename finds it.
   // No getter looks a name "" up.
@@ -8802,11 +8807,15 @@ export class SurveyModel extends SurveyElementCore
     const name = element.name || "";
     this.questionHashAddedCore(this.elementNameHashes.names, element, name);
     this.questionHashAddedCore(this.elementNameHashes.namesInsensitive, element, name.toLowerCase());
+    this.elementHashedNames.set(element, name);
   }
   private elementNameRemoved(element: ISurveyElement, name: string): void {
     name = name || "";
     this.questionHashRemovedCore(this.elementNameHashes.names, element, name);
     this.questionHashRemovedCore(this.elementNameHashes.namesInsensitive, element, name.toLowerCase());
+    if (this.elementHashedNames.get(element) === name) {
+      this.elementHashedNames.delete(element);
+    }
   }
   // exactFirst: ignoring letter case, an element with the exact name wins (questions); otherwise the first
   // one whose lower-case name matches (panels and pages, as their scans did).

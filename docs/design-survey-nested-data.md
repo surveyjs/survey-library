@@ -1,6 +1,6 @@
 ---
 title: Nested Data: Store Panel and Page Values in Objects | SurveyJS Form Libraries
-description: Set a panel's or page's valueName to store its questions' values in a nested object, or use the dataNesting survey property to nest every panel and page.
+description: Set the survey's dataNesting to "auto" and a panel's or page's valueName to store its questions' values in a nested object, or use a by-name dataNesting mode to nest every panel and page.
 ---
 # Nested Data: Store Panel and Page Values in Objects
 
@@ -18,10 +18,11 @@ By default, survey results are flat: every question stores its value in a top-le
 
 ## Nest a Panel or a Page
 
-Set the `valueName` property of a panel or a page. The questions inside it store their values in an object, and `valueName` is the name of the property that holds this object:
+Set the survey's [`dataNesting`](#nest-every-panel-or-page) property to `"auto"` and the `valueName` property of a panel or a page. The questions inside the panel or page store their values in an object, and `valueName` is the name of the property that holds this object. With the default `dataNesting` (`"none"`), `valueName` does nothing:
 
 ```js
 const surveyJson = {
+  "dataNesting": "auto",
   "elements": [{
     "type": "text",
     "name": "fullName"
@@ -65,13 +66,13 @@ The `dataNesting` survey property specifies which panels and pages nest their qu
 
 | `dataNesting` | Panels nest | Pages nest |
 |---|---|---|
-| `"auto"` (default) | When `valueName` is set | When `valueName` is set |
+| `"none"` (default) | Never | Never |
+| `"auto"` | When `valueName` is set | When `valueName` is set |
 | `"panel"` | Always, under `valueName` or else under the panel's `name` | When `valueName` is set |
 | `"page"` | When `valueName` is set | Always, under `valueName` or else under the page's `name` |
 | `"panelAndPage"` | Always, under `valueName` or else under `name` | Always, under `valueName` or else under `name` |
-| `"none"` | Never | Never |
 
-`"none"` ignores every `valueName` of panels and pages: the data is flat, exactly as in earlier versions.
+`"none"` ignores every `valueName` of panels and pages: the data is flat, exactly as in earlier versions. A survey that does not set `dataNesting` uses `"none"`. In this mode, Survey Creator hides the `valueName` property of panels and pages. The property still loads and is saved in the JSON, so a survey switched to `"none"` and back keeps its keys.
 
 The following survey uses the `"panelAndPage"` mode:
 
@@ -113,6 +114,7 @@ Dynamic Panel stores each panel's values in an object of its value array, and a 
 
 ```js
 const surveyJson = {
+  "dataNesting": "auto",
   "elements": [{
     "type": "paneldynamic",
     "name": "items",
@@ -143,6 +145,7 @@ The same panel in the `detailElements` of a matrix with [`detailPanelMode`](/for
 
 ```js
 const surveyJson = {
+  "dataNesting": "auto",
   "elements": [{
     "type": "matrixdynamic",
     "name": "rows",
@@ -227,6 +230,7 @@ Expressions and text piping can reference a nested question in two ways:
 
 ```js
 const surveyJson = {
+  "dataNesting": "auto",
   "elements": [{
     "type": "panel",
     "name": "addressPanel",
@@ -252,6 +256,7 @@ A variable that your application sets with [`setVariables()`](/form-library/docu
 
 ```json
 {
+  "dataNesting": "auto",
   "elements": [{
     "type": "panel",
     "name": "user",
@@ -281,6 +286,7 @@ The [`getData({ includePages, includePanels })`](/form-library/documentation/api
 
 ```js
 const surveyJson = {
+  "dataNesting": "auto",
   "pages": [{
     "name": "page1",
     "elements": [
@@ -324,16 +330,16 @@ survey.getData({ includePanels: true });
 
 ## Compatibility
 
-- Surveys whose panels and pages have no `valueName` produce the same data as before.
-- If your application registered a custom `valueName` property for panels or pages, that property now nests the data. To keep the data flat, set `"dataNesting": "none"` in the survey JSON, or change the default once in code:
+- A survey that does not set `dataNesting` produces the same data as before, whatever its panels and pages hold. So do surveys whose panels and pages have no `valueName`.
+- If your application registered a custom `valueName` property for panels or pages, that property keeps working until the survey or the application sets a `dataNesting` mode other than `"none"`. From then on, it nests the data. An application that wants nested data in every survey can change the default once in code:
 
     ```js
     import { Serializer } from "survey-core";
 
-    Serializer.findProperty("survey", "dataNesting").defaultValue = "none";
+    Serializer.findProperty("survey", "dataNesting").defaultValue = "auto";
     ```
 
-- A survey JSON that already has a `valueName` on a panel inside Dynamic Panel or a matrix detail panel (earlier versions ignored it) now nests the panel's values in an object inside the record. Existing flat data under these questions is no longer read, and `clearIncorrectValues()` removes such flat properties. To keep the earlier shape, set `"dataNesting": "none"` or remove the `valueName`.
+- A survey JSON that already has a `valueName` on a panel inside Dynamic Panel or a matrix detail panel (earlier versions ignored it) nests the panel's values in an object inside the record once the survey sets a `dataNesting` mode other than `"none"`. Existing flat data under these questions is no longer read, and `clearIncorrectValues()` removes such flat properties. To keep the earlier shape, set `"dataNesting": "none"` or remove the `valueName`.
 - An earlier SurveyJS version does not know the `valueName` property of panels and pages and the `dataNesting` survey property. It reports them in [`jsonErrors`](/form-library/documentation/api-reference/survey-data-model#jsonErrors) and stores the data flat. Nested data loaded into an earlier version does not reach the nested questions.
 
 ## See Also

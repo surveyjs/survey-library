@@ -21,7 +21,7 @@ const offAndOn = [false, true];
 const caseName = (isKeepOn: boolean): string => isKeepOn ? "the key on" : "the key off";
 const blurText = (q: Question, text: string): void => (<QuestionTextModel>q).onBlur({ target: { value: text } });
 const getClearAction = (q: Question): IAction => <IAction>q.getTitleActions()[0];
-const inAddress = (elements: Array<any>, extra?: any): any => Object.assign({ elements: [
+const inAddress = (elements: Array<any>, extra?: any): any => Object.assign({ dataNesting: "auto", elements: [
   { type: "panel", name: "panel1", valueName: "address", elements: elements }
 ] }, extra || {});
 
@@ -67,7 +67,7 @@ describe("nested data, data.keepEmptyValues: a respondent's own clear inside a c
       expect(survey.data, "#2").toStrictEqual(isKeepOn ? { address: { c: [], d: null, r: null, b: null } } : {});
     });
     test("a container inside a container: the kept value is two levels down, " + caseName(isKeepOn), () => {
-      const survey = createSurvey({ elements: [
+      const survey = createSurvey({ dataNesting: "auto", elements: [
         { type: "panel", name: "outer", valueName: "person", elements: [
           { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }
         ] }
@@ -126,7 +126,7 @@ describe("nested data, data.keepEmptyValues: a system clear inside a container r
     expect(survey.data, "#2").toStrictEqual({ a: "hide" });
   });
   test("clearInvisibleValues: \"onHiddenContainer\" hides the container", () => {
-    const survey = createSurvey({ clearInvisibleValues: "onHiddenContainer", elements: [
+    const survey = createSurvey({ dataNesting: "auto", clearInvisibleValues: "onHiddenContainer", elements: [
       { type: "text", name: "a" },
       { type: "panel", name: "panel1", valueName: "address", visibleIf: "{a} != 'hide'", elements: [
         { type: "text", name: "street" }, { type: "text", name: "city" }
@@ -140,7 +140,7 @@ describe("nested data, data.keepEmptyValues: a system clear inside a container r
     expect(survey.data, "#2").toStrictEqual({ a: "hide" });
   });
   test("clearInvisibleValues: \"onComplete\" removes a hidden inner question's value, a visible one's kept value stays", () => {
-    const survey = createSurvey({ elements: [
+    const survey = createSurvey({ dataNesting: "auto", elements: [
       { type: "text", name: "a" },
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "text", name: "street" },
@@ -183,7 +183,7 @@ describe("nested data, data.keepEmptyValues: a system clear inside a container r
 describe("nested data, data.keepEmptyValues: K3, an object that still has keys stays", () => {
   offAndOn.forEach(isKeepOn => {
     test("a sibling's system clear leaves the object with the kept key, " + caseName(isKeepOn), () => {
-      const survey = createSurvey({ clearInvisibleValues: "onHidden", elements: [
+      const survey = createSurvey({ dataNesting: "auto", clearInvisibleValues: "onHidden", elements: [
         { type: "text", name: "a" },
         { type: "panel", name: "panel1", valueName: "address", elements: [
           { type: "text", name: "street" }, { type: "text", name: "city", visibleIf: "{a} != 'hide'" }
@@ -196,7 +196,7 @@ describe("nested data, data.keepEmptyValues: K3, an object that still has keys s
       expect(survey.data).toStrictEqual(isKeepOn ? { a: "hide", address: { street: "" } } : { a: "hide" });
     });
     test("a container inside a container: a sibling's system clear two levels down, " + caseName(isKeepOn), () => {
-      const survey = createSurvey({ clearInvisibleValues: "onHidden", elements: [
+      const survey = createSurvey({ dataNesting: "auto", clearInvisibleValues: "onHidden", elements: [
         { type: "text", name: "a" },
         { type: "panel", name: "outer", valueName: "person", elements: [
           { type: "panel", name: "inner", valueName: "address", elements: [
@@ -285,7 +285,7 @@ describe("nested data, data.keepEmptyValues: comments, hasValue, clearEmptyValue
     expect(survey.data, "#3: an answered sibling stays").toStrictEqual({ address: { city: "Oslo" } });
   });
   test("a nesting panel inside a dynamic panel item does not keep an empty value (records are out of scope)", () => {
-    const survey = createSurvey({ elements: [
+    const survey = createSurvey({ dataNesting: "auto", elements: [
       { type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
         { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }, { type: "text", name: "city" }] }
       ] }
@@ -450,7 +450,7 @@ describe("nested data, data.keepEmptyValues: K5, a composite question", () => {
   });
   test("a composite inside a nesting panel keeps an empty text, key on", () => {
     addAddress();
-    const survey = createSurvey({ elements: [
+    const survey = createSurvey({ dataNesting: "auto", elements: [
       { type: "panel", name: "box", valueName: "home", elements: [{ type: "address", name: "addr" }] }
     ] }, true);
     const q = <QuestionCompositeModel>survey.getQuestionByName("addr");

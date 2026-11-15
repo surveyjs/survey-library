@@ -38,7 +38,6 @@ import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
 import type { PanelDataScope } from "./panel-data-scope";
-import type { DataNestingPlace } from "./container-data-nesting";
 import { getDataScopeHost, getKeyHolderScope } from "./panel-data-scope";
 import { ContainerDataNesting } from "./container-data-nesting";
 import { Scope } from "./utils/scope";
@@ -618,9 +617,6 @@ export class PanelModelBase extends SurveyElement<Question>
   private updateDataScope(value: ISurveyImpl): ISurveyImpl {
     return this.containerNesting.attach(value);
   }
-  private getDataNestingPlace(): DataNestingPlace {
-    return ContainerDataNesting.getPlace(this);
-  }
   // A dynamic panel's template, or a matrix's detail panel template: the panel the records are built from.
   public isRecordTemplatePanel(): boolean {
     return ContainerDataNesting.isRecordTemplate(this);
@@ -630,11 +626,12 @@ export class PanelModelBase extends SurveyElement<Question>
   public getRecordsOwner(): Question {
     return ContainerDataNesting.getRecordsOwner(this);
   }
-  // Whether this container's key is ignored where it is: on a record panel itself (its object is the record) and
-  // inside a composite (the component owns the shape of its value). The Creator hides the valueName property
-  // there; it shows it on a panel inside a dynamic panel or a detail panel.
+  // Whether this container's key is ignored: in the survey's dataNesting "none" (the default), on a record panel
+  // itself (its object is the record) and inside a composite (the component owns the shape of its value). The
+  // valueName property is hidden there (its visibleIf asks this); it shows on a panel inside a dynamic panel or
+  // a detail panel in every other mode.
   public isDataNestingIgnored(): boolean {
-    return this.getDataNestingPlace() === "";
+    return this.containerNesting.isKeyIgnored();
   }
   private onDataScopeKeyChanged(): void {
     if (!this.surveyImpl) return;

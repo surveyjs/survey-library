@@ -37,7 +37,7 @@ const describePanel = (panel: PanelModelBase): IPlaceInfo => {
   const p: any = panel;
   const owner = panel.getRecordsOwner();
   return {
-    place: p["getDataNestingPlace"](),
+    place: ContainerDataNesting.getPlace(panel),
     ignored: p.isDataNestingIgnored(),
     owner: !!owner ? owner.name : null,
     keyByName: panel.getDataNestingKeyFor("", "n"),
@@ -126,10 +126,10 @@ describe("container data nesting: the place of a container", () => {
     });
   });
   test("a page with valueName nests its panels on the survey's data", () => {
-    const survey = new SurveyModel({ pages: [{ name: "p", valueName: "pg", elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", pages: [{ name: "p", valueName: "pg", elements: [
       { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }] }] });
     const inner = <PanelModelBase>survey.getPanelByName("inner");
-    expect(inner["getDataNestingPlace"]()).toBe("survey");
+    expect(ContainerDataNesting.getPlace(inner)).toBe("survey");
     expect(inner.getDataScopeKey()).toBe("address");
     expect(survey.pages[0].getDataScopeKey()).toBe("pg");
   });
@@ -147,14 +147,15 @@ describe("container data nesting: the place of a container", () => {
       ] });
       const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
       const din = <PanelModelBase>m.detailPanel.getElementByName("din");
+      // "none" ignores every key: isDataNestingIgnored() finds the mode on the template's owner survey.
       expect(describePanel(din), "a panel in the detail panel template").toEqual(
-        { place: "template", ignored: false, owner: null, keyByName: "", keyByValueName: "", recordKey: "" });
+        { place: "template", ignored: true, owner: null, keyByName: "", keyByValueName: "", recordKey: "" });
       const choicePanel: PanelModelBase = (<any>m.detailPanel.getQuestionByName("rg")).choices[1].panel;
       const cp = <PanelModelBase>choicePanel.getElementByName("cp");
       expect(describePanel(choicePanel), "the choice panel").toEqual(
-        { place: "survey", ignored: false, owner: null, keyByName: "", keyByValueName: "", recordKey: "" });
+        { place: "survey", ignored: true, owner: null, keyByName: "", keyByValueName: "", recordKey: "" });
       expect(describePanel(cp), "a panel in the choice panel").toEqual(
-        { place: "survey", ignored: false, owner: null, keyByName: "", keyByValueName: "", recordKey: "" });
+        { place: "survey", ignored: true, owner: null, keyByName: "", keyByValueName: "", recordKey: "" });
     });
   });
   test("dataNesting panel: a choice panel in a detail panel template nests by name on its owner's survey", () => {
@@ -173,6 +174,6 @@ describe("container data nesting: the place of a container", () => {
     const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
     const panel: PanelModelBase = pd["createAndSetupNewPanelObject"]();
     expect(panel.getRecordsOwner()).toBeNull();
-    expect(panel["getDataNestingPlace"]()).toBe("");
+    expect(ContainerDataNesting.getPlace(panel)).toBe("");
   });
 });

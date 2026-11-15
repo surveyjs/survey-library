@@ -15,7 +15,7 @@ const panelOf = (survey: SurveyModel, name: string): PanelModel => <PanelModel>s
 
 describe("PanelDataScope.key follows each change", () => {
   test("the owner's valueName", () => {
-    const survey = new SurveyModel({ elements: [{ type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] }] });
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] }] });
     const panel = panelOf(survey, "p1");
     const scope = panel.getDataScope();
     expect(scope.key, "#1").toBe("a");
@@ -51,7 +51,7 @@ describe("PanelDataScope.key follows each change", () => {
     expect(innerScope.key, "#5").toBe("address");
   });
   test("where the owner is attached", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] },
       { type: "paneldynamic", name: "items" }] });
     const panel = panelOf(survey, "p1");
@@ -65,7 +65,7 @@ describe("PanelDataScope.key follows each change", () => {
     expect(panel.getDataScope(), "#3").toBeNull();
   });
   test("a valueName loaded into an attached panel (fromJSON) sends no notification: the key follows it", () => {
-    const survey = new SurveyModel({ elements: [{ type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] }] });
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] }] });
     const panel = panelOf(survey, "p1");
     const scope = panel.getDataScope();
     expect(scope.key, "#1").toBe("a");
@@ -75,7 +75,7 @@ describe("PanelDataScope.key follows each change", () => {
     expect(survey.data, "#3").toEqual({ b: { q1: 1 } });
   });
   test("a detached panel's scope has no key", () => {
-    const survey = new SurveyModel({ elements: [{ type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] }] });
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] }] });
     const panel = panelOf(survey, "p1");
     const scope = panel.getDataScope();
     expect(scope.key, "#1").toBe("a");
@@ -85,7 +85,7 @@ describe("PanelDataScope.key follows each change", () => {
 });
 
 describe("a records question's RecordKeyLevel", () => {
-  const pdJson = { elements: [{ type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
+  const pdJson = { dataNesting: "auto", elements: [{ type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
     { type: "text", name: "title" },
     { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }] }] };
   const levelOf = (q: Question, elements?: Array<any>): RecordKeyLevel => (<any>q).getRecordKeyLevel(elements);
@@ -111,7 +111,7 @@ describe("a records question's RecordKeyLevel", () => {
     expect(levelOf(pd, elements), "#3 no panel nests").toBeUndefined();
   });
   test("a matrix's detail panel template is on no survey: its level sees an added question and a valueName loaded through fromJSON", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "rows", rowCount: 1, detailPanelMode: "underRow",
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "matrixdynamic", name: "rows", rowCount: 1, detailPanelMode: "underRow",
       columns: [{ name: "col1", cellType: "text" }],
       detailElements: [{ type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("rows");
@@ -151,7 +151,7 @@ describe("a records question's RecordKeyLevel", () => {
     expect(issues.map(issue => issue.path + "=" + JSON.stringify((<any>issue).value)), "setData").toEqual(["items[0].address.foo=5"]);
   });
   test("a nesting panel's object in the display value: keys as text rename inside it too", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "items", templateElements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "paneldynamic", name: "items", templateElements: [
       { type: "text", name: "title", title: "Title" },
       { type: "panel", name: "p1", valueName: "address", elements: [
         { type: "dropdown", name: "kind", title: "Kind", choices: [{ value: 1, text: "One" }] },
@@ -165,7 +165,7 @@ describe("a records question's RecordKeyLevel", () => {
 
 describe("a scope's index is kept", () => {
   test("a nesting panel's scope and a record item keep it between reads, and build it again when a key changes", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q1" }] },
       { type: "paneldynamic", name: "items", panelCount: 1, templateElements: [{ type: "text", name: "t1" },
         { type: "panel", name: "inner", valueName: "addr", elements: [{ type: "text", name: "street" }] }] }] });
@@ -189,7 +189,7 @@ describe("a scope's index is kept", () => {
 
 describe("the survey's root keys", () => {
   test("top-level questions and root containers, after a removal and key changes", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "q1" },
       { type: "panel", name: "p1", valueName: "a", elements: [{ type: "text", name: "q2" }] },
       { type: "panel", name: "p2", elements: [{ type: "text", name: "q3" }] }] });
@@ -219,7 +219,7 @@ describe("the survey's root keys", () => {
 
 describe("a matrix row's value", () => {
   test("a detail question and a cell with the same name both keep the value; a nesting panel on the cell's key gives no key", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
       columns: [{ name: "col1", cellType: "text" }],
       detailElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" },
         { type: "panel", name: "p", valueName: "col1", elements: [{ type: "text", name: "x" }] }] }] });
@@ -248,7 +248,7 @@ describe("a matrix row's value", () => {
     expect(matrix.getRowValueForCreation({ r1: { address: ["a"] } }, "r1"), "#4").toEqual({ address: ["a"] });
   });
   test("the paths of the default values: the cells, then the detail questions", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", defaultValue: "dc" }],
       detailElements: [{ type: "text", name: "d1" }, { type: "panel", name: "p", elements: [{ type: "text", name: "d2", defaultValue: "dd" }] },
         { type: "panel", name: "p2", valueName: "obj", elements: [{ type: "text", name: "d3", defaultValue: "do" }] }] }] });

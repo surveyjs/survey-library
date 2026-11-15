@@ -714,7 +714,7 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
   {
     ruleId: "variable/dotted-key", reason: "containerKey",
     json: { elements: [{ type: "text", name: "q1" }] },
-    options: { variablePresets: { definition: { elements: [
+    options: { variablePresets: { definition: { dataNesting: "auto", elements: [
       { type: "panel", name: "p", valueName: "a.b", elements: [{ type: "text", name: "t" }] }] } } },
   },
   {
@@ -795,17 +795,19 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
   {
     ruleId: "name/shadowing", reason: "containerKeyShadowed",
     json: {
+      dataNesting: "auto",
       elements: [{ type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "q1" }] }],
       calculatedValues: [{ name: "address", expression: "1" }],
     },
   },
   {
     ruleId: "name/reserved", reason: "containerKey",
-    json: { elements: [{ type: "panel", name: "p1", valueName: "constructor", elements: [{ type: "text", name: "q1" }] }] },
+    json: { dataNesting: "auto", elements: [{ type: "panel", name: "p1", valueName: "constructor", elements: [{ type: "text", name: "q1" }] }] },
   },
   {
     ruleId: "nesting/key-conflict", reason: "questionKey",
     json: {
+      dataNesting: "auto",
       elements: [
         { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "q1" }] },
         { type: "text", name: "address" },
@@ -815,7 +817,7 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
   {
     ruleId: "nesting/ignored-key", reason: "insideComposite",
     // a panel inside a dynamic panel's template nests (records nesting 02): a composite's still does not
-    json: { elements: [{ type: "addr", name: "a1" }] },
+    json: { dataNesting: "auto", elements: [{ type: "addr", name: "a1" }] },
     options: { components: { addr: { elementsJSON: [
       { type: "panel", name: "p1", valueName: "box", elements: [{ type: "text", name: "q1" }] },
     ] } } },

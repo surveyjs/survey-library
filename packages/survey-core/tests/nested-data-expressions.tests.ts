@@ -7,6 +7,7 @@ import { settings } from "../src/settings";
 import { FunctionFactory } from "../src/functionsfactory";
 
 const addressJson = (extraElements?: Array<any>, extra?: any): any => Object.assign({
+  dataNesting: "auto",
   elements: [
     { type: "text", name: "q0" },
     { type: "panel", name: "panel1", valueName: "address", elements: [
@@ -60,7 +61,7 @@ describe("nested data expressions: {name} and paths (design-01 1.1-1.3)", () => 
     expect(isEmpty.isVisible).toBe(true);
   });
   test("an inner valueName: {st} inside, {street} and {address.st} outside", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "text", name: "street", valueName: "st" },
         { type: "text", name: "inner", visibleIf: "{st} = 'x'" }
@@ -107,7 +108,7 @@ describe("nested data expressions: {name} and paths (design-01 1.1-1.3)", () => 
     expect(city.isVisible).toBe(true);
   });
   test("a container key equal to an inner question's name (design-01 4.4)", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "text", name: "address" },
         { type: "text", name: "inside", visibleIf: "{address} = 'x'" }
@@ -121,7 +122,7 @@ describe("nested data expressions: {name} and paths (design-01 1.1-1.3)", () => 
     expect(survey.runExpression("{address}")).toEqual({ address: "x" });
   });
   test("two containers with one key share the object (D4)", () => {
-    const survey = new SurveyModel({ pages: [
+    const survey = new SurveyModel({ dataNesting: "auto", pages: [
       { name: "p1", elements: [{ type: "panel", name: "a1", valueName: "address", elements: [{ type: "text", name: "street" }] }] },
       { name: "p2", elements: [
         { type: "panel", name: "a2", valueName: "address", elements: [{ type: "text", name: "city" }] },
@@ -165,7 +166,7 @@ describe("nested data expressions: comments", () => {
     expect(run("auto")).toEqual(expected);
   });
   test("an inner valueName: {st-Comment} inside, {street-Comment} and {address.st-Comment} outside", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "text", name: "street", valueName: "st", showCommentArea: true },
         { type: "text", name: "inside", visibleIf: "{st-Comment} = 'c'" }
@@ -213,7 +214,7 @@ describe("nested data expressions: runtime changes keep the lookup fresh", () =>
 
 describe("nested data expressions: a literal dotted key and a path (test 3)", () => {
   test("a question with the literal value name 'a.b' wins over the path a -> b", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "literal", valueName: "a.b" },
       { type: "panel", name: "panel1", valueName: "a", elements: [{ type: "text", name: "b" }] }
     ] });
@@ -224,7 +225,7 @@ describe("nested data expressions: a literal dotted key and a path (test 3)", ()
     expect(survey.runExpression("{b}")).toBe(2);
   });
   test("a raw data key 'a.b' (no question) loses to the container path", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "a", elements: [{ type: "text", name: "b" }] }
     ] });
     survey.data = { "a.b": 1, a: { b: 2 } };
@@ -288,7 +289,7 @@ describe("nested data expressions: text piping, calculated values, expression qu
     expect(survey.processText("{address.street}-{street}", true)).toBe("Main-Main");
   });
   test("text piping of a dropdown gives its display text by name and by path; {address} prints [object Object] (D3)", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "dropdown", name: "kind", choices: [{ value: 1, text: "Home" }, { value: 2, text: "Work" }] }
       ] },
@@ -322,7 +323,7 @@ describe("nested data expressions: text piping, calculated values, expression qu
     expect(survey.data).toEqual({ address: { street: "a", city: "b", inExp: "a-b" }, outExp: "a-out" });
   });
   test("defaultValueExpression and setValueExpression of an inner question write into the object", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "q0", defaultValue: "z" },
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "text", name: "street" },
@@ -390,7 +391,7 @@ describe("nested data expressions: triggers (test 6, design-01 1.8)", () => {
       copy: { street: "s", city: "c" } });
   });
   test("copyvalue with copyDisplayValue gives the display text through the path", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "q0" },
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "dropdown", name: "kind", choices: [{ value: 1, text: "Home" }] }
@@ -460,7 +461,7 @@ describe("nested data expressions: triggers (test 6, design-01 1.8)", () => {
     });
   });
   test("complete trigger on {street} and on {address.street} fires on Next (F23)", () => {
-    const create = (exp: string): SurveyModel => new SurveyModel({ pages: [
+    const create = (exp: string): SurveyModel => new SurveyModel({ dataNesting: "auto", pages: [
       { name: "p1", elements: [{ type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }] },
       { name: "p2", elements: [{ type: "text", name: "q2" }] }
     ], triggers: [{ type: "complete", expression: exp }] });
@@ -472,7 +473,7 @@ describe("nested data expressions: triggers (test 6, design-01 1.8)", () => {
     });
   });
   test("skip trigger on {address.street}; requireValidQuestion checks the inner writer", () => {
-    const survey = new SurveyModel({ pages: [
+    const survey = new SurveyModel({ dataNesting: "auto", pages: [
       { name: "p1", elements: [{ type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "text", name: "street", validators: [{ type: "regex", regex: "^[a-z]+$" }] }
       ] }] },
@@ -526,7 +527,7 @@ describe("nested data expressions: changed keys (design-01 1.5)", () => {
     expect(survey.getQuestionByName("out").isVisible).toBe(false);
   });
   test("a comment write re-runs a condition on the question", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "dropdown", name: "kind", choices: [1, 2], showOtherItem: true }
       ] },
@@ -542,7 +543,7 @@ describe("nested data expressions: changed keys (design-01 1.5)", () => {
 
 describe("nested data expressions: getFilteredValues (F16)", () => {
   test("an inner checkbox with valuePropertyName writes its filtered value inside the object", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "checkbox", name: "cb", choices: [1, 2], valuePropertyName: "id" },
         { type: "text", name: "out", visibleIf: "{cb} contains 1 and {address.cb} contains 2" }
@@ -604,7 +605,7 @@ describe("nested data expressions: dataNesting none and records (tests 7-8)", ()
     }
   });
   test("a dynamic panel inside a nesting container: {panel.q} inside, {dp[0].q} and {address.dp[0].q} outside", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
           { type: "text", name: "q" },

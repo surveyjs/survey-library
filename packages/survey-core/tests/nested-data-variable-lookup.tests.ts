@@ -199,7 +199,7 @@ describe("nested data 17: the question an expression variable names", () => {
     expect(show(survey.getQuestionByVariable("street")), "a variable with no value does not shadow").toBe("street|");
   });
   test("two containers sharing a key, and an inner question named like the key", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] },
       { type: "panel", name: "p2", valueName: "address", elements: [{ type: "text", name: "zip" }, { type: "text", name: "address" }] }
     ] });
@@ -306,7 +306,7 @@ describe("nested data 17: records (L5)", () => {
     }
   });
   test("a record-level comment key names its question, as the runtime reads it", () => {
-    const json = { elements: [
+    const json = { dataNesting: "auto", elements: [
       { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
         { type: "text", name: "kind", showCommentArea: true },
         { type: "panel", name: "pp", valueName: "address", elements: [{ type: "text", name: "k2", showCommentArea: true }] }] },
@@ -368,7 +368,7 @@ describe("nested data 17: records (L5)", () => {
     expect(show(survey.getQuestionByVariable("row.dq", ds))).toBe("dq|");
   });
   test("templates inside a template's nesting panel, and a template panel's own expressions", () => {
-    const json = { elements: [
+    const json = { dataNesting: "auto", elements: [
       { type: "text", name: "top" },
       { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
         { type: "text", name: "a" },
@@ -518,7 +518,7 @@ describe("nested data 17: exports and helpers (L6)", () => {
     expect(paths(survey.getPanelByName("outer")), "a plain panel: its parent's scope").toEqual([""]);
   });
   test("the condition editor names an inner question by a name the root resolves", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "q1", valueName: "val1" },
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "text", name: "city", valueName: "town" }, { type: "text", name: "street" }] }
@@ -531,7 +531,7 @@ describe("nested data 17: exports and helpers (L6)", () => {
     expect(item.toExpression(), "#2").toBe("{street} = 1");
     item.questionName = "q1";
     expect(item.toExpression(), "#3: a top-level question keeps its value name").toBe("{val1} = 1");
-    const shadowed = new SurveyModel({ elements: [
+    const shadowed = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "top", valueName: "city" },
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "city", valueName: "town" }] }
     ] });
@@ -546,7 +546,7 @@ describe("nested data 17: exports and helpers (L6)", () => {
     expect(show(shadowed.getQuestionByVariable("address.town"))).toBe("city|");
   });
   test("getQuestionVariableName is the reverse of getQuestionByVariable", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "q1", valueName: "val1" }, { type: "text", name: "top", valueName: "city" },
       { type: "panel", name: "panel1", valueName: "address", elements: [
         { type: "text", name: "city", valueName: "town" }, { type: "text", name: "street" },
@@ -563,7 +563,7 @@ describe("nested data 17: exports and helpers (L6)", () => {
     });
     const pageSurvey = new SurveyModel({ dataNesting: "page", pages: [{ name: "page1", elements: [{ type: "text", name: "q1", valueName: "v1" }] }] });
     expect(pageSurvey.getQuestionVariableName(pageSurvey.getQuestionByName("q1")), "#6: dataNesting: the name").toBe("q1");
-    const dpSurvey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "dp", templateElements: [
+    const dpSurvey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "paneldynamic", name: "dp", templateElements: [
       { type: "panel", name: "addr", valueName: "a", elements: [{ type: "text", name: "ps" }] }] }] });
     const dp = <QuestionPanelDynamicModel>dpSurvey.getQuestionByName("dp");
     dp.panelCount = 1;
@@ -572,7 +572,7 @@ describe("nested data 17: exports and helpers (L6)", () => {
     expect(dpSurvey.getQuestionVariableName(ps), "#7: no root variable reaches it: its name, not a.ps").toBe("ps");
   });
   test("getExpressionVariableName: a variable as it is, a question's name as the question's variable", () => {
-    const survey = new SurveyModel({ calculatedValues: [{ name: "total", expression: "1" }], elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", calculatedValues: [{ name: "total", expression: "1" }], elements: [
       { type: "text", name: "q1", valueName: "val1" }, { type: "text", name: "top", valueName: "city" },
       { type: "matrix", name: "m", valueName: "mv", rows: ["r1"], columns: ["c1"] },
       { type: "panel", name: "panel1", valueName: "address", elements: [

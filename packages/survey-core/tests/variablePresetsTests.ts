@@ -404,7 +404,7 @@ describe("SurveyVariablePresets with a nested definition", () => {
     presets.dispose();
   });
   test("V2/V3: lookups by root key and by path", () => {
-    const presets = create(nestedDefinition());
+    const presets = create(nestedDefinition("auto"));
     expect(presets.hasVariable("users")).toBe(true);
     expect(presets.getVariableQuestion("users")).toBeUndefined();
     expect(presets.getVariableElement("users").name).toBe("user");
@@ -447,25 +447,25 @@ describe("SurveyVariablePresets with a nested definition", () => {
     expect(presets.getVariableElement("users")).toBeUndefined();
   });
   test("V4: a valid nested preset", () => {
-    const presets = create(nestedDefinition());
+    const presets = create(nestedDefinition("auto"));
     const res = presets.validateVariables({ users: { tier: "gold", name: "Ann" }, role: "admin" });
     expect(res).toEqual({ unknownVariables: [], errors: [], isValid: true });
     presets.dispose();
   });
   test("V4: keys are mapped to the definition's spelling at every level", () => {
-    const presets = create(nestedDefinition());
+    const presets = create(nestedDefinition("auto"));
     expect(presets.validateVariables({ Users: { Tier: "gold" } })).toEqual({ unknownVariables: [], errors: [], isValid: true });
     presets.dispose();
   });
   test("V4: an inner value outside the choices is reported on its path", () => {
-    const presets = create(nestedDefinition());
+    const presets = create(nestedDefinition("auto"));
     const res = presets.validateVariables({ users: { tier: "bronze" } });
     expect(res.isValid).toBe(false);
     expect(res.errors).toEqual([{ variable: "users.tier", question: "tier", errors: [notInChoices("bronze")] }]);
     presets.dispose();
   });
   test("V4: a missing required inner value, and a missing or null object variable", () => {
-    const presets = create(nestedDefinition());
+    const presets = create(nestedDefinition("auto"));
     [{ users: { name: "Ann" } }, {}, { users: null }].forEach(vars => {
       const res = presets.validateVariables(vars);
       expect(res.unknownVariables).toEqual([]);
@@ -474,7 +474,7 @@ describe("SurveyVariablePresets with a nested definition", () => {
     presets.dispose();
   });
   test("V4: an unknown inner key is a path in the input's spelling", () => {
-    const presets = create(nestedDefinition());
+    const presets = create(nestedDefinition("auto"));
     let res = presets.validateVariables({ users: { tier: "gold", nope: 1 } });
     expect(res.unknownVariables).toEqual(["users.nope"]);
     expect(res.errors).toEqual([]);
@@ -484,7 +484,7 @@ describe("SurveyVariablePresets with a nested definition", () => {
     presets.dispose();
   });
   test.each([["a string", "gold"], ["a number", 5], ["an array", ["gold"]]])("V4: %s for an object variable is one error", (_, val) => {
-    const presets = create(nestedDefinition());
+    const presets = create(nestedDefinition("auto"));
     const res = presets.validateVariables({ users: val, role: "a" });
     expect(res.unknownVariables).toEqual([]);
     expect(res.errors).toEqual([{ variable: "users", question: "user", errors: ["The value is incorrect."] }]);
@@ -492,14 +492,14 @@ describe("SurveyVariablePresets with a nested definition", () => {
     presets.dispose();
   });
   test("V4: a flat value of an inner question is an unknown root key", () => {
-    const presets = create(nestedDefinition());
+    const presets = create(nestedDefinition("auto"));
     const res = presets.validateVariables({ tier: "gold", users: { tier: "gold" } });
     expect(res.unknownVariables).toEqual(["tier"]);
     expect(res.errors).toEqual([]);
     presets.dispose();
   });
   test("two levels: a panel with valueName in a page with valueName", () => {
-    const presets = create({ pages: [{ name: "p1", valueName: "page", elements: [
+    const presets = create({ dataNesting: "auto", pages: [{ name: "p1", valueName: "page", elements: [
       { type: "panel", name: "user", valueName: "users", elements: [{ type: "text", name: "tier", isRequired: true }] },
       { type: "text", name: "role" }] }] });
     expect(presets.getVariableNames()).toEqual(["page"]);
@@ -516,7 +516,7 @@ describe("SurveyVariablePresets with a nested definition", () => {
     presets.dispose();
   });
   test("N5: a dynamic panel is one variable; inside a nesting panel it is one path", () => {
-    const presets = create({ elements: [
+    const presets = create({ dataNesting: "auto", elements: [
       { type: "paneldynamic", name: "sites", templateElements: [{ type: "text", name: "city" },
         { type: "panel", name: "addr", valueName: "address", elements: [{ type: "text", name: "street" }] }] },
       { type: "panel", name: "user", valueName: "users", elements: [
@@ -531,7 +531,7 @@ describe("SurveyVariablePresets with a nested definition", () => {
     presets.dispose();
   });
   test("D4: two containers with one key are one variable with the leaves of both", () => {
-    const presets = create({ elements: [
+    const presets = create({ dataNesting: "auto", elements: [
       { type: "panel", name: "p1", valueName: "users", elements: [{ type: "text", name: "tier" }] },
       { type: "text", name: "role" },
       { type: "panel", name: "p2", valueName: "users", elements: [{ type: "text", name: "name", isRequired: true }] }] });
@@ -545,7 +545,7 @@ describe("SurveyVariablePresets with a nested definition", () => {
     presets.dispose();
   });
   test("a dotted inner key declares no variable, and nothing inside a dotted container does", () => {
-    const presets = create({ elements: [{ type: "panel", name: "user", valueName: "users", elements: [
+    const presets = create({ dataNesting: "auto", elements: [{ type: "panel", name: "user", valueName: "users", elements: [
       { type: "text", name: "q1", valueName: "a.b", isRequired: true }, { type: "text", name: "q2", valueName: "a" },
       { type: "panel", name: "xy", valueName: "x.y", elements: [
         { type: "text", name: "z", isRequired: true },
@@ -565,7 +565,7 @@ describe("SurveyVariablePresets with a nested definition", () => {
     expect(presets.getDottedKeyElements()).toEqual([]);
   });
   test("a dotted key beside the nesting chain that spells it: only the chain is a variable", () => {
-    const presets = create({ elements: [{ type: "panel", name: "user", valueName: "users", elements: [
+    const presets = create({ dataNesting: "auto", elements: [{ type: "panel", name: "user", valueName: "users", elements: [
       { type: "text", name: "ab", valueName: "a.b" },
       { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "b" }] }] }] });
     expect(presets.getVariablePaths()).toEqual(["users.a.b"]);
@@ -582,7 +582,7 @@ describe("SurveyVariablePresets with a nested definition", () => {
     model.dispose();
   });
   test("runtime round trip: a preset's variables applied to an edited survey", () => {
-    const presets = new SurveyVariablePresets({ definition: nestedDefinition(), presets: [
+    const presets = new SurveyVariablePresets({ definition: nestedDefinition("auto"), presets: [
       { name: "Gold", variables: { users: { tier: "gold", name: "Ann" }, role: "admin" } },
       { name: "Silver", variables: { users: { tier: "silver", name: "Bob" }, role: "user" } }] });
     presets.getPresetNames().forEach(name => expect(presets.validateVariables(presets.getPreset(name).variables).isValid).toBe(true));

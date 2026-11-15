@@ -5,6 +5,7 @@ import { SurveyRootDataScope } from "../src/survey-root-data-scope";
 import { ElementIndex } from "../src/element-index";
 
 const sharedKeyJson = (checkErrorsMode?: string): any => ({
+  dataNesting: "auto",
   checkErrorsMode: checkErrorsMode,
   elements: [
     { type: "text", name: "top" },
@@ -67,7 +68,7 @@ describe("Nested data: the survey's root data scope", () => {
     ] }, { page1: ["page1"], page2: ["page2"], q1: [], q2: [], address: [], street: [] });
   });
   test("its index holds the keys and the elements of the survey's index: two containers sharing a key", () => {
-    checkIndex({ elements: [
+    checkIndex({ dataNesting: "auto", elements: [
       { type: "text", name: "addr", valueName: "address" },
       { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] },
       { type: "panel", name: "p2", valueName: "address", elements: [{ type: "text", name: "zip" }] },

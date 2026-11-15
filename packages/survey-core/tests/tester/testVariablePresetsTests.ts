@@ -359,6 +359,7 @@ describe("The tester and a nested variable definition", () => {
     ],
   };
   const nestedDefinition = {
+    dataNesting: "auto",
     elements: [
       { type: "panel", name: "user", valueName: "users", elements: [
         { type: "dropdown", name: "tier", choices: ["gold", "silver"], isRequired: true },
@@ -423,7 +424,7 @@ describe("The tester and a nested variable definition", () => {
   test("A definition question with a dotted key is no variable, so the case's value for it is removed", async () => {
     const record = factoryRecord();
     const result = await run(nestedSurvey, {
-      variablePresets: { definition: { elements: [
+      variablePresets: { definition: { dataNesting: "auto", elements: [
         { type: "text", name: "dotted", valueName: "users.tier", isRequired: true },
         { type: "panel", name: "user", valueName: "users", elements: [{ type: "text", name: "tier" }] }] } },
       variables: { "users.tier": 1, users: { tier: "gold" } },

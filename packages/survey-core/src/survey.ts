@@ -3506,7 +3506,7 @@ export class SurveyModel extends SurveyElementCore
    */
   @property({ defaultValue: "readonly" }) readOnlyMode: "readonly" | "view";
   // Read without a hard-coded default: the serializer's default applies, so an application can change it
-  // once (Serializer.findProperty("survey", "dataNesting").defaultValue = "none").
+  // once (Serializer.findProperty("survey", "dataNesting").defaultValue = "auto").
   public get dataNesting(): string {
     return this.getPropertyValue("dataNesting");
   }
@@ -10255,7 +10255,7 @@ Serializer.addClass("survey", [
     default: "standard",
     choices: ["standard", "singlePage", "questionPerPage", "inputPerPage"],
   },
-  { name: "dataNesting", default: "auto", choices: ["auto", "none", "panel", "page", "panelAndPage"] },
+  { name: "dataNesting", default: "none", choices: ["auto", "none", "panel", "page", "panelAndPage"] },
   {
     name: "showPreviewBeforeComplete:boolean",
     default: false,

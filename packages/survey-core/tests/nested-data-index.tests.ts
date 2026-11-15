@@ -8,6 +8,7 @@ import { QuestionTextModel } from "../src/question_text";
 // behaviour: a write reaches the right question, an expression resolves.
 
 const addressJson = (extraElements?: Array<any>): any => ({
+  dataNesting: "auto",
   elements: [
     { type: "panel", name: "panel1", elements: [
       { type: "text", name: "street" },
@@ -79,7 +80,7 @@ describe("nested data index: upkeep", () => {
     expect(survey.runExpression("{q1}")).toBe("none");
   });
   test("a question moved into, out of and between nesting panels", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "qa" }] },
       { type: "panel", name: "pb", valueName: "b", elements: [{ type: "text", name: "qb" }] },
       { type: "text", name: "q" }
@@ -114,7 +115,7 @@ describe("nested data index: upkeep", () => {
     expect(survey.runExpression("{q}")).toBe(6);
   });
   test("an inner question renamed: name and valueName", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
     ] });
     const street = survey.getQuestionByName("street");
@@ -139,7 +140,7 @@ describe("nested data index: upkeep", () => {
     expect(street.value, "the name again").toBe("e");
   });
   test("a nesting panel added and removed at runtime, with a nesting panel inside", () => {
-    const survey = new SurveyModel({ elements: [{ type: "text", name: "q0" }] });
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "text", name: "q0" }] });
     const outer = new PanelModel("outer");
     outer.valueName = "o";
     const inner = new PanelModel("inner");
@@ -175,7 +176,7 @@ describe("nested data index: upkeep", () => {
     expect(survey.runExpression("{i.t}")).toBe(6);
   });
   test("a page with valueName added and removed", () => {
-    const survey = new SurveyModel({ pages: [{ name: "page1", elements: [{ type: "text", name: "q0" }] }] });
+    const survey = new SurveyModel({ dataNesting: "auto", pages: [{ name: "page1", elements: [{ type: "text", name: "q0" }] }] });
     const page = new PageModel("page2");
     page.valueName = "pv";
     page.addNewQuestion("text", "x");
@@ -195,7 +196,7 @@ describe("nested data index: upkeep", () => {
     expect(x.value, "the page no longer nests").toBe(3);
   });
   test("a comment written under an inner panel whose valueName was cleared reports the question (D1)", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "outer", valueName: "address", elements: [
         { type: "panel", name: "inner", valueName: "sub", elements: [{ type: "text", name: "q1", showCommentArea: true }] }
       ] }
@@ -210,11 +211,11 @@ describe("nested data index: upkeep", () => {
     expect(reported).toEqual(["address:q1", "address:q1"]);
   });
   test("a survey loaded again with fromJSON", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
     ] });
     survey.getQuestionByName("street").value = "a";
-    survey.fromJSON({ elements: [
+    survey.fromJSON({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel2", valueName: "home", elements: [{ type: "text", name: "street" }] }
     ] });
     const street = survey.getQuestionByName("street");
@@ -246,7 +247,7 @@ describe("nested data index: upkeep", () => {
 
 describe("nested data index: a panel moved to another survey", () => {
   test("the panel's index is built again in the second survey", () => {
-    const surveyA = new SurveyModel({ pages: [{ name: "p1", elements: [
+    const surveyA = new SurveyModel({ dataNesting: "auto", pages: [{ name: "p1", elements: [
       { type: "panel", name: "panel1", valueName: "addr", elements: [{ type: "text", name: "q1" }] }
     ] }] });
     const panel = <PanelModel>surveyA.getPanelByName("panel1");
@@ -254,7 +255,7 @@ describe("nested data index: a panel moved to another survey", () => {
     const q2 = new QuestionTextModel("q2");
     panel.addElement(q2);
     surveyA.pages[0].removeElement(panel);
-    const surveyB = new SurveyModel({ pages: [{ name: "p1", elements: [{ type: "text", name: "x" }] }] });
+    const surveyB = new SurveyModel({ dataNesting: "auto", pages: [{ name: "p1", elements: [{ type: "text", name: "x" }] }] });
     surveyB.pages[0].addElement(panel);
     surveyB.setValue("addr", { q1: "b", q2: "c" });
     expect(surveyB.getQuestionByName("q1").value).toBe("b");
@@ -264,7 +265,7 @@ describe("nested data index: a panel moved to another survey", () => {
 
 describe("nested data index: shared keys (D4)", () => {
   test("validation order: every container is told before the writer and the questions with errors are validated", () => {
-    const survey = new SurveyModel({ checkErrorsMode: "onValueChanged", elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", checkErrorsMode: "onValueChanged", elements: [
       { type: "panel", name: "pA", valueName: "addr", elements: [{ type: "text", name: "a1", isRequired: true }] },
       { type: "panel", name: "pB", valueName: "addr", elements: [
         { type: "text", name: "b1", isRequired: true }, { type: "text", name: "b2", isRequired: true }] }
@@ -279,7 +280,7 @@ describe("nested data index: shared keys (D4)", () => {
     expect(survey.getQuestionByName("b2").errors).toHaveLength(1);
   });
   test("two containers with one key: a write through one updates the other's question", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "a1", valueName: "address", elements: [
         { type: "text", name: "zip1", valueName: "zip" },
         { type: "panel", name: "in1", valueName: "geo", elements: [{ type: "text", name: "lat1", valueName: "lat" }] }
@@ -297,7 +298,7 @@ describe("nested data index: shared keys (D4)", () => {
     expect(survey.runExpression("{Address.Geo.Lat}")).toBe(5);
   });
   test("a container key equal to a question's value name at the root", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "address" },
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
     ] });
@@ -353,7 +354,7 @@ describe("nested data index: expressions", () => {
 
 describe("the root's keys after an element moves", () => {
   // The page "p1" nests its elements under "obj"; "p2" does not nest.
-  const movingJson = (p1Elements: Array<any>, p2Elements: Array<any>): any => ({ pages: [
+  const movingJson = (p1Elements: Array<any>, p2Elements: Array<any>): any => ({ dataNesting: "auto", pages: [
     { name: "p1", valueName: "obj", elements: p1Elements },
     { name: "p2", elements: p2Elements }
   ] });
@@ -428,7 +429,7 @@ describe("the root's keys after an element moves", () => {
     expect(names()).toEqual(["q1", "q3"]);
   });
   test("a move in a survey keeps the order of the questions sharing a value name", () => {
-    const pages = (extra: Array<any>): any => ({ pages: [
+    const pages = (extra: Array<any>): any => ({ dataNesting: "auto", pages: [
       { name: "p1", elements: [{ type: "text", name: "q1", valueName: "s" }].concat(extra) },
       { name: "p2", elements: [{ type: "text", name: "q2", valueName: "s" }, { type: "text", name: "q3", valueName: "s" }] }
     ] });

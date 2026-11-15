@@ -37,7 +37,7 @@ const withNoDelay = async (func: () => Promise<void>): Promise<void> => {
 
 describe("nested data path: the element members", () => {
   test("getDataPath() and getValueScope() of questions and containers", () => {
-    const survey = new SurveyModel({ pages: [{ name: "page1", elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", pages: [{ name: "page1", elements: [
       { type: "text", name: "q0", valueName: "v0" },
       { type: "panel", name: "flat", elements: [{ type: "text", name: "q1" }] },
       { type: "panel", name: "outerPanel", valueName: "outer", elements: [
@@ -64,7 +64,7 @@ describe("nested data path: the element members", () => {
 });
 
 describe.each(layouts)("nested data path: filtered values, server validation, trigger keys ($title)", (layout: Layout) => {
-  const fruitsJson = (extra?: Array<any>): any => ({ pages: [
+  const fruitsJson = (extra?: Array<any>): any => ({ dataNesting: "auto", pages: [
     { name: "page1", elements: wrap(layout, [
       { type: "text", name: "q1" },
       { type: "checkbox", name: "fruits", valuePropertyName: "fruit", choices: ["a", "b"] }
@@ -135,7 +135,7 @@ describe("nested data path: runTriggers() and an empty question", () => {
   // Kept as it was: the root keys come from the data, so an empty top-level question is no key, while the keys
   // of an inner question's path are added even when they are empty.
   test.each(layouts)("$title", (layout: Layout) => {
-    const survey = new SurveyModel({ elements: wrap(layout, [{ type: "text", name: "q1" }]).concat([{ type: "text", name: "target" }]),
+    const survey = new SurveyModel({ dataNesting: "auto", elements: wrap(layout, [{ type: "text", name: "q1" }]).concat([{ type: "text", name: "target" }]),
       triggers: [{ type: "setvalue", expression: "{q1} empty", setToName: "target", setValue: "done" }] });
     survey.runTriggers();
     expect(survey.getValue("target")).toBe(layout.nested ? "done" : undefined);
@@ -146,7 +146,7 @@ describe("nested data path: runTriggers() keys below the root hold the stored va
   // Kept as it was (review finding): getFilteredValues() gives the root keys, with filtered values; the keys
   // of an inner question's path are read from the stored data. {inn[0]} reads the stored item, not "apple".
   test.each(layouts)("$title", (layout: Layout) => {
-    const survey = new SurveyModel({ elements: wrap(layout, [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: wrap(layout, [
       { type: "checkbox", name: "inn", valuePropertyName: "fruit", choices: ["apple", "pear"] },
       { type: "text", name: "other" }
     ]).concat([{ type: "text", name: "t" }]),
@@ -188,6 +188,7 @@ describe("nested data path: questionPerPage auto-advance, a write by an off-scre
 
 describe.each(layouts)("nested data path: unknown keys ($title)", (layout: Layout) => {
   const json = (): any => ({
+    dataNesting: "auto",
     elements: wrap(layout, [
       { type: "dropdown", name: "q1", choices: ["a", "b"], showCommentArea: true },
       { type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "c1", cellType: "text", totalType: "sum" }] }
@@ -236,7 +237,7 @@ describe.each(layouts)("nested data path: unknown keys ($title)", (layout: Layou
 
 describe("nested data path: unknown keys with shared keys (D4)", () => {
   test("two containers with one key, two levels deep, and questions sharing a value name at the root", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "t1", valueName: "shared" },
       { type: "text", name: "t2", valueName: "shared" },
       { type: "panel", name: "outerPanel", valueName: "outer", elements: [
@@ -253,7 +254,7 @@ describe("nested data path: unknown keys with shared keys (D4)", () => {
 });
 
 describe.each(layouts)("nested data path: a shared value name ($title)", (layout: Layout) => {
-  const sharedJson = (extra?: any): any => Object.assign({ pages: [
+  const sharedJson = (extra?: any): any => Object.assign({ dataNesting: "auto", pages: [
     { name: "page1", elements: wrap(layout, [
       { type: "dropdown", name: "q1", valueName: "shared", choices: ["a", "b"] },
       { type: "dropdown", name: "q2", valueName: "shared", choices: ["a", "b"] }
@@ -318,7 +319,7 @@ describe.each(layouts)("nested data path: a shared value name ($title)", (layout
 });
 
 describe("nested data path: getQuestionByValueName / getQuestionsByValueName (D9)", () => {
-  const json = (): any => ({ pages: [
+  const json = (): any => ({ dataNesting: "auto", pages: [
     { name: "page1", elements: [
       { type: "text", name: "q1", valueName: "shared" },
       { type: "text", name: "q2", valueName: "shared" },
@@ -388,7 +389,7 @@ describe("nested data path: onValueChanged / onValueChanging (D1, D13)", () => {
     return res;
   };
   test.each(layouts)("$title", (layout: Layout) => {
-    const survey = new SurveyModel({ checkErrorsMode: "onValueChanging", elements: wrap(layout, [
+    const survey = new SurveyModel({ dataNesting: "auto", checkErrorsMode: "onValueChanging", elements: wrap(layout, [
       { type: "text", name: "q1" },
       { type: "text", name: "q2", valueName: "v2" },
       { type: "text", name: "req", isRequired: true }

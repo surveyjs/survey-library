@@ -17,7 +17,7 @@ describe("Nested data: the survey as the host of its data scopes", () => {
     expect(getDataScopeHost(undefined), "#5").toBeUndefined();
   });
   test("the callers ask a survey object without the members nothing", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] },
       { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
         { type: "panel", name: "inner", valueName: "home", elements: [{ type: "text", name: "town" }] }] }
@@ -37,7 +37,7 @@ describe("Nested data: the survey as the host of its data scopes", () => {
     expect(spy, "#5: the survey is not asked").toHaveBeenCalledTimes(1);
   });
   test("the condition editor writes the name as it is for a survey object without the members", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "top", valueName: "city" },
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "city", valueName: "town" }] }
     ] });

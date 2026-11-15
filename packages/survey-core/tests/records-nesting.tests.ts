@@ -13,13 +13,13 @@ import { describe, test, expect } from "vitest";
 // Records nesting 02: a panel with valueName inside a dynamic panel's template or a matrix's detail panel keeps its
 // questions' values in an object inside the record (decisions RN1-RN7).
 
-const pdJson = (extra?: any, inner?: Array<any>): any => Object.assign({ elements: [
+const pdJson = (extra?: any, inner?: Array<any>): any => Object.assign({ dataNesting: "auto", elements: [
   { type: "paneldynamic", name: "items", templateElements: [
     { type: "text", name: "title" },
     { type: "panel", name: "p1", valueName: "address", elements: inner || [{ type: "text", name: "street" }] }
   ] }
 ] }, extra || {});
-const matrixJson = (extra?: any, type: string = "matrixdynamic"): any => Object.assign({ elements: [
+const matrixJson = (extra?: any, type: string = "matrixdynamic"): any => Object.assign({ dataNesting: "auto", elements: [
   Object.assign({ type: type, name: "rows", detailPanelMode: "underRow", columns: [{ name: "col1", cellType: "text" }],
     detailElements: [{ type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }] },
   type === "matrixdropdown" ? { rows: ["r1", "r2"] } : { rowCount: 0 })
@@ -164,7 +164,7 @@ describe("records nesting: a dynamic panel", () => {
     expect(panelChanged, "the inner question's name and value, as for a question directly in the panel").toEqual(["street=\"x\""]);
   });
   test("expressions: {panel.address.street}, {panel.address}, {street} and {title} inside the nesting panel, {prevPanel.address.street}", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "paneldynamic", name: "items", templateElements: [
         { type: "text", name: "title" },
         { type: "panel", name: "p1", valueName: "address", elements: [
@@ -199,7 +199,7 @@ describe("records nesting: a dynamic panel", () => {
     expect(new ValueGetter().getValue("panel.address", ctx), "#11 the object").toEqual({ street: "show", inner1: "show-A" });
   });
   test("a trigger in the record writes into an inner question; a calculated value over a record's nested field", () => {
-    const survey = new SurveyModel({
+    const survey = new SurveyModel({ dataNesting: "auto",
       calculatedValues: [{ name: "firstStreet", expression: "{items[0].address.street}" }],
       elements: [
         { type: "paneldynamic", name: "items", templateElements: [
@@ -224,7 +224,7 @@ describe("records nesting: a dynamic panel", () => {
     // Inside a record a hidden panel's questions are cleared on completion; a question's clearIfInvisible
     // "onHidden" does not clear them when their panel hides. Both as for a panel without valueName.
     const create = (valueName: string, clearInvisibleValues: string, clearIfInvisible: string): SurveyModel => {
-      const survey = new SurveyModel({ clearInvisibleValues: clearInvisibleValues, elements: [
+      const survey = new SurveyModel({ dataNesting: "auto", clearInvisibleValues: clearInvisibleValues, elements: [
         { type: "paneldynamic", name: "items", templateElements: [
           { type: "text", name: "title" },
           { type: "panel", name: "p1", valueName: valueName, visibleIf: "{panel.title} != 'hide'", elements: [
@@ -268,7 +268,7 @@ describe("records nesting: a dynamic panel", () => {
     expect(inPanel(pdOf(survey).panels[0], "city").value).toBe("c");
   });
   test("runtime: valueName set and cleared on a panel inside a template's panel, dataNesting switched to \"none\" (D8)", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
         { type: "panel", name: "p1", elements: [{ type: "text", name: "street" }] }
       ] }
@@ -293,7 +293,7 @@ describe("records nesting: a dynamic panel", () => {
     expect(inPanel(pd.panels[0], "street").value, "#8").toBe("nested");
   });
   test("a template valueName change reaches the panels built after it", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "paneldynamic", name: "items", templateElements: [
         { type: "panel", name: "p1", elements: [{ type: "text", name: "street" }] }
       ] }
@@ -384,7 +384,7 @@ describe("records nesting: a matrix detail panel", () => {
     expect(street.value).toBe("ABC");
   });
   test("expressions: {row.address.street} and {row.address}; a calculated value over a row's nested field", () => {
-    const survey = new SurveyModel({
+    const survey = new SurveyModel({ dataNesting: "auto",
       calculatedValues: [{ name: "firstStreet", expression: "{rows[0].address.street}" }],
       elements: [
         { type: "matrixdynamic", name: "rows", rowCount: 1, detailPanelMode: "underRow",
@@ -415,7 +415,7 @@ describe("records nesting: a matrix detail panel", () => {
     expect(matrix.getDisplayValue(false)).toEqual([{ col1: "1", address: { street: "s" } }]);
   });
   test("checkErrorsMode \"onValueChanging\": an invalid detail value is not written", () => {
-    const survey = new SurveyModel({ checkErrorsMode: "onValueChanging", elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", checkErrorsMode: "onValueChanging", elements: [
       { type: "matrixdynamic", name: "rows", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "col1" }],
         detailElements: [{ type: "panel", name: "p1", valueName: "address", elements: [
           { type: "text", name: "street", validators: [{ type: "numeric", minValue: 10 }] }] }] }
@@ -428,7 +428,7 @@ describe("records nesting: a matrix detail panel", () => {
     expect(survey.data, "#3").toEqual({ rows: [{ address: { street: 20 } }] });
   });
   test("defaults inside the detail panel's object", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "matrixdynamic", name: "rows", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "col1" }],
         detailElements: [{ type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street", defaultValue: "def" }] }] }
     ] });
@@ -446,7 +446,7 @@ describe("records nesting: a matrix detail panel", () => {
     expect(survey.data).toEqual({ rows: [{ col1: "b", address: { street: "B" } }, { col1: "a", address: { street: "A2" } }] });
   });
   test("sort fields: a question inside a nesting detail panel is not offered (RN5)", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "matrixdynamic", name: "rows", allowSort: true, detailPanelMode: "underRow", columns: [{ name: "col1" }],
         detailElements: [{ type: "text", name: "flat" }, { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }] }
     ] });
@@ -455,7 +455,7 @@ describe("records nesting: a matrix detail panel", () => {
     expect(matrixOf(survey).getDesignSortFields().map(f => f.field), "#2 none: the panel does not nest").toEqual(["col1", "flat", "street"]);
   });
   test("runtime: valueName set and cleared on a detail panel's inner panel, dataNesting \"none\" (D8)", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "matrixdynamic", name: "rows", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "col1" }],
         detailElements: [{ type: "panel", name: "p1", elements: [{ type: "text", name: "street" }] }] }
     ] });
@@ -542,7 +542,7 @@ describe("records nesting: more records", () => {
     expect(survey.data).toEqual({ rows: [{ address: { address: "inner" } }] });
   });
   test("auto-advance: a question inside a record's nesting panel answers as one directly in the record (RN4)", () => {
-    const create = (valueName: string): SurveyModel => new SurveyModel({ autoAdvanceEnabled: true, pages: [
+    const create = (valueName: string): SurveyModel => new SurveyModel({ dataNesting: "auto", autoAdvanceEnabled: true, pages: [
       { elements: [{ type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
         { type: "panel", name: "p1", valueName: valueName, elements: [{ type: "rating", name: "rate" }] }] }] },
       { elements: [{ type: "text", name: "q2" }] }
@@ -569,7 +569,7 @@ describe("records nesting: more records", () => {
     expect(inPanel(pd.panels[0], "street").value, "#5").toBe("flat");
   });
   test("review: a valueName set on a built panel keeps its object through clearIncorrectValues", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "paneldynamic", name: "items", panelCount: 1, templateElements: [
       { type: "panel", name: "p1", elements: [{ type: "text", name: "street" }] }] }] });
     const pd = pdOf(survey);
     (<PanelModel>pd.panels[0].getElementByName("p1")).valueName = "address";
@@ -578,7 +578,7 @@ describe("records nesting: more records", () => {
     expect(survey.data).toEqual({ items: [{ address: { street: "s" } }] });
   });
   test("review: a column named like an inner question does not hide the writer from onValueChanging validation", () => {
-    const survey = new SurveyModel({ checkErrorsMode: "onValueChanging", elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", checkErrorsMode: "onValueChanging", elements: [
       { type: "matrixdynamic", name: "rows", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "street" }],
         detailElements: [{ type: "panel", name: "p1", valueName: "address", elements: [
           { type: "text", name: "street", validators: [{ type: "numeric", minValue: 10 }] }] }] }
@@ -607,7 +607,7 @@ describe("records nesting: where a panel may nest", () => {
     ] });
     try {
       const prop = Serializer.findProperty("panel", "valueName");
-      const json = { elements: [
+      const json = { dataNesting: "auto", elements: [
         { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [{ type: "panel", name: "pin", elements: [{ type: "text", name: "q1" }] }] },
         { type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "c1" }],
           detailElements: [{ type: "panel", name: "din", elements: [{ type: "text", name: "q2" }] }] },
@@ -647,7 +647,7 @@ describe("records nesting: where a panel may nest", () => {
       { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }
     ] });
     try {
-      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "items", panelCount: 1, templateElements: [{ type: "nestingcomp2", name: "c1" }] }] });
+      const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "paneldynamic", name: "items", panelCount: 1, templateElements: [{ type: "nestingcomp2", name: "c1" }] }] });
       const c1: any = pdOf(survey).panels[0].getQuestionByName("c1");
       c1.contentPanel.getQuestionByName("street").value = "x";
       expect(survey.data).toEqual({ items: [{ c1: { street: "x" } }] });
@@ -656,7 +656,7 @@ describe("records nesting: where a panel may nest", () => {
     }
   });
   test("a nesting panel inside a nesting panel at the survey level holds a dynamic panel whose records nest too", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "outer", valueName: "o", elements: [
         { type: "paneldynamic", name: "items", templateElements: [
           { type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }

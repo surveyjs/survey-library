@@ -556,7 +556,7 @@ describe("variable presets isolation (issue #11814)", () => {
 // Nested data (prompt 15, decision V5): the definition describes an object variable, set as
 // { users: { tier, name } } and read as {users.tier}.
 describe("the linter with a nested variable definition", () => {
-  const NESTED_DEFINITION = { elements: [
+  const NESTED_DEFINITION = { dataNesting: "auto", elements: [
     { type: "panel", name: "user", valueName: "users", title: "User", elements: [
       { type: "dropdown", name: "tier", title: "Tier", choices: ["gold", "silver"], isRequired: true },
       { type: "text", name: "name", title: "Name" }] },
@@ -604,7 +604,7 @@ describe("the linter with a nested variable definition", () => {
     expect(refs(withCondition("{users.tier.length} > 1 and {role.x} = 1"), nestedOptions())).toHaveLength(0);
   });
   test("two levels, and a dotted inner valueName that declares nothing", () => {
-    const options: ISurveyLintOptions = { variablePresets: { definition: { pages: [{ name: "p1", valueName: "page", elements: [
+    const options: ISurveyLintOptions = { variablePresets: { definition: { dataNesting: "auto", pages: [{ name: "p1", valueName: "page", elements: [
       { type: "panel", name: "user", valueName: "users", elements: [
         { type: "text", name: "tier" }, { type: "text", name: "q2", valueName: "a.b" }] }] }] } } };
     expect(refs(withCondition("{page.users.tier} = 1 and {page.users} notempty"), options)).toHaveLength(0);
@@ -648,7 +648,7 @@ describe("the linter with a nested variable definition", () => {
   });
   test("variable/preset: a dotted input key spelling a field's path does not take the field's findings", () => {
     const options: ISurveyLintOptions = { variablePresets: {
-      definition: { elements: [
+      definition: { dataNesting: "auto", elements: [
         { type: "panel", name: "user", valueName: "users", elements: [{ type: "text", name: "tier", isRequired: true }] }] },
       presets: [{ name: "P", variables: { "Users.Tier": 1, users: { TIER: "" } } }] } };
     const findings = presetFindings(EMPTY_SURVEY, options);
@@ -678,7 +678,7 @@ describe("the linter with a nested variable definition", () => {
     expect(findings[0].messageData).toMatchObject({ variable: "users", definitionQuestion: "user" });
   });
   test("name/shadowing: a container key equal to the object variable", () => {
-    const json = { elements: [{ type: "panel", name: "p", valueName: "users", elements: [{ type: "text", name: "street" }] }] };
+    const json = { dataNesting: "auto", elements: [{ type: "panel", name: "p", valueName: "users", elements: [{ type: "text", name: "street" }] }] };
     const findings = byRule(json, "name/shadowing", nestedOptions());
     expect(findings.map(f => f.reason + " @ " + f.path)).toEqual(["containerKeyShadowed @ elements[0].valueName"]);
     expect(findings[0].messageData.kind).toBe("variable");
@@ -702,7 +702,7 @@ describe("variable/dotted-key", () => {
       "A variable key cannot hold one, so the question declares no variable.");
   });
   test("a nesting panel or page whose key holds a dot is reported once, not its questions", () => {
-    const findings = dottedKeys(withDefinition({ pages: [
+    const findings = dottedKeys(withDefinition({ dataNesting: "auto", pages: [
       { name: "p1", elements: [{ type: "panel", name: "user", valueName: "us.ers", elements: [
         { type: "text", name: "tier" }, { type: "text", name: "x.y" }] }] },
       { name: "p2", valueName: "pa.ge", elements: [{ type: "text", name: "role" }] }] }));

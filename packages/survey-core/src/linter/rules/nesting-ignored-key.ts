@@ -27,7 +27,7 @@ function report(ctx: LintContext, panel: any, path: string, typeName: string): v
 // nests - its valueName is ignored in every mode ("Limitations" in docs/design-survey-nested-data.md). A
 // panel inside a dynamic panel's template or a matrix detail panel nests by its valueName; the template
 // panel and the detail panel themselves never nest, as they are the record, but the JSON gives them no
-// valueName to report. With "dataNesting": "none" every valueName is ignored by the author's own choice,
+// valueName to report. With "dataNesting": "none" (the default) every valueName is ignored,
 // so nothing is reported there. The panels of a composite definition (options.components) are found at
 // any depth: the walker does not index them, since a definition is never part of the survey's own elements.
 export const nestingIgnoredKeyRule: ILintRule = {

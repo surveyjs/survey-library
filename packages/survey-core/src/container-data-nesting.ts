@@ -42,10 +42,14 @@ export class ContainerDataNesting {
   public getScope(): PanelDataScope {
     return this.isUsed ? this.scope : null;
   }
+  // The survey's dataNesting; undefined for a container no survey owns.
+  private getMode(): string {
+    const container = this.container;
+    return getDataScopeHost(container.survey || ContainerDataNesting.getTemplateOwnerSurvey(container))?.dataNesting;
+  }
   // The one key rule. A by-name mode never changes a record's shape.
   private getKeyAt(place: DataNestingPlace, valueName: string, name: string): string {
-    const container = this.container;
-    const mode = getDataScopeHost(container.survey || ContainerDataNesting.getTemplateOwnerSurvey(container))?.dataNesting;
+    const mode = this.getMode();
     if (place === "survey") return getDataNestingKey(mode, this.getContainerKind(), valueName, name);
     return !!place && mode !== "none" ? valueName : "";
   }
@@ -55,6 +59,10 @@ export class ContainerDataNesting {
   // A template panel answers with the key of the records built from it: the Creator asks it before a rename.
   public getKeyFor(valueName: string, name: string): string {
     return this.getKeyAt(ContainerDataNesting.getPlace(this.container), valueName || "", name || "");
+  }
+  // Whether the container's key is ignored whatever it is: in "none", and where the container never nests.
+  public isKeyIgnored(): boolean {
+    return this.getMode() === "none" || ContainerDataNesting.getPlace(this.container) === "";
   }
   public getRecordKey(): string {
     return this.getKeyAt("record", this.container.valueName, this.container.name);

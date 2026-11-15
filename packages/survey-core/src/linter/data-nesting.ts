@@ -9,13 +9,13 @@ export function getContainerNestingKind(container: ContainerRecord): string {
   return container.kind === "panel" || container.kind === "page" ? container.kind : "";
 }
 
-// The mode the survey runs in: the JSON's, else the serializer default - which a host may have set to
-// "none" once in code, and which the linter shares through the one module closure.
+// The mode the survey runs in: the JSON's, else the serializer default ("none") - which a host may have set to
+// another mode once in code, and which the linter shares through the one module closure.
 export function getDataNestingMode(json: any): string {
   if (typeof json.dataNesting === "string") return json.dataNesting;
   const prop = Serializer.findProperty("survey", "dataNesting");
   const def = !!prop ? prop.defaultValue : undefined;
-  return typeof def === "string" ? def : "auto";
+  return typeof def === "string" ? def : "none";
 }
 
 // The name the runtime gives an unnamed page or panel: the first free <base>N among the names of the

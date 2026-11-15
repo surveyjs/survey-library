@@ -17,6 +17,7 @@ const names = (questions: Array<Question>): Array<string> => questions.map(q => 
 
 describe("records data scope: a dynamic panel's item", () => {
   const createSurvey = (): SurveyModel => new SurveyModel({
+    dataNesting: "auto",
     elements: [{ type: "paneldynamic", name: "pd", templateElements: [
       { type: "text", name: "a" },
       { type: "panel", name: "plain", elements: [{ type: "text", name: "b" }] },

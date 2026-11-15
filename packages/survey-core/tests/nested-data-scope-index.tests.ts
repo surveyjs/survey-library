@@ -14,7 +14,7 @@ const scopeNames = (survey: SurveyModel, panel: string): Array<string> =>
   names(panelOf(survey, panel).getDataScope().getDataKeyIndex().elements);
 
 describe("a data scope's index: questions added, removed and moved", () => {
-  const json = (): any => ({ elements: [
+  const json = (): any => ({ dataNesting: "auto", elements: [
     { type: "text", name: "top" },
     { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
     { type: "panel", name: "pb", elements: [{ type: "text", name: "q3" }] }] });
@@ -116,7 +116,7 @@ describe("a data scope's index: setPage (the move sends no add or remove notific
 
 describe("a data scope's index: keys", () => {
   test("a question's valueName changed inside a nesting container", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] }] });
     const pa = panelOf(survey, "pa");
     expect(names(pa.getDataScope().getDataKeyIndex().getQuestions("q1")), "#1").toEqual(["q1"]);
@@ -127,7 +127,7 @@ describe("a data scope's index: keys", () => {
     expect(survey.runExpression("{a.street}"), "#4").toBe("s");
   });
   test("a container's valueName set, changed and cleared", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "text", name: "top" },
       { type: "panel", name: "pa", elements: [{ type: "text", name: "q1" }] }] });
     const pa = panelOf(survey, "pa");
@@ -151,7 +151,7 @@ describe("a data scope's index: keys", () => {
     expect(q1.value, "#11").toBe(3);
   });
   test("dataNesting changed: the scopes follow, and the root's questions keep the order added", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1", valueName: "v" }] },
       { type: "text", name: "q2", valueName: "v" }] });
     expect(names(survey.getQuestionsByValueName("v")), "#1").toEqual(["q2"]);
@@ -165,7 +165,7 @@ describe("a data scope's index: keys", () => {
     expect(scopeNames(survey, "pa"), "#6").toEqual(["q1"]);
   });
   test("a panel that holds no data inside one that does, and the other way round", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "outer", valueName: "a", elements: [
         { type: "panel", name: "group", elements: [{ type: "text", name: "q1" }] },
         { type: "text", name: "q2" }] },
@@ -188,7 +188,7 @@ describe("a data scope's index: keys", () => {
 
 describe("a data scope's index inside a record", () => {
   test("a dynamic panel's record: a question added, an inner panel's valueName cleared and set", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
       { type: "text", name: "t1" },
       { type: "panel", name: "inner", valueName: "addr", elements: [{ type: "text", name: "street" }] }] }] });
     const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
@@ -210,7 +210,7 @@ describe("a data scope's index inside a record", () => {
     expect(dp.value[0].home, "#7").toEqual({ street: "h" });
   });
   test("a dynamic panel's record follows a dataNesting change", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
       { type: "panel", name: "inner", valueName: "addr", elements: [{ type: "text", name: "street" }] }] }] });
     const item: any = (<QuestionPanelDynamicModel>survey.getQuestionByName("dp")).panels[0].data;
     expect(names(item.getDataKeyIndex().elements), "#1").toEqual(["inner"]);
@@ -220,7 +220,7 @@ describe("a data scope's index inside a record", () => {
     expect(names(item.getDataKeyIndex().elements), "#3").toEqual(["inner"]);
   });
   test("a matrix's detail panel: built, an inner panel's valueName cleared", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
       columns: [{ name: "c1", cellType: "text" }],
       detailElements: [{ type: "text", name: "d1" }, { type: "panel", name: "geo", valueName: "geo", elements: [{ type: "text", name: "lat" }] }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
@@ -253,7 +253,7 @@ describe("a data scope's index: changes the walk saw live", () => {
     expect(survey.getQuestionByName("q1").value, "#4").toBe(5);
   });
   test("a nesting panel taken out of a record's panel and added back, then its page moved", () => {
-    const survey = new SurveyModel({ pages: [
+    const survey = new SurveyModel({ dataNesting: "auto", pages: [
       { name: "page1", elements: [{ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
         { type: "text", name: "t1" }, { type: "panel", name: "tp", valueName: "addr", elements: [{ type: "text", name: "street" }] }] }] },
       { name: "page2", elements: [{ type: "text", name: "q2" }] }] });
@@ -271,7 +271,7 @@ describe("a data scope's index: changes the walk saw live", () => {
     expect(survey.data, "#3").toEqual({ dp: [{ addr: { street: "s" } }] });
   });
   test("a dynamic panel dragged in design mode, and pages reordered in design mode: the template's questions", () => {
-    const survey = new SurveyModel({ elements: [
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "t1", valueName: "shared" }] },
       { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }] },
       { type: "text", name: "q3", valueName: "shared" }] });
@@ -294,7 +294,7 @@ describe("a data scope's index: changes the walk saw live", () => {
     expect(rootInfo(paged, "shared"), "#4").toEqual([]);
   });
   test("a page removed with a dynamic panel: its template's question leaves the root", () => {
-    const survey = new SurveyModel({ pages: [
+    const survey = new SurveyModel({ dataNesting: "auto", pages: [
       { name: "page1", elements: [{ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
         { type: "panel", name: "tp", valueName: "addr", elements: [{ type: "text", name: "t2", valueName: "shared" }] }] }] },
       { name: "page2", elements: [{ type: "text", name: "q3", valueName: "shared" }] }] });
@@ -303,7 +303,7 @@ describe("a data scope's index: changes the walk saw live", () => {
     expect(names(survey.getQuestionsByValueName("shared")), "#2").toEqual(["q3"]);
   });
   test("setPage with a read of the moved scope while the element is added", () => {
-    const survey = new SurveyModel({ pages: [{ name: "page1", elements: [{ type: "text", name: "q0" }] },
+    const survey = new SurveyModel({ dataNesting: "auto", pages: [{ name: "page1", elements: [{ type: "text", name: "q0" }] },
       { name: "page3", elements: [{ type: "panel", name: "p25", elements: [
         { type: "panel", name: "p26", valueName: "a", elements: [{ type: "text", name: "q27" }, { type: "text", name: "q28" }] }] }] }] });
     const scope = (): Array<string> => scopeNames(survey, "p26");

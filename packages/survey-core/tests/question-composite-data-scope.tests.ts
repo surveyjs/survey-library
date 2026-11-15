@@ -132,7 +132,7 @@ describe("composite question: content values through the data scope", () => {
         { type: "panel", name: "p2", valueName: "home", elements: [{ type: "text", name: "zip" }] }
       ]
     });
-    const survey = new SurveyModel({ elements: [{ type: "person", name: "who" }] });
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "person", name: "who" }] });
     const q = <QuestionCompositeModel>survey.getQuestionByName("who");
     content(q, "first").value = "Ann";
     content(q, "last").value = "Lee";

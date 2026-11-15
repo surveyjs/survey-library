@@ -12,6 +12,10 @@ import { expectFixSettles } from "./lint-test-helpers";
 function findingsOf(json: any, ruleId?: string, options?: ISurveyLintOptions): Array<ILintFinding> {
   return lintSurvey(json, options).findings.filter(f => !ruleId || f.ruleId === ruleId);
 }
+// The mode the nested-data fixtures are linted in: "none" (the default) would keep the data flat.
+function auto(json: any): any {
+  return Object.assign({ dataNesting: "auto" }, json);
+}
 function brief(findings: Array<ILintFinding>): Array<string> {
   return findings.map(f => f.ruleId + "/" + f.reason + " @ " + f.path);
 }
@@ -42,7 +46,7 @@ function exampleSurvey(): any {
 
 describe("linter nested data: no false findings", () => {
   test("the design-01 example survey is clean, references included", () => {
-    const json = exampleSurvey();
+    const json = auto(exampleSurvey());
     json.pages[1].elements.push(
       { type: "text", name: "r1", visibleIf: "{address.street} = 'Main' and {street} = 'Main'" },
       { type: "text", name: "r2", visibleIf: "{address} notempty and {step2.q3} = 3 and {q3} = 3" },
@@ -94,7 +98,7 @@ describe("linter nested data: no false findings", () => {
     expect(brief(findingsOf(json, "reference/unknown"))).toEqual([]);
   });
   test("an inner question with its own valueName answers it inside the container", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [
           { type: "text", name: "zip", valueName: "z" },
@@ -106,7 +110,7 @@ describe("linter nested data: no false findings", () => {
     expect(brief(refFindings(json))).toEqual([]);
   });
   test("a container key equal to an inner question's name (4.4) is not reported", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [{ type: "text", name: "address" }] },
         { type: "text", name: "q2", visibleIf: "{address.address} = 'x' and {address} notempty" },
@@ -115,7 +119,7 @@ describe("linter nested data: no false findings", () => {
     expect(brief(findingsOf(json))).toEqual([]);
   });
   test("two containers sharing one key share one object (D4)", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       pages: [
         { name: "p1", elements: [{ type: "panel", name: "a1", valueName: "address", elements: [{ type: "text", name: "street" }] }] },
         { name: "p2", elements: [
@@ -127,7 +131,7 @@ describe("linter nested data: no false findings", () => {
     expect(brief(findingsOf(json))).toEqual([]);
   });
   test("a dotted container key is addressable (D11)", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "a.b", elements: [{ type: "text", name: "w" }] },
         { type: "text", name: "q", visibleIf: "{a.b.w} = 'y'" },
@@ -136,7 +140,7 @@ describe("linter nested data: no false findings", () => {
     expect(brief(findingsOf(json))).toEqual([]);
   });
   test("matrices, multiple texts and comments inside the object", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [
           { type: "matrixdropdown", name: "m", rows: ["r"], columns: [{ name: "c", cellType: "text", totalType: "sum" }] },
@@ -153,7 +157,7 @@ describe("linter nested data: no false findings", () => {
 
 describe("linter nested data: references", () => {
   test("an unknown segment inside a container's object", () => {
-    const json = exampleSurvey();
+    const json = auto(exampleSurvey());
     json.pages[1].elements.push({ type: "text", name: "r1", visibleIf: "{address.stret} = 'Main'" });
     const findings = refFindings(json);
     expect(brief(findings)).toEqual(["reference/unknown/inContainer @ pages[1].elements[1].visibleIf"]);
@@ -163,12 +167,12 @@ describe("linter nested data: references", () => {
     expect(fixed.pages[1].elements[1].visibleIf).toBe("{address.street} = 'Main'");
   });
   test("an unknown key inside the object is reported though the runtime reads it from the raw data", () => {
-    const json = exampleSurvey();
+    const json = auto(exampleSurvey());
     json.pages[1].elements.push({ type: "text", name: "r1", visibleIf: "{address.foo} = 1" });
     expect(brief(refFindings(json))).toEqual(["reference/unknown/inContainer @ pages[1].elements[1].visibleIf"]);
   });
   test("an inner valueName does not answer at the root (D9)", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [{ type: "text", name: "zip", valueName: "z" }] },
         { type: "text", name: "q", visibleIf: "{z} = 1" },
@@ -187,7 +191,7 @@ describe("linter nested data: references", () => {
     expect(brief(refFindings(json))).toEqual(["reference/unknown/notFound @ pages[1].elements[0].visibleIf"]);
   });
   test("a path into a question's own value is still checked inside the object", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [{ type: "multipletext", name: "mt", items: [{ name: "i1" }] }] },
         { type: "text", name: "q", visibleIf: "{address.mt.i2} = 1" },
@@ -206,14 +210,15 @@ describe("linter nested data: references", () => {
     expect(findings[0].hint).toEqual({ reason: SurveyLintHintReasons.containerKeyNotNesting, name: "address" });
     expect(findings[0].message).toContain("\"none\"");
   });
-  test("a host default of \"none\" is read from the serializer", () => {
+  test("a host default of \"auto\" is read from the serializer", () => {
+    const json = exampleSurvey();
+    json.pages[1].elements.push({ type: "text", name: "r1", visibleIf: "{address.street} = 'Main'" });
+    expect(brief(refFindings(json)), "the stock default \"none\" keeps the data flat").toEqual(["reference/unknown/notFound @ pages[1].elements[1].visibleIf"]);
     const prop = Serializer.findProperty("survey", "dataNesting");
     const saved = prop.defaultValue;
-    prop.defaultValue = "none";
+    prop.defaultValue = "auto";
     try {
-      const json = exampleSurvey();
-      json.pages[1].elements.push({ type: "text", name: "r1", visibleIf: "{address.street} = 'Main'" });
-      expect(brief(refFindings(json))).toEqual(["reference/unknown/notFound @ pages[1].elements[1].visibleIf"]);
+      expect(brief(refFindings(json)), "a host default of \"auto\" nests").toEqual([]);
     } finally {
       prop.defaultValue = saved;
     }
@@ -235,12 +240,12 @@ describe("linter nested data: references", () => {
     expect(brief(refFindings(json)), "\"none\" keeps the record flat").toEqual(["reference/unknown/inContainer @ elements[1].visibleIf"]);
   });
   test("an object is checked as an object", () => {
-    const json = exampleSurvey();
+    const json = auto(exampleSurvey());
     json.pages[1].elements.push({ type: "text", name: "r1", visibleIf: "{address} > 3" });
     expect(brief(findingsOf(json, "expression/type-mismatch"))).toEqual(["expression/type-mismatch/non-scalar @ pages[1].elements[1].visibleIf"]);
   });
   test("a path reaches the inner question, so its choices are checked", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [{ type: "dropdown", name: "kind", choices: ["home", "work"] }] },
         { type: "text", name: "q", visibleIf: "{address.kind} = 'hom'" },
@@ -249,7 +254,7 @@ describe("linter nested data: references", () => {
     expect(brief(findingsOf(json, "expression/unknown-choice"))).toEqual(["expression/unknown-choice/notAmongChoices @ elements[1].visibleIf"]);
   });
   test("text piping resolves paths too", () => {
-    const json = exampleSurvey();
+    const json = auto(exampleSurvey());
     json.pages[1].elements.push({ type: "text", name: "r1", title: "{address.street} {address.nope}" });
     expect(brief(refFindings(json))).toEqual(["reference/unknown/inContainer @ pages[1].elements[1].title"]);
   });
@@ -303,7 +308,7 @@ describe("linter nested data: runtime parity of references", () => {
 
 describe("linter nested data: collisions", () => {
   test("a container key equal to a question's data key at the same level is an error (4.2)", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [{ type: "text", name: "street" }] },
         { type: "text", name: "address" },
@@ -316,6 +321,7 @@ describe("linter nested data: collisions", () => {
   });
   test("the conflict counts inside one object, with a question's valueName, and in a by-name mode", () => {
     const inner = {
+      dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [
           { type: "text", name: "zip" },
@@ -325,6 +331,7 @@ describe("linter nested data: collisions", () => {
     };
     expect(brief(findingsOf(inner, "nesting/key-conflict"))).toEqual(["nesting/key-conflict/questionKey @ elements[0].elements[1].valueName"]);
     const byValueName = {
+      dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [{ type: "text", name: "street" }] },
         { type: "multipletext", name: "mt", valueName: "address", items: [{ name: "street" }] },
@@ -341,7 +348,7 @@ describe("linter nested data: collisions", () => {
     expect(brief(findingsOf(byName, "nesting/key-conflict"))).toEqual(["nesting/key-conflict/questionKey @ elements[0].name"]);
   });
   test("different levels, two containers on one key and \"none\" are no conflict", () => {
-    const json: any = {
+    const json: any = { dataNesting: "auto",
       pages: [
         { name: "p1", elements: [
           { type: "panel", name: "a1", valueName: "address", elements: [{ type: "text", name: "street" }] },
@@ -357,7 +364,7 @@ describe("linter nested data: collisions", () => {
     expect(findingsOf(json, "nesting/key-conflict")).toHaveLength(0);
   });
   test("a container key equal to a calculated value, a host variable or a variable trigger is a warning (4.3)", () => {
-    const json: any = {
+    const json: any = { dataNesting: "auto",
       elements: [{ type: "panel", name: "p", valueName: "address", elements: [{ type: "text", name: "street" }] }],
       calculatedValues: [{ name: "address", expression: "1" }],
     };
@@ -377,22 +384,22 @@ describe("linter nested data: collisions", () => {
     expect(findings[0].messageData.kind).toBe("trigger");
   });
   test("a container key spelling a built-in variable is reported like a question's valueName", () => {
-    const json = { elements: [{ type: "panel", name: "p", valueName: "locale", elements: [{ type: "text", name: "street" }] }] };
+    const json = { dataNesting: "auto", elements: [{ type: "panel", name: "p", valueName: "locale", elements: [{ type: "text", name: "street" }] }] };
     expect(brief(findingsOf(json, "name/shadowing"))).toEqual(["name/shadowing/builtInVariable @ elements[0].valueName"]);
   });
   test("variable/collision skips an inner question, which writes no root key", () => {
     const options = { variablePresets: { definition: { elements: [{ type: "text", name: "street" }] } } };
-    expect(findingsOf(exampleSurvey(), "variable/collision", options)).toHaveLength(0);
-    const flat = exampleSurvey();
+    expect(findingsOf(auto(exampleSurvey()), "variable/collision", options)).toHaveLength(0);
+    const flat = auto(exampleSurvey());
     (<any>flat).dataNesting = "none";
     expect(findingsOf(flat, "variable/collision", options)).toHaveLength(1);
   });
   test("a reserved container key", () => {
-    const json: any = { elements: [{ type: "panel", name: "p", valueName: "constructor", elements: [{ type: "text", name: "street" }] }] };
+    const json: any = { dataNesting: "auto", elements: [{ type: "panel", name: "p", valueName: "constructor", elements: [{ type: "text", name: "street" }] }] };
     expect(brief(findingsOf(json, "name/reserved"))).toEqual(["name/reserved/containerKey @ elements[0].valueName"]);
     const byName = { dataNesting: "page", pages: [{ name: "toString", elements: [{ type: "text", name: "street" }] }] };
     expect(brief(findingsOf(byName, "name/reserved"))).toEqual(["name/reserved/containerKey @ pages[0].name"]);
-    expect(findingsOf({ pages: byName.pages }, "name/reserved")).toHaveLength(0);
+    expect(findingsOf({ dataNesting: "auto", pages: byName.pages }, "name/reserved")).toHaveLength(0);
   });
   test("the dotted-valueName warning stays for questions only", () => {
     const json = {
@@ -407,7 +414,7 @@ describe("linter nested data: collisions", () => {
 
 describe("linter nested data: data keys are compared within one object", () => {
   test("questions sharing a valueName in different objects share nothing", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [{ type: "checkbox", name: "c1", valueName: "x", choices: ["a"] }] },
         { type: "multipletext", name: "m1", valueName: "x", items: [{ name: "i" }] },
@@ -418,7 +425,7 @@ describe("linter nested data: data keys are compared within one object", () => {
     expect(brief(findingsOf(json, "name/shadowing"))).toEqual([]);
   });
   test("inside one object they share", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [
           { type: "checkbox", name: "c1", valueName: "x", choices: ["a"] },
@@ -450,7 +457,7 @@ describe("linter nested data: ignored and generated keys", () => {
     const options: ISurveyLintOptions = {
       components: { addr: { elementsJSON: [{ type: "panel", name: "pp", valueName: "box", elements: [{ type: "text", name: "t" }] }] } },
     };
-    const json: any = { elements: [{ type: "addr", name: "a1" }] };
+    const json: any = { dataNesting: "auto", elements: [{ type: "addr", name: "a1" }] };
     const findings = findingsOf(json, "nesting/ignored-key", options);
     expect(brief(findings)).toEqual(["nesting/ignored-key/insideComposite @ components.addr.elementsJSON[0].valueName"]);
     expect(findings[0].severity).toBe("warning");
@@ -534,7 +541,7 @@ describe("linter nested data: ignored and generated keys", () => {
 
 describe("linter nested data: triggers", () => {
   test("setToName and fromName take a name, a path or a container key", () => {
-    const json: any = exampleSurvey();
+    const json: any = auto(exampleSurvey());
     json.triggers = [
       { type: "setvalue", expression: "{q0} = 1", setToName: "street", setValue: "a" },
       { type: "setvalue", expression: "{q0} = 2", setToName: "address.street", setValue: "b" },
@@ -558,7 +565,7 @@ describe("linter nested data: triggers", () => {
 
 describe("linter nested data: review fixes", () => {
   test("a display-only question stores nothing: no conflict, and the container key answers", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "html", name: "address", html: "x" },
         { type: "panel", name: "p", valueName: "address", elements: [{ type: "dropdown", name: "street", choices: ["Main", "Side"] }] },
@@ -569,7 +576,7 @@ describe("linter nested data: review fixes", () => {
     expect(brief(findingsOf(json, "expression/unknown-choice"))).toEqual(["expression/unknown-choice/notAmongChoices @ elements[2].visibleIf"]);
   });
   test("a matrix total is reached by a path from the survey data only, as at runtime", () => {
-    const json: any = {
+    const json: any = { dataNesting: "auto",
       elements: [{ type: "panel", name: "p", valueName: "address", elements: [
         { type: "matrixdropdown", name: "m", rows: ["r"], columns: [{ name: "c", cellType: "text", inputType: "number", totalType: "sum" }] },
         { type: "text", name: "q", visibleIf: "{m-total.c} > 0" },
@@ -583,7 +590,7 @@ describe("linter nested data: review fixes", () => {
     expect(brief(refFindings(json))).toEqual(["reference/unknown/notFound @ elements[0].elements[1].visibleIf"]);
   });
   test("keys that differ in letter case are one object to a reference", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "pa", valueName: "Address", elements: [{ type: "text", name: "s1" }] },
         { type: "panel", name: "pb", valueName: "address", elements: [{ type: "text", name: "s2" }] },
@@ -596,7 +603,7 @@ describe("linter nested data: review fixes", () => {
     expect(brief(refFindings(json))).toEqual([]);
   });
   test("a container key on another question's comment or totals key", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [
         { type: "text", name: "q1", showCommentArea: true },
         { type: "panel", name: "p", valueName: "q1-Comment", elements: [{ type: "text", name: "t" }] },
@@ -610,7 +617,7 @@ describe("linter nested data: review fixes", () => {
     ]);
   });
   test("a trigger writing a container key replaces the object, though a question inside has the key's name (D13)", () => {
-    const json: any = {
+    const json: any = { dataNesting: "auto",
       elements: [
         { type: "panel", name: "p", valueName: "address", elements: [{ type: "dropdown", name: "address", choices: ["a"] }] },
         { type: "text", name: "q0" },
@@ -620,7 +627,7 @@ describe("linter nested data: review fixes", () => {
     expect(brief(findingsOf(json).filter(f => f.severity !== "info"))).toEqual([]);
   });
   test("a built-in name on an inner question: reachable inside its container and by its path", () => {
-    const json = {
+    const json = { dataNesting: "auto",
       elements: [{ type: "panel", name: "p", valueName: "address", elements: [{ type: "text", name: "locale" }] }],
     };
     const findings = findingsOf(json, "name/shadowing");
@@ -651,7 +658,7 @@ function recordsSurvey(): any {
 }
 describe("linter nested data: a nesting panel inside a record", () => {
   test("the records survey is clean: paths into the record's object resolve", () => {
-    const json = recordsSurvey();
+    const json = auto(recordsSurvey());
     const tpl = json.elements[0].templateElements;
     tpl.push({ type: "text", name: "t1", visibleIf: "{panel.address.street} = 'Main' and {panel.address} notempty and {prevPanel.address.street} = 'x'" });
     tpl[1].elements.push({ type: "text", name: "t2", visibleIf: "{street} = 'Main' and {panel.title} = 'A'", title: "{street} of {panel.address.kind}" });
@@ -662,7 +669,7 @@ describe("linter nested data: a nesting panel inside a record", () => {
     expect(brief(defects(json))).toEqual([]);
   });
   test("an unknown field inside the record's object, and a field of the object read off the record", () => {
-    const json = recordsSurvey();
+    const json = auto(recordsSurvey());
     json.elements[0].templateElements.push({ type: "text", name: "t1", visibleIf: "{panel.address.strete} = 1 or {panel.street} = 1 or {panel.nope} = 1" });
     json.elements[1].detailElements.push({ type: "text", name: "d1", visibleIf: "{row.street2} = 1" });
     json.elements.push({ type: "text", name: "q", visibleIf: "{items[0].address.strete} = 'x'" });
@@ -684,7 +691,7 @@ describe("linter nested data: a nesting panel inside a record", () => {
     expect(brief(findingsOf(json, "expression/unknown-choice"))).toEqual(["expression/unknown-choice/notAmongChoices @ elements[0].templateElements[2].visibleIf"]);
   });
   test("a path reaches the inner question, so its choices are checked", () => {
-    const json = recordsSurvey();
+    const json = auto(recordsSurvey());
     json.elements[0].templateElements.push({ type: "text", name: "t1", visibleIf: "{panel.address.kind} = 'hom'" });
     json.elements.push({ type: "text", name: "q", visibleIf: "{items[0].address.kind} = 'wrk'" });
     expect(brief(findingsOf(json, "expression/unknown-choice"))).toEqual([
@@ -693,7 +700,7 @@ describe("linter nested data: a nesting panel inside a record", () => {
     ]);
   });
   test("a record's object is no key of the survey data", () => {
-    const json = recordsSurvey();
+    const json = auto(recordsSurvey());
     json.elements.push({ type: "text", name: "q", visibleIf: "{address.street} = 'x'" });
     expect(brief(refFindings(json))).toEqual(["reference/unknown/notFound @ elements[2].visibleIf"]);
   });
@@ -714,7 +721,7 @@ describe("linter nested data: a nesting panel inside a record", () => {
     ]);
   });
   test("a container key equal to a question's key in the same record is an error (D4)", () => {
-    const json = recordsSurvey();
+    const json = auto(recordsSurvey());
     json.elements[0].templateElements.push({ type: "text", name: "addr", valueName: "address" });
     json.elements[1].columns.push({ name: "home" });
     const findings = findingsOf(json, "nesting/key-conflict");
@@ -725,7 +732,7 @@ describe("linter nested data: a nesting panel inside a record", () => {
     expect(findings[0].severity).toBe("error");
   });
   test("keys meet within one record level only", () => {
-    const json = recordsSurvey();
+    const json = auto(recordsSurvey());
     // the survey's address, a question inside the record's object keyed like it, and two containers
     // sharing one object (D4) are other levels or a share: none of them is reported
     json.elements.push({ type: "text", name: "address" });
@@ -738,7 +745,7 @@ describe("linter nested data: a nesting panel inside a record", () => {
     expect(brief(refFindings(json)), "both containers answer in the shared object").toEqual([]);
   });
   test("derived keys collide inside the record's object, not across its levels", () => {
-    const json = recordsSurvey();
+    const json = auto(recordsSurvey());
     const inner = json.elements[0].templateElements[1].elements;
     inner.push({ type: "text", name: "n1", showCommentArea: true });
     inner.push({ type: "text", name: "n1c", valueName: "n1-Comment" });
@@ -751,7 +758,7 @@ describe("linter nested data: a nesting panel inside a record", () => {
     ]);
   });
   test("a reserved container key inside a record is reported", () => {
-    const json = recordsSurvey();
+    const json = auto(recordsSurvey());
     json.elements[0].templateElements[1].valueName = "constructor";
     expect(brief(findingsOf(json, "name/reserved"))).toEqual(["name/reserved/containerKey @ elements[0].templateElements[1].valueName"]);
   });
@@ -802,14 +809,14 @@ function recordsParityRuntime(json: any): { survey: SurveyModel, panel: any, row
 }
 describe("linter nested data: runtime parity inside a record's object", () => {
   test("the parity survey is clean", () => {
-    expect(brief(defects(recordsParitySurvey()))).toEqual([]);
+    expect(brief(defects(auto(recordsParitySurvey())))).toEqual([]);
   });
   test("a template question: the linter resolves a reference exactly when the runtime gives a value", () => {
     const refs = ["panel.address.street", "panel.address.kind-Comment", "panel.address.m-total.c", "panel.address.m-total.nope",
       "panel.address.zip", "panel.Address.street", "panel.a.b", "panel.a.b.kind2", "panel.address.inner.w", "panel.address.foo",
       "panel.address.mt.i1", "panel.address.mt.nope", "panel.address"];
     refs.forEach(ref => {
-      const json = recordsParitySurvey();
+      const json = auto(recordsParitySurvey());
       json.elements[0].templateElements[4].visibleIf = "{" + ref + "} notempty";
       const runtimeVisible = recordsParityRuntime(json).panel.getQuestionByName("t1").isVisible;
       expect(refFindings(json).length === 0, ref).toBe(runtimeVisible);
@@ -819,7 +826,7 @@ describe("linter nested data: runtime parity inside a record's object", () => {
     const refs = ["row.home.street2", "row.home.street2-Comment", "row.home.m2-total.c", "row.home.mt2.i1", "row.home.mt2.nope",
       "row.home.foo", "row.home"];
     refs.forEach(ref => {
-      const json = recordsParitySurvey();
+      const json = auto(recordsParitySurvey());
       json.elements[1].columns[1].visibleIf = "{" + ref + "} notempty";
       json.elements[1].detailElements[1].visibleIf = "{" + ref + "} notempty";
       const row = recordsParityRuntime(json).row;
@@ -834,14 +841,14 @@ describe("linter nested data: runtime parity inside a record's object", () => {
       "items[0].address.zip", "items[0].a.b.kind2", "items[0].address.foo", "items[0].address.mt.nope",
       "rows[0].home.street2", "rows[0].home.street2-Comment", "rows[0].home.m2-total.c", "rows[0].home.mt2.nope"];
     refs.forEach(ref => {
-      const json = recordsParitySurvey();
+      const json = auto(recordsParitySurvey());
       json.elements.push({ type: "expression", name: "probe", expression: "{" + ref + "}" });
       const value = recordsParityRuntime(json).survey.runExpression("{" + ref + "}");
       expect(refFindings(json).length === 0, ref + " (runtime: " + JSON.stringify(value) + ")").toBe(value !== undefined && value !== null);
     });
   });
   test("objects whose keys differ in letter case are merged at every level", () => {
-    const json: any = { elements: [
+    const json: any = { dataNesting: "auto", elements: [
       { type: "panel", name: "pa", valueName: "address", elements: [
         { type: "panel", name: "i1", valueName: "inner", elements: [{ type: "text", name: "y" }] }] },
       { type: "panel", name: "pb", valueName: "Address", elements: [
@@ -857,7 +864,7 @@ describe("linter nested data: runtime parity inside a record's object", () => {
     });
   });
   test("a display-only question inside a record's object is found, as the metadata walk finds it", () => {
-    const json = recordsParitySurvey();
+    const json = auto(recordsParitySurvey());
     const survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
@@ -872,7 +879,7 @@ describe("linter nested data: runtime parity inside a record's object", () => {
     cases.forEach(c => {
       const res = survey.getQuestionByVariable(c.ref, c.context);
       expect(!!res ? res.question.name : null, c.ref).toBe(c.found);
-      const lintJson = recordsParitySurvey();
+      const lintJson = auto(recordsParitySurvey());
       lintJson.elements[0].templateElements[4].visibleIf = c.context === t1 ? "{" + c.ref + "} notempty" : "";
       lintJson.elements[1].detailElements[1].visibleIf = c.context === d1 ? "{" + c.ref + "} notempty" : "";
       expect(refFindings(lintJson).length === 0, c.ref).toBe(c.found !== null);
@@ -883,7 +890,7 @@ describe("linter nested data: runtime parity inside a record's object", () => {
     expect(brief(refFindings(json))).toEqual([]);
   });
   test("an unknown key below a question of a record's object is reported", () => {
-    const json = recordsParitySurvey();
+    const json = auto(recordsParitySurvey());
     json.elements[0].templateElements[4].visibleIf = "{panel.address.mt.i2} = 1";
     json.elements[1].columns[1].visibleIf = "{row.home.mt2.i2} = 1";
     json.elements.push({ type: "expression", name: "probe", expression: "{items[0].address.mt.i2}" });
@@ -896,7 +903,7 @@ describe("linter nested data: runtime parity inside a record's object", () => {
     expect(findings.map(f => f.suggestion), "the items are suggested").toEqual(["i1", "i1", "i1"]);
   });
   test("a path through a dotted key of a record's object reaches the question, so its choices are checked", () => {
-    const json = recordsParitySurvey();
+    const json = auto(recordsParitySurvey());
     json.elements[0].templateElements[3].elements.push({ type: "dropdown", name: "xy", valueName: "x.y", choices: ["home"] });
     json.elements.push({ type: "text", name: "q", visibleIf: "{items[0].a.b.kind2} = 'hom' or {items[0].a.b.x.y} = 'hom' or {items[0].a.b.kind2} = 'home'" });
     json.elements[0].templateElements[4].visibleIf = "{panel.a.b.kind2} = 'hom'";
@@ -927,7 +934,7 @@ describe("linter nested data: trigger variables and built-in container keys", ()
     expect(findings[0].messageData.triggerIndexes.slice().sort()).toEqual([0, 1]);
   });
   test("a container key spelling a built-in variable stays reachable by its path", () => {
-    const json: any = { elements: [{ type: "panel", name: "p", valueName: "pageno", elements: [
+    const json: any = { dataNesting: "auto", elements: [{ type: "panel", name: "p", valueName: "pageno", elements: [
       { type: "text", name: "street" }, { type: "text", name: "city" }] }] };
     let findings = findingsOf(json, "name/shadowing");
     expect(brief(findings)).toEqual(["name/shadowing/builtInVariable @ elements[0].valueName"]);
@@ -966,7 +973,7 @@ describe("linter nested data: the totals of a matrix class a host registers", ()
     try {
       const matrix = (name: string) => ({ type: "lintmatrixsub", name: name, rowCount: 1,
         columns: [{ name: "c", cellType: "text", totalType: "sum" }] });
-      const json: any = {
+      const json: any = { dataNesting: "auto",
         elements: [
           matrix("m"),
           { type: "panel", name: "p", valueName: "addr", elements: [matrix("m2")] },
@@ -984,6 +991,31 @@ describe("linter nested data: the totals of a matrix class a host registers", ()
       expect(findings[0].messageData.segment).toBe("nope");
     } finally {
       Serializer.removeClass("lintmatrixsub");
+    }
+  });
+});
+
+describe("linter nested data: the default mode is \"none\" (scoped-names 03)", () => {
+  const json = (extra?: any): any => Object.assign({
+    elements: [
+      { type: "panel", name: "p", valueName: "address", elements: [{ type: "text", name: "street" }] },
+      { type: "text", name: "q", visibleIf: "{address.street} = 'a'" },
+    ],
+  }, extra || {});
+  test("a JSON without dataNesting is linted as \"none\"", () => {
+    const none = brief(findingsOf(json({ dataNesting: "none" })));
+    expect(none, "\"none\" and \"auto\" differ").not.toEqual(brief(findingsOf(json({ dataNesting: "auto" }))));
+    expect(brief(findingsOf(json())), "no dataNesting").toEqual(none);
+  });
+  test("a serializer without a default falls back to \"none\"", () => {
+    const prop = Serializer.findProperty("survey", "dataNesting");
+    const def = prop.defaultValue;
+    const none = brief(findingsOf(json({ dataNesting: "none" })));
+    prop.defaultValue = undefined;
+    try {
+      expect(brief(findingsOf(json()))).toEqual(none);
+    } finally {
+      prop.defaultValue = def;
     }
   });
 });

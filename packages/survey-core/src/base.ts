@@ -1924,8 +1924,8 @@ export class Base implements IObjectValueContext {
   }
   public disableOnElementRerenderedEvent(): void {
     this.onElementRerenderedEventLock--;
-    if (this.onElementRerenderedEventLock <= 0) {
-      this.onElementRerendered?.fire(this, { isCancel: true });
+    if (this.onElementRerenderedEventLock === 0) {
+      this._onElementRerendered.fire(this, { isCancel: true });
     }
   }
   protected _onElementRerendered: EventBase<Base> = new EventBase();

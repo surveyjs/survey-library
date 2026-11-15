@@ -16,10 +16,8 @@
                     <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'center' } }"></ng-template>
                     <div [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth" [id]="model.activePage ? model.activePage.id : ''">
                       <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentTop' } }"></ng-template>
-                      <ng-container *ngIf="model.activePage">
-                        <ng-container *ngFor="let _ of [key]; trackBy: trackActivePage"> 
-                              <ng-template [component]="{ name: model.pageComponent || 'sv-page', data: { model: model.activePage, survey: model } }"></ng-template>
-                          </ng-container>
+                      <ng-container *ngIf="model.activePage"> 
+                        <ng-template [component]="{ name: model.pageComponent || 'sv-page', data: { model: model.activePage, survey: model }, key: key }"></ng-template>
                       </ng-container>
                       <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentBottom' } }"></ng-template>
                       <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>

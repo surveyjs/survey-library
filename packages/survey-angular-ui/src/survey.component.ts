@@ -17,7 +17,4 @@ export class SurveyComponent extends BaseAngular<SurveyModel> {
   protected getModel(): SurveyModel {
     return this.model;
   }
-  constructor(changeDetectorRef: ChangeDetectorRef, @Optional() @Inject(COMPONENT_DEPTH) depth?: number | null) {
-    super(changeDetectorRef, undefined, depth);
-  }
 }

@@ -9,10 +9,10 @@ import { SurveyBaseProviders } from "./component-depth";
   selector: "survey-content",
   templateUrl: "./survey-content.component.html"
 })
-export class SurveyContentComponent extends BaseAngular<SurveyModel> implements OnInit, AfterViewInit {
+export class SurveyContentComponent extends BaseAngular<SurveyModel> implements OnInit {
   @Input() model!: SurveyModel;
   @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
-  private isSurveyUpdated: boolean = false;
+  private isSurveyUpdated: boolean = true;
   public key = 0;
   protected getModel(): SurveyModel {
     return this.model;
@@ -37,9 +37,6 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
       this.model.renderCallback = <any>undefined;
     }
   }
-  ngAfterViewInit(): void {
-    this.isSurveyUpdated = true;
-  }
   override afterUpdate(): void {
     super.afterUpdate();
     if (!!this.model && this.isSurveyUpdated) {
@@ -47,9 +44,6 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
       this.model.afterRenderSurvey(this.rootEl.nativeElement);
       this.model.startTimerFromUI();
     }
-  }
-  public trackActivePage(_: number, id: number) {
-    return id;
   }
 }
 

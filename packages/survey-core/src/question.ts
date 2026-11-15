@@ -1269,6 +1269,9 @@ export class Question extends SurveyElement<Question>
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value);
+    // paddingLeft / paddingRight are cached, and without a survey they are "". Drop a value read
+    // before the question got this survey, since the row build no longer resets them on the way.
+    this.resetIndents();
     if (!this.survey) return;
     this.lifecycleCallbacks.questionCreated(this);
     if (isLight !== true) {

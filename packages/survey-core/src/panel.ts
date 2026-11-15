@@ -288,13 +288,20 @@ export class QuestionRowModel extends Base {
       var el = this.elements[i];
 
       if (el.isVisible) {
-        (<any>el).isSingleInRow = isSingleInRow;
+        // isSingleInRow and rightIndent are not stored before the first row build, and the getters return
+        // the defaults (true, 0). An unconditional write would fire a change for a value equal to the default
+        // and run updateElementCss down a panel's subtree, so write them only when the read value differs.
+        if ((<any>el).isSingleInRow !== isSingleInRow) {
+          (<any>el).isSingleInRow = isSingleInRow;
+        }
         var width = this.getElementWidth(el);
         if (!!width) {
           el.renderWidth = this.getRenderedWidthFromWidth(width);
           preSetWidthElements.push(el);
         }
-        el.rightIndent = 0;
+        if (el.rightIndent !== 0) {
+          el.rightIndent = 0;
+        }
         counter++;
       } else {
         el.renderWidth = "";

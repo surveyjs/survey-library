@@ -4886,3 +4886,129 @@ describe("Container visibility: childVisibilityChanged compares the stored isVis
     expect(row.changeUIMountCount(1), "a new mount counts from zero").toBe(1);
   });
 });
+describe("Row build writes isSingleInRow and rightIndent only when they change", () => {
+  const rowProps = ["isSingleInRow", "rightIndent"];
+  const logRowChanges = (elements: Array<SurveyElement>, log: Array<string>): void => {
+    elements.forEach(el => {
+      rowProps.forEach(prop => {
+        el.registerPropertyChangedHandlers([prop], (newValue: any) => {
+          log.push(el.name + "." + prop + "=" + newValue);
+        }, "row-build-test-" + prop);
+      });
+    });
+  };
+  // The survey renders its first page while it loads, so the elements under test sit on the second page.
+  const createSurvey = (): SurveyModel => new SurveyModel({
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q0" }] },
+      { name: "page2", elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "outer", elements: [
+          { type: "panel", name: "inner", elements: [{ type: "text", name: "q2" }] }
+        ] }
+      ] }
+    ]
+  });
+  const getElements = (survey: SurveyModel): Array<SurveyElement> => [
+    survey.getQuestionByName("q1"), <any>survey.getPanelByName("outer"),
+    <any>survey.getPanelByName("inner"), survey.getQuestionByName("q2")
+  ];
+  test("the first rendering of a page fires no change for an element alone in its row", () => {
+    const survey = createSurvey();
+    const page = survey.pages[1];
+    expect(page.wasRendered, "the second page is not rendered yet").toBe(false);
+    const elements = getElements(survey);
+    const log: Array<string> = [];
+    logRowChanges(elements, log);
+    page.onFirstRendering();
+    expect((<PanelModel>survey.getPanelByName("inner")).rows.length, "the nested panel has built its row").toBe(1);
+    expect(log, "no isSingleInRow or rightIndent change").toEqual([]);
+    elements.forEach(el => {
+      expect(el.isSingleInRow, el.name + " isSingleInRow").toBe(true);
+      expect(el.rightIndent, el.name + " rightIndent").toBe(0);
+    });
+  });
+  test("css classes read after the first rendering are the same as after a forced refresh", () => {
+    const survey = createSurvey();
+    const page = survey.pages[1];
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const outer = <PanelModel>survey.getPanelByName("outer");
+    const inner = <PanelModel>survey.getPanelByName("inner");
+    const readCss = (): any => ({
+      q1Root: q1.getRootCss(), q1Css: JSON.stringify(q1.cssClasses),
+      q2Root: q2.getRootCss(), q2Css: JSON.stringify(q2.cssClasses),
+      outerRoot: outer.getContainerCss(), outerCss: JSON.stringify(outer.cssClasses),
+      innerRoot: inner.getContainerCss(), innerCss: JSON.stringify(inner.cssClasses)
+    });
+    // Read before the build too, so a value cached before it would show up below.
+    readCss();
+    page.onFirstRendering();
+    const afterRendering = readCss();
+    [q1, q2, outer, inner].forEach(el => (<any>el).updateElementCss(false));
+    expect(readCss(), "the css classes do not depend on the clear the first row build ran").toEqual(afterRendering);
+  });
+  test("a question that joins a row makes both questions not single in it", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const page = survey.pages[0];
+    expect(page.wasRendered, "the page is rendered").toBe(true);
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = new QuestionTextModel("q2");
+    q2.startWithNewLine = false;
+    const log: Array<string> = [];
+    logRowChanges([q1, q2], log);
+    page.addElement(q2);
+    expect(page.rows.length, "one row").toBe(1);
+    expect(q1.isSingleInRow, "q1 isSingleInRow").toBe(false);
+    expect(q2.isSingleInRow, "q2 isSingleInRow").toBe(false);
+    expect(log.filter(s => s.indexOf(".isSingleInRow=") > -1).sort(), "isSingleInRow fires for both").toEqual(["q1.isSingleInRow=false", "q2.isSingleInRow=false"]);
+  });
+  test("a row that goes back to one element makes it single in the row again", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", startWithNewLine: false }] });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    expect(q1.isSingleInRow, "q1 shares the row").toBe(false);
+    const log: Array<string> = [];
+    logRowChanges([q1], log);
+    q2.visible = false;
+    expect(q1.isSingleInRow, "q1 is alone in its row").toBe(true);
+    expect(log, "isSingleInRow fires").toEqual(["q1.isSingleInRow=true"]);
+  });
+  test("an element whose rightIndent is not 0 gets 0 when its row builds", () => {
+    const survey = createSurvey();
+    const q1 = survey.getQuestionByName("q1");
+    q1.rightIndent = 2;
+    const log: Array<string> = [];
+    logRowChanges([q1], log);
+    survey.pages[1].onFirstRendering();
+    expect(q1.rightIndent, "rightIndent").toBe(0);
+    expect(log.filter(s => s.indexOf(".rightIndent=") > -1), "rightIndent fires").toEqual(["q1.rightIndent=0"]);
+  });
+  test("a question that read its indent outside a survey gets the survey's indent when added", () => {
+    const survey = createSurvey();
+    const page = survey.pages[1];
+    const expected = survey.getQuestionByName("q1");
+    expected.indent = 1;
+    const q = new QuestionTextModel("q");
+    q.indent = 1;
+    expect(q.paddingLeft, "no indent without a survey").toBe("");
+    page.addElement(q);
+    page.onFirstRendering();
+    expect(expected.paddingLeft, "a question of the survey has an indent").not.toBe("");
+    expect(q.paddingLeft, "the added question has the same indent").toBe(expected.paddingLeft);
+  });
+  test("a question on a page built outside a survey gets the survey's indent when the page is added", () => {
+    const survey = createSurvey();
+    const expected = survey.getQuestionByName("q1");
+    expected.indent = 1;
+    const page = new PageModel("page3");
+    const q = new QuestionTextModel("q");
+    q.indent = 1;
+    page.addElement(q);
+    expect(q.paddingLeft, "no indent without a survey").toBe("");
+    survey.addPage(page);
+    page.onFirstRendering();
+    expect(expected.paddingLeft, "a question of the survey has an indent").not.toBe("");
+    expect(q.paddingLeft, "the question has the survey's indent").toBe(expected.paddingLeft);
+  });
+});

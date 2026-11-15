@@ -56,22 +56,30 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return res;
   }
   componentDidMount() {
-    this.enableStateElementsRerenderEvent(this.getStateElements());
+    this.syncStateElementsRerenderEvent();
     this.propertyAccessTracker.subscribe();
   }
   componentWillUnmount() {
-    this.disableStateElementsRerenderEvent(this.getStateElements());
+    this.disableStateElementsRerenderEvent(Array.from(this.rerenderEventStateElements));
+    this.rerenderEventStateElements.clear();
     this.propertyAccessTracker.unsubscribe();
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     this.propertyAccessTracker.subscribe();
-    this.enableStateElementsRerenderEvent(this.getStateElements());
-    const stateElements = this.getStateElements();
-    this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.find(stateElement => stateElement == el)));
-    this.prevStateElements = [];
-    this.getStateElements().forEach((el) => {
+    const stateElements = this.syncStateElementsRerenderEvent();
+    stateElements.forEach((el) => {
       el.afterRerender();
     });
+  }
+  private rerenderEventStateElements = new Set<Base>();
+  private syncStateElementsRerenderEvent(): Array<Base> {
+    const stateElements = this.getStateElements();
+    const current = new Set(stateElements);
+    const prev = this.rerenderEventStateElements;
+    this.disableStateElementsRerenderEvent(Array.from(prev).filter(el => !current.has(el)));
+    this.enableStateElementsRerenderEvent(Array.from(current).filter(el => !prev.has(el)));
+    this.rerenderEventStateElements = current;
+    return stateElements;
   }
   private _allowComponentUpdate = true;
   protected allowComponentUpdate() {
@@ -81,13 +89,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   protected denyComponentUpdate() {
     this._allowComponentUpdate = false;
   }
-  private prevStateElements: Array<Base> = [];
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    const res = this._allowComponentUpdate && (this.state !== nextState || Object.keys(this.props).some(key => nextProps[key] !== this.props[key]));
-    if (res) {
-      this.prevStateElements = this.getStateElements();
-    }
-    return res;
+    return this._allowComponentUpdate && (this.state !== nextState || Object.keys(this.props).some(key => nextProps[key] !== this.props[key]));
   }
   protected forceHiddenDependencies() {}
   render(): React.JSX.Element | null {

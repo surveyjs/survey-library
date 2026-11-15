@@ -28,8 +28,8 @@ export function getElementDataScope(el: ISurveyDataElement): PanelDataScope {
 }
 
 const noElements: Array<any> = Object.freeze(<Array<any>>[]) as Array<any>;
-// Elements under their keys, exact and lower-case: one kind of a scope's index, or the names or the value
-// names of an ElementIndex. Null-prototype hashes (Bug#11858).
+// Elements under their keys, exact and lower-case: the names of an ElementIndex, or one kind of its keys or of a
+// template level's. Null-prototype hashes (Bug#11858).
 export class DataKeyHash<T = ISurveyDataElement> {
   private exact: HashTable<Array<T>> = Object.create(null);
   private lower: HashTable<Array<T>> = Object.create(null);
@@ -38,6 +38,15 @@ export class DataKeyHash<T = ISurveyDataElement> {
     if (!DataKeyHash.addTo(this.exact, key, el)) return false;
     DataKeyHash.addTo(this.lower, key.toLowerCase(), el);
     return true;
+  }
+  // As add, at el's rank in each list: before the first element ranked after it. An undefined rank goes last.
+  public insert(key: string, el: T, rank: (el: T) => number): void {
+    if (!DataKeyHash.insertInto(this.exact, key, el, rank)) return;
+    DataKeyHash.insertInto(this.lower, key.toLowerCase(), el, rank);
+  }
+  // Each element once, in no order: an element is under one exact key.
+  public forEach(callback: (el: T) => void): void {
+    Object.keys(this.exact).forEach(key => this.exact[key].forEach(callback));
   }
   // The lower-case list is left alone when el is not under the exact key: another key may differ in case only.
   public remove(key: string, el: T): void {
@@ -60,6 +69,21 @@ export class DataKeyHash<T = ISurveyDataElement> {
     list.push(el);
     return true;
   }
+  private static insertInto<T>(hash: HashTable<Array<T>>, key: string, el: T, rank: (el: T) => number): boolean {
+    const list = hash[key];
+    if (!list) {
+      hash[key] = [el];
+      return true;
+    }
+    if (list.indexOf(el) > -1) return false;
+    const elRank = rank(el);
+    let index = list.length;
+    if (elRank !== undefined) {
+      while(index > 0 && !(rank(list[index - 1]) <= elRank)) index--;
+    }
+    list.splice(index, 0, el);
+    return true;
+  }
   private static removeFrom<T>(hash: HashTable<Array<T>>, key: string, el: T): boolean {
     const list = hash[key];
     const index = !!list ? list.indexOf(el) : -1;
@@ -78,10 +102,10 @@ export interface IDataKeys {
   getQuestions(key: string, caseInsensitive?: boolean): Array<Question>;
   getScopes(key: string, caseInsensitive?: boolean): Array<PanelDataScope>;
 }
-// The keys of one data scope and the elements that own them, built by a walk of the scope: the questions
-// whose value scope it is, under their value name, and the active containers directly inside it, under their
-// key. Two elements may share a key: questions sharing a valueName, containers sharing one object, or a
-// question and a container (allowed at runtime, a linter error). A key is found exact or lower-case.
+// The keys of a records template's level (RecordKeyLevel), which is no runtime scope: a runtime scope keeps an
+// ElementIndex. The questions under their value name, and the nesting panels under their key. Two elements may
+// share a key: questions sharing a valueName, containers sharing one object, or a question and a container
+// (allowed at runtime, a linter error). A key is found exact or lower-case.
 // elements holds every element of the index once, in the order added: document order.
 export class DataKeyIndex implements IDataKeys {
   private questions = new DataKeyHash();

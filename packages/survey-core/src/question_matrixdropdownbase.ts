@@ -530,6 +530,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     if (destroyPanel) {
       const panel = this.detailPanelValue;
       this.detailPanelValue = null;
+      this.resetDataKeyIndex();
       if (!!panel && !!this.data) {
         this.data.disposeDroppedDetailPanel(panel);
       }
@@ -540,6 +541,9 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
     this.creatingDetailPanelScope.run((): void => {
       this.detailPanelValue = this.data.createRowDetailPanel(this);
+      // The row's elements are its cells and its detail panel's elements: a read while the panel was built saw
+      // the cells only.
+      this.resetDataKeyIndex();
       const value = this.getDataRowValue();
       /* The new detail questions take the record as rebindToRecord fills them (fillQuestionFromRecord), before
          they have data. The panel's own questions, not the index: the cells were filled when they were built. */
@@ -547,6 +551,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         this.detailPanelValue.questions.forEach((q: Question): void => this.fillQuestionFromRecord(q, value));
       }
       this.detailPanelValue.setSurveyImpl(this);
+      this.resetDataKeyIndex();
     });
   }
   getAllValues(): any {
@@ -814,7 +819,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         if (!this.isTwoValueEquals(qVal, question.value)) {
           this.setValue(key, question.value);
         }
-      } else if (this.getIndexScopes(key).length > 0) {
+      } else if (this.getDataKeyIndex().getScopes(key).length > 0) {
         this.clearIncorrectValuesInObject(key);
       } else {
         if (this.isUnknownValueKey(key)) {
@@ -826,7 +831,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   /* A nesting panel's key: the panel's questions clear their values, and the keys of its object no
      question stores go, in one write of the object. */
   private clearIncorrectValuesInObject(key: string): void {
-    this.getIndexScopes(key).forEach((scope: PanelDataScope): void => scope.forEachQuestion((q: Question): void => q.clearIncorrectValues()));
+    this.getDataKeyIndex().getScopes(key).forEach((scope: PanelDataScope): void => scope.forEachQuestion((q: Question): void => q.clearIncorrectValues()));
     const stored = this.getDataRowValue();
     if (!stored) return;
     const obj: any = {};
@@ -976,6 +981,8 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         this.assignQuestionFromRecord(cell.question, cell.column.name, value, true);
       }
     });
+    // A cell may have read the row's instance while the cells were built: the row's elements are its cells.
+    this.resetDataKeyIndex();
   }
   protected isTwoValueEquals(val1: any, val2: any): boolean {
     return Helpers.isTwoValueEquals(val1, val2, false, true, false);

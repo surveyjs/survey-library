@@ -98,7 +98,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { getActiveDataScope, ISurveyDataScopeHost } from "./panel-data-scope";
+import { getActiveDataScope, ISurveyDataScopeHost, ObjectDataScope } from "./panel-data-scope";
 import type { IDataKeys, IDataScope } from "./data-key-index";
 import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
@@ -1270,6 +1270,7 @@ export class SurveyModel extends SurveyElementCore
       (value: PageModel) => {
         // The page leaves the pages now, even when doOnPageRemoved runs later
         this.containerRemovedFromIndex(value);
+        this.rootDataScope.elementRemoved(value);
         this.questionTriggersChanged();
         if (!value.isReadyForClean) {
           value.isReadyForCleanChangedCallback = () => {
@@ -5055,7 +5056,7 @@ export class SurveyModel extends SurveyElementCore
   private checkUnknownDataKeys(scopes: Array<IDataScope>, obj: any, context?: IVerifyDataContext, isCopy?: boolean): boolean {
     if (!Helpers.isValueObject(obj, true) || Array.isArray(obj)) return false;
     let res = false;
-    // Built once: each key reads them twice, and a scope's index is a walk.
+    // Read once: each key reads them twice.
     const indexes = scopes.map(scope => scope.getDataKeyIndex());
     Object.keys(obj).forEach(key => {
       const inner: Array<IDataScope> = [];
@@ -7087,7 +7088,10 @@ export class SurveyModel extends SurveyElementCore
     const index = this.getDataKeyIndex();
     let res = index.getQuestions(valueName);
     if (res.length === 0 && caseInsensitive) res = index.getQuestions(valueName, true);
-    return res.length > 0 ? res : null;
+    if (res.length === 0) return null;
+    // Once a container has nested, a copy, as the filtered list it was: a survey without nesting gets the list as
+    // stored, as on master.
+    return this.isDataScopeUsedValue ? [].concat(res) : res;
   }
   public getCalculatedValueByName(name: string): CalculatedValue {
     for (var i = 0; i < this.calculatedValues.length; i++) {
@@ -7270,9 +7274,16 @@ export class SurveyModel extends SurveyElementCore
     if (loc === false && Helpers.isTwoValueEquals(value, oldValue, false, true, false)) return true;
     return loc;
   }
+  // The root's elements on a key, copied once a container has nested: a loop over them may change the root's
+  // instance, and the list was a filtered copy before. A survey without nesting loops over the list as stored, as
+  // on master.
+  private getRootKeyElements(key: string): Array<ISurveyDataElement> {
+    const res = this.getDataKeyIndex().getElements(key);
+    return this.isDataScopeUsedValue ? [].concat(res) : res;
+  }
   protected updateQuestionValue(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
-    const elements = this.getDataKeyIndex().getElements(valueName);
+    const elements = this.getRootKeyElements(valueName);
     for (let i: number = 0; i < elements.length; i++) {
       const el = elements[i];
       if (el.isQuestion) {
@@ -7341,7 +7352,7 @@ export class SurveyModel extends SurveyElementCore
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any, questionName: string, write?: IValueWrite): void {
     if (this.isLoadingFromJson) return;
     const writer = write?.writer;
-    const elements = this.getDataKeyIndex().getElements(valueName);
+    const elements = this.getRootKeyElements(valueName);
     for (let i: number = 0; i < elements.length; i++) {
       const el = elements[i];
       if (el.isQuestion) {
@@ -7474,6 +7485,15 @@ export class SurveyModel extends SurveyElementCore
   }
   dataScopeChanged(panel?: PanelModelBase): void {
     this.rootDataScope.dataScopeChanged(panel);
+  }
+  dataScopeKeysChanged(panel: PanelModelBase): void {
+    this.rootDataScope.dataScopeKeysChanged(panel);
+  }
+  dataKeyIndexBuilt(scope: ObjectDataScope, elements: Array<ISurveyDataElement>): void {
+    this.rootDataScope.dataKeyIndexBuilt(scope, elements);
+  }
+  elementMoved(el: IElement): void {
+    this.rootDataScope.elementMoved(el);
   }
   //#endregion
   private checkOnPageTriggers(isOnComplete: boolean) {
@@ -7931,6 +7951,7 @@ export class SurveyModel extends SurveyElementCore
     this.resetHasLogo();
     this.resetPropertyValue("titleIsEmpty");
     this.elementIndex.clear();
+    this.rootDataScope.resetDataKeyIndex();
     // A JSON without pages keeps the pages: they and their panels stay found, as when they were scanned.
     // Their questions are not, as before: the index is cleared, and only the pages and their panels are added
     // again. A JSON with pages removes them.
@@ -8492,6 +8513,7 @@ export class SurveyModel extends SurveyElementCore
     page.setSurveyImpl(this);
     this.elementIndex.add(page);
     this.containerContentAdded(page, true);
+    this.rootDataScope.elementAdded(page);
     this.updateVisibleIndexes();
     if (!!this.runningPages) return;
     if (!this.isLoadingFromJson) {
@@ -8507,6 +8529,7 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doOnPageRemoved(page: PageModel): void {
     page.setSurveyImpl(null);
+    this.rootDataScope.resetDataKeyIndex();
     if (!!this.runningPages) return;
     if (page === this.currentPage) {
       this.updateCurrentPage();
@@ -8732,8 +8755,9 @@ export class SurveyModel extends SurveyElementCore
       question.name = this.generateNewName(this.getAllQuestions(false, true), "question");
     }
     if (!!(<Question>question).page) {
-      this.elementIndex.add(question);
+      this.indexAdd(question);
     }
+    this.rootDataScope.elementAdded(question);
     this.questionTriggersChanged();
     if (!this.isLoadingFromJson) {
       if (!this.currentPage) {
@@ -8759,7 +8783,8 @@ export class SurveyModel extends SurveyElementCore
   }
   questionRemoved(question: Question): void {
     this.dropRemovedQuestionsWithPendingWrites();
-    this.elementIndex.remove(question);
+    this.indexRemove(question);
+    this.rootDataScope.elementRemoved(question);
     this.questionTriggersChanged();
     this.updateVisibleIndexes(question.page);
     this.onQuestionRemoved.fire(this, {
@@ -8776,19 +8801,36 @@ export class SurveyModel extends SurveyElementCore
     // Taken out and added again, not moved: a question the index does not hold yet (one inside a dynamic
     // panel, which questionAdded did not add) is added by its rename, and the question goes after the others
     // of its name, as before. The index knows the names it holds the question under.
-    this.elementIndex.remove(question);
-    this.elementIndex.add(question);
+    this.indexRemove(question);
+    this.indexAdd(question);
+    this.rootDataScope.questionRenamed(<Question>question);
   }
   // A panel or a page may have a new name: a name set while the JSON loads (in onPageAdded / onPanelAdded, or
   // a JSON "name": "") sends no notification, so the panel reports at its load end too. Only an element the
   // index holds moves: a panel of a dynamic panel's template is not added by its rename.
   elementRenamed(element: ISurveyElement): void {
     this.elementIndex.renamed(element);
+    if (!(<any>element).isQuestion) {
+      this.rootDataScope.panelRenamed(<PanelModelBase><any>element);
+    }
   }
   // Which elements enter elementIndex is the survey's decision, made in the helpers below and the callbacks
   // that call them: survey.pages, the panels getAllPanels() returns, the questions questionAdded reports with a
   // page, the questions of a panel panelAdded reports (with a page or not), and any question questionRenamed
   // reports.
+  // A question added to or removed from it changes the root data scope's questions too.
+  private indexAdd(el: ISurveyElement): void {
+    this.elementIndex.add(el);
+    if (el.isQuestion) {
+      this.rootDataScope.questionIndexed(<Question><any>el);
+    }
+  }
+  private indexRemove(el: ISurveyElement): void {
+    this.elementIndex.remove(el);
+    if (el.isQuestion) {
+      this.rootDataScope.questionIndexed(<Question><any>el);
+    }
+  }
 
   // The panels and questions inside a panel or a page. While the survey loads, each of them is added
   // by its own notification.
@@ -8797,7 +8839,7 @@ export class SurveyModel extends SurveyElementCore
     if (addPanels) {
       this.innerPanelsAdded(container);
     }
-    container.questions.forEach(q => this.elementIndex.add(q));
+    container.questions.forEach(q => this.indexAdd(q));
   }
   private innerPanelsAdded(container: PanelModelBase): void {
     const panels: Array<IPanel> = [];
@@ -8809,7 +8851,7 @@ export class SurveyModel extends SurveyElementCore
     const panels: Array<IPanel> = [];
     container.addPanelsIntoList(panels);
     panels.forEach(panel => this.elementIndex.remove(panel));
-    container.questions.forEach(q => this.elementIndex.remove(q));
+    container.questions.forEach(q => this.indexRemove(q));
   }
   panelAdded(panel: PanelModel, index: number, parentPanel: any, rootPanel: any): void {
     if (!panel.name) {
@@ -8826,6 +8868,7 @@ export class SurveyModel extends SurveyElementCore
       this.elementIndex.add(panel);
     }
     this.containerContentAdded(<PanelModelBase>(<any>panel), hasPage);
+    this.rootDataScope.elementAdded(panel);
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
     if (this.canFireAddElement()) {
@@ -8842,6 +8885,7 @@ export class SurveyModel extends SurveyElementCore
   }
   panelRemoved(panel: PanelModel): void {
     this.containerRemovedFromIndex(<PanelModelBase>(<any>panel));
+    this.rootDataScope.elementRemoved(panel);
     this.dropRemovedQuestionsWithPendingWrites();
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);

@@ -11,7 +11,7 @@ const panel = (name: string, key: string = ""): any => ({ name: name, isQuestion
 const isQuestion = (el: any): boolean => el.kind === "question";
 const isPanel = (el: any): boolean => el.kind === "panel";
 
-describe("ElementIndex: elements by name and questions by value name", () => {
+describe("ElementIndex: elements by name", () => {
   test("an element is found by its name and its kind", () => {
     const index = new ElementIndex();
     const q1 = question("q1");
@@ -72,61 +72,6 @@ describe("ElementIndex: elements by name and questions by value name", () => {
     index.add(first);
     expect(index.find("q", isQuestion), "added again: after the other").toBe(second);
   });
-  test("an element added twice is held once", () => {
-    const index = new ElementIndex();
-    const q = question("q", "v");
-    index.add(q);
-    index.add(q);
-    expect(index.getQuestionsByValueName("v")).toEqual([q]);
-    index.remove(q);
-    expect(index.find("q", isQuestion)).toBeNull();
-    expect(index.getQuestionsByValueName("v")).toEqual([]);
-  });
-  test("removing an element takes no name: the index knows what it holds it under", () => {
-    const index = new ElementIndex();
-    const q = question("q1", "v1");
-    index.add(q);
-    q.name = "q2";
-    q.valueName = "v2";
-    index.remove(q);
-    expect(index.find("q1", isQuestion)).toBeNull();
-    expect(index.getQuestionsByValueName("v1")).toEqual([]);
-  });
-  test("removing an element the index does not hold does nothing", () => {
-    const index = new ElementIndex();
-    const q = question("q");
-    index.add(q);
-    index.remove(question("q"));
-    index.remove(panel("q"));
-    expect(index.find("q", isQuestion)).toBe(q);
-    expect(index.getQuestionsByValueName("q")).toEqual([q]);
-  });
-  test("a changed name or value name: removed and added again", () => {
-    const index = new ElementIndex();
-    const q = question("q1", "v1");
-    index.add(q);
-    q.name = "q2";
-    q.valueName = "v2";
-    index.remove(q);
-    index.add(q);
-    expect(index.find("q1", isQuestion)).toBeNull();
-    expect(index.find("q2", isQuestion)).toBe(q);
-    expect(index.find("Q2", isQuestion, true, true)).toBe(q);
-    expect(index.getQuestionsByValueName("v1")).toEqual([]);
-    expect(index.getQuestionsByValueName("v2")).toEqual([q]);
-  });
-  test("an element added under a new name leaves its old name", () => {
-    const index = new ElementIndex();
-    const q = question("q1", "v1");
-    index.add(q);
-    q.name = "q2";
-    q.valueName = "v2";
-    index.add(q);
-    expect(index.find("q1", isQuestion)).toBeNull();
-    expect(index.find("q2", isQuestion)).toBe(q);
-    expect(index.getQuestionsByValueName("v1")).toEqual([]);
-    expect(index.getQuestionsByValueName("v2")).toEqual([q]);
-  });
   test("renamed: an element the index holds moves to its new name", () => {
     const index = new ElementIndex();
     const p = panel("p1");
@@ -136,39 +81,6 @@ describe("ElementIndex: elements by name and questions by value name", () => {
     expect(index.find("p1", isPanel)).toBeNull();
     expect(index.find("p2", isPanel)).toBe(p);
     expect(index.find("P2", isPanel, true)).toBe(p);
-  });
-  test("renamed: a question whose value name is its name moves under both", () => {
-    const index = new ElementIndex();
-    const q = question("q1");
-    index.add(q);
-    q.name = "q2";
-    index.renamed(q);
-    expect(index.find("q1", isQuestion)).toBeNull();
-    expect(index.find("q2", isQuestion)).toBe(q);
-    expect(index.getQuestionsByValueName("q1")).toEqual([]);
-    expect(index.getQuestionsByValueName("q2")).toEqual([q]);
-  });
-  test("renamed: a changed value name alone is not looked at", () => {
-    const index = new ElementIndex();
-    const q = question("q1", "v1");
-    index.add(q);
-    q.valueName = "v2";
-    index.renamed(q);
-    expect(index.getQuestionsByValueName("v1")).toEqual([q]);
-    expect(index.getQuestionsByValueName("v2")).toEqual([]);
-  });
-  test("two names that differ in letter case: removing one keeps the other found", () => {
-    const index = new ElementIndex();
-    const upper = question("Q");
-    const lower = question("q");
-    index.add(upper);
-    index.add(lower);
-    expect(index.find("q", isQuestion, true, false)).toBe(upper);
-    index.remove(upper);
-    expect(index.find("Q", isQuestion)).toBeNull();
-    expect(index.find("Q", isQuestion, true, true)).toBe(lower);
-    expect(index.find("q", isQuestion, true, false)).toBe(lower);
-    expect(index.getQuestionsByValueName("Q", true)).toEqual([lower]);
   });
   test("renamed: an element the index does not hold is not added", () => {
     const index = new ElementIndex();
@@ -205,30 +117,79 @@ describe("ElementIndex: elements by name and questions by value name", () => {
     index.renamed(q);
     expect(index.find("q1", isQuestion)).toBe(q);
   });
-  test("questions by value name: the exact name, or letter case ignored", () => {
+});
+
+describe("ElementIndex by name: names and stamps", () => {
+  test("an element added twice is held once, under one stamp", () => {
     const index = new ElementIndex();
-    const q1 = question("q1", "Shared");
-    const q2 = question("q2", "Shared");
-    const q3 = question("q3", "shared");
-    const q4 = question("q4");
-    [q1, q2, q3, q4].forEach(q => index.add(q));
-    expect(index.getQuestionsByValueName("Shared")).toEqual([q1, q2]);
-    expect(index.getQuestionsByValueName("shared")).toEqual([q3]);
-    expect(index.getQuestionsByValueName("SHARED")).toEqual([]);
-    expect(index.getQuestionsByValueName("SHARED", true)).toEqual([q1, q2, q3]);
-    expect(index.getQuestionsByValueName("q4"), "no valueName: the name").toEqual([q4]);
-    expect(index.getQuestionsByValueName("q1"), "a name is no value name").toEqual([]);
-    expect(index.getQuestionsByValueName("")).toEqual([]);
-  });
-  test("a question without a value name, and a panel with a key, are not held by value name", () => {
-    const index = new ElementIndex();
-    const q = question("q", "");
-    const p = panel("p", "key");
+    const q = question("q", "v");
     index.add(q);
+    const stamp = index.getStamp(q);
+    index.add(q);
+    expect(index.getStamp(q)).toBe(stamp);
+    expect(index.getHeldValueName(q)).toBe("v");
+    index.remove(q);
+    expect(index.find("q", isQuestion)).toBeNull();
+    expect(index.getStamp(q)).toBeUndefined();
+    expect(index.getHeldValueName(q)).toBeUndefined();
+  });
+  test("removing takes no name, and removing an element the index does not hold does nothing", () => {
+    const index = new ElementIndex();
+    const q = question("q1", "v1");
+    index.add(q);
+    index.remove(question("q1"));
+    index.remove(panel("q1"));
+    expect(index.find("q1", isQuestion)).toBe(q);
+    q.name = "q2";
+    index.remove(q);
+    expect(index.find("q1", isQuestion)).toBeNull();
+    expect(index.find("q2", isQuestion)).toBeNull();
+  });
+  test("an element added under a new name leaves its old name", () => {
+    const index = new ElementIndex();
+    const q = question("q1", "v1");
+    index.add(q);
+    q.name = "q2";
+    index.add(q);
+    expect(index.find("q1", isQuestion)).toBeNull();
+    expect(index.find("q2", isQuestion)).toBe(q);
+    expect(index.find("Q2", isQuestion, true, true)).toBe(q);
+  });
+  test("stamps: the order added by value name; another value name gives a new stamp, the same one keeps it", () => {
+    const index = new ElementIndex();
+    const q1 = question("q1", "v");
+    const q2 = question("q2", "v");
+    index.add(q1);
+    index.add(q2);
+    expect(index.getStamp(q1) < index.getStamp(q2)).toBe(true);
+    q1.name = "q1x";
+    index.add(q1);
+    expect(index.getStamp(q1) < index.getStamp(q2), "a new name alone keeps the stamp").toBe(true);
+    q1.valueName = "w";
+    index.add(q1);
+    expect(index.getHeldValueName(q1)).toBe("w");
+    expect(index.getStamp(q1) > index.getStamp(q2), "another value name: a new stamp").toBe(true);
+    q1.valueName = "x";
+    index.renamed(q1);
+    expect(index.getHeldValueName(q1), "renamed does not look at a value name alone").toBe("w");
+    index.remove(q2);
+    index.add(q2);
+    expect(index.getStamp(q2) > index.getStamp(q1), "added again: a new stamp").toBe(true);
+    const p = panel("p", "key");
     index.add(p);
-    expect(index.find("q", isQuestion)).toBe(q);
-    expect(index.getQuestionsByValueName("q")).toEqual([]);
-    expect(index.getQuestionsByValueName("key")).toEqual([]);
+    expect(index.getStamp(p), "a panel has no stamp").toBeUndefined();
+  });
+  test("two names that differ in letter case: removing one keeps the other found", () => {
+    const index = new ElementIndex();
+    const upper = question("Q");
+    const lower = question("q");
+    index.add(upper);
+    index.add(lower);
+    expect(index.find("q", isQuestion, true, false)).toBe(upper);
+    index.remove(upper);
+    expect(index.find("Q", isQuestion)).toBeNull();
+    expect(index.find("Q", isQuestion, true, true)).toBe(lower);
+    expect(index.find("q", isQuestion, true, false)).toBe(lower);
   });
   test("a name that is an Object.prototype member finds nothing (Bug#11858)", () => {
     const index = new ElementIndex();
@@ -236,36 +197,123 @@ describe("ElementIndex: elements by name and questions by value name", () => {
     ["constructor", "toString", "valueOf", "hasOwnProperty", "__proto__"].forEach(name => {
       expect(index.find(name, isQuestion), name).toBeNull();
       expect(index.find(name, isQuestion, true, true), name).toBeNull();
-      expect(index.getQuestionsByValueName(name), name).toEqual([]);
-      expect(index.getQuestionsByValueName(name, true), name).toEqual([]);
     });
-    const q = question("constructor", "toString");
-    index.add(q);
-    expect(index.find("constructor", isQuestion)).toBe(q);
-    expect(index.getQuestionsByValueName("toString")).toEqual([q]);
     const proto = question("__proto__");
     index.add(proto);
     expect(index.find("__proto__", isQuestion)).toBe(proto);
     expect(index.find("__PROTO__", isQuestion, true, true)).toBe(proto);
-    expect(index.getQuestionsByValueName("__proto__")).toEqual([proto]);
     index.remove(proto);
     expect(index.find("__proto__", isQuestion)).toBeNull();
-    expect(index.getQuestionsByValueName("__proto__")).toEqual([]);
   });
-  test("clear: nothing is held", () => {
+  test("forEachHeld gives each element once; clear holds nothing", () => {
     const index = new ElementIndex();
     const q = question("q", "v");
     const p = panel("p");
-    index.add(q);
-    index.add(p);
+    const other = panel("P");
+    [q, p, other].forEach(el => index.add(el));
+    const held: Array<any> = [];
+    index.forEachHeld(el => held.push(el));
+    expect(held).toHaveLength(3);
+    expect(held.indexOf(q) > -1 && held.indexOf(p) > -1 && held.indexOf(other) > -1).toBe(true);
     index.clear();
     expect(index.find("q", isQuestion)).toBeNull();
     expect(index.find("p", isPanel)).toBeNull();
-    expect(index.getQuestionsByValueName("v")).toEqual([]);
+    expect(index.getStamp(q)).toBeUndefined();
+    const after: Array<any> = [];
+    index.forEachHeld(el => after.push(el));
+    expect(after).toEqual([]);
     p.name = "p2";
     index.renamed(p);
     expect(index.find("p2", isPanel), "not held any more: a rename does not add it").toBeNull();
     index.add(q);
     expect(index.find("q", isQuestion)).toBe(q);
+  });
+});
+
+describe("ElementIndex by key: a data scope's instance", () => {
+  test("questions and containers by key: questions first on one key; the scopes of the containers", () => {
+    const index = new ElementIndex();
+    const q = question("a");
+    const scope = { name: "scope" };
+    const p: any = panel("p", "a");
+    p.getDataScope = (): any => scope;
+    index.addKeyed(p, "a");
+    index.addKeyed(q, "a");
+    expect(index.getElements("a")).toEqual([q, p]);
+    expect(index.getQuestions("a")).toEqual([q]);
+    expect(index.getScopes("a")).toEqual([scope]);
+    expect(index.elements, "the order added").toEqual([p, q]);
+    expect(index.find("a", isQuestion), "no names are held by key").toBeNull();
+  });
+  test("an element is held once; one without a key is in elements only", () => {
+    const index = new ElementIndex();
+    const q = question("q");
+    const noName = question(undefined, "");
+    index.addKeyed(q, "q");
+    index.addKeyed(q, "q");
+    index.addKeyed(noName, "");
+    expect(index.elements).toEqual([q, noName]);
+    expect(index.getQuestions("q")).toEqual([q]);
+    expect(index.getQuestions("")).toEqual([]);
+    expect(index.has(noName)).toBe(true);
+    expect(index.getHeldKey(noName)).toBe("");
+    index.removeKeyed(noName);
+    index.removeKeyed(question("q"));
+    expect(index.elements).toEqual([q]);
+    expect(index.has(noName)).toBe(false);
+  });
+  test("letter case, and keys that are Object.prototype members", () => {
+    const index = new ElementIndex();
+    const upper = question("A");
+    const lower = question("a");
+    index.addKeyed(upper, "A");
+    index.addKeyed(lower, "a");
+    expect(index.getQuestions("a")).toEqual([lower]);
+    expect(index.getQuestions("a", true)).toEqual([upper, lower]);
+    ["constructor", "toString", "__proto__"].forEach(name => {
+      expect(index.getElements(name), name).toEqual([]);
+      expect(index.getQuestions(name, true), name).toEqual([]);
+    });
+    const proto = question("__proto__");
+    index.addKeyed(proto, "__proto__");
+    expect(index.getQuestions("__proto__")).toEqual([proto]);
+    index.removeKeyed(upper);
+    expect(index.getQuestions("A", true), "the other letter case stays").toEqual([lower]);
+  });
+  test("without a rank a key's list follows elements: reKey keeps the place in elements", () => {
+    const index = new ElementIndex();
+    const q1 = question("q1", "v");
+    const q2 = question("q2", "w");
+    const q3 = question("q3", "v");
+    [q1, q2, q3].forEach(q => index.addKeyed(q, q.getValueName()));
+    expect(index.getQuestions("v")).toEqual([q1, q3]);
+    index.reKey(q2, "v");
+    expect(index.elements).toEqual([q1, q2, q3]);
+    expect(index.getQuestions("v"), "in the order of elements").toEqual([q1, q2, q3]);
+    expect(index.getQuestions("w")).toEqual([]);
+    index.reKey(q1, "w");
+    expect(index.getQuestions("v")).toEqual([q2, q3]);
+    expect(index.getQuestions("V", true)).toEqual([q2, q3]);
+    expect(index.getHeldKey(q1)).toBe("w");
+    index.reKey(question("q4"), "v");
+    expect(index.getQuestions("v"), "an element it does not hold is not added").toEqual([q2, q3]);
+  });
+  test("with a rank a key's list is in rank order; no rank goes last", () => {
+    const ranks = new Map<any, number>();
+    const index = new ElementIndex((el: any) => ranks.get(el));
+    const q1 = question("q1", "v");
+    const q2 = question("q2", "v");
+    const q3 = question("q3", "v");
+    ranks.set(q1, 1);
+    ranks.set(q2, 2);
+    index.addKeyed(q2, "v");
+    index.addKeyed(q3, "v");
+    index.addKeyed(q1, "v");
+    expect(index.getQuestions("v")).toEqual([q1, q2, q3]);
+    expect(index.elements, "elements: the order added").toEqual([q2, q3, q1]);
+    ranks.set(q2, 5);
+    index.reKey(q2, "w");
+    index.reKey(q2, "v");
+    expect(index.getQuestions("v")).toEqual([q1, q2, q3]);
   });
 });

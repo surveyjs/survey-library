@@ -822,6 +822,11 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
       }
     });
   }
+  // The survey's dataNesting changed (SurveyRootDataScope.dataScopeChanged): each object built so far builds its
+  // data key instances again.
+  public resetDataKeyIndexes(): void {
+    this.forEachItem((item: QuestionRecordItem): void => item.resetDataKeyIndexes());
+  }
   // The objects in created order, up to the first position getItem answers none for.
   private forEachItem(func: (item: QuestionRecordItem, position: number) => void): void {
     for (let i = 0; ; i++) {
@@ -4511,8 +4516,9 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   }
 
   // The record's questions on a value name, as the key index has them: in document order, a row's cells first.
+  // A copy: a caller may change it.
   public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
-    return this.getIndexQuestions(name, caseInsensitive);
+    return [].concat(this.getDataKeyIndex().getQuestions(name, caseInsensitive));
   }
   // The elements the record's keys come from, for the metadata mode (getQuestionByVariable): the record's own
   // (the panel's; a row's cells and detail panel).
@@ -4521,7 +4527,22 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   }
   // The record's nesting panels' scopes on a key.
   public getDataScopesByKey(name: string, caseInsensitive?: boolean): Array<PanelDataScope> {
-    return this.getIndexScopes(name, caseInsensitive);
+    return this.getDataKeyIndex().getScopes(name, caseInsensitive);
+  }
+  /* The survey's dataNesting changed: a panel with valueName inside the record turns on or off (RN3), and no
+     panel inside a record is attached again. The record's instance and those of the panels inside it are built
+     again, and so are those of the records questions inside it. */
+  public resetDataKeyIndexes(): void {
+    this.resetDataKeyIndex();
+    const reset = (elements: Array<IElement>): void => elements.forEach((el: any): void => {
+      if (el.isPanel) {
+        el.getDataScope()?.resetDataKeyIndex();
+        reset(el.elements);
+      } else {
+        el.resetDataKeyIndexes?.();
+      }
+    });
+    reset(this.getScopeElements());
   }
   /* The names an expression inside a nesting panel reads the record's objects by ({street}, {address},
      {address.street}): the keys of the nesting panels and the names and value names of their questions,
@@ -4554,6 +4575,9 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
 
   getSurvey(): ISurvey {
     return this.data ? this.data.getSurvey() : null;
+  }
+  protected getScopeSurvey(): ISurvey {
+    return this.getSurvey();
   }
   // The record as getAllValues() reads it: a row's includes its questions' current values.
   protected getObject(): any {
@@ -4593,7 +4617,7 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
     if (!isComment) {
       this.updateSharedQuestionsValue(name, newValue);
     }
-    const scopes = !isComment ? this.getIndexScopes(name) : [];
+    const scopes = !isComment ? this.getDataKeyIndex().getScopes(name) : [];
     const prevWrite = this.containerWrite;
     this.containerWrite = scopes.length > 0 ? { scopes: scopes, writer: this.getContainerWriter(scopes, questionName) } : undefined;
     try {

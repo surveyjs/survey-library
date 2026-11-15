@@ -39,7 +39,7 @@ import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
 import type { PanelDataScope } from "./panel-data-scope";
 import type { DataNestingPlace } from "./container-data-nesting";
-import { getDataScopeHost } from "./panel-data-scope";
+import { getDataScopeHost, getKeyHolderScope } from "./panel-data-scope";
 import { ContainerDataNesting } from "./container-data-nesting";
 import { Scope } from "./utils/scope";
 
@@ -520,11 +520,25 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.runWithoutAnimations(() => {
+      const prevKey = this.getDataScopeKey();
       super.setSurveyImpl(value, isLight);
       if (this.isDesignMode)this.onVisibleChanged();
       const elementsImpl = this.updateDataScope(value);
+      // An instance the elements' scope built while they were attached saw only some of them.
+      const holder = getKeyHolderScope(this.data);
+      const holderIndex = holder?.builtDataKeyIndex;
       for (var i = 0; i < this.elements.length; i++) {
         this.elements[i].setSurveyImpl(elementsImpl, isLight);
+      }
+      this.containerNesting.elementsAttached();
+      // An attach can start or stop the nesting (a panel attached before its parent is set does not nest, and nests
+      // once attached again): the instances it touches are built again, as at a key change. The survey may be gone
+      // already (a page taken out of the pages): the scope that holds the panel is told directly.
+      if (this.getDataScopeKey() !== prevKey) {
+        holder?.resetDataKeyIndex();
+        getDataScopeHost(this.survey)?.dataScopeKeysChanged(this);
+      } else if (!!holder && holder.builtDataKeyIndex !== holderIndex) {
+        holder.resetDataKeyIndex();
       }
     });
   }

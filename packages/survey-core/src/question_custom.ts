@@ -1227,6 +1227,9 @@ class CompositeDataScope extends ObjectDataScope {
   protected getObjectKey(obj: any, name: string): any {
     return !!obj ? obj[name] : undefined;
   }
+  protected getScopeSurvey(): ISurvey {
+    return this.question.survey;
+  }
   protected getScopeElements(): Array<IElement> {
     const panel = this.question.contentPanel;
     return !!panel ? panel.elements : [];
@@ -1456,6 +1459,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   // Created on first use, as newValueSettingScope below.
   private dataScopeValue: CompositeDataScope;
+  // The scope that holds the content questions' keys (getKeyHolderScope): an element added to the content goes
+  // into its instance.
+  public getContentDataScope(): ObjectDataScope {
+    return this.dataScope;
+  }
   private get dataScope(): CompositeDataScope {
     if (!this.dataScopeValue) {
       this.dataScopeValue = new CompositeDataScope(this);

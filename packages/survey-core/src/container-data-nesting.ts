@@ -100,7 +100,12 @@ export class ContainerDataNesting {
     const record = this.place === "record" ? getRecordDataScope(this.container.data) : null;
     if (!record) {
       host?.dataScopeChanged(this.container);
-    } else if (prevKey !== this.attachedKey) {
+      return;
+    }
+    // The instances the key touches: the record item's, and the root's, which holds a record question the flat
+    // structure holds (one renamed or added at runtime: its value scope is the survey).
+    host?.dataScopeKeysChanged(this.container);
+    if (prevKey !== this.attachedKey) {
       // The survey's indexes do not hold a record's questions: they read the record again.
       record.updateValuesFromData();
     }
@@ -113,6 +118,13 @@ export class ContainerDataNesting {
     if (elementsImpl !== prevImpl) {
       this.container.elements.forEach(el => el.setSurveyImpl(elementsImpl));
     }
+    this.elementsAttached();
+  }
+  // The container's elements got their data (again): they may have changed while it was elsewhere or held no data,
+  // its parent may be another scope, and a read while they were attached saw only some of them. Its instance is
+  // built again on its next read.
+  public elementsAttached(): void {
+    this.scope?.resetDataKeyIndex();
   }
 
   // A panel is where its top panel's elements are. The top panel itself ignores its key when it is a record

@@ -1071,6 +1071,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       newPage.addElement(<IElement>(<any>this), -1);
     }
     (<any>this).prevSurvey = undefined;
+    // The move sent no add or remove notification: the data scopes' instances follow the element.
+    getDataScopeHost(this.survey)?.elementMoved(<IElement>(<any>this));
   }
   protected getSearchableLocKeys(keys: Array<string>) {
     keys.push("title");

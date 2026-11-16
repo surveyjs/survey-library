@@ -16,6 +16,7 @@
     v-bind:title="item.getTooltip()"
     v-bind:data-sv-tooltip="item.getTooltip()"
     v-bind:aria-label="item.ariaLabel"
+    v-bind:aria-expanded="item.ariaExpanded"
     v-bind:role="item.ariaRole"
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >

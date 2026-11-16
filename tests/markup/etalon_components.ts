@@ -93,5 +93,33 @@ registerMarkupTests(
         return document.querySelector(".sv-popup .sv-popup__container") as HTMLElement;
       },
       snapshot: "list-component-with-separator"
+    }, {
+      name: "Test dropdown action button aria-expanded",
+      json: {
+        elements: [
+          {
+            "type": "text",
+            "name": "q1",
+            "title": "Question title"
+          }
+        ]
+      },
+      before: () => { Question["questionCounter"] = 100; },
+      initSurvey: (survey) => {
+        survey.onGetQuestionTitleActions.add((_, opt) => {
+          const item = createDropdownActionModel(
+            { title: "Options", showTitle: true, ariaExpanded: false },
+            { items: [new Action({ id: "1", title: "text1" })] });
+          opt.titleActions = [item];
+        });
+      },
+      getElement: (el) => {
+        const button = el?.querySelector(".sd-action-title-bar .sd-action-bar__item:not(.sv-dots) button");
+        if (!button) return null;
+        const wrapper = document.createElement("div");
+        wrapper.appendChild(button.cloneNode(true));
+        return wrapper;
+      },
+      snapshot: "action-bar-item-dropdown-aria-expanded"
     }
   ]);

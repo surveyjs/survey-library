@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
-import { createFilter } from "./filter-test-helpers";
+import { createFilter, presetList } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { Action } from "../../src/actions/action";
@@ -61,23 +61,24 @@ describe("QuestionFilterModel: the presets and fields it lets go of", () => {
     const restored = q.getItemByName("userItem1");
     expect([old.isDisposed, restored !== old, restored.isDisposed], "#1").toEqual([true, true, false]);
   });
-  test("deleting the respondent's preset disposes it, once its chip is gone", () => {
+  test("deleting the respondent's preset disposes it, once its row in the presets' list is gone", () => {
     const q = createFilter();
-    const chips = q.chipsToolbar;
+    const list = presetList(q);
     const own = q.addItem("Mine", [{ field: "age", operator: "less", value: 5 }]);
-    const chip = <Action>chips.getActionById("sv-filter-item-userItem1");
+    const row = <Action>list.getActionById("sv-filter-item-userItem1");
     q.deleteItem(own.name);
-    expect([own.isDisposed, chip.isDisposed, chips.actions.indexOf(chip)], "#1").toEqual([true, true, -1]);
+    expect([own.isDisposed, row.isDisposed, list.actions.indexOf(row)], "#1").toEqual([true, true, -1]);
   });
-  test("a preset replaced by another one of the same name gets a chip of its own in the row", () => {
+  test("a preset replaced by another one of the same name gets a row of its own in the presets' list", () => {
     const q = createFilter();
-    const chips = q.chipsToolbar;
+    const list = presetList(q);
     q.addItem("Old", [{ field: "age", operator: "less", value: 5 }]);
+    const old = <Action>list.getActionById("sv-filter-item-userItem1");
     (<SurveyModel>q.survey).uiState = { questions: { f1: { filter: { userItems: [userItem("userItem1", "New", 6)] } } } };
-    const chip = <Action>chips.getActionById("sv-filter-item-userItem1");
-    expect([chip.isDisposed, chip.title], "#1").toEqual([false, "New"]);
-    chip.action();
-    expect(q.activeItemName, "#2: the chip works").toBe("userItem1");
+    const row = <Action>list.getActionById("sv-filter-item-userItem1");
+    expect([row !== old, old.isDisposed, row.isDisposed, row.title], "#1").toEqual([true, true, false, "New"]);
+    list.onItemClick(row);
+    expect(q.activeItemName, "#2: the row works").toBe("userItem1");
   });
 });
 
@@ -92,7 +93,7 @@ describe("FilterToolbars: what is disposed, and only once", () => {
     const actions = countDisposes(Action, () => {
       popups = countDisposes(PopupModel, () => { q.dispose(); });
     });
-    expect(actions.size, "#1: filters, 3 badges, 2 presets, more, save, clear").toBeGreaterThanOrEqual(9);
+    expect(actions.size, "#1: filters, the presets' chip, its cross and 2 rows, 3 badges and their crosses, more, save, clear").toBeGreaterThanOrEqual(14);
     expect([disposedTwice(actions), disposedTwice(popups)], "#2").toEqual([0, 0]);
   });
   test("a gone chip leaves the row before it is disposed", () => {
@@ -104,13 +105,16 @@ describe("FilterToolbars: what is disposed, and only once", () => {
       chip.dispose = (): void => { res = chips.actions.indexOf(chip) > -1; original(); };
       return () => res;
     };
-    const preset = <Action>chips.getActionById("sv-filter-item-kids");
+    const list = presetList(q);
+    const row = <Action>list.getActionById("sv-filter-item-kids");
+    let rowInList: boolean;
+    const disposeRow = row.dispose.bind(row);
+    row.dispose = (): void => { rowInList = list.actions.indexOf(row) > -1; disposeRow(); };
     const badge = <Action>chips.getActionById("sv-filter-field-age");
-    const presetInRow = inRow(preset);
     const badgeInRow = inRow(badge);
     q.items.splice(1, 1);
     q.allowFastMode = false;
-    expect([presetInRow(), preset.isDisposed, badgeInRow(), badge.isDisposed], "#1").toEqual([false, true, false, true]);
+    expect([rowInList, row.isDisposed, badgeInRow(), badge.isDisposed], "#1").toEqual([false, true, false, true]);
   });
   test("a holder is disposed once it is emptied: a closed dialog's, a gone chip's, and every one on dispose", () => {
     const dialogs = stubDialogs();

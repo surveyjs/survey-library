@@ -5,6 +5,7 @@ import { createFilter } from "./filter-test-helpers";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { PanelModel } from "../../src/panel";
 import { Action } from "../../src/actions/action";
+import { FilterChip } from "../../src/filter/filter-toolbars";
 
 // An icon is drawn for the size it is shown at; one drawn for another size is scaled - blurred, its
 // lines thicker or thinner than the set's. A small or larger action shows an icon at 24px
@@ -19,6 +20,9 @@ function iconsOf(q: QuestionFilterModel): { [id: string]: string } {
   const res: { [id: string]: string } = {};
   const add = (a: Action): void => { res[a.id] = a.iconName; };
   add(q.clearToolbar.getActionById("sv-filter-clear"));
+  const preset = <FilterChip>q.chipsToolbar.getActionById("sv-filter-preset");
+  add(preset);
+  add(preset.clearAction);
   const modal = q.createFilterModal();
   add(modal.creationToolbar.getActionById("sv-filter-modal-add-preset"));
   add(modal.presetsTitleToolbar.getActionById("sv-filter-modal-edit-presets"));
@@ -38,6 +42,8 @@ describe("Filter: the icons of its buttons", () => {
   test("every button shows an icon drawn for its size: 16px in the chips row and the pencil, 24px elsewhere", () => {
     expect(iconsOf(control())).toEqual({
       "sv-filter-clear": "icon-close-16x16",
+      "sv-filter-preset": "icon-star-16x16",
+      "sv-filter-preset-clear": "icon-close-16x16",
       "sv-filter-modal-add-preset": "icon-plus-24x24",
       "sv-filter-modal-edit-presets": "icon-edit-16x16",
       "sv-filter-preset-delete": "icon-delete-24x24",

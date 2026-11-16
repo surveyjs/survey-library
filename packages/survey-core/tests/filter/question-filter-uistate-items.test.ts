@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { createSurvey } from "./filter-test-helpers";
+import { createSurvey, presetList } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
@@ -70,10 +70,10 @@ describe("QuestionFilterModel: uiState of the respondent's presets", () => {
 });
 
 describe("QuestionFilterModel: a restore after the chips row is drawn", () => {
-  test("the row shows the respondent's presets and no longer the deleted ones", () => {
+  test("the presets' list shows the respondent's presets and no longer the deleted ones", () => {
     const survey = create();
     const q = control(survey);
-    const chips = (): Array<string> => q.chipsToolbar.actions.map((a) => a.id).filter((id: string) => id.indexOf("sv-filter-item-") === 0);
+    const chips = (): Array<string> => presetList(q).actions.map((a: any) => a.id);
     expect(chips(), "#1").toEqual(["sv-filter-item-adults", "sv-filter-item-germans", "sv-filter-item-edges"]);
     survey.uiState = { questions: { f1: { filter: { deletedItems: ["germans"],
       userItems: [{ name: "userItem1", title: "Old", expression: "{age} > 60" }] } } } };

@@ -2,7 +2,8 @@ import { Base, ComputedUpdater } from "../base";
 import { property } from "../decorators";
 import { Action, IAction, IActionAppearance } from "../actions/action";
 import { ActionContainer } from "../actions/container";
-import { getActionDropdownButtonTarget } from "../actions/dropdown-action";
+import { createPopupModelWithListModel, getActionDropdownButtonTarget } from "../actions/dropdown-action";
+import { ListModel } from "../list";
 import { IDialogOptions, PopupModel } from "../popup";
 import type { PopupModalViewModel } from "../popup-modal-view-model";
 import { getLocaleString } from "../surveyStrings";
@@ -44,6 +45,8 @@ export class FilterChip extends Action {
   @property({ defaultValue: false }) isClearable: boolean;
   public clearAction: Action;
   public boxCss: string;
+  // The chip's own class, which the clearable modifier is added to.
+  public chipCss: string;
   public dispose(): void {
     if (!!this.clearAction) {
       this.clearAction.dispose();
@@ -58,8 +61,9 @@ export interface IFilterToolbarsOwner {
   visibleItems: Array<FilterItem>;
   activeItem: FilterItem;
   toggleItem(item: FilterItem | string): void;
-  // A button clicked in the designer, where it does nothing of its own: a preset's chip names its
-  // preset, every other button the control itself (item undefined).
+  // A button clicked in the designer, where it does nothing of its own: the presets' chip names the
+  // preset it shows, every other button - and the presets' chip showing none - the control itself
+  // (item undefined).
   onDesignItemClick(item?: FilterItem): void;
   canSaveActiveItem: boolean;
   saveActiveItem(): void;
@@ -92,6 +96,11 @@ export interface IFilterFieldState {
   kind: FilterFieldEditorKind;
   text: string;
 }
+// A row of the presets' list and the preset it picks.
+interface IFilterPresetRow {
+  item: FilterItem;
+  row: Action;
+}
 // The content component of the Filters dialog, of a badge's popup, and the component of a chip.
 export const filterModalComponentName = "sv-filter-modal";
 export const filterFieldPopupComponentName = "sv-filter-field-popup";
@@ -99,13 +108,14 @@ export const filterChipComponentName = "sv-filter-chip";
 export const filterPresetDialogComponentName = "sv-filter-preset-dialog";
 
 // The control's UI as standard action bars the question owns, drawn with sv-action-bar:
-// - the chips row: Filters (when there is no search box to stand next to), a badge per fast mode
-//   field, the presets and "Show More" last;
+// - the chips row: Filters (when there is no search box to stand next to), the presets' chip, a badge
+//   per fast mode field and "Show More" last;
 // - the clear row: Save (single mode only) and Clear All, at the right end of the chips row;
 // - the search row: Filters, next to the search box.
 // A badge with a condition has a cross that clears it (FilterChip), one without has the chevron of
-// its popup. An active preset lights its chip where it stands, and the badges show its conditions and
-// stay editable: an edit - a cross too - turns the preset off and keeps them
+// its popup. The presets are one chip that opens their list: "Preset" while none is on, the active
+// preset's title and a cross that turns it off otherwise. The badges show the active preset's
+// conditions and stay editable: an edit - a cross too - turns the preset off and keeps them
 // (QuestionFilterModel.editConditions). Only a preset with no conditions to show locks the badges
 // (QuestionFilterModel.isLocked): no chevron or cross, no popup, and a click turns the preset off.
 // Kept in sync by update(), which the control calls on
@@ -121,9 +131,12 @@ export class FilterToolbars {
   private saveAction: Action;
   private clearAction: Action;
   private fieldChips: { [key: string]: { chip: FilterChip, holder: FilterEditorHolder } } = {};
-  private itemChips: Array<{ item: FilterItem, chip: Action }> = [];
-  // The chips the row holds, in order. Compared by object and not by id: a preset replaced by another
-  // one of the same name (a restored uiState, a new items array) has a new chip with the same id.
+  private presetChip: FilterChip;
+  // The rows of the presets' list, one per visible preset. Compared by object and not by id: a preset
+  // replaced by another one of the same name (a restored uiState, a new items array) has a new row with
+  // the same id.
+  private presetRows: Array<IFilterPresetRow> = [];
+  // The chips the row holds, in order.
   private rowChips: Array<Action>;
   private advancedHolder: FilterEditorHolder;
   private advancedDialog: PopupModalViewModel;
@@ -390,13 +403,17 @@ export class FilterToolbars {
     this.advancedDialog = undefined;
     this.advancedHolder = undefined;
     const actions: Array<Action> = Object.keys(this.fieldChips).map((key: string): Action => this.takeFieldChip(key));
-    this.itemChips.forEach((entry: { item: FilterItem, chip: Action }): void => { actions.push(entry.chip); });
-    this.itemChips = [];
+    if (!!this.presetChip) {
+      this.presetChip.popupModel.hide();
+    }
+    // The list's rows go with the list, and the list with the chip's popup.
+    this.presetRows = [];
     this.rowChips = undefined;
-    [this.filtersAction, this.moreAction, this.saveAction, this.clearAction].forEach((a: Action): void => {
+    [this.filtersAction, this.presetChip, this.moreAction, this.saveAction, this.clearAction].forEach((a: Action): void => {
       if (!!a) actions.push(a);
     });
     this.filtersAction = undefined;
+    this.presetChip = undefined;
     this.moreAction = undefined;
     this.saveAction = undefined;
     this.clearAction = undefined;
@@ -446,11 +463,11 @@ export class FilterToolbars {
     if (!this.chipsToolbarValue) return;
     const states = this.owner.isFastModeAvailable ? this.owner.getFastModeFieldStates() : [];
     const items = this.owner.visibleItems;
-    const gone = this.takeGoneChips(states, items);
+    const gone = this.takeGoneChips(states);
     const chips: Array<Action> = [];
     if (!this.isFiltersInSearchRow && this.isFiltersShown) chips.push(this.getFiltersAction());
+    if (items.length > 0) chips.push(this.getPresetChip());
     states.forEach((state: IFilterFieldState): void => { chips.push(this.getFieldChip(state.key)); });
-    items.forEach((item: FilterItem): void => { chips.push(this.getItemChip(item)); });
     chips.push(this.getMoreAction());
     if (!this.isSameList(this.rowChips, chips)) {
       this.rowChips = chips;
@@ -458,7 +475,9 @@ export class FilterToolbars {
     }
     gone.forEach((chip: Action): void => { chip.dispose(); });
     states.forEach((state: IFilterFieldState): void => { this.updateFieldChip(state); });
-    this.itemChips.forEach((entry: { item: FilterItem, chip: Action }): void => { this.updateItemChip(entry.item, entry.chip); });
+    if (!!this.presetChip) {
+      this.updatePresetChip(items);
+    }
     this.updateFiltersAction();
     this.updateOverflow();
   }
@@ -550,6 +569,7 @@ export class FilterToolbars {
       const chip = new FilterChip({ id: "sv-filter-field-" + key, component: filterChipComponentName, innerCss: this.cssClasses.chip,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.onFieldChipClick(key); } });
       chip.boxCss = this.cssClasses.chipBox;
+      chip.chipCss = this.cssClasses.chip;
       chip.clearAction = this.createChipClearAction("sv-filter-clear-" + key, { style: "brand", mode: "primary" },
         (): void => { this.owner.clearFieldCondition(key); });
       chip.popupModel = popup;
@@ -636,50 +656,100 @@ export class FilterToolbars {
     chip.isClearable = isVisible;
     clear.ariaLabel = label;
     clear.tooltip = label;
-    chip.innerCss = toCssClasses(this.cssClasses.chip, isVisible && this.cssClasses.chipClearable);
+    chip.innerCss = toCssClasses(chip.chipCss, isVisible && this.cssClasses.chipClearable);
   }
-  private getItemChip(item: FilterItem): Action {
-    let entry = this.itemChips.filter((e: { item: FilterItem, chip: Action }): boolean => e.item === item)[0];
-    if (!entry) {
-      // A chip of its own even for a second preset with the same name (an authoring error): the row
-      // tells its chips apart by id, and so does a renderer.
-      const id = getUniqueFilterActionId("sv-filter-item-" + item.name,
-        (candidate: string): boolean => this.itemChips.some((e: { item: FilterItem, chip: Action }): boolean => e.chip.id === candidate));
-      // A toggle: a checkbox, as aria-checked is not allowed on the default button role.
-      const chip = new Action({ id: id, innerCss: this.cssClasses.chip, ariaRole: "checkbox", ariaChecked: false,
-        activeAppearance: { style: "brand", mode: "primary" }, action: (): void => {
-          if (this.owner.isDesignMode) {
-            this.owner.onDesignItemClick(item);
-          } else if (!this.owner.isControlReadOnly) {
-            this.owner.toggleItem(item);
-          }
-        } });
-      // Borrowed after the constructor, so a retitled preset and a locale change reach the chip
-      // without an update.
-      chip.locTitle = item.locTitle;
-      entry = { item: item, chip: chip };
-      this.itemChips.push(entry);
+  // The presets' chip and the list it opens - the standard list popup, under the chip as a badge's
+  // popup is, a sheet on a phone. A pick turns the preset on (the active one stays on) and closes the
+  // list; the chip's cross turns it off. In the designer the chip opens nothing and reports the click
+  // on the preset it shows, or on the control while it shows none.
+  private getPresetChip(): FilterChip {
+    if (!this.presetChip) {
+      const popup = createPopupModelWithListModel({ items: [], allowSelection: true, onSelectionChanged: (row: IAction): void => {
+        const item: FilterItem = row.data;
+        if (this.owner.isDesignMode || this.owner.isControlReadOnly) return;
+        if (!!item && item !== this.owner.activeItem) {
+          this.owner.toggleItem(item);
+        }
+      } }, { showPointer: false, verticalPosition: "bottom", horizontalPosition: "center" });
+      popup.positionMode = "fixed";
+      popup.getTargetCallback = getActionDropdownButtonTarget;
+      popup.onFooterActionsCreated.add((_: PopupModel, options: { actions: Array<IAction> }): void => {
+        options.actions = [];
+      });
+      const chip = new FilterChip({ id: "sv-filter-preset", component: filterChipComponentName,
+        innerCss: toCssClasses(this.cssClasses.chip, this.cssClasses.chipPreset), iconName: "icon-star-16x16", iconSize: "auto",
+        activeAppearance: { style: "neutral", mode: "primary" }, action: (): void => { this.onPresetChipClick(); } });
+      chip.boxCss = this.cssClasses.chipBox;
+      chip.chipCss = toCssClasses(this.cssClasses.chip, this.cssClasses.chipPreset);
+      chip.clearAction = this.createChipClearAction("sv-filter-preset-clear", { style: "neutral", mode: "primary" },
+        (): void => { this.owner.clearActiveItem(); });
+      chip.popupModel = popup;
+      this.presetChip = chip;
     }
-    return entry.chip;
+    return this.presetChip;
   }
-  private updateItemChip(item: FilterItem, chip: Action): void {
-    chip.active = item === this.owner.activeItem;
-    chip.ariaChecked = chip.active;
-    chip.enabled = !this.owner.isControlReadOnly;
+  private get presetList(): ListModel { return this.presetChip.popupModel.contentComponentData.model; }
+  private onPresetChipClick(): void {
+    if (this.owner.isDesignMode) {
+      this.owner.onDesignItemClick(this.owner.activeItem);
+      return;
+    }
+    if (this.owner.isControlReadOnly) return;
+    const popup = this.presetChip.popupModel;
+    if (!popup.isVisible) {
+      this.updateFieldPopupMode(popup);
+    }
+    popup.toggleVisibility();
   }
-  // A field or a preset that is no longer shown takes its chip with it: the chips that are gone, which
-  // the caller disposes once the row no longer holds them.
-  private takeGoneChips(states: Array<IFilterFieldState>, items: Array<FilterItem>): Array<Action> {
+  private updatePresetChip(items: Array<FilterItem>): void {
+    const chip = this.presetChip;
+    const active = this.owner.activeItem;
+    const isReadOnly = this.owner.isControlReadOnly;
+    const isOn = !!active && items.indexOf(active) > -1;
+    this.updatePresetRows(items);
+    chip.title = isOn ? active.title : filterUIStrings.preset;
+    chip.active = isOn;
+    this.updateChipClearAction(chip, isOn && !isReadOnly, chip.title);
+    chip.markerIconName = !isReadOnly && !isOn ? "icon-chevrondown-24x24" : undefined;
+    chip.enabled = !isReadOnly;
+    if (isReadOnly || items.length === 0) {
+      chip.popupModel.hide();
+    }
+    const selected = this.presetRows.filter((e: IFilterPresetRow): boolean => e.item === active)[0];
+    this.presetList.selectedItem = !!selected ? selected.row : undefined;
+  }
+  // A row of its own even for a second preset with the same name (an authoring error): the list tells
+  // its rows apart by id, and so does a renderer. A row borrows its preset's title, so a retitled preset
+  // and a locale change reach it without an update.
+  private updatePresetRows(items: Array<FilterItem>): void {
+    const old = this.presetRows;
+    const rows: Array<IFilterPresetRow> = items.map((item: FilterItem): IFilterPresetRow =>
+      old.filter((e: IFilterPresetRow): boolean => e.item === item)[0] || { item: item, row: undefined });
+    const used: { [id: string]: boolean } = {};
+    rows.forEach((e: IFilterPresetRow): void => {
+      if (!!e.row) used[e.row.id] = true;
+    });
+    rows.forEach((e: IFilterPresetRow): void => {
+      if (!!e.row) return;
+      const id = getUniqueFilterActionId("sv-filter-item-" + e.item.name, (candidate: string): boolean => !!used[candidate]);
+      used[id] = true;
+      e.row = new Action({ id: id, data: e.item });
+      e.row.locTitle = e.item.locTitle;
+    });
+    this.presetRows = rows;
+    const newRows = rows.map((e: IFilterPresetRow): Action => e.row);
+    if (this.isSameList(old.map((e: IFilterPresetRow): Action => e.row), newRows)) return;
+    this.presetList.setItems(newRows, false);
+    old.filter((e: IFilterPresetRow): boolean => newRows.indexOf(e.row) < 0).forEach((e: IFilterPresetRow): void => { e.row.dispose(); });
+  }
+  // A field that is no longer shown takes its chip with it: the chips that are gone, which the caller
+  // disposes once the row no longer holds them.
+  private takeGoneChips(states: Array<IFilterFieldState>): Array<Action> {
     const res: Array<Action> = [];
     Object.keys(this.fieldChips).forEach((key: string): void => {
       if (!states.some((state: IFilterFieldState): boolean => state.key === key)) {
         res.push(this.takeFieldChip(key));
       }
-    });
-    this.itemChips = this.itemChips.filter((entry: { item: FilterItem, chip: Action }): boolean => {
-      if (items.indexOf(entry.item) > -1) return true;
-      res.push(entry.chip);
-      return false;
     });
     return res;
   }

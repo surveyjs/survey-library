@@ -47,7 +47,7 @@ describe("Filter question", () => {
     const wrapper = mount(Survey, { attachTo: attach(), props: { model: survey } });
     await nextTick();
     const update = vi.spyOn(q.chipsLayout, "update");
-    q.items.splice(1, 1);
+    q.items.splice(0, 2);
     await nextTick();
     await nextTick();
     expect(update).toHaveBeenCalled();

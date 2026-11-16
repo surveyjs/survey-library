@@ -1088,6 +1088,7 @@ export var defaultCss = {
     chipBox: "sd-filter__chip-box",
     chipClearable: "sd-filter__chip--clearable",
     chipClear: "sd-filter__chip-clear",
+    chipPreset: "sd-filter__chip--preset",
     chipOverflow: "sd-filter__chip--overflow",
     showMore: "sd-filter__show-more",
     link: "sd-filter__link",

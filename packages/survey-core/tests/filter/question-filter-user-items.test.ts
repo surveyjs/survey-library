@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { createFilter } from "./filter-test-helpers";
+import { createFilter, presetList } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { Action } from "../../src/actions/action";
@@ -35,9 +35,9 @@ describe("QuestionFilterModel.addItem", () => {
     q.toggleItem("userItem1");
     expect([q.activeItem, q.filterExpression], "#6: it is a preset like the others").toEqual([item, "{age} > 60"]);
   });
-  test("its name is free among every preset; its chip joins the row", () => {
+  test("its name is free among every preset; its row joins the presets' list", () => {
     const q = control({ items: presets.concat([{ name: "userItem1", expression: "{age} > 1" }]) });
-    const chips = q.chipsToolbar;
+    const chips = presetList(q);
     expect(q.addItem("A", [{ field: "age", operator: "less", value: 5 }]).name, "#1").toBe("userItem2");
     expect(q.addItem("B", [{ field: "age", operator: "less", value: 6 }]).name, "#2").toBe("userItem3");
     expect(chips.actions.map((a: Action) => a.id).filter((id: string) => id.indexOf("sv-filter-item-userItem") === 0), "#3")
@@ -121,7 +121,7 @@ describe("QuestionFilterModel.resetItem and deleteItem", () => {
     expect(q.items.length, "#3: the JSON keeps it").toBe(3);
     q.deleteItem(item.name);
     expect([names(q), q.getItemByName(item.name), events.uiState], "#4").toEqual([["adults", "edges"], undefined, 2]);
-    expect(q.chipsToolbar.getActionById("sv-filter-item-germans"), "#5: no chip").toBeFalsy();
+    expect(presetList(q).getActionById("sv-filter-item-germans"), "#5: no row").toBeFalsy();
   });
   test("nothing is deleted that may not be, nor in single mode", () => {
     const q = control({ items: presets.concat([{ name: "kept", expression: "{age} > 1", allowDelete: false }]) });

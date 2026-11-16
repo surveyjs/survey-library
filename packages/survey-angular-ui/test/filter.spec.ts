@@ -82,7 +82,7 @@ describe("Filter question", () => {
     const fixture = renderSurvey(survey);
     await settle(fixture);
     const update = spyOn(q.chipsLayout, "update").and.callThrough();
-    q.items.splice(1, 1);
+    q.items.splice(0, 2);
     await settle(fixture);
     await fixture.whenStable();
     expect(update).toHaveBeenCalled();

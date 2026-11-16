@@ -7,8 +7,8 @@ import { ISurvey } from "../base-interfaces";
 export interface IFilterItemOwner {
   getSurvey(live?: boolean): ISurvey;
 }
-// An action id for a preset's chip or tab: base, then base-2, base-3... for a second preset with the
-// same name (an authoring error), so a row and a renderer can still tell them apart.
+// An action id for a preset's row, chip or tab: base, then base-2, base-3... for a second preset with
+// the same name (an authoring error), so a list, a row and a renderer can still tell them apart.
 export function getUniqueFilterActionId(base: string, isUsed: (id: string) => boolean): string {
   let id = base;
   for (let n = 2; isUsed(id); n++) {

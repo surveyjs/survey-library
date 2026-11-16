@@ -137,6 +137,13 @@
   height: fit-content;
 }
 
+// The presets' chip is round, its cross too: a preset reads apart from the fields' chips by its shape,
+// its star and, while one is on, its dark fill.
+.sd-action.sd-filter__chip--preset,
+.sd-filter__chip--preset ~ .sd-action.sd-filter__chip-clear {
+  --sd-action-border-radius: var(--sjs2-radius-round);
+}
+
 .sd-filter__show-more .sd-action__title {
   text-decoration: none;
 }

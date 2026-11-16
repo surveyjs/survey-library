@@ -269,7 +269,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   public set activeItem(val: FilterItem) { this.activeItemName = !!val ? val.name : ""; }
   // In the designer the buttons do nothing of their own: they call this callback instead - with the
-  // preset for a preset's chip, with no item for any other button. Creator sets it to select the
+  // preset the presets' chip shows (the default one), with no item for any other button. Creator sets it to select the
   // control or open the preset's settings, the way it sets setCanShowOptionItemCallback on a select
   // question; the buttons stop the click event, so the designer's own click handler never runs.
   private designItemClickCallback: (item?: FilterItem) => void;
@@ -1048,7 +1048,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // With several presets a preset and the respondent's own conditions are never applied together:
   // the first edit over the active preset turns it off and keeps what it filtered by as own
-  // conditions, with the edit applied to them. The preset's chip would otherwise stay lit over a
+  // conditions, with the edit applied to them. The presets' chip would otherwise show the preset over a
   // filter that is no longer the preset. Single mode keeps the edits over its one preset.
   private get isPresetReleasedByEdits(): boolean {
     return this.allowMultipleItems && !!this.activeItem && this.ownConditions === undefined;

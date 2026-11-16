@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from "vitest";
-import { createBound, createFilter } from "./filter-test-helpers";
+import { createBound, createFilter, pickPreset, presetList } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { FilterItem } from "../../src/filter/filter-item";
@@ -11,13 +11,13 @@ import "../../src/localization/german";
 
 function ids(container: any): Array<string> { return container.actions.map((a: any) => a.id); }
 function action(container: any, id: string): any { return container.getActionById(id); }
+function presetIds(q: QuestionFilterModel): Array<string> { return ids(presetList(q)); }
 const badges = ["sv-filter-field-name", "sv-filter-field-country", "sv-filter-field-age"];
 
 describe("FilterToolbars: the chips row", () => {
-  test("Filters, a badge per fast mode field, the presets, Show More last", () => {
+  test("Filters, the presets' chip, a badge per fast mode field, Show More last", () => {
     const q = createFilter();
-    expect(ids(q.chipsToolbar)).toEqual(["sv-filter-filters"].concat(badges,
-      ["sv-filter-item-adults", "sv-filter-item-kids", "sv-filter-more"]));
+    expect(ids(q.chipsToolbar)).toEqual(["sv-filter-filters", "sv-filter-preset"].concat(badges, ["sv-filter-more"]));
   });
   test("Filters stands next to the search box when there is one, and nowhere without advanced mode", () => {
     const q = createFilter({ showSearch: true });
@@ -31,7 +31,7 @@ describe("FilterToolbars: the chips row", () => {
   });
   test("no badges without fast mode", () => {
     const q = createFilter({ allowFastMode: false });
-    expect(ids(q.chipsToolbar)).toEqual(["sv-filter-filters", "sv-filter-item-adults", "sv-filter-item-kids", "sv-filter-more"]);
+    expect(ids(q.chipsToolbar)).toEqual(["sv-filter-filters", "sv-filter-preset", "sv-filter-more"]);
   });
   test("a badge says its condition and is active with one; a chevron while it opens a popup", () => {
     const q = createFilter({ items: [] });
@@ -46,25 +46,56 @@ describe("FilterToolbars: the chips row", () => {
     q.clearFieldCondition("age");
     expect([age.title, !!age.active], "#5").toEqual(["age", false]);
   });
-  test("a preset's chip: titled by it, active while it is on, no icon", () => {
+  test("the presets' chip: Preset with a star and a chevron; the active preset's title with a cross", () => {
     const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }] });
-    const adults = action(q.chipsToolbar, "sv-filter-item-adults");
-    expect([adults.title, !!adults.active, adults.iconName], "#1").toEqual(["adults", false, undefined]);
-    adults.action();
-    expect([q.activeItemName, adults.active], "#3").toEqual(["adults", true]);
+    const chip = action(q.chipsToolbar, "sv-filter-preset");
+    expect([chip.title, chip.iconName, chip.markerIconName, !!chip.active, chip.isClearable, chip.component], "#1")
+      .toEqual(["Preset", "icon-star-16x16", "icon-chevrondown-24x24", false, false, "sv-filter-chip"]);
+    q.toggleItem("adults");
+    expect([chip.title, chip.markerIconName, chip.active, chip.isClearable], "#2").toEqual(["adults", undefined, true, true]);
+    expect([chip.clearAction.id, chip.clearAction.ariaLabel], "#3").toEqual(["sv-filter-preset-clear", "Clear adults"]);
     q.items[0].title = "Adults";
-    expect(adults.title, "#4: the chip borrows the preset's title").toBe("Adults");
+    expect(chip.title, "#4: the active preset's title").toBe("Adults");
+    chip.clearAction.action();
+    expect([q.activeItemName, chip.title, !!chip.active, chip.isClearable], "#5: the cross turns it off").toEqual(["", "Preset", false, false]);
+  });
+  test("the presets' list: a row per preset, the active one selected; a pick turns it on and closes the list", () => {
+    const q = createFilter();
+    const chip = action(q.chipsToolbar, "sv-filter-preset");
+    chip.action();
+    expect(chip.popupModel.isVisible, "#1").toBe(true);
+    const list = presetList(q);
+    expect([ids(list), list.actions.map((a: any) => a.title), list.selectedItem], "#2")
+      .toEqual([["sv-filter-item-adults", "sv-filter-item-kids"], ["adults", "kids"], undefined]);
+    pickPreset(q, "kids");
+    expect([q.activeItemName, chip.popupModel.isVisible, list.selectedItem.id], "#3").toEqual(["kids", false, "sv-filter-item-kids"]);
+    pickPreset(q, "kids");
+    expect(q.activeItemName, "#4: the active one stays on").toBe("kids");
+    q.clearActiveItem();
+    expect(list.selectedItem, "#5").toBe(undefined);
+  });
+  test("a click on the chip opens the list with the active preset as well", () => {
+    const q = createFilter();
+    q.toggleItem("adults");
+    const chip = action(q.chipsToolbar, "sv-filter-preset");
+    chip.action();
+    expect([chip.popupModel.isVisible, presetList(q).selectedItem.id]).toEqual([true, "sv-filter-item-adults"]);
   });
   test("a preset added or removed is reflected", () => {
     const q = createFilter();
     q.items.push(new FilterItem("teens"));
-    expect(ids(q.chipsToolbar).slice(-2), "#1").toEqual(["sv-filter-item-teens", "sv-filter-more"]);
+    expect(presetIds(q), "#1").toEqual(["sv-filter-item-adults", "sv-filter-item-kids", "sv-filter-item-teens"]);
+    const adults = presetList(q).getActionById("sv-filter-item-adults");
     q.items.splice(0, 1);
-    expect(ids(q.chipsToolbar).indexOf("sv-filter-item-adults"), "#2").toBe(-1);
+    expect([presetIds(q).indexOf("sv-filter-item-adults"), adults.isDisposed], "#2").toEqual([-1, true]);
+    q.items.splice(0, 2);
+    expect(ids(q.chipsToolbar).indexOf("sv-filter-preset"), "#3: no presets, no chip").toBe(-1);
+    q.items.push(new FilterItem("teens"));
+    expect(ids(q.chipsToolbar)[1], "#4").toBe("sv-filter-preset");
   });
-  test("two presets with one name get a chip each", () => {
+  test("two presets with one name get a row each", () => {
     const q = createFilter({ items: [{ name: "p", expression: "{age} > 1" }, { name: "p", expression: "{age} > 2" }] });
-    expect(ids(q.chipsToolbar).filter((id: string) => id.indexOf("sv-filter-item-") === 0)).toEqual(["sv-filter-item-p", "sv-filter-item-p-2"]);
+    expect(presetIds(q)).toEqual(["sv-filter-item-p", "sv-filter-item-p-2"]);
   });
   test("the chips the first build puts in the row are the ones later updates change", () => {
     // Making the first chip reads the control's css for the first time, which sets its css properties:
@@ -136,8 +167,8 @@ describe("FilterToolbars: an active preset", () => {
   test("lights its chip where it stands; the badges show its conditions and open their popups", () => {
     const q = createFilter();
     q.toggleItem("kids");
-    expect(ids(q.chipsToolbar), "#1").toEqual(["sv-filter-filters"].concat(badges,
-      ["sv-filter-item-adults", "sv-filter-item-kids", "sv-filter-more"]));
+    expect(ids(q.chipsToolbar), "#1").toEqual(["sv-filter-filters", "sv-filter-preset"].concat(badges, ["sv-filter-more"]));
+    expect(action(q.chipsToolbar, "sv-filter-preset").active, "#1.1").toBe(true);
     const age = action(q.chipsToolbar, "sv-filter-field-age");
     expect([age.title, age.active, age.clearAction.visible], "#2").toEqual(["age: Less than or equal to 18", true, true]);
     age.action();
@@ -151,17 +182,17 @@ describe("FilterToolbars: an active preset", () => {
     const popup = country.popupModel.contentComponentData.holder.fieldPopup;
     popup.list.onItemClick(popup.list.actions[1]);
     popup.apply();
-    expect([q.activeItemName, !!action(q.chipsToolbar, "sv-filter-item-two").active], "#1").toEqual(["", false]);
+    expect([q.activeItemName, !!action(q.chipsToolbar, "sv-filter-preset").active], "#1").toEqual(["", false]);
     expect([action(q.chipsToolbar, "sv-filter-field-age").title, country.title], "#2").toEqual(["age: Greater than 18", "country: 2"]);
     expect(q.ownConditions, "#3").toEqual([{ field: "age", operator: "greater", value: 18 },
       { field: "country", operator: "anyof", value: ["de", "fr"] }]);
   });
-  test("another preset's chip switches to it; the active one's chip turns it off", () => {
+  test("another preset picked in the list switches to it; the chip's cross turns it off", () => {
     const q = createFilter();
     q.toggleItem("adults");
-    action(q.chipsToolbar, "sv-filter-item-kids").action();
+    pickPreset(q, "kids");
     expect(q.activeItemName, "#1").toBe("kids");
-    action(q.chipsToolbar, "sv-filter-item-kids").action();
+    action(q.chipsToolbar, "sv-filter-preset").clearAction.action();
     expect([q.activeItemName, q.filterExpression], "#2").toEqual(["", ""]);
   });
   test("a preset with no conditions to show locks the badges: no chevron, a click turns it off", () => {
@@ -173,8 +204,11 @@ describe("FilterToolbars: an active preset", () => {
     expect([q.activeItemName, age.popupModel.isVisible], "#2: no popup").toEqual(["", false]);
     expect(age.markerIconName, "#3: unlocked again").toBe("icon-chevrondown-24x24");
     q.toggleItem("raw");
-    action(q.chipsToolbar, "sv-filter-item-kids").action();
-    expect(q.activeItemName, "#4: a preset's chip still switches").toBe("kids");
+    const chip = action(q.chipsToolbar, "sv-filter-preset");
+    expect([chip.active, chip.isClearable], "#4: the presets' chip is not locked").toEqual([true, true]);
+    chip.action();
+    pickPreset(q, "kids");
+    expect(q.activeItemName, "#5: the list still switches").toBe("kids");
   });
   test("a locking preset the host takes away unlocks the badges", () => {
     const q = createFilter({ items: [raw, { name: "kids", expression: "{age} <= 18" }] });
@@ -343,12 +377,12 @@ describe("FilterToolbars: one row while collapsed", () => {
     const hidden = (): Array<string> => q.chipsToolbar.actions.filter((a: any) => a.css === "sd-filter__chip--overflow").map((a: any) => a.id);
     expect([more.css, hidden()], "#1: everything fits").toEqual(["sd-filter__chip--overflow", ["sv-filter-more"]]);
     q.chipsLayout.fitCount = 3;
-    expect(hidden(), "#2").toEqual(["sv-filter-field-age", "sv-filter-item-adults", "sv-filter-item-kids"]);
+    expect(hidden(), "#2").toEqual(["sv-filter-field-country", "sv-filter-field-age"]);
     expect([more.css, more.title], "#3").toEqual([undefined, "Show More"]);
     more.action();
     expect([hidden(), more.title], "#4: expanded").toEqual([[], "Show Less"]);
     more.action();
-    expect(hidden().length, "#5: collapsed again").toBe(3);
+    expect(hidden().length, "#5: collapsed again").toBe(2);
   });
 });
 
@@ -540,7 +574,7 @@ describe("QuestionFilterModel: what the renderer shows besides the toolbars", ()
       fields: [{ name: "age", fieldType: "text", inputType: "number" }],
       items: [{ name: "adults", title: { default: "Adults", de: "Erwachsene" }, expression: "{age} > 18" }] }] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    const preset = action(q.chipsToolbar, "sv-filter-item-adults");
+    const preset = action(q.chipsToolbar, "sv-filter-preset");
     q.toggleItem("adults");
     const badge = action(q.chipsToolbar, "sv-filter-field-age");
     expect([preset.title, badge.title], "#1").toEqual(["Adults", "age: Greater than 18"]);
@@ -591,16 +625,24 @@ describe("FilterToolbars: in the designer", () => {
       settings.showDialog = saved;
     }
   });
-  test("a preset's chip reports the click and turns nothing on", () => {
+  test("the presets' chip opens nothing and reports a click on the control, or on the preset it shows", () => {
     const q = createDesigned();
-    const clicked: Array<FilterItem> = [];
-    q.setDesignItemClickCallback((item: FilterItem): void => { clicked.push(item); });
-    action(q.chipsToolbar, "sv-filter-item-kids").action();
-    expect(clicked.map(item => item.name), "#1").toEqual(["kids"]);
-    expect(q.activeItemName, "#2").toBe("");
-    q.setDesignItemClickCallback(undefined);
-    action(q.chipsToolbar, "sv-filter-item-adults").action();
-    expect([clicked.length, q.activeItemName], "#3: no callback, nothing happens").toEqual([1, ""]);
+    const clicked: Array<any> = [];
+    q.setDesignItemClickCallback((item?: FilterItem): void => { clicked.push(item); });
+    const chip = action(q.chipsToolbar, "sv-filter-preset");
+    chip.action();
+    expect([clicked, chip.popupModel.isVisible, q.activeItemName], "#1").toEqual([[undefined], false, ""]);
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [Object.assign({}, json, { defaultItem: "kids" })] });
+    const q2 = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const shown: Array<any> = [];
+    q2.setDesignItemClickCallback((item?: FilterItem): void => { shown.push(item); });
+    action(q2.chipsToolbar, "sv-filter-preset").action();
+    expect(shown.map((item: FilterItem) => item.name), "#2").toEqual(["kids"]);
+    q2.setDesignItemClickCallback(undefined);
+    action(q2.chipsToolbar, "sv-filter-preset").action();
+    expect([shown.length, q2.activeItemName], "#3: no callback, nothing happens").toEqual([1, "kids"]);
   });
   test("a badge, Filters and Show More report a click on the control itself", () => {
     const saved = settings.showDialog;
@@ -630,12 +672,13 @@ describe("FilterToolbars: in the designer", () => {
     age.clearAction.action();
     expect([clicked, q.activeItemName], "#2").toEqual([[undefined], "adults"]);
   });
-  test("out of the designer a preset's chip turns it on and reports nothing", () => {
+  test("out of the designer the presets' chip opens its list and reports nothing", () => {
     const survey = new SurveyModel({ elements: [json] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     const clicked: Array<FilterItem> = [];
     q.setDesignItemClickCallback((item: FilterItem): void => { clicked.push(item); });
-    action(q.chipsToolbar, "sv-filter-item-kids").action();
+    action(q.chipsToolbar, "sv-filter-preset").action();
+    pickPreset(q, "kids");
     expect([q.activeItemName, clicked.length]).toEqual(["kids", 0]);
   });
 });

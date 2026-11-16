@@ -14,6 +14,15 @@ export function createFilter(over: any = {}): QuestionFilterModel {
   const survey = new SurveyModel({ elements: [json] });
   return <QuestionFilterModel>survey.getQuestionByName("f1");
 }
+// The list the presets' chip opens: a row per preset, ids "sv-filter-item-<name>".
+export function presetList(q: QuestionFilterModel): any {
+  return (<any>q.chipsToolbar.getActionById("sv-filter-preset")).popupModel.contentComponentData.model;
+}
+// A preset picked in that list, as a click on its row picks it.
+export function pickPreset(q: QuestionFilterModel, name: string): void {
+  const list = presetList(q);
+  list.onItemClick(list.getActionById("sv-filter-item-" + name));
+}
 export function createSurvey(over: any = {}): SurveyModel {
   const json = Object.assign({ type: "filter", name: "f1", showSearch: true, fields: baseFields,
     items: [{ name: "adults", expression: "{age} > 18" }, { name: "kids", expression: "{age} <= 18" }],

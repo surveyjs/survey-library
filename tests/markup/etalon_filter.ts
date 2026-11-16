@@ -3,9 +3,9 @@ import { registerMarkupTests } from "./helper";
 registerMarkupTests(
   [
     {
-      // The Filter Control (#11890): the fast-mode chips of two choice fields after the presets'
-      // chips, one preset active. No source, so the chips are measured against nothing: the
-      // runners stub ResizeObserver and load no styles, every width is 0 and no chip is cut.
+      // The Filter Control (#11890): the presets' chip showing the active preset, with its cross,
+      // then the fast-mode chips of two choice fields. No source, so the chips are measured against
+      // nothing: the runners stub ResizeObserver and load no styles, every width is 0 and no chip is cut.
       name: "Test Filter question markup: fast-mode chips and an active preset",
       json: {
         elements: [

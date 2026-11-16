@@ -41,7 +41,7 @@ describe("SurveyQuestionFilter", () => {
     });
     const update = vi.spyOn(q.chipsLayout, "update");
     // The row is measured from a MutationObserver, whose callback runs in a microtask.
-    await act(async () => { q.items.splice(1, 1); });
+    await act(async () => { q.items.splice(0, 2); });
     expect(update).toHaveBeenCalled();
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);

@@ -2,19 +2,24 @@ import { describe, test, expect } from "vitest";
 import { createFilter } from "./filter-test-helpers";
 import { Action } from "../../src/actions/action";
 
-// What a screen reader is told about the toggles of the Filter Control: a preset chip is a checkbox
-// (aria-checked is not allowed on the default button role), a tab of Edit Presets one choice of
-// several (a radio), and a dialog section is a group named by its visible title.
+// What a screen reader is told about the toggles of the Filter Control: the presets' list is a menu of
+// radio items, a preset chip of the Filters dialog is a checkbox (aria-checked is not allowed on the
+// default button role), a tab of Edit Presets one choice of several (a radio), and a dialog section is
+// a group named by its visible title.
 describe("Filter Control: ARIA", () => {
-  test("a preset chip in the question's row is a checkbox, checked while its preset is on", () => {
+  test("the presets' list is a menu of radio items, the active preset's checked", () => {
     const q = createFilter();
-    const adults = <Action>q.chipsToolbar.getActionById("sv-filter-item-adults");
-    const kids = <Action>q.chipsToolbar.getActionById("sv-filter-item-kids");
-    expect([adults.ariaRole, adults.ariaChecked, kids.ariaChecked], "#1").toEqual(["checkbox", false, false]);
+    const list = (<Action>q.chipsToolbar.getActionById("sv-filter-preset")).popupModel.contentComponentData.model;
+    const adults = list.getActionById("sv-filter-item-adults");
+    const kids = list.getActionById("sv-filter-item-kids");
+    expect([list.listRole, list.listItemRole, list.getA11yItemAriaChecked(adults), list.getA11yItemAriaChecked(kids)], "#1")
+      .toEqual(["menu", "menuitemradio", "false", "false"]);
     q.toggleItem("adults");
-    expect([adults.ariaChecked, kids.ariaChecked], "#2").toEqual([true, false]);
+    expect([list.getA11yItemAriaChecked(adults), list.getA11yItemAriaChecked(kids)], "#2").toEqual(["true", "false"]);
+    const chip = <Action>q.chipsToolbar.getActionById("sv-filter-preset");
     const age = <Action>q.chipsToolbar.getActionById("sv-filter-field-age");
-    expect([age.ariaRole, age.ariaChecked], "#3: a field chip opens a popup, no checked state").toEqual(["button", undefined]);
+    expect([chip.ariaRole, chip.ariaChecked, age.ariaRole, age.ariaChecked], "#3: the chips open popups, no checked state")
+      .toEqual(["button", undefined, "button", undefined]);
   });
   test("a preset chip in the Filters dialog is a checkbox too", () => {
     const q = createFilter({ defaultItem: "kids" });

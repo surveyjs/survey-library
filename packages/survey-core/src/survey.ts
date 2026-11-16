@@ -7262,6 +7262,8 @@ export class SurveyModel extends SurveyElementCore
     if (this.onValueChanging.isEmpty) return newValue;
     var options = {
       name: valueName,
+      // A top-level write reports the first question on the value name, as it always has: the writer only when
+      // it is below the key (SurveyRootDataScope.getWriter).
       question: write?.writer || <Question>this.getQuestionByValueName(questionValueName || valueName),
       value: this.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
@@ -7351,6 +7353,9 @@ export class SurveyModel extends SurveyElementCore
   }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any, questionName: string, write?: IValueWrite): void {
     if (this.isLoadingFromJson) return;
+    // A code write names its question; the elements compare the name (choicesFromQuestion).
+    const question = write?.question || (!!questionName ? this.getQuestionByName(questionName) : undefined);
+    if (!!write?.question) questionName = write.question.name;
     const writer = write?.writer;
     const elements = this.getRootKeyElements(valueName);
     for (let i: number = 0; i < elements.length; i++) {
@@ -7362,7 +7367,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.validateDataScopesOnValueChanged(valueName, writer);
     this.updateProgressText(true);
-    this.fireOnValueChanged(valueName, newValue, !!questionName ? this.getQuestionByName(questionName) : undefined);
+    this.fireOnValueChanged(valueName, newValue, question);
     if (this.isDisposed) return;
     this.checkElementsBindings(valueName, newValue);
     // A binding names a question's value name: an inner question's one is checked too.
@@ -7460,6 +7465,9 @@ export class SurveyModel extends SurveyElementCore
   }
   public getDataPath(): Array<string> {
     return [];
+  }
+  public getQuestionsSharingValue(question: Question): Array<Question> {
+    return this.rootDataScope.getQuestionsSharingValue(question);
   }
   private isDataScopeKey(key: string): boolean {
     return this.rootDataScope.isScopeKey(key);
@@ -8102,15 +8110,9 @@ export class SurveyModel extends SurveyElementCore
       this.clearInvisibleQuestionValues();
     });
   }
+  // ISurvey, kept for code outside: a question asks its value scope (Question.hasVisibleValueSharer).
   hasVisibleQuestionByValueName(question: IQuestion): boolean {
-    const checkQ = <Question>question;
-    const qs = this.rootDataScope.getQuestionsSharingValue(checkQ);
-    if (qs.length < 2) return false;
-    for (var i: number = 0; i < qs.length; i++) {
-      const q = qs[i];
-      if (q !== checkQ && q.isVisible && q.isParentVisible && !q.parentQuestion && q.parentQuestion === checkQ.parentQuestion) return true;
-    }
-    return false;
+    return (<Question>question).hasVisibleValueSharer();
   }
   questionsByValueName(valueName: string): Array<IQuestion> {
     var questions = this.getQuestionsByValueName(valueName);
@@ -8378,11 +8380,13 @@ export class SurveyModel extends SurveyElementCore
     newQuestionValue: any,
     locNotification: boolean | "text" = false,
     allowNotifyValueChanged: boolean = true,
-    questionName?: string
+    writer?: IQuestion
   ): void {
     var newValue = newQuestionValue;
-    // A scope's write passes its question's name only: the question is looked up once, here.
-    const write: IValueWrite = { name: name, questionName: questionName, writer: this.rootDataScope.getWriter(name, questionName) };
+    // A question's write carries the question (ISurveyData.setValue): it is reported, not looked up by its name.
+    // An object only: the parameter took a question's name before.
+    const question = !!writer && typeof writer === "object" ? <Question>writer : undefined;
+    const write: IValueWrite = { name: name, question: question, writer: this.rootDataScope.getWriter(name, question) };
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue, undefined, write);
     }
@@ -8484,7 +8488,7 @@ export class SurveyModel extends SurveyElementCore
     const name = write.name;
     this.updateQuestionValue(name, newValue);
     if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
-    if (!write.questionName && this.rootDataScope.isCodeWriteQuestionName(name)) {
+    if (!write.question && !write.questionName && this.rootDataScope.isCodeWriteQuestionName(name)) {
       write.questionName = name;
     }
     this.nofifyQuesitonHash[name] = true;

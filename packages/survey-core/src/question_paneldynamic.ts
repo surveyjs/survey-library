@@ -3125,7 +3125,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.decideRecordsVisibility();
     const questions = this.template.questions.filter((q: Question): boolean => this.canRecordQuestionBeCleared(q, reason));
     if (questions.length === 0) return;
-    const survey = this.survey;
     const list = this.dataList;
     const isStartPage = !!this.page && this.page.isStartPage;
     const changes = this.collectRecordChangesWithoutObjects(properties, (index: number, record: any, visibility: IRecordElementVisibility): any => {
@@ -3138,7 +3137,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         if (isSelfVisible && !list.isRecordVisible(index)) return;
         const isParentVisible = areQuestionAndRecordVisible && this.isRecordInputContainerVisible(visibility, q);
         const canClear = reason === "onHiddenContainer" && !isParentVisible ||
-          !(isSelfVisible && isParentVisible) && !isStartPage && !survey.hasVisibleQuestionByValueName(q);
+          !(isSelfVisible && isParentVisible) && !isStartPage && !q.hasVisibleValueSharer();
         if (!canClear) return;
         cleared = this.removeRecordAnswer(record, cleared, q.getValueName());
       });

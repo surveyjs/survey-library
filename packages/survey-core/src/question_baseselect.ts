@@ -1360,8 +1360,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private getQuestionsWithSameValueName(): Array<QuestionSelectBase> {
     const res: Array<QuestionSelectBase> = [];
     if (!this.valueName || !this.survey) return res;
-    const questions = this.survey.questionsByValueName(this.getValueName());
-    if (!Array.isArray(questions) || questions.length < 2) return res;
+    const questions = this.getQuestionsSharingValue();
+    if (questions.length < 2) return res;
     questions.forEach((q: any) => {
       if (q !== this && q.isDescendantOf && q.isDescendantOf("selectbase")) {
         res.push(<QuestionSelectBase>q);
@@ -2512,7 +2512,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private canClearIncorrectValues(): boolean {
     if (this.canAddCustomChoices()) return false;
     if (this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return false;
-    if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) return false;
+    if (!!this.survey && this.getQuestionsSharingValue().length > 1) return false;
     // Only validate against successfully loaded choices. An empty list is valid,
     // but missing URL parameters, pending requests, and errors are not results.
     if (this.hasChoicesUrl && (!this.choicesFromUrl || this.isRunningChoicesValue ||

@@ -33,7 +33,6 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
-import { getRecordDataScope } from "./panel-data-scope";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -155,7 +154,7 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       this.fillQuestions((<PanelModel>q.parent).getQuestionsByValueName(q.getValueName()), q, res);
     }
     if (res.length === 0 && !!q.survey) {
-      this.fillQuestions((<any>q.survey).getQuestionsByValueName(q.getValueName()), q, res);
+      this.fillQuestions(q.getValueScope()?.getQuestionsSharingValue(q), q, res);
     }
     return res;
   }
@@ -799,7 +798,20 @@ export class Question extends SurveyElement<Question>
     return this.getIsReadyDependendCore(false);
   }
   protected getDependedQuestionsByValueName(isDependOn: boolean): Array<IQuestion> {
-    return this.survey.questionsByValueName(this.getValueName());
+    return this.getQuestionsSharingValue();
+  }
+  // The questions that hold the same value, this one included. The value scope answers: a question does not know
+  // where its value is stored.
+  protected getQuestionsSharingValue(): Array<Question> {
+    const scope = this.getValueScope();
+    return !!scope ? scope.getQuestionsSharingValue(this) : [];
+  }
+  // Internal: whether another visible question holds this question's value (then the value is not cleared as
+  // invisible). A dynamic panel asks it of the questions of its records.
+  public hasVisibleValueSharer(): boolean {
+    const qs = this.getQuestionsSharingValue();
+    if (qs.length < 2) return false;
+    return qs.some(q => q !== this && q.isVisible && q.isParentVisible && !q.parentQuestion && q.parentQuestion === this.parentQuestion);
   }
   private getIsReadyDependendCore(isDependOn: boolean): Array<Question> {
     if (!this.survey) return [];
@@ -2497,7 +2509,7 @@ export class Question extends SurveyElement<Question>
     if (!this.data || !this.isKeepingEmptyValues() || !this.canSetValueToSurvey()) return;
     const val = this.data.getValue(this.getValueName());
     if (val === undefined || !this.isValueEmpty(val)) return;
-    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
+    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this);
   }
   protected isKeepingEmptyValues(): boolean {
     return !!this.survey && !!this.survey.getSettings().data.keepEmptyValues;
@@ -2558,7 +2570,7 @@ export class Question extends SurveyElement<Question>
     if (this.isVisibleInSurvey) return false;
     if (!!this.page && this.page.isStartPage) return false;
     if (!this.survey) return true;
-    return !this.survey.hasVisibleQuestionByValueName(this);
+    return !this.hasVisibleValueSharer();
   }
   /**
    * Returns `true` if a parent element (page or panel) is visible.
@@ -3509,9 +3521,7 @@ export class Question extends SurveyElement<Question>
   protected isValueKeyKnown(key: string): boolean {
     if (this.hasValueKey(key)) return true;
     if (!this.survey) return false;
-    const questions = this.survey.questionsByValueName(this.getValueName());
-    if (!Array.isArray(questions)) return false;
-    return questions.some((q: any) => q !== this && q instanceof Question && q.hasValueKey(key));
+    return this.getQuestionsSharingValue().some((q: any) => q !== this && q instanceof Question && q.hasValueKey(key));
   }
   // Tells whether a value has the JSON shape getValueType() reports.
   protected isValueOfValueType(val: any): boolean {
@@ -3524,7 +3534,7 @@ export class Question extends SurveyElement<Question>
   }
   protected clearIncorrectValueInData(): void {
     if (!this.hasIncorrectValueInData()) return;
-    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
+    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this);
   }
   // Compares val with the question value (a value-change check, see Base.isTwoValueEquals).
   // Unlike isNewValueEqualsToValue, the same array/object instance counts as equal.
@@ -3573,7 +3583,7 @@ export class Question extends SurveyElement<Question>
     this.isMouseDown = false;
   }
   private setValueToData(newValue: any): void {
-    this.data.setValue(this.getValueName(), newValue, this.getDataLocNotification(), this.allowNotifyValueChanged, this.name);
+    this.data.setValue(this.getValueName(), newValue, this.getDataLocNotification(), this.allowNotifyValueChanged, this);
   }
   // data.keepEmptyValues: false for a question whose empty value is never the respondent's own clear.
   protected canKeepEmptyValue(): boolean {
@@ -3792,14 +3802,18 @@ export class Question extends SurveyElement<Question>
   }
   // The survey is given the question (requestAutoAdvance), but a question whose value is a key of the
   // survey data must also be the one getQuestionByValueName finds: a nested question with the same name
-  // must not advance on behalf of that other question. Inside a container the value name is no key of
-  // the survey data, and the question is its own owner. Inside a record's nesting panel a question answers
-  // as one directly in the record does.
+  // must not advance on behalf of that other question. A question that holds its value where that question
+  // does not (inside a container) is its own owner. A question in a record never is: its value scope looks it
+  // up at the root, which holds no question of a record.
   protected get isAutoAdvanceOwner(): boolean {
     const survey = this.survey as SurveyModel;
     if (!survey) return false;
-    const isInSurveyContainer = this.getValueScope() !== survey && !getRecordDataScope(this.data);
-    return isInSurveyContainer || survey.getQuestionByValueName(this.getValueName()) === this;
+    // The survey's lookup stays: the first holder of a value name is the root's rule, and a container's
+    // questions keep it out of their own.
+    const rootFirst = survey.getQuestionByValueName(this.getValueName());
+    if (rootFirst === this) return true;
+    const sharers = this.getQuestionsSharingValue();
+    return sharers.indexOf(this) > -1 && sharers.indexOf(rootFirst) < 0;
   }
   // A question nested in a choice item is found by value name, but it is not in the page's question
   // list, so the survey advances for it only when it is the single input on screen.

@@ -3472,8 +3472,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
        the survey clears invisible values - never on an ordinary edit. */
     this.decideRecordsVisibility();
     if (!this.isRowsFiltered()) return;
-    const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
-    if (sharedQuestions.length < 2) {
+    if (this.getQuestionsSharingValue().length < 2) {
       this.value = this.getDataWithoutInvisibleRows();
     }
   }

@@ -13,12 +13,14 @@ import { ElementIndex } from "./element-index";
 // One write of a survey data key, created where the value is written and passed down the write's steps
 // (the changing event, the validation, the triggers, the notification, auto-advance).
 //   name: the key the write or the request is for (a survey write: the top-level key written);
-//   questionName: the name of the question the write reports (onValueChanged); a code write gets the
-//     question named like the key, set by the survey when no container owns the key;
+//   question: the question that wrote, carried by the write (ISurveyData.setValue): onValueChanged reports it;
+//   questionName: a code write's report, the question named like the key, set by the survey when no container
+//     owns the key;
 //   writer: the question that wrote, when the survey must not look it up by the key: a question inside a
 //     nesting container (its data path goes below the key), or a question that asks to advance itself.
 export interface IValueWrite {
   name: string;
+  question?: Question;
   questionName?: string;
   writer?: Question;
 }
@@ -284,20 +286,20 @@ export class SurveyRootDataScope {
   public getQuestionsSharingValue(question: Question): Array<Question> {
     const res: Array<Question> = [];
     const path = !getRecordDataScope(question.data) ? question.getValueScope().getDataPath() : [];
-    this.getScopesByPath(path)
-      .forEach(scope => res.push(...scope.getDataKeyIndex().getQuestions(question.getValueName())));
+    let scopes = this.getScopesByPath(path);
+    // A container no index reaches (a panel inside a choice item): its own scope holds the value.
+    if (scopes.length === 0) scopes = [question.getValueScope()];
+    scopes.forEach(scope => res.push(...scope.getDataKeyIndex().getQuestions(question.getValueName())));
     return res;
   }
 
-  // The question that wrote the key valueName through a data scope, found by the name a scope's write passes
-  // (ISurveyData.setValue carries a question's name, not the question): its data path goes below the key.
+  // The question that wrote the key valueName through a data scope: its data path goes below the key.
   // Only then: a top-level writer would change the question onValueChanging reports and which questions
   // sharing a value name are validated.
-  public getWriter(valueName: string, questionName: string): Question {
-    if (!questionName || !this.isUsedValue) return undefined;
-    const q = this.host.getQuestionByName(questionName);
-    const path = !!q ? q.getDataPath() : [];
-    return path.length > 1 && path[0] === valueName ? q : undefined;
+  public getWriter(valueName: string, question: Question): Question {
+    if (!question || !this.isUsedValue) return undefined;
+    const path = question.getDataPath();
+    return path.length > 1 && path[0] === valueName ? question : undefined;
   }
   // A code write of a key reports the question named like it, unless the key is a container key or that
   // question's value lives inside a container (its name is no key of the survey data).

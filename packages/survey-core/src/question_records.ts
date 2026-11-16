@@ -363,23 +363,25 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   // recordIndex, not an object position: the other question may hold its objects (rows, panels) for
   // another set of records or in another order.
   public getSharedQuestionFromArray(name: string, recordIndex: number): Question {
-    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromRecord(this.valueName, name, recordIndex)) : null;
+    if (!this.survey || !this.valueName) return null;
+    const questions = this.getQuestionsSharingValue();
+    for (let i = 0; i < questions.length; i++) {
+      const res = <Question>questions[i].getQuestionFromRecord(name, recordIndex);
+      if (!!res) return res;
+    }
+    return null;
   }
   /* A key another records question on the same value name can store is known, whether or not that
      question built its rows or panels: its columns, its template or its detail panel decide
      (getRecordTemplateQuestion), so nothing is built for the check. */
   protected isRecordKeyStoredByAnotherQuestion(key: string): boolean {
     if (!this.survey || !this.valueName) return false;
-    return this.getQuestionsSharingValue(this.valueName).some((question: IQuestion): boolean =>
+    return this.getQuestionsSharingValue().some((question: IQuestion): boolean =>
       question !== this && question instanceof QuestionRecordsModel && !!question.getRecordTemplateQuestion(key));
   }
   public getBindedQuestions(): Array<IQuestion> {
     if (!this.survey || !this.valueName) return [];
-    return this.getQuestionsSharingValue(this.valueName);
-  }
-  // The survey hashes no question inside a dynamic panel or a matrix detail panel and answers null for it.
-  private getQuestionsSharingValue(name: string): Array<IQuestion> {
-    return this.survey.getQuestionsByValueName(name) || [];
+    return this.getQuestionsSharingValue();
   }
   /* The record fields the template questions of a dynamic panel, or the column and detail panel questions
      of a matrix, contribute to the list: one per question, under its value name, and one more for a comment,
@@ -664,7 +666,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
      in-place write. */
   private isInPlaceWriteOfSibling(newValue: any, oldRecords: any): boolean {
     if (!Array.isArray(newValue) || !Array.isArray(oldRecords) || newValue.length !== oldRecords.length || !this.survey) return false;
-    return this.getQuestionsSharingValue(this.getValueName()).some((question: IQuestion): boolean => {
+    return this.getQuestionsSharingValue().some((question: IQuestion): boolean => {
       if (question === this || !(question instanceof QuestionRecordsModel)) return false;
       const write = question.inPlaceWrite;
       return !!write && write.after.length === newValue.length &&
@@ -1940,7 +1942,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
       if (question instanceof QuestionRecordsModel && res.indexOf(question) < 0 && question.isExpressionFieldsComputed()) res.push(question);
     };
     if (!!this.survey) {
-      this.getQuestionsSharingValue(this.getValueName()).forEach(add);
+      this.getQuestionsSharingValue().forEach(add);
     }
     add(this);
     return res;
@@ -3141,11 +3143,11 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   private clearValueInSurveyData(): void {
     if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
     if (this.isValueStoredByAnotherQuestion()) return;
-    this.data.setValue(this.getValueName(), undefined, false, true, this.name);
+    this.data.setValue(this.getValueName(), undefined, false, true, this);
   }
   private isValueStoredByAnotherQuestion(): boolean {
     if (!this.survey) return false;
-    return this.getQuestionsSharingValue(this.getValueName()).some((question: IQuestion): boolean =>
+    return this.getQuestionsSharingValue().some((question: IQuestion): boolean =>
       question !== this && !(question instanceof QuestionRecordsModel && question.isRemoteData));
   }
   /* Detaching: the window is dropped and the question reads the survey hash again. With an answer
@@ -3934,7 +3936,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   }
   private isRecordKeyOfSharedItem(key: string): boolean {
     if (!this.survey || !this.valueName) return false;
-    return this.getQuestionsSharingValue(this.valueName).some((question: IQuestion): boolean =>
+    return this.getQuestionsSharingValue().some((question: IQuestion): boolean =>
       question !== this && question instanceof Question && question.hasValueItemKey(key));
   }
   protected abstract isRecordKeyOfType(key: string, item: QuestionRecordItem): boolean;
@@ -4591,8 +4593,8 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   protected isScopeQuestion(q: Question): boolean {
     return !getActiveDataScope(q.data);
   }
-  public setValue(name: string, newValue: any, locNotification?: any, allowNotifyValueChanged?: boolean, questionName?: string): void {
-    this.writeRecordValue(name, newValue, false, questionName);
+  public setValue(name: string, newValue: any, locNotification?: any, allowNotifyValueChanged?: boolean, writer?: IQuestion): void {
+    this.writeRecordValue(name, newValue, false, <Question>writer);
   }
   // The record pushed into the questions again from the owner's storage: a panel inside it started or
   // stopped nesting. A row's own object composes its questions' current values, so it is not read here.
@@ -4612,14 +4614,14 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
      value first: a matrix row composes the record it proposes from its questions, and a stale twin
      would put the old value back. The item prepares the write and may refuse it; a field that would
      not change stops the write before the owner, the triggers and the notification. */
-  private writeRecordValue(name: string, newValue: any, isComment: boolean, questionName?: string): void {
+  private writeRecordValue(name: string, newValue: any, isComment: boolean, writer?: Question): void {
     if (this.isSettingValue) return;
     if (!isComment) {
       this.updateSharedQuestionsValue(name, newValue);
     }
     const scopes = !isComment ? this.getDataKeyIndex().getScopes(name) : [];
     const prevWrite = this.containerWrite;
-    this.containerWrite = scopes.length > 0 ? { scopes: scopes, writer: this.getContainerWriter(scopes, questionName) } : undefined;
+    this.containerWrite = scopes.length > 0 ? { scopes: scopes, writer: this.getContainerWriter(scopes, writer) } : undefined;
     try {
       const write = this.prepareRecordWrite(name, newValue, isComment);
       if (!write) return;
@@ -4640,17 +4642,11 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
     }
   }
   /* A write of a nesting panel's key: the scopes on the key, and the question inside one of them that
-     wrote (the survey passes the question's name with a write). The owner reads it for the questions the
-     write validates and touches (getRecordFieldQuestion). */
+     wrote (a write carries the question). The owner reads it for the questions the write validates and
+     touches (getRecordFieldQuestion). */
   protected containerWrite: { scopes: Array<PanelDataScope>, writer: Question };
-  private getContainerWriter(scopes: Array<PanelDataScope>, questionName: string): Question {
-    // Looked up inside the scopes' panels: a cell named like the inner question must not hide it.
-    if (!questionName) return undefined;
-    for (let i = 0; i < scopes.length; i++) {
-      const q = <Question>(<any>scopes[i].owner).getQuestionByName(questionName);
-      if (!!q && scopes[i].containsQuestion(q)) return q;
-    }
-    return undefined;
+  private getContainerWriter(scopes: Array<PanelDataScope>, writer: Question): Question {
+    return !!writer && scopes.some(scope => scope.containsQuestion(writer)) ? writer : undefined;
   }
   public getContainerWriteQuestion(name: string): Question {
     const write = this.containerWrite;

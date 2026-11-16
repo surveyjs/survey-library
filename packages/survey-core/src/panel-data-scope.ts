@@ -319,23 +319,23 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
     if (!this.isActive) return !!this.parentData ? this.parentData.getValue(name) : undefined;
     return super.getValue(name);
   }
-  setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean, questionName?: string): any {
+  setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean, writer?: IQuestion): any {
     const data = this.parentData;
     if (!data) return;
-    if (!this.isActive) return data.setValue(name, newValue, locNotification, allowNotifyValueChanged, questionName);
+    if (!this.isActive) return data.setValue(name, newValue, locNotification, allowNotifyValueChanged, writer);
     // The kind matters for an empty value only. By key: a question whose value name equals a container key
     // here (allowed at runtime, a linter error) shares the container's object and gets its rule.
     const isContainer = Helpers.isValueEmpty(newValue) && this.getDataKeyIndex().getScopes(name).length > 0;
-    this.setObjectValue(name, newValue, isContainer ? "container" : "value", locNotification, allowNotifyValueChanged, questionName);
+    this.setObjectValue(name, newValue, isContainer ? "container" : "value", locNotification, allowNotifyValueChanged, writer);
   }
-  private setObjectValue(name: string, newValue: any, kind: ObjectKeyKind, locNotification: boolean | "text", allowNotifyValueChanged: boolean, questionName: string): void {
+  private setObjectValue(name: string, newValue: any, kind: ObjectKeyKind, locNotification: boolean | "text", allowNotifyValueChanged: boolean, writer: IQuestion): void {
     const data = this.parentData;
     if (!data) return;
     // A copy of the stored object with one key changed: the scope never rebuilds the object from its
     // questions, so keys no question owns (and the keys of another container with the same key) are kept.
     // An empty object is written as is: the survey (or the outer scope) removes an empty value.
     const survey = Helpers.isValueEmpty(newValue) ? getEmptyValuesSurvey(this, this.getSurvey()) : null;
-    data.setValue(this.key, setObjectKey(this.getObject(), name, newValue, survey, kind), locNotification, allowNotifyValueChanged, questionName);
+    data.setValue(this.key, setObjectKey(this.getObject(), name, newValue, survey, kind), locNotification, allowNotifyValueChanged, writer);
   }
   getComment(name: string): string {
     if (!this.isActive) return !!this.parentData ? this.parentData.getComment(name) : "";
@@ -347,9 +347,10 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
       return !!data ? data.setComment(name, newValue, locNotification) : undefined;
     }
     if (this.getComment(name) === (newValue || "")) return;
+    // A comment write reports the first question on the value name, as SurveyModel.setComment does.
     const question = this.getDataKeyIndex().getQuestions(name)[0];
     // An empty comment key is removed whatever data.keepEmptyValues says, as SurveyModel.setComment does.
-    this.setObjectValue(Helpers.getCommentKey(name), newValue, "comment", locNotification, true, !!question ? question.name : undefined);
+    this.setObjectValue(Helpers.getCommentKey(name), newValue, "comment", locNotification, true, question);
   }
   getFilteredProperties(): any {
     return !!this.parentData ? this.parentData.getFilteredProperties() : {};
@@ -374,6 +375,10 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
   }
   public isKnownKey(key: string, index?: IDataKeys): boolean {
     return isKnownDataKey(index || this.getDataKeyIndex(), key);
+  }
+  // The root answers from the question's data path: two containers on one key share their object.
+  public getQuestionsSharingValue(question: Question): Array<Question> {
+    return getDataScopeHost(this.getSurvey())?.getQuestionsSharingValue(question) || [];
   }
   // An inactive scope holds no keys and keeps no instance: its elements are its active parent's. The shared empty
   // instance is only read: the survey changes an instance it reaches through builtDataKeyIndex.

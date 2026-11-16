@@ -14,6 +14,9 @@ export interface IDataScope {
   // The unknown-key rule: clearIncorrectValues(true) keeps a known key, setData() reports another. index: this
   // scope's index, when the caller has built it already.
   isKnownKey(key: string, index?: IDataKeys): boolean;
+  // The questions that hold the same value as question, question included: a scope that holds no data passes
+  // the call on, in the end to the survey (SurveyRootDataScope.getQuestionsSharingValue).
+  getQuestionsSharingValue(question: Question): Array<Question>;
 }
 // A key an element of the index owns, or a question's comment or totals key: the part of the unknown-key
 // rule every scope shares.

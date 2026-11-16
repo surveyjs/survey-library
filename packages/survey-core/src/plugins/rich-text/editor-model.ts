@@ -303,6 +303,11 @@ export class RichTextEditorModel {
 
   private onInput = (): void => {
     if (this.normalizing) return;
+    if (this.element) {
+      this.normalizing = true;
+      stripEdgeMarkers(this.element);
+      this.normalizing = false;
+    }
     this.afterEdit();
   };
 
@@ -355,6 +360,7 @@ export class RichTextEditorModel {
 
   private commit(): void {
     if (!this.element || !this.question || this.contentAgnostic) return;
+    stripEdgeMarkers(this.element);
     const html = sanitizeHtml(this.element.innerHTML, { inline: this.inline });
     const current = this.question.value === undefined || this.question.value === null ? "" : String(this.question.value);
     if (html === current || html === this.lastCommitted && current === html) return;
@@ -1260,11 +1266,44 @@ function lineInner(line: Line): string {
   return line.html;
 }
 
+const EDGE_MARKER = "\u200b";
+
 function replaceElementContents(root: HTMLElement, html: string): void {
   const doc = root.ownerDocument;
+  // Chrome nests inserted blocks inside a list when that list is the whole editor.
+  // Markers outside the list make the selection leave it, so one insertHTML replaces it.
+  // Undo puts the markers back; input and commit remove them.
+  const before = doc.createTextNode(EDGE_MARKER);
+  const after = doc.createTextNode(EDGE_MARKER);
+  root.insertBefore(before, root.firstChild);
+  root.appendChild(after);
   const range = doc.createRange();
-  range.selectNodeContents(root);
+  try {
+    range.setStart(before, 0);
+    range.setEnd(after, after.length);
+  } catch(e) {
+    range.selectNodeContents(root);
+  }
   replaceRange(range, html);
+  stripEdgeMarkers(root);
+}
+
+function stripEdgeMarkers(root: HTMLElement): void {
+  const children = root.childNodes;
+  for (let i = children.length - 1; i >= 0; i--) {
+    const node = children[i];
+    if (node.nodeType !== 3) continue;
+    const text = node.textContent || "";
+    if (!text) continue;
+    let marker = true;
+    for (let j = 0; j < text.length; j++) {
+      if (text[j] !== EDGE_MARKER) {
+        marker = false;
+        break;
+      }
+    }
+    if (marker) root.removeChild(node);
+  }
 }
 
 function insertBreakPoint(range: Range): DomPoint {

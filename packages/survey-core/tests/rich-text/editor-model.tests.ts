@@ -602,6 +602,51 @@ describe("rich text editor model", () => {
     expect(question.value).toBe("<p>one</p><p>two</p><p>three</p>");
   });
 
+  test("toggling a list on all three rows restores the paragraphs", () => {
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
+    const { element, model } = mount(question);
+    element.focus();
+    const selection = document.getSelection();
+    const start = document.createRange();
+    start.selectNodeContents(element);
+    start.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(start);
+    model.syncSelection();
+    const type = (text: string): void => {
+      const range = selection.getRangeAt(0);
+      const node = document.createTextNode(text);
+      range.insertNode(node);
+      range.setStartAfter(node);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+      model.syncSelection();
+    };
+    const enter = (): void => {
+      element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+    };
+    type("one");
+    enter();
+    type("two");
+    enter();
+    type("three");
+    const all = document.createRange();
+    all.selectNodeContents(element);
+    selection.removeAllRanges();
+    selection.addRange(all);
+    model.syncSelection();
+    model.run("insertUnorderedList");
+    expect(element.innerHTML.toLowerCase()).toBe("<ul><li>one</li><li>two</li><li>three</li></ul>");
+    expect(model.toggleState("insertUnorderedList")).toBe("all");
+    model.run("insertUnorderedList");
+    expect(element.innerHTML.toLowerCase()).toBe("<p>one</p><p>two</p><p>three</p>");
+    element.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("<p>one</p><p>two</p><p>three</p>");
+  });
+
   test("a list command keeps the selected text and skips empty lines", () => {
     const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
     const question = survey.getQuestionByName("c") as QuestionRichTextModel;

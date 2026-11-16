@@ -48,6 +48,7 @@ export type {
   HorizontalAlignment,
   VerticalAlignment,
   ISurveyLayoutElement,
+  ISurveyLayoutElementGroup,
   ILayoutElementModel,
   IDropdownMenuOptions,
 } from "./interfaces/ui-interfaces";

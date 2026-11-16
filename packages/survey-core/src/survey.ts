@@ -19,6 +19,7 @@ import {
   IProgressInfo,
   IFindElement,
   ISurveyLayoutElement,
+  ISurveyLayoutElementGroup,
   IPlainDataOptions,
   LayoutElementContainer,
   IValueItemCustomPropValues,
@@ -9537,6 +9538,29 @@ export class SurveyModel extends SurveyElementCore
       }
     });
     return containerLayoutElements;
+  }
+  // What renderers iterate instead of getContainerContent: neighbouring elements of one
+  // group come as a single part and share a wrapper, the rest come one per part.
+  public getContainerContentGroups(container: LayoutElementContainer): Array<ISurveyLayoutElementGroup> {
+    const result = new Array<ISurveyLayoutElementGroup>();
+    this.getContainerContent(container).forEach(element => {
+      const name = this.getLayoutElementGroupName(element, container);
+      const last = result[result.length - 1];
+      if (!!name && !!last && last.name === name) {
+        last.elements.push(element);
+        return;
+      }
+      result.push(!name ? { key: element.id, elements: [element] } : {
+        key: "sv-components-group-" + name,
+        name: name,
+        css: "sv-components-group sv-components-group--" + name,
+        elements: [element]
+      });
+    });
+    return result;
+  }
+  private getLayoutElementGroupName(element: ISurveyLayoutElement, container: LayoutElementContainer): string | undefined {
+    return this.progressTextModel.getLayoutElementGroupName(element.id, container);
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
     if (visible) {

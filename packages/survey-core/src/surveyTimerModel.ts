@@ -16,6 +16,7 @@ export interface ISurveyTimerText {
   isStartPageActive: boolean;
   isTimerPanelShowingOnBottom: boolean;
   isTimerPanelShowingOnTop: boolean;
+  progressTextModel: { getProgressLocation(edge: "top" | "bottom"): { container: LayoutElementContainer, index: number } | undefined };
   onCurrentPageChanged: EventBase<SurveyModel>;
 }
 
@@ -132,15 +133,25 @@ export class SurveyTimerModel extends Base implements ILayoutElementModel {
       template: "survey-timerpanel",
       component: "sv-timerpanel",
       getData: () => this,
-      isInContainer: (container: LayoutElementContainer) => this.isTimerPanelInContainer(container)
+      isInContainer: (container: LayoutElementContainer) => this.isTimerPanelInContainer(layoutElement, container)
     };
     return [layoutElement];
   }
 
-  private isTimerPanelInContainer(container: LayoutElementContainer): boolean {
+  private isTimerPanelInContainer(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
     if (this.survey.mode === "display" || this.survey.isStartPageActive) return false;
-    if (container === "header") return this.survey.isTimerPanelShowingOnTop;
-    if (container === "footer") return this.survey.isTimerPanelShowingOnBottom;
-    return false;
+    const edge = this.survey.isTimerPanelShowingOnTop ? "top" : (this.survey.isTimerPanelShowingOnBottom ? "bottom" : undefined);
+    if (!edge) return false;
+    // contentBottom is not sticky, so a bottom bar there does not take the timer along.
+    const location = this.survey.progressTextModel.getProgressLocation(edge);
+    const progress = !!location && location.container !== "contentBottom" ? location : undefined;
+    const target = progress ? progress.container : (edge === "top" ? "header" : "footer");
+    if (container !== target) return false;
+    if (progress) {
+      layoutElement.index = progress.index + 1;
+    } else {
+      delete layoutElement.index;
+    }
+    return true;
   }
 }

@@ -92,6 +92,7 @@ export {
   ISurveyData,
   ITitleOwner,
   ISurveyLayoutElement,
+  ISurveyLayoutElementGroup,
   IPlainDataOptions as IPlainData,
   IShortcutText,
   ILoadFromJSONOptions,

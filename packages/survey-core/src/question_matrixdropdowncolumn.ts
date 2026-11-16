@@ -191,7 +191,8 @@ export class MatrixDropdownColumn extends Base
     return "cellType";
   }
   getDynamicType(): string {
-    if (this.cellType === "default") return "question";
+    // A column with the default cellType has the properties of the cell type inherited from the matrix
+    if (this.cellType === "default" && !this.colOwner) return "question";
     return this.calcCellQuestionType(null);
   }
   public get colOwner(): IMatrixColumnOwner {

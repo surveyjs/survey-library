@@ -42,6 +42,12 @@ function queryAll(fixture: ComponentFixture<any>, selector: string): Array<HTMLE
   });
   return res;
 }
+// The content drawn next to the host is not destroyed with the fixture: left in the body, its inputs
+// would answer another test's lookup by id - a survey numbers its ids anew, so "text_0i" repeats.
+function destroy(fixture: ComponentFixture<any>): void {
+  fixture.destroy();
+  (<any>fixture.componentInstance).embeddedView?.destroy();
+}
 function renderSurvey(survey: SurveyModel): ComponentFixture<SurveyComponent> {
   const fixture = TestBed.createComponent(SurveyComponent);
   fixture.componentInstance.model = survey;
@@ -61,7 +67,7 @@ describe("Filter question", () => {
     fixture.detectChanges();
     expect(!!fixture.nativeElement.querySelector(".sd-filter__chips .sd-action")).withContext("#1: the chips are drawn").toBe(true);
     survey.dispose();
-    fixture.destroy();
+    destroy(fixture);
     expect((<any>q).toolbarsValue).withContext("#2").toBe(undefined);
   });
   it("renders the filter control in design mode", async () => {
@@ -72,7 +78,7 @@ describe("Filter question", () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(!!fixture.nativeElement.querySelector(".sd-filter")).toBe(true);
-    fixture.destroy();
+    destroy(fixture);
     survey.dispose();
   });
   it("a change of the chips measures the row again", async () => {
@@ -86,7 +92,7 @@ describe("Filter question", () => {
     await settle(fixture);
     await fixture.whenStable();
     expect(update).toHaveBeenCalled();
-    fixture.destroy();
+    destroy(fixture);
     survey.dispose();
   });
   it("typing in the search box sets the search string and the filter expression; its cross clears it", async () => {
@@ -108,7 +114,7 @@ describe("Filter question", () => {
     clear.click();
     await settle(fixture);
     expect([q.searchString, !!fixture.nativeElement.querySelector(".sd-filter__search .sd-filter__search-clear")]).withContext("#7").toEqual(["", false]);
-    fixture.destroy();
+    destroy(fixture);
     survey.dispose();
   });
 });
@@ -130,10 +136,10 @@ describe("Filter list item", () => {
     const checked = renderItem(popup, "Germany");
     expect(!!getRoot(checked).querySelector(".sd-checkbox.sd-checkbox--checked .sd-checkbox__decorator .sd-checkbox__svg")).withContext("#1: checked").toBe(true);
     expect(!!getRoot(checked).querySelector(".sd-checkbox--readonly")).withContext("#3: not read-only").toBe(false);
-    checked.destroy();
+    destroy(checked);
     const unchecked = renderItem(popup, "France");
     expect(!!getRoot(unchecked).querySelector(".sd-checkbox:not(.sd-checkbox--checked) .sd-checkbox__decorator .sd-checkbox__svg")).withContext("#2: unchecked").toBe(true);
-    unchecked.destroy();
+    destroy(unchecked);
     popup.dispose();
   });
   it("a typed value is drawn checked, with no button inside the option; unchecked, it is gone at the next open", () => {
@@ -145,7 +151,7 @@ describe("Filter list item", () => {
     const fixture = renderItem(popup, "zz");
     expect(!!getRoot(fixture).querySelector(".sd-checkbox.sd-checkbox--checked")).withContext("#1: checked").toBe(true);
     expect(getRoot(fixture).querySelector("button")).withContext("#2: no nested button").toBe(null);
-    fixture.destroy();
+    destroy(fixture);
     popup.list.onItemClick(popup.list.actions.filter((a: Action) => a.title === "zz")[0]);
     popup.apply();
     popup.dispose();
@@ -161,7 +167,7 @@ describe("Filter list item", () => {
     const popup = q.createFieldPopup("country", () => {});
     const fixture = renderItem(popup, "Germany");
     expect(!!getRoot(fixture).querySelector(".sd-checkbox.sd-checkbox--readonly .sd-checkbox__decorator")).toBe(true);
-    fixture.destroy();
+    destroy(fixture);
     popup.dispose();
   });
 });
@@ -206,7 +212,7 @@ describe("Filter dialogs", () => {
     await settle(fixture);
     modal.dispose();
     expect(root().querySelector(".sd-filter-modal__content")).withContext("#5: an emptied holder unmounts the content").toBe(null);
-    fixture.destroy();
+    destroy(fixture);
   });
   it("Edit Preset shows the form and the fields in a frame - no tabs, no actions; a new form is drawn anew", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }, { name: "name" }],
@@ -241,7 +247,7 @@ describe("Filter dialogs", () => {
     await settle(fixture);
     dialog.dispose();
     expect(root().querySelector(".sd-filter-preset-dialog__content")).withContext("#6: an emptied holder unmounts the content").toBe(null);
-    fixture.destroy();
+    destroy(fixture);
   });
   it("Save as draws the name and Save; Save adds the preset and closes the popup", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
@@ -259,7 +265,7 @@ describe("Filter dialogs", () => {
     holder.saveAsPopup.survey.setValue("presetTitle", "Seniors");
     save.click();
     expect([q.visibleItems.map((item) => item.title), q.activeItemName, closed]).withContext("#3").toEqual([["Seniors"], "userItem1", 1]);
-    fixture.destroy();
+    destroy(fixture);
     holder.saveAsPopup.dispose();
   });
   // survey-core empties a holder's slot and disposes what it held right after (FilterToolbars.release):
@@ -279,7 +285,7 @@ describe("Filter dialogs", () => {
     popup.dispose();
     await settle(fixture);
     expect(getRoot(fixture).querySelector(".sd-filter-popup")).withContext("#3").toBe(null);
-    fixture.destroy();
+    destroy(fixture);
   });
   it("the search box of a badge's popup is drawn as the text question's formbox", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
@@ -290,7 +296,7 @@ describe("Filter dialogs", () => {
     const fixture = createByName("sv-filter-field-popup", { holder: holder });
     await settle(fixture);
     expect(!!getRoot(fixture).querySelector(".sd-filter-popup__search.sd-formbox input")).toBe(true);
-    fixture.destroy();
+    destroy(fixture);
     holder.fieldPopup.dispose();
   });
   it("Search in Filters looks among the filters, not the records; nothing found says so; its cross clears it", async () => {
@@ -316,7 +322,7 @@ describe("Filter dialogs", () => {
     holder.modal = undefined as any;
     await settle(fixture);
     modal.dispose();
-    fixture.destroy();
+    destroy(fixture);
   });
   it("an editor page gives its survey's root element back on unmount, unless another one was set", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }] }] });
@@ -345,7 +351,7 @@ describe("Filter dialogs", () => {
     await settle(fixture);
     expect(otherSurvey.rootElement).withContext("#5: set elsewhere in the meantime, kept").toBe(elsewhere);
     other.dispose();
-    fixture.destroy();
+    destroy(fixture);
     survey.dispose();
   });
   async function renderPopup(): Promise<{ holder: FilterEditorHolder, fixture: ComponentFixture<any>, input: HTMLInputElement }> {
@@ -368,7 +374,7 @@ describe("Filter dialogs", () => {
     expect(list.filterString).withContext("#2").toBe("an");
     expect(list.visibleItems.map((a: Action) => a.title)).withContext("#3").toEqual(["banana"]);
     expect((<HTMLInputElement>getRoot(fixture).querySelector(".sd-filter-popup__search-input")).value).withContext("#4").toBe("an");
-    fixture.destroy();
+    destroy(fixture);
     holder.fieldPopup.dispose();
   });
   it("ArrowDown in the search box of a badge's popup focuses the first item of the list", async () => {
@@ -379,7 +385,7 @@ describe("Filter dialogs", () => {
     const first = getRoot(fixture).querySelector(".sd-filter-popup ul > li");
     expect(!!first).withContext("#1").toBe(true);
     expect(document.activeElement).withContext("#2").toBe(first);
-    fixture.destroy();
+    destroy(fixture);
     holder.fieldPopup.dispose();
   });
 });
@@ -424,7 +430,7 @@ describe("The AI description of the preset dialogs", () => {
     holder.presetDialog = undefined as any;
     await settle(fixture);
     dialog.dispose();
-    fixture.destroy();
+    destroy(fixture);
   });
   it("Edit Preset shows the description and Edit", async () => {
     const { q } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
@@ -443,6 +449,6 @@ describe("The AI description of the preset dialogs", () => {
     holder.presetDialog = undefined as any;
     await settle(fixture);
     dialog.dispose();
-    fixture.destroy();
+    destroy(fixture);
   });
 });

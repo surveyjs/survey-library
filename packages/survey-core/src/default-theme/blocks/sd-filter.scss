@@ -153,11 +153,35 @@
   --sd-action-border-radius: var(--sjs2-radius-round);
 }
 
-// The presets' list moves the focus to its first preset as it opens, and the list paints a focused
-// item as a hovered one: a click would show a preset that is under no pointer. As in the mockup, only
-// the preset that is on and the one under the pointer are painted; a keyboard's focus still is.
-.sd-filter__preset-list .sv-list__item:focus:not(:focus-visible):not(.sv-list__item--selected):not(.sv-list__item--hovered) > .sv-list__item-body {
-  background-color: transparent;
+// The presets' list (the Preset chip's popup), as the mockup's select drop: at least 280px wide, 8px
+// inside its border, 48px rows - 12px around the text and 4px more at its sides - painted as rounded
+// boxes: the preset that is on in the brand color, darker under the pointer; another one under the
+// pointer in gray.
+.sd-filter__preset-list {
+  // On the list, inside the container's border: the popup gives the container an inline min-width.
+  &:not(.sv-popup--sheet) .sv-list__container {
+    min-width: calc(35 * var(--sjs2-base-unit-size) - 2 * var(--sjs2-border-width-x100));
+  }
+
+  .sv-list {
+    padding: var(--sjs2-spacing-x100);
+  }
+
+  .sv-list__item-body {
+    padding-block: var(--sjs2-spacing-x150);
+    padding-inline: calc(var(--sjs2-spacing-x150) + var(--sjs2-spacing-x050));
+    border-radius: var(--sjs2-radius-component-drop-item);
+  }
+
+  .sv-list__item.sv-list__item--selected.sv-list__item--hovered > .sv-list__item-body {
+    background-color: var(--sjs2-color-bg-brand-primary-dim);
+  }
+
+  // The list moves the focus to its first preset as it opens, and paints a focused item as a hovered
+  // one: a click would show a preset that is under no pointer. Only a keyboard's focus is painted.
+  .sv-list__item:focus:not(:focus-visible):not(.sv-list__item--selected):not(.sv-list__item--hovered) > .sv-list__item-body {
+    background-color: transparent;
+  }
 }
 
 .sd-filter__show-more .sd-action__title {

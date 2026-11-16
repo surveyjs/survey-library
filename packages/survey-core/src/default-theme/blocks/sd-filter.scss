@@ -351,6 +351,7 @@
 
 .sd-filter-popup__body {
   // The rows take the list's whole width and are 48px tall: 12px around the text, as in the mockup.
+  // A row is painted as a rounded box, as the presets' list's rows are.
   .sv-list {
     padding: 0;
   }
@@ -358,6 +359,7 @@
   .sv-list__item-body {
     padding-block: var(--sjs2-spacing-x150);
     padding-inline: var(--sjs2-spacing-x150);
+    border-radius: var(--sjs2-radius-component-drop-item);
   }
 
   // A focused row draws a 2px border inside the same box - see sv-list.
@@ -366,10 +368,15 @@
     padding-inline: calc(var(--sjs2-spacing-x150) - var(--sjs2-border-width-x200));
   }
 
-  // A checkbox list shows its state with the checkbox, not with a selected row.
+  // A checkbox list shows its state with the checkbox, not with a selected row: a checked row is
+  // painted as any other one, gray under the pointer (sv-list), as in the mockup.
   .sv-list__item--selected .sv-list__item-body:has(.sd-filter-popup__item) {
     background: transparent;
     color: var(--sjs2-color-fg-basic-primary);
+  }
+
+  .sv-list__item--selected.sv-list__item--hovered > .sv-list__item-body:has(.sd-filter-popup__item) {
+    background: $background-dark;
   }
 }
 

@@ -94,6 +94,9 @@ describe("FilterToolbars: the chips row", () => {
     chip.action();
     expect([model.displayMode, model.cssClass], "#2: phone").toEqual(["overlay", "sv-popup--sheet sd-filter-popup-sheet sd-filter__preset-list"]);
   });
+  test("the presets' list paints one preset: the focus follows the pointer", () => {
+    expect(presetList(createFilter()).focusFollowsPointer).toBe(true);
+  });
   test("a preset added or removed is reflected", () => {
     const q = createFilter();
     q.items.push(new FilterItem("teens"));

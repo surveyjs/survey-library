@@ -761,6 +761,8 @@ export class FilterToolbars {
           this.owner.toggleItem(item);
         }
       } }, { showPointer: false, verticalPosition: "bottom", horizontalPosition: "center" });
+      // One preset is painted: the pointer moves the focus, a key moves the highlight off the hovered one.
+      (<ListModel>popup.contentComponentData.model).focusFollowsPointer = true;
       popup.positionMode = "fixed";
       popup.getTargetCallback = getActionDropdownButtonTarget;
       popup.onFooterActionsCreated.add((_: PopupModel, options: { actions: Array<IAction> }): void => {

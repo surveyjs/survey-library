@@ -142,6 +142,26 @@ frameworks.forEach((framework) => {
       expect(await fill(0), "a keyboard paints it").not.toBe(await fill(1));
     });
 
+    // A focused preset and a hovered one look the same: the input that came last picks the one painted.
+    test("the presets' list paints one preset, the one the pointer or a key chose last", async ({ page }) => {
+      await initSurvey(page, framework, json([], twoPresets));
+      const list = popupWith(page, ".sv-list");
+      const items = list.locator(".sv-list__item");
+      const focused = (): Promise<number> => items.evaluateAll((els: Array<Element>) => els.findIndex((el: Element) => el.matches(":focus")));
+      const painted = (): Promise<Array<boolean>> => list.locator(".sv-list__item-body")
+        .evaluateAll((els: Array<Element>) => els.map((el: Element) => getComputedStyle(el).backgroundColor !== "rgba(0, 0, 0, 0)"));
+      await chip(page, "Preset").focus();
+      await page.keyboard.press("Enter");
+      await expect.poll(focused, { message: "a keyboard opened the list" }).toBe(0);
+      await expect.poll(painted).toEqual([true, false]);
+      await items.nth(1).hover();
+      await expect.poll(focused, { message: "the pointer took the focus" }).toBe(1);
+      await expect.poll(painted).toEqual([false, true]);
+      await page.keyboard.press("ArrowUp");
+      await expect.poll(focused, { message: "a key took it back" }).toBe(0);
+      await expect.poll(painted, { message: "the pointer still rests on the second preset" }).toEqual([true, false]);
+    });
+
     test("Save as... adds the chips' conditions as a preset and turns it on", async ({ page }) => {
       await initSurvey(page, framework, json());
       const saveAs = page.locator(".sd-filter").getByRole("button", { name: "Save as..." });

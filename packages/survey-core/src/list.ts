@@ -4,7 +4,7 @@ import { Action, BaseAction, IAction } from "./actions/action";
 import { IListModel } from "./actions/list-model";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
-import { classesToSelector, getFirstVisibleChild } from "./utils/dom-utils";
+import { classesToSelector, getFirstVisibleChild, getRootNode } from "./utils/dom-utils";
 import { normalizeTextForSearch } from "./helpers";
 import { IsTouch } from "./utils/devices";
 import { getScrollBehavior } from "./utils/reduced-motion";
@@ -69,6 +69,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property() listAriaLabel: string;
   @property({ defaultValue: false }) disableSearch: boolean;
   @property({ defaultValue: "sv-list-loading" }) loadingComponent: string;
+  // Opt-in, for a list whose items hold the focus: a focused item and a hovered one look the same, so the
+  // last input picks the one item that is painted. The item under the pointer takes the focus from another
+  // item of the list (never from outside it), and a key press takes the highlight from the hovered item.
+  @property({ defaultValue: false }) focusFollowsPointer: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
@@ -350,8 +354,23 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public onMouseMove(event: MouseEvent): void {
     this.resetFocusedItem();
+    if (this.focusFollowsPointer) {
+      this.focusItemUnderPointer(<Element>event.target);
+    }
+  }
+  private focusItemUnderPointer(target: Element): void {
+    if (!target || typeof target.closest !== "function") return;
+    const item = <HTMLElement>target.closest(classesToSelector(this.cssClasses.item));
+    const items = item?.closest(classesToSelector(this.cssClasses.itemsContainer));
+    if (!items || item.tabIndex < 0) return;
+    const activeElement = getRootNode(item)?.activeElement;
+    if (item === activeElement || !items.contains(activeElement)) return;
+    item.focus({ preventScroll: true });
   }
   public onKeyDown(event: KeyboardEvent): void {
+    if (this.focusFollowsPointer) {
+      this.actions.forEach((action: T) => { if (action.isHovered) action.isHovered = false; });
+    }
     const currentElement = <Element>event.target;
     if (event.key === "ArrowDown" || event.keyCode === 40) {
       ElementHelper.focusElement(ElementHelper.getNextElementPreorder(currentElement));

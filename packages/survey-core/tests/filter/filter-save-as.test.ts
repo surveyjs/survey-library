@@ -81,7 +81,7 @@ describe("FilterToolbars: Save as", () => {
     q.setFieldCondition("age", "greater", 60);
     const saveAs = saveAsOf(q);
     saveAs.action();
-    expect(saveAs.popupModel.displayMode, "#1").toBe("popup");
+    expect([saveAs.popupModel.displayMode, saveAs.popupModel.cssClass], "#1").toEqual(["popup", "sd-filter__chip-popup"]);
     saveAs.popupModel.hide();
     q.setIsMobile(true);
     saveAs.action();

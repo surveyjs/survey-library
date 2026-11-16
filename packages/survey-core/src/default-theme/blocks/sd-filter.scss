@@ -267,6 +267,18 @@
   }
 }
 
+// A chip's menu - a badge's popup, the presets' list, Save as... - stands 8px off the chip, as the
+// mockup's select drop: under it, or over it when it opens upwards. The popup places the container
+// at the chip's edge; the margin moves it off, and the popup keeps a menu with a margin on the screen
+// (PopupUtils.getCorrectedVerticalDimensions).
+.sd-filter__chip-popup.sv-popup--menu-popup.sv-popup--bottom > .sv-popup__container {
+  margin-top: var(--sjs2-spacing-x100);
+}
+
+.sd-filter__chip-popup.sv-popup--menu-popup.sv-popup--top > .sv-popup__container {
+  margin-top: calc(-1 * var(--sjs2-spacing-x100));
+}
+
 // On a phone the popup is a sheet at the bottom of the screen (sv-popup--sheet), with the page's
 // sheet gutter. Apply is in the content, so the sheet's own footer - empty here - is not shown.
 .sv-popup--sheet.sd-filter-popup-sheet {

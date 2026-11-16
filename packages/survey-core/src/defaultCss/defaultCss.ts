@@ -1091,6 +1091,7 @@ export var defaultCss = {
     chipClear: "sd-filter__chip-clear",
     chipPreset: "sd-filter__chip--preset",
     presetList: "sd-filter__preset-list",
+    chipPopup: "sd-filter__chip-popup",
     saveAs: "sd-filter__save-as",
     chipOverflow: "sd-filter__chip--overflow",
     showMore: "sd-filter__show-more",

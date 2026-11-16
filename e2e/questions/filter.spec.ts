@@ -58,6 +58,12 @@ async function openFilters(page: Page): Promise<Locator> {
   await expect(dialog).toBeVisible();
   return dialog;
 }
+// The room between a chip and its menu: under the chip, or over it.
+async function gapTo(chipLocator: Locator, popup: Locator, isOver: boolean): Promise<number> {
+  const chipBox = await chipLocator.boundingBox();
+  const popupBox = await popup.boundingBox();
+  return isOver ? chipBox.y - (popupBox.y + popupBox.height) : popupBox.y - (chipBox.y + chipBox.height);
+}
 // Picks a value in a chip's popup and applies it.
 async function pick(page: Page, field: string, text: string): Promise<void> {
   await chip(page, field).click();
@@ -95,6 +101,33 @@ frameworks.forEach((framework) => {
       await popup.getByRole("button", { name: "Apply" }).click();
       await expect(popup).toBeHidden();
       expect(await getVisibleRowCount(page)).toBe(1);
+    });
+
+    // As the mockup's select drop: 8px between a chip and its menu, under the chip, or over it when
+    // there is no room below.
+    test("a chip's menu stands 8px off the chip, under it or over it", async ({ page }) => {
+      await initSurvey(page, framework, json());
+      const country = chip(page, "Country");
+      const popup = popupWith(page, ".sd-filter-popup");
+      await country.click();
+      await expect.poll(() => gapTo(country, popup, false), "#1: under the chip").toBeGreaterThan(7);
+      expect(await gapTo(country, popup, false), "#2").toBeLessThan(9);
+      await page.keyboard.press("Escape");
+      await expect(popup).toBeHidden();
+
+      const preset = page.locator(".sd-filter__chip--preset");
+      const list = popupWith(page, ".sv-list");
+      await preset.click();
+      await expect.poll(() => gapTo(preset, list, false), "#3: the presets' list").toBeGreaterThan(7);
+      expect(await gapTo(preset, list, false), "#4").toBeLessThan(9);
+      await page.keyboard.press("Escape");
+      await expect(list).toBeHidden();
+
+      // The chips row near the bottom of the screen: the menu has no room under it.
+      await page.locator(".sd-filter").evaluate((el: HTMLElement) => { el.style.marginTop = "560px"; });
+      await country.click();
+      await expect.poll(() => gapTo(country, popup, true), "#5: over the chip").toBeGreaterThan(7);
+      expect(await gapTo(country, popup, true), "#6").toBeLessThan(9);
     });
 
     test("a chip's cross clears its condition", async ({ page }) => {

@@ -37,7 +37,7 @@ describe("FilterToolbars: the chips row", () => {
     const q = createFilter({ items: [] });
     const age = action(q.chipsToolbar, "sv-filter-field-age");
     const country = action(q.chipsToolbar, "sv-filter-field-country");
-    expect([age.title, !!age.active, age.markerIconName], "#1").toEqual(["age", false, "icon-chevrondown-24x24"]);
+    expect([age.title, !!age.active, age.markerIconName], "#1").toEqual(["age", false, "icon-chevrondown-16x16"]);
     expect(age.component, "#2").toBe("sv-filter-chip");
     q.setFieldCondition("age", "greater", 18);
     q.setFieldCondition("country", "anyof", ["de", "fr"]);
@@ -50,7 +50,7 @@ describe("FilterToolbars: the chips row", () => {
     const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }] });
     const chip = action(q.chipsToolbar, "sv-filter-preset");
     expect([chip.title, chip.iconName, chip.markerIconName, !!chip.active, chip.isClearable, chip.component], "#1")
-      .toEqual(["Preset", "icon-star-16x16", "icon-chevrondown-24x24", false, false, "sv-filter-chip"]);
+      .toEqual(["Preset", "icon-star-16x16", "icon-chevrondown-16x16", false, false, "sv-filter-chip"]);
     q.toggleItem("adults");
     expect([chip.title, chip.markerIconName, chip.active, chip.isClearable], "#2").toEqual(["adults", undefined, true, true]);
     expect([chip.clearAction.id, chip.clearAction.ariaLabel], "#3").toEqual(["sv-filter-preset-clear", "Clear adults"]);
@@ -132,14 +132,14 @@ describe("FilterToolbars: a badge's clear button", () => {
   test("an active badge has a clear button in place of the chevron", () => {
     const q = createFilter({ items: [] });
     const age = action(q.chipsToolbar, "sv-filter-field-age");
-    expect([age.markerIconName, age.clearAction.visible], "#1").toEqual(["icon-chevrondown-24x24", false]);
+    expect([age.markerIconName, age.clearAction.visible], "#1").toEqual(["icon-chevrondown-16x16", false]);
     q.setFieldCondition("age", "greater", 18);
     expect([age.markerIconName, age.clearAction.visible, age.isClearable], "#2").toEqual([undefined, true, true]);
     const clear = age.clearAction;
     expect([clear.id, clear.iconName, clear.ariaLabel, clear.tooltip], "#3")
       .toEqual(["sv-filter-clear-age", "icon-close-16x16", "Clear age", "Clear age"]);
     q.clearFieldCondition("age");
-    expect([age.markerIconName, age.clearAction.visible], "#4").toEqual(["icon-chevrondown-24x24", false]);
+    expect([age.markerIconName, age.clearAction.visible], "#4").toEqual(["icon-chevrondown-16x16", false]);
   });
   test("it clears its own field and nothing else", () => {
     const q = createFilter({ items: [] });
@@ -218,7 +218,7 @@ describe("FilterToolbars: an active preset", () => {
     expect([!!age.active, age.markerIconName], "#1").toEqual([false, undefined]);
     age.action();
     expect([q.activeItemName, age.popupModel.isVisible], "#2: no popup").toEqual(["", false]);
-    expect(age.markerIconName, "#3: unlocked again").toBe("icon-chevrondown-24x24");
+    expect(age.markerIconName, "#3: unlocked again").toBe("icon-chevrondown-16x16");
     q.toggleItem("raw");
     const chip = action(q.chipsToolbar, "sv-filter-preset");
     expect([chip.active, chip.isClearable], "#4: the presets' chip is not locked").toEqual([true, true]);
@@ -231,7 +231,7 @@ describe("FilterToolbars: an active preset", () => {
     q.toggleItem("raw");
     expect(action(q.chipsToolbar, "sv-filter-field-age").markerIconName, "#1").toBe(undefined);
     q.items = [q.getItemByName("kids")];
-    expect([q.isLocked, action(q.chipsToolbar, "sv-filter-field-age").markerIconName], "#2").toEqual([false, "icon-chevrondown-24x24"]);
+    expect([q.isLocked, action(q.chipsToolbar, "sv-filter-field-age").markerIconName], "#2").toEqual([false, "icon-chevrondown-16x16"]);
   });
   test("an active preset the host takes away takes Clear All with it", () => {
     const q = createFilter();

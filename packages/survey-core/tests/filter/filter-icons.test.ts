@@ -17,9 +17,13 @@ function control(): QuestionFilterModel {
   return createFilter({ items: presets });
 }
 function iconsOf(q: QuestionFilterModel): { [id: string]: string } {
-  q.toggleItem("adults");
   const res: { [id: string]: string } = {};
   const add = (a: Action): void => { res[a.id] = a.iconName; };
+  // A chip's chevron, while the chip opens its popup: before a preset is on and locks the fields.
+  const addChevron = (a: Action): void => { res[a.id + ":chevron"] = a.markerIconName; };
+  addChevron(q.chipsToolbar.getActionById("sv-filter-preset"));
+  addChevron(q.chipsToolbar.getActionById("sv-filter-field-country"));
+  q.toggleItem("adults");
   add(q.chipsToolbar.getActionById("sv-filter-filters"));
   add(q.clearToolbar.getActionById("sv-filter-clear"));
   const preset = <FilterChip>q.chipsToolbar.getActionById("sv-filter-preset");
@@ -49,6 +53,8 @@ function iconsOf(q: QuestionFilterModel): { [id: string]: string } {
 describe("Filter: the icons of its buttons", () => {
   test("every button shows an icon drawn for its size: 16px in the chips row and the pencil, 24px elsewhere", () => {
     expect(iconsOf(control())).toEqual({
+      "sv-filter-preset:chevron": "icon-chevrondown-16x16",
+      "sv-filter-field-country:chevron": "icon-chevrondown-16x16",
       "sv-filter-filters": "icon-filter-16x16",
       "sv-filter-clear": "icon-close-16x16",
       "sv-filter-preset": "icon-star-16x16",

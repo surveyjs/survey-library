@@ -721,7 +721,7 @@ export class FilterToolbars {
     // condition to clear.
     const canOpen = !isLocked && !isReadOnly;
     this.updateChipClearAction(chip, canOpen && chip.active, state.title || state.key);
-    chip.markerIconName = canOpen && !chip.active ? "icon-chevrondown-24x24" : undefined;
+    chip.markerIconName = canOpen && !chip.active ? "icon-chevrondown-16x16" : undefined;
     chip.enabled = !isReadOnly;
     if (isLocked || isReadOnly) {
       chip.popupModel.hide();
@@ -808,7 +808,7 @@ export class FilterToolbars {
     chip.title = isOn ? active.title : filterUIStrings.preset;
     chip.active = isOn;
     this.updateChipClearAction(chip, isOn && !isReadOnly, chip.title);
-    chip.markerIconName = !isReadOnly && !isOn ? "icon-chevrondown-24x24" : undefined;
+    chip.markerIconName = !isReadOnly && !isOn ? "icon-chevrondown-16x16" : undefined;
     chip.enabled = !isReadOnly;
     if (isReadOnly || items.length === 0) {
       chip.popupModel.hide();

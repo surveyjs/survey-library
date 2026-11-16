@@ -123,6 +123,25 @@ frameworks.forEach((framework) => {
       await expect(chip(page, "Preset")).toBeVisible();
     });
 
+    // The list moves the focus to its first preset as it opens. As in the mockup, a click paints no
+    // preset that is not on; a keyboard's focus is painted.
+    test("the presets' list paints the focused preset only when a keyboard opened it", async ({ page }) => {
+      await initSurvey(page, framework, json([], twoPresets));
+      const list = popupWith(page, ".sv-list");
+      const fill = (index: number): Promise<string> => list.locator(".sv-list__item-body").nth(index)
+        .evaluate((el: HTMLElement) => getComputedStyle(el).backgroundColor);
+      const isFocused = (): Promise<boolean> => list.locator(".sv-list__item").first().evaluate((el: HTMLElement) => el.matches(":focus"));
+      await chip(page, "Preset").click();
+      await expect.poll(isFocused, { message: "the first preset has the focus" }).toBe(true);
+      expect(await fill(0), "a click paints it as any other").toBe(await fill(1));
+      await page.keyboard.press("Escape");
+      await expect(list).toBeHidden();
+      await chip(page, "Preset").focus();
+      await page.keyboard.press("Enter");
+      await expect.poll(isFocused).toBe(true);
+      expect(await fill(0), "a keyboard paints it").not.toBe(await fill(1));
+    });
+
     test("Save as... adds the chips' conditions as a preset and turns it on", async ({ page }) => {
       await initSurvey(page, framework, json());
       const saveAs = page.locator(".sd-filter").getByRole("button", { name: "Save as..." });

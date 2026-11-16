@@ -788,6 +788,9 @@ export class FilterToolbars {
     const popup = this.presetChip.popupModel;
     if (!popup.isVisible) {
       this.updateFieldPopupMode(popup);
+      // The list moves the focus to its first preset as it opens: its class shows that focus only
+      // when a keyboard gave it (sd-filter.scss).
+      popup.cssClass = toCssClasses(popup.cssClass, this.cssClasses.presetList);
     }
     popup.toggleVisibility();
   }

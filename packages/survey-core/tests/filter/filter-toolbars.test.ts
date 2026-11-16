@@ -81,6 +81,19 @@ describe("FilterToolbars: the chips row", () => {
     chip.action();
     expect([chip.popupModel.isVisible, presetList(q).selectedItem.id]).toEqual([true, "sv-filter-item-adults"]);
   });
+  // The list moves the focus to its first preset as it opens: the class shows that focus as the
+  // theme shows a hovered item only when a keyboard gave it (sd-filter.scss).
+  test("the presets' list has a class of its own, on a desktop and on a phone", () => {
+    const q = createFilter();
+    const model = action(q.chipsToolbar, "sv-filter-preset").popupModel;
+    const chip = action(q.chipsToolbar, "sv-filter-preset");
+    chip.action();
+    expect([model.displayMode, model.cssClass], "#1: desktop").toEqual(["popup", "sd-filter__preset-list"]);
+    chip.action();
+    q.isMobile = true;
+    chip.action();
+    expect([model.displayMode, model.cssClass], "#2: phone").toEqual(["overlay", "sv-popup--sheet sd-filter-popup-sheet sd-filter__preset-list"]);
+  });
   test("a preset added or removed is reflected", () => {
     const q = createFilter();
     q.items.push(new FilterItem("teens"));

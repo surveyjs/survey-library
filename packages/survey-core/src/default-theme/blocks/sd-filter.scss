@@ -153,6 +153,13 @@
   --sd-action-border-radius: var(--sjs2-radius-round);
 }
 
+// The presets' list moves the focus to its first preset as it opens, and the list paints a focused
+// item as a hovered one: a click would show a preset that is under no pointer. As in the mockup, only
+// the preset that is on and the one under the pointer are painted; a keyboard's focus still is.
+.sd-filter__preset-list .sv-list__item:focus:not(:focus-visible):not(.sv-list__item--selected):not(.sv-list__item--hovered) > .sv-list__item-body {
+  background-color: transparent;
+}
+
 .sd-filter__show-more .sd-action__title {
   text-decoration: none;
 }

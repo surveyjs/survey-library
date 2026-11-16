@@ -1502,11 +1502,21 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private get isVisibleChoicesBuildBlocked(): boolean {
     return this.isLoadingFromJson || this.isLockVisibleChoices;
   }
-  // Set by a design-mode onSurveyLoad that does not build the visible choices; cleared by onVisibleChoicesChanged
+  // Set by an onSurveyLoad that does not build the visible choices (design mode, or a runtime question that is
+  // not on the first page); cleared by onVisibleChoicesChanged
   private isVisibleChoicesBuildDeferred: boolean;
   // A class that reads its visible choices in its own onSurveyLoad (ranking) builds them at load
   protected get canDeferVisibleChoicesOnLoad(): boolean {
     return true;
+  }
+  private get canSkipVisibleChoicesBuildOnLoad(): boolean {
+    if (!this.canDeferVisibleChoicesOnLoad) return false;
+    if (this.isAddDefaultItems) return true;
+    // At runtime a question that is not on the first page builds them when its page is rendered or on first read.
+    // The pages' visibility is not computed yet at onSurveyLoad, so the first page is survey.pages[0].
+    const survey = this.survey;
+    const page = this.page;
+    return !this.isDesignMode && !!survey && !!page && page !== survey.pages[0];
   }
   /* Called by every getter that returns the visible choices or a part of them. It calls
      onVisibleChoicesChanged, so every override runs, as it would have at load. Not while the build is
@@ -2150,7 +2160,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   onSurveyLoad(): void {
     this.runChoicesByUrl();
-    if (this.isAddDefaultItems && this.canDeferVisibleChoicesOnLoad) {
+    if (this.canSkipVisibleChoicesBuildOnLoad) {
       /* In design mode the visible choices carry the designer's placeholder items (the new item, None,
          Other, Select All, ...). Creator rebuilds them for every question it renders
          (setCanShowOptionItemCallback), and most questions of a large survey never render, so they are
@@ -2161,6 +2171,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       if (!!this.choicesFromQuestion) {
         this.getCarryForwardQuestion();
       }
+      if (!this.isDesignMode) {
+        // Stores isVisible as the build does. Question.onVisibleChanged notifies the survey (onQuestionVisibleChanged,
+        // the question numbers) only when isVisible was stored before. It does not build the visible choices.
+        this.onVisibleChanged();
+      }
     } else {
       this.onVisibleChoicesChanged();
     }
@@ -2169,6 +2184,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();
+    if (!this.isDesignMode) {
+      // A runtime list deferred at load is built before the UI renders it, not inside its render
+      this.buildDeferredVisibleChoices();
+    }
     this.forEachNestedElement(info => { (<PanelModel>info.element).onFirstRendering(); }, showingChoicePanels);
   }
   onAnyValueChanged(name: string, questionName: string): void {

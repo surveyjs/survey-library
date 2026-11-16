@@ -694,6 +694,11 @@
 .sd-question__placeholder {
   min-height: unset;
   align-items: flex-start;
+  padding-bottom: var(--sjs-bs-card-edge-spacer-y);
+  .sv-string-viewer {
+    display: block;
+    text-align: start;
+  }
 }
 
 .sd-error__item {

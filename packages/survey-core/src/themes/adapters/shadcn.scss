@@ -389,7 +389,7 @@
   --sjs2-layout-component-panel-box-gap-vertical: var(--sjs2-shadcn-card-spacing);
 
   --sjs2-layout-component-panel-header-padding-top: var(--sjs2-shadcn-card-edge-spacing);
-  --sjs2-layout-component-panel-header-padding-bottom: 0;
+  --sjs2-layout-component-panel-header-padding-bottom: 0px;
   --sjs2-layout-component-panel-header-padding-left: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-header-padding-right: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-header-gap-vertical: calc(var(--spacing) * 1.5);
@@ -840,6 +840,11 @@
 .sd-question__placeholder {
   min-height: unset;
   align-items: flex-start;
+  padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  .sv-string-viewer {
+    display: block;
+    text-align: start;
+  }
 }
 
 .sd-element__header ~ hr {
@@ -866,6 +871,7 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
 }
 
 .sd-element--expandable {
-  padding-bottom: calc(var(--sjs2-layout-component-panel-header-padding-top) - var(--sjs2-layout-component-panel-header-padding-bottom));
+  padding-bottom: calc(
+    var(--sjs2-layout-component-panel-header-padding-top) - var(--sjs2-layout-component-panel-header-padding-bottom)
+  );
 }
-

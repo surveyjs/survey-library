@@ -18,6 +18,11 @@ interface ListBlock {
 
 type Block = Para | ListBlock;
 
+interface BuiltPiece extends Piece {
+  fromBlock?: boolean;
+  fromWhitespace?: boolean;
+}
+
 const DROPPED = new Set(["script", "style", "iframe", "object", "embed", "template", "noscript"]);
 const ALLOWED = new Set(["b", "strong", "i", "em", "u", "s", "strike", "del", "a", "ul", "ol", "li", "p", "div", "br"]);
 const BLOCK_UNKNOWN = new Set([
@@ -28,9 +33,11 @@ const BLOCK_UNKNOWN = new Set([
 
 class Builder {
   public blocks: Block[] = [];
-  public pieces: Piece[] = [];
+  public pieces: BuiltPiece[] = [];
   public marks: Marks = emptyMarks();
   public list: ListBlock | undefined;
+  public blockDepth = 0;
+  public inline = false;
   private reported = new Set<string>();
   public reports: string[] = [];
   public paste = false;
@@ -43,6 +50,9 @@ class Builder {
 
   public pushText(text: string): void {
     if (!text) return;
+    // The editor parks an invisible mark after a trailing break so the caret can sit on the new line.
+    text = text.replace(/\u2060/g, "");
+    if (!text) return;
     if (this.paste) {
       const collapsed = text.replace(/\s+/g, " ");
       if (collapsed)this.pieces.push({ kind: "text", text: collapsed, marks: copyMarks(this.marks) });
@@ -50,22 +60,26 @@ class Builder {
     }
     const parts = text.split(/\r\n|\r|\n/);
     for (let i = 0; i < parts.length; i++) {
-      if (i > 0)this.pieces.push({ kind: "br", text: "", marks: copyMarks(this.marks) });
+      if (i > 0)this.pieces.push(this.breakPiece(true));
       if (parts[i])this.pieces.push({ kind: "text", text: parts[i], marks: copyMarks(this.marks) });
     }
   }
 
   public pushBr(): void {
-    this.pieces.push({ kind: "br", text: "", marks: copyMarks(this.marks) });
+    this.pieces.push(this.breakPiece(false));
   }
 
   public flushPara(): void {
-    const pieces = trimPieces(this.pieces);
+    const pieces = trimPieces(this.pieces, this.inline);
     this.pieces = [];
     if (!hasText(pieces)) return;
     const para: Para = { kind: "p", pieces: pieces };
     if (this.list)this.list.items.push(para);
     else this.blocks.push(para);
+  }
+
+  private breakPiece(fromWhitespace: boolean): BuiltPiece {
+    return { kind: "br", text: "", marks: copyMarks(this.marks), fromBlock: this.blockDepth > 0, fromWhitespace: fromWhitespace };
   }
 }
 
@@ -87,6 +101,7 @@ function analyze(html: string, options: SanitizeOptions | undefined): { html: st
   if (!body) return undefined;
   const builder = new Builder();
   builder.paste = !!options?.paste;
+  builder.inline = !!options?.inline;
   reportDroppedTags(String(html), builder);
   for (let i = 0; i < body.childNodes.length; i++) walk(body.childNodes[i], builder);
   builder.flushPara();
@@ -126,7 +141,7 @@ function walk(node: Node, builder: Builder): void {
   if (tag === "a") return walkLink(el, builder);
   if (tag === "p" || tag === "div") {
     builder.flushPara();
-    walkChildren(el, builder);
+    withBlock(builder, () => walkChildren(el, builder));
     builder.flushPara();
     return;
   }
@@ -135,7 +150,7 @@ function walk(node: Node, builder: Builder): void {
   if (!ALLOWED.has(tag)) builder.report(tag);
   if (BLOCK_UNKNOWN.has(tag)) {
     builder.flushPara();
-    walkChildren(el, builder);
+    withBlock(builder, () => walkChildren(el, builder));
     builder.flushPara();
     return;
   }
@@ -144,6 +159,12 @@ function walk(node: Node, builder: Builder): void {
 
 function walkChildren(el: HTMLElement, builder: Builder): void {
   for (let i = 0; i < el.childNodes.length; i++) walk(el.childNodes[i], builder);
+}
+
+function withBlock(builder: Builder, run: () => void): void {
+  builder.blockDepth += 1;
+  run();
+  builder.blockDepth -= 1;
 }
 
 function withMark(builder: Builder, key: "strong" | "em" | "u" | "s", run: () => void): void {
@@ -178,7 +199,7 @@ function walkList(el: HTMLElement, builder: Builder, tag: "ul" | "ol"): void {
   const list: ListBlock = { kind: tag, items: [] };
   builder.blocks.push(list);
   builder.list = list;
-  walkChildren(el, builder);
+  withBlock(builder, () => walkChildren(el, builder));
   builder.flushPara();
   list.items = list.items.filter(para => hasText(para.pieces));
   if (list.items.length === 0) builder.blocks.pop();
@@ -187,7 +208,7 @@ function walkList(el: HTMLElement, builder: Builder, tag: "ul" | "ol"): void {
 
 function walkItem(el: HTMLElement, builder: Builder): void {
   builder.flushPara();
-  walkChildren(el, builder);
+  withBlock(builder, () => walkChildren(el, builder));
   builder.flushPara();
 }
 
@@ -234,19 +255,23 @@ function reportDroppedTags(html: string, builder: Builder): void {
   }
 }
 
-function trimPieces(pieces: Piece[]): Piece[] {
-  const copy = pieces.map(piece => ({ kind: piece.kind, text: piece.text, marks: copyMarks(piece.marks) }));
-  trimEdge(copy, true);
-  trimEdge(copy, false);
+function trimPieces(pieces: BuiltPiece[], inline: boolean): BuiltPiece[] {
+  const copy = pieces.map(piece => ({
+    kind: piece.kind, text: piece.text, marks: copyMarks(piece.marks), fromBlock: piece.fromBlock, fromWhitespace: piece.fromWhitespace
+  }));
+  trimEdge(copy, true, inline);
+  trimEdge(copy, false, inline);
   return copy;
 }
 
 // Line breaks at a block edge go away. Whitespace does too, unless a mark owns it:
 // that space is moved outside the mark later (<strong>word </strong> -> <strong>word</strong> ).
-function trimEdge(pieces: Piece[], leading: boolean): void {
+// A break typed in inline mode is the line itself, so a root-level <br> stays.
+function trimEdge(pieces: BuiltPiece[], leading: boolean, inline: boolean): void {
   while(pieces.length) {
     const piece = leading ? pieces[0] : pieces[pieces.length - 1];
     if (piece.kind === "br") {
+      if (inline && !piece.fromBlock && !piece.fromWhitespace) break;
       if (leading) pieces.shift();
       else pieces.pop();
       continue;

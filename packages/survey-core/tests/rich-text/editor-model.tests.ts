@@ -157,18 +157,60 @@ describe("rich text editor model", () => {
     expect(element.innerHTML).toBe("<em>later</em>");
   });
 
-  test("inline mode hides list buttons and blocks Enter", () => {
-    const question = new QuestionRichTextModel("c");
-    question.acceptCarriageReturn = false;
+  test("inline mode hides list buttons and Enter inserts a break", () => {
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c", acceptCarriageReturn: false }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     const { element, model } = mount(question);
     expect(model.mode).toBe("inline");
     const lists = model.toolbar.actions.filter(action => action.id.indexOf("list") >= 0);
     expect(lists.every(action => action.visible === false)).toBe(true);
     element.innerHTML = "ab";
+    selectText(element, model, "a", "a");
+    const caret = document.getSelection().getRangeAt(0);
+    caret.collapse(false);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(caret);
+    model.syncSelection();
     const event = new KeyboardEvent("keydown", { key: "Enter", cancelable: true });
     element.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(true);
     expect(element.querySelector("p")).toBeNull();
+    expect(element.querySelector("br")).not.toBeNull();
+    element.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("a<br>b");
+  });
+
+  test("Enter at the end of an inline editor inserts a break", () => {
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c", acceptCarriageReturn: false }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
+    const { element, model } = mount(question);
+    element.innerHTML = "ab";
+    const caret = document.createRange();
+    caret.selectNodeContents(element);
+    caret.collapse(false);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(caret);
+    model.syncSelection();
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
+    expect(element.querySelector("br")).not.toBeNull();
+    element.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("ab<br>");
+  });
+
+  test("Enter in inline mode does not pass maxLength", () => {
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c", acceptCarriageReturn: false, maxLength: 2 }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
+    const { element, model } = mount(question);
+    element.innerHTML = "ab";
+    const caret = document.createRange();
+    caret.selectNodeContents(element);
+    caret.collapse(false);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(caret);
+    model.syncSelection();
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
+    expect(element.querySelector("br")).toBeNull();
+    expect(question.value).toBeUndefined();
   });
 
   test("Enter in block mode splits a paragraph and Shift+Enter inserts a break", () => {

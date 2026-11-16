@@ -164,6 +164,7 @@ export class RichTextEditorModel {
       const value = this.question.value;
       this.lastCommitted = value === undefined || value === null ? undefined : String(value);
       element.innerHTML = this.displayHtml;
+      if (this.inline) anchorTrailingBreak(element);
       this.question.onPropertyChanged.add(this.onProperty);
       this.syncEmpty();
       this.updateCounter();
@@ -263,7 +264,11 @@ export class RichTextEditorModel {
       const question = this.question as any;
       const advance = question && typeof question.isAutoAdvanceEnter === "function" && question.isAutoAdvanceEnter(event);
       event.preventDefault();
-      if (advance && !question.isEmpty() && typeof question.requestAutoAdvance === "function") question.requestAutoAdvance();
+      if (advance && !question.isEmpty() && typeof question.requestAutoAdvance === "function" && question.requestAutoAdvance()) return;
+      this.rememberSelection();
+      if (!this.saved || !this.hasRoomForBreak()) return;
+      editEnter(this.element, this.saved, true);
+      this.afterEdit();
       return;
     }
     event.preventDefault();
@@ -390,6 +395,7 @@ export class RichTextEditorModel {
     if (!this.element) return;
     this.lastCommitted = value;
     this.element.innerHTML = value ? sanitizeHtml(value, { inline: this.inline }) : "";
+    if (this.inline) anchorTrailingBreak(this.element);
     this.dirty = false;
     this.syncEmpty();
     this.updateCounter();
@@ -618,6 +624,14 @@ export class RichTextEditorModel {
     if (!this.question || this.contentAgnostic) return 0;
     const max = this.question.getMaxLength();
     return typeof max === "number" && max > 0 ? max : 0;
+  }
+
+  private hasRoomForBreak(): boolean {
+    const max = this.limit();
+    if (!max || !this.element || !this.saved) return true;
+    const current = this.currentVisible();
+    const selected = Math.min(rangeVisibleLength(this.saved), current.length);
+    return max - (current.length - selected) >= 1;
   }
 
   private currentValue(): string {
@@ -1267,6 +1281,8 @@ function lineInner(line: Line): string {
 }
 
 const EDGE_MARKER = "\u200b";
+// Chromium ignores a break that is the last thing in the editor, so the caret never reaches the new line.
+const LINE_ANCHOR = "\u2060";
 
 function replaceElementContents(root: HTMLElement, html: string): void {
   const doc = root.ownerDocument;
@@ -1310,7 +1326,16 @@ function insertBreakPoint(range: Range): DomPoint {
   const doc = range.startContainer.ownerDocument;
   const br = doc.createElement("br");
   range.insertNode(br);
+  if (!br.nextSibling && br.parentNode) br.parentNode.appendChild(doc.createTextNode(LINE_ANCHOR));
   return { node: br.parentNode as Node, offset: indexInParent(br) + 1 };
+}
+
+function anchorTrailingBreak(root: HTMLElement): void {
+  const last = root.lastChild;
+  if (!last || last.nodeType !== 1 || (last as Element).tagName.toLowerCase() !== "br") return;
+  const doc = root.ownerDocument;
+  if (!doc) return;
+  root.appendChild(doc.createTextNode(LINE_ANCHOR));
 }
 
 function splitBlockPoint(root: HTMLElement, range: Range): DomPoint {
@@ -1601,7 +1626,7 @@ function visibleText(root: HTMLElement): string {
   let out = "";
   const walk = (node: Node, isRoot: boolean): void => {
     if (node.nodeType === 3) {
-      const text = node.textContent || "";
+      const text = (node.textContent || "").replace(/\u2060/g, "");
       if (!text) return;
       out += text;
       return;

@@ -46,6 +46,17 @@ describe("allow-list", () => {
     expect(sanitizeHtml("<div>one</div><div>two</div>", { inline: true })).toBe("one<br>two");
     expect(sanitizeHtml("<ul><li>a</li><li>b</li></ul>", { inline: true })).toBe("a<br>b");
     expect(sanitizeHtml("<p>one</p>", { inline: true })).toBe("one");
+    expect(sanitizeHtml("<p>one<br></p>", { inline: true })).toBe("one");
+    expect(sanitizeHtml("<div>one<br></div><div>two</div>", { inline: true })).toBe("one<br>two");
+  });
+
+  test("inline context keeps a root-level break", () => {
+    expect(sanitizeHtml("a<br>", { inline: true })).toBe("a<br>");
+    expect(sanitizeHtml("<br>a", { inline: true })).toBe("<br>a");
+    expect(sanitizeHtml("a<br><br>b", { inline: true })).toBe("a<br><br>b");
+    expect(sanitizeHtml("a<br>\u2060", { inline: true })).toBe("a<br>");
+    expect(sanitizeHtml("<br>", { inline: true })).toBe("");
+    expect(sanitizeHtml("a<br>")).toBe("a");
   });
 
   test("drops elements together with their content", () => {

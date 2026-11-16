@@ -3,10 +3,7 @@ import { EventBase } from "./event";
 import { property } from "./decorators";
 
 class SurveyTaskModel {
-  private timestamp: Date;
-  constructor(public type: string) {
-    this.timestamp = new Date();
-  }
+  constructor(public type: string) {}
 }
 
 export class SurveyTaskManagerModel extends Base {

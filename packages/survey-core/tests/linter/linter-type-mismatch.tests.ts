@@ -1,5 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { lintSurvey, ILintFinding } from "../../src/linter/index";
+import { SurveyModel } from "../../src/survey";
+import { withSettings } from "./lint-test-helpers";
 
 function byRule(json: any, ruleId = "expression/type-mismatch"): Array<ILintFinding> {
   return lintSurvey(json).findings.filter(f => f.ruleId === ruleId);
@@ -289,5 +291,68 @@ describe("expression/type-mismatch - scope index variables", () => {
         ] },
       ],
     })).toHaveLength(0);
+  });
+});
+
+// The runtime comparison converts values, so a constant of another type is only reported when no
+// value of the question can equal it. Each row checks the linter against SurveyModel.
+describe("expression/type-mismatch - a constant the runtime converts", () => {
+  function check(type: string, expression: string, value: any): { visible: boolean, findings: number } {
+    const extra = type === "text" ? { inputType: "number" } : {};
+    const json = {
+      elements: [
+        { type: type, name: "c", ...extra },
+        { type: "text", name: "q2", visibleIf: expression },
+      ],
+    };
+    const survey = new SurveyModel(json);
+    survey.setValue("c", value);
+    return { visible: survey.getQuestionByName("q2").isVisible, findings: byRule(json).length };
+  }
+  test.each([
+    ["boolean", "{c} = 'true'", true],
+    ["boolean", "{c} <> 'true'", false],
+    ["boolean", "{c} = 'TRUE'", true],
+    ["boolean", "{c} = 1", true],
+    ["boolean", "{c} = 0", false],
+    ["text", "{c} = '5'", 5],
+    ["text", "{c} = '5.0'", 5],
+    ["rating", "{c} = '3'", 3],
+    ["text", "{c} > '3'", 5],
+  ])("%s %s with %s holds at runtime and is clean", (type, expression, value) => {
+    expect(check(type, expression, value)).toEqual({ visible: true, findings: 0 });
+  });
+  test.each([
+    ["boolean", "{c} = 'yes'", true],
+    ["text", "{c} = 'abc'", 5],
+    ["text", "{c} = '1,5'", 1.5],
+    ["text", "{c} > '1,5'", 5],
+  ])("%s %s with %s cannot hold at runtime and is reported", (type, expression, value) => {
+    expect(check(type, expression, value)).toEqual({ visible: false, findings: 1 });
+  });
+  test("{c} = 'TRUE' holds with comparator.caseSensitive too", () => {
+    withSettings({ "comparator.caseSensitive": true }, () => {
+      expect(check("boolean", "{c} = 'TRUE'", true)).toEqual({ visible: true, findings: 0 });
+    });
+  });
+  test("with comparator.strictEquality, {c} = 1 and {c} = 0 cannot hold and are reported", () => {
+    withSettings({ "comparator.strictEquality": true }, () => {
+      expect(check("boolean", "{c} = 1", true)).toEqual({ visible: false, findings: 1 });
+      expect(check("boolean", "{c} = 0", false)).toEqual({ visible: false, findings: 1 });
+    });
+  });
+  test("{n} + '3' joins strings at runtime and is still reported", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "n", inputType: "number" },
+        { type: "expression", name: "e", expression: "{n} + '3'" },
+      ],
+    };
+    const survey = new SurveyModel(json);
+    survey.setValue("n", 5);
+    expect(survey.getQuestionByName("e").value).toBe("53");
+    const findings = byRule(json);
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("number-vs-string");
   });
 });

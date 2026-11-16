@@ -298,6 +298,7 @@ frameworks.forEach((framework) => {
         ]
       });
 
+      await expect(page.locator("div[data-name=q1] input")).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

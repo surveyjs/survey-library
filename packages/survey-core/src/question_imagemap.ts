@@ -342,11 +342,6 @@ export class QuestionImageMapModel extends Question {
     return buildImageMapCssVariables(this);
   }
 
-  public getCSSVariables(): string {
-    const variables = this.getCSSVariablesMap();
-    return Object.keys(variables).map((key) => `${key}: ${variables[key]}`).join("; ");
-  }
-
   public updateCSSVariables(): void {
 
     if (!this.svg) return;
@@ -725,11 +720,6 @@ export class ImageMapArea extends ItemValue {
 
   public getCSSVariablesMap(): { [index: string]: string } {
     return buildImageMapCssVariables(this);
-  }
-
-  public getCSSVariables(): string {
-    const variables = this.getCSSVariablesMap();
-    return Object.keys(variables).map((key) => `${key}: ${variables[key]}`).join("; ");
   }
 
   public getCSSClasses(): string {

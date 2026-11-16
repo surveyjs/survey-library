@@ -5,7 +5,6 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionCheckboxModel } from "./question_checkbox";
-import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
 import { DropdownMultiSelectRenderState, DropdownRenderState } from "./dropdownRenderState";
 import { EventBase } from "./event";
@@ -176,9 +175,6 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     return this.dropdownRenderState.inputAvailable ? ["enter"] : ["space", "enter"];
   }
   public supportMultipleComment(item: ItemValue): boolean { return this.isOtherValue(item.value); }
-  public get a11yInputAriaRole(): string | null {
-    return "combobox";
-  }
   public getControlClass(): string {
     return toCssClasses(
       this.cssClasses.control,

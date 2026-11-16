@@ -22,7 +22,7 @@ import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
-import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditions/conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ActionContainer } from "./actions/container";
 import { ComputedUpdater } from "./base";
 import { Base } from "./base";
@@ -843,7 +843,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
 
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
-    return new QuestionMatrixDynamicRenderedTable(this);
+    const table = new QuestionMatrixDynamicRenderedTable(this);
+    this.updateAddRowAriaDescribedBy(table.showTable);
+    table.registerPropertyChangedHandlers(["showTable"], () => this.updateAddRowAriaDescribedBy(table.showTable));
+    return table;
   }
   private get rowCountValue(): number {
     return this.getPropertyValue("rowCount");
@@ -1778,6 +1781,21 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       id: "sv-md-add-btn"
     });
     this.toolbarValue.addAction(addBtnAction);
+    const table = <QuestionMatrixDropdownRenderedTable>this.getPropertyValueWithoutDefault("renderedTable");
+    if (!!table) {
+      this.updateAddRowAriaDescribedBy(table.showTable);
+    }
+  }
+  public get noRowsTextId(): string {
+    return this.renderedId + "_noRowsText";
+  }
+  /* Updated from each rendered table (createRenderedTable): the table is built lazily and stored without
+     a change notification, so a ComputedUpdater over it would miss a rebuilt table. */
+  private updateAddRowAriaDescribedBy(showTable: boolean): void {
+    const addBtnAction = this.toolbarValue?.getActionById("sv-md-add-btn");
+    if (!!addBtnAction) {
+      addBtnAction.ariaDescribedBy = showTable ? undefined : this.noRowsTextId;
+    }
   }
   private toolbarValue: ActionContainer;
   public get toolbar(): ActionContainer {

@@ -1,5 +1,5 @@
 import { ExpressionRunner } from "../../src/expressions/expressionRunner";
-import { FunctionFactory, registerFunction, unregisterFunction } from "../../src/functionsfactory";
+import { FunctionFactory, registerFunction } from "../../src/functionsfactory";
 import { SurveyModel } from "../../src/survey";
 
 import { describe, test, expect } from "vitest";
@@ -22,7 +22,7 @@ describe("Expressions Function Cache Tests", () => {
     expect(counter, "func1 called one more time with new parameter").toBe(2);
     expect(runner.runValues(values), "10 + 10 = 20").toBe(20);
     expect(counter, "func1 called one more time again, the result was taken from cache").toBe(2);
-    unregisterFunction("func1");
+    FunctionFactory.Instance.unregister("func1");
   });
   test("Async caching by parameter", () => {
     let resolveFuncs = new Array<(value: any) => void>();
@@ -56,7 +56,7 @@ describe("Expressions Function Cache Tests", () => {
     expect(resolveFuncs.length, "Take from cache, #2").toBe(3);
     expect(exp.value, "The value is set to 18").toBe(18);
 
-    unregisterFunction("func1");
+    FunctionFactory.Instance.unregister("func1");
   });
   test("Simple caching by accessing survey values", () => {
     let counter = 0;
@@ -101,7 +101,7 @@ describe("Expressions Function Cache Tests", () => {
     expect(counter, "func1 was not called one more time, the value was taken from cache, #3").toBe(4);
     expect(exp.value, "5 + 10 = 15").toBe(15);
 
-    unregisterFunction("func1");
+    FunctionFactory.Instance.unregister("func1");
   });
   test("Simple caching by accessing survey values & variables", () => {
     let counter = 0;
@@ -155,7 +155,7 @@ describe("Expressions Function Cache Tests", () => {
     expect(counter, "func1 was not called one more time, the value was taken from cache, #4").toBe(6);
     expect(exp.value, "5 + 2 + 10 = 17").toBe(17);
 
-    unregisterFunction("func1");
+    FunctionFactory.Instance.unregister("func1");
   });
   test("Simple caching by accessing question value", () => {
     let counter = 0;
@@ -201,7 +201,7 @@ describe("Expressions Function Cache Tests", () => {
     expect(counter, "func1 was not called one more time, the value was taken from cache, #3").toBe(4);
     expect(exp.value, "5 + 10 = 15").toBe(15);
 
-    unregisterFunction("func1");
+    FunctionFactory.Instance.unregister("func1");
   });
   test("Caching by accessing elements values & properties", () => {
     let counter = 0;
@@ -248,7 +248,7 @@ describe("Expressions Function Cache Tests", () => {
     expect(counter, "func1 was not called one more time, the value was taken from cache, #2").toBe(4);
     expect(exp.value, "20 + 10 = 30").toBe(30);
 
-    unregisterFunction("func1");
+    FunctionFactory.Instance.unregister("func1");
   });
   test("Do not cache surveyjs objects", () => {
     function func1(): any {
@@ -282,7 +282,7 @@ describe("Expressions Function Cache Tests", () => {
     expect(objItem.name, "The cached property name is value").toBe("value");
     expect(objItem.value, "The cached value is 5").toBe(5);
 
-    unregisterFunction("func1");
+    FunctionFactory.Instance.unregister("func1");
   });
   test("addToCache does not crash when properties.surveyCachedValues is undefined (nested cached functions)", () => {
     function innerFunc(params: any[]): any {
@@ -306,8 +306,8 @@ describe("Expressions Function Cache Tests", () => {
     q1.value = 10;
     expect(exp.value, "Second call works correctly, 10 + 1 = 11").toBe(11);
 
-    unregisterFunction("innerFunc_nested");
-    unregisterFunction("outerFunc_nested");
+    FunctionFactory.Instance.unregister("innerFunc_nested");
+    FunctionFactory.Instance.unregister("outerFunc_nested");
   });
   test("useCache by default with async function", () => {
     let resolveFuncs = new Array<(value: any) => void>();
@@ -341,6 +341,6 @@ describe("Expressions Function Cache Tests", () => {
     expect(resolveFuncs.length, "Take from cache, #2").toBe(3);
     expect(exp.value, "The value is set to 18").toBe(18);
 
-    unregisterFunction("func1");
+    FunctionFactory.Instance.unregister("func1");
   });
 });

@@ -36,11 +36,12 @@ import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
+import { QuestionExpressionModel } from "./question_expression";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
-import { getLocaleString, surveyLocalization } from "./surveyStrings";
+import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
@@ -113,7 +114,6 @@ import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
 import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, addEventHandlersFromOptions } from "./survey-settings";
 import DefaultLightTheme from "./themes/default-light";
-import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
 import type { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
@@ -1397,9 +1397,6 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() sjsVersion: string;
   @property() $schema: string;
-  processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
-    throw new Error("Method not implemented.");
-  }
   protected createTryAgainAction(): IAction {
     return <IAction>{
       id: "save-again",
@@ -2546,7 +2543,9 @@ export class SurveyModel extends SurveyElementCore
    * @see logoPosition
    * @see logoFit
    */
-  @property({ localizable: true }) logo: string;
+  @property({ localizable: { onCreate: (obj: SurveyModel, locStr: LocalizableString) =>
+    locStr.onStringChanged.add(() => obj.resetHasLogo())
+  } }) logo: string;
   /**
    * A logo width in CSS-accepted values.
    *
@@ -2596,8 +2595,13 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   @property() logoPosition: string;
+  // The same value that the header renders into the image's src, so that visibility and src
+  // cannot disagree: dynamic text that resolves to an empty string means there is no image.
+  protected get hasLogoImage(): boolean {
+    return !!this.locLogo.renderedHtml;
+  }
   public get hasLogo(): boolean {
-    return this.getPropertyValue("hasLogo", undefined, () => !!this.logo && this.logoPosition !== "none");
+    return this.getPropertyValue("hasLogo", undefined, () => this.hasLogoImage && this.logoPosition !== "none");
   }
   private resetHasLogo(): void {
     this.resetPropertyValue("hasLogo");
@@ -2696,9 +2700,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public get isMobile() {
     return this._isMobile && !this.isDesignMode;
-  }
-  protected isLogoImageChoosen() {
-    return this.locLogo.renderedHtml;
   }
   public get titleMaxWidth(): string {
     return "";
@@ -3016,6 +3017,21 @@ export class SurveyModel extends SurveyElementCore
   @property({ localizable: { defaultStr: true } }) editText: string;
 
   public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
+  // A survey-level override of settings.designMode.showEmptyTitles / showEmptyDescriptions. Survey Creator sets it
+  // on its own design surveys: its page edit mode belongs to one creator, while the setting is global.
+  // undefined (the default) follows the setting. Design-time options, so not registered in Serializer (not in toJSON).
+  public get showEmptyTitlesInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyTitlesInDesignMode", settings.designMode.showEmptyTitles);
+  }
+  public set showEmptyTitlesInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyTitlesInDesignMode", val);
+  }
+  public get showEmptyDescriptionsInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyDescriptionsInDesignMode", settings.designMode.showEmptyDescriptions);
+  }
+  public set showEmptyDescriptionsInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyDescriptionsInDesignMode", val);
+  }
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };
@@ -3279,6 +3295,8 @@ export class SurveyModel extends SurveyElementCore
   private progressTotal: number;
   public resetProgressTotal(): void {
     this.progressTotal = undefined;
+    // A question resets the total when its visible rows, columns or inputs change
+    this.visibilityChangeCount++;
   }
   public getProgressPosition(): { current: number, total: number } {
     const elements = this.getSingleElements();
@@ -3870,7 +3888,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return result;
   }
-  getFilteredValues(): any {
+  getFilteredValues(): { [index: string]: any } {
     const values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     this.addCalculatedValuesIntoFilteredValues(values);
@@ -5230,7 +5248,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isValidateOnComplete) {
       this.cancelPreview();
     }
-    let res = this.doCurrentPageComplete(true);
+    this.doCurrentPageComplete(true);
     return this.isCompleted;
   }
   /**
@@ -5248,15 +5266,8 @@ export class SurveyModel extends SurveyElementCore
   private resetNavigationButton() {
     this.isNavigationButtonPressed = false;
   }
-  private mouseDownPage: any = null;
   public nextPageUIClick(): boolean {
-    if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return false;
-    this.mouseDownPage = null;
     return this.performNext();
-  }
-  public nextPageMouseDown(): boolean {
-    this.mouseDownPage = this.activePage;
-    return this.navigationMouseDown();
   }
   /**
    * Displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Returns `false` if the preview cannot be displayed because of validation errors.
@@ -5480,7 +5491,7 @@ export class SurveyModel extends SurveyElementCore
     });
     this.updateButtonsVisibility();
   }
-  private currentSingleElementValue: IElement;
+  private currentSingleElementValue: IElement | undefined;
   private getSingleElements(includeEl?: IElement): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
@@ -5499,10 +5510,10 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public get currentSingleElement(): IElement {
+  public get currentSingleElement(): IElement | undefined {
     return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
-  public set currentSingleElement(val: IElement) {
+  public set currentSingleElement(val: IElement | undefined) {
     if (!!val && val.isQuestion && this.isSingleVisibleQuestionVal(this.questionsOnPageMode)) {
       while(val.parent && val.parent.isPanel) {
         val = <IElement>(<any>val.parent);
@@ -5544,11 +5555,11 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  public get currentSingleQuestion(): Question {
+  public get currentSingleQuestion(): Question | undefined {
     const res = this.currentSingleElement;
     return !!res && res.isQuestion ? <Question>res : undefined;
   }
-  public set currentSingleQuestion(val: Question) {
+  public set currentSingleQuestion(val: Question | undefined) {
     this.currentSingleElement = val;
   }
   public supportsNestedSingleInput(question: IQuestion): boolean {
@@ -6617,10 +6628,6 @@ export class SurveyModel extends SurveyElementCore
     this.heldCompletion = undefined;
     this.doCurrentPageComplete(true);
   }
-  dragAndDropAllow(options: DragDropAllowEvent): boolean {
-    this.onDragDropAllow.fire(this, options);
-    return options.allow;
-  }
   elementContentVisibilityChanged(element: ISurveyElement): void {
     if (this.currentPage) {
       this.currentPage.ensureRowsVisibility();
@@ -7529,7 +7536,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.onExpressionRunning.isEmpty) return undefined;
     return this.questionTriggersKeys;
   }
-  // The skip check's parsed variable names (ValueGetter.isAnyKeyChangedCore), shared by every runner and trigger
+  // The skip check's parsed variable names (ValueGetter.isAnyKeyChanged), shared by every runner and trigger
   // of the survey and keyed by the exact name: a large survey has far fewer distinct names than runner slots.
   // An item depends on the name only: settings are read on every call, never kept in it, and an item never
   // reaches ValueGetter.run, which changes the path it parses. Built on the first keyed check; it lives as long
@@ -7585,23 +7592,36 @@ export class SurveyModel extends SurveyElementCore
       atLoad.isCalculating = true;
       atLoad.changed.clear();
     }
+    let calculatedRuns: Set<CalculatedValue>;
     try {
-      for (var i = 0; i < this.calculatedValues.length; i++) {
-        this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
-      }
-      if (!!atLoad) {
-        this.repeatCalculatedValuesAtLoad(atLoad, properties);
-      }
+      calculatedRuns = CalculatedValue.collectRuns(() => {
+        for (let i = 0; i < this.calculatedValues.length; i++) {
+          this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
+        }
+        if (!!atLoad) {
+          this.repeatCalculatedValuesAtLoad(atLoad, properties);
+        }
+      });
     } finally {
       if (!!atLoad) {
         atLoad.isCalculating = false;
       }
     }
-    super.runConditionCore(properties);
-    for (let i = 0; i < pages.length; i++) {
-      pages[i].runCondition(properties);
+    const visibilityChangeCount = this.visibilityChangeCount;
+    const expressionRuns = QuestionExpressionModel.collectRuns(() => {
+      super.runConditionCore(properties);
+      for (let i = 0; i < pages.length; i++) {
+        pages[i].runCondition(properties);
+      }
+    });
+    if (visibilityChangeCount !== this.visibilityChangeCount) {
+      // A changed value requests another pass, so the conditions that read it run again
+      calculatedRuns.forEach(item => item.runAfterVisibilityChanged(properties));
+      expressionRuns.forEach((runProperties, item) => item.runAfterVisibilityChanged(runProperties));
     }
   }
+  // Grows when a page, panel or question changes its visibility, or a question its visible rows, columns or inputs
+  private visibilityChangeCount: number = 0;
   // Set while the load runs its conditions, unless the load runs its whole passes as before
   private calculatedValuesAtLoad: ICalculatedValuesAtLoad;
   private createCalculatedValuesAtLoad(): ICalculatedValuesAtLoad {
@@ -7808,7 +7828,7 @@ export class SurveyModel extends SurveyElementCore
     this.endLoading();
     this.updateState();
     if (!!this.sjsVersion && !!settings.version) {
-      if (Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
+      if (Helpers.compareVerions(String(this.sjsVersion), settings.version) > 0) {
         ConsoleWarnings.warn("The version of the survey JSON schema (v"
           + this.sjsVersion + ") is newer than your current Form Library version ("
           + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
@@ -8513,6 +8533,7 @@ export class SurveyModel extends SurveyElementCore
     return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean, resetIndexes: boolean): void {
+    this.visibilityChangeCount++;
     if (!newValue) {
       this.notifyElementHiddenOnComplete();
     }
@@ -8530,6 +8551,7 @@ export class SurveyModel extends SurveyElementCore
   }
   pageVisibilityChanged(page: PageModel, newValue: boolean) {
     if (this.isLoadingFromJson) return;
+    this.visibilityChangeCount++;
     if (!newValue) {
       this.notifyElementHiddenOnComplete();
     }
@@ -8554,6 +8576,7 @@ export class SurveyModel extends SurveyElementCore
     this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
+    this.visibilityChangeCount++;
     if (!newValue) {
       this.notifyElementHiddenOnComplete();
     }
@@ -9377,7 +9400,9 @@ export class SurveyModel extends SurveyElementCore
     return this.focusQuestionByInstance(this.getQuestionByName(name, true));
   }
   focusQuestionByInstance(question: Question, onError: boolean = false): boolean {
-    if (!question || !question.isVisible || !question.page) return false;
+    // A hidden page cannot become current, so a question there would never be focused and its pending
+    // focus would block later focus calls for this question
+    if (!question || !question.page || !question.isVisibleWithParents) return false;
     const oldQuestion = this.focusingQuestionInfo?.question;
     if (oldQuestion === question) return false;
     this.focusingQuestionInfo = { question: question, onError: onError };
@@ -9449,10 +9474,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public getItemValueWrapperComponentData(item: ItemValue, question: QuestionSelectBase): any {
     return this.elementWrapperDataCore(item, question, "itemvalue", undefined, item);
-  }
-  public getMatrixCellTemplateData(cell: any): any {
-    const res: any = cell.question;
-    return this.elementWrapperDataCore(res, res, "cell");
   }
 
   public searchText(text: string): Array<IFindElement> {

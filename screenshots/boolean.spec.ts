@@ -16,7 +16,7 @@ frameworks.forEach(framework => {
         elements: [{ type: "boolean", name: "boolean_question", },]
       });
       const questionRoot = page.locator(".sd-question--boolean");
-      await page.waitForTimeout(1000);
+      await expect(questionRoot).toBeVisible();
 
       await page.keyboard.press("Tab");
       await compareScreenshot(page, questionRoot, "boolean-question-indeterminate-focused.png");
@@ -49,7 +49,6 @@ frameworks.forEach(framework => {
         showQuestionNumbers: true,
         elements: [{ type: "boolean", name: "boolean_question", swapOrder: true },] });
       const questionRoot = page.locator(".sd-question--boolean");
-      await page.waitForTimeout(1000);
       await resetFocusToBody(page);
       await compareScreenshot(page, questionRoot, "boolean-question-exch-indeterminate.png");
 
@@ -90,7 +89,6 @@ frameworks.forEach(framework => {
         ]
       });
       const questionRoot = page.locator(".sd-question--boolean");
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "boolean-radio-question.png");
 
       await page.locator(".sv-string-viewer").filter({ hasText: "No" }).click();
@@ -117,7 +115,6 @@ frameworks.forEach(framework => {
         ]
       });
       const questionRoot = page.locator(".sd-question--boolean");
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "boolean-question-word-wrap.png");
     });
 
@@ -149,7 +146,6 @@ frameworks.forEach(framework => {
         ]
       });
       const questionRoot = page.locator(".sd-question--boolean");
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "boolean-switch-thumb-right.png");
       await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-thumb-right-swapped.png");
     });
@@ -167,7 +163,6 @@ frameworks.forEach(framework => {
         ]
       });
       const questionRoot = page.locator(".sd-question--boolean");
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "boolean-switch-thumb-swapped-indeterminate.png");
       await questionRoot.locator(".sd-boolean__thumb-ghost").filter({ hasText: "No" }).click();
       await compareScreenshot(page, questionRoot, "boolean-switch-thumb-swapped-no.png");
@@ -272,7 +267,6 @@ frameworks.forEach(framework => {
         ]
       });
       const questionRoot = page.locator(".sd-question--boolean");
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false.png");
       await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true.png");
 
@@ -344,7 +338,6 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, ".sd-page__content", "boolean-switch-multiline-caption.png");
     });
 

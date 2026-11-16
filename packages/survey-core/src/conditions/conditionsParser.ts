@@ -33,10 +33,6 @@ export class ConditionsParser {
     return text.split(start).join("{").split(end).join("}");
   }
 
-  public createCondition(text: string): Operand {
-    return this.parseExpression(text);
-  }
-
   public parseExpression(text: string): Operand {
     this.conditionError = undefined;
     try {

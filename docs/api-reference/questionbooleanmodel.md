@@ -70,6 +70,24 @@ Default value: "Yes"
 
 **Related APIs:** [`valueTrue`](#valueTrue), [`valueFalse`](#valueFalse)
 
+### `requireTrue`
+
+**Type**: `boolean`
+
+Specifies whether respondents must give a positive answer to pass validation.
+
+Default value: `false`
+
+When this property is `true`, only a positive answer (`true` by default, or the custom value specified by [`valueTrue`](#valueTrue)) passes validation. A negative or empty answer displays the error message specified by [`requireTrueErrorText`](#requireTrueErrorText).
+
+> This validation applies independently of [`isRequired`](#isRequired) and [`requiredIf`](#requiredIf). Enabling `requireTrue` does not set `isRequired`, but the question displays a [required mark](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#requiredMark) as a required question does.
+
+### `requireTrueErrorText`
+
+**Type**: `string`
+
+Specifies a custom error message displayed when [`requireTrue`](#requireTrue) is enabled and the answer is negative or empty.
+
 ### `swapOrder`
 
 **Type**: `boolean`

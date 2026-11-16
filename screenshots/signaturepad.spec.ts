@@ -29,14 +29,12 @@ frameworks.forEach(framework => {
       await page.click("canvas", { position: { x: 50, y: 80 } });
       await page.click("canvas", { position: { x: 70, y: 50 } });
       await page.click("canvas", { position: { x: 90, y: 20 } });
-      await page.waitForTimeout(100);
 
       await compareScreenshot(page, ".sd-question", "signature.png");
 
       await page.setViewportSize({ width: 375, height: 400 });
       await page.click("canvas", { position: { x: 70, y: 20 } });
       await page.click("canvas", { position: { x: 90, y: 30 } });
-      await page.waitForTimeout(100);
       await compareScreenshot(page, ".sd-question", "signature-mobile.png");
     });
 
@@ -61,14 +59,12 @@ frameworks.forEach(framework => {
       await page.click("canvas", { position: { x: 40, y: 10 } });
       await page.click("canvas", { position: { x: 370, y: 60 } });
       await page.click("canvas", { position: { x: 700, y: 110 } });
-      await page.waitForTimeout(100);
       await compareScreenshot(page, ".sd-question", "signature-scaled.png");
 
       await page.setViewportSize({ width: 500, height: 1080 });
       await page.click("canvas", { position: { x: 20, y: 60 } });
       await page.click("canvas", { position: { x: 160, y: 35 } });
       await page.click("canvas", { position: { x: 300, y: 10 } });
-      await page.waitForTimeout(100);
       await compareScreenshot(page, ".sd-question", "signature-scaled-resize.png");
 
       await page.click("button[title=\"Clear\"]");
@@ -92,7 +88,6 @@ frameworks.forEach(framework => {
           },
         ]
       });
-      await page.waitForTimeout(2000);
       await page.evaluate(() => {
         window["survey"].getQuestionByName("q1").value = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E";
       });
@@ -116,9 +111,9 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         window["survey"].getQuestionByName("q1").stateChanged("loading");
       });
-      await page.waitForTimeout(1000);
-      await page.evaluate(() => {
-        ((window as any).survey.rootElement.getRootNode().querySelector(".sd-loading-indicator .sv-svg-icon") as any).style.animationName = "unset";
+      // The indicator renders after the state change: the locator waits for it.
+      await page.locator(".sd-loading-indicator .sv-svg-icon").evaluate((icon: HTMLElement) => {
+        icon.style.animationName = "unset";
       });
 
       await compareScreenshot(page, ".sd-question", "signature-data-loading.png");

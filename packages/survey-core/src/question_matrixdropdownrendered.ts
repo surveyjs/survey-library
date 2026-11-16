@@ -12,8 +12,7 @@ import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { ActionContainer } from "./actions/container";
 import type { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
-import { settings } from "./settings";
-import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { ISortCriterion, SortDirection } from "./dynamic-data/dynamic-data-interfaces";
 import { getSortDirectionLocStringName } from "./records/records-sort-directions";
@@ -42,7 +41,6 @@ export class QuestionMatrixDropdownRenderedCell {
   public column: MatrixDropdownColumn;
   public row: MatrixDropdownRowModelBase;
   public question: Question;
-  public isRemoveRow: boolean;
   public choiceIndex: number;
   public isOtherChoice: boolean;
   public matrix: QuestionMatrixDropdownModelBase;
@@ -52,7 +50,6 @@ export class QuestionMatrixDropdownRenderedCell {
   public isEmpty: boolean;
   public colSpans: number = 1;
   public panel: PanelModel;
-  public isShowHideDetail: boolean;
   public isActionsCell: boolean = false;
   public isErrorsCell: boolean = false;
   public isDetailRowCell: boolean = false;
@@ -314,7 +311,6 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   @property({ defaultValue: false }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
   @property({ defaultValue: true }) visible: boolean;
-  public onVisibilityChangedCallback: () => void;
   public hasEndActions: boolean = false;
   public row: MatrixDropdownRowModelBase;
   public isErrorsRow = false;
@@ -549,7 +545,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   protected build() {
     this.hasRemoveRowsValue = this.matrix.canRemoveRows;
     //build rows now
-    var rows = this.matrix.visibleRows;
+    this.matrix.visibleRows;
     this.cssClasses = this.matrix.cssClasses;
     this.buildRowsActions();
     this.buildHeader();

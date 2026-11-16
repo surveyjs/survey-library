@@ -334,6 +334,7 @@ frameworks.forEach((framework) => {
           }]
       });
 
+      await expect(page.locator("textarea")).toBeFocused();
       const textContent1 = await characterCounter.textContent();
       expect(textContent1).toBe("0/10");
 

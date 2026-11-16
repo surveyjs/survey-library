@@ -74,7 +74,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   // item of the list (never from outside it), and a key press takes the highlight from the hovered item.
   @property({ defaultValue: false }) focusFollowsPointer: boolean;
 
-  public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
   public scrollHandler: (e?: any) => void;
   public loadingIndicatorVisibilityObserver: (isVisible: boolean) => void;
@@ -295,11 +294,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       itemValue.css
     );
   };
-
-  // public getItemIndent = (itemValue: any) => {
-  //   const level: number = itemValue.level || 0;
-  //   return (level + 1) * ListModel.INDENT + "px";
-  // };
 
   public getItemStyle = (itemValue: any) => {
     const level: number = itemValue.level || 0;

@@ -6,7 +6,8 @@ const title = "Filter";
 
 // The Filter Control over a Dynamic Matrix. The dialogs are drawn outside the survey's page (the
 // dialog host mounts them into the survey's root element), so each one is checked by its own
-// selector; a chip's popup is drawn inside its chip, and checked once it is open.
+// selector; a chip's popup - a field's, the presets' list, Save as... - is drawn inside its chip, and
+// checked once it is open.
 const json = (filterProps: any = {}): any => ({
   elements: [
     Object.assign({ type: "filter", name: "f1", source: "m", showSearch: true,
@@ -52,18 +53,46 @@ frameworks.forEach((framework) => {
       await expect(visiblePopup(page, ".sd-filter-popup")).toBeVisible();
       await checkA11y(page, axeContext, { axeOptions });
     });
+    test("the presets' open list", async ({ page }) => {
+      await initSurvey(page, framework, json());
+      await page.locator(".sd-filter .sd-filter__chip--preset").click();
+      await expect(visiblePopup(page, ".sv-list")).toBeVisible();
+      await checkA11y(page, axeContext, { axeOptions });
+    });
+    test("Save as...'s open popup", async ({ page }) => {
+      await initSurvey(page, framework, json({ defaultItem: "" }));
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("f1").setFieldCondition("country", "anyof", ["de"]); });
+      await page.locator(".sd-filter").getByRole("button", { name: "Save as..." }).click();
+      await expect(visiblePopup(page, ".sd-filter-popup")).toBeVisible();
+      await checkA11y(page, axeContext, { axeOptions });
+    });
     test("the Filters dialog", async ({ page }) => {
       await initSurvey(page, framework, json());
       await page.locator(".sd-filter button[title='Filters']").click();
       await expect(visiblePopup(page, ".sd-filter-modal__content")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-modal"), { axeOptions });
     });
-    test("Edit Presets", async ({ page }) => {
+    test("the Filters dialog: nothing found", async ({ page }) => {
       await initSurvey(page, framework, json());
       await page.locator(".sd-filter button[title='Filters']").click();
       const dialog = visiblePopup(page, ".sd-filter-modal__content");
-      await dialog.locator(".sd-filter-modal__section-header [title='Edit Presets']").click();
-      await expect(visiblePopup(page, ".sd-filter-preset-dialog__tabs")).toBeVisible();
+      await dialog.getByRole("textbox", { name: "Search in Filters" }).fill("zzz");
+      await expect(dialog.locator(".sd-filter-modal__nothing-found")).toBeVisible();
+      await checkA11y(page, dialogContext(".sd-filter-modal"), { axeOptions });
+    });
+    test("New Preset", async ({ page }) => {
+      await initSurvey(page, framework, json());
+      await page.locator(".sd-filter button[title='Filters']").click();
+      await visiblePopup(page, ".sd-filter-modal__content").getByRole("button", { name: "Add New..." }).click();
+      await expect(visiblePopup(page, ".sd-filter-preset-dialog__content")).toBeVisible();
+      await checkA11y(page, dialogContext(".sd-filter-preset-dialog"), { axeOptions });
+    });
+    test("Edit Preset", async ({ page }) => {
+      // Adults is on, so its pill is picked: Edit Selected... opens it.
+      await initSurvey(page, framework, json());
+      await page.locator(".sd-filter button[title='Filters']").click();
+      await visiblePopup(page, ".sd-filter-modal__content").getByRole("button", { name: "Edit Selected..." }).click();
+      await expect(visiblePopup(page, ".sd-filter-preset-dialog__content")).toBeVisible();
       await checkA11y(page, dialogContext(".sd-filter-preset-dialog"), { axeOptions });
     });
   });

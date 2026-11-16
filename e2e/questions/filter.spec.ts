@@ -3,9 +3,10 @@ import type { Locator, Page } from "@playwright/test";
 
 const title = "Filter";
 
-/* The Filter Control (#11890) over a dynamic matrix, the same in every framework: a chip's popup
-   filters the rows, Show More cuts the chips to one row, the Filters dialog shows the presets and the
-   fields, and Add Preset opens the preset dialog. */
+/* The Filter Control (#11890) over a dynamic matrix, the same in every framework (the mockup's
+   "filters v2"): a chip's popup filters the rows and its cross clears them, the Preset chip turns a
+   preset on and off, Save as... adds one, Show More cuts the chips to one row, and the Filters dialog
+   searches among the filters and opens New Preset and Edit Preset. */
 const columns = [
   { name: "country", title: "Country", cellType: "dropdown",
     choices: [{ value: "de", text: "Germany" }, { value: "fr", text: "France" }, { value: "it", text: "Italy" }] },
@@ -19,10 +20,12 @@ const json = (extraColumns: Array<any> = [], filterProps: any = {}): any => ({
   ]
 });
 const nameColumn = { name: "name", title: "Name", cellType: "text" };
+const twoPresets = { items: [{ name: "adults", title: "Adults", expression: "{age} > 18" },
+  { name: "kids", title: "Kids", expression: "{age} < 18" }] };
 const longColumns = (): Array<any> => {
   const res: Array<any> = [];
   for (let i = 1; i <= 10; i++) {
-    // A choice column gets a chip of its own in the quick filters row; a text column does not.
+    // Every column gets a chip of its own in the quick filters row: ten long titles do not fit in one.
     res.push({ name: "col" + i, title: "Long column title " + i, cellType: "dropdown", choices: ["a", "b"] });
   }
   return res;
@@ -55,6 +58,20 @@ async function openFilters(page: Page): Promise<Locator> {
   await expect(dialog).toBeVisible();
   return dialog;
 }
+// Picks a value in a chip's popup and applies it.
+async function pick(page: Page, field: string, text: string): Promise<void> {
+  await chip(page, field).click();
+  const popup = popupWith(page, ".sd-filter-popup");
+  await popup.locator(".sd-filter-popup__item").filter({ hasText: text }).click();
+  await popup.getByRole("button", { name: "Apply" }).click();
+  await expect(popup).toBeHidden();
+}
+// fill() fires "input" only. The Angular and Vue text inputs pass a typed value on keyup (or on
+// change, at blur): a key sends it on, as typing would.
+async function type(input: Locator, text: string): Promise<void> {
+  await input.fill(text);
+  await input.press("End");
+}
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
@@ -80,6 +97,48 @@ frameworks.forEach((framework) => {
       expect(await getVisibleRowCount(page)).toBe(1);
     });
 
+    test("a chip's cross clears its condition", async ({ page }) => {
+      await initSurvey(page, framework, json());
+      await pick(page, "Country", "Germany");
+      expect(await getVisibleRowCount(page)).toBe(1);
+      const clear = page.locator(".sd-filter").getByRole("button", { name: "Clear Country" });
+      await expect(clear).toBeVisible();
+      await clear.click();
+      await expect(clear).toBeHidden();
+      await expect.poll(() => getVisibleRowCount(page)).toBe(3);
+      await expect(chip(page, "Country")).not.toContainText("Germany");
+    });
+
+    test("the Preset chip turns a preset on from its list, and its cross turns it off", async ({ page }) => {
+      await initSurvey(page, framework, json([], twoPresets));
+      await chip(page, "Preset").click();
+      const list = popupWith(page, ".sv-list");
+      await expect(list.getByRole("menuitemradio")).toHaveText(["Adults", "Kids"]);
+      await list.getByRole("menuitemradio", { name: "Adults" }).click();
+      await expect(list).toBeHidden();
+      await expect.poll(() => getVisibleRowCount(page), { message: "Ann and Dan" }).toBe(2);
+      await expect(chip(page, "Adults"), "the chip shows the preset that is on").toBeVisible();
+      await page.locator(".sd-filter").getByRole("button", { name: "Clear Adults" }).click();
+      await expect.poll(() => getVisibleRowCount(page)).toBe(3);
+      await expect(chip(page, "Preset")).toBeVisible();
+    });
+
+    test("Save as... adds the chips' conditions as a preset and turns it on", async ({ page }) => {
+      await initSurvey(page, framework, json());
+      const saveAs = page.locator(".sd-filter").getByRole("button", { name: "Save as..." });
+      await expect(saveAs, "nothing to save").toBeHidden();
+      await pick(page, "Country", "Germany");
+      await saveAs.click();
+      const popup = popupWith(page, ".sd-filter-popup");
+      await type(popup.locator("input").first(), "Germans");
+      await popup.getByRole("button", { name: "Save" }).click();
+      await expect(popup).toBeHidden();
+      expect(await getItemTitles(page)).toEqual(["Adults", "Germans"]);
+      await expect(chip(page, "Germans")).toBeVisible();
+      await expect(saveAs, "the preset that is on is saved").toBeHidden();
+      expect(await getVisibleRowCount(page)).toBe(1);
+    });
+
     test("Show More cuts the chips to one row", async ({ page }) => {
       await initSurvey(page, framework, json(longColumns()));
       const showMore = page.locator(".sd-filter").getByRole("button", { name: "Show More" });
@@ -95,17 +154,39 @@ frameworks.forEach((framework) => {
       await page.locator(".sd-filter button[title='Filters']").click();
       const dialog = page.locator(".sd-filter-modal__content").filter({ visible: true });
       await expect(dialog).toBeVisible();
-      await expect(dialog.locator(".sd-filter-modal__section-title")).toHaveText("Filter Presets");
+      await expect(dialog.locator(".sd-filter-modal__section-title")).toHaveText("Presets");
       await expect(dialog).toContainText("Adults");
       await expect(dialog.locator(".sd-filter-modal__editor")).toBeVisible();
     });
 
-    test("Add Preset opens the preset dialog", async ({ page }) => {
+    test("Search in Filters finds the fields, their values and the presets; its cross clears it", async ({ page }) => {
+      await initSurvey(page, framework, json([nameColumn]));
+      const dialog = await openFilters(page);
+      const search = dialog.getByRole("textbox", { name: "Search in Filters" });
+      const editor = dialog.locator(".sd-filter-modal__editor");
+      await search.fill("germ");
+      await expect(editor, "a value found shows its field").toContainText("Germany");
+      await expect(editor, "with the values found only").not.toContainText("France");
+      await expect(editor).not.toContainText("Name");
+      await expect(dialog.getByRole("checkbox", { name: "Adults" })).toHaveCount(0);
+      await search.fill("adu");
+      await expect(dialog.getByRole("checkbox", { name: "Adults" })).toBeVisible();
+      await search.fill("zzz");
+      await expect(dialog.locator(".sd-filter-modal__nothing-found")).toHaveText("Nothing found, try different keywords");
+      await dialog.locator(".sd-filter__search-clear").click();
+      await expect(search).toHaveValue("");
+      await expect(dialog.locator(".sd-filter-modal__nothing-found")).toHaveCount(0);
+      await expect(editor).toContainText("Name");
+      await expect(dialog.getByRole("checkbox", { name: "Adults" })).toBeVisible();
+    });
+
+    test("Add New... opens New Preset", async ({ page }) => {
       await initSurvey(page, framework, json());
-      await page.locator(".sd-filter button[title='Filters']").click();
-      const dialog = page.locator(".sd-filter-modal__content").filter({ visible: true });
-      await dialog.getByRole("button", { name: "Add Preset" }).click();
-      await expect(page.locator(".sd-filter-preset-dialog__form input").filter({ visible: true })).toBeVisible();
+      const dialog = await openFilters(page);
+      await dialog.getByRole("button", { name: "Add New..." }).click();
+      const presetDialog = popupWith(page, ".sd-filter-preset-dialog__form");
+      await expect(presetDialog).toContainText("New Preset");
+      await expect(presetDialog.locator(".sd-filter-preset-dialog__form input").first()).toBeVisible();
     });
 
     test("a preset is saved from the Filters dialog", async ({ page }) => {
@@ -117,49 +198,44 @@ frameworks.forEach((framework) => {
       await popup.getByRole("button", { name: "Apply" }).click();
       await expect(popup).toBeHidden();
       const dialog = await openFilters(page);
-      await dialog.getByRole("button", { name: "Add Preset" }).click();
+      await dialog.getByRole("button", { name: "Add New..." }).click();
       const presetDialog = popupWith(page, ".sd-filter-preset-dialog__form");
-      await presetDialog.locator(".sd-filter-preset-dialog__form input").first().fill("Germans");
+      await expect(presetDialog.locator(".sd-filter-preset-dialog__form .sd-tagbox"), "it contains the chip's field").toContainText("Country");
+      await type(presetDialog.locator(".sd-filter-preset-dialog__form input").first(), "Germans");
       await presetDialog.getByRole("button", { name: "Apply" }).click();
       await expect(presetDialog).toBeHidden();
-      await expect(dialog, "the Filters dialog lists the new preset").toContainText("Germans");
+      await expect(dialog.getByRole("checkbox", { name: "Germans" }), "the Filters dialog lists the new preset").toBeVisible();
       await dialog.getByRole("button", { name: /^Show/ }).click();
       await expect(dialog).toBeHidden();
       expect(await getItemTitles(page)).toEqual(["Adults", "Germans"]);
-      await expect(chip(page, "Germans")).toBeVisible();
       expect(await getVisibleRowCount(page)).toBe(1);
     });
 
-    test("Edit Presets: rename, delete, Apply", async ({ page }) => {
-      await initSurvey(page, framework, json([], { items: [{ name: "adults", title: "Adults", expression: "{age} > 18" },
-        { name: "kids", title: "Kids", expression: "{age} < 18" }] }));
+    test("Edit Preset: Apply renames the preset picked, Delete takes it away", async ({ page }) => {
+      await initSurvey(page, framework, json([], twoPresets));
       const dialog = await openFilters(page);
-      await dialog.locator(".sd-filter-modal__section-header [title='Edit Presets']").click();
-      const editDialog = popupWith(page, ".sd-filter-preset-dialog__tabs");
-      await expect(editDialog).toBeVisible();
-      const tabs = editDialog.locator(".sd-filter-preset-dialog__tabs");
-      await expect(tabs).toContainText("Adults");
-      await expect(tabs).toContainText("Kids");
-      // A tab is one choice of several: a radio.
-      await tabs.getByRole("radio", { name: "Adults" }).click();
-      const titleInput = editDialog.locator(".sd-filter-preset-dialog__form input").first();
-      await titleInput.fill("Grown-ups");
-      // fill() fires "input" only. The Angular and Vue text inputs pass a typed value on keyup (or on
-      // change, at blur): a key sends it on, as typing would.
-      await titleInput.press("End");
-      await expect(tabs, "a changed title shows in its tab at once").toContainText("Grown-ups");
-      await tabs.getByRole("radio", { name: "Kids" }).click();
-      await editDialog.getByRole("button", { name: "Delete" }).click();
-      await expect(tabs).not.toContainText("Kids");
+      const editSelected = dialog.getByRole("button", { name: "Edit Selected..." });
+      await expect(editSelected, "no preset picked").toBeHidden();
+      // A preset's pill is a toggle: a checkbox.
+      await dialog.getByRole("checkbox", { name: "Adults" }).click();
+      await editSelected.click();
+      let editDialog = popupWith(page, ".sd-filter-preset-dialog__form");
+      await expect(editDialog).toContainText("Edit Preset");
+      await type(editDialog.locator(".sd-filter-preset-dialog__form input").first(), "Grown-ups");
       await editDialog.getByRole("button", { name: "Apply" }).click();
       await expect(editDialog).toBeHidden();
-      await expect(dialog).toContainText("Grown-ups");
-      await expect(dialog).not.toContainText("Kids");
+      await expect(dialog.getByRole("checkbox", { name: "Grown-ups" })).toBeVisible();
+      await dialog.getByRole("checkbox", { name: "Kids" }).click();
+      await editSelected.click();
+      editDialog = popupWith(page, ".sd-filter-preset-dialog__form");
+      await editDialog.getByRole("button", { name: "Delete" }).click();
+      await expect(editDialog, "Delete closes the dialog").toBeHidden();
+      await expect(dialog.getByRole("checkbox", { name: "Kids" })).toHaveCount(0);
       expect(await getItemTitles(page)).toEqual(["Grown-ups"]);
       await dialog.getByRole("button", { name: /^Show/ }).click();
       await expect(dialog).toBeHidden();
-      await expect(chip(page, "Grown-ups")).toBeVisible();
-      await expect(chip(page, "Kids")).toHaveCount(0);
+      await chip(page, "Preset").click();
+      await expect(popupWith(page, ".sv-list").getByRole("menuitemradio")).toHaveText(["Grown-ups"]);
     });
 
     // Save and Clear All are there in single-preset mode: with several presets, a chip's edit turns the
@@ -168,17 +244,10 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json([], { allowMultipleItems: false,
         items: [{ name: "germans", title: "Germans", expression: "{country} anyof ['de']" }], defaultItem: "germans" }));
       expect(await getVisibleRowCount(page)).toBe(1);
-      const save = page.locator(".sd-filter").getByRole("button", { name: "Save" });
+      const save = page.locator(".sd-filter").getByRole("button", { name: "Save", exact: true });
       const clear = page.locator(".sd-filter .sd-filter__clear");
-      const pick = async (text: string): Promise<void> => {
-        await chip(page, "Country").click();
-        const popup = popupWith(page, ".sd-filter-popup");
-        await popup.locator(".sd-filter-popup__item").filter({ hasText: text }).click();
-        await popup.getByRole("button", { name: "Apply" }).click();
-        await expect(popup).toBeHidden();
-      };
       await expect(save).toBeHidden();
-      await pick("France");
+      await pick(page, "Country", "France");
       expect(await getVisibleRowCount(page)).toBe(2);
       await expect(save, "the active preset is changed").toBeVisible();
       await save.click();
@@ -188,7 +257,7 @@ frameworks.forEach((framework) => {
       expect(expression).toContain("fr");
       expect(await getVisibleRowCount(page)).toBe(2);
 
-      await pick("Italy");
+      await pick(page, "Country", "Italy");
       expect(await getVisibleRowCount(page)).toBe(3);
       await expect(clear).toBeVisible();
       await clear.click();

@@ -14,6 +14,11 @@ export abstract class FilterHolderComponent extends BaseAngular<FilterEditorHold
   protected getModel(): FilterEditorHolder {
     return this.holder;
   }
+  // A slot is drawn anew at once, not in the next microtask: survey-core disposes what an emptied
+  // slot held right after emptying it, and content drawn after that would read a disposed survey.
+  protected override getPropertiesToUpdateSync(): Array<string> {
+    return ["modal", "fieldPopup", "saveAsPopup", "presetDialog"];
+  }
   // The models whose properties the template reads, besides the holder.
   protected abstract getWatchedModels(): Array<Base | undefined>;
   private onWatchedModelChanged = (): void => {

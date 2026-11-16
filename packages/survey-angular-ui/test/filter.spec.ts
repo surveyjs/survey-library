@@ -262,6 +262,25 @@ describe("Filter dialogs", () => {
     fixture.destroy();
     holder.saveAsPopup.dispose();
   });
+  // survey-core empties a holder's slot and disposes what it held right after (FilterToolbars.release):
+  // drawn later, the content would read a disposed survey - Save as... closing its own popup did.
+  it("an emptied holder unmounts its content at once, before what it held is disposed", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    q.setFieldCondition("age", "greater", 60);
+    const holder = new FilterEditorHolder();
+    const popup = q.createSaveAsPopup(() => { });
+    holder.saveAsPopup = popup;
+    const fixture = createByName("sv-filter-save-as-popup", { holder: holder });
+    await settle(fixture);
+    expect(!!getRoot(fixture).querySelector(".sd-filter-popup .sd-filter-editor input")).withContext("#1").toBe(true);
+    holder.saveAsPopup = undefined as any;
+    expect(getRoot(fixture).querySelector(".sd-filter-popup")).withContext("#2: gone at once").toBe(null);
+    popup.dispose();
+    await settle(fixture);
+    expect(getRoot(fixture).querySelector(".sd-filter-popup")).withContext("#3").toBe(null);
+    fixture.destroy();
+  });
   it("the search box of a badge's popup is drawn as the text question's formbox", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
       { name: "product", fieldType: "dropdown", choices: ["a", "b", "c", "d", "e", "f", "g"] }] }] });

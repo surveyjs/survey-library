@@ -43,6 +43,7 @@ export * from "./components/filter/filter-question.component";
 export * from "./components/filter/filter-chip.component";
 export * from "./components/filter/filter-list-item.component";
 export * from "./components/filter/filter-field-popup.component";
+export * from "./components/filter/filter-save-as-popup.component";
 export * from "./components/filter/filter-modal.component";
 export * from "./components/filter/filter-preset-dialog.component";
 export * from "./components/action-bar/action.component";

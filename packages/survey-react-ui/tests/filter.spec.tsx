@@ -3,7 +3,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 // eslint-disable-next-line surveyjs/no-imports-from-entries
-import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterListItem, SurveyFilterFieldPopup } from "../entries/index";
+import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterListItem, SurveyFilterFieldPopup,
+  SurveyFilterSaveAsPopup } from "../entries/index";
 import { describe, it, expect, beforeAll, vi } from "vitest";
 
 beforeAll(() => {
@@ -284,6 +285,30 @@ describe("SurveyFilterListItem", () => {
 });
 
 describe("SurveyFilterFieldPopup", () => {
+  it("Save as draws the name and Save; Save adds the preset and closes the popup", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    q.setFieldCondition("age", "greater", 60);
+    let closed = 0;
+    const holder = new FilterEditorHolder();
+    holder.saveAsPopup = q.createSaveAsPopup(() => { closed++; });
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterSaveAsPopup, { holder: holder }), container);
+    });
+    expect(!!container.querySelector(".sd-filter-popup .sd-filter-popup__body .sd-filter-editor input"), "#1: the name").toBe(true);
+    const save = container.querySelector(".sd-filter-popup__footer button") as HTMLButtonElement;
+    expect(save.textContent, "#2").toBe("Save");
+    act(() => { holder.saveAsPopup.survey.setValue("presetTitle", "Seniors"); });
+    act(() => { save.click(); });
+    expect([q.visibleItems.map((item) => item.title), q.activeItemName, closed], "#3").toEqual([["Seniors"], "userItem1", 1]);
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+    holder.saveAsPopup.dispose();
+  });
   it("the search box of a badge's popup is drawn as the text question's formbox", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
       { name: "product", fieldType: "dropdown", choices: ["a", "b", "c", "d", "e", "f", "g"] }] }] });

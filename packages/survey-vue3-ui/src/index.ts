@@ -91,6 +91,7 @@ import Filter from "./Filter.vue";
 import FilterChip from "./components/filter/FilterChip.vue";
 import FilterListItem from "./components/filter/FilterListItem.vue";
 import FilterFieldPopup from "./components/filter/FilterFieldPopup.vue";
+import FilterSaveAsPopup from "./components/filter/FilterSaveAsPopup.vue";
 import FilterModal from "./components/filter/FilterModal.vue";
 import FilterPresetDialog from "./components/filter/FilterPresetDialog.vue";
 import List from "./components/list/List.vue";
@@ -132,7 +133,7 @@ import Element from "./Element.vue";
 import TemplateRenderer from "./TemplateRenderer.vue";
 
 import {
-  RendererFactory, SurveyModel, filterChipComponentName, filterListItemComponentName, filterFieldPopupComponentName,
+  RendererFactory, SurveyModel, filterChipComponentName, filterListItemComponentName, filterFieldPopupComponentName, filterSaveAsPopupComponentName,
   filterModalComponentName, filterPresetDialogComponentName
 } from "survey-core";
 import type { App } from "vue";
@@ -285,6 +286,7 @@ function registerComponents(
   registerComponent(filterChipComponentName, FilterChip);
   registerComponent(filterListItemComponentName, FilterListItem);
   registerComponent(filterFieldPopupComponentName, FilterFieldPopup);
+  registerComponent(filterSaveAsPopupComponentName, FilterSaveAsPopup);
   registerComponent(filterModalComponentName, FilterModal);
   registerComponent(filterPresetDialogComponentName, FilterPresetDialog);
 

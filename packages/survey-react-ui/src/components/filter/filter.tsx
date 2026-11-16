@@ -7,10 +7,10 @@
 // Create custom filter has nothing here: it is a survey, drawn by the "survey" component.
 import * as React from "react";
 import {
-  Action, Base, FilterChip, FilterEditPresetsDialog, FilterEditorHolder, FilterFieldPopup,
+  Action, Base, FilterChip, FilterEditPresetsDialog, FilterEditorHolder, FilterFieldPopup, FilterSaveAsPopup,
   FilterModal, FilterPresetDialog, ListModel, Question, QuestionFilterModel, SurveyError, SurveyModel,
   filterChipComponentName, filterModalComponentName, filterFieldPopupComponentName, filterListItemComponentName,
-  filterPresetDialogComponentName, filterUIStrings
+  filterPresetDialogComponentName, filterSaveAsPopupComponentName, filterUIStrings
 } from "survey-core";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
 import { ReactElementFactory } from "../../element-factory";
@@ -265,6 +265,31 @@ export class SurveyFilterFieldPopup extends SurveyElementBase<{ holder: FilterEd
 }
 ReactElementFactory.Instance.registerElement(filterFieldPopupComponentName,
   (props) => { return React.createElement(SurveyFilterFieldPopup, props); });
+
+// "Save as..."'s popup: the new preset's name and Save.
+export class SurveyFilterSaveAsPopup extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
+  private get popup(): FilterSaveAsPopup {
+    const holder = this.props.holder;
+    return !!holder ? holder.saveAsPopup : undefined;
+  }
+  protected getStateElements(): Array<Base> {
+    const holder = this.props.holder;
+    const popup = this.popup;
+    if (!popup) return !!holder ? [holder] : [];
+    return [holder, popup.footerToolbar];
+  }
+  protected renderElement(): React.JSX.Element | null {
+    const popup = this.popup;
+    if (!popup) return null;
+    const css = popup.cssClasses;
+    return <div className={css.popup}>
+      <div className={css.popupBody}><FilterEditorPage editor={popup} className={css.editor} /></div>
+      <div className={css.popupFooter}><SurveyActionBar model={popup.footerToolbar} /></div>
+    </div>;
+  }
+}
+ReactElementFactory.Instance.registerElement(filterSaveAsPopupComponentName,
+  (props) => { return React.createElement(SurveyFilterSaveAsPopup, props); });
 
 // An entry of a checkbox list: drawn checked by the entry's active flag (FilterFieldPopup keeps it).
 // A value the respondent typed has no remove button: a button inside a list option is nested

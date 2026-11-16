@@ -1,5 +1,5 @@
 import { Base } from "../base";
-import { Action, IAction } from "../actions/action";
+import { Action, IAction, IActionAppearance } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { ListModel } from "../list";
 import { MultiSelectListModel } from "../multiSelectListModel";
@@ -30,6 +30,9 @@ export interface IFilterFieldPopupOwner extends ILocalizableOwner {
   canEditConditionsInUI: boolean;
   cssClasses: any;
 }
+// The button at the bottom of a chip's popup - Apply, "Save as..."'s Save: a small action, 8px around
+// the default text, 40px in all.
+export const filterPopupFooterAppearance: IActionAppearance = { style: "brand", mode: "secondary", size: "small" };
 // A list this long or longer gets a search box. The list's own threshold (ListModel.MINELEMENTCOUNT)
 // is shared by every dropdown in the library and is not changed for this one.
 export const filterPopupSearchMinItemCount = 7;
@@ -65,8 +68,7 @@ export class FilterFieldPopup extends Base {
     this.headerToolbarValue.setActionsAppearance({ style: "brand", mode: "tertiary", size: "small" });
     this.footerToolbarValue = new ActionContainer();
     this.footerToolbarValue.locOwner = owner;
-    // Apply is a small action in the mockup: 8px around the default text, 40px in all.
-    this.footerToolbarValue.setActionsAppearance({ style: "brand", mode: "secondary", size: "small" });
+    this.footerToolbarValue.setActionsAppearance(filterPopupFooterAppearance);
     if (this.kind === "condition") {
       this.editorValue = owner.createFastModeEditor(key);
     } else {

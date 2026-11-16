@@ -14,6 +14,8 @@ export const filterUIStrings = {
   clearAll: "Clear All",
   clearChip: "Clear {0}",
   preset: "Preset",
+  saveAs: "Save as...",
+  saveAsSave: "Save",
   addCustomValue: "Add \"{0}\"...",
   presetsTitle: "Filter Presets",
   showResultsCount: "Show {0} items",

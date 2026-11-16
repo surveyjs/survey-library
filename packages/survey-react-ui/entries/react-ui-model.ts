@@ -85,7 +85,7 @@ export { SurveyQuestionImageMap } from "../src/reactquestion_imagemap";
 export { SurveyQuestionImage } from "../src/image";
 export {
   SurveyQuestionFilter, SurveyFilterModal, SurveyFilterPresetDialog, SurveyFilterFieldPopup, SurveyFilterListItem,
-  SurveyFilterChip
+  SurveyFilterChip, SurveyFilterSaveAsPopup
 } from "../src/components/filter/filter";
 export { SurveyQuestionSignaturePad } from "../src/signaturepad";
 export { SurveyQuestionButtonGroup } from "../src/reactquestion_buttongroup";

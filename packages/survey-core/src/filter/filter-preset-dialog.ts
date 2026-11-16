@@ -43,6 +43,16 @@ export function isFilterPresetTitleTaken(title: string, otherTitles: Array<strin
   const key = (title || "").trim().toLocaleLowerCase();
   return otherTitles.some((other: string): boolean => (other || "").trim().toLocaleLowerCase() === key);
 }
+// Why a title will not do for a preset - none given, too long, another preset's - or undefined when
+// it will: what the preset dialogs and "Save as..." check a title by.
+export function getFilterPresetTitleError(value: any, otherTitles: Array<string>, locale: string): string {
+  const title = (value || "").toString().trim();
+  if (!title) return getLocaleString("requiredError", locale);
+  if (title.length > filterPresetTitleMaxLength) {
+    return getLocaleString("textMaxLength", locale).replace("{0}", filterPresetTitleMaxLength.toString());
+  }
+  return isFilterPresetTitleTaken(title, otherTitles) ? filterUIStrings.presetTitleExists : undefined;
+}
 
 // A preset as a dialog edits it: its title, and its conditions - or, null, the preset is edited as
 // text, which expression holds: one that does not decompose always is, any other when the respondent
@@ -460,13 +470,7 @@ export class FilterPresetDialog extends Base {
       useFieldKinds: true, linkCss: (this.owner.cssClasses || {}).link, onFieldChanged: (): void => { this.notifyChanged(); } });
   }
   protected getTitleError(value: any, otherTitles: Array<string> = this.getOtherTitles()): string {
-    const locale = this.owner.getLocale();
-    const title = (value || "").toString().trim();
-    if (!title) return getLocaleString("requiredError", locale);
-    if (title.length > filterPresetTitleMaxLength) {
-      return getLocaleString("textMaxLength", locale).replace("{0}", filterPresetTitleMaxLength.toString());
-    }
-    return isFilterPresetTitleTaken(title, otherTitles) ? filterUIStrings.presetTitleExists : undefined;
+    return getFilterPresetTitleError(value, otherTitles, this.owner.getLocale());
   }
 }
 

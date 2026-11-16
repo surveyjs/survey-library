@@ -236,8 +236,9 @@ export { FilterItem } from "../../src/filter/filter-item";
 // else in src/filter is internal.
 export {
   FilterEditorHolder, FilterChip, filterUIStrings, filterModalComponentName, filterPresetDialogComponentName, filterFieldPopupComponentName,
-  filterChipComponentName
+  filterChipComponentName, filterSaveAsPopupComponentName
 } from "../../src/filter/filter-toolbars";
+export { FilterSaveAsPopup } from "../../src/filter/filter-save-as-popup";
 export type { IFilterFieldState } from "../../src/filter/filter-toolbars";
 export type { FilterFieldEditorKind } from "../../src/filter/filter-field-kinds";
 export { FilterFieldPopup, filterListItemComponentName } from "../../src/filter/filter-field-popup";

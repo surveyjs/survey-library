@@ -15,11 +15,13 @@ import { FilterFieldEditorKind } from "./filter-field-kinds";
 import { FilterFieldPopup } from "./filter-field-popup";
 import { FilterChipsLayout } from "./filter-chips-layout";
 import { FilterModal } from "./filter-modal";
+import { FilterSaveAsPopup } from "./filter-save-as-popup";
 import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter-preset-dialog";
 import { filterUIStrings } from "./filter-ui-strings";
 export { filterUIStrings } from "./filter-ui-strings";
 
-// What a popup or a dialog shows: a badge's FilterFieldPopup, or the Filters dialog. A popup
+// What a popup or a dialog shows: a badge's FilterFieldPopup, "Save as..."'s FilterSaveAsPopup, or
+// the Filters dialog. A popup
 // renders its content even while it is hidden and does not re-render it when its content data
 // changes, so a renderer watches this instead - and the holder is emptied, unmounting what it held,
 // before that is disposed. cssClasses are the control's: a popup and a dialog are drawn outside the
@@ -31,6 +33,7 @@ export { filterUIStrings } from "./filter-ui-strings";
 export class FilterEditorHolder extends Base {
   public getType(): string { return "filtereditorholder"; }
   @property() fieldPopup: FilterFieldPopup;
+  @property() saveAsPopup: FilterSaveAsPopup;
   @property() modal: FilterModal;
   @property() presetDialog: FilterPresetDialog;
   public cssClasses: any;
@@ -67,6 +70,7 @@ export interface IFilterToolbarsOwner {
   onDesignItemClick(item?: FilterItem): void;
   canSaveActiveItem: boolean;
   saveActiveItem(): void;
+  canAddItems: boolean;
   canClearActiveItem: boolean;
   clearActiveItem(): void;
   clearFieldCondition(name: string): void;
@@ -82,6 +86,7 @@ export interface IFilterToolbarsOwner {
   cssClasses: any;
   getFastModeFieldStates(): Array<IFilterFieldState>;
   createFieldPopup(name: string, close: () => void): FilterFieldPopup;
+  createSaveAsPopup(close: () => void): FilterSaveAsPopup;
   createFilterModal(): FilterModal;
   createAddPresetDialog(conditions: Array<IFilterCondition>, expression?: string): FilterPresetDialog;
   createEditPresetsDialog(activeItemName?: string): FilterEditPresetsDialog;
@@ -104,13 +109,15 @@ interface IFilterPresetRow {
 // The content component of the Filters dialog, of a badge's popup, and the component of a chip.
 export const filterModalComponentName = "sv-filter-modal";
 export const filterFieldPopupComponentName = "sv-filter-field-popup";
+export const filterSaveAsPopupComponentName = "sv-filter-save-as-popup";
 export const filterChipComponentName = "sv-filter-chip";
 export const filterPresetDialogComponentName = "sv-filter-preset-dialog";
 
 // The control's UI as standard action bars the question owns, drawn with sv-action-bar:
 // - the chips row: Filters (when there is no search box to stand next to), the presets' chip, a badge
 //   per fast mode field and "Show More" last;
-// - the clear row: Save (single mode only) and Clear All, at the right end of the chips row;
+// - the clear row: Save (single mode only), "Save as..." and Clear All, at the right end of the chips
+//   row;
 // - the search row: Filters, next to the search box.
 // A badge with a condition has a cross that clears it (FilterChip), one without has the chevron of
 // its popup. The presets are one chip that opens their list: "Preset" while none is on, the active
@@ -129,6 +136,8 @@ export class FilterToolbars {
   private filtersAction: Action;
   private moreAction: Action;
   private saveAction: Action;
+  private saveAsAction: FilterChip;
+  private saveAsHolder: FilterEditorHolder;
   private clearAction: Action;
   private fieldChips: { [key: string]: { chip: FilterChip, holder: FilterEditorHolder } } = {};
   private presetChip: FilterChip;
@@ -409,13 +418,19 @@ export class FilterToolbars {
     // The list's rows go with the list, and the list with the chip's popup.
     this.presetRows = [];
     this.rowChips = undefined;
-    [this.filtersAction, this.presetChip, this.moreAction, this.saveAction, this.clearAction].forEach((a: Action): void => {
+    if (!!this.saveAsAction) {
+      this.saveAsAction.popupModel.hide();
+      this.releaseHolder(this.saveAsHolder);
+    }
+    [this.filtersAction, this.presetChip, this.moreAction, this.saveAction, this.saveAsAction, this.clearAction].forEach((a: Action): void => {
       if (!!a) actions.push(a);
     });
     this.filtersAction = undefined;
     this.presetChip = undefined;
     this.moreAction = undefined;
     this.saveAction = undefined;
+    this.saveAsAction = undefined;
+    this.saveAsHolder = undefined;
     this.clearAction = undefined;
     [this.chipsToolbarValue, this.clearToolbarValue, this.searchToolbarValue].forEach((row: ActionContainer): void => {
       if (!row) return;
@@ -489,11 +504,50 @@ export class FilterToolbars {
       this.clearAction = new Action({ id: "sv-filter-clear", title: filterUIStrings.clearAll, iconName: "icon-close-16x16",
         iconSize: "auto", innerCss: this.cssClasses.clear, appearance: { style: "neutral", mode: "tertiary-surface", showBorder: true }, visible: false,
         action: (): void => { this.owner.clearActiveItem(); } });
-      this.clearToolbarValue.setItems([this.saveAction, this.clearAction], false);
+      this.saveAsAction = this.createSaveAsAction();
+      this.clearToolbarValue.setItems([this.saveAction, this.saveAsAction, this.clearAction], false);
     }
     const isEditable = !this.owner.isDesignMode && !this.owner.isControlReadOnly;
     this.saveAction.visible = isEditable && this.owner.canSaveActiveItem;
+    // What the respondent set with no preset on - an edit over a preset turns it off - may become a
+    // preset of their own.
+    this.saveAsAction.visible = isEditable && this.owner.canAddItems && !this.owner.activeItem && this.owner.activeConditionCount > 0;
+    if (!this.saveAsAction.visible) {
+      this.saveAsAction.popupModel.hide();
+    }
     this.clearAction.visible = isEditable && this.owner.canClearActiveItem;
+  }
+  // "Save as...": a button whose popup - under it, a sheet on a phone, as a badge's - names the new
+  // preset (FilterSaveAsPopup). Drawn as a chip is, with no cross.
+  private createSaveAsAction(): FilterChip {
+    const holder = this.createHolder();
+    this.saveAsHolder = holder;
+    // Centered under the button and moved back into the window when it does not fit ("flex" mode):
+    // the button stands at the right end of the row, and a popup with its left edge on the button's
+    // ("fixed", as a badge's) would run past the window's edge.
+    const popup = new PopupModel(filterSaveAsPopupComponentName, { holder: holder },
+      { showPointer: false, verticalPosition: "bottom", horizontalPosition: "center" });
+    popup.getTargetCallback = getActionDropdownButtonTarget;
+    popup.onFooterActionsCreated.add((_: PopupModel, options: { actions: Array<IAction> }): void => {
+      options.actions = [];
+    });
+    popup.onVisibilityChanged.add((_: PopupModel, options: { isVisible: boolean }): void => {
+      this.release(holder);
+      if (options.isVisible) {
+        holder.saveAsPopup = this.owner.createSaveAsPopup((): void => { popup.hide(); });
+      }
+    });
+    const action = new FilterChip({ id: "sv-filter-save-as", component: filterChipComponentName, title: filterUIStrings.saveAs,
+      innerCss: this.cssClasses.saveAs, appearance: { style: "brand", mode: "secondary" }, visible: false,
+      action: (): void => {
+        if (!popup.isVisible) {
+          this.updateFieldPopupMode(popup);
+        }
+        popup.toggleVisibility();
+      } });
+    action.boxCss = this.cssClasses.chipBox;
+    action.popupModel = popup;
+    return action;
   }
 
   private getFiltersAction(): Action {
@@ -773,12 +827,15 @@ export class FilterToolbars {
   private release(holder: FilterEditorHolder): void {
     const modal = holder.modal;
     const fieldPopup = holder.fieldPopup;
+    const saveAsPopup = holder.saveAsPopup;
     const presetDialog = holder.presetDialog;
     holder.modal = undefined;
     holder.fieldPopup = undefined;
+    holder.saveAsPopup = undefined;
     holder.presetDialog = undefined;
     if (!!modal) modal.dispose();
     if (!!fieldPopup) fieldPopup.dispose();
+    if (!!saveAsPopup) saveAsPopup.dispose();
     if (!!presetDialog) presetDialog.dispose();
   }
   private isSameList<T>(a: Array<T>, b: Array<T>): boolean {

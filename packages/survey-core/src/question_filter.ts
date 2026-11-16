@@ -12,6 +12,7 @@ import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { FilterFieldPopup, writeFilterFieldCondition } from "./filter/filter-field-popup";
+import { FilterSaveAsPopup } from "./filter/filter-save-as-popup";
 import { FilterModal } from "./filter/filter-modal";
 import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter/filter-preset-dialog";
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
@@ -643,6 +644,12 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The content of a fast mode badge's popup - see FilterFieldPopup. close is how the popup's own
   // buttons close it (the toolbar hides its PopupModel). The caller owns it and disposes it. undefined
   // for a field fast mode does not show, as with createFastModeEditor.
+  // The content of "Save as..."'s popup: the name of a new preset of the respondent's own, made of
+  // the conditions they set. Nothing where presets cannot be added.
+  public createSaveAsPopup(close: () => void): FilterSaveAsPopup {
+    if (!this.canAddItems || this.isDesignMode) return undefined;
+    return new FilterSaveAsPopup(this, close);
+  }
   public createFieldPopup(name: string, close: () => void): FilterFieldPopup {
     if (!this.isFastModeField(this.getFieldByName(name))) return undefined;
     return new FilterFieldPopup(this, name, close);

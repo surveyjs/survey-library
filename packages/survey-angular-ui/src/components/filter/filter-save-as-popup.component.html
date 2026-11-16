@@ -1,0 +1,10 @@
+<ng-template #template>
+  <div *ngIf="!!popup" [class]="popup.cssClasses.popup">
+    <div [class]="popup.cssClasses.popupBody">
+      <sv-ng-filter-editor-page [survey]="popup.survey" [disposed]="popup.isDisposed" [className]="popup.cssClasses.editor"></sv-ng-filter-editor-page>
+    </div>
+    <div [class]="popup.cssClasses.popupFooter">
+      <sv-ng-action-bar [model]="popup.footerToolbar"></sv-ng-action-bar>
+    </div>
+  </div>
+</ng-template>

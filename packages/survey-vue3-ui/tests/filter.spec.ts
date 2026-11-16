@@ -209,6 +209,25 @@ describe("Filter dialogs", () => {
     expect(container.querySelector(".sd-filter-preset-dialog__content"), "#6: an emptied holder unmounts the content").toBe(null);
     cleanup(wrapper);
   });
+  it("Save as draws the name and Save; Save adds the preset and closes the popup", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    q.setFieldCondition("age", "greater", 60);
+    let closed = 0;
+    const holder = new FilterEditorHolder();
+    holder.saveAsPopup = q.createSaveAsPopup(() => { closed++; });
+    const wrapper = mountComponent("sv-filter-save-as-popup", { holder: holder });
+    await nextTick();
+    const root = wrapper.element.parentElement;
+    expect(!!root.querySelector(".sd-filter-popup .sd-filter-popup__body .sd-filter-editor input"), "#1: the name").toBe(true);
+    const save = root.querySelector(".sd-filter-popup__footer button") as HTMLButtonElement;
+    expect(save.textContent.trim(), "#2").toBe("Save");
+    holder.saveAsPopup.survey.setValue("presetTitle", "Seniors");
+    save.click();
+    expect([q.visibleItems.map((item) => item.title), q.activeItemName, closed], "#3").toEqual([["Seniors"], "userItem1", 1]);
+    cleanup(wrapper);
+    holder.saveAsPopup.dispose();
+  });
   it("the search box of a badge's popup is drawn as the text question's formbox", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [
       { name: "product", fieldType: "dropdown", choices: ["a", "b", "c", "d", "e", "f", "g"] }] }] });

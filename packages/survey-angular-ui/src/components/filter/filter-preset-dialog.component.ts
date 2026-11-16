@@ -3,9 +3,9 @@ import { Base, FilterEditPresetsDialog, FilterPresetDialog, filterPresetDialogCo
 import { FilterHolderComponent } from "./filter-holder.component";
 import { AngularComponentFactory } from "../../component-factory";
 
-// Add New Preset and Edit Presets: the tabs (Edit Presets only), the form, the dialog's survey - the
-// fields' editors in a frame and, for an AI preset's tab, the description and Make Changes - and the
-// preset's actions (Edit Presets only); the footer is the dialog's own.
+// New Preset and Edit Presets: the tabs (Edit Presets only), the form - the name and the tagbox of
+// Contains, or the text -, the dialog's survey - the fields' editors in a frame and the AI description
+// with its Create or Edit - and the preset's actions (Edit Presets only); the footer is the dialog's own.
 @Component({
   selector: "sv-ng-filter-preset-dialog",
   templateUrl: "./filter-preset-dialog.component.html",

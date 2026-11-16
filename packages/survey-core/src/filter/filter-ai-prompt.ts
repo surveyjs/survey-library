@@ -17,22 +17,22 @@ import "../question_comment";
 export const filterAIPromptMaxLength = 500;
 
 export interface IFilterAIPromptOptions {
-  // The filter the dialog holds now, as text, "" for none: Make Changes sends it, and with none the
-  // request is for a new filter (Create new filter).
+  // The filter the dialog holds now, as text, "" for none: Edit sends it, and with none the request is
+  // for a new filter (Create).
   getExpression: () => string;
   // the model's filter, as text, and the title it gave it
   onAnswer: (expression: string, title: string) => void;
   // The survey the description is added to, as a panel at the end of its first page: the dialog's
-  // survey (Add New Preset, Edit Presets), which the dialog owns and draws.
+  // survey (New Preset, Edit Presets), which the dialog owns and draws.
   survey: SurveyModel;
   // The control's classes: the panel's frame (aiPrompt) and the row of its button (aiPromptRequest).
   css?: any;
 }
 
-// The description of what the filter needs or what to change in it, and its request button - "Create
-// new filter", then "Make Changes" - with the request's state: busy while the model answers, and what
-// went wrong. It starts empty and is not part of the preset: it stays in the field after an answer,
-// and Make Changes sends it again with the filter as it is. Owns the request and disposes it.
+// The description of what the filter needs or what to change in it, and its request button - "Create",
+// then "Edit" - with the request's state: busy while the model answers, and what went wrong. It starts
+// empty and is not part of the preset: it stays in the field after an answer, and Edit sends it again
+// with the filter as it is. Owns the request and disposes it.
 // It is made of survey elements only, so a renderer draws it as the survey it is in: a panel titled
 // promptTitle with the description's comment question, the request button in the panel's footer and
 // errorText as the question's error.
@@ -148,8 +148,9 @@ export class FilterAIPrompt extends Base {
     try {
       page.addElement(panel);
       const question = <Question>Serializer.createClass("comment");
-      question.fromJSON({ name: "prompt", titleLocation: "hidden", maxLength: filterAIPromptMaxLength,
-        textUpdateMode: "onTyping", errorLocation: "bottom" });
+      // Two lines and the counter's row under them: as tall as the mockup's box.
+      question.fromJSON({ name: "prompt", titleLocation: "hidden", maxLength: filterAIPromptMaxLength, rows: 2,
+        placeholder: filterUIStrings.aiPromptPlaceholder, textUpdateMode: "onTyping", errorLocation: "bottom" });
       panel.addElement(question);
     } finally {
       page.releaseAnimations();
@@ -191,9 +192,9 @@ export class FilterAIPrompt extends Base {
     this.promptQuestion.title = this.promptTitle;
     // While the model answers, the button says so: the answer may take seconds.
     if (this.isBusy) {
-      action.title = this.isModify ? filterUIStrings.aiMakingChanges : filterUIStrings.aiCreating;
+      action.title = this.isModify ? filterUIStrings.aiEditing : filterUIStrings.aiCreating;
     } else {
-      action.title = this.isModify ? filterUIStrings.aiMakeChanges : filterUIStrings.aiCreate;
+      action.title = this.isModify ? filterUIStrings.aiEdit : filterUIStrings.aiCreate;
     }
     action.enabled = !this.isBusy && !!this.prompt.trim();
   }

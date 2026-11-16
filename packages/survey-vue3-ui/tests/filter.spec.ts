@@ -354,7 +354,7 @@ describe("The AI description of the preset dialogs", () => {
     survey.onAIFilterRequest.add((_, options) => { calls.push(options); });
     return { q: survey.getQuestionByName("f1") as QuestionFilterModel, calls: calls };
   }
-  it("Add New Preset draws the description and its button; the fields and the name once the model answered", async () => {
+  it("New Preset draws the description and its button; the fields and the name once the model answered", async () => {
     const { q, calls } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
@@ -367,15 +367,17 @@ describe("The AI description of the preset dialogs", () => {
     const prompt = (): Element => page().querySelector(".sd-panel.sd-filter-ai-prompt");
     const fields = (): Array<string> => Array.from(page().querySelectorAll(".sd-filter-preset-dialog__fields .sd-panel__title"))
       .map((el: Element): string => el.textContent.trim());
-    expect(prompt().querySelector(".sd-panel__title").textContent, "#1").toContain("Describe what you need - AI will do the rest.");
-    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#2").toContain("Create new filter");
+    expect(prompt().querySelector(".sd-panel__title").textContent, "#1").toContain("Create preset with AI");
+    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#2").toContain("Create");
     expect(fields(), "#3: no fields yet").toEqual([]);
     dialog.aiPrompt.prompt = "adults";
     dialog.aiPrompt.request();
     calls[0].callback({ data: { expression: "{age} > 18", title: "Grown-ups", explanation: "" } });
     await nextTick();
     expect(fields(), "#4").toEqual(["age"]);
-    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#5").toContain("Make Changes");
+    expect(Array.from(root().querySelectorAll(".sd-filter-preset-dialog__form .sd-tagbox-item .sv-string-viewer"))
+      .map((el: Element): string => el.textContent.trim()), "#4a: the tagbox of Contains").toEqual(["age"]);
+    expect(prompt().querySelector(".sd-filter-ai-prompt__request").textContent, "#5").toContain("Edit");
     expect((root().querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#6: the model's title").toBe("Grown-ups");
     dialog.aiPrompt.errorText = "Something went wrong";
     await nextTick();
@@ -385,7 +387,7 @@ describe("The AI description of the preset dialogs", () => {
     dialog.dispose();
     cleanup(wrapper);
   });
-  it("Edit Presets shows the description and Make Changes in a preset's tab", async () => {
+  it("Edit Presets shows the description and Edit in a preset's tab", async () => {
     const { q } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
@@ -399,7 +401,7 @@ describe("The AI description of the preset dialogs", () => {
     expect(panels.map((el: Element): boolean => el.classList.contains("sd-filter-ai-prompt")), "#1").toEqual([false, true]);
     const block = panels[1];
     expect((block.querySelector("textarea") as HTMLTextAreaElement).value, "#2").toBe("");
-    expect(block.querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Make Changes");
+    expect(block.querySelector(".sd-filter-ai-prompt__request").textContent, "#3").toContain("Edit");
     holder.presetDialog = undefined;
     await nextTick();
     dialog.dispose();

@@ -548,7 +548,7 @@
   }
 }
 
-// Add New Preset and Edit Presets (FilterPresetDialog): the presets' tabs, the form with the title and
+// New Preset and Edit Presets (FilterPresetDialog): the presets' tabs, the form with the name and
 // Contains, the fields' editors in a frame and the preset's actions, above the dialog's own Cancel and
 // Apply. As wide as the Filters dialog, which they open over.
 .sd-filter-preset-dialog__content {
@@ -561,7 +561,7 @@
   flex-wrap: wrap;
 }
 
-// A field's dropdown under another, 16px apart, and "+ Add" under them as in the mockup.
+// The name and the tagbox (or the text) of Contains, each 16px under its title, as in the mockup.
 .sd-filter-preset-dialog__form {
   --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs2-spacing-x200);
 
@@ -569,26 +569,27 @@
     --sd-panel-header-padding-block: 0 var(--sjs2-spacing-x200);
   }
 
-  .sd-panel__footer {
+  // Edit as Expression and Edit as Tagbox are links as tall as the title's line: on it, not lifted by
+  // the margin a title's 40px buttons take.
+  .sd-action-title-bar {
     margin: 0;
-    padding: var(--sjs2-spacing-x200) 0 0;
   }
 }
 
 // The fields' frame: the "fields" panel of the preset dialog's survey, which holds the fields' panels.
 // As specific as the editor's own reset of a framed panel, which it follows.
 .sd-filter-editor .sd-panel.sd-filter-preset-dialog__fields {
-  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x500);
+  padding: var(--sjs2-spacing-x300);
   border: 1px solid var(--sjs2-color-border-basic-secondary);
   border-radius: var(--sjs2-radius-x150);
 }
 
 // The description, its caption over it and the button across under it, in a frame: the panel of
-// FilterAIPrompt, in Add New Preset and in the tabs of Edit Presets.
+// FilterAIPrompt, in New Preset and in the tabs of Edit Presets.
 .sd-filter-editor .sd-panel.sd-filter-ai-prompt {
   --sd-panel-header-padding-block: 0 var(--sjs2-spacing-x300);
   box-sizing: border-box;
-  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x500);
+  padding: var(--sjs2-spacing-x300);
   border: 1px solid var(--sjs2-color-border-basic-secondary);
   border-radius: var(--sjs2-radius-x150);
 

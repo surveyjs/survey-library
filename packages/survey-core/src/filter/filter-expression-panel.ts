@@ -58,7 +58,8 @@ export class FilterExpressionPanel {
     try {
       container.addElement(panel, options.index !== undefined ? options.index : 0);
       const question = <Question>Serializer.createClass("comment");
-      question.fromJSON({ name: "expression", titleLocation: "hidden", title: options.title, textUpdateMode: "onTyping",
+      // Three lines, as tall as the mockup's box; the respondent can make it taller.
+      question.fromJSON({ name: "expression", titleLocation: "hidden", title: options.title, textUpdateMode: "onTyping", rows: 3,
         placeholder: options.readOnly ? "" : filterUIStrings.expressionPlaceholder, readOnly: !!options.readOnly });
       panel.addElement(question);
     } finally {

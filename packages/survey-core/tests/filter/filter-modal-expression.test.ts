@@ -102,7 +102,7 @@ describe("FilterModal: the text of a preset that does not decompose", () => {
 });
 
 describe("FilterToolbars: Add Preset over the text of a preset", () => {
-  test("Add New Preset starts with the text", () => {
+  test("New Preset starts with the text", () => {
     const saved = settings.showDialog;
     const calls: Array<any> = [];
     settings.showDialog = (o: any): any => {

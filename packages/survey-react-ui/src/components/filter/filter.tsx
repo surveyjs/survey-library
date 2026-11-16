@@ -1,7 +1,7 @@
 // The Filter Control (#11890). Everything it shows is survey-core's: the chips, Clear All, Save and
 // Filters are actions the question owns (filter-toolbars.ts), drawn with sv-action-bar; a badge's
 // popup is a FilterFieldPopup; the Filters dialog is a FilterModal over a FilterConditionsEditor, and
-// Add New Preset and Edit Presets are FilterPresetDialogs; the classes are the theme's "filter"
+// New Preset and Edit Presets are FilterPresetDialogs; the classes are the theme's "filter"
 // entry. This file only lays the parts out and draws the few pieces that are not standard components:
 // a checkbox list entry, the popup's frame, the dialogs' content.
 // Create custom filter has nothing here: it is a survey, drawn by the "survey" component.
@@ -179,9 +179,9 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
 ReactElementFactory.Instance.registerElement(filterModalComponentName,
   (props) => { return React.createElement(SurveyFilterModal, props); });
 
-// Add New Preset and Edit Presets: the tabs (Edit Presets only), the form, the dialog's survey - the
-// fields' editors in a frame and, for an AI preset's tab, the description and Make Changes - and the
-// preset's actions (Edit Presets only); the footer is the dialog's own. A form made anew (another tab)
+// New Preset and Edit Presets: the tabs (Edit Presets only), the form - the name and the tagbox of
+// Contains, or the text -, the dialog's survey - the fields' editors in a frame and the AI description
+// with its Create or Edit - and the preset's actions (Edit Presets only); the footer is the dialog's own. A form made anew (another tab)
 // is drawn anew, keyed by its survey's uniqueId: element ids restart in every survey, so a page id
 // would be the same for each new form. The dialog's survey lives as long as the dialog, and its ids
 // keep counting: it needs no key.

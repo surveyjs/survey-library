@@ -101,7 +101,7 @@ describe("FilterModal: Add New and Edit Selected", () => {
 });
 
 describe("FilterToolbars: the preset dialogs", () => {
-  test("Add New opens Add New Preset over the Filters dialog, with the buffer's conditions; one at a time", () => {
+  test("Add New opens New Preset over the Filters dialog, with the buffer's conditions; one at a time", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
@@ -111,7 +111,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       addPreset(modal).action();
       const o = dialogs.calls[1].options;
       expect([o.componentName, o.title, o.showCloseButton, o.displayMode, o.cssClass], "#1")
-        .toEqual(["sv-filter-preset-dialog", "Add New Preset", true, "popup", "sd-filter-modal sd-filter-preset-dialog"]);
+        .toEqual(["sv-filter-preset-dialog", "New Preset", true, "popup", "sd-filter-modal sd-filter-preset-dialog"]);
       const dialog: FilterPresetDialog = o.data.holder.presetDialog;
       expect([dialog instanceof FilterEditPresetsDialog, dialog.editor.getConditions()], "#2")
         .toEqual([false, [{ field: "age", operator: "greater", value: 18 }]]);
@@ -136,8 +136,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       (<Action>host.footerToolbar.getActionById("sv-filter-preset-apply")).action();
       expect([dialog.isDisposed, q.visibleItems.length], "#1").toEqual([false, 3]);
       dialog.form.setValue("presetTitle", "Mine");
-      (<any>dialog.form.getPanelByName("contains")).footerActions[0].action();
-      (<any>dialog.form.getPanelByName("contains")).elements[0].value = "age";
+      dialog.form.getQuestionByName("presetFields").value = ["age"];
       dialog.editor.survey.getQuestionByName("f0_value").value = 3;
       (<Action>host.footerToolbar.getActionById("sv-filter-preset-apply")).action();
       expect([dialog.isDisposed, host.options.data.holder.presetDialog, q.visibleItems[3].expression], "#2").toEqual([true, undefined, "{age} = 3"]);
@@ -210,7 +209,7 @@ describe("FilterToolbars: the preset dialogs", () => {
   });
 });
 
-describe("FilterToolbars: Edit Presets while Make Changes waits for the model", () => {
+describe("FilterToolbars: Edit Presets while Edit waits for the model", () => {
   test("its Apply is off until the answer comes", () => {
     const dialogs = stubDialogs();
     try {

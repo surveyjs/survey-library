@@ -3,7 +3,6 @@ import * as fs from "fs";
 import * as path from "path";
 import { createFilter } from "./filter-test-helpers";
 import { QuestionFilterModel } from "../../src/question_filter";
-import { PanelModel } from "../../src/panel";
 import { Action } from "../../src/actions/action";
 import { FilterChip } from "../../src/filter/filter-toolbars";
 
@@ -29,11 +28,7 @@ function iconsOf(q: QuestionFilterModel): { [id: string]: string } {
   const edit = q.createEditPresetsDialog("adults");
   add(edit.actionsToolbar.getActionById("sv-filter-preset-delete"));
   add(edit.actionsToolbar.getActionById("sv-filter-preset-reset"));
-  const created = q.createAddPresetDialog([{ field: "age", operator: "greater", value: 18 }]);
-  const panel = <PanelModel>created.form.getPanelByName("contains");
-  add(panel.footerActions.filter((a: Action): boolean => a.id === "sv-filter-preset-add-field")[0]);
   edit.dispose();
-  created.dispose();
   modal.dispose();
   return res;
 }
@@ -47,8 +42,7 @@ describe("Filter: the icons of its buttons", () => {
       "sv-filter-modal-add-preset": "icon-plus-24x24",
       "sv-filter-modal-edit-preset": "icon-edit-24x24",
       "sv-filter-preset-delete": "icon-delete-24x24",
-      "sv-filter-preset-reset": "icon-reset-24x24",
-      "sv-filter-preset-add-field": "icon-plus-24x24"
+      "sv-filter-preset-reset": "icon-reset-24x24"
     });
   });
   test("each of them is in the v2 set and drawn on the canvas its name says", () => {

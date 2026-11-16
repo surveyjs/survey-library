@@ -14,9 +14,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-// Add New Preset and Edit Presets: the tabs (Edit Presets only), the form, the dialog's survey - the
-// fields' editors in a frame and, for an AI preset's tab, the description and Make Changes - and the
-// preset's actions (Edit Presets only); the footer is the dialog's own. A form made anew (another tab)
+// New Preset and Edit Presets: the tabs (Edit Presets only), the form - the name and the tagbox of
+// Contains, or the text -, the dialog's survey - the fields' editors in a frame and the AI description
+// with its Create or Edit - and the preset's actions (Edit Presets only); the footer is the dialog's own. A form made anew (another tab)
 // is drawn anew, keyed by its survey's uniqueId: element ids restart in every survey. The dialog's
 // survey lives as long as the dialog, and its ids keep counting: it needs no key.
 import SvComponent from "@/SvComponent.vue";

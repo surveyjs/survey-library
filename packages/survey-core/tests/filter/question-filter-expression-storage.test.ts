@@ -67,7 +67,7 @@ describe("QuestionFilterModel: a preset changed as text", () => {
     expect([q.getItemByName("p").expression, q.isItemModified(q.getItemByName("p")), events], "#1")
       .toEqual(["{age} > 18 and {country} = 'de'", false, { filter: 0, uiState: 0 }]);
   });
-  test("Edit Presets' Apply passes a text on; the preset that is on filters by it at once", () => {
+  test("Edit Preset's Apply passes a text on; the preset that is on filters by it at once", () => {
     const q = control();
     q.toggleItem("edges");
     q.applyItemEdits([{ name: "edges", title: "Edges", expression: "{age} < 10 or {age} > 60" }]);

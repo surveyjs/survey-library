@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 import { createFilter } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
-import { FilterPresetDialog, FilterEditPresetsDialog } from "../../src/filter/filter-preset-dialog";
+import { FilterPresetDialog, FilterEditPresetDialog } from "../../src/filter/filter-preset-dialog";
 import { FilterModal } from "../../src/filter/filter-modal";
 import { Action } from "../../src/actions/action";
 import { ActionContainer } from "../../src/actions/container";
@@ -10,8 +10,8 @@ import { FunctionFactory } from "../../src/functionsfactory";
 import { settings } from "../../src/settings";
 import { buildFilterAIContext, buildFilterAISystemPrompt } from "../../src/filter/filter-ai";
 
-// AI is one more way to write a preset: the description and its button in Add New Preset and in
-// every editable tab of Edit Presets, while the application answers onAIFilterRequest. The model's
+// AI is one more way to write a preset: the description and its button in New Preset and in Edit
+// Preset, for a preset that may be edited, while the application answers onAIFilterRequest. The model's
 // filter is the preset's - as fields where it decomposes, as text otherwise.
 function open(over: any = {}, withHandler: boolean = true): { q: QuestionFilterModel, dialog: FilterPresetDialog, calls: Array<any> } {
   const q = createFilter(Object.assign({ items: [{ name: "adults", title: "Adults", expression: "{age} > 18" }] }, over));
@@ -211,28 +211,28 @@ describe("New Preset: what can go wrong", () => {
   });
 });
 
-describe("Edit Presets: AI and a preset edited as text", () => {
+describe("Edit Preset: AI and a preset edited as text", () => {
   const presets = [
     { name: "adults", title: "Adults", expression: "{age} > 18" },
     { name: "edges", title: "Edges", expression: "{age} < 18 or {age} > 35" }];
-  function edit(selected: string): { q: QuestionFilterModel, dialog: FilterEditPresetsDialog, calls: Array<any> } {
+  function edit(selected: string): { q: QuestionFilterModel, dialog: FilterEditPresetDialog, calls: Array<any> } {
     const q = createFilter({ items: presets });
     const calls: Array<any> = [];
     (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
-    return { q: q, dialog: q.createEditPresetsDialog(selected), calls: calls };
+    return { q: q, dialog: q.createEditPresetDialog(selected), calls: calls };
   }
-  test("Edit on a text tab sends its text; an answer of the fields form shows as fields", () => {
+  test("Edit on a preset edited as text sends its text; an answer of the fields form shows as fields", () => {
     const { q, dialog, calls } = edit("edges");
     dialog.aiPrompt.prompt = "only the young";
     dialog.aiPrompt.request();
     expect([calls[0].action, calls[0].expression], "#1").toEqual(["modify", "{age} < 18 or {age} > 35"]);
     calls[0].callback(answer("{age} < 18"));
-    expect([dialog.isTextMode, picked(dialog), (<any>dialog).tabs[1].isTouched, name(dialog)], "#2").toEqual([false, ["age"], true, "Edges"]);
+    expect([dialog.isTextMode, picked(dialog), name(dialog)], "#2").toEqual([false, ["age"], "Edges"]);
     expect(dialog.apply(), "#3").toBe(true);
     expect(q.getItemByName("edges").expression, "#4").toBe("{age} < 18");
     dialog.dispose();
   });
-  test("an answer that does not decompose turns a fields tab into text", () => {
+  test("an answer that does not decompose turns a preset edited as fields into text", () => {
     const { dialog, calls } = edit("adults");
     dialog.aiPrompt.prompt = "or babies";
     dialog.aiPrompt.request();

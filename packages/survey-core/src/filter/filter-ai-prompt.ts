@@ -23,7 +23,7 @@ export interface IFilterAIPromptOptions {
   // the model's filter, as text, and the title it gave it
   onAnswer: (expression: string, title: string) => void;
   // The survey the description is added to, as a panel at the end of its first page: the dialog's
-  // survey (New Preset, Edit Presets), which the dialog owns and draws.
+  // survey (New Preset, Edit Preset), which the dialog owns and draws.
   survey: SurveyModel;
   // The control's classes: the panel's frame (aiPrompt) and the row of its button (aiPromptRequest).
   css?: any;
@@ -142,8 +142,8 @@ export class FilterAIPrompt extends Base {
     panel.onGetFooterToolbarCssCallback = (): string => toCssClasses(panel.cssClasses.panel.footer, this.css.aiPromptRequest);
     // On the page first, then the question in it: an empty page that gets a panel which already has
     // a question does not become the survey's current page, and a survey with none draws nothing.
-    // Not animated, as the fields' panels are not: in Edit Presets it comes with another tab, which
-    // is drawn anew - and an entering row of a page that is already drawn could stay undrawn.
+    // Not animated, as the fields' panels are not: an entering row of a page that is already drawn
+    // could stay undrawn.
     page.blockAnimations();
     try {
       page.addElement(panel);

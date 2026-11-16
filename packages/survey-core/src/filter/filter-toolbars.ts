@@ -16,7 +16,7 @@ import { FilterFieldPopup } from "./filter-field-popup";
 import { FilterChipsLayout } from "./filter-chips-layout";
 import { FilterModal } from "./filter-modal";
 import { FilterSaveAsPopup } from "./filter-save-as-popup";
-import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter-preset-dialog";
+import { FilterEditPresetDialog, FilterPresetDialog } from "./filter-preset-dialog";
 import { filterUIStrings } from "./filter-ui-strings";
 export { filterUIStrings } from "./filter-ui-strings";
 
@@ -91,7 +91,7 @@ export interface IFilterToolbarsOwner {
   createSaveAsPopup(close: () => void): FilterSaveAsPopup;
   createFilterModal(): FilterModal;
   createAddPresetDialog(conditions: Array<IFilterCondition>, expression?: string): FilterPresetDialog;
-  createEditPresetsDialog(activeItemName?: string): FilterEditPresetsDialog;
+  createEditPresetDialog(itemName: string): FilterEditPresetDialog;
   getSurveyRootElement(): HTMLElement;
   getLocale(): string;
 }
@@ -152,7 +152,7 @@ export class FilterToolbars {
   private rowChips: Array<Action>;
   private advancedHolder: FilterEditorHolder;
   private advancedDialog: PopupModalViewModel;
-  // The one dialog open over the Filters dialog - Add New Preset or Edit Presets: what the dialog host
+  // The one dialog open over the Filters dialog - New Preset or Edit Preset: what the dialog host
   // returned, its model, and the holder it is drawn from.
   private subDialog: PopupModalViewModel;
   private subDialogModel: FilterPresetDialog;
@@ -332,13 +332,19 @@ export class FilterToolbars {
         action: (): void => { dialog.apply(); } })
     ]);
   }
-  // Add New Preset or Edit Presets, over the Filters dialog that opened it - see FilterPresetDialog.
-  // Its Apply writes the presets into the control and refreshes that dialog's presets, or keeps it
-  // open while the preset has errors; any other way it closes writes nothing. One at a time.
+  // New Preset, or Edit Preset of the preset picked there, over the Filters dialog that opened it - see
+  // FilterPresetDialog and FilterEditPresetDialog. Its Apply writes the preset into the control and
+  // refreshes that dialog's presets, or keeps it open while the preset has errors; Edit Preset's
+  // Delete deletes the preset, refreshes them and closes it; any other way it closes writes nothing.
+  // Edit Preset opens only for a preset the respondent may change or delete. One at a time.
   public showPresetDialog(modal: FilterModal, isEdit: boolean): void {
     if (!settings.showDialog || !!this.subDialog || !modal || modal.isDisposed) return;
-    const dialogModel = isEdit ? this.owner.createEditPresetsDialog(modal.activeItemName)
-      : this.owner.createAddPresetDialog(modal.presetConditions, modal.presetExpression);
+    const edit = isEdit ? this.owner.createEditPresetDialog(modal.activeItemName) : undefined;
+    if (!!edit && !edit.item) {
+      edit.dispose();
+      return;
+    }
+    const dialogModel: FilterPresetDialog = edit || this.owner.createAddPresetDialog(modal.presetConditions, modal.presetExpression);
     const holder = this.createHolder();
     holder.presetDialog = dialogModel;
     this.subDialogHolder = holder;
@@ -355,7 +361,7 @@ export class FilterToolbars {
       title: dialogModel.title,
       cssClass: this.getSubDialogCss()
     });
-    this.setPresetDialogFooter(this.subDialog, (): boolean => dialogModel.canApply);
+    this.setPresetDialogFooter(this.subDialog, dialogModel, (): void => { modal.refreshPresets(); });
   }
   // The dialog over the Filters dialog is gone (closed, or the control disposed): what it was drawn
   // from is released and its model disposed, once - onHide may come after dispose().
@@ -402,20 +408,26 @@ export class FilterToolbars {
       }
     }
   }
-  // Cancel on the left and Apply on the right, as in the mockup. canApply: Apply is off while it is false.
-  private setPresetDialogFooter(dialog: PopupModalViewModel, canApply?: () => boolean): void {
+  // Cancel on the left - Delete in its place for a preset Edit Preset may delete - and Apply on the
+  // right, as in the mockup. Apply is off while the dialog cannot apply (canApply).
+  private setPresetDialogFooter(dialog: PopupModalViewModel, dialogModel: FilterPresetDialog, onDeleted: () => void): void {
     const footer: ActionContainer = !!dialog ? dialog.footerToolbar : undefined;
     if (!footer) return;
     const locale = this.owner.getLocale();
-    const apply: IAction = { id: "sv-filter-preset-apply", title: getLocaleString("modalApplyButtonText", locale), needSpace: true,
-      appearance: { style: "brand", mode: "primary" }, action: (): void => { dialog.apply(); } };
-    if (!!canApply) {
-      apply.enabled = <any>new ComputedUpdater<boolean>((): boolean => canApply());
-    }
-    footer.setItems([
+    const edit = dialogModel instanceof FilterEditPresetDialog ? dialogModel : undefined;
+    const left = !!edit && edit.canDelete ?
+      new Action({ id: "sv-filter-preset-delete", title: filterUIStrings.deletePreset, iconName: "icon-delete-24x24", iconSize: "auto",
+        appearance: { style: "alert", mode: "secondary" }, action: (): void => {
+          if (!edit.deletePreset()) return;
+          onDeleted();
+          dialog.model.hide();
+        } }) :
       new Action({ id: "sv-filter-preset-cancel", title: getLocaleString("modalCancelButtonText", locale), appearance: { style: "brand", mode: "secondary" },
-        action: (): void => { dialog.cancel(); } }),
-      new Action(apply)
+        action: (): void => { dialog.cancel(); } });
+    footer.setItems([left,
+      new Action({ id: "sv-filter-preset-apply", title: getLocaleString("modalApplyButtonText", locale), needSpace: true,
+        appearance: { style: "brand", mode: "primary" }, enabled: <any>new ComputedUpdater<boolean>((): boolean => dialogModel.canApply),
+        action: (): void => { dialog.apply(); } })
     ]);
   }
   // Every action is the toolbars' own - the chips, Filters, Show More, Save, Clear All - and the rows only

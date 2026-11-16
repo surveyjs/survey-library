@@ -195,7 +195,7 @@ describe("SurveyQuestionFilter", () => {
 });
 
 describe("SurveyFilterPresetDialog", () => {
-  it("Edit Presets shows the tabs, the form, the fields in a frame and the actions; another tab redraws them", () => {
+  it("Edit Preset shows the form and the fields in a frame - no tabs, no actions; a new form is drawn anew", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }, { name: "name" }],
       items: [{ name: "a", title: "Adults", expression: "{age} > 18" },
         { name: "k", title: "Kids", expression: "{age} < 10 and {name} = 'x'" }] }] });
@@ -203,7 +203,7 @@ describe("SurveyFilterPresetDialog", () => {
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
-    const dialog = q.createEditPresetsDialog("a");
+    const dialog = q.createEditPresetDialog("k");
     holder.presetDialog = dialog;
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -215,18 +215,17 @@ describe("SurveyFilterPresetDialog", () => {
     const fields = (): Array<string> => Array.from(container.querySelectorAll(".sd-filter-modal__editor .sd-filter-preset-dialog__fields .sd-panel__title"))
       .map((el: Element): string => el.textContent);
     const prompts = (): number => container.querySelectorAll(".sd-filter-modal__editor .sd-filter-ai-prompt").length;
-    expect(container.querySelector(".sd-filter-preset-dialog__tabs").textContent, "#1").toBe("AdultsKids");
-    expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#2").toBe("Adults");
-    expect([fields(), prompts()], "#3: the fields and the description").toEqual([["age"], 1]);
-    expect(container.textContent, "#4").toContain("Preset Actions");
+    expect([container.querySelector(".sd-filter-preset-dialog__tabs"), container.querySelector(".sd-filter-modal__section")], "#1: no tabs, no actions")
+      .toEqual([null, null]);
+    expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#2").toBe("Kids");
+    expect([fields(), prompts()], "#3: the fields and the description").toEqual([["age", "name"], 1]);
     const input = container.querySelector(".sd-filter-preset-dialog__form input");
-    act(() => { dialog.selectTab("k"); });
-    expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#5").toBe("Kids");
-    expect(container.querySelector(".sd-filter-preset-dialog__form input") !== input, "#5a: a new form is drawn anew, not over the old one").toBe(true);
-    expect([fields(), prompts()], "#5b: every editable tab has a description").toEqual([["age", "name"], 1]);
-    act(() => { dialog.selectTab("a"); });
-    expect([fields(), prompts()], "#5c: back to the first tab").toEqual([["age"], 1]);
-    expect((container.querySelector(".sd-filter-ai-prompt textarea") as HTMLTextAreaElement).value, "#5d: a tab shown anew starts with no description").toBe("");
+    act(() => { dialog.aiPrompt.prompt = "kids only"; });
+    act(() => { dialog.editAsText(); });
+    expect(container.querySelector(".sd-filter-preset-dialog__form input") !== input, "#4: a new form is drawn anew, not over the old one").toBe(true);
+    const text = (container.querySelector(".sd-filter-preset-dialog__form textarea") as HTMLTextAreaElement).value;
+    expect([text.indexOf("{age} < 10") > -1, fields(), prompts()], "#5: the text, no fields").toEqual([true, [], 1]);
+    expect((container.querySelector(".sd-filter-ai-prompt textarea") as HTMLTextAreaElement).value, "#5a: the description stays").toBe("kids only");
     act(() => { holder.presetDialog = undefined; });
     dialog.dispose();
     expect(container.innerHTML, "#6: an emptied holder unmounts the content").toBe("");
@@ -434,11 +433,11 @@ describe("The AI description of the preset dialogs", () => {
     dialog.dispose();
     cleanup(container);
   });
-  it("Edit Presets shows the description and Edit in a preset's tab", () => {
+  it("Edit Preset shows the description and Edit", () => {
     const { q, container } = setup({ items: [{ name: "a", title: "Adults", expression: "{age} > 18" }] });
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
-    const dialog = q.createEditPresetsDialog("a");
+    const dialog = q.createEditPresetDialog("a");
     holder.presetDialog = dialog;
     act(() => {
       // eslint-disable-next-line react/no-deprecated

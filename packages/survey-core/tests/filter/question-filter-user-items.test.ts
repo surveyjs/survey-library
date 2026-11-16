@@ -4,8 +4,8 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { Action } from "../../src/actions/action";
 
-// Presets the respondent adds, renames, edits, deletes and resets (the Add Preset and Edit Presets
-// dialogs): the control's API they go through.
+// Presets the respondent adds, renames, edits, deletes and resets (New Preset, Save as... and Edit
+// Preset): the control's API they go through.
 const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "germans", expression: "{country} = 'de'" },
@@ -156,9 +156,12 @@ describe("QuestionFilterModel.applyItemEdits and getEditableItems", () => {
     q.applyItemEdits([{ name: "adults", title: "Adults", conditions: [{ field: "age", operator: "greater", value: 21 }] }]);
     expect(events, "#3: no change").toEqual({ filter: 1, uiState: 1 });
   });
-  test("the presets that can be changed, deleted or reset", () => {
-    const q = control({ items: presets.concat([{ name: "fixed", expression: "{age} > 1", allowEdit: false, allowDelete: false }]) });
-    expect(q.getEditableItems().map((item) => item.name), "#1").toEqual(["adults", "germans", "edges"]);
+  test("the presets that can be changed or deleted", () => {
+    const q = control({ items: presets.concat([{ name: "fixed", expression: "{age} > 1", allowEdit: false, allowDelete: false },
+      { name: "changed", expression: "{age} > 2", allowDelete: false }]) });
+    q.updateItem("changed", "Changed");
+    q.getItemByName("changed").allowEdit = false;
+    expect(q.getEditableItems().map((item) => item.name), "#1: not one that may only be reset").toEqual(["adults", "germans", "edges"]);
     expect(control({ allowMultipleItems: false }).getEditableItems(), "#2: single mode has no list").toEqual([]);
   });
 });

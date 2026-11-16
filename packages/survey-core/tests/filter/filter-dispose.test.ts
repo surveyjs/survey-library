@@ -144,16 +144,3 @@ describe("FilterToolbars: what is disposed, and only once", () => {
     }
   });
 });
-
-describe("FilterEditPresetsDialog: the tabs' chips", () => {
-  afterEach(() => { vi.restoreAllMocks(); });
-  test("a deleted tab's chip is disposed with the dialog, and every chip once", () => {
-    const q = createFilter();
-    const dialog = q.createEditPresetsDialog("adults");
-    const chip = <Action>dialog.tabsToolbar.getActionById("sv-filter-preset-tab-adults");
-    dialog.deleteSelected();
-    expect(dialog.tabsToolbar.actions.indexOf(chip), "#1: out of the row").toBe(-1);
-    const counts = countDisposes(Action, () => { dialog.dispose(); });
-    expect([chip.isDisposed, disposedTwice(counts)], "#2").toEqual([true, 0]);
-  });
-});

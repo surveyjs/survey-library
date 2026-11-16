@@ -1,11 +1,11 @@
 import { Component } from "@angular/core";
-import { Base, FilterEditPresetsDialog, FilterPresetDialog, filterPresetDialogComponentName, filterUIStrings } from "survey-core";
+import { Base, FilterPresetDialog, filterPresetDialogComponentName } from "survey-core";
 import { FilterHolderComponent } from "./filter-holder.component";
 import { AngularComponentFactory } from "../../component-factory";
 
-// New Preset and Edit Presets: the tabs (Edit Presets only), the form - the name and the tagbox of
-// Contains, or the text -, the dialog's survey - the fields' editors in a frame and the AI description
-// with its Create or Edit - and the preset's actions (Edit Presets only); the footer is the dialog's own.
+// New Preset and Edit Preset: the form - the name and the tagbox of Contains, or the text - and the
+// dialog's survey - the fields' editors in a frame and the AI description with its Create or Edit; the
+// footer is the dialog's own.
 @Component({
   selector: "sv-ng-filter-preset-dialog",
   templateUrl: "./filter-preset-dialog.component.html",
@@ -17,20 +17,12 @@ export class FilterPresetDialogComponent extends FilterHolderComponent {
     const holder = this.holder;
     return !!holder ? holder.presetDialog : undefined as any;
   }
-  public get edit(): FilterEditPresetsDialog {
-    const dialog = this.dialog;
-    return dialog instanceof FilterEditPresetsDialog ? dialog : undefined as any;
-  }
   protected getWatchedModels(): Array<Base | undefined> {
-    const edit = this.edit;
-    return [this.dialog, edit?.tabsToolbar, edit?.actionsToolbar];
+    return [this.dialog];
   }
   // The page is empty with no field picked and no description (see hasSurveyContent).
   public get hasFields(): boolean {
     return this.dialog.hasSurveyContent;
-  }
-  public get actionsTitle(): string {
-    return filterUIStrings.presetActions;
   }
 }
 

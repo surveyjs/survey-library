@@ -14,7 +14,7 @@ import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { FilterFieldPopup, writeFilterFieldCondition } from "./filter/filter-field-popup";
 import { FilterSaveAsPopup } from "./filter/filter-save-as-popup";
 import { FilterModal } from "./filter/filter-modal";
-import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter/filter-preset-dialog";
+import { FilterEditPresetDialog, FilterPresetDialog } from "./filter/filter-preset-dialog";
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { FilterAIRequest } from "./filter/filter-ai";
@@ -356,15 +356,14 @@ export class QuestionFilterModel extends QuestionNonValue {
     return !!item && !this.isUserItem(item) && !!this.originalItems[item.name];
   }
   public canResetItem(item: FilterItem): boolean { return !this.isDesignMode && this.isItemModified(item); }
-  // The presets the Edit Presets dialog has a tab for: those the respondent may change, delete or
-  // reset. None in the designer, and none in single mode, which has no list.
+  // The presets Edit Preset opens for: those the respondent may change or delete. None in the designer,
+  // and none in single mode, which has no list.
   public getEditableItems(): Array<FilterItem> {
     if (this.isDesignMode) return [];
-    return this.visibleItems.filter((item: FilterItem): boolean =>
-      this.canEditItem(item) || this.canDeleteItem(item) || this.canResetItem(item));
+    return this.visibleItems.filter((item: FilterItem): boolean => this.canEditItem(item) || this.canDeleteItem(item));
   }
   // What a preset is in the JSON - its title and its conditions, null for a preset that does not
-  // decompose - whatever the respondent changed since: what Reset brings back. A preset of the
+  // decompose - whatever the respondent changed since: what resetItem() brings back. A preset of the
   // respondent's own is what it is. Its text: getOriginalItemExpression().
   public getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null } {
     const item = this.getItemByName(name);
@@ -375,16 +374,16 @@ export class QuestionFilterModel extends QuestionNonValue {
     original.dispose();
     return res;
   }
-  // The text a preset has in the JSON, whatever the respondent changed since: what Reset brings back
-  // into a preset edited as text. A preset of the respondent's own is what it is. "" for no preset.
+  // The text a preset has in the JSON, whatever the respondent changed since: what resetItem() brings
+  // back. A preset of the respondent's own is what it is. "" for no preset.
   public getOriginalItemExpression(name: string): string {
     const item = this.getItemByName(name);
     if (!item) return "";
     const original = this.isItemModified(item) ? this.originalItems[item.name].expression : item.expression;
     return (original || "").trim();
   }
-  // Whether a title and filter are what the JSON made the preset: the Edit Presets dialog offers
-  // Reset while they are not. expression - a preset edited as text - is compared with the JSON's text
+  // Whether a title and filter are what the JSON made the preset, which resetItem() brings back.
+  // expression - a preset edited as text - is compared with the JSON's text
   // (as conditions where both decompose: their order is no change). Otherwise conditions null - a
   // preset that does not decompose - compares only with an original that does not decompose either.
   // A preset of the respondent's own is compared with what it is.
@@ -411,7 +410,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.raiseUIStateChanged();
     return item;
   }
-  // A preset's new title and filter (the Edit Presets dialog): conditions, or a text (expression) for
+  // A preset's new title and filter (Edit Preset): conditions, or a text (expression) for
   // a preset edited as text, by the rules of addItem(). Neither keeps the filter it has, and so do
   // conditions none of which the fields can hold and a text that is empty or does not parse; an empty
   // title keeps the title. An authored preset remembers what the JSON made it before its first
@@ -458,7 +457,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       this.raiseUIStateChanged();
     }, true);
   }
-  // Deletes a preset (the Edit Presets dialog). The respondent's own goes away, and is disposed once the
+  // Deletes a preset (Edit Preset's Delete). The respondent's own goes away, and is disposed once the
   // toolbars have let go of its chip; an authored one is only hidden - items is the author's JSON - and
   // remembered as deleted. A preset that is on goes off, and the filter with it: there is nothing left
   // to filter by.
@@ -484,7 +483,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       item.dispose();
     }
   }
-  // The Edit Presets dialog's Apply: the changes of every preset as one change - one write into the
+  // Edit Preset's Apply and Delete: the changes of the presets as one change - one write into the
   // source and one onFilterChanged if the filter that applies changed, one onUIStateChanged - and
   // nothing for no change. Each preset is deleted, or reset first and then given its new title and
   // filter.
@@ -697,7 +696,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   public createFilterModal(): FilterModal {
     return new FilterModal(this);
   }
-  // The Add New Preset dialog, its fields holding the given conditions - or, given a text, the text
+  // The New Preset dialog, its fields holding the given conditions - or, given a text, the text
   // to edit as it is - see FilterPresetDialog. The caller owns it and disposes it.
   public createAddPresetDialog(conditions: Array<IFilterCondition>, expression?: string): FilterPresetDialog {
     return new FilterPresetDialog(this, conditions || [], expression);
@@ -712,10 +711,10 @@ export class QuestionFilterModel extends QuestionNonValue {
     const fields = this.getFilterFields();
     return conditionsToExpression(normalizeFilterConditions(conditions || [], fields), fields);
   }
-  // The Edit Presets dialog, the named preset's tab selected - see FilterEditPresetsDialog. The
-  // caller owns it and disposes it.
-  public createEditPresetsDialog(activeItemName?: string): FilterEditPresetsDialog {
-    return new FilterEditPresetsDialog(this, activeItemName);
+  // The Edit Preset dialog of the named preset - see FilterEditPresetDialog. The caller owns it and
+  // disposes it.
+  public createEditPresetDialog(itemName: string): FilterEditPresetDialog {
+    return new FilterEditPresetDialog(this, itemName);
   }
   // Every field by the name the editors reach it back by, in the order the Filters dialog shows them -
   // the fields a preset can be made of: those fast mode hides too, a duplicate valueName collapsed to
@@ -954,7 +953,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // The advanced editor as a dialog; with no dialog host (no survey rendered) this opens nothing.
   public showAdvancedEditor(): void { this.toolbars.showAdvancedEditor(); }
-  // Add New Preset (isEdit false) or Edit Presets over the Filters dialog - see FilterToolbars.
+  // New Preset (isEdit false) or Edit Preset over the Filters dialog - see FilterToolbars.
   public showPresetDialog(modal: FilterModal, isEdit: boolean): void { this.toolbars.showPresetDialog(modal, isEdit); }
   // The field list one pass over the toolbars reads, once: the pass asks for it many times - the
   // badges, each parse of the active preset, the counts - and a bound source builds it anew each time.

@@ -548,17 +548,11 @@
   }
 }
 
-// New Preset and Edit Presets (FilterPresetDialog): the presets' tabs, the form with the name and
-// Contains, the fields' editors in a frame and the preset's actions, above the dialog's own Cancel and
-// Apply. As wide as the Filters dialog, which they open over.
+// New Preset and Edit Preset (FilterPresetDialog): the form with the name and Contains, the fields'
+// editors in a frame and the AI description, above the dialog's own footer. As wide as the Filters
+// dialog, which they open over.
 .sd-filter-preset-dialog__content {
   gap: var(--sjs2-spacing-x400);
-}
-
-// The selected tab is the dark one.
-.sd-filter-preset-dialog__tabs .sd-action-bar {
-  --sd-action-bar-gap: var(--sjs2-spacing-x150);
-  flex-wrap: wrap;
 }
 
 // The name and the tagbox (or the text) of Contains, each 16px under its title, as in the mockup.

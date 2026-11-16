@@ -28,7 +28,7 @@ export interface IFilterState {
   conditions?: Array<IFilterCondition>;
   searchString: string;
 }
-// One preset's change in the Edit Presets dialog, applied with the others as one change: deleted,
+// One preset's change (Edit Preset's Apply or Delete), applied with any others as one change: deleted,
 // or reset to what the JSON authored and then given a new title and filter - each optional. The
 // filter is conditions, or expression for a preset edited as text.
 export interface IFilterItemEdit {
@@ -58,7 +58,7 @@ export interface IFilterElementUIState {
   // ("" = its conditions were cleared), with no preset only when not empty.
   expression?: string;
   // Authored presets the respondent changed, by name: the expression saved into one (Save in single
-  // mode, the Edit Presets dialog) and the title given to one.
+  // mode, Edit Preset) and the title given to one.
   items?: { [name: string]: IFilterSavedItemState };
   // The presets the respondent added, in their order.
   userItems?: Array<IFilterUserItemState>;

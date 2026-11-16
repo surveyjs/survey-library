@@ -250,7 +250,7 @@ export type { IFilterAIField, IFilterAIContext, IFilterAIResponse, FilterAIResul
 export {
   FilterAIFeature, buildFilterAIContext, buildFilterAISystemPrompt, buildFilterAIInstruction, filterAIResponseFormat
 } from "../../src/filter/filter-ai";
-export { FilterPresetDialog, FilterEditPresetsDialog } from "../../src/filter/filter-preset-dialog";
+export { FilterPresetDialog, FilterEditPresetDialog } from "../../src/filter/filter-preset-dialog";
 export type {
   IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterSavedItemState, IFilterState, IFilterUserItemState
 } from "../../src/interfaces/ui-interfaces";

@@ -1,7 +1,6 @@
 import { Base, ComputedUpdater } from "../base";
 import { property } from "../decorators";
 import { Action } from "../actions/action";
-import { ActionContainer } from "../actions/container";
 import { SurveyModel } from "../survey";
 import { PanelModel } from "../panel";
 import { Question } from "../question";
@@ -9,14 +8,14 @@ import { getLocaleString } from "../surveyStrings";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import { setUpDialogSurvey } from "../utils/dialog-survey";
 import { IFilterCondition, IFilterItemEdit } from "../interfaces/ui-interfaces";
-import { FilterItem, getUniqueFilterActionId } from "./filter-item";
+import { FilterItem } from "./filter-item";
 import { FilterConditionsEditor, IFilterConditionsEditorOwner, createFilterEditorOwner } from "./filter-conditions-editor";
 import { getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
 import { ExpressionRunner } from "../expressions/expressionRunner";
 import { makeFilterAITitle } from "./filter-ai";
 import type { FilterAIRequest } from "./filter-ai";
 import { FilterAIPrompt } from "./filter-ai-prompt";
-import { FilterExpressionPanel, getFilterExpressionError } from "./filter-expression-panel";
+import { FilterExpressionPanel } from "./filter-expression-panel";
 import { filterUIStrings } from "./filter-ui-strings";
 // The question types the form is made of; imported here, as FilterConditionsEditor imports its own.
 import "../question_text";
@@ -85,8 +84,8 @@ export class FilterPresetDialog extends Base {
   // The description and its request button - Create, Edit - while the application answers AI requests
   // and the preset may be changed (canAskAI); undefined otherwise. In the dialog's survey, after the
   // fields' frame. Made anew, empty, for another preset; the same preset drawn anew (an answer, Edit as
-  // Expression, Reset) keeps it - the description typed and a request it may be waiting for. The description is what the filter needs or what to change in it, not part of the preset:
-  // typing it changes nothing.
+  // Expression) keeps it - the description typed and a request it may be waiting for. The description
+  // is what the filter needs or what to change in it, not part of the preset: typing it changes nothing.
   @property() aiPrompt: FilterAIPrompt;
   private aiPromptBuffer: IFilterPresetBuffer;
   protected buffer: IFilterPresetBuffer;
@@ -143,8 +142,8 @@ export class FilterPresetDialog extends Base {
   public get contentCss(): string { return toCssClasses(this.cssClasses.modalContent, this.cssClasses.presetContent); }
   public get formCss(): string { return toCssClasses(this.cssClasses.editor, this.cssClasses.presetForm); }
   public get editorCss(): string { return toCssClasses(this.cssClasses.editor, this.cssClasses.modalEditor); }
-  // What a renderer draws under the form: the fields' editors in their frame and, in Edit Presets,
-  // the description. Its page is empty while there is neither.
+  // What a renderer draws under the form: the fields' editors in their frame and the AI description.
+  // Its page is empty while there is neither.
   public get survey(): SurveyModel { return this.surveyValue; }
   // The control's isMobile, which may change while the dialog is open (a rotation, a resize).
   public setIsMobile(isMobile: boolean): void {
@@ -163,8 +162,7 @@ export class FilterPresetDialog extends Base {
     }
     return true;
   }
-  // The dialog's survey goes last: the editor (and Edit Presets' description) take their panels out
-  // of it first.
+  // The dialog's survey goes last: the editor and the description take their panels out of it first.
   // The form before its text: the text's panel leaves a disposed survey alone, and taking it out of a
   // live one would report a change of the form.
   public dispose(): void {
@@ -422,204 +420,77 @@ export class FilterPresetDialog extends Base {
   }
 }
 
-// What the Edit Presets dialog reads from the control and calls on it besides what adding takes.
-export interface IFilterEditPresetsDialogOwner extends IFilterPresetDialogOwner {
+// What the Edit Preset dialog reads from the control and calls on it besides what adding takes.
+export interface IFilterEditPresetDialogOwner extends IFilterPresetDialogOwner {
   getEditableItems(): Array<FilterItem>;
   getItemConditions(name: string): Array<IFilterCondition> | null;
-  getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null };
-  getOriginalItemExpression(name: string): string;
-  isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null, expression?: string): boolean;
   canEditItem(item: FilterItem): boolean;
   canDeleteItem(item: FilterItem): boolean;
-  isUserItem(item: FilterItem): boolean;
   applyItemEdits(edits: Array<IFilterItemEdit>): void;
 }
-// A preset of the Edit Presets dialog: its tab, and whether it was deleted, reset or changed in any
-// other way in the dialog.
-interface IFilterPresetTab extends IFilterPresetBuffer {
-  chip: Action;
-  isDeleted: boolean;
-  isReset: boolean;
-  isTouched: boolean;
-}
 
-// The Edit Presets dialog: a tab per preset the respondent may change, delete or reset
-// (getEditableItems), the form and the fields' editors of the selected one, and its actions -
-// Delete, and Reset for an authored preset that is not what the JSON made it. All the tabs are one
-// buffer: a tab keeps its changes while another is selected, Delete takes the tab away and Reset
-// brings the JSON's title and conditions back into it. apply() checks every tab the respondent
-// changed - the first one with an error is selected, its errors shown - and writes them all as one
-// change (applyItemEdits). A tab nobody touched is what the control has: it is neither checked nor
-// written, so an authored title longer than a typed one may be, or one two authored presets share,
-// does not hold the others back. A preset that may not be edited shows read-only; one that does not
-// decompose is edited as text.
-export class FilterEditPresetsDialog extends FilterPresetDialog {
-  private tabs: Array<IFilterPresetTab>;
-  private tabsToolbarValue: ActionContainer;
-  private actionsToolbarValue: ActionContainer;
-  // The Preset Actions section is a group named by its title (aria-labelledby): the renderer gives
-  // the title this id, made of the dialog's own element id.
-  public get actionsTitleId(): string { return this.id + "_actions-title"; }
-  private deleteAction: Action;
-  private resetAction: Action;
+// The Edit Preset dialog: the preset picked in the Filters dialog (Edit Selected..., Edit... at its
+// text), if the respondent may change or delete it (getEditableItems), in New Preset's form - read-only
+// where it may not be edited, as text where it does not decompose. Delete, where the preset may be
+// deleted (canDelete), takes it away at once (deletePreset) and the dialog closes. Apply checks the
+// preset and writes it as one change (applyItemEdits) - once the respondent changed it: a preset nobody
+// touched is what the control has, so an authored title longer than a typed one may be, or one two
+// authored presets share, does not keep the dialog open. Nothing reaches the control before either.
+export class FilterEditPresetDialog extends FilterPresetDialog {
+  private isTouched: boolean;
 
-  constructor(owner: IFilterEditPresetsDialogOwner, activeItemName?: string) {
+  constructor(owner: IFilterEditPresetDialogOwner, itemName: string) {
     super(owner);
-    this.tabsToolbarValue = new ActionContainer();
-    this.tabsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
-    this.deleteAction = new Action({ id: "sv-filter-preset-delete", title: filterUIStrings.deletePreset, iconName: "icon-delete-24x24",
-      iconSize: "auto", appearance: { style: "alert", mode: "tertiary-muted", showBorder: true }, action: (): void => { this.deleteSelected(); } });
-    this.resetAction = new Action({ id: "sv-filter-preset-reset", title: filterUIStrings.resetPreset, iconName: "icon-reset-24x24",
-      iconSize: "auto", appearance: { style: "neutral", mode: "secondary", showBorder: true }, action: (): void => { this.resetSelected(); } });
-    this.actionsToolbarValue = new ActionContainer();
-    this.actionsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
-    this.actionsToolbarValue.setItems([this.deleteAction, this.resetAction], false);
-    const used: { [id: string]: boolean } = {};
-    this.tabs = owner.getEditableItems().map((item: FilterItem): IFilterPresetTab => {
-      // A tab of its own even for a second preset with the same name, as in the control's row.
-      const id = getUniqueFilterActionId("sv-filter-preset-tab-" + item.name, (candidate: string): boolean => !!used[candidate]);
-      used[id] = true;
+    this.isTouched = false;
+    const item = owner.getEditableItems().filter((i: FilterItem): boolean => i.name === itemName)[0];
+    if (!!item) {
       const conditions = owner.getItemConditions(item.name);
-      const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions,
-        expression: conditions === null ? (item.expression || "").trim() : undefined, isDeleted: false,
-        isReset: false, isTouched: false, chip: undefined };
-      // One choice of several: a radio (aria-checked is not allowed on the default button role).
-      tab.chip = new Action({ id: id, title: item.title, ariaRole: "radio", ariaChecked: false, activeAppearance: { style: "neutral", mode: "primary" },
-        action: (): void => { this.showTab(tab); } });
-      return tab;
-    });
-    this.tabsToolbarValue.setItems(this.tabs.map((tab: IFilterPresetTab): Action => tab.chip), false);
-    const first = this.tabs.filter((tab: IFilterPresetTab): boolean => tab.item.name === activeItemName)[0] || this.tabs[0];
-    this.showTab(first);
+      this.showBuffer({ item: item, title: item.title, conditions: conditions,
+        expression: conditions === null ? (item.expression || "").trim() : undefined });
+    }
   }
-  public getType(): string { return "filtereditpresetsdialog"; }
-  public get title(): string { return filterUIStrings.editPresets; }
-  public get tabsToolbar(): ActionContainer { return this.tabsToolbarValue; }
-  // Delete and Reset of the selected preset.
-  public get actionsToolbar(): ActionContainer { return this.actionsToolbarValue; }
+  public getType(): string { return "filtereditpresetdialog"; }
+  public get title(): string { return filterUIStrings.editPreset; }
+  // The preset edited; undefined for a name that is no preset the respondent may change or delete:
+  // there is nothing to show then, and the control does not open the dialog.
+  public get item(): FilterItem { return !!this.buffer ? this.buffer.item : undefined; }
   public get isReadOnly(): boolean {
-    return !!this.buffer && !this.editOwner.canEditItem(this.buffer.item);
+    return !!this.item && !this.editOwner.canEditItem(this.item);
   }
-  // The name of the preset whose tab is selected; "" when every tab was deleted.
-  public get selectedName(): string { return !!this.buffer ? this.buffer.item.name : ""; }
-  // Selects the tab of the named preset, keeping what was changed in the one selected before.
-  public selectTab(name: string): void {
-    this.showTab(this.liveTabs.filter((tab: IFilterPresetTab): boolean => tab.item.name === name)[0]);
-  }
-  // Takes the selected tab away; the next one is selected, or the one before it when it was the last.
-  public deleteSelected(): void {
-    const tab = <IFilterPresetTab>this.buffer;
-    if (!tab || !this.editOwner.canDeleteItem(tab.item)) return;
-    const live = this.liveTabs;
-    const index = live.indexOf(tab);
-    tab.isDeleted = true;
-    this.tabsToolbarValue.setItems(this.liveTabs.map((t: IFilterPresetTab): Action => t.chip), false);
-    this.showBuffer(live[index + 1] || live[index - 1]);
-    this.updateTabs();
-  }
-  // Brings the JSON's title and filter back into the selected tab - as fields or as text, as the
-  // JSON's text decomposes.
-  public resetSelected(): void {
-    const tab = <IFilterPresetTab>this.buffer;
-    if (!tab || this.editOwner.isUserItem(tab.item)) return;
-    // An answer that comes after the reset would undo it.
-    if (!!this.aiPrompt && this.aiPrompt.isBusy) {
-      this.aiPrompt.cancel();
-    }
-    const original = this.editOwner.getOriginalItemState(tab.item.name);
-    tab.title = original.title;
-    tab.conditions = original.conditions;
-    tab.expression = original.conditions === null ? this.editOwner.getOriginalItemExpression(tab.item.name) : undefined;
-    tab.isReset = true;
-    tab.isTouched = true;
-    this.showBuffer(tab);
-    this.updateTabs();
-  }
-  // Checks every tab the respondent changed and writes all of them as one change. false keeps the
-  // dialog open on the first tab with an error, and while Edit waits for the model (canApply).
-  public apply(): boolean {
-    if (this.isDisposed || !this.canApply) return false;
-    this.saveBuffer();
-    const owner = this.editOwner;
-    const invalid = this.liveTabs.filter((tab: IFilterPresetTab): boolean => tab.isTouched && owner.canEditItem(tab.item) && this.hasError(tab))[0];
-    if (!!invalid) {
-      this.showTab(invalid);
-      this.validateBuffer();
-      return false;
-    }
-    const edits: Array<IFilterItemEdit> = [];
-    this.tabs.forEach((tab: IFilterPresetTab): void => {
-      const name = tab.item.name;
-      if (tab.isDeleted) {
-        edits.push({ name: name, isDeleted: true });
-      } else if (tab.isTouched && owner.canEditItem(tab.item)) {
-        const edit: IFilterItemEdit = { name: name, isReset: tab.isReset, title: tab.title.trim() };
-        if (tab.conditions === null) {
-          edit.expression = (tab.expression || "").trim();
-        } else {
-          edit.conditions = tab.conditions;
-        }
-        edits.push(edit);
-      } else if (tab.isReset) {
-        edits.push({ name: name, isReset: true });
-      }
-    });
-    owner.applyItemEdits(edits);
+  // Whether the footer has Delete, in Cancel's place.
+  public get canDelete(): boolean { return !!this.item && this.editOwner.canDeleteItem(this.item); }
+  // Deletes the preset, whatever was typed and while Edit waits for the model too; true when it did -
+  // the dialog closes then.
+  public deletePreset(): boolean {
+    if (this.isDisposed || !this.canDelete) return false;
+    this.editOwner.applyItemEdits([{ name: this.item.name, isDeleted: true }]);
     return true;
   }
-  // Every tab's chip is the dialog's, a deleted tab's too - Delete only takes it out of the row: the
-  // row is emptied and disposed first, then each chip once.
-  public dispose(): void {
-    this.tabsToolbarValue.actions.splice(0, this.tabsToolbarValue.actions.length);
-    this.tabsToolbarValue.dispose();
-    this.tabs.forEach((tab: IFilterPresetTab): void => { tab.chip.dispose(); });
-    this.actionsToolbarValue.dispose();
-    super.dispose();
-  }
-
-  protected getOtherTitles(): Array<string> {
-    return this.getTitlesExcept(<IFilterPresetTab>this.buffer);
-  }
-  // The titles of the other tabs as they are in the buffer, and of the presets that have no tab.
-  private getTitlesExcept(except: IFilterPresetTab): Array<string> {
-    const titles = this.liveTabs.filter((tab: IFilterPresetTab): boolean => tab !== except).map((tab: IFilterPresetTab): string => tab.title);
-    const tabItems = this.tabs.map((tab: IFilterPresetTab): FilterItem => tab.item);
-    this.owner.visibleItems.forEach((item: FilterItem): void => {
-      if (tabItems.indexOf(item) < 0) titles.push(item.title);
-    });
-    return titles;
-  }
-  // A changed title shows in its tab at once, and Reset follows whether there is anything to reset.
-  protected onChanged(): void {
+  // Checks the preset and writes it. false keeps the dialog open: while Edit waits for the model
+  // (canApply), and with the errors shown in the form.
+  public apply(): boolean {
+    if (this.isDisposed || !this.canApply) return false;
+    if (!this.item || this.isReadOnly || !this.isTouched) return true;
     this.saveBuffer();
-    if (!!this.buffer) {
-      (<IFilterPresetTab>this.buffer).isTouched = true;
+    if (!this.validateBuffer()) return false;
+    const edit: IFilterItemEdit = { name: this.item.name, title: this.buffer.title.trim() };
+    if (this.isTextMode) {
+      edit.expression = (this.buffer.expression || "").trim();
+    } else {
+      edit.conditions = this.buffer.conditions;
     }
-    this.updateTabs();
+    this.editOwner.applyItemEdits([edit]);
+    return true;
   }
 
-  private get editOwner(): IFilterEditPresetsDialogOwner { return <IFilterEditPresetsDialogOwner>this.owner; }
-  private get liveTabs(): Array<IFilterPresetTab> { return this.tabs.filter((tab: IFilterPresetTab): boolean => !tab.isDeleted); }
-  private showTab(tab: IFilterPresetTab): void {
-    if (!tab || tab.isDeleted || tab === this.buffer) return;
-    this.saveBuffer();
-    this.showBuffer(tab);
-    this.updateTabs();
+  // The preset may keep its own title.
+  protected getOtherTitles(): Array<string> {
+    const item = this.item;
+    return this.owner.visibleItems.filter((i: FilterItem): boolean => i !== item).map((i: FilterItem): string => i.title);
   }
-  private hasError(tab: IFilterPresetTab): boolean {
-    if (!!this.getTitleError(tab.title, this.getTitlesExcept(tab))) return true;
-    return tab.conditions !== null ? tab.conditions.length === 0 : !!getFilterExpressionError(tab.expression);
+  protected onChanged(): void {
+    this.isTouched = true;
   }
-  private updateTabs(): void {
-    const tab = <IFilterPresetTab>this.buffer;
-    this.tabs.forEach((t: IFilterPresetTab): void => {
-      t.chip.active = t === tab;
-      t.chip.ariaChecked = t.chip.active;
-      t.chip.title = t.title.trim() || t.item.name;
-    });
-    const owner = this.editOwner;
-    this.deleteAction.visible = !!tab && owner.canDeleteItem(tab.item);
-    this.resetAction.visible = !!tab && !owner.isUserItem(tab.item) &&
-      !owner.isOriginalItemState(tab.item.name, tab.title, tab.conditions, tab.conditions === null ? tab.expression : undefined);
-  }
+
+  private get editOwner(): IFilterEditPresetDialogOwner { return <IFilterEditPresetDialogOwner>this.owner; }
 }

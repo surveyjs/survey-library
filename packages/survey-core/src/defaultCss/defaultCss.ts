@@ -1126,7 +1126,6 @@ export var defaultCss = {
     modalNothingFoundIcon: "sd-filter-modal__nothing-found-icon",
     presetDialog: "sd-filter-preset-dialog",
     presetContent: "sd-filter-preset-dialog__content",
-    presetTabs: "sd-filter-preset-dialog__tabs",
     presetForm: "sd-filter-preset-dialog__form",
     presetFields: "sd-filter-preset-dialog__fields",
     aiPrompt: "sd-filter-ai-prompt",

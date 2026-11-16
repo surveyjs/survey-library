@@ -72,8 +72,8 @@ describe("Filter Control: the renderers' classes", () => {
     expect(dialog.formCss, "#3").toBe("sd-filter-editor sd-filter-preset-dialog__form");
     expect(dialog.editorCss, "#4").toBe("sd-filter-editor sd-filter-modal__editor");
     dialog.dispose();
-    const edit = q.createEditPresetsDialog();
-    expect(edit.contentCss, "#5: Edit Presets").toBe("sd-filter-modal__content sd-filter-preset-dialog__content");
+    const edit = q.createEditPresetDialog("adults");
+    expect(edit.contentCss, "#5: Edit Preset").toBe("sd-filter-modal__content sd-filter-preset-dialog__content");
     edit.dispose();
   });
 });

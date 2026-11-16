@@ -141,7 +141,7 @@ describe("FilterToolbars: Add Preset over the text of a preset", () => {
       const modal: FilterModal = calls[0].options.data.holder.modal;
       editExpression(modal).action();
       const edit: any = calls[1].options.data.holder.presetDialog;
-      expect([edit.selectedName, edit.isTextMode], "#1").toEqual(["edges", true]);
+      expect([edit.item.name, edit.isTextMode], "#1").toEqual(["edges", true]);
       calls[1].cancel();
       calls[0].cancel();
     } finally {

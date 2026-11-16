@@ -4,8 +4,7 @@ import { Action } from "../../src/actions/action";
 
 // What a screen reader is told about the toggles of the Filter Control: the presets' list is a menu of
 // radio items, a preset chip of the Filters dialog is a checkbox (aria-checked is not allowed on the
-// default button role), a tab of Edit Presets one choice of several (a radio), and a dialog section is
-// a group named by its visible title.
+// default button role), and a dialog section is a group named by its visible title.
 describe("Filter Control: ARIA", () => {
   test("the presets' list is a menu of radio items, the active preset's checked", () => {
     const q = createFilter();
@@ -30,15 +29,6 @@ describe("Filter Control: ARIA", () => {
     expect([chip("adults").ariaChecked, chip("kids").ariaChecked], "#2").toEqual([true, false]);
     modal.dispose();
   });
-  test("the Edit Presets tabs are radios, the shown one checked", () => {
-    const q = createFilter();
-    const dialog = q.createEditPresetsDialog("kids");
-    const tabs = dialog.tabsToolbar.actions;
-    expect(tabs.map((a: Action) => [a.ariaRole, a.ariaChecked]), "#1").toEqual([["radio", false], ["radio", true]]);
-    tabs[0].action();
-    expect(tabs.map((a: Action) => a.ariaChecked), "#2").toEqual([true, false]);
-    dialog.dispose();
-  });
   test("a chip's popup names its list by the field's title", () => {
     const q = createFilter();
     const popup = q.createFieldPopup("country", () => { });
@@ -52,9 +42,7 @@ describe("Filter Control: ARIA", () => {
     const second = q.createFilterModal();
     expect(!!first.presetsTitleId, "#1").toBe(true);
     expect(first.presetsTitleId === second.presetsTitleId, "#2: unique").toBe(false);
-    const dialog = q.createEditPresetsDialog();
-    expect(!!dialog.actionsTitleId && dialog.actionsTitleId !== first.presetsTitleId, "#3").toBe(true);
-    expect([first.presetsTitleId.indexOf(first.id), dialog.actionsTitleId.indexOf(dialog.id)], "#4: made of the dialog's own element id").toEqual([0, 0]);
-    [first, second, dialog].forEach((d: any): void => d.dispose());
+    expect(first.presetsTitleId.indexOf(first.id), "#3: made of the dialog's own element id").toBe(0);
+    [first, second].forEach((d: any): void => d.dispose());
   });
 });

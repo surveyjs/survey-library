@@ -1,13 +1,13 @@
 // The Filter Control (#11890). Everything it shows is survey-core's: the chips, Clear All, Save and
 // Filters are actions the question owns (filter-toolbars.ts), drawn with sv-action-bar; a badge's
 // popup is a FilterFieldPopup; the Filters dialog is a FilterModal over a FilterConditionsEditor, and
-// New Preset and Edit Presets are FilterPresetDialogs; the classes are the theme's "filter"
+// New Preset and Edit Preset are FilterPresetDialogs; the classes are the theme's "filter"
 // entry. This file only lays the parts out and draws the few pieces that are not standard components:
 // a checkbox list entry, the popup's frame, the dialogs' content.
 // Create custom filter has nothing here: it is a survey, drawn by the "survey" component.
 import * as React from "react";
 import {
-  Action, Base, FilterChip, FilterEditPresetsDialog, FilterEditorHolder, FilterFieldPopup, FilterSaveAsPopup,
+  Action, Base, FilterChip, FilterEditorHolder, FilterFieldPopup, FilterSaveAsPopup,
   FilterModal, FilterPresetDialog, ListModel, Question, QuestionFilterModel, SurveyError, SurveyModel,
   filterChipComponentName, filterModalComponentName, filterFieldPopupComponentName, filterListItemComponentName,
   filterPresetDialogComponentName, filterSaveAsPopupComponentName, filterUIStrings
@@ -179,12 +179,12 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
 ReactElementFactory.Instance.registerElement(filterModalComponentName,
   (props) => { return React.createElement(SurveyFilterModal, props); });
 
-// New Preset and Edit Presets: the tabs (Edit Presets only), the form - the name and the tagbox of
-// Contains, or the text -, the dialog's survey - the fields' editors in a frame and the AI description
-// with its Create or Edit - and the preset's actions (Edit Presets only); the footer is the dialog's own. A form made anew (another tab)
-// is drawn anew, keyed by its survey's uniqueId: element ids restart in every survey, so a page id
-// would be the same for each new form. The dialog's survey lives as long as the dialog, and its ids
-// keep counting: it needs no key.
+// New Preset and Edit Preset: the form - the name and the tagbox of Contains, or the text - and the
+// dialog's survey - the fields' editors in a frame and the AI description with its Create or Edit; the
+// footer is the dialog's own. A form made anew (Edit as Expression, an AI answer) is drawn anew, keyed
+// by its survey's uniqueId: element ids restart in every survey, so a page id would be the same for
+// each new form. The dialog's survey lives as long as the dialog, and its ids keep counting: it needs
+// no key.
 export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
   private get dialog(): FilterPresetDialog {
     const holder = this.props.holder;
@@ -194,35 +194,19 @@ export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: Filter
     const holder = this.props.holder;
     const dialog = this.dialog;
     if (!dialog) return !!holder ? [holder] : [];
-    if (dialog instanceof FilterEditPresetsDialog) return [holder, dialog, dialog.tabsToolbar, dialog.actionsToolbar];
     return [holder, dialog];
-  }
-  private renderTabs(dialog: FilterEditPresetsDialog, css: any): React.JSX.Element | null {
-    if (!dialog || !dialog.tabsToolbar.hasActions) return null;
-    return <div className={css.presetTabs}><SurveyActionBar model={dialog.tabsToolbar} /></div>;
-  }
-  private renderActions(dialog: FilterEditPresetsDialog, css: any): React.JSX.Element | null {
-    if (!dialog || !dialog.actionsToolbar.hasVisibleActions) return null;
-    return <div className={css.modalSection} role="group" aria-labelledby={dialog.actionsTitleId}>
-      <div className={css.modalSectionTitle} id={dialog.actionsTitleId}>{filterUIStrings.presetActions}</div>
-      <SurveyActionBar model={dialog.actionsToolbar} />
-    </div>;
   }
   protected renderElement(): React.JSX.Element | null {
     const dialog = this.dialog;
     if (!dialog) return null;
-    const css = dialog.cssClasses;
-    const edit = dialog instanceof FilterEditPresetsDialog ? dialog : undefined;
     const form = dialog.form;
     // The page is empty with no field picked and no description (see hasSurveyContent).
     const hasFields = dialog.hasSurveyContent;
     return <div className={dialog.contentCss}>
-      {this.renderTabs(edit, css)}
       {!!form ? <FilterEditorPage key={form.uniqueId} editor={{ survey: form, isDisposed: dialog.isDisposed }}
         className={dialog.formCss} /> : null}
       {hasFields ? <FilterEditorPage editor={{ survey: dialog.survey, isDisposed: dialog.isDisposed }}
         className={dialog.editorCss} /> : null}
-      {this.renderActions(edit, css)}
     </div>;
   }
 }

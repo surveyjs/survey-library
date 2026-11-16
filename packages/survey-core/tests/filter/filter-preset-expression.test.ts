@@ -6,7 +6,7 @@ import { FilterPresetDialog } from "../../src/filter/filter-preset-dialog";
 import { PanelModel } from "../../src/panel";
 import { Action } from "../../src/actions/action";
 
-// New Preset and Edit Presets: a preset that does not decompose is edited as text, and any other
+// New Preset and Edit Preset: a preset that does not decompose is edited as text, and any other
 // may be ("Edit as Expression"); a text of the fields' kind goes back to the tagbox ("Edit as Tagbox").
 const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
@@ -102,77 +102,64 @@ describe("New Preset: a preset as text", () => {
   });
 });
 
-describe("Edit Presets: a preset as text", () => {
+describe("Edit Preset: a preset as text", () => {
   test("a preset that does not decompose is edited as text; Apply writes it", () => {
     const q = control();
-    const dialog = q.createEditPresetsDialog("edges");
+    const dialog = q.createEditPresetDialog("edges");
     expect([panels(dialog), text(dialog), dialog.isReadOnly], "#1").toEqual([["presetName", "expression"], "{age} < 18 or {age} > 35", false]);
     setText(dialog, "{age} < 10 or {age} > 60");
-    expect([(<any>dialog).tabs[1].isTouched, dialog.actionsToolbar.actions.filter((a: Action) => a.visible).map((a: Action) => a.title)], "#2")
-      .toEqual([true, ["Delete", "Reset"]]);
-    expect(dialog.apply(), "#3").toBe(true);
-    expect(q.getItemByName("edges").expression, "#4").toBe("{age} < 10 or {age} > 60");
+    expect(dialog.apply(), "#2").toBe(true);
+    expect(q.getItemByName("edges").expression, "#3").toBe("{age} < 10 or {age} > 60");
     dialog.dispose();
   });
-  test("Reset brings the JSON's text back, as text", () => {
+  test("a preset changed to a text that decomposes opens as fields", () => {
     const q = control();
     q.updateItem("edges", "", undefined, "{age} < 10");
-    const dialog = q.createEditPresetsDialog("edges");
-    expect([panels(dialog), picked(dialog)], "#1: the text decomposes now, so it opens as fields").toEqual([["presetName", "contains"], ["age"]]);
-    dialog.resetSelected();
-    expect([panels(dialog), text(dialog)], "#2").toEqual([["presetName", "expression"], "{age} < 18 or {age} > 35"]);
-    expect(dialog.apply(), "#3").toBe(true);
-    expect([q.getItemByName("edges").expression, q.isItemModified(q.getItemByName("edges"))], "#4").toEqual(["{age} < 18 or {age} > 35", false]);
+    const dialog = q.createEditPresetDialog("edges");
+    expect([panels(dialog), picked(dialog)], "#1").toEqual([["presetName", "contains"], ["age"]]);
     dialog.dispose();
   });
   test("switching between fields and text is no change", () => {
     const q = control();
     const events = trackEvents(q);
-    const dialog = q.createEditPresetsDialog("adults");
+    const dialog = q.createEditPresetDialog("adults");
     dialog.editAsText();
-    expect([text(dialog), (<any>dialog).tabs[0].isTouched], "#1").toEqual(["{age} > 18", false]);
+    expect(text(dialog), "#1").toBe("{age} > 18");
     dialog.editAsFields();
-    expect([picked(dialog), (<any>dialog).tabs[0].isTouched], "#2").toEqual([["age"], false]);
+    expect(picked(dialog), "#2").toEqual(["age"]);
     dialog.editAsText();
     expect(dialog.apply(), "#3").toBe(true);
     expect([events, q.getItemByName("adults").expression], "#4").toEqual([{ filter: 0, uiState: 0 }, "{age} > 18"]);
     dialog.dispose();
   });
-  test("a text the respondent typed is kept while another tab is selected", () => {
-    const dialog = control().createEditPresetsDialog("edges");
-    setText(dialog, "{age} < 2 or {age} > 90");
-    dialog.selectTab("adults");
-    dialog.selectTab("edges");
-    expect(text(dialog)).toBe("{age} < 2 or {age} > 90");
-    dialog.dispose();
-  });
-  test("a tab with a broken text holds Apply back and is selected, its error shown", () => {
+  test("a broken text holds Apply back, its error shown", () => {
     const q = control();
-    const dialog = q.createEditPresetsDialog("edges");
+    const dialog = q.createEditPresetDialog("edges");
     setText(dialog, "{age} <");
-    dialog.selectTab("adults");
     expect(dialog.apply(), "#1").toBe(false);
-    expect([dialog.selectedName, errors(dialog)], "#2").toEqual(["edges", ["The expression is not valid."]]);
+    expect(errors(dialog), "#2").toEqual(["The expression is not valid."]);
     expect(q.getItemByName("edges").expression, "#3").toBe("{age} < 18 or {age} > 35");
     dialog.dispose();
   });
   test("a condition with no value is written as typed, and the preset opens as text again", () => {
     const q = control();
-    let dialog = q.createEditPresetsDialog("edges");
+    let dialog = q.createEditPresetDialog("edges");
     setText(dialog, "{name} = ''");
     expect([dialog.canEditAsFields, dialog.apply()], "#1").toEqual([false, true]);
     dialog.dispose();
     expect(q.getItemByName("edges").expression, "#2").toBe("{name} = ''");
-    dialog = q.createEditPresetsDialog("edges");
+    dialog = q.createEditPresetDialog("edges");
     expect([panels(dialog), text(dialog)], "#3").toEqual([["presetName", "expression"], "{name} = ''"]);
     dialog.dispose();
   });
   test("a preset that may not be edited shows its text read-only, with no switch", () => {
-    const dialog = control().createEditPresetsDialog("fixed");
-    expect([dialog.isReadOnly, dialog.form.mode, text(dialog)], "#1").toEqual([true, "display", "{age} < 1 or {age} > 99"]);
-    expect(titleActions(dialog, "expression").map((a: Action): string => a.id), "#2").toEqual([]);
-    dialog.selectTab("adults");
-    expect(titleActions(dialog, "contains").map((a: Action): string => a.id), "#3: an editable one has it").toEqual(["sv-filter-preset-edit-as-text"]);
-    dialog.dispose();
+    const q = control();
+    const fixed = q.createEditPresetDialog("fixed");
+    expect([fixed.isReadOnly, fixed.form.mode, text(fixed)], "#1").toEqual([true, "display", "{age} < 1 or {age} > 99"]);
+    expect(titleActions(fixed, "expression").map((a: Action): string => a.id), "#2").toEqual([]);
+    fixed.dispose();
+    const adults = q.createEditPresetDialog("adults");
+    expect(titleActions(adults, "contains").map((a: Action): string => a.id), "#3: an editable one has it").toEqual(["sv-filter-preset-edit-as-text"]);
+    adults.dispose();
   });
 });

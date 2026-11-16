@@ -83,15 +83,11 @@ describe("Filter Control: the search boxes' disabled state", () => {
     expect(createFilter({ fields: fields, showSearch: true }).isSearchDisabled, "#1").toBe(false);
     expect(designControl().isSearchDisabled, "#2").toBe(true);
   });
-  test("the Filters dialog's box is off while its conditions can't be edited", () => {
-    const q = createFilter({ fields: fields, showSearch: true });
-    const modal = q.createFilterModal();
-    expect(modal.isSearchDisabled, "#1").toBe(false);
-    modal.dispose();
+  test("the Filters dialog's Search in Filters looks among the fields of a read-only dialog too: it changes nothing", () => {
     const locked = createFilter({ fields: fields, showSearch: true, readOnly: true });
     const lockedModal = locked.createFilterModal();
-    expect(lockedModal.isReadOnly, "#2").toBe(true);
-    expect(lockedModal.isSearchDisabled, "#3: a read-only control").toBe(true);
+    lockedModal.filterText = "zzz";
+    expect([lockedModal.isReadOnly, lockedModal.isNothingFound], "#1").toEqual([true, true]);
     lockedModal.dispose();
   });
 });

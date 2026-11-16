@@ -3,13 +3,13 @@ import { createFilter } from "./filter-test-helpers";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { FilterModal } from "../../src/filter/filter-modal";
 import { FilterPresetDialog } from "../../src/filter/filter-preset-dialog";
-import { PanelModel } from "../../src/panel";
 import { Action } from "../../src/actions/action";
 import { ActionContainer } from "../../src/actions/container";
 import { settings } from "../../src/settings";
 
 // The Filters dialog and a preset that does not decompose: while it applies as it is, its text shows
-// read-only - in place of the fields with several presets, over them with one.
+// under the presets - "<Preset> Expression" and Edit... - in place of the fields with several
+// presets, over them with one.
 const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "edges", title: "Edges", expression: "{age} < 18 or {age} > 35" }];
@@ -24,10 +24,11 @@ function shown(modal: FilterModal): Array<string> {
   return modal.editor.survey.pages[0].elements.filter((e: any): boolean => e.isVisible).map((e: any): string => e.name);
 }
 function block(modal: FilterModal): any {
-  const panel = <PanelModel>modal.editor.survey.getPanelByName("expression");
-  if (!panel) return undefined;
-  const q: any = panel.getQuestionByName("expression");
-  return { title: panel.title, text: q.value, readOnly: q.readOnly };
+  if (!modal.showExpression) return undefined;
+  return { title: modal.expressionTitle, text: modal.presetExpression };
+}
+function editExpression(modal: FilterModal): Action {
+  return <Action>modal.expressionToolbar.getActionById("sv-filter-modal-edit-expression");
 }
 function fieldQ(modal: FilterModal, name: string): any {
   return modal.editor.survey.getQuestionByName("f" + modal.editor.fieldNames.indexOf(name) + "_value");
@@ -40,7 +41,7 @@ describe("FilterModal: the text of a preset that does not decompose", () => {
     expect([block(modal), shown(modal)], "#1").toEqual([undefined, ["f0", "f1", "f2"]]);
     chip(modal, "edges").action();
     expect([block(modal), shown(modal), modal.presetExpression], "#2")
-      .toEqual([{ title: "Edges", text: "{age} < 18 or {age} > 35", readOnly: true }, ["expression"], "{age} < 18 or {age} > 35"]);
+      .toEqual([{ title: "Edges Expression", text: "{age} < 18 or {age} > 35" }, [], "{age} < 18 or {age} > 35"]);
     chip(modal, "adults").action();
     expect([block(modal), shown(modal), modal.presetExpression], "#3: a preset that decomposes shows in the fields")
       .toEqual([undefined, ["f0", "f1", "f2"], ""]);
@@ -70,10 +71,24 @@ describe("FilterModal: the text of a preset that does not decompose", () => {
   test("single mode: the text over the fields; the first edit starts from nothing and takes it away", () => {
     const q = control({ allowMultipleItems: false, defaultItem: "edges" });
     const modal = q.createFilterModal();
-    expect([block(modal), shown(modal)], "#1").toEqual([{ title: "Edges", text: "{age} < 18 or {age} > 35", readOnly: true }, ["expression", "f0", "f1", "f2"]]);
+    expect([block(modal), shown(modal), editExpression(modal).visible], "#1")
+      .toEqual([{ title: "Edges Expression", text: "{age} < 18 or {age} > 35" }, ["f0", "f1", "f2"], false]);
     fieldQ(modal, "age").value = 30;
     expect([block(modal), shown(modal), modal.presetExpression], "#2").toEqual([undefined, ["f0", "f1", "f2"], ""]);
     expect(modal.state.conditions, "#3").toEqual([{ field: "age", operator: "equal", value: 30 }]);
+    modal.dispose();
+  });
+  test("Edit... where the preset may be changed; the block hides while Search in Filters looks", () => {
+    const q = control({ items: presets.concat([{ name: "fixed", title: "Fixed", expression: "{age} < 1 or {age} > 99", allowEdit: false, allowDelete: false }]) });
+    const modal = q.createFilterModal();
+    chip(modal, "edges").action();
+    const edit = editExpression(modal);
+    expect([edit.title, edit.visible], "#1").toEqual(["Edit...", true]);
+    modal.filterText = "age";
+    expect([modal.showExpression, shown(modal)], "#2").toEqual([false, []]);
+    modal.filterText = "";
+    chip(modal, "fixed").action();
+    expect([modal.showExpression, editExpression(modal).visible], "#3").toEqual([true, false]);
     modal.dispose();
   });
   test("disposed with the text shown, the editor's survey goes with no error", () => {
@@ -101,9 +116,32 @@ describe("FilterToolbars: Add Preset over the text of a preset", () => {
       q.toggleItem("edges");
       q.showAdvancedEditor();
       const modal: FilterModal = calls[0].options.data.holder.modal;
-      (<Action>modal.creationToolbar.getActionById("sv-filter-modal-add-preset")).action();
+      (<Action>modal.presetsToolbar.getActionById("sv-filter-modal-add-preset")).action();
       const add: FilterPresetDialog = calls[1].options.data.holder.presetDialog;
       expect([add.isTextMode, add.form.getValue("expression")], "#1").toEqual([true, "{age} < 18 or {age} > 35"]);
+      calls[1].cancel();
+      calls[0].cancel();
+    } finally {
+      settings.showDialog = saved;
+    }
+  });
+  test("Edit... opens the preset's editing over the Filters dialog", () => {
+    const saved = settings.showDialog;
+    const calls: Array<any> = [];
+    settings.showDialog = (o: any): any => {
+      const dialog: any = { options: o, footerToolbar: new ActionContainer(), model: { hide: () => o.onHide() } };
+      dialog.cancel = (): void => { o.onCancel(); o.onHide(); };
+      calls.push(dialog);
+      return dialog;
+    };
+    try {
+      const q = control();
+      q.toggleItem("edges");
+      q.showAdvancedEditor();
+      const modal: FilterModal = calls[0].options.data.holder.modal;
+      editExpression(modal).action();
+      const edit: any = calls[1].options.data.holder.presetDialog;
+      expect([edit.selectedName, edit.isTextMode], "#1").toEqual(["edges", true]);
       calls[1].cancel();
       calls[0].cancel();
     } finally {

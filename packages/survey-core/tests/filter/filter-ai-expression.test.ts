@@ -258,7 +258,7 @@ describe("FilterToolbars: Add New Preset with AI over the Filters dialog", () =>
       const { q, calls } = open();
       q.showAdvancedEditor();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
-      (<Action>modal.creationToolbar.getActionById("sv-filter-modal-add-preset")).action();
+      (<Action>modal.presetsToolbar.getActionById("sv-filter-modal-add-preset")).action();
       const add: FilterPresetDialog = dialogs.calls[1].options.data.holder.presetDialog;
       const apply: Action = dialogs.calls[1].footerToolbar.actions[1];
       add.aiPrompt.prompt = "kids";
@@ -267,7 +267,8 @@ describe("FilterToolbars: Add New Preset with AI over the Filters dialog", () =>
       dialogs.calls[1].cancel();
       expect(add.isDisposed, "#2").toBe(true);
       expect(() => calls[0].callback(answer("{age} < 10")), "#3").not.toThrow();
-      expect(modal.presetsToolbar.actions.map((a: Action): string => a.title), "#4").toEqual(["Adults"]);
+      expect(modal.presetsToolbar.actions.filter((a: Action): boolean => a.id.indexOf("sv-filter-modal-item-") === 0)
+        .map((a: Action): string => a.title), "#4").toEqual(["Adults"]);
       dialogs.calls[0].cancel();
     } finally {
       dialogs.restore();

@@ -102,13 +102,15 @@ class FilterEditorPage extends SurveyElementBase<{ editor: IFilterEditorSurvey, 
     const editor = this.props.editor;
     if (!editor || editor.isDisposed) return null;
     const survey = editor.survey;
-    return <div className={this.props.className} ref={this.rootRef}>
-      <SurveyPage survey={survey} page={survey.currentPage} css={survey.css} creator={this.getCreator(survey)} />
-    </div>;
+    // No page while every field is hidden - Search in Filters found none, or a preset's text stands in
+    // their place: a survey has no current page with nothing visible on it.
+    const page = !!survey.currentPage ? <SurveyPage survey={survey} page={survey.currentPage} css={survey.css} creator={this.getCreator(survey)} /> : null;
+    return <div className={this.props.className} ref={this.rootRef}>{page}</div>;
   }
 }
 
-// The Filters dialog's content: the search box, the presets and the fields; its footer is the
+// The Filters dialog's content: Search in Filters, the presets with Add New and Edit Selected, the text
+// of a preset that does not decompose with Edit..., "nothing found" and the fields; its footer is the
 // dialog's own. It watches the holder, so an emptied holder unmounts the content before survey-core
 // disposes the dialog's model: a holder never holds a disposed one.
 export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
@@ -120,37 +122,45 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
     const holder = this.props.holder;
     const modal = this.modal;
     if (!modal) return !!holder ? [holder] : [];
-    return [holder, modal, modal.creationToolbar, modal.presetsToolbar, modal.presetsTitleToolbar];
+    return [holder, modal, modal.presetsToolbar, modal.expressionToolbar];
   }
-  private renderSearch(modal: FilterModal): React.JSX.Element | null {
-    if (!modal.showSearch) return null;
+  private renderSearch(modal: FilterModal): React.JSX.Element {
     const css = modal.cssClasses;
     const searchCss = modal.searchCss;
     return <div className={css.modalSection}>
       <div className={searchCss.root}>
         <SvgIcon className={css.searchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
-        <input type="text" className={searchCss.control} value={modal.searchString} placeholder={modal.searchPlaceholder}
-          aria-label={filterUIStrings.searchLabel} disabled={modal.isSearchDisabled}
-          onChange={(e) => { modal.searchString = e.target.value; }} />
+        <input type="text" className={searchCss.control} value={modal.filterText} placeholder={modal.searchPlaceholder}
+          aria-label={modal.searchPlaceholder} onChange={(e) => { modal.filterText = e.target.value; }} />
+        {modal.showSearchClear ? <SurveyActionBarItem item={modal.searchClearAction} /> : null}
       </div>
     </div>;
   }
-  // Add Preset, under the search box.
-  private renderCreation(modal: FilterModal): React.JSX.Element | null {
-    if (!modal.creationToolbar.hasVisibleActions) return null;
-    return <div className={modal.cssClasses.modalSection}>
-      <SurveyActionBar model={modal.creationToolbar} />
-    </div>;
-  }
   private renderPresets(modal: FilterModal): React.JSX.Element | null {
-    if (!modal.presetsToolbar.hasActions) return null;
+    if (!modal.presetsToolbar.hasVisibleActions) return null;
     const css = modal.cssClasses;
     return <div className={css.modalSection} role="group" aria-labelledby={modal.presetsTitleId}>
       <div className={css.modalSectionHeader}>
         <div className={css.modalSectionTitle} id={modal.presetsTitleId}>{filterUIStrings.presetsTitle}</div>
-        <SurveyActionBar model={modal.presetsTitleToolbar} />
       </div>
       <SurveyActionBar model={modal.presetsToolbar} />
+    </div>;
+  }
+  private renderExpression(modal: FilterModal): React.JSX.Element | null {
+    if (!modal.showExpression) return null;
+    const css = modal.cssClasses;
+    return <div className={css.modalSection + " " + css.modalExpression}>
+      <div className={css.modalSectionTitle}>{modal.expressionTitle}</div>
+      <div className={css.modalExpressionText}>{modal.presetExpression}</div>
+      <SurveyActionBar model={modal.expressionToolbar} />
+    </div>;
+  }
+  private renderNothingFound(modal: FilterModal): React.JSX.Element | null {
+    if (!modal.isNothingFound) return null;
+    const css = modal.cssClasses;
+    return <div className={css.modalNothingFound}>
+      <SvgIcon className={css.modalNothingFoundIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
+      <div>{modal.nothingFoundText}</div>
     </div>;
   }
   protected renderElement(): React.JSX.Element | null {
@@ -159,8 +169,9 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
     const css = modal.cssClasses;
     return <div className={css.modalContent}>
       {this.renderSearch(modal)}
-      {this.renderCreation(modal)}
       {this.renderPresets(modal)}
+      {this.renderExpression(modal)}
+      {this.renderNothingFound(modal)}
       <FilterEditorPage editor={modal.editor} className={modal.editorCss} />
     </div>;
   }

@@ -24,8 +24,8 @@ function iconsOf(q: QuestionFilterModel): { [id: string]: string } {
   add(preset);
   add(preset.clearAction);
   const modal = q.createFilterModal();
-  add(modal.creationToolbar.getActionById("sv-filter-modal-add-preset"));
-  add(modal.presetsTitleToolbar.getActionById("sv-filter-modal-edit-presets"));
+  add(modal.presetsToolbar.getActionById("sv-filter-modal-add-preset"));
+  add(modal.presetsToolbar.getActionById("sv-filter-modal-edit-preset"));
   const edit = q.createEditPresetsDialog("adults");
   add(edit.actionsToolbar.getActionById("sv-filter-preset-delete"));
   add(edit.actionsToolbar.getActionById("sv-filter-preset-reset"));
@@ -45,7 +45,7 @@ describe("Filter: the icons of its buttons", () => {
       "sv-filter-preset": "icon-star-16x16",
       "sv-filter-preset-clear": "icon-close-16x16",
       "sv-filter-modal-add-preset": "icon-plus-24x24",
-      "sv-filter-modal-edit-presets": "icon-edit-16x16",
+      "sv-filter-modal-edit-preset": "icon-edit-24x24",
       "sv-filter-preset-delete": "icon-delete-24x24",
       "sv-filter-preset-reset": "icon-reset-24x24",
       "sv-filter-preset-add-field": "icon-plus-24x24"
@@ -61,11 +61,13 @@ describe("Filter: the icons of its buttons", () => {
       expect(new RegExp(`width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"`).test(svg), name).toBe(true);
     });
   });
-  test("the pencil of the presets is an x-small muted action, as the mockup's title actions", () => {
+  test("Add New and Edit Selected are small secondary actions, as the presets' pills: 24px icons", () => {
     const modal = control().createFilterModal();
-    const pencil = modal.presetsTitleToolbar.getActionById("sv-filter-modal-edit-presets");
-    expect(Object.assign({}, pencil.predefinedAppearance, pencil.appearance))
-      .toEqual({ style: "neutral", mode: "tertiary-muted", size: "x-small" });
+    ["sv-filter-modal-add-preset", "sv-filter-modal-edit-preset"].forEach((id: string): void => {
+      const action = modal.presetsToolbar.getActionById(id);
+      expect(Object.assign({}, action.predefinedAppearance, action.appearance), id)
+        .toEqual({ style: "neutral", mode: "secondary", size: "small" });
+    });
     modal.dispose();
   });
 });

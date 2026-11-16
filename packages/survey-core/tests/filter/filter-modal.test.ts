@@ -50,10 +50,10 @@ describe("FilterModal: the buffer", () => {
     const events = trackEvents(q);
     const modal = q.createFilterModal();
     operatorQ(modal, "age").value = "less";
-    modal.searchString = "an";
+    modal.filterText = "age";
     expect([q.activeItemName, q.searchString, events.filter], "#1").toEqual(["adults", "", 0]);
     modal.apply();
-    expect([q.activeItemName, q.searchString], "#2").toEqual(["", "an"]);
+    expect([q.activeItemName, q.searchString], "#2: Search in Filters is no search of the records").toEqual(["", ""]);
     expect(q.ownConditions, "#3").toEqual([{ field: "age", operator: "less", value: 18 }, { field: "country", operator: "equal", value: "de" }]);
     expect(events, "#4").toEqual({ filter: 1, uiState: 1 });
     modal.dispose();
@@ -121,7 +121,7 @@ describe("FilterModal: the buffer", () => {
   test("single mode: no presets to pick; the fields go over its preset", () => {
     const q = control({ allowMultipleItems: false, defaultItem: "adults" });
     const modal = q.createFilterModal();
-    expect(modal.presetsToolbar.actions.length, "#1").toBe(0);
+    expect(modal.presetsToolbar.actions.filter((a: Action): boolean => a.isVisible).length, "#1: no pill, no Add New, no Edit Selected").toBe(0);
     fieldQ(modal, "age").value = 30;
     modal.apply();
     expect([q.activeItem.name, q.isActiveItemModified], "#2").toEqual(["adults", true]);
@@ -164,7 +164,7 @@ describe("FilterModal: Show N items", () => {
     const answers: Array<(n: number) => void> = [];
     vi.spyOn(q, "countFilterResults").mockImplementation((): Promise<number> => new Promise((resolve) => { answers.push(resolve); }));
     const modal = q.createFilterModal();
-    modal.searchString = "an";
+    modal.clearAll();
     await vi.advanceTimersByTimeAsync(filterModalCountDelay);
     answers[1](5);
     answers[0](9);

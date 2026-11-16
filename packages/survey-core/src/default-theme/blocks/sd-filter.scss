@@ -454,8 +454,61 @@
 }
 
 .sd-filter-modal__section .sd-action-bar {
-  --sd-action-bar-gap: var(--sjs2-spacing-x100);
+  --sd-action-bar-gap: var(--sjs2-spacing-x150);
   flex-wrap: wrap;
+}
+
+// A preset's pill in the Filters dialog: round, dark while it is on (its active appearance). Add New
+// and Edit Selected next to the pills keep the action's own corners.
+.sd-action.sd-filter-modal__preset {
+  --sd-action-border-radius: var(--sjs2-radius-round);
+}
+
+// The text of a preset that does not decompose: its title, then the text with Edit... at its right.
+.sd-filter-modal__expression {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--sjs2-spacing-x200);
+  row-gap: var(--sjs2-spacing-x100);
+
+  .sd-filter-modal__section-title {
+    grid-column: 1 / -1;
+  }
+
+  .sd-action-bar {
+    align-self: start;
+  }
+}
+
+.sd-filter-modal__expression-text {
+  @include sjs2--typography--default;
+  color: var(--sjs2-color-fg-basic-secondary);
+  overflow-wrap: anywhere;
+}
+
+// "Nothing found": the search icon in a round tinted badge over the message, in the dialog's middle.
+.sd-filter-modal__nothing-found {
+  @include sjs2--typography--small;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sjs2-spacing-x200);
+  padding-block: var(--sjs2-spacing-x300);
+  color: var(--sjs2-color-fg-basic-secondary);
+  text-align: center;
+}
+
+.sd-filter-modal__nothing-found-icon {
+  box-sizing: content-box;
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
+  padding: var(--sjs2-spacing-x100);
+  border-radius: var(--sjs2-radius-round);
+  background: var(--sjs2-color-bg-brand-secondary);
+
+  use {
+    fill: var(--sjs2-color-fg-brand-primary);
+  }
 }
 
 .sd-filter-modal__section-title {
@@ -463,7 +516,7 @@
   color: var(--sjs2-color-fg-basic-primary);
 }
 
-// The presets' title with the pencil that opens Edit Presets at its right end.
+// A section's title row.
 .sd-filter-modal__section-header {
   display: flex;
   align-items: center;

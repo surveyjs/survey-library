@@ -3,8 +3,9 @@ import { Base, FilterModal, filterModalComponentName, filterUIStrings } from "su
 import { FilterHolderComponent } from "./filter-holder.component";
 import { AngularComponentFactory } from "../../component-factory";
 
-// The Filters dialog's content: the search box, Add Preset, the presets and the fields; its footer is
-// the dialog's own.
+// The Filters dialog's content: Search in Filters, the presets with Add New and Edit Selected, the text
+// of a preset that does not decompose with Edit..., "nothing found" and the fields; its footer is the
+// dialog's own.
 @Component({
   selector: "sv-ng-filter-modal",
   templateUrl: "./filter-modal.component.html",
@@ -18,16 +19,13 @@ export class FilterModalComponent extends FilterHolderComponent {
   }
   protected getWatchedModels(): Array<Base | undefined> {
     const modal = this.modal;
-    return !!modal ? [modal, modal.creationToolbar, modal.presetsToolbar, modal.presetsTitleToolbar] : [];
-  }
-  public get searchLabel(): string {
-    return filterUIStrings.searchLabel;
+    return !!modal ? [modal, modal.presetsToolbar, modal.expressionToolbar] : [];
   }
   public get presetsTitle(): string {
     return filterUIStrings.presetsTitle;
   }
   public onSearchInput(event: any): void {
-    this.modal.searchString = event.target.value;
+    this.modal.filterText = event.target.value;
   }
 }
 

@@ -61,7 +61,7 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
     expect([action(q.clearToolbar, "sv-filter-save").visible, action(q.clearToolbar, "sv-filter-clear").visible], "#2")
       .toEqual([false, false]);
   });
-  test("an editor and the Filters dialog opened from code are read-only, so is the dialog's search", () => {
+  test("an editor and the Filters dialog opened from code are read-only", () => {
     const dialogs = stubDialogs();
     try {
       const q = createFilter({ readOnly: true, showSearch: true });
@@ -69,7 +69,7 @@ describe("QuestionFilterModel: read-only (FR08)", () => {
       expect(q.createAdvancedModeEditor().isReadOnly, "#2").toBe(true);
       q.showAdvancedEditor();
       const modal: FilterModal = dialogs.calls[0].options.data.holder.modal;
-      expect([modal.isReadOnly, modal.isSearchDisabled], "#3").toEqual([true, true]);
+      expect([modal.isReadOnly, modal.presetsToolbar.actions.some((a: any): boolean => a.isVisible && a.enabled)], "#3").toEqual([true, false]);
       expect(dialogs.calls[0].footerToolbar.actions.length, "#4: nothing to apply").toBe(0);
     } finally {
       dialogs.restore();

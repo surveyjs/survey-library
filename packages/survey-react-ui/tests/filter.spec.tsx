@@ -93,7 +93,7 @@ describe("SurveyQuestionFilter", () => {
     container.remove();
     survey.dispose();
   });
-  it("typing in the Filters dialog's search box sets the dialog's search string", () => {
+  it("Search in Filters looks among the filters, not the records; nothing found says so; its cross clears it", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const holder = new FilterEditorHolder();
@@ -106,13 +106,16 @@ describe("SurveyQuestionFilter", () => {
       ReactDOM.render(React.createElement(SurveyFilterModal, { holder: holder }), container);
     });
     const input = container.querySelector(".sd-filter-modal__section input") as HTMLInputElement;
+    expect(input.getAttribute("placeholder"), "#0").toBe("Search in Filters");
     act(() => {
-      input.value = "ab";
+      input.value = "zzz";
       Simulate.change(input);
     });
-    expect(holder.modal.searchString, "#1").toBe("ab");
-    expect(q.searchString, "#2: the question's search string waits for Apply").toBe("");
-    expect((container.querySelector(".sd-filter-modal__section input") as HTMLInputElement).value, "#3").toBe("ab");
+    expect([holder.modal.filterText, holder.modal.searchString, q.searchString], "#1: not the records' search").toEqual(["zzz", "", ""]);
+    expect((container.querySelector(".sd-filter-modal__section input") as HTMLInputElement).value, "#2").toBe("zzz");
+    expect(container.querySelector(".sd-filter-modal__nothing-found").textContent, "#3").toBe("Nothing found, try different keywords");
+    act(() => { (container.querySelector(".sd-filter-modal__section .sd-filter__search-clear") as HTMLButtonElement).click(); });
+    expect([holder.modal.filterText, !!container.querySelector(".sd-filter-modal__nothing-found")], "#4: the cross").toEqual(["", false]);
     const modal = holder.modal;
     act(() => { holder.modal = undefined; });
     modal.dispose();
@@ -120,9 +123,10 @@ describe("SurveyQuestionFilter", () => {
     ReactDOM.unmountComponentAtNode(container);
     container.remove();
   });
-  it("the Filters dialog shows the search box, the presets and the fields", () => {
+  it("the Filters dialog shows the search box, the presets with Add New and Edit Selected, a preset's text and the fields", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true,
-      fields: [{ name: "age" }], items: [{ name: "p", title: "Adults", expression: "{age} > 18" }] }] });
+      fields: [{ name: "age", title: "Age" }],
+      items: [{ name: "p", title: "Adults", expression: "{age} > 18" }, { name: "raw", title: "Edges", expression: "{age} < 1 or {age} > 99" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const holder = new FilterEditorHolder();
     holder.cssClasses = q.cssClasses;
@@ -133,14 +137,19 @@ describe("SurveyQuestionFilter", () => {
       // eslint-disable-next-line react/no-deprecated
       ReactDOM.render(React.createElement(SurveyFilterModal, { holder: holder }), container);
     });
-    expect(container.querySelector(".sd-filter-modal__section-title").textContent, "#1").toBe("Filter Presets");
+    expect(container.querySelector(".sd-filter-modal__section-title").textContent, "#1").toBe("Presets");
     expect(container.textContent, "#2").toContain("Adults");
     expect(!!container.querySelector(".sd-filter-modal__section input"), "#3: the search box").toBe(true);
     expect(!!container.querySelector(".sd-filter-modal__editor"), "#4: the fields").toBe(true);
-    expect(container.textContent, "#4a: Add Preset").toContain("Add Preset");
-    expect(!!container.querySelector(".sd-filter-modal__section-header [title='Edit Presets']"), "#4b: the pencil").toBe(true);
+    expect([container.textContent.indexOf("Add New...") > -1, container.textContent.indexOf("Edit Selected...") > -1], "#4a").toEqual([true, false]);
     const section = container.querySelector(".sd-filter-modal__section[role='group']");
-    expect(!!section && section.querySelector("#" + section.getAttribute("aria-labelledby")).textContent, "#4c: the section is named by its title").toBe("Filter Presets");
+    expect(!!section && section.querySelector("#" + section.getAttribute("aria-labelledby")).textContent, "#4b: the section is named by its title").toBe("Presets");
+    // A drawn action bar shows a change of its actions' visibility in a microtask (initResponsivityManager).
+    await act(async () => { holder.modal.togglePreset(q.getItemByName("raw")); });
+    const expression = container.querySelector(".sd-filter-modal__expression");
+    expect([container.textContent.indexOf("Edit Selected...") > -1, !!container.querySelector(".sd-filter-modal__preset.sd-action--active")], "#4c").toEqual([true, true]);
+    expect([expression.querySelector(".sd-filter-modal__section-title").textContent, expression.querySelector(".sd-filter-modal__expression-text").textContent,
+      expression.querySelector("button").textContent], "#4d: the text").toEqual(["Edges Expression", "{age} < 1 or {age} > 99", "Edit..."]);
     const modal = holder.modal;
     act(() => { holder.modal = undefined; });
     modal.dispose();

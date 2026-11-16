@@ -1,5 +1,5 @@
 <ng-template #template>
   <div *ngFor="let s of surveys; trackBy: trackBySurvey" [class]="className" #root>
-    <sv-ng-page [model]="s.currentPage" [survey]="s"></sv-ng-page>
+    <sv-ng-page *ngIf="!!s.currentPage" [model]="s.currentPage" [survey]="s"></sv-ng-page>
   </div>
 </ng-template>

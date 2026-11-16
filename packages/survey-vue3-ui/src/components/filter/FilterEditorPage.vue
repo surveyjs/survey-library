@@ -1,6 +1,6 @@
 <template>
   <div v-if="!disposed" :class="className" ref="root">
-    <SvComponent :is="'sv-page'" :survey="survey" :page="survey.currentPage" :css="survey.css"></SvComponent>
+    <SvComponent v-if="!!survey.currentPage" :is="'sv-page'" :survey="survey" :page="survey.currentPage" :css="survey.css"></SvComponent>
   </div>
 </template>
 <script lang="ts" setup>

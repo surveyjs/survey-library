@@ -396,7 +396,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (conditions === null || original.conditions === null) return conditions === original.conditions;
     return this.isSameConditionSet(normalizeFilterConditions(conditions, this.getFilterFields()), original.conditions);
   }
-  // A preset of the respondent's own (the Filters dialog's Add Preset): what it filters by and a
+  // A preset of the respondent's own (the Filters dialog's Add New, "Save as..."): what it filters by and a
   // title. It goes after every other preset and is not turned on. What it filters by is conditions,
   // normalized as an edit is, or a text (options.expression) - one that decomposes is normalized and
   // composed the same way, any other is kept as typed. Nothing is added where presets cannot be
@@ -682,7 +682,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // The fields of the Filters dialog: every field, as in advanced mode, each in the form of its kind
   // (checkboxes, a tagbox, Yes and No, an operator and a value), with no search box of its own - the
-  // dialog has one above its presets. It writes nothing: the dialog reads its conditions
+  // dialog's "Search in Filters" looks among them (setFilterText). It writes nothing: the dialog reads its conditions
   // (FilterModal) and is told of every change through onFieldChanged.
   public createModalEditor(onFieldChanged: () => void): FilterConditionsEditor {
     return new FilterConditionsEditor(this, this.getAllFieldKeys(), {
@@ -936,8 +936,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   public get searchClearAction(): Action { return this.toolbars.searchClearAction; }
   public get showSearchClear(): boolean { return !!this.searchString && !this.isSearchDisabled; }
   // The quick search box is off in the designer and while the control is read-only. The Filters
-  // dialog's box has its own rule (FilterModal.isSearchDisabled): off whenever its conditions can't be
-  // edited.
+  // dialog's box searches among the filters (FilterModal.filterText) and is never off: it changes
+  // nothing.
   public get isSearchDisabled(): boolean { return this.isDesignMode || this.isControlReadOnly; }
   // The element the chips layout is attached to: expanded by Show More. A disposed control has
   // released its layout, and asking for it would build a new one.

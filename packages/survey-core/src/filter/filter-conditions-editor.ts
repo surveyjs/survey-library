@@ -2,7 +2,7 @@ import { SurveyModel } from "../survey";
 import { PanelModel, PanelModelBase } from "../panel";
 import { Question } from "../question";
 import { Serializer } from "../jsonobject";
-import { Helpers } from "../helpers";
+import { Helpers, normalizeTextForSearch } from "../helpers";
 import { ItemValue } from "../itemvalue";
 import { Action } from "../actions/action";
 import { IDynamicDataFilterField, getFilterFieldTitle } from "../dynamic-data/dynamic-data-filter-fields";
@@ -140,6 +140,12 @@ export class FilterConditionsEditor {
   // Per field: "Show More" was clicked, and its own action that says so.
   private expanded: Array<boolean> = [];
   private moreActions: Array<Action> = [];
+  // The Filters dialog's "Search in Filters" (setFilterText), normalized; "" shows every field.
+  private filterText: string = "";
+  // Whether the fields are shown at all (setFieldsVisible): a field shows when this and the search let it.
+  private isFieldsVisible: boolean = true;
+  // Per field: the values of its checkbox list the search left, undefined while it shows them all.
+  private foundChoices: Array<Array<ItemValue>> = [];
 
   constructor(private owner: IFilterConditionsEditorOwner, names: Array<string>, private options: IFilterConditionsEditorOptions = {}) {
     this.names = (names || []).filter((name: string): boolean => !!owner.getFieldByName(name));
@@ -189,9 +195,23 @@ export class FilterConditionsEditor {
   // does not decompose. Their questions keep their values either way.
   public setFieldsVisible(visible: boolean): void {
     if (this.isDisposedValue) return;
-    this.names.forEach((_: string, index: number): void => {
+    this.isFieldsVisible = visible;
+    this.names.forEach((_: string, index: number): void => { this.applyFilterText(index); });
+  }
+  // The Filters dialog's "Search in Filters": a field whose title has the text shows as it is; one
+  // with values that have it shows them - only those, with no Select All and no Show More, for a list
+  // of checkboxes; a tagbox or a dropdown as it is - and any other is hidden. "" shows every field.
+  // What it hides keeps its value. Kept over setConditions(): a field built anew is searched too.
+  public setFilterText(text: string): void {
+    if (this.isDisposedValue) return;
+    this.filterText = normalizeTextForSearch((text || "").trim());
+    this.names.forEach((_: string, index: number): void => { this.applyFilterText(index); });
+  }
+  // Whether any field is shown - with the search, with setFieldsVisible.
+  public get hasVisibleFields(): boolean {
+    return this.names.some((_: string, index: number): boolean => {
       const panel = this.getPanel(index);
-      if (!!panel) panel.visible = visible;
+      return !!panel && panel.visible;
     });
   }
   // The fields show these conditions - a preset turned on in the Filters dialog, or everything
@@ -329,6 +349,37 @@ export class FilterConditionsEditor {
       panel.releaseAnimations();
     }
     this.updateMoreAction(index);
+    this.applyFilterText(index);
+  }
+  private applyFilterText(index: number): void {
+    const panel = this.getPanel(index);
+    if (!panel) return;
+    const text = this.filterText;
+    let isFound = true;
+    let found: Array<ItemValue> = undefined;
+    if (!!text && !this.hasText(getFilterFieldTitle(this.owner.getFieldByName(this.names[index])), text)) {
+      const question: any = this.getValueQuestion(index);
+      const choices: Array<ItemValue> = !!this.listKinds[index] && !!question ? question.choices : [];
+      const matched = choices.filter((item: ItemValue): boolean => this.hasText(item.text, text));
+      isFound = matched.length > 0;
+      if (isFound && this.isFoldable(index)) {
+        found = matched;
+      }
+    }
+    this.foundChoices[index] = found;
+    panel.visible = this.isFieldsVisible && isFound;
+    this.updateMoreAction(index);
+    if (this.isFoldable(index)) {
+      this.updateFold(index);
+    }
+  }
+  private hasText(value: string, text: string): boolean {
+    return normalizeTextForSearch(value || "").indexOf(text) > -1;
+  }
+  // A list of checkboxes with Select All: the one list whose rendered rows are folded and searched.
+  private isFoldable(index: number): boolean {
+    const question = this.getValueQuestion(index);
+    return this.listKinds[index] === "multi" && !!question && question.getType() === "checkbox";
   }
   // The kind of list question the field edits with, or undefined for an operator and a value: when
   // the editor does not use the field kinds, for a "condition" field, and for a condition the kind's
@@ -403,6 +454,8 @@ export class FilterConditionsEditor {
   // until "Show More". Only what is rendered is folded - visibleChoices keep every value, so Select All
   // checks them all and the condition keeps the list's order.
   private foldChoices(index: number, question: Question, visible: Array<ItemValue>): Array<ItemValue> {
+    const found = this.foundChoices[index];
+    if (!!found) return visible.filter((item: ItemValue): boolean => found.indexOf(item) > -1);
     if (this.expanded[index] || !this.canShowMore(index, question)) return visible;
     const choices: Array<ItemValue> = (<any>question).choices;
     return visible.filter((item: ItemValue): boolean => choices.indexOf(item) < filterEditorVisibleChoiceCount);
@@ -415,7 +468,7 @@ export class FilterConditionsEditor {
   // of the field's panel footer, made once and shown while the field edits with such a list.
   private canShowMore(index: number, question: any): boolean {
     return this.listKinds[index] === "multi" && !!question && question.getType() === "checkbox" &&
-      question.choices.length > filterEditorVisibleChoiceCount;
+      question.choices.length > filterEditorVisibleChoiceCount && !this.foundChoices[index];
   }
   private updateMoreAction(index: number): void {
     if (!this.options.useFieldKinds) return;

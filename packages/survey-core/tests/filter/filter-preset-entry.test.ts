@@ -8,7 +8,7 @@ import { Action } from "../../src/actions/action";
 import { ActionContainer } from "../../src/actions/container";
 import { settings } from "../../src/settings";
 
-// Add Preset and the pencil of the Filters dialog, and the dialogs they open over it.
+// Add New and Edit Selected of the Filters dialog's presets, and the dialogs they open over it.
 const presets = [
   { name: "adults", title: "Adults", expression: "{age} > 18" },
   { name: "germans", expression: "{country} = 'de'" },
@@ -17,13 +17,15 @@ function control(over: any = {}): QuestionFilterModel {
   return createFilter(Object.assign({ items: presets }, over));
 }
 function addPreset(modal: FilterModal): Action {
-  return <Action>modal.creationToolbar.getActionById("sv-filter-modal-add-preset");
+  return <Action>modal.presetsToolbar.getActionById("sv-filter-modal-add-preset");
 }
 function editPresets(modal: FilterModal): Action {
-  return <Action>modal.presetsTitleToolbar.getActionById("sv-filter-modal-edit-presets");
+  return <Action>modal.presetsToolbar.getActionById("sv-filter-modal-edit-preset");
 }
+// The presets' pills, the one on marked with *.
 function chips(modal: FilterModal): Array<string> {
-  return modal.presetsToolbar.actions.map((a: Action): string => a.title + (a.active ? "*" : ""));
+  return modal.presetsToolbar.actions.filter((a: Action): boolean => a.id.indexOf("sv-filter-modal-item-") === 0)
+    .map((a: Action): string => a.title + (a.active ? "*" : ""));
 }
 // A stand-in for the dialog host, as in filter-toolbars.test.ts: the options it was given, its footer,
 // and its apply and cancel, which hide the dialog the way PopupModalViewModel does.
@@ -41,18 +43,36 @@ function stubDialogs(): { calls: Array<any>, restore: () => void } {
 }
 const ids = (c: ActionContainer): Array<string> => c.actions.map((a: Action): string => a.id);
 
-describe("FilterModal: Add Preset and the pencil", () => {
-  test("both are there with several presets; Add Preset where presets may be added, the pencil while one may be changed", () => {
-    const modal = control().createFilterModal();
-    expect([addPreset(modal).title, addPreset(modal).visible, editPresets(modal).visible, editPresets(modal).tooltip], "#1")
-      .toEqual(["Add Preset", true, true, "Edit Presets"]);
+describe("FilterModal: Add New and Edit Selected", () => {
+  test("after the presets' pills: Add New where presets may be added, Edit Selected while the preset picked may be changed", () => {
+    const q = control();
+    const modal = q.createFilterModal();
+    expect(ids(modal.presetsToolbar), "#1").toEqual(["sv-filter-modal-item-adults", "sv-filter-modal-item-germans", "sv-filter-modal-item-edges",
+      "sv-filter-modal-add-preset", "sv-filter-modal-edit-preset"]);
+    expect([addPreset(modal).title, addPreset(modal).iconName, addPreset(modal).visible], "#2").toEqual(["Add New...", "icon-plus-24x24", true]);
+    expect([editPresets(modal).title, editPresets(modal).iconName, editPresets(modal).visible], "#3").toEqual(["Edit Selected...", "icon-edit-24x24", false]);
+    modal.togglePreset(q.getItemByName("adults"));
+    expect(editPresets(modal).visible, "#4: a preset picked").toBe(true);
+    modal.togglePreset(q.getItemByName("adults"));
+    expect(editPresets(modal).visible, "#5").toBe(false);
     modal.dispose();
     const noAdd = control({ allowAddItems: false }).createFilterModal();
-    expect([addPreset(noAdd).visible, editPresets(noAdd).visible], "#2").toEqual([false, true]);
+    expect(addPreset(noAdd).visible, "#6").toBe(false);
     noAdd.dispose();
-    const fixed = control({ items: [{ name: "a", expression: "{age} > 1", allowEdit: false, allowDelete: false }] }).createFilterModal();
-    expect([addPreset(fixed).visible, editPresets(fixed).visible], "#3").toEqual([true, false]);
+    const fixedControl = control({ items: [{ name: "a", expression: "{age} > 1", allowEdit: false, allowDelete: false }] });
+    const fixed = fixedControl.createFilterModal();
+    fixed.togglePreset(fixedControl.getItemByName("a"));
+    expect([addPreset(fixed).visible, editPresets(fixed).visible], "#7").toEqual([true, false]);
     fixed.dispose();
+  });
+  test("the pills are round, the one picked dark; Add New and Edit Selected are the small actions they stand with", () => {
+    const q = control();
+    const modal = q.createFilterModal();
+    modal.togglePreset(q.getItemByName("adults"));
+    const adults = modal.presetsToolbar.getActionById("sv-filter-modal-item-adults");
+    expect(adults.getActionBarItemCss().split(" "), "#1").toEqual(expect.arrayContaining(["sd-action--neutral", "sd-action--primary", "sd-action--small", "sd-filter-modal__preset"]));
+    expect(addPreset(modal).getActionBarItemCss().split(" ").indexOf("sd-filter-modal__preset"), "#2").toBe(-1);
+    modal.dispose();
   });
   test("neither in single mode, nor in the designer", () => {
     const single = control({ allowMultipleItems: false }).createFilterModal();
@@ -60,7 +80,7 @@ describe("FilterModal: Add Preset and the pencil", () => {
     single.dispose();
     const survey = new SurveyModel();
     survey.setDesignMode(true);
-    survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }], items: presets }] });
+    survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }], items: presets, defaultItem: "adults" }] });
     const designer = (<QuestionFilterModel>survey.getQuestionByName("f1")).createFilterModal();
     expect([addPreset(designer).visible, editPresets(designer).visible], "#2").toEqual([false, false]);
     designer.dispose();
@@ -81,7 +101,7 @@ describe("FilterModal: Add Preset and the pencil", () => {
 });
 
 describe("FilterToolbars: the preset dialogs", () => {
-  test("Add Preset opens Add New Preset over the Filters dialog, with the buffer's conditions; one at a time", () => {
+  test("Add New opens Add New Preset over the Filters dialog, with the buffer's conditions; one at a time", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
@@ -96,6 +116,8 @@ describe("FilterToolbars: the preset dialogs", () => {
       expect([dialog instanceof FilterEditPresetsDialog, dialog.editor.getConditions()], "#2")
         .toEqual([false, [{ field: "age", operator: "greater", value: 18 }]]);
       expect(ids(dialogs.calls[1].footerToolbar), "#3").toEqual(["sv-filter-preset-cancel", "sv-filter-preset-apply"]);
+      modal.togglePreset(q.getItemByName("adults"));
+      modal.togglePreset(q.getItemByName("adults"));
       editPresets(modal).action();
       expect(dialogs.calls.length, "#4").toBe(2);
     } finally {
@@ -142,7 +164,7 @@ describe("FilterToolbars: the preset dialogs", () => {
       dialogs.restore();
     }
   });
-  test("Edit Presets opens on the buffer's preset; the buffer shows what Apply made of it", () => {
+  test("Edit Selected opens on the buffer's preset; the buffer shows what Apply made of it", () => {
     const dialogs = stubDialogs();
     try {
       const q = control();
@@ -171,6 +193,7 @@ describe("FilterToolbars: the preset dialogs", () => {
     try {
       const q = control();
       const modal = q.createFilterModal();
+      modal.togglePreset(q.getItemByName("adults"));
       editPresets(modal).action();
       const dialog = dialogs.calls[0];
       const model = dialog.options.data.holder.presetDialog;
@@ -195,6 +218,7 @@ describe("FilterToolbars: Edit Presets while Make Changes waits for the model", 
       const calls: Array<any> = [];
       (<SurveyModel>q.survey).onAIFilterRequest.add((_: SurveyModel, options: any): void => { calls.push(options); });
       const modal = q.createFilterModal();
+      modal.togglePreset(q.getItemByName("a1"));
       editPresets(modal).action();
       const edit: FilterEditPresetsDialog = dialogs.calls[0].options.data.holder.presetDialog;
       const apply: Action = dialogs.calls[0].footerToolbar.actions[1];

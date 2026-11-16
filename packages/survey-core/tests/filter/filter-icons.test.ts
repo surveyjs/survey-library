@@ -20,6 +20,7 @@ function iconsOf(q: QuestionFilterModel): { [id: string]: string } {
   q.toggleItem("adults");
   const res: { [id: string]: string } = {};
   const add = (a: Action): void => { res[a.id] = a.iconName; };
+  add(q.chipsToolbar.getActionById("sv-filter-filters"));
   add(q.clearToolbar.getActionById("sv-filter-clear"));
   const preset = <FilterChip>q.chipsToolbar.getActionById("sv-filter-preset");
   add(preset);
@@ -48,6 +49,7 @@ function iconsOf(q: QuestionFilterModel): { [id: string]: string } {
 describe("Filter: the icons of its buttons", () => {
   test("every button shows an icon drawn for its size: 16px in the chips row and the pencil, 24px elsewhere", () => {
     expect(iconsOf(control())).toEqual({
+      "sv-filter-filters": "icon-filter-16x16",
       "sv-filter-clear": "icon-close-16x16",
       "sv-filter-preset": "icon-star-16x16",
       "sv-filter-preset-clear": "icon-close-16x16",
@@ -65,6 +67,18 @@ describe("Filter: the icons of its buttons", () => {
       const svg = fs.readFileSync(file, "utf8");
       expect(new RegExp(`width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"`).test(svg), name).toBe(true);
     });
+  });
+  // The set draws this icon as three sliders at 24px and as two at 16px: the mockup's Filters chip
+  // shows the two.
+  test("Filters shows the 24px icon next to the search box and the 16px one in the chips row", () => {
+    const q = createFilter({ items: presets, showSearch: true });
+    const filters = q.searchToolbar.getActionById("sv-filter-filters");
+    expect(filters.iconName, "#1").toBe("icon-filter-24x24");
+    q.showSearch = false;
+    expect(q.chipsToolbar.getActionById("sv-filter-filters"), "#2: the same button").toBe(filters);
+    expect(filters.iconName, "#3").toBe("icon-filter-16x16");
+    q.showSearch = true;
+    expect(filters.iconName, "#4").toBe("icon-filter-24x24");
   });
   test("Add New and Edit Selected are small secondary actions, as the presets' pills: 24px icons", () => {
     const modal = control().createFilterModal();

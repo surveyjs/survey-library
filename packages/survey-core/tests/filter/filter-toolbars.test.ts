@@ -322,7 +322,7 @@ describe("FilterToolbars: Filters, Clear All and Save", () => {
   test("Filters counts the conditions the filter is made of", () => {
     const q = createFilter({ items: [{ name: "two", expression: "{age} > 18 and {country} = 'de'" }] });
     const filters = action(q.chipsToolbar, "sv-filter-filters");
-    expect([filters.title, filters.iconName], "#1").toEqual(["Filters", "icon-filter-24x24"]);
+    expect([filters.title, filters.iconName], "#1").toEqual(["Filters", "icon-filter-16x16"]);
     q.toggleItem("two");
     expect(filters.title, "#2").toBe("Filters: 2");
     q.clearActiveItem();

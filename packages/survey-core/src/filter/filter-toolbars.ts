@@ -591,7 +591,7 @@ export class FilterToolbars {
       // In the designer the button is a picture of itself and reports the click, so the designer can
       // select the control: an action stops the click event, the designer would never see it.
       // showAdvancedEditor() itself still opens the dialog read-only there.
-      this.filtersAction = new Action({ id: "sv-filter-filters", iconName: "icon-filter-24x24", iconSize: "auto",
+      this.filtersAction = new Action({ id: "sv-filter-filters", iconSize: "auto",
         action: (): void => {
           if (this.owner.isDesignMode) {
             this.owner.onDesignItemClick();
@@ -607,6 +607,9 @@ export class FilterToolbars {
   private updateFiltersAction(): void {
     const action = this.filtersAction;
     if (!action) return;
+    // The set draws this icon as three sliders at 24px and as two at 16px. The chips row shows its
+    // icons at 16px, and the mockup's Filters chip has the two sliders.
+    action.iconName = this.isFiltersInSearchRow ? "icon-filter-24x24" : "icon-filter-16x16";
     const count = this.owner.activeConditionCount;
     if (this.owner.isMobile && this.isFiltersInSearchRow) {
       action.title = count > 0 ? count.toString() : "";

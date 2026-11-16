@@ -314,6 +314,29 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     return !!DomWindowHelper.getVisualViewport() && this.isOverlay;
   }
 
+  // hideOnFocusOut: the focus left the popup - for the page, or for nowhere (a click on the page's empty
+  // space, another window). It stays where it went: taken back to the element that had it before the
+  // popup, it would leave what the user moved to - another popup's search box, an input of the page.
+  public blur(event?: Event): void {
+    super.blur(event);
+    if (!this.isFocusLeaving(<FocusEvent>event)) return;
+    this.prevActiveElement = undefined;
+    this.hidePopup();
+  }
+  // Not leaving: the focus moves within the popup (its layer takes the focus of a click on the popup's
+  // empty space) or into a popup opened from it, mounted elsewhere - one that does not hold this popup's
+  // target (a dialog the target is in is the page around it). An element removed by a redraw is not left.
+  private isFocusLeaving(event: FocusEvent): boolean {
+    if (!this.model.hideOnFocusOut || !this.model.isVisible || !event) return false;
+    const next = <Element>event.relatedTarget;
+    if (!next) return !!event.target && (<Node>event.target).isConnected;
+    if (!!this.container && this.container.contains(next)) return false;
+    const popup = typeof next.closest === "function" ? next.closest(this.popupSelector) : null;
+    if (!popup) return true;
+    const target = this.getTargetElement();
+    return !!target && popup.contains(target);
+  }
+
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
     if (isResetHeight) {
       this.height = "auto";

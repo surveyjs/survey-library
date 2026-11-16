@@ -2268,6 +2268,94 @@ describe("Popup", () => {
       vi.useRealTimers();
     }
   });
+  describe("hideOnFocusOut", () => {
+    function setup(hideOnFocusOut: boolean) {
+      const res = setupFocusedPopup();
+      res.model.hideOnFocusOut = hideOnFocusOut;
+      const outside = document.createElement("button");
+      addElementIntoBody(outside);
+      res.model.isVisible = true;
+      return Object.assign(res, { outside, cleanUp: () => { res.viewModel.dispose(); res.targetElement.remove(); outside.remove(); } });
+    }
+    const focusOut = (target: HTMLElement, relatedTarget: HTMLElement | null): FocusEvent => {
+      const event = new FocusEvent("focusout", { relatedTarget: relatedTarget, bubbles: true });
+      Object.defineProperty(event, "target", { value: target });
+      return event;
+    };
+    test("off by default: the focus leaving the popup does not hide it", () => {
+      const { model, viewModel, input1, outside, cleanUp } = setup(false);
+      try {
+        expect(new PopupModel("sv-list", {}).hideOnFocusOut, "#1").toBe(false);
+        viewModel.blur(focusOut(input1, outside));
+        expect(model.isVisible, "#2").toBe(true);
+      } finally {
+        cleanUp();
+      }
+    });
+    test("the focus gone to an element outside hides the popup and stays there", () => {
+      vi.useFakeTimers();
+      const { targetElement, model, viewModel, input1, outside, cleanUp } = setup(true);
+      try {
+        targetElement.tabIndex = 0;
+        targetElement.focus();
+        viewModel.updateOnShowing();
+        vi.advanceTimersByTime(100);
+        expect(document.activeElement === input1, "#1: the focus is inside").toBe(true);
+        outside.focus();
+        viewModel.blur(focusOut(input1, outside));
+        expect(model.isVisible, "#2: hidden").toBe(false);
+        expect(document.activeElement === outside, "#3: the focus is not taken back").toBe(true);
+      } finally {
+        cleanUp();
+        vi.useRealTimers();
+      }
+    });
+    test("the focus gone nowhere - a click on the page, another window - hides the popup", () => {
+      const { model, viewModel, input1, cleanUp } = setup(true);
+      try {
+        viewModel.blur(focusOut(input1, null));
+        expect(model.isVisible).toBe(false);
+      } finally {
+        cleanUp();
+      }
+    });
+    test("the focus within the popup, in another popup, or an element removed from the page does not hide it", () => {
+      const { model, viewModel, input1, input2, cleanUp } = setup(true);
+      const other = document.createElement("div");
+      other.innerHTML = "<div class=\"sv-popup\"><div class=\"sv-popup__container\"><input /></div></div>";
+      addElementIntoBody(other);
+      try {
+        viewModel.blur(focusOut(input1, input2));
+        expect(model.isVisible, "#1: another input of the popup").toBe(true);
+        viewModel.blur(focusOut(input1, viewModel.container.querySelector(".sv-popup") as HTMLElement));
+        expect(model.isVisible, "#2: the popup's own layer").toBe(true);
+        viewModel.blur(focusOut(input1, other.querySelector("input") as HTMLElement));
+        expect(model.isVisible, "#3: a popup opened from this one").toBe(true);
+        const removed = document.createElement("input");
+        viewModel.blur(focusOut(removed, null));
+        expect(model.isVisible, "#4: drawn anew, not left").toBe(true);
+      } finally {
+        other.remove();
+        cleanUp();
+      }
+    });
+    test("the focus gone into a dialog that holds the popup's target hides it: the dialog is the page around it", () => {
+      const { targetElement, model, viewModel, input1, outside, cleanUp } = setup(true);
+      const dialog = document.createElement("div");
+      dialog.innerHTML = "<div class=\"sv-popup\"><div class=\"sv-popup__container\"></div></div>";
+      addElementIntoBody(dialog);
+      const content = dialog.querySelector(".sv-popup__container") as HTMLElement;
+      content.appendChild(targetElement);
+      content.appendChild(outside);
+      try {
+        viewModel.blur(focusOut(input1, outside));
+        expect(model.isVisible).toBe(false);
+      } finally {
+        cleanUp();
+        dialog.remove();
+      }
+    });
+  });
   test("hasBeenShown: turns true on the first show and stays true after hiding", () => {
     const model: PopupModel = new PopupModel("sv-list", {});
     const viewModel = createPopupViewModel(model);

@@ -249,21 +249,23 @@
   }
 }
 
-// A badge's popup: an optional search box, the title row with its link, the list or the operator and
-// value, and Apply. No gap between them: as in the mockup, each part keeps its own space - 12px under
-// the search box, 12px over and 6px under the title, 12px rows, 12px around the editors, 12px over Apply.
+// A badge's popup (and Save as...'s): an optional search box, the title row with its link, the list or
+// the operator and value, and Apply. No gap between them: as in the mockup, each part keeps its own
+// space - 12px under the search box, 12px over and 6px under the title, 12px rows, 12px under the
+// editors, 12px over Apply. The editors are the popup's first part: nothing over them but its 8px.
+// At least 320px wide with the container's border.
 .sd-filter-popup {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  min-width: calc(40 * var(--sjs2-base-unit-size));
+  min-width: calc(40 * var(--sjs2-base-unit-size) - 2 * var(--sjs2-border-width-x100));
   padding: var(--sjs2-spacing-x100);
 
   // The operator over the value, 16px apart.
   .sd-filter-editor {
     --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs2-spacing-x200);
     min-width: 0;
-    padding: var(--sjs2-spacing-x150) 0;
+    padding: 0 0 var(--sjs2-spacing-x150);
   }
 }
 

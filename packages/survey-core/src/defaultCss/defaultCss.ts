@@ -368,6 +368,7 @@ export var defaultCss = {
     sliderText: "sd-boolean__thumb-text",
     slider: "sd-boolean__thumb",
     sliderGhost: "sd-boolean__thumb-ghost",
+    clearButton: "",
     //radio
     radioItem: "sd-item",
     radioItemChecked: "sd-item--checked sd-radio--checked",
@@ -466,6 +467,7 @@ export var defaultCss = {
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
+    clearButton: "",
     root: "sd-selectbase sd-imagepicker",
     rootResponsive: "sd-imagepicker--responsive",
     rootStatic: "sd-imagepicker--static",
@@ -494,6 +496,7 @@ export var defaultCss = {
   },
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
+    clearButton: "",
     tableWrapper: "sd-matrix sd-table-wrapper",
     tableWrapperLeft: "sd-table-wrapper--left",
     root: "sd-table sd-matrix__table",

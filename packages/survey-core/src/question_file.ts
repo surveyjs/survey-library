@@ -32,6 +32,10 @@ const customCategory = settings.customFileCategoryName;
  * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
  */
 export class QuestionFileModelBase extends Question {
+  // File Upload and Signature Pad already draw their own clear control.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   @property() public isUploading: boolean = false;
   @property({ defaultValue: "empty" }) currentState: string;
   /**
@@ -1297,6 +1301,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
 Serializer.addClass(
   "file",
   [
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "showCommentArea:switch", visible: true },
     { name: "showPreview:boolean", default: true, visible: false },
     "allowMultiple:boolean",

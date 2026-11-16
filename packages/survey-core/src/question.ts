@@ -2,7 +2,7 @@ import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation } from "./base-interfaces";
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -26,6 +26,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 export interface IConditionObject {
@@ -1970,6 +1971,46 @@ export class Question extends SurveyElement<Question>
   clearValueFromUI(): void {
     this.clearValue(true, true);
   }
+  /**
+   * Specifies whether to display a button that clears the question value.
+   *
+   * The button appears in the question title and stays hidden when the [title is hidden](#titleLocation). A question renders the button only when it supports a title action. Dropdown, Multi-Select Dropdown, and Signature Pad use this property for their own clear button. File Upload, HTML, Image, Expression, Dynamic Matrix, and Dynamic Panel do not show it.
+   *
+   * Default value: `false`
+   */
+  @property({ onSet: (val: boolean, target: Question) => { target.onAllowClearChanged(); } }) allowClear: boolean;
+  public get canShowClearButton(): boolean {
+    return !!this.allowClear && !this.isReadOnly;
+  }
+  // False for a question whose clear control lives somewhere other than the title,
+  // or for a render mode that has no title-action slot.
+  public get supportClearTitleAction(): boolean {
+    return true;
+  }
+  // V2 renders the title action bar whenever a title action exists, even a hidden one.
+  // Create the Clear action only while allowClear is on, so other questions keep their markup.
+  protected get isClearTitleActionCreatedAlways(): boolean {
+    return false;
+  }
+  protected getDefaultTitleActions(): Array<Action> {
+    if (this.isDesignMode || !this.supportClearTitleAction) return [];
+    if (!this.allowClear && !this.isClearTitleActionCreatedAlways) return [];
+    return [this.createClearTitleAction(() => this.canShowClearButton)];
+  }
+  private onAllowClearChanged(): void {
+    if (this.isLoadingFromJson || this.isClearTitleActionCreatedAlways) return;
+    this.resetTitleActions();
+  }
+  protected createClearTitleAction(isVisible: () => boolean): Action {
+    return new Action({
+      locTitleName: "clearCaption",
+      id: `sv-clr-btn-${this.id}`,
+      action: () => { this.clearValueFromUI(); },
+      innerCss: this.cssClasses.clearButton,
+      visible: <any>new ComputedUpdater(isVisible),
+      ariaLabelledBy: this.a11y_input_ariaLabelledBy
+    });
+  }
   clearValueOnly(): void {
     this.clearValue(true);
   }
@@ -2484,6 +2525,7 @@ export class Question extends SurveyElement<Question>
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = new JsonObject().toJsonObject(this);
     json["type"] = this.getType();
+    delete json["allowClear"];
     return json;
   }
   public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false): boolean {
@@ -3411,5 +3453,6 @@ Serializer.addClass("question", [
   { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
   { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
+  { name: "allowClear:boolean" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

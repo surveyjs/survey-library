@@ -1,5 +1,4 @@
-import { Action } from "./actions/action";
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
@@ -820,22 +819,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.resetPropertyValue("renderedValue");
   }
 
-  protected getDefaultTitleActions(): Array<Action> {
-    const actions = [];
-    if (!this.isDesignMode) {
-      const clearAction = new Action(
-        {
-          locTitleName: "clearCaption",
-          id: `sv-clr-btn-${this.id}`,
-          action: () => { this.clearValueFromUI(); },
-          innerCss: this.cssClasses.clearButton,
-          visible: <any>new ComputedUpdater(() => this.allowClear && !this.isReadOnly),
-          ariaLabelledBy: this.a11y_input_ariaLabelledBy
-        }
-      );
-      actions.push(clearAction);
-    }
-    return actions;
+  protected get isClearTitleActionCreatedAlways(): boolean {
+    return true;
   }
 
   protected getItemValueType():string {

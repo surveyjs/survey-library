@@ -23,6 +23,10 @@ export class QuestionBooleanModel extends Question {
   supportAutoAdvance(): boolean {
     return this.renderAs !== "checkbox";
   }
+  // The checkbox mode renders title actions inside its label. Clear does not belong there.
+  public get supportClearTitleAction(): boolean {
+    return this.renderAs !== "checkbox";
+  }
   public get isIndeterminate(): boolean {
     return this.isEmpty();
   }

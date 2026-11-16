@@ -156,6 +156,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdynamic";
   }
+  // Each row already has a remove button. A title Clear does not fit.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -1133,6 +1137,7 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
 Serializer.addClass(
   "matrixdynamic",
   [
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "allowAddRows:boolean", default: true },
     { name: "allowRemoveRows:boolean", default: true },
     { name: "rowCount:number", default: 2, minValue: 0, isBindable: true },

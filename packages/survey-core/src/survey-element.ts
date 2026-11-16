@@ -477,6 +477,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     this.setArrayPropertyValue("titleActions", actions);
   }
+  protected resetTitleActions(): void {
+    if (!this.isTitleActionRequested) return;
+    this.updateTitleActions();
+    if (!!this.titleToolbarValue) {
+      this.titleToolbarValue.setItems(this.titleActions);
+      this.titleToolbarValue.flushUpdates();
+    }
+  }
   public locStrsChanged(): void {
     super.locStrsChanged();
     if (!!this.titleToolbarValue) {

@@ -362,6 +362,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public getType(): string {
     return "paneldynamic";
   }
+  // Each panel already has a remove button. A title Clear does not fit.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -2899,6 +2903,7 @@ export class PanelDynamicSingleInputBehavior extends QuestionSingleInputBehavior
 Serializer.addClass(
   "paneldynamic",
   [
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "showCommentArea:switch", visible: true },
     {
       name: "templateElements",

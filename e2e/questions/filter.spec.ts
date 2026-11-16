@@ -112,6 +112,8 @@ frameworks.forEach((framework) => {
       await country.click();
       await expect.poll(() => gapTo(country, popup, false), "#1: under the chip").toBeGreaterThan(7);
       expect(await gapTo(country, popup, false), "#2").toBeLessThan(9);
+      // Escape reaches a menu that has the focus: it takes it 100 ms after it shows.
+      await expect.poll(() => hasFocus(popup)).toBe(true);
       await page.keyboard.press("Escape");
       await expect(popup).toBeHidden();
 
@@ -120,6 +122,7 @@ frameworks.forEach((framework) => {
       await preset.click();
       await expect.poll(() => gapTo(preset, list, false), "#3: the presets' list").toBeGreaterThan(7);
       expect(await gapTo(preset, list, false), "#4").toBeLessThan(9);
+      await expect.poll(() => hasFocus(list)).toBe(true);
       await page.keyboard.press("Escape");
       await expect(list).toBeHidden();
 

@@ -74,6 +74,18 @@ async function settlePopup(page: Page, popup: Locator): Promise<void> {
   await waitForInputFocus(popup);
   await page.mouse.move(0, 0);
 }
+// A chip's menu with no text box - a list - is shot with no focus painted. It hides as the focus
+// leaves it (PopupModel.hideOnFocusOut), so the focus goes to the popup's own layer, which draws
+// nothing, once the menu has taken it (100 ms after it shows).
+async function settleMenu(page: Page, menu: Locator): Promise<void> {
+  await expect.poll(() => menu.evaluate((el: HTMLElement) => {
+    let active: Element | null = document.activeElement;
+    while(!!active && !!active.shadowRoot && !!active.shadowRoot.activeElement) active = active.shadowRoot.activeElement;
+    return !!active && el.contains(active);
+  })).toBe(true);
+  await menu.evaluate((el: HTMLElement) => { (<HTMLElement>el.closest(".sv-popup")).focus(); });
+  await page.mouse.move(0, 0);
+}
 
 frameworks.forEach(framework => {
   test.describe(`${framework} ${title}`, () => {
@@ -100,10 +112,8 @@ frameworks.forEach(framework => {
         { name: "kids", title: "Kids", expression: "{age} < 18" }], defaultItem: "kids" }));
       await page.locator(".sd-filter .sd-filter__chip--preset").click();
       await popupWith(page, ".sv-list").waitFor({ state: "visible" });
-      await settle(page);
+      await settleMenu(page, popupWith(page, ".sv-list"));
       await compareScreenshot(page, popupWith(page, ".sv-list"), "filter-chips-preset-popup.png");
-      // Escape closes the list while the focus is in it: settle() may have taken it away.
-      await popupWith(page, ".sv-list").locator(".sv-list__item").first().focus();
       await page.keyboard.press("Escape");
       await popupWith(page, ".sv-list").waitFor({ state: "hidden" });
 
@@ -141,7 +151,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json());
       await page.evaluate(() => { (<any>window).survey.getQuestionByName("f1").setFieldCondition("country", "anyof", ["de"]); });
       await chip(page, "Country").click();
-      await settle(page);
+      await settleMenu(page, popupWith(page, ".sd-filter-popup"));
       await compareScreenshot(page, popupWith(page, ".sd-filter-popup"), "filter-popup-list.png");
       await page.keyboard.press("Escape");
       await popupWith(page, ".sd-filter-popup").waitFor({ state: "hidden" });

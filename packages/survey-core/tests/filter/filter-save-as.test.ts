@@ -81,10 +81,11 @@ describe("FilterToolbars: Save as", () => {
     q.setFieldCondition("age", "greater", 60);
     const saveAs = saveAsOf(q);
     saveAs.action();
-    expect([saveAs.popupModel.displayMode, saveAs.popupModel.cssClass], "#1").toEqual(["popup", "sd-filter__chip-popup"]);
+    const mode = () => [saveAs.popupModel.displayMode, saveAs.popupModel.cssClass, saveAs.popupModel.hideOnFocusOut];
+    expect(mode(), "#1").toEqual(["popup", "sd-filter__chip-popup", true]);
     saveAs.popupModel.hide();
     q.setIsMobile(true);
     saveAs.action();
-    expect([saveAs.popupModel.displayMode, saveAs.popupModel.cssClass], "#2").toEqual(["overlay", "sv-popup--sheet sd-filter-popup-sheet"]);
+    expect(mode(), "#2").toEqual(["overlay", "sv-popup--sheet sd-filter-popup-sheet", false]);
   });
 });

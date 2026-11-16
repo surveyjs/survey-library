@@ -88,11 +88,11 @@ describe("FilterToolbars: the chips row", () => {
     const model = action(q.chipsToolbar, "sv-filter-preset").popupModel;
     const chip = action(q.chipsToolbar, "sv-filter-preset");
     chip.action();
-    expect([model.displayMode, model.cssClass], "#1: desktop").toEqual(["popup", "sd-filter__chip-popup sd-filter__preset-list"]);
+    expect([model.displayMode, model.cssClass, model.hideOnFocusOut], "#1: desktop").toEqual(["popup", "sd-filter__chip-popup sd-filter__preset-list", true]);
     chip.action();
     q.isMobile = true;
     chip.action();
-    expect([model.displayMode, model.cssClass], "#2: phone").toEqual(["overlay", "sv-popup--sheet sd-filter-popup-sheet sd-filter__preset-list"]);
+    expect([model.displayMode, model.cssClass, model.hideOnFocusOut], "#2: phone").toEqual(["overlay", "sv-popup--sheet sd-filter-popup-sheet sd-filter__preset-list", false]);
   });
   test("the presets' list paints one preset: the focus follows the pointer", () => {
     expect(presetList(createFilter()).focusFollowsPointer).toBe(true);
@@ -294,23 +294,24 @@ describe("FilterToolbars: a badge's popup", () => {
     q.dispose();
     expect(popup.isDisposed).toBe(true);
   });
-  // On a desktop the class puts the menu 8px off the badge (sd-filter.scss).
+  // On a desktop the class puts the menu 8px off the badge and lets a click outside it reach the page
+  // (sd-filter.scss): the menu hides as the focus leaves it, so one click closes it and works.
   test("a menu under the badge on a desktop, a sheet that does not raise the keyboard on a phone", () => {
     const q = createFilter({ items: [] });
     const badge = action(q.chipsToolbar, "sv-filter-field-country");
     const model = badge.popupModel;
-    const mode = () => [model.displayMode, model.cssClass, model.isFocusedContent];
+    const mode = () => [model.displayMode, model.cssClass, model.isFocusedContent, model.hideOnFocusOut];
     badge.action();
-    expect(mode(), "#1: desktop").toEqual(["popup", "sd-filter__chip-popup", true]);
+    expect(mode(), "#1: desktop").toEqual(["popup", "sd-filter__chip-popup", true, true]);
     badge.action();
     q.isMobile = true;
     badge.action();
-    expect(mode(), "#2: phone").toEqual(["overlay", "sv-popup--sheet sd-filter-popup-sheet", false]);
+    expect(mode(), "#2: phone").toEqual(["overlay", "sv-popup--sheet sd-filter-popup-sheet", false, false]);
     expect(model.getDisplayMode(), "#3: at the bottom of the screen").toBe("menu-overlay");
     badge.action();
     q.isMobile = false;
     badge.action();
-    expect(mode(), "#4: the mode is chosen on every open").toEqual(["popup", "sd-filter__chip-popup", true]);
+    expect(mode(), "#4: the mode is chosen on every open").toEqual(["popup", "sd-filter__chip-popup", true, true]);
   });
   test("the sheet's footer has no Cancel: Apply is the popup's own", () => {
     const q = createFilter({ items: [] });

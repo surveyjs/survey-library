@@ -703,13 +703,16 @@ export class FilterToolbars {
   // of the page under the phone's keyboard, of the chips row - and would close as it opens.
   // The sheet opens without the keyboard: the search box is focused when the respondent taps it. It
   // has no close button: its content has a title row of its own, and a tap on the dimmed page closes it.
-  // The menu's class puts it 8px off the chip (sd-filter.scss).
+  // The menu's class puts it 8px off the chip and lets a click outside it reach the page (sd-filter.scss),
+  // as a dropdown's list does: the menu hides as the focus leaves it, so one click on another chip, the
+  // search box or a button closes it and works.
   private updateFieldPopupMode(popup: PopupModel): void {
     const isSheet = this.owner.isMobile;
     popup.displayMode = isSheet ? "overlay" : "popup";
     popup.overlayDisplayMode = "dropdown-overlay";
     popup.cssClass = isSheet ? toCssClasses("sv-popup--sheet", this.cssClasses.popupSheet) : toCssClasses(this.cssClasses.chipPopup);
     popup.isFocusedContent = !isSheet;
+    popup.hideOnFocusOut = !isSheet;
   }
   private updateFieldChip(state: IFilterFieldState): void {
     const chip = this.fieldChips[state.key].chip;

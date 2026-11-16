@@ -130,6 +130,38 @@ frameworks.forEach((framework) => {
       expect(await gapTo(country, popup, true), "#6").toBeLessThan(9);
     });
 
+    // As a dropdown's list: a chip's menu covers nothing but itself and hides as the focus leaves it,
+    // so one click outside it both closes it and works.
+    test("one click outside a chip's menu closes it and reaches what it clicked", async ({ page }) => {
+      await initSurvey(page, framework, json([], Object.assign({ showSearch: true }, twoPresets)));
+      const popup = popupWith(page, ".sd-filter-popup");
+      const list = popupWith(page, ".sv-list");
+      await chip(page, "Country").click();
+      await expect(popup).toContainText("Germany");
+      await expect.poll(() => hasFocus(popup), { message: "#1: the focus is in the menu" }).toBe(true);
+      await popup.click({ position: { x: 4, y: 4 } });
+      await expect(popup, "#2: a click on the menu's empty space keeps it").toContainText("Germany");
+      await chip(page, "Age").click();
+      await expect(popup, "#3: one menu - the Age chip's").toHaveCount(1);
+      await expect(popup, "#4").not.toContainText("Germany");
+      await chip(page, "Preset").click();
+      await expect(list.getByRole("menuitemradio"), "#5: the presets' list").toHaveText(["Adults", "Kids"]);
+      await expect(popup, "#6").toHaveCount(0);
+      const search = page.locator(".sd-filter__search input");
+      await search.click();
+      await expect(list, "#7: the list is closed").toBeHidden();
+      expect(await hasFocus(search), "#8: the search box keeps the focus").toBe(true);
+      // At once, before the menu took the focus: it hides as it would take it.
+      await chip(page, "Country").click();
+      await expect(popup).toContainText("Germany");
+      await page.mouse.click(5, 795);
+      await expect(popup, "#9: a click on the page's empty space").toBeHidden();
+      await chip(page, "Country").click();
+      await expect.poll(() => hasFocus(popup), { message: "#10: the focus is in the menu" }).toBe(true);
+      await page.mouse.click(5, 795);
+      await expect(popup, "#11: the same with the focus in the menu").toBeHidden();
+    });
+
     test("a chip's cross clears its condition", async ({ page }) => {
       await initSurvey(page, framework, json());
       await pick(page, "Country", "Germany");

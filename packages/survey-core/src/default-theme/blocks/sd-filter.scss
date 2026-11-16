@@ -281,6 +281,12 @@
   margin-top: calc(-1 * var(--sjs2-spacing-x100));
 }
 
+// The menu's layer covers nothing, as a dropdown's list's (sv-dropdown-popup): a click outside the
+// menu reaches what it clicked, and the menu hides as the focus leaves it (PopupModel.hideOnFocusOut).
+.sd-filter__chip-popup.sv-popup--menu-popup {
+  height: 0;
+}
+
 // On a phone the popup is a sheet at the bottom of the screen (sv-popup--sheet), with the page's
 // sheet gutter. Apply is in the content, so the sheet's own footer - empty here - is not shown.
 .sv-popup--sheet.sd-filter-popup-sheet {

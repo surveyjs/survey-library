@@ -89,6 +89,7 @@ export * from "./utils/ng-key2click.directive";
 export * from "./utils/safe-url.pipe";
 export * from "./utils/safe-html.pipe";
 export * from "./questions/comment.component";
+export * from "./components/rich-text/rich-text-comment.component";
 export * from "./questions/signature.component";
 export * from "./questions/multipletext.component";
 export * from "./questions/multipletextitem.component";

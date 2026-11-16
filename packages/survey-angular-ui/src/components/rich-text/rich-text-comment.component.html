@@ -1,0 +1,47 @@
+<div *ngIf="!editing" [class]="model.getRootClass()">
+  <div
+    #contentElement
+    [class]="displayClass"
+    [ngStyle]="displayStyle"
+    [attr.data-placeholder]="displayPlaceholder"
+    [innerHTML]="displayHtml | safeHtml"
+  ></div>
+  <sv-ng-action-bar *ngIf="model.hasVisibleInputActions" [model]="model.inputActionsContainer"></sv-ng-action-bar>
+</div>
+
+<div *ngIf="sourceMode" [class]="css.source">
+  <div [class]="css.notice">{{ sourceNotice }}</div>
+  <button type="button" [class]="css.editAnyway" (click)="editAnyway()">{{ editAnywayLabel }}</button>
+  <ng-template [component]="{ name: 'sv-text-area', data: { model: model.textAreaModel } }"></ng-template>
+</div>
+
+<div *ngIf="showEditor" [class]="editorClass">
+  <div
+    #host
+    #contentElement
+    [class]="areaClass"
+    contenteditable="true"
+    role="textbox"
+    [attr.aria-multiline]="ariaMultiline"
+    [attr.aria-label]="model.a11y_input_ariaLabel"
+    [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+    [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+    [attr.aria-required]="model.a11y_input_ariaRequired"
+    [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+    [attr.aria-errormessage]="model.a11y_input_ariaErrormessage"
+    [attr.data-placeholder]="areaPlaceholder"
+    [id]="model.inputId"
+  ></div>
+  <div *ngIf="staticToolbar" [class]="css.footer" role="toolbar" [attr.aria-label]="toolbarLabel" [attr.aria-controls]="model.inputId">
+    <sv-ng-action-bar [model]="toolbar"></sv-ng-action-bar>
+    <div *ngIf="model.hasVisibleInputActions" [class]="css.footerSpace"></div>
+    <sv-ng-action-bar *ngIf="model.hasVisibleInputActions" [model]="model.inputActionsContainer"></sv-ng-action-bar>
+  </div>
+  <sv-ng-action-bar *ngIf="!staticToolbar && model.hasVisibleInputActions" [model]="model.inputActionsContainer"></sv-ng-action-bar>
+  <div *ngIf="!staticToolbar && hasToolbar" [class]="css.toolbar" role="toolbar" [attr.aria-label]="toolbarLabel" [attr.aria-controls]="model.inputId">
+    <sv-ng-action-bar [model]="toolbar"></sv-ng-action-bar>
+  </div>
+  <div *ngIf="model.resizeStyle !== 'none'" [class]="model.cssClasses.grip" #grip>
+    <svg [iconName]="gripIconId" [size]="'auto'" sv-ng-svg-icon></svg>
+  </div>
+</div>

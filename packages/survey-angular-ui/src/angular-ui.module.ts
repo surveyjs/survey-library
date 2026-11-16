@@ -81,6 +81,7 @@ import { Key2ClickDirective } from "./utils/ng-key2click.directive";
 import { SafeUrlPipe, SafeResourceUrlPipe } from "./utils/safe-url.pipe";
 import { SafeHtmlPipe } from "./utils/safe-html.pipe";
 import { CommentQuestionComponent } from "./questions/comment.component";
+import { RichTextCommentComponent } from "./components/rich-text/rich-text-comment.component";
 import { SignaturePadQuestionComponent } from "./questions/signature.component";
 import { MultipleTextComponent } from "./questions/multipletext.component";
 import { ErrorsComponent } from "./errors.component";
@@ -152,7 +153,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     ActionBarComponent, SortBarLevelComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
-    SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, ProgressTocComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
+    SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, ProgressTocComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, RichTextCommentComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, MatrixHeaderSortButtonComponent, ExpressionComponent, QuestionViewComponent, SafeResourceUrlPipe, BrandInfoComponent, QuestionErrorComponent, QuestionHintComponent,
@@ -177,7 +178,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     ActionBarComponent, SortBarLevelComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
-    SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
+    SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, RichTextCommentComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, MatrixHeaderSortButtonComponent, ExpressionComponent, QuestionViewComponent, SafeResourceUrlPipe,

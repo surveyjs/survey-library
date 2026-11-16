@@ -1060,7 +1060,8 @@ function lineRanges(container: HTMLElement, start: number, end: number): Range[]
   const last = doc.createRange();
   last.setStart(fromNode, fromOffset);
   last.setEnd(container, end);
-  ranges.push(last);
+  // A break with nothing after it holds the caret. It is not another line.
+  if (!(brs.length > 0 && textLength(last.cloneContents()) === 0)) ranges.push(last);
   return ranges;
 }
 
@@ -1092,7 +1093,23 @@ function touched(line: Range, selection: Range, isLast: boolean): boolean {
   }
   const startsBeforeEnd = startVsEnd < 0;
   const endsAfterStart = comparePoints(selection, true, line, false) > 0;
-  return startsBeforeEnd && endsAfterStart;
+  if (!startsBeforeEnd || !endsAfterStart) return false;
+  // The position after a block's last character is also the start of the next block.
+  // A selection that begins there does not include this line.
+  return selectionIncludesLineText(line, selection);
+}
+
+function selectionIncludesLineText(line: Range, selection: Range): boolean {
+  const text = textLength(line.cloneContents());
+  if (text === 0) return true;
+  if (comparePoints(selection, false, line, false) <= 0) return true;
+  const before = line.cloneRange();
+  try {
+    before.setEnd(selection.startContainer, selection.startOffset);
+  } catch(e) {
+    return true;
+  }
+  return textLength(before.cloneContents()) < text;
 }
 
 function applyList(blocks: Block[], tag: "ul" | "ol"): Block[] {
@@ -1662,12 +1679,20 @@ function textOffset(root: Node, node: Node, offset: number): number {
   } catch(e) {
     return 0;
   }
-  return range.toString().length;
+  return textLength(range.cloneContents());
+}
+
+function textLength(node: Node): number {
+  if (node.nodeType === 3) return (node.textContent || "").length;
+  let count = 0;
+  const children = node.childNodes;
+  for (let i = 0; i < children.length; i++) count += textLength(children[i]);
+  return count;
 }
 
 function selectOffsets(root: HTMLElement, start: number, end: number): void {
-  const from = textPoint(root, start);
-  const to = textPoint(root, end);
+  const from = textPoint(root, start, end > start);
+  const to = textPoint(root, end, false);
   if (!from || !to) return;
   const doc = root.ownerDocument;
   const range = doc.createRange();
@@ -1676,7 +1701,7 @@ function selectOffsets(root: HTMLElement, start: number, end: number): void {
   selectRange(range);
 }
 
-function textPoint(root: HTMLElement, offset: number): { node: Text, offset: number } | undefined {
+function textPoint(root: HTMLElement, offset: number, biasNext: boolean): { node: Text, offset: number } | undefined {
   const doc = root.ownerDocument;
   if (!doc) return undefined;
   const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -1686,7 +1711,13 @@ function textPoint(root: HTMLElement, offset: number): { node: Text, offset: num
   while(node) {
     last = node;
     const length = (node.textContent || "").length;
-    if (seen + length >= offset) return { node: node, offset: offset - seen };
+    if (seen + length > offset) return { node: node, offset: offset - seen };
+    if (seen + length === offset) {
+      if (!biasNext) return { node: node, offset: length };
+      const next = walker.nextNode() as Text;
+      if (!next) return { node: node, offset: length };
+      return { node: next, offset: 0 };
+    }
     seen += length;
     node = walker.nextNode() as Text;
   }

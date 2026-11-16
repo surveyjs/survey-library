@@ -554,6 +554,54 @@ describe("rich text editor model", () => {
     }
   });
 
+  test("toggling a list on the last two of three rows restores the paragraphs", () => {
+    const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
+    const question = survey.getQuestionByName("c") as QuestionRichTextModel;
+    const { element, model } = mount(question);
+    element.focus();
+    const selection = document.getSelection();
+    const start = document.createRange();
+    start.selectNodeContents(element);
+    start.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(start);
+    model.syncSelection();
+    const type = (text: string): void => {
+      const range = selection.getRangeAt(0);
+      const node = document.createTextNode(text);
+      range.insertNode(node);
+      range.setStartAfter(node);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+      model.syncSelection();
+    };
+    const enter = (): void => {
+      element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+    };
+    type("one");
+    enter();
+    type("two");
+    enter();
+    type("three");
+    const paragraphs = element.querySelectorAll("p");
+    const range = document.createRange();
+    range.setStart(paragraphs[1], 0);
+    range.setEnd(paragraphs[2], paragraphs[2].childNodes.length);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    model.syncSelection();
+    model.run("insertUnorderedList");
+    expect(element.innerHTML.toLowerCase()).toBe("<p>one</p><ul><li>two</li><li>three</li></ul>");
+    expect(model.toggleState("insertUnorderedList")).toBe("all");
+    expect(document.getSelection().toString().replace(/\n/g, "")).toBe("twothree");
+    model.run("insertUnorderedList");
+    expect(element.innerHTML.toLowerCase()).toBe("<p>one</p><p>two</p><p>three</p>");
+    element.dispatchEvent(new FocusEvent("blur"));
+    expect(question.value).toBe("<p>one</p><p>two</p><p>three</p>");
+  });
+
   test("a list command keeps the selected text and skips empty lines", () => {
     const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
     const question = survey.getQuestionByName("c") as QuestionRichTextModel;

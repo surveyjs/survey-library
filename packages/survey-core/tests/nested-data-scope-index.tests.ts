@@ -8,7 +8,8 @@ import "../src/question_matrixdynamic";
 
 // Every data scope keeps its own index, kept up on add, remove and rename. After each change: a write lands in the
 // right object, an expression reads the right question, and getQuestionsByValueName answers as before.
-const panelOf = (survey: SurveyModel, name: string): PanelModel => <PanelModel>survey.getPanelByName(name);
+// By its name wherever it is: in a nesting mode the survey finds an inner panel by its path (scoped names 05, O1).
+const panelOf = (survey: SurveyModel, name: string): PanelModel => <PanelModel>survey.getAllPanels(false, true).filter(p => p.name === name)[0];
 const names = (list: Array<any>): Array<string> => (list || []).map(el => el.name);
 const scopeNames = (survey: SurveyModel, panel: string): Array<string> =>
   names(panelOf(survey, panel).getDataScope().getDataKeyIndex().elements);
@@ -25,8 +26,8 @@ describe("a data scope's index: questions added, removed and moved", () => {
     pa.addElement(new QuestionTextModel("q4"));
     pa.addElement(new QuestionTextModel("q0"), 0);
     expect(scopeNames(survey, "pa"), "#2").toEqual(["q0", "q1", "q2", "q4"]);
-    survey.getQuestionByName("q4").value = 4;
-    survey.getQuestionByName("q0").value = 0;
+    survey.getQuestionByName("pa.q4").value = 4;
+    survey.getQuestionByName("pa.q0").value = 0;
     expect(survey.data, "#3").toEqual({ a: { q4: 4, q0: 0 } });
     expect(survey.runExpression("{a.q0} + {a.q4}"), "#4").toBe(4);
     expect(survey.getQuestionsByValueName("q4"), "#5 an inner value name is no key of the survey data").toBeNull();
@@ -34,28 +35,28 @@ describe("a data scope's index: questions added, removed and moved", () => {
   test("questions sharing a value name, one inserted before: the first of the key is the first in the document", () => {
     const survey = new SurveyModel(json());
     const pa = panelOf(survey, "pa");
-    survey.getQuestionByName("q2").valueName = "shared";
+    survey.getQuestionByName("pa.q2").valueName = "shared";
     expect(names(pa.getDataScope().getDataKeyIndex().getQuestions("shared")), "#1").toEqual(["q2"]);
     const q0 = new QuestionTextModel("q0");
     q0.valueName = "shared";
     pa.addElement(q0, 0);
     expect(names(pa.getDataScope().getDataKeyIndex().getQuestions("shared")), "#2").toEqual(["q0", "q2"]);
-    survey.getQuestionByName("q1").valueName = "shared";
+    survey.getQuestionByName("pa.q1").valueName = "shared";
     expect(names(pa.getDataScope().getDataKeyIndex().getQuestions("shared")), "#3 a rename keeps the document order").toEqual(["q0", "q1", "q2"]);
     q0.value = "x";
-    expect(survey.getQuestionByName("q2").value, "#4").toBe("x");
+    expect(survey.getQuestionByName("pa.q2").value, "#4").toBe("x");
     expect(survey.data, "#5").toEqual({ a: { shared: "x" } });
   });
   test("a question removed: a write of the container's object no longer reaches it", () => {
     const survey = new SurveyModel(json());
     const pa = panelOf(survey, "pa");
-    const q2 = survey.getQuestionByName("q2");
+    const q2 = survey.getQuestionByName("pa.q2");
     expect(scopeNames(survey, "pa"), "#1").toEqual(["q1", "q2"]);
     pa.removeElement(q2);
     expect(scopeNames(survey, "pa"), "#2").toEqual(["q1"]);
     survey.setValue("a", { q1: 1, q2: 2 });
     expect(q2.value, "#3").toBeUndefined();
-    expect(survey.getQuestionByName("q1").value, "#4").toBe(1);
+    expect(survey.getQuestionByName("pa.q1").value, "#4").toBe(1);
   });
   test("a question moved into a nesting container and out of it", () => {
     const survey = new SurveyModel(json());
@@ -87,7 +88,7 @@ describe("a data scope's index: questions added, removed and moved", () => {
     pa.addElement(inner, 1);
     expect(scopeNames(survey, "pa"), "#2").toEqual(["q1", "inner", "q2"]);
     expect(scopeNames(survey, "inner"), "#3").toEqual(["lat"]);
-    survey.getQuestionByName("lat").value = 5;
+    survey.getQuestionByName("pa.inner.lat").value = 5;
     expect(survey.data, "#4").toEqual({ a: { geo: { lat: 5 } } });
     expect(survey.runExpression("{a.geo.lat}"), "#5").toBe(5);
     pa.removeElement(inner);
@@ -100,7 +101,7 @@ describe("a data scope's index: setPage (the move sends no add or remove notific
     const survey = new SurveyModel({ dataNesting: "page", pages: [
       { name: "page1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
       { name: "page2", elements: [{ type: "text", name: "q3" }] }] });
-    const q1 = survey.getQuestionByName("q1");
+    const q1 = survey.getQuestionByName("page1.q1");
     const scope = (page: number): Array<string> => names(survey.pages[page].getDataScope().getDataKeyIndex().elements);
     expect([scope(0), scope(1)], "#1").toEqual([["q1", "q2"], ["q3"]]);
     q1.page = survey.pages[1];
@@ -108,7 +109,7 @@ describe("a data scope's index: setPage (the move sends no add or remove notific
     q1.value = 1;
     expect(survey.data, "#3").toEqual({ page2: { q1: 1 } });
     expect(survey.runExpression("{page2.q1}"), "#4").toBe(1);
-    const q2 = survey.getQuestionByName("q2");
+    const q2 = survey.getQuestionByName("page1.q2");
     q2.page = null;
     expect(scope(0), "#5 off its page: out of the scope").toEqual([]);
   });
@@ -120,10 +121,10 @@ describe("a data scope's index: keys", () => {
       { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] }] });
     const pa = panelOf(survey, "pa");
     expect(names(pa.getDataScope().getDataKeyIndex().getQuestions("q1")), "#1").toEqual(["q1"]);
-    survey.getQuestionByName("q1").valueName = "street";
+    survey.getQuestionByName("pa.q1").valueName = "street";
     expect(pa.getDataScope().getDataKeyIndex().getQuestions("q1"), "#2").toEqual([]);
     survey.setValue("a", { street: "s" });
-    expect(survey.getQuestionByName("q1").value, "#3").toBe("s");
+    expect(survey.getQuestionByName("pa.q1").value, "#3").toBe("s");
     expect(survey.runExpression("{a.street}"), "#4").toBe("s");
   });
   test("a container's valueName set, changed and cleared", () => {
@@ -175,12 +176,12 @@ describe("a data scope's index: keys", () => {
     expect(names(survey.getDataKeyIndex().getElements("b")), "#2 inner is a root container").toEqual(["inner"]);
     panelOf(survey, "group").valueName = "g";
     expect(scopeNames(survey, "outer"), "#3").toEqual(["group", "q2"]);
-    survey.getQuestionByName("q1").value = 1;
+    survey.getQuestionByName("outer.group.q1").value = 1;
     expect(survey.data, "#4").toEqual({ a: { g: { q1: 1 } } });
     panelOf(survey, "plain").valueName = "p";
     expect(survey.getDataKeyIndex().getElements("b"), "#5").toEqual([]);
     expect(scopeNames(survey, "plain"), "#6").toEqual(["inner"]);
-    survey.getQuestionByName("q3").value = 3;
+    survey.getQuestionByName("plain.inner.q3").value = 3;
     expect(survey.data, "#7").toEqual({ a: { g: { q1: 1 } }, p: { b: { q3: 3 } } });
     expect(survey.runExpression("{p.b.q3}"), "#8").toBe(3);
   });
@@ -318,12 +319,12 @@ describe("a data scope's index: changes the walk saw live", () => {
     panelOf(survey, "p25").page = page1;
     expect(scope(), "#2").toEqual(["q27", "q28"]);
     survey.setValue("a", { q27: 2, q28: 3 });
-    expect(survey.getQuestionByName("q27").value, "#3").toBe(2);
+    expect(survey.getQuestionByName("p26.q27").value, "#3").toBe(2);
   });
   test("a question taken off its page keeps its data: the root follows its old scope", () => {
     const survey = new SurveyModel({ dataNesting: "page", pages: [
       { name: "page1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] }] });
-    const q2 = survey.getQuestionByName("q2");
+    const q2 = survey.getQuestionByName("page1.q2");
     expect(survey.getQuestionsByValueName("q2"), "#1").toBeNull();
     q2.page = null;
     expect(survey.getQuestionsByValueName("q2"), "#2 its value scope is still page1").toBeNull();

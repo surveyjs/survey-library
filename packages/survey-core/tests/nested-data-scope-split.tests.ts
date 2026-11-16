@@ -21,7 +21,7 @@ describe("PanelDataScope.key follows each change", () => {
     expect(scope.key, "#1").toBe("a");
     panel.valueName = "b";
     expect(scope.key, "#2").toBe("b");
-    survey.getQuestionByName("q1").value = 1;
+    survey.getQuestionByName("p1.q1").value = 1;
     expect(survey.data, "#3").toEqual({ b: { q1: 1 } });
   });
   test("the owner's name, in a by-name mode", () => {
@@ -71,7 +71,7 @@ describe("PanelDataScope.key follows each change", () => {
     expect(scope.key, "#1").toBe("a");
     panel.fromJSON({ valueName: "b" });
     expect(scope.key, "#2").toBe("b");
-    survey.getQuestionByName("q1").value = 1;
+    survey.getQuestionByName("p1.q1").value = 1;
     expect(survey.data, "#3").toEqual({ b: { q1: 1 } });
   });
   test("a detached panel's scope has no key", () => {
@@ -173,7 +173,7 @@ describe("a scope's index is kept", () => {
     const index = scope.getDataKeyIndex();
     expect(scope.getDataKeyIndex() === index, "#1").toBe(true);
     expect(index.getQuestions("Q1", true).map(q => q.name), "#2").toEqual(["q1"]);
-    survey.getQuestionByName("q1").valueName = "v1";
+    survey.getQuestionByName("p1.q1").valueName = "v1";
     expect(scope.getDataKeyIndex() === index, "#3 a rename changes it in place").toBe(true);
     expect(index.getQuestions("v1").map(q => q.name), "#4").toEqual(["q1"]);
     const item = (<any>survey.getQuestionByName("items")).panels[0].data;

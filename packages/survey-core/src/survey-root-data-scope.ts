@@ -31,7 +31,6 @@ export interface ISurveyRootDataScopeHost extends IDataScope {
   readonly pages: Array<PanelModelBase>;
   readonly isLoadingFromJson: boolean;
   getAllQuestions(visibleOnly?: boolean, includeDesignTime?: boolean): Array<Question>;
-  getQuestionByName(name: string): Question;
   getValueGetterContext(): IValueGetterContext;
 }
 
@@ -187,17 +186,21 @@ export class SurveyRootDataScope {
     }
     this.index = undefined;
   }
-  // questionRenamed: the question's key in the instance below the root that holds it. The root follows the flat
-  // structure (questionIndexed).
+  // questionRenamed: the question's name and key in the instance below the root that holds it. The root follows
+  // the flat structure (questionIndexed).
   public questionRenamed(question: Question): void {
     const index = this.holders.get(question)?.builtDataKeyIndex;
-    if (!!index && index.has(question)) {
+    if (!index) return;
+    index.reName(question);
+    if (index.has(question)) {
       index.reKey(question, question.getValueName());
     }
   }
-  // elementRenamed: a panel's name changed, or its load ended. A key loaded in place (fromJSON) sends no other
-  // notification, so a panel that has a scope is treated as a changed key: the instances are only dropped here.
+  // elementRenamed: a panel's name changed, or its load ended. Its name in the instance below the root that holds
+  // it follows. A key loaded in place (fromJSON) sends no other notification, so a panel that has a scope is
+  // treated as a changed key: the instances are only dropped here.
   public panelRenamed(panel: PanelModelBase): void {
+    this.holders.get(panel)?.builtDataKeyIndex?.reName(panel);
     if (!!panel.getDataScope()) {
       this.dataScopeKeysChanged(panel);
     }
@@ -301,12 +304,10 @@ export class SurveyRootDataScope {
     const path = question.getDataPath();
     return path.length > 1 && path[0] === valueName ? question : undefined;
   }
-  // A code write of a key reports the question named like it, unless the key is a container key or that
-  // question's value lives inside a container (its name is no key of the survey data).
+  // A code write of a key reports the question named like it, unless the key is a container key. The survey finds
+  // by a bare name only its own questions (scoped names 05, O1), whose values are keys of the survey data.
   public isCodeWriteQuestionName(name: string): boolean {
-    if (!this.isUsedValue) return true;
-    const q = this.host.getQuestionByName(name);
-    return !this.isScopeKey(name) && (!q || this.isRoot(q));
+    return !this.isUsedValue || !this.isScopeKey(name);
   }
 
   // The changed keys below a container key, with their old and new values: the value name and the name of
@@ -350,8 +351,8 @@ export class SurveyRootDataScope {
     this.getRootScopes(key).forEach(scope => collect(scope, oldValue, newValue));
     return res;
   }
-  // The trigger keys of a question's value: each key of its data path with its value,
-  // and below the root its name ({street} finds an inner question by its name). A key already there stays.
+  // The trigger keys of a question's value: each key of its data path with its value. Not its name: a trigger is
+  // the survey's, and the survey does not find an inner question by its name (O3). A key already there stays.
   // belowRoot: only a path that goes below the root, as runTriggers and performNext add (their root keys come
   // from the data and the question's name); returns whether the keys were added.
   public addTriggerKeys(keys: any, question: Question, belowRoot?: boolean): boolean {
@@ -369,7 +370,6 @@ export class SurveyRootDataScope {
       val = asScopeObject(val)?.[path[i]];
       add(path[i], val);
     }
-    if (path.length > 1) add(question.name, val);
     return true;
   }
   // ISurveyTriggerOwner: whether the changed keys are only the ones a write of the question that name resolves

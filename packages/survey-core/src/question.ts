@@ -33,6 +33,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
+import { isNameScopeMode } from "./name-scope";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -3880,8 +3881,8 @@ export class Question extends SurveyElement<Question>
     this.errors = [];
   }
   public clearUnusedValues(): void { }
-  onAnyValueChanged(name: string, questionName: string): void {
-    this.validateOnAnyQuestionValueChanged(name, questionName);
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
+    this.validateOnAnyQuestionValueChanged(name, questionName, question);
   }
   checkBindings(valueName: string, value: any): void {
     if (this.bindings.isEmpty() || !this.data) return;
@@ -4120,7 +4121,9 @@ export class Question extends SurveyElement<Question>
     }
     return this.validationDependentNames;
   }
-  private validateOnAnyQuestionValueChanged(name: string, questionName: string): void {
+  // question: the question that wrote, when the write carries it. A nesting mode uses it: a name is not unique
+  // there. "none" looks the name up, as before.
+  private validateOnAnyQuestionValueChanged(name: string, questionName: string, question: IQuestion): void {
     if (!this.survey) return;
     const deps = this.getValidationDependentNames();
     if (deps.length === 0) return;
@@ -4128,7 +4131,7 @@ export class Question extends SurveyElement<Question>
     if (deps.indexOf(name) < 0 && !deps.some(d => d.indexOf(prefix) === 0)) return;
     let hasToValidate = this.getAllErrors().length > 0;
     if (!hasToValidate && this.validationCallbacks.isValidateOnValueChanged) {
-      const changedQuestion = <Question>this.data.findQuestionByName(questionName);
+      const changedQuestion = <Question>(!!question && isNameScopeMode(this.survey) ? question : this.data.findQuestionByName(questionName));
       hasToValidate = !changedQuestion || changedQuestion.getAllErrors().length == 0;
     }
     if (hasToValidate) {

@@ -24,7 +24,9 @@ const matrixJson = (extra?: any, type: string = "matrixdynamic"): any => Object.
     detailElements: [{ type: "panel", name: "p1", valueName: "address", elements: [{ type: "text", name: "street" }] }] },
   type === "matrixdropdown" ? { rows: ["r1", "r2"] } : { rowCount: 0 })
 ] }, extra || {});
-const pdOf = (survey: SurveyModel): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>survey.getQuestionByName("items");
+// By its name wherever it is: in a nesting mode the survey finds a question inside a container that holds data by
+// its path (scoped names 05, O1).
+const pdOf = (survey: SurveyModel): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>survey.getAllQuestions(false, true).filter(q => q.name === "items")[0];
 const matrixOf = (survey: SurveyModel): QuestionMatrixDynamicModel => <QuestionMatrixDynamicModel>survey.getQuestionByName("rows");
 const inPanel = (panel: PanelModel, name: string): Question => <Question>panel.getQuestionByName(name);
 const detailOf = (row: MatrixDropdownRowModelBase, name: string): Question => {

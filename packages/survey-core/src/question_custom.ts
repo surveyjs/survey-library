@@ -895,10 +895,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   supportAutoAdvance(): boolean {
     return !!this.contentQuestion && this.contentQuestion.supportAutoAdvance();
   }
-  onAnyValueChanged(name: string, questionName: string): void {
-    super.onAnyValueChanged(name, questionName);
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
+    super.onAnyValueChanged(name, questionName, question);
     if (!!this.contentQuestion) {
-      this.contentQuestion.onAnyValueChanged(name, questionName);
+      this.contentQuestion.onAnyValueChanged(name, questionName, question);
     }
   }
   protected getQuestionByName(name: string): IQuestion {
@@ -1367,11 +1367,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       questions[i].clearValueIfInvisible(reason);
     }
   }
-  onAnyValueChanged(name: string, questionName: string): void {
-    super.onAnyValueChanged(name, questionName);
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
+    super.onAnyValueChanged(name, questionName, question);
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].onAnyValueChanged(name, questionName);
+      questions[i].onAnyValueChanged(name, questionName, question);
     }
   }
   public get isContainer(): boolean { return true; }

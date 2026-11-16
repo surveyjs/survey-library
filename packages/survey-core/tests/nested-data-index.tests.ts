@@ -118,7 +118,7 @@ describe("nested data index: upkeep", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
     ] });
-    const street = survey.getQuestionByName("street");
+    const street = survey.getQuestionByName("panel1.street");
     street.name = "street2";
     survey.setValue("address", { street2: "a" });
     expect(street.value, "the new name").toBe("a");
@@ -181,7 +181,7 @@ describe("nested data index: upkeep", () => {
     page.valueName = "pv";
     page.addNewQuestion("text", "x");
     survey.addPage(page);
-    const x = survey.getQuestionByName("x");
+    const x = survey.getQuestionByName("page2.x");
     survey.setValue("pv", { x: 1 });
     expect(x.value, "added").toBe(1);
     expect(survey.runExpression("{pv.x}")).toBe(1);
@@ -201,10 +201,10 @@ describe("nested data index: upkeep", () => {
         { type: "panel", name: "inner", valueName: "sub", elements: [{ type: "text", name: "q1", showCommentArea: true }] }
       ] }
     ] });
-    (<PanelModel>survey.getPanelByName("inner")).valueName = "";
+    (<PanelModel>survey.getPanelByName("outer.inner")).valueName = "";
     const reported: Array<string> = [];
     survey.onValueChanged.add((_, options) => reported.push(options.name + ":" + (options.question ? options.question.name : "none")));
-    const q1 = survey.getQuestionByName("q1");
+    const q1 = survey.getQuestionByName("outer.q1");
     q1.value = "v";
     q1.comment = "cmt";
     expect(survey.data).toEqual({ address: { q1: "v", "q1-Comment": "cmt" } });
@@ -214,11 +214,11 @@ describe("nested data index: upkeep", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
     ] });
-    survey.getQuestionByName("street").value = "a";
+    survey.getQuestionByName("panel1.street").value = "a";
     survey.fromJSON({ dataNesting: "auto", elements: [
       { type: "panel", name: "panel2", valueName: "home", elements: [{ type: "text", name: "street" }] }
     ] });
-    const street = survey.getQuestionByName("street");
+    const street = survey.getQuestionByName("panel2.street");
     survey.setValue("home", { street: "b" });
     expect(street.value).toBe("b");
     expect(survey.runExpression("{home.street}")).toBe("b");
@@ -230,8 +230,8 @@ describe("nested data index: upkeep", () => {
       { name: "page1", elements: [{ type: "text", name: "q1" }] },
       { name: "page2", elements: [{ type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }] }
     ] });
-    const q1 = survey.getQuestionByName("q1");
-    const street = survey.getQuestionByName("street");
+    const q1 = survey.getQuestionByName("page1.q1");
+    const street = survey.getQuestionByName("page2.panel1.street");
     survey.questionsOnPageMode = "singlePage";
     survey.setValue("page1", { q1: 1 });
     survey.setValue("page2", { address: { street: "s" } });
@@ -251,14 +251,14 @@ describe("nested data index: a panel moved to another survey", () => {
       { type: "panel", name: "panel1", valueName: "addr", elements: [{ type: "text", name: "q1" }] }
     ] }] });
     const panel = <PanelModel>surveyA.getPanelByName("panel1");
-    surveyA.getQuestionByName("q1").value = "a";
+    surveyA.getQuestionByName("panel1.q1").value = "a";
     const q2 = new QuestionTextModel("q2");
     panel.addElement(q2);
     surveyA.pages[0].removeElement(panel);
     const surveyB = new SurveyModel({ dataNesting: "auto", pages: [{ name: "p1", elements: [{ type: "text", name: "x" }] }] });
     surveyB.pages[0].addElement(panel);
     surveyB.setValue("addr", { q1: "b", q2: "c" });
-    expect(surveyB.getQuestionByName("q1").value).toBe("b");
+    expect(surveyB.getQuestionByName("panel1.q1").value).toBe("b");
     expect(q2.value, "a question added before the move").toBe("c");
   });
 });
@@ -273,11 +273,11 @@ describe("nested data index: shared keys (D4)", () => {
     survey.validate(true);
     const order: Array<string> = [];
     survey.onValidateQuestion.add((_, options) => order.push(options.name));
-    survey.getQuestionByName("b1").value = "x";
+    survey.getQuestionByName("pB.b1").value = "x";
     expect(order).toEqual(["b1", "a1", "b2"]);
-    expect(survey.getQuestionByName("a1").errors).toHaveLength(1);
-    expect(survey.getQuestionByName("b1").errors).toHaveLength(0);
-    expect(survey.getQuestionByName("b2").errors).toHaveLength(1);
+    expect(survey.getQuestionByName("pA.a1").errors).toHaveLength(1);
+    expect(survey.getQuestionByName("pB.b1").errors).toHaveLength(0);
+    expect(survey.getQuestionByName("pB.b2").errors).toHaveLength(1);
   });
   test("two containers with one key: a write through one updates the other's question", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [
@@ -290,10 +290,10 @@ describe("nested data index: shared keys (D4)", () => {
         { type: "panel", name: "in2", valueName: "geo", elements: [{ type: "text", name: "lat2", valueName: "lat" }] }
       ] }
     ] });
-    survey.getQuestionByName("zip1").value = "z";
-    expect(survey.getQuestionByName("zip2").value).toBe("z");
-    survey.getQuestionByName("lat2").value = 5;
-    expect(survey.getQuestionByName("lat1").value, "one level deeper").toBe(5);
+    survey.getQuestionByName("a1.zip1").value = "z";
+    expect(survey.getQuestionByName("a2.zip2").value).toBe("z");
+    survey.getQuestionByName("a2.in2.lat2").value = 5;
+    expect(survey.getQuestionByName("a1.in1.lat1").value, "one level deeper").toBe(5);
     expect(survey.data).toEqual({ address: { zip: "z", geo: { lat: 5 } } });
     expect(survey.runExpression("{Address.Geo.Lat}")).toBe(5);
   });
@@ -303,7 +303,7 @@ describe("nested data index: shared keys (D4)", () => {
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
     ] });
     const address = survey.getQuestionByName("address");
-    const street = survey.getQuestionByName("street");
+    const street = survey.getQuestionByName("panel1.street");
     expect(survey.getQuestionByValueName("address")).toBe(address);
     expect(survey.getQuestionsByValueName("address")).toEqual([address]);
     survey.setValue("address", { street: "x" });
@@ -337,18 +337,18 @@ describe("nested data index: expressions", () => {
       { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] },
       { type: "text", name: "out", visibleIf: "{PAGE1.Address.STREET} = 'x'" }
     ] }] });
-    const out = survey.getQuestionByName("out");
+    const out = survey.getQuestionByName("page1.out");
     expect(out.isVisible).toBe(false);
-    survey.getQuestionByName("street").value = "x";
+    survey.getQuestionByName("page1.panel1.street").value = "x";
     expect(survey.data).toEqual({ page1: { address: { street: "x" } } });
     expect(out.isVisible).toBe(true);
     expect(survey.runExpression("{page1.address.street}")).toBe("x");
     expect(survey.runExpression("{page1.ADDRESS.Street}")).toBe("x");
     expect(survey.runExpression("{Page1.Address}")).toEqual({ street: "x" });
-    const inner = survey.getQuestionByName("street");
+    const inner = survey.getQuestionByName("page1.panel1.street");
     inner.visibleIf = "{ADDRESS.Street} = 'x'";
     expect(inner.isVisible, "inside page1: {address} is a key of its object").toBe(true);
-    expect(survey.runExpression("{STREET}"), "an inner question by its name").toBe("x");
+    expect(survey.runExpression("{STREET}"), "an inner question is not found by its name from the root (O3)").toBeNull();
   });
 });
 
@@ -360,7 +360,7 @@ describe("the root's keys after an element moves", () => {
   ] });
   test("a question moved out of a nesting page is a top-level key", () => {
     const survey = new SurveyModel(movingJson([{ type: "text", name: "q1" }], [{ type: "text", name: "q2" }]));
-    const q1 = survey.getQuestionByName("q1");
+    const q1 = survey.getQuestionByName("p1.q1");
     q1.value = "a";
     expect(survey.getQuestionByValueName("q1"), "before the move: inside obj (D9)").toBeNull();
     q1.page = survey.pages[1];
@@ -391,8 +391,8 @@ describe("the root's keys after an element moves", () => {
     const survey = new SurveyModel(movingJson(
       [{ type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }],
       [{ type: "text", name: "q2" }]));
-    const panel = <PanelModel>survey.getPanelByName("panel1");
-    const q1 = survey.getQuestionByName("q1");
+    const panel = <PanelModel>survey.getPanelByName("p1.panel1");
+    const q1 = survey.getQuestionByName("p1.q1");
     q1.value = "a";
     panel.page = survey.pages[1];
     expect(q1.getDataPath()).toEqual(["q1"]);
@@ -423,7 +423,7 @@ describe("the root's keys after an element moves", () => {
       [{ type: "text", name: "q2", valueName: "shared" }, { type: "text", name: "q3", valueName: "shared" }]));
     const names = (): Array<string> => (survey.getQuestionsByValueName("shared") || []).map(q => q.name).sort();
     expect(names()).toEqual(["q2", "q3"]);
-    survey.getQuestionByName("q1").page = survey.pages[1];
+    survey.getQuestionByName("p1.q1").page = survey.pages[1];
     expect(names()).toEqual(["q1", "q2", "q3"]);
     survey.getQuestionByName("q2").page = survey.pages[0];
     expect(names()).toEqual(["q1", "q3"]);
@@ -447,8 +447,8 @@ describe("the root's keys after an element moves", () => {
     const survey = new SurveyModel(movingJson(
       [{ type: "panel", name: "panel1", valueName: "addr", elements: [{ type: "text", name: "street" }] }],
       [{ type: "text", name: "q2" }]));
-    const panel = <PanelModel>survey.getPanelByName("panel1");
-    const street = survey.getQuestionByName("street");
+    const panel = <PanelModel>survey.getPanelByName("p1.panel1");
+    const street = survey.getQuestionByName("p1.panel1.street");
     street.value = "a";
     expect(street.getDataPath()).toEqual(["obj", "addr", "street"]);
     expect(survey.getDataKeyIndex().getScopes("addr")).toHaveLength(0);

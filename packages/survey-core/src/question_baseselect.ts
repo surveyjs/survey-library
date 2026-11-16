@@ -1,7 +1,7 @@
 import { JsonObjectProperty, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, IQuestion, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedWalkOptions, NestedElementVisit, NestedWalkBuild } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -28,6 +28,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts";
 import { Scope } from "./utils/scope";
 import { getIdSelector } from "./utils/dom-utils";
+import { isNameScopeMode } from "./name-scope";
 
 const OTHER_ITEM_VALUE = "other";
 // The key a choice comment is kept under in the object of a selected item (commentPropertyValue).
@@ -2171,14 +2172,21 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     super.onFirstRenderingCore();
     this.forEachNestedElement(info => { (<PanelModel>info.element).onFirstRendering(); }, showingChoicePanels);
   }
-  onAnyValueChanged(name: string, questionName: string): void {
-    super.onAnyValueChanged(name, questionName);
+  // Whether the question that wrote is the one choicesFromQuestion names. A nesting mode compares the question
+  // the write carries with the one the name resolves to from here: a name is not unique there, and the name may
+  // be a path. "none" compares the names, as before.
+  private isChoicesSourceWriter(questionName: string, question: IQuestion): boolean {
+    if (!question || !isNameScopeMode(this.survey)) return questionName === this.choicesFromQuestion;
+    return question === this.findCarryForwardQuestion();
+  }
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
+    super.onAnyValueChanged(name, questionName, question);
     if (name != this.getValueName()) {
       this.runChoicesByUrl();
     }
     const chQuestion = this.choicesFromQuestion;
     // The same write reached updateDependedQuestion already, which recorded the projection it used.
-    if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion) && !this.isArrayChoicesSourceUnchanged()) {
+    if (!!name && chQuestion && (name === chQuestion || this.isChoicesSourceWriter(questionName, question)) && !this.isArrayChoicesSourceUnchanged()) {
       this.onVisibleChoicesChanged();
       this.clearIncorrectOwnValue();
     }

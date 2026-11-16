@@ -35,6 +35,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { Scope, ValueScope } from "./utils/scope";
 import { ObjectDataScope, PanelDataScope, getActiveDataScope, getDataScopeHost } from "./panel-data-scope";
+import { isNameScopeMode } from "./name-scope";
 import { getElementDataScope } from "./data-key-index";
 import { RecordKeyLevel, hasRecordDataNesting } from "./record-key-level";
 import { PanelDataScopeValueGetterContext, RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
@@ -3663,16 +3664,16 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   /* The question's own dependencies first, then every created object. What depends on the object's
      own record ({row.x}, {panel.x}) is re-run by the object that wrote it (notifyRecordWritten), not
      here: this runs on every survey change. */
-  onAnyValueChanged(name: string, questionName: string): void {
-    super.onAnyValueChanged(name, questionName);
-    this.onAnyValueChangedInItems(name, questionName);
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
+    super.onAnyValueChanged(name, questionName, question);
+    this.onAnyValueChangedInItems(name, questionName, question);
   }
   // The objects' half of onAnyValueChanged, without the question's own re-validation.
-  protected onAnyValueChangedInItems(name: string, questionName: string): void {
+  protected onAnyValueChangedInItems(name: string, questionName: string, question?: IQuestion): void {
     if (!this.areObjectsBuilt() && name === this.getValueName()) {
       this.isValueChangedBeforeBuild = true;
     }
-    this.forEachItem((item: QuestionRecordItem): void => { item.onAnyValueChanged(name, questionName); });
+    this.forEachItem((item: QuestionRecordItem): void => { item.onAnyValueChanged(name, questionName, question); });
   }
   /* The error walks visit the objects that exist and create none: a record without an object has
      shown no error. Every object is cleared and asked for running validators - a hidden one may
@@ -4720,13 +4721,20 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
     return { survey: this.getSurvey(), [this.getVariableName()]: this };
   }
   findQuestionByName(name: string): IQuestion {
-
     if (!name) return undefined;
     const prefix = this.getVariableName() + ".";
     if (name.indexOf(prefix) === 0) {
       return this.getQuestionByName(name.substring(prefix.length));
     }
     const survey = this.getSurvey();
+    // In a nesting mode a record is a name scope (SN3, O4): its own questions first, by a bare name or a path
+    // below it, then the scopes around the records question.
+    if (isNameScopeMode(survey)) {
+      const res = this.findScopeQuestion(name);
+      if (!!res) return res;
+      const around: ISurveyData = this.data?.data;
+      if (!!around) return around.findQuestionByName(name);
+    }
     return !!survey ? survey.getQuestionByName(name) : null;
   }
 
@@ -4737,8 +4745,8 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   }
   /* The questions of a panel item are the panel's, nested panels included, in the order
      PanelModel.onAnyValueChanged reaches them through its elements. */
-  public onAnyValueChanged(name: string, questionName: string): void {
-    this.forEachQuestion((q: Question): void => q.onAnyValueChanged(name, questionName));
+  public onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
+    this.forEachQuestion((q: Question): void => q.onAnyValueChanged(name, questionName, question));
   }
   /* After a write of this item reached the owner: its own questions re-run what reads the record
      through the item variable ({row.x}, {panel.x}). The other items are not told. */

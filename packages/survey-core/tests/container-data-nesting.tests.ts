@@ -84,7 +84,7 @@ describe("container data nesting: the place of a container", () => {
       check("top", <PanelModelBase>page.getElementByName("top"), onSurvey);
       check("deep", <PanelModelBase>page.getElementByName("deep"), onSurvey);
 
-      const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("page1.pd");
       check("pd.template", pd.template, recordPanel("pd"));
       check("pd.template/pin", <PanelModelBase>pd.template.getElementByName("pin"), inTemplate);
       check("pd.template/pin2", <PanelModelBase>pd.template.getElementByName("pin2"), inTemplate);
@@ -102,7 +102,7 @@ describe("container data nesting: the place of a container", () => {
         check("pd.panels[0]/pdInner.panels[0]/pin3", <PanelModelBase>pdInner.panels[0].getElementByName("pin3"), inRecord);
       }
 
-      const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("page1.m");
       check("m.detailPanel", m.detailPanel, recordPanel("m"));
       check("m.detailPanel/din", <PanelModelBase>m.detailPanel.getElementByName("din"), inTemplate);
       check("m.detailPanel/din2", <PanelModelBase>m.detailPanel.getElementByName("din2"), inTemplate);
@@ -114,7 +114,7 @@ describe("container data nesting: the place of a container", () => {
         check("row.detailPanel/din2", <PanelModelBase>row.detailPanel.getElementByName("din2"), inRecord);
       }
 
-      const content: PanelModelBase = (<any>survey.getQuestionByName("comp")).contentPanel;
+      const content: PanelModelBase = (<any>survey.getQuestionByName("page1.comp")).contentPanel;
       check("comp.contentPanel", content, inComposite);
       check("comp.contentPanel/cin", <PanelModelBase>content.getElementByName("cin"), inComposite);
       check("comp.contentPanel/cin2", <PanelModelBase>content.getElementByName("cin2"), inComposite);
@@ -128,7 +128,7 @@ describe("container data nesting: the place of a container", () => {
   test("a page with valueName nests its panels on the survey's data", () => {
     const survey = new SurveyModel({ dataNesting: "auto", pages: [{ name: "p", valueName: "pg", elements: [
       { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }] }] });
-    const inner = <PanelModelBase>survey.getPanelByName("inner");
+    const inner = <PanelModelBase>survey.getPanelByName("p.inner");
     expect(ContainerDataNesting.getPlace(inner)).toBe("survey");
     expect(inner.getDataScopeKey()).toBe("address");
     expect(survey.pages[0].getDataScopeKey()).toBe("pg");

@@ -33,9 +33,9 @@ describe("scoped names 04: who holds my value, at the root, in a container and i
     const survey = new SurveyModel(json());
     const q = (name: string): Question => survey.getQuestionByName(name);
     expect(sharers(q("r1")), "root").toEqual(["r1", "r2"]);
-    expect(sharers(q("c1")), "container").toEqual(["c1", "c2"]);
+    expect(sharers(q("box.c1")), "container").toEqual(["c1", "c2"]);
     // An inner value name equal to a root key: the root's questions do not hold the inner value.
-    expect(sharers(q("c3")), "container, a root key's value name").toEqual(["c3"]);
+    expect(sharers(q("box.c3")), "container, a root key's value name").toEqual(["c3"]);
     const item = (<QuestionPanelDynamicModel>q("list")).panels[0];
     // A question in a record is looked up at the root, as before: the root holds the template's questions.
     const rootAnswer = survey.getQuestionsByValueName("x");
@@ -48,9 +48,9 @@ describe("scoped names 04: who holds my value, at the root, in a container and i
     q("r2").value = "b";
     q("r1").clearIncorrectValues();
     expect(q("r1").value, "root").toBe("b");
-    q("c2").value = "b";
-    q("c1").clearIncorrectValues();
-    expect(q("c1").value, "container").toBe("b");
+    q("box.c2").value = "b";
+    q("box.c1").clearIncorrectValues();
+    expect(q("box.c1").value, "container").toBe("b");
     const item = (<QuestionPanelDynamicModel>q("list")).panels[0];
     const d1 = <Question>item.getQuestionByName("d1");
     (<Question>item.getQuestionByName("d2")).value = "b";
@@ -63,8 +63,8 @@ describe("scoped names 04: who holds my value, at the root, in a container and i
     q("r1").value = "a";
     q("r1").visible = false;
     expect(survey.getValue("v"), "root").toBe("a");
-    q("c1").value = "a";
-    q("c1").visible = false;
+    q("box.c1").value = "a";
+    q("box.c1").visible = false;
     expect(survey.getValue("box"), "container").toEqual({ w: "a" });
   });
   test("the auto-advance owner (B2 (a): today's answer)", () => {
@@ -72,9 +72,9 @@ describe("scoped names 04: who holds my value, at the root, in a container and i
     const q = (name: string): Question => survey.getQuestionByName(name);
     expect(isOwner(q("r1")), "root, the first sharer").toBe(true);
     expect(isOwner(q("r2")), "root, the second sharer").toBe(false);
-    expect(isOwner(q("c1")), "container, the first sharer").toBe(true);
-    expect(isOwner(q("c2")), "container, the second sharer").toBe(true);
-    expect(isOwner(q("c3")), "container, a root key's value name").toBe(true);
+    expect(isOwner(q("box.c1")), "container, the first sharer").toBe(true);
+    expect(isOwner(q("box.c2")), "container, the second sharer").toBe(true);
+    expect(isOwner(q("box.c3")), "container, a root key's value name").toBe(true);
     const item = (<QuestionPanelDynamicModel>q("list")).panels[0];
     expect(isOwner(<Question>item.getQuestionByName("d1")), "record").toBe(false);
   });

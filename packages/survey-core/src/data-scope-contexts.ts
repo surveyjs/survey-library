@@ -1,7 +1,7 @@
 import type { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
 import type { PanelDataScope } from "./panel-data-scope";
-import { ValueGetterContextCore } from "./conditions/conditionProcessValue";
+import { PropertyGetterContext, ValueGetterContextCore } from "./conditions/conditionProcessValue";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { getNameOfCommentName } from "./data-object-utils";
@@ -63,7 +63,14 @@ export class PanelDataScopeValueGetterContext extends DataLevelValueGetterContex
     super();
   }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
-    if (params.path.length === 0) return { isFound: true, value: this.scopes[0].getObjectValue(), context: this };
+    const path = params.path;
+    if (path.length === 0) return { isFound: true, value: this.scopes[0].getObjectValue(), context: this };
+    // A property path ({$details.isVisible}) names a panel of the scope first, letter case ignored, as the survey
+    // reads one of its own (scoped names 05, O3).
+    if (params.isProperty && path.length > 1) {
+      const panel = this.scopes[0].findOwnElement(path[0].name, (el: any): boolean => !el.isQuestion, true, false);
+      if (!!panel) return new PropertyGetterContext(panel).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+    }
     return super.getValue(params);
   }
   getRootObj(): IObjectValueContext {

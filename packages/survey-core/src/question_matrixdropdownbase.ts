@@ -801,6 +801,10 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     const template = !this.detailPanel && !!owner ? owner.getRecordSortTemplate() : undefined;
     return !!template ? (<Array<IElement>>this.getCellQuestions()).concat(template.elements) : super.getRecordKeyElements();
   }
+  // A cell is no element of the row's name scope: its name is a column's (O9 makes the detail panel the scope).
+  protected isScopeName(el: ISurveyDataElement): boolean {
+    return !!(<any>el).parent;
+  }
   // The cells' questions, then the detail panel's elements once the panel exists.
   protected getScopeElements(): Array<IElement> {
     const res: Array<IElement> = this.getCellQuestions();
@@ -3085,15 +3089,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   private anyValueChangedScope: Scope = new Scope();
   /* The rows and the totals follow the change. A matrix does not re-validate its own validators when
      another value changes (Question.onAnyValueChanged): it never has. */
-  onAnyValueChanged(name: string, questionName: string): void {
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
     if (this.isUpdateLocked || this.anyValueChangedScope.isActive) return;
     this.anyValueChangedScope.run((): void => {
-      this.onAnyValueChangedInItems(name, questionName);
+      this.onAnyValueChangedInItems(name, questionName, question);
       // The total row is outside the record walk. It is created with the rows: before them there is
       // nothing for it to total.
       const totalRow = this.areObjectsBuilt() ? this.visibleTotalRow : null;
       if (!!totalRow) {
-        totalRow.onAnyValueChanged(name, questionName);
+        totalRow.onAnyValueChanged(name, questionName, question);
       }
     });
   }

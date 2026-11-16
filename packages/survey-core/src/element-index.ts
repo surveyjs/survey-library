@@ -13,7 +13,9 @@ import { DataKeyHash, IDataKeys, getElementDataScope } from "./data-key-index";
 // - By key (a data scope's instance): addKeyed, removeKeyed, reKey and the IDataKeys reads. Questions under their
 //   value name and active containers under their key; for one key the questions come first. elements holds each
 //   element once: in document order for a scope below the root (the lists read it), in no order read by anyone
-//   for the root. Each key's list follows the rank the owner gives, or the order of elements.
+//   for the root. Each key's list follows the rank the owner gives, or the order of elements. A scope below the
+//   root also holds by name every element its walk reaches (addNamed): its keyed elements and the panels that
+//   hold no data, the scope's own names (name-scope.ts); find answers from them.
 export class ElementIndex implements IDataKeys {
   private names = new DataKeyHash<ISurveyElement>();
   private heldNames = new WeakMap<ISurveyElement, string>();
@@ -84,6 +86,17 @@ export class ElementIndex implements IDataKeys {
     this.names.forEach(callback);
   }
 
+  // By name inside a scope's instance: no stamp, which only the survey's flat structure keeps.
+  public addNamed(el: ISurveyElement): void {
+    ElementIndex.hold(this.names, this.heldNames, el, el.name || "");
+  }
+  // A held element under its current name.
+  public reName(el: ISurveyElement): void {
+    if (this.heldNames.has(el)) {
+      ElementIndex.hold(this.names, this.heldNames, el, el.name || "");
+    }
+  }
+
   // By key.
   public has(el: ISurveyDataElement): boolean {
     return this.heldKeys.has(el);
@@ -98,7 +111,9 @@ export class ElementIndex implements IDataKeys {
       this.getKeyHash(el).insert(key, el, this.getRank);
     }
   }
+  // The element leaves the names too.
   public removeKeyed(el: ISurveyDataElement): void {
+    ElementIndex.hold(this.names, this.heldNames, <ISurveyElement><any>el, undefined);
     const key = this.heldKeys.get(el);
     if (key === undefined) return;
     this.heldKeys.delete(el);

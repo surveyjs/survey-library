@@ -354,8 +354,8 @@ describe("Survey element names: one hash for questions, panels and pages", () =>
   test("a nesting survey (dataNesting written after the pages) keeps every name", () => {
     const survey = new SurveyModel(Object.assign(treeJson(), { dataNesting: "panelAndPage" }));
     expect(id(survey.getPageByName("page1"))).toBe(id(survey.pages[0]));
-    expect(survey.getPanelByName("panel2")).toBeTruthy();
-    expect(survey.getQuestionByName("q2").name).toBe("q2");
+    expect(survey.getPanelByName("page1.panel1.panel2")).toBeTruthy();
+    expect(survey.getQuestionByName("page1.panel1.panel2.q2").name).toBe("q2");
     survey.dataNesting = "none";
     expect(survey.getPanelByName("panel2")).toBeTruthy();
     expect(id(survey.getPageByName("page2"))).toBe(id(survey.pages[1]));

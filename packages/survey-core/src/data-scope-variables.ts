@@ -3,11 +3,9 @@ import type { Question } from "./question";
 import type { IExpressionScopePath, IExpressionVariableInfo } from "./survey";
 import type { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ValueGetter } from "./conditions/conditionProcessValue";
-import { Helpers } from "./helpers";
 import type { IDataScope } from "./data-key-index";
 import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
 import { getMetadataValueGetterContext } from "./data-scope-metadata";
-import { getNameOfCommentName } from "./data-object-utils";
 
 // The survey members the expression variable lookup reads. The survey is the root data scope: an element
 // whose value scope is it is a top-level element.
@@ -47,21 +45,16 @@ export function getQuestionByVariable(survey: IDataScopeVariablesSurvey, name: s
   return res;
 }
 // SurveyModel.getQuestionVariableName, the reverse of getQuestionByVariable: the variable a root expression
-// names question by. A top-level question: its value name. An inner question: its name when the root
-// resolves that name to it ({city}, which survives a change of its container's key or of dataNesting), else
-// its data path ({address.town}): its value name is no key of the survey data, and a top-level value name
-// may take its name. A question no root variable reaches (one inside a container of a record) keeps its
-// name, as the record's own expressions read it: its data path starts at the record, not at the survey data.
+// names question by. A top-level question: its value name. An inner question: its data path ({address.town}):
+// the root does not resolve a name inside a container (O3). A question no root variable reaches (one inside a
+// container of a record) keeps its name, as the record's own expressions read it: its data path starts at the
+// record, not at the survey data.
 export function getQuestionVariableName(survey: IDataScopeVariablesSurvey, question: Question): string {
   const path = question.getDataPath();
   if (path.length < 2) return question.getValueName();
-  const isNamedBy = (name: string): boolean => {
-    const info = getQuestionByVariable(survey, name);
-    return !!info && info.question === question && !info.rest;
-  };
-  if (isNamedBy(question.name)) return question.name;
   const pathName = path.join(".");
-  return isNamedBy(pathName) ? pathName : question.name;
+  const info = getQuestionByVariable(survey, pathName);
+  return !!info && info.question === question && !info.rest ? pathName : question.name;
 }
 // SurveyModel.getExpressionVariableName: the variable a root expression writes for name. A name the root reads
 // as a question's value goes as it is (a value name, a data path, {m.r1}); a question's name gives the variable
@@ -100,24 +93,15 @@ export function getExpressionScopePaths(survey: IDataScopeVariablesSurvey, conte
   return getPathPrefixes(!!scope ? scope.getDataPath() : []).map(path => <IExpressionScopePath>{ path: path });
 }
 // SurveyModel.findDataScopeValueContext: the root expression lookup (SurveyValueGetterContext), in this
-// order: the root's keys, a question by value name (the exact name first), then a container by key; then a
-// question by name whose value scope is not the root (names are unique). A comment key
-// ({kind-Comment}) of such a question gives the comment it stores (value, no context), as a top-level
-// {q-Comment} reads the raw data key; isMetadata (getQuestionByVariable) gives the question instead, marked
-// isComment, and reads nothing.
-export function findDataScopeValueContext(survey: IDataScopeVariablesSurvey, name: string, isMetadata?: boolean): { obj?: Question, context?: IValueGetterContext, value?: any, isComment?: boolean } {
+// order: the root's keys, a question by value name (the exact name first), then a container by key. A name
+// inside a container is not found from the root (O3): an expression outside the container writes its data path
+// ({address.street}); one inside it resolves the bare name in its own scope and the scopes around it
+// (PanelDataScope.getValueGetterContext).
+export function findDataScopeValueContext(survey: IDataScopeVariablesSurvey, name: string): { obj?: Question, context?: IValueGetterContext } {
   const q = survey.getQuestionByValueName(name, true);
   if (!!q) return { obj: q, context: q.getValueGetterContext() };
   if (!survey.isDataScopeUsed()) return undefined;
   const scopes = survey.getDataKeyIndex().getScopes(name, true);
   if (scopes.length > 0) return { context: new PanelDataScopeValueGetterContext(scopes) };
-  const inner = survey.getQuestionByName(name, true);
-  if (!!inner && inner.getValueScope() !== survey) return { obj: inner, context: inner.getValueGetterContext() };
-  const baseName = getNameOfCommentName(name);
-  const owner = !!baseName ? survey.getQuestionByName(baseName, true) : null;
-  if (!!owner && owner.getValueScope() !== survey) {
-    if (isMetadata) return { obj: owner, isComment: true };
-    return { value: owner.getValueScope().getValue(Helpers.getCommentKey(owner.getValueName())) };
-  }
   return undefined;
 }

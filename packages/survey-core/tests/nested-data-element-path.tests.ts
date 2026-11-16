@@ -24,6 +24,10 @@ const wrap = (layout: Layout, elements: Array<any>): Array<any> => !layout.neste
 // The object under the path of the questions: the root data, or data.outer.inner.
 const put = (layout: Layout, obj: any): any => !layout.nested ? obj : { outer: { inner: obj } };
 const pathOf = (layout: Layout, key: string): Array<string> => layout.nested ? ["outer", "inner", key] : [key];
+// A question's path of names from the survey, and the variable a root expression reads it by: a bare name inside a
+// container is not found from the survey (scoped names 05, O1, O3).
+const at = (layout: Layout, name: string): string => layout.nested ? "outerPanel.innerPanel." + name : name;
+const v = (layout: Layout, key: string): string => pathOf(layout, key).join(".");
 const delay = (): Promise<void> => new Promise(resolve => setTimeout(resolve, 20));
 const withNoDelay = async (func: () => Promise<void>): Promise<void> => {
   const prevDelay = settings.autoAdvanceDelay;
@@ -45,12 +49,12 @@ describe("nested data path: the element members", () => {
       ] }
     ] }] });
     const outer = <PanelModel>survey.getPanelByName("outerPanel");
-    const inner = <PanelModel>survey.getPanelByName("innerPanel");
+    const inner = <PanelModel>survey.getPanelByName("outerPanel.innerPanel");
     expect(survey.getQuestionByName("q0").getDataPath(), "a value name").toEqual(["v0"]);
     expect(survey.getQuestionByName("q0").getValueScope()).toBe(survey);
     expect(survey.getQuestionByName("q1").getDataPath(), "a panel that does not nest is transparent").toEqual(["q1"]);
-    expect(survey.getQuestionByName("q2").getDataPath()).toEqual(["outer", "inner", "v2"]);
-    expect(survey.getQuestionByName("q2").getValueScope()).toBe(inner.getDataScope());
+    expect(survey.getQuestionByName("outerPanel.innerPanel.q2").getDataPath()).toEqual(["outer", "inner", "v2"]);
+    expect(survey.getQuestionByName("outerPanel.innerPanel.q2").getValueScope()).toBe(inner.getDataScope());
     expect(outer.getDataPath(), "a container: its key").toEqual(["outer"]);
     expect(outer.getValueScope()).toBe(survey);
     expect(inner.getDataPath()).toEqual(["outer", "inner"]);
@@ -59,7 +63,7 @@ describe("nested data path: the element members", () => {
     expect(survey.pages[0].getDataPath(), "a page that does not nest").toEqual([]);
     survey.dataNesting = "page";
     expect(survey.pages[0].getDataPath()).toEqual(["page1"]);
-    expect(survey.getQuestionByName("q2").getDataPath()).toEqual(["page1", "outer", "inner", "v2"]);
+    expect(survey.getQuestionByName("page1.outerPanel.innerPanel.q2").getDataPath()).toEqual(["page1", "outer", "inner", "v2"]);
   });
 });
 
@@ -80,7 +84,7 @@ describe.each(layouts)("nested data path: filtered values, server validation, tr
       expect(values[key]).toEqual(expected[key]);
     }
     expect(survey.data, "the stored data keeps its shape").toEqual(put(layout, { q1: "x", fruits: [{ fruit: "a" }, { fruit: "b" }] }));
-    expect(survey.runCondition("{fruits} contains 'a'"), "an expression reads the filtered value").toBe(true);
+    expect(survey.runCondition("{" + v(layout, "fruits") + "} contains 'a'"), "an expression reads the filtered value").toBe(true);
   });
   test("onServerValidateQuestions options.data", () => {
     const survey = new SurveyModel(fruitsJson());
@@ -96,7 +100,7 @@ describe.each(layouts)("nested data path: filtered values, server validation, tr
   });
   test("runTriggers() runs a setvalue trigger on the question's value", () => {
     const survey = new SurveyModel(Object.assign(fruitsJson(), {
-      triggers: [{ type: "setvalue", expression: "{q1} = 'x'", setToName: "target", setValue: "done" }]
+      triggers: [{ type: "setvalue", expression: "{" + v(layout, "q1") + "} = 'x'", setToName: "target", setValue: "done" }]
     }));
     survey.data = put(layout, { q1: "x" });
     expect(survey.getValue("target"), "setting data runs no setvalue trigger").toBeUndefined();
@@ -105,16 +109,16 @@ describe.each(layouts)("nested data path: filtered values, server validation, tr
   });
   test("a copyvalue trigger copies the question's value on a change", () => {
     const survey = new SurveyModel(Object.assign(fruitsJson(), {
-      triggers: [{ type: "copyvalue", expression: "{q1} notempty", setToName: "target", fromName: "q1" }]
+      triggers: [{ type: "copyvalue", expression: "{" + v(layout, "q1") + "} notempty", setToName: "target", fromName: v(layout, "q1") }]
     }));
-    survey.getQuestionByName("q1").value = "y";
+    survey.getQuestionByName(at(layout, "q1")).value = "y";
     expect(survey.getValue("target")).toBe("y");
   });
   test("a setvalue trigger does not run on a change of its own target", () => {
     const survey = new SurveyModel(Object.assign(fruitsJson(), {
-      triggers: [{ type: "setvalue", expression: "{q1} notempty", setToName: "q1", setValue: "fixed" }]
+      triggers: [{ type: "setvalue", expression: "{" + v(layout, "q1") + "} notempty", setToName: v(layout, "q1"), setValue: "fixed" }]
     }));
-    const q1 = survey.getQuestionByName("q1");
+    const q1 = survey.getQuestionByName(at(layout, "q1"));
     q1.value = "y";
     expect(q1.value).toBe("y");
     expect(survey.data).toEqual(put(layout, { q1: "y" }));
@@ -122,10 +126,10 @@ describe.each(layouts)("nested data path: filtered values, server validation, tr
   test("performNext in questionPerPage mode runs a complete trigger on the question's value", () => {
     const survey = new SurveyModel(Object.assign(fruitsJson(), {
       questionsOnPageMode: "questionPerPage",
-      triggers: [{ type: "complete", expression: "{q1} = 'x'" }]
+      triggers: [{ type: "complete", expression: "{" + v(layout, "q1") + "} = 'x'" }]
     }));
     expect(survey.currentSingleElement.name, "the first element").toBe(layout.nested ? "outerPanel" : "q1");
-    survey.getQuestionByName("q1").value = "x";
+    survey.getQuestionByName(at(layout, "q1")).value = "x";
     survey.performNext();
     expect(survey.state).toBe("completed");
   });
@@ -151,7 +155,7 @@ describe("nested data path: runTriggers() keys below the root hold the stored va
       { type: "text", name: "other" }
     ]).concat([{ type: "text", name: "t" }]),
     triggers: [{ type: "setvalue", expression: "{inn[0]} empty", setToName: "t", setValue: "fired" }] });
-    survey.getQuestionByName("other").value = "x";
+    survey.getQuestionByName(at(layout, "other")).value = "x";
     survey.runTriggers();
     expect(survey.getValue("t")).toBe(layout.nested ? undefined : "fired");
   });
@@ -159,7 +163,7 @@ describe("nested data path: runTriggers() keys below the root hold the stored va
     const survey = new SurveyModel({ dataNesting: "page", questionsOnPageMode: "questionPerPage",
       triggers: [{ type: "complete", expression: "{page1.street} = 'x'" }],
       pages: [{ name: "page1", elements: [{ type: "text", name: "page1", valueName: "street" }, { type: "text", name: "last" }] }] });
-    survey.getQuestionByName("page1").value = "x";
+    survey.getQuestionByName("page1.page1").value = "x";
     expect(survey.data).toEqual({ page1: { street: "x" } });
     survey.performNext();
     expect(survey.state).toBe("completed");
@@ -176,10 +180,11 @@ describe("nested data path: questionPerPage auto-advance, a write by an off-scre
           { type: "dropdown", name: "q1", valueName: "shared", choices: ["a", "b"] },
           { type: "dropdown", name: "q2", valueName: "shared", choices: ["a", "b"] },
           { type: "text", name: "last" }] }] });
-      survey.getQuestionByName("q1").value = "a";
+      const q1 = survey.getQuestionByName(opt.dataNesting === "none" ? "q1" : "page1.q1");
+      q1.value = "a";
       await delay();
       expect(survey.currentSingleElement.name).toBe("q2");
-      survey.getQuestionByName("q1").value = "b";
+      q1.value = "b";
       await delay();
       expect(survey.currentSingleElement.name, "q2 holds the value and is on screen").toBe("last");
     });
@@ -263,8 +268,8 @@ describe.each(layouts)("nested data path: a shared value name ($title)", (layout
   ] }, extra || {});
   test("hasVisibleQuestionByValueName", () => {
     const survey = new SurveyModel(sharedJson());
-    const q1 = survey.getQuestionByName("q1");
-    const q2 = survey.getQuestionByName("q2");
+    const q1 = survey.getQuestionByName(at(layout, "q1"));
+    const q2 = survey.getQuestionByName(at(layout, "q2"));
     expect(survey.hasVisibleQuestionByValueName(q1)).toBe(true);
     q2.visible = false;
     expect(survey.hasVisibleQuestionByValueName(q1)).toBe(false);
@@ -274,20 +279,20 @@ describe.each(layouts)("nested data path: a shared value name ($title)", (layout
   });
   test("the hidden sharer's value stays on complete", () => {
     const survey = new SurveyModel(sharedJson());
-    survey.getQuestionByName("q2").visible = false;
-    survey.getQuestionByName("q2").value = "b";
+    survey.getQuestionByName(at(layout, "q2")).visible = false;
+    survey.getQuestionByName(at(layout, "q2")).value = "b";
     survey.doComplete();
     expect(survey.data).toEqual(put(layout, { shared: "b" }));
   });
   test("auto-advance: a write of either sharer moves to the next page", async () => {
     await withNoDelay(async () => {
       const survey = new SurveyModel(sharedJson({ autoAdvanceEnabled: true }));
-      survey.getQuestionByName("q2").value = "a";
+      survey.getQuestionByName(at(layout, "q2")).value = "a";
       await delay();
       expect(survey.currentPageNo).toBe(1);
       survey.currentPageNo = 0;
       survey.clear(true, true);
-      survey.getQuestionByName("q1").value = "b";
+      survey.getQuestionByName(at(layout, "q1")).value = "b";
       await delay();
       expect(survey.currentPageNo).toBe(1);
     });
@@ -297,7 +302,7 @@ describe.each(layouts)("nested data path: a shared value name ($title)", (layout
       const survey = new SurveyModel(sharedJson({ autoAdvanceEnabled: true, questionsOnPageMode: "questionPerPage" }));
       // Top-level, each sharer is an element; nested, the container is the one element that holds both.
       expect(survey.currentSingleElement.name).toBe(layout.nested ? "outerPanel" : "q1");
-      survey.getQuestionByName("q1").value = "a";
+      survey.getQuestionByName(at(layout, "q1")).value = "a";
       await delay();
       expect(survey.currentSingleElement.name).toBe(layout.nested ? "last" : "q2");
       if (layout.nested) return;
@@ -310,8 +315,8 @@ describe.each(layouts)("nested data path: a shared value name ($title)", (layout
   test("auto-advance: Enter on a sharer", async () => {
     await withNoDelay(async () => {
       const survey = new SurveyModel(sharedJson({ autoAdvanceEnabled: true }));
-      const q1: any = survey.getQuestionByName("q1");
-      const q2: any = survey.getQuestionByName("q2");
+      const q1: any = survey.getQuestionByName(at(layout, "q1"));
+      const q2: any = survey.getQuestionByName(at(layout, "q2"));
       expect(q1.canAdvanceOnEnter(), "the first sharer").toBe(true);
       expect(q2.canAdvanceOnEnter(), "the second sharer").toBe(layout.nested);
     });
@@ -396,8 +401,8 @@ describe("nested data path: onValueChanged / onValueChanging (D1, D13)", () => {
     ]).concat([{ type: "text", name: "top" }]) });
     const log = collect(survey);
     const key = layout.nested ? "outer" : "q1";
-    survey.getQuestionByName("q1").value = "a";
-    survey.getQuestionByName("q2").value = "b";
+    survey.getQuestionByName(at(layout, "q1")).value = "a";
+    survey.getQuestionByName(at(layout, "q2")).value = "b";
     survey.setValue(key, layout.nested ? { inner: { q1: "c" } } : "c");
     survey.setValue("top", "t");
     survey.setValue("none", "n");
@@ -416,8 +421,8 @@ describe("nested data path: onValueChanged / onValueChanging (D1, D13)", () => {
       "changing:top:top", "changing:top:top", "changed:top:top",
       "changing:none:null"
     ]);
-    expect(survey.getQuestionByName("q1").value).toBe("c");
-    expect(survey.getQuestionByName("req").errors.length, "an empty required question does not block another's write").toBe(0);
+    expect(survey.getQuestionByName(at(layout, "q1")).value).toBe("c");
+    expect(survey.getQuestionByName(at(layout, "req")).errors.length, "an empty required question does not block another's write").toBe(0);
   });
 });
 

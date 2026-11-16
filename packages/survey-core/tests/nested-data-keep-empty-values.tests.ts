@@ -29,7 +29,7 @@ describe("nested data, data.keepEmptyValues: a respondent's own clear inside a c
   offAndOn.forEach(isKeepOn => {
     test("a text: type a text, then erase it, " + caseName(isKeepOn), () => {
       const survey = createSurvey(inAddress([{ type: "text", name: "street" }]), isKeepOn);
-      const q = survey.getQuestionByName("street");
+      const q = survey.getQuestionByName("panel1.street");
       blurText(q, "x");
       expect(survey.data, "#1").toStrictEqual({ address: { street: "x" } });
       blurText(q, "");
@@ -38,9 +38,9 @@ describe("nested data, data.keepEmptyValues: a respondent's own clear inside a c
     });
     test("a text erased next to an answered sibling, " + caseName(isKeepOn), () => {
       const survey = createSurvey(inAddress([{ type: "text", name: "street" }, { type: "text", name: "city" }]), isKeepOn);
-      blurText(survey.getQuestionByName("street"), "x");
-      blurText(survey.getQuestionByName("city"), "Oslo");
-      blurText(survey.getQuestionByName("street"), "");
+      blurText(survey.getQuestionByName("panel1.street"), "x");
+      blurText(survey.getQuestionByName("panel1.city"), "Oslo");
+      blurText(survey.getQuestionByName("panel1.street"), "");
       expect(survey.data).toStrictEqual(isKeepOn ? { address: { street: "", city: "Oslo" } } : { address: { city: "Oslo" } });
     });
     test("a checkbox unchecked, a dropdown, a rating and a boolean cleared, " + caseName(isKeepOn), () => {
@@ -51,10 +51,10 @@ describe("nested data, data.keepEmptyValues: a respondent's own clear inside a c
         { type: "boolean", name: "b", allowClear: true }
       ]), isKeepOn);
       survey.css = defaultCss;
-      const c = <QuestionCheckboxModel>survey.getQuestionByName("c");
-      const d = <QuestionDropdownModel>survey.getQuestionByName("d");
-      const r = <QuestionRatingModel>survey.getQuestionByName("r");
-      const b = survey.getQuestionByName("b");
+      const c = <QuestionCheckboxModel>survey.getQuestionByName("panel1.c");
+      const d = <QuestionDropdownModel>survey.getQuestionByName("panel1.d");
+      const r = <QuestionRatingModel>survey.getQuestionByName("panel1.r");
+      const b = survey.getQuestionByName("panel1.b");
       c.clickItemHandler(c.choices[0], true);
       d.value = "a";
       r.setValueFromClick("3");
@@ -72,7 +72,7 @@ describe("nested data, data.keepEmptyValues: a respondent's own clear inside a c
           { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }
         ] }
       ] }, isKeepOn);
-      const q = survey.getQuestionByName("street");
+      const q = survey.getQuestionByName("outer.inner.street");
       blurText(q, "x");
       blurText(q, "");
       expect(survey.data).toStrictEqual(isKeepOn ? { person: { address: { street: "" } } } : {});
@@ -80,15 +80,15 @@ describe("nested data, data.keepEmptyValues: a respondent's own clear inside a c
   });
   test("an empty value assigned in code inside a container is kept, as at the top level", () => {
     const survey = createSurvey(inAddress([{ type: "text", name: "street" }]), true);
-    const q = survey.getQuestionByName("street");
+    const q = survey.getQuestionByName("panel1.street");
     q.value = "x";
     q.value = "";
     expect(survey.data).toStrictEqual({ address: { street: "" } });
   });
   test("completion keeps a kept empty value inside a container", () => {
     const survey = createSurvey(inAddress([{ type: "text", name: "street" }]), true);
-    blurText(survey.getQuestionByName("street"), "x");
-    blurText(survey.getQuestionByName("street"), "");
+    blurText(survey.getQuestionByName("panel1.street"), "x");
+    blurText(survey.getQuestionByName("panel1.street"), "");
     survey.doComplete();
     expect(survey.data).toStrictEqual({ address: { street: "" } });
   });
@@ -97,15 +97,15 @@ describe("nested data, data.keepEmptyValues: a respondent's own clear inside a c
     test("a survey without its own value follows the global key, inside a container", () => {
       settings.data.keepEmptyValues = true;
       const survey = new SurveyModel(inAddress([{ type: "text", name: "street" }]));
-      blurText(survey.getQuestionByName("street"), "x");
-      blurText(survey.getQuestionByName("street"), "");
+      blurText(survey.getQuestionByName("panel1.street"), "x");
+      blurText(survey.getQuestionByName("panel1.street"), "");
       expect(survey.data).toStrictEqual({ address: { street: "" } });
     });
     test("a survey's own false wins over the global true, inside a container", () => {
       settings.data.keepEmptyValues = true;
       const survey = new SurveyModel(inAddress([{ type: "text", name: "street" }]), { data: { keepEmptyValues: false } });
-      blurText(survey.getQuestionByName("street"), "x");
-      blurText(survey.getQuestionByName("street"), "");
+      blurText(survey.getQuestionByName("panel1.street"), "x");
+      blurText(survey.getQuestionByName("panel1.street"), "");
       expect(survey.data).toStrictEqual({});
     });
   });
@@ -118,9 +118,9 @@ describe("nested data, data.keepEmptyValues: a system clear inside a container r
       { type: "checkbox", name: "c", choices: ["x"], visibleIf: "{a} != 'hide'" }
     ], { clearInvisibleValues: "onHidden" }), true);
     survey.addNewPage("p2").addNewQuestion("text", "a");
-    blurText(survey.getQuestionByName("street"), "x");
-    blurText(survey.getQuestionByName("street"), "");
-    survey.getQuestionByName("c").value = ["x"];
+    blurText(survey.getQuestionByName("panel1.street"), "x");
+    blurText(survey.getQuestionByName("panel1.street"), "");
+    survey.getQuestionByName("panel1.c").value = ["x"];
     expect(survey.data, "#1").toStrictEqual({ address: { street: "", c: ["x"] } });
     survey.setValue("a", "hide");
     expect(survey.data, "#2").toStrictEqual({ a: "hide" });
@@ -132,9 +132,9 @@ describe("nested data, data.keepEmptyValues: a system clear inside a container r
         { type: "text", name: "street" }, { type: "text", name: "city" }
       ] }
     ] }, true);
-    blurText(survey.getQuestionByName("street"), "x");
-    blurText(survey.getQuestionByName("street"), "");
-    blurText(survey.getQuestionByName("city"), "Oslo");
+    blurText(survey.getQuestionByName("panel1.street"), "x");
+    blurText(survey.getQuestionByName("panel1.street"), "");
+    blurText(survey.getQuestionByName("panel1.city"), "Oslo");
     expect(survey.data, "#1").toStrictEqual({ address: { street: "", city: "Oslo" } });
     survey.setValue("a", "hide");
     expect(survey.data, "#2").toStrictEqual({ a: "hide" });
@@ -147,9 +147,9 @@ describe("nested data, data.keepEmptyValues: a system clear inside a container r
         { type: "checkbox", name: "c", choices: ["x"], visibleIf: "{a} != 'hide'" }
       ] }
     ] }, true);
-    blurText(survey.getQuestionByName("street"), "x");
-    blurText(survey.getQuestionByName("street"), "");
-    survey.getQuestionByName("c").value = ["x"];
+    blurText(survey.getQuestionByName("panel1.street"), "x");
+    blurText(survey.getQuestionByName("panel1.street"), "");
+    survey.getQuestionByName("panel1.c").value = ["x"];
     survey.setValue("a", "hide");
     expect(survey.data, "#1: hidden, not cleared yet").toStrictEqual({ a: "hide", address: { street: "", c: ["x"] } });
     survey.doComplete();
@@ -163,18 +163,18 @@ describe("nested data, data.keepEmptyValues: a system clear inside a container r
   });
   test("question.clearValue() removes a value and a kept empty value inside a container", () => {
     const survey = createSurvey(inAddress([{ type: "text", name: "street" }, { type: "text", name: "city" }]), true);
-    blurText(survey.getQuestionByName("street"), "x");
-    blurText(survey.getQuestionByName("street"), "");
-    blurText(survey.getQuestionByName("city"), "Oslo");
-    survey.getQuestionByName("city").clearValue();
+    blurText(survey.getQuestionByName("panel1.street"), "x");
+    blurText(survey.getQuestionByName("panel1.street"), "");
+    blurText(survey.getQuestionByName("panel1.city"), "Oslo");
+    survey.getQuestionByName("panel1.city").clearValue();
     expect(survey.data, "#1: city cleared, the kept street stays").toStrictEqual({ address: { street: "" } });
-    survey.getQuestionByName("street").clearValue();
+    survey.getQuestionByName("panel1.street").clearValue();
     expect(survey.data, "#2: the kept value removed, the object has no keys left").toStrictEqual({});
   });
   test("survey.clearValue() of the container key removes the object", () => {
     const survey = createSurvey(inAddress([{ type: "text", name: "street" }]), true);
-    blurText(survey.getQuestionByName("street"), "x");
-    blurText(survey.getQuestionByName("street"), "");
+    blurText(survey.getQuestionByName("panel1.street"), "x");
+    blurText(survey.getQuestionByName("panel1.street"), "");
     survey.clearValue("address");
     expect(survey.data).toStrictEqual({});
   });
@@ -189,9 +189,9 @@ describe("nested data, data.keepEmptyValues: K3, an object that still has keys s
           { type: "text", name: "street" }, { type: "text", name: "city", visibleIf: "{a} != 'hide'" }
         ] }
       ] }, isKeepOn);
-      blurText(survey.getQuestionByName("street"), "x");
-      blurText(survey.getQuestionByName("street"), "");
-      blurText(survey.getQuestionByName("city"), "Oslo");
+      blurText(survey.getQuestionByName("panel1.street"), "x");
+      blurText(survey.getQuestionByName("panel1.street"), "");
+      blurText(survey.getQuestionByName("panel1.city"), "Oslo");
       survey.setValue("a", "hide");
       expect(survey.data).toStrictEqual(isKeepOn ? { a: "hide", address: { street: "" } } : { a: "hide" });
     });
@@ -204,16 +204,16 @@ describe("nested data, data.keepEmptyValues: K3, an object that still has keys s
           ] }
         ] }
       ] }, isKeepOn);
-      blurText(survey.getQuestionByName("street"), "x");
-      blurText(survey.getQuestionByName("street"), "");
-      blurText(survey.getQuestionByName("city"), "Oslo");
+      blurText(survey.getQuestionByName("outer.inner.street"), "x");
+      blurText(survey.getQuestionByName("outer.inner.street"), "");
+      blurText(survey.getQuestionByName("outer.inner.city"), "Oslo");
       survey.setValue("a", "hide");
       expect(survey.data).toStrictEqual(isKeepOn ? { a: "hide", person: { address: { street: "" } } } : { a: "hide" });
     });
     test("keys no question owns, deep empty, with a system clear of the last question, " + caseName(isKeepOn), () => {
       const survey = createSurvey(inAddress([{ type: "text", name: "street" }]), isKeepOn);
       survey.data = { address: { street: "x", foo: "" } };
-      survey.getQuestionByName("street").clearValue();
+      survey.getQuestionByName("panel1.street").clearValue();
       expect(survey.data).toStrictEqual(isKeepOn ? { address: { foo: "" } } : {});
     });
   });
@@ -247,7 +247,7 @@ describe("nested data, data.keepEmptyValues: comments, hasValue, clearEmptyValue
   offAndOn.forEach(isKeepOn => {
     test("K2: an empty comment (showOtherItem) inside a container is removed, " + caseName(isKeepOn), () => {
       const survey = createSurvey(inAddress([{ type: "dropdown", name: "kind", choices: ["home"], showOtherItem: true }]), isKeepOn);
-      const q = <QuestionDropdownModel>survey.getQuestionByName("kind");
+      const q = <QuestionDropdownModel>survey.getQuestionByName("panel1.kind");
       q.value = "other";
       q.otherValue = "x";
       expect(survey.data, "#1").toStrictEqual({ address: { kind: "other", "kind-Comment": "x" } });
@@ -257,30 +257,30 @@ describe("nested data, data.keepEmptyValues: comments, hasValue, clearEmptyValue
     // K4 (changed during the run): hasValue checks that the key is present, as at the top level.
     test("K4: hasValue for a kept empty value inside a container, " + caseName(isKeepOn), () => {
       const survey = createSurvey(inAddress([{ type: "text", name: "street" }]), isKeepOn);
-      blurText(survey.getQuestionByName("street"), "x");
-      blurText(survey.getQuestionByName("street"), "");
+      blurText(survey.getQuestionByName("panel1.street"), "x");
+      blurText(survey.getQuestionByName("panel1.street"), "");
       expect(new ConditionRunner("hasValue('address')").runValues(survey.data), "#1").toBe(isKeepOn);
       expect(new ConditionRunner("hasValue('address.street')").runValues(survey.data), "#2").toBe(isKeepOn);
       expect(survey.runExpression("hasValue('address')"), "#3").toBe(isKeepOn);
       expect(survey.runExpression("hasValue('address.street')"), "#4").toBe(isKeepOn);
-      expect(survey.getQuestionByName("street").isEmpty(), "#5: the question is empty either way").toBe(true);
+      expect(survey.getQuestionByName("panel1.street").isEmpty(), "#5: the question is empty either way").toBe(true);
     });
   });
   test("clearEmptyValues() removes the kept values inside the object, and the object", () => {
     const survey = createSurvey(inAddress([
       { type: "text", name: "street" }, { type: "checkbox", name: "c", choices: ["a"] }, { type: "text", name: "city" }
     ]), true);
-    blurText(survey.getQuestionByName("street"), "x");
-    blurText(survey.getQuestionByName("street"), "");
-    const c = <QuestionCheckboxModel>survey.getQuestionByName("c");
+    blurText(survey.getQuestionByName("panel1.street"), "x");
+    blurText(survey.getQuestionByName("panel1.street"), "");
+    const c = <QuestionCheckboxModel>survey.getQuestionByName("panel1.c");
     c.clickItemHandler(c.choices[0], true);
     c.clickItemHandler(c.choices[0], false);
     expect(survey.data, "#1").toStrictEqual({ address: { street: "", c: [] } });
     survey.clearEmptyValues();
     expect(survey.data, "#2").toStrictEqual({});
-    blurText(survey.getQuestionByName("street"), "x");
-    blurText(survey.getQuestionByName("street"), "");
-    blurText(survey.getQuestionByName("city"), "Oslo");
+    blurText(survey.getQuestionByName("panel1.street"), "x");
+    blurText(survey.getQuestionByName("panel1.street"), "");
+    blurText(survey.getQuestionByName("panel1.city"), "Oslo");
     survey.clearEmptyValues();
     expect(survey.data, "#3: an answered sibling stays").toStrictEqual({ address: { city: "Oslo" } });
   });
@@ -453,7 +453,7 @@ describe("nested data, data.keepEmptyValues: K5, a composite question", () => {
     const survey = createSurvey({ dataNesting: "auto", elements: [
       { type: "panel", name: "box", valueName: "home", elements: [{ type: "address", name: "addr" }] }
     ] }, true);
-    const q = <QuestionCompositeModel>survey.getQuestionByName("addr");
+    const q = <QuestionCompositeModel>survey.getQuestionByName("box.addr");
     blurText(content(q, "city"), "Oslo");
     blurText(content(q, "street"), "x");
     blurText(content(q, "street"), "");

@@ -281,6 +281,11 @@ describe("linter nested data: runtime parity of references", () => {
     "page1.q0", "page1.address", "page1.address.street", "page1.address.z", "page1.address.zip",
     "page1.address.deep.flat", "page1.address.deep", "address.street", "deep.flat", "page2.q3", "page1.q3",
   ];
+  // Scoped names 05 (O3): the runtime no longer finds a bare name outside its container, nor a question by its
+  // name where an expression reads value names (O8). The linter still does, by the old N11; it follows in step 07
+  // (O7). These are the references where the two differ until then.
+  const linterOnlyFromRoot = ["q0", "street", "zip", "flat", "q3"];
+  const linterOnlyInside = ["zip", "flat", "q3"];
   test("from the root, the linter resolves a reference exactly when the runtime gives a value", () => {
     const survey = new SurveyModel(json);
     survey.data = data;
@@ -289,7 +294,12 @@ describe("linter nested data: runtime parity of references", () => {
       const lintJson = JSON.parse(JSON.stringify(json));
       lintJson.pages[1].elements.push({ type: "expression", name: "probe", expression: "{" + ref + "}" });
       const resolved = refFindings(lintJson).length === 0;
-      expect(resolved, ref + " (runtime: " + JSON.stringify(runtime) + ")").toBe(runtime !== undefined && runtime !== null);
+      const hasValue = runtime !== undefined && runtime !== null;
+      if (linterOnlyFromRoot.indexOf(ref) > -1) {
+        expect([resolved, hasValue], ref + ": the linter only, until step 07").toEqual([true, false]);
+      } else {
+        expect(resolved, ref + " (runtime: " + JSON.stringify(runtime) + ")").toBe(hasValue);
+      }
     });
   });
   test("inside a container, the linter resolves a reference exactly when the runtime gives a value", () => {
@@ -299,9 +309,13 @@ describe("linter nested data: runtime parity of references", () => {
       runtimeJson.pages[0].elements[1].elements[0].visibleIf = "{" + ref + "} notempty";
       const survey = new SurveyModel(runtimeJson);
       survey.data = data;
-      const runtimeVisible = survey.getQuestionByName("street").isVisible;
+      const runtimeVisible = survey.getQuestionByName("page1.info.street").isVisible;
       const resolved = refFindings(runtimeJson).length === 0;
-      expect(resolved, ref).toBe(runtimeVisible);
+      if (linterOnlyInside.indexOf(ref) > -1) {
+        expect([resolved, runtimeVisible], ref + ": the linter only, until step 07").toEqual([true, false]);
+      } else {
+        expect(resolved, ref).toBe(runtimeVisible);
+      }
     });
   });
 });
@@ -520,7 +534,10 @@ describe("linter nested data: ignored and generated keys", () => {
       ],
     };
     const survey = new SurveyModel(json);
-    ["a", "b", "c", "d"].forEach(name => survey.getQuestionByName(name).value = name);
+    // Each by its path: in a nesting mode a bare name finds only the survey's own elements (O1). Two pages are
+    // named "page1" (one generated): a path follows the first, so c is taken from its page.
+    ["page1.panel2.a", "page1.panel3.panel4.b", "page2.d"].forEach(path => survey.getQuestionByName(path).value = path.split(".").pop());
+    survey.pages[1].getQuestionByName("c").value = "c";
     expect(survey.data).toEqual({ page1: { panel2: { a: "a" }, panel3: { panel4: { b: "b" } }, c: "c" }, page2: { d: "d" } });
     const keys = findingsOf(json, "nesting/generated-key").filter(f => f.reason === "unnamed").map(f => f.messageData.key);
     expect(keys).toEqual(["page1", "panel2", "panel3", "panel4", "page2"]);
@@ -530,7 +547,7 @@ describe("linter nested data: ignored and generated keys", () => {
   test("root elements in a page mode nest under the page the survey generates, as at runtime", () => {
     const json: any = { dataNesting: "page", elements: [{ type: "text", name: "a" }] };
     const survey = new SurveyModel(json);
-    survey.getQuestionByName("a").value = "x";
+    survey.getQuestionByName("page1.a").value = "x";
     expect(survey.data).toEqual({ page1: { a: "x" } });
     json.elements.push({ type: "text", name: "q", visibleIf: "{page1.a} = 1" });
     expect(brief(refFindings(json))).toEqual([]);
@@ -585,8 +602,8 @@ describe("linter nested data: review fixes", () => {
     };
     const survey = new SurveyModel(json);
     survey.data = { address: { m: { r: { c: 3 } } } };
-    expect(survey.getQuestionByName("q").isVisible).toBe(false);
-    expect(survey.getQuestionByName("q2").isVisible).toBe(true);
+    expect(survey.getQuestionByName("p.q").isVisible).toBe(false);
+    expect(survey.getQuestionByName("p.q2").isVisible).toBe(true);
     expect(brief(refFindings(json))).toEqual(["reference/unknown/notFound @ elements[0].elements[1].visibleIf"]);
   });
   test("keys that differ in letter case are one object to a reference", () => {
@@ -983,7 +1000,7 @@ describe("linter nested data: the totals of a matrix class a host registers", ()
       };
       const survey = new SurveyModel(json);
       survey.getQuestionByName("m").visibleRows[0].cells[0].value = 1;
-      survey.getQuestionByName("m2").visibleRows[0].cells[0].value = 1;
+      survey.getQuestionByName("p.m2").visibleRows[0].cells[0].value = 1;
       expect(survey.data["m-total"]).toEqual({ c: 1 });
       expect(survey.data.addr["m2-total"]).toEqual({ c: 1 });
       const findings = refFindings(json);

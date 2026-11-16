@@ -18,6 +18,10 @@ import "../src/question_multipletext";
 // variable reads, by the runtime's own walk without values.
 
 const MODES = ["auto", "none", "panel", "page", "panelAndPage"];
+// By its name, whatever the mode: in a nesting mode the survey finds an inner element by its path (scoped names 05,
+// O1). The names of these surveys are unique.
+const questionNamed = (survey: SurveyModel, name: string): Question => survey.getAllQuestions().filter(el => el.name === name)[0];
+const panelNamed = (survey: SurveyModel, name: string): PanelModel => <PanelModel>survey.getAllPanels().filter(el => el.name === name)[0];
 
 function createJson(mode: string): any {
   return { dataNesting: mode, pages: [{ name: "page1", elements: [
@@ -39,7 +43,9 @@ function createJson(mode: string): any {
 // Every question answers with a distinct value, comments set.
 function createSurvey(mode: string): SurveyModel {
   const survey = new SurveyModel(createJson(mode));
-  const q = (name: string): Question => survey.getQuestionByName(name);
+  // By its name, whatever the mode: the names of this survey are unique (in a nesting mode the survey finds an inner
+  // question by its path, scoped names 05, O1).
+  const q = (name: string): Question => survey.getAllQuestions().filter(el => el.name === name)[0];
   q("q1").value = "Q1";
   q("kindTop").value = "KT";
   q("kindTop").comment = "KTC";
@@ -95,8 +101,8 @@ describe("nested data 17: the question an expression variable names", () => {
     for (const mode of MODES) {
       const survey = createSurvey(mode);
       const contexts: Array<{ title: string, obj: Base }> = [
-        { title: "root", obj: survey }, { title: "street", obj: survey.getQuestionByName("street") },
-        { title: "st", obj: survey.getQuestionByName("st") }];
+        { title: "root", obj: survey }, { title: "street", obj: questionNamed(survey, "street") },
+        { title: "st", obj: questionNamed(survey, "st") }];
       for (const cxt of contexts) {
         for (const name of NAMES) {
           const title = mode + "/" + cxt.title + "/" + name;
@@ -120,28 +126,31 @@ describe("nested data 17: the question an expression variable names", () => {
   });
   test("rest, isComment and isUnwrapped, auto mode", () => {
     const survey = createSurvey("auto");
-    const street = survey.getQuestionByName("street");
-    const st = survey.getQuestionByName("st");
+    const street = survey.getQuestionByName("panel1.street");
+    const st = survey.getQuestionByName("panel1.inner.st");
+    // Scoped names 05 (O3): a bare name resolves in the owner's scope and the scopes around it, by value name, as
+    // a container's context does; the survey-wide lookup by name is gone. So from the root an inner question is
+    // reached by its data path only, and {city} (value name "town") is found nowhere (O8: an expression reads keys).
     const expected: { [name: string]: Array<string> } = {
       // name: [root, from street, from st]
       "q1": ["q1|", "q1|", "q1|"],
-      "street": ["street|", "street|", "street|"],
+      "street": ["null", "street|", "street|"],
       "address.street": ["street|", "street|", "street|"],
       "ADDRESS.Street": ["street|", "street|", "street|"],
-      "st": ["st|", "st|", "st|"],
+      "st": ["null", "null", "st|"],
       "sub.st": ["null", "st|", "st|"],
-      "city": ["city|", "city|", "city|"],
+      "city": ["null", "null", "null"],
       "town": ["null", "city|", "city|"],
       "address.town": ["city|", "city|", "city|"],
       "address.a.b": ["ab|", "ab|", "ab|"],
-      "m.r1": ["m|.r1", "m|.r1", "m|.r1"],
+      "m.r1": ["null", "m|.r1", "m|.r1"],
       "md.r1.c1": ["md|.r1.c1", "md|.r1.c1", "md|.r1.c1"],
       "mt.i1": ["mt|.i1", "mt|.i1", "mt|.i1"],
       "dp[0].dq": ["dp|[0].dq", "dp|[0].dq", "dp|[0].dq"],
-      "kind-unwrapped": ["kind||unwrapped", "kind||unwrapped", "kind||unwrapped"],
-      "kind-Comment": ["kind||comment", "kind||comment", "kind||comment"],
+      "kind-unwrapped": ["null", "kind||unwrapped", "kind||unwrapped"],
+      "kind-Comment": ["null", "kind||comment", "kind||comment"],
       "kindTop-Comment": ["kindTop||comment", "kindTop||comment", "kindTop||comment"],
-      "city-Comment": ["city||comment", "city||comment", "city||comment"],
+      "city-Comment": ["null", "null", "null"],
       "town-Comment": ["null", "city||comment", "city||comment"],
       "panel.street": ["null", "street|", "null"],
       "address": ["null", "null", "null"],
@@ -165,38 +174,41 @@ describe("nested data 17: the question an expression variable names", () => {
     const survey = createSurvey("page");
     expect(show(survey.getQuestionByVariable("page1.address.street"))).toBe("street|");
     expect(show(survey.getQuestionByVariable("address.street"))).toBe("null");
-    expect(show(survey.getQuestionByVariable("address.street", survey.getQuestionByName("q1")))).toBe("street|");
+    expect(show(survey.getQuestionByVariable("address.street", survey.getQuestionByName("page1.q1")))).toBe("street|");
   });
   test("an empty matrix is found; the runtime reads nothing there", () => {
     const survey = new SurveyModel(createJson("auto"));
     expect(show(survey.getQuestionByVariable("address.m.r1"))).toBe("m|.r1");
-    expect(show(survey.getQuestionByVariable("m.r1"))).toBe("m|.r1");
+    expect(show(survey.getQuestionByVariable("m.r1")), "an inner name from the root (O3)").toBe("null");
     expect(runtime("address.m.r1", survey).value).toBeUndefined();
     expect(show(survey.getQuestionByVariable("dp[0].dq"))).toBe("dp|[0].dq");
   });
   test("a changed unwrapPostfix and commentSuffix are followed", () => {
     const survey = createSurvey("auto");
+    // kind is inside address: its expressions are asked from inside the container (O3).
+    const kind = survey.getQuestionByName("panel1.kind");
     settings.expressionVariables.unwrapPostfix = "-raw";
-    expect(show(survey.getQuestionByVariable("kind-raw"))).toBe("kind||unwrapped");
-    expect(show(survey.getQuestionByVariable("kind-unwrapped"))).toBe("null");
+    expect(show(survey.getQuestionByVariable("kind-raw", kind))).toBe("kind||unwrapped");
+    expect(show(survey.getQuestionByVariable("kind-unwrapped", kind))).toBe("null");
     settings.commentSuffix = "-note";
-    expect(show(survey.getQuestionByVariable("kind-note"))).toBe("kind||comment");
+    expect(show(survey.getQuestionByVariable("kind-note", kind))).toBe("kind||comment");
     expect(show(survey.getQuestionByVariable("kindTop-note"))).toBe("kindTop||comment");
-    expect(show(survey.getQuestionByVariable("kind-Comment"))).toBe("null");
+    expect(show(survey.getQuestionByVariable("kind-Comment", kind))).toBe("null");
     settings.expressionVariables.unwrapPostfix = "";
     expect(show(survey.getQuestionByVariable("q1")), "an empty postfix unwraps nothing, at the root").toBe("q1|");
-    expect(show(survey.getQuestionByVariable("street", survey.getQuestionByName("kind"))), "inside").toBe("street|");
+    expect(show(survey.getQuestionByVariable("street", kind)), "inside").toBe("street|");
   });
   test("a survey variable with a value shadows a question where the walk reaches it first", () => {
     const survey = createSurvey("auto");
-    const street = survey.getQuestionByName("street");
+    const street = survey.getQuestionByName("panel1.street");
     survey.setVariable("street", "VARS");
     expect(show(survey.getQuestionByVariable("street")), "root: the variable").toBe("null");
     expect(runtime("street", survey).value).toBe("VARS");
     expect(show(survey.getQuestionByVariable("street", street)), "inside the container: the question").toBe("street|");
     expect(runtime("street", street).value).toBe("S");
     survey.setVariable("street", undefined);
-    expect(show(survey.getQuestionByVariable("street")), "a variable with no value does not shadow").toBe("street|");
+    expect(show(survey.getQuestionByVariable("address.street")), "a variable with no value does not shadow").toBe("street|");
+    expect(show(survey.getQuestionByVariable("street")), "the root does not find an inner name (O3)").toBe("null");
   });
   test("two containers sharing a key, and an inner question named like the key", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [
@@ -228,12 +240,14 @@ describe("nested data 17: the question an expression variable names", () => {
   test("the context kinds: the survey, a panel's own expressions, a page's", () => {
     const survey = createSurvey("auto");
     const panel1 = <PanelModel>survey.getPanelByName("panel1");
-    const inner = <PanelModel>survey.getPanelByName("inner");
+    const inner = <PanelModel>survey.getPanelByName("panel1.inner");
     expect(show(survey.getQuestionByVariable("town", panel1)), "a panel's own expressions: its parent's scope").toBe("null");
     expect(show(survey.getQuestionByVariable("town", inner)), "inside address").toBe("city|");
     expect(show(survey.getQuestionByVariable("sub.st", inner))).toBe("st|");
-    expect(show(survey.getQuestionByVariable("street", survey.pages[0]))).toBe("street|");
-    expect(show(survey.getQuestionByVariable("street", survey))).toBe("street|");
+    // A page's own expressions run in the survey's scope: an inner name is not found there (O3).
+    expect(show(survey.getQuestionByVariable("street", survey.pages[0]))).toBe("null");
+    expect(show(survey.getQuestionByVariable("address.street", survey.pages[0]))).toBe("street|");
+    expect(show(survey.getQuestionByVariable("street", survey))).toBe("null");
   });
   test("a flat dynamic panel's template question with a valueName answers at the root (pre-existing)", () => {
     const survey = new SurveyModel({ elements: [
@@ -466,9 +480,9 @@ describe("nested data 17: exports and helpers (L6)", () => {
     };
     for (const mode of MODES) {
       const survey = create(mode);
-      const panel1 = <PanelModel>survey.getPanelByName("panel1");
-      const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
-      const md = <QuestionMatrixDropdownModel>survey.getQuestionByName("md");
+      const panel1 = panelNamed(survey, "panel1");
+      const dp = <QuestionPanelDynamicModel>questionNamed(survey, "dp");
+      const md = <QuestionMatrixDropdownModel>questionNamed(survey, "md");
       const tp = <PanelModel>dp.template.getElementByName("tp");
       const dpp = <PanelModel>md.detailPanel.getElementByName("dpp");
       expect(panel1.getDataNestingKeyFor("addr", "panelX"), mode + ": survey panel, valueName")
@@ -497,18 +511,18 @@ describe("nested data 17: exports and helpers (L6)", () => {
     ] });
     const paths = (el: Base): Array<string> => survey.getExpressionScopePaths(el).map(item =>
       item.path.join(".") + (item.record ? "@" + item.record.name : ""));
-    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
-    const md = <QuestionMatrixDropdownModel>survey.getQuestionByName("md");
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("outer.dp");
+    const md = <QuestionMatrixDropdownModel>survey.getQuestionByName("outer.md");
     expect(paths(survey.getQuestionByName("q1"))).toEqual([""]);
-    expect(paths(survey.getQuestionByName("street"))).toEqual(["address", ""]);
-    expect(paths(survey.getQuestionByName("st"))).toEqual(["address.sub", "address", ""]);
-    expect(paths(survey.getPanelByName("inner")), "a panel's own expressions: its parent's scope").toEqual(["address", ""]);
+    expect(paths(survey.getQuestionByName("panel1.street"))).toEqual(["address", ""]);
+    expect(paths(survey.getQuestionByName("panel1.inner.st"))).toEqual(["address.sub", "address", ""]);
+    expect(paths(survey.getPanelByName("panel1.inner")), "a panel's own expressions: its parent's scope").toEqual(["address", ""]);
     expect(paths(dp.template.getQuestionByName("ps")), "a template question: tagged record paths first")
       .toEqual(["addr@dp", "@dp", "o", ""]);
     expect(paths(md.columns[0]), "a matrix column").toEqual(["@md", "o", ""]);
     expect(paths(survey)).toEqual([""]);
     const pageSurvey = new SurveyModel({ dataNesting: "page", pages: [{ name: "page1", elements: [{ type: "text", name: "q1" }] }] });
-    expect(pageSurvey.getExpressionScopePaths(pageSurvey.getQuestionByName("q1")).map(item => item.path.join("."))).toEqual(["page1", ""]);
+    expect(pageSurvey.getExpressionScopePaths(pageSurvey.getQuestionByName("page1.q1")).map(item => item.path.join("."))).toEqual(["page1", ""]);
     // A built record: the paths relative to the record (RN4)
     dp.panelCount = 1;
     expect(paths(dp.panels[0].getQuestionByName("ps"))).toEqual(["addr@dp", "@dp", "o", ""]);
@@ -555,14 +569,15 @@ describe("nested data 17: exports and helpers (L6)", () => {
     const name = (qName: string): string => survey.getQuestionVariableName(survey.getQuestionByName(qName));
     expect(name("q1"), "#1: a top-level question, its value name").toBe("val1");
     expect(name("top"), "#2").toBe("city");
-    expect(name("street"), "#3: an inner question, its name").toBe("street");
-    expect(name("lat"), "#4: two levels down").toBe("lat");
-    expect(name("city"), "#5: a top-level value name takes the name, so the path").toBe("address.town");
-    ["q1", "top", "street", "lat", "city"].forEach(qName => {
-      expect(survey.getQuestionByVariable(name(qName)).question.name, "the name resolves back: " + qName).toBe(qName);
+    // The root does not find an inner question by its name (O3): its data path.
+    expect(name("panel1.street"), "#3: an inner question, its data path").toBe("address.street");
+    expect(name("panel1.panel2.lat"), "#4: two levels down").toBe("address.geo.lat");
+    expect(name("panel1.city"), "#5: an inner question with a valueName").toBe("address.town");
+    ["q1", "top", "panel1.street", "panel1.panel2.lat", "panel1.city"].forEach(qName => {
+      expect(survey.getQuestionByVariable(name(qName)).question, "the name resolves back: " + qName).toBe(survey.getQuestionByName(qName));
     });
     const pageSurvey = new SurveyModel({ dataNesting: "page", pages: [{ name: "page1", elements: [{ type: "text", name: "q1", valueName: "v1" }] }] });
-    expect(pageSurvey.getQuestionVariableName(pageSurvey.getQuestionByName("q1")), "#6: dataNesting: the name").toBe("q1");
+    expect(pageSurvey.getQuestionVariableName(pageSurvey.getQuestionByName("page1.q1")), "#6: dataNesting \"page\": the data path (O3)").toBe("page1.v1");
     const dpSurvey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "paneldynamic", name: "dp", templateElements: [
       { type: "panel", name: "addr", valueName: "a", elements: [{ type: "text", name: "ps" }] }] }] });
     const dp = <QuestionPanelDynamicModel>dpSurvey.getQuestionByName("dp");
@@ -584,7 +599,7 @@ describe("nested data 17: exports and helpers (L6)", () => {
     expect(name("top"), "#3").toBe("city");
     expect(name("city"), "#4: the top-level value name, not the inner city").toBe("city");
     expect(name("address.town"), "#5: a data path").toBe("address.town");
-    expect(name("street"), "#6: an inner question's name the root resolves").toBe("street");
+    expect(name("panel1.street"), "#6: an inner question's path of names gives its data path (O2, O3)").toBe("address.street");
     expect(name("mv.r1"), "#7: a sub-entry").toBe("mv.r1");
     expect(name("total"), "#8: a calculated value").toBe("total");
     expect(name("nosuchname"), "#9").toBe("nosuchname");

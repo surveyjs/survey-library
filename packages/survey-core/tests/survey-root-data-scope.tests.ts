@@ -79,23 +79,23 @@ describe("Nested data: the survey's root data scope", () => {
     const survey = new SurveyModel(sharedKeyJson("onValueChanged"));
     survey.validate();
     const counts = spyValidate(survey);
-    survey.getQuestionByName("street").value = "a";
+    survey.getQuestionByName("p1.street").value = "a";
     expect(counts, "#1").toEqual({ top: 0, street: 1, city: 1, street2: 1, zip: 1 });
-    survey.getQuestionByName("zip").value = "z";
+    survey.getQuestionByName("p2.zip").value = "z";
     expect(counts, "#2").toEqual({ top: 0, street: 1, city: 2, street2: 1, zip: 2 });
   });
   test("a write through containers sharing a key validates each question once (onValueChanging)", () => {
     const survey = new SurveyModel(sharedKeyJson("onValueChanging"));
     survey.validate();
     const counts = spyValidate(survey);
-    survey.getQuestionByName("street").value = "a";
+    survey.getQuestionByName("p1.street").value = "a";
     expect(counts, "#1").toEqual({ top: 0, street: 1, city: 1, street2: 1, zip: 1 });
   });
   test("a write through containers sharing a key validates the writer and the questions with errors (onNextPage)", () => {
     const survey = new SurveyModel(sharedKeyJson());
-    survey.getQuestionByName("city").validate();
+    survey.getQuestionByName("p1.city").validate();
     const counts = spyValidate(survey);
-    survey.getQuestionByName("street").value = "a";
+    survey.getQuestionByName("p1.street").value = "a";
     expect(counts, "#1").toEqual({ top: 0, street: 0, city: 1, street2: 0, zip: 0 });
     survey.getQuestionByName("top").value = "t";
     expect(counts, "#2: a top-level write").toEqual({ top: 0, street: 0, city: 1, street2: 0, zip: 0 });

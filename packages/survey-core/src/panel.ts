@@ -2353,10 +2353,10 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  onAnyValueChanged(name: string, questionName: string): void {
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
-      els[i].onAnyValueChanged(name, questionName);
+      els[i].onAnyValueChanged(name, questionName, question);
     }
   }
   checkBindings(valueName: string, value: any) {

@@ -103,6 +103,7 @@ import type { IDataKeys, IDataScope } from "./data-key-index";
 import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
 import { ElementIndex } from "./element-index";
+import { INameScope, findElementInNameScope, getElementNamePath, getNameScopeOwner, isNameScopeMode } from "./name-scope";
 import { getQuestionByVariable, getQuestionVariableName, getExpressionVariableName, getExpressionScopePaths,
   findDataScopeValueContext } from "./data-scope-variables";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
@@ -221,19 +222,12 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       name = name.substring(0, name.length - unWrappedNameSuffix.length);
       if (res.isMetadata) res.isUnwrapped = true;
     }
-    // Before the raw data: the root data scope's key, then an inner question by its name.
-    const info = this.survey.findDataScopeValueContext(name, res.isMetadata);
+    // Before the raw data: the root data scope's key.
+    const info = this.survey.findDataScopeValueContext(name);
     if (!!info) {
       res.isFound = true;
-      if (info.isComment) {
-        res.obj = info.obj;
-        res.isComment = true;
-      } else if (!!info.context) {
-        res.obj = info.obj;
-        res.context = info.context;
-      } else {
-        res.value = info.value;
-      }
+      res.obj = info.obj;
+      res.context = info.context;
     }
   }
   protected isSearchNameRevert(): boolean { return true; }
@@ -3653,8 +3647,10 @@ export class SurveyModel extends SurveyElementCore
    */
   public get uiState(): ISurveyUIState {
     const res: ISurveyUIState = {};
+    // In a nesting mode an element is kept under its path of names: a name is unique only in its scope (O2).
+    const nameOf = (el: ISurveyElement): string => isNameScopeMode(this) ? getElementNamePath(el) : el.name;
     if (this.lastActiveQuestion) {
-      res.activeElementName = this.lastActiveQuestion.rootParentQuestion.name;
+      res.activeElementName = nameOf(this.lastActiveQuestion.rootParentQuestion);
     }
     const randomSeed = this.getPropertyValueWithoutDefault("randomSeed");
     if (randomSeed) {
@@ -3668,7 +3664,7 @@ export class SurveyModel extends SurveyElementCore
         const s = e.uiState;
         if (s) {
           res[type] = res[type] || {};
-          res[type][e.name] = s;
+          res[type][nameOf(e)] = s;
         }
       });
     };
@@ -4236,7 +4232,10 @@ export class SurveyModel extends SurveyElementCore
    * @since 2.1.0
    */
   public get currentElementName(): string {
-    return this.currentElement?.name || "";
+    const el = this.currentElement;
+    if (!el) return "";
+    // In a nesting mode the path of names the setter finds the element by (O2): a page holds its elements in "page".
+    return isNameScopeMode(this) ? getElementNamePath(el) : el.name || "";
   }
   public set currentElementName(val: string) {
     if (!!val) {
@@ -5135,6 +5134,8 @@ export class SurveyModel extends SurveyElementCore
       this.ensureUniqueName(element);
     }
   }
+  // A free name across the survey, in every mode, as generated names are: the flat structure answers, not a name
+  // scope.
   private ensureUniqueName(element: ISurveyElement) {
     if (element.isPage) {
       this.ensureUniquePageName(element);
@@ -5155,7 +5156,7 @@ export class SurveyModel extends SurveyElementCore
     return this.ensureUniqueElementName(
       element,
       (name: string): ISurveyElement => {
-        return this.getPageByName(name);
+        return this.elementIndex.find(name, isPageKind);
       }
     );
   }
@@ -5163,7 +5164,7 @@ export class SurveyModel extends SurveyElementCore
     return this.ensureUniqueElementName(
       element,
       (name: string): ISurveyElement => {
-        return this.getPanelByName(name);
+        return this.elementIndex.find(name, isPanelKind);
       }
     );
   }
@@ -5171,7 +5172,7 @@ export class SurveyModel extends SurveyElementCore
     return this.ensureUniqueElementName(
       element,
       (name: string): ISurveyElement => {
-        return this.getQuestionByName(name);
+        return this.elementIndex.find(name, isQuestionKind, false, true);
       }
     );
   }
@@ -7056,8 +7057,22 @@ export class SurveyModel extends SurveyElementCore
    * @see getQuestionByValueName
    */
   public getQuestionByName(name: string, caseInsensitive: boolean = false): Question {
-    return this.elementIndex.find(name, isQuestionKind, caseInsensitive, true);
+    return this.findElementByName(name, isQuestionKind, caseInsensitive, true);
   }
+  // A lookup from the survey. In "none" the flat structure answers, as before. In a nesting mode a name is unique in
+  // its name scope (name-scope.ts): a bare name finds only the survey's own elements (O1), and an element inside
+  // a scope is reached by a path of names (O2, O8).
+  private findElementByName(name: string, isKind: (el: ISurveyElement) => boolean, caseInsensitive: boolean, exactFirst: boolean): any {
+    if (!isNameScopeMode(this)) return this.elementIndex.find(name, isKind, caseInsensitive, exactFirst);
+    return findElementInNameScope(this.ownNameScope, name, isKind, caseInsensitive, exactFirst);
+  }
+  // The survey's own name scope: its flat structure without the elements inside another scope. The flat structure
+  // keeps holding every element, so a change of dataNesting, of a container's key or of an element's place
+  // rebuilds nothing here.
+  private ownNameScope: INameScope = {
+    findOwnElement: (name: string, isKind: (el: ISurveyElement) => boolean, caseInsensitive?: boolean, exactFirst?: boolean): any =>
+      this.elementIndex.find(name, (el: ISurveyElement): boolean => isKind(el) && !getNameScopeOwner(el), caseInsensitive, exactFirst)
+  };
   findQuestionByName(name: string): IQuestion {
     return this.getQuestionByName(name);
   }
@@ -7219,7 +7234,7 @@ export class SurveyModel extends SurveyElementCore
   ): PanelModel {
     // Ignoring letter case, the first matching panel in the index wins, even when another one has the exact name.
     // The index keeps document order after loading, and insertion order for panels added at runtime.
-    return this.elementIndex.find(name, isPanelKind, caseInsensitive, false);
+    return this.findElementByName(name, isPanelKind, caseInsensitive, false);
   }
   /**
    * Returns a list of all [panels](https://surveyjs.io/form-library/documentation/api-reference/panel-model) in the survey.
@@ -7374,7 +7389,7 @@ export class SurveyModel extends SurveyElementCore
     if (!!writer && !this.isDisposed) {
       this.checkElementsBindings(writer.getValueName(), writer.value);
     }
-    this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName);
+    this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName, question);
   }
   // A root container's object was written, and every container on the key told its questions (containers
   // sharing a key share the object): the inner question that wrote is validated, and each question of the
@@ -7412,14 +7427,15 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
+  // question: the question that wrote, when the write names one; a name is not unique in a nesting mode.
+  private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string, question?: Question) {
     if (this.isEndLoadingFromJson === "processing") return;
     if (this.isRunningConditions) {
       this.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
       return;
     }
     for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].onAnyValueChanged(name, questionName);
+      this.pages[i].onAnyValueChanged(name, questionName, question);
     }
     if (!this.isEndLoadingFromJson) {
       this.locStrsChanged();
@@ -7484,8 +7500,8 @@ export class SurveyModel extends SurveyElementCore
   public getExpressionScopePaths(context: Base): Array<IExpressionScopePath> {
     return getExpressionScopePaths(this, context);
   }
-  public findDataScopeValueContext(name: string, isMetadata?: boolean): { obj?: Question, context?: IValueGetterContext, value?: any, isComment?: boolean } {
-    return findDataScopeValueContext(this, name, isMetadata);
+  public findDataScopeValueContext(name: string): { obj?: Question, context?: IValueGetterContext } {
+    return findDataScopeValueContext(this, name);
   }
   // ISurveyTriggerOwner
   isOwnValueKeys(name: string, keys: Array<string>): boolean {
@@ -8939,8 +8955,15 @@ export class SurveyModel extends SurveyElementCore
   }
   public getValueGetterContext(): IValueGetterContext {
     return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex,
-      (name: string): Base => this.elementIndex.find(name, isPageKind, true, false) ||
-        this.elementIndex.find(name, isPanelKind, true, false));
+      (name: string): Base => this.findOwnPageOrPanel(name));
+  }
+  // A property path's first name ({panel1.isVisible}): a page, else a panel, letter case ignored. In a nesting mode
+  // one of the survey's own (O1): the path is a property path, not a path of names.
+  private findOwnPageOrPanel(name: string): Base {
+    if (!isNameScopeMode(this)) {
+      return this.elementIndex.find(name, isPageKind, true, false) || this.elementIndex.find(name, isPanelKind, true, false);
+    }
+    return this.ownNameScope.findOwnElement(name, isPageKind, true, false) || this.ownNameScope.findOwnElement(name, isPanelKind, true, false);
   }
   // The stored data alone: no question, variable or calculated value answers a name, so a key that
   // holds an empty value is found and a missing key is not. The hasValue('name') expression function reads it.

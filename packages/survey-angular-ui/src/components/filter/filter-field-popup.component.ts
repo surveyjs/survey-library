@@ -4,7 +4,7 @@ import { FilterHolderComponent } from "./filter-holder.component";
 import { AngularComponentFactory } from "../../component-factory";
 
 // A badge's popup of the Filter Control: the search box (a long list, or one a value can be typed
-// into), the title row with its link, the list or the operator and value, and Apply.
+// into), a checkbox list's title row with its link, the list or the operator and value, and Apply.
 @Component({
   selector: "sv-ng-filter-field-popup",
   templateUrl: "./filter-field-popup.component.html",

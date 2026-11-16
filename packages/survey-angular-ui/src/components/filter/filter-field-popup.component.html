@@ -6,7 +6,7 @@
         [attr.placeholder]="popup.list.filterStringPlaceholder" [attr.aria-label]="popup.list.filterStringPlaceholder"
         (input)="onSearchInput($event)" (keydown)="popup.onSearchKeyDown($event)" />
     </div>
-    <div [class]="popup.cssClasses.popupHeader">
+    <div *ngIf="popup.showHeader" [class]="popup.cssClasses.popupHeader">
       <div [class]="popup.cssClasses.popupTitle">{{ popup.title }}</div>
       <sv-ng-action-bar [model]="popup.headerToolbar"></sv-ng-action-bar>
     </div>

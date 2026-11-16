@@ -75,7 +75,7 @@ describe("Filter question", () => {
     cleanup(wrapper);
     survey.dispose();
   });
-  it("typing in the search box sets the search string and the filter expression", async () => {
+  it("typing in the search box sets the search string and the filter expression; its cross clears it", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const wrapper = mount(Survey, { attachTo: attach(), props: { model: survey } });
@@ -83,13 +83,18 @@ describe("Filter question", () => {
     const container = wrapper.element.parentElement;
     const input = container.querySelector(".sd-filter__search input") as HTMLInputElement;
     expect(!!input, "#1: the search box").toBe(true);
-    expect(q.filterExpression, "#2").toBe("");
+    expect([q.filterExpression, !!container.querySelector(".sd-filter__search .sd-filter__search-clear")], "#2").toEqual(["", false]);
     input.value = "ab";
     input.dispatchEvent(new Event("input"));
     await nextTick();
     expect(q.searchString, "#3").toBe("ab");
     expect(q.filterExpression, "#4: the search filters the records").toContain("ab");
     expect((container.querySelector(".sd-filter__search input") as HTMLInputElement).value, "#5").toBe("ab");
+    const clear = container.querySelector(".sd-filter__search .sd-filter__search-clear") as HTMLButtonElement;
+    expect(clear.getAttribute("title"), "#6: the cross").toBe("Clear");
+    clear.click();
+    await nextTick();
+    expect([q.searchString, !!container.querySelector(".sd-filter__search .sd-filter__search-clear")], "#7").toEqual(["", false]);
     cleanup(wrapper);
     survey.dispose();
   });

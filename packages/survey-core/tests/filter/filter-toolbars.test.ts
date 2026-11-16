@@ -556,6 +556,22 @@ describe("FilterToolbars: the Filters dialog", () => {
 });
 
 describe("QuestionFilterModel: what the renderer shows besides the toolbars", () => {
+  test("the search box's clear button: an icon button there while there is text to clear and the box is on", () => {
+    const q = createFilter({ showSearch: true });
+    const clear = q.searchClearAction;
+    expect([q.showSearchClear, clear.id, clear.iconName, clear.title, clear.hasTitle, clear.getTooltip()], "#1")
+      .toEqual([false, "sv-filter-search-clear", "icon-cancel-24x24", "Clear", false, "Clear"]);
+    expect(clear.getActionBarItemCss().split(" "), "#2").toEqual(expect.arrayContaining(["sd-action", "sd-filter__search-clear"]));
+    q.searchString = "an";
+    expect(q.showSearchClear, "#3").toBe(true);
+    clear.action();
+    expect([q.searchString, q.showSearchClear], "#4").toEqual(["", false]);
+    q.searchString = "an";
+    q.readOnly = true;
+    expect(q.showSearchClear, "#5: the box is off").toBe(false);
+    clear.action();
+    expect(q.searchString, "#6: a click changes nothing").toBe("an");
+  });
   test("the search box is drawn the way a text question is", () => {
     const q = createFilter({ showSearch: true });
     expect(q.searchCss, "#1").toEqual({ root: "sd-formbox sd-text", control: "sd-formbox__input" });

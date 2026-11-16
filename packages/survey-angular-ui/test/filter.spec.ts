@@ -89,20 +89,25 @@ describe("Filter question", () => {
     fixture.destroy();
     survey.dispose();
   });
-  it("typing in the search box sets the search string and the filter expression", async () => {
+  it("typing in the search box sets the search string and the filter expression; its cross clears it", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const fixture = renderSurvey(survey);
     await settle(fixture);
     const input = <HTMLInputElement>fixture.nativeElement.querySelector(".sd-filter__search input");
     expect(!!input).withContext("#1: the search box").toBe(true);
-    expect(q.filterExpression).withContext("#2").toBe("");
+    expect([q.filterExpression, !!fixture.nativeElement.querySelector(".sd-filter__search .sd-filter__search-clear")]).withContext("#2").toEqual(["", false]);
     input.value = "ab";
     input.dispatchEvent(new Event("input"));
     await settle(fixture);
     expect(q.searchString).withContext("#3").toBe("ab");
     expect(q.filterExpression).withContext("#4: the search filters the records").toContain("ab");
     expect((<HTMLInputElement>fixture.nativeElement.querySelector(".sd-filter__search input")).value).withContext("#5").toBe("ab");
+    const clear = <HTMLButtonElement>fixture.nativeElement.querySelector(".sd-filter__search .sd-filter__search-clear");
+    expect(clear.getAttribute("title")).withContext("#6: the cross").toBe("Clear");
+    clear.click();
+    await settle(fixture);
+    expect([q.searchString, !!fixture.nativeElement.querySelector(".sd-filter__search .sd-filter__search-clear")]).withContext("#7").toEqual(["", false]);
     fixture.destroy();
     survey.dispose();
   });

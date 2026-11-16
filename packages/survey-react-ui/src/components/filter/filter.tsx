@@ -218,8 +218,8 @@ export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: Filter
 ReactElementFactory.Instance.registerElement(filterPresetDialogComponentName,
   (props) => { return React.createElement(SurveyFilterPresetDialog, props); });
 
-// A badge's popup: the search box (a long list, or one a value can be typed into), the title row
-// with its link, the list or the operator and value, and Apply.
+// A badge's popup: the search box (a long list, or one a value can be typed into), a checkbox list's
+// title row with its link, the list or the operator and value, and Apply.
 export class SurveyFilterFieldPopup extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
   private get popup(): FilterFieldPopup {
     const holder = this.props.holder;
@@ -252,12 +252,13 @@ export class SurveyFilterFieldPopup extends SurveyElementBase<{ holder: FilterEd
     const body = !!popup.list ? <List model={popup.list}></List> : <FilterEditorPage editor={popup.editor} className={css.editor} />;
     const footer = popup.footerToolbar.hasActions
       ? <div className={css.popupFooter}><SurveyActionBar model={popup.footerToolbar} /></div> : null;
+    const header = popup.showHeader ? <div className={css.popupHeader}>
+      <div className={css.popupTitle}>{popup.title}</div>
+      <SurveyActionBar model={popup.headerToolbar} />
+    </div> : null;
     return <div className={css.popup}>
       {this.renderSearch(popup)}
-      <div className={css.popupHeader}>
-        <div className={css.popupTitle}>{popup.title}</div>
-        <SurveyActionBar model={popup.headerToolbar} />
-      </div>
+      {header}
       <div className={css.popupBody}>{body}</div>
       {footer}
     </div>;
@@ -370,6 +371,7 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
         <input type="text" className={searchCss.control} value={q.searchString} placeholder={q.searchPlaceholder}
           aria-label={filterUIStrings.searchLabel} disabled={q.isSearchDisabled}
           onChange={(e) => { q.searchString = e.target.value; }} />
+        {q.showSearchClear ? <SurveyActionBarItem item={q.searchClearAction} /> : null}
       </div>
       <SurveyActionBar model={q.searchToolbar} />
     </div>;

@@ -30,9 +30,9 @@ export interface IFilterFieldPopupOwner extends ILocalizableOwner {
   canEditConditionsInUI: boolean;
   cssClasses: any;
 }
-// The button at the bottom of a chip's popup - Apply, "Save as..."'s Save: a small action, 8px around
-// the default text, 40px in all.
-export const filterPopupFooterAppearance: IActionAppearance = { style: "brand", mode: "secondary", size: "small" };
+// The button at the bottom of a chip's popup - Apply, "Save as..."'s Save: a small filled action, 8px
+// around the default text, 40px in all.
+export const filterPopupFooterAppearance: IActionAppearance = { style: "brand", mode: "primary", size: "small" };
 // A list this long or longer gets a search box. The list's own threshold (ListModel.MINELEMENTCOUNT)
 // is shared by every dropdown in the library and is not changed for this one.
 export const filterPopupSearchMinItemCount = 7;
@@ -40,8 +40,9 @@ export const filterPopupSearchMinItemCount = 7;
 // text. A value the respondent typed has no button of its own: unchecked, it is dropped.
 export const filterListItemComponentName = "sv-filter-list-item";
 
-// The content of a fast mode badge's popup: a title row with one link, the field's editor and a row
-// with Apply. Nothing reaches the control until Apply (or a pick in a "single" list): closing the
+// The content of a fast mode badge's popup: a checkbox list's title row with Select All, the field's
+// editor and a row with Apply. An operator and a value, and a single pick, have no title row: the
+// chip's cross clears the field. Nothing reaches the control until Apply (or a pick in a "single" list): closing the
 // popup any other way drops what was changed in it. The editor depends on the field (see
 // getFilterFieldEditorKind): a list of values - one pick, checkboxes, Yes and No - or an operator
 // and a value. Made when the popup shows, disposed when it hides.
@@ -82,7 +83,9 @@ export class FilterFieldPopup extends Base {
   public get list(): ListModel<Action> { return this.listValue; }
   // The operator and value editor of a "condition" popup; undefined for a list.
   public get editor(): FilterConditionsEditor { return this.editorValue; }
-  // The link in the title row: Clear, or Select All / Clear All for checkboxes.
+  // The title row: a checkbox list's only - "multi" and "boolean".
+  public get showHeader(): boolean { return this.isMultiple; }
+  // The link in the title row: Select All / Clear All, where every value may be checked.
   public get headerToolbar(): ActionContainer { return this.headerToolbarValue; }
   // Apply; empty for a "single" list, where a pick is the whole edit.
   public get footerToolbar(): ActionContainer { return this.footerToolbarValue; }
@@ -201,14 +204,9 @@ export class FilterFieldPopup extends Base {
   }
   private createActions(): void {
     if (this.isReadOnly) return;
-    if (this.kind === "multi" || this.kind === "boolean") {
-      if (canFilterFieldSelectAll(this.field, this.kind)) {
-        this.headerAction = new Action({ id: "sv-filter-select-all", innerCss: this.cssClasses.link,
-          action: (): void => { this.toggleAll(); } });
-      }
-    } else {
-      this.headerAction = new Action({ id: "sv-filter-clear", locTitleName: "clearCaption", innerCss: this.cssClasses.link,
-        action: (): void => { this.owner.clearFieldCondition(this.key); this.close(); } });
+    if (this.isMultiple && canFilterFieldSelectAll(this.field, this.kind)) {
+      this.headerAction = new Action({ id: "sv-filter-select-all", innerCss: this.cssClasses.link,
+        action: (): void => { this.toggleAll(); } });
     }
     if (!!this.headerAction) {
       this.headerToolbarValue.setItems([this.headerAction]);

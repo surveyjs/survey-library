@@ -6,6 +6,7 @@
         <input type="text" :class="question.searchCss.control" :value="question.searchString" :placeholder="question.searchPlaceholder"
           :aria-label="filterUIStrings.searchLabel" :disabled="question.isSearchDisabled"
           @input="onSearchInput" />
+        <SvComponent v-if="question.showSearchClear" :is="'sv-action-bar-item'" :item="question.searchClearAction"></SvComponent>
       </div>
       <SvComponent :is="'sv-action-bar'" :model="question.searchToolbar"></SvComponent>
     </div>

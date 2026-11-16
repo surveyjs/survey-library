@@ -80,6 +80,8 @@ export interface IFilterToolbarsOwner {
   isMobile: boolean;
   isLocked: boolean;
   showSearch: boolean;
+  searchString: string;
+  isSearchDisabled: boolean;
   activeConditionCount: number;
   isFastModeAvailable: boolean;
   isAdvancedModeAvailable: boolean;
@@ -135,6 +137,7 @@ export class FilterToolbars {
   private layoutValue: FilterChipsLayout;
   private filtersAction: Action;
   private moreAction: Action;
+  private searchClearActionValue: Action;
   private saveAction: Action;
   private saveAsAction: FilterChip;
   private saveAsHolder: FilterEditorHolder;
@@ -195,6 +198,25 @@ export class FilterToolbars {
     } else {
       this.update();
     }
+  }
+  // The search box's clear button: a small icon button inside the box, drawn while there is text to
+  // clear (QuestionFilterModel.showSearchClear). With the search row's classes: it is not in the row.
+  public get searchClearAction(): Action {
+    if (!this.searchClearActionValue) {
+      const action = new Action({ id: "sv-filter-search-clear", locTitleName: "clearCaption", showTitle: false,
+        iconName: "icon-cancel-24x24", iconSize: "auto", innerCss: this.cssClasses.searchClear,
+        appearance: { style: "neutral", mode: "tertiary", size: "small" }, action: (): void => {
+          if (!this.owner.isSearchDisabled) {
+            this.owner.searchString = "";
+          }
+        } });
+      // The row's classes and the row's locale: the row is the control's.
+      const row = this.searchToolbar;
+      action.cssClasses = row.cssClasses;
+      action.owner = row;
+      this.searchClearActionValue = action;
+    }
+    return this.searchClearActionValue;
   }
   public get layout(): FilterChipsLayout {
     if (!this.layoutValue) {
@@ -422,11 +444,13 @@ export class FilterToolbars {
       this.saveAsAction.popupModel.hide();
       this.releaseHolder(this.saveAsHolder);
     }
-    [this.filtersAction, this.presetChip, this.moreAction, this.saveAction, this.saveAsAction, this.clearAction].forEach((a: Action): void => {
+    [this.filtersAction, this.presetChip, this.moreAction, this.saveAction, this.saveAsAction, this.clearAction,
+      this.searchClearActionValue].forEach((a: Action): void => {
       if (!!a) actions.push(a);
     });
     this.filtersAction = undefined;
     this.presetChip = undefined;
+    this.searchClearActionValue = undefined;
     this.moreAction = undefined;
     this.saveAction = undefined;
     this.saveAsAction = undefined;

@@ -1080,6 +1080,7 @@ export var defaultCss = {
     searchRow: "sd-filter__search-row",
     search: "sd-filter__search",
     searchIcon: "sd-filter__search-icon",
+    searchClear: "sd-filter__search-clear",
     chipsRow: "sd-filter__chips-row",
     chips: "sd-filter__chips",
     chipsExpanded: "sd-filter__chips--expanded",

@@ -6,7 +6,7 @@
         :placeholder="popup().list.filterStringPlaceholder" :aria-label="popup().list.filterStringPlaceholder"
         @input="onSearchInput" @keydown="(e) => popup().onSearchKeyDown(e)" />
     </div>
-    <div :class="popup().cssClasses.popupHeader">
+    <div v-if="popup().showHeader" :class="popup().cssClasses.popupHeader">
       <div :class="popup().cssClasses.popupTitle">{{ popup().title }}</div>
       <SvComponent :is="'sv-action-bar'" :model="popup().headerToolbar"></SvComponent>
     </div>
@@ -22,7 +22,7 @@
 </template>
 <script lang="ts" setup>
 // A badge's popup of the Filter Control: the search box (a long list, or one a value can be typed
-// into), the title row with its link, the list or the operator and value, and Apply.
+// into), a checkbox list's title row with its link, the list or the operator and value, and Apply.
 import SvComponent from "@/SvComponent.vue";
 import FilterEditorPage from "./FilterEditorPage.vue";
 import { useBase } from "@/base";

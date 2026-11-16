@@ -19,6 +19,7 @@ import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/fil
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { FilterAIRequest } from "./filter/filter-ai";
 import { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
+import { Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { buildSearchFragment, getFieldChoiceItems } from "./filter/filter-expression";
 import {
@@ -931,6 +932,9 @@ export class QuestionFilterModel extends QuestionNonValue {
     return { root: text.root || "", control: text.control || "" };
   }
   public get searchRootCss(): string { return toCssClasses(this.searchCss.root, this.cssClasses.search); }
+  // The search box's clear button, there while there is text to clear and the box is on.
+  public get searchClearAction(): Action { return this.toolbars.searchClearAction; }
+  public get showSearchClear(): boolean { return !!this.searchString && !this.isSearchDisabled; }
   // The quick search box is off in the designer and while the control is read-only. The Filters
   // dialog's box has its own rule (FilterModal.isSearchDisabled): off whenever its conditions can't be
   // edited.

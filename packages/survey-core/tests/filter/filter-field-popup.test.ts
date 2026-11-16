@@ -44,21 +44,31 @@ function headerAction(popup: FilterFieldPopup): Action {
   return popup.headerToolbar.actions[0];
 }
 
-describe("FilterFieldPopup: the title row's link", () => {
-  test("Clear and Select All are the mockup's link: a text action of the control's link class", () => {
+describe("FilterFieldPopup: the title row", () => {
+  test("a checkbox list's: the field's title and Select All, the mockup's link - a text action of the control's link class", () => {
     const q = control();
-    const clear = headerAction(open(q, "age").popup);
-    const selectAll = headerAction(open(q, "country").popup);
-    expect([clear.id, clear.innerCss], "#1").toEqual(["sv-filter-clear", "sd-filter__link"]);
-    expect([selectAll.id, selectAll.innerCss], "#2").toEqual(["sv-filter-select-all", "sd-filter__link"]);
-    expect(clear.getActionBarItemCss().split(" "), "#3: on the button").toContain("sd-filter__link");
+    const popup = open(q, "country").popup;
+    const selectAll = headerAction(popup);
+    expect([popup.showHeader, selectAll.id, selectAll.innerCss], "#1").toEqual([true, "sv-filter-select-all", "sd-filter__link"]);
+    expect(selectAll.getActionBarItemCss().split(" "), "#2: on the button").toContain("sd-filter__link");
+  });
+  test("an operator and a value, and a single pick, have none: the chip's cross clears the field", () => {
+    const q = control();
+    q.setFieldCondition("age", "greater", 30);
+    q.setFieldCondition("gender", "equal", "male");
+    const condition = open(q, "age").popup;
+    const single = open(q, "gender").popup;
+    expect([condition.kind, condition.showHeader, condition.headerToolbar.actions.length], "#1").toEqual(["condition", false, 0]);
+    expect([single.kind, single.showHeader, single.headerToolbar.actions.length], "#2").toEqual(["single", false, 0]);
+    condition.dispose();
+    single.dispose();
   });
 });
 
 describe("FilterFieldPopup: Apply", () => {
-  test("Apply is the mockup's small action: 8px around the default text, 40px in all", () => {
+  test("Apply is the mockup's small filled action: 8px around the default text, 40px in all", () => {
     const apply = open(control(), "age").popup.footerToolbar.actions[0];
-    expect(apply.getActionBarItemCss().split(" "), "#1").toContain("sd-action--small");
+    expect(apply.getActionBarItemCss().split(" "), "#1").toEqual(expect.arrayContaining(["sd-action--small", "sd-action--brand", "sd-action--primary"]));
   });
 });
 
@@ -75,18 +85,6 @@ describe("FilterFieldPopup: a condition", () => {
     popup.footerToolbar.actions[0].action();
     expect(q.filterExpression, "#5").toBe("{age} > 30");
     expect(closed(), "#6").toBe(1);
-    popup.dispose();
-  });
-  test("Clear is there while the field has a condition; it clears it and closes", () => {
-    const q = control();
-    expect(headerAction(open(q, "age").popup).visible, "#1").toBe(false);
-    q.setFieldCondition("age", "greater", 30);
-    const { popup, closed } = open(q, "age");
-    const clear = headerAction(popup);
-    expect([clear.title, clear.visible], "#2").toEqual(["Clear", true]);
-    clear.action();
-    expect(q.getFieldCondition("age"), "#3").toBe(undefined);
-    expect(closed(), "#4").toBe(1);
     popup.dispose();
   });
   test("a field fast mode does not show gets no popup", () => {

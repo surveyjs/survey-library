@@ -65,7 +65,7 @@ describe("SurveyQuestionFilter", () => {
     container.remove();
     survey.dispose();
   });
-  it("typing in the search box sets the search string and the filter expression", () => {
+  it("typing in the search box sets the search string and the filter expression; its cross clears it", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [{ name: "name" }] }] });
     const q = survey.getQuestionByName("f1") as QuestionFilterModel;
     const container = document.createElement("div");
@@ -76,7 +76,7 @@ describe("SurveyQuestionFilter", () => {
     });
     const input = container.querySelector(".sd-filter__search input") as HTMLInputElement;
     expect(!!input, "#1: the search box").toBe(true);
-    expect(q.filterExpression, "#2").toBe("");
+    expect([q.filterExpression, !!container.querySelector(".sd-filter__search .sd-filter__search-clear")], "#2").toEqual(["", false]);
     act(() => {
       input.value = "ab";
       Simulate.change(input);
@@ -84,6 +84,10 @@ describe("SurveyQuestionFilter", () => {
     expect(q.searchString, "#3").toBe("ab");
     expect(q.filterExpression, "#4: the search filters the records").toContain("ab");
     expect((container.querySelector(".sd-filter__search input") as HTMLInputElement).value, "#5").toBe("ab");
+    const clear = container.querySelector(".sd-filter__search .sd-filter__search-clear") as HTMLButtonElement;
+    expect(clear.getAttribute("title"), "#6: the cross").toBe("Clear");
+    act(() => { clear.click(); });
+    expect([q.searchString, !!container.querySelector(".sd-filter__search .sd-filter__search-clear")], "#7").toEqual(["", false]);
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);
     container.remove();

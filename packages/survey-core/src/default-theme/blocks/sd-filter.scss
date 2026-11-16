@@ -51,6 +51,15 @@
     var(--sjs2-layout-component-input-small-icon-padding-right);
 }
 
+// The search box's clear button at the box's end, as a formbox action: the icon with 4px around it.
+.sd-action.sd-filter__search-clear {
+  --sd-action-padding: var(--sjs2-spacing-x050);
+  --sd-action-border-radius: var(--sjs2-radius-form-item);
+  flex: 0 0 auto;
+  align-self: center;
+  margin-inline-end: var(--sjs2-spacing-x050);
+}
+
 .sd-filter__chips-row {
   display: flex;
   align-items: flex-start;

@@ -102,6 +102,8 @@ frameworks.forEach(framework => {
       await popupWith(page, ".sv-list").waitFor({ state: "visible" });
       await settle(page);
       await compareScreenshot(page, popupWith(page, ".sv-list"), "filter-chips-preset-popup.png");
+      // Escape closes the list while the focus is in it: settle() may have taken it away.
+      await popupWith(page, ".sv-list").locator(".sv-list__item").first().focus();
       await page.keyboard.press("Escape");
       await popupWith(page, ".sv-list").waitFor({ state: "hidden" });
 

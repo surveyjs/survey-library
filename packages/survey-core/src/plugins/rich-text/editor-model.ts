@@ -267,7 +267,7 @@ export class RichTextEditorModel {
       if (advance && !question.isEmpty() && typeof question.requestAutoAdvance === "function" && question.requestAutoAdvance()) return;
       this.rememberSelection();
       if (!this.saved || !this.hasRoomForBreak()) return;
-      editEnter(this.element, this.saved, true);
+      editEnter(this.element, this.saved, true, true);
       this.afterEdit();
       return;
     }
@@ -875,13 +875,13 @@ function commitCopy(root: HTMLElement, range: Range, mutate: (copy: HTMLElement,
   selectRange(next);
 }
 
-function editEnter(root: HTMLElement, range: Range, shift: boolean): void {
+function editEnter(root: HTMLElement, range: Range, shift: boolean, pad = false): void {
   commitCopy(root, range, (copy, mapped) => {
     if (!mapped.collapsed) {
       mapped.deleteContents();
       mapped.collapse(true);
     }
-    if (shift) return insertBreakPoint(mapped);
+    if (shift) return insertBreakPoint(mapped, pad);
     return splitBlockPoint(copy, mapped);
   });
 }
@@ -1281,8 +1281,6 @@ function lineInner(line: Line): string {
 }
 
 const EDGE_MARKER = "\u200b";
-// Chromium ignores a break that is the last thing in the editor, so the caret never reaches the new line.
-const LINE_ANCHOR = "\u2060";
 
 function replaceElementContents(root: HTMLElement, html: string): void {
   const doc = root.ownerDocument;
@@ -1322,20 +1320,64 @@ function stripEdgeMarkers(root: HTMLElement): void {
   }
 }
 
-function insertBreakPoint(range: Range): DomPoint {
+function insertBreakPoint(range: Range, pad: boolean): DomPoint {
   const doc = range.startContainer.ownerDocument;
+  if (pad) placeRangeBeforePad(range);
   const br = doc.createElement("br");
   range.insertNode(br);
-  if (!br.nextSibling && br.parentNode) br.parentNode.appendChild(doc.createTextNode(LINE_ANCHOR));
+  if (pad) ensureBreakPad(br);
   return { node: br.parentNode as Node, offset: indexInParent(br) + 1 };
 }
 
+// Chromium does not paint a <br> that ends the editing host, so the caret stays on the
+// same line. A second break after the caret gives that line somewhere to exist. It is not stored.
+function ensureBreakPad(br: HTMLElement): void {
+  if (!needsTrailingBreakPad()) return;
+  const parent = br.parentNode;
+  if (!parent) return;
+  let next = br.nextSibling;
+  while(next && next.nodeType === 3 && !(next.textContent || "")) next = next.nextSibling;
+  if (next && isPadBr(next)) return;
+  if (next) return;
+  const pad = br.ownerDocument.createElement("br");
+  pad.setAttribute("data-rt-pad", "");
+  parent.appendChild(pad);
+}
+
+function placeRangeBeforePad(range: Range): void {
+  if (!range.collapsed || range.startContainer.nodeType !== 1) return;
+  const parent = range.startContainer as HTMLElement;
+  const pad = parent.lastChild;
+  if (!isPadBr(pad)) return;
+  if (range.startOffset > parent.childNodes.length - 1) {
+    range.setStart(parent, parent.childNodes.length - 1);
+    range.collapse(true);
+  }
+}
+
 function anchorTrailingBreak(root: HTMLElement): void {
+  if (!needsTrailingBreakPad()) return;
   const last = root.lastChild;
-  if (!last || last.nodeType !== 1 || (last as Element).tagName.toLowerCase() !== "br") return;
+  if (!isBr(last) || isPadBr(last)) return;
   const doc = root.ownerDocument;
   if (!doc) return;
-  root.appendChild(doc.createTextNode(LINE_ANCHOR));
+  const pad = doc.createElement("br");
+  pad.setAttribute("data-rt-pad", "");
+  root.appendChild(pad);
+}
+
+function isBr(node: Node | null): node is HTMLElement {
+  return !!node && node.nodeType === 1 && (node as Element).tagName.toLowerCase() === "br";
+}
+
+function isPadBr(node: Node | null): node is HTMLElement {
+  return isBr(node) && node.hasAttribute("data-rt-pad");
+}
+
+function needsTrailingBreakPad(): boolean {
+  const win = DomWindowHelper.isAvailable() ? DomWindowHelper.getWindow() as Window : undefined;
+  const agent = win && win.navigator ? win.navigator.userAgent || "" : "";
+  return agent.indexOf("AppleWebKit") >= 0;
 }
 
 function splitBlockPoint(root: HTMLElement, range: Range): DomPoint {
@@ -1626,7 +1668,7 @@ function visibleText(root: HTMLElement): string {
   let out = "";
   const walk = (node: Node, isRoot: boolean): void => {
     if (node.nodeType === 3) {
-      const text = (node.textContent || "").replace(/\u2060/g, "");
+      const text = node.textContent || "";
       if (!text) return;
       out += text;
       return;
@@ -1634,6 +1676,7 @@ function visibleText(root: HTMLElement): string {
     if (node.nodeType !== 1) return;
     const tag = (node as Element).tagName.toLowerCase();
     if (tag === "br") {
+      if ((node as HTMLElement).hasAttribute("data-rt-pad")) return;
       out += "\n";
       return;
     }

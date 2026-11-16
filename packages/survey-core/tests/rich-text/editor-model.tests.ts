@@ -180,21 +180,31 @@ describe("rich text editor model", () => {
     expect(question.value).toBe("a<br>b");
   });
 
-  test("Enter at the end of an inline editor inserts a break", () => {
+  test("Enter at the end of an inline line moves the caret onto each new line", () => {
     const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c", acceptCarriageReturn: false }] });
     const question = survey.getQuestionByName("c") as QuestionRichTextModel;
     const { element, model } = mount(question);
     element.innerHTML = "ab";
-    const caret = document.createRange();
-    caret.selectNodeContents(element);
-    caret.collapse(false);
-    document.getSelection().removeAllRanges();
-    document.getSelection().addRange(caret);
-    model.syncSelection();
+    placeCaretAtEnd(element, model);
     element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
-    expect(element.querySelector("br")).not.toBeNull();
+    // The caret sits after one real break. Chromium does not paint a break that ends the host,
+    // so one extra break stays after the caret and is not part of the text.
+    expect(htmlBeforeCaret(element)).toBe("ab<br>");
+    expect(realBreaks(element)).toBe(1);
+    if (navigator.userAgent.indexOf("AppleWebKit") >= 0) {
+      expect(element.querySelectorAll("br").length).toBe(2);
+      expect(nodeAfterCaret(element).getAttribute("data-rt-pad")).toBe("");
+    }
+    element.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
+    expect(htmlBeforeCaret(element)).toBe("ab<br><br>");
+    expect(realBreaks(element)).toBe(2);
+    if (navigator.userAgent.indexOf("AppleWebKit") >= 0) {
+      expect(element.querySelectorAll("br").length).toBe(3);
+      expect(element.querySelectorAll("[data-rt-pad]").length).toBe(1);
+      expect(nodeAfterCaret(element).getAttribute("data-rt-pad")).toBe("");
+    }
     element.dispatchEvent(new FocusEvent("blur"));
-    expect(question.value).toBe("ab<br>");
+    expect(question.value).toBe("ab<br><br>");
   });
 
   test("Enter in inline mode does not pass maxLength", () => {
@@ -830,6 +840,39 @@ function loadMarked(element: HTMLElement, model: { syncSelection(): void }, mark
   selection.removeAllRanges();
   selection.addRange(range);
   model.syncSelection();
+}
+
+function placeCaretAtEnd(element: HTMLElement, model: { syncSelection(): void }): void {
+  const caret = document.createRange();
+  caret.selectNodeContents(element);
+  caret.collapse(false);
+  document.getSelection().removeAllRanges();
+  document.getSelection().addRange(caret);
+  model.syncSelection();
+}
+
+function htmlBeforeCaret(element: HTMLElement): string {
+  const range = document.getSelection().getRangeAt(0);
+  const probe = range.cloneRange();
+  probe.selectNodeContents(element);
+  probe.setEnd(range.startContainer, range.startOffset);
+  const holder = document.createElement("div");
+  holder.appendChild(probe.cloneContents());
+  return holder.innerHTML.toLowerCase().replace(/ data-rt-pad=""/g, "");
+}
+
+function nodeAfterCaret(element: HTMLElement): HTMLElement {
+  const range = document.getSelection().getRangeAt(0);
+  const container = range.startContainer;
+  if (container === element) return element.childNodes[range.startOffset] as HTMLElement;
+  return container.nextSibling as HTMLElement;
+}
+
+function realBreaks(element: HTMLElement): number {
+  const breaks = element.querySelectorAll("br");
+  let count = 0;
+  for (let i = 0; i < breaks.length; i++) if (!breaks[i].hasAttribute("data-rt-pad")) count += 1;
+  return count;
 }
 
 function htmlWithCaret(element: HTMLElement): string {

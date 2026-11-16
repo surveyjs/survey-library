@@ -50,9 +50,6 @@ class Builder {
 
   public pushText(text: string): void {
     if (!text) return;
-    // The editor parks an invisible mark after a trailing break so the caret can sit on the new line.
-    text = text.replace(/\u2060/g, "");
-    if (!text) return;
     if (this.paste) {
       const collapsed = text.replace(/\s+/g, " ");
       if (collapsed)this.pieces.push({ kind: "text", text: collapsed, marks: copyMarks(this.marks) });
@@ -129,6 +126,8 @@ function walk(node: Node, builder: Builder): void {
     builder.report(tag);
     return;
   }
+  // The last break in the editing host is only there so Chromium paints the line above it.
+  if (tag === "br" && el.hasAttribute("data-rt-pad")) return;
   reportAttributes(el, tag, builder);
   if (tag === "br") {
     builder.pushBr();

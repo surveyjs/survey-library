@@ -54,7 +54,8 @@ describe("allow-list", () => {
     expect(sanitizeHtml("a<br>", { inline: true })).toBe("a<br>");
     expect(sanitizeHtml("<br>a", { inline: true })).toBe("<br>a");
     expect(sanitizeHtml("a<br><br>b", { inline: true })).toBe("a<br><br>b");
-    expect(sanitizeHtml("a<br>\u2060", { inline: true })).toBe("a<br>");
+    expect(sanitizeHtml("a<br><br data-rt-pad=\"\">", { inline: true })).toBe("a<br>");
+    expect(getDisallowedHtml("a<br><br data-rt-pad=\"\">")).toEqual([]);
     expect(sanitizeHtml("<br>", { inline: true })).toBe("");
     expect(sanitizeHtml("a<br>")).toBe("a");
   });

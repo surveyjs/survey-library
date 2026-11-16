@@ -323,18 +323,25 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.prevActiveElement = undefined;
     this.hidePopup();
   }
-  // Not leaving: the focus moves within the popup (its layer takes the focus of a click on the popup's
-  // empty space) or into a popup opened from it, mounted elsewhere - one that does not hold this popup's
-  // target (a dialog the target is in is the page around it). An element removed by a redraw is not left.
+  // Not leaving: the focus moves within the popup - its layer takes the focus of a click on the popup's
+  // empty space, and a popup opened from it is drawn inside it (only a modal one is mounted elsewhere).
+  // An element removed by a redraw is not left either.
   private isFocusLeaving(event: FocusEvent): boolean {
     if (!this.model.hideOnFocusOut || !this.model.isVisible || !event) return false;
-    const next = <Element>event.relatedTarget;
+    const next = <Node>event.relatedTarget;
     if (!next) return !!event.target && (<Node>event.target).isConnected;
-    if (!!this.container && this.container.contains(next)) return false;
-    const popup = typeof next.closest === "function" ? next.closest(this.popupSelector) : null;
-    if (!popup) return true;
-    const target = this.getTargetElement();
-    return !!target && popup.contains(target);
+    return !this.container || !this.container.contains(next);
+  }
+  // hideOnFocusOut: the popup takes the focus 100 ms after it shows. A focus moved off the element that
+  // had it at the show - a quick click on another chip, on the page - has left the popup before it took
+  // the focus: the popup hides, and the focus stays where it went.
+  protected canFocusFirstInput(): boolean {
+    if (!this.model.hideOnFocusOut || !this.model.isVisible) return true;
+    const active = getRootNode(this.container)?.activeElement || null;
+    if (active === (this.prevActiveElement || null) || (!!active && this.container.contains(active))) return true;
+    this.prevActiveElement = undefined;
+    this.hidePopup();
+    return false;
   }
 
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {

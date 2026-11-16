@@ -12,6 +12,7 @@ export const filterUIStrings = {
   showMore: "Show More",
   showLess: "Show Less",
   clearAll: "Clear All",
+  clearChip: "Clear {0}",
   addCustomValue: "Add \"{0}\"...",
   presetsTitle: "Filter Presets",
   showResultsCount: "Show {0} items",

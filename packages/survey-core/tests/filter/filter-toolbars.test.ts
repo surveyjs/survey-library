@@ -81,6 +81,55 @@ describe("FilterToolbars: the chips row", () => {
   });
 });
 
+describe("FilterToolbars: a badge's clear button", () => {
+  test("an active badge has a clear button in place of the chevron", () => {
+    const q = createFilter({ items: [] });
+    const age = action(q.chipsToolbar, "sv-filter-field-age");
+    expect([age.markerIconName, age.clearAction.visible], "#1").toEqual(["icon-chevrondown-24x24", false]);
+    q.setFieldCondition("age", "greater", 18);
+    expect([age.markerIconName, age.clearAction.visible, age.isClearable], "#2").toEqual([undefined, true, true]);
+    const clear = age.clearAction;
+    expect([clear.id, clear.iconName, clear.ariaLabel, clear.tooltip], "#3")
+      .toEqual(["sv-filter-clear-age", "icon-close-16x16", "Clear age", "Clear age"]);
+    q.clearFieldCondition("age");
+    expect([age.markerIconName, age.clearAction.visible], "#4").toEqual(["icon-chevrondown-24x24", false]);
+  });
+  test("it clears its own field and nothing else", () => {
+    const q = createFilter({ items: [] });
+    q.setFieldCondition("age", "greater", 18);
+    q.setFieldCondition("country", "anyof", ["de", "fr"]);
+    const age = action(q.chipsToolbar, "sv-filter-field-age");
+    age.clearAction.action();
+    expect(q.ownConditions, "#1").toEqual([{ field: "country", operator: "anyof", value: ["de", "fr"] }]);
+    expect([age.title, !!age.active, age.popupModel.isVisible], "#2: no popup opens").toEqual(["age", false, false]);
+  });
+  test("over an active preset it turns the preset off and keeps the preset's other conditions", () => {
+    const q = createFilter({ items: [{ name: "two", expression: "{age} > 18 and {country} anyof ['de']" }] });
+    q.toggleItem("two");
+    action(q.chipsToolbar, "sv-filter-field-age").clearAction.action();
+    expect([q.activeItemName, q.ownConditions], "#1").toEqual(["", [{ field: "country", operator: "anyof", value: ["de"] }]]);
+  });
+  test("none while the badges are locked or the control is read-only", () => {
+    const q = createFilter({ items: [raw] });
+    q.toggleItem("raw");
+    const age = action(q.chipsToolbar, "sv-filter-field-age");
+    expect(age.clearAction.visible, "#1: locked").toBe(false);
+    q.clearActiveItem();
+    q.setFieldCondition("age", "greater", 18);
+    q.readOnly = true;
+    expect(age.clearAction.visible, "#2: read-only").toBe(false);
+    age.clearAction.action();
+    expect(q.ownConditions.length, "#3: a click changes nothing").toBe(1);
+  });
+  test("a badge the row no longer shows takes its clear button with it", () => {
+    const q = createFilter({ items: [] });
+    q.setFieldCondition("age", "greater", 18);
+    const clear = action(q.chipsToolbar, "sv-filter-field-age").clearAction;
+    q.fields.splice(2, 1);
+    expect(clear.isDisposed).toBe(true);
+  });
+});
+
 const raw = { name: "raw", expression: "{age} < 18 or {age} > 35" };
 
 describe("FilterToolbars: an active preset", () => {
@@ -90,7 +139,7 @@ describe("FilterToolbars: an active preset", () => {
     expect(ids(q.chipsToolbar), "#1").toEqual(["sv-filter-filters"].concat(badges,
       ["sv-filter-item-adults", "sv-filter-item-kids", "sv-filter-more"]));
     const age = action(q.chipsToolbar, "sv-filter-field-age");
-    expect([age.title, age.active, age.markerIconName], "#2").toEqual(["age: Less than or equal to 18", true, "icon-chevrondown-24x24"]);
+    expect([age.title, age.active, age.clearAction.visible], "#2").toEqual(["age: Less than or equal to 18", true, true]);
     age.action();
     expect([age.popupModel.isVisible, q.activeItemName], "#3: the preset stays on").toEqual([true, "kids"]);
   });
@@ -568,6 +617,18 @@ describe("FilterToolbars: in the designer", () => {
     } finally {
       settings.showDialog = saved;
     }
+  });
+  test("a badge's clear button is drawn and reports a click on the control itself", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [Object.assign({}, json, { defaultItem: "adults" })] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const clicked: Array<any> = [];
+    q.setDesignItemClickCallback((item?: FilterItem): void => { clicked.push(item); });
+    const age = action(q.chipsToolbar, "sv-filter-field-age");
+    expect(age.clearAction.visible, "#1").toBe(true);
+    age.clearAction.action();
+    expect([clicked, q.activeItemName], "#2").toEqual([[undefined], "adults"]);
   });
   test("out of the designer a preset's chip turns it on and reports nothing", () => {
     const survey = new SurveyModel({ elements: [json] });

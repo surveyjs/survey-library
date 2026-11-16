@@ -7,7 +7,7 @@
 // Create custom filter has nothing here: it is a survey, drawn by the "survey" component.
 import * as React from "react";
 import {
-  Action, Base, FilterEditPresetsDialog, FilterEditorHolder, FilterFieldPopup,
+  Action, Base, FilterChip, FilterEditPresetsDialog, FilterEditorHolder, FilterFieldPopup,
   FilterModal, FilterPresetDialog, ListModel, Question, QuestionFilterModel, SurveyError, SurveyModel,
   filterChipComponentName, filterModalComponentName, filterFieldPopupComponentName, filterListItemComponentName,
   filterPresetDialogComponentName, filterUIStrings
@@ -19,6 +19,7 @@ import { ISurveyCreator } from "../../reactquestion";
 import { SurveyPage } from "../../page";
 import { SurveyActionBar } from "../action-bar/action-bar";
 import { SurveyActionBarItemDropdown } from "../action-bar/action-bar-item-dropdown";
+import { SurveyActionBarItem } from "../action-bar/action-bar-item";
 import { List } from "../list/list";
 import { SvgIcon } from "../svg-icon/svg-icon";
 
@@ -290,9 +291,20 @@ export class SurveyFilterListItem extends SurveyElementBase<{ model: ListModel, 
 ReactElementFactory.Instance.registerElement(filterListItemComponentName,
   (props) => { return React.createElement(SurveyFilterListItem, props); });
 
-// A field's chip: the standard action button (its trailing chevron is the item's markerIconName) and
-// its popup. Every field chip has one.
-export class SurveyFilterChip extends SurveyActionBarItemDropdown {}
+// A field's chip (FilterChip): the standard action button (its trailing chevron is the item's
+// markerIconName) and its popup, and, while the chip can be cleared, its cross - a button of its own
+// after the popup (the popup is placed against its previous sibling, the chip's button), which the
+// theme draws over the chip's end.
+export class SurveyFilterChip extends SurveyActionBarItemDropdown {
+  private get chip(): FilterChip {
+    return this.item as FilterChip;
+  }
+  renderElement(): React.JSX.Element {
+    const chip = this.chip;
+    const cross = chip.isClearable ? <SurveyActionBarItem item={chip.clearAction} /> : null;
+    return <div className={chip.boxCss}>{this.renderInnerButton()}{cross}</div>;
+  }
+}
 ReactElementFactory.Instance.registerElement(filterChipComponentName,
   (props) => { return React.createElement(SurveyFilterChip, props); });
 

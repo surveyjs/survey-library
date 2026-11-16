@@ -112,6 +112,31 @@
   }
 }
 
+// A chip with its cross (FilterChip): the cross is a button of its own, next to the chip's and placed
+// over the chip's end, where the chevron would be. The chip keeps room for it.
+.sd-filter__chip-box {
+  position: relative;
+  display: flex;
+}
+
+.sd-action.sd-filter__chip--clearable {
+  padding-inline-end: calc(var(--sjs2-spacing-x050) + var(--sjs2-size-x300));
+}
+
+// The cross takes the chip's colors and shows its own hover over them: no fill of its own until it is
+// hovered, so a hovered chip is one color under it too.
+.sd-action.sd-filter__chip-clear {
+  --sd-action-padding: var(--sjs2-spacing-x050);
+  --sd-action-background: transparent;
+  --sd-action-border-radius: var(--sjs2-radius-form-item);
+  --sd-action-icon-size: var(--sjs2-size-x200);
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: var(--sjs2-spacing-x050);
+  margin-block: auto;
+  height: fit-content;
+}
+
 .sd-filter__show-more .sd-action__title {
   text-decoration: none;
 }

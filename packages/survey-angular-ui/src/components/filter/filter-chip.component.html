@@ -1,4 +1,7 @@
 <ng-template #template>
-  <sv-action-bar-item *ngIf="model" [model]="model"></sv-action-bar-item>
-  <sv-ng-popup *ngIf="model && model.popupModel" [popupModel]="model.popupModel"></sv-ng-popup>
+  <div *ngIf="model" [class]="model.boxCss">
+    <sv-action-bar-item [model]="model"></sv-action-bar-item>
+    <sv-ng-popup *ngIf="model.popupModel" [popupModel]="model.popupModel"></sv-ng-popup>
+    <sv-action-bar-item *ngIf="model.isClearable" [model]="model.clearAction"></sv-action-bar-item>
+  </div>
 </ng-template>

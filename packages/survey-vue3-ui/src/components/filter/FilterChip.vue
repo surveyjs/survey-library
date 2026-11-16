@@ -1,6 +1,9 @@
 <template>
-  <ActionBarItem :item="item"></ActionBarItem>
-  <SvComponent v-if="item.popupModel" :is="'sv-popup'" :model="item.popupModel"></SvComponent>
+  <div :class="item.boxCss">
+    <ActionBarItem :item="item"></ActionBarItem>
+    <SvComponent v-if="item.popupModel" :is="'sv-popup'" :model="item.popupModel"></SvComponent>
+    <ActionBarItem v-if="item.isClearable" :item="item.clearAction"></ActionBarItem>
+  </div>
 </template>
 <script lang="ts">
 export default {
@@ -8,15 +11,17 @@ export default {
 };
 </script>
 <script lang="ts" setup>
-// A chip of the Filter Control: the standard action button (its trailing chevron is the item's
-// markerIconName), and the popup right after the button (the popup is placed against its previous
-// sibling). The button sets the item's input element itself: a child mounts before its parent.
+// A chip of the Filter Control (FilterChip): the standard action button (its trailing chevron is the
+// item's markerIconName), the popup right after the button (the popup is placed against its previous
+// sibling) and, while the chip can be cleared, its cross - a button of its own, which the theme draws
+// over the chip's end. The button sets the item's input element itself: a child mounts before its
+// parent.
 import SvComponent from "@/SvComponent.vue";
 import ActionBarItem from "@/components/action-bar/ActionBarItem.vue";
 import { useBase } from "@/base";
-import { type Action, ActionDropdownViewModel } from "survey-core";
+import { type FilterChip, ActionDropdownViewModel } from "survey-core";
 import { onBeforeUnmount, onMounted } from "vue";
-const props = defineProps<{ item: Action }>();
+const props = defineProps<{ item: FilterChip }>();
 let viewModel: ActionDropdownViewModel | undefined;
 useBase(() => props.item);
 onMounted(() => {

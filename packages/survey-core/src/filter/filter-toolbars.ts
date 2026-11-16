@@ -1,6 +1,6 @@
 import { Base, ComputedUpdater } from "../base";
 import { property } from "../decorators";
-import { Action, IAction } from "../actions/action";
+import { Action, IAction, IActionAppearance } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { getActionDropdownButtonTarget } from "../actions/dropdown-action";
 import { IDialogOptions, PopupModel } from "../popup";
@@ -35,6 +35,23 @@ export class FilterEditorHolder extends Base {
   public cssClasses: any;
 }
 
+// A chip that can be reset where it stands: a field's chip, while it has a condition, has a clear
+// button at its end - a click on the chip opens its popup, a click on the cross clears the field.
+// The cross is a button of its own, drawn next to the chip's (in the box boxCss names) and placed
+// over its end: a button inside a button is not allowed. It goes with the chip. isClearable is the
+// chip's own: what a renderer re-renders the chip by when the cross comes or goes.
+export class FilterChip extends Action {
+  @property({ defaultValue: false }) isClearable: boolean;
+  public clearAction: Action;
+  public boxCss: string;
+  public dispose(): void {
+    if (!!this.clearAction) {
+      this.clearAction.dispose();
+    }
+    super.dispose();
+  }
+}
+
 // What the toolbars read from the control and call on it. Only the control's public API: the
 // toolbars hold no filter state of their own and decide nothing the control does not answer.
 export interface IFilterToolbarsOwner {
@@ -48,6 +65,7 @@ export interface IFilterToolbarsOwner {
   saveActiveItem(): void;
   canClearActiveItem: boolean;
   clearActiveItem(): void;
+  clearFieldCondition(name: string): void;
   isDesignMode: boolean;
   // The control's own readOnly: the buttons are disabled and open nothing (never in the designer).
   isControlReadOnly: boolean;
@@ -85,10 +103,12 @@ export const filterPresetDialogComponentName = "sv-filter-preset-dialog";
 //   field, the presets and "Show More" last;
 // - the clear row: Save (single mode only) and Clear All, at the right end of the chips row;
 // - the search row: Filters, next to the search box.
-// An active preset lights its chip where it stands, and the badges show its conditions and stay
-// editable: an edit turns the preset off and keeps them (QuestionFilterModel.editConditions). Only a
-// preset with no conditions to show locks the badges (QuestionFilterModel.isLocked): no chevron, no
-// popup, and a click turns the preset off. Kept in sync by update(), which the control calls on
+// A badge with a condition has a cross that clears it (FilterChip), one without has the chevron of
+// its popup. An active preset lights its chip where it stands, and the badges show its conditions and
+// stay editable: an edit - a cross too - turns the preset off and keeps them
+// (QuestionFilterModel.editConditions). Only a preset with no conditions to show locks the badges
+// (QuestionFilterModel.isLocked): no chevron or cross, no popup, and a click turns the preset off.
+// Kept in sync by update(), which the control calls on
 // every change of its state. Containers are not adaptive: chips that do not fit wrap, and
 // FilterChipsLayout cuts the collapsed row to one.
 export class FilterToolbars {
@@ -100,7 +120,7 @@ export class FilterToolbars {
   private moreAction: Action;
   private saveAction: Action;
   private clearAction: Action;
-  private fieldChips: { [key: string]: { chip: Action, holder: FilterEditorHolder } } = {};
+  private fieldChips: { [key: string]: { chip: FilterChip, holder: FilterEditorHolder } } = {};
   private itemChips: Array<{ item: FilterItem, chip: Action }> = [];
   // The chips the row holds, in order. Compared by object and not by id: a preset replaced by another
   // one of the same name (a restored uiState, a new items array) has a new chip with the same id.
@@ -518,7 +538,7 @@ export class FilterToolbars {
     this.moreAction.css = fit > -1 ? undefined : hidden;
   }
 
-  private getFieldChip(key: string): Action {
+  private getFieldChip(key: string): FilterChip {
     let entry = this.fieldChips[key];
     if (!entry) {
       const holder = this.createHolder();
@@ -527,8 +547,11 @@ export class FilterToolbars {
       // Under the chip, its left edge on the chip's.
       popup.positionMode = "fixed";
       popup.getTargetCallback = getActionDropdownButtonTarget;
-      const chip = new Action({ id: "sv-filter-field-" + key, component: filterChipComponentName, innerCss: this.cssClasses.chip,
+      const chip = new FilterChip({ id: "sv-filter-field-" + key, component: filterChipComponentName, innerCss: this.cssClasses.chip,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.onFieldChipClick(key); } });
+      chip.boxCss = this.cssClasses.chipBox;
+      chip.clearAction = this.createChipClearAction("sv-filter-clear-" + key, { style: "brand", mode: "primary" },
+        (): void => { this.owner.clearFieldCondition(key); });
       chip.popupModel = popup;
       // Apply is in the popup's content: the sheet's own footer would add a Cancel under it.
       popup.onFooterActionsCreated.add((_: PopupModel, options: { actions: Array<IAction> }): void => {
@@ -580,12 +603,40 @@ export class FilterToolbars {
     const isReadOnly = this.owner.isControlReadOnly;
     chip.title = state.text || state.title || state.key;
     chip.active = !!state.text;
-    // No chevron where the chip opens nothing: locked, or read-only (it keeps its active colors).
-    chip.markerIconName = isLocked || isReadOnly ? undefined : "icon-chevrondown-24x24";
+    // A chip that opens nothing - locked, or read-only (it keeps its active colors) - has neither the
+    // chevron nor the cross. One that opens its popup has the chevron, or the cross while it has a
+    // condition to clear.
+    const canOpen = !isLocked && !isReadOnly;
+    this.updateChipClearAction(chip, canOpen && chip.active, state.title || state.key);
+    chip.markerIconName = canOpen && !chip.active ? "icon-chevrondown-24x24" : undefined;
     chip.enabled = !isReadOnly;
     if (isLocked || isReadOnly) {
       chip.popupModel.hide();
     }
+  }
+  // The cross of a chip (FilterChip): an icon button with the chip's own colors while it is active,
+  // labelled by what it clears. In the designer it is a picture of itself, as the chip is, and reports
+  // the click. Small, as the row's chips are.
+  private createChipClearAction(id: string, appearance: Partial<IActionAppearance>, clear: () => void): Action {
+    return new Action({ id: id, iconName: "icon-close-16x16", iconSize: "auto", visible: false,
+      innerCss: this.cssClasses.chipClear, appearance: Object.assign({ size: "small" }, appearance), action: (): void => {
+        if (this.owner.isDesignMode) {
+          this.owner.onDesignItemClick();
+        } else if (!this.owner.isControlReadOnly) {
+          clear();
+        }
+      } });
+  }
+  private updateChipClearAction(chip: FilterChip, isVisible: boolean, title: string): void {
+    const clear = chip.clearAction;
+    const label = filterUIStrings.clearChip.replace("{0}", title);
+    // The row's classes, which the chip has from the row: the cross is not in the row.
+    clear.cssClasses = chip.cssClasses;
+    clear.visible = isVisible;
+    chip.isClearable = isVisible;
+    clear.ariaLabel = label;
+    clear.tooltip = label;
+    chip.innerCss = toCssClasses(this.cssClasses.chip, isVisible && this.cssClasses.chipClearable);
   }
   private getItemChip(item: FilterItem): Action {
     let entry = this.itemChips.filter((e: { item: FilterItem, chip: Action }): boolean => e.item === item)[0];

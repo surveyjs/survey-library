@@ -6,8 +6,9 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import "../src/question_matrixdynamic";
 
-// Every data scope keeps its own index, kept up on add, remove and rename. After each change: a write lands in the
-// right object, an expression reads the right question, and getQuestionsByValueName answers as before.
+// Every data scope keeps its own index, dropped at an add, a remove or a rename and built again on the next read (the
+// root's takes an element appended last in place). After each change: a write lands in the right object, an
+// expression reads the right question, and getQuestionsByValueName answers as before.
 // By its name wherever it is: in a nesting mode the survey finds an inner panel by its path (scoped names 05, O1).
 const panelOf = (survey: SurveyModel, name: string): PanelModel => <PanelModel>survey.getAllPanels(false, true).filter(p => p.name === name)[0];
 const names = (list: Array<any>): Array<string> => (list || []).map(el => el.name);
@@ -333,5 +334,155 @@ describe("a data scope's index: changes the walk saw live", () => {
     survey.dataNesting = "auto";
     expect(survey.getQuestionsByValueName("q2"), "#3 page1 no longer nests").toBeNull();
     expect(names(survey.getQuestionsByValueName("q1")), "#4 its page's question is").toEqual(["q1"]);
+  });
+});
+
+// Below the root a scope's index is never patched: a change drops it, and the next read builds it again. The scope
+// that held an element is found where the element left, not from its data: an add to another container gives it
+// its new data before the old container removes it.
+describe("a data scope's index: built again after a move or a rename", () => {
+  test("a question added to another nesting panel, without removing it first", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { type: "panel", name: "pb", valueName: "b", elements: [{ type: "text", name: "q3" }] },
+      { type: "text", name: "top" }] });
+    const q1 = survey.getQuestionByName("pa.q1");
+    const top = survey.getQuestionByName("top");
+    expect([scopeNames(survey, "pa"), scopeNames(survey, "pb")], "#1").toEqual([["q1", "q2"], ["q3"]]);
+    expect(names(survey.getQuestionsByValueName("top")), "#2").toEqual(["top"]);
+    panelOf(survey, "pb").addElement(q1);
+    expect([scopeNames(survey, "pa"), scopeNames(survey, "pb")], "#3").toEqual([["q2"], ["q3", "q1"]]);
+    q1.value = 1;
+    expect(survey.data, "#4").toEqual({ b: { q1: 1 } });
+    expect(survey.runExpression("{b.q1}"), "#5").toBe(1);
+    survey.setValue("a", { q1: "old" });
+    expect(q1.value, "#6 a write of the object it left does not reach it").toBe(1);
+    panelOf(survey, "pa").addElement(top);
+    expect(survey.getQuestionsByValueName("top"), "#7 no longer the root's").toBeNull();
+    expect(scopeNames(survey, "pa"), "#8").toEqual(["q2", "top"]);
+    top.value = "t";
+    expect(survey.data, "#9").toEqual({ a: { q1: "old", top: "t" }, b: { q1: 1 } });
+    panelOf(survey, "pb").addElement(top);
+    expect([scopeNames(survey, "pa"), scopeNames(survey, "pb")], "#10").toEqual([["q2"], ["q3", "q1", "top"]]);
+    survey.pages[0].addElement(top);
+    expect(scopeNames(survey, "pb"), "#11").toEqual(["q3", "q1"]);
+    expect(names(survey.getQuestionsByValueName("top")), "#12 the root's again").toEqual(["top"]);
+  });
+  test("a question moved between nesting containers with q.page", () => {
+    const survey = new SurveyModel({ dataNesting: "page", pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { name: "page2", elements: [{ type: "text", name: "q3" }] }] });
+    const q1 = survey.getQuestionByName("page1.q1");
+    const scope = (page: number): Array<string> => names(survey.pages[page].getDataScope().getDataKeyIndex().elements);
+    expect([scope(0), scope(1)], "#1").toEqual([["q1", "q2"], ["q3"]]);
+    q1.page = survey.pages[1];
+    expect([scope(0), scope(1)], "#2").toEqual([["q2"], ["q3", "q1"]]);
+    survey.setValue("page2", { q1: "b", q3: "c" });
+    expect(q1.value, "#3").toBe("b");
+    survey.setValue("page1", { q1: "a" });
+    expect(q1.value, "#4 a write of the page it left does not reach it").toBe("b");
+    q1.page = survey.pages[0];
+    expect([scope(0), scope(1)], "#5").toEqual([["q2", "q1"], ["q3"]]);
+    q1.value = "back";
+    expect(survey.data, "#6").toEqual({ page1: { q1: "back" }, page2: { q1: "b", q3: "c" } });
+    expect(survey.getQuestionsByValueName("q1"), "#7").toBeNull();
+  });
+  test("a question in a nesting panel moved to another page with q.page: the root's", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", pages: [
+      { name: "page1", elements: [{ type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] }] },
+      { name: "page2", elements: [{ type: "text", name: "q3" }] }] });
+    const q1 = survey.getQuestionByName("pa.q1");
+    expect(scopeNames(survey, "pa"), "#1").toEqual(["q1", "q2"]);
+    expect(survey.getQuestionsByValueName("q1"), "#2").toBeNull();
+    q1.page = survey.pages[1];
+    expect(scopeNames(survey, "pa"), "#3").toEqual(["q2"]);
+    expect(names(survey.getQuestionsByValueName("q1")), "#4").toEqual(["q1"]);
+    q1.value = 1;
+    expect(survey.data, "#5").toEqual({ q1: 1 });
+  });
+  test("a panel renamed while it nests by its name", () => {
+    const survey = new SurveyModel({ dataNesting: "panel", elements: [
+      { type: "panel", name: "outer", elements: [
+        { type: "panel", name: "inner", elements: [{ type: "text", name: "q1" }] }, { type: "text", name: "q2" }] }] });
+    const q1 = survey.getQuestionByName("outer.inner.q1");
+    q1.value = 1;
+    expect(survey.data, "#1").toEqual({ outer: { inner: { q1: 1 } } });
+    expect(scopeNames(survey, "outer"), "#2").toEqual(["inner", "q2"]);
+    panelOf(survey, "inner").name = "geo";
+    expect(names(panelOf(survey, "outer").getDataScope().getDataKeyIndex().getElements("geo")), "#3").toEqual(["geo"]);
+    expect(panelOf(survey, "outer").getDataScope().getDataKeyIndex().getElements("inner"), "#4").toEqual([]);
+    expect(survey.getQuestionByName("outer.geo.q1"), "#5").toBe(q1);
+    expect(survey.getQuestionByName("outer.inner.q1"), "#6").toBeNull();
+    survey.setValue("outer", { geo: { q1: 2 } });
+    expect(q1.value, "#7").toBe(2);
+    panelOf(survey, "outer").name = "box";
+    expect(survey.getQuestionByName("box.geo.q1"), "#8").toBe(q1);
+    survey.setValue("box", { geo: { q1: 3 } });
+    expect(q1.value, "#9").toBe(3);
+    q1.value = 4;
+    expect(survey.data, "#10").toEqual({ outer: { geo: { q1: 2 } }, box: { geo: { q1: 4 } } });
+    expect(survey.getQuestionsByValueName("box"), "#11 a container key").toBeNull();
+  });
+  test("a question renamed inside a nesting panel", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { type: "text", name: "q1" }] });
+    const q1 = survey.getQuestionByName("pa.q1");
+    const index = (): any => panelOf(survey, "pa").getDataScope().getDataKeyIndex();
+    expect(names(index().getQuestions("q1")), "#1").toEqual(["q1"]);
+    q1.name = "street";
+    expect(names(index().getQuestions("street")), "#2").toEqual(["street"]);
+    expect(index().getQuestions("q1"), "#3").toEqual([]);
+    expect(survey.getQuestionByName("pa.street"), "#4").toBe(q1);
+    expect(survey.getQuestionByName("pa.q1"), "#5").toBeNull();
+    survey.setValue("a", { street: "s" });
+    expect(q1.value, "#6").toBe("s");
+    q1.value = "t";
+    expect(survey.data, "#7").toEqual({ a: { street: "t" } });
+    expect(survey.getQuestionsByValueName("street"), "#8").toBeNull();
+    expect(names(survey.getQuestionsByValueName("q1")), "#9 the root's question").toEqual(["q1"]);
+  });
+});
+
+// A change that sends no notification (a name loaded in place, a shuffle of random order) is followed from the next
+// build. A removal, a rename or an insert builds the scope again, so it is followed from there: a fresh build's answer.
+describe("a data scope's index: a change with no notification, followed from the next build", () => {
+  test("a question's name loaded in place, then a question removed at the root", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }, { type: "text", name: "q3" }] });
+    const q1 = survey.getQuestionByName("q1");
+    expect(names(survey.getQuestionsByValueName("q1")), "#1").toEqual(["q1"]);
+    q1.fromJSON({ name: "z" });
+    expect(names(survey.getQuestionsByValueName("q1")), "#2 not followed yet").toEqual(["z"]);
+    survey.pages[0].removeElement(survey.getQuestionByName("q3"));
+    expect(survey.getQuestionsByValueName("q1"), "#3").toBeNull();
+    expect(names(survey.getQuestionsByValueName("z")), "#4").toEqual(["z"]);
+  });
+  test("a question's name loaded in place inside a nesting panel, then another question removed", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { type: "text", name: "top" }] });
+    const q1 = survey.getQuestionByName("pa.q1");
+    expect(scopeNames(survey, "pa"), "#1").toEqual(["q1", "q2"]);
+    q1.fromJSON({ name: "z" });
+    expect(survey.getQuestionByName("pa.z"), "#2 not followed yet").toBeNull();
+    panelOf(survey, "pa").removeElement(survey.getQuestionByName("pa.q2"));
+    expect(survey.getQuestionByName("pa.z"), "#3").toBe(q1);
+    expect(survey.getQuestionByName("pa.q1"), "#4").toBeNull();
+    survey.setValue("a", { z: "v" });
+    expect(q1.value, "#5").toBe("v");
+  });
+  test("random order shuffled on a page's first show, then a question removed: the shown order", () => {
+    const elements: Array<any> = [];
+    for (let i = 0; i < 8; i++) elements.push({ type: "text", name: "q" + i, valueName: "v" });
+    const survey = new SurveyModel({ pages: [
+      { name: "page1", elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] },
+      { name: "page2", questionOrder: "random", elements: elements }] });
+    survey.setValue("a", 1);
+    expect(names(survey.getQuestionsByValueName("v")), "#1 the order loaded").toEqual(["q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7"]);
+    survey.nextPage();
+    const shown = names(survey.pages[1].elements);
+    expect(names(survey.getQuestionsByValueName("v")), "#2 not followed yet").toEqual(["q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7"]);
+    survey.pages[0].removeElement(survey.getQuestionByName("b"));
+    expect(names(survey.getQuestionsByValueName("v")), "#3").toEqual(shown);
   });
 });

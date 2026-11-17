@@ -523,21 +523,17 @@ export class PanelModelBase extends SurveyElement<Question>
       super.setSurveyImpl(value, isLight);
       if (this.isDesignMode)this.onVisibleChanged();
       const elementsImpl = this.updateDataScope(value);
-      // An instance the elements' scope built while they were attached saw only some of them.
-      const holder = getKeyHolderScope(this.data);
-      const holderIndex = holder?.builtDataKeyIndex;
       for (var i = 0; i < this.elements.length; i++) {
         this.elements[i].setSurveyImpl(elementsImpl, isLight);
       }
       this.containerNesting.elementsAttached();
+      // An instance the scope that holds the elements built while they were attached saw only some of them: it is
+      // dropped (one never built costs nothing). The survey may be gone already (a page taken out of the pages).
+      getKeyHolderScope(this.data)?.resetDataKeyIndex();
       // An attach can start or stop the nesting (a panel attached before its parent is set does not nest, and nests
-      // once attached again): the instances it touches are built again, as at a key change. The survey may be gone
-      // already (a page taken out of the pages): the scope that holds the panel is told directly.
+      // once attached again): the instances it touches are dropped, as at a key change.
       if (this.getDataScopeKey() !== prevKey) {
-        holder?.resetDataKeyIndex();
         getDataScopeHost(this.survey)?.dataScopeKeysChanged(this);
-      } else if (!!holder && holder.builtDataKeyIndex !== holderIndex) {
-        holder.resetDataKeyIndex();
       }
     });
   }
@@ -651,9 +647,13 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.isColumnsUpdatePending) {
       this.updateColumns();
     }
-    // A name set while loading sends no notification (a JSON "name": "", or a rename in onPanelAdded)
+    // A name set while loading sends no notification (a JSON "name": "", or a rename in onPanelAdded). Nor does a key
+    // loaded in place (fromJSON): a panel that has a scope is treated as a changed key.
     if (!!this.survey) {
       this.lifecycleCallbacks.elementRenamed(this);
+      if (!!this.getDataScope()) {
+        getDataScopeHost(this.survey)?.dataScopeKeysChanged(this);
+      }
     }
   }
 
@@ -1867,6 +1867,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.markQuestionListDirty();
     this.updateRowsOnElementRemoved(element);
     if (this.isRandomizing) return;
+    // The instance of the scope that holds this container's elements is dropped, with a notification or without
+    // one (setPage). Not from the element's data: an add to another container gives it its new data first.
+    getKeyHolderScope(this.getElementsSurveyImpl()?.getSurveyData())?.resetDataKeyIndex();
     this.onRemoveElementNotifySurvey(element);
     if (!!this.removeElementCallback)this.removeElementCallback(element);
     this.onElementVisibilityChanged(this);

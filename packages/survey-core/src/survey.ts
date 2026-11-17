@@ -98,7 +98,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { getActiveDataScope, ISurveyDataScopeHost, ObjectDataScope } from "./panel-data-scope";
+import { getActiveDataScope, ISurveyDataScopeHost } from "./panel-data-scope";
 import type { IDataKeys, IDataScope } from "./data-key-index";
 import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
@@ -7511,9 +7511,6 @@ export class SurveyModel extends SurveyElementCore
   }
   dataScopeKeysChanged(panel: PanelModelBase): void {
     this.rootDataScope.dataScopeKeysChanged(panel);
-  }
-  dataKeyIndexBuilt(scope: ObjectDataScope, elements: Array<ISurveyDataElement>): void {
-    this.rootDataScope.dataKeyIndexBuilt(scope, elements);
   }
   elementMoved(el: IElement): void {
     this.rootDataScope.elementMoved(el);

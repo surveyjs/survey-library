@@ -1227,9 +1227,6 @@ class CompositeDataScope extends ObjectDataScope {
   protected getObjectKey(obj: any, name: string): any {
     return !!obj ? obj[name] : undefined;
   }
-  protected getScopeSurvey(): ISurvey {
-    return this.question.survey;
-  }
   protected getScopeElements(): Array<IElement> {
     const panel = this.question.contentPanel;
     return !!panel ? panel.elements : [];

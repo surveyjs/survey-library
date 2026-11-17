@@ -225,10 +225,7 @@ describe("ElementIndex by key: a data scope's instance", () => {
     expect(index.getQuestions("q")).toEqual([q]);
     expect(index.getQuestions("")).toEqual([]);
     expect(index.has(noName)).toBe(true);
-    index.removeKeyed(noName);
-    index.removeKeyed(question("q"));
-    expect(index.elements).toEqual([q]);
-    expect(index.has(noName)).toBe(false);
+    expect(index.has(question("q")), "another element").toBe(false);
   });
   test("letter case, and keys that are Object.prototype members", () => {
     const index = new ElementIndex();
@@ -245,8 +242,8 @@ describe("ElementIndex by key: a data scope's instance", () => {
     const proto = question("__proto__");
     index.addKeyed(proto, "__proto__");
     expect(index.getQuestions("__proto__")).toEqual([proto]);
-    index.removeKeyed(upper);
-    expect(index.getQuestions("A", true), "the other letter case stays").toEqual([lower]);
+    index.reKey(upper, "B");
+    expect(index.getQuestions("A", true), "a key left: the other letter case stays").toEqual([lower]);
   });
   test("a key's list follows elements: reKey keeps the place in elements", () => {
     const index = new ElementIndex();
@@ -264,7 +261,8 @@ describe("ElementIndex by key: a data scope's instance", () => {
     expect(index.getQuestions("V", true)).toEqual([q2, q3]);
     index.reKey(question("q4"), "v");
     expect(index.getQuestions("v"), "an element it does not hold is not added").toEqual([q2, q3]);
-    index.removeKeyed(q1);
-    expect(index.getQuestions("w"), "removed by the key reKey gave it").toEqual([]);
+    index.reKey(q1, "v");
+    expect(index.getQuestions("v"), "back under the key: reKey kept the key it gave").toEqual([q1, q2, q3]);
+    expect(index.getQuestions("w")).toEqual([]);
   });
 });

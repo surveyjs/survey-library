@@ -12,9 +12,11 @@ import { DataKeyHash, IDataKeys, getElementDataScope } from "./data-key-index";
 //   so the name a caller would pass is not always that one. A scope holds by name every element its walk reaches:
 //   its keyed elements and the panels that hold no data, the scope's own names (name-scope.ts). The root holds
 //   none: the survey's flat structure has them.
-// - By key (a data scope's instance): addKeyed, removeKeyed, reKey and the IDataKeys reads. Questions under their
-//   value name and active containers under their key; for one key the questions come first. elements holds each
-//   element once, in document order (the lists read it), and each key's list follows the order of elements.
+// - By key (a data scope's instance): addKeyed, reKey and the IDataKeys reads. Questions under their value name and
+//   active containers under their key; for one key the questions come first. elements holds each element once, in
+//   document order (the lists read it), and each key's list follows the order of elements. An instance is built,
+//   then changed in place only by an append and by a root question's new key; any other change drops it, and the
+//   scope builds it again on its next read.
 export class ElementIndex implements IDataKeys {
   private names = new DataKeyHash<ISurveyElement>();
   private heldNames = new WeakMap<ISurveyElement, string>();
@@ -67,17 +69,6 @@ export class ElementIndex implements IDataKeys {
     this.elements.push(el);
     if (!!key) {
       this.getKeyHash(el).add(key, el);
-    }
-  }
-  // The element leaves the names too.
-  public removeKeyed(el: ISurveyDataElement): void {
-    ElementIndex.hold(this.names, this.heldNames, <ISurveyElement><any>el, undefined);
-    const key = this.heldKeys.get(el);
-    if (key === undefined) return;
-    this.heldKeys.delete(el);
-    this.elements.splice(this.elements.indexOf(el), 1);
-    if (!!key) {
-      this.getKeyHash(el).remove(key, el);
     }
   }
   // A held element under another key: its place in elements stays, and it takes its rank in the new key's list.

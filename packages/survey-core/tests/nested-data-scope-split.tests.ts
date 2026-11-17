@@ -174,16 +174,15 @@ describe("a scope's index is kept", () => {
     expect(scope.getDataKeyIndex() === index, "#1").toBe(true);
     expect(index.getQuestions("Q1", true).map(q => q.name), "#2").toEqual(["q1"]);
     survey.getQuestionByName("p1.q1").valueName = "v1";
-    expect(scope.getDataKeyIndex() === index, "#3 a rename changes it in place").toBe(true);
-    expect(index.getQuestions("v1").map(q => q.name), "#4").toEqual(["q1"]);
+    expect(scope.getDataKeyIndex().getQuestions("v1").map(q => q.name), "#3").toEqual(["q1"]);
     const item = (<any>survey.getQuestionByName("items")).panels[0].data;
     const itemIndex = item.getDataKeyIndex();
-    expect(item.getDataKeyIndex() === itemIndex, "#5").toBe(true);
-    expect(item.getQuestionsByValueName("t1"), "#6").toHaveLength(1);
-    expect(item.getDataKeyIndex().getScopes("addr"), "#7").toHaveLength(1);
+    expect(item.getDataKeyIndex() === itemIndex, "#4").toBe(true);
+    expect(item.getQuestionsByValueName("t1"), "#5").toHaveLength(1);
+    expect(item.getDataKeyIndex().getScopes("addr"), "#6").toHaveLength(1);
     (<any>survey.getQuestionByName("items")).panels[0].getElementByName("inner").valueName = "";
-    expect(item.getDataKeyIndex() === itemIndex, "#8 the panel stopped nesting: built again").toBe(false);
-    expect(item.getQuestionsByValueName("street"), "#9").toHaveLength(1);
+    expect(item.getDataKeyIndex() === itemIndex, "#7 the panel stopped nesting: built again").toBe(false);
+    expect(item.getQuestionsByValueName("street"), "#8").toHaveLength(1);
   });
 });
 

@@ -4579,9 +4579,6 @@ export abstract class QuestionRecordItem extends ObjectDataScope implements ISur
   getSurvey(): ISurvey {
     return this.data ? this.data.getSurvey() : null;
   }
-  protected getScopeSurvey(): ISurvey {
-    return this.getSurvey();
-  }
   // The record as getAllValues() reads it: a row's includes its questions' current values.
   protected getObject(): any {
     return this.getAllValues();

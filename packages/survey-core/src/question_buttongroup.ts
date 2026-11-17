@@ -193,6 +193,9 @@ export class ButtonGroupItemModel {
   public get readOnly() {
     return this.question.isInputReadOnly || !this.item.isEnabled;
   }
+  public get disabled() {
+    return !this.item.isEnabled;
+  }
   public get name() {
     return this.question.name + "_" + this.question.id;
   }

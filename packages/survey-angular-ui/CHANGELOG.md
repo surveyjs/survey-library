@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## 2.5.49 (2026-11-17)
+
+
+### Bug Fixes
+
+* **survey-core:** a complete trigger fired by a variable… ([#12335](https://github.com/surveyjs/survey-library/issues/12335)) ([#12336](https://github.com/surveyjs/survey-library/issues/12336)) ([6c5847d](https://github.com/surveyjs/survey-library/commit/6c5847def892a8ebd5c3b16bfaa93fd8321bec60)), closes [#12333](https://github.com/surveyjs/survey-library/issues/12333) [Bug#12333](https://github.com/surveyjs/Bug/issues/12333)
+
 ## 2.5.48 (2026-11-03)
 
 ## 2.5.47 (2026-10-13)

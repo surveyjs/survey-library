@@ -282,6 +282,32 @@ describe("CalendarModel", () => {
     expect(calendar.rootCss).toBe("sv-calendar sv-calendar--range");
     expect(calendar.showMonthTitles).toBe(true);
     expect(calendar.canZoom).toBe(false);
+    expect(calendar.toolbar.getActionById("title").visible).toBe(false);
+  });
+
+  test("The toolbar is an action container", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 11, 1), max: d(2026, 12, 31) });
+    const toolbar = calendar.toolbar;
+    expect(toolbar.actions.map(action => action.id)).toEqual(["prev", "title", "next"]);
+    expect(toolbar.getActionById("prev").enabled).toBe(false);
+    expect(toolbar.getActionById("next").enabled).toBe(true);
+    expect(toolbar.getActionById("prev").iconName).toBe("icon-chevronleft-24x24");
+    expect(toolbar.getActionById("title").title).toBe("November 2026");
+    expect(toolbar.getActionById("title").visible).toBe(true);
+
+    toolbar.getActionById("next").action();
+    expect(calendar.viewDate.getTime()).toBe(d(2026, 12, 1).getTime());
+    expect(toolbar.getActionById("title").title).toBe("December 2026");
+    expect(toolbar.getActionById("next").enabled).toBe(false);
+    expect(toolbar.getActionById("prev").enabled).toBe(true);
+
+    toolbar.getActionById("title").action();
+    expect(calendar.zoom).toBe("month");
+    expect(toolbar.getActionById("title").title).toBe("2026");
+
+    calendar.range = true;
+    expect(toolbar.getActionById("title").visible).toBe(false);
+    expect(calendar.zoom).toBe("day");
   });
 
   test("onSelectionCompleted fires on every day selection, even if the value is the same", () => {

@@ -2,7 +2,7 @@ import * as React from "react";
 import { Base, CalendarItem, CalendarModel, CalendarMonth } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { SvgIcon } from "../svg-icon/svg-icon";
+import { SurveyActionBar } from "../action-bar/action-bar";
 
 interface ICalendarProps {
   model: CalendarModel;
@@ -15,36 +15,16 @@ export class SurveyCalendar extends SurveyElementBase<ICalendarProps, any> {
   protected getStateElement(): Base {
     return this.model;
   }
-  private renderNavButton(iconName: string, enabled: boolean, action: () => void): React.JSX.Element {
-    return (
-      <button type="button" className={this.model.cssClasses.navButton} disabled={!enabled} onClick={action}>
-        <SvgIcon iconName={iconName} size={"auto"}></SvgIcon>
-      </button>
-    );
-  }
-  private renderTitle(): React.JSX.Element {
-    const css = this.model.cssClasses;
-    if (this.model.showMonthTitles) {
-      return (
-        <div className={css.monthTitles}>
-          {this.model.months.map((month, i) => <div key={i} className={css.monthTitle}>{month.title}</div>)}
-        </div>
-      );
-    }
-    return (
-      <button type="button" className={css.title} onClick={() => this.model.zoomOut()}>
-        {this.model.title}
-        <SvgIcon iconName={css.titleIconId} size={"auto"}></SvgIcon>
-      </button>
-    );
-  }
   private renderToolbar(): React.JSX.Element {
     const css = this.model.cssClasses;
+    const monthTitles = this.model.showMonthTitles ?
+      <div className={css.monthTitles}>
+        {this.model.months.map((month, i) => <div key={i} className={css.monthTitle}>{month.title}</div>)}
+      </div> : null;
     return (
       <div className={css.toolbar}>
-        {this.renderNavButton(css.prevIconId, this.model.canPrev, () => this.model.prev())}
-        {this.renderTitle()}
-        {this.renderNavButton(css.nextIconId, this.model.canNext, () => this.model.next())}
+        {monthTitles}
+        <SurveyActionBar model={this.model.toolbar}></SurveyActionBar>
       </div>
     );
   }

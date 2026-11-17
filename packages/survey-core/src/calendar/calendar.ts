@@ -1,5 +1,7 @@
 import { Base } from "../base";
 import { EventBase } from "../event";
+import { Action } from "../actions/action";
+import { ActionContainer } from "../actions/container";
 import { property } from "../decorators";
 import { createDate } from "../helpers";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
@@ -31,6 +33,7 @@ interface ICalendarItemState {
 
 export class CalendarModel extends Base {
   private hoveredItem: CalendarItem;
+  private toolbarValue: ActionContainer;
 
   @property() viewDate: Date;
   @property() min: Date;
@@ -74,6 +77,12 @@ export class CalendarModel extends Base {
   }
   public get showMonthTitles(): boolean {
     return this.monthCount > 1;
+  }
+  public get toolbar(): ActionContainer {
+    if (!this.toolbarValue) {
+      this.toolbarValue = this.createToolbar();
+    }
+    return this.toolbarValue;
   }
   public get rootCss(): string {
     return new CssClassBuilder()
@@ -308,6 +317,58 @@ export class CalendarModel extends Base {
     }
     this.canPrev = !this.isNeighbourPeriodOutside(-1);
     this.canNext = !this.isNeighbourPeriodOutside(1);
+    this.updateToolbar();
+  }
+  private createToolbar(): ActionContainer {
+    const css = calendarCssClasses;
+    const container = new ActionContainer();
+    container.containerCss = css.toolbarActions;
+    container.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
+    const button = (id: string, iconName: string, action: () => void): Action => {
+      return new Action({
+        id: id,
+        css: css.navButton,
+        iconName: iconName,
+        iconSize: "auto",
+        showTitle: false,
+        disableShrink: true,
+        disableTabStop: true,
+        action: action
+      });
+    };
+    container.setItems([
+      button("prev", css.prevIconId, () => this.prev()),
+      new Action({
+        id: "title",
+        css: css.title,
+        iconName: css.titleIconId,
+        iconSize: "auto",
+        showTitle: true,
+        disableShrink: true,
+        action: () => this.zoomOut()
+      }),
+      button("next", css.nextIconId, () => this.next())
+    ]);
+    this.toolbarValue = container;
+    this.updateToolbar();
+    return container;
+  }
+  private updateToolbar(): void {
+    if (!this.toolbarValue) return;
+    const prev = this.toolbarValue.getActionById("prev");
+    const next = this.toolbarValue.getActionById("next");
+    const title = this.toolbarValue.getActionById("title");
+    prev.setEnabled(this.canPrev);
+    next.setEnabled(this.canNext);
+    title.title = this.title;
+    title.visible = this.canZoom;
+  }
+  public dispose(): void {
+    if (!!this.toolbarValue) {
+      this.toolbarValue.dispose();
+      this.toolbarValue = undefined;
+    }
+    super.dispose();
   }
   private createMonth(monthStart: Date, selectedRange: Array<Date>): CalendarMonth {
     const year = monthStart.getFullYear();

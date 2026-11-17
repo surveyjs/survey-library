@@ -17,10 +17,18 @@
 }
 
 .sv-calendar__toolbar {
+  position: relative;
   display: flex;
   align-items: center;
+  min-height: var(--sv-calendar-cell-size);
+}
+
+.sv-calendar__toolbar-actions {
+  flex: 1 1 auto;
   justify-content: space-between;
-  gap: var(--sjs2-spacing-x100);
+  width: 100%;
+  padding: 0;
+  background: transparent;
 }
 
 .sv-calendar__nav-button,
@@ -37,17 +45,16 @@
   font-family: inherit;
   cursor: pointer;
   transition: background-color $transition-duration;
-
-  &:hover:not(:disabled) {
-    background-color: $background-dark;
-  }
 }
 
 .sv-calendar__nav-button {
   flex-shrink: 0;
-  width: var(--sv-calendar-cell-size);
-  height: var(--sv-calendar-cell-size);
-  padding: 0;
+
+  button {
+    width: var(--sv-calendar-cell-size);
+    height: var(--sv-calendar-cell-size);
+    padding: 0;
+  }
 
   svg {
     display: block;
@@ -56,7 +63,7 @@
     fill: $foreground-light;
   }
 
-  &:disabled {
+  button:disabled {
     cursor: default;
 
     svg {
@@ -91,23 +98,16 @@
   gap: var(--sjs2-spacing-x050);
 }
 
-// The range toolbar is one row: the arrows sit on top of the edges, and each title is centered
-// above its month, so the titles row repeats the layout of the months row.
-.sv-calendar--range .sv-calendar__toolbar {
-  position: relative;
+// Range: the month titles fill the row, and the arrow actions sit on top of the edges.
+.sv-calendar--range .sv-calendar__toolbar-actions {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  pointer-events: none;
 }
 
 .sv-calendar--range .sv-calendar__nav-button {
-  position: absolute;
-  top: 0;
-
-  &:first-child {
-    inset-inline-start: 0;
-  }
-
-  &:last-child {
-    inset-inline-end: 0;
-  }
+  pointer-events: auto;
 }
 
 .sv-calendar__month-titles {

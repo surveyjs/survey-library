@@ -2,6 +2,7 @@ export const calendarCssClasses = {
   root: "sv-calendar",
   rootRange: "sv-calendar--range",
   toolbar: "sv-calendar__toolbar",
+  toolbarActions: "sv-calendar__toolbar-actions",
   navButton: "sv-calendar__nav-button",
   prevIconId: "icon-chevronleft-24x24",
   nextIconId: "icon-chevronright-24x24",

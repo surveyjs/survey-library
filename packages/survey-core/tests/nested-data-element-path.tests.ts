@@ -372,16 +372,16 @@ describe("nested data path: getQuestionByValueName / getQuestionsByValueName (D9
     survey.dataNesting = "panel";
     expect(sortedNames(survey), "p1 nests now").toEqual(["q1a", "q3"]);
   });
-  // The value-name hash keeps the order added, with or without nesting: a dataNesting change only decides
-  // which of the questions are top-level.
-  test("the order is the order added", () => {
+  // The root keeps document order, with or without nesting (scoped names 06, W1): a rename keeps the question's
+  // place, and a dataNesting change only decides which of the questions are top-level.
+  test("the order is document order", () => {
     const survey = new SurveyModel(json());
     survey.getQuestionByName("q1").name = "q1a";
-    expect(names(survey), "a rename").toEqual(["q2", "q3", "q1a"]);
+    expect(names(survey), "a rename").toEqual(["q1a", "q2", "q3"]);
     survey.dataNesting = "none";
-    expect(names(survey), "dataNesting \"none\"").toEqual(["q2", "q4", "q3", "q1a"]);
+    expect(names(survey), "dataNesting \"none\"").toEqual(["q1a", "q2", "q4", "q3"]);
     survey.dataNesting = "auto";
-    expect(names(survey), "dataNesting \"auto\" again").toEqual(["q2", "q3", "q1a"]);
+    expect(names(survey), "dataNesting \"auto\" again").toEqual(["q1a", "q2", "q3"]);
   });
 });
 

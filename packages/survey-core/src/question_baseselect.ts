@@ -21,7 +21,8 @@ import { AnimationGroup, IAnimationGroupConsumer, AnimationBoolean } from "./uti
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
-import { Base, ComputedUpdater, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
+import { ArrayChanges, Base, ComputedUpdater, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
+import { getDataScopeHost } from "./panel-data-scope";
 import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
@@ -281,6 +282,9 @@ export class ChoiceItem extends ItemValue {
         pnl.name = "choicePanel_" + pnl.id;
         pnl.parent = <PanelModelBase>this.choiceOwner.parent;
         pnl.setSurveyImpl(survey);
+        // The panel's questions are the root data scope's: a panel linked after the select question was added (a
+        // lazy item.panel read) sends no other notification.
+        getDataScopeHost(survey)?.dataScopeKeysChanged(pnl);
       }
     }
   }
@@ -327,6 +331,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     super(name);
     this.createItemValues("choices");
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
+    this.registerFunctionOnPropertyValueChanged("choices", (newValue: any, arrayChanges: ArrayChanges): void => this.choicePanelsLeft(arrayChanges));
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -413,6 +418,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       const panel = item.createdPanel;
       return !!panel && visit({ element: panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
     });
+  }
+  // Choice items with a created panel left the choices: the root data scope holds their panels' questions, which stay
+  // linked to the survey.
+  private choicePanelsLeft(arrayChanges: ArrayChanges): void {
+    const left = !!arrayChanges ? arrayChanges.deletedItems.filter((item: any) => !!item?.createdPanel) : [];
+    if (left.length > 0) {
+      getDataScopeHost(this.survey)?.dataScopeKeysChanged(left[0].createdPanel);
+    }
   }
   // A select question always lists itself, and the questions of its choice panels only with includeNested.
   protected canListNestedElements(includeNested: boolean): boolean {

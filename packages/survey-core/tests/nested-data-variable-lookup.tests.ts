@@ -249,11 +249,11 @@ describe("nested data 17: the question an expression variable names", () => {
     expect(show(survey.getQuestionByVariable("address.street", survey.pages[0]))).toBe("street|");
     expect(show(survey.getQuestionByVariable("street", survey))).toBe("null");
   });
-  test("a flat dynamic panel's template question with a valueName answers at the root (pre-existing)", () => {
+  // The root walks its pages (scoped names 06, M1): a template's question is not the root's.
+  test("a flat dynamic panel's template question with a valueName does not answer at the root", () => {
     const survey = new SurveyModel({ elements: [
       { type: "paneldynamic", name: "dp", templateElements: [{ type: "text", name: "city", valueName: "town" }] }] });
-    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
-    expect(survey.getQuestionByVariable("town").question).toBe(dp.template.getQuestionByName("city"));
+    expect(survey.getQuestionByVariable("town")).toBeNull();
   });
 });
 

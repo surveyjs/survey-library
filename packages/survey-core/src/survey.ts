@@ -314,8 +314,7 @@ export class SurveyModel extends SurveyElementCore
   // the hash. Reset whenever the hash gains or loses a key or is replaced.
   private valuesKeyIndex: HashKeyIndex = new HashKeyIndex();
   private variablesHash: HashTable<any> = createHash();
-  // Questions, panels and pages by name, and questions by value name (the root data scope reads those).
-  // Declared before rootDataScope, which is created with it.
+  // Questions, panels and pages by name.
   private elementIndex = new ElementIndex();
   private editingObjValue: Base;
 
@@ -7466,7 +7465,7 @@ export class SurveyModel extends SurveyElementCore
   // and getDataPath() gives its keys from the survey data down. A top-level question's path has one key.
   // The root's keys and the trigger keys are the root data scope's; the expression
   // variable lookup is data-scope-variables.ts.
-  private rootDataScope = new SurveyRootDataScope(this, this.elementIndex, (key: string) => this.getDataValueCore(this.valuesHash, key));
+  private rootDataScope = new SurveyRootDataScope(this, (key: string) => this.getDataValueCore(this.valuesHash, key));
   private get isDataScopeUsedValue(): boolean {
     return this.rootDataScope.isUsed;
   }
@@ -7975,7 +7974,6 @@ export class SurveyModel extends SurveyElementCore
     this.resetHasLogo();
     this.resetPropertyValue("titleIsEmpty");
     this.elementIndex.clear();
-    this.rootDataScope.resetDataKeyIndex();
     // A JSON without pages keeps the pages: they and their panels stay found, as when they were scanned.
     // Their questions are not, as before: the index is cleared, and only the pages and their panels are added
     // again. A JSON with pages removes them.
@@ -8549,7 +8547,6 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doOnPageRemoved(page: PageModel): void {
     page.setSurveyImpl(null);
-    this.rootDataScope.resetDataKeyIndex();
     if (!!this.runningPages) return;
     if (page === this.currentPage) {
       this.updateCurrentPage();
@@ -8775,7 +8772,7 @@ export class SurveyModel extends SurveyElementCore
       question.name = this.generateNewName(this.getAllQuestions(false, true), "question");
     }
     if (!!(<Question>question).page) {
-      this.indexAdd(question);
+      this.elementIndex.add(question);
     }
     this.rootDataScope.elementAdded(question);
     this.questionTriggersChanged();
@@ -8803,7 +8800,7 @@ export class SurveyModel extends SurveyElementCore
   }
   questionRemoved(question: Question): void {
     this.dropRemovedQuestionsWithPendingWrites();
-    this.indexRemove(question);
+    this.elementIndex.remove(question);
     this.rootDataScope.elementRemoved(question);
     this.questionTriggersChanged();
     this.updateVisibleIndexes(question.page);
@@ -8821,8 +8818,8 @@ export class SurveyModel extends SurveyElementCore
     // Taken out and added again, not moved: a question the index does not hold yet (one inside a dynamic
     // panel, which questionAdded did not add) is added by its rename, and the question goes after the others
     // of its name, as before. The index knows the names it holds the question under.
-    this.indexRemove(question);
-    this.indexAdd(question);
+    this.elementIndex.remove(question);
+    this.elementIndex.add(question);
     this.rootDataScope.questionRenamed(<Question>question);
   }
   // A panel or a page may have a new name: a name set while the JSON loads (in onPageAdded / onPanelAdded, or
@@ -8837,20 +8834,7 @@ export class SurveyModel extends SurveyElementCore
   // Which elements enter elementIndex is the survey's decision, made in the helpers below and the callbacks
   // that call them: survey.pages, the panels getAllPanels() returns, the questions questionAdded reports with a
   // page, the questions of a panel panelAdded reports (with a page or not), and any question questionRenamed
-  // reports.
-  // A question added to or removed from it changes the root data scope's questions too.
-  private indexAdd(el: ISurveyElement): void {
-    this.elementIndex.add(el);
-    if (el.isQuestion) {
-      this.rootDataScope.questionIndexed(<Question><any>el);
-    }
-  }
-  private indexRemove(el: ISurveyElement): void {
-    this.elementIndex.remove(el);
-    if (el.isQuestion) {
-      this.rootDataScope.questionIndexed(<Question><any>el);
-    }
-  }
+  // reports. It is asked by name only: the root data scope walks the pages for its keys.
 
   // The panels and questions inside a panel or a page. While the survey loads, each of them is added
   // by its own notification.
@@ -8859,7 +8843,7 @@ export class SurveyModel extends SurveyElementCore
     if (addPanels) {
       this.innerPanelsAdded(container);
     }
-    container.questions.forEach(q => this.indexAdd(q));
+    container.questions.forEach(q => this.elementIndex.add(q));
   }
   private innerPanelsAdded(container: PanelModelBase): void {
     const panels: Array<IPanel> = [];
@@ -8871,7 +8855,7 @@ export class SurveyModel extends SurveyElementCore
     const panels: Array<IPanel> = [];
     container.addPanelsIntoList(panels);
     panels.forEach(panel => this.elementIndex.remove(panel));
-    container.questions.forEach(q => this.indexRemove(q));
+    container.questions.forEach(q => this.elementIndex.remove(q));
   }
   panelAdded(panel: PanelModel, index: number, parentPanel: any, rootPanel: any): void {
     if (!panel.name) {

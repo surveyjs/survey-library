@@ -119,19 +119,19 @@ describe("ElementIndex: elements by name", () => {
   });
 });
 
-describe("ElementIndex by name: names and stamps", () => {
-  test("an element added twice is held once, under one stamp", () => {
+describe("ElementIndex by name: adding and removing", () => {
+  test("an element added twice is held once", () => {
     const index = new ElementIndex();
     const q = question("q", "v");
+    const other = question("q");
     index.add(q);
-    const stamp = index.getStamp(q);
+    index.add(other);
     index.add(q);
-    expect(index.getStamp(q)).toBe(stamp);
-    expect(index.getHeldValueName(q)).toBe("v");
+    expect(index.find("q", isQuestion), "added again under the same name: it keeps its place").toBe(q);
     index.remove(q);
+    expect(index.find("q", isQuestion)).toBe(other);
+    index.remove(other);
     expect(index.find("q", isQuestion)).toBeNull();
-    expect(index.getStamp(q)).toBeUndefined();
-    expect(index.getHeldValueName(q)).toBeUndefined();
   });
   test("removing takes no name, and removing an element the index does not hold does nothing", () => {
     const index = new ElementIndex();
@@ -154,30 +154,6 @@ describe("ElementIndex by name: names and stamps", () => {
     expect(index.find("q1", isQuestion)).toBeNull();
     expect(index.find("q2", isQuestion)).toBe(q);
     expect(index.find("Q2", isQuestion, true, true)).toBe(q);
-  });
-  test("stamps: the order added by value name; another value name gives a new stamp, the same one keeps it", () => {
-    const index = new ElementIndex();
-    const q1 = question("q1", "v");
-    const q2 = question("q2", "v");
-    index.add(q1);
-    index.add(q2);
-    expect(index.getStamp(q1) < index.getStamp(q2)).toBe(true);
-    q1.name = "q1x";
-    index.add(q1);
-    expect(index.getStamp(q1) < index.getStamp(q2), "a new name alone keeps the stamp").toBe(true);
-    q1.valueName = "w";
-    index.add(q1);
-    expect(index.getHeldValueName(q1)).toBe("w");
-    expect(index.getStamp(q1) > index.getStamp(q2), "another value name: a new stamp").toBe(true);
-    q1.valueName = "x";
-    index.renamed(q1);
-    expect(index.getHeldValueName(q1), "renamed does not look at a value name alone").toBe("w");
-    index.remove(q2);
-    index.add(q2);
-    expect(index.getStamp(q2) > index.getStamp(q1), "added again: a new stamp").toBe(true);
-    const p = panel("p", "key");
-    index.add(p);
-    expect(index.getStamp(p), "a panel has no stamp").toBeUndefined();
   });
   test("two names that differ in letter case: removing one keeps the other found", () => {
     const index = new ElementIndex();
@@ -205,23 +181,16 @@ describe("ElementIndex by name: names and stamps", () => {
     index.remove(proto);
     expect(index.find("__proto__", isQuestion)).toBeNull();
   });
-  test("forEachHeld gives each element once; clear holds nothing", () => {
+  test("clear holds nothing", () => {
     const index = new ElementIndex();
     const q = question("q", "v");
     const p = panel("p");
     const other = panel("P");
     [q, p, other].forEach(el => index.add(el));
-    const held: Array<any> = [];
-    index.forEachHeld(el => held.push(el));
-    expect(held).toHaveLength(3);
-    expect(held.indexOf(q) > -1 && held.indexOf(p) > -1 && held.indexOf(other) > -1).toBe(true);
     index.clear();
     expect(index.find("q", isQuestion)).toBeNull();
     expect(index.find("p", isPanel)).toBeNull();
-    expect(index.getStamp(q)).toBeUndefined();
-    const after: Array<any> = [];
-    index.forEachHeld(el => after.push(el));
-    expect(after).toEqual([]);
+    expect(index.find("p", isPanel, true)).toBeNull();
     p.name = "p2";
     index.renamed(p);
     expect(index.find("p2", isPanel), "not held any more: a rename does not add it").toBeNull();
@@ -280,7 +249,7 @@ describe("ElementIndex by key: a data scope's instance", () => {
     index.removeKeyed(upper);
     expect(index.getQuestions("A", true), "the other letter case stays").toEqual([lower]);
   });
-  test("without a rank a key's list follows elements: reKey keeps the place in elements", () => {
+  test("a key's list follows elements: reKey keeps the place in elements", () => {
     const index = new ElementIndex();
     const q1 = question("q1", "v");
     const q2 = question("q2", "w");
@@ -297,23 +266,5 @@ describe("ElementIndex by key: a data scope's instance", () => {
     expect(index.getHeldKey(q1)).toBe("w");
     index.reKey(question("q4"), "v");
     expect(index.getQuestions("v"), "an element it does not hold is not added").toEqual([q2, q3]);
-  });
-  test("with a rank a key's list is in rank order; no rank goes last", () => {
-    const ranks = new Map<any, number>();
-    const index = new ElementIndex((el: any) => ranks.get(el));
-    const q1 = question("q1", "v");
-    const q2 = question("q2", "v");
-    const q3 = question("q3", "v");
-    ranks.set(q1, 1);
-    ranks.set(q2, 2);
-    index.addKeyed(q2, "v");
-    index.addKeyed(q3, "v");
-    index.addKeyed(q1, "v");
-    expect(index.getQuestions("v")).toEqual([q1, q2, q3]);
-    expect(index.elements, "elements: the order added").toEqual([q2, q3, q1]);
-    ranks.set(q2, 5);
-    index.reKey(q2, "w");
-    index.reKey(q2, "v");
-    expect(index.getQuestions("v")).toEqual([q1, q2, q3]);
   });
 });

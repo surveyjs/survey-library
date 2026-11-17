@@ -4,11 +4,10 @@ import type { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ValueGetter } from "./conditions/conditionProcessValue";
 import { Helpers, HashTable } from "./helpers";
 import type { PanelDataScope, ObjectDataScope } from "./panel-data-scope";
-import { getRecordDataScope, getKeyHolderScope } from "./panel-data-scope";
+import { DataKeysScope, getRecordDataScope, getKeyHolderScope, forEachChoicePanel } from "./panel-data-scope";
 import type { ISurveyDataElement, IElement } from "./base-interfaces";
-import { IDataKeys, IDataScope, getElementDataScope, isKnownDataKey } from "./data-key-index";
+import { IDataScope, getElementDataScope } from "./data-key-index";
 import { asScopeObject } from "./data-object-utils";
-import { ElementIndex } from "./element-index";
 
 // One write of a survey data key, created where the value is written and passed down the write's steps
 // (the changing event, the validation, the triggers, the notification, auto-advance).
@@ -38,89 +37,52 @@ export interface ISurveyRootDataScopeHost extends IDataScope {
 // containers by key and by path, and the keys a write of a container key changes for triggers and
 // conditions. The survey owns one and delegates to it; it reaches the survey only through the host.
 // It keeps the data scopes' instances (ElementIndex) up: the root's own, and the instances below the root
-// through the scope that holds each element.
-export class SurveyRootDataScope {
+// through the scope that holds each element. The root's instance is the base's walk of the pages (DataKeysScope), in
+// document order, as every scope's is: an element appended in place, one removed or renamed in place, and any other
+// change builds it again on the next read.
+export class SurveyRootDataScope extends DataKeysScope {
   private isUsedValue: boolean = false;
-  // elements: the survey's flat structure, by name. Which of its questions are the root's is decided when it
-  // adds, removes or renames one (questionIndexed), and at each event that moves values between scopes. They
-  // keep the order added by value name: the flat structure's stamps.
   // getStoredValue: a root key's stored value, without the copy the survey's getValue makes.
-  constructor(private host: ISurveyRootDataScopeHost, private elements: ElementIndex, private getStoredValue: (key: string) => any) { }
-  // The root's instance: built on the first read. A question added, removed or renamed changes it in place; any
-  // other change builds it again on the next read.
-  private index: ElementIndex;
+  constructor(private host: ISurveyRootDataScopeHost, private getStoredValue: (key: string) => any) {
+    super();
+  }
   // The scope below the root whose instance held each element when it was built or the element was added: what a
   // removal, a rename or a move takes the element from. A hint, not the truth: an instance built again elsewhere
-  // may hold it now (hold).
+  // may hold it now (hold). The root's own elements are not in it.
   private holders = new WeakMap<ISurveyDataElement, ObjectDataScope>();
 
   // Whether a container of this survey has nested once: the records skip their nesting walks until then.
   public get isUsed(): boolean {
     return this.isUsedValue;
   }
-  // Called on every attach of a nesting container; the root's questions change on the first one only.
+  // Called on every attach of a nesting container. On the first one the root is built again: its walk reads the
+  // data scopes from then on.
   public used(): void {
     if (this.isUsedValue) return;
     this.isUsedValue = true;
-    this.index = undefined;
+    this.resetDataKeyIndex();
   }
-  public getDataKeyIndex(): ElementIndex {
-    if (!this.index) {
-      const res = new ElementIndex((el: ISurveyDataElement): number => el.isQuestion ? this.elements.getStamp(<any>el) : undefined);
-      const questions: Array<Question> = [];
-      this.elements.forEachHeld(el => {
-        if (el.isQuestion && this.isRootQuestion(<Question><any>el)) questions.push(<Question><any>el);
-      });
-      questions.sort((a, b) => this.elements.getStamp(a) - this.elements.getStamp(b));
-      questions.forEach(q => res.addKeyed(q, this.elements.getHeldValueName(q)));
-      this.addRootContainers(res);
-      this.index = res;
-    }
-    return this.index;
+  // The walk of the pages. A question is the root's when its value is a key of the survey data (before a container
+  // has nested, every question's is); a root container is an active scope with no active scope above it.
+  protected getScopeElements(): Array<IElement> {
+    return <Array<IElement>><any>this.host.pages;
   }
-  // The root's part of the unknown-key rule: an element's key, a question's comment or totals key.
-  public isKnownKey(key: string, index?: IDataKeys): boolean {
-    return isKnownDataKey(index || this.getDataKeyIndex(), key);
+  protected isScopeQuestion(q: Question): boolean {
+    return q.getValueScope() === <IDataScope>this.host;
   }
-  private isRoot(question: Question): boolean {
-    return question.getValueScope() === <IDataScope>this.host;
+  protected isOwnDataScope(scope: PanelDataScope): boolean {
+    return !scope.getParentActiveScope();
   }
-  // A question of the flat structure is the root's when its value is a key of the survey data. Before a
-  // container has nested, every one is.
-  private isRootQuestion(question: Question): boolean {
-    return !this.isUsedValue || this.isRoot(question);
+  // The survey's flat structure holds the root's names.
+  protected isScopeName(el: ISurveyDataElement): boolean {
+    return false;
   }
-  // The root containers: the active scopes not inside another one, by a walk of the pages in document order. It
-  // stops at the first active scope on each branch.
-  private addRootContainers(index: ElementIndex): void {
-    if (!this.isUsedValue) return;
-    const collect = (panel: PanelModelBase): void => {
-      const scope = panel.getDataScope();
-      if (!!scope && scope.isActive) {
-        index.addKeyed(panel, scope.key);
-        return;
-      }
-      panel.elements.forEach(el => el.isPanel && collect(<PanelModelBase><any>el));
-    };
-    this.host.pages.forEach(page => collect(page));
+  protected holdsChoicePanels(): boolean {
+    return true;
   }
-  // The flat structure added, removed or renamed the question, or its value may live elsewhere now: the root holds
-  // it or not, under the value name the flat structure holds it under, at its stamp.
-  public questionIndexed(question: Question): void {
-    const index = this.index;
-    if (!index) return;
-    if (this.elements.getStamp(question) === undefined || !this.isRootQuestion(question)) {
-      index.removeKeyed(question);
-    } else if (index.has(question)) {
-      index.reKey(question, this.elements.getHeldValueName(question));
-    } else {
-      index.addKeyed(question, this.elements.getHeldValueName(question));
-    }
-  }
-  // Built again on the next read: the flat structure was cleared (survey.fromJSON), or a page left the survey
-  // (doOnPageRemoved detaches it after the pages callback, and a template question inside keeps its old data).
-  public resetDataKeyIndex(): void {
-    this.index = undefined;
+  // No scope is active before a container has nested: a survey without nesting asks no panel for its scope.
+  protected readsDataScopes(): boolean {
+    return this.isUsedValue;
   }
   // A scope below the root built its instance from these elements.
   public dataKeyIndexBuilt(scope: ObjectDataScope, elements: Array<ISurveyDataElement>): void {
@@ -135,44 +97,46 @@ export class SurveyRootDataScope {
     }
     this.holders.set(el, scope);
   }
-  // A container, or a question with elements inside it (a records question's template, a composite's content):
-  // the flat structure may hold questions inside it that its add or removal does not report.
-  private static hasInnerElements(el: IElement): boolean {
-    return !el.isQuestion || (<any>el).isContainer === true;
-  }
   // An element joined a container (questionAdded, panelAdded, a page added, the end of a move). The instance of
   // the scope it joined takes its part in place when it comes last in that scope's document order; otherwise that
-  // instance is built again. The root takes a question in place, and is built again for a container.
+  // instance is built again. That scope is the root for an element whose data is the survey's. Below the root, a
+  // choice panel the element brings is the root's still: the root is built again.
   public elementAdded(el: IElement): void {
-    if (SurveyRootDataScope.hasInnerElements(el)) {
-      this.index = undefined;
-    } else {
-      // A question the flat structure holds already (one renamed inside a template, or one added back) may have
-      // another value scope now.
-      this.questionIndexed(<Question><any>el);
-    }
     const scope = getKeyHolderScope((<any>el).data);
-    const added = !!scope ? scope.dataKeyElementAdded(el) : undefined;
+    if (!scope) {
+      // An element with no data (a dynamic panel's template question) is in no walk of the pages.
+      if (!(<any>el).data) return;
+      // A read while el was attached (a dynamic panel's readiness) may have built the root with a part of el in it
+      // (a choice panel's question, a question taken off its page: they stay bound to the survey), ahead of el's
+      // elements that were not attached yet: an append would not keep document order.
+      if (this.holdsInside(el)) {
+        this.resetDataKeyIndex();
+      } else {
+        this.dataKeyElementAdded(el);
+      }
+      return;
+    }
+    const added = scope.dataKeyElementAdded(el);
     if (!!added) {
       added.forEach(inner => this.hold(inner, scope));
     }
+    if (this.hasChoicePanels(el)) {
+      this.resetDataKeyIndex();
+    }
   }
-  // An element left its container: it and every element inside it leave the instances the map names. A panel that
-  // comes back builds the instances inside it again (ContainerDataNesting.elementsAttached).
+  // An element left its container: it and every element inside it leave the root's instance and the instances the
+  // map names. A panel that comes back builds the instances inside it again (ContainerDataNesting.elementsAttached).
   public elementRemoved(el: IElement): void {
     this.forEachInside(el, (inner: ISurveyDataElement): void => {
+      this.builtDataKeyIndex?.removeKeyed(inner);
       this.holders.get(inner)?.builtDataKeyIndex?.removeKeyed(inner);
       this.holders.delete(inner);
     });
-    if (SurveyRootDataScope.hasInnerElements(el)) {
-      this.index = undefined;
-    }
   }
   // setPage moved the element, or took it off its page: its data is the new one already, and the map still names
   // where it was. The move attached the element again, and a read while it was added may have built an instance
   // with it in place, so nothing is patched: the instances that held it and those inside it are built again, and
-  // so is the root's (an element taken off its page keeps its old data and follows that scope). The flat structure
-  // keeps it.
+  // so is the root's (an element taken off its page leaves it; one moved within the root takes its new place).
   public elementMoved(el: IElement): void {
     this.forEachInside(el, (inner: ISurveyDataElement): void => {
       this.holders.get(inner)?.resetDataKeyIndex();
@@ -184,14 +148,18 @@ export class SurveyRootDataScope {
     if (!!el.parent) {
       this.elementAdded(el);
     }
-    this.index = undefined;
+    this.resetDataKeyIndex();
   }
-  // questionRenamed: the question's name and key in the instance below the root that holds it. The root follows
-  // the flat structure (questionIndexed).
+  // questionRenamed: the question's key in the root's instance, and its name and key in the instance below the root
+  // that holds it. Each keeps its place in document order.
   public questionRenamed(question: Question): void {
+    const root = this.builtDataKeyIndex;
+    if (!!root && root.has(question)) {
+      root.reKey(question, question.getValueName());
+    }
     const index = this.holders.get(question)?.builtDataKeyIndex;
     if (!index) return;
-    index.reName(question);
+    index.renamed(question);
     if (index.has(question)) {
       index.reKey(question, question.getValueName());
     }
@@ -200,28 +168,52 @@ export class SurveyRootDataScope {
   // it follows. A key loaded in place (fromJSON) sends no other notification, so a panel that has a scope is
   // treated as a changed key: the instances are only dropped here.
   public panelRenamed(panel: PanelModelBase): void {
-    this.holders.get(panel)?.builtDataKeyIndex?.reName(panel);
+    this.holders.get(panel)?.builtDataKeyIndex?.renamed(panel);
     if (!!panel.getDataScope()) {
       this.dataScopeKeysChanged(panel);
     }
   }
   // A container started or stopped holding data, or changed its key. The instances it touches are built again:
-  // its own, the one that holds it or its elements, and the root's. The root's questions are read again as a whole,
-  // not only the container's: a question whose data is the container's scope can be outside the container (taken
-  // off its page, or a template question moved out), and its value scope follows that scope.
+  // its own, the one that holds it or its elements, and the root's. The root is built again as a whole, not only for
+  // the container's elements: a question whose data is the container's scope can be outside the container (a
+  // template question moved onto a page), and its value scope follows that scope. A choice panel linked to the
+  // survey or dropped calls this too (question_baseselect.ts): its questions are the root's.
   public dataScopeKeysChanged(panel: PanelModelBase): void {
     panel.getDataScope()?.resetDataKeyIndex();
     this.holders.get(panel)?.resetDataKeyIndex();
     getKeyHolderScope(panel.data)?.resetDataKeyIndex();
-    this.index = undefined;
+    this.resetDataKeyIndex();
   }
-  // The element and every element inside it.
+  // The element and every element inside it: a panel's elements, and a select question's choice panels.
   private forEachInside(el: IElement, callback: (el: ISurveyDataElement) => void): void {
     callback(<ISurveyDataElement><any>el);
+    if (el.isQuestion) {
+      forEachChoicePanel(el, (panel: IElement): void => this.forEachInside(panel, callback));
+      return;
+    }
     const elements: Array<IElement> = (<any>el).elements;
-    if (!el.isQuestion && Array.isArray(elements)) {
+    if (Array.isArray(elements)) {
       elements.forEach(inner => this.forEachInside(inner, callback));
     }
+  }
+  // Whether the root's instance holds an element inside el already.
+  private holdsInside(el: IElement): boolean {
+    const index = this.builtDataKeyIndex;
+    if (!index) return false;
+    let res = false;
+    this.forEachInside(el, (inner: ISurveyDataElement): void => {
+      res = res || inner !== <any>el && index.has(inner);
+    });
+    return res;
+  }
+  private hasChoicePanels(el: IElement): boolean {
+    if (el.isQuestion) {
+      let res = false;
+      forEachChoicePanel(el, (): void => { res = true; });
+      return res;
+    }
+    const elements: Array<IElement> = (<any>el).elements;
+    return Array.isArray(elements) && elements.some(inner => this.hasChoicePanels(inner));
   }
   // A container's key or the survey's dataNesting (no panel) changed: the containers whose key changed
   // re-attach their elements, and the values of the questions follow. The data does not move.
@@ -231,7 +223,7 @@ export class SurveyRootDataScope {
       // The panels inside a record are not attached again (RN3): a records question builds its objects' instances
       // again.
       this.host.getAllQuestions(false, true).forEach(q => (<any>q).resetDataKeyIndexes?.());
-      this.index = undefined;
+      this.resetDataKeyIndex();
     } else {
       this.dataScopeKeysChanged(panel);
     }
@@ -290,7 +282,7 @@ export class SurveyRootDataScope {
     const res: Array<Question> = [];
     const path = !getRecordDataScope(question.data) ? question.getValueScope().getDataPath() : [];
     let scopes = this.getScopesByPath(path);
-    // A container no index reaches (a panel inside a choice item): its own scope holds the value.
+    // A container no index reaches (one taken off its page): its own scope holds the value.
     if (scopes.length === 0) scopes = [question.getValueScope()];
     scopes.forEach(scope => res.push(...scope.getDataKeyIndex().getQuestions(question.getValueName())));
     return res;

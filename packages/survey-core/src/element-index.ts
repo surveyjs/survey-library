@@ -4,53 +4,35 @@ import type { PanelDataScope } from "./panel-data-scope";
 import { DataKeyHash, IDataKeys, getElementDataScope } from "./data-key-index";
 
 // Elements by name, or the keys of one data scope. One class, used two ways:
-// - By name (the survey's flat structure): add, remove, renamed, find. The owner decides which elements enter:
-//   the index has no rule of its own about pages, panels or data scopes. The library does not keep names unique
-//   across types (the Creator does), so a name gives a list, and a lookup takes the first element of the kind it
-//   asks for. Within a name the order is the order added. The index remembers the name it holds each element
-//   under: a name can change without a notification (a name set while the JSON loads), so the name a caller
-//   would pass is not always that one.
+// - By name (the survey's flat structure, and the names a scope's walk reaches): add, remove, renamed, find. The
+//   owner decides which elements enter: the index has no rule of its own about pages, panels or data scopes. The
+//   library does not keep names unique across types (the Creator does), so a name gives a list, and a lookup takes
+//   the first element of the kind it asks for. Within a name the order is the order added. The index remembers the
+//   name it holds each element under: a name can change without a notification (a name set while the JSON loads),
+//   so the name a caller would pass is not always that one. A scope holds by name every element its walk reaches:
+//   its keyed elements and the panels that hold no data, the scope's own names (name-scope.ts). The root holds
+//   none: the survey's flat structure has them.
 // - By key (a data scope's instance): addKeyed, removeKeyed, reKey and the IDataKeys reads. Questions under their
 //   value name and active containers under their key; for one key the questions come first. elements holds each
-//   element once: in document order for a scope below the root (the lists read it), in no order read by anyone
-//   for the root. Each key's list follows the rank the owner gives, or the order of elements. A scope below the
-//   root also holds by name every element its walk reaches (addNamed): its keyed elements and the panels that
-//   hold no data, the scope's own names (name-scope.ts); find answers from them.
+//   element once, in document order (the lists read it), and each key's list follows the order of elements.
 export class ElementIndex implements IDataKeys {
   private names = new DataKeyHash<ISurveyElement>();
   private heldNames = new WeakMap<ISurveyElement, string>();
-  // The order added by value name (getStamp). A question gets a new stamp whenever it is held under another value
-  // name, the way a value-name hash would push it to the end of the new name's list.
-  private heldValueNames = new WeakMap<ISurveyElement, string>();
-  private stamps = new WeakMap<ISurveyElement, number>();
-  private stampCount = 0;
 
   private questionKeys = new DataKeyHash();
   private containerKeys = new DataKeyHash();
   private heldKeys = new WeakMap<ISurveyDataElement, string>();
   public readonly elements: Array<ISurveyDataElement> = [];
 
-  // rank: the position of a keyed element among the elements of its key; undefined puts it last. Without it, the
-  // order of elements.
-  constructor(private rank?: (el: ISurveyDataElement) => number) { }
-
   // An element without a name is held under "", so a later rename finds it: no lookup answers "".
   public add(el: ISurveyElement): void {
     ElementIndex.hold(this.names, this.heldNames, el, el.name || "");
-    if (!el.isQuestion) return;
-    const valueName = (<Question><any>el).getValueName() || "";
-    if (this.heldValueNames.get(el) === valueName) return;
-    this.heldValueNames.set(el, valueName);
-    this.stamps.set(el, ++this.stampCount);
   }
   public remove(el: ISurveyElement): void {
     ElementIndex.hold(this.names, this.heldNames, el, undefined);
-    this.heldValueNames.delete(el);
-    this.stamps.delete(el);
   }
   // The element's name may have changed. Only an element the index holds moves, and one whose name is the
-  // same keeps its place among the elements of that name. A value name alone is not looked at: the owner
-  // reports a question's change by remove and add.
+  // same keeps its place among the elements of that name.
   public renamed(el: ISurveyElement): void {
     const name = this.heldNames.get(el);
     if (name === undefined || name === (el.name || "")) return;
@@ -60,8 +42,6 @@ export class ElementIndex implements IDataKeys {
   public clear(): void {
     this.names = new DataKeyHash<ISurveyElement>();
     this.heldNames = new WeakMap<ISurveyElement, string>();
-    this.heldValueNames = new WeakMap<ISurveyElement, string>();
-    this.stamps = new WeakMap<ISurveyElement, number>();
   }
   // The first element of the kind under the name, or null. caseInsensitive with exactFirst: an element with the
   // exact name wins; without it, the first one whose lower-case name matches.
@@ -73,42 +53,20 @@ export class ElementIndex implements IDataKeys {
     }
     return ElementIndex.firstOfKind(this.names.get(name, true), isKind);
   }
-  // A held question's place in the order added by value name, and the value name it holds it under; undefined
-  // for an element it does not hold by name.
-  public getStamp(el: ISurveyElement): number {
-    return this.stamps.get(el);
-  }
-  public getHeldValueName(el: ISurveyElement): string {
-    return this.heldValueNames.get(el);
-  }
-  // Each element held by name, once, in no order.
-  public forEachHeld(callback: (el: ISurveyElement) => void): void {
-    this.names.forEach(callback);
-  }
-
-  // By name inside a scope's instance: no stamp, which only the survey's flat structure keeps.
-  public addNamed(el: ISurveyElement): void {
-    ElementIndex.hold(this.names, this.heldNames, el, el.name || "");
-  }
-  // A held element under its current name.
-  public reName(el: ISurveyElement): void {
-    if (this.heldNames.has(el)) {
-      ElementIndex.hold(this.names, this.heldNames, el, el.name || "");
-    }
-  }
 
   // By key.
   public has(el: ISurveyDataElement): boolean {
     return this.heldKeys.has(el);
   }
-  // Appended to elements: the owner adds in its order, or builds the instance again. An element without a key is
-  // in elements only (a walk reaches a question with no name). An element already held is not added again.
+  // Appended to elements and to its key's list: the owner adds in document order, or builds the instance again. An
+  // element without a key is in elements only (a walk reaches a question with no name). An element already held is
+  // not added again.
   public addKeyed(el: ISurveyDataElement, key: string): void {
     if (this.heldKeys.has(el)) return;
     this.heldKeys.set(el, key || "");
     this.elements.push(el);
     if (!!key) {
-      this.getKeyHash(el).insert(key, el, this.getRank);
+      this.getKeyHash(el).add(key, el);
     }
   }
   // The element leaves the names too.
@@ -151,7 +109,7 @@ export class ElementIndex implements IDataKeys {
     return el.isQuestion ? this.questionKeys : this.containerKeys;
   }
   private getRank = (el: ISurveyDataElement): number => {
-    return !!this.rank ? this.rank(el) : this.elements.indexOf(el);
+    return this.elements.indexOf(el);
   };
   // Puts el under key, taking it from the key it was held under; key undefined: only takes it out.
   private static hold(hash: DataKeyHash<ISurveyElement>, held: WeakMap<ISurveyElement, string>, el: ISurveyElement, key: string): void {

@@ -151,13 +151,13 @@ describe("a data scope's index: keys", () => {
     survey.setValue("q1", 3);
     expect(q1.value, "#11").toBe(3);
   });
-  test("dataNesting changed: the scopes follow, and the root's questions keep the order added", () => {
+  test("dataNesting changed: the scopes follow, and the root's questions keep document order", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1", valueName: "v" }] },
       { type: "text", name: "q2", valueName: "v" }] });
     expect(names(survey.getQuestionsByValueName("v")), "#1").toEqual(["q2"]);
     survey.dataNesting = "none";
-    expect(names(survey.getQuestionsByValueName("v")), "#2 the order added").toEqual(["q1", "q2"]);
+    expect(names(survey.getQuestionsByValueName("v")), "#2 document order").toEqual(["q1", "q2"]);
     survey.getQuestionByName("q2").value = 1;
     expect(survey.data, "#3").toEqual({ v: 1 });
     expect(survey.getQuestionByName("q1").value, "#4").toBe(1);
@@ -271,13 +271,14 @@ describe("a data scope's index: changes the walk saw live", () => {
     panel.getQuestionByName("street").value = "s";
     expect(survey.data, "#3").toEqual({ dp: [{ addr: { street: "s" } }] });
   });
-  test("a dynamic panel dragged in design mode, and pages reordered in design mode: the template's questions", () => {
+  // The root walks its pages (scoped names 06, M1): a template's question is never the root's.
+  test("a dynamic panel dragged in design mode, and pages reordered in design mode: no template question at the root", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "t1", valueName: "shared" }] },
       { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }] },
       { type: "text", name: "q3", valueName: "shared" }] });
     survey.setDesignMode(true);
-    expect(rootInfo(survey, "shared"), "#1").toEqual(["t1@root", "q3@root"]);
+    expect(rootInfo(survey, "shared"), "#1").toEqual(["q3@root"]);
     const dp = survey.getQuestionByName("dp");
     survey.startMovingQuestion();
     dp.parent.removeElement(dp);
@@ -288,18 +289,18 @@ describe("a data scope's index: changes the walk saw live", () => {
       { name: "page1", elements: [{ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "t1", valueName: "shared" }] }] },
       { name: "page2", elements: [{ type: "text", name: "q3", valueName: "shared" }] }] });
     paged.setDesignMode(true);
-    expect(rootInfo(paged, "shared"), "#3").toEqual(["t1@root"]);
+    expect(rootInfo(paged, "shared"), "#3").toEqual([]);
     const first = paged.pages[0];
     paged.pages.splice(0, 1);
     paged.pages.push(first);
     expect(rootInfo(paged, "shared"), "#4").toEqual([]);
   });
-  test("a page removed with a dynamic panel: its template's question leaves the root", () => {
+  test("a page removed with a dynamic panel: no template question at the root, before or after", () => {
     const survey = new SurveyModel({ dataNesting: "auto", pages: [
       { name: "page1", elements: [{ type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
         { type: "panel", name: "tp", valueName: "addr", elements: [{ type: "text", name: "t2", valueName: "shared" }] }] }] },
       { name: "page2", elements: [{ type: "text", name: "q3", valueName: "shared" }] }] });
-    expect(names(survey.getQuestionsByValueName("shared")), "#1").toEqual(["t2", "q3"]);
+    expect(names(survey.getQuestionsByValueName("shared")), "#1").toEqual(["q3"]);
     survey.removePage(survey.getPageByName("page1"));
     expect(names(survey.getQuestionsByValueName("shared")), "#2").toEqual(["q3"]);
   });
@@ -321,14 +322,16 @@ describe("a data scope's index: changes the walk saw live", () => {
     survey.setValue("a", { q27: 2, q28: 3 });
     expect(survey.getQuestionByName("p26.q27").value, "#3").toBe(2);
   });
-  test("a question taken off its page keeps its data: the root follows its old scope", () => {
+  // The root walks its pages (scoped names 06, M4): a question no page shows is not the root's.
+  test("a question taken off its page is not the root's, whatever its old scope", () => {
     const survey = new SurveyModel({ dataNesting: "page", pages: [
       { name: "page1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] }] });
     const q2 = survey.getQuestionByName("page1.q2");
     expect(survey.getQuestionsByValueName("q2"), "#1").toBeNull();
     q2.page = null;
-    expect(survey.getQuestionsByValueName("q2"), "#2 its value scope is still page1").toBeNull();
+    expect(survey.getQuestionsByValueName("q2"), "#2").toBeNull();
     survey.dataNesting = "auto";
-    expect(names(survey.getQuestionsByValueName("q2")), "#3 page1 no longer nests").toEqual(["q2"]);
+    expect(survey.getQuestionsByValueName("q2"), "#3 page1 no longer nests").toBeNull();
+    expect(names(survey.getQuestionsByValueName("q1")), "#4 its page's question is").toEqual(["q1"]);
   });
 });

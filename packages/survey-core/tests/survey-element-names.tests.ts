@@ -193,7 +193,7 @@ describe("Survey element names: one hash for questions, panels and pages", () =>
     q1.name = "q3";
     expect(id(survey.getQuestionByName("q3"))).toBe(id(q1));
     expect(id(survey.getQuestionByName("q1"))).toBeNull();
-    expect(survey.getQuestionsByValueName("5").map(q => q.name)).toEqual(["q2", "q3"]);
+    expect(survey.getQuestionsByValueName("5").map(q => q.name), "document order: q3 keeps q1's place").toEqual(["q3", "q2"]);
   });
   test("a question renamed without a notification and then deleted is not found by its old name", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] });

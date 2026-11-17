@@ -2,7 +2,6 @@ import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { SurveyRootDataScope } from "../src/survey-root-data-scope";
-import { ElementIndex } from "../src/element-index";
 
 const sharedKeyJson = (checkErrorsMode?: string): any => ({
   dataNesting: "auto",
@@ -30,12 +29,9 @@ const spyValidate = (survey: SurveyModel): { [name: string]: number } => {
   return counts;
 };
 
-// A root data scope built over the survey, apart from the survey's own: its questions are added again from
-// the pages, its containers found on a read.
+// A root data scope built over the survey, apart from the survey's own: it walks the survey's pages on a read.
 const createRootDataScope = (survey: SurveyModel): SurveyRootDataScope => {
-  const elements = new ElementIndex();
-  survey.pages.forEach(page => page.questions.forEach(q => elements.add(q)));
-  const root = new SurveyRootDataScope(survey, elements, (key: string) => survey.getDataValueCore(survey.data, key));
+  const root = new SurveyRootDataScope(survey, (key: string) => survey.getDataValueCore(survey.data, key));
   if (survey.isDataScopeUsed()) root.used();
   return root;
 };

@@ -74,6 +74,13 @@ export function getKeyHolderScope(data: any): ObjectDataScope {
   if (!!record) return record;
   return !!data && data.isQuestion === true && typeof data.getContentDataScope === "function" ? data.getContentDataScope() : null;
 }
+// The choice panels of a select question (choice items with elements). Their questions' values are keys of the survey
+// data wherever the select question is: a choice panel is bound to the survey (ChoiceItem.setPanelSurvey). The
+// panels created only: getPanels() creates none.
+export function forEachChoicePanel(el: any, callback: (panel: IElement) => void): void {
+  if (!el.isQuestion || typeof el.supportElementsInChoice !== "function" || !el.supportElementsInChoice()) return;
+  el.getPanels().forEach(callback);
+}
 // The survey whose data.keepEmptyValues decides for a value written through data (an element's ISurveyData,
 // or a scope); null inside a record (a dynamic panel's item, a matrix row): a record item removes every empty
 // value, and records are a survey-settings follow-up, so a nesting container or a composite inside one keeps
@@ -86,39 +93,34 @@ export function getEmptyValuesSurvey(data: any, survey: ISurvey): ISurvey {
   return data instanceof ObjectDataScope ? null : survey;
 }
 
-// The values of a group of elements kept as keys of one object: a question reads
-// object[valueName], its comment object[valueName + commentSuffix]. PanelDataScope keeps the object under its
-// key in its parent's data; a composite question keeps it as its value (CompositeDataScope, question_custom.ts); a
-// record item (a dynamic panel's item, a matrix row) keeps it as its record (QuestionRecordItem, question_records.ts).
-export abstract class ObjectDataScope implements INameScope {
-  // The object as stored, or undefined when there is none.
-  protected abstract getObject(): any;
+// The instance half of a data scope: the index of its keys (ElementIndex), built on the first read and kept up by
+// the survey's notifications (SurveyRootDataScope). ObjectDataScope adds the object half: the values as keys of one
+// object. The survey's root (SurveyRootDataScope) keeps the root's keys, and the survey stays the root IDataScope.
+export abstract class DataKeysScope {
   // The elements the index walk starts from.
   protected abstract getScopeElements(): Array<IElement>;
-  // Whether the object holds this question's value (the walk reached it through panels that do not nest).
+  // Whether the scope holds this question's value (the walk reached it through panels that do not nest).
   protected abstract isScopeQuestion(q: Question): boolean;
-  getValue(name: string): any {
-    return this.getObjectKey(this.getObject(), name);
-  }
-  getComment(name: string): string {
-    return this.getValue(Helpers.getCommentKey(name)) || "";
-  }
-  protected getObjectKey(obj: any, name: string): any {
-    return !!obj ? Helpers.getUnbindValue(obj[name]) : undefined;
-  }
-  // The index of this scope's keys: its questions and the active containers directly inside it, in document
-  // order. Built by the walk on the first read and kept up by the survey's notifications (SurveyRootDataScope):
-  // an element appended in place, one removed or renamed in place, and any other change of place builds it again.
+  // The index of this scope's keys: its questions and the active containers directly inside it. Built on the first
+  // read and kept up by the survey's notifications (SurveyRootDataScope): an element appended in place, one removed
+  // or renamed in place, and any other change of place builds it again.
   private keyIndex: ElementIndex;
   public getDataKeyIndex(): ElementIndex {
     if (!this.keyIndex) {
-      const res = new ElementIndex();
-      const walked = this.walkScope(res);
-      this.keyIndex = res;
-      getDataScopeHost(this.getScopeSurvey())?.dataKeyIndexBuilt(this, walked);
+      const walked: Array<ISurveyDataElement> = [];
+      this.keyIndex = this.buildDataKeyIndex(walked);
+      this.dataKeysWalked(walked);
     }
     return this.keyIndex;
   }
+  // The walk of the scope's elements, in document order. walked: the elements it reaches.
+  protected buildDataKeyIndex(walked: Array<ISurveyDataElement>): ElementIndex {
+    const res = new ElementIndex();
+    this.walkScope(res, undefined, walked);
+    return res;
+  }
+  // The elements a build reached, for the survey's map of holders: told once the instance is in place.
+  protected dataKeysWalked(elements: Array<ISurveyDataElement>): void { }
   // The instance is built again on its next read.
   public resetDataKeyIndex(): void {
     this.keyIndex = undefined;
@@ -127,50 +129,65 @@ export abstract class ObjectDataScope implements INameScope {
   public get builtDataKeyIndex(): ElementIndex {
     return this.keyIndex;
   }
-  protected abstract getScopeSurvey(): ISurvey;
-  // The questions whose values this scope's object holds (directly, or through panels that do not nest)
-  // and the active containers directly inside it: the one walk of a container's elements, in document order.
-  // Every element it reaches is held by name too, the panels that hold no data included: the scope's own names.
+  // The unknown-key rule (IDataScope): an element's key, a question's comment or totals key.
+  public isKnownKey(key: string, index?: IDataKeys): boolean {
+    return isKnownDataKey(index || this.getDataKeyIndex(), key);
+  }
+  // The questions whose values this scope holds (directly, or through panels that do not nest) and the active
+  // containers directly inside it: the one walk of a container's elements (and of the pages for the root), in
+  // document order. Every element it reaches is held by name too, the panels that hold no data included:
+  // the scope's own names. A scope that holds the choice panels (the root) walks on below each active container it
+  // keys, for the choice panels only.
   // from: the element whose part of the scope is walked (an element just added); the scope's elements without it.
-  // Returns the elements it reached, for the survey's map of holders.
-  private walkScope(index: ElementIndex, from?: IElement): Array<ISurveyDataElement> {
-    const walked: Array<ISurveyDataElement> = [];
+  // Returns the elements it reached (walked), for the survey's map of holders.
+  private walkScope(index: ElementIndex, from?: IElement, walked: Array<ISurveyDataElement> = []): Array<ISurveyDataElement> {
     const named = (el: ISurveyDataElement): void => {
-      if (this.isScopeName(el)) index.addNamed(<any>el);
+      if (this.isScopeName(el)) index.add(<any>el);
       walked.push(el);
     };
-    const walk = (elements: Array<IElement>): void => {
+    const choicePanels = this.holdsChoicePanels();
+    const readsScopes = this.readsDataScopes();
+    // below: inside an active container this scope keys; only choice panels are looked for there.
+    const walk = (elements: Array<IElement>, below: boolean): void => {
       for (let i = 0; i < elements.length; i++) {
         const el: any = elements[i];
-        if (el.isPanel) {
-          named(el);
-          const scope = (<IPanelDataScopeOwner>el).getDataScope();
-          if (!!scope && scope.isActive && scope.getParentActiveScope() === <any>this) {
+        if (el.isPanel || el.isPage) {
+          const scope = readsScopes && !below ? (<IPanelDataScopeOwner>el).getDataScope() : null;
+          if (!below) named(el);
+          if (!!scope && scope.isActive && this.isOwnDataScope(scope)) {
             index.addKeyed(scope.owner, scope.key);
+            if (choicePanels) walk(el.elements, true);
           } else {
-            walk(el.elements);
+            walk(el.elements, below);
           }
-        } else if (el.isQuestion && this.isScopeQuestion(<Question>el)) {
-          named(el);
-          index.addKeyed(<Question>el, (<Question>el).getValueName());
+        } else if (el.isQuestion) {
+          if (!below && this.isScopeQuestion(<Question>el)) {
+            named(el);
+            index.addKeyed(<Question>el, (<Question>el).getValueName());
+          }
+          if (choicePanels) forEachChoicePanel(el, (panel: IElement): void => walk([panel], false));
         }
       }
     };
-    walk(!!from ? [from] : this.getScopeElements());
+    walk(!!from ? [from] : this.getScopeElements(), false);
     return walked;
+  }
+  // Whether an active scope the walk reaches is one of this scope's keys: its parent active scope is this one.
+  protected isOwnDataScope(scope: PanelDataScope): boolean {
+    return scope.getParentActiveScope() === <any>this;
   }
   // Whether the scope holds the element's name: a matrix row holds its cells by key, not by name (only its detail
   // panel is a name scope, O9).
   protected isScopeName(el: ISurveyDataElement): boolean {
     return true;
   }
-  // INameScope: the elements of this scope by name (name-scope.ts).
-  public findOwnElement(name: string, isKind: ElementKind, caseInsensitive?: boolean, exactFirst?: boolean): any {
-    return this.getDataKeyIndex().find(name, isKind, caseInsensitive, exactFirst);
+  // Whether the choice panels' questions are this scope's: the root's, wherever the select question is.
+  protected holdsChoicePanels(): boolean {
+    return false;
   }
-  // A question of this scope, by a bare name or a path of names below it.
-  public findScopeQuestion(name: string): Question {
-    return findElementInNameScope(this, name, isQuestionElement);
+  // Whether a panel can have an active scope here: the root asks none until a container has nested.
+  protected readsDataScopes(): boolean {
+    return true;
   }
   // el joined the scope's elements (SurveyRootDataScope.elementAdded). When it comes last in document order, the
   // instance takes its part in place, and the elements it took are returned. Otherwise the instance is built again.
@@ -201,6 +218,36 @@ export abstract class ObjectDataScope implements INameScope {
   // The index's elements in order, copied: a callback may change the scope.
   protected getIndexElements(): Array<ISurveyDataElement> {
     return [].concat(this.getDataKeyIndex().elements);
+  }
+}
+
+// The values of a group of elements kept as keys of one object: a question reads
+// object[valueName], its comment object[valueName + commentSuffix]. PanelDataScope keeps the object under its
+// key in its parent's data; a composite question keeps it as its value (CompositeDataScope, question_custom.ts); a
+// record item (a dynamic panel's item, a matrix row) keeps it as its record (QuestionRecordItem, question_records.ts).
+export abstract class ObjectDataScope extends DataKeysScope implements INameScope {
+  // The object as stored, or undefined when there is none.
+  protected abstract getObject(): any;
+  getValue(name: string): any {
+    return this.getObjectKey(this.getObject(), name);
+  }
+  getComment(name: string): string {
+    return this.getValue(Helpers.getCommentKey(name)) || "";
+  }
+  protected getObjectKey(obj: any, name: string): any {
+    return !!obj ? Helpers.getUnbindValue(obj[name]) : undefined;
+  }
+  protected abstract getScopeSurvey(): ISurvey;
+  protected dataKeysWalked(elements: Array<ISurveyDataElement>): void {
+    getDataScopeHost(this.getScopeSurvey())?.dataKeyIndexBuilt(this, elements);
+  }
+  // INameScope: the elements of this scope by name (name-scope.ts).
+  public findOwnElement(name: string, isKind: ElementKind, caseInsensitive?: boolean, exactFirst?: boolean): any {
+    return this.getDataKeyIndex().find(name, isKind, caseInsensitive, exactFirst);
+  }
+  // A question of this scope, by a bare name or a path of names below it.
+  public findScopeQuestion(name: string): Question {
+    return findElementInNameScope(this, name, isQuestionElement);
   }
   // The questions read their values from the stored object again; the scopes inside follow.
   public updateValuesFromData(): void {
@@ -400,9 +447,6 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
   public getObjectValue(): any {
     const data = this.parentData;
     return !!data ? data.getValue(this.key) : undefined;
-  }
-  public isKnownKey(key: string, index?: IDataKeys): boolean {
-    return isKnownDataKey(index || this.getDataKeyIndex(), key);
   }
   // The root answers from the question's data path: two containers on one key share their object.
   public getQuestionsSharingValue(question: Question): Array<Question> {

@@ -110,8 +110,8 @@ export class ContainerDataNesting {
       host?.dataScopeChanged(this.container);
       return;
     }
-    // The instances the key touches: the record item's, and the root's, which holds a record question the flat
-    // structure holds (one renamed or added at runtime: its value scope is the survey).
+    // The instances the key touches: the record item's (the root's is dropped too, at no cost: no walk of the pages
+    // reaches a record).
     host?.dataScopeKeysChanged(this.container);
     if (prevKey !== this.attachedKey) {
       // The survey's indexes do not hold a record's questions: they read the record again.

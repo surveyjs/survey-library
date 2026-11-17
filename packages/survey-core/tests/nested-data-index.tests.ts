@@ -428,7 +428,7 @@ describe("the root's keys after an element moves", () => {
     survey.getQuestionByName("q2").page = survey.pages[0];
     expect(names()).toEqual(["q1", "q3"]);
   });
-  test("a move in a survey keeps the order of the questions sharing a value name", () => {
+  test("a move in a survey: the questions sharing a value name follow document order", () => {
     const pages = (extra: Array<any>): any => ({ dataNesting: "auto", pages: [
       { name: "p1", elements: [{ type: "text", name: "q1", valueName: "s" }].concat(extra) },
       { name: "p2", elements: [{ type: "text", name: "q2", valueName: "s" }, { type: "text", name: "q3", valueName: "s" }] }
@@ -440,7 +440,7 @@ describe("the root's keys after an element moves", () => {
       const names = (): Array<string> => (survey.getQuestionsByValueName("s") || []).map(q => q.name);
       expect(names(), title).toEqual(["q1", "q2", "q3"]);
       survey.getQuestionByName("q1").page = survey.pages[1];
-      expect(names(), title + ": the order added").toEqual(["q1", "q2", "q3"]);
+      expect(names(), title + ": q1 is last on p2 now").toEqual(["q2", "q3", "q1"]);
     }
   });
   test("a nesting panel moved between a nesting page and a plain page", () => {

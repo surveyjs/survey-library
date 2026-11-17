@@ -1065,7 +1065,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       return;
     }
 
-    if (oldPage === newPage) return;
+    // The same page: nothing moves, and the element's later removals and adds notify the survey again.
+    if (oldPage === newPage) {
+      (<any>this).prevSurvey = undefined;
+      return;
+    }
     if (parent) parent.removeElement(<IElement>(<any>this));
     if (newPage) {
       newPage.addElement(<IElement>(<any>this), -1);

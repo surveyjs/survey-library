@@ -37,12 +37,12 @@ describe("scoped names 04: who holds my value, at the root, in a container and i
     // An inner value name equal to a root key: the root's questions do not hold the inner value.
     expect(sharers(q("box.c3")), "container, a root key's value name").toEqual(["c3"]);
     const item = (<QuestionPanelDynamicModel>q("list")).panels[0];
-    // A question in a record is looked up at the root, as before: the root holds the template's questions.
-    const rootAnswer = survey.getQuestionsByValueName("x");
-    expect(rootAnswer.map(t => t.parent), "the template's").toEqual([(<any>q("list")).template, (<any>q("list")).template]);
-    expect((<any>item.getQuestionByName("d1")).getValueScope().getQuestionsSharingValue(item.getQuestionByName("d1")), "record").toEqual(rootAnswer);
+    // A question in a record is looked up at the root, as before. The root walks its pages (scoped names 06, M1): it
+    // holds no template question, so the record's question shares its value with no question.
+    expect(survey.getQuestionsByValueName("x"), "no template question at the root").toBeNull();
+    expect((<any>item.getQuestionByName("d1")).getValueScope().getQuestionsSharingValue(item.getQuestionByName("d1")), "record").toEqual([]);
   });
-  test("clearIncorrectValues keeps a value a sharer owns: root, record (as before) and container (B1)", () => {
+  test("clearIncorrectValues keeps a value a sharer owns: root and container (B1); a record's question has none at the root", () => {
     const survey = new SurveyModel(json());
     const q = (name: string): Question => survey.getQuestionByName(name);
     q("r2").value = "b";
@@ -55,7 +55,8 @@ describe("scoped names 04: who holds my value, at the root, in a container and i
     const d1 = <Question>item.getQuestionByName("d1");
     (<Question>item.getQuestionByName("d2")).value = "b";
     d1.clearIncorrectValues();
-    expect(d1.value, "record: the template's sharers keep it, as before").toBe("b");
+    // The template's questions are no longer the root's (scoped names 06, M1, choice (a)).
+    expect(d1.value, "record: no sharer keeps it").toBeUndefined();
   });
   test("a hidden question keeps a value a visible sharer holds", () => {
     const survey = new SurveyModel(Object.assign(json(), { clearInvisibleValues: "onHidden" }));

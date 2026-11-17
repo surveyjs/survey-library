@@ -47,10 +47,6 @@ export class DataKeyHash<T = ISurveyDataElement> {
     if (!DataKeyHash.insertInto(this.exact, key, el, rank)) return;
     DataKeyHash.insertInto(this.lower, key.toLowerCase(), el, rank);
   }
-  // Each element once, in no order: an element is under one exact key.
-  public forEach(callback: (el: T) => void): void {
-    Object.keys(this.exact).forEach(key => this.exact[key].forEach(callback));
-  }
   // The lower-case list is left alone when el is not under the exact key: another key may differ in case only.
   public remove(key: string, el: T): void {
     if (DataKeyHash.removeFrom(this.exact, key, el)) {

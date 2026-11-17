@@ -4,6 +4,7 @@
 .sv-calendar {
   --sv-calendar-cell-size: var(--sjs2-size-x500);
   --sv-calendar-cell-radius: var(--sjs2-radius-component-drop-item);
+  --sv-calendar-cell-gap: var(--sjs2-spacing-x050);
 
   display: flex;
   flex-direction: column;
@@ -126,6 +127,7 @@
 .sv-calendar__days {
   display: grid;
   grid-template-columns: repeat(7, var(--sv-calendar-cell-size));
+  gap: var(--sv-calendar-cell-gap);
 }
 
 .sv-calendar__weekday {
@@ -135,15 +137,12 @@
   color: $foreground-light;
 }
 
-.sv-calendar__days {
-  row-gap: var(--sjs2-spacing-x025);
-}
-
 .sv-calendar__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--sjs2-spacing-x100);
-  width: calc(var(--sv-calendar-cell-size) * 7);
+  gap: var(--sjs2-spacing-x050);
+  min-width: 343px;
+  width: calc(var(--sv-calendar-cell-size) * 7 + var(--sv-calendar-cell-gap) * 6);
 }
 
 .sv-calendar__day,

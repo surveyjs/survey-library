@@ -213,7 +213,14 @@
 
 // On a phone the chips, then Save, Save as... and Clear All, are one row that scrolls sideways, as in
 // the mockup: the buttons follow the last chip, 16px after it, and the chips have the whole width.
+// A row that scrolls clips what it holds, and a button's border and focus ring are shadows outside its
+// box (Clear All's border): the row keeps 4px of room around the buttons, and the negative margin keeps
+// them where they were. At the end the room is the last item's own padding: a scrolled row's end
+// padding is not scrolled to in every browser.
 .sd-filter--mobile .sd-filter__chips-row {
+  margin: calc(-1 * var(--sjs2-spacing-x050));
+  padding: var(--sjs2-spacing-x050);
+  padding-inline-end: 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -224,6 +231,10 @@
 
   & > * {
     flex: 0 0 auto;
+  }
+
+  & > :last-child {
+    padding-inline-end: var(--sjs2-spacing-x050);
   }
 
   .sd-action-bar {

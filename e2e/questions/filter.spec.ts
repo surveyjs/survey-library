@@ -239,9 +239,13 @@ frameworks.forEach((framework) => {
       const chipBox = await lastChip.boundingBox();
       expect(Math.round((await saveAs.boundingBox()).x - (chipBox.x + chipBox.width)), "#2: 16px after the last chip").toBe(16);
       await row.evaluate((el: HTMLElement) => { el.scrollLeft = el.scrollWidth; });
+      // Clear All's border is a 1px shadow outside its box: the row that scrolls keeps it in sight.
       const clearBox = await clearAll.boundingBox();
-      expect(clearBox.x + clearBox.width, "#3: Clear All at the row's end").toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
-      expect(clearBox.x, "#4").toBeGreaterThanOrEqual(rowBox.x);
+      const visible = await row.boundingBox();
+      expect(clearBox.x + clearBox.width + 1, "#3: Clear All's border at the row's end").toBeLessThanOrEqual(visible.x + visible.width);
+      expect(clearBox.x - 1, "#4").toBeGreaterThanOrEqual(visible.x);
+      expect(clearBox.y - 1, "#5: its top border").toBeGreaterThanOrEqual(visible.y);
+      expect(clearBox.y + clearBox.height + 1, "#6: its bottom border").toBeLessThanOrEqual(visible.y + visible.height);
     });
 
     test("a chip's cross clears its condition", async ({ page }) => {

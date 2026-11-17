@@ -4,7 +4,6 @@ import { scenarioById } from "../scenarios/index.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { getExtraFixtures } from "../fixtures/extra.ts";
 import { sampleLoop, scenarioDriver } from "../harness/sample.ts";
-import { calibrateOnce, calibrationResult } from "../harness/calibration.ts";
 import { installFunnels } from "../harness/counters.ts";
 import { summarize } from "../harness/stats.ts";
 import type { PerfContext, PerfFixture } from "../harness/scenario.ts";
@@ -12,7 +11,6 @@ import { missingRequirement } from "../harness/scenario.ts";
 import type { ResultEntry } from "../harness/node/result.ts";
 import { resolveCoreDir } from "../harness/node/build.ts";
 import { readEnv } from "../harness/node/env.ts";
-import { CALIBRATION_ONLY } from "../harness/ids.ts";
 
 // One scenario in this fresh process: `node --expose-gc perf/core/scenario-process.ts <id>`. It prints one JSON
 // line on stdout, { type: "entry" | "skipped" | "failed", ... }, and nothing on stderr.
@@ -22,18 +20,7 @@ const id = process.argv[2];
 let printed: any;
 const print = (line: any): void => { printed = line; };
 
-// The calibration-only spacer (PERF_ONLY=calibration): calibration samples for about 3 s, no survey-core.
-function calibrationOnly(): void {
-  const now = (): number => performance.now();
-  const samples: Array<number> = [];
-  const start = now();
-  while(samples.length < 5 || now() - start < 3000) samples.push(calibrateOnce(now));
-  const sorted = samples.slice().sort((a: number, b: number) => a - b);
-  print({ type: "calibration", median: Math.round(sorted[sorted.length >> 1] * 100) / 100, samples: samples.length });
-}
-
 async function main(): Promise<void> {
-  if (id === CALIBRATION_ONLY) return calibrationOnly();
   const env = readEnv();
   const core = resolveCoreDir();
   const scenario = scenarioById(id);
@@ -69,11 +56,12 @@ async function main(): Promise<void> {
   const driver = scenarioDriver(scenario, ctx, {
     now: now,
     gc: (): void => (gc as () => void)(),
-    calibrate: (): number => calibrateOnce(now),
     installFunnels: () => installFunnels(Survey)
   });
+  // maxMs 3 s (5 s before 2026-11-10): the samples' spread is a few percent against a 25% threshold, so the extra
+  // samples bought little; at least 5 are kept either way.
   const res = await sampleLoop(driver, { warmup: scenario.warmup === undefined ? 2 : scenario.warmup, samples: scenario.samples || 12,
-    maxMs: scenario.maxMs || 5000, minSamples: 5, now: now });
+    maxMs: scenario.maxMs || 3000, minSamples: 5, now: now });
   (gc as () => void)();
   if (warnings.length > 0 && !isExtra) throw new Error("warnings during the scenario: " + warnings.slice(0, 3).join(" | "));
   const jsonErrors = ctx.cache.jsonErrors || 0;
@@ -92,7 +80,6 @@ async function main(): Promise<void> {
   const entry: ResultEntry = {
     id: scenario.id, rev: scenario.rev, unit: "ms", samples: res.samples.map((v: number) => Math.round(v * 100) / 100),
     median: stats.median, min: stats.min, max: stats.max, mad: stats.mad,
-    calibration: calibrationResult(res.calibrationBefore, res.calibrationAfter),
     phases: phases, counters: res.counters,
     info: { kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), heapMB: Math.round(process.memoryUsage().heapUsed / 1048576),
       gc: true, fixtureMeta: isExtra ? fixture.meta : undefined, warnings: isExtra ? warnings.length : undefined },

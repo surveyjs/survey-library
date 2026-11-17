@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "description": "Vue 3 for the perf pages only, installed by the browser perf suite into perf/vue3/node_modules.",
+  "dependencies": {
+    "vue": "3.5.44"
+  }
+}

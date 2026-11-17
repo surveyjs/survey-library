@@ -2342,6 +2342,112 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.panels[1].state, "panelsState = 'default', the second panel has default state").toBe("default");
   });
 
+  test("collapsed panel shows Panel N when the template title is empty", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        panelsState: "collapsed",
+        templateTitle: "{panel.q1}",
+        templateElements: [{ type: "text", name: "q1" }]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels[0].locTitle.textOrHtml, "empty template title, #1").toBe("Panel 1");
+    expect(panel.panels[1].locTitle.textOrHtml, "empty template title, #2").toBe("Panel 2");
+    panel.panels[0].getQuestionByName("q1").value = "Alpha";
+    expect(panel.panels[0].locTitle.textOrHtml, "the entered value replaces the fallback").toBe("Alpha");
+    expect(panel.panels[1].locTitle.textOrHtml, "the other panel stays on the fallback").toBe("Panel 2");
+    panel.panels[0].getQuestionByName("q1").clearValue();
+    expect(panel.panels[0].locTitle.textOrHtml, "clearing the value brings the fallback back").toBe("Panel 1");
+    panel.panelsState = "expanded";
+    expect(panel.panels[0].locTitle.textOrHtml, "expanded uses the same fallback").toBe("Panel 1");
+    panel.panelsState = "default";
+    expect(panel.panels[0].locTitle.textOrHtml, "without collapse the empty title stays empty").toBeFalsy();
+  });
+  test("templateTitlePlaceholder replaces an empty collapsed title", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        panelsState: "collapsed",
+        templateTitle: "{panel.q1}",
+        templateTitlePlaceholder: "Entry {panelIndex}",
+        templateElements: [{ type: "text", name: "q1" }]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.templateTitlePlaceholder, "the assigned placeholder").toBe("Entry {panelIndex}");
+    expect(panel.panels[0].locTitle.textOrHtml, "placeholder, #1").toBe("Entry 1");
+    expect(panel.panels[1].locTitle.textOrHtml, "placeholder, #2").toBe("Entry 2");
+    let changes = 0;
+    panel.panels[0].locTitle.onStringChanged.add(() => { changes++; });
+    panel.templateTitlePlaceholder = "No. {panelIndex}";
+    expect(changes, "the panel title is notified").toBe(1);
+    expect(panel.panels[0].locTitle.textOrHtml, "the new placeholder").toBe("No. 1");
+    panel.panels[0].getQuestionByName("q1").value = "Alpha";
+    expect(panel.panels[0].locTitle.textOrHtml, "a template value wins").toBe("Alpha");
+    panel.locTemplateTitlePlaceholder.clear();
+    panel.panels[0].getQuestionByName("q1").clearValue();
+    expect(panel.panels[0].locTitle.textOrHtml, "clearing the placeholder restores Panel N").toBe("Panel 1");
+    expect(panel.toJSON().templateTitlePlaceholder, "the default placeholder is not serialized").toBeUndefined();
+  });
+  test("templateTitlePlaceholder is editable in list mode when panels collapse", () => {
+    const prop = Serializer.findProperty("paneldynamic", "templateTitlePlaceholder");
+    const question = new QuestionPanelDynamicModel("q");
+    expect(prop.isVisible("", question), "panelsState is default").toBe(false);
+    question.panelsState = "collapsed";
+    expect(prop.isVisible("", question), "list and collapsed").toBe(true);
+    question.panelsState = "firstExpanded";
+    expect(prop.isVisible("", question), "list and firstExpanded").toBe(true);
+    question.displayMode = "tab";
+    expect(prop.isVisible("", question), "tabs keep tabTitlePlaceholder").toBe(false);
+  });
+  test("collapsed panel keeps a template title that has text around an empty value", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        panelsState: "collapsed",
+        templateTitle: "Name: {panel.q1}",
+        templateElements: [{ type: "text", name: "q1" }]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels[0].locTitle.textOrHtml, "the prefix stays").toBe("Name: ");
+    panel.panels[1].getQuestionByName("q1").value = "Beta";
+    expect(panel.panels[1].locTitle.textOrHtml, "the value is shown").toBe("Name: Beta");
+  });
+  test("collapsed panel treats a whitespace-only template title as empty", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        panelsState: "firstExpanded",
+        templateTitle: "{panel.first} {panel.last}",
+        templateElements: [
+          { type: "text", name: "first" },
+          { type: "text", name: "last" }
+        ]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels[0].state, "the first panel is expanded").toBe("expanded");
+    expect(panel.panels[1].state, "the second panel is collapsed").toBe("collapsed");
+    expect(panel.panels[0].locTitle.textOrHtml, "expanded empty title").toBe("Panel 1");
+    expect(panel.panels[1].locTitle.textOrHtml, "collapsed empty title").toBe("Panel 2");
+    panel.panels[1].getQuestionByName("last").value = "Lee";
+    expect(panel.panels[1].locTitle.textOrHtml, "a value in the template is shown").toBe(" Lee");
+    panel.addPanel();
+    expect(panel.panels[2].locTitle.textOrHtml, "a new panel gets the next number").toBe("Panel 3");
+    panel.removePanel(0);
+    expect(panel.panels[0].locTitle.textOrHtml, "indexes follow the panels that remain").toBe(" Lee");
+    expect(panel.panels[1].locTitle.textOrHtml, "the added panel is renumbered").toBe("Panel 2");
+  });
   test("matrixDynamic.panelsState and not panel.title", () => {
     var panel = new QuestionPanelDynamicModel("panel");
     panel.template.addNewQuestion("text", "q1");
@@ -6068,7 +6174,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     });
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
     const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-    expect(!!panel["tabbedMenuValue"], "tabbedMenuValue exist").toBeTruthy();
+    expect(!!panel["actionsValue"]?.["tabbedMenuValue"], "tabbedMenuValue exist").toBeTruthy();
     expect(panel.isRenderModeTab, "isRenderModeTab").toBeTruthy();
     expect(panel.currentIndex, "currentIndex is 0").toBe(0);
     expect(panelTabToolbar.actions.length, "2 panels").toBe(2);
@@ -7716,20 +7822,20 @@ describe("Survey_QuestionPanelDynamic", () => {
       ]
     });
     const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeTruthy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeFalsy();
 
     question.displayMode = "tab";
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeFalsy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeTruthy();
 
     question.displayMode = "carousel";
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeFalsy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeTruthy();
 
     question.displayMode = "list";
-    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeTruthy();
-    expect(question["panelsAnimation"] instanceof AnimationTab).toBeFalsy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationGroup).toBeTruthy();
+    expect(question["dynamicAnimation"].panelsAnimation instanceof AnimationTab).toBeFalsy();
   });
   test("paneldynamic: Do not call onFirstRendered for hidden panels, Issue#10501", () => {
     const survey = new SurveyModel({
@@ -7938,7 +8044,7 @@ describe("Survey_QuestionPanelDynamic", () => {
       }
     };
     const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-    const options = question["getPanelsAnimationOptions"]();
+    const options = question["dynamicAnimation"].getAnimationOptions();
     const panelsContainer = document.createElement("div");
     const panelContainer2 = document.createElement("div");
     const panelContainer1 = document.createElement("div");
@@ -8002,7 +8108,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
     expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
 
-    question["focusNewPanelCallback"] = () => {};
+    question["dynamicAnimation"].focusNewPanelCallback = () => {};
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toBe("enter sv-pd-animation-adding sv-pd-animation-left");
@@ -8020,7 +8126,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     question.removePanel(removedPanel);
     question["_renderedPanels"] = [question.panels[0], removedPanel];
 
-    question["removedPanelIndex"] = 0;
+    question["dynamicAnimation"].removedPanelIndex = 0;
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toBe("enter sv-pd-animation-removing sv-pd-animation-left");
@@ -8034,7 +8140,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
     expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
 
-    question["removedPanelIndex"] = 1;
+    question["dynamicAnimation"].removedPanelIndex = 1;
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toBe("enter sv-pd-animation-removing sv-pd-animation-right");

@@ -107,6 +107,8 @@ export var serbianStrings = {
   value: "vrednost",
   // "Response required."
   requiredError: "Molimo odgovorite na ovo pitanje.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Morate da izaberete Da da biste nastavili.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Vrednost je netačna.",
   // [Auto-translated] "The value contains unknown keys: {0}."

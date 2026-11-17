@@ -62,7 +62,7 @@ export const SurveyLintReasons = Object.freeze({
     valueNameDotted: "valueNameDotted",
   }),
   // a property the class requires and the JSON leaves out or empty - or, for a name, writes as
-  // a number or a boolean, which the runtime cannot load
+  // a number or a boolean, which is not a name
   "property/required": Object.freeze({
     missing: "missing",
     notAString: "notAString",
@@ -78,8 +78,6 @@ export const SurveyLintReasons = Object.freeze({
     aliasDuplicate: "aliasDuplicate",
     // min/max/step on an inputType that has no bounds
     inertMinMax: "inertMinMax",
-    // requiredTrue on a boolean that is neither isRequired nor has a requiredIf
-    requiredTrueNotRequired: "requiredTrueNotRequired",
   }),
   "element/unknown-type": Object.freeze({
     unknownType: "unknownType",

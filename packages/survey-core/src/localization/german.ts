@@ -107,6 +107,8 @@ export var germanSurveyStrings = {
   value: "Wert",
   // "Response required."
   requiredError: "Bitte beantworten Sie diese Frage.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Du musst Ja auswählen, um fortzufahren.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Der Wert ist falsch.",
   // [Auto-translated] "The value contains unknown keys: {0}."

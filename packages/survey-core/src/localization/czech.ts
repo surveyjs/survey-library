@@ -107,6 +107,8 @@ export var czechSurveyStrings = {
   value: "hodnota",
   // "Response required."
   requiredError: "Odpovězte prosím na otázku.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Pro pokračování musíte zvolit Ano.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Hodnota je nesprávná.",
   // [Auto-translated] "The value contains unknown keys: {0}."

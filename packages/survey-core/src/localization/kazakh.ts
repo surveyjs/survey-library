@@ -107,6 +107,8 @@ export var kazakhStrings = {
   value: "мәні",
   // "Response required."
   requiredError: "Өтінеміз, сұраққа жауап беріңіз.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Жалғастыру үшін Иә таңдауыңыз керек.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Мәні дұрыс емес.",
   // [Auto-translated] "The value contains unknown keys: {0}."

@@ -107,6 +107,8 @@ export var koreanStrings = {
   value: "값",
   // "Response required."
   requiredError: "질문에 답하시오.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "계속하려면 '예'를 선택해야 합니다.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "값이 잘못됐어요.",
   // [Auto-translated] "The value contains unknown keys: {0}."

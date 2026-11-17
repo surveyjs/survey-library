@@ -2104,24 +2104,24 @@ describe("Numeric mask: the resolved format cache", () => {
   test("Attaching a mask to an owner drops the values it resolved before", () => {
     const mask = new InputMaskNumeric();
     expect(mask.decimalSeparator, "resolved standalone").toBe(".");
-    expect(mask["getCachedFormatValue"]("decimalSeparator"), "the resolved value is cached").toBe(".");
+    expect(mask["formatValues"]?.decimalSeparator, "the resolved value is cached").toBe(".");
 
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
     mask.owner = <QuestionTextModel>survey.getQuestionByName("q1");
     // the locale name alone would still say "en" here, so the cache cannot be keyed by it only
-    expect(mask["getCachedFormatValue"]("decimalSeparator"), "attaching drops the cache").toBeUndefined();
+    expect(mask["formatValues"]?.decimalSeparator, "attaching drops the cache").toBeUndefined();
   });
 
   test("A locale change drops the values resolved for the previous locale", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
     const mask = <InputMaskNumeric>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
     expect(mask.thousandsSeparator, "resolved for english").toBe(",");
-    expect(mask["getCachedFormatValue"]("thousandsSeparator"), "the resolved value is cached").toBe(",");
+    expect(mask["formatValues"]?.thousandsSeparator, "the resolved value is cached").toBe(",");
 
     survey.locale = "de";
     expect(mask.thousandsSeparator, "resolved for german").toBe(".");
     // the entry the previous locale left behind is gone, not merely shadowed
-    expect(mask["getCachedFormatValue"]("thousandsSeparator"), "the cache holds the german value").toBe(".");
+    expect(mask["formatValues"]?.thousandsSeparator, "the cache holds the german value").toBe(".");
     survey.locale = "";
   });
 });

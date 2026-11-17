@@ -1,13 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import type { Counters } from "../counters.ts";
-import type { CalibrationResult } from "../calibration.ts";
 import type { PerfEnv } from "./env.ts";
 import type { MachineInfo } from "./machine.ts";
 import type { DepsInfo } from "./deps.ts";
 
 // The result file of one suite run (00, Result file).
-export type Suite = "core" | "react" | "survey-js-ui";
+export type Suite = "core" | "react" | "survey-js-ui" | "vue3" | "angular";
 
 export interface ResultEntry {
   id: string;
@@ -18,7 +17,6 @@ export interface ResultEntry {
   min: number;
   max: number;
   mad: number;
-  calibration: CalibrationResult;
   phases?: { [phase: string]: { median: number, min: number } };
   counters: Counters;
   info: { [name: string]: any };
@@ -38,7 +36,7 @@ export interface BuildPart {
 }
 
 export interface ResultFile {
-  schema: 1;
+  schema: 2;
   suite: Suite;
   kind: string;
   label: string;

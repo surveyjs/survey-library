@@ -1,7 +1,13 @@
-import { expect } from "@playwright/test";
+import { expect, Locator } from "@playwright/test";
 import { frameworks, url, initSurvey, resetFocusToBody, compareScreenshot, applyTheme, baseTest as test } from "../e2e/helper";
 
 const title = "File Screenshot";
+
+// Previews are data URLs that the browser decodes asynchronously.
+async function expectPreviewImagesLoaded(questionRoot: Locator): Promise<void> {
+  await expect.poll(() => questionRoot.locator("img").evaluateAll((images: Array<HTMLImageElement>) =>
+    images.length > 0 && images.every(img => img.complete && img.naturalWidth > 0))).toBe(true);
+}
 
 const json = {
   showQuestionNumbers: false,
@@ -65,7 +71,7 @@ frameworks.forEach(framework => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
       });
-      await page.waitForTimeout(1000);
+      await expectPreviewImagesLoaded(questionRoot);
       await compareScreenshot(page, questionRoot, "file-question-multiple.png");
 
       await page.hover(".sd-file .sd-file__preview-item");
@@ -74,12 +80,13 @@ frameworks.forEach(framework => {
 
       await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");
       await page.click(".sd-file input[type=file] + div label");
-      await page.waitForTimeout(1000);
+      // The file is read asynchronously; the navigator appears once the fifth preview is added.
+      await expect.poll(() => page.evaluate(() => (window as any).survey.getQuestionByName("file_question").value.length)).toBe(5);
 
       const prevButton = page.locator(".sd-file__drag-area > .sd-action-bar").locator(".sd-action-bar__item").filter({ visible: true }).first();
       await prevButton.click({ force: true });
       //await page.click(".sd-file #prevPage");
-      await page.waitForTimeout(1000);
+      await expectPreviewImagesLoaded(questionRoot);
       await compareScreenshot(page, questionRoot, "file-question-multiple-navigator.png");
     });
 
@@ -140,7 +147,7 @@ frameworks.forEach(framework => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
       });
-      await page.waitForTimeout(1000);
+      await expectPreviewImagesLoaded(questionRoot);
       await compareScreenshot(page, questionRoot, "file-question-multiple-small-images.png");
 
       await page.evaluate(() => {
@@ -350,15 +357,12 @@ frameworks.forEach(framework => {
       });
 
       await button.nth(0).hover();
-      await page.waitForTimeout(100);
       await compareScreenshot(page, questionRoot.nth(0), "file-question-placeholder-normal.png");
 
       await button.nth(1).hover();
-      await page.waitForTimeout(100);
       await compareScreenshot(page, questionRoot.nth(1), "file-question-placeholder-medium.png");
 
       await button.nth(2).hover();
-      await page.waitForTimeout(100);
       await compareScreenshot(page, questionRoot.nth(2), "file-question-placeholder-small.png");
     });
 
@@ -388,37 +392,35 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForTimeout(1000);
 
       const questionRoot = page.locator(".sd-question");
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera");
       });
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-camera-mode.png");
 
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");
       });
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-both-mode.png");
 
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", true);
       });
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-video.png");
 
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", false);
       });
-      await page.waitForTimeout(1000);
       await page.setInputFiles(".sd-file input", "../../screenshots/files/Read Me.txt");
       await page.click(".sd-file input[type=file] + div label");
+      // The file is read asynchronously. Once the question becomes answered, its css is updated and
+      // the current mode is re-detected - "file", as the test browser has no camera. Wait for it, so
+      // that it can't override the "file-camera" mode set below.
+      await page.waitForFunction(() => (window as any).survey.getAllQuestions()[0].isAnswered);
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");
       });
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-both-mode-answered.png");
     });
   });

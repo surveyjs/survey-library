@@ -2700,9 +2700,6 @@
             "closeOnSelect": {
               "type": "boolean"
             },
-            "loadingComponent": {
-              "type": "string"
-            },
             "searchMode": {
               "type": "string",
               "enum": [
@@ -2967,9 +2964,6 @@
               "type": "string"
             },
             "itemComponent": {
-              "type": "string"
-            },
-            "loadingComponent": {
               "type": "string"
             }
           }
@@ -4122,6 +4116,19 @@
             "valueFalse": {
               "type": "string"
             },
+            "requireTrue": {
+              "type": "boolean"
+            },
+            "requireTrueErrorText": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "locstring"
+                }
+              ]
+            },
             "swapOrder": {
               "type": "boolean"
             },
@@ -4450,6 +4457,16 @@
               }
             },
             "templateTitle": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "locstring"
+                }
+              ]
+            },
+            "templateTitlePlaceholder": {
               "oneOf": [
                 {
                   "type": "string"

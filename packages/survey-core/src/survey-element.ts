@@ -29,7 +29,7 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
-import { scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
+import { scrollElementToViewCore } from "./utils/scroll-utils";
 import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
@@ -208,9 +208,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  public static ScrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
-    scrollIntoView(el, scrollIntoViewOptions, doneCallback);
-  }
   public static ScrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
@@ -243,6 +240,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (res !== undefined) return res;
     this.setRootStyle();
     return this.getPropertyValue("effectiveColSpan");
+  }
+  // effectiveColSpan is computed from colSpan. A value set from JSON, the property grid or Serializer goes to colSpan.
+  public set effectiveColSpan(val: number) {
+    this.colSpan = val;
   }
   /**
    * Specifies how many columns this survey element spans in the grid layout. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true` and define the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation/api-reference/page-model#gridLayoutColumns) array for the parent page or panel.
@@ -415,9 +416,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return true;
   }
-  public get hasStateButton(): boolean {
-    return this.isExpanded || this.isCollapsed;
-  }
   public get uiState(): IElementUIState {
     return this.getUIState();
   }
@@ -579,10 +577,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected get surveyImpl() {
     return this.surveyImplValue;
   }
-  /* You shouldn't use this method ever */
-  __setData(data: ISurveyData) {
-    this.surveyDataValue = data;
-  }
   public get data(): ISurveyData {
     return this.surveyDataValue;
   }
@@ -636,6 +630,22 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return !!this.survey && this.survey.areInvisibleElementsShowing && (!this.isDesignMode || !this.isContentElement);
   }
   public get isVisible(): boolean {
+    return true;
+  }
+  // The element and every element above it are visible. A nested element (a dynamic panel's inner panel,
+  // a matrix cell) has no parent, so the walk goes on through its owner question. The parent chain of a
+  // matrix detail panel or a composite's content panel ends before the owner question, and a choice panel's
+  // parent skips it, so the owner is checked on its own there. When the parent leads to the same owner,
+  // the walk reaches it anyway and the extra check is skipped.
+  public get isVisibleWithParents(): boolean {
+    let el: SurveyElement = this;
+    while(!!el) {
+      if (!el.isVisible) return false;
+      const owner = <SurveyElement><any>el.parentQuestion;
+      const parent: any = el.parent;
+      if (!!owner && !!parent && parent.parentQuestion !== owner && !owner.isVisibleWithParents) return false;
+      el = <SurveyElement><any>(parent || owner);
+    }
     return true;
   }
   /**
@@ -788,6 +798,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   protected getValidName(name: string): string {
+    // A number is valid JSON for a name, so it is kept as its string. Any other value that is not a string is not a name.
+    if (typeof name === "number") name = String(name);
+    else if (name !== undefined && name !== null && typeof name !== "string") name = "";
     if (!!name) {
       name = name.trim();
       const sep = settings.itemValueSeparator;
@@ -974,10 +987,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected get textProcessor(): ITextProcessor {
     return this.textProcessorValue;
   }
-  protected getProcessedHtml(html: string): string {
-    if (!html || !this.textProcessor) return html;
-    return this.textProcessor.processText(html, true);
-  }
   protected onSetData(): void { }
   public get parent(): IPanel {
     return this.getPropertyValue("parent", null);
@@ -1019,6 +1028,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       survey.pages.forEach((page: IPage) => {
         if (<any>newPage === page.name) newPage = page;
       });
+    }
+    // A page name that does not resolve, such as a page that is not loaded yet, leaves the element where it is.
+    if (!!newPage && typeof newPage.addElement !== "function") {
+      (<any>this).prevSurvey = undefined;
+      return;
     }
 
     if (oldPage === newPage) return;

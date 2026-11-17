@@ -1,7 +1,7 @@
 <template>
   <div
     class="sv-skeleton-element"
-    :id="element.id"
+    :id="element.renderedId"
     :style="{ height: element.skeletonHeight }"
   ></div>
 </template>

@@ -216,7 +216,7 @@ export function generateExpressions(options?: ExpressionsOptions): { json: any, 
     expressions: expressionCount,
     expressionsPerProperty: counts,
     chainStarts: startRefs.map((r: Ref) => r.path),
-    // answer/first sets the most-read chain-start question; answer/next10 answers the next ten.
+    // answer/first sets the most-read chain-start question; answer/next3 answers the next three of these ten.
     firstAnswer: { name: "start0", value: 2 },
     nextAnswers: planned.slice(1).map((p: any) => ({ name: p.start, value: p.value })),
     planned: planned.map((p: any) => ({ start: p.start, value: p.value, hides: p.elements.length })),

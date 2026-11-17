@@ -1484,6 +1484,27 @@ test("Clear choices on changing variables", () => {
     expect([...(question.value)], "question.value").toEqual(["item2", "item3"]);
     expect([...(dropdown.value)], "dropdown.value").toEqual(["item1", "item4"]);
   });
+  test("choicesByUrl & carry-forward & showOtherItem: a value is not taken for Other before the source loads, Bug#12245", () => {
+    const survey = new SurveyModel({ storeOthersAsComment: false });
+    survey.addNewPage("p1");
+    const question = new QuestionCheckboxModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    const q2 = new QuestionCheckboxModel("q2");
+    q2.showOtherItem = true;
+    survey.pages[0].addQuestion(q2);
+    q2.choicesFromQuestion = "q1";
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
+    question.onSurveyLoad();
+    survey.data = { q1: ["item2", "item3"], q2: ["item1", "item4"] };
+    expect([...(q2.renderedValue)], "q2.renderedValue before the source loads").toEqual(["item1", "item4"]);
+    expect(q2.isOtherSelected, "q2.isOtherSelected before the source loads").toBe(false);
+    question.doResultsCallback();
+    expect([...(q2.value)], "q2.value").toEqual(["item1", "item4"]);
+    expect(q2.isOtherSelected, "q2.isOtherSelected").toBe(false);
+  });
 
   test("isUsing cache", () => {
     var question = new QuestionDropdownModelTester("q1");

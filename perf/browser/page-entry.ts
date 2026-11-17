@@ -1,6 +1,5 @@
 import { scenarioById } from "../scenarios/index.ts";
 import { sampleLoop, scenarioDriver } from "../harness/sample.ts";
-import { calibrateOnce, calibrationResult } from "../harness/calibration.ts";
 import { installFunnels, dom } from "../harness/counters.ts";
 import { median, round2 } from "../harness/stats.ts";
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
@@ -12,15 +11,24 @@ import { page, updated, settle, frame, delay, rootElement } from "./page-helpers
 const W: any = globalThis;
 const now = (): number => performance.now();
 if (W.Survey) W.Survey.settings.animationEnabled = false;
-// Page ready (03): the framework entry, React's createPortal and flushSync, a stylesheet that defines .sd-root-modern,
-// the fonts.
-function ready(): Array<string> {
+// Page ready (03): the framework entry, React's createPortal and flushSync, Vue's app API and the survey plugin, the
+// Angular app booted, a stylesheet that defines .sd-root-modern, the fonts.
+async function ready(): Promise<Array<string>> {
   const problems: Array<string> = [];
   if (!W.Survey || !W.Survey.Model) problems.push("window.Survey is missing");
   if (W.SurveyReact) {
     if (!W.React || !W.ReactDOMClient || typeof W.ReactDOMClient.createRoot !== "function") problems.push("React 19 is missing");
     if (!W.ReactDOM || typeof W.ReactDOM.createPortal !== "function") problems.push("ReactDOM.createPortal is not a function");
     if (!W.ReactDOM || typeof W.ReactDOM.flushSync !== "function") problems.push("ReactDOM.flushSync is not a function");
+  } else if (W.SurveyVue) {
+    if (!W.Vue || typeof W.Vue.createApp !== "function" || typeof W.Vue.shallowRef !== "function") problems.push("Vue 3 is missing");
+    if (!W.SurveyVue.SurveyComponent || !W.SurveyVue.surveyPlugin) problems.push("SurveyVue.SurveyComponent or surveyPlugin is missing");
+  } else if (W.SurveyNgPerf) {
+    try {
+      await W.SurveyNgPerf.ready;
+    } catch(e: any) {
+      problems.push("the Angular app did not boot: " + String(e && e.message || e));
+    }
   } else if (!W.SurveyUI || typeof W.SurveyUI.renderSurvey !== "function") {
     problems.push("SurveyUI.renderSurvey is missing");
   }
@@ -77,8 +85,8 @@ function longTaskMsPerSample(): number {
   return per.length ? round2(median(per)) : 0;
 }
 
-// An action scenario: the page loaded and rendered the fixture already; calibration, warm-ups, samples and
-// statistics run here, in one evaluate.
+// An action scenario: the page loaded and rendered the fixture already; warm-ups, samples and statistics run here,
+// in one evaluate.
 async function runAction(id: string, fixture: any, options: any): Promise<any> {
   const scenario = getScenario(id);
   const skip = missingRequirement(W.Survey, scenario.requires);
@@ -86,7 +94,7 @@ async function runAction(id: string, fixture: any, options: any): Promise<any> {
   const ctx = context(scenario, fixture);
   const frames: Array<number> = [];
   const driver = scenarioDriver(scenario, ctx, {
-    now: now, gc: gc, calibrate: (): number => calibrateOnce(now),
+    now: now, gc: gc,
     installFunnels: () => installFunnels(W.Survey),
     afterRun: async(t0: number, t1: number): Promise<void> => {
       windows.push([t0, t1]);
@@ -100,7 +108,7 @@ async function runAction(id: string, fixture: any, options: any): Promise<any> {
     maxMs: scenario.maxMs || options.maxMs, minSamples: 5, now: now });
   res.counters.domNodes = dom(rootElement().querySelectorAll("*").length);
   return {
-    samples: res.samples, phases: res.phases, calibration: calibrationResult(res.calibrationBefore, res.calibrationAfter), counters: res.counters,
+    samples: res.samples, phases: res.phases, counters: res.counters,
     info: { kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), frameMs: round2(median(frames)),
       longTaskMs: longTaskMsPerSample(), heapMB: heapMB() },
     jsonErrors: ctx.cache.jsonErrors || 0, repeat: scenario.repeat, counterOnly: scenario.counterOnly, tolerance: scenario.tolerance, rev: scenario.rev
@@ -164,4 +172,4 @@ async function nextPageProbe(): Promise<any> {
 }
 
 W.PerfPage = { ready: ready, prepare: prepare, runAction: runAction, loadSample: loadSample, loadCounters: loadCounters,
-  calibrate: (): number => calibrateOnce(now), nextPageProbe: nextPageProbe };
+  nextPageProbe: nextPageProbe };

@@ -107,6 +107,8 @@ export var slovakSurveyStrings = {
   value: "hodnota",
   // "Response required."
   requiredError: "Požaduje sa odozva.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Musíte zvoliť Áno, aby ste mohli pokračovať.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Hodnota je nesprávna.",
   // [Auto-translated] "The value contains unknown keys: {0}."

@@ -1,14 +1,5 @@
 import { DomWindowHelper } from "../global_variables_utils";
 
-export function detectIEBrowser(): boolean {
-  const window = DomWindowHelper.getWindow();
-  if (!window) return false;
-  const ua: string = window.navigator.userAgent;
-  const oldIe: number = ua.indexOf("MSIE ");
-  const elevenIe: number = ua.indexOf("Trident/");
-  return oldIe > -1 || elevenIe > -1;
-}
-
 export function detectIEOrEdge(): boolean {
   if (typeof (<any>detectIEOrEdge).isIEOrEdge === "undefined") {
     const window = DomWindowHelper.getWindow();

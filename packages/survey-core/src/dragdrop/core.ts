@@ -180,11 +180,6 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     return rect.y + rect.height / 2;
   }
 
-  protected calculateHorizontalMiddleOfHTMLElement(HTMLElement: HTMLElement): number {
-    const rect = HTMLElement.getBoundingClientRect();
-    return rect.x + rect.width / 2;
-  }
-
   protected calculateIsBottom(clientY: number, dropTargetNode?: HTMLElement): boolean {
     return false;
   }

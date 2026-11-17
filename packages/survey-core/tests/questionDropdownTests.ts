@@ -1583,25 +1583,80 @@ describe("Dropdown question", () => {
     expect(question.choices.length).toBe(0);
   });
 
-  test("dropdown loadingComponent replaces the whole loading view", () => {
+  test("survey dropdownLoadingComponent is not serialized and survives fromJSON", () => {
     const survey = new SurveyModel({
-      elements: [{
-        type: "dropdown",
-        name: "q1",
-        choicesLazyLoadEnabled: true,
-        loadingComponent: "my-loading"
-      }]
+      dropdownLoadingComponent: "from-json",
+      elements: [{ type: "dropdown", name: "q1", loadingComponent: "from-question" }]
     });
+    expect(survey.dropdownLoadingComponent).toBe("sv-list-loading");
+    expect(survey.jsonErrors?.length).toBe(2);
+
+    survey.dropdownLoadingComponent = "my-loading";
+    expect(survey.toJSON().dropdownLoadingComponent).toBeUndefined();
+
+    survey.fromJSON({ elements: [{ type: "dropdown", name: "q1" }] });
+    expect(survey.dropdownLoadingComponent).toBe("my-loading");
+
+    survey.dropdownLoadingComponent = "";
+    expect(survey.dropdownLoadingComponent).toBe("sv-list-loading");
+  });
+
+  test("survey dropdownLoadingComponent applies to a dropdown list on creation and on change", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "dropdown", name: "q1", choicesLazyLoadEnabled: true }]
+    });
+    survey.dropdownLoadingComponent = "my-loading";
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const list: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
     expect(list.loadingComponent).toBe("my-loading");
     expect(list.loadingState).toBe("loading");
 
-    question.loadingComponent = "other-loading";
+    survey.dropdownLoadingComponent = "other-loading";
     expect(list.loadingComponent).toBe("other-loading");
 
-    question.loadingComponent = "";
+    survey.dropdownLoadingComponent = "";
     expect(list.loadingComponent).toBe("sv-list-loading");
+  });
+
+  test("survey dropdownLoadingComponent applies to a question added after its list is created", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q0" }] });
+    survey.dropdownLoadingComponent = "my-loading";
+    const question = new QuestionDropdownModel("q1");
+    const list: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    expect(list.loadingComponent).toBe("sv-list-loading");
+
+    survey.pages[0].addElement(question);
+    expect(list.loadingComponent).toBe("my-loading");
+  });
+
+  test("survey dropdownLoadingComponent applies to a rating rendered as a dropdown", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "rating", name: "q1", displayMode: "dropdown" }]
+    });
+    const question = <any>survey.getQuestionByName("q1");
+    const list: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    expect(list.loadingComponent).toBe("sv-list-loading");
+
+    survey.dropdownLoadingComponent = "my-loading";
+    expect(list.loadingComponent).toBe("my-loading");
+  });
+
+  test("survey dropdownLoadingComponent reaches dropdown cells without building matrix rows", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "m1", rowCount: 2, columns: [{ name: "col1", cellType: "dropdown", choicesLazyLoadEnabled: true }] },
+        { type: "matrixdynamic", name: "m2", rowCount: 2, columns: [{ name: "col1", cellType: "dropdown" }] }
+      ]
+    });
+    const m1 = <any>survey.getQuestionByName("m1");
+    const m2 = <any>survey.getQuestionByName("m2");
+    const cellQuestion = m1.visibleRows[0].cells[0].question;
+    const list: ListModel = cellQuestion.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    expect(list.loadingComponent).toBe("sv-list-loading");
+
+    survey.dropdownLoadingComponent = "my-loading";
+    expect(list.loadingComponent).toBe("my-loading");
+    expect(m2.generatedVisibleRows).toBeFalsy();
   });
 
   test("dropdown shows the loading component again while the next choice page is loading", () => {

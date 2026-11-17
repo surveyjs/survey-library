@@ -107,6 +107,8 @@ export var russianSurveyStrings = {
   value: "значение",
   // "Response required."
   requiredError: "Пожалуйста, ответьте на вопрос.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Вы должны выбрать «Да», чтобы продолжить.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Значение неверное.",
   // [Auto-translated] "The value contains unknown keys: {0}."

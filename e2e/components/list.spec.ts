@@ -83,9 +83,8 @@ frameworks.forEach(framework => {
       expect(emptyContainerDisplay).not.toBe("none");
     });
 
-    test("check list filter", async ({ page }) => {
-      if (framework !== "react") return;
-
+    // React only. A skipped test also skips the beforeEach page load; a return in the body would not.
+    (framework === "react" ? test : test.skip)("check list filter", async ({ page }) => {
       const json = {
         elements: [
           {

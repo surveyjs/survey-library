@@ -580,9 +580,9 @@ describe("Paged dynamic panel: the record the removal rule names becomes current
     const { question } = createCurrent({ displayMode: "carousel" });
     question.currentIndex = 1;
     question.currentIndex = 3;
-    expect((<any>question).leftVisibleIndex, "#1").toBe(1);
+    expect((<any>question).dynamicAnimation.leftVisibleIndex, "#1").toBe(1);
     question.goToPrevPanel();
-    expect((<any>question).leftVisibleIndex, "#2").toBe(3);
+    expect((<any>question).dynamicAnimation.leftVisibleIndex, "#2").toBe(3);
   });
   ["carousel", "tab"].forEach((mode: string): void => {
     test(mode + " without paging: a move, Next and a removal raise one event each, as released", () => {

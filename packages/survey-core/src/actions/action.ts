@@ -161,6 +161,7 @@ export interface IAction {
   ariaExpanded?: boolean;
   ariaControls?: string;
   ariaLabelledBy?: string;
+  ariaDescribedBy?: string;
   // The accessible name when the visible text does not say everything (the pager's page dropdown).
   ariaLabel?: string;
   ariaRole?: string;
@@ -212,6 +213,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaPressed: boolean;
   @property() ariaExpanded: boolean;
   @property() ariaLabelledBy: string;
+  @property() ariaDescribedBy: string;
   @property() ariaLabel: string;
   @property() ariaControls: string;
   @property({ defaultValue: "button" }) ariaRole: string;
@@ -226,8 +228,6 @@ export abstract class BaseAction extends Base implements IAction {
   @property() css?: string;
   minDimension: number;
   maxDimension: number;
-  public addVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
-  public removeVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   public get renderedId(): string {
     const raw = this.getPropertyValue("renderedIdRaw", undefined, () => this.getIdGenerator().next("sv-action"));
     return this.composeElementId(raw);

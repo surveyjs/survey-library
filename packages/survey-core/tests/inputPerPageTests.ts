@@ -9,7 +9,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { Serializer } from "../src/jsonobject";
-import { registerFunction, unregisterFunction } from "../src/functionsfactory";
+import { FunctionFactory, registerFunction } from "../src/functionsfactory";
 
 import { describe, test, expect } from "vitest";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
@@ -3168,7 +3168,7 @@ describe("Input Per Page Tests", () => {
     expect(returnResults.length > 0, "the async validator is run by the navigation check").toBe(true);
     returnResults.forEach(res => res(false));
     expect(sku.errors.length, "sku has no error nobody asked for").toBe(0);
-    unregisterFunction("asyncSkuFunc");
+    FunctionFactory.Instance.unregister("asyncSkuFunc");
   });
   test("Dynamic matrix: the empty summary placeholder doesn't show the matrix toolbar", () => {
     const survey = new SurveyModel({

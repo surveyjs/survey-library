@@ -107,6 +107,8 @@ export var dutchSurveyStrings = {
   value: "waarde",
   // "Response required."
   requiredError: "Dit is een vereiste vraag",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Je moet Ja kiezen om door te gaan.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "De waarde is onjuist.",
   // [Auto-translated] "The value contains unknown keys: {0}."

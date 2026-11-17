@@ -115,18 +115,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     );
   }
 
-  protected isItemCurrentDropTarget(item: ItemValue): boolean {
-    return this.dragDropRankingChoices.dropTarget === item;
-  }
-
-  public get ghostPositionCssClass(): string {
-    if (this.ghostPosition === "top")
-      return this.cssClasses.dragDropGhostPositionTop;
-    if (this.ghostPosition === "bottom")
-      return this.cssClasses.dragDropGhostPositionBottom;
-    return "";
-  }
-
   public getItemIndexClasses(item: ItemValue) {
     let noNumber;
 
@@ -698,9 +686,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
   public get arrowsSvgIcon(): string {
     return this.cssClasses.arrowsSvgIconId || "#icon-reorder-24x24";
-  }
-  public get dashSvgIcon(): string {
-    return this.cssClasses.dashSvgIconId || "#icon-rankingundefined-16x16";
   }
   public get dotSvgIcon(): string {
     return this.cssClasses.dotSvgIconId || "#icon-rankingdot-16x16";

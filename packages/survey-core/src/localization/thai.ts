@@ -107,6 +107,8 @@ export var thaiStrings = {
   value: "ข้อมูล",
   // "Response required."
   requiredError: "กรุณาตอบคำถาม",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "คุณต้องเลือก ใช่ เพื่อดําเนินการต่อ",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "ค่านั้นไม่ถูกต้อง",
   // [Auto-translated] "The value contains unknown keys: {0}."

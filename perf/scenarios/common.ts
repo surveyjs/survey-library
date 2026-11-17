@@ -78,14 +78,16 @@ export function answerFirst(fixture: string, uses: Array<string>, after: (ctx: P
   };
 }
 
-// answer/next10: ten more answers in one sample, each to a value that differs from the current one.
-export function answerNext10(fixture: string, uses: Array<string>, after: (ctx: PerfContext, survey: any, before: any) => void,
+// answer/next3: nextAnswerCount more answers in one sample, each to a value that differs from the current one.
+export const nextAnswerCount = 3;
+
+export function answerNext(fixture: string, uses: Array<string>, after: (ctx: PerfContext, survey: any, before: any) => void,
   before?: (ctx: PerfContext, survey: any) => any): PerfScenario {
   return {
-    id: fixture + "/answer/next10", rev: 1, fixture: fixture, kind: "action", uses: ["loadSurvey", "releaseSurvey"].concat(uses),
+    id: fixture + "/answer/next" + nextAnswerCount, rev: 1, fixture: fixture, kind: "action", uses: ["loadSurvey", "releaseSurvey", "nextAnswerCount"].concat(uses),
     setup: async(ctx: PerfContext): Promise<any> => {
       const survey = await loadSurvey(ctx, (s: any) => s.setValue(ctx.fixture.meta.firstAnswer.name, ctx.fixture.meta.firstAnswer.value));
-      const answers = ctx.fixture.meta.nextAnswers.slice(0, 10);
+      const answers = ctx.fixture.meta.nextAnswers.slice(0, nextAnswerCount);
       answers.forEach((a: any) => expectThat(survey.getValue(a.name) !== a.value, a.name + " differs before the sample"));
       return { survey: survey, answers: answers, before: before ? before(ctx, survey) : undefined };
     },
@@ -93,7 +95,7 @@ export function answerNext10(fixture: string, uses: Array<string>, after: (ctx: 
       for (const a of state.answers) state.survey.setValue(a.name, a.value);
     },
     check: (ctx: PerfContext, state: any): void => {
-      expectEqual(state.answers.length, 10, "ten answers");
+      expectEqual(state.answers.length, nextAnswerCount, "the answers");
       state.answers.forEach((a: any) => expectEqual(state.survey.getValue(a.name), a.value, a.name));
       after(ctx, state.survey, state.before);
     },
@@ -106,17 +108,17 @@ export function plannedHidden(ctx: PerfContext, survey: any): void {
   expectHidden(survey, ctx.fixture.meta.plannedElements, "planned element");
 }
 
-// After the ten answers, the planned elements of the ten starts are hidden. Each was visible before: an answer may
+// After the next answers, the planned elements of their starts are hidden. Each was visible before: an answer may
 // also show other elements, so a net count would not tell.
 export function nextPlannedVisible(ctx: PerfContext, survey: any): void {
-  ctx.fixture.meta.plannedByStart.slice(1, 11).forEach((names: Array<string>) => names.forEach((name: string) => {
+  ctx.fixture.meta.plannedByStart.slice(1, 1 + nextAnswerCount).forEach((names: Array<string>) => names.forEach((name: string) => {
     const el = survey.getQuestionByName(name) || survey.getPanelByName(name);
-    expectThat(el && el.isVisible, "planned element " + name + " is visible before the ten answers");
+    expectThat(el && el.isVisible, "planned element " + name + " is visible before the next answers");
   }));
 }
 
 export function nextPlannedHidden(ctx: PerfContext, survey: any): void {
-  ctx.fixture.meta.plannedByStart.slice(1, 11).forEach((names: Array<string>) => expectHidden(survey, names, "planned element"));
+  ctx.fixture.meta.plannedByStart.slice(1, 1 + nextAnswerCount).forEach((names: Array<string>) => expectHidden(survey, names, "planned element"));
 }
 
 // output/*: on a freshly loaded, answered survey. data and toJSON keep it between samples; dispose needs a new one.

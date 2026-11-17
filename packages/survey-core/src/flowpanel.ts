@@ -1,8 +1,7 @@
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { IElement, IQuestion } from "./base-interfaces";
+import { IElement } from "./base-interfaces";
 import { PanelModel } from "./panel";
-import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";
 import { DomWindowHelper } from "./global_variables_utils";
 
@@ -75,9 +74,6 @@ export class FlowPanelModel extends PanelModel {
     if (!!this.onGetHtmlForQuestion) return this.onGetHtmlForQuestion(question);
     return "";
   }
-  protected getQuestionHtmlId(question: Question): string {
-    return this.name + "_" + question.id;
-  }
   protected onAddElement(element: IElement, index: number) {
     super.onAddElement(element, index);
     this.addElementToContent(element);
@@ -88,7 +84,6 @@ export class FlowPanelModel extends PanelModel {
     this.content = this.content.replace(searchStr, "");
     super.onRemoveElement(element);
   }
-  dragDropMoveElement(src: IElement, target: IElement, targetIndex: number) {}
   private addElementToContent(element: IElement) {
     if (this.isLoadingFromJson) return;
     var text = this.getElementContentText(element);

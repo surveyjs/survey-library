@@ -11,6 +11,12 @@ export const getElement = (element: HTMLElement | string): HTMLElement => {
   return typeof element === "string" ? root.getElementById(element) : element;
 };
 
+// A selector of the element with this id that stays valid for any id, e.g. one with an elementIdPrefix
+// that starts with a digit ("#1-sq_0" is invalid). An attribute selector needs no CSS.escape.
+export function getIdSelector(id: string): string {
+  return "[id=\"" + String(id).replace(/["\\]/g, "\\$&") + "\"]";
+}
+
 export function getRootNode(node: Element): Document | ShadowRoot | null {
   const root = node?.getRootNode() || settings.environment.root;
   if (!(root instanceof Document || root instanceof ShadowRoot)) return null;

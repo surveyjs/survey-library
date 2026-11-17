@@ -1,6 +1,6 @@
 {
   "name": "survey-js-ui",
-  "version": "3.2.4",
+  "version": "3.2.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/survey-library.git"
@@ -33,7 +33,7 @@
     "http-server": "^14.1.1",
     "jquery": "^3.5.1",
     "jsdom": "16.7.0",
-    "preact": "10.27.2",
+    "preact": "10.27.3",
     "replace-in-file": "^6.1.0",
     "rimraf": "2.5.4",
     "typescript": "^5.7.0",

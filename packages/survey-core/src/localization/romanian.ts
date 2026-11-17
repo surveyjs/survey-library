@@ -107,6 +107,8 @@ export var romanianSurveyStrings = {
   value: "valoare",
   // "Response required."
   requiredError: "Răspunsul la această întrebare este obligatoriu.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Trebuie să selectezi Da pentru a continua.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Valoarea este incorectă.",
   // [Auto-translated] "The value contains unknown keys: {0}."

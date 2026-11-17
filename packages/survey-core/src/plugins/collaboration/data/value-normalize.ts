@@ -3,7 +3,7 @@ import { Helpers, Question, QuestionMatrixDynamicModel, SurveyModel } from "surv
 // Pads a matrixdynamic value with empty row objects up to the question's rowCount.
 //
 // When the last non-empty cell of a matrixdynamic is cleared, survey-core collapses
-// the value to [] while the sender's rows stay on screen (isRowChanging guards its own
+// the value to [] while the sender's rows stay on screen (isWritingRecords guards its own
 // rowCount). Broadcasting the raw [] makes every OTHER client drop to rowCount = 0 and
 // their rows vanish. Padding to the sender's rowCount keeps row counts in step while
 // still clearing the cells.
@@ -115,8 +115,4 @@ export function syncMatrixRowCount(survey: SurveyModel, name: string, value: any
 function setRowCount(matrix: QuestionMatrixDynamicModel, value: any): void {
   if (!Array.isArray(value) || !!matrix.dataSource) return;
   if (matrix.rowCount !== value.length) matrix.rowCount = value.length;
-}
-
-export function getQuestionValueName(question: Question): string {
-  return question.getValueName();
 }

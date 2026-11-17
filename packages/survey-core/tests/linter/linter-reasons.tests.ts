@@ -199,10 +199,6 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
     json: { elements: [{ type: "text", name: "q1", min: 1 }] },
   },
   {
-    ruleId: "property/dead", reason: "requiredTrueNotRequired",
-    json: { elements: [{ type: "boolean", name: "b1", requiredTrue: true }] },
-  },
-  {
     ruleId: "element/unknown-type", reason: "unknownType",
     json: { elements: [{ type: "nosuchtype", name: "q1" }] },
   },

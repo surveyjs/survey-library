@@ -48,12 +48,20 @@ export interface ISurveyLayoutElement {
   id: string;
   container?: LayoutElementContainer | Array<LayoutElementContainer>;
   isInContainer?: (container: LayoutElementContainer) => boolean;
-  component?: string;
-  template?: string;
+  component: string;
   data?: any;
   index?: number;
   getData?: () => any;
   processResponsiveness?: (width: number) => void;
+}
+
+// A part of a container: one element on its own, or neighbouring elements of the same
+// group that are rendered inside one wrapper with the group's css class.
+export interface ISurveyLayoutElementGroup {
+  key: string;
+  name?: string;
+  css?: string;
+  elements: Array<ISurveyLayoutElement>;
 }
 
 export interface ILayoutElementModel {

@@ -273,7 +273,6 @@ describe("Layout element models", () => {
     const timerElement = elements[0];
     expect(timerElement.id).toBe("timerpanel");
     expect(timerElement.component).toBe("sv-timerpanel");
-    expect(timerElement.template).toBe("survey-timerpanel");
     expect(timerElement.getData()).toBe(survey.timerModel);
 
     expect(timerElement.isInContainer("header")).toBe(true);

@@ -210,12 +210,29 @@ body {
 
 .sv-components-container-center {
   @include stickyHeader;
+  // The timer hangs out of this bar over the question below it. Without a z-index the
+  // question paints on top until scrolling adds .sv-root--sticky-top.
+  z-index: 15;
 }
 
-.sv-root--sticky-top {
-  .sv-components-container-center {
-    z-index: 15;
-  }
+// A wrapper the renderer adds around neighbouring layout elements of one group
+// (SurveyModel.getContainerContentGroups). It lays its children out like
+// .sd-container-modern does, so a grouped element looks the same as a loose one.
+.sv-components-group {
+  display: flex;
+  flex-direction: column;
+}
+
+// The progress bar with the timer attached to it stays on screen like a progress bar alone.
+.sv-components-group--progress-top {
+  @include stickyHeader;
+  z-index: 15;
+}
+
+.sv-components-group--progress-bottom {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
 }
 
 .sv-root--sticky-top.sd-progress--pages,

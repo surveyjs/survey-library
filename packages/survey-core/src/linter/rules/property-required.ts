@@ -22,16 +22,22 @@ function hasNameProperty(ctx: LintContext, className: string): boolean {
   return !!known && known.byKey.has("name");
 }
 
-// The runtime trims and lower-cases a name, so a number or a boolean written for one stops the
-// survey from loading - a page's or a panel's as much as a question's, though only the latter is
-// required. Its spelling is the one repair: "5" is what the author meant by 5. An object written
-// there means nothing in particular, and gets no fix.
+// A survey element (a question, a page, a panel, and so a matrix column and a multiple-text item)
+// loads a numeric name as its string and any other value that is not a string as no name. A
+// calculated value lower-cases its name as it is, so the survey does not load. A number is still
+// not a name, so it is reported either way. Its spelling is the one repair: "5" is what the author
+// meant by 5. An object written there means nothing in particular, and gets no fix.
+function getNotAStringOutcome(className: string, value: any): string {
+  if (isDescendantOf(className, "calculatedvalue")) return "the survey cannot load it";
+  if (typeof value === "number") return "the survey loads it as \"" + String(value) + "\"";
+  return "the survey loads the " + className + " without a name";
+}
 function reportNotAString(ctx: LintContext, site: ObjectSite, value: any): void {
   const path = joinPath(site.path, "name");
   const spelled = typeof value === "number" || typeof value === "boolean" ? String(value) : undefined;
   ctx.report({
     message: "The name of the " + site.className + " is " + JSON.stringify(value) +
-      ", not a string - the survey cannot load it.",
+      ", not a string - " + getNotAStringOutcome(site.className, value) + ".",
     path: path,
     reason: reasons.notAString,
     messageData: { key: "name", className: site.className, name: spelled, value: value },

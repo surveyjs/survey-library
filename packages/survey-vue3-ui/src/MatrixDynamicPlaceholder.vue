@@ -2,7 +2,7 @@
   <div
     :class="question.cssClasses.noRowsSection"
   >
-    <div :class="question.cssClasses.noRowsText">
+    <div :id="question.noRowsTextId" :class="question.cssClasses.noRowsText">
       <SvComponent
         :is="'survey-string'"
         :locString="question.locNoRowsText"

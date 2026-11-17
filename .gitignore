@@ -66,3 +66,5 @@ packages/converter/promts/
 packages/survey-core/docs/
 perf/results/
 perf/react19/node_modules/
+perf/vue3/node_modules/
+perf/angular/node_modules/

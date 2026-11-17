@@ -11,8 +11,15 @@ import { dependencyInfo } from "../harness/node/deps.ts";
 import { fixtureHashes } from "../harness/node/fixture-hash.ts";
 import { buildPart, resultFilePath, writeJsonAtomic } from "../harness/node/result.ts";
 import type { ResultFile } from "../harness/node/result.ts";
-import { suiteOf, uiDirOf, uiPackage, react19Dir } from "./paths.ts";
+import { suiteOf, uiDirOf, uiPackage, react19Dir, vue3Dir, angularDir } from "./paths.ts";
 import { resultSchema } from "../manifest.ts";
+
+// The pinned framework packages of a suite, recorded in build.ui.framework (names: the key there, when it differs).
+const pinnedPackages: { [suite: string]: { dir: string, packages: Array<string>, names: { [pkg: string]: string } } } = {
+  "react": { dir: react19Dir, packages: ["react"], names: {} },
+  "vue3": { dir: vue3Dir, packages: ["vue"], names: {} },
+  "angular": { dir: angularDir, packages: ["@angular/core", "zone.js"], names: { "@angular/core": "angular" } }
+};
 
 // Collects each test's "perf-result" attachment and writes one result file of 02's format in onEnd, or on SIGTERM
 // (a caller or a person may stop a suite) with incomplete: { reason, unrun }.
@@ -78,8 +85,8 @@ export default class PerfReporter {
       const info = JSON.parse(env.body.toString());
       this.result.machine = machineInfo({ chromium: info.chromium, extra: readEnv().machineExtra });
       const framework: { [name: string]: string } = {};
-      if (info.framework.react) framework.react = info.framework.react;
-      if (!info.framework.react) framework.preact = this.preactVersion();
+      ["react", "vue", "angular"].forEach((name: string) => { if (info.framework[name]) framework[name] = info.framework[name]; });
+      if (this.result.suite === "survey-js-ui") framework.preact = this.preactVersion();
       if (this.result.build.ui)this.result.build.ui.framework = framework;
       return;
     }
@@ -118,12 +125,17 @@ export default class PerfReporter {
     if (this.done.size === 0 && result && result.status !== "passed") {
       this.result.failed.push({ id: "setup", error: this.setupError || "the run ended " + result.status + " before any scenario ran" });
     }
-    if (this.result.suite === "react") {
+    // The installed pins, also when the environment test did not run.
+    const pinned = pinnedPackages[this.result.suite];
+    if (pinned && this.result.build.ui) {
+      const versions: { [name: string]: string } = {};
       try {
-        const pkg = JSON.parse(fs.readFileSync(path.join(react19Dir, "node_modules", "react", "package.json"), "utf8"));
-        if (this.result.build.ui)this.result.build.ui.framework = Object.assign({ react: pkg.version }, this.result.build.ui.framework || {});
+        pinned.packages.forEach((name: string) => {
+          versions[pinned.names[name] || name] = JSON.parse(fs.readFileSync(path.join(pinned.dir, "node_modules", name, "package.json"), "utf8")).version;
+        });
+        this.result.build.ui.framework = Object.assign(versions, this.result.build.ui.framework || {});
       } catch(e) {
-        // React 19 is not installed: globalSetup failed, and the run has no results.
+        // The pins are not installed: globalSetup failed, and the run has no results.
       }
     }
     this.result.results.sort((a: any, b: any) => (a.id < b.id ? -1 : 1));

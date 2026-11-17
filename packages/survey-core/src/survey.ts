@@ -36,6 +36,7 @@ import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
+import { QuestionExpressionModel } from "./question_expression";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -2999,6 +3000,21 @@ export class SurveyModel extends SurveyElementCore
   @property({ localizable: { defaultStr: true } }) editText: string;
 
   public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
+  // A survey-level override of settings.designMode.showEmptyTitles / showEmptyDescriptions. Survey Creator sets it
+  // on its own design surveys: its page edit mode belongs to one creator, while the setting is global.
+  // undefined (the default) follows the setting. Design-time options, so not registered in Serializer (not in toJSON).
+  public get showEmptyTitlesInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyTitlesInDesignMode", settings.designMode.showEmptyTitles);
+  }
+  public set showEmptyTitlesInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyTitlesInDesignMode", val);
+  }
+  public get showEmptyDescriptionsInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyDescriptionsInDesignMode", settings.designMode.showEmptyDescriptions);
+  }
+  public set showEmptyDescriptionsInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyDescriptionsInDesignMode", val);
+  }
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };
@@ -7373,7 +7389,10 @@ export class SurveyModel extends SurveyElementCore
       isQuestionInvalid = question && !question.validate(false);
     }
     this.triggersRunScope.run(() => {
-      this.triggerKeys = key;
+      // The run works on its own copy: a nested run (for example, the page triggers that a complete
+      // trigger runs) merges plain values into it, and variablesChangedCore() reads its own
+      // { newValue, oldValue } map after this call (Bug#12333)
+      this.triggerKeys = { ...key };
       const properties = this.getFilteredProperties();
       const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
         isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };
@@ -7560,13 +7579,16 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     const visibilityChangeCount = this.visibilityChangeCount;
-    super.runConditionCore(properties);
-    for (let i = 0; i < pages.length; i++) {
-      pages[i].runCondition(properties);
-    }
+    const expressionRuns = QuestionExpressionModel.collectRuns(() => {
+      super.runConditionCore(properties);
+      for (let i = 0; i < pages.length; i++) {
+        pages[i].runCondition(properties);
+      }
+    });
     if (visibilityChangeCount !== this.visibilityChangeCount) {
       // A changed value requests another pass, so the conditions that read it run again
       calculatedRuns.forEach(item => item.runAfterVisibilityChanged(properties));
+      expressionRuns.forEach((runProperties, item) => item.runAfterVisibilityChanged(runProperties));
     }
   }
   // Grows when a page, panel or question changes its visibility, or a question its visible rows, columns or inputs
@@ -7777,7 +7799,7 @@ export class SurveyModel extends SurveyElementCore
     this.endLoading();
     this.updateState();
     if (!!this.sjsVersion && !!settings.version) {
-      if (Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
+      if (Helpers.compareVerions(String(this.sjsVersion), settings.version) > 0) {
         ConsoleWarnings.warn("The version of the survey JSON schema (v"
           + this.sjsVersion + ") is newer than your current Form Library version ("
           + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");

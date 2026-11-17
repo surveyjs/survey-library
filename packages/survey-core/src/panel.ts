@@ -536,8 +536,17 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
-      (this.isDesignMode && !this.isPanel && this.showTitle && settings.designMode.showEmptyTitles)
+      (this.isDesignMode && !this.isPanel && this.showTitle && this.showEmptyTitlesInDesignMode)
     );
+  }
+  // The survey may override settings.designMode (ISurvey members are optional, so an unset one falls back to the setting).
+  private get showEmptyTitlesInDesignMode(): boolean {
+    const res = this.survey?.showEmptyTitlesInDesignMode;
+    return Helpers.isValueUndefined(res) ? settings.designMode.showEmptyTitles : res;
+  }
+  private get showEmptyDescriptionsInDesignMode(): boolean {
+    const res = this.survey?.showEmptyDescriptionsInDesignMode;
+    return Helpers.isValueUndefined(res) ? settings.designMode.showEmptyDescriptions : res;
   }
   public delete(doDispose: boolean = true): void {
     this.deletePanel();
@@ -571,7 +580,7 @@ export class PanelModelBase extends SurveyElement<Question>
       const hasEnteredDescription = survey && survey.showPageTitles && !!this.description;
       let show = this.hasTitle &&
         (hasEnteredDescription ||
-          (this.showDescription && settings.designMode.showEmptyDescriptions));
+          (this.showDescription && this.showEmptyDescriptionsInDesignMode));
       if (!!survey && !!survey.beforeShowInplaceDescriptionEditorCallback) {
         show = survey.beforeShowInplaceDescriptionEditorCallback(this, !!show);
       }
@@ -1520,16 +1529,21 @@ export class PanelModelBase extends SurveyElement<Question>
   protected createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
+  // The panel computes its own visibility once at the end of onSurveyLoad. A child's visibility change
+  // during it would only repeat that work (and the parent's), once per child, so it updates the rows only.
+  private surveyLoadScope = new Scope();
   public onSurveyLoad(): void {
     this.runWithoutAnimations(() => {
-      super.onSurveyLoad();
-      for (var i = 0; i < this.elements.length; i++) {
-        this.elements[i].onSurveyLoad();
-      }
-      // A panel without a survey gets here from its own endLoadingFromJson, which updates the columns after its rows.
-      if (this.isColumnsUpdatePending && !!this.survey) {
-        this.updateColumns();
-      }
+      this.surveyLoadScope.run(() => {
+        super.onSurveyLoad();
+        for (var i = 0; i < this.elements.length; i++) {
+          this.elements[i].onSurveyLoad();
+        }
+        // A panel without a survey gets here from its own endLoadingFromJson, which updates the columns after its rows.
+        if (this.isColumnsUpdatePending && !!this.survey) {
+          this.updateColumns();
+        }
+      });
       this.onElementVisibilityChanged(this);
     });
   }
@@ -1699,6 +1713,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private onElementVisibilityChanged(element: any) {
     if (this.isLoadingFromJson || this.isRandomizing) return;
     this.updateRowsVisibility(element);
+    if (element !== this && this.surveyLoadScope.isActive) return;
     this.childVisibilityChanged();
     if (!!this.parent) {
       this.parent.onElementVisibilityChanged(this);

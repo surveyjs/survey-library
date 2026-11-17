@@ -140,7 +140,7 @@
 }
 
 .sd-panel__title-expandable-svg {
-  fill: var(--sd-panel-title-color);
+  fill: currentColor;
 }
 .sd-panel--collapsed:hover,
 .sd-panel__header--expandable:hover {

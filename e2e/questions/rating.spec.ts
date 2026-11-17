@@ -245,6 +245,7 @@ frameworks.forEach(framework => {
         ]
       });
 
+      await expect(page.locator(".sd-rating__item-star").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("Tab");
@@ -303,6 +304,7 @@ frameworks.forEach(framework => {
       };
       await initSurvey(page, framework, json);
 
+      await expect(page.locator(".sd-rating__item").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowRight");
       const getValue = async () => {

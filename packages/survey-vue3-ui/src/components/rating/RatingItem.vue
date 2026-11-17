@@ -12,6 +12,7 @@
       :value="item.value"
       :disabled="question.isDisabledAttr"
       :readonly="question.isReadOnlyAttr"
+      :checked="question.value == item.value"
       @click="(e) => question.setValueFromClick((e.target as any).value)"
       :aria-label="question.ariaLabel"
     />

@@ -13,7 +13,6 @@ import { getConditionOperatorTitle, getFilterFieldDefaultOperator, isFilterCondi
 import {
   FilterFieldEditorKind, IFilterFieldListItem, getFilterFieldListItems, getFilterFieldSelection, getFilterSelectionCondition
 } from "./filter-field-kinds";
-import { filterUIStrings } from "./filter-ui-strings";
 // The question types the editor itself creates, whatever the fields are made of: the operator
 // dropdown, the checkbox anyof/noneof switch to, the radiogroup a checkbox field's contains edits
 // with, the text a typeless or expression field edits with and the tagbox a long list of values
@@ -480,16 +479,19 @@ export class FilterConditionsEditor {
       this.getPanel(index).footerActions.push(action);
     }
     action.visible = this.canShowMore(index, this.getValueQuestion(index));
-    action.title = this.expanded[index] ? filterUIStrings.showLess : filterUIStrings.showMore;
+    action.title = this.getMoreTitle(index);
     // fromJSON computed the rendered rows before the fold was hooked in, and the question renders
     // them again only when its visibleChoices change.
     if (action.visible) {
       this.updateFold(index);
     }
   }
+  private getMoreTitle(index: number): string {
+    return getLocaleString(this.expanded[index] ? "filterShowLess" : "filterShowMore", this.owner.getLocale());
+  }
   private toggleMore(index: number): void {
     this.expanded[index] = !this.expanded[index];
-    this.moreActions[index].title = this.expanded[index] ? filterUIStrings.showLess : filterUIStrings.showMore;
+    this.moreActions[index].title = this.getMoreTitle(index);
     this.updateFold(index);
   }
   private onValueChanged(questionName: string): void {

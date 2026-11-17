@@ -17,7 +17,6 @@ import { FilterChipsLayout } from "./filter-chips-layout";
 import { FilterModal } from "./filter-modal";
 import { FilterSaveAsPopup } from "./filter-save-as-popup";
 import { FilterEditPresetDialog, FilterPresetDialog } from "./filter-preset-dialog";
-import { filterUIStrings } from "./filter-ui-strings";
 export { filterUIStrings } from "./filter-ui-strings";
 
 // What a popup or a dialog shows: a badge's FilterFieldPopup, "Save as..."'s FilterSaveAsPopup, or
@@ -265,8 +264,8 @@ export class FilterToolbars {
     this.updateClearRow();
   }
   // A locale change reaches the captions the library owns (Clear, Apply) through the containers. The
-  // chips' texts are composed by update(): the control runs it when what they are composed of changed
-  // (QuestionFilterModel.locStrsChanged).
+  // chips' texts and the rows' own captions are composed by update(): the control runs it when what
+  // they are composed of - the locale too - changed (QuestionFilterModel.locStrsChanged).
   public locStrsChanged(): void {
     [this.chipsToolbarValue, this.clearToolbarValue, this.searchToolbarValue].forEach((c: ActionContainer): void => {
       if (!!c) c.locStrsChanged();
@@ -297,7 +296,7 @@ export class FilterToolbars {
         this.advancedDialog = undefined;
         this.advancedHolder = undefined;
       },
-      title: filterUIStrings.dialogTitle,
+      title: getLocaleString("filterDialogTitle", this.owner.getLocale()),
       cssClass: this.getAdvancedDialogCss()
     });
     this.setModalFooter(this.advancedDialog, modal);
@@ -330,7 +329,7 @@ export class FilterToolbars {
       return;
     }
     footer.setItems([
-      new Action({ id: "sv-filter-modal-clear", title: filterUIStrings.clearAll, appearance: { style: "neutral", mode: "tertiary", showBorder: true },
+      new Action({ id: "sv-filter-modal-clear", title: getLocaleString("filterClearAll", this.owner.getLocale()), appearance: { style: "neutral", mode: "tertiary", showBorder: true },
         action: (): void => { modal.clearAll(); } }),
       new Action({ id: "sv-filter-modal-apply", needSpace: true, appearance: { style: "brand", mode: "primary" },
         title: <any>new ComputedUpdater<string>((): string => modal.showResultsText),
@@ -421,7 +420,7 @@ export class FilterToolbars {
     const locale = this.owner.getLocale();
     const edit = dialogModel instanceof FilterEditPresetDialog ? dialogModel : undefined;
     const left = !!edit && edit.canDelete ?
-      new Action({ id: "sv-filter-preset-delete", title: filterUIStrings.deletePreset, iconName: "icon-delete-24x24", iconSize: "auto",
+      new Action({ id: "sv-filter-preset-delete", title: getLocaleString("filterDeletePreset", locale), iconName: "icon-delete-24x24", iconSize: "auto",
         appearance: { style: "alert", mode: "secondary" }, action: (): void => {
           if (!edit.deletePreset()) return;
           onDeleted();
@@ -543,15 +542,20 @@ export class FilterToolbars {
   private updateClearRow(): void {
     if (!this.clearToolbarValue) return;
     if (!this.clearAction) {
-      this.saveAction = new Action({ id: "sv-filter-save", title: filterUIStrings.save, appearance: { style: "brand" },
+      this.saveAction = new Action({ id: "sv-filter-save", appearance: { style: "brand" },
         visible: false, action: (): void => { this.owner.saveActiveItem(); } });
-      this.clearAction = new Action({ id: "sv-filter-clear", title: filterUIStrings.clearAll, iconName: "icon-close-16x16",
+      this.clearAction = new Action({ id: "sv-filter-clear", iconName: "icon-close-16x16",
         iconSize: "auto", innerCss: this.cssClasses.clear, appearance: { style: "neutral", mode: "tertiary-surface", showBorder: true }, visible: false,
         action: (): void => { this.owner.clearActiveItem(); } });
       this.saveAsAction = this.createSaveAsAction();
       this.clearToolbarValue.setItems([this.saveAction, this.saveAsAction, this.clearAction], false);
       this.updatePopupChips();
     }
+    // Set on every pass, not once: a locale change runs one (QuestionFilterModel.locStrsChanged).
+    const locale = this.owner.getLocale();
+    this.saveAction.title = getLocaleString("filterSave", locale);
+    this.saveAsAction.title = getLocaleString("filterSaveAs", locale);
+    this.clearAction.title = getLocaleString("filterClearAll", locale);
     const isEditable = !this.owner.isDesignMode && !this.owner.isControlReadOnly;
     this.saveAction.visible = isEditable && this.owner.canSaveActiveItem;
     // What the respondent set with no preset on - an edit over a preset turns it off - may become a
@@ -581,7 +585,7 @@ export class FilterToolbars {
         holder.saveAsPopup = this.owner.createSaveAsPopup((): void => { popup.hide(); });
       }
     });
-    const action = new FilterChip({ id: "sv-filter-save-as", component: filterChipComponentName, title: filterUIStrings.saveAs,
+    const action = new FilterChip({ id: "sv-filter-save-as", component: filterChipComponentName,
       innerCss: this.cssClasses.saveAs, appearance: { style: "brand", mode: "secondary" }, visible: false,
       action: (): void => {
         if (!popup.isVisible) {
@@ -619,12 +623,14 @@ export class FilterToolbars {
     // icons at 16px, and the mockup's Filters chip has the two sliders.
     action.iconName = this.isFiltersInSearchRow ? "icon-filter-24x24" : "icon-filter-16x16";
     const count = this.owner.activeConditionCount;
+    const locale = this.owner.getLocale();
+    const filters = getLocaleString("filterFilters", locale);
     if (this.owner.isMobile && this.isFiltersInSearchRow) {
       action.title = count > 0 ? count.toString() : "";
     } else {
-      action.title = count > 0 ? filterUIStrings.filtersCount.replace("{0}", count.toString()) : filterUIStrings.filters;
+      action.title = count > 0 ? getLocaleString("filterFiltersCount", locale).replace("{0}", count.toString()) : filters;
     }
-    action.tooltip = filterUIStrings.filters;
+    action.tooltip = filters;
     action.enabled = !this.owner.isControlReadOnly;
   }
   private getMoreAction(): Action {
@@ -654,7 +660,7 @@ export class FilterToolbars {
       a.css = !layout.isExpanded && fit > -1 && index >= fit ? hidden : undefined;
       index++;
     });
-    this.moreAction.title = layout.isExpanded ? filterUIStrings.showLess : filterUIStrings.showMore;
+    this.moreAction.title = getLocaleString(layout.isExpanded ? "filterShowLess" : "filterShowMore", this.owner.getLocale());
     this.moreAction.css = fit > -1 ? undefined : hidden;
   }
 
@@ -753,7 +759,7 @@ export class FilterToolbars {
   }
   private updateChipClearAction(chip: FilterChip, isVisible: boolean, title: string): void {
     const clear = chip.clearAction;
-    const label = filterUIStrings.clearChip.replace("{0}", title);
+    const label = getLocaleString("filterClearChip", this.owner.getLocale()).replace("{0}", title);
     // The row's classes, which the chip has from the row: the cross is not in the row.
     clear.cssClasses = chip.cssClasses;
     clear.visible = isVisible;
@@ -815,7 +821,7 @@ export class FilterToolbars {
     const isReadOnly = this.owner.isControlReadOnly;
     const isOn = !!active && items.indexOf(active) > -1;
     this.updatePresetRows(items);
-    chip.title = isOn ? active.title : filterUIStrings.preset;
+    chip.title = isOn ? active.title : getLocaleString("filterPreset", this.owner.getLocale());
     chip.active = isOn;
     this.updateChipClearAction(chip, isOn && !isReadOnly, chip.title);
     chip.markerIconName = !isReadOnly && !isOn ? "icon-chevrondown-16x16" : undefined;

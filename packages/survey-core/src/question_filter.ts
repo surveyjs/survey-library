@@ -15,7 +15,7 @@ import { FilterFieldPopup, writeFilterFieldCondition } from "./filter/filter-fie
 import { FilterSaveAsPopup } from "./filter/filter-save-as-popup";
 import { FilterModal } from "./filter/filter-modal";
 import { FilterEditPresetDialog, FilterPresetDialog } from "./filter/filter-preset-dialog";
-import { FilterChip, FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
+import { FilterChip, FilterToolbars, IFilterFieldState } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { FilterAIRequest } from "./filter/filter-ai";
 import { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
@@ -961,12 +961,14 @@ export class QuestionFilterModel extends QuestionNonValue {
     const css = this.cssClasses;
     return toCssClasses(css.chips, !this.isDisposed && this.chipsLayout.isExpanded && css.chipsExpanded);
   }
+  // The search box's accessible name: the placeholder is no label.
+  public get searchLabel(): string { return this.getLocalizationString("filterSearchLabel"); }
   // Says what the search looks in: the titles of the fields it searches, in searchFields' order. With
   // no field to name it is the library's own "Type to search...".
   public get searchPlaceholder(): string {
     const titles = this.getSearchFields().map(getFilterFieldTitle);
     if (titles.length === 0) return this.getLocalizationString("filterStringPlaceholder");
-    return filterUIStrings.searchPlaceholder.replace("{0}", titles.join(", "));
+    return this.getLocalizationString("filterSearchPlaceholder").replace("{0}", titles.join(", "));
   }
   // The advanced editor as a dialog; with no dialog host (no survey rendered) this opens nothing.
   public showAdvancedEditor(): void { this.toolbars.showAdvancedEditor(); }

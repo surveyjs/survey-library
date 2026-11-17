@@ -16,7 +16,6 @@ import {
   FilterFieldEditorKind, IFilterFieldListItem, canFilterFieldSelectAll, getFilterFieldListItems,
   getFilterFieldSelection, getFilterSelectionCondition
 } from "./filter-field-kinds";
-import { filterUIStrings } from "./filter-ui-strings";
 import { getFilterValueText } from "./filter-expression";
 
 // What a field's popup reads from the control and calls on it: the control's public API only.
@@ -235,7 +234,7 @@ export class FilterFieldPopup extends Base {
     }
     const values = this.getSelectAllActions();
     const isAll = values.length > 0 && values.every((a: Action): boolean => this.listValue.isItemSelected(a));
-    header.title = isAll ? filterUIStrings.clearAll : getLocaleString("selectAllItemText", this.owner.getLocale());
+    header.title = getLocaleString(isAll ? "filterClearAll" : "selectAllItemText", this.owner.getLocale());
   }
   private toggleAll(): void {
     const list = <MultiSelectListModel<Action>>this.listValue;
@@ -311,7 +310,7 @@ export class FilterFieldPopup extends Base {
     const search = normalizeTextForSearch(typed);
     const isKnown = this.getValueActions().some((a: Action): boolean =>
       this.getSearchTexts(a).some((t: string): boolean => t === search));
-    add.title = filterUIStrings.addCustomValue.replace("{0}", typed);
+    add.title = getLocaleString("filterAddCustomValue", this.owner.getLocale()).replace("{0}", typed);
     const isNeeded = !!typed && !isKnown;
     if (isNeeded === this.listValue.actions.indexOf(add) > -1) return;
     this.listValue.setItems(isNeeded ? this.getValueActions().concat([add]) : this.getValueActions(), false);

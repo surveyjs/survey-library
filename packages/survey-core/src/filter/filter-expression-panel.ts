@@ -4,7 +4,7 @@ import { Question } from "../question";
 import { Serializer } from "../jsonobject";
 import { canParseFilterExpression } from "./filter-conditions";
 import { removePanelFromSurvey } from "./filter-conditions-editor";
-import { filterUIStrings } from "./filter-ui-strings";
+import { getLocaleString } from "../surveyStrings";
 // The question type the text is typed in; imported here, as the other dialogs import theirs.
 import "../question_comment";
 
@@ -21,10 +21,10 @@ export interface IFilterExpressionPanelOptions {
 }
 
 // Why a typed expression cannot be a preset's filter: "" for one that can.
-export function getFilterExpressionError(text: string): string {
+export function getFilterExpressionError(text: string, locale?: string): string {
   const value = (text || "").trim();
-  if (!value) return filterUIStrings.presetNoExpression;
-  return canParseFilterExpression(value) ? "" : filterUIStrings.presetInvalidExpression;
+  if (!value) return getLocaleString("filterPresetNoExpression", locale);
+  return canParseFilterExpression(value) ? "" : getLocaleString("filterPresetInvalidExpression", locale);
 }
 
 // The text of a filter expression in a survey of someone else's: a panel named "expression" with a
@@ -43,7 +43,7 @@ export class FilterExpressionPanel {
   };
   private onValidateQuestion = (_: SurveyModel, options: any): void => {
     if (options.question === this.question && !this.options.readOnly) {
-      const error = getFilterExpressionError(options.value);
+      const error = getFilterExpressionError(options.value, this.survey.getLocale());
       if (!!error) options.error = error;
     }
   };
@@ -60,7 +60,7 @@ export class FilterExpressionPanel {
       const question = <Question>Serializer.createClass("comment");
       // Three lines, as tall as the mockup's box; the respondent can make it taller.
       question.fromJSON({ name: "expression", titleLocation: "hidden", title: options.title, textUpdateMode: "onTyping", rows: 3,
-        placeholder: options.readOnly ? "" : filterUIStrings.expressionPlaceholder, readOnly: !!options.readOnly });
+        placeholder: options.readOnly ? "" : getLocaleString("filterExpressionPlaceholder", survey.getLocale()), readOnly: !!options.readOnly });
       panel.addElement(question);
     } finally {
       container.releaseAnimations();

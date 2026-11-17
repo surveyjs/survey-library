@@ -6,7 +6,7 @@ import { ActionContainer } from "../actions/container";
 import { IFilterCondition, IFilterState } from "../interfaces/ui-interfaces";
 import { FilterItem, getUniqueFilterActionId } from "./filter-item";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
-import { filterUIStrings } from "./filter-ui-strings";
+import { getLocaleString } from "../surveyStrings";
 import { normalizeTextForSearch } from "../helpers";
 
 // What the Filters dialog reads from the control and calls on it: the control's public API only.
@@ -27,6 +27,7 @@ export interface IFilterModalOwner {
   canAddItems: boolean;
   getEditableItems(): Array<FilterItem>;
   showPresetDialog(modal: FilterModal, isEdit: boolean): void;
+  getLocale(): string;
 }
 // How long the dialog waits after a change before it counts the records again: a source on a
 // server is asked once for a burst of clicks, not once per click.
@@ -60,6 +61,7 @@ export class FilterModal extends Base {
   // The presets section is a group named by its title (aria-labelledby): the renderer gives the title
   // this id, made of the dialog's own element id.
   public get presetsTitleId(): string { return this.id + "_presets-title"; }
+  public get presetsTitle(): string { return this.getString("filterPresetsTitle"); }
   private addPresetAction: Action;
   private editPresetAction: Action;
   private editExpressionAction: Action;
@@ -79,14 +81,14 @@ export class FilterModal extends Base {
     this.conditions = state.conditions;
     this.setPropertyValue("searchString", state.searchString);
     this.editorValue = owner.createModalEditor((): void => { this.onFieldChanged(); });
-    this.addPresetAction = new Action({ id: "sv-filter-modal-add-preset", title: filterUIStrings.addPreset, iconName: "icon-plus-24x24",
+    this.addPresetAction = new Action({ id: "sv-filter-modal-add-preset", title: this.getString("filterAddPreset"), iconName: "icon-plus-24x24",
       iconSize: "auto", action: (): void => { this.owner.showPresetDialog(this, false); } });
-    this.editPresetAction = new Action({ id: "sv-filter-modal-edit-preset", title: filterUIStrings.editSelected, iconName: "icon-edit-24x24",
+    this.editPresetAction = new Action({ id: "sv-filter-modal-edit-preset", title: this.getString("filterEditSelected"), iconName: "icon-edit-24x24",
       iconSize: "auto", action: (): void => { this.owner.showPresetDialog(this, true); } });
     this.presetsToolbarValue = new ActionContainer();
     this.presetsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
     this.presetsToolbarValue.setItems(this.createPresetChips().concat([this.addPresetAction, this.editPresetAction]), false);
-    this.editExpressionAction = new Action({ id: "sv-filter-modal-edit-expression", title: filterUIStrings.editExpression,
+    this.editExpressionAction = new Action({ id: "sv-filter-modal-edit-expression", title: this.getString("filterEditExpression"),
       action: (): void => { this.owner.showPresetDialog(this, true); } });
     this.expressionToolbarValue = new ActionContainer();
     this.expressionToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
@@ -114,7 +116,7 @@ export class FilterModal extends Base {
   // filter to find.
   public get showExpression(): boolean { return !!this.presetExpression && !this.filterText; }
   // "<Preset> Expression".
-  public get expressionTitle(): string { return filterUIStrings.presetExpression.replace("{0}", this.getPresetTitle()); }
+  public get expressionTitle(): string { return this.getString("filterPresetExpression").replace("{0}", this.getPresetTitle()); }
   // The conditions the buffer filters by - a preset's that is on as it is, the fields' otherwise -
   // which a new preset starts with.
   public get presetConditions(): Array<IFilterCondition> {
@@ -139,11 +141,11 @@ export class FilterModal extends Base {
   }
   // In the designer and while the control is read-only.
   public get isReadOnly(): boolean { return !this.owner.canEditConditionsInUI; }
-  public get searchPlaceholder(): string { return filterUIStrings.searchInFilters; }
+  public get searchPlaceholder(): string { return this.getString("filterSearchInFilters"); }
   // The search box's clear button, there while there is text to clear.
   public get searchClearAction(): Action { return this.searchClearActionValue; }
   public get showSearchClear(): boolean { return !!this.filterText; }
-  public get nothingFoundText(): string { return filterUIStrings.nothingFound; }
+  public get nothingFoundText(): string { return this.getString("filterNothingFound"); }
   // The search box is drawn the way the control's own is: as a text question's input.
   public get searchCss(): { root: string, control: string } { return this.owner.searchCss; }
   // The control's classes (the "filter" entry of the theme): the dialog is drawn outside the
@@ -161,10 +163,12 @@ export class FilterModal extends Base {
   // being counted or cannot be known.
   public get showResultsText(): string {
     const count = this.resultCount;
-    if (this.isCounting || typeof count !== "number") return filterUIStrings.showResults;
-    if (count === 1) return filterUIStrings.showOneResult;
-    return filterUIStrings.showResultsCount.replace("{0}", count.toString());
+    if (this.isCounting || typeof count !== "number") return this.getString("filterShowResults");
+    if (count === 1) return this.getString("filterShowOneResult");
+    return this.getString("filterShowResultsCount").replace("{0}", count.toString());
   }
+  // The dialog lives while it is open: its captions are in the control's locale of that time.
+  private getString(name: string): string { return getLocaleString(name, this.owner.getLocale()); }
   // Turns a preset on in the buffer - its conditions show in the fields - or off when it is on.
   public togglePreset(item: FilterItem): void {
     if (this.isReadOnly || !item) return;

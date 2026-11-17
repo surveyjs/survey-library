@@ -8,7 +8,7 @@ import { CustomError } from "../error";
 import { Serializer } from "../jsonobject";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import type { FilterAIRequest, FilterAIResult } from "./filter-ai";
-import { filterUIStrings } from "./filter-ui-strings";
+import { getLocaleString } from "../surveyStrings";
 import { removePanelFromSurvey } from "./filter-conditions-editor";
 // The question type the description is typed in; imported here, as the other dialogs import theirs.
 import "../question_comment";
@@ -78,8 +78,10 @@ export class FilterAIPrompt extends Base {
   public get prompt(): string { return this.surveyValue.getValue("prompt") || ""; }
   public set prompt(val: string) { this.surveyValue.setValue("prompt", val || ""); }
   public get promptTitle(): string {
-    return this.isModify ? filterUIStrings.aiPromptEdit : filterUIStrings.aiPromptNew;
+    return this.getString(this.isModify ? "filterAiPromptEdit" : "filterAiPromptNew");
   }
+  // In the locale of the dialog's survey, which is the control's.
+  private getString(name: string): string { return getLocaleString(name, this.surveyValue.getLocale()); }
   public get requestAction(): Action { return this.requestActionValue; }
   // Asks the model: a new filter, or a change of the filter as it is now. Nothing while a request runs
   // or for a blank description.
@@ -150,7 +152,7 @@ export class FilterAIPrompt extends Base {
       const question = <Question>Serializer.createClass("comment");
       // Two lines and the counter's row under them: as tall as the mockup's box.
       question.fromJSON({ name: "prompt", titleLocation: "hidden", maxLength: filterAIPromptMaxLength, rows: 2,
-        placeholder: filterUIStrings.aiPromptPlaceholder, textUpdateMode: "onTyping", errorLocation: "bottom" });
+        placeholder: this.getString("filterAiPromptPlaceholder"), textUpdateMode: "onTyping", errorLocation: "bottom" });
       panel.addElement(question);
     } finally {
       page.releaseAnimations();
@@ -167,9 +169,9 @@ export class FilterAIPrompt extends Base {
       const expression = res.status === "answer" ? this.aiRequest.toExpression(res.conditions) : res.expression;
       this.options.onAnswer(expression, res.title);
     } else if (res.status === "empty") {
-      this.errorText = res.explanation || filterUIStrings.aiEmpty;
+      this.errorText = res.explanation || this.getString("filterAiEmpty");
     } else {
-      this.errorText = filterUIStrings.aiError;
+      this.errorText = this.getString("filterAiError");
     }
     this.updateAction();
   }
@@ -192,9 +194,9 @@ export class FilterAIPrompt extends Base {
     this.promptQuestion.title = this.promptTitle;
     // While the model answers, the button says so: the answer may take seconds.
     if (this.isBusy) {
-      action.title = this.isModify ? filterUIStrings.aiEditing : filterUIStrings.aiCreating;
+      action.title = this.getString(this.isModify ? "filterAiEditing" : "filterAiCreating");
     } else {
-      action.title = this.isModify ? filterUIStrings.aiEdit : filterUIStrings.aiCreate;
+      action.title = this.getString(this.isModify ? "filterAiEdit" : "filterAiCreate");
     }
     action.enabled = !this.isBusy && !!this.prompt.trim();
   }

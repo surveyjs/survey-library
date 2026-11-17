@@ -6,7 +6,7 @@ import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { FilterItem } from "./filter-item";
 import { filterPopupFooterAppearance } from "./filter-field-popup";
 import { filterPresetTitleMaxLength, getFilterPresetTitleError } from "./filter-preset-dialog";
-import { filterUIStrings } from "./filter-ui-strings";
+import { getLocaleString } from "../surveyStrings";
 // The name is a text question: registered with the serializer before a survey of one is made.
 import "../question_text";
 
@@ -32,10 +32,11 @@ export class FilterSaveAsPopup extends Base {
   constructor(private owner: IFilterSaveAsPopupOwner, private close: () => void) {
     super();
     // The name in a panel, as a preset dialog's is: a question that is not in a panel gets a frame.
+    const name = getLocaleString("filterPresetName", owner.getLocale());
     const survey = new SurveyModel({ showNavigationButtons: false, showQuestionNumbers: "off", elements: [
       { type: "panel", name: "presetName", elements: [
-        { type: "text", name: "presetTitle", title: filterUIStrings.presetName, titleLocation: "hidden",
-          placeholder: filterUIStrings.presetName, maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping" }] }] });
+        { type: "text", name: "presetTitle", title: name, titleLocation: "hidden",
+          placeholder: name, maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping" }] }] });
     survey.locale = owner.getLocale();
     // Inside the popup with no frame of its own, as a popup's operator and value are.
     survey.isCompact = true;
@@ -45,7 +46,7 @@ export class FilterSaveAsPopup extends Base {
     this.surveyValue = survey;
     this.footerToolbarValue = new ActionContainer();
     this.footerToolbarValue.setActionsAppearance(filterPopupFooterAppearance);
-    this.footerToolbarValue.setItems([new Action({ id: "sv-filter-save-as-save", title: filterUIStrings.saveAsSave,
+    this.footerToolbarValue.setItems([new Action({ id: "sv-filter-save-as-save", title: getLocaleString("filterSaveAsSave", owner.getLocale()),
       action: (): void => { this.save(); } })], false);
   }
   public getType(): string { return "filtersaveaspopup"; }

@@ -16,7 +16,6 @@ import { makeFilterAITitle } from "./filter-ai";
 import type { FilterAIRequest } from "./filter-ai";
 import { FilterAIPrompt } from "./filter-ai-prompt";
 import { FilterExpressionPanel } from "./filter-expression-panel";
-import { filterUIStrings } from "./filter-ui-strings";
 // The question types the form is made of; imported here, as FilterConditionsEditor imports its own.
 import "../question_text";
 import "../question_tagbox";
@@ -50,7 +49,7 @@ export function getFilterPresetTitleError(value: any, otherTitles: Array<string>
   if (title.length > filterPresetTitleMaxLength) {
     return getLocaleString("textMaxLength", locale).replace("{0}", filterPresetTitleMaxLength.toString());
   }
-  return isFilterPresetTitleTaken(title, otherTitles) ? filterUIStrings.presetTitleExists : undefined;
+  return isFilterPresetTitleTaken(title, otherTitles) ? getLocaleString("filterPresetTitleExists", locale) : undefined;
 }
 
 // A preset as a dialog edits it: its title, and its conditions - or, null, the preset is edited as
@@ -106,7 +105,9 @@ export class FilterPresetDialog extends Base {
     }
   }
   public getType(): string { return "filterpresetdialog"; }
-  public get title(): string { return filterUIStrings.addPresetTitle; }
+  public get title(): string { return this.getString("filterAddPresetTitle"); }
+  // The dialog lives while it is open: its captions are in the control's locale of that time.
+  protected getString(name: string): string { return getLocaleString(name, this.owner.getLocale()); }
   // Whether the preset shown may be changed; a dialog that adds one always may.
   public get isReadOnly(): boolean { return false; }
   // The preset shown is edited as text.
@@ -269,12 +270,12 @@ export class FilterPresetDialog extends Base {
   private createForm(): SurveyModel {
     // The title in a panel of its own, as Contains is: a question that is not in a panel gets a frame,
     // and the mockup has none.
-    const elements: Array<any> = [{ type: "panel", name: "presetName", title: filterUIStrings.presetName, elements: [
+    const elements: Array<any> = [{ type: "panel", name: "presetName", title: this.getString("filterPresetName"), elements: [
       { type: "text", name: "presetTitle", titleLocation: "hidden", maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping" }] }];
     if (this.buffer.conditions !== null) {
       // The tagbox's hidden title is its accessible name.
-      elements.push({ type: "panel", name: "contains", title: filterUIStrings.presetContains, elements: [
-        { type: "tagbox", name: "presetFields", title: filterUIStrings.presetContains, titleLocation: "hidden",
+      elements.push({ type: "panel", name: "contains", title: this.getString("filterPresetContains"), elements: [
+        { type: "tagbox", name: "presetFields", title: this.getString("filterPresetContains"), titleLocation: "hidden",
           choices: this.getFieldChoices() }] });
     }
     // Before the elements exist: a panel asks for its title actions when it is first drawn.
@@ -289,7 +290,7 @@ export class FilterPresetDialog extends Base {
     }
     form.setValue("presetTitle", this.buffer.title);
     if (this.buffer.conditions === null) {
-      this.expressionPanel = new FilterExpressionPanel(form, this.buffer.expression || "", { title: filterUIStrings.presetContains,
+      this.expressionPanel = new FilterExpressionPanel(form, this.buffer.expression || "", { title: this.getString("filterPresetContains"),
         readOnly: this.isReadOnly, index: form.pages[0].elements.length, onChanged: (): void => { this.updateCanEditAsFields(); } });
     }
     if (this.buffer.conditions !== null) {
@@ -302,7 +303,7 @@ export class FilterPresetDialog extends Base {
       if (options.name === "presetTitle") options.error = this.getTitleError(options.value);
     });
     form.onValidatePanel.add((_: SurveyModel, options: any): void => {
-      if (options.name === "contains" && this.buffer.conditions.length === 0) options.error = filterUIStrings.presetNoConditions;
+      if (options.name === "contains" && this.buffer.conditions.length === 0) options.error = this.getString("filterPresetNoConditions");
     });
     return form;
   }
@@ -315,7 +316,7 @@ export class FilterPresetDialog extends Base {
     if (name !== "contains" && name !== "expression") return;
     const isText = name === "contains";
     const action = new Action({ id: isText ? "sv-filter-preset-edit-as-text" : "sv-filter-preset-edit-as-fields",
-      title: isText ? filterUIStrings.editAsText : filterUIStrings.editAsFields, innerCss: (this.owner.cssClasses || {}).link,
+      title: this.getString(isText ? "filterEditAsText" : "filterEditAsFields"), innerCss: (this.owner.cssClasses || {}).link,
       appearance: { style: "brand", mode: "tertiary", size: "x-small" },
       action: (): void => { if (isText) { this.editAsText(); } else { this.editAsFields(); } } });
     if (!isText) {
@@ -450,7 +451,7 @@ export class FilterEditPresetDialog extends FilterPresetDialog {
     }
   }
   public getType(): string { return "filtereditpresetdialog"; }
-  public get title(): string { return filterUIStrings.editPreset; }
+  public get title(): string { return this.getString("filterEditPreset"); }
   // The preset edited; undefined for a name that is no preset the respondent may change or delete:
   // there is nothing to show then, and the control does not open the dialog.
   public get item(): FilterItem { return !!this.buffer ? this.buffer.item : undefined; }

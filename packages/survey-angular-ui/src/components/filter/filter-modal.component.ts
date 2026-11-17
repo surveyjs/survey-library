@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { Base, FilterModal, filterModalComponentName, filterUIStrings } from "survey-core";
+import { Base, FilterModal, filterModalComponentName } from "survey-core";
 import { FilterHolderComponent } from "./filter-holder.component";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -20,9 +20,6 @@ export class FilterModalComponent extends FilterHolderComponent {
   protected getWatchedModels(): Array<Base | undefined> {
     const modal = this.modal;
     return !!modal ? [modal, modal.presetsToolbar, modal.expressionToolbar] : [];
-  }
-  public get presetsTitle(): string {
-    return filterUIStrings.presetsTitle;
   }
   public onSearchInput(event: any): void {
     this.modal.filterText = event.target.value;

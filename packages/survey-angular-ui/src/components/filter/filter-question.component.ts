@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { FilterChip, QuestionFilterModel, filterUIStrings } from "survey-core";
+import { FilterChip, QuestionFilterModel } from "survey-core";
 import { QuestionAngular } from "../../question";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -13,9 +13,6 @@ import { AngularComponentFactory } from "../../component-factory";
 })
 export class FilterQuestionComponent extends QuestionAngular<QuestionFilterModel> {
   public trackChipBy = (_: number, chip: FilterChip): string => chip.id;
-  public get searchLabel(): string {
-    return filterUIStrings.searchLabel;
-  }
   public onSearchInput(event: any): void {
     this.model.searchString = event.target.value;
   }

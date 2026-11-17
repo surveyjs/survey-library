@@ -235,7 +235,7 @@ export { FilterItem } from "../../src/filter/filter-item";
 // the renderers draw, and the types of the question's public API and of onAIFilterRequest. Everything
 // else in src/filter is internal.
 export {
-  FilterEditorHolder, FilterChip, filterUIStrings, filterModalComponentName, filterPresetDialogComponentName, filterFieldPopupComponentName,
+  FilterEditorHolder, FilterChip, filterModalComponentName, filterPresetDialogComponentName, filterFieldPopupComponentName,
   filterChipComponentName, filterSaveAsPopupComponentName
 } from "../../src/filter/filter-toolbars";
 export { FilterSaveAsPopup } from "../../src/filter/filter-save-as-popup";

@@ -1,4 +1,4 @@
-import { Action, FilterEditorHolder, FilterFieldPopup, SurveyModel, QuestionFilterModel } from "survey-core";
+import { Action, FilterEditorHolder, FilterFieldPopup, SurveyModel, QuestionFilterModel, surveyLocalization } from "survey-core";
 import React from "react";
 import ReactDOM from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
@@ -157,6 +157,40 @@ describe("SurveyQuestionFilter", () => {
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);
     container.remove();
+  });
+  it("the search box's accessible name and the presets' title are in the survey's locale", () => {
+    surveyLocalization.locales["filterrenderxx"] = { filterSearchLabel: "Suche", filterPresetsTitle: "Vorlagen" };
+    try {
+      const survey = new SurveyModel({ locale: "filterrenderxx", elements: [{ type: "filter", name: "f1", showSearch: true,
+        fields: [{ name: "age" }], items: [{ name: "p", title: "Adults", expression: "{age} > 18" }] }] });
+      const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      act(() => {
+        // eslint-disable-next-line react/no-deprecated
+        ReactDOM.render(React.createElement(SurveyReact, { model: survey }), container);
+      });
+      expect(container.querySelector(".sd-filter__search input").getAttribute("aria-label"), "#1").toBe("Suche");
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.unmountComponentAtNode(container);
+      const holder = new FilterEditorHolder();
+      holder.cssClasses = q.cssClasses;
+      holder.modal = q.createFilterModal();
+      act(() => {
+        // eslint-disable-next-line react/no-deprecated
+        ReactDOM.render(React.createElement(SurveyFilterModal, { holder: holder }), container);
+      });
+      expect(container.querySelector(".sd-filter-modal__section-title").textContent, "#2").toBe("Vorlagen");
+      const modal = holder.modal;
+      act(() => { holder.modal = undefined; });
+      modal.dispose();
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.unmountComponentAtNode(container);
+      container.remove();
+      survey.dispose();
+    } finally {
+      delete surveyLocalization.locales["filterrenderxx"];
+    }
   });
   it("an editor page gives its survey's root element back on unmount, unless another one was set", () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }] }] });

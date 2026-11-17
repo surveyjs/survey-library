@@ -10,7 +10,7 @@
     </div>
     <div v-if="modal().presetsToolbar.hasVisibleActions" :class="modal().cssClasses.modalSection" role="group" :aria-labelledby="modal().presetsTitleId">
       <div :class="modal().cssClasses.modalSectionHeader">
-        <div :class="modal().cssClasses.modalSectionTitle" :id="modal().presetsTitleId">{{ filterUIStrings.presetsTitle }}</div>
+        <div :class="modal().cssClasses.modalSectionTitle" :id="modal().presetsTitleId">{{ modal().presetsTitle }}</div>
       </div>
       <SvComponent :is="'sv-action-bar'" :model="modal().presetsToolbar"></SvComponent>
     </div>
@@ -35,7 +35,7 @@
 import SvComponent from "@/SvComponent.vue";
 import FilterEditorPage from "./FilterEditorPage.vue";
 import { useBase } from "@/base";
-import { type FilterEditorHolder, type FilterModal, filterUIStrings } from "survey-core";
+import { type FilterEditorHolder, type FilterModal } from "survey-core";
 const props = defineProps<{ holder: FilterEditorHolder }>();
 // A plain function, not computed: the holder, which useBase watches, empties a slot before it disposes what it held, so this never returns a disposed dialog.
 const modal = (): FilterModal => {

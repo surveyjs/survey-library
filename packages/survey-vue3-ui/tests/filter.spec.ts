@@ -1,4 +1,4 @@
-import { Action, FilterEditorHolder, FilterFieldPopup, SurveyModel, QuestionFilterModel } from "survey-core";
+import { Action, FilterEditorHolder, FilterFieldPopup, SurveyModel, QuestionFilterModel, surveyLocalization } from "survey-core";
 import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import { mount, config, type VueWrapper } from "@vue/test-utils";
 import { markRaw, nextTick } from "vue";
@@ -184,6 +184,32 @@ describe("Filter dialogs", () => {
     expect(container.textContent, "#5: an emptied holder unmounts the content").toBe("");
     expect(container.querySelector(".sd-filter-modal__content"), "#5a").toBe(null);
     cleanup(wrapper);
+  });
+  it("the search box's accessible name and the presets' title are in the survey's locale", async () => {
+    surveyLocalization.locales["filterrenderxx"] = { filterSearchLabel: "Suche", filterPresetsTitle: "Vorlagen" };
+    try {
+      const survey = new SurveyModel({ locale: "filterrenderxx", elements: [{ type: "filter", name: "f1", showSearch: true,
+        fields: [{ name: "age" }], items: [{ name: "p", title: "Adults", expression: "{age} > 18" }] }] });
+      const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+      const surveyWrapper = mount(Survey, { attachTo: attach(), props: { model: survey } });
+      await nextTick();
+      expect(surveyWrapper.element.parentElement.querySelector(".sd-filter__search input").getAttribute("aria-label"), "#1").toBe("Suche");
+      cleanup(surveyWrapper);
+      const holder = new FilterEditorHolder();
+      holder.cssClasses = q.cssClasses;
+      holder.modal = q.createFilterModal();
+      const wrapper = mountComponent("sv-filter-modal", { holder: holder });
+      await nextTick();
+      expect(wrapper.element.parentElement.querySelector(".sd-filter-modal__section-title").textContent, "#2").toBe("Vorlagen");
+      const modal = holder.modal;
+      holder.modal = undefined;
+      await nextTick();
+      modal.dispose();
+      cleanup(wrapper);
+      survey.dispose();
+    } finally {
+      delete surveyLocalization.locales["filterrenderxx"];
+    }
   });
   it("Edit Preset shows the form and the fields in a frame - no tabs, no actions; a new form is drawn anew", async () => {
     const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }, { name: "name" }],

@@ -17,7 +17,6 @@ import { FilterChipsLayout } from "./filter-chips-layout";
 import { FilterModal } from "./filter-modal";
 import { FilterSaveAsPopup } from "./filter-save-as-popup";
 import { FilterEditPresetDialog, FilterPresetDialog } from "./filter-preset-dialog";
-export { filterUIStrings } from "./filter-ui-strings";
 
 // What a popup or a dialog shows: a badge's FilterFieldPopup, "Save as..."'s FilterSaveAsPopup, or
 // the Filters dialog. A popup

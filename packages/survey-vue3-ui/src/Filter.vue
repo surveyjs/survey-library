@@ -4,7 +4,7 @@
       <div :class="question.searchRootCss">
         <SvComponent :is="'sv-svg-icon'" :className="question.cssClasses.searchIcon" :iconName="'icon-search-24x24'" :size="'auto'"></SvComponent>
         <input type="text" :class="question.searchCss.control" :value="question.searchString" :placeholder="question.searchPlaceholder"
-          :aria-label="filterUIStrings.searchLabel" :disabled="question.isSearchDisabled"
+          :aria-label="question.searchLabel" :disabled="question.isSearchDisabled"
           @input="onSearchInput" />
         <SvComponent v-if="question.showSearchClear" :is="'sv-action-bar-item'" :item="question.searchClearAction"></SvComponent>
       </div>
@@ -26,7 +26,7 @@
 // The Filter Control (#11890), as packages/survey-react-ui/src/components/filter/filter.tsx draws it.
 // The chips' popups are drawn outside the chips row: on a phone the row scrolls sideways, and iOS
 // Safari keeps a fixed popup inside such a row.
-import { type QuestionFilterModel, filterUIStrings } from "survey-core";
+import { type QuestionFilterModel } from "survey-core";
 import SvComponent from "@/SvComponent.vue";
 import { useBase, useQuestion } from "./base";
 import { onBeforeUnmount, onMounted, ref } from "vue";

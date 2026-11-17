@@ -10,7 +10,7 @@
     </div>
     <div *ngIf="modal.presetsToolbar.hasVisibleActions" [class]="modal.cssClasses.modalSection" role="group" [attr.aria-labelledby]="modal.presetsTitleId">
       <div [class]="modal.cssClasses.modalSectionHeader">
-        <div [class]="modal.cssClasses.modalSectionTitle" [attr.id]="modal.presetsTitleId">{{ presetsTitle }}</div>
+        <div [class]="modal.cssClasses.modalSectionTitle" [attr.id]="modal.presetsTitleId">{{ modal.presetsTitle }}</div>
       </div>
       <sv-ng-action-bar [model]="modal.presetsToolbar"></sv-ng-action-bar>
     </div>

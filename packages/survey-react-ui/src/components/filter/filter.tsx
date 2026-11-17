@@ -10,7 +10,7 @@ import {
   Action, ActionDropdownViewModel, Base, FilterChip, FilterEditorHolder, FilterFieldPopup, FilterSaveAsPopup,
   FilterModal, FilterPresetDialog, ListModel, Question, QuestionFilterModel, SurveyError, SurveyModel,
   filterChipComponentName, filterModalComponentName, filterFieldPopupComponentName, filterListItemComponentName,
-  filterPresetDialogComponentName, filterSaveAsPopupComponentName, filterUIStrings
+  filterPresetDialogComponentName, filterSaveAsPopupComponentName
 } from "survey-core";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
 import { ReactElementFactory } from "../../element-factory";
@@ -141,7 +141,7 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
     const css = modal.cssClasses;
     return <div className={css.modalSection} role="group" aria-labelledby={modal.presetsTitleId}>
       <div className={css.modalSectionHeader}>
-        <div className={css.modalSectionTitle} id={modal.presetsTitleId}>{filterUIStrings.presetsTitle}</div>
+        <div className={css.modalSectionTitle} id={modal.presetsTitleId}>{modal.presetsTitle}</div>
       </div>
       <SurveyActionBar model={modal.presetsToolbar} />
     </div>;
@@ -373,7 +373,7 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
       <div className={q.searchRootCss}>
         <SvgIcon className={css.searchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
         <input type="text" className={searchCss.control} value={q.searchString} placeholder={q.searchPlaceholder}
-          aria-label={filterUIStrings.searchLabel} disabled={q.isSearchDisabled}
+          aria-label={q.searchLabel} disabled={q.isSearchDisabled}
           onChange={(e) => { q.searchString = e.target.value; }} />
         {q.showSearchClear ? <SurveyActionBarItem item={q.searchClearAction} /> : null}
       </div>

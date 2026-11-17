@@ -7389,7 +7389,10 @@ export class SurveyModel extends SurveyElementCore
       isQuestionInvalid = question && !question.validate(false);
     }
     this.triggersRunScope.run(() => {
-      this.triggerKeys = key;
+      // The run works on its own copy: a nested run (for example, the page triggers that a complete
+      // trigger runs) merges plain values into it, and variablesChangedCore() reads its own
+      // { newValue, oldValue } map after this call (Bug#12333)
+      this.triggerKeys = { ...key };
       const properties = this.getFilteredProperties();
       const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
         isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };

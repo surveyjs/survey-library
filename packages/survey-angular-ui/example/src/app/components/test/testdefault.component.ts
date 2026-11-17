@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import { DefaultLightPanelless } from "survey-core/themes";
+import "survey-core/rich-text";
 import { TestComponent } from "./test.component";
 
 @Component({

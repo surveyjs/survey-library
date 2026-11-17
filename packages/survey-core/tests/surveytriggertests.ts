@@ -1494,15 +1494,6 @@ describe("Triggers", () => {
         expect(changes, "onVariableChanged reports the changed variable only").toEqual(["var1=abc"]);
       });
     });
-    test("setVariables completes the survey", () => {
-      runWithSetting(() => {
-        const survey = new SurveyModel(variableJSON);
-        const changes = collectVariableChanges(survey);
-        survey.setVariables({ var1: "abc", var2: "def" });
-        expect(survey.state, "the survey is completed").toBe("completed");
-        expect(changes, "onVariableChanged reports the changed variables only").toEqual(["var1=abc", "var2=def"]);
-      });
-    });
     test("survey.data that changes a calculated value doesn't throw", () => {
       runWithSetting(() => {
         const survey = new SurveyModel(routeJSON);

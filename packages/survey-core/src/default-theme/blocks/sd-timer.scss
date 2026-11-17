@@ -47,12 +47,12 @@
 
 .sv-components-group--progress-top > .sd-timer--top,
 .sv-components-container-center > .sd-timer--top {
-  top: calc(100% + var(--sd-timer-edge-gap));
+  top: calc(100% + var(--sd-timer-edge-gap) + var(--sjs2-spacing-x050));
 }
 
 .sv-components-group--progress-bottom > .sd-timer--bottom {
   top: auto;
-  bottom: calc(100% + var(--sd-timer-edge-gap));
+  bottom: calc(100% + var(--sd-timer-edge-gap) + var(--sjs2-spacing-x050));
 }
 
 .sd-timer__progress {

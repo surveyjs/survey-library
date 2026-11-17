@@ -3,7 +3,7 @@ import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
-import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedElementInfo, INestedWalkOptions, NestedElementVisit, NestedWalkBuild } from "./question";
+import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedWalkOptions, NestedElementVisit, NestedWalkBuild } from "./question";
 import { ItemValue } from "./itemvalue";
 import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
@@ -27,6 +27,7 @@ import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts";
 import { Scope } from "./utils/scope";
+import { getIdSelector } from "./utils/dom-utils";
 
 const OTHER_ITEM_VALUE = "other";
 // The key a choice comment is kept under in the object of a selected item (commentPropertyValue).
@@ -166,7 +167,7 @@ export class ChoiceItem extends ItemValue {
       const cssClasses = this.choiceOwner.getCssClassesForCommentPanelAnimation("panel");
       this.panelAnimationValue = new AnimationBoolean({
         getAnimatedElement: ()=> {
-          return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
+          return this.choiceOwner.getWrapperElement()?.querySelector(getIdSelector(this.panel.renderedId)) as HTMLElement;
         },
         getEnterOptions() {
           return { cssClass: cssClasses.onEnter,
@@ -1501,11 +1502,21 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private get isVisibleChoicesBuildBlocked(): boolean {
     return this.isLoadingFromJson || this.isLockVisibleChoices;
   }
-  // Set by a design-mode onSurveyLoad that does not build the visible choices; cleared by onVisibleChoicesChanged
+  // Set by an onSurveyLoad that does not build the visible choices (design mode, or a runtime question that is
+  // not on the first page); cleared by onVisibleChoicesChanged
   private isVisibleChoicesBuildDeferred: boolean;
   // A class that reads its visible choices in its own onSurveyLoad (ranking) builds them at load
   protected get canDeferVisibleChoicesOnLoad(): boolean {
     return true;
+  }
+  private get canSkipVisibleChoicesBuildOnLoad(): boolean {
+    if (!this.canDeferVisibleChoicesOnLoad) return false;
+    if (this.isAddDefaultItems) return true;
+    // At runtime a question that is not on the first page builds them when its page is rendered or on first read.
+    // The pages' visibility is not computed yet at onSurveyLoad, so the first page is survey.pages[0].
+    const survey = this.survey;
+    const page = this.page;
+    return !this.isDesignMode && !!survey && !!page && page !== survey.pages[0];
   }
   /* Called by every getter that returns the visible choices or a part of them. It calls
      onVisibleChoicesChanged, so every override runs, as it would have at load. Not while the build is
@@ -1804,7 +1815,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
   }
   private getChoicesDisplayValue(items: ItemValue[], val: any, isReadOnly?: boolean): any {
-    if (this.isOtherValue(val)) {
+    if (this.isOtherValue(val) && !this.isCopiedOtherValue(items, val)) {
       if (isReadOnly) return this.locOtherText.textOrHtml;
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     }
@@ -1812,6 +1823,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!!selItem && this.isTwoValueEquals(selItem.value, val)) return selItem.locText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
+  }
+  // choicesFromQuestion (mode "selected") copies the source's Other as a regular item whose text is
+  // the source's typed text; its display value is that text, not this question's own Other text.
+  // The source's Other is copied only into a question without its own Other item, so the choices
+  // are searched only then: a question that shows Other pays nothing extra.
+  private isCopiedOtherValue(items: ItemValue[], val: any): boolean {
+    if (this.showOtherItem) return false;
+    const item = ItemValue.getItemByValue(items, val);
+    return !!item && !this.isBuiltInChoice(item);
   }
   protected getDisplayArrayValue(keysAsText: boolean, value: any,
     onGetValueCallback?: (index: number) => any, isReadOnly?: boolean): string {
@@ -1984,6 +2004,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return false;
   }
+  // Unlike hasActiveChoices, a regular choice hidden by its visibleIf still counts:
+  // the question knows its choices even when none of them is visible right now.
+  protected get hasRegularChoices(): boolean {
+    if (this.activeChoices.some(item => !this.isBuiltInChoice(item))) return true;
+    // A copy of a ready question is complete even when it is empty (nothing is selected in the source);
+    // while the source still loads its choices (choicesByUrl), the copy may lack them.
+    const source = this.isUsingCarryForward ? this.getCarryForwardQuestion() : null;
+    return !!source && source.isReady;
+  }
   public isBuiltInChoice(item: ItemValue): boolean {
     return !!item && [this.otherItemValue, this.noneItemValue, this.refuseItemValue, this.dontKnowItemValue, this.newItemValue].indexOf(item) > -1;
   }
@@ -2131,7 +2160,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   onSurveyLoad(): void {
     this.runChoicesByUrl();
-    if (this.isAddDefaultItems && this.canDeferVisibleChoicesOnLoad) {
+    if (this.canSkipVisibleChoicesBuildOnLoad) {
       /* In design mode the visible choices carry the designer's placeholder items (the new item, None,
          Other, Select All, ...). Creator rebuilds them for every question it renders
          (setCanShowOptionItemCallback), and most questions of a large survey never render, so they are
@@ -2142,6 +2171,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       if (!!this.choicesFromQuestion) {
         this.getCarryForwardQuestion();
       }
+      if (!this.isDesignMode) {
+        // Stores isVisible as the build does. Question.onVisibleChanged notifies the survey (onQuestionVisibleChanged,
+        // the question numbers) only when isVisible was stored before. It does not build the visible choices.
+        this.onVisibleChanged();
+      }
     } else {
       this.onVisibleChoicesChanged();
     }
@@ -2150,6 +2184,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();
+    if (!this.isDesignMode) {
+      // A runtime list deferred at load is built before the UI renders it, not inside its render
+      this.buildDeferredVisibleChoices();
+    }
     this.forEachNestedElement(info => { (<PanelModel>info.element).onFirstRendering(); }, showingChoicePanels);
   }
   onAnyValueChanged(name: string, questionName: string): void {
@@ -2837,9 +2875,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return item;
   }
-  public ariaItemChecked(item: ItemValue) {
-    return this.renderedValue === item.value ? "true" : "false";
-  }
   public isOtherItem(item: ItemValue) {
     return this.showOtherItem && this.isOtherValue(item.value);
   }
@@ -2860,9 +2895,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return true;
   }
 
-  public getAriaItemLabel(item: ItemValue) {
-    return item.locText.renderedHtml;
-  }
   public getItemId(item: ItemValue) {
     return this.inputId + "_" + this.getItemIndex(item);
   }

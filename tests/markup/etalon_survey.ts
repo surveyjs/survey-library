@@ -272,5 +272,48 @@ registerMarkupTests(
         return body ? `<div class="${body.className}"></div>` : "";
       },
       snapshot: "survey-question-per-page"
+    },
+    {
+      name: "Test Survey completed before page",
+      json: {
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      initSurvey: (survey) => {
+        survey["needRenderIcons"] = false;
+        survey["isCompletedBefore"] = true;
+      },
+      getSnapshot: (el) => {
+        const page = el.querySelector(".sd-completed-before-page");
+        return page ? page.outerHTML : "";
+      },
+      snapshot: "survey-completed-before"
+    },
+    {
+      name: "Test Survey completed before page with html",
+      json: {
+        completedBeforeHtml: "<h3>Already completed</h3>",
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      initSurvey: (survey) => {
+        survey["needRenderIcons"] = false;
+        survey["isCompletedBefore"] = true;
+      },
+      getSnapshot: (el) => {
+        const page = el.querySelector(".sd-completed-before-page");
+        return page ? page.outerHTML : "";
+      },
+      snapshot: "survey-completed-before-html"
     }
   ]);

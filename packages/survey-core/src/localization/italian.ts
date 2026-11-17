@@ -107,6 +107,8 @@ export var italianSurveyStrings = {
   value: "valore",
   // "Response required."
   requiredError: "Campo obbligatorio",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Devi selezionare Sì per continuare.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Il valore è errato.",
   // [Auto-translated] "The value contains unknown keys: {0}."

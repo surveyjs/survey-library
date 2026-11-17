@@ -1,10 +1,9 @@
 import type { PerfScenario, PerfContext, PhaseTimes } from "./scenario.ts";
 import type { Counters, FunnelCounters } from "./counters.ts";
 import { work } from "./counters.ts";
-import { calibrationSamples } from "./calibration.ts";
 
 // The sample loop (02, The harness). A driver takes one sample; the loop decides how many, keeps the order
-// calibration -> warm-ups -> samples -> counter run -> calibration, and enforces maxMs.
+// warm-ups -> samples -> counter run, and enforces maxMs.
 export interface Sample {
   ms: number;
   phases?: PhaseTimes;
@@ -14,7 +13,6 @@ export interface SampleDriver {
   sample(): Promise<Sample>;
   // One extra untimed run with the funnels installed.
   counterRun(): Promise<Counters>;
-  calibrate(): Promise<number>;
 }
 
 export interface SampleOptions {
@@ -29,8 +27,6 @@ export interface SampleResult {
   samples: Array<number>;
   phases?: { [phase: string]: Array<number> };
   warmups: Array<number>;
-  calibrationBefore: Array<number>;
-  calibrationAfter: Array<number>;
   counters: Counters;
   wallMs: number;
   // The order the steps ran in, for the unit test.
@@ -39,11 +35,6 @@ export interface SampleResult {
 
 export async function sampleLoop(driver: SampleDriver, options: SampleOptions): Promise<SampleResult> {
   const log: Array<string> = [];
-  const calibrationBefore: Array<number> = [];
-  for (let i = 0; i < calibrationSamples; i++) {
-    calibrationBefore.push(await driver.calibrate());
-    log.push("calibrate");
-  }
   const start = options.now();
   const warmups: Array<number> = [];
   for (let i = 0; i < options.warmup; i++) {
@@ -66,19 +57,12 @@ export async function sampleLoop(driver: SampleDriver, options: SampleOptions): 
   const wallMs = options.now() - start;
   const counters = await driver.counterRun();
   log.push("counters");
-  const calibrationAfter: Array<number> = [];
-  for (let i = 0; i < calibrationSamples; i++) {
-    calibrationAfter.push(await driver.calibrate());
-    log.push("calibrate");
-  }
-  return { samples: samples, phases: phases, warmups: warmups, calibrationBefore: calibrationBefore, calibrationAfter: calibrationAfter,
-    counters: counters, wallMs: wallMs, log: log };
+  return { samples: samples, phases: phases, warmups: warmups, counters: counters, wallMs: wallMs, log: log };
 }
 
 export interface ScenarioDriverOptions {
   now(): number;
   gc(): void | Promise<void>;
-  calibrate(): number;
   installFunnels(): FunnelCounters;
   // Untimed, right after the timed run (the page measures frameMs and long tasks here).
   afterRun?(t0: number, t1: number): void | Promise<void>;
@@ -137,7 +121,6 @@ export function scenarioDriver(scenario: PerfScenario, ctx: PerfContext, options
       if (scenario.teardown) await scenario.teardown(ctx, state);
       if (options.afterSample) await options.afterSample();
       return counters;
-    },
-    calibrate: async(): Promise<number> => options.calibrate()
+    }
   };
 }

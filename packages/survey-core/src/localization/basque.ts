@@ -107,6 +107,8 @@ export var basqueSurveyStrings = {
   value: "balioa",
   // "Response required."
   requiredError: "Mesedez, galdera erantzun.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Bai hautatu behar duzu jarraitzeko.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Balioa okerra da.",
   // [Auto-translated] "The value contains unknown keys: {0}."

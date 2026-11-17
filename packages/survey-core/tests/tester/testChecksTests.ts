@@ -235,6 +235,40 @@ describe("visible", () => {
     expectPassed(await runCheck(definition, "page1", "visible", true), true);
     expectPassed(await runCheck(definition, "page2", "visible", false), false);
   });
+  const nestedSurvey = {
+    pages: [
+      { name: "page1", elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "panel1", visibleIf: "{q1} = 'show'", elements: [
+          { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "d" }] },
+          { type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "col1", cellType: "text" }] },
+          { type: "matrixdropdown", name: "md", rows: ["row1"], columns: [{ name: "col1", cellType: "text" }] }
+        ] }
+      ] },
+      { name: "page2", visibleIf: "{q1} = 'show'", elements: [
+        { type: "paneldynamic", name: "dp2", panelCount: 1, templateElements: [{ type: "text", name: "d" }] }
+      ] }
+    ]
+  };
+  const showPanel = { before: [{ set: { q1: "show" } }] };
+  test("A dynamic panel question and its panel are not visible while the dynamic panel is in a hidden panel", async () => {
+    expectPassed(await runCheck(nestedSurvey, "dp[0].d", "visible", false), false);
+    expectPassed(await runCheck(nestedSurvey, "dp[0]", "visible", false), false);
+    expectPassed(await runCheck(nestedSurvey, "dp[0].d", "visible", true, showPanel), true);
+    expectPassed(await runCheck(nestedSurvey, "dp[0]", "visible", true, showPanel), true);
+  });
+  test("A dynamic panel question is not visible while the dynamic panel is on a hidden page", async () => {
+    expectPassed(await runCheck(nestedSurvey, "dp2[0].d", "visible", false), false);
+    expectPassed(await runCheck(nestedSurvey, "dp2[0].d", "visible", true, showPanel), true);
+  });
+  test("A matrix cell and a matrix row are not visible while the matrix is in a hidden panel", async () => {
+    expectPassed(await runCheck(nestedSurvey, "m[0].col1", "visible", false), false);
+    expectPassed(await runCheck(nestedSurvey, "m[0]", "visible", false), false);
+    expectPassed(await runCheck(nestedSurvey, "md.row1", "visible", false), false);
+    expectPassed(await runCheck(nestedSurvey, "m[0].col1", "visible", true, showPanel), true);
+    expectPassed(await runCheck(nestedSurvey, "m[0]", "visible", true, showPanel), true);
+    expectPassed(await runCheck(nestedSurvey, "md.row1", "visible", true, showPanel), true);
+  });
 });
 
 describe("enabled", () => {

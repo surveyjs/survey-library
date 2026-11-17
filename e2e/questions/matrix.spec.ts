@@ -212,6 +212,7 @@ frameworks.forEach(framework => {
       const inputButton = page.locator("input[value=\"Col1\"]");
       await expect(inputButton).toBeVisible();
       await expect(inputButton).toHaveAttribute("disabled", "");
+      await expect(page.locator("input[value=Item1]")).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await expect(inputButton).not.toHaveAttribute("disabled", "");
       await page.keyboard.press("ArrowUp");

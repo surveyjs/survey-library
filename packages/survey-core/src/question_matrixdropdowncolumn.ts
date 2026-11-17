@@ -1,7 +1,7 @@
 import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question } from "./question";
-import { Base, ArrayChanges } from "./base";
+import { Base } from "./base";
 import { ISurvey, IWrapperObject } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
@@ -170,8 +170,9 @@ export class MatrixDropdownColumn extends Base
     if (name === "visible") {
       this.doColumnVisibilityChanged();
     }
-    if (name === "isRequired") {
-      this.updateIsRenderedRequired(newValue);
+    // requireTrue: a boolean cell requires Yes and renders as required without isRequired
+    if (name === "isRequired" || name === "requireTrue") {
+      this.updateIsRenderedRequired(false);
     }
     if (!this.colOwner || this.isLoadingFromJson) return;
     if (this.isShowInMultipleColumns) {
@@ -408,9 +409,9 @@ export class MatrixDropdownColumn extends Base
   public set isRequired(val: boolean) {
     this.templateQuestion.isRequired = val;
   }
-  @property({ getDefaultValue: (obj: MatrixDropdownColumn) => obj.isRequired }) isRenderedRequired: boolean;
+  @property({ getDefaultValue: (obj: MatrixDropdownColumn) => obj.templateQuestion.isRenderedRequired }) isRenderedRequired: boolean;
   public updateIsRenderedRequired(val: boolean): void {
-    this.isRenderedRequired = val || this.isRequired;
+    this.isRenderedRequired = val || this.templateQuestion.isRenderedRequired;
   }
   public get requiredMark(): string {
     return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredMark : this.templateQuestion.requiredMark;

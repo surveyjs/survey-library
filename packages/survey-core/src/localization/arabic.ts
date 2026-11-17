@@ -107,6 +107,8 @@ export var arabicSurveyStrings = {
   value: "القيمة",
   // "Response required."
   requiredError: ".يرجى الإجابة على السؤال",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "يجب عليك اختيار نعم للاستمرار.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "القيمة غير صحيحة.",
   // [Auto-translated] "The value contains unknown keys: {0}."

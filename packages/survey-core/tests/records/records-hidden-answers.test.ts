@@ -79,7 +79,7 @@ function create(records: Array<any>): { owner: FakeOwner, tracker: HiddenAnswerT
   const owner = new FakeOwner(records);
   return { owner, tracker: new HiddenAnswerTracker(owner) };
 }
-const keys = (tracker: HiddenAnswerTracker): Array<any> => !!tracker.hiddenAnswerStates ? Array.from(tracker.hiddenAnswerStates.keys()) : undefined;
+const keys = (tracker: HiddenAnswerTracker): Array<any> => !!tracker["states"] ? Array.from(tracker["states"].keys()) : undefined;
 
 describe("HiddenAnswerTracker: clearIfInvisible over the records without an object", () => {
   test("a record seen for the first time is only noted; an input that hides itself afterwards loses its answer", () => {
@@ -113,7 +113,7 @@ describe("HiddenAnswerTracker: clearIfInvisible over the records without an obje
     const { owner, tracker } = create([{ a: 1 }]);
     owner.items[0] = new FakeItem({ a: new FakeItemQuestion(true, true) });
     tracker.clearHiddenAnswersWithoutObjects({});
-    expect(tracker.hiddenAnswerStates.get(0), "#1: shown, inside a shown panel").toEqual({ a: 3 });
+    expect(tracker["states"].get(0), "#1: shown, inside a shown panel").toEqual({ a: 3 });
     owner.items[0] = undefined;
     owner.selfHidden.add("0:a");
     tracker.clearHiddenAnswersWithoutObjects({});
@@ -123,7 +123,7 @@ describe("HiddenAnswerTracker: clearIfInvisible over the records without an obje
     const { owner, tracker } = create([{ a: 1 }]);
     owner.inputs = [];
     tracker.clearHiddenAnswersWithoutObjects({});
-    expect(tracker.hiddenAnswerStates, "#1").toBeUndefined();
+    expect(tracker["states"], "#1").toBeUndefined();
   });
 });
 
@@ -150,8 +150,8 @@ describe("HiddenAnswerTracker: the states follow the record indexes", () => {
     owner.selfHidden.add("1:a");
     tracker.clearHiddenAnswersWithoutObjects({});
     tracker.follow({ kind: "move", remap: (index: number): number => 1 - index });
-    expect(tracker.hiddenAnswerStates.get(0), "#1: the hidden one is first now").toEqual({ a: 2 });
-    expect(tracker.hiddenAnswerStates.get(1), "#2").toEqual({ a: 3 });
+    expect(tracker["states"].get(0), "#1: the hidden one is first now").toEqual({ a: 2 });
+    expect(tracker["states"].get(1), "#2").toEqual({ a: 3 });
   });
   test("the end of an assignment from outside keeps the states of the records that stay, where the type keeps them", () => {
     const kept = createWithStates();

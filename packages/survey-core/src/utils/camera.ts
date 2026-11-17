@@ -1,4 +1,3 @@
-import { settings } from "../settings";
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 
 const envStr = "environment";

@@ -2,6 +2,7 @@ import type { DropdownListModel } from "./dropdownListModel";
 import type { Question } from "./question";
 import type { ItemValue } from "./itemvalue";
 import type { LocalizableString } from "./localizablestring";
+import type { ISurveyImpl } from "./base-interfaces";
 import { Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { Helpers } from "./helpers";
@@ -307,6 +308,14 @@ export function dropdownQuestionMixin<TBase extends Constructor<Question>>(Base:
       if (!model) return;
       model.popupModel.hide();
       model.clear();
+    }
+    public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+      super.setSurveyImpl(value, isLight);
+      this.dropdownListModelValue?.updateLoadingComponent();
+    }
+    public onSurveyDropdownLoadingComponentChanged(): void {
+      super.onSurveyDropdownLoadingComponentChanged();
+      this.dropdownListModelValue?.updateLoadingComponent();
     }
     protected canCreateDropdownListModel(): boolean { return true; }
     protected createDropdownListModel(): DropdownListModel { return undefined; }

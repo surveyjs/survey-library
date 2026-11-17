@@ -107,6 +107,8 @@ export var bulgarianStrings = {
   value: "Стойност",
   // "Response required."
   requiredError: "Моля, отговорете на следния въпрос.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Трябва да изберете Да, за да продължите.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Стойността е грешна.",
   // [Auto-translated] "The value contains unknown keys: {0}."

@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { splitOnly, isCalibrationOnly } from "../harness/ids.ts";
+import { splitOnly } from "../harness/ids.ts";
 import { fixtureOfId } from "../harness/scenario.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { readEnv } from "../harness/node/env.ts";
@@ -11,10 +11,18 @@ import { dependencyInfo } from "../harness/node/deps.ts";
 import { fixtureHashes } from "../harness/node/fixture-hash.ts";
 import { buildPart, resultFilePath, writeJsonAtomic } from "../harness/node/result.ts";
 import type { ResultFile } from "../harness/node/result.ts";
-import { suiteOf, uiDirOf, uiPackage, react19Dir } from "./paths.ts";
+import { suiteOf, uiDirOf, uiPackage, react19Dir, vue3Dir, angularDir } from "./paths.ts";
+import { resultSchema } from "../manifest.ts";
+
+// The pinned framework packages of a suite, recorded in build.ui.framework (names: the key there, when it differs).
+const pinnedPackages: { [suite: string]: { dir: string, packages: Array<string>, names: { [pkg: string]: string } } } = {
+  "react": { dir: react19Dir, packages: ["react"], names: {} },
+  "vue3": { dir: vue3Dir, packages: ["vue"], names: {} },
+  "angular": { dir: angularDir, packages: ["@angular/core", "zone.js"], names: { "@angular/core": "angular" } }
+};
 
 // Collects each test's "perf-result" attachment and writes one result file of 02's format in onEnd, or on SIGTERM
-// (05 stops a suite over its budget) with incomplete: { reason, unrun }.
+// (a caller or a person may stop a suite) with incomplete: { reason, unrun }.
 export default class PerfReporter {
   private result: ResultFile;
   private file: string;
@@ -23,14 +31,11 @@ export default class PerfReporter {
   private written = false;
   private unrun: Array<string> = [];
   private setupError: string | undefined;
-  private calibrationOnly = false;
 
   constructor() {
     const suite = suiteOf();
     const env = readEnv();
-    // PERF_ONLY=calibration (the rerun spacer) writes no result file.
-    this.calibrationOnly = isCalibrationOnly(env.only);
-    const split = this.calibrationOnly ? { run: [], notInSuite: [] } : splitOnly(env.only, suite);
+    const split = splitOnly(env.only, suite);
     this.ids = split.run;
     const core = resolveCoreDir();
     const uiDir = uiDirOf(suite);
@@ -47,7 +52,7 @@ export default class PerfReporter {
     const uiCommit = env.targetCommit || (!process.env.PERF_UI_DIR ? runnerCommit : null);
     const date = new Date();
     this.result = {
-      schema: 1, suite: suite, kind: env.kind, label: env.label, ref: env.ref, commit: runnerCommit, previousCommit: env.previousCommit,
+      schema: resultSchema, suite: suite, kind: env.kind, label: env.label, ref: env.ref, commit: runnerCommit, previousCommit: env.previousCommit,
       date: date.toISOString(), requested: { only: env.only, notInSuite: split.notInSuite }, incomplete: null,
       build: { core: buildPart(core.dir, "survey.core.min.js", commit), ui: buildPart(uiDir, uiPackage[suite].file, uiCommit), deps: dependencyInfo(depsDirs) },
       machine: machineInfo({ extra: env.machineExtra }), environment: null, fixtures: fixtures, skipped: [], failed: [], results: []
@@ -63,13 +68,12 @@ export default class PerfReporter {
 
   private write(): void {
     // playwright test --list runs nothing: no result file.
-    if (this.written || this.calibrationOnly || process.argv.indexOf("--list") > -1) return;
+    if (this.written || process.argv.indexOf("--list") > -1) return;
     this.written = true;
     writeJsonAtomic(this.file, this.result);
   }
 
   onTestEnd(test: any, result: any): void {
-    if (this.calibrationOnly) return;
     const id = test.title;
     const browserInfo = result.attachments.filter((a: any) => a.name === "perf-browser")[0];
     if (browserInfo)this.result.machine = machineInfo({ chromium: JSON.parse(browserInfo.body.toString()).chromium, extra: readEnv().machineExtra });
@@ -81,8 +85,8 @@ export default class PerfReporter {
       const info = JSON.parse(env.body.toString());
       this.result.machine = machineInfo({ chromium: info.chromium, extra: readEnv().machineExtra });
       const framework: { [name: string]: string } = {};
-      if (info.framework.react) framework.react = info.framework.react;
-      if (!info.framework.react) framework.preact = this.preactVersion();
+      ["react", "vue", "angular"].forEach((name: string) => { if (info.framework[name]) framework[name] = info.framework[name]; });
+      if (this.result.suite === "survey-js-ui") framework.preact = this.preactVersion();
       if (this.result.build.ui)this.result.build.ui.framework = framework;
       return;
     }
@@ -115,22 +119,23 @@ export default class PerfReporter {
   }
 
   onEnd(result: any): void {
-    if (this.calibrationOnly) {
-      console.log(this.result.suite + ": calibration only, " + (result ? result.status : "?") + ", no result file");
-      return;
-    }
     const unrun = this.ids.filter((id: string) => !this.done.has(id)).concat(this.unrun.filter((id: string) => this.done.has(id) === false));
     const notRun = Array.from(new Set(unrun));
     if (notRun.length > 0)this.result.incomplete = { reason: "killed", unrun: notRun };
     if (this.done.size === 0 && result && result.status !== "passed") {
       this.result.failed.push({ id: "setup", error: this.setupError || "the run ended " + result.status + " before any scenario ran" });
     }
-    if (this.result.suite === "react") {
+    // The installed pins, also when the environment test did not run.
+    const pinned = pinnedPackages[this.result.suite];
+    if (pinned && this.result.build.ui) {
+      const versions: { [name: string]: string } = {};
       try {
-        const pkg = JSON.parse(fs.readFileSync(path.join(react19Dir, "node_modules", "react", "package.json"), "utf8"));
-        if (this.result.build.ui)this.result.build.ui.framework = Object.assign({ react: pkg.version }, this.result.build.ui.framework || {});
+        pinned.packages.forEach((name: string) => {
+          versions[pinned.names[name] || name] = JSON.parse(fs.readFileSync(path.join(pinned.dir, "node_modules", name, "package.json"), "utf8")).version;
+        });
+        this.result.build.ui.framework = Object.assign(versions, this.result.build.ui.framework || {});
       } catch(e) {
-        // React 19 is not installed: globalSetup failed, and the run has no results.
+        // The pins are not installed: globalSetup failed, and the run has no results.
       }
     }
     this.result.results.sort((a: any, b: any) => (a.id < b.id ? -1 : 1));

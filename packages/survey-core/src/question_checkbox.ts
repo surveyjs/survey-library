@@ -722,9 +722,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public isAnswerCorrect(): boolean {
     return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue(), this.getSurveySettings());
   }
-  protected setDefaultValueWithOthers() {
-    this.value = this.renderedValueFromDataCore(this.defaultValue);
-  }
   protected getIsItemValue(val: any, item: ItemValue): boolean {
     if (!val || !Array.isArray(val)) return false;
     return val.indexOf(item.value) >= 0;
@@ -753,7 +750,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];
-    if (!this.hasActiveChoices) return val;
+    // No choices yet (e.g. choicesByUrl is not loaded): an unknown value may be a choice that has not arrived.
+    // Choices hidden by visibleIf are still known, so the text typed for Other is recognised (#12245).
+    if (!this.hasRegularChoices) return val;
     for (var i = 0; i < val.length; i++) {
       if (this.isOtherValue(val[i])) return val;
       if (this.hasUnknownValueItem(val[i], true, false)) {
@@ -810,9 +809,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       newVal.push(this.otherItem.value);
     }
     this.value = newVal;
-  }
-  public get checkBoxSvgPath(): string {
-    return "M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z";
   }
 
   //a11y

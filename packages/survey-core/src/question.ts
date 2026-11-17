@@ -107,11 +107,6 @@ export class QuestionValueGetterContext implements IValueGetterContext {
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   getQuestion(): IQuestion { return this.question; }
-  protected getSurveyValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
-    const survey = this.question.getSurvey();
-    if (survey) return (<any>survey).getValueGetterContext().getValue({ path, isRoot: false, index });
-    return undefined;
-  }
   private getQuestionValue(index: number, isOriginalValue?: boolean): IValueGetterInfo {
     const q = this.question;
     // The plain {name} exposes the unwrapped value by default (the "-unwrapped" suffix is kept for
@@ -197,7 +192,6 @@ export interface IValidationContextParams {
   isOnValueChanged?: boolean;
   isOnValueChanging?: boolean;
   focusOnFirstError?: boolean;
-  firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
   callbackResult?: (res: boolean, element: IElement) => void;
   /* false: the validation shows errors and changes no value. A question that pages its records
@@ -238,7 +232,6 @@ export interface IVerifyDataContext {
   // as something is found. setData() never sets it.
   stopOnFirst: boolean;
   readonly hasIssues: boolean;
-  readonly issueCount: number;
   pushSegment(segment: string | number): void;
   popSegment(): void;
   // lastSegment is appended for this issue only: an unknown key, the array index of an offending item.
@@ -318,7 +311,6 @@ class VerifyDataContext implements IVerifyDataContext {
   constructor(public checks: IDataVerificationOptions) {
   }
   public get hasIssues(): boolean { return this.issues.length > 0; }
-  public get issueCount(): number { return this.issues.length; }
   public pushSegment(segment: string | number): void {
     this.segmentsScope.value.push(segment);
   }
@@ -539,6 +531,11 @@ export class Question extends SurveyElement<Question>
   public onSurveyChoiceShortcutsEnabledChanged(): void {
     this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyChoiceShortcutsEnabledChanged()), { build: "none", visibleOnly: false });
   }
+  // The survey calls it on its questions when its dropdownLoadingComponent changes; a container forwards
+  // it to the nested questions that exist, a question with a drop-down list updates the list.
+  public onSurveyDropdownLoadingComponentChanged(): void {
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyDropdownLoadingComponentChanged()), { build: "none", visibleOnly: false });
+  }
   // The survey calls it on its questions when its single-input mode or its preview starts or ends; a
   // container forwards it to the nested questions that exist. Not public API: the survey calls it
   // through a cast.
@@ -603,8 +600,7 @@ export class Question extends SurveyElement<Question>
       if (!this.isRequired && this.errors.length > 0) {
         this.validate();
       }
-      this.locTitle.strChanged();
-      this.clearCssClasses();
+      this.onRenderedRequiredChanged();
     }
     if (name === "indent" || name === "rightIndent") {
       this.resetIndents();
@@ -730,7 +726,7 @@ export class Question extends SurveyElement<Question>
     this.updateIsReady();
   }
   protected ensureQuestionIsReady(): void {
-    const _displayValue = this.displayValue;
+    this.displayValue;
   }
   public waitForQuestionIsReady(callback?: () => void): Promise<void> {
     return new Promise((resolve: any) => {
@@ -1149,7 +1145,7 @@ export class Question extends SurveyElement<Question>
     if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
-    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo(), undefined, this.getSurveyVariableNamesInfo()) ? "var" : "";
+    return new ValueGetter().isAnyKeyChanged(keys, vars, undefined, runner.getVariablesInfo(), this.getSurveyVariableNamesInfo()) ? "var" : "";
   }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:
@@ -1381,9 +1377,6 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputHasActions(): boolean {
     return this.singleInputBehavior.singleInputHasActions;
-  }
-  protected singleInputMoveToFirst(): void {
-    this.singleInputBehavior.singleInputMoveToFirst();
   }
   //#endregion
   /**
@@ -1662,9 +1655,6 @@ export class Question extends SurveyElement<Question>
       this.localeChangedCallback();
     }
   }
-  public get isCompositeQuestion(): boolean {
-    return false;
-  }
   public get isContainer(): boolean { return false; }
   // A container that keeps the saved masked text of its nested question on a locale change (QuestionTextModel.localeChanged).
   protected keepsSavedTextOnLocaleChange(question: Question): boolean { return false; }
@@ -1736,14 +1726,24 @@ export class Question extends SurveyElement<Question>
   protected get titlePattern(): string {
     return !!this.survey ? this.titleSettings.questionTitlePattern : "numTitleRequire";
   }
+  // Whether the question renders as required: the required mark, the required CSS classes and aria-required.
+  // It is isRequired, except for a question type that requires a specific answer (boolean requireTrue).
+  public get isRenderedRequired(): boolean {
+    return this.isRequired;
+  }
+  // The title text and the CSS classes are cached: a change of isRenderedRequired renews them.
+  protected onRenderedRequiredChanged(): void {
+    this.locTitle.strChanged();
+    this.clearCssClasses();
+  }
   public get isRequireTextOnStart(): boolean {
-    return this.isRequired && this.titlePattern == "requireNumTitle";
+    return this.isRenderedRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredMark !== "";
+    return this.isRenderedRequired && this.titlePattern == "numRequireTitle" && this.requiredMark !== "";
   }
   public get isRequireTextAfterTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredMark !== "";
+    return this.isRenderedRequired && this.titlePattern == "numTitleRequire" && this.requiredMark !== "";
   }
   /**
    * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
@@ -1915,11 +1915,6 @@ export class Question extends SurveyElement<Question>
   public getHeaderAndContentContainerCss(): string {
     return toCssClasses(this.cssClasses.headerAndContentContainer);
   }
-  public get isComplexQuestion(): boolean {
-    const rootCss = this.getRootCss() || "";
-    return rootCss.indexOf("sd-element--complex") > -1;
-    // return this.isContainer || !!this.singleInputQuestion;
-  }
   public getQuestionRootCss() {
     return toCssClasses(this.cssClasses.root, this.isMobile && this.cssClasses.rootMobile);
   }
@@ -1959,9 +1954,9 @@ export class Question extends SurveyElement<Question>
   protected updateCssClasses(res: any, css: any): void {
     if (!css.question) return;
     const objCss = css[this.getCssType()];
-    res.title = toCssClasses(res.title, this.isRequired && css.question.titleRequired);
+    res.title = toCssClasses(res.title, this.isRenderedRequired && css.question.titleRequired);
 
-    const isRequiredCss = this.isRequired && !!css.question.required;
+    const isRequiredCss = this.isRenderedRequired && !!css.question.required;
     if (objCss === undefined || objCss === null) {
       res.root = toCssClasses(res.root);
     } else if (typeof objCss === "string" || objCss instanceof String) {
@@ -1996,7 +1991,7 @@ export class Question extends SurveyElement<Question>
    * @param onError Pass `true` if you want to focus an input field with the first validation error. Default value: `false` (focuses the first input field). Applies to question types with multiple input fields.
    */
   public focus(onError: boolean = false, scrollIfVisible?: boolean): void {
-    if (this.isDesignMode || !this.isVisible || this.isReadOnly || !this.survey) return;
+    if (this.isDesignMode || !this.isVisibleWithParents || this.isReadOnly || !this.survey) return;
     let page = this.page;
     const shouldChangePage = !!page && this.survey.activePage !== page;
     const isSingleInput = this.isSingleInputMode;
@@ -2009,7 +2004,7 @@ export class Question extends SurveyElement<Question>
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] && isAnimationEnabled() ? { behavior: "smooth" } : undefined;
         this.survey.scrollElementToTop({
-          element: this, question: this, id: this.id,
+          element: this, question: this, id: this.renderedId,
           scrollIfVisible, scrollIntoViewOptions: scrollOptions,
           onScolledCallback: () => { this.focusInputElement(onError); }
         });
@@ -2169,9 +2164,6 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly || this.isDesignMode;
   }
   public get renderedInputReadOnly(): string {
-    return this.isInputReadOnly ? "" : undefined;
-  }
-  public get renderedInputDisabled(): string {
     return this.isInputReadOnly ? "" : undefined;
   }
   public get isReadOnlyAttr(): boolean {
@@ -2438,7 +2430,7 @@ export class Question extends SurveyElement<Question>
   }
   public get hasFilteredValue(): boolean { return false; }
   public getFilteredValue(isUnwrapped?: boolean): any { return this.value; }
-  public getFilteredName(): any { return this.getValueName(); }
+  public getFilteredName(): string { return this.getValueName(); }
   public get valueForSurvey(): any {
     return this.valueForSurveyCore(this.value);
   }
@@ -2537,9 +2529,6 @@ export class Question extends SurveyElement<Question>
       visible: <any>new ComputedUpdater(isVisible),
       ariaLabelledBy: this.a11y_input_ariaLabelledBy
     });
-  }
-  clearValueOnly(): void {
-    this.clearValue(true);
   }
   public unbindValue(): void {
     this.clearValue();
@@ -3202,7 +3191,7 @@ export class Question extends SurveyElement<Question>
    * @since 2.0.0
    */
   public get requiredMark(): string {
-    return this.survey != null && this.isRequired
+    return this.survey != null && this.isRenderedRequired
       ? this.titleSettings.requiredMark
       : "";
   }
@@ -3272,8 +3261,8 @@ export class Question extends SurveyElement<Question>
      must not wipe the other required errors. */
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered || !!this.getErrorByType("required")) && this.hasRequiredError()) {
-      const err = new AnswerRequiredError(this.requiredErrorText, this);
-      err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
+      const err = new AnswerRequiredError(this.getRequiredErrorText(), this);
+      err.onUpdateErrorTextCallback = (err) => { err.text = this.getRequiredErrorText(); };
       errors.push(err);
     }
     if (!this.isEmpty() && this.customWidget) {
@@ -3282,6 +3271,11 @@ export class Question extends SurveyElement<Question>
         errors.push(this.addCustomError(text));
       }
     }
+  }
+  // The text of the "required" error. A question type with its own required check (boolean requireTrue)
+  // overrides it; it is read again on a locale change through onUpdateErrorTextCallback.
+  protected getRequiredErrorText(): string {
+    return this.requiredErrorText;
   }
   public hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
@@ -3934,8 +3928,6 @@ export class Question extends SurveyElement<Question>
     }
   }
 
-  public transformToMobileView(): void { }
-  public transformToDesktopView(): void { }
   public needResponsiveWidth() {
     return false;
   }
@@ -4137,7 +4129,7 @@ export class Question extends SurveyElement<Question>
   public get ariaRequired() {
     if (this.isNewA11yStructure) return null;
 
-    return this.isRequired ? "true" : "false";
+    return this.isRenderedRequired ? "true" : "false";
   }
   public get ariaInvalid() {
     if (this.isNewA11yStructure) return null;
@@ -4177,7 +4169,7 @@ export class Question extends SurveyElement<Question>
     return null;
   }
   public get a11y_input_ariaRequired(): "true" | "false" {
-    return this.isRequired ? "true" : "false";
+    return this.isRenderedRequired ? "true" : "false";
   }
   public get a11y_input_ariaInvalid(): "true" | "false" {
     return this.hasCssError() ? "true" : "false";
@@ -4210,9 +4202,6 @@ export class Question extends SurveyElement<Question>
   public get a11y_input_ariaErrormessage(): string {
     return null;
     //return this.hasCssError() ? this.id + "_errors" : null; // due to https://cerovac.com/a11y/2024/06/support-for-aria-errormessage-is-getting-better-but-still-not-there-yet/
-  }
-  public get a11y_input_ariaExpanded(): "true" | "false" {
-    return this.getPropertyValue("ariaExpanded");
   }
   //EO new a11y
 

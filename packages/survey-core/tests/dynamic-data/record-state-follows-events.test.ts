@@ -110,7 +110,8 @@ const builtStateKey = (q: Question, item: any): any => !!q["builtStateKeys"] ? q
 const current = (q: Question): number => q["currentRecordIndex"];
 const announced = (q: Question): number => q["announcedRecordIndex"];
 const pending = (q: Question): number => q["pendingVisibleIndex"];
-const held = (q: Question): Array<number> => !!q["heldRemoveTargets"] ? q["heldRemoveTargets"].map((t: any) => t.recordIndex) : undefined;
+const heldTargets = (q: Question): Array<any> => q["_recordTargets"]?.["held"];
+const held = (q: Question): Array<number> => !!heldTargets(q) ? heldTargets(q).map((t: any) => t.recordIndex) : undefined;
 const focusIndex = (q: Question): number => q["focusIndexAfterRead"];
 const edited = (q: Question): Array<number> => !!q["_pageValidation"] ? q["_pageValidation"]["edited"] : undefined;
 const nestedKeys = (q: Question): Array<string> => !!q["_pageValidation"] ? Object.keys(q["_pageValidation"]["nested"]) : undefined;
@@ -618,8 +619,9 @@ describe("the held remove targets", () => {
    never runs while a source is assigned: for a reload and a failed read the states are taken before
    the source is. */
 describe("the hidden-answer states", () => {
-  const hiddenStates = (q: Question): Array<string> => !!q["hiddenAnswerStates"]
-    ? Array.from(q["hiddenAnswerStates"].entries()).map(([key, state]: [any, any]) => key + ":" + (state.t === 3 ? "shown" : "hidden")).sort()
+  const hiddenAnswerStates = (q: Question): Map<any, any> => q["_hiddenAnswers"]?.["states"];
+  const hiddenStates = (q: Question): Array<string> => !!hiddenAnswerStates(q)
+    ? Array.from(hiddenAnswerStates(q).entries()).map(([key, state]: [any, any]) => key + ":" + (state.t === 3 ? "shown" : "hidden")).sort()
     : undefined;
   const hiddenRecords = (count: number): Array<any> => records(count).map((r: any) => ({ id: r.id % 2 === 1 ? r.id + 20 : r.id, t: "t" + r.id }));
   const kept = ["0:shown", "1:hidden", "2:shown", "3:hidden"];

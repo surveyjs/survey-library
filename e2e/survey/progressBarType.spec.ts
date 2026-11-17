@@ -1,4 +1,5 @@
 import { frameworks, initSurvey, url, test, expect } from "../helper";
+import { Survey } from "../surveyHelper";
 
 const title = "progressBarType";
 
@@ -105,6 +106,42 @@ frameworks.forEach((framework) => {
       await expect(page2).toBeVisible();
       await page2.click();
       await expect(page.locator("div[id$=ariaTitle][id^=sq]").filter({ hasText: "q3" })).toBeVisible();
+    });
+
+    test("progressBarType:questions, the bar width follows the progress after a value is set in onAfterRenderPage", async ({ page }) => {
+      const json = {
+        showProgressBar: "top",
+        progressBarType: "questions",
+        pages: [
+          { name: "p1", elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] },
+          { name: "p2", elements: [{ type: "text", name: "c" }, { type: "text", name: "d" }] }
+        ]
+      };
+      await initSurvey(page, framework, json, false, undefined, async () => {
+        await page.evaluate(() => {
+          const survey = (window as any).survey;
+          const pagesShown: Array<string> = [];
+          survey.onAfterRenderPage.add((sender, options) => {
+            pagesShown.push(options.page.name);
+            sender.setValue("pagesShown", [].concat(pagesShown));
+          });
+        });
+      });
+      const progressBar = page.locator("[role=progressbar]");
+      const answer = async (name: string) => {
+        await page.getByRole("textbox", { name: name }).fill("x");
+        await page.keyboard.press("Tab");
+      };
+
+      await answer("a");
+      await answer("b");
+      await expect(progressBar).toHaveAttribute("style", /width: 50%/);
+      await new Survey(page).nextPage();
+      await answer("c");
+      await expect(page.locator("span").filter({ hasText: "Answered 3/4 questions", visible: true })).toHaveCount(1);
+      await expect(progressBar).toHaveAttribute("style", /width: 75%/);
+      await answer("d");
+      await expect(progressBar).toHaveAttribute("style", /width: 100%/);
     });
   });
 });

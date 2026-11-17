@@ -107,6 +107,8 @@ export var japaneseSurveyStrings = {
   value: "値",
   // "Response required."
   requiredError: "回答が必要です",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "続行するには「はい」を選択しなければなりません。",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "値が誤っています。",
   // [Auto-translated] "The value contains unknown keys: {0}."

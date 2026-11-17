@@ -275,7 +275,8 @@ export function generateComplexLogic(options?: ComplexLogicOptions): { json: any
   // over a default on a hidden page can be evaluated before the default is applied and keep that value (seen on
   // master, not reduced to a smaller survey), so its value at load is not the one the generator computes.
   const noDefault = (r: Ref): boolean => r.initial === undefined;
-  // Planned: the first hot question hides 40 elements, the next ten hide 4 each (answer/first, answer/next10).
+  // Planned: the first hot question hides 40 elements, the next ten hide 4 each (answer/first; answer/next3 uses
+  // the first three of them).
   const planned: Array<{ name: string, value: number, elements: Array<string> }> = [];
   // Hot questions past the eleventh answer no scenario: they may get a condition, as the file's radiogroups do.
   const elementItems = items.filter((it: Item) => ["element", "matrix", "paneldynamic", "panel", "html"].indexOf(it.role) > -1 ||

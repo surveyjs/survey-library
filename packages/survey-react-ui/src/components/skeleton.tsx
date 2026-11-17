@@ -4,7 +4,7 @@ import { ReactElementFactory } from "../element-factory";
 export class Skeleton extends React.Component<any, any> {
   render(): React.JSX.Element {
     return (
-      <div className="sv-skeleton-element" id={this.props.element?.id} style={{ height: this.props.element?.skeletonHeight }}>
+      <div className="sv-skeleton-element" id={this.props.element?.renderedId} style={{ height: this.props.element?.skeletonHeight }}>
       </div>
     );
   }

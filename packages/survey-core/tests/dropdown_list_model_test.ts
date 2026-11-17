@@ -1456,10 +1456,12 @@ describe("DropdownRenderState, Issue#9014", () => {
     "ariaInputRole", "ariaInputRequired", "ariaInputInvalid", "ariaInputErrorMessage", "ariaInputLabel",
     "ariaInputLabelledby", "ariaInputDescribedby", "ariaInputControls", "ariaInputExpanded", "ariaInputActivedescendant"];
   const MULTI_RENDER_STATE_MEMBERS = ["filterString", "filterStringPlaceholder"];
+  // The list model does not forward these: the renderers read them from the render state.
+  const NOT_ON_MODEL_MEMBERS = ["filterStringEnabled", "popupEnabled", "canShowSelectedItem"];
 
-  function readRenderState(state: any, isMulti: boolean): any {
+  function readRenderState(state: any, isMulti: boolean, skip: Array<string> = []): any {
     const res: any = {};
-    RENDER_STATE_MEMBERS.forEach(name => res[name] = state[name]);
+    RENDER_STATE_MEMBERS.filter(name => skip.indexOf(name) < 0).forEach(name => res[name] = state[name]);
     if (isMulti) {
       MULTI_RENDER_STATE_MEMBERS.forEach(name => res[name] = state[name]);
     }
@@ -1544,7 +1546,9 @@ describe("DropdownRenderState, Issue#9014", () => {
       const model = q.dropdownListModel;
       expect(!!model, caption + ", model is created").toBe(true);
       expect(readRenderState(q.dropdownRenderState, isMulti), caption + ", render state").toEqual(withoutModel);
-      expect(readRenderState(model, isMulti), caption + ", model").toEqual(withoutModel);
+      const withoutModelOnModel = { ...withoutModel };
+      NOT_ON_MODEL_MEMBERS.forEach(name => delete withoutModelOnModel[name]);
+      expect(readRenderState(model, isMulti, NOT_ON_MODEL_MEMBERS), caption + ", model").toEqual(withoutModelOnModel);
       expect(readQuestion(q), caption + ", question").toEqual(questionWithoutModel);
       survey.dispose();
     };

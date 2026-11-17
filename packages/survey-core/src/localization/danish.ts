@@ -107,6 +107,8 @@ export var danishSurveyStrings = {
   value: "værdi",
   // "Response required."
   requiredError: "Besvar venligst spørgsmålet.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Du skal vælge Ja for at fortsætte.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Værdien er forkert.",
   // [Auto-translated] "The value contains unknown keys: {0}."

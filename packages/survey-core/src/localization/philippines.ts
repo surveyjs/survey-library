@@ -107,6 +107,8 @@ export var philippinesStrings = {
   value: "halaga",
   // "Response required."
   requiredError: "Kinakailangan ang tugon.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Kailangan mong piliin ang Yes upang magpatuloy.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Mali ang halaga.",
   // [Auto-translated] "The value contains unknown keys: {0}."

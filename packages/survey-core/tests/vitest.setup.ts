@@ -74,11 +74,28 @@ if (typeof (globalThis as any).matchMedia === "undefined") {
   }
 }
 
-// jsdom 25 does provide CSS.escape, but be defensive.
+// jsdom has no CSS.escape. The polyfill follows the CSSOM algorithm for the cases ids hit: a leading
+// digit (or "-" + digit) becomes a code point escape, so an id like "1-sq_0" gives a valid "#\31 -sq_0".
+const cssEscapePolyfill = (s: string): string => {
+  const str = String(s);
+  let res = "";
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charAt(i);
+    const isDigit = c >= "0" && c <= "9";
+    if (isDigit && (i === 0 || (i === 1 && str.charAt(0) === "-"))) {
+      res += "\\" + str.charCodeAt(i).toString(16) + " ";
+    } else if (i === 0 && c === "-" && str.length === 1) {
+      res += "\\-";
+    } else {
+      res += /[\w-]/.test(c) || str.charCodeAt(i) >= 0x80 ? c : "\\" + c;
+    }
+  }
+  return res;
+};
 if (typeof (globalThis as any).CSS === "undefined") {
-  (globalThis as any).CSS = { escape: (s: string) => String(s).replace(/[^\w-]/g, (c) => "\\" + c) };
+  (globalThis as any).CSS = { escape: cssEscapePolyfill };
 } else if (typeof (globalThis as any).CSS.escape !== "function") {
-  (globalThis as any).CSS.escape = (s: string) => String(s).replace(/[^\w-]/g, (c) => "\\" + c);
+  (globalThis as any).CSS.escape = cssEscapePolyfill;
 }
 
 // jsdom's `Selection` does not implement the non-standard `modify()` method.

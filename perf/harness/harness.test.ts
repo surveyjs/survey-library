@@ -8,10 +8,10 @@ import { median, min, max, mad, p75, summarize } from "./stats.ts";
 import { sampleLoop, scenarioDriver } from "./sample.ts";
 import type { SampleDriver } from "./sample.ts";
 import { installFunnels, funnels } from "./counters.ts";
-import { calibrateOnce } from "./calibration.ts";
-import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, DROP_LIST } from "./ids.ts";
+import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, RENDER_SUBSET } from "./ids.ts";
 import { defineScenarios, fixtureOfId, missingRequirement } from "./scenario.ts";
-import { allScenarios } from "../scenarios/index.ts";
+import { allScenarios, PAGE_REV } from "../scenarios/index.ts";
+import { suiteOf, resolveUrl, uiPackage, cacheDir } from "../browser/paths.ts";
 import { runnerRoot } from "./node/build.ts";
 import { machineKey, slug } from "./node/machine.ts";
 import { dependencyInfo } from "./node/deps.ts";
@@ -31,22 +31,21 @@ describe("stats", () => {
 });
 
 describe("the sample loop", () => {
-  // A fake clock: every sample takes `ms`, every calibration 10 ms.
+  // A fake clock: every sample takes `ms`.
   const fake = (ms: number): { driver: SampleDriver, now: () => number } => {
     let t = 0;
     return {
       now: (): number => t,
       driver: {
         sample: async(): Promise<any> => { t += ms; return { ms: ms }; },
-        counterRun: async(): Promise<any> => ({ rows: { value: 1, kind: "work" } }),
-        calibrate: async(): Promise<number> => { t += 10; return 10; }
+        counterRun: async(): Promise<any> => ({ rows: { value: 1, kind: "work" } })
       }
     };
   };
-  test("order: calibration x3, warm-ups, samples, counter run, calibration x3", async() => {
+  test("order: warm-ups, samples, counter run, and nothing else", async() => {
     const f = fake(100);
     const res = await sampleLoop(f.driver, { warmup: 2, samples: 12, maxMs: 5000, minSamples: 5, now: f.now });
-    expect(res.log).toEqual(["calibrate", "calibrate", "calibrate", "warmup", "warmup"].concat(new Array(12).fill("sample"), ["counters", "calibrate", "calibrate", "calibrate"]));
+    expect(res.log).toEqual(["warmup", "warmup"].concat(new Array(12).fill("sample"), ["counters"]));
     expect(res.samples.length).toBe(12);
     expect(res.warmups.length).toBe(2);
   });
@@ -70,7 +69,7 @@ describe("the sample loop", () => {
     }])[0];
     let t = 0;
     const ctx: any = { Survey: Survey, fixture: {}, platform: "node", now: () => t, cache: {} };
-    const driver = scenarioDriver(s, ctx, { now: () => ++t, gc: () => { log.push("gc"); }, calibrate: () => 1, installFunnels: () => installFunnels(Survey) });
+    const driver = scenarioDriver(s, ctx, { now: () => ++t, gc: () => { log.push("gc"); }, installFunnels: () => installFunnels(Survey) });
     const res = await sampleLoop(driver, { warmup: 1, samples: 5, maxMs: 100000, minSamples: 5, now: () => t });
     expect(log.slice(0, 5)).toEqual(["setup", "gc", "run", "check", "teardown"]);
     expect(log.filter((x: string) => x === "check").length).toBe(1 + 5 + 1);
@@ -86,11 +85,6 @@ describe("the sample loop", () => {
   test("a scenario without check throws at registration", () => {
     expect(() => defineScenarios([{ id: "large/load/model", rev: 1, fixture: "large", kind: "load", setup: () => 1, run: () => 1 } as any])).toThrow(/no check/);
   });
-  test("calibration is 10-20 ms of fixed work order of magnitude, and returns a time", () => {
-    const ms = calibrateOnce(() => performance.now());
-    expect(ms).toBeGreaterThan(0);
-    expect(ms).toBeLessThan(1000);
-  });
 });
 
 describe("ids", () => {
@@ -100,9 +94,20 @@ describe("ids", () => {
     ids.forEach((id: string) => expect(FIXTURE_KEYS as ReadonlyArray<string>).toContain(fixtureOfId(id)));
     SCENARIO_IDS.forEach((s: any) => expect(s.suites.length).toBeGreaterThan(0));
     expect(allScenarios().map((s: any) => s.id).sort()).toEqual(ids.slice().sort());
-    expect(idsOfSuite("react")).toEqual(idsOfSuite("survey-js-ui"));
+    // survey-js-ui runs React's ids except the preview of all 4,500 questions.
+    expect(idsOfSuite("react").filter((id: string) => id !== "manyPages/pages/preview")).toEqual(idsOfSuite("survey-js-ui"));
     expect(idsOfSuite("react").length).toBe(24);
-    DROP_LIST.forEach((id: string) => expect(ids).toContain(id));
+    expect(suitesOf("manyPages/pages/preview")).toEqual(["core", "react"]);
+    expect(idsOfSuite("core").length).toBe(55);
+    expect(idsOfSuite("core").filter((id: string) => id.indexOf("records-1k/records/") === 0 && /@orders$/.test(id)))
+      .toEqual(["records-1k/records/filter-set@orders", "records-1k/records/next@orders", "records-1k/records/sort-1@orders"]);
+    // vue3 and angular run RENDER_SUBSET: browser ids that React runs.
+    RENDER_SUBSET.forEach((id: string) => expect(idsOfSuite("react")).toContain(id));
+    expect(RENDER_SUBSET.length).toBe(13);
+    expect(idsOfSuite("vue3")).toEqual(RENDER_SUBSET.slice().sort());
+    expect(idsOfSuite("angular")).toEqual(RENDER_SUBSET.slice().sort());
+    expect(suitesOf("manyPages/pages/next10")).toEqual(["core", "react", "survey-js-ui", "vue3", "angular"]);
+    expect(suitesOf("large/load/paint")).toEqual(["react", "survey-js-ui", "vue3", "angular"]);
   });
   test("the PERF_ONLY split", () => {
     expect(parseOnly(" a , b,,")).toEqual(["a", "b"]);
@@ -110,6 +115,9 @@ describe("ids", () => {
     expect(splitOnly(null, "core").run.length).toBe(idsOfSuite("core").length);
     expect(splitOnly(["large/load/model", "extra/x/load/model"], "core")).toEqual({ run: ["extra/x/load/model", "large/load/model"], notInSuite: [] });
     expect(() => splitOnly(["large/load/nothing"], "core")).toThrow(/in no suite/);
+    // The former spacer id is an unknown id like any other.
+    expect(() => splitOnly(["calibration"], "core")).toThrow(/in no suite: calibration$/);
+    expect(() => splitOnly(["calibration"], "react")).toThrow(/in no suite: calibration$/);
     // A suite with none of the ids runs nothing and lists the others as notInSuite.
     expect(splitOnly(["large/load/model"], "react")).toEqual({ run: [], notInSuite: ["large/load/model"] });
     expect(splitOnly(["large/load/paint", "large/load/model"], "core")).toEqual({ run: ["large/load/model"], notInSuite: ["large/load/paint"] });
@@ -190,6 +198,37 @@ describe("revs", () => {
     expect(res.stderr).toBe("");
     expect(res.stdout).toContain("all hashes match");
     expect(res.status).toBe(0);
+  });
+});
+
+describe("revs: the page code's rev", () => {
+  test("a browser id's rev adds PAGE_REV - 1 to its own; a core-only id keeps its own", () => {
+    const rev = (id: string): number => allScenarios().filter((s: any) => s.id === id)[0].rev;
+    expect(PAGE_REV).toBe(2);
+    expect(rev("large/load/paint")).toBe(1 + PAGE_REV - 1);
+    expect(rev("manyPages/pages/next10")).toBe(1 + PAGE_REV - 1);
+    expect(rev("records-plain/records/sort-header@orders30")).toBe(2 + PAGE_REV - 1);
+    expect(rev("large/load/model")).toBe(1);
+    expect(rev("records-10k/records/prev@orders")).toBe(2);
+  });
+});
+
+describe("browser suites", () => {
+  test("PERF_SUITE names a UI package, and the pinned frameworks are served from the cache", () => {
+    ["react", "survey-js-ui", "vue3", "angular"].forEach((suite: string) => expect(suiteOf({ PERF_SUITE: suite })).toBe(suite));
+    expect(() => suiteOf({ PERF_SUITE: "constructor" })).toThrow(/PERF_SUITE must be one of react, survey-js-ui, vue3, angular/);
+    expect(() => suiteOf({})).toThrow(/PERF_SUITE/);
+    expect(uiPackage.angular.file).toBe("fesm2015/survey-angular-ui.js");
+    const cached = path.join(cacheDir, "perf-paths-test.js");
+    fs.mkdirSync(cacheDir, { recursive: true });
+    fs.writeFileSync(cached, "");
+    try {
+      ["react19", "vue3", "angular"].forEach((root: string) => expect(resolveUrl("http://perf.local/" + root + "/perf-paths-test.js", "vue3")).toBe(cached));
+      expect(resolveUrl("http://perf.local/other/perf-paths-test.js", "vue3")).toBeUndefined();
+      expect(resolveUrl("http://other.local/vue3/perf-paths-test.js", "vue3")).toBeUndefined();
+    } finally {
+      fs.rmSync(cached, { force: true });
+    }
   });
 });
 

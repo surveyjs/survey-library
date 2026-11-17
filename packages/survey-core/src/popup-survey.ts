@@ -13,7 +13,6 @@ export class PopupSurveyModel extends Base {
   surveyValue: SurveyModel;
   windowElement: HTMLDivElement;
 
-  templateValue: string;
   expandedChangedCallback: () => void;
   showingChangedCallback: () => void;
 

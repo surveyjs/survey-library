@@ -124,7 +124,7 @@ When an array of sorting criteria is passed, it replaces all existing criteria, 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `fieldOrCriteria` | `string \| ISortCriterion[]` | A field name or an array of objects with a `field` name and an optional `direction` (`"asc"` or `"desc"`). Criteria are applied in array order; the default direction is `"asc"`. |
-| `direction` | `SortDirection` | The sort direction: `"asc"` (default) or `"desc"`. Applies when `fieldOrCriteria` is a field name. |
+| `direction` | `"asc" \| "desc"` | The sort direction: `"asc"` (default) or `"desc"`. Applies when `fieldOrCriteria` is a field name. |
 | `append` | `boolean` | Pass `true` to preserve existing criteria and add the field as the last sorting level. If the field is already present, its direction is updated in place. Defaults to `false`, which replaces all existing criteria. Applies when `fieldOrCriteria` is a field name. |
 
 **Related APIs:** [`clearSort`](#clearSort)

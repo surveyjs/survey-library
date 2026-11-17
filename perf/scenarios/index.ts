@@ -1,5 +1,6 @@
 import type { PerfScenario } from "../harness/scenario.ts";
 import { defineScenarios } from "../harness/scenario.ts";
+import { suitesOf } from "../harness/ids.ts";
 import * as helpers from "./helpers.ts";
 import * as common from "./common.ts";
 import * as large from "./large.ts";
@@ -11,6 +12,15 @@ import * as records from "./records.ts";
 import * as extra from "./extra.ts";
 import * as browser from "./browser.ts";
 
+// The rev of the page code a browser sample's time depends on (perf/browser/page-helpers.ts, angular-entry.ts; revs.ts
+// hashes them into every browser id): a browser id's rev is its own rev plus PAGE_REV - 1, so a change of the page
+// code is one bump here. 2 (2026-11-13): the Vue 3 and Angular mounts.
+export const PAGE_REV = 2;
+
+function withPageRev(s: PerfScenario): PerfScenario {
+  return suitesOf(s.id).some((suite: string) => suite !== "core") ? Object.assign({}, s, { rev: s.rev + PAGE_REV - 1 }) : s;
+}
+
 // Every scenario of perf/scenarios, the same list in core and in the page (03); ids.ts says which suites run each.
 export function allScenarios(): Array<PerfScenario> {
   return defineScenarios(([] as Array<PerfScenario>).concat(
@@ -21,7 +31,7 @@ export function allScenarios(): Array<PerfScenario> {
     manyPages.manyPagesScenarios(),
     records.recordsScenarios(),
     browser.browserScenarios()
-  ));
+  ).map(withPageRev));
 }
 
 export function scenarioById(id: string): PerfScenario | undefined {

@@ -107,6 +107,8 @@ export var polishSurveyStrings = {
   value: "Wartość",
   // "Response required."
   requiredError: "Proszę odpowiedzieć na to pytanie.",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Musisz wybrać Tak, aby kontynuować.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Wartość jest nieprawidłowa.",
   // [Auto-translated] "The value contains unknown keys: {0}."

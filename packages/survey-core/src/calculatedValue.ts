@@ -4,8 +4,9 @@ import { ISurvey, ISurveyVariables } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ExpressionRunner } from "./expressions/expressionRunner";
-import { FunctionFactory } from "./functionsfactory";
+import { canFunctionReadElements, isExpressionReadingElements } from "./functionsfactory";
 import { settings } from "./settings";
+import { ValueScope } from "./utils/scope";
 
 // "b" of "b", "b.x" and "b[0]"; a scan, not a split: it runs for every variable of every calculated value
 function getFirstPathSegment(name: string): string {
@@ -83,6 +84,14 @@ export class CalculatedValue extends Base {
   public resetCalculation() {
     this.isCalculated = false;
   }
+  private static runsScope = new ValueScope<Set<CalculatedValue>>();
+  // The values whose expression ran, not skipped, while func runs, in the order they ran. A nested
+  // call collects its own runs, and the outer call does not get them.
+  public static collectRuns(func: () => void): Set<CalculatedValue> {
+    const runs = new Set<CalculatedValue>();
+    CalculatedValue.runsScope.run(runs, func);
+    return runs;
+  }
   public doCalculation(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>
   ) {
     if (this.isCalculated) return;
@@ -91,6 +100,14 @@ export class CalculatedValue extends Base {
   }
   public runExpression(properties: HashTable<any>) {
     this.runExpressionCore(null, properties);
+  }
+  // The survey runs the calculated values before the element conditions of a pass. A function that reads
+  // element state (a matrix row's isVisible) gets the state those conditions change, and no changed key
+  // tells it, so SurveyModel runs such a value once more when a visibility changed (Bug#12284). It calls
+  // this for the values that ran in the pass only (collectRuns).
+  public runAfterVisibilityChanged(properties: HashTable<any>): void {
+    if (!this.canRunExpression || !this.ensureExpression() || !isExpressionReadingElements(this.expressionRunner)) return;
+    this.runExpression(properties);
   }
   public get value(): any {
     if (!this.data) return undefined;
@@ -129,6 +146,7 @@ export class CalculatedValue extends Base {
         this.unlocCalculation();
         return;
       }
+      CalculatedValue.runsScope.value?.add(this);
       this.expressionRunner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, "expression"));
     } catch(e) {
       this.unlocCalculation();
@@ -174,7 +192,6 @@ export class CalculatedValue extends Base {
   public static getRepeatedAtLoad(calculatedValues: Array<CalculatedValue>): Array<CalculatedValue> {
     const count = calculatedValues.length;
     const variables = new Array<Array<string>>(count);
-    let safeFunctions: Map<string, boolean>;
     for (let i = 0; i < count; i++) {
       const item = calculatedValues[i];
       variables[i] = [];
@@ -183,14 +200,8 @@ export class CalculatedValue extends Base {
       if (!item.expressionRunner.hasFunction()) continue;
       const functionNames = item.expressionRunner.getFunctionNames();
       if (!functionNames) return undefined;
-      if (!safeFunctions) {
-        safeFunctions = new Map<string, boolean>();
-        FunctionFactory.Instance.getRegistrations().forEach(reg => {
-          safeFunctions.set(reg.name, reg.resultDependsOn === "parameters" || reg.resultDependsOn === "survey");
-        });
-      }
       for (let j = 0; j < functionNames.length; j++) {
-        if (!safeFunctions.get(functionNames[j])) return undefined;
+        if (canFunctionReadElements(functionNames[j])) return undefined;
       }
     }
     const indexesByName = new Map<string, Array<number>>();

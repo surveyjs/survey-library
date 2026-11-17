@@ -142,6 +142,7 @@ frameworks.forEach((framework) => {
 
       const requiredSpan = page.locator("span").filter({ hasText: "*", visible: true });
       await expect(requiredSpan).toHaveCount(1);
+      await expect(page.locator("input[value=Item1]")).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await expect(requiredSpan).toHaveCount(0);
       await page.keyboard.press("ArrowUp");

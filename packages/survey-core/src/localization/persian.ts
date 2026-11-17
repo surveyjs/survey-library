@@ -107,6 +107,8 @@ export var persianSurveyStrings = {
   value: "مقدار",
   // "Response required."
   requiredError: "لطفا به سوال پاسخ دهید",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "برای ادامه باید گزینه بله را انتخاب کنید.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "این مقدار اشتباه است.",
   // [Auto-translated] "The value contains unknown keys: {0}."

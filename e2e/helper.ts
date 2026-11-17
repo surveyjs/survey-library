@@ -1,5 +1,7 @@
 import type { Locator, Page, Route } from "@playwright/test";
 import { expect, test as playwrightTest } from "@playwright/test";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 const environment = process.env.env;
 
@@ -99,6 +101,28 @@ export async function resetFocusToBody(page: Page): Promise<void> {
     document.body.focus();
   });
 }
+
+// The survey switches its layout on a ResizeObserver callback, so wait for the root class instead of a fixed timeout.
+export async function resizeToMobile(page: Page, width: number = 600, height: number = 1000): Promise<void> {
+  await page.setViewportSize({ width, height });
+  await expect(page.locator(".sd-root-modern")).toHaveClass(/sd-root-modern--mobile/);
+}
+
+export async function resizeToDesktop(page: Page, width: number = 1920, height: number = 1080): Promise<void> {
+  await page.setViewportSize({ width, height });
+  await expect(page.locator(".sd-root-modern")).not.toHaveClass(/sd-root-modern--mobile/);
+}
+
+// The test pages do not load the survey-core locale bundle. A test that shows a survey in another locale
+// loads it with this helper after page.goto and before initSurvey: a new page.goto drops it again.
+export async function loadSurveyLocales(page: Page, framework: string): Promise<void> {
+  if (framework === "react" || framework === "survey-js-ui") {
+    await page.addScriptTag({ url: "../../node_modules/survey-core/survey.i18n.min.js" });
+  } else {
+    await page.evaluate(async () => { await (window as any).loadSurveyLocales(); });
+  }
+}
+
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any, afterInitializeModelCallback?: () => Promise<void>) => {
   await waitForFonts(page);
   if (!!props) {
@@ -139,6 +163,16 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     }
     model.onComplete.add(surveyComplete);
     (window as any).survey = model;
+    // Without the locale bundle the survey falls back to English silently, so a test that shows another
+    // locale must call loadSurveyLocales after page.goto.
+    const locales = (window as any).Survey.surveyLocalization.locales;
+    const checkLocale = (locale: string) => {
+      if (!!locale && !locales[locale] && !locales[locale.split("-")[0]]) {
+        throw new Error(`The survey locale "${locale}" is not loaded: call loadSurveyLocales(page, framework) after page.goto.`);
+      }
+    };
+    checkLocale(model.locale);
+    model.onLocaleChangedEvent.add((sender) => checkLocale(sender.locale));
   }, [json, isDesignMode, props]);
   afterInitializeModelCallback && await afterInitializeModelCallback();
 
@@ -313,11 +347,11 @@ export async function visibleInViewportForShadowDom (page: Page, selector: strin
 }
 
 // Every test gets a new browser context, and a context starts with an empty HTTP cache, so
-// each test downloaded the test pages' CDN scripts (jQuery, showdown, React from esm.sh) and
-// images again. The responses are kept in memory for the life of the worker process instead.
+// each test downloaded the test pages' CDN scripts (showdown, React from esm.sh)
+// again. The responses are kept in memory for the life of the worker process instead.
 // The pattern stays narrow on purpose: every request it matches makes a round trip to the
 // test process. Routes set by a test with page.route run first and still win.
-const cdnUrl = /^https:\/\/(?:cdnjs\.cloudflare\.com|esm\.sh|surveyjs\.io)\//;
+const cdnUrl = /^https:\/\/(?:cdnjs\.cloudflare\.com|esm\.sh)\//;
 type CdnResponse = { status: number, headers: { [name: string]: string }, body: Buffer, cacheable: boolean };
 const cdnResponses = new Map<string, Promise<CdnResponse | undefined>>();
 
@@ -355,11 +389,43 @@ async function serveFromCdnCache(route: Route): Promise<void> {
   await route.fulfill(fulfillOptions);
 }
 
-// The CDN cache only. The VRT and accessibility suites use it as is; the e2e suite adds the
-// page error check below.
+// The images, videos and embedded pages that the test JSON links on these hosts are answered
+// from e2e/test-assets, stored byte for byte. A download from the web made the tests depend on
+// the network, and a file changed or removed on the site changed a VRT picture or failed a test.
+// assets.json maps each URL to its file, content type and headers. A URL on these hosts that is
+// not listed there is aborted and logged rather than fetched: add its file and an entry.
+// Two kinds of URLs get a stand-in instead of the original: the YouTube embed pages get an empty
+// page, and the video (a 404 on its site, and Chromium plays no H.264) gets a one-second WebM. The tests
+// check that the iframe and the video are shown, not what they play.
+const testAssetUrl = /^https?:\/\/(?:(?:api\.)?surveyjs\.io|sample-videos\.com|www\.youtube\.com|youtu\.be)\//;
+type TestAsset = { file?: string, contentType?: string, headers?: { [name: string]: string }, status?: number };
+const testAssetsDir = join(__dirname, "test-assets");
+const testAssets: { [url: string]: TestAsset } = JSON.parse(readFileSync(join(testAssetsDir, "assets.json"), "utf8"));
+// The UI packages' brand info banner links this image itself. It comes from the product, not from
+// test JSON, so the tests fetch it from the site as a user's browser does; the CDN cache above
+// keeps one copy per worker.
+const productUrls = new Set(["https://surveyjs.io/Content/Images/poweredby.svg"]);
+
+async function serveTestAsset(route: Route): Promise<void> {
+  const url = route.request().url();
+  if (productUrls.has(url)) return serveFromCdnCache(route);
+  const asset = testAssets[url];
+  if (!asset) {
+    // eslint-disable-next-line no-console
+    console.warn(`No local copy of ${url} in e2e/test-assets/assets.json: the request is aborted.`);
+    return route.abort("blockedbyclient");
+  }
+  // An entry with only a status answers with that status: some tests show a broken image on purpose.
+  if (!asset.file) return route.fulfill({ status: asset.status });
+  await route.fulfill({ path: join(testAssetsDir, asset.file), contentType: asset.contentType, headers: asset.headers });
+}
+
+// The CDN cache and the local test files. The VRT and accessibility suites use it as is; the
+// e2e suite adds the page error check below.
 export const baseTest = playwrightTest.extend({
   context: async ({ context }, use) => {
     await context.route(cdnUrl, serveFromCdnCache);
+    await context.route(testAssetUrl, serveTestAsset);
     await use(context);
   }
 });

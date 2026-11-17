@@ -117,7 +117,7 @@ describe("PropertyAccessTracker", () => {
     tracker.unsubscribe();
     model.prop1 = "c";
     expect(log, "unsubscribed").toHaveLength(1);
-    expect(model.hasActiveUISubscribers, "callbacks are removed from the model").toBe(false);
+    expect(!!model["onPropertyValueCoreChanged"], "callbacks are removed from the model").toBe(false);
   });
 
   test("Track properties of several models", () => {
@@ -516,8 +516,8 @@ describe("PropertyAccessTracker and finding an element's row", () => {
     let row: QuestionRowModel = undefined as any;
     const tracker = trackDuring(() => { row = page.findRowByElement(q4); });
     expect(row, "the row is found").toBe(page.rows[3]);
-    expect(page.rows.map(r => r.hasActiveUISubscribers), "no row is subscribed").toEqual([false, false, false, false]);
-    expect(page.hasActiveUISubscribers, "the page's rows are tracked").toBe(true);
+    expect(page.rows.map(r => !!r["onPropertyValueCoreChanged"]), "no row is subscribed").toEqual([false, false, false, false]);
+    expect(!!page["onPropertyValueCoreChanged"], "the page's rows are tracked").toBe(true);
     tracker.unsubscribe();
   });
 
@@ -528,7 +528,7 @@ describe("PropertyAccessTracker and finding an element's row", () => {
     // The first read of columns builds them from every row; components rendered after it reuse the cached columns
     expect(page.columns.length, "columns are built").toBeGreaterThan(0);
     const tracker = trackDuring(() => { page.getColumsForElement(q4); });
-    expect(page.rows.map(r => r.hasActiveUISubscribers)).toEqual([false, false, false, true]);
+    expect(page.rows.map(r => !!r["onPropertyValueCoreChanged"])).toEqual([false, false, false, true]);
     tracker.unsubscribe();
   });
 
@@ -539,8 +539,8 @@ describe("PropertyAccessTracker and finding an element's row", () => {
     let columns: Array<any> = undefined as any;
     const tracker = trackDuring(() => { columns = page.getColumsForElement(q4); });
     expect(columns).toEqual([]);
-    expect(page.hasActiveUISubscribers, "the page is not read").toBe(false);
-    expect(page.rows.map(r => r.hasActiveUISubscribers)).toEqual([false, false, false, false]);
+    expect(!!page["onPropertyValueCoreChanged"], "the page is not read").toBe(false);
+    expect(page.rows.map(r => !!r["onPropertyValueCoreChanged"])).toEqual([false, false, false, false]);
     tracker.unsubscribe();
   });
 });

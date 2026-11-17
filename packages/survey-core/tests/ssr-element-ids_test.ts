@@ -176,6 +176,8 @@ describe("SSR-safe element ids", () => {
     });
 
     test("Without elementIdPrefix, two surveys reuse the same ids (documented limitation)", () => {
+      // By design: every DOM id, element roots included, is renderedId, and without a prefix it is the
+      // bare id. Two surveys on one page need distinct prefixes (see element-root-ids_test.ts).
       const ids1 = collectIds(new SurveyModel(json));
       const ids2 = collectIds(new SurveyModel(json));
       expect(ids2).toEqual(ids1);

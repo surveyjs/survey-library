@@ -1,4 +1,4 @@
-import { Action, IAction } from "./actions/action";
+import { IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
 import { DropdownMultiSelectRenderState, DropdownRenderState } from "./dropdownRenderState";

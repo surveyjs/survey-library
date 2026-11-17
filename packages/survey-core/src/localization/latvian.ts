@@ -107,6 +107,8 @@ export var latvianSurveyStrings = {
   value: "Vērtība",
   // "Response required."
   requiredError: "Lūdzu, atbildiet uz jautājumu!",
+  // [Auto-translated] "You must select Yes to continue."
+  requireTrueError: "Jums jāizvēlas Jā, lai turpinātu.",
   // [Auto-translated] "The value is incorrect."
   incorrectValueError: "Vērtība ir nepareiza.",
   // [Auto-translated] "The value contains unknown keys: {0}."

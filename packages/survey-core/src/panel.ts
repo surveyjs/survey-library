@@ -1696,16 +1696,21 @@ export class PanelModelBase extends SurveyElement<Question>
   protected createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
+  // The panel computes its own visibility once at the end of onSurveyLoad. A child's visibility change
+  // during it would only repeat that work (and the parent's), once per child, so it updates the rows only.
+  private surveyLoadScope = new Scope();
   public onSurveyLoad(): void {
     this.runWithoutAnimations(() => {
-      super.onSurveyLoad();
-      for (var i = 0; i < this.elements.length; i++) {
-        this.elements[i].onSurveyLoad();
-      }
-      // A panel without a survey gets here from its own endLoadingFromJson, which updates the columns after its rows.
-      if (this.isColumnsUpdatePending && !!this.survey) {
-        this.updateColumns();
-      }
+      this.surveyLoadScope.run(() => {
+        super.onSurveyLoad();
+        for (var i = 0; i < this.elements.length; i++) {
+          this.elements[i].onSurveyLoad();
+        }
+        // A panel without a survey gets here from its own endLoadingFromJson, which updates the columns after its rows.
+        if (this.isColumnsUpdatePending && !!this.survey) {
+          this.updateColumns();
+        }
+      });
       this.onElementVisibilityChanged(this);
     });
   }
@@ -1881,6 +1886,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private onElementVisibilityChanged(element: any) {
     if (this.isLoadingFromJson || this.isRandomizing) return;
     this.updateRowsVisibility(element);
+    if (element !== this && this.surveyLoadScope.isActive) return;
     this.childVisibilityChanged();
     if (!!this.parent) {
       this.parent.onElementVisibilityChanged(this);

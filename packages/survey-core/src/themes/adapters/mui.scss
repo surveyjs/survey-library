@@ -396,8 +396,8 @@
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
   --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
   --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs-mui-card-edge-actions-padding);
-  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs-mui-card-edge-padding);
-  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
 
   /* panelless: a page-level question is not a card. Same recipe as the built-in *-panelless
      themes: the simple panel keeps no background, ring or padding, so the fields sit directly on
@@ -1012,9 +1012,9 @@
 }
 
 /* tables */
-.sd-table-wrapper {
-  margin-left: calc(var(--sjs-mui-card-border-width));
-  margin-right: calc(var(--sjs-mui-card-border-width));
+.sd-question--table {
+  padding-left: var(--sjs-mui-card-edge-padding);
+  padding-right: var(--sjs-mui-card-edge-padding);
 }
 
 .sd-table {

@@ -775,9 +775,9 @@
 }
 
 /* tables */
-.sd-table-wrapper {
-  margin-left: calc(var(--sjs2-shadcn-card-border-width));
-  margin-right: calc(var(--sjs2-shadcn-card-border-width));
+.sd-question--table {
+  padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  padding-right: var(--sjs2-shadcn-card-edge-spacing);
 }
 .sd-table {
   --sd-table-cell-width: initial;
@@ -803,8 +803,8 @@
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
   --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs2-layout-component-matrix-box-padding-bottom);
-  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-shadcn-card-edge-spacing);
-  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
 }
 .sd-table__cell {
   .sd-radio {

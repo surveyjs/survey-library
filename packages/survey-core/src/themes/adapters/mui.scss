@@ -390,14 +390,14 @@
   --sjs2-layout-component-matrix-header-cell-padding-right: 16px;
   --sjs2-layout-component-matrix-cell-left-padding-left: 16px;
   --sjs2-layout-component-matrix-cell-right-padding-right: 16px;
-  --sjs2-layout-component-matrix-box-padding-left: var(--sjs-mui-card-edge-padding);
-  --sjs2-layout-component-matrix-box-padding-right: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-matrix-box-padding-left: 0px;
+  --sjs2-layout-component-matrix-box-padding-right: 0px;
   --sjs2-layout-component-matrix-box-padding-top: 0;
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
   --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
   --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs-mui-card-edge-actions-padding);
-  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
-  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs-mui-card-edge-padding);
 
   /* panelless: a page-level question is not a card. Same recipe as the built-in *-panelless
      themes: the simple panel keeps no background, ring or padding, so the fields sit directly on
@@ -1013,17 +1013,8 @@
 
 /* tables */
 .sd-table-wrapper {
-  &::before,
-  &::after {
-    width: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
-  &::before {
-    left: calc(1px - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
-
-  &:after {
-    right: calc(1px - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
+  margin-left: calc(var(--sjs-mui-card-border-width));
+  margin-right: calc(var(--sjs-mui-card-border-width));
 }
 
 .sd-table {

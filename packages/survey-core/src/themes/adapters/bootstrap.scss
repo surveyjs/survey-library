@@ -480,14 +480,14 @@
   --sjs2-layout-component-matrix-header-cell-padding-right: var(--sjs-bs-matrix-cell-padding);
   --sjs2-layout-component-matrix-cell-left-padding-left: var(--sjs-bs-matrix-cell-padding);
   --sjs2-layout-component-matrix-cell-right-padding-right: var(--sjs-bs-matrix-cell-padding);
-  --sjs2-layout-component-matrix-box-padding-left: var(--sjs-bs-card-edge-spacer-x);
-  --sjs2-layout-component-matrix-box-padding-right: var(--sjs-bs-card-edge-spacer-x);
+  --sjs2-layout-component-matrix-box-padding-left: 0px;
+  --sjs2-layout-component-matrix-box-padding-right: 0px;
   --sjs2-layout-component-matrix-box-padding-top: 0;
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
   --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
   --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs2-layout-component-matrix-box-padding-bottom);
-  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
-  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs-bs-card-edge-spacer-x);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs-bs-card-edge-spacer-x);
 
   --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;
@@ -661,17 +661,8 @@
 
 /* tables */
 .sd-table-wrapper {
-  &::before,
-  &::after {
-    width: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
-  &::before {
-    left: calc(var(--bs-border-width) - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
-
-  &:after {
-    right: calc(var(--bs-border-width) - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
+  margin-left: calc(var(--bs-border-width));
+  margin-right: calc(var(--bs-border-width));
 }
 
 .sd-table {

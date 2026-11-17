@@ -776,10 +776,8 @@
 
 /* tables */
 .sd-table-wrapper {
-  &::before,
-  &::after {
-    width: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
+  margin-left: calc(var(--sjs2-shadcn-card-border-width));
+  margin-right: calc(var(--sjs2-shadcn-card-border-width));
 }
 .sd-table {
   --sd-table-cell-width: initial;
@@ -799,14 +797,14 @@
   --sjs2-layout-component-matrix-cell-left-padding-left: calc(var(--spacing) * 2);
   --sjs2-layout-component-matrix-cell-right-padding-right: calc(var(--spacing) * 2);
 
-  --sjs2-layout-component-matrix-box-padding-left: var(--sjs2-shadcn-card-edge-spacing);
-  --sjs2-layout-component-matrix-box-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-matrix-box-padding-left: 0px;
+  --sjs2-layout-component-matrix-box-padding-right: 0px;
   --sjs2-layout-component-matrix-box-padding-top: 0;
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
   --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs2-layout-component-matrix-box-padding-bottom);
-  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
-  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-shadcn-card-edge-spacing);
 }
 .sd-table__cell {
   .sd-radio {

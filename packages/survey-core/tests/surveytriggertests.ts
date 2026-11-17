@@ -1444,4 +1444,63 @@ describe("Triggers", () => {
 
     FunctionFactory.Instance.unregister("checkConstParam");
   });
+  describe("A complete trigger fired by a variable change, executeCompleteOnValueChanged = true, Bug#12333", () => {
+    const routeJSON = {
+      calculatedValues: [{ name: "route", expression: "iif({reason} = 'billing', 'billing_desk', '')" }],
+      triggers: [{ type: "complete", expression: "{route} notempty" }],
+      elements: [
+        { type: "text", name: "reason" },
+        { type: "text", name: "later", isRequired: true },
+      ],
+    };
+    const variableJSON = {
+      triggers: [{ type: "complete", expression: "{var1} notempty" }],
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+      ],
+    };
+    function runWithSetting(func: () => void): void {
+      const oldValue = settings.triggers.executeCompleteOnValueChanged;
+      settings.triggers.executeCompleteOnValueChanged = true;
+      try {
+        func();
+      } finally {
+        settings.triggers.executeCompleteOnValueChanged = oldValue;
+      }
+    }
+    function collectVariableChanges(survey: SurveyModel): Array<string> {
+      const res: Array<string> = [];
+      survey.onVariableChanged.add((_, options) => {
+        res.push(options.name + "=" + options.value);
+      });
+      return res;
+    }
+    test("a calculated value changed by setValue completes the survey", () => {
+      runWithSetting(() => {
+        const survey = new SurveyModel(routeJSON);
+        const changes = collectVariableChanges(survey);
+        survey.setValue("reason", "billing");
+        expect(survey.state, "the survey is completed").toBe("completed");
+        expect(changes, "onVariableChanged reports the calculated value only").toEqual(["route=billing_desk"]);
+      });
+    });
+    test("setVariable completes the survey", () => {
+      runWithSetting(() => {
+        const survey = new SurveyModel(variableJSON);
+        const changes = collectVariableChanges(survey);
+        survey.setVariable("var1", "abc");
+        expect(survey.state, "the survey is completed").toBe("completed");
+        expect(changes, "onVariableChanged reports the changed variable only").toEqual(["var1=abc"]);
+      });
+    });
+    test("survey.data that changes a calculated value doesn't throw", () => {
+      runWithSetting(() => {
+        const survey = new SurveyModel(routeJSON);
+        const changes = collectVariableChanges(survey);
+        expect(() => { survey.data = { reason: "billing" }; }, "no error on setting data").not.toThrow();
+        expect(changes, "onVariableChanged reports the calculated value only").toEqual(["route=billing_desk"]);
+      });
+    });
+  });
 });

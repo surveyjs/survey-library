@@ -48,8 +48,7 @@ export interface ISurveyLayoutElement {
   id: string;
   container?: LayoutElementContainer | Array<LayoutElementContainer>;
   isInContainer?: (container: LayoutElementContainer) => boolean;
-  component?: string;
-  template?: string;
+  component: string;
   data?: any;
   index?: number;
   getData?: () => any;

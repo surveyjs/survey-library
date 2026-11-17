@@ -130,7 +130,6 @@ export class SurveyTimerModel extends Base implements ILayoutElementModel {
   public createLayoutElements(): Array<ISurveyLayoutElement> {
     const layoutElement: ISurveyLayoutElement = {
       id: "timerpanel",
-      template: "survey-timerpanel",
       component: "sv-timerpanel",
       getData: () => this,
       isInContainer: (container: LayoutElementContainer) => this.isTimerPanelInContainer(layoutElement, container)

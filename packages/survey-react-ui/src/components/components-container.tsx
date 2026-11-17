@@ -27,7 +27,7 @@ export class ComponentsContainer extends SurveyElementBase<any, any> {
     </div>;
   }
   private renderComponent(component: ISurveyLayoutElement): React.JSX.Element {
-    return ReactElementFactory.Instance.createElement(component.component as string, { survey: this.props.survey, model: component.data, container: this.props.container, key: component.id });
+    return ReactElementFactory.Instance.createElement(component.component, { survey: this.props.survey, model: component.data, container: this.props.container, key: component.id });
   }
 }
 

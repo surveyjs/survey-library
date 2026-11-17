@@ -2,7 +2,7 @@ import { Base, ComputedUpdater } from "../base";
 import { property } from "../decorators";
 import { Action, IAction, IActionAppearance } from "../actions/action";
 import { ActionContainer } from "../actions/container";
-import { createPopupModelWithListModel, getActionDropdownButtonTarget } from "../actions/dropdown-action";
+import { createPopupModelWithListModel } from "../actions/dropdown-action";
 import { ListModel } from "../list";
 import { IDialogOptions, PopupModel } from "../popup";
 import type { PopupModalViewModel } from "../popup-modal-view-model";
@@ -94,6 +94,9 @@ export interface IFilterToolbarsOwner {
   createEditPresetDialog(itemName: string): FilterEditPresetDialog;
   getSurveyRootElement(): HTMLElement;
   getLocale(): string;
+  // The chips that open a popup, in their order: what a renderer draws the popups from (see
+  // FilterToolbars.updatePopupChips).
+  popupChips: Array<FilterChip>;
 }
 // What the chips row shows of one fast mode field: the key it is addressed by (getFieldKey), its
 // title, the editor its popup opens and its condition's text ("" with no condition).
@@ -468,6 +471,7 @@ export class FilterToolbars {
     this.saveAsAction = undefined;
     this.saveAsHolder = undefined;
     this.clearAction = undefined;
+    this.owner.popupChips = [];
     [this.chipsToolbarValue, this.clearToolbarValue, this.searchToolbarValue].forEach((row: ActionContainer): void => {
       if (!row) return;
       row.actions.splice(0, row.actions.length);
@@ -524,6 +528,7 @@ export class FilterToolbars {
       this.rowChips = chips;
       this.chipsToolbarValue.setItems(chips, false);
     }
+    this.updatePopupChips();
     gone.forEach((chip: Action): void => { chip.dispose(); });
     states.forEach((state: IFilterFieldState): void => { this.updateFieldChip(state); });
     if (!!this.presetChip) {
@@ -542,6 +547,7 @@ export class FilterToolbars {
         action: (): void => { this.owner.clearActiveItem(); } });
       this.saveAsAction = this.createSaveAsAction();
       this.clearToolbarValue.setItems([this.saveAction, this.saveAsAction, this.clearAction], false);
+      this.updatePopupChips();
     }
     const isEditable = !this.owner.isDesignMode && !this.owner.isControlReadOnly;
     this.saveAction.visible = isEditable && this.owner.canSaveActiveItem;
@@ -563,7 +569,6 @@ export class FilterToolbars {
     // ("fixed", as a badge's) would run past the window's edge.
     const popup = new PopupModel(filterSaveAsPopupComponentName, { holder: holder },
       { showPointer: false, verticalPosition: "bottom", horizontalPosition: "center" });
-    popup.getTargetCallback = getActionDropdownButtonTarget;
     popup.onFooterActionsCreated.add((_: PopupModel, options: { actions: Array<IAction> }): void => {
       options.actions = [];
     });
@@ -582,7 +587,7 @@ export class FilterToolbars {
         popup.toggleVisibility();
       } });
     action.boxCss = this.cssClasses.chipBox;
-    action.popupModel = popup;
+    this.setChipPopup(action, popup);
     return action;
   }
 
@@ -658,14 +663,13 @@ export class FilterToolbars {
         { showPointer: false, verticalPosition: "bottom", horizontalPosition: "center" });
       // Under the chip, its left edge on the chip's.
       popup.positionMode = "fixed";
-      popup.getTargetCallback = getActionDropdownButtonTarget;
       const chip = new FilterChip({ id: "sv-filter-field-" + key, component: filterChipComponentName, innerCss: this.cssClasses.chip,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.onFieldChipClick(key); } });
       chip.boxCss = this.cssClasses.chipBox;
       chip.chipCss = this.cssClasses.chip;
       chip.clearAction = this.createChipClearAction("sv-filter-clear-" + key, { style: "brand", mode: "primary" },
         (): void => { this.owner.clearFieldCondition(key); });
-      chip.popupModel = popup;
+      this.setChipPopup(chip, popup);
       // Apply is in the popup's content: the sheet's own footer would add a Cancel under it.
       popup.onFooterActionsCreated.add((_: PopupModel, options: { actions: Array<IAction> }): void => {
         options.actions = [];
@@ -771,7 +775,6 @@ export class FilterToolbars {
       // One preset is painted: the pointer moves the focus, a key moves the highlight off the hovered one.
       (<ListModel>popup.contentComponentData.model).focusFollowsPointer = true;
       popup.positionMode = "fixed";
-      popup.getTargetCallback = getActionDropdownButtonTarget;
       popup.onFooterActionsCreated.add((_: PopupModel, options: { actions: Array<IAction> }): void => {
         options.actions = [];
       });
@@ -782,7 +785,7 @@ export class FilterToolbars {
       chip.chipCss = toCssClasses(this.cssClasses.chip, this.cssClasses.chipPreset);
       chip.clearAction = this.createChipClearAction("sv-filter-preset-clear", { style: "neutral", mode: "primary" },
         (): void => { this.owner.clearActiveItem(); });
-      chip.popupModel = popup;
+      this.setChipPopup(chip, popup);
       this.presetChip = chip;
     }
     return this.presetChip;
@@ -885,6 +888,23 @@ export class FilterToolbars {
     if (!!fieldPopup) fieldPopup.dispose();
     if (!!saveAsPopup) saveAsPopup.dispose();
     if (!!presetDialog) presetDialog.dispose();
+  }
+  // A chip's popup is drawn next to the chips' action bar, not inside the chip (see
+  // QuestionFilterModel.popupChips), so it stands against the chip's own button: the button its
+  // renderer sets as the chip's input element.
+  private setChipPopup(chip: FilterChip, popup: PopupModel): void {
+    popup.getTargetCallback = (): HTMLElement => chip.getInputElement();
+    chip.popupModel = popup;
+  }
+  // The chips that open a popup, in their order: the presets' chip and the badges as the chips row
+  // holds them, then Save as. Reported before a chip that is gone is disposed: the renderer unmounts
+  // its popup first.
+  private updatePopupChips(): void {
+    const res: Array<FilterChip> = (this.rowChips || []).filter((a: Action): boolean => a instanceof FilterChip) as Array<FilterChip>;
+    if (!!this.saveAsAction) res.push(this.saveAsAction);
+    if (!this.isSameList(this.owner.popupChips, res)) {
+      this.owner.popupChips = res;
+    }
   }
   private isSameList<T>(a: Array<T>, b: Array<T>): boolean {
     return !!a && a.length === b.length && a.every((v: T, i: number): boolean => v === b[i]);

@@ -15,7 +15,7 @@ import { FilterFieldPopup, writeFilterFieldCondition } from "./filter/filter-fie
 import { FilterSaveAsPopup } from "./filter/filter-save-as-popup";
 import { FilterModal } from "./filter/filter-modal";
 import { FilterEditPresetDialog, FilterPresetDialog } from "./filter/filter-preset-dialog";
-import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
+import { FilterChip, FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { FilterAIRequest } from "./filter/filter-ai";
 import { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
@@ -32,6 +32,7 @@ import { IDynamicDataFilterField, getFilterFieldTitle } from "./dynamic-data/dyn
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 import { toCssClasses } from "./utils/cssClassBuilder";
+import { propertyArray } from "./decorators";
 
 // What uiState keeps of the authored presets the respondent changed, by name.
 type FilterSavedItems = { [name: string]: IFilterSavedItemState };
@@ -921,6 +922,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   public get chipsToolbar(): ActionContainer { return this.toolbars.chipsToolbar; }
   public get clearToolbar(): ActionContainer { return this.toolbars.clearToolbar; }
   public get searchToolbar(): ActionContainer { return this.toolbars.searchToolbar; }
+  // The chips that open a popup - the presets' chip, the badges, Save as - in their order, kept by the
+  // toolbars. A renderer draws their popups next to the chips' action bar, not inside the chips: on a
+  // phone the row scrolls sideways, and iOS Safari keeps a fixed popup inside such a row.
+  @propertyArray() popupChips: Array<FilterChip>;
   // What cuts the chips row to one row while it is collapsed: the renderer attaches the element
   // that holds the chips' action bar to it.
   public get chipsLayout(): FilterChipsLayout { return this.toolbars.layout; }

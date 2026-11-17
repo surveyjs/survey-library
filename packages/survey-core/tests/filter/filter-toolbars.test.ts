@@ -320,6 +320,44 @@ describe("FilterToolbars: a badge's popup", () => {
   });
 });
 
+// The chips' popups are drawn next to the chips' row, not inside the chips: on a phone the row scrolls
+// sideways, and iOS Safari keeps a fixed popup inside such a row - the sheet is cut to the row.
+describe("FilterToolbars: the chips' popups, drawn next to the row", () => {
+  const popupChipIds = (q: QuestionFilterModel): Array<string> => q.popupChips.map((c: any) => c.id);
+  test("the chips that open a popup, in their order: the presets' chip, the badges, Save as", () => {
+    const q = createFilter();
+    q.chipsToolbar;
+    q.clearToolbar;
+    expect(popupChipIds(q)).toEqual(["sv-filter-preset"].concat(badges, ["sv-filter-save-as"]));
+  });
+  test("a chip that comes or goes comes or goes with them; a chip that goes is not there before it is disposed", () => {
+    const q = createFilter({ items: [] });
+    q.chipsToolbar;
+    q.clearToolbar;
+    expect(popupChipIds(q), "#1: no presets, no presets' chip").toEqual(badges.concat(["sv-filter-save-as"]));
+    const country = action(q.chipsToolbar, "sv-filter-field-country");
+    let isDisposedWhenGone: boolean;
+    q.onPropertyChanged.add((_: any, options: any): void => {
+      if (options.name === "popupChips" && q.popupChips.indexOf(country) < 0) isDisposedWhenGone = country.isDisposed;
+    });
+    q.fields.splice(1, 1);
+    expect(popupChipIds(q), "#2").toEqual(["sv-filter-field-name", "sv-filter-field-age", "sv-filter-save-as"]);
+    expect([isDisposedWhenGone, country.isDisposed], "#3").toEqual([false, true]);
+    q.items.push(new FilterItem("teens"));
+    expect(popupChipIds(q)[0], "#4").toBe("sv-filter-preset");
+  });
+  test("a chip's popup stands against the chip's own button, wherever the popup is drawn", () => {
+    const q = createFilter();
+    q.chipsToolbar;
+    q.clearToolbar;
+    q.popupChips.forEach((chip: any): void => {
+      const button = document.createElement("button");
+      chip.setInputElement(button);
+      expect(chip.popupModel.getTargetCallback(document.createElement("div")), chip.id).toBe(button);
+    });
+  });
+});
+
 describe("FilterToolbars: Filters, Clear All and Save", () => {
   test("Filters counts the conditions the filter is made of", () => {
     const q = createFilter({ items: [{ name: "two", expression: "{age} > 18 and {country} = 'de'" }] });

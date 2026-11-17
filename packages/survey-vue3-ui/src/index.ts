@@ -52,6 +52,8 @@ import MultipletextItem from "./MultipletextItem.vue";
 import Breadcrumbs from "./components/breadcrumbs/Breadcrumbs.vue";
 import SingleInputSummary from "./components/SingleInputSummary.vue";
 import Slider from "./Slider.vue";
+import DateTimePicker from "./DateTimePicker.vue";
+import Calendar from "./components/calendar/Calendar.vue";
 import SliderLabelItem from "./components/slider/SliderLabelItem.vue";
 
 import Matrix from "./Matrix.vue";
@@ -229,6 +231,8 @@ function registerComponents(
   registerComponent("sv-breadcrumbs", Breadcrumbs);
   registerComponent("sv-single-input-summary", SingleInputSummary);
   registerComponent("survey-slider", Slider);
+  registerComponent("survey-datetimepicker", DateTimePicker);
+  registerComponent("sv-calendar", Calendar);
   registerComponent("sv-slider-label-item", SliderLabelItem);
 
   registerComponent("survey-matrix", Matrix);

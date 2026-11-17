@@ -1,0 +1,24 @@
+<div [class]="model.rootCss">
+  <div [class]="model.cssClasses.toolbar">
+    <div *ngIf="model.showMonthTitles" [class]="model.cssClasses.monthTitles">
+      <div *ngFor="let month of model.months" [class]="model.cssClasses.monthTitle">{{ month.title }}</div>
+    </div>
+    <sv-ng-action-bar [model]="model.topToolbar"></sv-ng-action-bar>
+  </div>
+  <div *ngIf="model.isDayZoom" [class]="model.cssClasses.months">
+    <div *ngFor="let month of model.months" [class]="model.cssClasses.monthView">
+      <div [class]="model.cssClasses.weekDays">
+        <div *ngFor="let name of model.weekDays" [class]="model.cssClasses.weekDay">{{ name }}</div>
+      </div>
+      <div [class]="model.cssClasses.days" (mouseleave)="hoverItem()">
+        <div *ngFor="let item of month.days" [class]="item.css" (click)="selectItem(item)" (mouseenter)="hoverItem(item)">{{ item.text }}</div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!model.isDayZoom" [class]="model.cssClasses.grid" (mouseleave)="hoverItem()">
+    <div *ngFor="let item of model.items" [class]="item.css" (click)="selectItem(item)" (mouseenter)="hoverItem(item)">{{ item.text }}</div>
+  </div>
+  <div *ngIf="model.footerVisible" [class]="model.cssClasses.footer">
+    <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>
+  </div>
+</div>

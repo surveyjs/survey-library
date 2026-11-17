@@ -1,0 +1,35 @@
+<div #contentElement [class]="model.getRootClass()">
+  <ng-container *ngIf="!model.range">
+    <div [class]="model.getFieldClass()">
+      <input #input type="text" autocomplete="off" [class]="model.getControlClass()" [id]="model.inputId"
+        [placeholder]="model.renderedPlaceholder" [disabled]="model.isDisabledAttr" [readOnly]="model.isReadOnlyAttr"
+        (blur)="model.onBlur($event)" (focus)="model.onFocus($event)" (keyup)="model.onKeyUp($event)"
+        [attr.aria-required]="model.a11y_input_ariaRequired" [attr.aria-label]="model.a11y_input_ariaLabel"
+        [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy" [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+        [attr.aria-invalid]="model.a11y_input_ariaInvalid" [attr.aria-errormessage]="model.a11y_input_ariaErrormessage" />
+      <sv-ng-action-bar [model]="model.getEditorButtons(0)"></sv-ng-action-bar>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="model.range">
+    <div [class]="model.getFieldClass()">
+      <input #input type="text" autocomplete="off" [class]="model.getControlClass()" [id]="model.startInputId"
+        [placeholder]="model.renderedStartPlaceholder" [disabled]="model.isDisabledAttr" [readOnly]="model.isReadOnlyAttr"
+        (blur)="model.onBlur($event)" (focus)="model.onFocus($event)" (keyup)="model.onKeyUp($event)"
+        [attr.aria-required]="model.a11y_input_ariaRequired" [attr.aria-label]="model.a11y_input_ariaLabel"
+        [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy" [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+        [attr.aria-invalid]="model.a11y_input_ariaInvalid" [attr.aria-errormessage]="model.a11y_input_ariaErrormessage" />
+      <sv-ng-action-bar [model]="model.getEditorButtons(0)"></sv-ng-action-bar>
+    </div>
+    <span [class]="model.cssClasses.rangeSeparator">{{ model.rangeSeparatorText }}</span>
+    <div [class]="model.getFieldClass()">
+      <input #input type="text" autocomplete="off" [class]="model.getControlClass()" [id]="model.endInputId"
+        [placeholder]="model.renderedEndPlaceholder" [disabled]="model.isDisabledAttr" [readOnly]="model.isReadOnlyAttr"
+        (blur)="model.onBlur($event)" (focus)="model.onFocus($event)" (keyup)="model.onKeyUp($event)"
+        [attr.aria-required]="model.a11y_input_ariaRequired" [attr.aria-label]="model.a11y_input_ariaLabel"
+        [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy" [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+        [attr.aria-invalid]="model.a11y_input_ariaInvalid" [attr.aria-errormessage]="model.a11y_input_ariaErrormessage" />
+      <sv-ng-action-bar [model]="model.getEditorButtons(1)"></sv-ng-action-bar>
+    </div>
+  </ng-container>
+  <sv-ng-popup *ngIf="!model.isInputReadOnly" [popupModel]="model.popupModel"></sv-ng-popup>
+</div>

@@ -31,6 +31,20 @@
   background: transparent;
 }
 
+.sv-calendar__footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sv-calendar__footer-actions {
+  justify-content: flex-end;
+  gap: var(--sjs2-spacing-x100);
+  width: 100%;
+  padding: var(--sjs2-spacing-x100) 0 0;
+  border-top: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+  background: transparent;
+}
+
 .sv-calendar__nav-button,
 .sv-calendar__title {
   appearance: none;

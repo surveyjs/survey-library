@@ -15,6 +15,14 @@ export class SurveyCalendar extends SurveyElementBase<ICalendarProps, any> {
   protected getStateElement(): Base {
     return this.model;
   }
+  private renderFooter(): React.JSX.Element {
+    if (!this.model.footerVisible) return null;
+    return (
+      <div className={this.model.cssClasses.footer}>
+        <SurveyActionBar model={this.model.footerToolbar}></SurveyActionBar>
+      </div>
+    );
+  }
   private renderToolbar(): React.JSX.Element {
     const css = this.model.cssClasses;
     const monthTitles = this.model.showMonthTitles ?
@@ -24,7 +32,7 @@ export class SurveyCalendar extends SurveyElementBase<ICalendarProps, any> {
     return (
       <div className={css.toolbar}>
         {monthTitles}
-        <SurveyActionBar model={this.model.toolbar}></SurveyActionBar>
+        <SurveyActionBar model={this.model.topToolbar}></SurveyActionBar>
       </div>
     );
   }
@@ -61,6 +69,7 @@ export class SurveyCalendar extends SurveyElementBase<ICalendarProps, any> {
       <div className={this.model.rootCss}>
         {this.renderToolbar()}
         {content}
+        {this.renderFooter()}
       </div>
     );
   }

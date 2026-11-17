@@ -3,6 +3,8 @@ export const calendarCssClasses = {
   rootRange: "sv-calendar--range",
   toolbar: "sv-calendar__toolbar",
   toolbarActions: "sv-calendar__toolbar-actions",
+  footer: "sv-calendar__footer",
+  footerActions: "sv-calendar__footer-actions",
   navButton: "sv-calendar__nav-button",
   prevIconId: "icon-chevronleft-24x24",
   nextIconId: "icon-chevronright-24x24",

@@ -33,7 +33,8 @@ interface ICalendarItemState {
 
 export class CalendarModel extends Base {
   private hoveredItem: CalendarItem;
-  private toolbarValue: ActionContainer;
+  private topToolbarValue: ActionContainer;
+  private footerToolbarValue: ActionContainer;
 
   @property() viewDate: Date;
   @property() min: Date;
@@ -47,6 +48,7 @@ export class CalendarModel extends Base {
   @property() months: Array<CalendarMonth>;
   @property() items: Array<CalendarItem>;
   @property() weekDays: Array<string>;
+  @property({ defaultValue: false }) footerVisible: boolean;
 
   public onValueChanged: EventBase<CalendarModel, { value: any }> = this.addEvent<CalendarModel, { value: any }>();
   public onSelectionCompleted: EventBase<CalendarModel, { value: any }> = this.addEvent<CalendarModel, { value: any }>();
@@ -78,11 +80,18 @@ export class CalendarModel extends Base {
   public get showMonthTitles(): boolean {
     return this.monthCount > 1;
   }
-  public get toolbar(): ActionContainer {
-    if (!this.toolbarValue) {
-      this.toolbarValue = this.createToolbar();
+  public get topToolbar(): ActionContainer {
+    if (!this.topToolbarValue) {
+      this.topToolbarValue = this.createTopToolbar();
     }
-    return this.toolbarValue;
+    return this.topToolbarValue;
+  }
+  // An empty toolbar under the calendar. Extra buttons are added here by the host.
+  public get footerToolbar(): ActionContainer {
+    if (!this.footerToolbarValue) {
+      this.footerToolbarValue = this.createFooterToolbar();
+    }
+    return this.footerToolbarValue;
   }
   public get rootCss(): string {
     return new CssClassBuilder()
@@ -317,9 +326,9 @@ export class CalendarModel extends Base {
     }
     this.canPrev = !this.isNeighbourPeriodOutside(-1);
     this.canNext = !this.isNeighbourPeriodOutside(1);
-    this.updateToolbar();
+    this.updateTopToolbar();
   }
-  private createToolbar(): ActionContainer {
+  private createTopToolbar(): ActionContainer {
     const css = calendarCssClasses;
     const container = new ActionContainer();
     container.containerCss = css.toolbarActions;
@@ -349,24 +358,37 @@ export class CalendarModel extends Base {
       }),
       button("next", css.nextIconId, () => this.next())
     ]);
-    this.toolbarValue = container;
-    this.updateToolbar();
+    this.topToolbarValue = container;
+    this.updateTopToolbar();
     return container;
   }
-  private updateToolbar(): void {
-    if (!this.toolbarValue) return;
-    const prev = this.toolbarValue.getActionById("prev");
-    const next = this.toolbarValue.getActionById("next");
-    const title = this.toolbarValue.getActionById("title");
+  private createFooterToolbar(): ActionContainer {
+    const container = new ActionContainer();
+    container.containerCss = calendarCssClasses.footerActions;
+    container.setActionsAppearance({ mode: "secondary", style: "neutral", size: "small" });
+    container.onPropertyChanged.add(() => {
+      this.footerVisible = container.hasActions;
+    });
+    return container;
+  }
+  private updateTopToolbar(): void {
+    if (!this.topToolbarValue) return;
+    const prev = this.topToolbarValue.getActionById("prev");
+    const next = this.topToolbarValue.getActionById("next");
+    const title = this.topToolbarValue.getActionById("title");
     prev.setEnabled(this.canPrev);
     next.setEnabled(this.canNext);
     title.title = this.title;
     title.visible = this.canZoom;
   }
   public dispose(): void {
-    if (!!this.toolbarValue) {
-      this.toolbarValue.dispose();
-      this.toolbarValue = undefined;
+    if (!!this.topToolbarValue) {
+      this.topToolbarValue.dispose();
+      this.topToolbarValue = undefined;
+    }
+    if (!!this.footerToolbarValue) {
+      this.footerToolbarValue.dispose();
+      this.footerToolbarValue = undefined;
     }
     super.dispose();
   }

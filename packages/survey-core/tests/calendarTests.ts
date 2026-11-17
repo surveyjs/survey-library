@@ -282,12 +282,12 @@ describe("CalendarModel", () => {
     expect(calendar.rootCss).toBe("sv-calendar sv-calendar--range");
     expect(calendar.showMonthTitles).toBe(true);
     expect(calendar.canZoom).toBe(false);
-    expect(calendar.toolbar.getActionById("title").visible).toBe(false);
+    expect(calendar.topToolbar.getActionById("title").visible).toBe(false);
   });
 
   test("The toolbar is an action container", () => {
     const calendar = new CalendarModel({ viewDate: d(2026, 11, 1), min: d(2026, 11, 1), max: d(2026, 12, 31) });
-    const toolbar = calendar.toolbar;
+    const toolbar = calendar.topToolbar;
     expect(toolbar.actions.map(action => action.id)).toEqual(["prev", "title", "next"]);
     expect(toolbar.getActionById("prev").enabled).toBe(false);
     expect(toolbar.getActionById("next").enabled).toBe(true);
@@ -308,6 +308,21 @@ describe("CalendarModel", () => {
     calendar.range = true;
     expect(toolbar.getActionById("title").visible).toBe(false);
     expect(calendar.zoom).toBe("day");
+  });
+
+  test("The footer toolbar accepts custom actions", () => {
+    const calendar = new CalendarModel({ viewDate: d(2026, 11, 1) });
+    const footer = calendar.footerToolbar;
+    expect(footer.hasActions).toBe(false);
+    expect(calendar.footerVisible).toBe(false);
+    let clicked = 0;
+    footer.addAction({ id: "today", title: "Today", action: () => clicked++ });
+    expect(calendar.footerVisible).toBe(true);
+    expect(footer.actions.map(action => action.id)).toEqual(["today"]);
+    footer.getActionById("today").action();
+    expect(clicked).toBe(1);
+    calendar.dispose();
+    expect(calendar["footerToolbarValue"]).toBeUndefined();
   });
 
   test("onSelectionCompleted fires on every day selection, even if the value is the same", () => {

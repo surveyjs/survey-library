@@ -377,8 +377,10 @@
   }
 
   // A checkbox list shows its state with the checkbox, not with a selected row: a checked row is
-  // painted as any other one, gray under the pointer (sv-list), as in the mockup.
-  .sv-list__item--selected .sv-list__item-body:has(.sd-filter-popup__item) {
+  // painted as any other one, gray under the pointer (sv-list), as in the mockup. On a phone the
+  // sheet's list paints a selected row under the pointer or the focus in the brand color, with white
+  // text (sv-popup--menu-phone): the item's own class keeps this rule over that one.
+  .sv-list__item.sv-list__item--selected .sv-list__item-body:has(.sd-filter-popup__item) {
     background: transparent;
     color: var(--sjs2-color-fg-basic-primary);
   }

@@ -72,6 +72,13 @@ async function pick(page: Page, field: string, text: string): Promise<void> {
   await popup.getByRole("button", { name: "Apply" }).click();
   await expect(popup).toBeHidden();
 }
+// A phone's screen: the control in its phone layout, where a chip's popup is a sheet at the bottom.
+async function initPhone(page: Page, framework: string): Promise<void> {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await initSurvey(page, framework, json());
+  await page.evaluate(() => { (window as any).survey.setIsMobile(true); });
+  await expect(page.locator(".sd-filter--mobile")).toBeVisible();
+}
 // fill() fires "input" only. The Angular and Vue text inputs pass a typed value on keyup (or on
 // change, at blur): a key sends it on, as typing would.
 async function type(input: Locator, text: string): Promise<void> {
@@ -163,6 +170,20 @@ frameworks.forEach((framework) => {
       await expect.poll(() => hasFocus(popup), { message: "#10: the focus is in the menu" }).toBe(true);
       await page.mouse.click(5, 795);
       await expect(popup, "#11: the same with the focus in the menu").toBeHidden();
+    });
+
+    // On a phone a chip's popup is a sheet, whose list paints a selected row under the pointer or the
+    // focus in the brand color (sv-popup--menu-phone). A checkbox list shows its state with the
+    // checkbox: a checked row keeps the text color of the others.
+    test("on a phone a checked row of a chip's sheet keeps the text color of the others", async ({ page }) => {
+      await initPhone(page, framework);
+      await chip(page, "Country").click();
+      const popup = popupWith(page, ".sd-filter-popup");
+      const text = (value: string): Locator => popup.getByText(value, { exact: true });
+      const color = (value: string): Promise<string> => text(value).evaluate((el: HTMLElement) => getComputedStyle(el).color);
+      await text("France").click();
+      await text("France").hover();
+      expect(await color("France")).toBe(await color("Germany"));
     });
 
     test("a chip's cross clears its condition", async ({ page }) => {

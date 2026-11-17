@@ -63,6 +63,11 @@ sv-popup {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+
+  &:hover {
+    border-radius: var(--sjs2-radius-component-action);
+    background: var(--sjs2-color-component-action-neutral-tertiary-hovered-bg);
+  }
 }
 
 .sv-popup__close-button-icon {

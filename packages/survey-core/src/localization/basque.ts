@@ -309,6 +309,122 @@ export var basqueSurveyStrings = {
   progressbar: "Aurrerapen barra",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Orrialde {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Hutsik",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Ez da hutsik",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Berdinak",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Ez da berdina",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Dauka",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Ez du barne",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Edozein",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Ez horietako bat ere",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Denak",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Handiagoa baino",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Gutxiago",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Handiagoa edo berdina",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Txikiagoa edo berdina",
+  // [Auto-translated] "Save"
+  filterSave: "Gorde",
+  // [Auto-translated] "Filters"
+  filterFilters: "Iragazkiak",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Iragazkiak: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Iragazkiak",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Bilatu",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Bilatu {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Gehiago erakutsi",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Gutxiago erakutsi",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Denak garbitu",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Garbi {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Aurrez ezarrita",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Gorde gisa...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Gorde",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Gehitu \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Aurrezarpenak",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Erakutsi {0} elementuak",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Erakutsi 1 elementu",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Emaitzak erakutsi",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Aurrezarpen berria",
+  // [Auto-translated] "Name"
+  filterPresetName: "Izena",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Dauka",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Izen horrekin aurrezarpen bat dagoeneko existitzen da.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Gutxienez baldintza bat gehitu.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Sartu adierazpen bat.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Adierazpena ez da baliozkoa.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Adierazpen gisa editatu",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Editatu Tagbox gisa",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Idatzi adierazpen bat hemen...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Editatu Aurrezarpena",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Ezabatu",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Gehitu Berria...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Editatu hautatua...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Adierazpena",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Editatu...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Bilatu iragazkietan",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Ez da ezer aurkitu, saiatu gako-hitz desberdinak",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Sortu aurrezarpena AI-rekin",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Editatu aurrezarpena AI-rekin",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Adibidez, \"Alemaniako Kafea eta Tea\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Sortu",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Editatu",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Sortzen...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Editatzen...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI-k ezin izan zuen iragazkirik egin. Saiatu berriro.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AIk ezin izan zuen deskribapen horren iragazkirik egin.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "hautatzeko",
   // [Auto-translated] "to toggle"

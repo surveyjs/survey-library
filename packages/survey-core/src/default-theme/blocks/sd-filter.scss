@@ -211,9 +211,10 @@
   flex: 0 0 auto;
 }
 
-// On a phone the chips stay in one row that scrolls sideways.
-.sd-filter--mobile .sd-filter__chips .sd-action-bar {
-  flex-wrap: nowrap;
+// On a phone the chips, then Save, Save as... and Clear All, are one row that scrolls sideways, as in
+// the mockup: the buttons follow the last chip, 16px after it, and the chips have the whole width.
+.sd-filter--mobile .sd-filter__chips-row {
+  gap: var(--sjs2-spacing-x200);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -221,6 +222,21 @@
   &::-webkit-scrollbar {
     display: none;
   }
+
+  & > * {
+    flex: 0 0 auto;
+  }
+
+  .sd-action-bar {
+    flex-wrap: nowrap;
+  }
+}
+
+// The chips' popups (QuestionFilterModel.popupChips), drawn outside the chips row: on a phone the row
+// scrolls sideways, and iOS Safari keeps a fixed popup inside such a row. Out of the flow, so the
+// control's gap does not count them; the popups are fixed and place themselves.
+.sd-filter__popups {
+  position: absolute;
 }
 
 // The advanced dialog's editor survey: no page gutter and no framed card per field - inside a dialog

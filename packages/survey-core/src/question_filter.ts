@@ -923,8 +923,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   public get clearToolbar(): ActionContainer { return this.toolbars.clearToolbar; }
   public get searchToolbar(): ActionContainer { return this.toolbars.searchToolbar; }
   // The chips that open a popup - the presets' chip, the badges, Save as - in their order, kept by the
-  // toolbars. A renderer draws their popups next to the chips' action bar, not inside the chips: on a
-  // phone the row scrolls sideways, and iOS Safari keeps a fixed popup inside such a row. Reading the
+  // toolbars. A renderer draws their popups outside the chips row (cssClasses.popups): on a phone the
+  // row scrolls sideways, and iOS Safari keeps a fixed popup inside such a row. Reading the
   // list builds the rows it is made from: a renderer that reads it before them gets it whole, and does
   // not see it change while it renders.
   public get popupChips(): Array<FilterChip> {

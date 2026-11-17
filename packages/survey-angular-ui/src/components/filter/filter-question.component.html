@@ -12,4 +12,7 @@
     <sv-ng-filter-chips [question]="model"></sv-ng-filter-chips>
     <sv-ng-action-bar [model]="model.clearToolbar"></sv-ng-action-bar>
   </div>
+  <div [class]="model.cssClasses.popups">
+    <sv-ng-popup *ngFor="let chip of model.popupChips; trackBy: trackChipBy" [popupModel]="chip.popupModel"></sv-ng-popup>
+  </div>
 </div>

@@ -898,7 +898,7 @@ export class FilterToolbars {
     if (!!saveAsPopup) saveAsPopup.dispose();
     if (!!presetDialog) presetDialog.dispose();
   }
-  // A chip's popup is drawn next to the chips' action bar, not inside the chip (see
+  // A chip's popup is drawn outside the chips row, not inside the chip (see
   // QuestionFilterModel.popupChips), so it stands against the chip's own button: the button its
   // renderer sets as the chip's input element.
   private setChipPopup(chip: FilterChip, popup: PopupModel): void {

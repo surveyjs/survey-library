@@ -53,7 +53,6 @@ export class FilterChipsLayout extends Base {
     }
     // The chips are the container's grandchildren (container > action bar > items), and a retitled chip
     // changes its text only. Attributes are not observed: update() itself changes the chips' classes.
-    // The chips' popups are drawn in the container, after the bar, so opening one measures the row once too.
     if (typeof MutationObserver !== "undefined") {
       this.mutationObserver = new MutationObserver((): void => { this.update(); });
       this.mutationObserver.observe(container, { childList: true, subtree: true, characterData: true });

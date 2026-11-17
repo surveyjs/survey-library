@@ -13,17 +13,19 @@
     <div :class="question.cssClasses.chipsRow">
       <div :class="question.chipsCss" ref="chipsRef">
         <SvComponent :is="'sv-action-bar'" :model="question.chipsToolbar"></SvComponent>
-        <SvComponent v-for="chip in question.popupChips" :key="chip.id" :is="'sv-popup'" :model="chip.popupModel"></SvComponent>
       </div>
       <SvComponent :is="'sv-action-bar'" :model="question.clearToolbar"></SvComponent>
+    </div>
+    <div :class="question.cssClasses.popups">
+      <SvComponent v-for="chip in question.popupChips" :key="chip.id" :is="'sv-popup'" :model="chip.popupModel"></SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 // The Filter Control (#11890), as packages/survey-react-ui/src/components/filter/filter.tsx draws it.
-// The chips' popups are drawn after the chips' action bar, not inside it: on a phone the bar scrolls
-// sideways, and iOS Safari keeps a fixed popup inside such a bar.
+// The chips' popups are drawn outside the chips row: on a phone the row scrolls sideways, and iOS
+// Safari keeps a fixed popup inside such a row.
 import { type QuestionFilterModel, filterUIStrings } from "survey-core";
 import SvComponent from "@/SvComponent.vue";
 import { useBase, useQuestion } from "./base";

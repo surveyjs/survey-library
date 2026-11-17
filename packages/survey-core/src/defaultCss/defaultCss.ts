@@ -1084,6 +1084,7 @@ export var defaultCss = {
     chipsRow: "sd-filter__chips-row",
     chips: "sd-filter__chips",
     chipsExpanded: "sd-filter__chips--expanded",
+    popups: "sd-filter__popups",
     chip: "sd-filter__chip",
     chipMarker: "sd-filter__chip-marker",
     chipBox: "sd-filter__chip-box",

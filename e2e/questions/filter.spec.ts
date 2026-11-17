@@ -73,9 +73,9 @@ async function pick(page: Page, field: string, text: string): Promise<void> {
   await expect(popup).toBeHidden();
 }
 // A phone's screen: the control in its phone layout, where a chip's popup is a sheet at the bottom.
-async function initPhone(page: Page, framework: string): Promise<void> {
+async function initPhone(page: Page, framework: string, surveyJson: any = json()): Promise<void> {
   await page.setViewportSize({ width: 375, height: 667 });
-  await initSurvey(page, framework, json());
+  await initSurvey(page, framework, surveyJson);
   await page.evaluate(() => { (window as any).survey.setIsMobile(true); });
   await expect(page.locator(".sd-filter--mobile")).toBeVisible();
 }
@@ -188,10 +188,10 @@ frameworks.forEach((framework) => {
 
     // On a phone the chips row scrolls sideways, and iOS Safari keeps a fixed element inside such a row:
     // a sheet drawn inside a chip was cut to the row, so a tap on a chip seemed to do nothing. The test
-    // makes the row keep its fixed elements as Safari does; the sheets are drawn next to the row.
+    // makes the row keep its fixed elements as Safari does; the sheets are drawn outside the row.
     test("on a phone a chip's sheet covers the screen's bottom even where the chips row keeps fixed elements", async ({ page }) => {
       await initPhone(page, framework);
-      const row = page.locator(".sd-filter__chips .sd-action-bar");
+      const row = page.locator(".sd-filter__chips-row");
       await row.evaluate((el: HTMLElement) => { el.style.transform = "translateZ(0)"; });
       const rowBox = await row.boundingBox();
       const sheet = page.locator(".sv-popup--sheet .sv-popup__container").filter({ visible: true });
@@ -211,6 +211,27 @@ frameworks.forEach((framework) => {
         await page.mouse.click(5, 5);
         await expect(sheet, name).toBeHidden();
       }
+    });
+
+    // As the mockup's phone: the chips, Save as... and Clear All are one row that scrolls sideways, the
+    // buttons 16px after the last chip; the chips have the whole width.
+    test("on a phone Save as... and Clear All follow the last chip in the row that scrolls sideways", async ({ page }) => {
+      await initPhone(page, framework, json(longColumns()));
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("f1").setFieldCondition("age", "greater", 18); });
+      const row = page.locator(".sd-filter__chips-row");
+      const lastChip = page.locator(".sd-filter__chips .sd-filter__chip").last();
+      const saveAs = page.locator(".sd-filter__save-as");
+      const clearAll = page.locator(".sd-filter__clear");
+      await expect(saveAs).toBeVisible();
+      const rowBox = await row.boundingBox();
+      expect((await page.locator(".sd-filter__chips").boundingBox()).width, "#1: the chips have the whole width")
+        .toBeGreaterThanOrEqual(rowBox.width);
+      const chipBox = await lastChip.boundingBox();
+      expect(Math.round((await saveAs.boundingBox()).x - (chipBox.x + chipBox.width)), "#2: 16px after the last chip").toBe(16);
+      await row.evaluate((el: HTMLElement) => { el.scrollLeft = el.scrollWidth; });
+      const clearBox = await clearAll.boundingBox();
+      expect(clearBox.x + clearBox.width, "#3: Clear All at the row's end").toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
+      expect(clearBox.x, "#4").toBeGreaterThanOrEqual(rowBox.x);
     });
 
     test("a chip's cross clears its condition", async ({ page }) => {

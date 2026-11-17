@@ -1,15 +1,18 @@
 import { Component } from "@angular/core";
-import { QuestionFilterModel, filterUIStrings } from "survey-core";
+import { FilterChip, QuestionFilterModel, filterUIStrings } from "survey-core";
 import { QuestionAngular } from "../../question";
 import { AngularComponentFactory } from "../../component-factory";
 
 // The Filter Control (#11890), as packages/survey-react-ui/src/components/filter/filter.tsx draws it.
-// The chips row is its own component: it watches the layout that cuts the row to one row.
+// The chips row is its own component: it watches the layout that cuts the row to one row. The chips'
+// popups are drawn outside the chips row: on a phone the row scrolls sideways, and iOS Safari keeps a
+// fixed popup inside such a row.
 @Component({
   selector: "sv-ng-filter-question",
   templateUrl: "./filter-question.component.html"
 })
 export class FilterQuestionComponent extends QuestionAngular<QuestionFilterModel> {
+  public trackChipBy = (_: number, chip: FilterChip): string => chip.id;
   public get searchLabel(): string {
     return filterUIStrings.searchLabel;
   }

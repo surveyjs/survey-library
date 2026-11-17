@@ -8,6 +8,7 @@ import { ItemValue } from "../../src/itemvalue";
 import { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../../src/interfaces/ui-interfaces";
 import { ConditionRunner } from "../../src/conditions/conditionRunner";
+import { surveyLocalization } from "../../src/surveyStrings";
 import "../../src/question_text";
 import "../../src/question_dropdown";
 import "../../src/question_checkbox";
@@ -45,10 +46,16 @@ describe("getConditionOperatorTitle", () => {
     expect(getConditionOperatorTitle("greaterorequal"), "#12").toBe("Greater than or equal to");
     expect(getConditionOperatorTitle("lessorequal"), "#13").toBe("Less than or equal to");
   });
-  // German has no translation of these keys yet, so the lookup must fall back to English rather
-  // than return the key name or undefined.
+  // A locale that has not translated these keys yet falls back to English rather than return the key
+  // name or undefined. The locale is the test's own: the l10n job translates every new key into every
+  // real locale, so no real one stays without them.
   test("a locale without a translation falls back to English", () => {
-    expect(getConditionOperatorTitle("equal", "de")).toBe("Equals");
+    surveyLocalization.locales["conditionsyy"] = { completeText: "Fertig" };
+    try {
+      expect(getConditionOperatorTitle("equal", "conditionsyy")).toBe("Equals");
+    } finally {
+      delete surveyLocalization.locales["conditionsyy"];
+    }
   });
   // An operator the table does not know (a future operator, a typo) has no title to look up, so the
   // best it can do is echo the operator name back rather than return undefined.

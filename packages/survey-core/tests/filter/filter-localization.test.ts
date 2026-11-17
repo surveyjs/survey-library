@@ -12,7 +12,10 @@ import { getFilterExpressionError } from "../../src/filter/filter-expression-pan
 import { getFilterPresetTitleError } from "../../src/filter/filter-preset-dialog";
 
 // The control's own captions come from the locale dictionary, in the survey's locale: a locale that
-// translates them shows its texts, a locale that does not falls back to English.
+// translates them shows its texts, a locale that does not falls back to English. Both locales are the
+// tests' own: the l10n job translates every new key into every real locale, so no real one stays
+// without these keys.
+const yy = { completeText: "Fertig" };
 const xx = {
   filterSave: "Speichern",
   filterFilters: "Filtern",
@@ -95,8 +98,14 @@ function stubDialogs(): { calls: Array<any>, restore: () => void } {
   return { calls: calls, restore: () => { settings.showDialog = saved; } };
 }
 
-beforeAll(() => { surveyLocalization.locales["filterxx"] = xx; });
-afterAll(() => { delete surveyLocalization.locales["filterxx"]; });
+beforeAll(() => {
+  surveyLocalization.locales["filterxx"] = xx;
+  surveyLocalization.locales["filteryy"] = yy;
+});
+afterAll(() => {
+  delete surveyLocalization.locales["filterxx"];
+  delete surveyLocalization.locales["filteryy"];
+});
 
 describe("Filter localization: the rows", () => {
   test("Filters, Show More, Save, Save as..., Clear All and the presets' chip", () => {
@@ -119,7 +128,7 @@ describe("Filter localization: the rows", () => {
     expect(rowCaptions(q), "#3").toEqual(["Filters", "Filters", "Show More", "Save", "Save as...", "Clear All", "Preset"]);
   });
   test("a locale that does not translate them shows them in English", () => {
-    const q = control("de");
+    const q = control("filteryy");
     expect(rowCaptions(q)).toEqual(["Filters", "Filters", "Show More", "Save", "Save as...", "Clear All", "Preset"]);
   });
   test("the search box: its placeholder names the fields it searches, and its accessible name", () => {
@@ -225,7 +234,7 @@ describe("Filter localization: the preset dialogs", () => {
     expect(getFilterPresetTitleError("Adults", ["Adults"], "filterxx"), "#1").toBe("Die gibt es schon.");
     expect([getFilterExpressionError("", "filterxx"), getFilterExpressionError("{age} >", "filterxx")], "#2")
       .toEqual(["Kein Ausdruck.", "Falscher Ausdruck."]);
-    expect(getFilterExpressionError("", "de"), "#3: no translation").toBe("Enter an expression.");
+    expect(getFilterExpressionError("", "filteryy"), "#3: no translation").toBe("Enter an expression.");
   });
   test("the AI description: its caption, placeholder, button and errors", () => {
     const q = control("filterxx");

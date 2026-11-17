@@ -192,12 +192,39 @@
   }
 }
 
+// today + selected: the white frame keeps the cell radius, and the green fill around it
+// is larger by the outline thickness. padding = externalRadius - internalRadius, so the
+// corners meet and the green fill does not stick out past the white frame.
 .sv-calendar__day--today.sv-calendar__day--selected:not(.sv-calendar__day--range-middle),
 .sv-calendar__month--today.sv-calendar__month--selected,
 .sv-calendar__year--today.sv-calendar__year--selected {
+  --sv-calendar-today-outline: var(--sjs2-border-width-x200);
+  border-radius: calc(var(--sv-calendar-cell-radius) + var(--sv-calendar-today-outline));
+
   &::after {
-    inset: var(--sjs2-border-width-x200);
+    inset: var(--sv-calendar-today-outline);
+    border-radius: var(--sv-calendar-cell-radius);
     border-color: var(--sjs2-color-border-brand-on-primary);
+  }
+}
+
+.sv-calendar__day--today.sv-calendar__day--range-start {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+
+  &::after {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+}
+
+.sv-calendar__day--today.sv-calendar__day--range-end {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+
+  &::after {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
   }
 }
 

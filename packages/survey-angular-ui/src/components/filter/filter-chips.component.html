@@ -1,5 +1,6 @@
 <ng-template #template>
   <div [class]="question.chipsCss" #chips>
     <sv-ng-action-bar [model]="question.chipsToolbar"></sv-ng-action-bar>
+    <sv-ng-popup *ngFor="let chip of question.popupChips; trackBy: trackChipBy" [popupModel]="chip.popupModel"></sv-ng-popup>
   </div>
 </ng-template>

@@ -32,7 +32,6 @@ import { IDynamicDataFilterField, getFilterFieldTitle } from "./dynamic-data/dyn
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 import { toCssClasses } from "./utils/cssClassBuilder";
-import { propertyArray } from "./decorators";
 
 // What uiState keeps of the authored presets the respondent changed, by name.
 type FilterSavedItems = { [name: string]: IFilterSavedItemState };
@@ -77,6 +76,7 @@ export class QuestionFilterModel extends QuestionNonValue {
 
   constructor(name: string) {
     super(name);
+    this.createNewArray("popupChips");
     this.createNewArray("fields",
       (field: FilterField): void => { this.onFieldAdded(field); },
       (field: FilterField): void => { this.onFieldRemoved(field); });
@@ -924,8 +924,20 @@ export class QuestionFilterModel extends QuestionNonValue {
   public get searchToolbar(): ActionContainer { return this.toolbars.searchToolbar; }
   // The chips that open a popup - the presets' chip, the badges, Save as - in their order, kept by the
   // toolbars. A renderer draws their popups next to the chips' action bar, not inside the chips: on a
-  // phone the row scrolls sideways, and iOS Safari keeps a fixed popup inside such a row.
-  @propertyArray() popupChips: Array<FilterChip>;
+  // phone the row scrolls sideways, and iOS Safari keeps a fixed popup inside such a row. Reading the
+  // list builds the rows it is made from: a renderer that reads it before them gets it whole, and does
+  // not see it change while it renders.
+  public get popupChips(): Array<FilterChip> {
+    if (!this.isDisposed) {
+      this.chipsToolbar;
+      this.clearToolbar;
+    }
+    return this.getPropertyValue("popupChips");
+  }
+  public set popupChips(val: Array<FilterChip>) {
+    const list: Array<FilterChip> = this.getPropertyValue("popupChips");
+    list.splice(0, list.length, ...val);
+  }
   // What cuts the chips row to one row while it is collapsed: the renderer attaches the element
   // that holds the chips' action bar to it.
   public get chipsLayout(): FilterChipsLayout { return this.toolbars.layout; }

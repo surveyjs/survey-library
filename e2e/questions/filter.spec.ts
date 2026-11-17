@@ -186,6 +186,33 @@ frameworks.forEach((framework) => {
       expect(await color("France")).toBe(await color("Germany"));
     });
 
+    // On a phone the chips row scrolls sideways, and iOS Safari keeps a fixed element inside such a row:
+    // a sheet drawn inside a chip was cut to the row, so a tap on a chip seemed to do nothing. The test
+    // makes the row keep its fixed elements as Safari does; the sheets are drawn next to the row.
+    test("on a phone a chip's sheet covers the screen's bottom even where the chips row keeps fixed elements", async ({ page }) => {
+      await initPhone(page, framework);
+      const row = page.locator(".sd-filter__chips .sd-action-bar");
+      await row.evaluate((el: HTMLElement) => { el.style.transform = "translateZ(0)"; });
+      const rowBox = await row.boundingBox();
+      const sheet = page.locator(".sv-popup--sheet .sv-popup__container").filter({ visible: true });
+      for (const name of ["Country", "Preset"]) {
+        await chip(page, name).click();
+        await expect(sheet, name).toBeVisible();
+        const box = await sheet.boundingBox();
+        expect(box.width, name + ": wider than the row").toBeGreaterThan(rowBox.width);
+        expect(Math.abs(box.y + box.height - 667), name + ": at the screen's bottom").toBeLessThanOrEqual(1);
+        const isHit = await sheet.evaluate((el: HTMLElement) => {
+          const r = el.getBoundingClientRect();
+          const hit = (el.getRootNode() as Document | ShadowRoot).elementFromPoint(r.x + r.width / 2, r.y + 10);
+          return el.contains(hit);
+        });
+        expect(isHit, name + ": a tap reaches the sheet").toBe(true);
+        // A tap on the dimmed page closes it.
+        await page.mouse.click(5, 5);
+        await expect(sheet, name).toBeHidden();
+      }
+    });
+
     test("a chip's cross clears its condition", async ({ page }) => {
       await initSurvey(page, framework, json());
       await pick(page, "Country", "Germany");

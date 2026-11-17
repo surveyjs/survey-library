@@ -151,6 +151,8 @@ export class FilterToolbars {
   // replaced by another one of the same name (a restored uiState, a new items array) has a new row with
   // the same id.
   private presetRows: Array<IFilterPresetRow> = [];
+  // The chips that open a popup, as last reported to the owner (see updatePopupChips).
+  private popupChips: Array<FilterChip> = [];
   // The chips the row holds, in order.
   private rowChips: Array<Action>;
   private advancedHolder: FilterEditorHolder;
@@ -471,6 +473,7 @@ export class FilterToolbars {
     this.saveAsAction = undefined;
     this.saveAsHolder = undefined;
     this.clearAction = undefined;
+    this.popupChips = [];
     this.owner.popupChips = [];
     [this.chipsToolbarValue, this.clearToolbarValue, this.searchToolbarValue].forEach((row: ActionContainer): void => {
       if (!row) return;
@@ -902,7 +905,8 @@ export class FilterToolbars {
   private updatePopupChips(): void {
     const res: Array<FilterChip> = (this.rowChips || []).filter((a: Action): boolean => a instanceof FilterChip) as Array<FilterChip>;
     if (!!this.saveAsAction) res.push(this.saveAsAction);
-    if (!this.isSameList(this.owner.popupChips, res)) {
+    if (!this.isSameList(this.popupChips, res)) {
+      this.popupChips = res;
       this.owner.popupChips = res;
     }
   }

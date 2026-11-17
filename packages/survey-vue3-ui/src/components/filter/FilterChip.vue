@@ -1,7 +1,6 @@
 <template>
   <div :class="item.boxCss">
     <ActionBarItem :item="item"></ActionBarItem>
-    <SvComponent v-if="item.popupModel" :is="'sv-popup'" :model="item.popupModel"></SvComponent>
     <ActionBarItem v-if="item.isClearable" :item="item.clearAction"></ActionBarItem>
   </div>
 </template>
@@ -12,11 +11,10 @@ export default {
 </script>
 <script lang="ts" setup>
 // A chip of the Filter Control (FilterChip): the standard action button (its trailing chevron is the
-// item's markerIconName), the popup right after the button (the popup is placed against its previous
-// sibling) and, while the chip can be cleared, its cross - a button of its own, which the theme draws
-// over the chip's end. The button sets the item's input element itself: a child mounts before its
-// parent.
-import SvComponent from "@/SvComponent.vue";
+// item's markerIconName) and, while the chip can be cleared, its cross - a button of its own, which
+// the theme draws over the chip's end. Its popup is drawn by the control, next to the chips' action bar
+// (see QuestionFilterModel.popupChips); the chip only shows that the popup is open. The button sets the
+// item's input element - the element the popup stands against - itself.
 import ActionBarItem from "@/components/action-bar/ActionBarItem.vue";
 import { useBase } from "@/base";
 import { type FilterChip, ActionDropdownViewModel } from "survey-core";

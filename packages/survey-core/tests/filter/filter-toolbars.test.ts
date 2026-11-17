@@ -330,6 +330,12 @@ describe("FilterToolbars: the chips' popups, drawn next to the row", () => {
     q.clearToolbar;
     expect(popupChipIds(q)).toEqual(["sv-filter-preset"].concat(badges, ["sv-filter-save-as"]));
   });
+  // A renderer may read the list before the rows: it gets the whole list at once, and does not have to
+  // see it change while it renders.
+  test("reading them builds the rows they are in", () => {
+    const q = createFilter();
+    expect(popupChipIds(q)).toEqual(["sv-filter-preset"].concat(badges, ["sv-filter-save-as"]));
+  });
   test("a chip that comes or goes comes or goes with them; a chip that goes is not there before it is disposed", () => {
     const q = createFilter({ items: [] });
     q.chipsToolbar;

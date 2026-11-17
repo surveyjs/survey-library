@@ -4,11 +4,12 @@ import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
 // A chip of the Filter Control (FilterChip): the standard action button (sv-action-bar-item; its
-// trailing chevron is the item's markerIconName), the popup right after the button (the popup is
-// placed against its previous sibling) and, while the chip can be cleared, its cross - a button of its
-// own, which the theme draws over the chip's end. Not an ActionBarItemComponent: the inner item sets
-// the item's input element, and that class's ngAfterViewInit here, with no button of its own, would
-// set it to undefined after.
+// trailing chevron is the item's markerIconName) and, while the chip can be cleared, its cross - a
+// button of its own, which the theme draws over the chip's end. Its popup is drawn by the chips row,
+// next to the chips' action bar (see QuestionFilterModel.popupChips); the chip only shows that the
+// popup is open. Not an ActionBarItemComponent: the inner item sets the item's input element - the
+// button the popup stands against - and that class's ngAfterViewInit here, with no button of its own,
+// would set it to undefined after.
 @Component({
   selector: "sv-ng-filter-chip",
   templateUrl: "./filter-chip.component.html",

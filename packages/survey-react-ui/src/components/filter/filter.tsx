@@ -7,7 +7,7 @@
 // Create custom filter has nothing here: it is a survey, drawn by the "survey" component.
 import * as React from "react";
 import {
-  Action, Base, FilterChip, FilterEditorHolder, FilterFieldPopup, FilterSaveAsPopup,
+  Action, ActionDropdownViewModel, Base, FilterChip, FilterEditorHolder, FilterFieldPopup, FilterSaveAsPopup,
   FilterModal, FilterPresetDialog, ListModel, Question, QuestionFilterModel, SurveyError, SurveyModel,
   filterChipComponentName, filterModalComponentName, filterFieldPopupComponentName, filterListItemComponentName,
   filterPresetDialogComponentName, filterSaveAsPopupComponentName, filterUIStrings
@@ -18,9 +18,9 @@ import { SurveyElementBase, SurveyQuestionElementBase } from "../../reactquestio
 import { ISurveyCreator } from "../../reactquestion";
 import { SurveyPage } from "../../page";
 import { SurveyActionBar } from "../action-bar/action-bar";
-import { SurveyActionBarItemDropdown } from "../action-bar/action-bar-item-dropdown";
 import { SurveyActionBarItem } from "../action-bar/action-bar-item";
 import { List } from "../list/list";
+import { Popup } from "../popup/popup";
 import { SvgIcon } from "../svg-icon/svg-icon";
 
 // The editor survey is rendered as a page, not as a whole Survey (a Survey inside another survey's
@@ -312,13 +312,22 @@ export class SurveyFilterListItem extends SurveyElementBase<{ model: ListModel, 
 ReactElementFactory.Instance.registerElement(filterListItemComponentName,
   (props) => { return React.createElement(SurveyFilterListItem, props); });
 
-// A field's chip (FilterChip): the standard action button (its trailing chevron is the item's
-// markerIconName) and its popup, and, while the chip can be cleared, its cross - a button of its own
-// after the popup (the popup is placed against its previous sibling, the chip's button), which the
-// theme draws over the chip's end.
-export class SurveyFilterChip extends SurveyActionBarItemDropdown {
+// A chip (FilterChip): the standard action button (its trailing chevron is the item's markerIconName)
+// and, while the chip can be cleared, its cross - a button of its own, which the theme draws over the
+// chip's end. Its popup is drawn by the control, next to the chips' action bar (see
+// QuestionFilterModel.popupChips); the chip only shows that the popup is open.
+export class SurveyFilterChip extends SurveyActionBarItem {
+  private viewModel: ActionDropdownViewModel;
   private get chip(): FilterChip {
     return this.item as FilterChip;
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.viewModel = new ActionDropdownViewModel(this.item);
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    this.viewModel.dispose();
   }
   renderElement(): React.JSX.Element {
     const chip = this.chip;
@@ -371,6 +380,8 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
       <SurveyActionBar model={q.searchToolbar} />
     </div>;
   }
+  // The chips' popups are drawn after the chips' action bar, not inside it: on a phone the bar scrolls
+  // sideways, and iOS Safari keeps a fixed popup inside such a bar.
   protected renderElement(): React.JSX.Element {
     const q = this.question;
     const css = q.cssClasses;
@@ -379,6 +390,7 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
       <div className={css.chipsRow}>
         <div className={q.chipsCss} ref={this.chipsRef}>
           <SurveyActionBar model={q.chipsToolbar} />
+          {q.popupChips.map((chip: FilterChip) => <Popup key={chip.id} model={chip.popupModel} />)}
         </div>
         <SurveyActionBar model={q.clearToolbar} />
       </div>

@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { Question, ValidationContext } from "../src/question";
-import { PanelModel, QuestionRowModel } from "../src/panel";
+import { PanelModel, PanelModelBase, QuestionRowModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { FlowPanelModel } from "../src/flowpanel";
@@ -4884,5 +4884,128 @@ describe("Container visibility: childVisibilityChanged compares the stored isVis
     expect(row.changeUIMountCount(-1), "no component is left").toBe(0);
     expect(row.changeUIMountCount(-1), "an extra unmount keeps zero").toBe(0);
     expect(row.changeUIMountCount(1), "a new mount counts from zero").toBe(1);
+  });
+});
+
+describe("A panel computes its visibility once when the survey loads", () => {
+  const visibility = (el: any): string => el.name + ":" + el.isVisible + "/" + el.getPropertyValue("isVisible");
+  const rowsState = (panel: PanelModel): Array<string> =>
+    panel.rows.map(row => row.visible + " [" + row.visibleElements.map(el => el.name).join(",") + "]");
+  test("A panel hidden by its only question, a panel hidden by visibleIf and a visible panel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "x" },
+        { type: "panel", name: "pA", elements: [{ type: "text", name: "qa1", visible: false }] },
+        { type: "panel", name: "pB", elements: [
+          { type: "text", name: "qb1", visibleIf: "{x} = 1" },
+          { type: "text", name: "qb2", visibleIf: "{x} = 1" }
+        ] },
+        { type: "panel", name: "pC", elements: [{ type: "text", name: "qc1" }] }
+      ]
+    });
+    const states = ["pA", "pB", "pC"].map(name => visibility(survey.getPanelByName(name)));
+    expect(states, "panels after load").toEqual(["pA:false/false", "pB:false/false", "pC:true/undefined"]);
+    expect(visibility(survey.pages[0]), "page after load").toBe("page1:true/undefined");
+  });
+  test("Nested panels two levels deep follow their hidden innermost question", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [
+          { type: "panel", name: "outer", elements: [
+            { type: "panel", name: "inner", elements: [{ type: "text", name: "q1", visible: false }] }
+          ] }
+        ] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    expect(visibility(survey.getPanelByName("inner")), "inner").toBe("inner:false/false");
+    expect(visibility(survey.getPanelByName("outer")), "outer").toBe("outer:false/false");
+    expect(visibility(survey.getPageByName("page1")), "page1").toBe("page1:false/false");
+  });
+  test("A change that comes from a later page during the load reaches an earlier panel", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [
+          { type: "panel", name: "p1", elements: [
+            { type: "checkbox", name: "cf", choicesFromQuestion: "src", choicesFromQuestionMode: "selected", hideIfChoicesEmpty: true }
+          ] }
+        ] },
+        { name: "page2", elements: [{ type: "checkbox", name: "src", choices: ["a", "b"], defaultValue: ["a"] }] }
+      ]
+    });
+    const panel = survey.getPanelByName("p1");
+    expect(visibility(panel), "p1 after load").toBe("p1:true/true");
+    expect(visibility(survey.getPageByName("page1")), "page1 after load").toBe("page1:true/true");
+    survey.clearValue("src");
+    expect(visibility(panel), "p1 after clearing src").toBe("p1:false/false");
+  });
+  test("A rendered panel loaded again shows the rows of the questions that became visible during its load", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "panel", name: "p1", elements: [{ type: "text", name: "q0" }] }]
+    });
+    const panel = <PanelModel>survey.getPanelByName("p1");
+    expect(panel.wasRendered, "p1 is rendered").toBe(true);
+    expect(rowsState(panel), "rows before fromJSON").toEqual(["true [q0]"]);
+    panel.fromJSON({
+      name: "p1",
+      elements: [
+        { type: "checkbox", name: "s2", choices: ["a", "b"], defaultValue: ["b"] },
+        { type: "checkbox", name: "cf", choicesFromQuestion: "s2", choicesFromQuestionMode: "selected", hideIfChoicesEmpty: true }
+      ]
+    });
+    expect(rowsState(panel), "rows after fromJSON").toEqual(["true [s2]", "true [cf]"]);
+  });
+  test("The load runs childVisibilityChanged once per panel and page", () => {
+    const choices = ["a", "b"];
+    const json = {
+      elements: [
+        { type: "panel", name: "panel1", elements: [
+          { type: "checkbox", name: "q1", choices }, { type: "radiogroup", name: "q2", choices }, { type: "dropdown", name: "q3", choices }
+        ] },
+        { type: "panel", name: "panel2", elements: [
+          { type: "checkbox", name: "q4", choices }, { type: "radiogroup", name: "q5", choices }, { type: "dropdown", name: "q6", choices }
+        ] }
+      ]
+    };
+    const spy = vi.spyOn(<any>PanelModelBase.prototype, "childVisibilityChanged");
+    try {
+      new SurveyModel(json);
+      const counts: { [name: string]: number } = {};
+      spy.mock.contexts.forEach((container: any) => counts[container.name] = (counts[container.name] || 0) + 1);
+      expect(counts, "childVisibilityChanged calls per container").toEqual({ panel1: 1, panel2: 1, page1: 1 });
+    } finally {
+      spy.mockRestore();
+    }
+  });
+  const flipJson = (q3DefaultValue: Array<string> | undefined, clearInvisibleValues?: string): any => ({
+    clearInvisibleValues,
+    pages: [
+      { name: "page1", elements: [
+        { type: "panel", name: "P", elements: [
+          { type: "text", name: "q1", visible: false },
+          { type: "checkbox", name: "q2", choicesFromQuestion: "q3", choicesFromQuestionMode: "selected", hideIfChoicesEmpty: true },
+          { type: "checkbox", name: "q3", visible: false, choices: ["a", "b"], defaultValue: q3DefaultValue },
+          { type: "text", name: "q4", visible: false, defaultValue: "d" }
+        ] }
+      ] },
+      { name: "page2", elements: [{ type: "text", name: "z" }] }
+    ]
+  });
+  test("A panel that is hidden and shown again while its questions load fires no visibility events", () => {
+    const survey = new SurveyModel();
+    const events: Array<string> = [];
+    survey.onPanelVisibleChanged.add((_, options) => events.push("panel " + options.panel.name + ":" + options.visible));
+    survey.onPageVisibleChanged.add((_, options) => events.push("page " + options.page.name + ":" + options.visible));
+    survey.fromJSON(flipJson(["a"]));
+    expect(events, "visibility events during the load").toEqual([]);
+    expect(visibility(survey.getPanelByName("P")), "P after load").toBe("P:true/undefined");
+    expect(survey.data, "data after load").toEqual({ q3: ["a"], q4: "d" });
+  });
+  test("clearInvisibleValues onHiddenContainer: a panel hidden at the end of its load clears all its answers", () => {
+    const survey = new SurveyModel();
+    survey.data = { q1: "u1", q4: "user" };
+    survey.fromJSON(flipJson(undefined, "onHiddenContainer"));
+    expect(visibility(survey.getPanelByName("P")), "P after load").toBe("P:false/false");
+    expect(survey.data, "data after load").toEqual({});
   });
 });

@@ -213,6 +213,16 @@ frameworks.forEach((framework) => {
       }
     });
 
+    // As the mockup: Save as... and Clear All stand at the chips row's end, 16px after the chips.
+    test("Save as... and Clear All stand 16px after the chips", async ({ page }) => {
+      await initSurvey(page, framework, json());
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("f1").setFieldCondition("age", "greater", 18); });
+      const saveAs = page.locator(".sd-filter__save-as");
+      await expect(saveAs).toBeVisible();
+      const chipsBox = await page.locator(".sd-filter__chips").boundingBox();
+      expect(Math.round((await saveAs.boundingBox()).x - (chipsBox.x + chipsBox.width))).toBe(16);
+    });
+
     // As the mockup's phone: the chips, Save as... and Clear All are one row that scrolls sideways, the
     // buttons 16px after the last chip; the chips have the whole width.
     test("on a phone Save as... and Clear All follow the last chip in the row that scrolls sideways", async ({ page }) => {

@@ -208,7 +208,7 @@ Available since: v2.1.0
 
 ### `sliderType`
 
-**Type**: `"range" | "single"`
+**Type**: `"single" | "range"`
 
 Specifies whether the slider allows selecting a single value (`"single"`) or a value range (`"range"`).
 

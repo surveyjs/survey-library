@@ -243,6 +243,7 @@ A base class for all questions. Required: `name`.
 | `clearIfInvisible` | `default, none, onComplete, onHidden, onHiddenContainer` | `"default"` | Specifies when to clear the question value if the question becomes invisible. |
 | `descriptionLocation` | `default, underInput, underTitle, hidden` | `"default"` | Specifies where to display a question description. |
 | `errorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position. |
+| `filterOperators` | `empty, notempty, equal, notequal, contains, notcontains, anyof, noneof, allof, greater, less, greaterorequal, lessorequal` |  |  |
 | `indent` | `0, 1, 2, 3` | `0` | Increases or decreases an indent of survey element content from the left edge. |
 | `readOnlyMode` | `default, readonly, view` | `"default"` | Specifies how the survey element is displayed when it is read-only. |
 | `state` | `default, collapsed, expanded` | `"default"` | Gets and sets the survey element's expand state. |
@@ -267,6 +268,7 @@ A base class for all questions. Required: `name`.
 | `valueName` | `string` |  | Specifies an object property that should store the question value. |
 | `visible` | `boolean` | `true` | Gets or sets question visibility. |
 | `width` | `string` |  | Sets survey element width in CSS values. |
+| `allowFiltering` | `boolean` | `true` |  |
 | `bindings` | `string` |  |  |
 
 ### `selectbase`
@@ -304,7 +306,7 @@ A base class for the Single-Line Input and Long Text question types. Inherits th
 
 ## Question types
 
-These are the only `type` values that exist: `boolean`, `checkbox`, `comment`, `dropdown`, `expression`, `file`, `html`, `image`, `imagepicker`, `matrix`, `matrixdropdown`, `matrixdynamic`, `multipletext`, `panel`, `paneldynamic`, `radiogroup`, `ranking`, `rating`, `signaturepad`, `slider`, `tagbox`, `text`. Each section lists only the properties that type adds on top of the shared ones above.
+These are the only `type` values that exist: `boolean`, `checkbox`, `comment`, `dropdown`, `expression`, `file`, `filter`, `html`, `image`, `imagepicker`, `matrix`, `matrixdropdown`, `matrixdynamic`, `multipletext`, `panel`, `paneldynamic`, `radiogroup`, `ranking`, `rating`, `signaturepad`, `slider`, `tagbox`, `text`. Each section lists only the properties that type adds on top of the shared ones above.
 
 ### `boolean`
 
@@ -466,6 +468,30 @@ A class that describes the File Upload question type. Inherits the properties of
 ```json
 {
   "type": "file",
+  "name": "question1",
+  "title": "Question title"
+}
+```
+
+### `filter`
+
+Inherits the properties of `nonvalue`.
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `items` | `array` of `filteritem` |  |  |
+| `allowAddItems` | `boolean` | `true` |  |
+| `allowAdvancedMode` | `boolean` | `true` |  |
+| `allowFastMode` | `boolean` | `true` |  |
+| `allowMultipleItems` | `boolean` | `true` |  |
+| `defaultItem` | `string` |  |  |
+| `searchFields` | `string` |  |  |
+| `showSearch` | `boolean` | `false` |  |
+| `source` | `string` |  |  |
+
+```json
+{
+  "type": "filter",
   "name": "question1",
   "title": "Question title"
 }
@@ -1477,6 +1503,26 @@ Configures access to a RESTful service that returns choices for Checkbox, Dropdo
 | --- | --- | --- | --- |
 | `expression` | `expression` |  |  |
 
+### `filterfield`
+
+Required: `name`.
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `name` | `string` |  | Unique. |
+
+### `filteritem`
+
+Required: `name`.
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `name` | `string` |  | Unique. |
+| `allowDelete` | `boolean` | `true` |  |
+| `allowEdit` | `boolean` | `true` |  |
+| `expression` | `string` |  |  |
+| `title` *(loc)* | `string` |  |  |
+
 ### `htmlconditionitem`
 
 Inherits the properties of `expressionitem`.
@@ -1541,6 +1587,7 @@ An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic M
 | `visibleIf` | `expression` |  | A Boolean expression. |
 | `cellType` | `default, dropdown, checkbox, radiogroup, tagbox, text, comment, boolean, expression, rating, slider` | `"default"` | Specifies the type of column cells. |
 | `colCount` | `-1, 0, 1, 2, 3, 4` | `-1` | Gets or sets the number of columns used to arrange choice options. |
+| `filterOperators` | `empty, notempty, equal, notequal, contains, notcontains, anyof, noneof, allof, greater, less, greaterorequal, lessorequal` |  |  |
 | `totalAlignment` | `auto, left, center, right` | `"auto"` | An alignment for calculated total values. |
 | `totalCurrency` | `AED, AFN, ALL, AMD, ANG, AOA, ARS, AUD, AWG, AZN, BAM, BBD, BDT, BGN, BHD, BIF, BMD, BND, BOB, BOV, BRL, BSD, BTN, BWP, BYN, BZD, CAD, CDF, CHE, CHF, CHW, CLF, CLP, CNY, COP, COU, CRC, CUC, CUP, CVE, CZK, DJF, DKK, DOP, DZD, EGP, ERN, ETB, EUR, FJD, FKP, GBP, GEL, GHS, GIP, GMD, GNF, GTQ, GYD, HKD, HNL, HRK, HTG, HUF, IDR, ILS, INR, IQD, IRR, ISK, JMD, JOD, JPY, KES, KGS, KHR, KMF, KPW, KRW, KWD, KYD, KZT, LAK, LBP, LKR, LRD, LSL, LYD, MAD, MDL, MGA, MKD, MMK, MNT, MOP, MRO, MUR, MVR, MWK, MXN, MXV, MYR, MZN, NAD, NGN, NIO, NOK, NPR, NZD, OMR, PAB, PEN, PGK, PHP, PKR, PLN, PYG, QAR, RON, RSD, RUB, RWF, SAR, SBD, SCR, SDG, SEK, SGD, SHP, SLL, SOS, SRD, SSP, STD, SVC, SYP, SZL, THB, TJS, TMT, TND, TOP, TRY, TTD, TWD, TZS, UAH, UGX, USD, USN, UYI, UYU, UZS, VEF, VND, VUV, WST, XAF, XAG, XAU, XBA, XBB, XBC, XBD, XCD, XDR, XOF, XPD, XPF, XPT, XSU, XTS, XUA, XXX, YER, ZAR, ZMW, ZWL` | `"USD"` | Specifies a currency used to display calculated total values. |
 | `totalDisplayStyle` | `none, decimal, currency, percent` | `"none"` | A format for calculated total values. |
@@ -1557,6 +1604,7 @@ An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic M
 | `totalFormat` *(loc)* | `string` |  | A string pattern used to display column totals. |
 | `visible` | `boolean` | `true` | Gets or sets column visibility. |
 | `width` | `string` |  | Gets or sets column width in CSS values. |
+| `allowFiltering` | `boolean` | `true` |  |
 | `totalMaximumFractionDigits` | `number` | `-1` |  |
 | `totalMinimumFractionDigits` | `number` | `-1` |  |
 

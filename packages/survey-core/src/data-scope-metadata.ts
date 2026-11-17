@@ -1,6 +1,7 @@
 import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import { RecordKeyLevel } from "./record-key-level";
 import { RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
+import { getRecordTemplatePanel, isTemplatePanel } from "./name-scope";
 
 // The metadata mode's start context of an element inside a records template (design time): the element's own
 // context, then the levels of the template's nesting panels around it, innermost first, then the template's
@@ -35,15 +36,6 @@ function withOwnerRoot(cxt: IValueGetterContext, owner: any): IValueGetterContex
   if (!cxt || !owner) return cxt;
   return { getValue: params => cxt.getValue(params),
     getRootObj: () => ({ getValueGetterContext: () => getMetadataValueGetterContext(owner) }) };
-}
-function isTemplatePanel(panel: any): boolean {
-  return !!panel && typeof panel.isRecordTemplatePanel === "function" && panel.isRecordTemplatePanel();
-}
-// The records template around an element, or null.
-function getRecordTemplatePanel(el: any): any {
-  let panel = el.parent;
-  while(!!panel && !isTemplatePanel(panel)) panel = panel.parent;
-  return panel || null;
 }
 // The record of a template with no data (a matrix's detail panel template): the matrix's design row.
 function getDesignRecordObj(template: any): IObjectValueContext {

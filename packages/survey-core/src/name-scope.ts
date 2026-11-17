@@ -31,16 +31,14 @@ export function isNameScopeMode(survey: ISurvey): boolean {
 function getRecordsTemplate(el: any): any {
   return !!el && el.isQuestion && typeof el.getRecordSortTemplate === "function" ? el.getRecordSortTemplate() : undefined;
 }
-function isTemplatePanel(panel: any): boolean {
-  return typeof panel.isRecordTemplatePanel === "function" && panel.isRecordTemplatePanel();
+export function isTemplatePanel(panel: any): boolean {
+  return !!panel && typeof panel.isRecordTemplatePanel === "function" && panel.isRecordTemplatePanel();
 }
-function isInRecordTemplate(panel: any): boolean {
-  let cur = panel.parent;
-  while(!!cur) {
-    if (isTemplatePanel(cur)) return true;
-    cur = cur.parent;
-  }
-  return false;
+// The records template around an element, or null.
+export function getRecordTemplatePanel(el: any): any {
+  let panel = el.parent;
+  while(!!panel && !isTemplatePanel(panel)) panel = panel.parent;
+  return panel || null;
 }
 // Whether a panel or a page inside its top panel holds data: its scope is active, or, inside a records template
 // (which has no scopes at design time), the records built from it nest it.
@@ -48,7 +46,7 @@ function holdsData(panel: any): boolean {
   if (typeof panel.getDataScope !== "function") return false;
   const scope = panel.getDataScope();
   if (!!scope) return scope.isActive;
-  return !!panel.parent && isInRecordTemplate(panel) && !!panel.getRecordDataNestingKey();
+  return !!panel.parent && !!getRecordTemplatePanel(panel) && !!panel.getRecordDataNestingKey();
 }
 // The element whose name scope holds el's name: the nearest panel or page around it that holds data, else the
 // records question whose template or record el is inside; null for the survey's own scope.

@@ -90,9 +90,6 @@ export class ElementIndex implements IDataKeys {
     this.heldKeys.set(el, key);
     if (!!key) hash.insert(key, el, this.getRank);
   }
-  public getHeldKey(el: ISurveyDataElement): string {
-    return this.heldKeys.get(el);
-  }
   public getElements(key: string, caseInsensitive?: boolean): Array<ISurveyDataElement> {
     const questions = this.questionKeys.get(key, caseInsensitive);
     const containers = this.containerKeys.get(key, caseInsensitive);

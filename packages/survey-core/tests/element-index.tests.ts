@@ -225,7 +225,6 @@ describe("ElementIndex by key: a data scope's instance", () => {
     expect(index.getQuestions("q")).toEqual([q]);
     expect(index.getQuestions("")).toEqual([]);
     expect(index.has(noName)).toBe(true);
-    expect(index.getHeldKey(noName)).toBe("");
     index.removeKeyed(noName);
     index.removeKeyed(question("q"));
     expect(index.elements).toEqual([q]);
@@ -263,8 +262,9 @@ describe("ElementIndex by key: a data scope's instance", () => {
     index.reKey(q1, "w");
     expect(index.getQuestions("v")).toEqual([q2, q3]);
     expect(index.getQuestions("V", true)).toEqual([q2, q3]);
-    expect(index.getHeldKey(q1)).toBe("w");
     index.reKey(question("q4"), "v");
     expect(index.getQuestions("v"), "an element it does not hold is not added").toEqual([q2, q3]);
+    index.removeKeyed(q1);
+    expect(index.getQuestions("w"), "removed by the key reKey gave it").toEqual([]);
   });
 });

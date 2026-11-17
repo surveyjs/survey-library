@@ -9,7 +9,7 @@ import { PanelDataScope, getDataScopeHost, getRecordDataScope } from "./panel-da
 // "record" - inside a dynamic panel's or a detail panel's record, at any depth; "template" - inside such a record's
 // template, where the key applies to the records built from it; "" - never: a record panel itself (it is the
 // record), a composite's content panel and the panels in it (the component's author owns its value's shape).
-export type DataNestingPlace = "survey" | "record" | "template" | "";
+type DataNestingPlace = "survey" | "record" | "template" | "";
 
 // A record item (a dynamic panel's item, a matrix row), told by a member only QuestionRecordItem has: an
 // ObjectDataScope check would match a composite's scope too.

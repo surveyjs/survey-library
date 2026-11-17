@@ -338,10 +338,6 @@ export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISur
   public get parentData(): ISurveyData {
     return !!this.parentImpl ? this.parentImpl.getSurveyData() : null;
   }
-  public get parentScope(): PanelDataScope {
-    const data = this.parentData;
-    return data instanceof PanelDataScope ? data : null;
-  }
   // The one parent link: the scope whose object holds this scope's key. The nearest active scope above it, or
   // the record item it is inside (a dynamic panel's item, a matrix row: a root scope); null when the key is a
   // key of the survey data. A composite's content never reaches here yet: no panel inside a composite gets a

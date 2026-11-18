@@ -20865,8 +20865,7 @@ describe("Survey", () => {
 
     expect(getContainerContent("header"), "default header").toEqual([{
       "component": "sv-timerpanel",
-      "id": "timerpanel",
-      "template": "survey-timerpanel"
+      "id": "timerpanel"
     }]);
     expect(getContainerContent("center"), "default center").toEqual([]);
     expect(getContainerContent("footer"), "default footer").toEqual([]);

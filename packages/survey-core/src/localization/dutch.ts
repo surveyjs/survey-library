@@ -309,6 +309,122 @@ export var dutchSurveyStrings = {
   progressbar: "Voortgangsbalk",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Pagina {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Leeg",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Niet leeg",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Gelijk",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Is niet gelijk aan",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Bevat",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Bevat niet",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Elk van",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Geen van",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Alles van",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Groter dan",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Minder dan",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Groter dan of gelijk aan",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Minder dan of gelijk aan",
+  // [Auto-translated] "Save"
+  filterSave: "Opslaan",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filters",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filters: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filters",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Zoeken",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Zoeken op {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Meer weergeven",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Minder weergeven",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Alles schoonmaken",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Clear {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Vooraf ingesteld",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Opgeslagen als...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Opslaan",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Voeg \"{0}\" toe...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Presets",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Toon {0} items",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "1 item weergeven",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Resultaten tonen",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Nieuwe Preset",
+  // [Auto-translated] "Name"
+  filterPresetName: "Naam",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Bevat",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Er bestaat al een preset met deze naam.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Voeg ten minste één voorwaarde toe.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Voer een uitdrukking in.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "De uitdrukking is niet geldig.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Bewerking als expressie",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Bewerking als Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Typ hier een uitdrukking...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Voorinstelling bewerken",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Verwijderen",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Voeg nieuw toe...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Geselecteerde bewerkingen...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Uiting",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Zoeken in filters",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Niets gevonden, probeer verschillende zoekwoorden",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Maak preset met AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Preset bewerken met AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Bijvoorbeeld, \"Koffie & Thee uit Duitsland\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Aanmaken",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Edit",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Creëren...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Bewerken...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI kon geen filter maken. Probeer het opnieuw.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI kon geen filter maken van deze beschrijving.",
   // "d" - a day placeholder symbol in a datetime input mask
   maskPlaceholderDay: "d",
   // "m" - a month placeholder symbol in a datetime input mask

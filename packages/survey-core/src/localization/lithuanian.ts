@@ -309,6 +309,122 @@ export var lithuaniaSurveyStrings = {
   progressbar: "Eigos juosta",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Puslapio {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Tuščia",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Ne tuščia",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Lygūs",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Nelygu",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Yra",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Neturi",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Bet kuris iš",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Nė vienas iš",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Visi",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Didesnis už",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Mažiau nei",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Didesnis arba lygus",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Mažiau arba lygu",
+  // [Auto-translated] "Save"
+  filterSave: "Išsaugoti",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filtrai",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filtrai: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filtrai",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Paieška",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Paieška pagal {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Rodyti daugiau",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Rodyti mažiau",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Išvalyti viską",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Aiškus {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Išankstinis nustatymas",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Išskyrus kaip...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Išsaugoti",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Pridėk \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Išankstiniai nustatymai",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Rodyti {0} daiktus",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Rodyti 1 elementą",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Parodos rezultatai",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Naujas išankstinis nustatymas",
+  // [Auto-translated] "Name"
+  filterPresetName: "Vardas, pavadinimas",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Yra",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Jau egzistuoja išankstinis nustatymas su šiuo pavadinimu.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Pridėkite bent vieną sąlygą.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Įeina išraiška.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Šis išsireiškimas nėra galiojantis.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Redaguoti kaip išraišką",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Redaguoti kaip žymų dėžutė",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Įrašykite išraišką čia...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Redaguoti iš anksto nustatytas",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Ištrinti",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Pridėti naują...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Redaguota: Pasirinkta...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Išraiška",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Redagavimas...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Paieška filtruose",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Nieko nerasta, išbandykite kitus raktažodžius",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Sukurkite išankstinį nustatymą su dirbtiniu intelektu",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Redaguoti išankstinį nustatymą su dirbtiniu intelektu",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Pavyzdžiui, \"Kava ir arbata iš Vokietijos\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Sukurti",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Redagavimas",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Kurti...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Redagavimas...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "DI negalėjo sukurti filtro. Pabandyk dar kartą.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "Dirbtinis intelektas negalėjo sukurti filtro pagal šį aprašymą.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "Pasirinkti",
   // [Auto-translated] "to toggle"

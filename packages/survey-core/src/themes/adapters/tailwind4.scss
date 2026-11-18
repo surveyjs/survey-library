@@ -26,6 +26,7 @@
      --color-foreground           primary text           (default: gray-900)
      --color-muted-foreground     secondary text         (default: gray-500)
      --color-card                 input/popup surface    (default: white)
+     --color-accent               hover fill             (default: 6% foreground over card)
      --color-input                input border           (default: gray-300)
      --color-border               dividers               (default: gray-200)
      --color-ring                 focus ring             (default: primary)
@@ -51,6 +52,7 @@
   --sjstw-foreground: var(--color-foreground, var(--color-gray-900, #111827));
   --sjstw-muted-foreground: var(--color-muted-foreground, var(--color-gray-500, #6b7280));
   --sjstw-surface: var(--color-card, var(--color-white, #fff));
+  --sjstw-accent: var(--color-accent, color-mix(in srgb, var(--sjstw-foreground) 6%, var(--sjstw-surface)));
   --sjstw-input-border: var(--color-input, var(--color-gray-300, #d1d5db));
   --sjstw-border: var(--color-border, var(--color-gray-200, #e5e7eb));
   --sjstw-ring: var(--color-ring, var(--sjstw-primary));
@@ -78,6 +80,11 @@
   --sjs2-color-bg-basic-primary: var(--sjstw-surface);
   --sjs2-color-bg-basic-secondary: var(--sjstw-surface); /* input fill */
   --sjs2-color-utility-sheet: var(--sjstw-surface); /* dropdown popups */
+  /* Hover fills: dropdown/menu items (primary-dim), unchecked checkbox/radio boxes and
+     boolean/button-group items (secondary-dim). survey-core defaults them to fixed light grays,
+     which stay light on a dark host surface while the text follows --color-foreground. */
+  --sjs2-color-bg-basic-primary-dim: var(--sjstw-accent);
+  --sjs2-color-bg-basic-secondary-dim: var(--sjstw-accent);
 
   /* text */
   --sjs2-color-fg-basic-primary: var(--sjstw-foreground);
@@ -116,6 +123,11 @@
   --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--sjstw-space) * 2.5);
   --sjs2-layout-component-action-small-box-padding-vertical: calc(var(--sjstw-space) * 1.5);
   --sjs2-layout-component-action-small-box-padding-horizontal: calc(var(--sjstw-space) * 1.5);
+
+  /* Left-located titles (questionTitleLocation: "left") are pushed down by a fixed offset that
+     survey-core sets to its own input text inset (12px). Match the inset of the 36px control above
+     (formbox + input padding = 8px), so the title's first line shares the input's text baseline. */
+  --sjs2-layout-component-question-header-side-padding-top: calc(var(--sjs2-layout-component-formbox-medium-padding-vertical) + var(--sjs2-layout-component-input-medium-content-padding-vertical));
 
   /* Vertical rhythm (gap-4 between fields; tight label -> input).
      Field rows: page-content-area-gap-vertical (.sd-page__content row-gap).
@@ -190,6 +202,19 @@
   --sd-question-header-border-bottom: none;
   --sd-matrixdynamic-toolbar-padding-inline: 0px;
   --sd-matrixdynamic-toolbar-padding-block-end: 0px;
+}
+
+/* Radio/checkbox lists next to a left-located title. A choice row is as tall as its box
+   (--sjs2-size-x300, 24px) while the title line is text-sm (20px), so the list is inset by the title
+   offset minus half that difference to center the first choice on the title's first line. Scoped to
+   the left layout: under a top title the list keeps its regular inset. */
+.sjs-theme-overrides .sd-question__content--left > .sd-selectbase {
+  --sjs2-layout-component-labeled-group-box-padding-vertical: calc(var(--sjs2-layout-component-question-header-side-padding-top) - (var(--sjs2-size-x300) - var(--sjs2-typography-line-height-component-question-title)) / 2);
+}
+/* A checkbox list starts with a hidden <legend>, so survey-core's first-child rule that applies the
+   inset above never matches its first choice (it gets half the item gap instead). */
+.sjs-theme-overrides .sd-question__content--left > .sd-selectbase > legend:first-child + .sd-item:not(.sd-selectbase__item--inline) {
+  padding-top: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
 }
 
 /* Transparent survey root. .sd-root-modern paints --sjs2-color-utility-body (white) under the

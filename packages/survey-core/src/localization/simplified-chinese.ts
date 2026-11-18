@@ -309,6 +309,122 @@ export var simplifiedChineseSurveyStrings = {
   progressbar: "进度条",
   // [Auto-translated] "Page {0}"
   progressbarPage: "第{0}页",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "空的",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "不是空的",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "平等",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "不等于",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "包含",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "不包含",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "任一",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "一个都不行",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "全部",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "大于",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "低于",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "大于或等于",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "小于或等于",
+  // [Auto-translated] "Save"
+  filterSave: "保存",
+  // [Auto-translated] "Filters"
+  filterFilters: "筛选器",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "筛选条件：{0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "筛选器",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "搜索",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "按{0}搜索",
+  // [Auto-translated] "Show More"
+  filterShowMore: "显示更多",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "显示更少",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "清除所有",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "清{0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "预设",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "另存为......",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "保存",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "加上“{0}”......",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "预设",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "显示{0}项",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "显示1件商品",
+  // [Auto-translated] "Show results"
+  filterShowResults: "显示结果",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "新预设",
+  // [Auto-translated] "Name"
+  filterPresetName: "名称",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "包含",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "已有同名预设存在。",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "至少添加一个条件。",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "输入一个表达式。",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "该表达式无效。",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "作为表达式进行编辑",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "编辑为标签框",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "在此输入表达式...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "编辑预设",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "删除",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "添加新建...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "编辑已选中...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0}表达式",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "编辑......",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "在筛选器中搜索",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "没找到什么，试试不同关键词",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "用 AI 创建预设",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "使用 AI 编辑预设",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "例如，“来自德国的咖啡与茶”",
+  // [Auto-translated] "Create"
+  filterAiCreate: "创建",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "编辑",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "创造......",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "编辑中......",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI无法制作过滤器。再试一次。",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI无法做出这种描述的过滤器。",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "选择",
   // [Auto-translated] "to toggle"

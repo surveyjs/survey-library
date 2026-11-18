@@ -23955,3 +23955,120 @@ describe("Survey: expressions read values and variables by name, ignoring letter
     survey.dispose();
   });
 });
+
+describe("Survey: questions of a removed panel or page are not found by name", () => {
+  const json = {
+    pages: [
+      { name: "page1", elements: [
+        { type: "panel", name: "p", elements: [
+          { type: "text", name: "q1", valueName: "val1" },
+          { type: "panel", name: "inner", elements: [{ type: "text", name: "q3" }] }
+        ] },
+        { type: "text", name: "q2" }
+      ] },
+      { name: "page2", elements: [{ type: "text", name: "q4" }] }
+    ]
+  };
+  function expectFound(survey: SurveyModel, found: boolean, label: string): void {
+    expect(!!survey.getQuestionByName("q1"), label + ": q1 by name").toBe(found);
+    expect(!!survey.getQuestionByName("Q1", true), label + ": q1 by name, case-insensitive").toBe(found);
+    expect(!!survey.getQuestionByValueName("val1"), label + ": q1 by value name").toBe(found);
+    expect(!!survey.getQuestionByValueName("VAL1", true), label + ": q1 by value name, case-insensitive").toBe(found);
+    expect(!!survey.getQuestionByName("q3"), label + ": the nested panel's q3 by name").toBe(found);
+    expect(!!survey.getQuestionByValueName("q3"), label + ": the nested panel's q3 by value name").toBe(found);
+  }
+  test("a panel removed from its page: its questions and its nested panel's questions are not found", () => {
+    const survey = new SurveyModel(json);
+    expectFound(survey, true, "loaded");
+    survey.pages[0].removeElement(survey.getPanelByName("p"));
+    expectFound(survey, false, "removed");
+    expect(survey.getQuestionByName("q2"), "a question that stays on the page").toBeTruthy();
+    survey.dispose();
+  });
+  test("a panel removed and added back to its page or to another page: its questions are found again", () => {
+    const survey = new SurveyModel(json);
+    const panel = survey.getPanelByName("p");
+    survey.pages[0].removeElement(panel);
+    survey.pages[0].addElement(panel);
+    expectFound(survey, true, "added back to the same page");
+    survey.pages[0].removeElement(panel);
+    survey.pages[1].addElement(panel);
+    expectFound(survey, true, "added to another page");
+    expect(survey.getQuestionByName("q1").page.name).toBe("page2");
+    survey.dispose();
+  });
+  test("a panel moved to another page with its page property: its questions stay found", () => {
+    const survey = new SurveyModel(json);
+    const panel = survey.getPanelByName("p");
+    panel.page = survey.pages[1];
+    expectFound(survey, true, "moved");
+    expect(survey.getQuestionByName("q3").page.name).toBe("page2");
+    survey.dispose();
+  });
+  test("a page removed with removePage: its questions are not found; the page added back: they are found again", () => {
+    const survey = new SurveyModel(json);
+    const page = survey.pages[0];
+    survey.removePage(page);
+    expectFound(survey, false, "removed");
+    expect(survey.getQuestionByName("q2"), "a question of the removed page").toBeNull();
+    expect(survey.getQuestionByName("q4"), "a question of the page that stays").toBeTruthy();
+    survey.addPage(page);
+    expectFound(survey, true, "added back");
+    expect(survey.getQuestionByName("q2")).toBeTruthy();
+    survey.dispose();
+  });
+  test("a page removed from the pages array: its questions are not found; the page inserted back: they are found again", () => {
+    const survey = new SurveyModel(json);
+    const page = survey.pages.splice(0, 1)[0];
+    expectFound(survey, false, "removed");
+    survey.pages.splice(1, 0, page);
+    expectFound(survey, true, "inserted back");
+    survey.dispose();
+  });
+  test("a question removed from a panel that is later removed: the other questions are not found either", () => {
+    const survey = new SurveyModel(json);
+    const panel = survey.getPanelByName("p");
+    panel.removeElement(survey.getQuestionByName("q1"));
+    expect(survey.getQuestionByName("q1")).toBeNull();
+    survey.pages[0].removeElement(panel);
+    expect(survey.getQuestionByName("q3")).toBeNull();
+    survey.dispose();
+  });
+  test("a panel and a page removed and added back while the survey is loading: their questions are found after the load", () => {
+    const survey = new SurveyModel(json);
+    const panel = survey.getPanelByName("p");
+    survey.startLoadingFromJson();
+    survey.pages[0].removeElement(panel);
+    survey.pages[1].addElement(panel);
+    survey.endLoadingFromJson();
+    expectFound(survey, true, "the panel moved while loading");
+    const page = survey.pages[1];
+    survey.startLoadingFromJson();
+    survey.removePage(page);
+    survey.addPage(page);
+    survey.endLoadingFromJson();
+    expectFound(survey, true, "the page removed and added back while loading");
+    expect(survey.getQuestionByName("q4"), "a question of the page").toBeTruthy();
+    survey.dispose();
+  });
+  test("a page removed while it is rendered: its questions are found until the page is ready for clean", () => {
+    const survey = new SurveyModel(json);
+    const page = survey.pages[0];
+    page.enableOnElementRerenderedEvent();
+    survey.removePage(page);
+    expectFound(survey, true, "the page is still rendered");
+    page.disableOnElementRerenderedEvent();
+    expectFound(survey, false, "the page is ready for clean");
+    survey.dispose();
+  });
+  test("a removed panel's question is named as a kept question's value name: the kept question is still found by that value name", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "panel", name: "p", elements: [{ type: "text", name: "q1" }] },
+      { type: "text", name: "q2", valueName: "q1" }
+    ] });
+    survey.pages[0].removeElement(survey.getPanelByName("p"));
+    expect(survey.getQuestionByName("q1")).toBeNull();
+    expect(survey.getQuestionByValueName("q1").name, "the question that stays shares the value name").toBe("q2");
+    survey.dispose();
+  });
+});

@@ -8377,6 +8377,7 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doOnPageRemoved(page: PageModel): void {
     page.setSurveyImpl(null);
+    this.questionHashesPanelRemoved(page);
     if (!!this.runningPages) return;
     if (page === this.currentPage) {
       this.updateCurrentPage();
@@ -8663,10 +8664,16 @@ export class SurveyModel extends SurveyElementCore
     this.questionHashes.valueNamesInsensitive = createHash();
   }
   private questionHashesPanelAdded(panel: PanelModelBase) {
-    if (this.isLoadingFromJson) return;
     var questions = panel.questions;
     for (var i = 0; i < questions.length; i++) {
       this.questionHashesAdded(questions[i]);
+    }
+  }
+  private questionHashesPanelRemoved(panel: PanelModelBase) {
+    const questions = panel.questions;
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      this.questionHashesRemoved(q, q.name, q.getValueName());
     }
   }
   private questionHashesAdded(question: Question) {
@@ -8763,6 +8770,7 @@ export class SurveyModel extends SurveyElementCore
   }
   panelRemoved(panel: PanelModel): void {
     this.dropRemovedQuestionsWithPendingWrites();
+    this.questionHashesPanelRemoved(<PanelModelBase>(<any>panel));
     this.questionTriggersChanged();
     this.updateVisibleIndexes(panel.page);
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });

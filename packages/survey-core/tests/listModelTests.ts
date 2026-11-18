@@ -329,6 +329,77 @@ describe("List Model", () => {
     list.onMouseMove(new MouseEvent("mouseMove"));
     expect(list.focusedItem).toBeUndefined();
   });
+  describe("focusFollowsPointer", () => {
+    // The items as a renderer draws them: tab stops in the list's ul, the pointer over an item's body.
+    function renderList(list: ListModel, tabStops: Array<boolean> = []) {
+      const root = document.createElement("div");
+      const input = document.createElement("input");
+      const ul = document.createElement("ul");
+      ul.className = list.cssClasses.itemsContainer;
+      const items = list.actions.map((_, index: number) => {
+        const li = document.createElement("li");
+        li.className = list.cssClasses.item;
+        li.tabIndex = tabStops[index] === false ? -1 : 0;
+        const body = document.createElement("div");
+        body.className = list.cssClasses.itemBody;
+        li.appendChild(body);
+        ul.appendChild(li);
+        return li;
+      });
+      ul.addEventListener("mousemove", (event: MouseEvent) => list.onMouseMove(event));
+      root.appendChild(input);
+      root.appendChild(ul);
+      document.body.appendChild(root);
+      const moveOver = (index: number) => items[index].firstElementChild!.dispatchEvent(new MouseEvent("mousemove", { bubbles: true }));
+      return { root, input, items, moveOver };
+    }
+    const createList = () => new ListModel({ items: createIActionArray(3), onSelectionChanged: () => { }, allowSelection: true } as any);
+
+    test("off by default: the pointer leaves the focus where it is", () => {
+      const list = createList();
+      const { root, items, moveOver } = renderList(list);
+      expect(list.focusFollowsPointer).toBe(false);
+      items[0].focus();
+      moveOver(2);
+      expect(document.activeElement).toBe(items[0]);
+      root.remove();
+    });
+    test("the item under the pointer takes the focus from another item", () => {
+      const list = createList();
+      list.focusFollowsPointer = true;
+      const { root, items, moveOver } = renderList(list);
+      items[0].focus();
+      moveOver(2);
+      expect(document.activeElement, "#1").toBe(items[2]);
+      moveOver(1);
+      expect(document.activeElement, "#2").toBe(items[1]);
+      root.remove();
+    });
+    test("the pointer takes no focus from outside the items, and gives none to an item that is no tab stop", () => {
+      const list = createList();
+      list.focusFollowsPointer = true;
+      const { root, input, items, moveOver } = renderList(list, [true, true, false]);
+      input.focus();
+      moveOver(1);
+      expect(document.activeElement, "#1: the focus is in a field").toBe(input);
+      input.blur();
+      moveOver(1);
+      expect(document.activeElement, "#2: the focus is nowhere").toBe(document.body);
+      items[0].focus();
+      moveOver(2);
+      expect(document.activeElement, "#3: no tab stop").toBe(items[0]);
+      root.remove();
+    });
+    test("a key takes the highlight from the hovered item", () => {
+      const list = createList();
+      list.onItemHover(list.actions[2]);
+      list.onKeyDown(new KeyboardEvent("keydown", { key: "Tab" }));
+      expect(list.actions[2].isHovered, "#1: off").toBe(true);
+      list.focusFollowsPointer = true;
+      list.onKeyDown(new KeyboardEvent("keydown", { key: "Tab" }));
+      expect(list.actions.map(a => a.isHovered), "#2: on").toEqual([false, false, false]);
+    });
+  });
   test("add/remove scrollHandler", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);

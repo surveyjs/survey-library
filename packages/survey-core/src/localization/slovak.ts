@@ -309,6 +309,122 @@ export var slovakSurveyStrings = {
   progressbar: "Indikátor priebehu",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Strana {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Prázdne",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Nie prázdne",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Rovná sa",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Nerovná sa",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Obsahuje",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Neobsahuje",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Ktorýkoľvek z",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Žiadna z nich",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Všetko",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Väčšie ako",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Menej ako",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Väčšie alebo rovné",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Menšie alebo rovné",
+  // [Auto-translated] "Save"
+  filterSave: "Uložiť",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filtre",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filtre: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filtre",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Vyhľadávanie",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Vyhľadávanie podľa {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Zobraziť viac",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Zobraziť menej",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Vymazať všetko",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Čisté {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Prednastavenie",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Uložiť ako...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Uložiť",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Pridajte \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Prednastavenia",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Zobraziť {0} položky",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Zobraziť 1 položku",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Zobraziť výsledky",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Nové prednastavenie",
+  // [Auto-translated] "Name"
+  filterPresetName: "Názov",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Obsahuje",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Prednastavenie s týmto názvom už existuje.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Pridajte aspoň jednu podmienku.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Zadajte výraz.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Tento výraz nie je platný.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Upraviť ako výraz",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Upraviť ako Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Zadajte tu výraz...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Upraviť prednastavenie",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Vymazať",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Pridať nové...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Upraviť vybrané...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Výraz",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Vyhľadávanie vo filtroch",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Nič sa nenašlo, skúste rôzne kľúčové slová",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Vytvorte prednastavenie pomocou AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Úprava prednastavenia pomocou AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Napríklad \"Káva a čaj z Nemecka\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Vytvoriť",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Upraviť",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Vytváram...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Úprava...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI nedokázala vytvoriť filter. Skúste to znova.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI nedokázala vytvoriť filter tohto popisu.",
   // "d" - a day placeholder symbol in a datetime input mask
   maskPlaceholderDay: "d",
   // "m" - a month placeholder symbol in a datetime input mask

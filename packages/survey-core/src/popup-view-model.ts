@@ -292,11 +292,15 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     this.clearFocusFirstInputTimer();
     this.focusFirstInputTimer = setTimeout(() => {
       this.focusFirstInputTimer = undefined;
-      if (!this.container) return;
+      if (!this.container || !this.canFocusFirstInput()) return;
       var el = this.container.querySelector(this.model.focusFirstInputSelector || FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
       else this.focusContainer();
     }, 100);
+  }
+  // Asked when the popup is about to take the focus, 100 ms after it shows.
+  protected canFocusFirstInput(): boolean {
+    return true;
   }
   public clickClose(event?: Event): void {
     this.hidePopup();

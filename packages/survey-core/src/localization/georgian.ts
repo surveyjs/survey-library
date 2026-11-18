@@ -309,6 +309,122 @@ export var georgianSurveyStrings = {
   progressbar: "პროგრესის ბარი",
   // [Auto-translated] "Page {0}"
   progressbarPage: "გვერდი {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "ცარიელი",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "არ არის ცარიელი",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "ტოლია",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "არ უდრის",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "შეიცავს",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "არ შეიცავს",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "ნებისმიერი",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "არცერთი",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "ყველა",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "მეტია ვიდრე",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "ნაკლები ვიდრე",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "მეტია ან ტოლია",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "ნაკლები ან ტოლია",
+  // [Auto-translated] "Save"
+  filterSave: "შენახვა",
+  // [Auto-translated] "Filters"
+  filterFilters: "ფილტრები",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "ფილტრები: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "ფილტრები",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "ძებნა",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "ძებნა {0} მიხედვით",
+  // [Auto-translated] "Show More"
+  filterShowMore: "მეტის ჩვენება",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "ნაკლების ჩვენება",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "წაშლა",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "სუფთა {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "წინასწარ განსაზღვრული პარამეტრები",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "შეინახეთ როგორც...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "შენახვა",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "დაამატეთ \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "პრესეტები",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "{0} ელემენტის ჩვენება",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "აჩვენე 1 ნივთი",
+  // [Auto-translated] "Show results"
+  filterShowResults: "შედეგების ჩვენება",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "ახალი პრესეტი",
+  // [Auto-translated] "Name"
+  filterPresetName: "სახელი",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "შეიცავს",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "ამ სახელით წინასწარ განსაზღვრული პარამეტრი უკვე არსებობს.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "დაამატეთ მინიმუმ ერთი პირობა.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "შეიყვანეთ გამოსახულება.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "გამოთქმა არ არის ვალიდური.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "რედაქტირება როგორც გამოსახულება",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "რედაქტირება ტეგბოქსის სახით",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "შეიყვანეთ გამოსახულება აქ...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "პრესეტის რედაქტირება",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "წაშლა",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "დამატება ახალი...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "რედაქტირება არჩეულია...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} გამოხატულება",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "რედაქტირება...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "ძებნა ფილტრებში",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "არაფერი ვიპოვეთ, სცადეთ სხვადასხვა საკვანძო სიტყვები",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "შექმენით წინასწარ განსაზღვრული პარამეტრები AI-ით",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "პრესეტის რედაქტირება AI-ით",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "მაგალითად, \"ყავა და ჩაი გერმანიიდან\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "შექმნა",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "რედაქტირება",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "შექმნა...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "რედაქტირება...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI-ს ფილტრის შექმნა არ შეეძლო. კიდევ სცადე.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "ხელოვნური ინტელექტი ვერ შექმნა ამ აღწერის ფილტრი.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "ასარჩევად",
   // [Auto-translated] "to toggle"

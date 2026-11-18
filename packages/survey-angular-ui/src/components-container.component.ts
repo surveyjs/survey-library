@@ -1,5 +1,5 @@
 import { Component, Input, TemplateRef, ViewContainerRef, OnChanges, OnInit, SimpleChanges, ChangeDetectorRef } from "@angular/core";
-import { SurveyModel } from "survey-core";
+import { ISurveyLayoutElementGroup, SurveyModel } from "survey-core";
 import { AngularComponentFactory } from "./component-factory";
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
 
@@ -12,11 +12,15 @@ export class ComponentsContainerComponent extends EmbeddedViewContentComponent {
   @Input() survey!: SurveyModel;
   @Input() container!: string;
   @Input() needRenderWrapper?: boolean;
-  get components(): Array<any> {
-    return this.survey.getContainerContent(this.container as any);
+  get groups(): Array<ISurveyLayoutElementGroup> {
+    return this.survey.getContainerContentGroups(this.container as any);
   }
   get isNeedRenderWrapper(): boolean {
     return this.needRenderWrapper === false ? false : true;
+  }
+  // groups builds new objects on every check; tracking by key keeps the rendered components.
+  trackGroupByKey(_: number, group: ISurveyLayoutElementGroup): string {
+    return group.key;
   }
 }
 AngularComponentFactory.Instance.registerComponent("sv-components-container", ComponentsContainerComponent);

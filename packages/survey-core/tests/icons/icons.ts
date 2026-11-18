@@ -11,6 +11,11 @@ describe("UtilsSVGIconsTests", () => {
     expect(getNewIconName(oldIconName), "oldName transformed to newName").toBe(newIconName);
   });
 
+  test("the filter toolbox item maps to its toolbox icon; the Filters button keeps its own", () => {
+    expect(getNewIconName("icon-filter"), "#1").toBe("icon-toolbox-filter-24x24");
+    expect(getNewIconName("icon-filter-24x24"), "#2").toBe("icon-filter-24x24");
+  });
+
   test("check settings.customIcons for built-in icons swap", () => {
     const originalIconName = "icon-arrowdown-24x24";
     const builtInIconName = "icon-arrowleft-24x24";

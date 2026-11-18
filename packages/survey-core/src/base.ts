@@ -1558,6 +1558,10 @@ export class Base implements IObjectValueContext {
     if (!!name) {
       locStr.onStrChanged = (oldValue: string, newValue: string) => {
         this.propertyValueChanged(name, oldValue, newValue);
+        // The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI
+        if (!!this.onPropertyValueCoreChanged && !this.isDisposedValue) {
+          Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue });
+        }
       };
     }
     if (!this.localizableStrings) {
@@ -1597,10 +1601,21 @@ export class Base implements IObjectValueContext {
     this.setLocStringText(this.getLocalizableString(name), value);
   }
   protected getLocStringText(locStr: LocalizableString, defaultStr: string = ""): string {
-    if (!!locStr?.name) {
-      Base.collectDependency(this, locStr.name);
-    }
+    this.locStringAccessed(locStr);
     return locStr?.text || defaultStr;
+  }
+  protected getLocStringHtml(locStr: LocalizableString): string {
+    this.locStringAccessed(locStr);
+    return locStr?.textOrHtml || "";
+  }
+  // A read of a localizable string's value; the value is not in the property hash, so getPropertyValueCore does not see it
+  private locStringAccessed(locStr: LocalizableString): void {
+    const name = locStr?.name;
+    if (!name) return;
+    Base.collectDependency(this, name);
+    if (Base.currentPropertyAccessListener) {
+      Base.currentPropertyAccessListener.onPropertyAccessed(this, name);
+    }
   }
   protected setLocStringText(locStr: LocalizableString, value: string) {
     if (!locStr) return;

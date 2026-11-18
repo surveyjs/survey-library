@@ -309,6 +309,122 @@ export var indonesianStrings = {
   progressbar: "Bilah kemajuan",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Halaman {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Kosong",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Tidak kosong",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Sama",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Tidak sama",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Berisi",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Tidak mengandung",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Salah satu dari",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Tidak ada",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Seluruh",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Lebih besar dari",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Kurang dari",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Lebih besar dari atau sama dengan",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Kurang dari atau sama dengan",
+  // [Auto-translated] "Save"
+  filterSave: "Simpan",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filter",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filter: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filter",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Cari",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Cari berdasarkan {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Tampilkan Lebih Banyak",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Tampilkan Lebih Sedikit",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Bersihkan Semua",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Bersihkan {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Preset",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Simpan sebagai...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Simpan",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Tambahkan \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Preset",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Tampilkan item {0}",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Tampilkan 1 item",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Tampilkan hasil",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Preset Baru",
+  // [Auto-translated] "Name"
+  filterPresetName: "Nama",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Berisi",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Preset dengan nama ini sudah ada.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Tambahkan setidaknya satu kondisi.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Masukkan sebuah ekspresi.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Ekspresi tersebut tidak valid.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Edit sebagai Ekspresi",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Edit sebagai Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Ketik ekspresi di sini...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Edit Preset",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Hapus",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Tambahkan Baru...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Edit Dipilih...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Ekspresi",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Cari di Filter",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Tidak ada yang ditemukan, coba kata kunci yang berbeda",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Buat preset dengan AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Edit preset dengan AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Misalnya, \"Kopi & Teh dari Jerman\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Buat",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Edit",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Menciptakan...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Editing...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI tidak bisa membuat filter. Coba lagi.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI tidak bisa membuat filter seperti ini.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "memilih",
   // [Auto-translated] "to toggle"

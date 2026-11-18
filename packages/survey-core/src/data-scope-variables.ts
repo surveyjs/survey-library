@@ -1,19 +1,10 @@
 import type { Base } from "./base";
 import type { Question } from "./question";
-import type { IExpressionScopePath, IExpressionVariableInfo } from "./survey";
+import type { SurveyModel, IExpressionScopePath, IExpressionVariableInfo } from "./survey";
 import type { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ValueGetter } from "./conditions/conditionProcessValue";
-import type { IDataScope } from "./data-key-index";
 import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
 import { getMetadataValueGetterContext } from "./data-scope-metadata";
-
-// The survey members the expression variable lookup reads. The survey is the root data scope: an element
-// whose value scope is it is a top-level element.
-export interface IDataScopeVariablesSurvey extends IDataScope {
-  isDataScopeUsed(): boolean;
-  getQuestionByName(name: string, caseInsensitive?: boolean): Question;
-  getQuestionByValueName(valueName: string, caseInsensitive?: boolean): Question;
-}
 
 // ["a", "b"] -> [["a", "b"], ["a"], []]
 function getPathPrefixes(path: Array<string>): Array<Array<string>> {
@@ -33,7 +24,7 @@ function isElementQuestion(q: Question): boolean {
 // property path, a variable, a container's object, the raw data, a matrix cell or an item editor.
 // rest is the exact tail of the name after the question's part ("", ".r1", "[0].q1"), so the head a rename
 // replaces is name.slice(0, name.length - rest.length).
-export function getQuestionByVariable(survey: IDataScopeVariablesSurvey, name: string, context?: Base): IExpressionVariableInfo {
+export function getQuestionByVariable(survey: SurveyModel, name: string, context?: Base): IExpressionVariableInfo {
   const owner: any = context || survey;
   if (!name || typeof owner.getValueGetterContext !== "function") return null;
   const info = new ValueGetter().getQuestionInfo(name, getMetadataValueGetterContext(owner));
@@ -49,7 +40,7 @@ export function getQuestionByVariable(survey: IDataScopeVariablesSurvey, name: s
 // the root does not resolve a name inside a container (O3). A question no root variable reaches (one inside a
 // container of a record) keeps its name, as the record's own expressions read it: its data path starts at the
 // record, not at the survey data.
-export function getQuestionVariableName(survey: IDataScopeVariablesSurvey, question: Question): string {
+export function getQuestionVariableName(survey: SurveyModel, question: Question): string {
   const path = question.getDataPath();
   if (path.length < 2) return question.getValueName();
   const pathName = path.join(".");
@@ -60,7 +51,7 @@ export function getQuestionVariableName(survey: IDataScopeVariablesSurvey, quest
 // as a question's value goes as it is (a value name, a data path, {m.r1}); a question's name gives the variable
 // the survey names the question by (getQuestionVariableName): {q1} with valueName "val1" is {val1}. Any other
 // name (a variable, a calculated value) goes as it is.
-export function getExpressionVariableName(survey: IDataScopeVariablesSurvey, name: string): string {
+export function getExpressionVariableName(survey: SurveyModel, name: string): string {
   if (!name || !!getQuestionByVariable(survey, name)) return name;
   const question = survey.getQuestionByName(name);
   return !!question ? getQuestionVariableName(survey, question) : name;
@@ -70,7 +61,7 @@ export function getExpressionVariableName(survey: IDataScopeVariablesSurvey, nam
 // a panel's and a page's own expressions run in their parent's scope. Inside a record (a template element at
 // design time, a record's element, a matrix column) the paths relative to the record come first, tagged with
 // the records question, then the records question's own paths.
-export function getExpressionScopePaths(survey: IDataScopeVariablesSurvey, context: Base): Array<IExpressionScopePath> {
+export function getExpressionScopePaths(survey: SurveyModel, context: Base): Array<IExpressionScopePath> {
   const el: any = context;
   if (!el || el === survey) return [{ path: [] }];
   if (!!el.colOwner) return [<IExpressionScopePath>{ path: [], record: el.colOwner }].concat(getExpressionScopePaths(survey, el.colOwner));
@@ -92,12 +83,11 @@ export function getExpressionScopePaths(survey: IDataScopeVariablesSurvey, conte
   const scope = typeof el.getValueScope === "function" ? el.getValueScope() : null;
   return getPathPrefixes(!!scope ? scope.getDataPath() : []).map(path => <IExpressionScopePath>{ path: path });
 }
-// SurveyModel.findDataScopeValueContext: the root expression lookup (SurveyValueGetterContext), in this
-// order: the root's keys, a question by value name (the exact name first), then a container by key. A name
-// inside a container is not found from the root (O3): an expression outside the container writes its data path
-// ({address.street}); one inside it resolves the bare name in its own scope and the scopes around it
-// (PanelDataScope.getValueGetterContext).
-export function findDataScopeValueContext(survey: IDataScopeVariablesSurvey, name: string): { obj?: Question, context?: IValueGetterContext } {
+// The root expression lookup (SurveyValueGetterContext), in this order: the root's keys, a question by value
+// name (the exact name first), then a container by key. A name inside a container is not found from the root
+// (O3): an expression outside the container writes its data path ({address.street}); one inside it resolves the
+// bare name in its own scope and the scopes around it (PanelDataScope.getValueGetterContext).
+export function findDataScopeValueContext(survey: SurveyModel, name: string): { obj?: Question, context?: IValueGetterContext } {
   const q = survey.getQuestionByValueName(name, true);
   if (!!q) return { obj: q, context: q.getValueGetterContext() };
   if (!survey.isDataScopeUsed()) return undefined;

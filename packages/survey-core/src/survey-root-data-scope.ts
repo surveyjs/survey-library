@@ -1,6 +1,6 @@
 import type { Question } from "./question";
 import type { PanelModelBase } from "./panel";
-import type { IValueGetterContext } from "./conditions/conditionProcessValue";
+import type { SurveyModel } from "./survey";
 import { ValueGetter } from "./conditions/conditionProcessValue";
 import { Helpers, HashTable } from "./helpers";
 import type { PanelDataScope } from "./panel-data-scope";
@@ -24,18 +24,9 @@ export interface IValueWrite {
   writer?: Question;
 }
 
-// What the root data scope reads from its survey. The survey is the root scope itself: an element whose
-// value scope is the host is a top-level element.
-export interface ISurveyRootDataScopeHost extends IDataScope {
-  readonly pages: Array<PanelModelBase>;
-  readonly isLoadingFromJson: boolean;
-  getAllQuestions(visibleOnly?: boolean, includeDesignTime?: boolean): Array<Question>;
-  getValueGetterContext(): IValueGetterContext;
-}
-
 // The survey's part of nested data: the root's keys (top-level questions and root containers), the root
 // containers by key and by path, and the keys a write of a container key changes for triggers and
-// conditions. The survey owns one and delegates to it; it reaches the survey only through the host.
+// conditions. The survey owns one (SurveyModel.getRootDataScope()) and is its host.
 // It follows the survey's notifications in the data scopes' instances (ElementIndex): the root's own, and below the
 // root the instance of the scope that holds the element (getKeyHolderScope) and those of the scopes inside it. An
 // element appended last in a scope's document order is added in place, and so is a root question's new key; any
@@ -43,7 +34,7 @@ export interface ISurveyRootDataScopeHost extends IDataScope {
 export class SurveyRootDataScope extends DataKeysScope {
   private isUsedValue: boolean = false;
   // getStoredValue: a root key's stored value, without the copy the survey's getValue makes.
-  constructor(private host: ISurveyRootDataScopeHost, private getStoredValue: (key: string) => any) {
+  constructor(private host: SurveyModel, private getStoredValue: (key: string) => any) {
     super();
   }
 
@@ -64,7 +55,7 @@ export class SurveyRootDataScope extends DataKeysScope {
     return <Array<IElement>><any>this.host.pages;
   }
   protected isScopeQuestion(q: Question): boolean {
-    return q.getValueScope() === <IDataScope>this.host;
+    return q.getValueScope() === this.host;
   }
   protected isOwnDataScope(scope: PanelDataScope): boolean {
     return !scope.getParentActiveScope();

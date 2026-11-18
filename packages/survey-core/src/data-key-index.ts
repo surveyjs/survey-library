@@ -1,6 +1,7 @@
 import type { ISurveyDataElement } from "./base-interfaces";
 import type { Question } from "./question";
-import type { PanelDataScope, IPanelDataScopeOwner } from "./panel-data-scope";
+import type { PanelDataScope } from "./panel-data-scope";
+import type { PanelModelBase } from "./panel";
 import type { ElementIndex } from "./element-index";
 import { HashTable } from "./helpers";
 import { settings } from "./settings";
@@ -27,7 +28,7 @@ export function isKnownDataKey(index: ElementIndex, key: string): boolean {
 }
 // The scope of an index entry that is a container; null for a question.
 export function getElementDataScope(el: ISurveyDataElement): PanelDataScope {
-  return !el.isQuestion ? (<IPanelDataScopeOwner>el).getDataScope() : null;
+  return !el.isQuestion ? (<PanelModelBase>el).getDataScope() : null;
 }
 
 const noElements: Array<any> = Object.freeze(<Array<any>>[]) as Array<any>;

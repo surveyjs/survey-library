@@ -88,7 +88,7 @@ export class ContainerDataNesting {
     this.attachedKey = this.getKey();
     if (!this.isUsed) return value;
     this.scope.setParent(value);
-    getDataScopeHost(value.getSurvey())?.dataScopeUsed();
+    getDataScopeHost(value.getSurvey())?.getRootDataScope().used();
     return this.scope;
   }
   private canAttach(value: ISurveyImpl): boolean {
@@ -104,15 +104,15 @@ export class ContainerDataNesting {
     const prevKey = this.attachedKey;
     this.updateAttachment(impl);
     if (!this.isUsed) return;
-    const host = getDataScopeHost(this.container.survey);
+    const root = getDataScopeHost(this.container.survey)?.getRootDataScope();
     const record = this.place === "record" ? getRecordDataScope(this.container.data) : null;
     if (!record) {
-      host?.dataScopeChanged(this.container);
+      root?.dataScopeChanged(this.container);
       return;
     }
     // The instances the key touches: the record item's (the root's is dropped too, at no cost: no walk of the pages
     // reaches a record).
-    host?.dataScopeKeysChanged(this.container);
+    root?.dataScopeKeysChanged(this.container);
     if (prevKey !== this.attachedKey) {
       // The survey's indexes do not hold a record's questions: they read the record again.
       record.updateValuesFromData();

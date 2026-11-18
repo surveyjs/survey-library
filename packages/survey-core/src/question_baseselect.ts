@@ -284,7 +284,7 @@ export class ChoiceItem extends ItemValue {
         pnl.setSurveyImpl(survey);
         // The panel's questions are the root data scope's: a panel linked after the select question was added (a
         // lazy item.panel read) sends no other notification.
-        getDataScopeHost(survey)?.dataScopeKeysChanged(pnl);
+        getDataScopeHost(survey)?.getRootDataScope().dataScopeKeysChanged(pnl);
       }
     }
   }
@@ -424,7 +424,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private choicePanelsLeft(arrayChanges: ArrayChanges): void {
     const left = !!arrayChanges ? arrayChanges.deletedItems.filter((item: any) => !!item?.createdPanel) : [];
     if (left.length > 0) {
-      getDataScopeHost(this.survey)?.dataScopeKeysChanged(left[0].createdPanel);
+      getDataScopeHost(this.survey)?.getRootDataScope().dataScopeKeysChanged(left[0].createdPanel);
     }
   }
   // A select question always lists itself, and the questions of its choice panels only with includeNested.

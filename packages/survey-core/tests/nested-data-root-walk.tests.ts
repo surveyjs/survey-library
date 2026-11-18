@@ -308,7 +308,7 @@ describe("scoped names 06: a choice panel's questions are the root's (M9 to M12)
 describe("scoped names 06: what builds the root again", () => {
   afterEach(() => { vi.restoreAllMocks(); });
   const countBuilds = (survey: SurveyModel): { count: number } => {
-    const root: any = (<any>survey).rootDataScope;
+    const root: any = survey.getRootDataScope();
     const res = { count: 0 };
     const build = root.buildDataKeyIndex.bind(root);
     vi.spyOn(root, "buildDataKeyIndex").mockImplementation((walked: any) => { res.count++; return build(walked); });

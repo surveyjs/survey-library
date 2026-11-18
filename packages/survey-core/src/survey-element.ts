@@ -1076,7 +1076,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     (<any>this).prevSurvey = undefined;
     // The move sent no add or remove notification: the data scopes' instances follow the element.
-    getDataScopeHost(this.survey)?.elementMoved(<IElement>(<any>this));
+    getDataScopeHost(this.survey)?.getRootDataScope().elementMoved(<IElement>(<any>this));
   }
   protected getSearchableLocKeys(keys: Array<string>) {
     keys.push("title");

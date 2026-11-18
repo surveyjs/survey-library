@@ -533,7 +533,7 @@ export class PanelModelBase extends SurveyElement<Question>
       // An attach can start or stop the nesting (a panel attached before its parent is set does not nest, and nests
       // once attached again): the instances it touches are dropped, as at a key change.
       if (this.getDataScopeKey() !== prevKey) {
-        getDataScopeHost(this.survey)?.dataScopeKeysChanged(this);
+        getDataScopeHost(this.survey)?.getRootDataScope().dataScopeKeysChanged(this);
       }
     });
   }
@@ -652,7 +652,7 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!this.survey) {
       this.lifecycleCallbacks.elementRenamed(this);
       if (!!this.getDataScope()) {
-        getDataScopeHost(this.survey)?.dataScopeKeysChanged(this);
+        getDataScopeHost(this.survey)?.getRootDataScope().dataScopeKeysChanged(this);
       }
     }
   }

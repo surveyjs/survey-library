@@ -98,7 +98,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { getActiveDataScope, ISurveyDataScopeHost } from "./panel-data-scope";
+import { getActiveDataScope } from "./panel-data-scope";
 import type { IDataScope } from "./data-key-index";
 import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
@@ -223,7 +223,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       if (res.isMetadata) res.isUnwrapped = true;
     }
     // Before the raw data: the root data scope's key.
-    const info = this.survey.findDataScopeValueContext(name);
+    const info = findDataScopeValueContext(this.survey, name);
     if (!!info) {
       res.isFound = true;
       res.obj = info.obj;
@@ -264,8 +264,7 @@ export class SurveyModel extends SurveyElementCore
   ISurveyTriggerOwner,
   ISurveyErrorOwner,
   ISurveyTimerText,
-  IDataScope,
-  ISurveyDataScopeHost {
+  IDataScope {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   // public static get cssType(): string {
@@ -1351,7 +1350,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages.forEach(page => page.onReadOnlyModeChanged());
     }
     if (name === "dataNesting") {
-      this.dataScopeChanged();
+      this.rootDataScope.dataScopeChanged();
     }
     const resetVisibleIndexesProps = ["questionStartIndex", "requiredMark", "questionTitlePattern"];
     if (resetVisibleIndexesProps.indexOf(name) > -1) {
@@ -2820,7 +2819,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public runTriggers(): void {
     const keys = this.getFilteredValues();
-    if (this.isDataScopeUsedValue) {
+    if (this.isDataScopeUsed()) {
       this.getAllQuestions().forEach(q => this.rootDataScope.addTriggerKeys(keys, q, true));
     }
     this.checkTriggers(keys, false);
@@ -3820,7 +3819,7 @@ export class SurveyModel extends SurveyElementCore
   // Whether a nesting container with the key sits in the panel, directly or inside panels that do not nest:
   // a container under the key in the index of the scope the panel's elements write into, inside the panel.
   private hasDataNestingContainer(panel: PanelModelBase, key: string): boolean {
-    if (!this.isDataScopeUsedValue) return false;
+    if (!this.isDataScopeUsed()) return false;
     const scope: IDataScope = getActiveDataScope(panel.getDataScope() || panel.data) || this;
     return scope.getDataKeyIndex().getScopes(key).some(inner => {
       let el: any = inner.owner;
@@ -7105,7 +7104,7 @@ export class SurveyModel extends SurveyElementCore
     if (res.length === 0) return null;
     // Once a container has nested, a copy, as the filtered list it was: a survey without nesting gets the list as
     // stored, as on master.
-    return this.isDataScopeUsedValue ? [].concat(res) : res;
+    return this.isDataScopeUsed() ? [].concat(res) : res;
   }
   public getCalculatedValueByName(name: string): CalculatedValue {
     for (var i = 0; i < this.calculatedValues.length; i++) {
@@ -7295,7 +7294,7 @@ export class SurveyModel extends SurveyElementCore
   // on master.
   private getRootKeyElements(key: string): Array<ISurveyDataElement> {
     const res = this.getDataKeyIndex().getElements(key);
-    return this.isDataScopeUsedValue ? [].concat(res) : res;
+    return this.isDataScopeUsed() ? [].concat(res) : res;
   }
   protected updateQuestionValue(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
@@ -7395,7 +7394,7 @@ export class SurveyModel extends SurveyElementCore
   // containers that shows an error is checked again, since the shared object may have fixed it. Once per
   // write, whatever the number of containers.
   private validateDataScopesOnValueChanged(key: string, writer: Question): void {
-    if (!this.isDataScopeUsedValue) return;
+    if (!this.isDataScopeUsed()) return;
     const scopes = this.rootDataScope.getRootScopes(key);
     if (scopes.length === 0) return;
     if (!!writer && scopes.some(s => s.containsQuestion(writer))) {
@@ -7466,13 +7465,12 @@ export class SurveyModel extends SurveyElementCore
   // The root's keys and the trigger keys are the root data scope's; the expression
   // variable lookup is data-scope-variables.ts.
   private rootDataScope = new SurveyRootDataScope(this, (key: string) => this.getDataValueCore(this.valuesHash, key));
-  private get isDataScopeUsedValue(): boolean {
-    return this.rootDataScope.isUsed;
+  // The root data scope: the elements' notifications on nesting (a container attached, its key changed, an element
+  // moved) go to it.
+  public getRootDataScope(): SurveyRootDataScope {
+    return this.rootDataScope;
   }
-  dataScopeUsed(): void {
-    this.rootDataScope.used();
-  }
-  isDataScopeUsed(): boolean {
+  public isDataScopeUsed(): boolean {
     return this.rootDataScope.isUsed;
   }
   public getDataKeyIndex(): ElementIndex {
@@ -7499,21 +7497,9 @@ export class SurveyModel extends SurveyElementCore
   public getExpressionScopePaths(context: Base): Array<IExpressionScopePath> {
     return getExpressionScopePaths(this, context);
   }
-  public findDataScopeValueContext(name: string): { obj?: Question, context?: IValueGetterContext } {
-    return findDataScopeValueContext(this, name);
-  }
   // ISurveyTriggerOwner
   isOwnValueKeys(name: string, keys: Array<string>): boolean {
     return this.rootDataScope.isOwnValueKeys(name, keys);
-  }
-  dataScopeChanged(panel?: PanelModelBase): void {
-    this.rootDataScope.dataScopeChanged(panel);
-  }
-  dataScopeKeysChanged(panel: PanelModelBase): void {
-    this.rootDataScope.dataScopeKeysChanged(panel);
-  }
-  elementMoved(el: IElement): void {
-    this.rootDataScope.elementMoved(el);
   }
   //#endregion
   private checkOnPageTriggers(isOnComplete: boolean) {

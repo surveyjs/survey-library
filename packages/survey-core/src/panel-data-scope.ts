@@ -1,7 +1,6 @@
-import type { IQuestion, IElement, IPanel, ISurvey, ISurveyImpl, ISurveyData, ISurveyDataElement, ITextProcessor } from "./base-interfaces";
-import type { Base } from "./base";
+import type { IQuestion, IElement, ISurvey, ISurveyImpl, ISurveyData, ISurveyDataElement, ITextProcessor } from "./base-interfaces";
 import type { PanelModelBase } from "./panel";
-import type { IExpressionVariableInfo } from "./survey";
+import type { SurveyModel } from "./survey";
 import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
 import { Helpers } from "./helpers";
@@ -20,35 +19,10 @@ import { INameScope, ElementKind, findElementInNameScope, isNameScopeMode, isQue
 //   data-scope-contexts.ts / data-scope-metadata.ts: the expression contexts and the design-time chain;
 //   this file: the runtime scopes and the survey as their host.
 
-// The panel or page that owns a scope. A type, not an import of PanelModelBase: panel.ts imports this file.
-export interface IPanelDataScopeOwner extends ISurveyDataElement {
-  getDataScopeKey(): string;
-  getDataScope(): PanelDataScope;
-  elements: Array<IElement>;
-}
-// The survey as the root data scope, and its members the nested-data code calls: SurveyModel implements them.
-// They are not on ISurvey, so an ISurvey that is not a SurveyModel (a partial survey object in a test) needs
-// none of them.
-export interface ISurveyDataScopeHost extends IDataScope {
-  readonly dataNesting: string;
-  isDataScopeUsed(): boolean;
-  dataScopeUsed(): void;
-  dataScopeChanged(panel?: PanelModelBase): void;
-  // The instances the root scope drops (SurveyRootDataScope): setPage moved an element; a container inside a record
-  // changed its key.
-  elementMoved(el: IElement): void;
-  dataScopeKeysChanged(panel: PanelModelBase): void;
-  getNewGeneratedName(elements: Array<any>, baseName: string): string;
-  getAllPanels(visibleOnly?: boolean, includeDesignTime?: boolean): Array<IPanel>;
-  getQuestionByVariable(name: string, context?: Base): IExpressionVariableInfo;
-  getExpressionVariableName(name: string): string;
-}
-// The survey as the host of its data scopes, or undefined for a survey object without the members. The only
-// place that checks for them (isDataScopeUsed stands for all): a caller uses the optional chain and does
-// nothing without a host.
-export function getDataScopeHost(survey: ISurvey): ISurveyDataScopeHost {
-  const host: any = survey;
-  return !!host && typeof host.isDataScopeUsed === "function" ? <ISurveyDataScopeHost>host : undefined;
+// The survey as the host of its data scopes (the root scope is SurveyModel.getRootDataScope()), or undefined
+// when there is no survey.
+export function getDataScopeHost(survey: ISurvey): SurveyModel {
+  return !!survey ? <SurveyModel>survey : undefined;
 }
 // The nearest active scope of an element's data, or null when its value is a key of the survey data (or of
 // a record): SurveyElement.getValueScope().
@@ -145,7 +119,7 @@ export abstract class DataKeysScope {
       for (let i = 0; i < elements.length; i++) {
         const el: any = elements[i];
         if (el.isPanel || el.isPage) {
-          const scope = !below ? (<IPanelDataScopeOwner>el).getDataScope() : null;
+          const scope = !below ? (<PanelModelBase>el).getDataScope() : null;
           if (!below) named(el);
           if (!!scope && scope.isActive && this.isOwnDataScope(scope)) {
             index.addKeyed(scope.owner, scope.key);
@@ -306,7 +280,7 @@ const noKeys = new ElementIndex();
 // once it has had a key, and switching nesting on or off does not re-attach its elements.
 export class PanelDataScope extends ObjectDataScope implements ISurveyImpl, ISurveyData, IObjectValueContext, IDataScope {
   private parentImpl: ISurveyImpl;
-  constructor(public readonly owner: IPanelDataScopeOwner) {
+  constructor(public readonly owner: PanelModelBase) {
     super();
   }
   // Read live: the owner's place is stored at attach, the rest is a property read.

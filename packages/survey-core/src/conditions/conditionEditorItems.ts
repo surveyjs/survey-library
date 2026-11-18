@@ -108,7 +108,7 @@ export class ConditionEditorItem {
   }
 }
 // A row of a survey's condition: the text names the row's question by the variable the survey gives
-// questionName (SurveyModel.getExpressionVariableName). A survey object without the member: as it is.
+// questionName (SurveyModel.getExpressionVariableName). No survey: the name as it is.
 export class SurveyConditionEditorItem extends ConditionEditorItem {
   public constructor(public survey: ISurvey) {
     super();

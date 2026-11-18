@@ -15,11 +15,10 @@ export interface ILocalizableOwner {
   getRenderer(name: string, item?: ItemValue): string;
   getRendererContext(locStr: LocalizableString, item?: ItemValue): any;
   getAllowLineBreaks?(name: string): boolean;
-  // Whether a value change with these changed names can change the string's text. The owner that
-  // processes the text answers it: it knows the names its context adds ({row}, {panel}) and the
-  // handlers that rewrite its texts. A string whose owner has no answer refreshes when it has names or
-  // a callback (see LocalizableString.strChanged).
-  isLocStrRefreshRequired?(locStr: LocalizableString, changes: ChangedKeys): boolean;
+  // The names the owner's context adds to its texts ({row}, {panel}, {composite}), checked next to the changed
+  // names, as SurveyElement.canSkipExpressionByKeys does for expressions. undefined: the context adds none.
+  // A string whose owner has no such method refreshes whenever its text has names.
+  getTextContextKeys?(changes: ChangedKeys): HashTable<any>;
 }
 interface ITextNamesInfo {
   text: string;
@@ -149,33 +148,19 @@ export class LocalizableString implements ILocalizableString {
       this.settingTextCounter--;
     }
   }
+  // Whether the changed names can change the text: the same check as an expression's (ChangedKeys),
+  // over the names of the text and the names the owner's context adds
   private isRefreshRequired(changes: ChangedKeys): boolean {
-    const owner = this.owner;
-    if (!!owner && typeof owner.isLocStrRefreshRequired === "function") return owner.isLocStrRefreshRequired(this, changes);
-    // The owner adds no context names and knows no handlers: a string that can show a value refreshes
-    return this.hasValueDependentCallback || this.getTextNames().length > 0;
-  }
-  public get hasValueDependentCallback(): boolean {
-    return !!this.onGetTextCallback && !this.isTextCallbackPure;
-  }
-  // The check an owner runs for a string without rules of its own. contextKeys: the names the owner's
-  // context adds. names.isDisplayTextValueName: a name (its first part) whose value can change on any
-  // value change, for example a question that shows a choice text with names of its own (the survey).
-  public isRefreshRequiredByNames(changes: ChangedKeys, contextKeys?: HashTable<any>, names?: { isDisplayTextValueName?(name: string): boolean }): boolean {
-    if (this.hasValueDependentCallback) return true;
+    // The callback can read any value
+    if (!!this.onGetTextCallback && !this.isTextCallbackPure) return true;
     const info = this.getTextNamesInfo();
-    const textNames = info.names;
-    if (textNames.length === 0) return false;
+    if (info.names.length === 0) return false;
     if (changes.isUnknown) return true;
+    const owner = this.owner;
+    // The owner cannot tell which names its context adds
+    if (!owner || typeof owner.getTextContextKeys !== "function") return true;
     // A path under a cleared value ({m.row1} after m is cleared) shows another text
-    if (changes.isAnyChanged(textNames, true, info.namesInfo, contextKeys)) return true;
-    if (!!names && typeof names.isDisplayTextValueName === "function") {
-      for (let i = 0; i < textNames.length; i++) {
-        const nameInfo = info.namesInfo[i];
-        if (names.isDisplayTextValueName(!!nameInfo ? nameInfo.firstName : textNames[i])) return true;
-      }
-    }
-    return false;
+    return changes.isAnyChanged(info.names, true, info.namesInfo, owner.getTextContextKeys(changes));
   }
   // The names the text interpolates ({q1}, {row.q2}). They are kept with the text they were read from,
   // and read again when the text (its locale, a shared string) or the delimiters change.

@@ -91,15 +91,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   //#region Rendered ids
   getElementId(id: string): string;
   //#endregion
-
-  //#region Text dependencies (LocalizableString.strChanged on a value change)
-  // A subscribed onGetQuestionTitle / onProcessHtml can rewrite a text with any value
-  hasQuestionTitleHandler?(): boolean;
-  hasProcessHtmlHandler?(): boolean;
-  // A name whose text shows display texts (choices, rows, columns) that can have names of their own
-  isDisplayTextValueName?(name: string): boolean;
-  //#endregion
-
   //#region Settings
   // The survey's effective settings (SurveyModel.getSettings)
   getSettings(): ISurveySettings;

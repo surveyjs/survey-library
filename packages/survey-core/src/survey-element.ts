@@ -563,19 +563,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return super.canSkipExpressionByKeys(runner, keys, vars, isClearedKeyChanged);
   }
-  // ILocalizableOwner: the element processes the texts of its strings and of its items' strings
-  public isLocStrRefreshRequired(locStr: LocalizableString, changes: ChangedKeys): boolean {
-    if (this.isLocStrValueDependent(locStr)) return true;
-    return locStr.isRefreshRequiredByNames(changes, this.getTextContextKeys(changes), this.survey);
-  }
-  // A string whose text a handler or a callback builds from other values refreshes on every value change
-  protected isLocStrValueDependent(locStr: LocalizableString): boolean {
-    return false;
-  }
-  // The names the data context adds ({row}, {panel}, {composite}), kept for the walk of one value change:
-  // every string of the element is checked against the same changes
+  // ILocalizableOwner: the names the data context adds ({row}, {panel}, {composite}), the way
+  // canSkipExpressionByKeys reads them. Kept for the walk of one value change: every string of the
+  // element is checked against the same changes.
   private textContextKeys: { changes: ChangedKeys, keys: HashTable<any> };
-  private getTextContextKeys(changes: ChangedKeys): HashTable<any> {
+  public getTextContextKeys(changes: ChangedKeys): HashTable<any> {
     if (changes.isUnknown) return undefined;
     const cached = this.textContextKeys;
     if (!!cached && cached.changes === changes) return cached.keys;

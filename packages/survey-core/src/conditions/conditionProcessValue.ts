@@ -187,7 +187,10 @@ function getNameParser(): ValueGetter {
 export class ChangedKeys {
   private lowerKeys: HashTable<Array<string>>;
   // keys: the object is used as it is and written through setKey, never copied
-  constructor(private keysValue?: any, private sharedNamesInfo?: Map<string, IValueGetterNameInfo>) {
+  // isAlwaysChangedName: a name (its first part) that counts as changed on any key, the way a built-in name does.
+  // The survey passes it for texts: {q1} shows q1's display value, built from choice texts that can have names of their own.
+  constructor(private keysValue?: any, private sharedNamesInfo?: Map<string, IValueGetterNameInfo>,
+    private isAlwaysChangedName?: (name: string) => boolean) {
   }
   public get keys(): any {
     return this.keysValue;
@@ -256,6 +259,7 @@ export class ChangedKeys {
       if (info.isBuiltIn) return true;
       if (!!contextKeys && this.isContextNameChanged(contextKeys, info, isClearedKeyChanged)) return true;
       if (this.isNameChanged(info, isClearedKeyChanged)) return true;
+      if (!!this.isAlwaysChangedName && this.isAlwaysChangedName(info.firstName)) return true;
     }
     return false;
   }

@@ -1416,7 +1416,8 @@ export class SurveyModel extends SurveyElementCore
     return this.getOrCreateLocStr(name, false, locName, (locStr: LocalizableString) => {
       if (reason) {
         locStr.onGetTextCallback = (str: string): string => { return this.processHtml(str, reason); };
-        // It processes the names of its own text; an onProcessHtml handler makes it value-dependent
+        // It processes the names of its own text. An onProcessHtml handler can read any value: then every
+        // string refreshes (getLocStrChanges)
         locStr.isTextCallbackPure = true;
       } else {
         // processedCompletedHtml processes it, or a condition item's html instead of it
@@ -2444,6 +2445,9 @@ export class SurveyModel extends SurveyElementCore
   public locStrsChanged(changes?: ChangedKeys): void {
     if (this.isClearingUnsedValues) return;
     super.locStrsChanged(changes);
+    if (!!changes) {
+      this.completedHtmlItemsChanged(changes);
+    }
     if (!this.currentPage) return;
     if (this.isDesignMode) {
       // Texts are not processed in design mode: every string refreshes, whatever changed
@@ -2461,35 +2465,30 @@ export class SurveyModel extends SurveyElementCore
     }
     this.navigationBarValue?.locStrsChanged(changes);
   }
-  // ILocalizableOwner: the survey's own strings
-  public isLocStrRefreshRequired(locStr: LocalizableString, changes: ChangedKeys): boolean {
-    if (this.isProcessedHtmlLocStr(locStr) && this.hasProcessHtmlHandler()) return true;
-    if (locStr.isRefreshRequiredByNames(changes, undefined, this)) return true;
-    // The complete page shows the html of the first condition item whose expression is true:
-    // processedCompletedHtml reads completedHtml and is notified under its name
-    if (locStr === this.getLocalizableString("completedHtml")) {
-      const items = this.completedHtmlOnCondition;
-      for (let i = 0; i < items.length; i++) {
-        const locHtml = items[i].locHtml;
-        if (!!locHtml && locHtml.isRefreshRequiredByNames(changes, undefined, this)) return true;
-        if (items[i].isExpressionChanged(changes)) return true;
+  // ILocalizableOwner: the survey's context adds no names to its texts
+  public getTextContextKeys(changes: ChangedKeys): HashTable<any> {
+    return undefined;
+  }
+  // The complete page shows the html of the first condition item whose expression is true, and
+  // processedCompletedHtml is notified under completedHtml: completedHtml refreshes when an item's html
+  // names or its expression's names changed. Its own names are checked with the other strings.
+  private completedHtmlItemsChanged(changes: ChangedKeys): void {
+    const locStr = this.getLocalizableString("completedHtml");
+    if (!locStr) return;
+    const items: Array<HtmlConditionItem> = this.getPropertyValueWithoutDefault("completedHtmlOnCondition");
+    if (!Array.isArray(items)) return;
+    for (let i = 0; i < items.length; i++) {
+      const locHtml = items[i].locHtml;
+      const names = !!locHtml ? locHtml.getTextNames() : [];
+      if (names.length > 0 && changes.isAnyChanged(names, true) || items[i].isExpressionChanged(changes)) {
+        locStr.strChanged();
+        return;
       }
     }
-    return false;
-  }
-  private isProcessedHtmlLocStr(locStr: LocalizableString): boolean {
-    const name = locStr.name;
-    return name === "completedHtml" || name === "completedBeforeHtml" || name === "loadingHtml";
-  }
-  public hasQuestionTitleHandler(): boolean {
-    return !this.onGetQuestionTitle.isEmpty;
-  }
-  public hasProcessHtmlHandler(): boolean {
-    return !this.onProcessHtml.isEmpty;
   }
   // {q1} shows q1's display value. A choice, row or column text can have names of its own, or come
   // from another question (carry-forward choices), so it can change without a change of q1.
-  public isDisplayTextValueName(name: string): boolean {
+  private isDisplayTextValueName(name: string): boolean {
     if (!name) return false;
     const questions = this.getQuestionsByValueName(name, true);
     if (!questions) return false;
@@ -2886,7 +2885,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get renderedCompletedHtml(): string {
     // Read in any case: a render of the complete page is notified under completedHtml when what it
-    // shows can change (isLocStrRefreshRequired), also when a condition item's html is shown
+    // shows can change (completedHtmlItemsChanged), also when a condition item's html is shown
     const completedHtml = this.completedHtml;
     var item = this.getExpressionItemOnRunCondition(
       this.completedHtmlOnCondition
@@ -7420,12 +7419,25 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   // The names a value change changed, for the strings: keys - { name: value } or { name: { oldValue, newValue } };
-  // no keys - unknown, every string that can show a value refreshes. A subscribed onExpressionRunning or
-  // onProcessDynamicText can make a text show any value, so the keys are unknown then too.
+  // no keys - unknown, every string with names refreshes. A handler that can make a text show any value
+  // turns the check off, as onExpressionRunning does for expressions (getValueChangedKeys): undefined
+  // refreshes every string.
   private getLocStrChanges(keys: any): ChangedKeys {
-    if (!keys || !this.onExpressionRunning.isEmpty || !this.onProcessDynamicText.isEmpty) return new ChangedKeys();
-    return new ChangedKeys(keys, this.getVariableNamesInfo());
+    if (this.hasValueDependentTextHandler()) return undefined;
+    if (!keys) return new ChangedKeys();
+    return this.createLocStrChanges(keys);
   }
+  private hasValueDependentTextHandler(): boolean {
+    return !this.onExpressionRunning.isEmpty || !this.onProcessDynamicText.isEmpty ||
+      !this.onGetQuestionTitle.isEmpty || !this.onProcessHtml.isEmpty;
+  }
+  private createLocStrChanges(keys: any): ChangedKeys {
+    if (!this.isDisplayTextValueNameFunc) {
+      this.isDisplayTextValueNameFunc = (name: string): boolean => this.isDisplayTextValueName(name);
+    }
+    return new ChangedKeys(keys, this.getVariableNamesInfo(), this.isDisplayTextValueNameFunc);
+  }
+  private isDisplayTextValueNameFunc: (name: string) => boolean;
   // The notifications deferred while conditions run are merged into one: every string > unknown > the keys
   private deferredLocStrChanges: { changes: ChangedKeys };
   private addDeferredLocStrChanges(changes: ChangedKeys): void {
@@ -7446,7 +7458,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private copyLocStrChanges(changes: ChangedKeys): ChangedKeys {
-    const res = new ChangedKeys({}, this.getVariableNamesInfo());
+    const res = this.createLocStrChanges({});
     const keys = changes.keys;
     for (const key in keys) {
       res.setKey(key, keys[key]);

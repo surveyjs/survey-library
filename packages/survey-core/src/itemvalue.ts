@@ -15,6 +15,7 @@ import { BaseAction } from "./actions/action";
 import { Question } from "./question";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import type { ChangedKeys } from "./conditions/conditionProcessValue";
+import type { HashTable } from "./helpers";
 
 interface IItemConditionRun {
   expression: string;
@@ -69,11 +70,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public getProcessedText(text: string): string {
     return this.locOwner ? this.locOwner.getProcessedText(text, this) : text;
   }
-  // The owner processes the item's texts, so it decides, the same way as for its own strings
-  public isLocStrRefreshRequired(locStr: LocalizableString, changes: ChangedKeys): boolean {
+  // The owner processes the item's texts, so its context adds the names
+  public getTextContextKeys(changes: ChangedKeys): HashTable<any> {
     const owner = this.locOwner;
-    if (!!owner && typeof owner.isLocStrRefreshRequired === "function") return owner.isLocStrRefreshRequired(locStr, changes);
-    return locStr.hasValueDependentCallback || locStr.getTextNames().length > 0;
+    return !!owner && typeof owner.getTextContextKeys === "function" ? owner.getTextContextKeys(changes) : undefined;
   }
 
   public static get Separator() {

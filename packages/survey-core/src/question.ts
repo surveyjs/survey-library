@@ -624,10 +624,6 @@ export class Question extends SurveyElement<Question>
     }
   }
   protected getDefaultTitle(): string { return this.name; }
-  protected isLocStrValueDependent(locStr: LocalizableString): boolean {
-    if (locStr === this.locTitle && !!this.survey?.hasQuestionTitleHandler?.()) return true;
-    return super.isLocStrValueDependent(locStr);
-  }
   // The display value is built from texts (choices, rows, columns, labels) that can have names of their
   // own, so a text that shows it ({q1}) can change on a change of another value
   public hasDisplayTexts(): boolean { return false; }
@@ -641,7 +637,7 @@ export class Question extends SurveyElement<Question>
       if (!this.survey) return text;
       return this.titleSettings.getUpdatedQuestionTitle(this, text);
     };
-    // The question's name; an onGetQuestionTitle handler makes the title value-dependent (isLocStrValueDependent)
+    // The question's name. An onGetQuestionTitle handler can read any value: then the survey refreshes every string
     locTitleValue.isTextCallbackPure = true;
     this.locProcessedTitle = new LocalizableString(this, true);
     this.locProcessedTitle.sharedData = locTitleValue;

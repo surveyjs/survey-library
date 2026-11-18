@@ -141,10 +141,18 @@ describe("A value change refreshes the strings that show the changed names", () 
     survey.mergeData({ q4: 1 });
     expect(q1.count, "setDataCore does not know the changed names").toBe(1);
     expect(q2.count).toBe(0);
+  });
+  test("an onProcessDynamicText handler makes a value change refresh every string", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1", title: "Shows {q3}" },
+      { type: "text", name: "q2", title: "Plain title" }
+    ] });
+    const q1 = countRefreshes(survey.getQuestionByName("q1").locTitle);
+    const q2 = countRefreshes(survey.getQuestionByName("q2").locTitle);
     survey.onProcessDynamicText.add(() => { });
     survey.setValue("q4", 2);
-    expect(q1.count, "an onProcessDynamicText handler can show any value").toBe(2);
-    expect(q2.count).toBe(0);
+    expect(q1.count).toBe(1);
+    expect(q2.count, "a string without names too").toBe(1);
   });
   test("a locale change and a new onTextMarkdown handler refresh every string", () => {
     const survey = new SurveyModel({ elements: [
@@ -191,7 +199,7 @@ describe("A value change refreshes the strings that show the changed names", () 
     expect(locTitle.renderedHtml).toBe("You chose: Hello Ann");
     expect(q3.count, "a text question's value is shown as it is").toBe(0);
   });
-  test("an onGetQuestionTitle handler makes every question title refresh on any value change", () => {
+  test("an onGetQuestionTitle handler makes a value change refresh every string", () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "q1" },
       { type: "text", name: "q2", title: "Plain title" }
@@ -204,7 +212,7 @@ describe("A value change refreshes the strings that show the changed names", () 
     survey.setValue("q1", "A");
     expect(locTitle.renderedHtml).toBe("Plain title (A)");
   });
-  test("an onProcessHtml handler makes an html question refresh on any value change", () => {
+  test("an onProcessHtml handler makes a value change refresh every string", () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "q1" },
       { type: "html", name: "q2", html: "<p>Static</p>" }

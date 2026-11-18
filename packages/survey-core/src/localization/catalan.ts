@@ -309,6 +309,122 @@ export var catalanSurveyStrings = {
   progressbar: "Barra de progrés",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Pàgina {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Buit",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "No està buit",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Iguals",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "No és igual",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Conté",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "No conté",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Qualsevol de",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Cap d'aquests",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Tot el",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Més que",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Menys que",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Superior o igual a",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Inferior o igual a",
+  // [Auto-translated] "Save"
+  filterSave: "Guarda",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filtres",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filtres: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filtres",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Cerca",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Cerca per {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Mostra més",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Mostra menys",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Esborrar-ho tot",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Clar {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Preset",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Guarda com...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Guarda",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Afegeix \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Presets",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Mostra {0} elements",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Mostra 1 article",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Mostra els resultats",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Nou Preset",
+  // [Auto-translated] "Name"
+  filterPresetName: "Nom",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Conté",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Ja existeix un predefinit amb aquest nom.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Afegeix almenys una condició.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Introdueix una expressió.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "L'expressió no és vàlida.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Editar com a expressió",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Edita com a Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Escriu una expressió aquí...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Edita el predefinit",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Suprimir",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Afegeix nou...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Edita seleccionat...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Expressió",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Edito...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Cerca en filtres",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "No s'ha trobat res, prova amb diferents paraules clau",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Crea un predefinit amb IA",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Edita el preset amb IA",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Per exemple, \"Cafè i Te d'Alemanya\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Crea",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Edita",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Creant...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Editant...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "La IA no ha pogut crear cap filtre. Torna-ho a intentar.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "La IA no podia fer un filtre d'aquesta descripció.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "per seleccionar",
   // [Auto-translated] "to toggle"

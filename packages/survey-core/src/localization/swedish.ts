@@ -309,6 +309,122 @@ export var swedishSurveyStrings = {
   progressbar: "Förloppsindikator",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Sida {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Tomt",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Inte tomt",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Lika",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Är inte lika med",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Innehåller",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Innehåller inte",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Någon av",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Ingen av",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Hela",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Större än",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Mindre än",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Större än eller lika med",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Mindre än eller lika med",
+  // [Auto-translated] "Save"
+  filterSave: "Spara",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filter",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filter: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filter",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Sök",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Sök efter {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Visa mer",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Visa mindre",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Rensa allt",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Klart {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Förinställning",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Spara som...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Spara",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Lägg till \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Förinställningar",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Visa {0} objekt",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Visa 1 objekt",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Resultat",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Ny förinställning",
+  // [Auto-translated] "Name"
+  filterPresetName: "Namn",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Innehåller",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "En förinställning med detta namn finns redan.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Lägg till minst ett villkor.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Skriv in ett uttryck.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Uttrycket är inte giltigt.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Redigera som uttryck",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Redigera som Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Skriv ett uttryck här...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Redigera förinställning",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Ta bort",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Lägg till nytt...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Redigera markerat...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Uttryck",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Sök i filter",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Inget hittats, prova olika nyckelord",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Skapa förinställningar med AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Redigera förinställning med AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Till exempel \"Coffee & Tea from Germany\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Skapa",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Redigera",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Skapar...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Redigering...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI kunde inte skapa ett filter. Försök igen.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI kunde inte skapa ett filter av denna beskrivning.",
   // "d" - a day placeholder symbol in a datetime input mask
   maskPlaceholderDay: "d",
   // "m" - a month placeholder symbol in a datetime input mask

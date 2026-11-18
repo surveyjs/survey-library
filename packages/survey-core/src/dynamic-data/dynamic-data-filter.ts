@@ -118,10 +118,21 @@ function getVirtualFields(fields: Array<IDynamicDataField>): Array<IDynamicDataF
    surveySettings: the list's survey settings for the filter's comparisons; without them the global settings apply. */
 export function applyFilter(records: Array<any>, filter: string | ConditionRunner, fields?: Array<IDynamicDataField>,
   surveySettings?: ISurveySettings): Array<number> {
-  const runner = toRunner(filter);
-  if (!runner) return createIndexes(records.length);
-  const used = runner.getVariables().map((name: string): string => name.split(/[.[]/)[0].toLowerCase());
-  const virtualFields = getVirtualFields(fields).filter((field: IDynamicDataField): boolean => used.indexOf(field.name.toLowerCase()) > -1);
+  return applyFilters(records, [toRunner(filter)], fields, surveySettings);
+}
+/* The slots of a list are ANDed: a record is created only if every runner accepts it. Each runner
+   was parsed on its own, so this never concatenates the expressions - and therefore never has to
+   bracket them. A field that is read and never stored is put over the record's own keys when any
+   of the expressions names it, as applyFilter does. surveySettings: as in applyFilter. */
+export function applyFilters(records: Array<any>, runners: Array<ConditionRunner>, fields?: Array<IDynamicDataField>,
+  surveySettings?: ISurveySettings): Array<number> {
+  const used = (runners || []).filter((runner: ConditionRunner): boolean => !!runner);
+  if (used.length === 0) return createIndexes(records.length);
+  const names: Array<string> = [];
+  used.forEach((runner: ConditionRunner): void => {
+    runner.getVariables().forEach((name: string): void => { names.push(name.split(/[.[]/)[0].toLowerCase()); });
+  });
+  const virtualFields = getVirtualFields(fields).filter((field: IDynamicDataField): boolean => names.indexOf(field.name.toLowerCase()) > -1);
   const res: Array<number> = [];
   for (let i = 0; i < records.length; i++) {
     let values = records[i] || {};
@@ -131,7 +142,11 @@ export function applyFilter(records: Array<any>, filter: string | ConditionRunne
         values[virtualFields[j].name] = virtualFields[j].getValue(records[i], i);
       }
     }
-    if (runner.runValues(values, undefined, surveySettings)) res.push(i);
+    let passes = true;
+    for (let j = 0; j < used.length && passes; j++) {
+      passes = used[j].runValues(values, undefined, surveySettings);
+    }
+    if (passes) res.push(i);
   }
   return res;
 }
@@ -161,4 +176,14 @@ export function applySort(records: Array<any>, sort: Array<ISortCriterion>,
     return a.position - b.position;
   });
   return order.map(item => item.recordIndex);
+}
+// Both operands are parenthesized as soon as there are two of them. "or" binds looser than "and"
+// (grammar.pegjs: Expression -> LogicOr -> LogicAnd), so "{a} = 1 or {b} = 2" combined with
+// "{c} = 3" would otherwise read as "{a} = 1 or ({b} = 2 and {c} = 3)".
+export function combineFilterExpressions(first: string, second: string, conjunction: string = "and"): string {
+  const a = (first || "").trim();
+  const b = (second || "").trim();
+  if (!a) return b;
+  if (!b) return a;
+  return "(" + a + ") " + conjunction + " (" + b + ")";
 }

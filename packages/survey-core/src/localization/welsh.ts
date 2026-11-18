@@ -309,6 +309,122 @@ export var welshSurveyStrings = {
   progressbar: "Bar cynnydd",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Tudalen {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Wag",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Ddim yn wag",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Yn hafal",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Nid yw'n hafal",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Yn cynnwys",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Nid yw'n cynnwys",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Unrhyw un o",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Dim o",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Pob un o",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Mwy na",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Llai na",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Yn fwy na neu'n hafal i",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Llai na neu'n hafal i",
+  // [Auto-translated] "Save"
+  filterSave: "Cadw",
+  // [Auto-translated] "Filters"
+  filterFilters: "Hidlwyr",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Hidlwyr: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Hidlwyr",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Chwilio",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Chwilio yn ôl {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Dangos Mwy",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Dangos Llai",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Clirio popeth",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Clir {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Rhagosodiad",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Cadw fel...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Cadw",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Ychwanegwch \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Rhagosodiadau",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Dangos {0} eitemau",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Dangos 1 eitem",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Dangos canlyniadau",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Rhagosodiad Newydd",
+  // [Auto-translated] "Name"
+  filterPresetName: "Enw",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Yn cynnwys",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Mae rhagosodiad gyda'r enw hwn eisoes yn bodoli.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Ychwanegwch o leiaf un amod.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Rhowch fynegiad.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Nid yw'r mynegiad yn ddilys.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Golygu fel mynegiant",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Golygu fel Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Teipiwch ymadrodd yma...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Golygu Rhagosodiad",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Dileu",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Ychwanegu Newydd...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Golygu Selected...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Mynegiant",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Golygu...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Chwilio mewn hidlwyr",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Dim byd wedi'i ganfod, rhowch gynnig ar allweddeiriau gwahanol",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Creu rhagosodiad gydag AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Golygu rhagosodiad gydag AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Er enghraifft, \"Coffi a Te o'r Almaen\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Creu",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Golygu",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Creu...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Golygu...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "Ni allai AI wneud hidlydd. Trio eto.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "Ni allai AI wneud hidlydd o'r disgrifiad hwn.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "dewis",
   // [Auto-translated] "to toggle"

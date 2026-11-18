@@ -9,6 +9,7 @@ export type {
   ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks,
   ISurveyDynamicDataCallbacks,
+  ISurveyFilterCallbacks,
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
@@ -48,6 +49,7 @@ export type {
   HorizontalAlignment,
   VerticalAlignment,
   ISurveyLayoutElement,
+  ISurveyLayoutElementGroup,
   ILayoutElementModel,
   IDropdownMenuOptions,
 } from "./interfaces/ui-interfaces";

@@ -1,4 +1,4 @@
-import { HashTable, Helpers, ISurveyDateProvider } from "./helpers";
+import { getNameOfSuffixedKey, HashTable, Helpers, ISurveyDateProvider } from "./helpers";
 import { JsonObject, JsonError, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Base, ComputedUpdater } from "./base";
@@ -2241,8 +2241,8 @@ export class SurveyModel extends SurveyElementCore
     key: string,
     postPrefix: string
   ): boolean {
-    if (!key.endsWith(postPrefix)) return false;
-    return !!this.getQuestionByValueName(key.substring(0, key.length - postPrefix.length));
+    const name = getNameOfSuffixedKey(key, postPrefix);
+    return !!name && !!this.getQuestionByValueName(name);
   }
   /**
    * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the `choices` array.

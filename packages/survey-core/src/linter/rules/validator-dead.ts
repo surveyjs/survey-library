@@ -1,7 +1,7 @@
 import { ILintRule, LintContext } from "../rule";
 import { forEachValidator, getValidatorOwnerType, ValidatorEntry } from "../validator-utils";
 import { isComponentType } from "../metadata";
-import { ValueTypeInfo } from "../symbols";
+import { IQuestionValueTypeInfo } from "survey-core";
 import { getInputType, getSelectableChoiceCount } from "../value-types";
 import { SurveyLintReasons } from "../reasons";
 
@@ -53,7 +53,7 @@ interface ShapeVerdict {
 }
 
 // A length check reads value.length: undefined on a number, so the comparison never holds.
-function textVerdict(entry: ValidatorEntry, value: ValueTypeInfo): ShapeVerdict | undefined {
+function textVerdict(entry: ValidatorEntry, value: IQuestionValueTypeInfo): ShapeVerdict | undefined {
   const hasLengthBound = entry.json.minLength > 0 || entry.json.maxLength > 0;
   if (!hasLengthBound) return undefined;
   if (value.shape === "object" || (value.shape === "scalar" && value.scalarType === "number")) {
@@ -67,7 +67,7 @@ function textVerdict(entry: ValidatorEntry, value: ValueTypeInfo): ShapeVerdict 
 
 // Helpers.isNumber says no to every array of more than one value and to every object, and the
 // validator answers that with RequreNumericError.
-function numericVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
+function numericVerdict(value: IQuestionValueTypeInfo): ShapeVerdict | undefined {
   if (value.shape !== "array" && value.shape !== "object") return undefined;
   return {
     effect: "rejectsEveryAnswer", cause: "notANumber",
@@ -76,7 +76,7 @@ function numericVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
 }
 
 // The email pattern is tested against the value as text; digits never match it.
-function emailVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
+function emailVerdict(value: IQuestionValueTypeInfo): ShapeVerdict | undefined {
   if (value.shape !== "scalar" || value.scalarType !== "number") return undefined;
   return {
     effect: "rejectsEveryAnswer", cause: "numberVsEmail",
@@ -85,7 +85,7 @@ function emailVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
 }
 
 // AnswerCountValidator returns at once for anything that is not an array.
-function answerCountVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
+function answerCountVerdict(value: IQuestionValueTypeInfo): ShapeVerdict | undefined {
   if (value.shape === "array" || value.shape === "unknown") return undefined;
   return {
     effect: "neverFires", cause: "notAList",
@@ -93,7 +93,7 @@ function answerCountVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
   };
 }
 
-function getShapeVerdict(entry: ValidatorEntry, type: string, value: ValueTypeInfo): ShapeVerdict | undefined {
+function getShapeVerdict(entry: ValidatorEntry, type: string, value: IQuestionValueTypeInfo): ShapeVerdict | undefined {
   // a question that holds no value runs no validator at all
   if (value.shape === "none") {
     return {

@@ -1,4 +1,4 @@
-import { HashTable, Helpers } from "./helpers";
+import { getNameOfSuffixedKey, HashTable, Helpers } from "./helpers";
 import type { QuestionExpressionModel } from "./question_expression";
 import {
   IElement,
@@ -2735,8 +2735,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     key: string,
     postPrefix: string
   ): boolean {
-    if (!key.endsWith(postPrefix)) return false;
-    return !!panel.getQuestionByName(key.substring(0, key.length - postPrefix.length));
+    const name = getNameOfSuffixedKey(key, postPrefix);
+    return !!name && !!panel.getQuestionByName(name);
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     const contextQ = !!context?.isValidator ? context.errorOwner : context;

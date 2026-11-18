@@ -8,7 +8,7 @@ import type { Question } from "../question";
 import type { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import type { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import type { GetMatrixRowActionsEvent, MatrixAllowRemoveRowEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent } from "../survey-events-api";
-import { createBoxShadowResetVariables } from "../utils/base-theme-init";
+import { setUpDialogSurvey } from "../utils/dialog-survey";
 import { focusElement } from "../utils/focus-utils";
 import { getActiveElement } from "../utils/dom-utils";
 import { ISortCriterion, SortDirection } from "../dynamic-data/dynamic-data-interfaces";
@@ -198,22 +198,11 @@ export class RecordsSortDialogModel extends Base {
     }
   }
 
-  /* The survey shows the matrix only: no title, numbers, navigation or own add button. It takes the outer
-     survey's look: its root has no theme root class, so it inherits the variables of the survey it is shown
-     under, and its own box-shadow resets inherit too. --sd-mobile-width 0 keeps its width from making it
-     mobile; it follows the outer survey's isMobile instead (DG03). */
+  /* The survey shows the matrix only, with no own add button, in the outer survey's look (setUpDialogSurvey).
+     It follows the outer survey's isMobile (DG03): updateSurvey() sets it, with the locale. */
   private createSurvey(levels: Array<ISortDialogLevel>): void {
     const survey = createDialogSurvey();
-    survey.css = { rootTheme: "", matrixdynamic: { row: survey.css.matrixdynamic.row + " " + dialogRowClass } };
-    survey.showNavigationButtons = false;
-    survey.showQuestionNumbers = "off";
-    survey.fitToContainer = false;
-    survey.gridLayoutEnabled = false;
-    // The outer survey already renders the icons.
-    survey.needRenderIcons = false;
-    const cssVariables: { [index: string]: string } = { "--sd-mobile-width": "0px" };
-    Object.keys(createBoxShadowResetVariables()).forEach((name: string): void => { cssVariables[name] = "inherit"; });
-    survey.applyTheme({ cssVariables: cssVariables });
+    setUpDialogSurvey(survey, { css: { matrixdynamic: { row: survey.css.matrixdynamic.row + " " + dialogRowClass } } });
     survey.fromJSON({
       elements: [{
         type: "matrixdynamic",

@@ -309,6 +309,122 @@ export var romanianSurveyStrings = {
   progressbar: "Bara de progres",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Pagina {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Gol",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Nu gol",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Egal",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Nu este egal",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Conține",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Nu conține",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Oricare dintre",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Niciuna dintre ele",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Toate",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Mai mare decât",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Mai puțin decât",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Mai mare sau egal cu",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Mai mic sau egal cu",
+  // [Auto-translated] "Save"
+  filterSave: "Salvează",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filtre",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filtre: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filtre",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Caută",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Caută după {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Arată mai mult",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Arată mai puțin",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Șterge totul",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Clar {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Presetare",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Salvează ca...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Salvează",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Adaugă \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Presetări",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Arată {0} elemente",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Arată 1 articol",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Arată rezultatele",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Preset nou",
+  // [Auto-translated] "Name"
+  filterPresetName: "Nume",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Conține",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Există deja un preset cu acest nume.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Adaugă cel puțin o condiție.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Introduceți o expresie.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Expresia nu este validă.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Editează ca expresie",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Editează ca Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Tastează o expresie aici...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Editează preset",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Șterge",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Adaugă nou...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Editare selectată...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Expresie",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Editare...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Căutare în filtre",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Nimic găsit, încearcă cuvinte cheie diferite",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Creează preset cu AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Editează preseta cu AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "De exemplu, \"Coffee & Tea from Germany\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Creează",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Editare",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Creând...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Editare...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI-ul nu a putut crea un filtru. Încearcă din nou.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI nu putea crea un filtru pentru această descriere.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "pentru a selecta",
   // [Auto-translated] "to toggle"

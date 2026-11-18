@@ -1927,6 +1927,65 @@ test("Clear choices on changing variables", () => {
       Serializer.removeClass("blockitemvalue");
     }
   });
+  describe("A runtime question with URL choices on a later page builds its visible choices on first read", () => {
+    function loadThreePages(): SurveyModel {
+      return new SurveyModel({
+        pages: [
+          { name: "p1", elements: [{ type: "text", name: "t1" }] },
+          { name: "p2", elements: [{ type: "dropdownrestfultester", name: "q", choicesByUrl: { url: "ca_cities" }, showNoneItem: true }] },
+          { name: "p3", elements: [{ type: "text", name: "t3" }] }
+        ]
+      });
+    }
+    function getValues(items: Array<ItemValue>): Array<any> {
+      return items.map(item => item.value);
+    }
+    // Counts the builds of the visible choices per question: the onVisibleChoicesChanged calls that are not blocked by loading
+    function countBuilds(): { count: (q: Question) => number, restore: () => void } {
+      const proto: any = QuestionDropdownModel.prototype;
+      const original = proto.onVisibleChoicesChanged;
+      const builds = new Map<any, number>();
+      proto.onVisibleChoicesChanged = function (...args: Array<any>) {
+        if (!this.isVisibleChoicesBuildBlocked) builds.set(this, (builds.get(this) || 0) + 1);
+        return original.apply(this, args);
+      };
+      return {
+        count: (q: Question): number => builds.get(q) || 0,
+        restore: (): void => { proto.onVisibleChoicesChanged = original; }
+      };
+    }
+    test("A response that arrives during the load", () => {
+      const builds = countBuilds();
+      try {
+        const survey = loadThreePages();
+        const q = <QuestionDropdownModelTester>survey.getQuestionByName("q");
+        expect(q.restFulTest.sentRequestCounter, "one request").toBe(1);
+        expect(builds.count(q), "built once, by the response").toBe(1);
+        expect(getValues(q.visibleChoices), "visibleChoices").toEqual(["Los Angeles", "San Francisco", "none"]);
+        expect(builds.count(q), "the deferred build runs on the first read").toBe(2);
+      } finally {
+        builds.restore();
+      }
+    });
+    test("A response that arrives after the load", () => {
+      ChoicesRestfulTester.doNotSendRequest = true;
+      const builds = countBuilds();
+      try {
+        const survey = loadThreePages();
+        const q = <QuestionDropdownModelTester>survey.getQuestionByName("q");
+        expect(builds.count(q), "not built at load").toBe(0);
+        q.restFulTest.unblockSendRequest();
+        expect(q.restFulTest.sentRequestCounter, "one request").toBe(1);
+        expect(builds.count(q), "built once, by the response").toBe(1);
+        expect(getValues(q.visibleChoices), "visibleChoices").toEqual(["Los Angeles", "San Francisco", "none"]);
+        expect(builds.count(q), "the read does not build again").toBe(1);
+      } finally {
+        builds.restore();
+        ChoicesRestfulTester.doNotSendRequest = false;
+      }
+    });
+  });
+
   function getCACities() {
     return ["Los Angeles", "San Francisco"];
   }

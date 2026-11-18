@@ -62,6 +62,7 @@ frameworks.forEach(framework => {
         }
 
         symbols.forEach((symbol) => {
+          if (symbol.id.indexOf("icon-rich-text-") === 0) return;
           createSvg(symbol.id);
         });
       });

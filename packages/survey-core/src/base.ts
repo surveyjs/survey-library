@@ -1270,7 +1270,7 @@ export class Base implements IObjectValueContext {
     }
     this.runConditionItemCore(propName, this.getDataFilteredProperties());
   }
-  private runConditionItemCore(propName: string, properties: HashTable<any>): void {
+  protected runConditionItemCore(propName: string, properties: HashTable<any>): void {
     const info = this.expressionInfo[propName];
     const expression = this.getPropertyValue(propName);
     if (!expression) return;

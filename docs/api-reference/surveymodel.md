@@ -3986,7 +3986,7 @@ Parameters:
 A survey instance that raised the event.
 - `options.element`: `ISurveyElement`  
 A survey element whose state change triggered the event.
-- `options.changedProperty`: `"collapsed" | "activeElementName" | "activePanelIndex" | "shown"`  
+- `options.changedProperty`: `"filter" | "collapsed" | "activeElementName" | "activePanelIndex" | "shown"`  
 The name of the UI state property that changed.
 
 To access the current UI state, use the [`uiState`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState) property:
@@ -4183,7 +4183,7 @@ A survey instance that raised the event.
 A Question instance for which the event is raised.
 - `options.name`: `string`  
 The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
-- `options.reason`: `"trigger" | "expression"`  
+- `options.reason`: `"expression" | "trigger"`  
 A value that indicates what caused the value change: an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) evaluation or a run of a [trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers). If the value is changed for other reasons, this parameter is `undefined`.
 - `options.value`: `any`  
 A new value.
@@ -4206,7 +4206,7 @@ A survey instance that raised the event.
 A Question instance for which the event is raised.
 - `options.name`: `string`  
 The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
-- `options.reason`: `"trigger" | "expression"`  
+- `options.reason`: `"expression" | "trigger"`  
 A value that indicates what caused the value change: an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) evaluation or a run of a [trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers). If the value is changed for other reasons, this parameter is `undefined`.
 - `options.value`: `any`  
 A new value. You can change it if required.

@@ -1,5 +1,7 @@
 import type { Base } from "../base";
+import type { Question } from "../question";
 import type { IExpressionContext } from "../ai/expression-context";
+import type { IFilterAIContext } from "../filter/filter-ai";
 
 // The payload types of AI request events. SurveyJS never calls a model. Each AI feature fires its
 // own event, whose payload extends AIRequestEvent; the feature is on when that event has a handler.
@@ -79,4 +81,22 @@ export interface ExpressionAIRequestEvent extends AIRequestEvent {
   isCondition: boolean;
   // the survey objects and properties the expression is written to
   targets: Array<{ element: Base, propertyName: string }>;
+}
+
+// The payload of survey.onAIFilterRequest, the Filter Control's event: the respondent describes in
+// words the records they need, and the answer is a filter over the control's fields.
+// - "generate": a new filter. Example: userPrompt "adults from Germany" -> "{age} > 18 and {country} = 'de'".
+// - "modify": the filter exists and userPrompt is its description now; the answer is the filter updated
+//   to it. Example: expression "{age} > 18", userPrompt "adults from Germany" -> "{age} > 18 and {country} = 'de'".
+// The answer is { expression, title, explanation } (responseFormat). The control shows the filter as
+// one condition per field joined by "and"; any other answer comes back with attempt > 0 and issues,
+// expression then being the rejected answer.
+export interface FilterAIRequestEvent extends AIRequestEvent {
+  action: "generate" | "modify";
+  // the control's fields: the variables, operators and choices the filter may use
+  context: IFilterAIContext;
+  // "" for "generate"; the current filter for "modify"; the rejected answer on a retry
+  expression: string;
+  // the Filter Control that asks
+  question: Question;
 }

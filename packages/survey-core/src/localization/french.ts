@@ -309,6 +309,122 @@ export var frenchSurveyStrings = {
   progressbar: "Barre de progression",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Page {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Vide",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Pas vide",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Égal",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Ne signifie pas",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Contient",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Ne contient pas",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "N’importe lequel des",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Aucun de ces",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Tout de",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Plus grand que",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Moins que",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Supérieur ou égal à",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Inférieur ou égal à",
+  // [Auto-translated] "Save"
+  filterSave: "Enregistrer",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filtres",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filtres : {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filtres",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Recherche",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Rechercher par {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Afficher plus",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Afficher moins",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Tout effacer",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Clair {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Préréglage",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Sauvez comme...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Enregistrer",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Ajouter « {0} »...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Préréglages",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Afficher {0} éléments",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Afficher 1 élément",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Afficher les résultats",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Nouveau préréglage",
+  // [Auto-translated] "Name"
+  filterPresetName: "Nom",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Contient",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Un préréglage portant ce nom existe déjà.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Ajoutez au moins une condition.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Entrez une expression.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "L’expression n’est pas valide.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Modifier comme expression",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Modifier comme Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Tapez une expression ici...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Modifier le préréglage",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Supprimer",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Ajouter du nouveau...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Modifier sélectionné...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Expression",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Édit...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Rechercher dans les filtres",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Rien trouvé, essayez différents mots-clés",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Créer un préréglage avec l’IA",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Modifier le préréglage avec l’IA",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Par exemple, « Café & thé d’Allemagne »",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Créer",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Modifier",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Créer...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Édition...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "L’IA n’a pas pu créer de filtre. Essayez encore.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "L’IA ne pouvait pas créer un filtre de cette description.",
   // "d" - a day placeholder symbol in a datetime input mask
   maskPlaceholderDay: "j",
   // "m" - a month placeholder symbol in a datetime input mask

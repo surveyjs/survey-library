@@ -37,6 +37,8 @@ frameworks.forEach((framework) => {
 
     test("Check first focused question, avoid focusing question in code", async ({ page }) => {
       await initSurvey(page, framework, json, false, { autoFocusFirstQuestion: false });
+      await expect(page.locator("div[data-name=q1] input")).toBeVisible();
+      await expect(page.locator("div[data-name=q1] input")).not.toBeFocused();
       await page.keyboard.type("val1");
       await getButtonByText(page, "Next").click();
       await page.keyboard.type("val2");
@@ -50,6 +52,8 @@ frameworks.forEach((framework) => {
       json["autoFocusFirstQuestion"] = false;
       await initSurvey(page, framework, json);
       json["autoFocusFirstQuestion"] = true;
+      await expect(page.locator("div[data-name=q1] input")).toBeVisible();
+      await expect(page.locator("div[data-name=q1] input")).not.toBeFocused();
       await page.keyboard.type("val1");
       await getButtonByText(page, "Next").click();
       await page.keyboard.type("val2");

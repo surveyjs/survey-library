@@ -5993,3 +5993,218 @@ describe("Checkbox Other while every regular choice is hidden, Bug#12245", () =>
     expect(q1.isOtherSelected, "isOtherSelected").toBe(false);
   });
 });
+describe("A runtime choice question on a later page builds its visible choices on first read", () => {
+  // Three pages; the questions under test are on page 2, which is never shown unless a test says so
+  function threePages(page2: Array<any>, props: any = {}): any {
+    return Object.assign({
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "t1" }] },
+        { name: "p2", elements: page2 },
+        { name: "p3", elements: [{ type: "text", name: "t3" }] }
+      ]
+    }, props);
+  }
+  function getQ(survey: SurveyModel, name: string): QuestionSelectBase {
+    return <QuestionSelectBase>survey.getQuestionByName(name);
+  }
+  function getValues(items: Array<ItemValue>): Array<any> {
+    return items.map(item => item.value);
+  }
+  // The stored list without building it: empty while the build is deferred
+  function getStoredValues(q: QuestionSelectBase): Array<any> {
+    return getValues(q.getPropertyValue("visibleChoices"));
+  }
+  // Counts the builds of the visible choices per question: the onVisibleChoicesChanged calls that are not blocked by loading
+  function countBuilds(): { count: (q: QuestionSelectBase) => number, restore: () => void } {
+    const proto: any = QuestionSelectBase.prototype;
+    const original = proto.onVisibleChoicesChanged;
+    const builds = new Map<any, number>();
+    proto.onVisibleChoicesChanged = function (...args: Array<any>) {
+      if (!this.isVisibleChoicesBuildBlocked) builds.set(this, (builds.get(this) || 0) + 1);
+      return original.apply(this, args);
+    };
+    return {
+      count: (q: QuestionSelectBase): number => builds.get(q) || 0,
+      restore: (): void => { proto.onVisibleChoicesChanged = original; }
+    };
+  }
+
+  test("An Other value set by survey.data keeps its value, rendered value and comment before and after its page is shown", () => {
+    const json = threePages([{ type: "radiogroup", name: "q", choices: [1, 2, 3], showOtherItem: true, storeOthersAsComment: false }]);
+    const check = (survey: SurveyModel, step: string): void => {
+      const q = getQ(survey, "q");
+      expect(q.value, step + ": value").toBe("abc");
+      expect(q.renderedValue, step + ": renderedValue").toBe("other");
+      expect(q.otherValue, step + ": otherValue").toBe("abc");
+      expect(survey.data, step + ": survey.data").toEqual({ q: "abc" });
+    };
+    const after = new SurveyModel(json);
+    after.data = { q: "abc" };
+    check(after, "data set after load");
+    expect(getStoredValues(getQ(after, "q")), "data set after load: not built by the reads").toEqual([]);
+    after.currentPageNo = 1;
+    expect(getStoredValues(getQ(after, "q")), "data set after load: built when page 2 is shown").toEqual([1, 2, 3, "other"]);
+    check(after, "data set after load, page 2 shown");
+
+    const before = new SurveyModel();
+    before.data = { q: "abc" };
+    before.fromJSON(json);
+    check(before, "data set before load");
+    expect(getStoredValues(getQ(before, "q")), "data set before load: not built by the reads").toEqual([]);
+    before.currentPageNo = 1;
+    expect(getStoredValues(getQ(before, "q")), "data set before load: built when page 2 is shown").toEqual([1, 2, 3, "other"]);
+    check(before, "data set before load, page 2 shown");
+  });
+  test("defaultValue, a choice or not, gives the same survey.data", () => {
+    const survey = new SurveyModel(threePages([
+      { type: "radiogroup", name: "a", choices: [1, 2], defaultValue: 2 },
+      { type: "radiogroup", name: "b", choices: [1, 2], defaultValue: "zz" },
+      { type: "radiogroup", name: "c", choices: [1, 2], showOtherItem: true, defaultValue: "zz" },
+      { type: "checkbox", name: "d", choices: [1, 2], showOtherItem: true, defaultValue: [1, "zz"] },
+      { type: "checkbox", name: "e", choices: [1, 2], defaultValue: [1, "zz"] }
+    ]));
+    expect(survey.data).toEqual({ a: 2, b: "zz", c: "other", "c-Comment": "zz", d: [1, "other"], "d-Comment": "zz", e: [1, "zz"] });
+    ["a", "b", "c"].forEach(name => {
+      expect(getStoredValues(getQ(survey, name)), name + ": a radiogroup is not built").toEqual([]);
+    });
+    // A checkbox builds when its value is set (valueFromData)
+    expect(getStoredValues(getQ(survey, "d")), "d: built").toEqual([1, 2, "other"]);
+    expect(getStoredValues(getQ(survey, "e")), "e: built").toEqual([1, 2]);
+  });
+  [true, false].forEach(sourceFirst => {
+    test("Carry-forward, mode selected, source on page " + (sourceFirst ? "1, target on page 2" : "2, target on page 1") + ": the target's choices and visibility follow the source", () => {
+      // Not an unbuilt list: a carry-forward target is built at load (source value, RC03, runConditions)
+      const source = { type: "checkbox", name: "src", choices: [1, 2, 3] };
+      const target = { type: "radiogroup", name: "tgt", choicesFromQuestion: "src", choicesFromQuestionMode: "selected", hideIfChoicesEmpty: true };
+      const survey = new SurveyModel({
+        pages: [
+          { name: "p1", elements: [sourceFirst ? source : target] },
+          { name: "p2", elements: [sourceFirst ? target : source] },
+          { name: "p3", elements: [{ type: "text", name: "t3" }] }
+        ]
+      });
+      const tgt = getQ(survey, "tgt");
+      expect(getValues(tgt.visibleChoices), "after load").toEqual([]);
+      expect(tgt.isVisible, "hidden after load").toBe(false);
+      survey.setValue("src", [1, 3]);
+      expect(getValues(tgt.visibleChoices), "after the source value").toEqual([1, 3]);
+      expect(tgt.isVisible, "shown after the source value").toBe(true);
+      survey.setValue("src", []);
+      expect(getValues(tgt.visibleChoices), "after the source is cleared").toEqual([]);
+      expect(tgt.isVisible, "hidden after the source is cleared").toBe(false);
+    });
+  });
+  test("hideIfChoicesEmpty with a choicesVisibleIf that hides every choice hides the question and its panel after load", () => {
+    // Not an unbuilt list: runConditions builds it (runItemsCondition)
+    const survey = new SurveyModel(threePages([
+      { type: "panel", name: "pnl", elements: [{ type: "radiogroup", name: "q", choices: [1, 2], hideIfChoicesEmpty: true, choicesVisibleIf: "{item} > 5" }] }
+    ]));
+    expect(getQ(survey, "q").isVisible, "the question").toBe(false);
+    expect(survey.getPanelByName("pnl").isVisible, "the panel").toBe(false);
+    expect(survey.visiblePageCount, "page 2 is hidden").toBe(2);
+  });
+  test("survey.data, getPlainData and displayValue before the page is shown", () => {
+    const survey = new SurveyModel(threePages([
+      { type: "radiogroup", name: "rg", choices: [{ value: 1, text: "One" }, { value: 2, text: "Two" }] },
+      { type: "checkbox", name: "cb", choices: [{ value: 1, text: "One" }, { value: 2, text: "Two" }], showNoneItem: true }
+    ]));
+    survey.data = { rg: 2, cb: [1, "none"] };
+    expect(survey.data, "survey.data").toEqual({ rg: 2, cb: [1, "none"] });
+    expect(getStoredValues(getQ(survey, "rg")), "rg: not built by survey.data").toEqual([]);
+    expect(getQ(survey, "rg").displayValue, "rg: displayValue").toBe("Two");
+    expect(getQ(survey, "cb").displayValue, "cb: displayValue").toBe("One, None");
+    const plain = survey.getPlainData().filter(item => item.name === "rg" || item.name === "cb")
+      .map(item => ({ name: item.name, value: item.value, displayValue: item.displayValue }));
+    expect(plain, "getPlainData").toEqual([
+      { name: "rg", value: 2, displayValue: "Two" },
+      { name: "cb", value: [1, "none"], displayValue: "One, None" }
+    ]);
+  });
+  test("showPreview from page 1 shows the display value of a page-2 question", () => {
+    const survey = new SurveyModel(threePages([{ type: "radiogroup", name: "q", choices: [{ value: 1, text: "One" }, { value: 2, text: "Two" }] }]));
+    survey.setValue("q", 2);
+    const q = getQ(survey, "q");
+    expect(getStoredValues(q), "not built before the preview").toEqual([]);
+    survey.showPreview();
+    expect(survey.state, "preview").toBe("preview");
+    expect(getStoredValues(q), "built when the preview is shown").toEqual([1, 2]);
+    expect(q.displayValue, "displayValue").toBe("Two");
+    expect(getValues(q.visibleChoices), "visibleChoices").toEqual([1, 2]);
+  });
+  ["singlePage", "questionPerPage"].forEach(mode => {
+    test("questionsOnPageMode " + mode + ": a page-2 question has its visible choices on the shown page", () => {
+      const survey = new SurveyModel(threePages([{ type: "radiogroup", name: "q", choices: [1, 2], showNoneItem: true }], { questionsOnPageMode: mode }));
+      const q = getQ(survey, "q");
+      if (mode === "questionPerPage") {
+        expect(getStoredValues(q), "not built before it is shown").toEqual([]);
+        survey.performNext();
+        expect(survey.currentSingleQuestion.name, "the shown question").toBe("q");
+      }
+      // singlePage: built at load, its page is the shown one
+      expect(getStoredValues(q), "built when it is shown").toEqual([1, 2, "none"]);
+      expect(getValues(q.visibleChoices), "visibleChoices").toEqual([1, 2, "none"]);
+    });
+  });
+  test("A page-2 question builds its visible choices on the first read, a page-1 question at load", () => {
+    const json = {
+      pages: [
+        { name: "p1", elements: [{ type: "radiogroup", name: "q1", choices: [1, 2] }] },
+        { name: "p2", elements: [{ type: "radiogroup", name: "q2", choices: [1, 2] }, { type: "radiogroup", name: "q2b", choices: [3, 4] }] },
+        { name: "p3", elements: [{ type: "text", name: "t3" }] }
+      ]
+    };
+    const builds = countBuilds();
+    try {
+      const survey = new SurveyModel(json);
+      const q1 = getQ(survey, "q1");
+      const q2 = getQ(survey, "q2");
+      const q2b = getQ(survey, "q2b");
+      expect(builds.count(q1), "page 1: built at load").toBe(1);
+      expect(getValues(q1.getPropertyValue("visibleChoices")), "page 1: the stored list").toEqual([1, 2]);
+      expect(builds.count(q2), "page 2: not built at load").toBe(0);
+      expect(q2.getPropertyValue("visibleChoices"), "page 2: the stored list").toEqual([]);
+      expect(getValues(q2.visibleChoices), "page 2: the first read").toEqual([1, 2]);
+      expect(builds.count(q2), "page 2: built by the first read").toBe(1);
+      expect(getValues(q2.visibleChoices), "page 2: the second read").toEqual([1, 2]);
+      expect(builds.count(q2), "page 2: the second read does not build").toBe(1);
+      expect(builds.count(q2b), "page 2, second question: not built yet").toBe(0);
+      survey.currentPageNo = 1;
+      expect(builds.count(q2b), "page 2, second question: built when its page is shown").toBe(1);
+      expect(getValues(q2b.getPropertyValue("visibleChoices")), "page 2, second question: the stored list").toEqual([3, 4]);
+    } finally {
+      builds.restore();
+    }
+  });
+  [false, true].forEach(setAfterLoad => {
+    test("The first hide of a page-2 question fires onQuestionVisibleChanged and renumbers the next questions" + (setAfterLoad ? ", hideIfChoicesEmpty set after load" : ""), () => {
+      const q: any = { type: "radiogroup", name: "q", choices: [1, 2, 3], choicesVisibleIf: "{t1} empty or {item} = {t1}" };
+      if (!setAfterLoad) q.hideIfChoicesEmpty = true;
+      const survey = new SurveyModel(threePages([q, { type: "text", name: "q2b" }], { showQuestionNumbers: "on" }));
+      const events: Array<string> = [];
+      survey.onQuestionVisibleChanged.add((_, options) => { events.push(options.name + ":" + options.visible); });
+      expect(survey.getQuestionByName("q2b").no, "q2b before the hide").toBe("3.");
+      expect(survey.getQuestionByName("t3").no, "t3 before the hide").toBe("4.");
+      expect(getQ(survey, "q").getPropertyValue("isVisible"), "isVisible is stored at load").toBe(true);
+      survey.setValue("t1", 7);
+      if (setAfterLoad) {
+        expect(events, "every choice is hidden, the question is not").toEqual([]);
+        getQ(survey, "q").hideIfChoicesEmpty = true;
+      }
+      expect(events, "the hide event").toEqual(["q:false"]);
+      expect(getQ(survey, "q").isVisible, "hidden").toBe(false);
+      expect(survey.getQuestionByName("q2b").no, "q2b after the hide").toBe("2.");
+      expect(survey.getQuestionByName("t3").no, "t3 after the hide").toBe("3.");
+      survey.setValue("t1", 2);
+      expect(events, "the show event").toEqual(["q:false", "q:true"]);
+      expect(survey.getQuestionByName("q2b").no, "q2b after the show").toBe("3.");
+    });
+  });
+  test("A page-2 question with no choices fires onQuestionVisibleChanged when hideIfChoicesEmpty is set after load", () => {
+    const survey = new SurveyModel(threePages([{ type: "radiogroup", name: "q", choices: [] }, { type: "text", name: "q2b" }], { showQuestionNumbers: "on" }));
+    const events: Array<string> = [];
+    survey.onQuestionVisibleChanged.add((_, options) => { events.push(options.name + ":" + options.visible); });
+    getQ(survey, "q").hideIfChoicesEmpty = true;
+    expect(events, "the hide event").toEqual(["q:false"]);
+    expect(survey.getQuestionByName("q2b").no, "q2b after the hide").toBe("2.");
+  });
+});

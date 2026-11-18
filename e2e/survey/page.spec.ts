@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect } from "../helper";
+import { frameworks, url, initSurvey, test, expect, loadSurveyLocales } from "../helper";
 
 const title = "page";
 
@@ -125,6 +125,7 @@ frameworks.forEach(framework => {
     });
 
     test("render page description on changing locale when description is empty for default locale", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       const json = {
         pages: [
           {

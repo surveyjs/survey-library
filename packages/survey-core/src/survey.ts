@@ -19,6 +19,7 @@ import {
   IProgressInfo,
   IFindElement,
   ISurveyLayoutElement,
+  ISurveyLayoutElementGroup,
   IPlainDataOptions,
   LayoutElementContainer,
   IValueItemCustomPropValues,
@@ -36,6 +37,7 @@ import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
+import { QuestionExpressionModel } from "./question_expression";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -90,7 +92,7 @@ import {
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
   IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent,
-  DynamicDataErrorEvent
+  DynamicDataErrorEvent, FilterChangedEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -115,6 +117,7 @@ import { ISurveyOptions, ISurveySettings, SurveySettingsValues, isPlainObject, a
 import DefaultLightTheme from "./themes/default-light";
 import { Scope } from "./utils/scope";
 import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
+import type { FilterAIRequestEvent } from "./interfaces/ai-interfaces";
 
 export var DefaultTheme = DefaultLightTheme;
 
@@ -1064,6 +1067,22 @@ export class SurveyModel extends SurveyElementCore
      a page that could not be read, an edit the server rejected, or a number naming a record the loaded
      page does not hold. The survey does nothing on its own: the records the question shows are kept. */
   public onDynamicDataError: EventBase<SurveyModel, DynamicDataErrorEvent> = this.addEvent<SurveyModel, DynamicDataErrorEvent>();
+  // An event that is raised whenever a Filter Control composes a new filter expression, whoever
+  // caused it: the end user picked another filter item or typed in the quick search, an authored
+  // defaultItem was applied as the survey loaded, a saved uiState was restored, or the control was
+  // pointed at another source. It answers "the effective filter is now X", not "the respondent
+  // changed something" - that one is onUIStateChanged, which stays silent for an authored default.
+  // A control bound to a Dynamic Matrix or a Dynamic Panel has already re-filtered that question by
+  // the time the event is raised, so a handler that looks into the source sees the records it shows
+  // now. The load-time raise is only observable when the JSON arrives through survey.fromJSON()
+  // after a handler was added: with new SurveyModel(json) the load is over before there is anything
+  // to raise it to.
+  public onFilterChanged: EventBase<SurveyModel, FilterChangedEvent> = this.addEvent<SurveyModel, FilterChangedEvent>();
+  // Raised when a Filter Control asks the application's model for a filter (Create and Edit in the
+  // preset dialogs) - see FilterAIRequestEvent. SurveyJS never calls a model: the handler sends systemPrompt
+  // and messages to one and passes the answer to callback. The control offers AI only while this
+  // event has a handler.
+  public onAIFilterRequest: EventBase<SurveyModel, FilterAIRequestEvent> = this.addEvent<SurveyModel, FilterAIRequestEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
    * @hidden
@@ -2999,6 +3018,21 @@ export class SurveyModel extends SurveyElementCore
   @property({ localizable: { defaultStr: true } }) editText: string;
 
   public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
+  // A survey-level override of settings.designMode.showEmptyTitles / showEmptyDescriptions. Survey Creator sets it
+  // on its own design surveys: its page edit mode belongs to one creator, while the setting is global.
+  // undefined (the default) follows the setting. Design-time options, so not registered in Serializer (not in toJSON).
+  public get showEmptyTitlesInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyTitlesInDesignMode", settings.designMode.showEmptyTitles);
+  }
+  public set showEmptyTitlesInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyTitlesInDesignMode", val);
+  }
+  public get showEmptyDescriptionsInDesignMode(): boolean {
+    return this.getPropertyValue("showEmptyDescriptionsInDesignMode", settings.designMode.showEmptyDescriptions);
+  }
+  public set showEmptyDescriptionsInDesignMode(val: boolean) {
+    this.setPropertyValue("showEmptyDescriptionsInDesignMode", val);
+  }
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };
@@ -6496,6 +6530,21 @@ export class SurveyModel extends SurveyElementCore
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
     this.doUIStateChanged("activePanelIndex", question);
   }
+  // ISurveyFilterCallbacks: the Filter Control is a non-value question, so nothing it does reaches
+  // survey.data. Its end-user state travels through uiState instead, and this is how it says so.
+  filterStateChanged(question: IQuestion): void {
+    this.doUIStateChanged("filter", question);
+  }
+  filterChanged(question: IQuestion, filterExpression: string, sourceQuestion: IQuestion): void {
+    this.onFilterChanged.fire(this, { question: <Question>question,
+      filterExpression: filterExpression, sourceQuestion: <Question>sourceQuestion });
+  }
+  isAIFilterRequestAvailable(): boolean {
+    return !this.onAIFilterRequest.isEmpty;
+  }
+  aiFilterRequest(options: FilterAIRequestEvent): void {
+    this.onAIFilterRequest.fire(this, options);
+  }
   // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
   // console for an error an application is expected to handle, the way onServerValidateQuestions
   // failures are the application's business too.
@@ -6592,7 +6641,7 @@ export class SurveyModel extends SurveyElementCore
   pageShown(page: IPage): void {
     this.doUIStateChanged("shown", page);
   }
-  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown", element: ISurveyElement): void {
+  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown" | "filter", element: ISurveyElement): void {
     if (this.onUIStateChanged.isEmpty) return;
     this.onUIStateChanged.fire(this, { changedProperty: reason, element });
   }
@@ -7373,7 +7422,10 @@ export class SurveyModel extends SurveyElementCore
       isQuestionInvalid = question && !question.validate(false);
     }
     this.triggersRunScope.run(() => {
-      this.triggerKeys = key;
+      // The run works on its own copy: a nested run (for example, the page triggers that a complete
+      // trigger runs) merges plain values into it, and variablesChangedCore() reads its own
+      // { newValue, oldValue } map after this call (Bug#12333)
+      this.triggerKeys = { ...key };
       const properties = this.getFilteredProperties();
       const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
         isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };
@@ -7560,13 +7612,16 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     const visibilityChangeCount = this.visibilityChangeCount;
-    super.runConditionCore(properties);
-    for (let i = 0; i < pages.length; i++) {
-      pages[i].runCondition(properties);
-    }
+    const expressionRuns = QuestionExpressionModel.collectRuns(() => {
+      super.runConditionCore(properties);
+      for (let i = 0; i < pages.length; i++) {
+        pages[i].runCondition(properties);
+      }
+    });
     if (visibilityChangeCount !== this.visibilityChangeCount) {
       // A changed value requests another pass, so the conditions that read it run again
       calculatedRuns.forEach(item => item.runAfterVisibilityChanged(properties));
+      expressionRuns.forEach((runProperties, item) => item.runAfterVisibilityChanged(runProperties));
     }
   }
   // Grows when a page, panel or question changes its visibility, or a question its visible rows, columns or inputs
@@ -7777,7 +7832,7 @@ export class SurveyModel extends SurveyElementCore
     this.endLoading();
     this.updateState();
     if (!!this.sjsVersion && !!settings.version) {
-      if (Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
+      if (Helpers.compareVerions(String(this.sjsVersion), settings.version) > 0) {
         ConsoleWarnings.warn("The version of the survey JSON schema (v"
           + this.sjsVersion + ") is newer than your current Form Library version ("
           + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
@@ -9518,6 +9573,29 @@ export class SurveyModel extends SurveyElementCore
       }
     });
     return containerLayoutElements;
+  }
+  // What renderers iterate instead of getContainerContent: neighbouring elements of one
+  // group come as a single part and share a wrapper, the rest come one per part.
+  public getContainerContentGroups(container: LayoutElementContainer): Array<ISurveyLayoutElementGroup> {
+    const result = new Array<ISurveyLayoutElementGroup>();
+    this.getContainerContent(container).forEach(element => {
+      const name = this.getLayoutElementGroupName(element, container);
+      const last = result[result.length - 1];
+      if (!!name && !!last && last.name === name) {
+        last.elements.push(element);
+        return;
+      }
+      result.push(!name ? { key: element.id, elements: [element] } : {
+        key: "sv-components-group-" + name,
+        name: name,
+        css: "sv-components-group sv-components-group--" + name,
+        elements: [element]
+      });
+    });
+    return result;
+  }
+  private getLayoutElementGroupName(element: ISurveyLayoutElement, container: LayoutElementContainer): string | undefined {
+    return this.progressTextModel.getLayoutElementGroupName(element.id, container);
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
     if (visible) {

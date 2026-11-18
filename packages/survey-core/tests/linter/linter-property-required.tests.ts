@@ -80,8 +80,9 @@ describe("property/required", () => {
   });
 });
 
-// The runtime trims and lower-cases a question name, so a number or a boolean written for it
-// stops the survey from loading - and used to stop the linter too, in the walker's name maps.
+// A number or a boolean is not a name. The runtime loads a numeric element name as its string, a
+// boolean as no name, and does not load a calculated value named either way. It used to stop the
+// linter too, in the walker's name maps.
 describe("property/required - a name that is not a string", () => {
   test("a numeric question name is reported at the name key, spelled out as the fix", () => {
     const res = findings({ elements: [{ type: "text", name: <any>5 }] });
@@ -93,7 +94,7 @@ describe("property/required - a name that is not a string", () => {
       reason: "notAString", key: "name", className: "text", name: "5", value: 5,
     });
     expect(res[0].elementName).toBe("5");
-    expect(res[0].message).toBe("The name of the text is 5, not a string - the survey cannot load it.");
+    expect(res[0].message).toBe("The name of the text is 5, not a string - the survey loads it as \"5\".");
     expect(res[0].fix).toEqual({
       reason: "setName", edits: [{ op: "set", path: "elements[0].name", value: "5" }],
     });
@@ -110,8 +111,13 @@ describe("property/required - a name that is not a string", () => {
       "calculatedValues[0].name", "elements[0].columns[0].name", "elements[1].items[0].name",
     ]);
     expect(res.every(f => f.reason === "notAString")).toBe(true);
+    expect(res.map(f => f.message)).toEqual([
+      "The name of the calculatedvalue is 7, not a string - the survey cannot load it.",
+      "The name of the matrixdropdowncolumn is 1, not a string - the survey loads it as \"1\".",
+      "The name of the multipletextitem is true, not a string - the survey loads the multipletextitem without a name.",
+    ]);
   });
-  test("a page and a panel with such a name are reported too - the runtime trims a name whatever it belongs to", () => {
+  test("a page and a panel with such a name are reported too - a number is not a name whatever it belongs to", () => {
     const res = findings({
       pages: [{ name: <any>1, elements: [{ type: "panel", name: <any>5, elements: [{ type: "text", name: "q1" }] }] }],
     });

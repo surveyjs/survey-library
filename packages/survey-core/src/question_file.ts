@@ -41,6 +41,12 @@ export class QuestionFileModelBase extends Question {
   public get hasPlainInput(): boolean {
     return false;
   }
+  // The value is a list of uploaded files (a file question) or a drawing's data URL (a signature pad):
+  // only the question's own UI can produce a value a filter could compare against. The signature pad
+  // inherits it.
+  public get isFilterable(): boolean {
+    return false;
+  }
   @property() public isUploading: boolean = false;
   @property({ defaultValue: "empty" }) currentState: string;
   /**
@@ -1011,11 +1017,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.previewValue.splice(0, this.previewValue.length);
     if (!this.showPreview || !newValue) return;
     this.prevLoadedPreviewValue = newValue;
-    var newValues = Array.isArray(newValue)
-      ? newValue
-      : !!newValue
-        ? [newValue]
-        : [];
+    // A null item in the value (survey.data, a default value) has no file to preview.
+    var newValues = (Array.isArray(newValue) ? newValue : [newValue]).filter(val => !!val);
 
     if (this.storeDataAsText) {
       newValues.forEach((value) => {
@@ -1084,7 +1087,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {
       questionPlainData.isNode = false;
-      var values = Array.isArray(this.value) ? this.value : [this.value];
+      var values = (Array.isArray(this.value) ? this.value : [this.value]).filter(val => !!val);
       questionPlainData.data = values.map((dataValue, index) => {
         return {
           name: index,

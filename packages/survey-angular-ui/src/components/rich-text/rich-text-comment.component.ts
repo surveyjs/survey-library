@@ -14,8 +14,18 @@ function editorModel(question: QuestionCommentModel): any {
   templateUrl: "./rich-text-comment.component.html"
 })
 export class RichTextCommentComponent extends QuestionAngular<QuestionCommentModel> {
-  @ViewChild("host") hostRef?: ElementRef<HTMLElement>;
   @ViewChild("grip") gripRef?: ElementRef<HTMLElement>;
+  private hostElement?: ElementRef<HTMLElement>;
+  private attachedHost?: HTMLElement;
+  // *ngIf creates the editing host after the check that would otherwise attach it.
+  @ViewChild("host")
+  set hostRef(value: ElementRef<HTMLElement> | undefined) {
+    this.hostElement = value;
+    if (this.viewReady)this.syncHost();
+  }
+  get hostRef(): ElementRef<HTMLElement> | undefined {
+    return this.hostElement;
+  }
   private editor: any;
   private boundQuestion?: QuestionCommentModel;
   private resizeManager?: ResizeManager;
@@ -146,6 +156,7 @@ export class RichTextCommentComponent extends QuestionAngular<QuestionCommentMod
   private disposeEditor(): void {
     const editor = this.editor;
     this.editor = undefined;
+    this.attachedHost = undefined;
     if (!editor) return;
     if (editor.dispose) editor.dispose();
     else editor.detach();
@@ -156,8 +167,16 @@ export class RichTextCommentComponent extends QuestionAngular<QuestionCommentMod
   private syncHost(): void {
     const editor = this.editor;
     const host = this.hostRef ? this.hostRef.nativeElement : undefined;
-    if (editor && editor.isAttached && !host) editor.detach();
-    if (editor && host && !editor.isAttached) editor.attach(host);
+    // A mode switch replaces the node. The editor can still be attached to the one that left the document.
+    if (editor && editor.isAttached && this.attachedHost !== host) {
+      editor.detach();
+      this.attachedHost = undefined;
+    }
+    if (editor && host && !editor.isAttached) {
+      editor.attach(host);
+      this.attachedHost = host;
+    }
+    if (!host)this.attachedHost = undefined;
     if (host)this.applyEditorStyle(host);
     this.updateSizer();
   }

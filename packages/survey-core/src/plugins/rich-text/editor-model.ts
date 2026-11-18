@@ -52,6 +52,7 @@ export class RichTextEditorModel {
   private linkDialogOpen = false;
   private toolbarOpenState = false;
   private box: HTMLElement | undefined;
+  private selectionRoots: EventTarget[] = [];
   public onState?: () => void;
   private onSelectionChange = (): void => this.rememberSelection();
   private onProperty = (sender: any, options: { name: string }): void => {
@@ -158,7 +159,7 @@ export class RichTextEditorModel {
     element.addEventListener("paste", this.onPaste as any);
     element.addEventListener("focus", this.onFocus);
     element.addEventListener("blur", this.onBlur);
-    if (DomDocumentHelper.isAvailable()) DomDocumentHelper.addEventListener("selectionchange", this.onSelectionChange);
+    this.bindSelection();
     this.bindBox();
     if (this.question && !this.contentAgnostic) {
       const value = this.question.value;
@@ -182,7 +183,7 @@ export class RichTextEditorModel {
       this.element.removeEventListener("focus", this.onFocus);
       this.element.removeEventListener("blur", this.onBlur);
     }
-    if (DomDocumentHelper.isAvailable()) DomDocumentHelper.removeEventListener("selectionchange", this.onSelectionChange);
+    this.unbindSelection();
     this.unbindBox();
     if (this.question)this.question.onPropertyChanged.remove(this.onProperty);
     this.element = undefined;
@@ -299,6 +300,8 @@ export class RichTextEditorModel {
     if (!data || !data.getData) return;
     if (event.preventDefault) event.preventDefault();
     this.restoreSelection();
+    // A paste can arrive before the caret selection is reported, which is common in a shadow root.
+    if (!this.saved || !this.element.contains(this.saved.commonAncestorContainer))this.placeCaretAtEnd();
     const html = data.getData("text/html");
     const text = data.getData("text/plain") || "";
     if (html)this.insertHtml(this.clip(sanitizeHtml(html, { inline: this.inline, paste: true })));
@@ -322,6 +325,7 @@ export class RichTextEditorModel {
     this.sourceValue = undefined;
     this.refreshLink();
     this.syncEmpty();
+    this.rememberSelection();
     this.refreshToolbarOpen();
   };
 
@@ -401,9 +405,33 @@ export class RichTextEditorModel {
     this.updateCounter();
   }
 
+  // selectionchange for an editor inside a shadow root is fired on the document, while the
+  // range itself is only on that root's selection. window.getSelection() is the light-DOM one.
+  private bindSelection(): void {
+    this.unbindSelection();
+    const targets: EventTarget[] = [];
+    const doc = DomDocumentHelper.getDocument();
+    if (doc) targets.push(doc);
+    const root = this.element ? selectionRootOf(this.element) : undefined;
+    if (root && targets.indexOf(root) < 0) targets.push(root);
+    this.selectionRoots = targets;
+    for (let i = 0; i < targets.length; i++) {
+      targets[i].addEventListener("selectionchange", this.onSelectionChange as any);
+    }
+  }
+
+  private unbindSelection(): void {
+    const targets = this.selectionRoots;
+    for (let i = 0; i < targets.length; i++) {
+      targets[i].removeEventListener("selectionchange", this.onSelectionChange as any);
+    }
+    this.selectionRoots = [];
+  }
+
   private rememberSelection(): void {
+    if (this.linkDialogOpen) return;
     if (!this.element || !DomWindowHelper.isAvailable()) return;
-    const selection = DomWindowHelper.getSelection();
+    const selection = selectionFor(this.element);
     if (!selection || selection.rangeCount === 0) {
       this.selectionOpen = false;
       this.refreshToolbarOpen();
@@ -425,6 +453,17 @@ export class RichTextEditorModel {
     if (!this.element || !this.saved) return;
     this.element.focus();
     selectRange(this.saved);
+  }
+
+  private placeCaretAtEnd(): void {
+    if (!this.element) return;
+    const doc = this.element.ownerDocument;
+    if (!doc) return;
+    const range = doc.createRange();
+    range.selectNodeContents(this.element);
+    range.collapse(false);
+    this.saved = range;
+    selectRange(range);
   }
 
   private updatePressed(): void {
@@ -492,6 +531,7 @@ export class RichTextEditorModel {
 
   private openLinkDialog(): void {
     if (!this.element || typeof settings.showDialog !== "function") return;
+    this.rememberSelection();
     this.linkDialogOpen = true;
     this.refreshToolbarOpen();
     this.restoreSelection();
@@ -824,10 +864,45 @@ function replaceRange(range: Range, html: string): void {
 
 function selectRange(range: Range): void {
   if (!DomWindowHelper.isAvailable()) return;
-  const selection = DomWindowHelper.getSelection();
+  const node = range.commonAncestorContainer as Node | null;
+  const selection = node ? selectionOwner(node) : DomWindowHelper.getSelection();
   if (!selection) return;
   selection.removeAllRanges();
   selection.addRange(range);
+}
+
+function selectionOwner(node: Node): Selection | null {
+  const root = selectionRootOf(node) as any;
+  if (root && typeof root.getSelection === "function") {
+    const selection = root.getSelection() as Selection | null;
+    if (selection) return selection;
+  }
+  return DomWindowHelper.getSelection();
+}
+
+function selectionRootOf(node: Node | undefined): (Document | ShadowRoot) | undefined {
+  if (!node || typeof node.getRootNode !== "function") return DomDocumentHelper.getDocument() || undefined;
+  const root = node.getRootNode() as any;
+  if (root && typeof root.addEventListener === "function" && typeof root.getSelection === "function") return root;
+  return DomDocumentHelper.getDocument() || undefined;
+}
+
+function selectionFor(node: Node): Selection | null {
+  const candidates: Selection[] = [];
+  const root = selectionRootOf(node) as any;
+  if (root && typeof root.getSelection === "function") {
+    const inner = root.getSelection() as Selection | null;
+    if (inner) candidates.push(inner);
+  }
+  const doc = DomWindowHelper.getSelection();
+  if (doc && candidates.indexOf(doc) < 0) candidates.push(doc);
+  const host = node.nodeType === 1 ? node : node.parentNode;
+  for (let i = 0; i < candidates.length; i++) {
+    const selection = candidates[i];
+    if (!selection || selection.rangeCount === 0) continue;
+    if (host && host.contains(selection.getRangeAt(0).commonAncestorContainer)) return selection;
+  }
+  return candidates.length > 0 ? candidates[candidates.length - 1] : null;
 }
 
 interface DomPoint {

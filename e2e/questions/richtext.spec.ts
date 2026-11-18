@@ -476,10 +476,11 @@ async function selectText(editor: Locator, start: string, end: string): Promise<
       const range = document.createRange();
       range.setStart(from.item, from.offset);
       range.setEnd(to.item, to.offset);
-      const selection = document.getSelection();
+      const root = node.getRootNode() as any;
+      const selection = typeof root.getSelection === "function" ? root.getSelection() : document.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
-      document.dispatchEvent(new Event("selectionchange"));
+      root.dispatchEvent(new Event("selectionchange"));
     }
   }, { start, end });
 }
@@ -488,13 +489,14 @@ async function placeCaret(editor: Locator, before: string): Promise<void> {
   await selectText(editor, before, before);
   await editor.evaluate((element) => {
     const root = element as HTMLElement;
-    const selection = document.getSelection();
+    const owner = root.getRootNode() as any;
+    const selection = typeof owner.getSelection === "function" ? owner.getSelection() : document.getSelection();
     const range = selection.getRangeAt(0);
     range.collapse(false);
     selection.removeAllRanges();
     selection.addRange(range);
     root.focus();
-    document.dispatchEvent(new Event("selectionchange"));
+    owner.dispatchEvent(new Event("selectionchange"));
   });
 }
 

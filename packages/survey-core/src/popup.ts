@@ -99,6 +99,8 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   @property({ defaultValue: true }) isFocusedContainer: boolean;
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
+  @property({ defaultValue: "" }) description: string;
+  public onFooterActionsUpdated: EventBase<Base> = this.addEvent<Base>();
   @property({ defaultValue: "auto" }) overlayDisplayMode: "auto" | "tablet-dropdown-overlay" | "dropdown-overlay" | "plain";
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
   @property({ defaultValue: "flex" }) positionMode: PositionMode;

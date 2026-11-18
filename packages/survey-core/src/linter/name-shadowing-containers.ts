@@ -60,7 +60,7 @@ const VARIABLE_KIND_TEXT: { [kind: string]: string } = {
 // object: the comment or the totals overwrite the container's object, or the other way round.
 function checkContainerDerivedKeys(ctx: LintContext, scope: DataScopeRecord): void {
   scope.children.forEach(children => children.forEach(child => child.containers.forEach(container =>
-    reportDerivedKeyCollision(ctx, container, child.key, scope, undefined, getContainerKeyPath(container)))));
+    reportDerivedKeyCollision(ctx, container, child.key, scope, getContainerKeyPath(container)))));
 }
 
 function checkRootContainerKeys(ctx: LintContext): void {

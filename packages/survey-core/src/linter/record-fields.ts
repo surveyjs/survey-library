@@ -1,5 +1,5 @@
 import { getCheckboxItemFields, getImageMapItemFields } from "survey-core";
-import { CapturingScopeFrame, CIMap, CIMultiMap, DataScopeRecord, ElementRecord, getCapturingFrame, getEffectiveType, ITEM_FIELD_TYPE,
+import { CapturingScopeFrame, CIMap, CIMultiMap, DataScopeRecord, ElementRecord, getEffectiveType, ITEM_FIELD_TYPE,
   MergedObjectKeys, ScopeFrame, SurveyIndex } from "./symbols";
 import { isDescendantOf } from "./metadata";
 import { isInNestedObject } from "./data-nesting";
@@ -34,34 +34,18 @@ export function getFrameNames(frame: CapturingScopeFrame): CIMultiMap<ElementRec
   return frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
 }
 
-// The questions (and columns) of a panel's or row's record by data key, built once per scope. A question
-// inside a nesting panel there writes into that panel's object, not into the record.
-function getFrameDataKeys(frame: CapturingScopeFrame): CIMultiMap<ElementRecord> {
-  if (!frame.dataKeys) {
-    const keys = new CIMultiMap<ElementRecord>();
-    getFrameNames(frame).forEach(records => records.forEach(record => {
-      if (record.kind === "column" || record.kind === "question" && !isInNestedObject(record)) keys.add(getDataKey(record), record);
-    }));
-    frame.dataKeys = keys;
-  }
-  return frame.dataKeys;
-}
-
-// The questions writing a data key of a data scope: a nesting container's object (dataScope of kind
-// "object", inside a record too), a dynamic-panel template or a matrix row (frame), or else the survey data
-// or a record (dataScope, the survey data when unset). The runtime binds them by the exact key
-// (getQuestionsByValueName is case-sensitive), so the case-insensitive maps only narrow the search down.
-export function getDataKeyRecords(index: SurveyIndex, frame: CapturingScopeFrame | undefined, key: string,
-  dataScope?: DataScopeRecord): Array<ElementRecord> {
-  const candidates = !!dataScope && dataScope.kind === "object" ? dataScope.questions.get(key)
-    : !!frame ? getFrameDataKeys(frame).get(key) : (dataScope || index.rootScope).questions.get(key);
-  return candidates.filter(record => getDataKey(record) === key);
+// The questions writing a data key of a data scope: the survey data (when unset), a nesting container's
+// object, or the record of a dynamic-panel template or a matrix row, which holds the columns too. The
+// runtime binds them by the exact key (getQuestionsByValueName is case-sensitive), so the case-insensitive
+// map only narrows the search down.
+export function getDataKeyRecords(index: SurveyIndex, key: string, dataScope?: DataScopeRecord): Array<ElementRecord> {
+  return (dataScope || index.rootScope).questions.get(key).filter(record => getDataKey(record) === key);
 }
 
 // The record itself first, then every other question (or matrix column) of its data scope on the
 // same data key.
 export function getSharingRecords(index: SurveyIndex, record: ElementRecord): Array<ElementRecord> {
-  const others = getDataKeyRecords(index, getCapturingFrame(record.scope), getDataKey(record), record.dataScope);
+  const others = getDataKeyRecords(index, getDataKey(record), record.dataScope);
   return [record].concat(others.filter(other => other !== record));
 }
 

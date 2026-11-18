@@ -190,7 +190,7 @@ export const nameShadowingRule: ILintRule = {
       checkValueNameOverName(ctx, record);
       // a data key the runtime derives from another one: <name>-Comment and <matrix>-total
       if (record.kind === "question") {
-        reportDerivedKeyCollision(ctx, record, getDataKey(record), record.dataScope, getCapturingFrame(record.scope), record.path);
+        reportDerivedKeyCollision(ctx, record, getDataKey(record), record.dataScope, record.path);
       }
       checkDropdownRowConflict(ctx, record, reportedRows);
       checkValueShapeConflict(ctx, record);

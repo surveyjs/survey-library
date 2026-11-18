@@ -1,6 +1,6 @@
 import { LintContext } from "./rule";
 import { builtInVariableNames, equalsCI, stripCommentSuffix, stripTotalsSuffix } from "./expression-utils";
-import { CapturingScopeFrame, DataScopeRecord, ElementRecord, getEffectiveType } from "./symbols";
+import { DataScopeRecord, ElementRecord, getEffectiveType } from "./symbols";
 import { isMatrixDropdown, isPropertyOn } from "./metadata";
 import { hasOtherItem } from "./value-types";
 import { getDataKeyRecords } from "./record-fields";
@@ -41,19 +41,18 @@ function hasTotals(record: ElementRecord): boolean {
 
 // A data key the runtime derives from another one: <name>-Comment and <matrix>-total. An element whose
 // own key spells one of those overwrites it, in whichever order they are written. keyOwner is a question
-// or a nesting container spelling key in scope; frame is the dynamic-panel template or the matrix row a
-// question is in. The questions writing the base key are looked up there: a question of a dynamic-panel
-// template writes into its panel's record, one of a matrix detail panel into its row's record next to the
-// columns, every other one into the object of its container or the survey data.
+// or a nesting container spelling key in scope. The questions writing the base key are looked up there: a
+// question of a dynamic-panel template writes into its panel's record, one of a matrix detail panel into its
+// row's record next to the columns, every other one into the object of its container or the survey data.
 export function reportDerivedKeyCollision(ctx: LintContext, keyOwner: ElementRecord, key: string,
-  scope: DataScopeRecord | undefined, frame: CapturingScopeFrame | undefined, path: string): void {
+  scope: DataScopeRecord | undefined, path: string): void {
   const settings = ctx.index.settings;
   // an unnamed container is spoken of by its key
   const name = keyOwner.kind === "question" ? keyOwner.name : keyOwner.name || key;
   const check = (base: string, suffix: string, reason: string, owns: (rec: ElementRecord) => boolean,
     what: string): void => {
     if (!base) return;
-    const owner = getDataKeyRecords(ctx.index, frame, base, scope).filter(other => other !== keyOwner && owns(other))[0];
+    const owner = getDataKeyRecords(ctx.index, base, scope).filter(other => other !== keyOwner && owns(other))[0];
     if (!owner) return;
     ctx.report({
       message: "The data key \"" + key + "\" of \"" + name + "\" is also the " + what +

@@ -90,15 +90,11 @@ export interface ScopeFramePanelDynamic {
   kind: "panelDynamic";
   owner: ElementRecord;
   templateNames: CIMultiMap<ElementRecord>;
-  // memoized by record-fields.ts: the template questions by data key
-  dataKeys?: CIMultiMap<ElementRecord>;
 }
 export interface ScopeFrameMatrixRow {
   kind: "matrixRow";
   owner: ElementRecord;
   columns: CIMultiMap<ElementRecord>;
-  // memoized by record-fields.ts: the columns and detail-panel questions by data key
-  dataKeys?: CIMultiMap<ElementRecord>;
 }
 export interface ScopeFrameItemValue {
   kind: "itemValue";

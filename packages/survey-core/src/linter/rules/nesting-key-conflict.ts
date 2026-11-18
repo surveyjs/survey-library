@@ -12,16 +12,20 @@ const reasons = SurveyLintReasons["nesting/key-conflict"];
 // container. Two containers on one key share one object (an address split across two pages), and a key
 // equal to the name of a question inside the container is another level: neither is reported. Keys are
 // compared exactly, as the runtime stores them. Inside a dynamic panel or a matrix each record is a level
-// of its own: a matrix record holds its columns too.
+// of its own: a matrix record holds its columns too. A container keyed by its name next to a question
+// keyed by its own name is name/duplicate's finding (one namespace for pages, panels and questions), so
+// it is not reported twice.
 function checkScope(ctx: LintContext, scope: DataScopeRecord): void {
   scope.children.forEach(children => children.forEach(child => {
     checkScope(ctx, child);
     // a display-only question (html, image) stores nothing under its key
-    const questions = getDataKeyRecords(ctx.index, undefined, child.key, scope)
+    const questions = getDataKeyRecords(ctx.index, child.key, scope)
       .filter(record => !record.valueType || record.valueType.shape !== "none");
-    if (questions.length === 0) return;
-    const question = questions[0];
     child.containers.forEach(container => {
+      const others = container.container.dataKeySource === "name"
+        ? questions.filter(record => record.kind !== "question" || record.name !== child.key) : questions;
+      if (others.length === 0) return;
+      const question = others[0];
       ctx.report({
         message: "The " + container.type + " \"" + (container.name || child.key) + "\" stores its questions' values in an object under \"" +
           child.key + "\", which is also the data key of " + question.type + " \"" + question.name +
@@ -32,7 +36,7 @@ function checkScope(ctx: LintContext, scope: DataScopeRecord): void {
         elementName: container.name,
         elementType: container.type,
         related: [{ path: container.path, elementName: container.name }].concat(
-          questions.map(record => ({ path: record.path, elementName: record.name }))),
+          others.map(record => ({ path: record.path, elementName: record.name }))),
       });
     });
   }));

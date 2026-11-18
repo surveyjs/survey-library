@@ -361,6 +361,33 @@ describe("linter nested data: collisions", () => {
     };
     expect(brief(findingsOf(byName, "nesting/key-conflict"))).toEqual(["nesting/key-conflict/questionKey @ elements[0].name"]);
   });
+  test("a by-name container key equal to a question's name is one finding, name/duplicate's", () => {
+    const pairOf = (json: any): Array<string> => brief(lintSurvey(json).findings
+      .filter(f => f.ruleId === "nesting/key-conflict" || f.ruleId === "name/duplicate"));
+    expect(pairOf({
+      dataNesting: "panel",
+      elements: [
+        { type: "panel", name: "info", elements: [{ type: "text", name: "street" }] },
+        { type: "text", name: "info" },
+      ],
+    })).toEqual(["name/duplicate/elementNames @ elements[1]"]);
+    // inside a page's object
+    expect(pairOf({
+      dataNesting: "panelAndPage",
+      pages: [{ name: "pg", elements: [
+        { type: "panel", name: "info", elements: [{ type: "text", name: "street" }] },
+        { type: "text", name: "info" },
+      ] }],
+    })).toEqual(["name/duplicate/elementNames @ pages[0].elements[1]"]);
+    // a valueName key equal to a question's name: the names differ, so only the key conflict reports it
+    expect(pairOf({
+      dataNesting: "panel",
+      elements: [
+        { type: "panel", name: "p", valueName: "info", elements: [{ type: "text", name: "street" }] },
+        { type: "text", name: "info" },
+      ],
+    })).toEqual(["nesting/key-conflict/questionKey @ elements[0].valueName"]);
+  });
   test("different levels, two containers on one key and \"none\" are no conflict", () => {
     const json: any = { dataNesting: "auto",
       pages: [

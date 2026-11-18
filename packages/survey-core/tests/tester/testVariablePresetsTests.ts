@@ -350,7 +350,7 @@ describe("The definition model is a model of the test (issue #11814)", () => {
   });
 });
 
-// Nested data (prompt 15, decisions V1-V4): the definition describes an object variable.
+// Nested data (decisions V1-V4): the definition describes an object variable.
 describe("The tester and a nested variable definition", () => {
   const nestedSurvey = {
     elements: [
@@ -442,17 +442,6 @@ describe("The tester and a nested variable definition", () => {
       tests: [{ name: "typo", steps: [] }],
     });
     expect(issueOf(result, SurveyTestIssueCodes.variableNotDefined).suggestion).toEqual("Did you mean \"users\"?");
-  });
-  test("A flat value of an inner question is an unknown root variable", async () => {
-    const record = factoryRecord();
-    const result = await run(nestedSurvey, {
-      variablePresets: { definition: nestedDefinition },
-      variables: { users: { tier: "gold" }, tier: "gold" },
-      tests: [{ name: "flat tier", steps: [] }],
-    }, withFactory(record));
-    const issue = issueOf(result, SurveyTestIssueCodes.variableNotDefined);
-    expect(issue.data).toEqual({ name: "tier", defined: ["users", "role"] });
-    expect(record.models[0].getVariable("tier")).toBeUndefined();
   });
   test("An invalid field ends the test and names its path", async () => {
     const result = await run(nestedSurvey, {

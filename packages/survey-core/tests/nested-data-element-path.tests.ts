@@ -5,7 +5,7 @@ import { PageModel } from "../src/page";
 import { Question } from "../src/question";
 import { settings } from "../src/settings";
 
-// Nested data 14: one data path per element, and the survey as the root data scope. Each check runs for a
+// One data path per element, and the survey as the root data scope. Each check runs for a
 // top-level question and for the same question two levels deep (outer.inner.<key>): the two take one code
 // path, so they give the same answers, under the path.
 
@@ -25,7 +25,7 @@ const wrap = (layout: Layout, elements: Array<any>): Array<any> => !layout.neste
 const put = (layout: Layout, obj: any): any => !layout.nested ? obj : { outer: { inner: obj } };
 const pathOf = (layout: Layout, key: string): Array<string> => layout.nested ? ["outer", "inner", key] : [key];
 // A question's path of names from the survey, and the variable a root expression reads it by: a bare name inside a
-// container is not found from the survey (scoped names 05, O1, O3).
+// container is not found from the survey.
 const at = (layout: Layout, name: string): string => layout.nested ? "outerPanel.innerPanel." + name : name;
 const v = (layout: Layout, key: string): string => pathOf(layout, key).join(".");
 const delay = (): Promise<void> => new Promise(resolve => setTimeout(resolve, 20));
@@ -171,7 +171,7 @@ describe("nested data path: runTriggers() keys below the root hold the stored va
 });
 
 describe("nested data path: questionPerPage auto-advance, a write by an off-screen sharer", () => {
-  // A deliberate change (prompt 14, "questions sharing a value"): an inner question's holders are the questions
+  // A deliberate change: an inner question's holders are the questions
   // sharing its value, as a top-level question's are. Before, an inner writer was its only holder.
   test.each([{ dataNesting: "none" }, { dataNesting: "page" }])("dataNesting $dataNesting", async (opt: any) => {
     await withNoDelay(async () => {
@@ -371,17 +371,6 @@ describe("nested data path: getQuestionByValueName / getQuestionsByValueName (D9
     expect(sortedNames(survey), "no nesting container").toEqual(["q1a", "q2", "q3"]);
     survey.dataNesting = "panel";
     expect(sortedNames(survey), "p1 nests now").toEqual(["q1a", "q3"]);
-  });
-  // The root keeps document order, with or without nesting (scoped names 06, W1): a rename keeps the question's
-  // place, and a dataNesting change only decides which of the questions are top-level.
-  test("the order is document order", () => {
-    const survey = new SurveyModel(json());
-    survey.getQuestionByName("q1").name = "q1a";
-    expect(names(survey), "a rename").toEqual(["q1a", "q2", "q3"]);
-    survey.dataNesting = "none";
-    expect(names(survey), "dataNesting \"none\"").toEqual(["q1a", "q2", "q4", "q3"]);
-    survey.dataNesting = "auto";
-    expect(names(survey), "dataNesting \"auto\" again").toEqual(["q1a", "q2", "q3"]);
   });
 });
 

@@ -96,6 +96,21 @@ describe("Survey element names: one hash for questions, panels and pages", () =>
     expect(id(survey.getPanelByName("P"))).toBe(id(panels[1]));
     expect(id(survey.getPanelByName("P", true)), "ignoring letter case, the first one in document order").toBe(id(panels[0]));
   });
+  test("two questions whose names differ in letter case: ignoring letter case, the exact name wins", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "name" }, { type: "text", name: "NAME" }] });
+    const [lower, upper] = survey.getAllQuestions();
+    expect(id(survey.getQuestionByName("NAME", true)), "the exact name").toBe(id(upper));
+    expect(id(survey.getQuestionByName("name", true)), "the exact name").toBe(id(lower));
+    expect(id(survey.getQuestionByName("Name", true)), "no exact name: the first one").toBe(id(lower));
+  });
+  test("two questions whose names differ in letter case: removing one keeps the other found", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "Q" }, { type: "text", name: "q" }] });
+    const [upper, lower] = survey.getAllQuestions();
+    expect(id(survey.getQuestionByName("q", true)), "the exact name").toBe(id(lower));
+    survey.pages[0].removeElement(upper);
+    expect(id(survey.getQuestionByName("Q")), "removed").toBeNull();
+    expect(id(survey.getQuestionByName("Q", true)), "the other letter case").toBe(id(lower));
+  });
   test("renaming a panel and a page at runtime", () => {
     const survey = new SurveyModel(treeJson());
     const panel1 = survey.getPanelByName("panel1");

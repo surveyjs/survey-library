@@ -13,16 +13,12 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import "../src/question_matrix";
 import "../src/question_multipletext";
+import { questionNamed, panelNamed } from "./test-helpers";
 
-// Prompt 17 (decisions L1-L6): survey.getQuestionByVariable(name, context) names the question an expression
+// Decisions L1-L6: survey.getQuestionByVariable(name, context) names the question an expression
 // variable reads, by the runtime's own walk without values.
 
 const MODES = ["auto", "none", "panel", "page", "panelAndPage"];
-// By its name, whatever the mode: in a nesting mode the survey finds an inner element by its path (scoped names 05,
-// O1). The names of these surveys are unique.
-const questionNamed = (survey: SurveyModel, name: string): Question => survey.getAllQuestions().filter(el => el.name === name)[0];
-const panelNamed = (survey: SurveyModel, name: string): PanelModel => <PanelModel>survey.getAllPanels().filter(el => el.name === name)[0];
-
 function createJson(mode: string): any {
   return { dataNesting: mode, pages: [{ name: "page1", elements: [
     { type: "text", name: "q1" },
@@ -92,7 +88,7 @@ function show(res: IExpressionVariableInfo): string {
   return res.question.name + "|" + res.rest + (res.isComment ? "|comment" : "") + (res.isUnwrapped ? "|unwrapped" : "");
 }
 
-describe("nested data 17: the question an expression variable names", () => {
+describe("nested data: the question an expression variable names", () => {
   afterEach(() => {
     settings.expressionVariables.unwrapPostfix = "-unwrapped";
     settings.commentSuffix = "-Comment";
@@ -257,7 +253,7 @@ describe("nested data 17: the question an expression variable names", () => {
   });
 });
 
-describe("nested data 17: records (L5)", () => {
+describe("nested data: records (L5)", () => {
   const recordsJson = (mode: string): any => ({ dataNesting: mode, elements: [
     { type: "text", name: "q1" },
     { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
@@ -441,7 +437,7 @@ describe("nested data 17: records (L5)", () => {
   });
 });
 
-describe("nested data 17: the index follows changes", () => {
+describe("nested data: the index follows changes", () => {
   test("a new question, a valueName, a container key and dataNesting", () => {
     const survey = new SurveyModel(createJson("auto"));
     const panel1 = <PanelModel>survey.getPanelByName("panel1");
@@ -462,7 +458,7 @@ describe("nested data 17: the index follows changes", () => {
   });
 });
 
-describe("nested data 17: exports and helpers (L6)", () => {
+describe("nested data: exports and helpers (L6)", () => {
   test("getDataNestingKey is exported from the package entry", () => {
     expect(entryGetDataNestingKey).toBe(getDataNestingKey);
   });
@@ -497,6 +493,17 @@ describe("nested data 17: exports and helpers (L6)", () => {
       expect(dp.template.getDataNestingKeyFor("addr", "t"), mode + ": the record panel itself").toBe("");
       expect(tp.getDataScopeKey(), mode + ": the template panel's own key is unchanged").toBe("");
     }
+  });
+  test("getDataNestingKeyFor: a choice panel in a detail panel template nests by name on its owner's survey (\"panel\")", () => {
+    const survey = new SurveyModel({ dataNesting: "panel", elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "c1" }],
+        detailElements: [{ type: "radiogroup", name: "rg", choices: ["a", { value: "b", elements: [
+          { type: "panel", name: "cp", elements: [{ type: "text", name: "q5" }] }] }] }] }
+    ] });
+    const m = <QuestionMatrixDropdownModel><any>survey.getQuestionByName("m");
+    const choicePanel: PanelModel = (<any>m.detailPanel.getQuestionByName("rg")).choices[1].panel;
+    expect(choicePanel.getDataNestingKeyFor("", "n")).toBe("n");
+    expect((<PanelModel>choicePanel.getElementByName("cp")).getDataNestingKeyFor("", "n")).toBe("n");
   });
   test("getExpressionScopePaths", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [

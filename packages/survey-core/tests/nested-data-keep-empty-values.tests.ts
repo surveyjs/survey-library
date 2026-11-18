@@ -13,7 +13,7 @@ import { IAction } from "../src/actions/action";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { describe, expect, test, afterEach } from "vitest";
 
-// Nested data, prompt 16 (decisions K1-K5): the values inside a nesting container follow data.keepEmptyValues
+// Nested data (decisions K1-K5): the values inside a nesting container follow data.keepEmptyValues
 // as a top-level question's value does.
 const keepOn = { data: { keepEmptyValues: true } };
 const createSurvey = (json: any, isKeepOn: boolean): SurveyModel => isKeepOn ? new SurveyModel(json, keepOn) : new SurveyModel(json);

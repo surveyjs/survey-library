@@ -357,7 +357,7 @@ describe("SurveyVariablePresets (issue #11814)", () => {
   });
 });
 
-// Nested data (prompt 15, decisions V1-V4): the definition's data is the shape of the variables, so a
+// Nested data (decisions V1-V4): the definition's data is the shape of the variables, so a
 // panel or a page that nests describes an object variable.
 describe("SurveyVariablePresets with a nested definition", () => {
   const nestedDefinition = (dataNesting?: string, withValueName: boolean = true): any => {
@@ -372,20 +372,20 @@ describe("SurveyVariablePresets with a nested definition", () => {
   const create = (definition: any): SurveyVariablePresets => new SurveyVariablePresets({ definition: definition });
   const notInChoices = (val: string): string => (<any>getLocaleString("variableValueNotInChoices"))["format"](val);
 
-  test.each(["auto", "panel"])("V1/V3: names are the root keys, paths the leaves (%s)", mode => {
+  test.each(["auto", "panel"])("names are the root keys, paths the leaves (%s)", mode => {
     const presets = create(nestedDefinition(mode));
     expect(presets.getVariableNames()).toEqual(["users", "role"]);
     expect(presets.getVariablePaths()).toEqual(["users.tier", "users.name", "role"]);
     presets.dispose();
   });
-  test("V1: \"panel\" mode keys a panel without valueName by its name", () => {
+  test("\"panel\" mode keys a panel without valueName by its name", () => {
     const presets = create(nestedDefinition("panel", false));
     expect(presets.getVariableNames()).toEqual(["user", "role"]);
     expect(presets.getVariablePaths()).toEqual(["user.tier", "user.name", "role"]);
     expect(presets.getVariableQuestion("user.tier").name).toBe("tier");
     presets.dispose();
   });
-  test.each(["page", "panelAndPage"])("V1: in \"%s\" mode the root elements land on page1", mode => {
+  test.each(["page", "panelAndPage"])("in \"%s\" mode the root elements land on page1", mode => {
     const presets = create(nestedDefinition(mode));
     expect(presets.getVariableNames()).toEqual(["page1"]);
     expect(presets.getVariablePaths()).toEqual(["page1.users.tier", "page1.users.name", "page1.role"]);
@@ -403,7 +403,7 @@ describe("SurveyVariablePresets with a nested definition", () => {
     expect(presets.validateVariables({ tier: "gold" }).isValid).toBe(true);
     presets.dispose();
   });
-  test("V2/V3: lookups by root key and by path", () => {
+  test("lookups by root key and by path", () => {
     const presets = create(nestedDefinition("auto"));
     expect(presets.hasVariable("users")).toBe(true);
     expect(presets.getVariableQuestion("users")).toBeUndefined();
@@ -446,56 +446,36 @@ describe("SurveyVariablePresets with a nested definition", () => {
     expect(presets.getVariablePaths()).toEqual([]);
     expect(presets.getVariableElement("users")).toBeUndefined();
   });
-  test("V4: a valid nested preset", () => {
+  const required = (): any => ({ variable: "users.tier", question: "tier", errors: ["Response required."] });
+  const incorrect = (): any => ({ variable: "users", question: "user", errors: ["The value is incorrect."] });
+  const valid = { unknownVariables: [], errors: [], isValid: true };
+  test.each([
+    { title: "a valid nested preset", variables: { users: { tier: "gold", name: "Ann" }, role: "admin" }, expected: valid },
+    { title: "keys are mapped to the definition's spelling at every level", variables: { Users: { Tier: "gold" } }, expected: valid },
+    { title: "an inner value outside the choices is reported on its path", variables: { users: { tier: "bronze" } },
+      expected: { isValid: false, errors: [{ variable: "users.tier", question: "tier", errors: [notInChoices("bronze")] }] } },
+    { title: "a missing required inner value", variables: { users: { name: "Ann" } }, expected: { unknownVariables: [], errors: [required()] } },
+    { title: "a missing object variable", variables: {}, expected: { unknownVariables: [], errors: [required()] } },
+    { title: "a null object variable", variables: { users: null }, expected: { unknownVariables: [], errors: [required()] } },
+    { title: "an unknown inner key is a path", variables: { users: { tier: "gold", nope: 1 } },
+      expected: { unknownVariables: ["users.nope"], errors: [], isValid: false } },
+    { title: "an unknown inner key is a path in the input's spelling", variables: { Users: { Tier: "gold", Nope: 1 }, other: 2 },
+      expected: { unknownVariables: ["Users.Nope", "other"] } },
+    { title: "a string for an object variable is one error", variables: { users: "gold", role: "a" },
+      expected: { unknownVariables: [], errors: [incorrect()], isValid: false } },
+    { title: "a number for an object variable is one error", variables: { users: 5, role: "a" },
+      expected: { unknownVariables: [], errors: [incorrect()], isValid: false } },
+    { title: "an array for an object variable is one error", variables: { users: ["gold"], role: "a" },
+      expected: { unknownVariables: [], errors: [incorrect()], isValid: false } },
+    { title: "a flat value of an inner question is an unknown root key", variables: { tier: "gold", users: { tier: "gold" } },
+      expected: { unknownVariables: ["tier"], errors: [] } }
+  ])("validateVariables: $title", ({ variables, expected }) => {
     const presets = create(nestedDefinition("auto"));
-    const res = presets.validateVariables({ users: { tier: "gold", name: "Ann" }, role: "admin" });
-    expect(res).toEqual({ unknownVariables: [], errors: [], isValid: true });
-    presets.dispose();
-  });
-  test("V4: keys are mapped to the definition's spelling at every level", () => {
-    const presets = create(nestedDefinition("auto"));
-    expect(presets.validateVariables({ Users: { Tier: "gold" } })).toEqual({ unknownVariables: [], errors: [], isValid: true });
-    presets.dispose();
-  });
-  test("V4: an inner value outside the choices is reported on its path", () => {
-    const presets = create(nestedDefinition("auto"));
-    const res = presets.validateVariables({ users: { tier: "bronze" } });
-    expect(res.isValid).toBe(false);
-    expect(res.errors).toEqual([{ variable: "users.tier", question: "tier", errors: [notInChoices("bronze")] }]);
-    presets.dispose();
-  });
-  test("V4: a missing required inner value, and a missing or null object variable", () => {
-    const presets = create(nestedDefinition("auto"));
-    [{ users: { name: "Ann" } }, {}, { users: null }].forEach(vars => {
-      const res = presets.validateVariables(vars);
-      expect(res.unknownVariables).toEqual([]);
-      expect(res.errors).toEqual([{ variable: "users.tier", question: "tier", errors: ["Response required."] }]);
-    });
-    presets.dispose();
-  });
-  test("V4: an unknown inner key is a path in the input's spelling", () => {
-    const presets = create(nestedDefinition("auto"));
-    let res = presets.validateVariables({ users: { tier: "gold", nope: 1 } });
-    expect(res.unknownVariables).toEqual(["users.nope"]);
-    expect(res.errors).toEqual([]);
-    expect(res.isValid).toBe(false);
-    res = presets.validateVariables({ Users: { Tier: "gold", Nope: 1 }, other: 2 });
-    expect(res.unknownVariables).toEqual(["Users.Nope", "other"]);
-    presets.dispose();
-  });
-  test.each([["a string", "gold"], ["a number", 5], ["an array", ["gold"]]])("V4: %s for an object variable is one error", (_, val) => {
-    const presets = create(nestedDefinition("auto"));
-    const res = presets.validateVariables({ users: val, role: "a" });
-    expect(res.unknownVariables).toEqual([]);
-    expect(res.errors).toEqual([{ variable: "users", question: "user", errors: ["The value is incorrect."] }]);
-    expect(res.isValid).toBe(false);
-    presets.dispose();
-  });
-  test("V4: a flat value of an inner question is an unknown root key", () => {
-    const presets = create(nestedDefinition("auto"));
-    const res = presets.validateVariables({ tier: "gold", users: { tier: "gold" } });
-    expect(res.unknownVariables).toEqual(["tier"]);
-    expect(res.errors).toEqual([]);
+    const res: any = presets.validateVariables(variables);
+    // The fields the row names, each in full.
+    const actual: any = {};
+    Object.keys(expected).forEach(key => actual[key] = res[key]);
+    expect(actual).toEqual(expected);
     presets.dispose();
   });
   test("two levels: a panel with valueName in a page with valueName", () => {

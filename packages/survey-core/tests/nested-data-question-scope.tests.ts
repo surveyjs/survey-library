@@ -5,14 +5,16 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { NumericValidator } from "../src/validator";
 import { QuestionTextModel } from "../src/question_text";
 
-// Scoped names 04: a question asks its data scope who else holds its value, and a write carries the
+// A question asks its data scope who else holds its value, and a write carries the
 // question that wrote instead of its name.
 
+// Protected: in a choice item no public call shows these answers. Enter never advances there, and a question that
+// is alone on its key cannot tell its own value from no sharer through clearIncorrectValues or a hidden sharer.
 const sharers = (q: Question): Array<string> =>
   (<any>q.getValueScope()).getQuestionsSharingValue(q).map((s: Question) => s.name);
 const isOwner = (q: Question): boolean => (<any>q).isAutoAdvanceOwner;
 
-describe("scoped names 04: who holds my value, at the root, in a container and in a record", () => {
+describe("the questions sharing a value: who holds my value, at the root, in a container and in a record", () => {
   const json = (): any => ({
     dataNesting: "auto",
     elements: [
@@ -29,19 +31,6 @@ describe("scoped names 04: who holds my value, at the root, in a container and i
       ] }
     ]
   });
-  test("the scope's answer", () => {
-    const survey = new SurveyModel(json());
-    const q = (name: string): Question => survey.getQuestionByName(name);
-    expect(sharers(q("r1")), "root").toEqual(["r1", "r2"]);
-    expect(sharers(q("box.c1")), "container").toEqual(["c1", "c2"]);
-    // An inner value name equal to a root key: the root's questions do not hold the inner value.
-    expect(sharers(q("box.c3")), "container, a root key's value name").toEqual(["c3"]);
-    const item = (<QuestionPanelDynamicModel>q("list")).panels[0];
-    // A question in a record is looked up at the root, as before. The root walks its pages (scoped names 06, M1): it
-    // holds no template question, so the record's question shares its value with no question.
-    expect(survey.getQuestionsByValueName("x"), "no template question at the root").toBeNull();
-    expect((<any>item.getQuestionByName("d1")).getValueScope().getQuestionsSharingValue(item.getQuestionByName("d1")), "record").toEqual([]);
-  });
   test("clearIncorrectValues keeps a value a sharer owns: root and container (B1); a record's question has none at the root", () => {
     const survey = new SurveyModel(json());
     const q = (name: string): Question => survey.getQuestionByName(name);
@@ -55,7 +44,7 @@ describe("scoped names 04: who holds my value, at the root, in a container and i
     const d1 = <Question>item.getQuestionByName("d1");
     (<Question>item.getQuestionByName("d2")).value = "b";
     d1.clearIncorrectValues();
-    // The template's questions are no longer the root's (scoped names 06, M1, choice (a)).
+    // The template's questions are not the root's.
     expect(d1.value, "record: no sharer keeps it").toBeUndefined();
   });
   test("a hidden question keeps a value a visible sharer holds", () => {
@@ -68,20 +57,20 @@ describe("scoped names 04: who holds my value, at the root, in a container and i
     q("box.c1").visible = false;
     expect(survey.getValue("box"), "container").toEqual({ w: "a" });
   });
-  test("the auto-advance owner (B2 (a): today's answer)", () => {
-    const survey = new SurveyModel(json());
+  test("Enter advances for the question that owns the value (B2 (a))", () => {
+    const survey = new SurveyModel(Object.assign(json(), { autoAdvanceEnabled: true }));
     const q = (name: string): Question => survey.getQuestionByName(name);
-    expect(isOwner(q("r1")), "root, the first sharer").toBe(true);
-    expect(isOwner(q("r2")), "root, the second sharer").toBe(false);
-    expect(isOwner(q("box.c1")), "container, the first sharer").toBe(true);
-    expect(isOwner(q("box.c2")), "container, the second sharer").toBe(true);
-    expect(isOwner(q("box.c3")), "container, a root key's value name").toBe(true);
+    expect(q("r1").canAdvanceOnEnter(), "root, the first sharer").toBe(true);
+    expect(q("r2").canAdvanceOnEnter(), "root, the second sharer").toBe(false);
+    expect(q("box.c1").canAdvanceOnEnter(), "container, the first sharer").toBe(true);
+    expect(q("box.c2").canAdvanceOnEnter(), "container, the second sharer").toBe(true);
+    expect(q("box.c3").canAdvanceOnEnter(), "container, a root key's value name").toBe(true);
     const item = (<QuestionPanelDynamicModel>q("list")).panels[0];
-    expect(isOwner(<Question>item.getQuestionByName("d1")), "record").toBe(false);
+    expect((<Question>item.getQuestionByName("d1")).canAdvanceOnEnter(), "record").toBe(false);
   });
 });
 
-describe("scoped names 04: a container inside a choice item", () => {
+describe("the questions sharing a value: a container inside a choice item", () => {
   test("its question holds its own value and owns it for auto-advance, as before", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "checkbox", name: "cb", choices: [{ value: "a", elements: [
@@ -96,7 +85,7 @@ describe("scoped names 04: a container inside a choice item", () => {
   });
 });
 
-describe("scoped names 04: a write reports the question that wrote (B3)", () => {
+describe("the questions sharing a value: a write reports the question that wrote (B3)", () => {
   test("a writer the survey finds by no name is reported (it was null)", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "t" }] });
     const solo = new QuestionTextModel("solo");

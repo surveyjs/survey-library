@@ -6,9 +6,9 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 
-// Scoped names 05: in a nesting mode of dataNesting a name is unique where its value lives (SN1, SN3). A
+// In a nesting mode of dataNesting a name is unique where its value lives (SN1, SN3). A
 // container that holds data opens a name scope, and so does a records template; the survey reaches an element
-// inside one by a path of names (O1, O2, O8).
+// inside one by a path of names.
 
 const address = (name: string, valueName?: string): any => ({
   type: "panel", name: name, valueName: valueName, elements: [
@@ -27,7 +27,7 @@ const topOf = (q: Question): string => {
   return p?.name;
 };
 
-describe("scoped names 05: the example", () => {
+describe("scoped names: the example", () => {
   test("auto: a path of names, the bare name, and a panel that holds no data adds no segment", () => {
     const survey = new SurveyModel(example("auto"));
     const dPostcode = survey.getQuestionByName("delivery.postcode");
@@ -60,7 +60,7 @@ describe("scoped names 05: the example", () => {
     q.value = "1";
     expect(survey.data).toEqual({ page1: { delivery: { postcode: "1" } } });
   });
-  test("panelAndPage: every panel holds data, so details adds a segment (O6)", () => {
+  test("panelAndPage: every panel holds data, so details adds a segment", () => {
     const survey = new SurveyModel(example("panelAndPage"));
     const q = survey.getQuestionByName("page1.delivery.details.postcode");
     expect(panelOf(q)).toBe("details");
@@ -69,7 +69,7 @@ describe("scoped names 05: the example", () => {
     q.value = "1";
     expect(survey.data).toEqual({ page1: { delivery: { details: { postcode: "1" } } } });
   });
-  test("a valueName that differs from the name: the lookup path takes names, the expression the data path (O8)", () => {
+  test("a valueName that differs from the name: the lookup path takes names, the expression the data path", () => {
     const survey = new SurveyModel({
       dataNesting: "auto",
       elements: [address("deliveryPanel", "delivery"), { type: "text", name: "out" }]
@@ -94,7 +94,7 @@ describe("scoped names 05: the example", () => {
   });
 });
 
-describe("scoped names 05: copying a panel", () => {
+describe("scoped names: copying a panel", () => {
   test("billing made from delivery's JSON, only the panel's name and valueName changed", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [address("delivery", "delivery")] });
     const json = survey.getPanelByName("delivery").toJSON();
@@ -119,7 +119,7 @@ describe("scoped names 05: copying a panel", () => {
   });
 });
 
-describe("scoped names 05: records", () => {
+describe("scoped names: records", () => {
   const json = (): any => ({
     dataNesting: "auto",
     elements: [
@@ -133,7 +133,7 @@ describe("scoped names 05: records", () => {
         detailElements: [{ type: "text", name: "q" }] }
     ]
   });
-  test("two dynamic panels whose templates hold a question of the same name; a container inside a template; a detail panel (SN3, O9)", () => {
+  test("two dynamic panels whose templates hold a question of the same name; a container inside a template; a detail panel (SN3)", () => {
     const survey = new SurveyModel(json());
     const dp1 = <QuestionPanelDynamicModel>survey.getQuestionByName("dp1");
     const dp2 = <QuestionPanelDynamicModel>survey.getQuestionByName("dp2");
@@ -157,7 +157,7 @@ describe("scoped names 05: records", () => {
     expect(survey.getQuestionByName("q2")).toBeNull();
     expect(survey.getQuestionByName("dp1.q2")).toBe(dp1.template.getQuestionByName("q2"));
   });
-  test("a question in a record finds its sibling by its bare name (O4)", () => {
+  test("a question in a record finds its sibling by its bare name", () => {
     const survey = new SurveyModel({
       dataNesting: "auto",
       elements: [
@@ -178,7 +178,7 @@ describe("scoped names 05: records", () => {
   });
 });
 
-describe("scoped names 05: expressions and the properties that store a name", () => {
+describe("scoped names: expressions and the properties that store a name", () => {
   const json = (): any => ({
     dataNesting: "auto",
     elements: [
@@ -202,7 +202,7 @@ describe("scoped names 05: expressions and the properties that store a name", ()
       { type: "dropdown", name: "rootBare", choicesFromQuestion: "colors" }
     ]
   });
-  test("a bare name inside the scope, in a scope around it, and outside (O3)", () => {
+  test("a bare name inside the scope, in a scope around it, and outside", () => {
     const survey = new SurveyModel(json());
     const q = (name: string): Question => survey.getQuestionByName(name);
     q("delivery.postcode").value = "d";
@@ -216,7 +216,7 @@ describe("scoped names 05: expressions and the properties that store a name", ()
     expect(q("billing.inside").isVisible).toBe(false);
     expect(q("delivery.inside").isVisible).toBe(true);
   });
-  test("choicesFromQuestion starts in the owner's scope; a path from the survey (O4)", () => {
+  test("choicesFromQuestion starts in the owner's scope; a path from the survey", () => {
     const survey = new SurveyModel(json());
     const q = (name: string): Question => survey.getQuestionByName(name);
     q("delivery.colors").value = ["red"];
@@ -234,7 +234,7 @@ describe("scoped names 05: expressions and the properties that store a name", ()
     expect(around.data.findQuestionByName("outside")).toBe(survey.getQuestionByName("outside"));
     expect(survey.findQuestionByName("delivery.postcode")).toBe(survey.getQuestionByName("delivery.postcode"));
   });
-  test("triggers take a path from the survey (O4)", () => {
+  test("triggers take a path from the survey", () => {
     const survey = new SurveyModel({
       dataNesting: "auto",
       elements: [
@@ -258,7 +258,7 @@ describe("scoped names 05: expressions and the properties that store a name", ()
     expect(survey.data.street, "it names a root key, as in \"none\"").toBe("bare");
     expect(survey.focusQuestion("delivery.postcode"), "gotoName: focusQuestion takes a path").toBe(true);
   });
-  test("design time: an inner question's variable is its data path (O3)", () => {
+  test("design time: an inner question's variable is its data path", () => {
     const survey = new SurveyModel(json());
     const postcode = survey.getQuestionByName("delivery.postcode");
     expect(survey.getQuestionVariableName(postcode)).toBe("delivery.postcode");
@@ -268,7 +268,7 @@ describe("scoped names 05: expressions and the properties that store a name", ()
   });
 });
 
-describe("scoped names 05: review fixes", () => {
+describe("scoped names: a bare name, a panel property and the UI state, from the owner's scope", () => {
   const json = (mode: string): any => ({
     dataNesting: mode,
     elements: [{ type: "panel", name: "delivery", valueName: "delivery", elements: [
@@ -300,7 +300,7 @@ describe("scoped names 05: review fixes", () => {
       expect(prop.isVisible, mode).toBe(true);
     });
   });
-  test("a matrix row's names are its detail panel's, not its cells' (O9)", () => {
+  test("a matrix row's names are its detail panel's, not its cells'", () => {
     const survey = new SurveyModel({ dataNesting: "auto", elements: [
       { type: "checkbox", name: "colors", choices: ["red"] },
       { type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
@@ -328,7 +328,7 @@ describe("scoped names 05: review fixes", () => {
   });
 });
 
-describe("scoped names 05: the UI state keeps an element under its path", () => {
+describe("scoped names: the UI state keeps an element under its path", () => {
   test("two panels named details in two scopes", () => {
     const json = example("auto");
     json.pages[0].elements.forEach((el: any) => el.elements[1].state = "expanded");
@@ -343,7 +343,7 @@ describe("scoped names 05: the UI state keeps an element under its path", () => 
   });
 });
 
-describe("scoped names 05: a dot in a name", () => {
+describe("scoped names: a dot in a name", () => {
   test("a question named a.b at the root next to a panel a with a question b", () => {
     const survey = new SurveyModel({
       dataNesting: "auto",
@@ -357,7 +357,7 @@ describe("scoped names 05: a dot in a name", () => {
   });
 });
 
-describe("scoped names 05: the mode changes", () => {
+describe("scoped names: the mode changes", () => {
   test("\"none\" to \"auto\" and back", () => {
     const survey = new SurveyModel(example("none"));
     expect(topOf(survey.getQuestionByName("postcode"))).toBeUndefined();

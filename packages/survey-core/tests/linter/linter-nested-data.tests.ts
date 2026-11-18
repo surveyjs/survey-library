@@ -5,7 +5,7 @@ import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { lintSurvey, ILintFinding, ISurveyLintOptions, SurveyLintHintReasons } from "../../src/linter/index";
 import { expectFixSettles } from "./lint-test-helpers";
 
-// Nested data (decisions N1-N13 of prompts/nested-data): a panel or a page with a valueName - or every
+// Nested data (decisions N1-N13): a panel or a page with a valueName - or every
 // panel / page in a by-name dataNesting mode - stores its questions' values in an object under its key.
 // The linter reads the JSON, so it has to know the shape the runtime gives the data.
 
@@ -45,7 +45,7 @@ function exampleSurvey(): any {
 }
 
 describe("linter nested data: no false findings", () => {
-  test("the design-01 example survey is clean, references included", () => {
+  test("the example survey of the nested data design is clean, references included", () => {
     const json = auto(exampleSurvey());
     json.pages[1].elements.push(
       { type: "text", name: "r1", visibleIf: "{address.street} = 'Main' and {street} = 'Main'" },
@@ -607,7 +607,7 @@ describe("linter nested data: triggers", () => {
   });
 });
 
-describe("linter nested data: review fixes", () => {
+describe("linter nested data: what a key reaches: display-only questions, totals, letter case, comments, triggers, built-in names", () => {
   test("a display-only question stores nothing: no conflict, and the container key answers", () => {
     const json = { dataNesting: "auto",
       elements: [
@@ -1039,7 +1039,7 @@ describe("linter nested data: the totals of a matrix class a host registers", ()
   });
 });
 
-describe("linter nested data: the default mode is \"none\" (scoped-names 03)", () => {
+describe("linter nested data: the default mode is \"none\"", () => {
   const json = (extra?: any): any => Object.assign({
     elements: [
       { type: "panel", name: "p", valueName: "address", elements: [{ type: "text", name: "street" }] },

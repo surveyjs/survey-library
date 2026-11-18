@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { BaseAngular, TrackingComponent } from "src/base-angular";
 import { SurveyBaseProviders } from "src/component-depth";
@@ -78,8 +78,9 @@ class TestTrackingEmbeddedHostComponent {
   providers: SurveyBaseProviders,
   template: "<span class='child-text'>{{ model.text }}</span>"
 })
-class TestTrackingChildComponent extends TrackingComponent implements AfterViewInit {
+class TestTrackingChildComponent extends TrackingComponent {
   @Input() model!: TestModel;
+  @Input() checkedModel?: TestModel;
   @Input() log!: Array<string>;
   public get currentDepth(): number {
     return this.depth;
@@ -87,9 +88,12 @@ class TestTrackingChildComponent extends TrackingComponent implements AfterViewI
   protected override beforeUpdate(): void {
     this.log?.push("child");
   }
-  ngAfterViewInit(): void {
-    // A read from a lifecycle hook must not subscribe the parent that renders this component
+  // Reads from lifecycle hooks must not subscribe the parent that renders this component
+  protected override afterViewInit(): void {
     this.model.other;
+  }
+  protected override afterViewChecked(): void {
+    this.checkedModel?.other;
   }
 }
 
@@ -97,11 +101,12 @@ class TestTrackingChildComponent extends TrackingComponent implements AfterViewI
 @Component({
   selector: "test-tracking-parent",
   providers: SurveyBaseProviders,
-  template: "<span class='parent-text'>{{ model.text }}</span><test-tracking-child [model]='childModel' [log]='log'></test-tracking-child>"
+  template: "<span class='parent-text'>{{ model.text }}</span><test-tracking-child [model]='childModel' [checkedModel]='checkedModel' [log]='log'></test-tracking-child>"
 })
 class TestTrackingParentComponent extends TrackingComponent {
   @Input() model!: TestModel;
   @Input() childModel!: TestModel;
+  @Input() checkedModel?: TestModel;
   public log: Array<string> = [];
   public get currentDepth(): number {
     return this.depth;
@@ -404,7 +409,7 @@ describe("TrackingComponent", () => {
     fixture.destroy();
   });
 
-  it("does not track property reads in a child's ngAfterViewInit", async () => {
+  it("does not track property reads in a child's afterViewInit", async () => {
     const fixture = TestBed.createComponent(TestTrackingParentComponent);
     const parent = fixture.componentInstance;
     const childModel = new TestModel();
@@ -419,21 +424,20 @@ describe("TrackingComponent", () => {
     fixture.destroy();
   });
 
-  it("wraps ngAfterViewInit once per prototype", () => {
+  it("does not track property reads in a child's afterViewChecked", async () => {
     const fixture = TestBed.createComponent(TestTrackingParentComponent);
-    fixture.componentInstance.model = new TestModel();
-    fixture.componentInstance.childModel = new TestModel();
+    const parent = fixture.componentInstance;
+    const checkedModel = new TestModel();
+    parent.model = new TestModel();
+    parent.childModel = new TestModel();
+    parent.checkedModel = checkedModel;
     fixture.detectChanges();
-    const wrapped = TestTrackingChildComponent.prototype.ngAfterViewInit;
-    expect((<any>wrapped)["__surveyRunWithUpdateAccess"]).toBe(true);
-    fixture.destroy();
 
-    const fixture2 = TestBed.createComponent(TestTrackingParentComponent);
-    fixture2.componentInstance.model = new TestModel();
-    fixture2.componentInstance.childModel = new TestModel();
-    fixture2.detectChanges();
-    expect(TestTrackingChildComponent.prototype.ngAfterViewInit).toBe(wrapped);
-    fixture2.destroy();
+    parent.log.splice(0);
+    checkedModel.other = "b";
+    await flushUpdates();
+    expect(parent.log).toEqual([]);
+    fixture.destroy();
   });
 });
 

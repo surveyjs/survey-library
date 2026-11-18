@@ -1,42 +1,21 @@
-import { ChangeDetectorRef, Component, DoCheck, Inject, OnChanges, OnDestroy, Optional, SimpleChanges, ViewContainerRef } from "@angular/core";
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, DoCheck, Inject, OnChanges, OnDestroy, Optional, SimpleChanges, ViewContainerRef } from "@angular/core";
 import { Base, IPropertyArrayValueChangedEvent, ISurvey } from "survey-core";
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
 import { IPropertyAccessTracker, PropertyAccessTracker } from "survey-core";
 import { getUpdateManager, IUpdateTask } from "./update-manager";
 import { COMPONENT_DEPTH, SurveyBaseProviders } from "./component-depth";
 
-const wrappedHookKey = "__surveyRunWithUpdateAccess";
-function wrapAfterViewInitHooks(instance: any): void {
-  const resolvedHook = instance.ngAfterViewInit;
-  if (typeof resolvedHook !== "function" || resolvedHook[wrappedHookKey]) return;
-  let proto = Object.getPrototypeOf(instance);
-  while(!!proto && proto !== Object.prototype) {
-    if (Object.prototype.hasOwnProperty.call(proto, "ngAfterViewInit")) {
-      const hook = proto.ngAfterViewInit;
-      if (typeof hook === "function" && !hook[wrappedHookKey]) {
-        const wrapped = function (this: any, ...args: Array<any>) {
-          return Base.runWithUpdateAccess(() => hook.apply(this, args));
-        };
-        (<any>wrapped)[wrappedHookKey] = true;
-        proto.ngAfterViewInit = wrapped;
-      }
-    }
-    proto = Object.getPrototypeOf(proto);
-  }
-}
-
 @Component({
   template: "",
   providers: SurveyBaseProviders
 })
-export class TrackingComponent extends EmbeddedViewContentComponent implements DoCheck, OnDestroy, OnChanges {
+export class TrackingComponent extends EmbeddedViewContentComponent implements DoCheck, OnDestroy, OnChanges, AfterViewInit, AfterViewChecked {
   protected readonly depth: number;
   protected updateTask: IUpdateTask;
   private propertyAccessTracker: IPropertyAccessTracker = new PropertyAccessTracker((model, options) => this.update(model, options));
   private hasInputChanges: boolean = true;
   constructor(protected changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef, @Optional() @Inject(COMPONENT_DEPTH) depth?: number | null) {
     super(viewContainerRef);
-    wrapAfterViewInitHooks(this);
     this.changeDetectorRef.detach();
     this.depth = depth ?? 0;
     this.updateTask = {
@@ -78,6 +57,15 @@ export class TrackingComponent extends EmbeddedViewContentComponent implements D
       this.detectChanges();
     }
   }
+  public ngAfterViewInit(): void {
+    Base.runWithUpdateAccess(() => this.afterViewInit());
+  }
+  public override ngAfterViewChecked(): void {
+    super.ngAfterViewChecked();
+    Base.runWithUpdateAccess(() => this.afterViewChecked());
+  }
+  protected afterViewInit(): void {}
+  protected afterViewChecked(): void {}
   ngOnDestroy() {
     getUpdateManager().removeTask(this.updateTask);
     this.propertyAccessTracker.unsubscribe();

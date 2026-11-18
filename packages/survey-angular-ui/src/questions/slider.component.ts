@@ -12,8 +12,8 @@ import { SurveyBaseProviders } from "../component-depth";
 export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel> {
   @ViewChild("rangeInputRef") rangeInputRef!: ElementRef<HTMLInputElement>;
 
-  override ngAfterViewInit(): void {
-    super.ngAfterViewInit();
+  protected override afterViewInit(): void {
+    super.afterViewInit();
     if (this.model && this.rangeInputElement) {
       this.model.refreshInputRange(this.rangeInputElement);
     }

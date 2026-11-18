@@ -43,7 +43,7 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
       event.stopPropagation();
     }
   }
-  ngAfterViewInit() {
+  protected override afterViewInit(): void {
     this.initResponsivityManager();
   }
   override ngOnDestroy(): void {

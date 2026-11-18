@@ -37,7 +37,7 @@ export class PopupComponent extends BaseAngular<PopupModel> {
       this.model.setComponentElement(container.parentElement as HTMLElement);
     }
   }
-  ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     this.setContainerElement();
   }
   override ngOnInit() {

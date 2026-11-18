@@ -69,7 +69,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   public get isRequiredCell(): boolean {
     return !!this.cell.column && this.cell.column.isRenderedRequired;
   }
-  ngAfterViewInit() {
+  protected override afterViewInit(): void {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
     const el = this.cellContainer?.nativeElement;
     if (el) {

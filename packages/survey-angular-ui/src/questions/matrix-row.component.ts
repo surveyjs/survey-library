@@ -35,7 +35,7 @@ export class MatrixRowComponent extends BaseAngular<QuestionMatrixDropdownRender
       this.model.setRootElement(this.container.nativeElement);
     }
   }
-  public ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     if (this.model && this.container?.nativeElement) {
       this.model.setRootElement(this.container.nativeElement);
     }

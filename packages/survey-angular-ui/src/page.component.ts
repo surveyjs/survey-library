@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from "@angular/core";
 import { PageModel, SurveyModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
 import { AngularComponentFactory } from "./component-factory";
@@ -21,7 +21,7 @@ export class PageComponent extends BaseAngular<PageModel> {
       this.model.survey.afterRenderPage(this.pageContainerRef.nativeElement);
     }
   }
-  ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     this.model.survey?.afterRenderPage(this.pageContainerRef?.nativeElement);
   }
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { Action } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
@@ -10,7 +10,7 @@ import { SurveyBaseProviders } from "../../component-depth";
   templateUrl: "./list.component.html",
   styleUrls: ["../../hide-host.scss"]
 })
-export class ListComponent extends BaseAngular implements AfterViewInit {
+export class ListComponent extends BaseAngular {
   @Input() model: any;
   @ViewChild("listContainerElement") listContainerElement!: ElementRef<HTMLDivElement>;
 
@@ -35,7 +35,7 @@ export class ListComponent extends BaseAngular implements AfterViewInit {
   protected override getPropertiesToUpdateSync(): string[] {
     return ["renderElements"];
   }
-  ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     if (!!this.listContainerElement?.nativeElement) {
       this.model.initListContainerHtmlElement(this.listContainerElement.nativeElement);
     }

@@ -17,8 +17,8 @@ export class RatingQuestionComponent extends QuestionAngular<QuestionRatingModel
     event.stopPropagation();
     this.model.setValueFromClick(event.target.value);
   }
-  public override ngAfterViewInit(): void {
-    super.ngAfterViewInit();
+  protected override afterViewInit(): void {
+    super.afterViewInit();
     this.update();
   }
 }

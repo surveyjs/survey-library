@@ -24,7 +24,7 @@ export class QuestionComponent extends TrackingComponent {
     return this.model.singleInputQuestion;
   }
 
-  ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     if (!!this.rootEl?.nativeElement) {
       this.model.afterRender(this.rootEl?.nativeElement);
     }

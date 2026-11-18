@@ -10,11 +10,11 @@ import { SurveyBaseProviders } from "../component-depth";
   templateUrl: "./image.component.html"
 })
 export class ImageQuestionComponent extends QuestionAngular<QuestionImageModel> {
-  override ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     this.model.locImageLink.onChanged = () => {
       this.update();
     };
-    super.ngAfterViewInit();
+    super.afterViewInit();
   }
   override ngOnDestroy(): void {
     this.model.locImageLink.onChanged = () => {};

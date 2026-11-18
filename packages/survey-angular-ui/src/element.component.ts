@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { PanelModel, Question, SurveyModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
 import { SurveyBaseProviders } from "./component-depth";
@@ -9,7 +9,7 @@ import { SurveyBaseProviders } from "./component-depth";
   templateUrl: "./element.component.html",
   styleUrls: ["./hide-host.scss"]
 })
-export class ElementComponent extends BaseAngular<PanelModel | Question> implements AfterViewInit {
+export class ElementComponent extends BaseAngular<PanelModel | Question> {
   @Input() model!: PanelModel | Question;
   @ViewChild("container", { static: false, read: ElementRef }) container!: ElementRef<HTMLDivElement>;
   protected getModel(): PanelModel | Question {
@@ -61,7 +61,7 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
       }
     };
   }
-  public ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     if (this.model && this.container?.nativeElement) {
       this.model.setWrapperElement(this.container.nativeElement);
     }

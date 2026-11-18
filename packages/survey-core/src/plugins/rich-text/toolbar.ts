@@ -31,9 +31,9 @@ export function createRichTextToolbar(host: IRichTextToolbarHost, mode: "inline"
 // The floating toolbar uses compact x-small buttons. The static footer toolbar uses small buttons and the 24px icons.
 export function applyRichTextToolbarChrome(toolbar: ActionContainer, chrome: "floating" | "static"): void {
   const floating = chrome === "floating";
-  const size = floating ? 16 : 24;
+  const size = floating ? 16 : 16;
   toolbar.sizeMode = "small";
-  toolbar.setActionsAppearance({ style: "neutral", mode: "tertiary", size: floating ? "x-small" : "small" });
+  toolbar.setActionsAppearance({ style: "brand", mode: floating ? "tertiary" : "tertiary-muted", size: floating ? "x-small" : "x-small" });
   for (let i = 0; i < toolbar.actions.length; i++) {
     const action = toolbar.actions[i];
     if (!action.iconName) continue;

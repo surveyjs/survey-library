@@ -451,6 +451,7 @@ describe("rich text editor model", () => {
     expect(floatingBold.iconSize).toBe(16);
     expect(floatingBold.iconName).toBe("icon-rich-text-bold-16x16");
     expect(floatingBold.getActionBarItemCss().split(" ")).toContain("sd-action--x-small");
+    expect(floatingBold.getActionBarItemCss().split(" ")).toContain("sd-action--tertiary");
 
     const question = new QuestionRichTextModel("c");
     const element = document.createElement("div");

@@ -85,7 +85,8 @@
   width: max-content;
   margin-top: 2px;
   padding: var(--sjs2-spacing-x050);
-  border-radius: var(--sjs2-radius-component-drop);
+  // Concentric with the buttons: their radius plus the padding around them.
+  border-radius: calc(var(--sjs2-radius-component-action) + var(--sjs2-spacing-x050));
   border: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
   background: var(--sjs2-color-utility-sheet);
   box-shadow: var(--sjs2-border-effect-floating-default);
@@ -97,11 +98,16 @@
 }
 
 // The static toolbar is itself an action bar. It has to shrink so its buttons wrap
-// and the question's own action bar stays on the right.
+// and the question's own action bar stays on the right. Its buttons use the formbox
+// action radius, the same radius as the dropdown button.
 .sd-rich-text--toolbar-static > .sd-action-bar > .sd-action-bar {
   flex: 1 1 auto;
   min-width: 0;
   flex-wrap: wrap;
+
+  .sd-action {
+    --sd-action-border-radius: var(--sjs2-radius-component-formbox-action);
+  }
 }
 
 // "on-focus": the floating toolbar follows focus.

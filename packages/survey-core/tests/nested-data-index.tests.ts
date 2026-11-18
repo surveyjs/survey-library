@@ -313,7 +313,7 @@ describe("nested data index: shared keys (D4)", () => {
 });
 
 describe("nested data index: performance", () => {
-  test("a survey with no nesting container reads no data scope", () => {
+  test("a survey with no nesting container reads each data scope once, at the root's one build, and none on a write", () => {
     const elements: Array<any> = [];
     for (let i = 0; i < 50; i++) {
       elements.push({ type: "panel", name: "panel" + i, elements: [{ type: "text", name: "q" + i }] });
@@ -321,13 +321,17 @@ describe("nested data index: performance", () => {
     const survey = new SurveyModel({ elements: elements });
     const q = survey.getQuestionByName("q49");
     const spy = vi.spyOn(PanelModelBase.prototype, "getDataScope");
-    for (let i = 0; i < 100; i++) {
+    q.value = "v0";
+    survey.setValue("q0", "w0");
+    const built = spy.mock.calls.length;
+    expect(built, "#1 one walk: the page and its 50 panels").toBe(51);
+    for (let i = 1; i < 100; i++) {
       q.value = "v" + i;
       survey.setValue("q0", "w" + i);
     }
-    expect(spy.mock.calls.length).toBe(0);
+    expect(spy.mock.calls.length - built, "#2").toBe(0);
     expect(survey.runExpression("{q49}")).toBe("v99");
-    expect(spy.mock.calls.length).toBe(0);
+    expect(spy.mock.calls.length - built, "#3").toBe(0);
   });
 });
 

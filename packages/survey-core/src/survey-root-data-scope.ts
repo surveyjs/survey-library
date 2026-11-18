@@ -51,8 +51,8 @@ export class SurveyRootDataScope extends DataKeysScope {
   public get isUsed(): boolean {
     return this.isUsedValue;
   }
-  // Called on every attach of a nesting container. On the first one the root is built again: its walk reads the
-  // data scopes from then on.
+  // Called on every attach of a nesting container. On the first one the root is built again: a walk made before it
+  // found no active scope of this survey's.
   public used(): void {
     if (this.isUsedValue) return;
     this.isUsedValue = true;
@@ -75,10 +75,6 @@ export class SurveyRootDataScope extends DataKeysScope {
   }
   protected holdsChoicePanels(): boolean {
     return true;
-  }
-  // No scope is active before a container has nested: a survey without nesting asks no panel for its scope.
-  protected readsDataScopes(): boolean {
-    return this.isUsedValue;
   }
   // An element joined a container (questionAdded, panelAdded, a page added). The instance of the scope it joined
   // takes it in place when it comes last in that scope's document order (dataKeyElementAdded); otherwise that

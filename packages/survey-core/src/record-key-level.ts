@@ -1,6 +1,7 @@
 import type { IElement, ISurveyDataElement } from "./base-interfaces";
 import type { Question } from "./question";
-import { DataKeyIndex, isKnownDataKey } from "./data-key-index";
+import { isKnownDataKey } from "./data-key-index";
+import { ElementIndex } from "./element-index";
 import { asScopeObject } from "./data-object-utils";
 
 // A key inside a nesting panel's object of a record that no element of the levels knows, by its path from the
@@ -15,7 +16,8 @@ export interface IRecordNestedKey {
 // keys. Built from the elements whatever they are attached to: a dynamic panel's template, a matrix's detail
 // panel template, or the panel of one record. The owner-level rules of the records read it.
 export class RecordKeyLevel {
-  public readonly index = new DataKeyIndex();
+  // Its keys only: no lookup of a level goes by name.
+  public readonly index = new ElementIndex();
   private levels = new Map<ISurveyDataElement, RecordKeyLevel>();
   constructor(elements: Array<IElement>) {
     this.addElements(elements);
@@ -27,11 +29,11 @@ export class RecordKeyLevel {
         if (!key) {
           this.addElements(el.elements);
         } else {
-          this.index.add(key, el);
+          this.index.addKeyed(el, key);
           this.levels.set(el, new RecordKeyLevel(el.elements));
         }
       } else if (el.isQuestion) {
-        this.index.add(el.getValueName(), el);
+        this.index.addKeyed(el, el.getValueName());
       }
     });
   }

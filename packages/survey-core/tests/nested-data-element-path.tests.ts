@@ -427,7 +427,7 @@ describe("nested data path: onValueChanged / onValueChanging (D1, D13)", () => {
 });
 
 describe("nested data path: performance", () => {
-  test("a survey without nesting: adding 100 questions and writing 100 values walks no panels", () => {
+  test("a survey without nesting: adding 100 questions and writing 100 values walks the panels once", () => {
     const survey = new SurveyModel({ elements: [{ type: "panel", name: "p1", elements: [{ type: "text", name: "q0" }] }] });
     const panel = <PanelModel>survey.getPanelByName("p1");
     const spy = vi.spyOn(PanelModelBase.prototype, "getDataScope");
@@ -435,12 +435,18 @@ describe("nested data path: performance", () => {
       panel.addNewQuestion("text", "q" + i);
     }
     const addCalls = spy.mock.calls.length;
-    for (let i = 1; i <= 100; i++) {
+    const write = (i: number): void => {
       survey.getQuestionByName("q" + i).value = i;
       survey.getQuestionByValueName("q" + i);
+    };
+    write(1);
+    const built = spy.mock.calls.length;
+    for (let i = 2; i <= 100; i++) {
+      write(i);
     }
     expect(survey.getValue("q100")).toBe(100);
     expect(addCalls, "one container attachment per question added, no walk").toBeLessThanOrEqual(100);
-    expect(spy.mock.calls.length - addCalls, "no data scope read on a write").toBe(0);
+    expect(built - addCalls, "the root's one build: the page and the panel").toBe(2);
+    expect(spy.mock.calls.length - built, "no data scope read on a write").toBe(0);
   });
 });

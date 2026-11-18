@@ -99,7 +99,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { getActiveDataScope, ISurveyDataScopeHost } from "./panel-data-scope";
-import type { IDataKeys, IDataScope } from "./data-key-index";
+import type { IDataScope } from "./data-key-index";
 import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
 import { ElementIndex } from "./element-index";
@@ -5042,8 +5042,8 @@ export class SurveyModel extends SurveyElementCore
   }
   // IDataScope: the root keys clearIncorrectValues(true) keeps are a scope's (an element's key, a question's
   // comment or totals key) and a calculated value that is a part of the result.
-  public isKnownKey(key: string, index?: IDataKeys): boolean {
-    if (this.rootDataScope.isKnownKey(key, index)) return true;
+  public isKnownKey(key: string): boolean {
+    if (this.rootDataScope.isKnownKey(key)) return true;
     const calcValue = this.getCalculatedValueByName(key);
     return !!calcValue && calcValue.includeIntoResult;
   }
@@ -5054,7 +5054,7 @@ export class SurveyModel extends SurveyElementCore
   private checkUnknownDataKeys(scopes: Array<IDataScope>, obj: any, context?: IVerifyDataContext, isCopy?: boolean): boolean {
     if (!Helpers.isValueObject(obj, true) || Array.isArray(obj)) return false;
     let res = false;
-    // Read once: each key reads them twice.
+    // Read once: every key reads them.
     const indexes = scopes.map(scope => scope.getDataKeyIndex());
     Object.keys(obj).forEach(key => {
       const inner: Array<IDataScope> = [];
@@ -5066,7 +5066,7 @@ export class SurveyModel extends SurveyElementCore
         context?.popSegment();
         if (isChanged && !context && Helpers.isValueEmpty(obj[key])) delete obj[key];
         res = res || isChanged;
-      } else if (!scopes.some((scope, i) => scope.isKnownKey(key, indexes[i]))) {
+      } else if (!scopes.some(scope => scope.isKnownKey(key))) {
         res = true;
         if (!!context) {
           context.addIssue("unknownProperty", key, obj[key], undefined);
@@ -7475,7 +7475,7 @@ export class SurveyModel extends SurveyElementCore
   isDataScopeUsed(): boolean {
     return this.rootDataScope.isUsed;
   }
-  public getDataKeyIndex(): IDataKeys {
+  public getDataKeyIndex(): ElementIndex {
     return this.rootDataScope.getDataKeyIndex();
   }
   public getDataPath(): Array<string> {

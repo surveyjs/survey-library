@@ -3,7 +3,6 @@ import { Question } from "../src/question";
 import { PanelModel } from "../src/panel";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { DataKeyIndex } from "../src/data-key-index";
 import { RecordKeyLevel } from "../src/record-key-level";
 import { getValueByPath, setValueByPath } from "../src/data-object-utils";
 import { describe, test, expect } from "vitest";
@@ -203,16 +202,6 @@ describe("the survey's root keys", () => {
     survey.getQuestionByName("q2").valueName = "q2v";
     expect([keys("q2v"), keys("q2")], "#5").toEqual([["q2"], []]);
     expect(survey.getQuestionByValueName("Q2V", true).name, "#6").toBe("q2");
-  });
-  test("DataKeyIndex: an element is in elements once, with or without its keys", () => {
-    const index = new DataKeyIndex();
-    const q: any = { isQuestion: true };
-    const c: any = { isQuestion: false };
-    index.add("x", q);
-    index.add("x", q);
-    index.add("y", c);
-    expect(index.elements, "#1").toEqual([q, c]);
-    expect(index.getElements("X", true), "#2").toEqual([q]);
   });
 });
 

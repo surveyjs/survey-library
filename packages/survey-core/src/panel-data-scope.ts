@@ -5,7 +5,7 @@ import type { IExpressionVariableInfo } from "./survey";
 import type { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import type { Question } from "./question";
 import { Helpers } from "./helpers";
-import { IDataScope, IDataKeys, getElementDataScope, isKnownDataKey } from "./data-key-index";
+import { IDataScope, getElementDataScope, isKnownDataKey } from "./data-key-index";
 import { ElementIndex } from "./element-index";
 import { ObjectKeyKind, asScopeObject, setObjectKey } from "./data-object-utils";
 import { PanelDataScopeValueGetterContext } from "./data-scope-contexts";
@@ -13,8 +13,8 @@ import { INameScope, ElementKind, findElementInNameScope, isNameScopeMode, isQue
 
 // The nested-data module is split by what changes together:
 //   data-nesting-key.ts: the dataNesting rule (getDataNestingKey);
-//   element-index.ts: a scope's key index (ElementIndex), built by its scope (DataKeysScope);
-//   data-key-index.ts: the key hashes, the read interface, and a template level's index;
+//   element-index.ts: a scope's key index (ElementIndex), built by its scope (DataKeysScope), and a template level's;
+//   data-key-index.ts: the key hashes, the scope interface (IDataScope) and the unknown-key rule;
 //   record-key-level.ts: the static keys of the records a template builds;
 //   data-object-utils.ts: plain-object paths and the keep-empty rule;
 //   data-scope-contexts.ts / data-scope-metadata.ts: the expression contexts and the design-time chain;
@@ -126,8 +126,8 @@ export abstract class DataKeysScope {
     return this.keyIndex;
   }
   // The unknown-key rule (IDataScope): an element's key, a question's comment or totals key.
-  public isKnownKey(key: string, index?: IDataKeys): boolean {
-    return isKnownDataKey(index || this.getDataKeyIndex(), key);
+  public isKnownKey(key: string): boolean {
+    return isKnownDataKey(this.getDataKeyIndex(), key);
   }
   // The questions whose values this scope holds (directly, or through panels that do not nest) and the active
   // containers directly inside it: the one walk of a container's elements (and of the pages for the root), in
@@ -140,13 +140,12 @@ export abstract class DataKeysScope {
       if (this.isScopeName(el)) index.add(<any>el);
     };
     const choicePanels = this.holdsChoicePanels();
-    const readsScopes = this.readsDataScopes();
     // below: inside an active container this scope keys; only choice panels are looked for there.
     const walk = (elements: Array<IElement>, below: boolean): void => {
       for (let i = 0; i < elements.length; i++) {
         const el: any = elements[i];
         if (el.isPanel || el.isPage) {
-          const scope = readsScopes && !below ? (<IPanelDataScopeOwner>el).getDataScope() : null;
+          const scope = !below ? (<IPanelDataScopeOwner>el).getDataScope() : null;
           if (!below) named(el);
           if (!!scope && scope.isActive && this.isOwnDataScope(scope)) {
             index.addKeyed(scope.owner, scope.key);
@@ -177,10 +176,6 @@ export abstract class DataKeysScope {
   // Whether the choice panels' questions are this scope's: the root's, wherever the select question is.
   protected holdsChoicePanels(): boolean {
     return false;
-  }
-  // Whether a panel can have an active scope here: the root asks none until a container has nested.
-  protected readsDataScopes(): boolean {
-    return true;
   }
   // el joined the scope's elements (SurveyRootDataScope.elementAdded). When it comes last in document order, the
   // instance takes its part in place; otherwise the instance is dropped.

@@ -1,9 +1,9 @@
 import type { ISurveyElement, ISurveyDataElement } from "./base-interfaces";
 import type { Question } from "./question";
 import type { PanelDataScope } from "./panel-data-scope";
-import { DataKeyHash, IDataKeys, getElementDataScope } from "./data-key-index";
+import { DataKeyHash, getElementDataScope } from "./data-key-index";
 
-// Elements by name, or the keys of one data scope. One class, used two ways:
+// Elements by name, or the keys of one data scope or of one level of records. One class, used two ways:
 // - By name (the survey's flat structure, and the names a scope's walk reaches): add, remove, renamed, find. The
 //   owner decides which elements enter: the index has no rule of its own about pages, panels or data scopes. The
 //   library does not keep names unique across types (the Creator does), so a name gives a list, and a lookup takes
@@ -12,12 +12,13 @@ import { DataKeyHash, IDataKeys, getElementDataScope } from "./data-key-index";
 //   so the name a caller would pass is not always that one. A scope holds by name every element its walk reaches:
 //   its keyed elements and the panels that hold no data, the scope's own names (name-scope.ts). The root holds
 //   none: the survey's flat structure has them.
-// - By key (a data scope's instance): addKeyed, reKey and the IDataKeys reads. Questions under their value name and
-//   active containers under their key; for one key the questions come first. elements holds each element once, in
-//   document order (the lists read it), and each key's list follows the order of elements. An instance is built,
-//   then changed in place only by an append and by a root question's new key; any other change drops it, and the
-//   scope builds it again on its next read.
-export class ElementIndex implements IDataKeys {
+// - By key (a data scope's instance, and a level of the records a template builds, RecordKeyLevel): addKeyed,
+//   reKey, getElements, getQuestions, getScopes. Questions under their value name and active containers under their
+//   key (a level's nesting panels under the key of the records built from it, active or not); for one key the
+//   questions come first. elements holds each element once, in document order (the lists read it), and each key's
+//   list follows the order of elements. A scope's instance is built, then changed in place only by an append and by
+//   a root question's new key; any other change drops it, and the scope builds it again on its next read.
+export class ElementIndex {
   private names = new DataKeyHash<ISurveyElement>();
   private heldNames = new WeakMap<ISurveyElement, string>();
 

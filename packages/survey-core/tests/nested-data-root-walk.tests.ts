@@ -17,7 +17,7 @@ const modes = ["none", "auto"];
 const names = (list: Array<Question>): Array<string> => (list || []).map(q => q.name);
 const sharing = (survey: SurveyModel, valueName: string): Array<string> => names(survey.getQuestionsByValueName(valueName));
 const first = (survey: SurveyModel, valueName: string): string => survey.getQuestionByValueName(valueName)?.name || null;
-// A panel that nests in "auto": the survey has used a data scope there, so the root reads the data scopes.
+// A panel that nests in "auto": the survey has used a data scope there.
 const nest = (): any => ({ type: "panel", name: "nest", valueName: "obj", elements: [{ type: "text", name: "inside" }] });
 
 // A write of the key: the question onValueChanging reports, the order the questions on the key are told in, and the

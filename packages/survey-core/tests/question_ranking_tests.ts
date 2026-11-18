@@ -1056,6 +1056,41 @@ describe("question ranking", () => {
     }
   });
 
+  test("Ranking: selectToRank refreshes unRankingChoices when survey.randomSeed changes, #12286", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "ranking",
+          name: "q",
+          choices: ["a", "b", "c", "d", "e", "f"],
+          choicesOrder: "random",
+          selectToRankEnabled: true
+        },
+      ],
+    });
+    const q = <QuestionRankingModel>survey.getQuestionByName("q");
+    survey.randomSeed = 4;
+    const visible = q.visibleChoices.map((item) => item.value);
+    expect(q.unRankingChoices.map((item) => item.value), "unranked list follows the new random order").toEqual(visible);
+
+    q["focusItem"] = () => {};
+    (window as any).event = { preventDefault: () => {} };
+    q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[0]);
+    expect(q.unRankingChoices.map((item) => item.value), "order is kept after the first rank").toEqual(visible.filter((v) => v !== "a"));
+    (window as any).event = undefined;
+  });
+
+  test("Ranking: rankingChoices follows visibleChoices when survey.randomSeed changes, #12286", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "ranking", name: "q", choices: ["a", "b", "c", "d", "e", "f"], choicesOrder: "random" },
+      ],
+    });
+    const q = <QuestionRankingModel>survey.getQuestionByName("q");
+    survey.randomSeed = 4;
+    expect(q.rankingChoices.map((item) => item.value), "ranking list follows the new random order").toEqual(q.visibleChoices.map((item) => item.value));
+  });
+
   test("A11Y", () => {
     expect(new QuestionRankingModel("q1").ariaRole, "aria-role").toEqual("group");
   });

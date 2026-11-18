@@ -193,6 +193,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.updateRankingChoices();
   };
 
+  public randomSeedChanged(): void {
+    super.randomSeedChanged();
+    if (this.choicesOrder.toLowerCase() === "random") {
+      this.updateRankingChoices();
+    }
+  }
+
   updateValueFromSurvey(newValue: any, clearData: boolean): void {
     super.updateValueFromSurvey(newValue, clearData);
     if (newValue)this.isValueSetByUser = true;

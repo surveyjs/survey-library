@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Base } from "./base";
 import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
@@ -127,6 +128,8 @@ const rebindableQuestionTypes = ["text", "comment", "dropdown", "checkbox", "rad
  * @since 3.2.2
  */
 export abstract class QuestionRecordsModel extends Question implements IDynamicDataFilterSource {
+  // The records' display values are their questions' (columns') display values
+  public hasDisplayTexts(): boolean { return true; }
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;
@@ -2625,8 +2628,8 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     this.updateRecordsBar();
   }
   // A locale change changes no sort and no property; the bar's texts and the field titles follow it.
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.updateRecordsBar();
   }
   public onSurveyLoad(): void {

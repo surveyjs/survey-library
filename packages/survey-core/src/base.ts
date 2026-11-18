@@ -379,7 +379,7 @@ export class Base implements IObjectValueContext {
     Base.commentSuffix = val;
   }
   public static createItemValue: (item: any, type?: string) => any;
-  public static itemValueLocStrChanged: (arr: Array<any>) => void;
+  public static itemValueLocStrChanged: (arr: Array<any>, changes?: ChangedKeys) => void;
   /**
    * Returns `true` if a passed `value` is an empty string, array, or object or if it equals to `undefined` or `null`.
    *
@@ -804,21 +804,23 @@ export class Base implements IObjectValueContext {
     return Base.createProgressInfo();
   }
   public localeChanged(): void { }
-  public locStrsChanged(): void {
+  // changes: the names a value change changed. Only the strings they can change refresh; the other
+  // work of an override runs in every case. Without them (a locale or page change) every string refreshes.
+  public locStrsChanged(changes?: ChangedKeys): void {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
         let item = this.arraysInfo[key];
         if (item && item.isItemValues) {
           var arr = this.getPropertyValue(key);
           if (arr && !!Base.itemValueLocStrChanged)
-            Base.itemValueLocStrChanged(arr);
+            Base.itemValueLocStrChanged(arr, changes);
         }
       }
     }
     if (!!this.localizableStrings) {
       for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);
-        if (item) item.strChanged();
+        if (item) item.strChanged(changes);
       }
     }
   }
@@ -1558,10 +1560,11 @@ export class Base implements IObjectValueContext {
     if (!!name) {
       locStr.onStrChanged = (oldValue: string, newValue: string) => {
         this.propertyValueChanged(name, oldValue, newValue);
-        // The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI
-        if (!!this.onPropertyValueCoreChanged && !this.isDisposedValue) {
-          Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue });
-        }
+        this.fireLocStrUICallbacks(name, newValue);
+      };
+      // A value its text shows has changed: a component that read the string (getLocStringText) renders it again
+      locStr.onRenderedTextChanged = () => {
+        this.fireLocStrUICallbacks(name, undefined);
       };
     }
     if (!this.localizableStrings) {
@@ -1569,6 +1572,12 @@ export class Base implements IObjectValueContext {
     }
     this.localizableStrings[name] = locStr;
     return locStr;
+  }
+  // The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI
+  private fireLocStrUICallbacks(name: string, newValue: any): void {
+    if (!!this.onPropertyValueCoreChanged && !this.isDisposedValue) {
+      Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue });
+    }
   }
   public getLocalizableString(name: string): LocalizableString {
     const ls = this.localizableStrings;

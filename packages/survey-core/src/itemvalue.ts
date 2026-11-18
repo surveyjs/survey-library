@@ -14,6 +14,7 @@ import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { Question } from "./question";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 
 interface IItemConditionRun {
   expression: string;
@@ -68,6 +69,12 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public getProcessedText(text: string): string {
     return this.locOwner ? this.locOwner.getProcessedText(text, this) : text;
   }
+  // The owner processes the item's texts, so it decides, the same way as for its own strings
+  public isLocStrRefreshRequired(locStr: LocalizableString, changes: ChangedKeys): boolean {
+    const owner = this.locOwner;
+    if (!!owner && typeof owner.isLocStrRefreshRequired === "function") return owner.isLocStrRefreshRequired(locStr, changes);
+    return locStr.hasValueDependentCallback || locStr.getTextNames().length > 0;
+  }
 
   public static get Separator() {
     return settings.itemValueSeparator;
@@ -120,9 +127,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     var item = ItemValue.getItemByValue(items, val);
     return item !== null ? item.textOrHtml : "";
   }
-  public static locStrsChanged(items: Array<ItemValue>) {
+  public static locStrsChanged(items: Array<ItemValue>, changes?: ChangedKeys) {
     for (var i = 0; i < items.length; i++) {
-      items[i].locStrsChanged();
+      items[i].locStrsChanged(changes);
     }
   }
   public static runConditionsForItems(
@@ -272,6 +279,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     res.onGetTextCallback = (txt) => {
       return this.onGetText(txt);
     };
+    // An empty text shows the item's own value (or a slider label's format)
+    res.isTextCallbackPure = true;
     return res;
   }
   protected onGetText(text:string):string {
@@ -575,8 +584,8 @@ Base.createItemValue = function (source: any, type?: string): any {
   item.setData(source);
   return item;
 };
-Base.itemValueLocStrChanged = function (arr: Array<any>): void {
-  ItemValue.locStrsChanged(arr);
+Base.itemValueLocStrChanged = function (arr: Array<any>, changes?: ChangedKeys): void {
+  ItemValue.locStrsChanged(arr, changes);
 };
 
 JsonObjectProperty.getItemValuesDefaultValue = (val: any, type: string): Array<ItemValue> => {

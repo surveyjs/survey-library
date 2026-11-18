@@ -1274,7 +1274,7 @@ export class SurveyModel extends SurveyElementCore
     // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
     addEventHandlersFromOptions(this, options);
 
-    this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
+    this.locTitle.onStringChanged.add(() => this.updateCalculatedPropertyValue("titleIsEmpty", () => this.locTitle.isEmpty));
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
         jsonObj = JSON.parse(jsonObj as string);
@@ -1416,6 +1416,11 @@ export class SurveyModel extends SurveyElementCore
     return this.getOrCreateLocStr(name, false, locName, (locStr: LocalizableString) => {
       if (reason) {
         locStr.onGetTextCallback = (str: string): string => { return this.processHtml(str, reason); };
+        // It processes the names of its own text; an onProcessHtml handler makes it value-dependent
+        locStr.isTextCallbackPure = true;
+      } else {
+        // processedCompletedHtml processes it, or a condition item's html instead of it
+        locStr.isProcessedByOwner = true;
       }
     });
   }
@@ -2434,23 +2439,64 @@ export class SurveyModel extends SurveyElementCore
   getLocale(): string {
     return this.locale;
   }
-  public locStrsChanged(): void {
+  // changes: see Base.locStrsChanged. A value change walks the active page only; a page change
+  // refreshes every string of the new page.
+  public locStrsChanged(changes?: ChangedKeys): void {
     if (this.isClearingUnsedValues) return;
-    super.locStrsChanged();
+    super.locStrsChanged(changes);
     if (!this.currentPage) return;
     if (this.isDesignMode) {
+      // Texts are not processed in design mode: every string refreshes, whatever changed
       this.pages.forEach(page => page.locStrsChanged());
     } else {
       var page = this.activePage;
       if (!!page) {
-        page.locStrsChanged();
+        page.locStrsChanged(changes);
       }
+      // Not filtered: an empty navigation title shows the page title and the page number
       const visPages = this.visiblePages;
       for (var i = 0; i < visPages.length; i++) {
         visPages[i].navigationLocStrChanged();
       }
     }
-    this.navigationBarValue?.locStrsChanged();
+    this.navigationBarValue?.locStrsChanged(changes);
+  }
+  // ILocalizableOwner: the survey's own strings
+  public isLocStrRefreshRequired(locStr: LocalizableString, changes: ChangedKeys): boolean {
+    if (this.isProcessedHtmlLocStr(locStr) && this.hasProcessHtmlHandler()) return true;
+    if (locStr.isRefreshRequiredByNames(changes, undefined, this)) return true;
+    // The complete page shows the html of the first condition item whose expression is true:
+    // processedCompletedHtml reads completedHtml and is notified under its name
+    if (locStr === this.getLocalizableString("completedHtml")) {
+      const items = this.completedHtmlOnCondition;
+      for (let i = 0; i < items.length; i++) {
+        const locHtml = items[i].locHtml;
+        if (!!locHtml && locHtml.isRefreshRequiredByNames(changes, undefined, this)) return true;
+        if (items[i].isExpressionChanged(changes)) return true;
+      }
+    }
+    return false;
+  }
+  private isProcessedHtmlLocStr(locStr: LocalizableString): boolean {
+    const name = locStr.name;
+    return name === "completedHtml" || name === "completedBeforeHtml" || name === "loadingHtml";
+  }
+  public hasQuestionTitleHandler(): boolean {
+    return !this.onGetQuestionTitle.isEmpty;
+  }
+  public hasProcessHtmlHandler(): boolean {
+    return !this.onProcessHtml.isEmpty;
+  }
+  // {q1} shows q1's display value. A choice, row or column text can have names of its own, or come
+  // from another question (carry-forward choices), so it can change without a change of q1.
+  public isDisplayTextValueName(name: string): boolean {
+    if (!name) return false;
+    const questions = this.getQuestionsByValueName(name, true);
+    if (!questions) return false;
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].hasDisplayTexts()) return true;
+    }
+    return false;
   }
   protected getAllChildren(): Base[] {
     let result = super.getAllChildren();
@@ -2546,7 +2592,7 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   @property({ localizable: { onCreate: (obj: SurveyModel, locStr: LocalizableString) =>
-    locStr.onStringChanged.add(() => obj.resetHasLogo())
+    locStr.onStringChanged.add(() => obj.updateHasLogo())
   } }) logo: string;
   /**
    * A logo width in CSS-accepted values.
@@ -2603,10 +2649,23 @@ export class SurveyModel extends SurveyElementCore
     return !!this.locLogo.renderedHtml;
   }
   public get hasLogo(): boolean {
-    return this.getPropertyValue("hasLogo", undefined, () => this.hasLogoImage && this.logoPosition !== "none");
+    return this.getPropertyValue("hasLogo", undefined, () => this.calcHasLogo());
+  }
+  private calcHasLogo(): boolean {
+    return this.hasLogoImage && this.logoPosition !== "none";
   }
   private resetHasLogo(): void {
     this.resetPropertyValue("hasLogo");
+  }
+  // The logo string refreshed: a value its text shows may have changed
+  private updateHasLogo(): void {
+    this.updateCalculatedPropertyValue("hasLogo", () => this.calcHasLogo());
+  }
+  // A value that was read is calculated again and written only when it differs, so its readers are
+  // notified on a real change only. A value nobody has read stays lazy.
+  private updateCalculatedPropertyValue(name: string, calcFunc: () => any): void {
+    if (this.getPropertyValueWithoutDefault(name) === undefined) return;
+    this.setPropertyValue(name, Base.runUntracked(calcFunc));
   }
   public get isLogoBefore(): boolean {
     if (this.isDesignMode) return false;
@@ -2826,10 +2885,13 @@ export class SurveyModel extends SurveyElementCore
     this.checkTriggers(this.getFilteredValues(), false);
   }
   public get renderedCompletedHtml(): string {
+    // Read in any case: a render of the complete page is notified under completedHtml when what it
+    // shows can change (isLocStrRefreshRequired), also when a condition item's html is shown
+    const completedHtml = this.completedHtml;
     var item = this.getExpressionItemOnRunCondition(
       this.completedHtmlOnCondition
     );
-    return !!item ? (<HtmlConditionItem>item).html : this.completedHtml;
+    return !!item ? (<HtmlConditionItem>item).html : completedHtml;
   }
   private getExpressionItemOnRunCondition(
     items: Array<ExpressionItem>
@@ -3590,6 +3652,8 @@ export class SurveyModel extends SurveyElementCore
       changedKeys.add(key);
     }
     if (changedKeys.size === 0) return;
+    const locStrKeys = createHash();
+    changedKeys.forEach((key: string): void => { locStrKeys[key] = this.getDataValueCore(this.valuesHash, key); });
     const questions = this.getAllQuestions();
     for (let i = 0; i < questions.length; i++) {
       const q = <Question>questions[i];
@@ -3601,7 +3665,7 @@ export class SurveyModel extends SurveyElementCore
         q.updateCommentFromSurvey(this.getComment(valName));
       }
     }
-    this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(locStrKeys));
     // Called from code that runs inside a conditions pass (a custom function): ask for one more pass
     if (this.isRunningConditions) {
       this.isValueChangedOnRunningCondition = true;
@@ -3721,7 +3785,8 @@ export class SurveyModel extends SurveyElementCore
     this.settingDataScope.run(() => {
       this.updateAllQuestionsValue(clearData);
       this.notifyAllQuestionsOnValueChanged();
-      this.notifyElementsOnAnyValueOrVariableChanged("");
+      // The previous data is gone (assignData resets it first), so which names changed is unknown
+      this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(undefined));
     });
     this.runConditions();
     this.updateAllQuestionsValue(clearData);
@@ -7313,7 +7378,12 @@ export class SurveyModel extends SurveyElementCore
     this.fireOnValueChanged(valueName, newValue, !!questionName ? this.getQuestionByName(questionName) : undefined);
     if (this.isDisposed) return;
     this.checkElementsBindings(valueName, newValue);
-    this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName);
+    this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName, this.getLocStrChangesByName(valueName, newValue));
+  }
+  private getLocStrChangesByName(name: string, value: any): ChangedKeys {
+    const keys = createHash();
+    keys[name] = value;
+    return this.getLocStrChanges(keys);
   }
   private elementsBindingsScope = new Scope();
   private get isRunningElementsBindings(): boolean {
@@ -7334,18 +7404,54 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
+  // locStrChanges: the names the strings check (getLocStrChanges); undefined refreshes every string
+  private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string, locStrChanges?: ChangedKeys) {
     if (this.isEndLoadingFromJson === "processing") return;
     if (this.isRunningConditions) {
       this.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
+      this.addDeferredLocStrChanges(locStrChanges);
       return;
     }
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name, questionName);
     }
     if (!this.isEndLoadingFromJson) {
-      this.locStrsChanged();
+      this.locStrsChanged(locStrChanges);
     }
+  }
+  // The names a value change changed, for the strings: keys - { name: value } or { name: { oldValue, newValue } };
+  // no keys - unknown, every string that can show a value refreshes. A subscribed onExpressionRunning or
+  // onProcessDynamicText can make a text show any value, so the keys are unknown then too.
+  private getLocStrChanges(keys: any): ChangedKeys {
+    if (!keys || !this.onExpressionRunning.isEmpty || !this.onProcessDynamicText.isEmpty) return new ChangedKeys();
+    return new ChangedKeys(keys, this.getVariableNamesInfo());
+  }
+  // The notifications deferred while conditions run are merged into one: every string > unknown > the keys
+  private deferredLocStrChanges: { changes: ChangedKeys };
+  private addDeferredLocStrChanges(changes: ChangedKeys): void {
+    const deferred = this.deferredLocStrChanges;
+    if (!deferred) {
+      this.deferredLocStrChanges = { changes: !!changes && !changes.isUnknown ? this.copyLocStrChanges(changes) : changes };
+      return;
+    }
+    const current = deferred.changes;
+    if (!current || current.isUnknown) return;
+    if (!changes || changes.isUnknown) {
+      deferred.changes = changes;
+      return;
+    }
+    const keys = changes.keys;
+    for (const key in keys) {
+      current.setKey(key, keys[key]);
+    }
+  }
+  private copyLocStrChanges(changes: ChangedKeys): ChangedKeys {
+    const res = new ChangedKeys({}, this.getVariableNamesInfo());
+    const keys = changes.keys;
+    for (const key in keys) {
+      res.setKey(key, keys[key]);
+    }
+    return res;
   }
   private updateAllQuestionsValue(clearData: boolean) {
     var questions = this.getAllQuestions();
@@ -7518,7 +7624,9 @@ export class SurveyModel extends SurveyElementCore
         }
         if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
           this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
-          this.notifyElementsOnAnyValueOrVariableChanged("");
+          const deferred = this.deferredLocStrChanges;
+          this.deferredLocStrChanges = undefined;
+          this.notifyElementsOnAnyValueOrVariableChanged("", undefined, !!deferred ? deferred.changes : undefined);
         }
         if (!this.isRunningConditionOnValueChanged) {
           this.valueChangedKeys = undefined;
@@ -8087,7 +8195,7 @@ export class SurveyModel extends SurveyElementCore
     if (!name || isProtoKey(name.toLowerCase())) return;
     const oldValue = this.getVariable(name);
     name = this.setVariableCore(name, newValue);
-    this.notifyElementsOnAnyValueOrVariableChanged(name);
+    this.notifyElementsOnAnyValueOrVariableChanged(name, undefined, this.getLocStrChangesByName(name, newValue));
     if (!this.isTwoValueEqualsInSurvey(oldValue, newValue)) {
       const changed: HashTable<{ newValue: any, oldValue: any }> = {};
       changed[name] = { newValue: newValue, oldValue: oldValue };
@@ -8188,7 +8296,7 @@ export class SurveyModel extends SurveyElementCore
     if (Object.keys(changed).length === 0) return;
     // One notification and one recalculation for the entire batch: elements and expressions never
     // see a state in which a part of the variables is set
-    this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.notifyElementsOnAnyValueOrVariableChanged("", undefined, this.getLocStrChanges(changed));
     this.variablesChangedCore(changed);
   }
   /**

@@ -32,7 +32,13 @@ export class QuestionHtmlModel extends QuestionNonValue {
         ? obj.processHtml(str)
         : str;
     };
+    // It processes the names of its own text; an onProcessHtml handler makes it value-dependent
+    locStr.isTextCallbackPure = true;
   } } }) html: string;
+  protected isLocStrValueDependent(locStr: LocalizableString): boolean {
+    if (locStr.name === "html" && !!this.survey?.hasProcessHtmlHandler?.()) return true;
+    return super.isLocStrValueDependent(locStr);
+  }
 
   public get processedHtml() {
     return this.processHtml(this.html);

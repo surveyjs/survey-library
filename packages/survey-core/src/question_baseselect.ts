@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { JsonObjectProperty, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
@@ -298,6 +299,7 @@ const showingChoicePanels: INestedWalkOptions = { build: "none", visibleOnly: tr
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
 export class QuestionSelectBase extends Question implements IChoiceOwner, ISelectQuestion {
+  public hasDisplayTexts(): boolean { return true; }
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
   public renderedChoicesChangedCallback: () => void;
@@ -567,14 +569,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       this.onVisibleChoicesChanged();
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     if (!!this.choicesFromUrl) {
-      ItemValue.locStrsChanged(this.choicesFromUrl);
-      ItemValue.locStrsChanged(this.visibleChoices);
+      ItemValue.locStrsChanged(this.choicesFromUrl, changes);
+      ItemValue.locStrsChanged(this.visibleChoices, changes);
     }
     if (this.isUsingCarryForward) {
-      ItemValue.locStrsChanged(this.visibleChoices);
+      ItemValue.locStrsChanged(this.visibleChoices, changes);
     }
   }
   private prevOtherErrorValue: string;

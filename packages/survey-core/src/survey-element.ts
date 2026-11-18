@@ -21,9 +21,10 @@ import {
   ISurveySingleInput
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { ActionContainer } from "./actions/container";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
@@ -489,10 +490,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       Array.prototype.push.apply(titleActions, actions);
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     if (!!this.titleToolbarValue) {
-      this.titleToolbarValue.locStrsChanged();
+      this.titleToolbarValue.locStrsChanged(changes);
     }
     // An error text can interpolate values ({calculatedValue}) the same way a title does.
     // Read the property directly: the errors getter creates the array.
@@ -561,6 +562,34 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       }
     }
     return super.canSkipExpressionByKeys(runner, keys, vars, isClearedKeyChanged);
+  }
+  // ILocalizableOwner: the element processes the texts of its strings and of its items' strings
+  public isLocStrRefreshRequired(locStr: LocalizableString, changes: ChangedKeys): boolean {
+    if (this.isLocStrValueDependent(locStr)) return true;
+    return locStr.isRefreshRequiredByNames(changes, this.getTextContextKeys(changes), this.survey);
+  }
+  // A string whose text a handler or a callback builds from other values refreshes on every value change
+  protected isLocStrValueDependent(locStr: LocalizableString): boolean {
+    return false;
+  }
+  // The names the data context adds ({row}, {panel}, {composite}), kept for the walk of one value change:
+  // every string of the element is checked against the same changes
+  private textContextKeys: { changes: ChangedKeys, keys: HashTable<any> };
+  private getTextContextKeys(changes: ChangedKeys): HashTable<any> {
+    if (changes.isUnknown) return undefined;
+    const cached = this.textContextKeys;
+    if (!!cached && cached.changes === changes) return cached.keys;
+    let keys: HashTable<any> = undefined;
+    const data: any = this.data;
+    // The survey's context adds no names
+    if (!!data && !data.isSurvey && typeof data.getValueGetterContext === "function") {
+      const dataContext = data.getValueGetterContext();
+      if (typeof dataContext?.getContextKeys === "function") {
+        keys = dataContext.getContextKeys(changes.keys);
+      }
+    }
+    this.textContextKeys = { changes: changes, keys: keys };
+    return keys;
   }
   protected get shouldHandleFocusScroll(): boolean {
     return !!(this.survey as SurveyModel)?.autoCenterFocusedQuestion;

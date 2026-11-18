@@ -31,12 +31,12 @@ export class TextPreProcessor implements ITextProcessor {
     this.hasAllValuesOnLastRunValue = true;
     if (!text) return text;
     if (!this.canProcess()) return text;
-    const items = this.getItems(text);
+    const items = TextPreProcessor.getItems(text);
     const startLen = settings.expressionVariableDelimiters.start.length;
     const endLen = settings.expressionVariableDelimiters.end.length;
     for (let i = items.length - 1; i >= 0; i--) {
       const item = items[i];
-      const name = this.getName(text.substring(item.start + startLen, item.end + 1 - endLen));
+      const name = TextPreProcessor.getName(text.substring(item.start + startLen, item.end + 1 - endLen));
       if (!!name) {
         const textValue = new TextPreProcessorValue(name, returnDisplayValue === true);
         this.onProcessValue(textValue);
@@ -80,7 +80,24 @@ export class TextPreProcessor implements ITextProcessor {
     res.hasAllValuesOnLastRun = this.hasAllValuesOnLastRun;
     return res;
   }
-  private getItems(text: string): Array<TextPreProcessorItem> {
+  // The names the text interpolates, in the order of the text, the way process() reads them.
+  // A name that is used twice is listed once.
+  public static getTextNames(text: string): Array<string> {
+    const res: Array<string> = [];
+    if (!text) return res;
+    const items = TextPreProcessor.getItems(text);
+    const startLen = settings.expressionVariableDelimiters.start.length;
+    const endLen = settings.expressionVariableDelimiters.end.length;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const name = TextPreProcessor.getName(text.substring(item.start + startLen, item.end + 1 - endLen));
+      if (!!name && res.indexOf(name) < 0) {
+        res.push(name);
+      }
+    }
+    return res;
+  }
+  private static getItems(text: string): Array<TextPreProcessorItem> {
     var items = [];
     var length = text.length;
     var start = -1;
@@ -99,7 +116,7 @@ export class TextPreProcessor implements ITextProcessor {
           var item = new TextPreProcessorItem();
           item.start = start;
           item.end = i + endLen - 1;
-          if (this.isValidItemName(text.substring(start + startLen, i))) {
+          if (TextPreProcessor.isValidItemName(text.substring(start + startLen, i))) {
             items.push(item);
           }
         }
@@ -110,10 +127,10 @@ export class TextPreProcessor implements ITextProcessor {
     }
     return items;
   }
-  private isValidItemName(name: string): boolean {
+  private static isValidItemName(name: string): boolean {
     return !!name && name.indexOf(":") < 0;
   }
-  private getName(name: string): string {
+  private static getName(name: string): string {
     if (!name) return;
     return name.trim();
   }

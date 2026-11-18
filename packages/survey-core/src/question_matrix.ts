@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { JsonObject, Serializer } from "./jsonobject";
@@ -287,8 +288,8 @@ export class MatrixCells extends Base {
     });
     this.onValuesChanged();
   }
-  public locStrsChanged(): void {
-    this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.strChanged());
+  public locStrsChanged(changes?: ChangedKeys): void {
+    this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.strChanged(changes));
   }
   private runFuncOnLocs(func: (row: any, col: any, loc: LocalizableString) => void): void {
     for (let row in this.locs) {
@@ -350,6 +351,7 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
 export class QuestionMatrixModel
   extends Question
   implements IMatrixData, IMatrixCellsOwner {
+  public hasDisplayTexts(): boolean { return true; }
   protected generatedVisibleRows: Array<MatrixRowModel> = null;
   public visibleRowsChangedCallback: () => void;
   private isRowChanging = false;
@@ -734,9 +736,9 @@ export class QuestionMatrixModel
   public get cssItemDecorator(): string {
     return this.formatCss(this.cssClasses.itemDecorator);
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
-    this.cells.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
+    this.cells.locStrsChanged(changes);
   }
   protected getQuizQuestionCount() {
     var res = 0;

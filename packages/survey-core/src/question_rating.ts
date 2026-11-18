@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
 import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
 import type { ISelectQuestion } from "./question_baseselect";
@@ -139,6 +140,7 @@ export function getRatingItemByDigitShortcut(items: Array<ItemValue>, digits: st
  * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
 export class QuestionRatingModel extends dropdownQuestionMixin(Question) implements IRatingItemOwner, ISelectQuestion {
+  public hasDisplayTexts(): boolean { return true; }
   constructor(name: string) {
     super(name);
 
@@ -224,10 +226,10 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     }
   }
 
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.resetReadOnlyText();
-    this.dropdownListModelValue?.locStrsChanged();
+    this.dropdownListModelValue?.locStrsChanged(changes);
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();

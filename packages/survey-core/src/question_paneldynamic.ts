@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { HashTable, Helpers } from "./helpers";
 import type { QuestionExpressionModel } from "./question_expression";
 import {
@@ -2618,15 +2619,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return -1;
   }
-  public locStrsChanged() {
-    super.locStrsChanged();
-    this.locTemplateTitle.strChanged();
+  public locStrsChanged(changes?: ChangedKeys) {
+    super.locStrsChanged(changes);
+    this.locTemplateTitle.strChanged(changes);
     var panels = this.panelsCore;
     for (var i = 0; i < panels.length; i++) {
-      panels[i].locStrsChanged();
+      panels[i].locStrsChanged(changes);
     }
     if (this.tabbedMenu) {
-      this.tabbedMenu.locStrsChanged();
+      this.tabbedMenu.locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {

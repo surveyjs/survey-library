@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question } from "./question";
@@ -233,9 +234,9 @@ export class MatrixDropdownColumn extends Base
   public getDesignRowContext(): IValueGetterContext {
     return this.colOwner?.getDesignRowContext();
   }
-  public locStrsChanged() {
-    super.locStrsChanged();
-    this.locTitle.strChanged();
+  public locStrsChanged(changes?: ChangedKeys) {
+    super.locStrsChanged(changes);
+    this.locTitle.strChanged(changes);
   }
   public addUsedLocales(locales: Array<string>) {
     super.addUsedLocales(locales);

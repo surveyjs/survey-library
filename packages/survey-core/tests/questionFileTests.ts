@@ -2869,3 +2869,44 @@ describe("Survey_QuestionFile", () => {
     }
   });
 });
+
+describe("A file value with a null item", () => {
+  const file = { name: "a.png", type: "image/png", content: "data:image/png;base64,AAA" };
+  const createSurvey = (storeDataAsText: boolean) => new SurveyModel({
+    elements: [{ type: "file", name: "q", allowMultiple: true, showPreview: true, storeDataAsText }],
+  });
+  test.each([true, false])("survey.data previews the one file, storeDataAsText: %s", (storeDataAsText) => {
+    const survey = createSurvey(storeDataAsText);
+    survey.onDownloadFile.add((_, options) => options.callback("success", options.content));
+    survey.data = { q: [file, null] };
+    const q = <QuestionFileModel>survey.getQuestionByName("q");
+    expect(q.previewValue).toHaveLength(1);
+    expect(q.previewValue[0].name).toBe("a.png");
+  });
+  test("survey.data previews the one file without an onDownloadFile handler", () => {
+    const survey = createSurvey(false);
+    survey.data = { q: [file, null] };
+    expect((<QuestionFileModel>survey.getQuestionByName("q")).previewValue).toHaveLength(1);
+  });
+  test("question.value previews the one file", () => {
+    const survey = createSurvey(true);
+    const q = <QuestionFileModel>survey.getQuestionByName("q");
+    q.value = [file, null];
+    expect(q.previewValue).toHaveLength(1);
+  });
+  test("a defaultValue with a null item loads and previews the one file", () => {
+    [true, false].forEach(storeDataAsText => {
+      const survey = new SurveyModel({
+        elements: [{ type: "file", name: "q", allowMultiple: true, storeDataAsText, defaultValue: [file, null] }],
+      });
+      expect((<QuestionFileModel>survey.getQuestionByName("q")).previewValue).toHaveLength(1);
+    });
+  });
+  test("getPlainData has one item", () => {
+    const survey = createSurvey(true);
+    survey.data = { q: [file, null] };
+    const data = survey.getQuestionByName("q").getPlainData();
+    expect(data.data).toHaveLength(1);
+    expect(data.data[0].displayValue).toBe("a.png");
+  });
+});

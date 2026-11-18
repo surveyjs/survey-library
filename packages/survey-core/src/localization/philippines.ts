@@ -309,6 +309,122 @@ export var philippinesStrings = {
   progressbar: "Email Address *",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Pahina {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Walang laman",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Hindi walang laman",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Katumbas",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Hindi katumbas",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Naglalaman",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Hindi naglalaman",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Alinman sa",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Wala sa",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Lahat ng",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Higit pa sa",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Mas mababa sa",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Mas malaki o katumbas ng",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Mas mababa o katumbas ng",
+  // [Auto-translated] "Save"
+  filterSave: "I-save",
+  // [Auto-translated] "Filters"
+  filterFilters: "Mga Filter",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Mga filter: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Mga Filter",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Maghanap",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Maghanap ayon sa {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Ipakita Pa",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Ipakita ang Mas Kaunti",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Linisin Lahat",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Linisin ang {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Preset",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "I-save bilang...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "I-save",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Idagdag ang \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Mga preset",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Ipakita ang mga {0} item",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Ipakita ang 1 item",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Ipakita ang mga resulta",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Bagong Preset",
+  // [Auto-translated] "Name"
+  filterPresetName: "Pangalan",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Naglalaman",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "May preset na may ganitong pangalan na.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Magdagdag ng kahit isang kondisyon.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Ipasok ang isang ekspresyon.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Hindi wasto ang ekspresyon.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "I-edit bilang Ekspresyon",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "I-edit bilang Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Mag-type ng ekspresyon dito...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "I-edit ang Preset",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Tanggalin",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Magdagdag ng Bagong...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "I-edit ang napili...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Pagpapahayag",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Maghanap sa Filters",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Walang nahanap, subukan ang iba't ibang keywords",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Gumawa ng preset gamit ang AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "I-edit ang preset gamit ang AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Halimbawa, \"Kape at Tsaa mula sa Germany\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Lumikha",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "I-edit",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Paglikha...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Editing...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "Hindi makagawa ng filter ang AI. Subukan mo ulit.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "Hindi makagawa ang AI ng filter na ganito ang paglalarawan.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "pumili",
   // [Auto-translated] "to toggle"

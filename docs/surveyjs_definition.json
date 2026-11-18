@@ -171,6 +171,9 @@
             "$ref": "#/definitions/html"
           },
           {
+            "$ref": "#/definitions/filter"
+          },
+          {
             "$ref": "#/definitions/image"
           },
           {
@@ -761,6 +764,9 @@
                 "$ref": "html"
               },
               {
+                "$ref": "filter"
+              },
+              {
                 "$ref": "image"
               },
               {
@@ -1034,6 +1040,28 @@
             "readonly",
             "view"
           ]
+        },
+        "allowFiltering": {
+          "type": "boolean"
+        },
+        "filterOperators": {
+          "type": "string",
+          "enum": [
+            "empty",
+            "notempty",
+            "equal",
+            "notequal",
+            "contains",
+            "notcontains",
+            "anyof",
+            "noneof",
+            "allof",
+            "greater",
+            "less",
+            "greaterorequal",
+            "lessorequal"
+          ],
+          "$ref": "string"
         },
         "validators": {
           "type": "array",
@@ -1586,6 +1614,9 @@
                     "$ref": "html"
                   },
                   {
+                    "$ref": "filter"
+                  },
+                  {
                     "$ref": "image"
                   },
                   {
@@ -2113,6 +2144,28 @@
         "allowSort": {
           "type": "boolean"
         },
+        "allowFiltering": {
+          "type": "boolean"
+        },
+        "filterOperators": {
+          "type": "string",
+          "enum": [
+            "empty",
+            "notempty",
+            "equal",
+            "notequal",
+            "contains",
+            "notcontains",
+            "anyof",
+            "noneof",
+            "allof",
+            "greater",
+            "less",
+            "greaterorequal",
+            "lessorequal"
+          ],
+          "$ref": "string"
+        },
         "defaultDisplayValue": {
           "oneOf": [
             {
@@ -2547,6 +2600,9 @@
                   },
                   {
                     "$ref": "html"
+                  },
+                  {
+                    "$ref": "filter"
                   },
                   {
                     "$ref": "image"
@@ -3683,6 +3739,168 @@
         }
       ]
     },
+    "filter": {
+      "type": "object",
+      "$id": "filter",
+      "allOf": [
+        {
+          "$ref": "nonvalue"
+        },
+        {
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "filterfield"
+              }
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "filteritem"
+              }
+            },
+            "defaultItem": {
+              "type": "string"
+            },
+            "allowMultipleItems": {
+              "type": "boolean"
+            },
+            "allowAddItems": {
+              "type": "boolean"
+            },
+            "allowReorderItems": {
+              "type": "boolean"
+            },
+            "showSearch": {
+              "type": "boolean"
+            },
+            "searchFields": {
+              "type": "string",
+              "$ref": "string"
+            },
+            "allowChangeSearchFields": {
+              "type": "boolean"
+            },
+            "allowFastMode": {
+              "type": "boolean"
+            },
+            "allowAdvancedMode": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "filterfield": {
+      "type": "object",
+      "$id": "filterfield",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "locstring"
+            }
+          ]
+        },
+        "valueName": {
+          "type": "string"
+        },
+        "valueType": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "date",
+            "array",
+            "object"
+          ]
+        },
+        "fieldType": {
+          "type": "string",
+          "enum": [
+            "",
+            "boolean",
+            "checkbox",
+            "comment",
+            "dropdown",
+            "expression",
+            "file",
+            "filter",
+            "html",
+            "image",
+            "imagepicker",
+            "matrix",
+            "matrixdropdown",
+            "matrixdynamic",
+            "multipletext",
+            "panel",
+            "paneldynamic",
+            "radiogroup",
+            "ranking",
+            "rating",
+            "signaturepad",
+            "slider",
+            "tagbox",
+            "text"
+          ]
+        },
+        "showInFastMode": {
+          "type": "boolean"
+        },
+        "filterOperators": {
+          "type": "string",
+          "$ref": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "filteritem": {
+      "type": "object",
+      "$id": "filteritem",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "locstring"
+            }
+          ]
+        },
+        "expression": {
+          "type": "string"
+        },
+        "allowEdit": {
+          "type": "boolean"
+        },
+        "allowDelete": {
+          "type": "boolean"
+        },
+        "allowCopy": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
     "image": {
       "type": "object",
       "$id": "image",
@@ -4422,6 +4640,9 @@
                   },
                   {
                     "$ref": "html"
+                  },
+                  {
+                    "$ref": "filter"
                   },
                   {
                     "$ref": "image"

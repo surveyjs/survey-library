@@ -122,7 +122,7 @@ frameworks.forEach((framework) => {
         ]
       };
       await initSurvey(page, framework, json);
-      await page.waitForLoadState("load");
+      await expect(page.locator(".sd-imagepicker__item").first()).toBeVisible();
 
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowRight");

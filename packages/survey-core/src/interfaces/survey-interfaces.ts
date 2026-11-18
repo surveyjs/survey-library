@@ -17,6 +17,7 @@ import type {
   ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks,
   ISurveyDynamicDataCallbacks,
+  ISurveyFilterCallbacks,
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
@@ -36,6 +37,8 @@ export interface ISurveyTitleSettings {
   getQuestionStartIndex(pageVisibleIndex: number): string;
   getElementTitleTagName(element: Base, tagName: string): string;
   beforeShowInplaceDescriptionEditorCallback?: (element: Base, show: boolean) => boolean;
+  readonly showEmptyTitlesInDesignMode?: boolean;
+  readonly showEmptyDescriptionsInDesignMode?: boolean;
   getQuestionDisplayValue(question: IElement, displayValue: any): any;
   getExpressionDisplayValue(
     question: IQuestion,
@@ -71,7 +74,7 @@ export interface ISurveySingleInput {
 }
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   ISurveyElementLifecycle, ISurveyFileCallbacks, ISurveyMatrixCallbacks,
-  ISurveyDynamicPanelCallbacks, ISurveyDynamicDataCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
+  ISurveyDynamicPanelCallbacks, ISurveyDynamicDataCallbacks, ISurveyFilterCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks, ISurveyTitleSettings, ISurveyValidation,
   ISurveySingleInput {
 

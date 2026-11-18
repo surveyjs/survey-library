@@ -309,6 +309,122 @@ export var hindiStrings = {
   progressbar: "प्रगति पट्टी",
   // [Auto-translated] "Page {0}"
   progressbarPage: "पेज {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "खाली",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "खाली नहीं",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "बराबर",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "बराबर नहीं है",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "शामिल है",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "इसमें शामिल नहीं है",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "कोई भी",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "इनमें से कोई भी नहीं",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "सभी",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "से भी बड़ा",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "से कम",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "से बड़ा या बराबर",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "से कम या बराबर",
+  // [Auto-translated] "Save"
+  filterSave: "सेव करें",
+  // [Auto-translated] "Filters"
+  filterFilters: "फिल्टर्स",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "फिल्टर: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "फिल्टर्स",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "खोजें",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "{0} के अनुसार खोजें",
+  // [Auto-translated] "Show More"
+  filterShowMore: "और दिखाएं",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "कम दिखाएं",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "सभी साफ़ करें",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "क्लियर {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "प्रीसेट",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "सेव करें...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "सेव करें",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "\"{0}\" जोड़ें...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "प्रीसेट्स",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "{0} आइटम दिखाएं",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "1 आइटम दिखाएं",
+  // [Auto-translated] "Show results"
+  filterShowResults: "परिणाम दिखाएं",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "नया प्रीसेट",
+  // [Auto-translated] "Name"
+  filterPresetName: "नाम",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "शामिल है",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "इस नाम वाला एक प्रीसेट पहले से मौजूद है।",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "कम से कम एक शर्त जोड़ें।",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "एक अभिव्यक्ति दर्ज करें।",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "यह अभिव्यक्ति मान्य नहीं है।",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "अभिव्यक्ति के रूप में संपादित करें",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "टैगबॉक्स के रूप में संपादित करें",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "यहाँ एक अभिव्यक्ति टाइप करें...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "प्रीसेट संपादित करें",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "हटाएं",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "नया जोड़ें...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "संपादित किया गया...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} अभिव्यक्ति",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "संपादन...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "फ़िल्टर में खोजें",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "कुछ नहीं मिला, अलग-अलग कीवर्ड्स आज़माएं",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "AI के साथ प्रीसेट बनाएं",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "AI के साथ प्रीसेट संपादित करें",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "उदाहरण के लिए, \"जर्मनी से कॉफी और चाय\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "बनाएं",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "संपादन",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "बनाना...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "संपादन...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "एआई फिल्टर नहीं बना सका। फिर से कोशिश करो।",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "एआई इस विवरण को फ़िल्टर नहीं कर सका।",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "चुनने के लिए",
   // [Auto-translated] "to toggle"

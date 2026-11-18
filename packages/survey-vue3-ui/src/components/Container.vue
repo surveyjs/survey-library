@@ -1,25 +1,47 @@
 <template>
-  <template v-if="components.length > 0">
+  <template v-if="groups.length > 0">
     <div
       v-if="needRenderWrapper"
       :class="['sv-components-column', 'sv-components-container-' + container]"
     >
-      <template v-for="component in components" :key="component.id">
+      <template v-for="group in groups" :key="group.key">
+        <div v-if="group.css" :class="group.css">
+          <SvComponent
+            v-for="component in group.elements"
+            :key="component.id"
+            :is="component.component"
+            :survey="survey"
+            :container="container"
+            :model="component.data"
+          ></SvComponent>
+        </div>
         <SvComponent
-          :is="component.component"
+          v-else
+          :is="group.elements[0].component"
           :survey="survey"
           :container="container"
-          :model="component.data"
+          :model="group.elements[0].data"
         ></SvComponent>
       </template>
     </div>
     <template v-else>
-      <template v-for="component in components" :key="component.id">
+      <template v-for="group in groups" :key="group.key">
+        <div v-if="group.css" :class="group.css">
+          <SvComponent
+            v-for="component in group.elements"
+            :key="component.id"
+            :is="component.component"
+            :survey="survey"
+            :container="container"
+            :model="component.data"
+          ></SvComponent>
+        </div>
         <SvComponent
-          :is="component.component"
+          v-else
+          :is="group.elements[0].component"
           :survey="survey"
           :container="container"
-          :model="component.data"
+          :model="group.elements[0].data"
         ></SvComponent>
       </template>
     </template>
@@ -36,7 +58,7 @@ const props = defineProps<{
   container: string;
   needRenderWrapper?: Boolean;
 }>();
-const components = computed(() =>
-  props.survey.getContainerContent(props.container as any)
+const groups = computed(() =>
+  props.survey.getContainerContentGroups(props.container as any)
 );
 </script>

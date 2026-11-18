@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDrag, doDragDrop, getButtonByText, resetFocusToBody } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDrag, doDragDrop, getButtonByText, resetFocusToBody, loadSurveyLocales } from "../helper";
 
 const title = "matrixdynamic";
 
@@ -646,6 +646,7 @@ frameworks.forEach((framework) => {
     });
 
     test("remove row vs confirmDelete and differerent locale", async ({ page }) => {
+      await loadSurveyLocales(page, framework);
       const json5 = {
         "locale": "de",
         "elements": [

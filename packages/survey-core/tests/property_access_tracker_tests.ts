@@ -564,3 +564,107 @@ describe("PropertyAccessTracker and finding an element's row", () => {
     tracker.unsubscribe();
   });
 });
+
+// A localizable string keeps its value outside the property hash: a render that reads it records the
+// string's name on its owner, and a change of the string notifies the UI callbacks under that name.
+describe("PropertyAccessTracker and localizable strings", () => {
+  afterEach(() => {
+    Base.currentPropertyAccessListener = undefined as any;
+  });
+  function renderAndSubscribe(read: () => void): { tracker: PropertyAccessTracker, log: Array<{ model: Base, name: string }> } {
+    const res = createTracker();
+    render(res.tracker, read);
+    res.tracker.subscribe();
+    return res;
+  }
+
+  test("a render that reads completedHtml is notified when completedHtml changes", () => {
+    const survey = new SurveyModel({ completedHtml: "<h3>first</h3>", elements: [{ type: "text", name: "q1" }] });
+    const { tracker, log } = renderAndSubscribe(() => { survey.processedCompletedHtml; });
+    survey.completedHtml = "<h3>second</h3>";
+    expect(log.map(item => item.name), "completedHtml is reported").toEqual(["completedHtml"]);
+    expect(log[0].model).toBe(survey);
+    expect(survey.processedCompletedHtml).toBe("<h3>second</h3>");
+    tracker.unsubscribe();
+  });
+
+  test("setting completedHtml to its current value does not notify", () => {
+    const survey = new SurveyModel({ completedHtml: "<h3>first</h3>", elements: [{ type: "text", name: "q1" }] });
+    const { tracker, log } = renderAndSubscribe(() => { survey.processedCompletedHtml; });
+    survey.completedHtml = "<h3>first</h3>";
+    expect(log).toHaveLength(0);
+    tracker.unsubscribe();
+  });
+
+  test("a render that does not read completedHtml is not notified when it changes", () => {
+    const survey = new SurveyModel({ completedHtml: "<h3>first</h3>", elements: [{ type: "text", name: "q1" }] });
+    const { tracker, log } = renderAndSubscribe(() => { survey.state; });
+    survey.completedHtml = "<h3>second</h3>";
+    expect(log).toHaveLength(0);
+    tracker.unsubscribe();
+  });
+
+  test("completedHtml changed from a completedState handler notifies the render after the state", () => {
+    const survey = new SurveyModel({ completedHtml: "<h3>first</h3>", elements: [{ type: "text", name: "q1" }] });
+    survey.registerPropertyChangedHandlers(["completedState"], () => {
+      if (survey.completedState === "error") survey.completedHtml = "<h3>Not saved</h3>";
+    });
+    let saveOptions: any;
+    survey.onComplete.add((_, options) => {
+      saveOptions = options;
+      options.showSaveInProgress("Saving...");
+    });
+    survey.doComplete();
+    const { tracker, log } = renderAndSubscribe(() => { survey.processedCompletedHtml; });
+    saveOptions.showSaveError("Error");
+    expect(log.map(item => item.name)).toEqual(["completedHtml"]);
+    expect(survey.processedCompletedHtml).toBe("<h3>Not saved</h3>");
+    tracker.unsubscribe();
+  });
+
+  test("the html of a completedHtmlOnCondition item notifies the render that shows it", () => {
+    const survey = new SurveyModel({
+      completedHtmlOnCondition: [{ expression: "{q1} = 1", html: "<h3>first</h3>" }],
+      elements: [{ type: "text", name: "q1" }]
+    });
+    survey.setValue("q1", 1);
+    const item = survey.completedHtmlOnCondition[0];
+    const { tracker, log } = renderAndSubscribe(() => { survey.processedCompletedHtml; });
+    item.html = "<h3>second</h3>";
+    expect(log.map(entry => entry.name)).toEqual(["html"]);
+    expect(log[0].model).toBe(item);
+    expect(survey.processedCompletedHtml).toBe("<h3>second</h3>");
+    tracker.unsubscribe();
+  });
+
+  test("processedCompletedBeforeHtml and processedLoadingHtml notify when their strings change", () => {
+    const survey = new SurveyModel({ completedBeforeHtml: "before 1", loadingHtml: "loading 1", elements: [{ type: "text", name: "q1" }] });
+    const { tracker, log } = renderAndSubscribe(() => {
+      survey.processedCompletedBeforeHtml;
+      survey.processedLoadingHtml;
+    });
+    survey.completedBeforeHtml = "before 2";
+    survey.loadingHtml = "loading 2";
+    expect(log.map(item => item.name)).toEqual(["completedBeforeHtml", "loadingHtml"]);
+    expect(survey.processedCompletedBeforeHtml).toBe("before 2");
+    expect(survey.processedLoadingHtml).toBe("loading 2");
+    tracker.unsubscribe();
+  });
+
+  test("a localizable string read inside runUntracked is not tracked", () => {
+    const survey = new SurveyModel({ completedHtml: "<h3>first</h3>", elements: [{ type: "text", name: "q1" }] });
+    const { tracker, log } = renderAndSubscribe(() => { TrackerTestModel.runUntrackedForTest(() => survey.completedHtml); });
+    survey.completedHtml = "<h3>second</h3>";
+    expect(log).toHaveLength(0);
+    tracker.unsubscribe();
+  });
+
+  test("a localizable string change notifies the UI callbacks of its owner", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const question = survey.getQuestionByName("q1");
+    const names: Array<string> = [];
+    question.addOnPropertyValueChangedCallback((_, options) => names.push(options.name));
+    question.title = "Question title";
+    expect(names).toEqual(["title"]);
+  });
+});

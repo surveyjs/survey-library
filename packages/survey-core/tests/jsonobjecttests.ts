@@ -3392,7 +3392,8 @@ describe("toJSON skips empty properties", () => {
         name: "q9", state: "default", visible: true, useDisplayValuesInDynamicTexts: true, width: "", minWidth: "", maxWidth: "",
         startWithNewLine: true, indent: 0, titleLocation: "default", descriptionLocation: "default", showNumber: true, valueName: "",
         clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, readOnlyMode: "default", renderAs: "default", showCommentArea: false,
-        randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1
+        randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1,
+        allowFiltering: true
       });
       expect(survey.getQuestionByName("q6").items[0].toJSON({ storeDefaults: true }), "storeDefaults: multiple text item").toEqual({
         name: "i1", isRequired: false, inputType: "text", maskType: "none", inputTextAlignment: "auto", title: "Item 1", maxLength: -1
@@ -3524,17 +3525,17 @@ describe("toJSON skips empty properties", () => {
     };
     const text = getReadKeys("q1");
     expect(text.json, "text: json").toEqual({ name: "q1", title: "Title" });
-    expect(text.keys, "text: keys").toEqual(("allowClear autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
-      "descriptionLocation enableIf errorLocation indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
+    expect(text.keys, "text: keys").toEqual(("allowClear allowFiltering autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
+      "descriptionLocation enableIf errorLocation filterOperators indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
       "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf resetValueIf " +
       "setValueExpression setValueIf showCommentArea showKeyboardHints showNumber startWithNewLine state step textUpdateMode titleLocation " +
       "useDisplayValuesInDynamicTexts validators valueName visible visibleIf width").split(" "));
     // The checkbox has no choice elements, so elements is stored in the hash and isSerializableFunc drops it before the empty check
     const checkbox = getReadKeys("q2");
     expect(checkbox.json, "checkbox: json").toEqual({ name: "q2" });
-    expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
+    expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear allowFiltering choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
       "choicesByUrl choicesEnableIf choicesFromQuestion choicesFromQuestionMode choicesOrder choicesVisibleIf clearIfInvisible colCount colSpan " +
-      "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation hideIfChoicesEmpty indent isRequired " +
+      "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation filterOperators hideIfChoicesEmpty indent isRequired " +
       "itemComponent maxSelectedChoices maxWidth minSelectedChoices minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf " +
       "resetValueIf separateSpecialChoices setValueExpression setValueIf showCommentArea showDontKnowItem showKeyboardHints showNoneItem showNumber showOtherItem " +
       "showRefuseItem showSelectAllItem startWithNewLine state storeOthersAsComment titleLocation useDisplayValuesInDynamicTexts validators " +
@@ -3912,5 +3913,98 @@ describe("A null item in a JSON array", () => {
   test("a nested null inside an array defaultValue is kept", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q", defaultValue: [[null]] }] });
     expect(survey.getQuestionByName("q").defaultValue).toEqual([[null]]);
+  });
+});
+
+describe("A value of the wrong type in the JSON", () => {
+  const incorrectErrors = (survey: SurveyModel) => (survey.jsonErrors || []).filter(e => e.type === "incorrectvalue");
+  test.each([
+    ["question titleLocation", { elements: [{ type: "text", name: "q", title: "T", titleLocation: 1 }] }, "q", "titleLocation"],
+    ["text inputType", { elements: [{ type: "text", name: "q", title: "T", inputType: 1 }] }, "q", "inputType"],
+    ["survey progressBarLocation", { progressBarLocation: true, title: "T", elements: [{ type: "text", name: "q" }] }, "", "progressBarLocation"],
+    ["survey questionErrorLocation", { questionErrorLocation: 1, title: "T", elements: [{ type: "text", name: "q" }] }, "", "questionErrorLocation"],
+    ["survey showQuestionNumbers", { showQuestionNumbers: 1, title: "T", elements: [{ type: "text", name: "q" }] }, "", "showQuestionNumbers"],
+  ])("a non-string %s loads, keeps its default and is reported", (_, json: any, qName, propName) => {
+    const survey = new SurveyModel(json);
+    const obj: any = qName ? survey.getQuestionByName(qName) : survey;
+    const defaultObj: any = qName ? new QuestionTextModel("q") : new SurveyModel();
+    expect(obj[propName]).toBe(defaultObj[propName]);
+    expect(obj.title).toBe("T");
+    const errors = incorrectErrors(survey);
+    expect(errors).toHaveLength(1);
+    expect((<any>errors[0]).property.name).toBe(propName);
+  });
+  test("boolean values the API accepts, and numeric choices, load with no error", () => {
+    [true, false].forEach(val => {
+      const survey = new SurveyModel({ showProgressBar: val, showQuestionNumbers: val, elements: [{ type: "text", name: "q", indent: 5 }] });
+      expect(survey.jsonErrors).toBeFalsy();
+      expect(survey.getQuestionByName("q").indent).toBe(5);
+    });
+  });
+  test("a set property such as acceptedCategories keeps an array value", () => {
+    const survey = new SurveyModel({ elements: [{ type: "file", name: "q", acceptedCategories: ["image", "video"] }] });
+    expect(survey.jsonErrors).toBeFalsy();
+    expect((<any>survey.getQuestionByName("q")).acceptedCategories).toEqual(["image", "video"]);
+  });
+  test("a numeric question, page and panel name loads as a string, and {5} finds the question", () => {
+    const survey = new SurveyModel({
+      pages: [{ name: 1, elements: [
+        { type: "panel", name: 2, elements: [{ type: "text", name: 5 }] },
+        { type: "text", name: "q2", visibleIf: "{5} = 'a'" },
+      ] }],
+    });
+    expect(survey.pages[0].name).toBe("1");
+    expect(survey.getPanelByName("2")).toBeTruthy();
+    const q = survey.getQuestionByName("5");
+    expect(q.name).toBe("5");
+    expect(survey.getQuestionByName("q2").isVisible).toBe(false);
+    q.value = "a";
+    expect(survey.getQuestionByName("q2").isVisible).toBe(true);
+    expect(survey.data).toEqual({ "5": "a" });
+  });
+  test("a name of 0 loads as \"0\", and a boolean or object name loads as no name", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: 0 }, { type: "text", name: true }, { type: "text", name: {} }, { type: "text", name: "q4" },
+    ] });
+    const questions = survey.getAllQuestions();
+    expect(questions).toHaveLength(4);
+    expect(questions.map(q => q.name)).toEqual(["0", "", "", "q4"]);
+  });
+  test("effectiveColSpan from JSON or the Serializer goes to colSpan", () => {
+    const survey = new SurveyModel({ gridLayoutEnabled: true, elements: [
+      { type: "text", name: "q1", effectiveColSpan: 2 },
+      { type: "panel", name: "p1", effectiveColSpan: 2, elements: [{ type: "text", name: "q2" }] },
+      { type: "text", name: "q3" },
+    ] });
+    const q1 = survey.getQuestionByName("q1");
+    const panel = survey.getPanelByName("p1");
+    expect(q1.colSpan).toBe(2);
+    expect(panel.colSpan).toBe(2);
+    expect(q1.toJSON()).toEqual({ name: "q1", colSpan: 2 });
+    const q3 = survey.getQuestionByName("q3");
+    Serializer.findProperty("text", "effectiveColSpan").setValue(q3, 2, null);
+    expect(q3.colSpan).toBe(2);
+    expect(new SurveyModel({ pages: [{ name: "p1", effectiveColSpan: 2, elements: [{ type: "text", name: "q" }] }] }).pages).toHaveLength(1);
+  });
+  test("a page name that does not resolve leaves the question on its page", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1", page: "missing", title: "T" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2", page: "p1" }] },
+    ] });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.page.name).toBe("p1");
+    expect(q1.title).toBe("T");
+    expect(survey.getQuestionByName("q2").page.name).toBe("p1");
+  });
+  test("a page loaded later in the JSON cannot be reached, so the question stays where it is", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1", page: "p2" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2" }] },
+    ] });
+    expect(survey.getQuestionByName("q1").page.name).toBe("p1");
+  });
+  test("a numeric sjsVersion loads", () => {
+    const survey = new SurveyModel({ sjsVersion: 3, elements: [{ type: "text", name: "q" }] });
+    expect(survey.getAllQuestions()).toHaveLength(1);
   });
 });

@@ -16,7 +16,8 @@ import { IExpressionError } from "./expressions/expressionError";
 import { expressionObjectCachedValue, isExpressionObjectCacheCollecting } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { ChangedKeys } from "./conditions/conditionProcessValue";
 import { EventBase, Event, EventAsync } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isAnimationEnabled } from "./utils/reduced-motion";
@@ -1303,23 +1304,22 @@ export class Base implements IObjectValueContext {
     });
   }
   protected canSkipRunningExpression(propName: string): boolean {
-    const survey: any = this.getSurvey();
-    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    const keys = this.getValueChangedKeys();
     if (!keys) return false;
     return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
-  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
+  // The survey's value-change pass (SurveyModel.getValueChangedKeys), or undefined outside of it
+  protected getValueChangedKeys(): ChangedKeys {
+    const survey: any = this.getSurvey();
+    return !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+  }
+  // keys: the survey's pass, or keys of the caller's own (a trigger's), checked once by an object over them
+  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: ChangedKeys | any, vars?: string[], isClearedKeyChanged?: boolean, contextKeys?: HashTable<any>): boolean {
     if (!keys) return false;
-    if (!!runner && runner.hasFunction(true)) return false;
-    // Names given by the caller (triggers) have no per-runner slots: they are read from the survey's map, or parsed
-    // per check without a survey. The runner's own variables reuse its kept information
-    let varsInfo: Array<IValueGetterNameInfo>;
-    if (vars === undefined && !!runner) {
-      vars = runner.getVariables();
-      varsInfo = runner.getVariablesInfo();
-    }
-    if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChanged(keys, vars, isClearedKeyChanged, varsInfo, this.getSurveyVariableNamesInfo());
+    return this.getChangedKeys(keys).canSkip(runner, vars, isClearedKeyChanged, contextKeys);
+  }
+  protected getChangedKeys(keys: ChangedKeys | any): ChangedKeys {
+    return keys instanceof ChangedKeys ? keys : new ChangedKeys(keys, this.getSurveyVariableNamesInfo());
   }
   // The parsed variable names shared by every runner of the survey (SurveyModel.getVariableNamesInfo),
   // also for the names a trigger passes. Without a survey (a new Base()) each runner keeps its own items.

@@ -20,7 +20,8 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { getElementWidth, isContainerVisible } from "./utils/dom-utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -1155,12 +1156,14 @@ export class Question extends SurveyElement<Question>
     const run2 = this.canExecuteTriggerByKeysCore(keys, secondRunner);
     return run2 !== "";
   }
+  // The trigger rules differ from canSkip: a function or a constant decides with the second runner,
+  // and the record and composite context names are not added. Only the names check is shared
   private canExecuteTriggerByKeysCore(keys: any, runner: ExpressionRunner): string {
     if (!runner.expression) return "";
     if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
-    return new ValueGetter().isAnyKeyChanged(keys, vars, undefined, runner.getVariablesInfo(), this.getSurveyVariableNamesInfo()) ? "var" : "";
+    return this.getChangedKeys(keys).isAnyChanged(vars, undefined, runner.getVariablesInfo()) ? "var" : "";
   }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:
@@ -1168,21 +1171,17 @@ export class Question extends SurveyElement<Question>
   // writes no value back. The item names resolve inside this question's value first ({r1} in a matrix
   // row reads row r1), so a change of the value, or of any container that holds it, runs them all.
   public canSkipItemCondition(runner: ExpressionRunnerBase): boolean {
-    const survey: any = this.getSurvey();
-    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
-    if (!keys || this.isOwnOrContainerValueChanged(keys, survey)) return false;
+    const keys = this.getValueChangedKeys();
+    if (!keys || this.isOwnOrContainerValueChanged(keys, this.getSurvey())) return false;
     return this.canSkipExpressionByKeys(runner, keys, undefined, true);
   }
-  // A change inside a dynamic panel or a composite question reports the container's name only
-  private isOwnOrContainerValueChanged(keys: any, survey: any): boolean {
-    const lowerKeys: HashTable<boolean> = Object.create(null);
-    for (const key in keys) {
-      lowerKeys[key.toLowerCase()] = true;
-    }
+  // A change inside a dynamic panel or a composite question reports the container's name only.
+  // Names match in any letter case
+  private isOwnOrContainerValueChanged(keys: ChangedKeys, survey: any): boolean {
     let question: Question = this;
     while(!!question) {
       const valueName = question.getValueName();
-      if (!!valueName && lowerKeys[valueName.toLowerCase()]) return true;
+      if (!!valueName && keys.hasKey(valueName)) return true;
       let data: any = question.data;
       // A dynamic panel item or a matrix row hands over to the question that holds it. The walk stops
       // at the survey: its data getter builds the whole result object.
@@ -2268,8 +2267,7 @@ export class Question extends SurveyElement<Question>
   private canSkipDefaultValueExpression(): boolean {
     const lastRun = this.lastDefaultValueRun;
     if (!lastRun || !settings.expressionQuestionTrackDependencies) return false;
-    const survey: any = this.getSurvey();
-    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    const keys = this.getValueChangedKeys();
     if (!keys) return false;
     if (lastRun.expression !== this.defaultValueExpression) return false;
     const runner = this.getExpressionByProperty("defaultValueExpression");

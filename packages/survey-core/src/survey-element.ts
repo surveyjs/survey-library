@@ -548,13 +548,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const data = <IObjectValueContext><any>this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
+  // The data context adds its own names ({row}, {panel}, {composite}). They are checked next to the
+  // keys, not merged into them, and the context reads the raw keys
   protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     const data = <IObjectValueContext><any>this.data;
     if (!!data && typeof data.getValueGetterContext === "function") {
       const dataContext = data.getValueGetterContext();
       if (typeof dataContext?.getContextKeys === "function") {
-        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars, isClearedKeyChanged);
+        const changedKeys = this.getChangedKeys(keys);
+        return super.canSkipExpressionByKeys(runner, changedKeys, vars, isClearedKeyChanged, dataContext.getContextKeys(changedKeys.keys));
       }
     }
     return super.canSkipExpressionByKeys(runner, keys, vars, isClearedKeyChanged);

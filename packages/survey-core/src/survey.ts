@@ -41,6 +41,7 @@ import { QuestionExpressionModel } from "./question_expression";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { ChangedKeys } from "./conditions/conditionProcessValue";
 import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
@@ -7459,10 +7460,7 @@ export class SurveyModel extends SurveyElementCore
       // ('other' choice workflows), so include the related name into the changed keys
       const relatedValue = this.getValue(relatedName);
       triggerKeys[relatedName] = { newValue: relatedValue, oldValue: relatedValue };
-      if (!this.questionTriggersKeys) {
-        this.questionTriggersKeys = {};
-      }
-      this.questionTriggersKeys[relatedName] = relatedValue;
+      this.ensureValueChangedKeys().setKey(relatedName, relatedValue);
     }
     this.runConditionOnValueChanged(name, newValue);
     this.checkTriggers(triggerKeys, false, false, false, relatedName || name);
@@ -7523,24 +7521,35 @@ export class SurveyModel extends SurveyElementCore
           this.notifyElementsOnAnyValueOrVariableChanged("");
         }
         if (!this.isRunningConditionOnValueChanged) {
-          this.questionTriggersKeys = undefined;
+          this.valueChangedKeys = undefined;
         }
       }
     }
   }
-  private questionTriggersKeys: any;
+  // The names changed in the current value-change pass: one object from the first changed name until the
+  // pass ends. A value set inside the pass adds its name. The question triggers read its keys after the pass.
+  private valueChangedKeys: ChangedKeys;
+  private ensureValueChangedKeys(): ChangedKeys {
+    if (!this.valueChangedKeys) {
+      this.valueChangedKeys = new ChangedKeys({}, this.getVariableNamesInfo());
+    }
+    return this.valueChangedKeys;
+  }
   private conditionOnValueChangedScope = new Scope();
   private get isRunningConditionOnValueChanged(): boolean {
     return this.conditionOnValueChangedScope.isActive;
   }
-  public getValueChangedKeys(): any {
+  // The pass's changed names for the expressions that skip a run when none of their names changed.
+  // undefined runs everything: outside a value-change pass, and while onExpressionRunning has a subscriber.
+  // The triggers check their own keys and are not affected by either rule.
+  public getValueChangedKeys(): ChangedKeys {
     if (!this.isRunningConditionOnValueChanged) return undefined;
     // An onExpressionRunning subscriber can rewrite expressions on the fly, so static
     // dependency analysis of the original expressions is unreliable - run everything
     if (!this.onExpressionRunning.isEmpty) return undefined;
-    return this.questionTriggersKeys;
+    return this.valueChangedKeys;
   }
-  // The skip check's parsed variable names (ValueGetter.isAnyKeyChanged), shared by every runner and trigger
+  // The skip check's parsed variable names (ChangedKeys.isAnyChanged), shared by every runner and trigger
   // of the survey and keyed by the exact name: a large survey has far fewer distinct names than runner slots.
   // An item depends on the name only: settings are read on every call, never kept in it, and an item never
   // reaches ValueGetter.run, which changes the path it parses. Built on the first keyed check; it lives as long
@@ -7566,11 +7575,9 @@ export class SurveyModel extends SurveyElementCore
         this.changesOnComplete.names[key] = values[key];
       }
     }
-    if (!this.questionTriggersKeys) {
-      this.questionTriggersKeys = {};
-    }
+    const changedKeys = this.ensureValueChangedKeys();
     for (const key in values) {
-      this.questionTriggersKeys[key] = values[key];
+      changedKeys.setKey(key, values[key]);
     }
     if (this.isRunningConditions) {
       // At load, a calculated value's own write in the loop over the calculated values requests no
@@ -7583,7 +7590,7 @@ export class SurveyModel extends SurveyElementCore
     } else {
       this.conditionOnValueChangedScope.run(() => this.runConditions());
       this.runQuestionsTriggers(name, !!name ? values[name] : undefined);
-      this.questionTriggersKeys = undefined;
+      this.valueChangedKeys = undefined;
     }
   }
   private runConditionsCore(properties: any) {
@@ -7674,7 +7681,7 @@ export class SurveyModel extends SurveyElementCore
     let questions = this.getQuestionTriggersList();
     let changeCount = this.questionTriggersChangeCount;
     for (let i = 0; i < questions.length; i++) {
-      questions[i].runTriggers(name, value, this.questionTriggersKeys);
+      questions[i].runTriggers(name, value, this.valueChangedKeys?.keys);
       // A trigger set a value and its handlers changed the list. Walks nest, so the rebuilt list
       // replaces the survey's one and the array this walk iterates is never changed.
       if (changeCount !== this.questionTriggersChangeCount) {
@@ -8025,14 +8032,15 @@ export class SurveyModel extends SurveyElementCore
   }
   private runConditionsOnComplete(changed: HashTable<any>): void {
     // doComplete() can be called from a handler inside a value change: that change's keys come back after the run.
-    const prevKeys = this.questionTriggersKeys;
-    this.questionTriggersKeys = changed;
+    // The restored object kept its lower-case keys: the run on complete writes into its own object
+    const prevKeys = this.valueChangedKeys;
+    this.valueChangedKeys = new ChangedKeys(changed, this.getVariableNamesInfo());
     try {
       this.runningConditionsOnCompleteScope.run(() => {
         this.conditionOnValueChangedScope.run(() => this.runConditions());
       });
     } finally {
-      this.questionTriggersKeys = prevKeys;
+      this.valueChangedKeys = prevKeys;
     }
   }
   private notifyElementHiddenOnComplete(): void {

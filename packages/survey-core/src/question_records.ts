@@ -38,7 +38,7 @@ import { Scope, ValueScope } from "./utils/scope";
 import { ObjectDataScope, PanelDataScope, getActiveDataScope, getDataScopeHost } from "./panel-data-scope";
 import { isNameScopeMode } from "./name-scope";
 import { getElementDataScope } from "./data-key-index";
-import { RecordKeyLevel, hasRecordDataNesting } from "./record-key-level";
+import { RecordKeyLevel, hasRecordDataNesting, isInRecordNestingPanel } from "./record-key-level";
 import { PanelDataScopeValueGetterContext, RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
 import { asScopeObject, getNameOfCommentName, getValueByPath } from "./data-object-utils";
 import { RecordsDataWaits } from "./records/records-data-waits";
@@ -987,14 +987,7 @@ export abstract class QuestionRecordsModel extends Question implements IRecordsT
   protected getRecordTemplateFieldQuestions(template: PanelModelBase): Array<Question> {
     const questions = template.questions;
     if (!hasRecordDataNesting(template.elements)) return questions;
-    return questions.filter((q: Question): boolean => {
-      let el: any = q.parent;
-      while(!!el && el !== template) {
-        if (!!el.getRecordDataNestingKey()) return false;
-        el = el.parent;
-      }
-      return true;
-    });
+    return questions.filter((q: Question): boolean => !isInRecordNestingPanel(q, template));
   }
   /* Adds one record's inputs to a progress count. inputs are what a record has questions for (the
      columns, the template questions); a question that is empty in the record and has a visibleIf is

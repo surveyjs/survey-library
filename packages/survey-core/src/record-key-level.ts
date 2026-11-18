@@ -1,5 +1,6 @@
 import type { IElement, ISurveyDataElement } from "./base-interfaces";
 import type { Question } from "./question";
+import type { PanelModelBase } from "./panel";
 import { isKnownDataKey } from "./data-key-index";
 import { ElementIndex } from "./element-index";
 import { asScopeObject } from "./data-object-utils";
@@ -94,4 +95,16 @@ export class RecordKeyLevel {
 // Whether a panel among the elements, at any depth, nests in the records built from them.
 export function hasRecordDataNesting(elements: Array<IElement>): boolean {
   return (elements || []).some((el: any): boolean => el.isPanel && (!!el.getRecordDataNestingKey() || hasRecordDataNesting(el.elements)));
+}
+// Whether a nesting panel stands between the element and the template it is in: the element's value is then a
+// key of that panel's object, one level deeper than the record. The record's filter and sort fields leave it out,
+// and the property grid offers it no filter settings. The element is one of template.questions: a composite's
+// inner question would get a wrong answer, since getRecordDataNestingKey() doesn't know it is inside a composite.
+export function isInRecordNestingPanel(element: Question, template: PanelModelBase): boolean {
+  let el: any = element.parent;
+  while(!!el && el !== template) {
+    if (!!el.getRecordDataNestingKey()) return true;
+    el = el.parent;
+  }
+  return false;
 }

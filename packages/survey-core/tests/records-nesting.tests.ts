@@ -8,7 +8,8 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { MatrixDropdownRowModelBase } from "../src/question_matrixdropdownbase";
 import { PanelDataScope } from "../src/panel-data-scope";
 import { ValueGetter } from "../src/conditions/conditionProcessValue";
-import { describe, test, expect } from "vitest";
+import { ComponentCollection } from "../src/question_custom";
+import { afterEach, describe, test, expect } from "vitest";
 
 // Records nesting 02: a panel with valueName inside a dynamic panel's template or a matrix's detail panel keeps its
 // questions' values in an object inside the record (decisions RN1-RN7).
@@ -669,5 +670,118 @@ describe("records nesting: where a panel may nest", () => {
     pd.addPanel();
     inPanel(pd.panels[0], "street").value = "s";
     expect(survey.data).toEqual({ o: { items: [{ address: { street: "s" } }] } });
+  });
+});
+
+describe("records nesting: the filter settings of a dynamic panel's template", () => {
+  // A question inside a record's nesting panel is no filter field (getRecordTemplateFieldQuestions), so the
+  // property grid must not offer it allowFiltering or filterOperators.
+  // Each question's own class: text registers filterOperators again.
+  const allow = (q: any): boolean => Serializer.findProperty(q.getType(), "allowFiltering").isVisible("", q);
+  const operators = (q: any): boolean => Serializer.findProperty(q.getType(), "filterOperators").isVisible("", q);
+  const settingsOf = (q: any): Array<boolean> => [allow(q), operators(q)];
+  const cityJson = (dataNesting: string, valueName?: string): any => ({ dataNesting: dataNesting, elements: [
+    { type: "paneldynamic", name: "pd", templateElements: [
+      { type: "text", name: "a" },
+      Object.assign({ type: "panel", name: "inner", elements: [{ type: "text", name: "city" }] }, valueName ? { valueName: valueName } : {})
+    ] }] });
+  const surveyOf = (json: any, isDesign: boolean): SurveyModel => {
+    const survey = new SurveyModel();
+    if (isDesign) survey.setDesignMode(true);
+    survey.fromJSON(json);
+    return survey;
+  };
+  const templateOf = (survey: SurveyModel): PanelModel => <PanelModel>(<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).template;
+  afterEach(() => { ComponentCollection.Instance.clear(); });
+
+  test("a question in a nesting panel: hidden in \"auto\" with a valueName and in \"panel\"", () => {
+    [false, true].forEach(isDesign => {
+      ["auto", "panel"].forEach(mode => {
+        const label = (isDesign ? "design, " : "runtime, ") + mode + ": ";
+        const template = templateOf(surveyOf(cityJson(mode, "info"), isDesign));
+        expect(settingsOf(template.getQuestionByName("city")), label + "city").toEqual([false, false]);
+        expect(settingsOf(template.getQuestionByName("a")), label + "a, in the record").toEqual([true, true]);
+      });
+    });
+  });
+  test("the same panel where it does not nest: shown, as on master", () => {
+    [false, true].forEach(isDesign => {
+      const label = isDesign ? "design: " : "runtime: ";
+      expect(settingsOf(templateOf(surveyOf(cityJson("none", "info"), isDesign)).getQuestionByName("city")), label + "\"none\"").toEqual([true, true]);
+      expect(settingsOf(templateOf(surveyOf(cityJson("auto"), isDesign)).getQuestionByName("city")), label + "\"auto\", no valueName").toEqual([true, true]);
+    });
+  });
+  test("a composite and a Multiple Textboxes in a nesting panel: hidden on the question and on its items", () => {
+    ComponentCollection.Instance.add({ name: "filtercomp", elementsJSON: [{ type: "text", name: "first" }] });
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "paneldynamic", name: "pd", templateElements: [
+      { type: "filtercomp", name: "c0" }, { type: "multipletext", name: "mt0", items: [{ name: "i1" }] },
+      { type: "panel", name: "inner", valueName: "info", elements: [
+        { type: "filtercomp", name: "c1" }, { type: "multipletext", name: "mt1", items: [{ name: "i1" }] }] }] }] });
+    const template = templateOf(survey);
+    const itemOf = (name: string): Question => (<Question>template.getQuestionByName(name)).getNestedQuestions(false, false)[0];
+    expect(allow(template.getQuestionByName("c0")), "#1: a composite in the record").toBe(true);
+    expect(settingsOf(itemOf("c0")), "#2: its item").toEqual([true, true]);
+    expect(allow(template.getQuestionByName("mt0")), "#3: a Multiple Textboxes in the record").toBe(true);
+    expect(settingsOf(itemOf("mt0")), "#4: its item").toEqual([true, true]);
+    expect(allow(template.getQuestionByName("c1")), "#5: a composite in the nesting panel").toBe(false);
+    expect(settingsOf(itemOf("c1")), "#6: its item").toEqual([false, false]);
+    expect(allow(template.getQuestionByName("mt1")), "#7: a Multiple Textboxes in the nesting panel").toBe(false);
+    expect(settingsOf(itemOf("mt1")), "#8: its item").toEqual([false, false]);
+  });
+  test("a nesting panel inside a plain panel, and a plain panel inside a nesting panel: hidden", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "paneldynamic", name: "pd", templateElements: [
+      { type: "panel", name: "plain", elements: [
+        { type: "text", name: "p" },
+        { type: "panel", name: "nest1", valueName: "n1", elements: [{ type: "text", name: "x" }] }] },
+      { type: "panel", name: "nest2", valueName: "n2", elements: [
+        { type: "panel", name: "plain2", elements: [{ type: "text", name: "y" }] }] }] }] });
+    const template = templateOf(survey);
+    expect(settingsOf(template.getQuestionByName("p")), "#1: in a plain panel").toEqual([true, true]);
+    expect(settingsOf(template.getQuestionByName("x")), "#2: a nesting panel in a plain one").toEqual([false, false]);
+    expect(settingsOf(template.getQuestionByName("y")), "#3: a plain panel in a nesting one").toEqual([false, false]);
+  });
+  test("dataNesting changed at runtime: the answer follows", () => {
+    const survey = new SurveyModel(cityJson("none", "info"));
+    const city = templateOf(survey).getQuestionByName("city");
+    expect(settingsOf(city), "#1: \"none\"").toEqual([true, true]);
+    survey.dataNesting = "auto";
+    expect(settingsOf(city), "#2: \"auto\"").toEqual([false, false]);
+    survey.dataNesting = "none";
+    expect(settingsOf(city), "#3: \"none\" again").toEqual([true, true]);
+  });
+  // This test keeps the property rule (isFilterFieldInReach) and the field list (getFilterFields) from drifting apart.
+  test("the two rules agree: a template question offers allowFiltering exactly when it, or an item of it, is a filter field", () => {
+    ComponentCollection.Instance.add({ name: "filtercomp", elementsJSON: [{ type: "text", name: "first" }, { type: "text", name: "last" }] });
+    const templateElements = [
+      { type: "text", name: "a" },
+      { type: "file", name: "f" },
+      { type: "filtercomp", name: "c0" },
+      { type: "multipletext", name: "mt0", items: [{ name: "i1" }, { name: "i2" }] },
+      { type: "panel", name: "plain", elements: [
+        { type: "text", name: "p" },
+        { type: "panel", name: "nest1", valueName: "n1", elements: [{ type: "text", name: "x" }, { type: "multipletext", name: "mt1", items: [{ name: "i1" }] }] }] },
+      { type: "panel", name: "nest2", valueName: "n2", elements: [
+        { type: "text", name: "z" }, { type: "filtercomp", name: "c1" },
+        { type: "panel", name: "plain2", elements: [{ type: "text", name: "y" }] }] },
+      { type: "panel", name: "noKey", elements: [{ type: "text", name: "w" }] }];
+    ["auto", "panel", "none"].forEach(mode => {
+      [false, true].forEach(isDesign => {
+        const label = (isDesign ? "design, " : "runtime, ") + mode + ": ";
+        const survey = surveyOf({ dataNesting: mode, elements: [{ type: "paneldynamic", name: "pd", templateElements: templateElements }] }, isDesign);
+        const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+        const fields = pd.getFilterFields().map(f => f.templateQuestion);
+        const isField = (q: Question): boolean => fields.indexOf(q) > -1;
+        pd.template.questions.forEach((q: Question) => {
+          const items = q.hasNestedFilterFields ? q.getNestedQuestions(false, false) : [];
+          expect(allow(q), label + q.name).toBe(isField(q) || items.some(isField));
+          expect(operators(q), label + q.name + ", filterOperators").toBe(isField(q));
+          items.forEach(item => {
+            expect(settingsOf(item), label + q.name + "." + item.name).toEqual([isField(item), isField(item)]);
+          });
+        });
+        const expected = mode === "none" ? ["a", "first", "last", "i1", "i2", "p", "x", "i1", "z", "first", "last", "y", "w"] : ["a", "first", "last", "i1", "i2", "p", "w"];
+        expect(fields.map(q => q.name), label + "the fields").toEqual(expected);
+      });
+    });
   });
 });

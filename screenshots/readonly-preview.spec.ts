@@ -953,6 +953,83 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-page", "view-numbered-page.png");
     });
 
+    const readOnlyFocusCases: Array<{ name: string, question: any, waitForNetwork?: boolean }> = [
+      { name: "text", question: { type: "text", name: "q1", defaultValue: "John" } },
+      { name: "comment", question: { type: "comment", name: "q1", defaultValue: "text\nto\ntest\ncomment" } },
+      { name: "dropdown", question: { type: "dropdown", name: "q1", defaultValue: "Item 2", choices: ["Item 1", "Item 2", "Item 3"] } },
+      { name: "tagbox", question: { type: "tagbox", name: "q1", defaultValue: ["Item 2", "Item 3"], choices: ["Item 1", "Item 2", "Item 3"] } },
+      { name: "multipletext", question: { type: "multipletext", name: "q1", defaultValue: { text1: "item1", text2: "item2" }, items: [{ name: "text1" }, { name: "text2" }] } },
+      { name: "rating-dropdown", question: { type: "rating", name: "q1", rateMin: 1, rateMax: 5, defaultValue: 4, displayMode: "dropdown" } },
+      { name: "buttongroup", question: { type: "buttongroup", name: "q1", defaultValue: "US", choices: ["Greece", "US", "UK", "Spain"] } },
+      { name: "matrix", question: { type: "matrix", name: "q1", defaultValue: { "Row 1": "Column 1", "Row 2": "Column 2" }, columns: ["Column 1", "Column 2", "Column 3"], rows: ["Row 1", "Row 2"] } },
+      { name: "radiogroup", question: { type: "radiogroup", name: "q1", defaultValue: "BMW", choices: ["Ford", "Vauxhall", "BMW", "Peugeot"] } },
+      { name: "checkbox", question: { type: "checkbox", name: "q1", defaultValue: ["Ford", "BMW"], choices: ["Ford", "Vauxhall", "BMW", "Peugeot"] } },
+      { name: "boolean", question: { type: "boolean", name: "q1", defaultValue: true } },
+      { name: "boolean-radio", question: { type: "boolean", name: "q1", renderAs: "radio", defaultValue: true } },
+      { name: "boolean-checkbox", question: { type: "boolean", name: "q1", renderAs: "checkbox", label: "I am 21 or older", defaultValue: true } },
+      { name: "rating", question: { type: "rating", name: "q1", rateMin: 1, rateMax: 5, defaultValue: 4 } },
+      { name: "rating-stars", question: { type: "rating", name: "q1", rateType: "stars", rateMin: 1, rateMax: 5, defaultValue: 4 } },
+      { name: "rating-smileys", question: { type: "rating", name: "q1", rateType: "smileys", rateMin: 1, rateMax: 5, defaultValue: 4 } },
+      {
+        name: "imagepicker",
+        waitForNetwork: true,
+        question: {
+          type: "imagepicker", name: "q1", titleLocation: "hidden", defaultValue: "lion",
+          choices: [
+            { value: "lion", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg", text: "Lion" },
+            { value: "giraffe", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg", text: "Giraffe" }
+          ]
+        }
+      },
+      { name: "ranking", question: { type: "ranking", name: "q1", defaultValue: ["BMW", "Ford", "Vauxhall", "Peugeot"], choices: ["Ford", "Vauxhall", "BMW", "Peugeot"] } },
+      {
+        name: "matrixdropdown",
+        question: {
+          type: "matrixdropdown", name: "q1",
+          columns: [
+            { name: "Column 1", cellType: "text" },
+            { name: "Column 2", cellType: "dropdown", choices: ["Item 1", "Item 2"] }
+          ],
+          rows: ["Row 1", "Row 2"],
+          defaultValue: { "Row 1": { "Column 1": "Text", "Column 2": "Item 1" } }
+        }
+      },
+      {
+        name: "matrixdynamic",
+        question: {
+          type: "matrixdynamic", name: "q1", rowCount: 2,
+          columns: [
+            { name: "Column 1", cellType: "text" },
+            { name: "Column 2", cellType: "dropdown", choices: ["Item 1", "Item 2"] }
+          ],
+          defaultValue: [{ "Column 1": "Text", "Column 2": "Item 1" }, { "Column 1": "Text" }]
+        }
+      },
+      {
+        name: "paneldynamic",
+        question: {
+          type: "paneldynamic", name: "q1",
+          templateElements: [{ type: "text", name: "q2" }],
+          defaultValue: [{ q2: "123" }]
+        }
+      },
+    ];
+    readOnlyFocusCases.forEach(({ name, question, waitForNetwork }) => {
+      test(`ReadOnly ${name} focused by Tab`, async ({ page }) => {
+        await page.setViewportSize({ width: 800, height: 600 });
+        await initSurvey(page, framework, {
+          showQuestionNumbers: false,
+          elements: [{ ...question, readOnly: true }]
+        });
+        if (waitForNetwork) {
+          await page.waitForLoadState("networkidle");
+        }
+        await resetFocusToBody(page);
+        await page.keyboard.press("Tab");
+        await compareScreenshot(page, ".sd-question__content", `readonly-${name}-focused.png`);
+      });
+    });
+
     test("Readonly and Focus", async ({ page }) => {
       const json = {
         elements: [

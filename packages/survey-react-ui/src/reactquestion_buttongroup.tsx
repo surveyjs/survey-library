@@ -100,7 +100,8 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
         name={this.model.name}
         checked={this.model.selected}
         value={this.model.value}
-        disabled={this.model.readOnly}
+        disabled={this.model.disabled}
+        readOnly={this.question.isReadOnlyAttr}
         onChange={() => {
           this.model.onChange();
         }}

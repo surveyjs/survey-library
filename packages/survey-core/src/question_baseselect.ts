@@ -1662,7 +1662,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     (calcValue || []).forEach(choice => newValue.push(choice));
     const oldValue = this.visibleChoices;
     if (!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
-      this.setArrayPropertyDirectly("visibleChoices", newValue);
+      // false: no onPush per item, which would rebuild renderedChoices once per choice (O(n^2)).
+      // The line below updates them once for the whole list.
+      this.setArrayPropertyDirectly("visibleChoices", newValue, false);
       this.updateRenderedChoices();
     }
   }

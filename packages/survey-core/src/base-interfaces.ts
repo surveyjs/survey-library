@@ -43,6 +43,8 @@ export type {
   IScrollElementToTopOptions,
   IElementUIState,
   ISurveyUIState,
+  ISurveySnapshot,
+  ISurveySnapshotRestoreOptions,
   IWrapperObject,
   ISurveyEnvironment,
   LayoutElementContainer,

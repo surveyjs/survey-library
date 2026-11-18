@@ -26,7 +26,7 @@ import {
   ILoadFromJSONOptions,
   IDropdownMenuOptions,
   ITextProcessorProp,
-  ITextProcessorResult, ISurveyUIState,
+  ITextProcessorResult, ISurveyUIState, ISurveySnapshot, ISurveySnapshotRestoreOptions,
   ISurveyWebProvider,
   ISaveToJSONOptions,
   IScrollElementToTopOptions,
@@ -3647,6 +3647,15 @@ export class SurveyModel extends SurveyElementCore
     if (this.currentPageNo > 0 && this.currentPage) {
       res.currentPageName = this.currentPage.name;
     }
+    if (this.isStartPageActive) {
+      res.isStartPageActive = true;
+    }
+    if (this.isShowingPreview) {
+      res.isShowingPreview = true;
+    }
+    if (this.isSingleVisibleQuestion && this.currentElement) {
+      res.currentElementName = this.currentElement.name;
+    }
     const getElementsStates = (type: string, arr: ISurveyElement[]) => {
       arr.forEach(e => {
         const s = e.uiState;
@@ -3663,17 +3672,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set uiState(state: ISurveyUIState) {
     if (typeof state !== "object" || !state) return;
-    const setElementsStates = (states, fn) => {
-      for (const name in (states || {})) {
-        const elem: ISurveyElement = fn(name);
-        if (elem) {
-          elem.uiState = states[name];
-        }
-      }
-    };
-    setElementsStates(state["pages"], this.getPageByName.bind(this));
-    setElementsStates(state["panels"], this.getPanelByName.bind(this));
-    setElementsStates(state["questions"], this.getQuestionByName.bind(this));
+    this.applyElementUIStates(state);
     // MERGE(V3): keep `restoreCurrentPageFromUIState(state)`; master (V2) inlines the
     // `state.currentPageName` -> `this.currentPage` restore here. Keep V3 helper on merge.
     this.restoreCurrentPageFromUIState(state);
@@ -3685,6 +3684,141 @@ export class SurveyModel extends SurveyElementCore
       this.randomSeed = state.randomSeed;
     }
   }
+  private applyElementUIStates(state: ISurveyUIState): void {
+    const setElementsStates = (states, fn) => {
+      for (const name in (states || {})) {
+        const elem: ISurveyElement = fn(name);
+        if (elem) {
+          elem.uiState = states[name];
+        }
+      }
+    };
+    setElementsStates(state["pages"], this.getPageByName.bind(this));
+    setElementsStates(state["panels"], this.getPanelByName.bind(this));
+    setElementsStates(state["questions"], this.getQuestionByName.bind(this));
+  }
+  /**
+   * Returns a snapshot of the survey state that can be passed to [`restoreSnapshot`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#restoreSnapshot) to resume the survey exactly where the respondent left it.
+   *
+   * The snapshot captures the answers, the variables, and the UI state (current page, start page, preview mode, current question or input, collapsed elements, the active dynamic panel tab, pages already shown, and the random seed).
+   *
+   * It does not capture the completed state, validation errors shown on screen, in-flight async requests, or timer values.
+   * @see restoreSnapshot
+   * @see uiState
+   */
+  public getSnapshot(): ISurveySnapshot {
+    const res: ISurveySnapshot = { data: this.data, variables: {}, uiState: this.uiState };
+    this.getVariableNames().forEach(name => {
+      res.variables[name] = this.getVariable(name);
+    });
+    return res;
+  }
+  /**
+   * Restores the survey state from a snapshot returned by [`getSnapshot`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getSnapshot).
+   *
+   * The restore runs in a fixed order, so a saved session comes back in one pass:
+   *
+   * 1. Writes the variables and data. No value or variable events and no survey triggers fire.
+   * 2. Applies `randomSeed`.
+   * 3. Runs expressions once.
+   * 4. Applies element UI states: collapsed/expanded elements, the active dynamic panel tab, and pages already shown.
+   * 5. Restores the respondent's position: current page, start page, preview, and the current question or input in question-per-page and input-per-page modes.
+   * 6. Optionally focuses the last active question (see `options.focusLastActiveQuestion`).
+   *
+   * Data and variables in the snapshot replace the current ones, the same as assigning `survey.data`. Parts of the snapshot that are absent are left as they are.
+   * @param snapshot A snapshot returned by `getSnapshot()`.
+   * @param options Restore options.
+   * @see getSnapshot
+   * @see uiState
+   */
+  public restoreSnapshot(snapshot: ISurveySnapshot, options?: ISurveySnapshotRestoreOptions): void {
+    if (!snapshot || typeof snapshot !== "object") return;
+    const uiState = snapshot.uiState || {};
+    this.dropHeldCompletion();
+    this.restoringSnapshotScope.run(() => {
+      // 1. Writes the variables and data. The writes below touch the hashes directly instead of
+      // going through setVariable/setVariables (which fire onVariableChanged and run triggers)
+      // and assignData (which runs the triggers that react to setting data), so no value or
+      // variable events and no survey triggers fire during the restore.
+      if (snapshot.variables !== undefined) {
+        this.restoreSnapshotVariables(snapshot.variables);
+      }
+      if (snapshot.data !== undefined) {
+        this.restoreSnapshotData(snapshot.data);
+      }
+      this.notifyElementsOnAnyValueOrVariableChanged("");
+      // 2. Applies randomSeed before the expressions run, so randomized choice and row orders
+      // come out the way the snapshot took them.
+      if (uiState.randomSeed) {
+        this.randomSeed = uiState.randomSeed;
+      }
+      // 3. Runs expressions once, when the scope exits: runConditions() is a no-op while the
+      // restore scope is active, so the pass that setDataCore() requests above is deferred to
+      // that single pass, after the seed is applied.
+    });
+    this.runConditions();
+    // 4. Applies element UI states: collapsed/expanded elements, the active dynamic panel tab,
+    // and pages already shown.
+    this.applyElementUIStates(uiState);
+    // 5. Restores the respondent's position: current page, start page, preview, and the current
+    // question or input in question-per-page and input-per-page modes.
+    this.restorePositionFromUIState(uiState);
+    // 6. Optionally focuses the last active question.
+    if (!!options && options.focusLastActiveQuestion && uiState.activeElementName) {
+      this.getQuestionByName(uiState.activeElementName)?.focus();
+    }
+  }
+  // Replace, the same as setVariables(variables, true): variables not in the snapshot are removed.
+  private restoreSnapshotVariables(variables: { [name: string]: any }): void {
+    this.variablesHash = createHash();
+    if (!variables || typeof variables !== "object") return;
+    for (const key in variables) {
+      if (!key || isProtoKey(key.toLowerCase())) continue;
+      this.setVariableCore(key, variables[key]);
+    }
+  }
+  // Replace, the same as assigning survey.data, except the setting-data triggers do not run,
+  // and answered pages are not marked as shown here: which pages were already shown is part
+  // of the snapshot's uiState, applied in step 4, so the data write must not invent shown
+  // flags the snapshot did not record.
+  private restoreSnapshotData(data: any): void {
+    this.resetValuesHash();
+    this.setDataCore(data, !data);
+  }
+  private restorePositionFromUIState(state: ISurveyUIState): void {
+    if (this.firstPageIsStartPage) {
+      // The snapshot records whether the start page was still showing: a survey that was
+      // already started returns to it, and a survey on its start page moves past it.
+      this.isStartedState = state.isStartPageActive === true;
+    }
+    this.restoreCurrentPageFromUIState(state);
+    if (state.activeElementName) {
+      const question = this.getQuestionByName(state.activeElementName);
+      if (!!question) {
+        // Remember where the respondent's attention was without focusing: focusing would scroll
+        // the page, and it does nothing on the server. The actual focus happens in step 6 only
+        // when the caller opts in.
+        this.lastActiveQuestion = question;
+      }
+    }
+    if (state.currentElementName) {
+      const el = this.getElementByName(state.currentElementName);
+      if (!!el) {
+        this.currentElement = el;
+      }
+    }
+    if (state.isShowingPreview) {
+      // Set directly instead of showPreview(): a restore must not re-validate the answers
+      // or ask the onShowingPreview handlers whether the preview is allowed - the snapshot
+      // records a preview the respondent was already looking at.
+      this.isShowingPreview = true;
+    } else if (this.isShowingPreview) {
+      this.isShowingPreview = false;
+    }
+  }
+  // Active while restoreSnapshot() writes variables and data and applies the seed: conditions
+  // requested during the restore are deferred to the single pass at the end of the restore.
+  private restoringSnapshotScope = new Scope();
   private restoreCurrentPageFromUIState(state: ISurveyUIState): void {
     if (state.currentPageName) {
       const page = this.getPageByName(state.currentPageName);
@@ -7493,6 +7627,10 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
   }
   private runConditions() {
+    // A snapshot restore writes variables and data and applies the seed first, then runs the
+    // expressions once, explicitly, when the restore scope exits. Passes requested during the
+    // restore (setDataCore requests one) are deferred to that single pass.
+    if (this.restoringSnapshotScope.isActive) return;
     if (
       this.isCompleted && !this.isRunningConditionsOnComplete ||
       this.isEndLoadingFromJson === "processing" ||

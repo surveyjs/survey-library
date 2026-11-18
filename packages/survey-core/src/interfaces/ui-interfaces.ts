@@ -85,6 +85,25 @@ export interface ISurveyUIState {
   activeElementName?: string;
   currentPageName?: string;
   randomSeed?: number;
+  // Whether the start page is currently displayed (surveys with firstPageIsStartPage only).
+  isStartPageActive?: boolean;
+  // Whether the survey is currently showing the answers preview.
+  isShowingPreview?: boolean;
+  // The current question or panel in questionPerPage mode, or the current input question in inputPerPage mode.
+  currentElementName?: string;
+}
+// A complete capture of a respondent's survey state, as returned by SurveyModel.getSnapshot().
+// Whatever getSnapshot() returns can be passed to restoreSnapshot() unchanged.
+export interface ISurveySnapshot {
+  data?: any;
+  variables?: { [name: string]: any };
+  uiState?: ISurveyUIState;
+}
+// Options for SurveyModel.restoreSnapshot().
+export interface ISurveySnapshotRestoreOptions {
+  // Focus the last active question after restoring. Off by default: focusing can scroll the page,
+  // and it does nothing on the server.
+  focusLastActiveQuestion?: boolean;
 }
 
 export interface IWrapperObject {

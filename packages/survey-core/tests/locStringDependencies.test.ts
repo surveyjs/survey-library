@@ -386,6 +386,19 @@ describe("The UI is notified under the string's name", () => {
     expect(log[0].model).toBe(q2);
     tracker.unsubscribe();
   });
+  test("a new text that renders as before notifies the UI once: a component may show the raw text", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1", defaultValue: "A" },
+      { type: "text", name: "q2", title: "Hello {q1}" }
+    ] });
+    const q2 = survey.getQuestionByName("q2");
+    expect(q2.locTitle.renderedHtml).toBe("Hello A");
+    const { tracker, log } = renderAndSubscribe(() => { q2.title; });
+    q2.title = "Hello A";
+    expect(q2.locTitle.renderedHtml).toBe("Hello A");
+    expect(log.map(item => item.name)).toEqual(["title"]);
+    tracker.unsubscribe();
+  });
   test("a set text notifies the UI once", () => {
     const survey = new SurveyModel({ completedHtml: "first", elements: [{ type: "text", name: "q1" }] });
     const { tracker, log } = renderAndSubscribe(() => { survey.processedCompletedHtml; });

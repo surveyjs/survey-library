@@ -80,8 +80,8 @@ export class LocalizableString implements ILocalizableString {
   // other values: a value change refreshes the string only when a name of its text changed.
   // Set it after the callback; assigning a callback resets it.
   public isTextCallbackPure: boolean;
-  // Called by strChanged() when the text it renders has changed, or when it keeps no rendered text:
-  // the owner read the raw text and processes it itself (SurveyModel.processedCompletedHtml)
+  // Called when the text changed, and by strChanged() when the text it renders has changed, or when it keeps
+  // no rendered text: the owner read the raw text and processes it itself (SurveyModel.processedCompletedHtml)
   public onRenderedTextChanged: () => void;
   // The owner shows the raw text processed in its own way and checks more than the text's names
   // (SurveyModel's completedHtml): every refresh calls onRenderedTextChanged, whatever the string renders
@@ -120,11 +120,15 @@ export class LocalizableString implements ILocalizableString {
   // changes: the names changed by a value change; the string refreshes only when they can change its
   // text. Without them (a locale or page change, a new text handler) it always refreshes.
   public strChanged(changes?: ChangedKeys): void {
-    if (!this.isTextRequested) return;
-    if (!!changes && !this.isRefreshRequired(changes)) return;
+    this.strChangedCore(changes, true);
+  }
+  // Returns whether onRenderedTextChanged was called
+  private strChangedCore(changes: ChangedKeys, canNotify: boolean): boolean {
+    if (!this.isTextRequested) return false;
+    if (!!changes && !this.isRefreshRequired(changes)) return false;
     this.searchableText = undefined;
     const renderedText = this.renderedText;
-    if (renderedText === undefined && this.isEmpty && !this.onGetTextCallback && !this.localizationName) return;
+    if (renderedText === undefined && this.isEmpty && !this.onGetTextCallback && !this.localizationName) return false;
     this.calculatedTextValue = this.calcText();
     const isRenderedTextChanged = renderedText !== this.calculatedTextValue;
     if (isRenderedTextChanged) {
@@ -134,19 +138,15 @@ export class LocalizableString implements ILocalizableString {
     this.htmlValues = {};
     this.onChanged();
     this.onStringChanged.fire(this, {});
-    // A set text notifies through onStrChanged
-    if ((isRenderedTextChanged || this.isProcessedByOwner) && !!this.onRenderedTextChanged && !this.settingTextCounter) {
-      this.onRenderedTextChanged();
+    if (canNotify && (isRenderedTextChanged || this.isProcessedByOwner)) {
+      return this.notifyRenderedTextChanged();
     }
+    return false;
   }
-  private settingTextCounter: number = 0;
-  private runSettingText(func: () => void): void {
-    this.settingTextCounter++;
-    try {
-      func();
-    } finally {
-      this.settingTextCounter--;
-    }
+  private notifyRenderedTextChanged(): boolean {
+    if (!this.onRenderedTextChanged) return false;
+    this.onRenderedTextChanged();
+    return true;
   }
   // Whether the changed names can change the text: the same check as an expression's (ChangedKeys),
   // over the names of the text and the names the owner's context adds
@@ -363,11 +363,16 @@ export class LocalizableString implements ILocalizableString {
     }
   }
   private fireStrChanged(loc: string, oldValue: string) {
-    this.runSettingText(() => this.strChanged());
+    const isNotified = this.strChangedCore(undefined, true);
     if (!this.onStrChanged) return;
     const value = this.pureText;
     if (loc !== this.curLocale || oldValue !== value) {
       this.onStrChanged(oldValue, value);
+      // The text changed: a component that read it renders it again, also when nobody has read it yet
+      // (strChanged skipped it) or when it renders as before (a component may show the raw text)
+      if (!isNotified) {
+        this.notifyRenderedTextChanged();
+      }
     }
   }
   public hasNonDefaultText(): boolean {
@@ -443,7 +448,8 @@ export class LocalizableString implements ILocalizableString {
           this.setLocaleText(key, value[key]);
         }
       }
-      this.runSettingText(() => this.strChanged());
+      // Each text set above has notified the UI (fireStrChanged)
+      this.strChangedCore(undefined, false);
     }
   }
   public mergeWith(locStr: LocalizableString, locales?: string[]): void {

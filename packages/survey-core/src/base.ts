@@ -1560,11 +1560,13 @@ export class Base implements IObjectValueContext {
     if (!!name) {
       locStr.onStrChanged = (oldValue: string, newValue: string) => {
         this.propertyValueChanged(name, oldValue, newValue);
-        this.fireLocStrUICallbacks(name, newValue);
       };
-      // A value its text shows has changed: a component that read the string (getLocStringText) renders it again
+      // The text, or a value it shows, has changed: a component that read the string (getLocStringText) renders it
+      // again. The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI.
       locStr.onRenderedTextChanged = () => {
-        this.fireLocStrUICallbacks(name, undefined);
+        if (!!this.onPropertyValueCoreChanged && !this.isDisposedValue) {
+          Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue: undefined });
+        }
       };
     }
     if (!this.localizableStrings) {
@@ -1572,12 +1574,6 @@ export class Base implements IObjectValueContext {
     }
     this.localizableStrings[name] = locStr;
     return locStr;
-  }
-  // The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI
-  private fireLocStrUICallbacks(name: string, newValue: any): void {
-    if (!!this.onPropertyValueCoreChanged && !this.isDisposedValue) {
-      Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue });
-    }
   }
   public getLocalizableString(name: string): LocalizableString {
     const ls = this.localizableStrings;

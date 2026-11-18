@@ -9,6 +9,7 @@ By default, survey results are flat: every question stores its value in a top-le
 - [Nest a Panel or a Page](#nest-a-panel-or-a-page)
 - [Nest Every Panel or Page](#nest-every-panel-or-page)
 - [Nest a Panel Inside Dynamic Panel or a Matrix Detail Panel](#nest-a-panel-inside-dynamic-panel-or-a-matrix-detail-panel)
+- [Names Inside a Nesting Container](#names-inside-a-nesting-container)
 - [Access Nested Values in Code](#access-nested-values-in-code)
 - [Nested Values in Expressions](#nested-values-in-expressions)
 - [Clear and Validate Nested Values](#clear-and-validate-nested-values)
@@ -108,6 +109,8 @@ It produces the following data:
 
 If a page or panel has no `name` in the JSON, it receives a generated name (`page1`, `panel1`) and nests under it. Specify names explicitly to keep property names stable.
 
+In the `"page"` and `"panelAndPage"` modes, every question is inside a nesting page. A question on another page is reached by its path: `{page1.q1}` in expressions and `survey.getQuestionByName("page1.q1")` in code (see [Names Inside a Nesting Container](#names-inside-a-nesting-container)).
+
 ## Nest a Panel Inside Dynamic Panel or a Matrix Detail Panel
 
 Dynamic Panel stores each panel's values in an object of its value array, and a matrix stores each row's cell values and detail panel values in an object of its value array. A panel with a `valueName` inside the panel template or the detail panel stores its questions' values in an object inside that record:
@@ -184,6 +187,99 @@ A question inside a nesting panel is not offered as a field for sorting ([`sortC
 
 If two Dynamic Panels or matrices share one value (they have the same `valueName`), their templates must nest in the same way. The survey does not reconcile two record shapes: each question reads and writes the record in its own shape.
 
+## Names Inside a Nesting Container
+
+With a `dataNesting` mode other than `"none"`, a name has to be unique only where its value is stored. A panel or page that nests its values is a name scope: the names of the elements inside it must be unique inside it, not across the survey. For example, you can copy an address panel and change only the panel's name and `valueName`. The questions inside keep their names:
+
+```js
+const surveyJson = {
+  "dataNesting": "auto",
+  "elements": [{
+    "type": "panel",
+    "name": "delivery",
+    "valueName": "delivery",
+    "elements": [{ "type": "text", "name": "postcode" }]
+  }, {
+    "type": "panel",
+    "name": "billing",
+    "valueName": "billing",
+    "elements": [{ "type": "text", "name": "postcode" }]
+  }]
+};
+
+// Produces:
+// { "delivery": { "postcode": "0150" }, "billing": { "postcode": "0151" } }
+```
+
+A panel that does not nest is not a name scope: two questions with one name inside it would write one property. Its elements belong to the nearest nesting panel or page above it, or to the survey. If the `delivery` panel holds a panel `details` without a `valueName`, a `postcode` question inside `details` must be unique inside `delivery`, `details` included.
+
+Two panels with the same `valueName` are two name scopes that share one object. Keep their question names distinct, because a question name in both would write one property. Inside one of them, a question of the other gives no value by its bare name: use the path (`{address.street}`).
+
+The panel template of Dynamic Panel and the detail panel of a matrix are name scopes too: two Dynamic Panels can each have a `title` question. The columns of a matrix are not names of its detail panel's scope: a detail question's `choicesFromQuestion` does not find a column. A column and a detail question with the same name still write one property of the row, so keep their names distinct.
+
+### Path of Names and Data Path
+
+From outside its scope, an element is reached by a path of names: the name of each nesting panel or page, Dynamic Panel, or matrix on the way, then the element's name. A panel that does not nest is not part of the path: the `postcode` question above is `delivery.postcode`, and the `details` panel itself is `delivery.details`.
+
+Expressions use a data path instead: the property names in the data. The two paths are the same string unless a `valueName` differs from its `name`:
+
+```js
+const surveyJson = {
+  "dataNesting": "auto",
+  "elements": [{
+    "type": "panel",
+    "name": "deliveryPanel",
+    "valueName": "delivery",
+    "elements": [{ "type": "text", "name": "postcode", "valueName": "zip" }]
+  }, {
+    "type": "text",
+    "name": "notes",
+    "visibleIf": "{delivery.zip} notempty"
+  }]
+};
+const survey = new Model(surveyJson);
+
+survey.getQuestionByName("deliveryPanel.postcode");   // The postcode question (path of names)
+survey.getQuestionByName("delivery.zip");             // null: a data path is not a path of names
+// In expressions, {delivery.zip} works and {deliveryPanel.postcode} gives no value.
+// Inside the panel, an expression reads {zip}, not {postcode}.
+```
+
+A name that contains a dot is matched as a whole first: a question named `a.b` at the top level wins over a question `b` in a panel `a`.
+
+### Where a Path of Names Works
+
+- `survey.getQuestionByName()`, `survey.getPanelByName()`, and `survey.getElementByName()`. A bare name finds only the elements that are not inside a nesting container. A panel's own `getQuestionByName("postcode")` takes a bare name, as before.
+- The `gotoName` property of the `skip` trigger: `"gotoName": "delivery.postcode"`.
+- A question's `choicesFromQuestion`. A bare name is looked up in the question's own scope first, then in each scope around it. From outside the scope, use the path of names.
+- The `source` of the Filter control (`"type": "filter"`), in the same way as `choicesFromQuestion`. In the following survey, a filter at the top level finds Dynamic Panel by `"p.orders"`. The data path `"address.orders"` and the bare name `"orders"` find no source, and the filter offers no fields. A filter inside the panel `p` finds `"orders"`:
+
+    ```js
+    const surveyJson = {
+      "dataNesting": "auto",
+      "elements": [{
+        "type": "panel",
+        "name": "p",
+        "valueName": "address",
+        "elements": [{
+          "type": "paneldynamic",
+          "name": "orders",
+          "templateElements": [{ "type": "text", "name": "item" }]
+        }]
+      }, {
+        "type": "filter",
+        "name": "ordersFilter",
+        "source": "p.orders"
+      }]
+    };
+    ```
+
+The `setToName` and `fromName` properties of triggers take a data path, as expressions do (see [Nested Values in Expressions](#nested-values-in-expressions)).
+
+### The `"none"` Mode
+
+In `"none"`, the default, names work as in earlier versions: every question name is unique across the survey, and `survey.getQuestionByName("postcode")` finds a question in any panel or page.
+
 ## Access Nested Values in Code
 
 The survey data API works with top-level properties:
@@ -191,8 +287,8 @@ The survey data API works with top-level properties:
 ```js
 const survey = new Model(surveyJson);
 
-// Read and write a nested value through its question
-survey.getQuestionByName("street").value = "Main St";
+// Read and write a nested value through its question: "panel name.question name"
+survey.getQuestionByName("addressPanel.street").value = "Main St";
 
 survey.getValue("address");   // { street: "Main St" }
 survey.getValue("street");    // undefined: "street" is not a top-level property
@@ -201,7 +297,7 @@ survey.mergeData({ address: { street: "Main St" } });   // Merges into the objec
 ```
 
 - Use a question's [`value`](/form-library/documentation/api-reference/question#value) and [`comment`](/form-library/documentation/api-reference/question#comment) properties to access a nested value.
-- `survey.getQuestionByValueName("street")` returns `null` for a nested question. Use `survey.getQuestionByName("street")`. Question names stay unique across the survey.
+- `survey.getQuestionByName("street")` and `survey.getQuestionByValueName("street")` return `null` for a nested question. Use the path of names: `survey.getQuestionByName("addressPanel.street")` (see [Names Inside a Nesting Container](#names-inside-a-nesting-container)).
 - `survey.getComment()` and `survey.setComment()` work with top-level comments only.
 - When the object becomes empty, it is removed from the data.
 - Properties of the object that no question owns (for example, fields loaded from your server that the form does not display) are kept when respondents edit the questions.
@@ -223,8 +319,8 @@ When you call `survey.setValue("address", ...)` in code, `options.question` is n
 
 Expressions and text piping can reference a nested question in two ways:
 
-- By the question name: `{street}`. It works inside and outside the nesting panel.
-- By the path: `{address.street}`. A path starts at the top level of the data. Inside a nesting panel or page, it can also start at that container's object.
+- By the question name: `{street}`. It works inside the nesting panel: in the expressions and titles of its questions and of the panels inside it. Outside the nesting panel, `{street}` gives no value. The nesting panel's own title and conditions are outside it too: use the path there.
+- By the path: `{address.street}`. A path starts at the top level of the data, and it works everywhere. Inside a nesting panel or page, it can also start at that container's object.
 
 `{address}` returns the whole object, so you can check it with `{address} notempty`. In text piping, `{address}` displays `[object Object]`: reference the nested questions instead (`{address.street}, {address.city}`). A path to a choice-based question displays the choice text, as `{kind}` does.
 
@@ -243,12 +339,12 @@ const surveyJson = {
     "type": "html",
     "name": "summary",
     "visibleIf": "{address} notempty",
-    "html": "Ship to: {address.street}, {city}"
+    "html": "Ship to: {address.street}, {address.city}"
   }]
 };
 ```
 
-Calculated values and triggers read nested values in the same way. The `setToName` and `fromName` properties of `setvalue`, `copyvalue`, and `runexpression` triggers accept a question name (`"street"`), a path (`"address.street"`), or a top-level property (`"address"`).
+Calculated values and triggers read nested values in the same way. The `setToName` and `fromName` properties of `setvalue`, `copyvalue`, and `runexpression` triggers take a path in the data, as an expression does: `"address.street"`, or a top-level property (`"address"`). A bare name such as `"street"` is a top-level property: `"setToName": "street"` writes `{ "street": ... }`, not the nested question.
 
 ### Host Variables
 
@@ -318,7 +414,7 @@ survey.getData({ includePanels: true });
 
 - A composite question already stores its values in an object of its own. A `valueName` on a panel inside the composite question is ignored, and the `"panel"`, `"page"`, and `"panelAndPage"` modes do not nest the panels inside it. Inside Dynamic Panel and a matrix detail panel, a panel with a `valueName` nests (see [Nest a Panel Inside Dynamic Panel or a Matrix Detail Panel](#nest-a-panel-inside-dynamic-panel-or-a-matrix-detail-panel)).
 - `survey.getValue()` and `survey.setValue()` do not accept a path: `survey.getValue("address.street")` returns `undefined`. Use the question's `value` property or `survey.getValue("address")`.
-- Expressions have no prefix variable for a nesting panel (similar to `{panel.questionName}` in Dynamic Panel). Use `{questionName}` or the path.
+- Expressions have no prefix variable for a nesting panel (similar to `{panel.questionName}` in Dynamic Panel). Use `{questionName}` inside the nesting panel and the path (`{address.street}`) outside it.
 - A question inside a nesting panel inside Dynamic Panel or a matrix detail panel cannot be a sort or filter field of the records.
 - If you change a panel's `valueName`, its name in a `"panel"` / `"panelAndPage"` mode, the survey's `dataNesting`, or move a question in or out of a nesting panel at runtime, the existing data stays where it is. The questions read their values from the new location, which is usually empty. To move the data, do it in code:
 
@@ -339,6 +435,7 @@ survey.getData({ includePanels: true });
     Serializer.findProperty("survey", "dataNesting").defaultValue = "auto";
     ```
 
+- Once a survey uses a `dataNesting` mode other than `"none"`, a question inside a nesting panel or page is no longer found by its bare name from outside that container. `survey.getQuestionByName("street")` returns `null`, and `{street}` outside the panel gives no value. Update such code and expressions to the paths (see [Names Inside a Nesting Container](#names-inside-a-nesting-container)).
 - A survey JSON that already has a `valueName` on a panel inside Dynamic Panel or a matrix detail panel (earlier versions ignored it) nests the panel's values in an object inside the record once the survey sets a `dataNesting` mode other than `"none"`. Existing flat data under these questions is no longer read, and `clearIncorrectValues()` removes such flat properties. To keep the earlier shape, set `"dataNesting": "none"` or remove the `valueName`.
 - An earlier SurveyJS version does not know the `valueName` property of panels and pages and the `dataNesting` survey property. It reports them in [`jsonErrors`](/form-library/documentation/api-reference/survey-data-model#jsonErrors) and stores the data flat. Nested data loaded into an earlier version does not reach the nested questions.
 

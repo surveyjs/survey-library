@@ -368,11 +368,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public get text(): string {
     return this.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewriting in Creator
   }
-  public get renderedText(): string {
-    if (this.locTextValue) return this.getLocStringText(this.locText);
-    return this.getValueText();
-  }
-
   public set text(newText: string) {
     this.locText.text = newText;
   }

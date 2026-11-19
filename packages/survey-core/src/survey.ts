@@ -104,7 +104,7 @@ import type { IDataScope } from "./data-key-index";
 import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
 import { ElementIndex } from "./element-index";
-import { INameScope, findElementInNameScope, getElementNamePath, getNameScopeOwner, isNameScopeMode } from "./name-scope";
+import { INameScope, findElementInNameScope, getElementNamePath as getNameScopePath, getNameScopeOwner, isNameScopeMode } from "./name-scope";
 import { getQuestionByVariable, getQuestionVariableName, getExpressionVariableName, getExpressionScopePaths,
   findDataScopeValueContext } from "./data-scope-variables";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
@@ -3664,7 +3664,7 @@ export class SurveyModel extends SurveyElementCore
   public get uiState(): ISurveyUIState {
     const res: ISurveyUIState = {};
     // In a nesting mode an element is kept under its path of names: a name is unique only in its scope (O2).
-    const nameOf = (el: ISurveyElement): string => isNameScopeMode(this) ? getElementNamePath(el) : el.name;
+    const nameOf = (el: ISurveyElement): string => this.getElementNamePath(el);
     if (this.lastActiveQuestion) {
       res.activeElementName = nameOf(this.lastActiveQuestion.rootParentQuestion);
     }
@@ -4251,7 +4251,7 @@ export class SurveyModel extends SurveyElementCore
     const el = this.currentElement;
     if (!el) return "";
     // In a nesting mode the path of names the setter finds the element by (O2): a page holds its elements in "page".
-    return isNameScopeMode(this) ? getElementNamePath(el) : el.name || "";
+    return this.getElementNamePath(el) || "";
   }
   public set currentElementName(val: string) {
     if (!!val) {
@@ -7523,6 +7523,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public getQuestionVariableName(question: Question): string {
     return getQuestionVariableName(this, question);
+  }
+  // The path of names getElementByName / getQuestionByName find the element by (O2, O8): each name scope owner's
+  // name, then the element's. Its name in "none" and for an element of the survey's own scope.
+  public getElementNamePath(element: ISurveyElement): string {
+    return isNameScopeMode(this) ? getNameScopePath(element) : element.name;
   }
   public getExpressionVariableName(name: string): string {
     return getExpressionVariableName(this, name);

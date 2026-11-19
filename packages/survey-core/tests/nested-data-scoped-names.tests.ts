@@ -328,6 +328,53 @@ describe("scoped names: a bare name, a panel property and the UI state, from the
   });
 });
 
+describe("scoped names: getElementNamePath, the path the survey finds an element by", () => {
+  const checkPath = (survey: SurveyModel, el: any, path: string): void => {
+    expect(survey.getElementNamePath(el), path).toBe(path);
+    expect(survey.getElementByName(path), "found again: " + path).toBe(el);
+  };
+  test("\"none\": the name", () => {
+    const survey = new SurveyModel(example("none"));
+    const q = survey.getAllQuestions().filter(q => q.name === "postcode")[1];
+    expect(survey.getElementNamePath(q)).toBe("postcode");
+    expect(survey.getElementNamePath(survey.getPanelByName("delivery"))).toBe("delivery");
+  });
+  test("\"auto\": the scope owners' names, a panel that holds no data adds no segment", () => {
+    const survey = new SurveyModel(example("auto"));
+    const billing = <PanelModel>survey.getPanelByName("billing");
+    checkPath(survey, billing, "billing");
+    checkPath(survey, billing.getQuestionByName("street"), "billing.street");
+    checkPath(survey, billing.getQuestionByName("postcode"), "billing.postcode");
+    checkPath(survey, billing.elements[1], "billing.details");
+    expect(survey.getElementNamePath(survey.pages[0])).toBe("page1");
+  });
+  test("\"page\": the page adds a segment", () => {
+    const survey = new SurveyModel(example("page"));
+    const delivery = <PanelModel>survey.getPanelByName("page1.delivery");
+    checkPath(survey, delivery, "page1.delivery");
+    checkPath(survey, delivery.getQuestionByName("postcode"), "page1.delivery.postcode");
+  });
+  test("a dynamic panel's template question (SN3) and a detail panel's question (O9)", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "q" }] },
+      { type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow", columns: [{ name: "c1" }],
+        detailElements: [{ type: "text", name: "q" }] }
+    ] });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    checkPath(survey, dp, "dp");
+    checkPath(survey, dp.template.getQuestionByName("q"), "dp.q");
+    checkPath(survey, m.detailPanel.getQuestionByName("q"), "m.q");
+  });
+  test("the current element's path is currentElementName", () => {
+    const survey = new SurveyModel({ dataNesting: "page", questionsOnPageMode: "questionPerPage", pages: [
+      { name: "p1", elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] }] });
+    survey.currentElementName = "p1.b";
+    expect(survey.getElementNamePath(survey.currentElement)).toBe("p1.b");
+    expect(survey.getElementNamePath(survey.currentElement)).toBe(survey.currentElementName);
+  });
+});
+
 describe("scoped names: the UI state keeps an element under its path", () => {
   test("two panels named details in two scopes", () => {
     const json = example("auto");

@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Base } from "./base";
 import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
@@ -2625,8 +2626,8 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     this.updateRecordsBar();
   }
   // A locale change changes no sort and no property; the bar's texts and the field titles follow it.
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.updateRecordsBar();
   }
   public onSurveyLoad(): void {

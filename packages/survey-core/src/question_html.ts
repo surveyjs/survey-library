@@ -32,6 +32,9 @@ export class QuestionHtmlModel extends QuestionNonValue {
         ? obj.processHtml(str)
         : str;
     };
+    // It processes the names of its own text. An onProcessHtml handler can read any value: then the survey
+    // refreshes every string
+    locStr.isTextCallbackPure = true;
   } } }) html: string;
 
   public get processedHtml() {

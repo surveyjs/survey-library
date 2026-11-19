@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "../conditions/conditionProcessValue";
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
 import { ISurvey } from "../base-interfaces";
@@ -503,8 +504,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   public set locTitleName(val: string) {
     this.locTitle.localizationName = val;
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.locTooltipChanged();
     this.locStrChangedInPopupModel();
   }

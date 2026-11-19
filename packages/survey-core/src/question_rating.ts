@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
 import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
 import type { ISelectQuestion } from "./question_baseselect";
@@ -224,10 +225,10 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     }
   }
 
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.resetReadOnlyText();
-    this.dropdownListModelValue?.locStrsChanged();
+    this.dropdownListModelValue?.locStrsChanged(changes);
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();

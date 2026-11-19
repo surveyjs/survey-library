@@ -7,7 +7,7 @@ import { surveyLocalization } from "../surveyStrings";
 // (getBuiltInVariableNames) instead of keeping their own copy.
 // A Map, not an object literal: the key is an arbitrary name taken from an expression
 // and must not hit Object.prototype ("constructor", ...).
-// It lives in a leaf module, so that the expression code (ValueGetter.isAnyKeyChanged) can
+// It lives in a leaf module, so that the expression code (ValueGetter, ChangedKeys) can
 // read the names without importing survey.ts. The survey is only a type here.
 const builtInVariables = new Map<string, (survey: SurveyModel) => any>([
   ["pageno", (survey: SurveyModel): any => {

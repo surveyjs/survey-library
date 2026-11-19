@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Serializer } from "./jsonobject";
 import { advanceKeyboardHints, IKeyboardHintData, KeyboardHintKey } from "./keyboard-hints";
 import { property } from "./decorators";
@@ -48,10 +49,10 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   public supportsChoiceKeyboardSelection(): boolean {
     return false;
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.resetReadOnlyText();
-    this.dropdownListModelValue?.locStrsChanged();
+    this.dropdownListModelValue?.locStrsChanged(changes);
   }
   protected getDefaultItemComponent(): string {
     return "";

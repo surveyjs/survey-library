@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
@@ -594,10 +595,10 @@ export class PanelModelBase extends SurveyElement<Question>
       (<Base>(<any>this.elements[i])).localeChanged();
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].locStrsChanged();
+      this.elements[i].locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {
@@ -2444,6 +2445,8 @@ export class PanelModel extends PanelModelBase implements IElement {
       }
       return text;
     };
+    // A collapsible panel without a title shows its name
+    locTitleValue.isTextCallbackPure = true;
     return locTitleValue;
   }
   protected beforeSetVisibleIndex(index: number): number {

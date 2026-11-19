@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, NestedElementVisit, NestedWalkBuild } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
@@ -537,10 +538,10 @@ export abstract class QuestionCustomModelBase extends Question
   protected get supportsQuestionView(): boolean {
     return false;
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     if (!!this.getElement()) {
-      this.getElement().locStrsChanged();
+      this.getElement().locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {
@@ -818,6 +819,7 @@ export abstract class QuestionCustomModelBase extends Question
 }
 
 export class QuestionCustomModel extends QuestionCustomModelBase {
+  public hasDisplayTexts(): boolean { return !!this.contentQuestion && this.contentQuestion.hasDisplayTexts(); }
   private questionWrapper: Question;
   private hasJSONTitle: boolean;
   public getTemplate(): string {

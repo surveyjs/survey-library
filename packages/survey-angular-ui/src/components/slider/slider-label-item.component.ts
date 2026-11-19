@@ -2,8 +2,10 @@ import { Component, Input } from "@angular/core";
 import { QuestionSliderModel, SliderLabelItemValue } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-slider-label-item",
   templateUrl: "./slider-label-item.component.html"
 })

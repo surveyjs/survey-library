@@ -2,9 +2,11 @@ import { Component, Input } from "@angular/core";
 import { Base, SurveyTimerModel } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component(
   {
+    providers: SurveyBaseProviders,
     selector: "sv-timerpanel",
     templateUrl: "./timer-panel.component.html",
   }

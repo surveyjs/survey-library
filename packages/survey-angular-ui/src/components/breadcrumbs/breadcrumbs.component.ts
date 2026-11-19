@@ -1,7 +1,9 @@
 import { Component, Input } from "@angular/core";
 import { ActionContainer } from "survey-core";
 import { BaseAngular } from "../../base-angular";
+import { SurveyBaseProviders } from "../../component-depth";
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-breadcrumbs",
   templateUrl: "./breadcrumbs.component.html",
   //styles: [":host { display: none; }"],

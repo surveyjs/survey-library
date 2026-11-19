@@ -19,8 +19,8 @@ export class FilterChipsComponent extends BaseAngular<FilterChipsLayout> impleme
   }
   // #chips is in an embedded view created late, so this is tried on every check until the ref exists;
   // attach() returns at once for the element it already has.
-  override ngAfterViewChecked(): void {
-    super.ngAfterViewChecked();
+  override afterUpdate(): void {
+    super.afterUpdate();
     const layout = this.getModel();
     if (!!layout && !!this.chipsRef) {
       layout.attach(this.chipsRef.nativeElement);

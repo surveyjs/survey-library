@@ -1414,7 +1414,7 @@ describe("Base", () => {
     const question = survey.getAllQuestions()[0];
     expect(question.animationAllowed).toBeFalsy();
     settings.animationEnabled = true;
-    question.supportOnElementRerenderedEvent = false;
+    question.enableOnElementRerenderedEvent();
     expect(question.animationAllowed).toBeTruthy();
     question.blockAnimations();
     expect(question.animationAllowed).toBeFalsy();
@@ -1431,7 +1431,7 @@ describe("Base", () => {
     const question = survey.getAllQuestions()[0];
     settings.animationEnabled = true;
     try {
-      question.supportOnElementRerenderedEvent = false;
+      question.enableOnElementRerenderedEvent();
       const states: Array<boolean> = [];
       const res = question.runWithoutAnimations(() => {
         states.push(question.animationAllowed);
@@ -1535,5 +1535,20 @@ describe("Base", () => {
     expect(obj.pageSize, "pageSize #3").toBe(1);
     obj.pageSize = NaN;
     expect(obj.pageSize, "pageSize #4").toBe(1);
+  });
+  test("disableOnElementRerenderedEvent fires a cancel event when the last renderer disables it", () => {
+    const obj = new Base();
+    obj.enableOnElementRerenderedEvent();
+    obj.enableOnElementRerenderedEvent();
+    const log: Array<boolean> = [];
+    obj.onElementRerendered.add((_: Base, options: any) => log.push(options.isCancel));
+    obj.disableOnElementRerenderedEvent();
+    expect(obj.onElementRerenderedEventEnabled, "enabled while another renderer keeps it").toBe(true);
+    expect(log, "no cancel event while enabled").toEqual([]);
+    obj.disableOnElementRerenderedEvent();
+    expect(obj.onElementRerenderedEventEnabled).toBe(false);
+    expect(log, "cancel event when disabled").toEqual([true]);
+    obj.disableOnElementRerenderedEvent();
+    expect(log, "no cancel event on an extra disable").toEqual([true]);
   });
 });

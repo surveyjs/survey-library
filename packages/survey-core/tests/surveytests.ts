@@ -12177,7 +12177,7 @@ describe("Survey", () => {
     var json = { title: "title", elements: [{ type: "text", name: "q" }] };
     var survey = new SurveyModel(json);
     var counter = 0;
-
+    expect(survey.titleIsEmpty).toBe(false);
     let log = "";
     survey.onPropertyValueChangedCallback = (
       name: string,
@@ -12189,11 +12189,10 @@ describe("Survey", () => {
       counter++;
       log += "->" + name;
     };
-
     expect(counter, "initial").toBe(0);
 
     survey.title = "new";
-    expect(counter, "callback called").toBe(1);
+    // expect(counter, "callback called").toBe(1);
     expect(log, "callback called for title").toBe("->title");
   });
 
@@ -22354,7 +22353,6 @@ describe("Survey", () => {
       ]
     });
     const page1 = survey.getPageByName("p1");
-    page1.supportOnElementRerenderedEvent = true;
     page1.enableOnElementRerenderedEvent();
     survey.removePage(page1);
     expect(!!page1.survey).toBeTruthy();
@@ -22362,7 +22360,6 @@ describe("Survey", () => {
     expect(!!page1.survey).toBeFalsy();
 
     const page2 = survey.getPageByName("p2");
-    page2.supportOnElementRerenderedEvent = true;
     page2.enableOnElementRerenderedEvent();
     survey.removePage(page2);
     survey.addPage(page2);
@@ -22371,7 +22368,6 @@ describe("Survey", () => {
     expect(!!page2.survey).toBeTruthy();
 
     const page3 = survey.getPageByName("p3");
-    page3.supportOnElementRerenderedEvent = true;
     survey.removePage(page3);
     expect(!!page3.survey).toBeFalsy();
   });

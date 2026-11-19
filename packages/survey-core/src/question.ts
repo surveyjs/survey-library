@@ -3741,7 +3741,9 @@ export class Question extends SurveyElement<Question>
       val = -1;
     }
     this.setPropertyValue("visibleIndex", val);
-    this.resetPropertyValue("no");
+    if (val >= 0 || this.no !== "") {
+      this.resetPropertyValue("no");
+    }
     return val < 0 ? 0 : 1;
   }
   protected isVisibleIndexNegative(val: number): boolean {

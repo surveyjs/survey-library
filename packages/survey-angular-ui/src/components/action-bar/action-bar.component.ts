@@ -2,8 +2,10 @@ import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
 import { Action, ActionContainer } from "survey-core";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-action-bar, sv-ng-action-bar",
   templateUrl: "./action-bar.component.html",
   styles: [":host { display: none }"]
@@ -31,10 +33,6 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
       this.model.initResponsivityManager(this.container.nativeElement);
     }
   }
-  public override ngAfterViewChecked(): void {
-    super.ngAfterViewChecked();
-    this.initResponsivityManager();
-  }
   public override afterUpdate(): void {
     super.afterUpdate();
     this.initResponsivityManager();
@@ -45,7 +43,7 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
       event.stopPropagation();
     }
   }
-  ngAfterViewInit() {
+  protected override afterViewInit(): void {
     this.initResponsivityManager();
   }
   override ngOnDestroy(): void {

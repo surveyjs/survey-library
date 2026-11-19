@@ -3,8 +3,10 @@ import { CharacterCounter, ICharacterCounterAction } from "survey-core";
 import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
 import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-character-counter",
   templateUrl: "./character-counter.component.html",
   styles: [":host { display: none; }"],

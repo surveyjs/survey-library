@@ -258,6 +258,26 @@ describe("PropertyAccessTracker", () => {
     expect(log.map(e => e.name)).toEqual(["prop1"]);
   });
 
+  test("A tracker unsubscribed by an earlier callback of the same change is not notified", () => {
+    const model = new TrackerTestModel();
+    const child = createTracker();
+    const parentLog: Array<string> = [];
+    // The parent re-renders synchronously and destroys the child, as a sync UI update does.
+    const parent = new PropertyAccessTracker((_, options) => {
+      parentLog.push(options.name);
+      child.tracker.unsubscribe();
+    });
+    render(parent, () => model.prop1);
+    parent.subscribe();
+    render(child.tracker, () => model.prop1);
+    child.tracker.subscribe();
+
+    model.prop1 = "a";
+    expect(parentLog, "the parent is notified").toEqual(["prop1"]);
+    expect(child.log, "the child is unsubscribed before its turn").toHaveLength(0);
+    parent.unsubscribe();
+  });
+
   test("After unsubscribe(), no model holds a callback of the tracker", () => {
     const model1 = new TrackerTestModel();
     const model2 = new TrackerTestModel();

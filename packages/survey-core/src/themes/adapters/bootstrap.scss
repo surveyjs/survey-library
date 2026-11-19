@@ -689,7 +689,7 @@
 .sd-question__placeholder {
   min-height: unset;
   align-items: flex-start;
-  padding-bottom: 0px;
+  padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
   .sv-string-viewer {
     display: block;
     text-align: start;

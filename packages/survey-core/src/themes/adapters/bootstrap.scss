@@ -484,8 +484,8 @@
   --sjs2-layout-component-matrix-box-padding-right: 0px;
   --sjs2-layout-component-matrix-box-padding-top: 0;
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
-  --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
-  --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs2-layout-component-matrix-box-padding-bottom);
+  --sjs2-layout-component-panel-matrix-footer-padding-top: var(--sjs2-layout-component-matrix-box-padding-bottom);
+  --sjs2-layout-component-panel-matrix-footer-padding-bottom: 0px;
   --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
   --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
 
@@ -660,16 +660,20 @@
 }
 
 /* tables */
+.sd-table-wrapper {
+  padding-bottom: 0;
+  margin-bottom: 1rem;
+}
+
 .sd-question--table .sd-question__content {
   padding-left: var(--sjs-bs-card-edge-spacer-x);
   padding-right: var(--sjs-bs-card-edge-spacer-x);
+  padding-bottom: var(--sjs-bs-card-edge-spacer-y);
 }
 
 .sd-table {
   --sd-table-cell-width: initial;
   --sd-table-cell-min-width: initial;
-
-  margin-bottom: 1rem;
 }
 
 .sd-table__cell {
@@ -685,7 +689,7 @@
 .sd-question__placeholder {
   min-height: unset;
   align-items: flex-start;
-  padding-bottom: var(--sjs-bs-card-edge-spacer-y);
+  padding-bottom: 0px;
   .sv-string-viewer {
     display: block;
     text-align: start;

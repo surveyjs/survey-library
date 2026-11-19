@@ -1091,6 +1091,54 @@ describe("question ranking", () => {
     expect(q.rankingChoices.map((item) => item.value), "ranking list follows the new random order").toEqual(q.visibleChoices.map((item) => item.value));
   });
 
+  test("Ranking: survey.randomSeed change keeps the order of an existing value, #12286", () => {
+    const ranked = ["f", "e", "d", "c", "b", "a"];
+    const createQuestion = (json: any): { survey: SurveyModel, q: QuestionRankingModel } => {
+      const survey = new SurveyModel({
+        elements: [{ type: "ranking", name: "q", choices: ["a", "b", "c", "d", "e", "f"], choicesOrder: "random", ...json }],
+      });
+      return { survey, q: <QuestionRankingModel>survey.getQuestionByName("q") };
+    };
+    const checkOrder = (q: QuestionRankingModel, reason: string) => {
+      expect(q.visibleChoices.map((item) => item.value), reason + ": the seed shuffles visibleChoices").not.toEqual(ranked);
+      expect(q.value, reason + ": value").toEqual(ranked);
+      expect(q.rankingChoices.map((item) => item.value), reason + ": rankingChoices").toEqual(ranked);
+    };
+
+    let res = createQuestion({ defaultValue: ranked });
+    res.survey.randomSeed = 4;
+    checkOrder(res.q, "defaultValue");
+
+    res = createQuestion({});
+    res.survey.data = { q: ranked };
+    res.survey.randomSeed = 4;
+    checkOrder(res.q, "survey.data before the seed");
+
+    res = createQuestion({});
+    res.survey.randomSeed = 4;
+    res.survey.data = { q: ranked };
+    checkOrder(res.q, "survey.data after the seed");
+
+    res = createQuestion({});
+    res.q.value = ranked;
+    res.survey.randomSeed = 4;
+    checkOrder(res.q, "value ranked by the user");
+  });
+
+  test("Ranking: selectToRank keeps ranked items when survey.randomSeed changes, #12286", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "ranking", name: "q", choices: ["a", "b", "c", "d", "e", "f"], choicesOrder: "random", selectToRankEnabled: true },
+      ],
+    });
+    const q = <QuestionRankingModel>survey.getQuestionByName("q");
+    q.value = ["c", "a"];
+    survey.randomSeed = 4;
+    expect(q.value, "value").toEqual(["c", "a"]);
+    expect(q.rankingChoices.map((item) => item.value), "rankingChoices").toEqual(["c", "a"]);
+    expect(q.unRankingChoices.map((item) => item.value), "unRankingChoices").toEqual(q.visibleChoices.map((item) => item.value).filter((v) => v !== "c" && v !== "a"));
+  });
+
   test("A11Y", () => {
     expect(new QuestionRankingModel("q1").ariaRole, "aria-role").toEqual("group");
   });

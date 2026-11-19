@@ -699,6 +699,57 @@ describe("Panel", () => {
       vi.useRealTimers();
     }
   });
+  test("Restoring uiState that expands a panel does not steal focus from activeElementName", () => {
+    vi.useFakeTimers();
+    const focusedIds: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedIds.push(elId);
+      return true;
+    };
+    try {
+      const survey = new SurveyModel({
+        pages: [
+          { elements: [{ type: "text", name: "q1" }] },
+          {
+            elements: [
+              {
+                type: "panel",
+                name: "panel1",
+                title: "Collapsed panel",
+                state: "collapsed",
+                elements: [
+                  { type: "text", name: "q3" },
+                  { type: "text", name: "q4" }
+                ]
+              },
+              {
+                type: "paneldynamic",
+                name: "q5",
+                templateElements: [
+                  { type: "text", name: "q6" },
+                  { type: "text", name: "q7" }
+                ],
+                panelCount: 3,
+                displayMode: "tab"
+              }
+            ]
+          }
+        ]
+      });
+      survey.uiState = {
+        panels: { panel1: { collapsed: false } },
+        questions: { q5: { activePanelIndex: 1 } },
+        activeElementName: "q5"
+      };
+      vi.advanceTimersByTime(20);
+      expect(survey.getPanelByName("panel1").isExpanded).toBeTruthy();
+      expect(focusedIds).not.toContain(survey.getQuestionByName("q3").inputId);
+    } finally {
+      SurveyElement.FocusElement = oldFunc;
+      vi.useRealTimers();
+    }
+  });
   test("Flow Panel, add new element/remove element", () => {
     const panel = new FlowPanelModel("p");
     panel.addNewQuestion("text", "q1");

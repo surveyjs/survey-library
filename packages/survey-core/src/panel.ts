@@ -14,7 +14,8 @@ import {
   IProgressInfo,
   ISurvey,
   IFindElement,
-  ISurveyValidation
+  ISurveyValidation,
+  IElementUIState
 } from "./base-interfaces";
 import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo } from "./survey-element";
 import { Question } from "./question";
@@ -1222,7 +1223,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public focusCollapseExpandButton(): void {
     const survey = this.survey as SurveyModel;
-    if (!survey || !this.hasTitle || this.isPage) return;
+    if (!survey || !this.hasTitle || this.isPage || this.isDesignMode) return;
     // The page is already rendered when focus runs. A deferred attempt leaves focus on Next and then jumps.
     SurveyElement.FocusElement(this.ariaTitleId, false, survey.rootElement);
   }
@@ -2658,9 +2659,18 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.forcusFirstQuestionOnExpand = focusFirstQuestion;
     super.expand();
   }
+  protected setUIState(data: IElementUIState): void {
+    if (data && data.collapsed !== undefined) {
+      if (data.collapsed) {
+        this.collapse();
+      } else {
+        this.expand(false);
+      }
+    }
+  }
   protected onElementExpanded(elementIsRendered: boolean): void {
     super.onElementExpanded(elementIsRendered);
-    if (!this.forcusFirstQuestionOnExpand) { return; }
+    if (!this.forcusFirstQuestionOnExpand || this.isDesignMode) { return; }
     if (this.survey != null && !this.isLoadingFromJson) {
       const q = this.getFirstQuestionToFocus(false);
       if (!!q) {

@@ -443,7 +443,7 @@ describe("rich text editor model", () => {
     model.detach();
   });
 
-  test("the static toolbar uses small actions and 24px icons; other modes stay at 16px", () => {
+  test("the toolbar uses x-small actions and 16px icons", () => {
     const floating = new QuestionRichTextModel("floating");
     floating.richTextToolbarMode = "onFocus";
     const floatingModel = new RichTextEditorModel(floating);
@@ -460,9 +460,9 @@ describe("rich text editor model", () => {
     model.attach(element);
     const bold = model.toolbar.actions.filter(action => action.id === "rich-text-bold")[0];
     expect(model.toolbarMode).toBe("static");
-    expect(bold.iconSize).toBe(24);
-    expect(bold.iconName).toBe("icon-rich-text-bold-24x24");
-    expect(bold.getActionBarItemCss().split(" ")).toContain("sd-action--small");
+    expect(bold.iconSize).toBe(16);
+    expect(bold.iconName).toBe("icon-rich-text-bold-16x16");
+    expect(bold.getActionBarItemCss().split(" ")).toContain("sd-action--x-small");
     expect(model.toolbar.sizeMode).toBe("small");
 
     question.richTextToolbarMode = "onFocus";

@@ -1182,3 +1182,7 @@ export function expressionSurveyCachedValue(name: string, value: any, isVariable
 export function expressionObjectCachedValue(obj: any, name: string, value: any): void {
   FunctionFactory.Instance.addObjectCachedValue(obj, name, value);
 }
+// For internal use: true while expressionObjectCachedValue records object property reads for a running useCache function
+export function isExpressionObjectCacheCollecting(): boolean {
+  return !!FunctionFactory.Instance["objsCachedValues"];
+}

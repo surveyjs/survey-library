@@ -13,7 +13,7 @@ import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ExpressionRunner } from "./expressions/expressionRunner";
 import { IExpressionError } from "./expressions/expressionError";
-import { expressionObjectCachedValue } from "./functionsfactory";
+import { expressionObjectCachedValue, isExpressionObjectCacheCollecting } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -943,10 +943,14 @@ export class Base implements IObjectValueContext {
   protected isPropertyStoredInHash(name: string): boolean {
     return false;
   }
+  // For an object that is its own original, JsonObject's loop calls isOwnSerializablePropertyEmpty directly, so an override
+  // of this method is seen by getSerializableValue only. A property whose value is not kept in the hash overrides
+  // isPropertyStoredInHash instead, which both checks call.
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
-    const name = prop.name;
     // Every getOriginalByProperty returns this object when it is its own original.
-    const orgObj = this.getOriginalObj() === this ? this : this.getOriginalByProperty(name);
+    if (this.getOriginalObj() === this) return this.isOwnSerializablePropertyEmpty(prop, !this.isPropertyReadObserved());
+    const name = prop.name;
+    const orgObj = this.getOriginalByProperty(name);
     if (prop.isLocalizable && !prop.isMultipleText) {
       // getOriginalByProperty can return a wrapper. The value for a question-level
       // loc string (description, requiredErrorText) stays on this object.
@@ -955,6 +959,24 @@ export class Base implements IObjectValueContext {
     }
     if (orgObj === this && this.isPropertyStoredInHash(name)) return this.getPropertyValueWithoutDefault(name) == undefined;
     return false;
+  }
+  // For internal use: the empty check of a property when this object is its own original (getOriginalObj() returns it).
+  // getIsSerializablePropertyEmpty and JsonObject's loop that skips empty properties both call it, so they decide the same way.
+  // readHash: the caller has found that nothing observes this object's reads (isPropertyReadObserved is false),
+  // so the stored value is read from the hash, which is what getPropertyValueWithoutDefault returns then.
+  public isOwnSerializablePropertyEmpty(prop: JsonObjectProperty, readHash?: boolean): boolean {
+    const name = prop.name;
+    if (prop.isLocalizable && !prop.isMultipleText) return !this.getLocalizableString(name);
+    if (!this.isPropertyStoredInHash(name)) return false;
+    return (readHash ? this.propertyHash[name] : this.getPropertyValueWithoutDefault(name)) == undefined;
+  }
+  // For internal use: whether a read of this object's properties through getPropertyValueWithoutDefault is observed. The observers
+  // are a dependency collection (a ComputedUpdater assigned through a @property setter), the UI PropertyAccessTracker
+  // (also while runUntracked blocks it), the object cache of a running useCache expression function, and a getPropertyValueCoreHandler.
+  // An instance method, not a static: JsonObject has only a type import of Base (base.ts imports jsonobject.ts).
+  public isPropertyReadObserved(): boolean {
+    return !!this.getPropertyValueCoreHandler || Base.currentDependencis !== undefined || !!Base.currentPropertyAccessListener ||
+      isExpressionObjectCacheCollecting();
   }
   public getOriginalObj(): Base {
     return this;
@@ -1536,6 +1558,10 @@ export class Base implements IObjectValueContext {
     if (!!name) {
       locStr.onStrChanged = (oldValue: string, newValue: string) => {
         this.propertyValueChanged(name, oldValue, newValue);
+        // The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI
+        if (!!this.onPropertyValueCoreChanged && !this.isDisposedValue) {
+          Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue });
+        }
       };
     }
     if (!this.localizableStrings) {
@@ -1575,10 +1601,21 @@ export class Base implements IObjectValueContext {
     this.setLocStringText(this.getLocalizableString(name), value);
   }
   protected getLocStringText(locStr: LocalizableString, defaultStr: string = ""): string {
-    if (!!locStr?.name) {
-      Base.collectDependency(this, locStr.name);
-    }
+    this.locStringAccessed(locStr);
     return locStr?.text || defaultStr;
+  }
+  protected getLocStringHtml(locStr: LocalizableString): string {
+    this.locStringAccessed(locStr);
+    return locStr?.textOrHtml || "";
+  }
+  // A read of a localizable string's value; the value is not in the property hash, so getPropertyValueCore does not see it
+  private locStringAccessed(locStr: LocalizableString): void {
+    const name = locStr?.name;
+    if (!name) return;
+    Base.collectDependency(this, name);
+    if (Base.currentPropertyAccessListener) {
+      Base.currentPropertyAccessListener.onPropertyAccessed(this, name);
+    }
   }
   protected setLocStringText(locStr: LocalizableString, value: string) {
     if (!locStr) return;

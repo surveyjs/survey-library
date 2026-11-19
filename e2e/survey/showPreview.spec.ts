@@ -105,5 +105,46 @@ frameworks.forEach((framework) => {
         question1: "val"
       });
     });
+
+    ["singlePage", "questionPerPage"].forEach((mode) => {
+      test(`Complete from the preview, questionsOnPageMode: ${mode}`, async ({ page }) => {
+        await page.goto(`${url}${framework}`);
+        await initSurvey(page, framework, {
+          questionsOnPageMode: mode,
+          showPreviewBeforeComplete: "showAllQuestions",
+          completedHtml: "<h3>Survey is completed</h3>",
+          pages: [
+            {
+              name: "page1",
+              elements: [
+                { type: "text", name: "first" },
+                { type: "text", name: "second" }
+              ]
+            },
+            {
+              name: "page2",
+              elements: [{ type: "text", name: "third" }]
+            }
+          ]
+        });
+        const values = ["1", "2", "3"];
+        for (let i = 0; i < values.length; i++) {
+          if (mode === "singlePage") {
+            await page.locator("input[type=text]").nth(i).fill(values[i]);
+          } else {
+            await page.locator("input[type=text]").fill(values[i]);
+            if (i < values.length - 1) {
+              await getButtonByText(page, "Next").click();
+            }
+          }
+        }
+        await getButtonByText(page, "Preview").click();
+        await expect(getButtonByText(page, "Complete")).toBeVisible();
+        await getButtonByText(page, "Complete").click();
+        await expect(page.locator(".sd-completedpage h3", { hasText: "Survey is completed" })).toBeVisible();
+        const surveyResult = await getSurveyResult(page);
+        expect(surveyResult).toEqual({ first: "1", second: "2", third: "3" });
+      });
+    });
   });
 });

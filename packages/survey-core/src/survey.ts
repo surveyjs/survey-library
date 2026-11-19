@@ -6122,7 +6122,7 @@ export class SurveyModel extends SurveyElementCore
    * To specify HTML content, use the [`completedBeforeHtml`](#completedBeforeHtml) property.
    */
   public get processedCompletedBeforeHtml(): string {
-    return this.locCompletedBeforeHtml.textOrHtml;
+    return this.getLocStringHtml(this.locCompletedBeforeHtml);
   }
   /**
    * Returns HTML content displayed while a survey JSON schema is [being loaded](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#beginLoading).
@@ -6130,7 +6130,7 @@ export class SurveyModel extends SurveyElementCore
    * To specify HTML content, use the [`loadingHtml`](#loadingHtml) property.
    */
   public get processedLoadingHtml(): string {
-    return this.locLoadingHtml.textOrHtml;
+    return this.getLocStringHtml(this.locLoadingHtml);
   }
   /**
    * Returns an object that provides information about survey progress.

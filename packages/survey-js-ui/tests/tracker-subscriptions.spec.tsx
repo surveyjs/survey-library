@@ -99,3 +99,91 @@ describe("Components subscribe to what they render and nothing else", () => {
     survey.dispose();
   });
 });
+
+describe("The complete, completed-before and loading pages follow their HTML", () => {
+  const elements = [{ type: "text", name: "q1" }];
+
+  it("the complete page shows completedHtml changed after completion", () => {
+    const survey = new SurveyModel({ completedHtml: "<h3>Thank you</h3>", elements });
+    const container = mount(<SurveyReact model={survey} />);
+    act(() => { survey.doComplete(); });
+    expect(container.textContent).toContain("Thank you");
+
+    act(() => { survey.completedHtml = "<h3>Response saved</h3>"; });
+    expect(container.textContent).toContain("Response saved");
+    expect(container.textContent).not.toContain("Thank you");
+    survey.dispose();
+  });
+  it("the complete page follows completedHtml through the save flow", () => {
+    const survey = new SurveyModel({ completedHtml: "<h3>Thank you</h3>", elements });
+    let saveOptions: any;
+    survey.onComplete.add((sender, options) => {
+      saveOptions = options;
+      sender.completedHtml = "<h3>Sending your message...</h3>";
+      options.showSaveInProgress("Saving");
+    });
+    survey.registerPropertyChangedHandlers(["completedState"], () => {
+      if (survey.completedState === "error") survey.completedHtml = "<h3>Your message hasn't been saved.</h3>";
+    });
+    const container = mount(<SurveyReact model={survey} />);
+    act(() => { survey.doComplete(); });
+    expect(container.textContent, "saving").toContain("Sending your message...");
+
+    act(() => { saveOptions.showSaveError("Error"); });
+    expect(container.textContent, "error").toContain("Your message hasn't been saved.");
+    expect(container.textContent, "error").not.toContain("Sending your message...");
+
+    act(() => {
+      survey.completedHtml = "<h3>Saved, ID 42</h3>";
+      saveOptions.showSaveSuccess("Success");
+    });
+    expect(container.textContent, "success").toContain("Saved, ID 42");
+    expect(container.textContent, "success").not.toContain("hasn't been saved");
+    survey.dispose();
+  });
+  it("the complete page shows a variable in completedHtml that changes after completion", () => {
+    const survey = new SurveyModel({ completedHtml: "<h3>Response ID: {responseId}</h3>", elements });
+    survey.setVariable("responseId", 1);
+    const container = mount(<SurveyReact model={survey} />);
+    act(() => { survey.doComplete(); });
+    expect(container.textContent).toContain("Response ID: 1");
+
+    act(() => { survey.setVariable("responseId", 42); });
+    expect(container.textContent).toContain("Response ID: 42");
+    survey.dispose();
+  });
+  it("the complete page shows the html of a completedHtmlOnCondition item changed after completion", () => {
+    const survey = new SurveyModel({
+      completedHtmlOnCondition: [{ expression: "{q1} = 1", html: "<h3>Condition first</h3>" }],
+      elements
+    });
+    survey.setValue("q1", 1);
+    const container = mount(<SurveyReact model={survey} />);
+    act(() => { survey.doComplete(); });
+    expect(container.textContent).toContain("Condition first");
+
+    act(() => { survey.completedHtmlOnCondition[0].html = "<h3>Condition second</h3>"; });
+    expect(container.textContent).toContain("Condition second");
+    survey.dispose();
+  });
+  it("the completed-before page shows completedBeforeHtml changed while it is shown", () => {
+    const survey = new SurveyModel({ completedBeforeHtml: "<h3>Before first</h3>", elements });
+    const container = mount(<SurveyReact model={survey} />);
+    act(() => { survey.isCompletedBefore = true; });
+    expect(container.textContent).toContain("Before first");
+
+    act(() => { survey.completedBeforeHtml = "<h3>Before second</h3>"; });
+    expect(container.textContent).toContain("Before second");
+    survey.dispose();
+  });
+  it("the loading page shows loadingHtml changed while it is shown", () => {
+    const survey = new SurveyModel({ loadingHtml: "<h3>Loading first</h3>", elements });
+    const container = mount(<SurveyReact model={survey} />);
+    act(() => { survey.beginLoading(); });
+    expect(container.textContent).toContain("Loading first");
+
+    act(() => { survey.loadingHtml = "<h3>Loading second</h3>"; });
+    expect(container.textContent).toContain("Loading second");
+    survey.dispose();
+  });
+});

@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
-import { DefaultLightPanelless } from "survey-core/themes";
+import { DefaultDarkPanelless, DefaultLightPanelless } from "survey-core/themes";
 import "survey-core/rich-text";
 import { TestComponent } from "./test.component";
 
@@ -14,5 +14,6 @@ export class TestDefaultComponent extends TestComponent {
     super(changeDetectorRef);
     (window as any).SurveyTheme = (window as any).SurveyTheme || {}; 
     (window as any).SurveyTheme.DefaultLightPanelless = DefaultLightPanelless;
+    (window as any).SurveyTheme.DefaultDarkPanelless = DefaultDarkPanelless;
   }
 }

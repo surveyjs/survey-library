@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import TestCommon from "./TestCommon.vue";
-import { DefaultLightPanelless } from "survey-core/themes";
+import { DefaultDarkPanelless, DefaultLightPanelless } from "survey-core/themes";
 import "survey-core/rich-text";
 import "survey-core/rich-text.css";
 (window as any).SurveyTheme = (window as any).SurveyTheme || {}; 
 (window as any).SurveyTheme.DefaultLightPanelless = DefaultLightPanelless;
+(window as any).SurveyTheme.DefaultDarkPanelless = DefaultDarkPanelless;
 import("survey-core/survey-core.css");
 </script>
 <template>

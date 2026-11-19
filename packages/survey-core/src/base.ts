@@ -13,10 +13,11 @@ import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ExpressionRunner } from "./expressions/expressionRunner";
 import { IExpressionError } from "./expressions/expressionError";
-import { expressionObjectCachedValue } from "./functionsfactory";
+import { expressionObjectCachedValue, isExpressionObjectCacheCollecting } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { ChangedKeys } from "./conditions/conditionProcessValue";
 import { EventBase, Event, EventAsync } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isAnimationEnabled } from "./utils/reduced-motion";
@@ -383,7 +384,7 @@ export class Base implements IObjectValueContext {
     Base.commentSuffix = val;
   }
   public static createItemValue: (item: any, type?: string) => any;
-  public static itemValueLocStrChanged: (arr: Array<any>) => void;
+  public static itemValueLocStrChanged: (arr: Array<any>, changes?: ChangedKeys) => void;
   /**
    * Returns `true` if a passed `value` is an empty string, array, or object or if it equals to `undefined` or `null`.
    *
@@ -808,21 +809,23 @@ export class Base implements IObjectValueContext {
     return Base.createProgressInfo();
   }
   public localeChanged(): void { }
-  public locStrsChanged(): void {
+  // changes: the names a value change changed. Only the strings they can change refresh; the other
+  // work of an override runs in every case. Without them (a locale or page change) every string refreshes.
+  public locStrsChanged(changes?: ChangedKeys): void {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
         let item = this.arraysInfo[key];
         if (item && item.isItemValues) {
           var arr = this.getPropertyValue(key);
           if (arr && !!Base.itemValueLocStrChanged)
-            Base.itemValueLocStrChanged(arr);
+            Base.itemValueLocStrChanged(arr, changes);
         }
       }
     }
     if (!!this.localizableStrings) {
       for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);
-        if (item) item.strChanged();
+        if (item) item.strChanged(changes);
       }
     }
   }
@@ -955,13 +958,27 @@ export class Base implements IObjectValueContext {
       this.setPropertyValue(name, undefined);
     }
   }
+  // The counterpart of a lazy getter (getPropertyValue with calcFunc). A value that was read is calculated
+  // again and written only when it differs, so its readers are notified on a real change only, while
+  // resetPropertyValue always notifies them. A value nobody has read stays lazy.
+  protected refreshLazyPropertyValue(name: string, calcFunc: () => any): void {
+    if (this.getPropertyValueWithoutDefault(name) === undefined) return;
+    this.setPropertyValue(name, Base.runUntracked(calcFunc));
+  }
+  // The text a localizable string renders has changed: the text was set, or a value or the locale it shows
+  // changed. A property calculated from the rendered text refreshes here (refreshLazyPropertyValue).
+  protected onLocalizableStringRenderedTextChanged(name: string): void { }
   protected isPropertyStoredInHash(name: string): boolean {
     return false;
   }
+  // For an object that is its own original, JsonObject's loop calls isOwnSerializablePropertyEmpty directly, so an override
+  // of this method is seen by getSerializableValue only. A property whose value is not kept in the hash overrides
+  // isPropertyStoredInHash instead, which both checks call.
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
-    const name = prop.name;
     // Every getOriginalByProperty returns this object when it is its own original.
-    const orgObj = this.getOriginalObj() === this ? this : this.getOriginalByProperty(name);
+    if (this.getOriginalObj() === this) return this.isOwnSerializablePropertyEmpty(prop, !this.isPropertyReadObserved());
+    const name = prop.name;
+    const orgObj = this.getOriginalByProperty(name);
     if (prop.isLocalizable && !prop.isMultipleText) {
       // getOriginalByProperty can return a wrapper. The value for a question-level
       // loc string (description, requiredErrorText) stays on this object.
@@ -970,6 +987,24 @@ export class Base implements IObjectValueContext {
     }
     if (orgObj === this && this.isPropertyStoredInHash(name)) return this.getPropertyValueWithoutDefault(name) == undefined;
     return false;
+  }
+  // For internal use: the empty check of a property when this object is its own original (getOriginalObj() returns it).
+  // getIsSerializablePropertyEmpty and JsonObject's loop that skips empty properties both call it, so they decide the same way.
+  // readHash: the caller has found that nothing observes this object's reads (isPropertyReadObserved is false),
+  // so the stored value is read from the hash, which is what getPropertyValueWithoutDefault returns then.
+  public isOwnSerializablePropertyEmpty(prop: JsonObjectProperty, readHash?: boolean): boolean {
+    const name = prop.name;
+    if (prop.isLocalizable && !prop.isMultipleText) return !this.getLocalizableString(name);
+    if (!this.isPropertyStoredInHash(name)) return false;
+    return (readHash ? this.propertyHash[name] : this.getPropertyValueWithoutDefault(name)) == undefined;
+  }
+  // For internal use: whether a read of this object's properties through getPropertyValueWithoutDefault is observed. The observers
+  // are a dependency collection (a ComputedUpdater assigned through a @property setter), the UI PropertyAccessTracker
+  // (also while runUntracked blocks it), the object cache of a running useCache expression function, and a getPropertyValueCoreHandler.
+  // An instance method, not a static: JsonObject has only a type import of Base (base.ts imports jsonobject.ts).
+  public isPropertyReadObserved(): boolean {
+    return !!this.getPropertyValueCoreHandler || Base.currentDependencis !== undefined || !!Base.currentPropertyAccessListener ||
+      isExpressionObjectCacheCollecting();
   }
   public getOriginalObj(): Base {
     return this;
@@ -1296,23 +1331,22 @@ export class Base implements IObjectValueContext {
     });
   }
   protected canSkipRunningExpression(propName: string): boolean {
-    const survey: any = this.getSurvey();
-    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    const keys = this.getValueChangedKeys();
     if (!keys) return false;
     return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
-  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
+  // The survey's value-change pass (SurveyModel.getValueChangedKeys), or undefined outside of it
+  protected getValueChangedKeys(): ChangedKeys {
+    const survey: any = this.getSurvey();
+    return !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+  }
+  // keys: the survey's pass, or keys of the caller's own (a trigger's), checked once by an object over them
+  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: ChangedKeys | any, vars?: string[], isClearedKeyChanged?: boolean, contextKeys?: HashTable<any>): boolean {
     if (!keys) return false;
-    if (!!runner && runner.hasFunction(true)) return false;
-    // Names given by the caller (triggers) have no per-runner slots: they are read from the survey's map, or parsed
-    // per check without a survey. The runner's own variables reuse its kept information
-    let varsInfo: Array<IValueGetterNameInfo>;
-    if (vars === undefined && !!runner) {
-      vars = runner.getVariables();
-      varsInfo = runner.getVariablesInfo();
-    }
-    if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChanged(keys, vars, isClearedKeyChanged, varsInfo, this.getSurveyVariableNamesInfo());
+    return this.getChangedKeys(keys).canSkip(runner, vars, isClearedKeyChanged, contextKeys);
+  }
+  protected getChangedKeys(keys: ChangedKeys | any): ChangedKeys {
+    return keys instanceof ChangedKeys ? keys : new ChangedKeys(keys, this.getSurveyVariableNamesInfo());
   }
   // The parsed variable names shared by every runner of the survey (SurveyModel.getVariableNamesInfo),
   // also for the names a trigger passes. Without a survey (a new Base()) each runner keeps its own items.
@@ -1551,9 +1585,14 @@ export class Base implements IObjectValueContext {
     if (!!name) {
       locStr.onStrChanged = (oldValue: string, newValue: string) => {
         this.propertyValueChanged(name, oldValue, newValue);
-        // The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI
-        if (!!this.onPropertyValueCoreChanged && !this.isDisposedValue) {
-          Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue });
+      };
+      // The text, or a value it shows, has changed: a component that read the string (getLocStringText) renders it
+      // again. The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI.
+      locStr.onRenderedTextChanged = () => {
+        if (this.isDisposedValue) return;
+        this.onLocalizableStringRenderedTextChanged(name);
+        if (!!this.onPropertyValueCoreChanged) {
+          Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue: undefined });
         }
       };
     }

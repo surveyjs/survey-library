@@ -25,13 +25,14 @@ export function checkLibraryVersion(ver: string, libraryName: string): void {
 }
 // SurveyJS license keys are issued only by Devsoft Baltic OU via surveyjs.io.
 // Generating, modifying or forging keys is prohibited; see the notice in ./license.ts.
+// The "embedded-<name>" values are not keys and grant no license; see the same notice.
 export function setLicenseKey(key: string): void {
   slk(key);
 }
 export function slk(key: string): void {
   _slk(key, ReleaseDate);
 }
-export { hasLicense, glc } from "./license";
+export { hasLicense, glc, getEmbeddedLicense, IEmbeddedLicense } from "./license";
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
 export type { ISurveySettings, ISurveySettingsComparator, ISurveySettingsData, ISurveyOptions, SurveyEventHandlers } from "../../src/survey-settings";

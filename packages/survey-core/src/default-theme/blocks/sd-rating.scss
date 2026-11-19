@@ -178,6 +178,10 @@ legend+sv-ng-rating-item+.sd-rating__item {
   }
 }
 
+.sd-rating__item.sd-rating__item--readonly:focus-within {
+  border: 0px solid transparent;
+}
+
 .sd-rating__item.sd-rating__item--preview {
   fill: transparent;
   background-color: transparent;

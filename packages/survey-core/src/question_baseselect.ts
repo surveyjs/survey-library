@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { JsonObjectProperty, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
@@ -567,14 +568,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       this.onVisibleChoicesChanged();
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     if (!!this.choicesFromUrl) {
-      ItemValue.locStrsChanged(this.choicesFromUrl);
-      ItemValue.locStrsChanged(this.visibleChoices);
+      ItemValue.locStrsChanged(this.choicesFromUrl, changes);
+      ItemValue.locStrsChanged(this.visibleChoices, changes);
     }
     if (this.isUsingCarryForward) {
-      ItemValue.locStrsChanged(this.visibleChoices);
+      ItemValue.locStrsChanged(this.visibleChoices, changes);
     }
   }
   private prevOtherErrorValue: string;
@@ -1662,7 +1663,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     (calcValue || []).forEach(choice => newValue.push(choice));
     const oldValue = this.visibleChoices;
     if (!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
-      this.setArrayPropertyDirectly("visibleChoices", newValue);
+      // false: no onPush per item, which would rebuild renderedChoices once per choice (O(n^2)).
+      // The line below updates them once for the whole list.
+      this.setArrayPropertyDirectly("visibleChoices", newValue, false);
       this.updateRenderedChoices();
     }
   }

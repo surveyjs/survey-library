@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "../conditions/conditionProcessValue";
 import { property, propertyArray } from "../decorators";
 import { Base } from "../base";
 import { ISurvey } from "../base-interfaces";
@@ -66,11 +67,11 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     }
   }
   @property({ defaultValue: true }) isEmpty: boolean;
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.actions.forEach(item => {
-      if (item.locTitle) item.locTitle.strChanged();
-      item.locStrsChanged();
+      if (item.locTitle) item.locTitle.strChanged(changes);
+      item.locStrsChanged(changes);
     });
   }
 

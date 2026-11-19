@@ -17,6 +17,8 @@ import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
 import { FunctionFactory } from "../src/functionsfactory";
 
+import { DragDropChoices } from "../src/dragdrop/choices";
+
 import { describe, test, expect, vi } from "vitest";
 import { PanelModel } from "../src/panel";
 describe("baseselect", () => {
@@ -5991,6 +5993,152 @@ describe("Checkbox Other while every regular choice is hidden, Bug#12245", () =>
     survey.data = { q1: ["A", "B"] };
     expect([...q1.renderedValue], "renderedValue").toEqual(["A", "B"]);
     expect(q1.isOtherSelected, "isOtherSelected").toBe(false);
+  });
+});
+describe("A visible-choices update renders the choices once", () => {
+  const numbers = (count: number): Array<number> => Array.from({ length: count }, (_: any, i: number): number => i + 1);
+  const values = (items: Array<ItemValue>): Array<any> => items.map((item: ItemValue): any => item.value);
+  const renderedAndVisible = (q: QuestionSelectBase): Array<Array<any>> => [values(q.renderedChoices), values(q.visibleChoices)];
+  // Subscribes in onQuestionCreated, before fromJSON, so the updates of the load are counted too.
+  function loadCounting(json: any, propertyName: string): { survey: SurveyModel, take: () => number } {
+    const survey = new SurveyModel();
+    let count = 0;
+    survey.onQuestionCreated.add((_: SurveyModel, options: any): void => {
+      options.question.registerPropertyChangedHandlers([propertyName], (): void => { count++; });
+    });
+    survey.fromJSON(json);
+    return { survey, take: (): number => { const res = count; count = 0; return res; } };
+  }
+
+  test("A choices change gives one renderedChoices update, at load and after it", () => {
+    const { survey, take } = loadCounting({ elements: [{ type: "dropdown", name: "q1", choices: numbers(100) }] }, "_renderedChoices");
+    const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    const counts: Array<Array<number>> = [];
+    counts.push([take(), q1.renderedChoices.length]);
+    q1.choices = numbers(150);
+    counts.push([take(), q1.renderedChoices.length]);
+    q1.choicesVisibleIf = "{item} <= 50";
+    counts.push([take(), q1.renderedChoices.length]);
+    expect(counts, "[updates, rendered choices]: load, 150 choices, filtered").toEqual([[1, 100], [1, 150], [1, 50]]);
+  });
+  test("A visibleChoices listener fires once per change", () => {
+    const { survey, take } = loadCounting({ elements: [{ type: "dropdown", name: "q1", choices: numbers(100) }] }, "visibleChoices");
+    const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    const counts: Array<number> = [take()];
+    q1.choices = numbers(150);
+    counts.push(take());
+    q1.choicesVisibleIf = "{item} <= 50";
+    counts.push(take());
+    expect(counts, "load, 150 choices, filtered").toEqual([1, 1, 1]);
+  });
+  test("A dynamic panel's template dropdown renders its choices once at load; the sort fields stay", () => {
+    const { survey, take } = loadCounting({ elements: [{ type: "paneldynamic", name: "orders", allowSort: true, panelCount: 0,
+      templateElements: [{ type: "dropdown", name: "customer", choices: numbers(200) }, { type: "text", name: "qty", inputType: "number" }] }] },
+    "_renderedChoices");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("orders");
+    const loadCount = take();
+    expect((<any>panel).sortFields, "sort fields").toEqual([
+      { field: "customer", title: "customer", dataType: "number" },
+      { field: "qty", title: "qty", dataType: "number" }]);
+    expect(loadCount, "the template dropdown at load").toBe(1);
+  });
+
+  describe("renderedChoices equals visibleChoices after the update", () => {
+    test("choices set and changed after load", () => {
+      const survey = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }] });
+      const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+      expect(renderedAndVisible(q1), "load").toEqual([[1, 2, 3], [1, 2, 3]]);
+      q1.choices = [3, 4, 5, 6];
+      expect(renderedAndVisible(q1), "set").toEqual([[3, 4, 5, 6], [3, 4, 5, 6]]);
+      q1.choices.push(new ItemValue(7));
+      expect(renderedAndVisible(q1), "pushed").toEqual([[3, 4, 5, 6, 7], [3, 4, 5, 6, 7]]);
+      q1.choices.splice(0, 2);
+      expect(renderedAndVisible(q1), "spliced").toEqual([[5, 6, 7], [5, 6, 7]]);
+    });
+    test("choicesFromQuestion, mode selected: the source value changes after load", () => {
+      const survey = new SurveyModel({ elements: [
+        { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+        { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected" }] });
+      const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+      expect(renderedAndVisible(q2), "nothing selected").toEqual([[], []]);
+      survey.setValue("q1", [2, 4]);
+      expect(renderedAndVisible(q2), "2 and 4").toEqual([[2, 4], [2, 4]]);
+      survey.setValue("q1", [1, 2, 5]);
+      expect(renderedAndVisible(q2), "1, 2 and 5").toEqual([[1, 2, 5], [1, 2, 5]]);
+    });
+    test("choicesFromQuestion from a dynamic matrix: rows added and removed", () => {
+      const survey = new SurveyModel({ elements: [
+        { type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "id", cellType: "text" }, { name: "label", cellType: "text" }] },
+        { type: "dropdown", name: "q1", choicesFromQuestion: "m", choiceValuesFromQuestion: "id", choiceTextsFromQuestion: "label" }] });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+      expect(renderedAndVisible(q1), "no rows").toEqual([[], []]);
+      survey.setValue("m", [{ id: "a", label: "A" }, { id: "b", label: "B" }]);
+      expect(renderedAndVisible(q1), "2 rows").toEqual([["a", "b"], ["a", "b"]]);
+      survey.setValue("m", [{ id: "a", label: "A" }, { id: "b", label: "B" }, { id: "c", label: "C" }]);
+      expect(renderedAndVisible(q1), "3 rows").toEqual([["a", "b", "c"], ["a", "b", "c"]]);
+      matrix.removeRow(0);
+      expect(renderedAndVisible(q1), "the first row removed").toEqual([["b", "c"], ["b", "c"]]);
+      expect(q1.renderedChoices.map((item: ItemValue): string => item.text), "texts").toEqual(["B", "C"]);
+    });
+    test("showSelectAllItem, showOtherItem and showNoneItem toggled after load", () => {
+      const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2, 3] }] });
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      const [c1, c2, c3] = q1.choices;
+      const isSame = (items: Array<ItemValue>, expected: Array<ItemValue>): boolean =>
+        items.length === expected.length && items.every((item: ItemValue, i: number): boolean => item === expected[i]);
+      const check = (expected: Array<ItemValue>, message: string): void => {
+        expect([isSame(q1.renderedChoices, expected), isSame(q1.visibleChoices, expected)], message).toEqual([true, true]);
+      };
+      q1.showSelectAllItem = true;
+      check([q1.selectAllItem, c1, c2, c3], "select all");
+      q1.showOtherItem = true;
+      check([q1.selectAllItem, c1, c2, c3, q1.otherItem], "other");
+      q1.showNoneItem = true;
+      check([q1.selectAllItem, c1, c2, c3, q1.noneItem, q1.otherItem], "none");
+      q1.showSelectAllItem = false;
+      q1.showOtherItem = false;
+      q1.showNoneItem = false;
+      expect(renderedAndVisible(q1), "all off").toEqual([[1, 2, 3], [1, 2, 3]]);
+    });
+    test("choicesOrder asc and desc", () => {
+      const survey = new SurveyModel({ elements: [{ type: "radiogroup", name: "q1", choices: [2, 3, 1] }] });
+      const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+      q1.choicesOrder = "asc";
+      expect(renderedAndVisible(q1), "asc").toEqual([[1, 2, 3], [1, 2, 3]]);
+      q1.choicesOrder = "desc";
+      expect(renderedAndVisible(q1), "desc").toEqual([[3, 2, 1], [3, 2, 1]]);
+    });
+    test("hideIfChoicesEmpty: every choice hidden, then one shown again", () => {
+      const survey = new SurveyModel({ elements: [
+        { type: "checkbox", name: "q0", choices: [1, 2, 3] },
+        { type: "checkbox", name: "q1", choices: [1, 2, 3], choicesVisibleIf: "{q0} contains {item}", hideIfChoicesEmpty: true }] });
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      expect(renderedAndVisible(q1), "every choice hidden").toEqual([[], []]);
+      expect(q1.isVisible, "hidden").toBe(false);
+      survey.setValue("q0", [2]);
+      expect(renderedAndVisible(q1), "one shown").toEqual([[2], [2]]);
+      expect(q1.isVisible, "shown").toBe(true);
+    });
+    test("a choice dragged over another, then dropped", () => {
+      const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: ["item1", "item2", "item3", "item4"] }] });
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      const ddHelper = new DragDropChoices(undefined);
+      const dropTargetNode = document.createElement("div");
+      ddHelper["parentElement"] = <any>q1;
+      ddHelper["draggedElement"] = <any>q1.choices[0];
+      ddHelper["dropTarget"] = <any>q1.choices[2];
+      ddHelper["domAdapter"]["draggedElementShortcut"] = document.body.appendChild(document.createElement("div"));
+      ddHelper["isBottom"] = true;
+      ddHelper["afterDragOver"](dropTargetNode);
+      const expected = ["item2", "item3", "item1", "item4"];
+      expect(renderedAndVisible(q1), "dragged over").toEqual([expected, expected]);
+      ddHelper["allowDropHere"] = true;
+      ddHelper["drop"]();
+      expect(values(q1.choices), "dropped: choices").toEqual(expected);
+      expect(renderedAndVisible(q1), "dropped").toEqual([expected, expected]);
+      dropTargetNode.remove();
+    });
   });
 });
 describe("A runtime choice question on a later page builds its visible choices on first read", () => {

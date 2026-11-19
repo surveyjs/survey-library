@@ -638,6 +638,67 @@ describe("Panel", () => {
     page.validate(true);
     expect(page.getFirstQuestionToFocus(true).name, "q1 has error").toBe("q1");
   });
+  test("A page with only a collapsed panel focuses its collapse/expand button", () => {
+    const focusedIds: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedIds.push(elId);
+      return true;
+    };
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "panel",
+            name: "panel1",
+            title: "Collapsed panel",
+            state: "collapsed",
+            elements: [
+              { type: "text", name: "q1" },
+              { type: "text", name: "q2" }
+            ]
+          }
+        ]
+      });
+      const panel = survey.getPanelByName("panel1");
+      survey.pages[0].focusFirstQuestion();
+      expect(focusedIds).toEqual([panel.ariaTitleId]);
+    } finally {
+      SurveyElement.FocusElement = oldFunc;
+    }
+  });
+  test("Expanding a collapsed panel focuses the first question inside", () => {
+    vi.useFakeTimers();
+    const focusedIds: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedIds.push(elId);
+      return true;
+    };
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "panel",
+            name: "panel1",
+            title: "Collapsed panel",
+            state: "collapsed",
+            elements: [
+              { type: "text", name: "q1" },
+              { type: "text", name: "q2" }
+            ]
+          }
+        ]
+      });
+      const q1 = survey.getQuestionByName("q1");
+      survey.getPanelByName("panel1").expand();
+      vi.advanceTimersByTime(20);
+      expect(focusedIds).toContain(q1.inputId);
+    } finally {
+      SurveyElement.FocusElement = oldFunc;
+      vi.useRealTimers();
+    }
+  });
   test("Flow Panel, add new element/remove element", () => {
     const panel = new FlowPanelModel("p");
     panel.addNewQuestion("text", "q1");

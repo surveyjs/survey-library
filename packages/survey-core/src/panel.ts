@@ -33,7 +33,6 @@ import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
 import { Scope } from "./utils/scope";
@@ -1198,7 +1197,34 @@ export class PanelModelBase extends SurveyElement<Question>
     const q = this.getFirstQuestionToFocus();
     if (!!q) {
       q.focus();
+      return;
     }
+    // No question to focus: a page that holds only a collapsed panel. Focus its collapse/expand button.
+    const panel = this.getFirstCollapsedPanelToFocus();
+    if (!!panel) {
+      panel.focusCollapseExpandButton();
+    }
+  }
+  private getFirstCollapsedPanelToFocus(): PanelModelBase {
+    const elements = this.elements;
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      if (!el.isVisible || !el.isPanel) continue;
+      const panel = <PanelModelBase><any>el;
+      if (panel.isCollapsed) {
+        if (panel.hasTitle) return panel;
+        continue;
+      }
+      const nested = panel.getFirstCollapsedPanelToFocus();
+      if (!!nested) return nested;
+    }
+    return null;
+  }
+  public focusCollapseExpandButton(): void {
+    const survey = this.survey as SurveyModel;
+    if (!survey || !this.hasTitle || this.isPage) return;
+    // The page is already rendered when focus runs. A deferred attempt leaves focus on Next and then jumps.
+    SurveyElement.FocusElement(this.ariaTitleId, false, survey.rootElement);
   }
   /**
    * Focuses the first question with a validation error in this panel/page.
@@ -2640,7 +2666,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (!!q) {
         setTimeout(() => {
           if (!this.isDisposed && !!this.survey) {
-            this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: getScrollBehavior() } });
+            q.focus(false, false);
           }
         }, elementIsRendered ? 0 : 15);
       }

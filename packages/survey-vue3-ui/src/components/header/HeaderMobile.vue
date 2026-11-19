@@ -7,7 +7,7 @@
           :src="model.survey.locLogo.renderedHtml"
           :width="model.survey.renderedLogoWidth"
           :height="model.survey.renderedLogoHeight"
-          :alt="model.survey.locTitle.renderedHtml"
+          alt=""
           :style="{ 'objectFit': model.survey.logoFit, 'width': model.survey.renderedStyleLogoWidth, 'height': model.survey.renderedStyleLogoHeight } as any"
         />
       </div>

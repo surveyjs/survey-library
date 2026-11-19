@@ -5,7 +5,7 @@
       :src="logoUrl"
       :width="survey.renderedLogoWidth"
       :height="survey.renderedLogoHeight"
-      :alt="survey.locTitle.renderedHtml"
+      alt=""
       :style="{
             objectFit: survey.logoFit as any,
             width: survey.renderedStyleLogoWidth,

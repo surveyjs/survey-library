@@ -36,7 +36,7 @@ export class LogoImage extends SurveyElementBase<ILogoImageProps, any> {
         <img
           className={this.survey.css.logoImage}
           src={this.survey.locLogo.renderedHtml || null}
-          alt={this.survey.locTitle.renderedHtml}
+          alt=""
           width={this.survey.renderedLogoWidth}
           height={this.survey.renderedLogoHeight}
           style={{ objectFit: this.survey.logoFit as any, width: this.survey.renderedStyleLogoWidth, height: this.survey.renderedStyleLogoHeight }}

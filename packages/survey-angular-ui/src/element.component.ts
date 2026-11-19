@@ -14,7 +14,14 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
     return this.model;
   }
   protected get elementComponentName(): string {
-    return this.model.isPanel ? "panel" : "question";
+    return this.model.isQuestion ? "question" : "panel";
+  }
+  // A page is an element only while it is nested in a page container (single-page or preview mode).
+  // On complete, the preview container releases its pages, and a component queued before the survey state
+  // changed can re-render the stale preview view first. A page without a parent has page CSS classes,
+  // so neither the panel nor the question component can render it.
+  public get canRender(): boolean {
+    return !!this.model && !this.model.isPage;
   }
 
   protected override onModelChanged(): void {

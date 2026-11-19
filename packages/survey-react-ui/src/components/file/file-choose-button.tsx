@@ -16,6 +16,7 @@ export class SurveyFileChooseButton extends ReactSurveyElement {
   protected renderElement() {
     return attachKey2click(
       <label
+        id={this.question.chooseButtonId}
         tabIndex={0}
         className={this.props.item.getActionBarItemCss()}
         htmlFor={this.question.inputId}

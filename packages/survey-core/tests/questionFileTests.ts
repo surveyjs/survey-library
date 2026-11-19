@@ -2039,6 +2039,15 @@ describe("Survey_QuestionFile", () => {
     expect(startCameraAction.showTitle).toBeFalsy();
   });
 
+  test("File focus targets the Select File button, not the hidden input", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "file", name: "files" }]
+    });
+    const q = <QuestionFileModel>survey.getQuestionByName("files");
+    expect(q["getFirstInputElementId"](), "focus target").toBe(q.inputId + "_choose");
+    expect(q["getFirstInputElementId"](), "not the file input").not.toBe(q.inputId);
+  });
+
   test("QuestionFile check renderedPlaceholder in different modes", () => {
     const survey = new SurveyModel({
       elements: [

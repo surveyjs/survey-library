@@ -49,6 +49,9 @@ export class QuestionHtmlModel extends QuestionNonValue {
   public get renderCssRoot(): string {
     return toCssClasses(this.cssClasses.root, this.getIsNested() && this.cssClasses.nested) || undefined;
   }
+  public get renderedHtml(): string {
+    return this.getLocStringHtml(this.locHtml);
+  }
 }
 Serializer.addClass(
   "html",

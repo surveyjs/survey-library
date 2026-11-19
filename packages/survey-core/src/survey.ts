@@ -2716,6 +2716,9 @@ export class SurveyModel extends SurveyElementCore
   public get hasTitle(): boolean {
     return this.renderedHasTitle;
   }
+  public get renderedLogoURL(): string {
+    return this.getLocStringHtml(this.locLogo);
+  }
   public get renderedHasLogo(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("logo");
     return this.hasLogo;

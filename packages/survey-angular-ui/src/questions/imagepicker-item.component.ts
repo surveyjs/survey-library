@@ -29,15 +29,6 @@ export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> {
       this.question.value = event.target.value;
     }
   }
-  protected override afterViewInit(): void {
-    this.model.locImageLink.onChanged = () => {
-      this.update();
-    };
-  }
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
-    this.model.locImageLink.onChanged = () => {};
-  }
 }
 
 AngularComponentFactory.Instance.registerComponent("sv-ng-imagepicker-item", ImagePickerItemComponent);

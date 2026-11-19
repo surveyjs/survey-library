@@ -1,23 +1,30 @@
 <template>
-  <div :class="model.rootCss">
-    <div :class="model.cssClasses.toolbar">
+  <div :class="model.rootCss" ref="root">
+    <div v-if="model.isMonthList" :class="model.cssClasses.listHeader">
+      <div :class="model.cssClasses.weekDays">
+        <div v-for="(name, nameIndex) in model.weekDays" :key="nameIndex" :class="model.cssClasses.weekDay">{{ name }}</div>
+      </div>
+    </div>
+    <div v-if="model.showTopToolbar" :class="model.cssClasses.toolbar">
       <div v-if="model.showMonthTitles" :class="model.cssClasses.monthTitles">
         <div v-for="(month, index) in model.months" :key="index" :class="model.cssClasses.monthTitle">{{ month.title }}</div>
       </div>
       <SvComponent :is="'sv-action-bar'" :model="model.topToolbar"></SvComponent>
     </div>
     <div v-if="model.isDayZoom" :class="model.cssClasses.months">
-      <div v-for="(month, index) in model.months" :key="index" :class="model.cssClasses.monthView">
-        <div :class="model.cssClasses.weekDays">
+      <div v-for="month in model.months" :key="model.getMonthKey(month)" :class="model.cssClasses.monthView" :data-month="model.getMonthKey(month)">
+        <div v-if="model.isMonthList" :class="model.cssClasses.monthTitle">{{ month.title }}</div>
+        <div v-if="model.showMonthWeekDays" :class="model.cssClasses.weekDays">
           <div v-for="(name, nameIndex) in model.weekDays" :key="nameIndex" :class="model.cssClasses.weekDay">{{ name }}</div>
         </div>
-        <div :class="model.cssClasses.days" @mouseleave="model.hoverItem(undefined)">
-          <div v-for="(item, itemIndex) in month.days" :key="itemIndex" :class="item.css"
-            @click="model.selectItem(item)" @mouseenter="model.hoverItem(item)">{{ item.text }}</div>
+        <div :class="model.cssClasses.table" @mouseleave="model.hoverItem(undefined)">
+          <div v-for="(item, itemIndex) in month.days" :key="itemIndex" :class="model.cssClasses.dayCell">
+            <div :class="item.css" @click="model.selectItem(item)" @mouseenter="model.hoverItem(item)">{{ item.text }}</div>
+          </div>
         </div>
       </div>
     </div>
-    <div v-else :class="model.cssClasses.grid" @mouseleave="model.hoverItem(undefined)">
+    <div v-else :class="model.cssClasses.table" @mouseleave="model.hoverItem(undefined)">
       <div v-for="(item, itemIndex) in model.items" :key="itemIndex" :class="item.css"
         @click="model.selectItem(item)" @mouseenter="model.hoverItem(item)">{{ item.text }}</div>
     </div>
@@ -28,10 +35,17 @@
 </template>
 
 <script lang="ts" setup>
-import type { CalendarModel } from "survey-core";
+import type { CalendarViewModel } from "survey-core";
 import SvComponent from "@/SvComponent.vue";
 import { useBase } from "../../base";
+import { onMounted, onUnmounted, onUpdated, ref } from "vue";
 
-const props = defineProps<{ model: CalendarModel }>();
+const props = defineProps<{ model: CalendarViewModel }>();
+const root = ref<HTMLElement>();
 useBase(() => props.model);
+
+const attachMonthList = (): void => props.model.attachMonthList(root.value as HTMLElement);
+onMounted(attachMonthList);
+onUpdated(attachMonthList);
+onUnmounted(() => props.model.detachMonthList());
 </script>

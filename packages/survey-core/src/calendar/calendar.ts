@@ -1,54 +1,21 @@
 import { Base } from "../base";
 import { EventBase } from "../event";
-import { Action } from "../actions/action";
-import { ActionContainer } from "../actions/container";
 import { property } from "../decorators";
-import { createDate } from "../helpers";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
-import { CalendarItem, CalendarMonth, CalendarRangePosition, CalendarZoom, ICalendarOptions } from "./interfaces";
-import { calendarCssClasses } from "./css-classes";
-import { clampDate, isPeriodOutside, isSameDay, toDateOnly, toMonthStart } from "./date-utils";
+import { CalendarZoom, ICalendarOptions } from "./interfaces";
+import { clampDate, getToday, isPeriodOutside, isSameDay, toDateOnly, toMonthStart } from "./date-utils";
 
-// Localization is out of scope for now: the names are english.
-const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const weekDayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-const daysInGrid = 42;
-const yearsInRange = 12;
+export const yearsInRange = 12;
 const nextZoom: { [zoom: string]: CalendarZoom } = { day: "month", month: "year", year: "day" };
-const rangePositionCss: { [position: string]: string } = {
-  start: calendarCssClasses.dayRangeStart,
-  end: calendarCssClasses.dayRangeEnd,
-  middle: calendarCssClasses.dayRangeMiddle,
-  single: calendarCssClasses.dayRangeSingle
-};
 
-interface ICalendarItemState {
-  isSelected: boolean;
-  isToday: boolean;
-  isDisabled: boolean;
-  isOutside?: boolean;
-  isHidden?: boolean;
-  rangePosition?: CalendarRangePosition;
-}
-
+// The calendar state and its rules: value, range selection, limits, navigation and zoom.
+// Everything that is only about rendering lives in CalendarViewModel.
 export class CalendarModel extends Base {
-  private hoveredItem: CalendarItem;
-  private topToolbarValue: ActionContainer;
-  private footerToolbarValue: ActionContainer;
-
   @property() viewDate: Date;
   @property() min: Date;
   @property() max: Date;
   @property({ defaultValue: false }) range: boolean;
   @property() rangeStart: Date;
   @property({ defaultValue: 1 }) firstDayOfWeek: number;
-  @property() title: string;
-  @property({ defaultValue: true }) canPrev: boolean;
-  @property({ defaultValue: true }) canNext: boolean;
-  @property() months: Array<CalendarMonth>;
-  @property() items: Array<CalendarItem>;
-  @property() weekDays: Array<string>;
-  @property({ defaultValue: false }) footerVisible: boolean;
 
   public onValueChanged: EventBase<CalendarModel, { value: any }> = this.addEvent<CalendarModel, { value: any }>();
   public onSelectionCompleted: EventBase<CalendarModel, { value: any }> = this.addEvent<CalendarModel, { value: any }>();
@@ -62,42 +29,9 @@ export class CalendarModel extends Base {
     this.range = !!options.range;
     this.value = options.value;
     this.viewDate = options.viewDate || this.getDefaultViewDate();
-    this.updateWeekDays();
-    this.updateView();
   }
   public getType(): string {
     return "calendar";
-  }
-  public get cssClasses(): typeof calendarCssClasses {
-    return calendarCssClasses;
-  }
-  public get isDayZoom(): boolean {
-    return this.zoom === "day";
-  }
-  public get canZoom(): boolean {
-    return !this.range;
-  }
-  public get showMonthTitles(): boolean {
-    return this.monthCount > 1;
-  }
-  public get topToolbar(): ActionContainer {
-    if (!this.topToolbarValue) {
-      this.topToolbarValue = this.createTopToolbar();
-    }
-    return this.topToolbarValue;
-  }
-  // An empty toolbar under the calendar. Extra buttons are added here by the host.
-  public get footerToolbar(): ActionContainer {
-    if (!this.footerToolbarValue) {
-      this.footerToolbarValue = this.createFooterToolbar();
-    }
-    return this.footerToolbarValue;
-  }
-  public get rootCss(): string {
-    return new CssClassBuilder()
-      .append(calendarCssClasses.root)
-      .append(calendarCssClasses.rootRange, this.monthCount > 1)
-      .toString();
   }
   // A Date, or an array of two dates [start, end] if range is true. The value is always a new
   // object, so an array passed in or handed out is never changed by the calendar.
@@ -115,6 +49,22 @@ export class CalendarModel extends Base {
     if (!this.canZoom && val !== "day") return;
     this.setPropertyValue("zoom", val);
   }
+  public get isDayZoom(): boolean {
+    return this.zoom === "day";
+  }
+  public get canZoom(): boolean {
+    return !this.range;
+  }
+  // The days of a range are picked from two months at once.
+  public get monthCount(): number {
+    return this.range && this.isDayZoom ? 2 : 1;
+  }
+  public get canPrev(): boolean {
+    return !this.isNeighbourPeriodOutside(-1);
+  }
+  public get canNext(): boolean {
+    return !this.isNeighbourPeriodOutside(1);
+  }
   public setRangeStart(date: Date): void {
     this.rangeStart = date;
   }
@@ -131,40 +81,45 @@ export class CalendarModel extends Base {
     this.zoom = nextZoom[this.zoom];
   }
   public resetView(): void {
-    this.hoveredItem = undefined;
     this.zoom = "day";
     this.viewDate = this.getDefaultViewDate();
-    this.updateView();
   }
-  public selectItem(item: CalendarItem): void {
-    if (!item || item.isDisabled || item.isHidden) return;
+  // A month or a year zooms in; a day is selected.
+  public selectDate(date: Date): void {
+    if (!date) return;
     if (this.zoom === "month") {
-      this.viewDate = item.date;
+      this.viewDate = date;
       this.zoom = "day";
       return;
     }
     if (this.zoom === "year") {
-      this.viewDate = new Date(item.date.getFullYear(), this.viewDate.getMonth(), 1);
+      this.viewDate = new Date(date.getFullYear(), this.viewDate.getMonth(), 1);
       this.zoom = "month";
       return;
     }
     if (this.range) {
-      this.selectRangeDay(item.date);
+      this.selectRangeDay(date);
       return;
     }
-    if (item.isOutside) {
-      this.viewDate = item.date;
+    if (date.getMonth() !== this.viewDate.getMonth() || date.getFullYear() !== this.viewDate.getFullYear()) {
+      this.viewDate = date;
     }
-    if (!isSameDay(this.value, item.date)) {
-      this.value = item.date;
+    if (!isSameDay(this.value, date)) {
+      this.value = date;
       this.onValueChanged.fire(this, { value: this.value });
     }
     this.onSelectionCompleted.fire(this, { value: this.value });
   }
-  public hoverItem(item?: CalendarItem): void {
-    if (!!item && (item.isDisabled || item.isHidden)) return;
-    this.hoveredItem = item;
-    this.updateView();
+  public isPeriodDisabled(start: Date, end: Date): boolean {
+    return isPeriodOutside(start, end, this.min, this.max);
+  }
+  // The dates that are shown as selected: while a range is being picked, the range start and
+  // the previewed day take the place of the committed value.
+  public getSelectedRange(previewDate?: Date): Array<Date> {
+    if (!this.range) return !!this.value ? [this.value, this.value] : undefined;
+    if (!this.rangeStart) return this.clipRange(this.value);
+    if (!previewDate || !this.isDayZoom) return [this.rangeStart, this.rangeStart];
+    return this.clipRange(this.normalizeValue([this.rangeStart, previewDate]));
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -181,7 +136,6 @@ export class CalendarModel extends Base {
         this.viewDate = monthStart;
         return;
       }
-      this.hoveredItem = undefined;
     }
     if (name === "range") {
       this.setPropertyValue("value", this.normalizeValue(this.value));
@@ -189,15 +143,6 @@ export class CalendarModel extends Base {
       if (!this.canZoom) {
         this.zoom = "day";
       }
-    }
-    if (name === "zoom") {
-      this.hoveredItem = undefined;
-    }
-    if (name === "firstDayOfWeek") {
-      this.updateWeekDays();
-    }
-    if (["value", "viewDate", "min", "max", "range", "rangeStart", "zoom", "firstDayOfWeek"].indexOf(name) > -1) {
-      this.updateView();
     }
     if (name === "zoom") {
       this.onZoomChanged.fire(this, { zoom: newValue });
@@ -220,7 +165,6 @@ export class CalendarModel extends Base {
     }
     const value = this.normalizeValue([this.rangeStart, date]);
     const isChanged = !this.isSameRange(this.value, value);
-    this.hoveredItem = undefined;
     this.rangeStart = undefined;
     this.value = value;
     if (isChanged) {
@@ -231,32 +175,12 @@ export class CalendarModel extends Base {
   private isSameRange(a: Array<Date>, b: Array<Date>): boolean {
     return !!a && !!b && isSameDay(a[0], b[0]) && isSameDay(a[1], b[1]);
   }
-  // The dates that are rendered as selected: the pending selection (rangeStart and the hovered
-  // day) takes the place of the committed value while it lasts.
-  private getSelectedRange(): Array<Date> {
-    if (!this.range) return !!this.value ? [this.value, this.value] : undefined;
-    if (!this.rangeStart) return this.clipRange(this.value);
-    const hovered = this.hoveredItem;
-    if (!hovered || this.zoom !== "day") return [this.rangeStart, this.rangeStart];
-    return this.clipRange(this.normalizeValue([this.rangeStart, hovered.date]));
-  }
-  // Disabled dates are never a part of the range, so its rendered boundaries move inside [min, max].
+  // Disabled dates are never a part of the range, so its boundaries move inside [min, max].
   private clipRange(range: Array<Date>): Array<Date> {
     if (!range) return undefined;
     const start = !!this.min && range[0].getTime() < this.min.getTime() ? this.min : range[0];
     const end = !!this.max && range[1].getTime() > this.max.getTime() ? this.max : range[1];
     return start.getTime() > end.getTime() ? undefined : [start, end];
-  }
-  private getRangePosition(date: Date, range: Array<Date>): CalendarRangePosition {
-    if (!this.range || !range) return undefined;
-    const time = date.getTime();
-    const start = range[0].getTime();
-    const end = range[1].getTime();
-    if (time < start || time > end) return undefined;
-    if (start === end) return "single";
-    if (time === start) return "start";
-    if (time === end) return "end";
-    return "middle";
   }
   private shiftView(direction: number): void {
     const year = this.viewDate.getFullYear();
@@ -269,217 +193,22 @@ export class CalendarModel extends Base {
       this.viewDate = new Date(year, month + direction, 1);
     }
   }
-  private getToday(): Date {
-    return toDateOnly(createDate("calendar-today"));
-  }
   private getDefaultViewDate(): Date {
     const value = this.range && !!this.value ? this.value[0] : this.value;
-    return this.rangeStart || value || clampDate(this.getToday(), this.min, this.max);
-  }
-  private get monthCount(): number {
-    return this.range && this.zoom === "day" ? 2 : 1;
-  }
-  private isOutside(start: Date, end: Date): boolean {
-    return isPeriodOutside(start, end, this.min, this.max);
+    return this.rangeStart || value || clampDate(getToday(), this.min, this.max);
   }
   // The period that prev() / next() would bring into view.
   private isNeighbourPeriodOutside(direction: number): boolean {
+    if (!this.viewDate) return true;
     const year = this.viewDate.getFullYear();
     if (this.zoom === "month") {
-      return this.isOutside(new Date(year + direction, 0, 1), new Date(year + direction, 11, 31));
+      return this.isPeriodDisabled(new Date(year + direction, 0, 1), new Date(year + direction, 11, 31));
     }
     if (this.zoom === "year") {
       const startYear = Math.floor(year / yearsInRange) * yearsInRange + direction * yearsInRange;
-      return this.isOutside(new Date(startYear, 0, 1), new Date(startYear + yearsInRange - 1, 11, 31));
+      return this.isPeriodDisabled(new Date(startYear, 0, 1), new Date(startYear + yearsInRange - 1, 11, 31));
     }
     const month = this.viewDate.getMonth() + (direction > 0 ? this.monthCount : direction);
-    return this.isOutside(new Date(year, month, 1), new Date(year, month + 1, 0));
-  }
-  private updateWeekDays(): void {
-    const res: Array<string> = [];
-    for (let i = 0; i < 7; i++) {
-      res.push(weekDayNames[(this.firstDayOfWeek + i) % 7]);
-    }
-    this.weekDays = res;
-  }
-  private updateView(): void {
-    if (!this.viewDate) return;
-    const year = this.viewDate.getFullYear();
-    const selectedRange = this.getSelectedRange();
-    if (this.zoom === "month") {
-      this.months = [];
-      this.items = this.createMonthItems(year, selectedRange);
-      this.title = year.toString();
-    } else if (this.zoom === "year") {
-      const startYear = Math.floor(year / yearsInRange) * yearsInRange;
-      this.months = [];
-      this.items = this.createYearItems(startYear, selectedRange);
-      this.title = startYear + " \u2013 " + (startYear + yearsInRange - 1);
-    } else {
-      const months: Array<CalendarMonth> = [];
-      for (let i = 0; i < this.monthCount; i++) {
-        months.push(this.createMonth(new Date(year, this.viewDate.getMonth() + i, 1), selectedRange));
-      }
-      this.months = months;
-      this.items = [];
-      this.title = months[0].title;
-    }
-    this.canPrev = !this.isNeighbourPeriodOutside(-1);
-    this.canNext = !this.isNeighbourPeriodOutside(1);
-    this.updateTopToolbar();
-  }
-  private createTopToolbar(): ActionContainer {
-    const css = calendarCssClasses;
-    const container = new ActionContainer();
-    container.containerCss = css.toolbarActions;
-    container.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
-    const button = (id: string, iconName: string, action: () => void): Action => {
-      return new Action({
-        id: id,
-        css: css.navButton,
-        iconName: iconName,
-        iconSize: "auto",
-        showTitle: false,
-        disableShrink: true,
-        disableTabStop: true,
-        action: action
-      });
-    };
-    container.setItems([
-      button("prev", css.prevIconId, () => this.prev()),
-      new Action({
-        id: "title",
-        css: css.title,
-        iconName: css.titleIconId,
-        iconSize: "auto",
-        showTitle: true,
-        disableShrink: true,
-        action: () => this.zoomOut()
-      }),
-      button("next", css.nextIconId, () => this.next())
-    ]);
-    this.topToolbarValue = container;
-    this.updateTopToolbar();
-    return container;
-  }
-  private createFooterToolbar(): ActionContainer {
-    const container = new ActionContainer();
-    container.containerCss = calendarCssClasses.footerActions;
-    container.setActionsAppearance({ mode: "secondary", style: "neutral", size: "small" });
-    container.onPropertyChanged.add(() => {
-      this.footerVisible = container.hasActions;
-    });
-    return container;
-  }
-  private updateTopToolbar(): void {
-    if (!this.topToolbarValue) return;
-    const prev = this.topToolbarValue.getActionById("prev");
-    const next = this.topToolbarValue.getActionById("next");
-    const title = this.topToolbarValue.getActionById("title");
-    prev.setEnabled(this.canPrev);
-    next.setEnabled(this.canNext);
-    title.title = this.title;
-    title.visible = this.canZoom;
-  }
-  public dispose(): void {
-    if (!!this.topToolbarValue) {
-      this.topToolbarValue.dispose();
-      this.topToolbarValue = undefined;
-    }
-    if (!!this.footerToolbarValue) {
-      this.footerToolbarValue.dispose();
-      this.footerToolbarValue = undefined;
-    }
-    super.dispose();
-  }
-  private createMonth(monthStart: Date, selectedRange: Array<Date>): CalendarMonth {
-    const year = monthStart.getFullYear();
-    const month = monthStart.getMonth();
-    const offset = (monthStart.getDay() - this.firstDayOfWeek + 7) % 7;
-    const today = this.getToday();
-    // With several months side by side, a neighbour month's day would repeat a day of the next block.
-    const hideOutside = this.monthCount > 1;
-    const days: Array<CalendarItem> = [];
-    for (let i = 0; i < daysInGrid; i++) {
-      const date = new Date(year, month, 1 - offset + i);
-      const isOutside = date.getMonth() !== month;
-      if (isOutside && hideOutside) {
-        days.push(this.createItem("day", date, "", { isSelected: false, isToday: false, isDisabled: false, isOutside: true, isHidden: true }));
-        continue;
-      }
-      const rangePosition = this.getRangePosition(date, selectedRange);
-      days.push(this.createItem("day", date, date.getDate().toString(), {
-        isSelected: this.range ? !!rangePosition : isSameDay(this.value, date),
-        isToday: isSameDay(today, date),
-        isDisabled: this.isOutside(date, date),
-        isOutside: isOutside,
-        rangePosition: rangePosition
-      }));
-    }
-    return { date: monthStart, title: monthNames[month] + " " + year, days: days };
-  }
-  private isPeriodSelected(start: Date, end: Date, selectedRange: Array<Date>): boolean {
-    return !!selectedRange && !isPeriodOutside(start, end, selectedRange[0], selectedRange[1]);
-  }
-  private createMonthItems(year: number, selectedRange: Array<Date>): Array<CalendarItem> {
-    const today = this.getToday();
-    return monthNames.map((name, month) => {
-      const start = new Date(year, month, 1);
-      const end = new Date(year, month + 1, 0);
-      return this.createItem("month", start, name, {
-        isSelected: this.isPeriodSelected(start, end, selectedRange),
-        isToday: !isPeriodOutside(start, end, today, today),
-        isDisabled: this.isOutside(start, end)
-      });
-    });
-  }
-  private createYearItems(startYear: number, selectedRange: Array<Date>): Array<CalendarItem> {
-    const today = this.getToday();
-    const res: Array<CalendarItem> = [];
-    for (let year = startYear; year < startYear + yearsInRange; year++) {
-      const start = new Date(year, 0, 1);
-      const end = new Date(year, 11, 31);
-      res.push(this.createItem("year", start, year.toString(), {
-        isSelected: this.isPeriodSelected(start, end, selectedRange),
-        isToday: !isPeriodOutside(start, end, today, today),
-        isDisabled: this.isOutside(start, end)
-      }));
-    }
-    return res;
-  }
-  private createItem(kind: CalendarZoom, date: Date, text: string, state: ICalendarItemState): CalendarItem {
-    const isOutside = !!state.isOutside;
-    const hovered = this.hoveredItem;
-    // An unavailable date is always rendered as disabled and unselected.
-    const rangePosition = state.isDisabled ? undefined : state.rangePosition;
-    const item: CalendarItem = {
-      date: date,
-      text: text,
-      isSelected: state.isSelected && !state.isDisabled,
-      isInRange: !!rangePosition,
-      isHovered: !state.isDisabled && !!hovered && isSameDay(hovered.date, date) && hovered.isOutside === isOutside,
-      isToday: state.isToday,
-      isOutside: isOutside,
-      isHidden: !!state.isHidden,
-      isDisabled: state.isDisabled,
-      rangePosition: rangePosition,
-      css: ""
-    };
-    item.css = this.getItemCss(kind, item);
-    return item;
-  }
-  private getItemCss(kind: CalendarZoom, item: CalendarItem): string {
-    const classes: { [key: string]: string } = calendarCssClasses;
-    return new CssClassBuilder()
-      .append(classes[kind])
-      .append(classes[kind + "Outside"], item.isOutside)
-      .append(classes[kind + "Hidden"], item.isHidden)
-      .append(classes[kind + "Today"], item.isToday)
-      .append(classes[kind + "Selected"], item.isSelected)
-      .append(classes[kind + "InRange"], item.isInRange)
-      .append(classes[kind + "Hovered"], item.isHovered)
-      .append(classes[kind + "Disabled"], item.isDisabled)
-      .append(rangePositionCss[item.rangePosition], !!item.rangePosition)
-      .toString();
+    return this.isPeriodDisabled(new Date(year, month, 1), new Date(year, month + 1, 0));
   }
 }

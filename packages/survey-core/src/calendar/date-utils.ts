@@ -1,8 +1,16 @@
+import { createDate } from "../helpers";
+
 export function toDateOnly(date: Date): Date {
   return !!date ? new Date(date.getFullYear(), date.getMonth(), date.getDate()) : undefined;
 }
+export function getToday(): Date {
+  return toDateOnly(createDate("calendar-today"));
+}
 export function toMonthStart(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+export function shiftMonth(date: Date, count: number): Date {
+  return new Date(date.getFullYear(), date.getMonth() + count, 1);
 }
 export function isSameDay(a: Date, b: Date): boolean {
   return !!a && !!b && a.getTime() === b.getTime();

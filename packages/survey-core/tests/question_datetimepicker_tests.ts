@@ -3,6 +3,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionFactory } from "../src/questionfactory";
 import { QuestionDateTimePickerModel } from "../src/question_datetimepicker";
 import { CalendarModel } from "../src/calendar/calendar";
+import { CalendarViewModel } from "../src/calendar/calendar-view-model";
 import { CalendarItem } from "../src/calendar/interfaces";
 import { InputMaskDateTime } from "../src/mask/mask_datetime";
 
@@ -15,7 +16,7 @@ function createQuestion(json: any = {}, surveyJson: any = {}): QuestionDateTimeP
   const survey = new SurveyModel(Object.assign({ elements: [Object.assign({ type: "datetimepicker", name: "q1" }, json)] }, surveyJson));
   return <QuestionDateTimePickerModel>survey.getQuestionByName("q1");
 }
-function findDay(calendar: CalendarModel, date: Date): CalendarItem {
+function findDay(calendar: CalendarViewModel, date: Date): CalendarItem {
   return calendar.months[0].days.filter(item => !item.isOutside && item.date.getTime() === date.getTime())[0];
 }
 
@@ -51,7 +52,8 @@ describe("QuestionDateTimePickerModel", () => {
     const q = createQuestion();
     expect(q.calendar).toBeInstanceOf(CalendarModel);
     expect(q.popupModel.contentComponentName).toBe("sv-calendar");
-    expect(q.popupModel.contentComponentData.model).toBe(q.calendar);
+    expect(q.popupModel.contentComponentData.model).toBe(q.calendarViewModel);
+    expect(q.calendarViewModel.model).toBe(q.calendar);
     expect(q.popupModel.isVisible).toBe(false);
   });
 
@@ -179,7 +181,7 @@ describe("QuestionDateTimePickerModel", () => {
     q.value = "2026-11-09";
     q.togglePopup();
     expect(q.popupModel.isVisible).toBe(true);
-    q.calendar.selectItem(findDay(q.calendar, d(2026, 11, 20)));
+    q.calendarViewModel.selectItem(findDay(q.calendarViewModel, d(2026, 11, 20)));
     expect(q.value).toBe("2026-11-20");
     expect(q.inputValue).toBe("11/20/2026");
     expect(q.popupModel.isVisible).toBe(false);
@@ -388,7 +390,7 @@ describe("QuestionDateTimePickerModel", () => {
   });
 });
 
-function findRangeDay(calendar: CalendarModel, date: Date): CalendarItem {
+function findRangeDay(calendar: CalendarViewModel, date: Date): CalendarItem {
   for (const month of calendar.months) {
     const item = month.days.filter(day => !day.isOutside && day.date.getTime() === date.getTime())[0];
     if (!!item) return item;
@@ -522,12 +524,12 @@ describe("QuestionDateTimePickerModel range", () => {
     const q = createQuestion({ range: true });
     q.value = ["2026-11-05", "2026-11-12"];
     q.togglePopup();
-    q.calendar.selectItem(findRangeDay(q.calendar, d(2026, 11, 20)));
+    q.calendarViewModel.selectItem(findRangeDay(q.calendarViewModel, d(2026, 11, 20)));
     expect(q.startInputValue).toBe("11/20/2026");
     expect(q.endInputValue).toBe("mm/dd/yyyy");
     expect(q.isEmpty()).toBe(true);
     expect(q.popupModel.isVisible).toBe(true);
-    q.calendar.selectItem(findRangeDay(q.calendar, d(2026, 11, 3)));
+    q.calendarViewModel.selectItem(findRangeDay(q.calendarViewModel, d(2026, 11, 3)));
     expect(q.value).toEqual(["2026-11-03", "2026-11-20"]);
     expect(q.startInputValue).toBe("11/03/2026");
     expect(q.endInputValue).toBe("11/20/2026");
@@ -537,7 +539,7 @@ describe("QuestionDateTimePickerModel range", () => {
   test("First click, close, open, second click", () => {
     const q = createQuestion({ range: true });
     q.togglePopup();
-    q.calendar.selectItem(findRangeDay(q.calendar, d(2026, 11, 10)));
+    q.calendarViewModel.selectItem(findRangeDay(q.calendarViewModel, d(2026, 11, 10)));
     q.togglePopup();
     expect(q.popupModel.isVisible).toBe(false);
     expect(q.startInputValue).toBe("11/10/2026");
@@ -547,7 +549,7 @@ describe("QuestionDateTimePickerModel range", () => {
     q.togglePopup();
     expect(q.calendar.rangeStart.getTime()).toBe(d(2026, 11, 10).getTime());
     expect(q.calendar.viewDate.getTime()).toBe(d(2026, 11, 1).getTime());
-    q.calendar.selectItem(findRangeDay(q.calendar, d(2026, 11, 15)));
+    q.calendarViewModel.selectItem(findRangeDay(q.calendarViewModel, d(2026, 11, 15)));
     expect(q.value).toEqual(["2026-11-10", "2026-11-15"]);
     expect(q.popupModel.isVisible).toBe(false);
   });
@@ -766,7 +768,7 @@ describe("QuestionDateTimePickerModel range", () => {
     q.inputValue = "11/05/2026";
     expect(q.value).toBe("2026-11-05");
     q.togglePopup();
-    q.calendar.selectItem(findDay(q.calendar, d(2026, 11, 7)));
+    q.calendarViewModel.selectItem(findDay(q.calendarViewModel, d(2026, 11, 7)));
     expect(q.value).toBe("2026-11-07");
     expect(q.popupModel.isVisible).toBe(false);
   });

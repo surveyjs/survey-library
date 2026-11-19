@@ -9,9 +9,10 @@ import { CustomError, PatternIncompleteError } from "./error";
 import { InputMaskBase } from "./mask/mask_base";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { PopupModel } from "./popup";
-import { Action } from "./actions/action";
+import { Action, IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { CalendarModel } from "./calendar/calendar";
+import { CalendarViewModel } from "./calendar/calendar-view-model";
 import { parseISODate } from "./calendar/date-utils";
 import { toCssClasses } from "./utils/cssClassBuilder";
 
@@ -28,6 +29,7 @@ export class QuestionDateTimePickerModel extends Question {
   private endMaskValue: InputMaskBase;
   private doNotUpdateInputValue: boolean = false;
   private calendarValue: CalendarModel;
+  private calendarViewModelValue: CalendarViewModel;
   private popupModelValue: PopupModel;
   private editorButtonsValue: { [field: string]: ActionContainer } = {};
 
@@ -36,6 +38,7 @@ export class QuestionDateTimePickerModel extends Question {
     this.setPropertyValue("maskSettings", this.createMaskSettings());
     this.calendarValue = new CalendarModel();
     this.calendarValue.onValueChanged.add((_, options) => {
+      if (this.isMobile) return;
       this.value = this.calendarToQuestionValue(options.value);
     });
     this.calendarValue.onRangeStartSelected.add((_, options) => {
@@ -44,7 +47,11 @@ export class QuestionDateTimePickerModel extends Question {
       this.onRangeInputChanged();
     });
     this.calendarValue.onSelectionCompleted.add(() => {
+      if (this.isMobile) return;
       this.popupModel.hide();
+    });
+    this.registerFunctionOnPropertyValueChanged("isMobile", () => {
+      if (!!this.popupModelValue)this.updateMobileMode();
     });
   }
   public getType(): string {
@@ -158,6 +165,12 @@ export class QuestionDateTimePickerModel extends Question {
   public get calendar(): CalendarModel {
     return this.calendarValue;
   }
+  public get calendarViewModel(): CalendarViewModel {
+    if (!this.calendarViewModelValue) {
+      this.calendarViewModelValue = new CalendarViewModel(this.calendar);
+    }
+    return this.calendarViewModelValue;
+  }
   public getRootClass(): string {
     return toCssClasses(this.cssClasses.root, this.range && this.cssClasses.rootRange);
   }
@@ -206,16 +219,20 @@ export class QuestionDateTimePickerModel extends Question {
   }
   public get popupModel(): PopupModel {
     if (!this.popupModelValue) {
-      this.popupModelValue = new PopupModel("sv-calendar", { model: this.calendar },
+      this.popupModelValue = new PopupModel("sv-calendar", { model: this.calendarViewModel },
         { verticalPosition: "bottom", horizontalPosition: "center", showPointer: false });
       this.popupModelValue.cssClass = this.cssClasses?.popup || "";
       this.popupModelValue.positionMode = "fixed";
       this.popupModelValue.isFocusedContainer = false;
       this.popupModelValue.locale = this.getLocale();
+      this.popupModelValue.onFooterActionsCreated.add((_, options: { actions: Array<IAction> }) => {
+        options.actions = this.getMobileFooterActions();
+      });
       this.popupModelValue.onVisibilityChanged.add((_, options: { isVisible: boolean }) => {
         if (options.isVisible) {
+          this.updateMobileMode();
           this.updateCalendarValue();
-          this.calendar.resetView();
+          this.calendarViewModel.resetView();
         }
         this.forEachEditorButtons((container) => {
           container.getActionById("calendar").popupActive = options.isVisible;
@@ -223,6 +240,53 @@ export class QuestionDateTimePickerModel extends Question {
       });
     }
     return this.popupModelValue;
+  }
+  private updateMobileMode(): void {
+    const popup = this.popupModelValue;
+    if (!popup) return;
+    const isMobile = this.isMobile;
+    this.calendarViewModel.isMobile = isMobile;
+    popup.displayMode = isMobile ? "overlay" : "popup";
+    popup.overlayDisplayMode = isMobile ? "dropdown-overlay" : "auto";
+    popup.showCloseButton = isMobile;
+    popup.title = isMobile ? this.locTitle.renderedHtml : "";
+    popup.description = isMobile ? this.locDescription.renderedHtml : "";
+    popup.cssClass = toCssClasses(this.cssClasses?.popup, isMobile && "sv-popup--sheet");
+    popup.isFocusedContent = !isMobile;
+    popup.onFooterActionsUpdated.fire(popup, { actions: this.getMobileFooterActions() });
+  }
+  private getMobileFooterActions(): Array<IAction> {
+    if (!this.isMobile) return [];
+    const actions: Array<IAction> = [{
+      id: "sv-datetimepicker-apply",
+      title: this.getLocalizationFormatString("modalApplyButtonText"),
+      appearance: { style: "brand", mode: "primary", size: "large" },
+      action: () => this.applyMobileSelection()
+    }];
+    if (this.range) {
+      actions.push({
+        id: "sv-datetimepicker-reset",
+        title: this.getLocalizationFormatString("clearCaption"),
+        appearance: { style: "brand", mode: "secondary", size: "large" },
+        action: () => this.resetMobileSelection()
+      });
+    }
+    return actions;
+  }
+  private applyMobileSelection(): void {
+    const hasOpenRange = this.range && !!this.calendar.rangeStart && !this.calendar.value;
+    const next = hasOpenRange ? undefined : this.calendarToQuestionValue(this.calendar.value);
+    if (!Helpers.isTwoValueEquals(this.value, next)) {
+      this.value = next;
+    }
+    this.popupModel.hide();
+  }
+  private resetMobileSelection(): void {
+    this.calendar.value = undefined;
+    this.calendar.setRangeStart(undefined);
+    this._startInputValue = undefined;
+    this._endInputValue = undefined;
+    this.updateMaskAdapterValues();
   }
   public togglePopup(): void {
     if (this.popupModel.isVisible) {
@@ -669,6 +733,10 @@ export class QuestionDateTimePickerModel extends Question {
     }
     this.forEachEditorButtons(container => container.dispose());
     this.editorButtonsValue = {};
+    if (!!this.calendarViewModelValue) {
+      this.calendarViewModelValue.dispose();
+      this.calendarViewModelValue = undefined;
+    }
     this.calendarValue.dispose();
     super.dispose();
   }

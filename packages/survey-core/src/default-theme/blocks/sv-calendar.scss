@@ -8,9 +8,7 @@
 
   display: flex;
   flex-direction: column;
-  gap: var(--sjs2-spacing-x100);
   box-sizing: border-box;
-  padding: var(--sjs2-spacing-x200);
   font-family: $font-family;
   color: $foreground;
   user-select: none;
@@ -21,6 +19,13 @@
   display: flex;
   align-items: center;
   min-height: var(--sv-calendar-cell-size);
+  padding-inline: var(--sjs2-spacing-x200);
+  padding-top: var(--sjs2-spacing-x200);
+  padding-bottom: var(--sjs2-spacing-x100);
+
+  &:has(+ .sv-calendar__table) {
+    border-bottom: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+  }
 }
 
 .sv-calendar__toolbar-actions {
@@ -34,6 +39,7 @@
 .sv-calendar__footer {
   display: flex;
   justify-content: flex-end;
+  padding: 0 var(--sjs2-spacing-x200) var(--sjs2-spacing-x200);
 }
 
 .sv-calendar__footer-actions {
@@ -88,9 +94,13 @@
 
 .sv-calendar__title {
   @include sjs2--typography--default-strong;
-  gap: var(--sjs2-spacing-x050);
   height: var(--sv-calendar-cell-size);
   padding: 0 var(--sjs2-spacing-x150);
+
+  button {
+    flex-direction: row-reverse;
+    gap: var(--sjs2-spacing-x050);
+  }
 
   svg {
     display: block;
@@ -103,13 +113,102 @@
 
 .sv-calendar__months {
   display: flex;
-  gap: var(--sjs2-spacing-x300);
+}
+
+.sv-datetimepicker-popup.sv-popup--sheet .sv-calendar {
+  --sv-calendar-range-fill-to: right;
+  --sv-calendar-square-start: calc(100% - var(--sv-calendar-cell-size) / 2);
+  --sv-calendar-square-end: calc(var(--sv-calendar-cell-size) / 2);
+
+  width: 100%;
+
+  .sv-calendar__toolbar,
+  .sv-calendar__months,
+  .sv-calendar__month-view,
+  .sv-calendar__table {
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .sv-calendar__weekdays,
+  .sv-calendar__month-view .sv-calendar__table {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .sv-calendar__month-view .sv-calendar__table {
+    column-gap: 0;
+  }
+
+  // The column is wider than the day. The cell carries the range fill, the day stays a square.
+  .sv-calendar__day-cell {
+    width: auto;
+    margin-inline: 0;
+    padding-inline: 0;
+    justify-content: center;
+
+    &:has(.sv-calendar__day--range-start:not(.sv-calendar__day--range-single)) {
+      background-color: transparent;
+      background-image: linear-gradient(
+        to var(--sv-calendar-range-fill-to),
+        transparent var(--sv-calendar-square-end),
+        var(--sjs2-color-bg-brand-secondary) var(--sv-calendar-square-end)
+      );
+    }
+
+    &:has(.sv-calendar__day--range-end:not(.sv-calendar__day--range-single)) {
+      background-color: transparent;
+      background-image: linear-gradient(
+        to var(--sv-calendar-range-fill-to),
+        var(--sjs2-color-bg-brand-secondary) var(--sv-calendar-square-start),
+        transparent var(--sv-calendar-square-start)
+      );
+    }
+
+    &:nth-child(7n):has(.sv-calendar__day--range-start),
+    &:nth-child(7n + 1):has(.sv-calendar__day--range-end) {
+      background-color: transparent;
+      background-image: none;
+    }
+  }
+}
+
+[dir="rtl"] .sv-datetimepicker-popup.sv-popup--sheet .sv-calendar {
+  --sv-calendar-range-fill-to: left;
+}
+
+.sv-calendar--month-list {
+  .sv-calendar__list-header {
+    position: relative;
+    z-index: 1;
+    background: var(--sjs2-color-utility-sheet);
+  }
+
+  .sv-calendar__month-title {
+    @include sjs2--typography--default-strong;
+    text-align: start;
+    padding-block: var(--sjs2-spacing-x150);
+    padding-inline: var(--sjs2-spacing-x500);
+  }
+
+  .sv-calendar__months {
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--sjs2-spacing-x200);
+    overflow: auto;
+    min-height: 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 .sv-calendar__month-view {
   display: flex;
   flex-direction: column;
-  gap: var(--sjs2-spacing-x050);
+  // gap: var(--sjs2-spacing-x050);
 }
 
 // Range: the month titles fill the row, and the arrow actions sit on top of the edges.
@@ -118,6 +217,8 @@
   inset: 0;
   width: auto;
   pointer-events: none;
+  padding-top: var(--sjs2-spacing-x200);
+  padding-inline: var(--sjs2-spacing-x200);
 }
 
 .sv-calendar--range .sv-calendar__nav-button {
@@ -137,11 +238,90 @@
   line-height: var(--sv-calendar-cell-size);
 }
 
+.sv-calendar__weekdays {
+  padding-inline: var(--sjs2-spacing-x200);
+  border-bottom: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+}
+
+.sv-calendar__table {
+  padding-inline: var(--sjs2-spacing-x200);
+  padding-block: var(--sjs2-spacing-x100);
+}
+
 .sv-calendar__weekdays,
-.sv-calendar__days {
+.sv-calendar__month-view .sv-calendar__table {
   display: grid;
   grid-template-columns: repeat(7, var(--sv-calendar-cell-size));
   gap: var(--sv-calendar-cell-gap);
+}
+
+// The cell reaches across the column gap with its padding, so the range background joins into one bar.
+// The day inside keeps its own background for hover, selected and the range ends.
+.sv-calendar__day-cell {
+  display: flex;
+  box-sizing: border-box;
+  width: calc(100% + var(--sv-calendar-cell-gap));
+  margin-inline-end: calc(var(--sv-calendar-cell-gap) * -1);
+  padding-inline-end: var(--sv-calendar-cell-gap);
+
+  &:nth-child(7n) {
+    width: 100%;
+    margin-inline-end: 0;
+    padding-inline-end: 0;
+  }
+
+  &:has(.sv-calendar__day--range-middle),
+  &:has(.sv-calendar__day--range-start:not(.sv-calendar__day--range-single)),
+  &:has(.sv-calendar__day--range-end:not(.sv-calendar__day--range-single)) {
+    background-color: var(--sjs2-color-bg-brand-secondary);
+  }
+
+  &:nth-child(7n + 1):has(.sv-calendar__day--range-end) {
+    width: 100%;
+    margin-inline-start: 0;
+    padding-inline-start: 0;
+  }
+
+  &:has(.sv-calendar__day--range-start) {
+    border-start-start-radius: var(--sv-calendar-cell-radius);
+    border-end-start-radius: var(--sv-calendar-cell-radius);
+  }
+
+  &:has(.sv-calendar__day--range-end) {
+    width: 100%;
+    margin-inline-start: 0;
+    padding-inline-start: 0;
+    border-start-end-radius: var(--sv-calendar-cell-radius);
+    border-end-end-radius: var(--sv-calendar-cell-radius);
+  }
+}
+
+// Only the ends of a visible range run are rounded. Each case is its own rule: one invalid
+// selector in a comma list drops the whole rule, including the week edge.
+$range-day: ".sv-calendar__day--in-range:not(.sv-calendar__day--hidden)";
+
+.sv-calendar__day-cell:nth-child(7n + 1):has(#{$range-day}) {
+  border-start-start-radius: var(--sv-calendar-cell-radius);
+  border-end-start-radius: var(--sv-calendar-cell-radius);
+}
+
+.sv-calendar__day-cell:has(> .sv-calendar__day--hidden) + .sv-calendar__day-cell:has(#{$range-day}) {
+  border-start-start-radius: var(--sv-calendar-cell-radius);
+  border-end-start-radius: var(--sv-calendar-cell-radius);
+}
+
+.sv-calendar__day-cell:nth-child(7n):has(#{$range-day}) {
+  border-start-end-radius: var(--sv-calendar-cell-radius);
+  border-end-end-radius: var(--sv-calendar-cell-radius);
+}
+
+// The next day is hidden, so this is the last drawn day of the month.
+.sv-calendar__day-cell:has(#{$range-day}):has(+ .sv-calendar__day-cell > .sv-calendar__day--hidden) {
+  border-start-end-radius: var(--sv-calendar-cell-radius);
+  border-end-end-radius: var(--sv-calendar-cell-radius);
+  margin-inline-end: 0;
+  padding-inline-end: 0;
+  width: 100%;
 }
 
 .sv-calendar__weekday {
@@ -151,12 +331,17 @@
   color: $foreground-light;
 }
 
-.sv-calendar__grid {
+.sv-calendar > .sv-calendar__table {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--sjs2-spacing-x050);
   min-width: 343px;
   width: calc(var(--sv-calendar-cell-size) * 7 + var(--sv-calendar-cell-gap) * 6);
+}
+
+.sv-calendar__day {
+  flex: 0 0 auto;
+  width: var(--sv-calendar-cell-size);
 }
 
 .sv-calendar__day,
@@ -221,26 +406,6 @@
   }
 }
 
-.sv-calendar__day--today.sv-calendar__day--range-start {
-  border-start-end-radius: 0;
-  border-end-end-radius: 0;
-
-  &::after {
-    border-start-end-radius: 0;
-    border-end-end-radius: 0;
-  }
-}
-
-.sv-calendar__day--today.sv-calendar__day--range-end {
-  border-start-start-radius: 0;
-  border-end-start-radius: 0;
-
-  &::after {
-    border-start-start-radius: 0;
-    border-end-start-radius: 0;
-  }
-}
-
 .sv-calendar__day--today.sv-calendar__day--disabled,
 .sv-calendar__month--today.sv-calendar__month--disabled,
 .sv-calendar__year--today.sv-calendar__year--disabled {
@@ -250,16 +415,14 @@
 }
 
 .sv-calendar__day--in-range {
-  background-color: var(--sjs2-color-bg-brand-secondary);
+  background-color: transparent;
   color: $foreground;
-
-  &.sv-calendar__day--hovered {
-    background-color: var(--sjs2-color-bg-brand-secondary-dim);
-  }
 }
 
 .sv-calendar__day--range-middle {
-  border-radius: 0;
+  &.sv-calendar__day--hovered {
+    background-color: var(--sjs2-color-bg-brand-secondary-dim);
+  }
 }
 
 .sv-calendar__day--selected,
@@ -277,16 +440,6 @@
   }
 }
 
-.sv-calendar__day--range-start {
-  border-start-end-radius: 0;
-  border-end-end-radius: 0;
-}
-
-.sv-calendar__day--range-end {
-  border-start-start-radius: 0;
-  border-end-start-radius: 0;
-}
-
 .sv-calendar__day--disabled,
 .sv-calendar__month--disabled,
 .sv-calendar__year--disabled {
@@ -295,5 +448,40 @@
 
   &:not(.sv-calendar__day--selected, .sv-calendar__month--selected, .sv-calendar__year--selected) {
     background-color: transparent;
+  }
+}
+
+.sv-datetimepicker-popup.sv-popup--sheet {
+  // The weekday line sits above the month list. The list scrolls, so the line is not cut off by the scrollbar.
+  .sv-popup__scrolling-content {
+    overflow: hidden;
+  }
+
+  .sv-popup__scrolling-content,
+  .sv-popup__content,
+  .sv-calendar--month-list {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .sv-popup__body-header {
+    align-items: center;
+    text-align: center;
+    padding-bottom: 0;
+  }
+
+  &:has(.sv-calendar--range) .sv-popup__body-footer {
+    border-top: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+  }
+
+  .sv-popup__body-footer .sd-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sjs2-spacing-x100);
+
+    .sd-action-bar__item,
+    .sd-action-bar__item-content {
+      width: 100%;
+    }
   }
 }

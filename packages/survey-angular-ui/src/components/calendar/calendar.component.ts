@@ -1,5 +1,5 @@
-import { Component, Input } from "@angular/core";
-import { CalendarItem, CalendarModel } from "survey-core";
+import { AfterViewChecked, Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { CalendarItem, CalendarViewModel, CalendarMonth } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -7,12 +7,24 @@ import { AngularComponentFactory } from "../../component-factory";
   selector: "sv-ng-calendar",
   templateUrl: "./calendar.component.html"
 })
-export class CalendarComponent extends BaseAngular<CalendarModel> {
-  @Input() model!: CalendarModel;
+export class CalendarComponent extends BaseAngular<CalendarViewModel> implements AfterViewChecked {
+  @Input() model!: CalendarViewModel;
+  @ViewChild("root") rootRef!: ElementRef<HTMLElement>;
 
-  protected getModel(): CalendarModel {
+  protected getModel(): CalendarViewModel {
     return this.model;
   }
+  public override ngAfterViewChecked(): void {
+    super.ngAfterViewChecked();
+    this.model.attachMonthList(this.rootRef?.nativeElement);
+  }
+  public override ngOnDestroy(): void {
+    this.model.detachMonthList();
+    super.ngOnDestroy();
+  }
+  public trackMonth = (index: number, month: CalendarMonth): string => {
+    return this.model.getMonthKey(month);
+  };
   public selectItem(item: CalendarItem): void {
     this.model.selectItem(item);
   }

@@ -1,0 +1,6 @@
+<ng-template #template>
+  <div *ngIf="!!dialog" [class]="dialog.contentCss">
+    <sv-ng-filter-editor-page *ngIf="!!dialog.form" [survey]="dialog.form" [disposed]="dialog.isDisposed" [className]="dialog.formCss"></sv-ng-filter-editor-page>
+    <sv-ng-filter-editor-page *ngIf="hasFields" [survey]="dialog.survey" [disposed]="dialog.isDisposed" [className]="dialog.editorCss"></sv-ng-filter-editor-page>
+  </div>
+</ng-template>

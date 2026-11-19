@@ -309,6 +309,122 @@ export var kazakhStrings = {
   progressbar: "Прогресс тақтасы",
   // [Auto-translated] "Page {0}"
   progressbarPage: "{0}-бет",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Бос",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Бос емес",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Теңдер",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Тең емес",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Құрамында",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Құрамында жоқ",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Кез келген",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Ешқайсысы",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Барлығы",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Одан да үлкен",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Аз",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Үлкен немесе тең",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Кем немесе тең",
+  // [Auto-translated] "Save"
+  filterSave: "Сақтау",
+  // [Auto-translated] "Filters"
+  filterFilters: "Сүзгілер",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Сүзгілер: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Сүзгілер",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Іздеу",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Іздеу {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Толығырақ көрсету",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Аз көрсету",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Барлығын жою",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Таза {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Алдын ала орнатылған",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Сақтаңыз...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Сақтау",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "\"{0}\" қосыңыз...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Алдын ала орнатулар",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "{0} элементтерді көрсету",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "1 затты көрсету",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Нәтижелерді көрсету",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Жаңа алдын ала орнатылған",
+  // [Auto-translated] "Name"
+  filterPresetName: "Атауы",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Құрамында",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Осы атаумен алдын ала орнату қазірдің өзінде бар.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Кем дегенде бір шарт қосыңыз.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Өрнекті енгізіңіз.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Бұл тіркес жарамсыз.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Өрнек ретінде өңдеу",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Тегбокс ретінде өңдеу",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Мұнда өрнек теріңіз...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Алдын ала орнатуды өңдеу",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Жою",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Жаңа қосу...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Таңдалды өңдеу...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Өрнек",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Өзгерту...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Фильтрлерде іздеу",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Ештеңе табылмады, әртүрлі кілт сөздерді қолданып көріңіз",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "AI көмегімен алдын ала орнатуды жасаңыз",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "AI көмегімен алдын ала орнатуды өңдеу",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Мысалы, «Германиядан келген кофе мен шай»",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Жасау",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Өңдеу",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Жасау...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Монтаж...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "Жасанды интеллект сүзгі жасай алмады. Тағы да көр.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "Жасанды интеллект бұл сипаттаманы сүзгіден өткізе алмады.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "таңдау үшін",
   // [Auto-translated] "to toggle"

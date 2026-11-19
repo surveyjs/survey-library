@@ -3786,8 +3786,7 @@ describe("Panel", () => {
         const survey = new SurveyModel(json);
         survey.lazyRenderEnabled = true;
         survey.getAllQuestions().forEach(q => {
-          q.supportOnElementRerenderedEvent = true;
-          q.onElementRerenderedEventEnabled = true;
+          q.enableOnElementRerenderedEvent();
         });
         const page1: PageModel = survey.pages[0];
         const allPageRows = page1.getAllRows();
@@ -3852,8 +3851,7 @@ describe("Panel", () => {
         const survey = new SurveyModel(json);
         survey.lazyRenderEnabled = true;
         survey.getAllQuestions().forEach(q => {
-          q.supportOnElementRerenderedEvent = true;
-          q.onElementRerenderedEventEnabled = true;
+          q.enableOnElementRerenderedEvent();
         });
         const page1: PageModel = survey.pages[0];
         const allPageRows = page1.getAllRows();
@@ -3917,8 +3915,7 @@ describe("Panel", () => {
         const survey = new SurveyModel(json);
         survey.lazyRenderEnabled = true;
         survey.getAllQuestions().forEach(q => {
-          q.supportOnElementRerenderedEvent = true;
-          q.onElementRerenderedEventEnabled = true;
+          q.enableOnElementRerenderedEvent();
         });
         const page1: PageModel = survey.pages[0];
         const allPageRows = page1.getAllRows();

@@ -1,15 +1,20 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
+// Sticky, not fixed: the clock must stay inside the survey box. A fixed clock is
+// placed against the viewport, which is wrong whenever the survey is only part of
+// the page (Creator preview, an embedded form). Sticky is bounded by the parent
+// (.sd-container-modern), so without a progress bar the timer markup must stay its
+// direct child. The vertical margins add up to zero, so the clock takes no room in the flow.
 .sd-timer {
+  --sd-timer-edge-gap: calc(var(--sd-timer-size) / 144 * 32);
   z-index: 2;
-  position: fixed;
-  bottom: calc(var(--sd-timer-size) / 144 * 32);
-  right: var(--sjs2-spacing-x100);
+  position: sticky;
   background: white;
   width: var(--sd-timer-size);
   height: var(--sd-timer-size);
-  margin-right: calc(var(--sd-timer-size) / 144 * 32);
+  margin-left: auto;
+  margin-right: calc(var(--sjs2-spacing-x100) + var(--sd-timer-edge-gap));
   display: flex;
   border-radius: 100%;
   padding: calc(var(--sd-timer-size) / 144 * 8);
@@ -18,14 +23,36 @@
 }
 
 .sd-timer--top {
-  top: calc(var(--sd-timer-size) / 144 * 32);
+  top: var(--sd-timer-edge-gap);
   margin-top: var(--sjs2-spacing-x400);
-  margin-bottom: calc(-1 * var(--sd-timer-size));
+  margin-bottom: calc(-1 * (var(--sd-timer-size) + var(--sjs2-spacing-x400)));
 }
 
 .sd-timer--bottom {
-  bottom: calc(var(--sd-timer-size) / 144 * 32);
-  margin-top: calc(var(--sd-timer-size) * (-1 - 32 / 144));
+  bottom: var(--sd-timer-edge-gap);
+  margin-top: calc(-1 * (var(--sd-timer-size) + var(--sd-timer-edge-gap)));
+  margin-bottom: var(--sd-timer-edge-gap);
+}
+
+// Next to a progress bar the clock hangs off that bar's wrapper: the wrapper is positioned,
+// so both move together. Absolute keeps the 144px clock out of the wrapper's height,
+// the wrapper stays as thin as the progress line.
+.sv-components-group--progress-top > .sd-timer,
+.sv-components-group--progress-bottom > .sd-timer,
+.sv-components-container-center > .sd-timer {
+  position: absolute;
+  right: calc(var(--sjs2-spacing-x100) + var(--sd-timer-edge-gap));
+  margin: 0;
+}
+
+.sv-components-group--progress-top > .sd-timer--top,
+.sv-components-container-center > .sd-timer--top {
+  top: calc(100% + var(--sd-timer-edge-gap) + var(--sjs2-spacing-x050));
+}
+
+.sv-components-group--progress-bottom > .sd-timer--bottom {
+  top: auto;
+  bottom: calc(100% + var(--sd-timer-edge-gap) + var(--sjs2-spacing-x050));
 }
 
 .sd-timer__progress {

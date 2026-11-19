@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { HashTable, Helpers } from "./helpers";
 import type { QuestionExpressionModel } from "./question_expression";
 import {
@@ -35,6 +36,7 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { getFilterFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange, toKnownRemap } from "./records/records-index-followers";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem, NestedWalkItemVisit,
@@ -454,6 +456,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.template.questions);
   }
+  public getFilterFields(): Array<IDynamicDataFilterField> {
+    return getFilterFieldsForQuestions(this.template.questions);
+  }
   protected getRecordSortTemplate(): PanelModelBase {
     return this.template;
   }
@@ -745,6 +750,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public getValueType(): QuestionValueType {
     return "array";
+  }
+  // A table of its own: its template questions are the filter fields, the panel itself is not one.
+  public get isFilterable(): boolean {
+    return false;
   }
   protected get hasMinWidth(): boolean { return false; }
   protected getAllChildren(): Base[] {
@@ -2610,15 +2619,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return -1;
   }
-  public locStrsChanged() {
-    super.locStrsChanged();
-    this.locTemplateTitle.strChanged();
+  public locStrsChanged(changes?: ChangedKeys) {
+    super.locStrsChanged(changes);
+    this.locTemplateTitle.strChanged(changes);
     var panels = this.panelsCore;
     for (var i = 0; i < panels.length; i++) {
-      panels[i].locStrsChanged();
+      panels[i].locStrsChanged(changes);
     }
     if (this.tabbedMenu) {
-      this.tabbedMenu.locStrsChanged();
+      this.tabbedMenu.locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {

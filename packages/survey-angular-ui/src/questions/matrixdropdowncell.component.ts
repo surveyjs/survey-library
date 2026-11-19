@@ -8,8 +8,10 @@ import {
   SurveyModel
 } from "survey-core";
 import { getComponentName } from "../question";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-matrixdropdown-cell",
   templateUrl: "./matrixdropdowncell.component.html",
   styles: [":host { display: none; }"]
@@ -30,14 +32,6 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   }
   public get row(): MatrixDropdownRowModelBase {
     return this.cell.row;
-  }
-  public override ngDoCheck(): void {
-    super.ngDoCheck();
-    if ((this.cell.isErrorsCell || this.cell.showErrors) && this.cell?.question) {
-      this.cell.question.registerFunctionOnPropertiesValueChanged(["errors", "visible"], () => {
-        this.update();
-      }, "__ngSubscription");
-    }
   }
   public get panelComponentName(): string {
     const panel = this.cell.panel;
@@ -75,7 +69,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   public get isRequiredCell(): boolean {
     return !!this.cell.column && this.cell.column.isRenderedRequired;
   }
-  ngAfterViewInit() {
+  protected override afterViewInit(): void {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
     const el = this.cellContainer?.nativeElement;
     if (el) {
@@ -89,12 +83,6 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
       };
       this.question.survey.matrixAfterCellRender(options);
       cellQ.afterRenderCore(el);
-    }
-  }
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
-    if (this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.unRegisterFunctionOnPropertiesValueChanged(["errors", "visible"], "__ngSubscription");
     }
   }
   public get canRender() {

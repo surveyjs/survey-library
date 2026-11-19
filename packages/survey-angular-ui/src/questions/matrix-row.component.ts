@@ -5,8 +5,10 @@ import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow
 } from "survey-core";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-matrix-row",
   templateUrl: "./matrix-row.component.html",
   styles: [":host { display: none; }"]
@@ -33,7 +35,7 @@ export class MatrixRowComponent extends BaseAngular<QuestionMatrixDropdownRender
       this.model.setRootElement(this.container.nativeElement);
     }
   }
-  public ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     if (this.model && this.container?.nativeElement) {
       this.model.setRootElement(this.container.nativeElement);
     }

@@ -309,6 +309,122 @@ export var russianSurveyStrings = {
   progressbar: "Индикатор выполнения",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Страница {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Пусто",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Не пусто",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Равны",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Не равно",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Содержит",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Не содержит",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Любой из",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Ни один из",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Все",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Больше, чем",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Меньше",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Больше или равно",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Меньше или равно",
+  // [Auto-translated] "Save"
+  filterSave: "Сохранить",
+  // [Auto-translated] "Filters"
+  filterFilters: "Фильтры",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Фильтры: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Фильтры",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Поиск",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Поиск по {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Показать больше",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Показать меньше",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Очистить всё",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Очистить {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Пресет",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Сохранить как...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Сохранить",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Добавьте «{0}»...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Пресеты",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Показать {0} элементы",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Показать 1 товар",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Показать результаты",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Новый пресет",
+  // [Auto-translated] "Name"
+  filterPresetName: "Название",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Содержит",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Пресет с таким именем уже существует.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Добавьте хотя бы одно условие.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Вводите выражение.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Это выражение недействительно.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Редактировать как выражение",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Редактировать как Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Введите здесь выражение...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Редактировать пресет",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Удалить",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Добавить новое...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Редактирование выбрано...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Выражение",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Редактирование...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Поиск в фильтрах",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Ничего не нашли, попробуй разные ключевые слова",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Создание пресета с помощью ИИ",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Редактирование пресета с помощью ИИ",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Например, «Кофе и чай из Германии»",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Создать",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Редактировать",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Создавая...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Монтаж...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "ИИ не смог создать фильтр. Попробуй ещё раз.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "ИИ не смог создать фильтр для этого описания.",
   // "d" - a day placeholder symbol in a datetime input mask
   maskPlaceholderDay: "д",
   // "m" - a month placeholder symbol in a datetime input mask

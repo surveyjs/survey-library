@@ -2,8 +2,10 @@ import { Component, Input } from "@angular/core";
 import { ActionDropdownViewModel } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-action-bar-item-dropdown",
   templateUrl: "./action-bar-item-dropdown.component.html",
   styleUrls: ["../../hide-host.scss"]

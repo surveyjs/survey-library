@@ -519,7 +519,7 @@ describe("A throw from user code leaves the survey working", () => {
         { type: "text", name: "q1" }, { type: "text", name: "q2" }, { type: "text", name: "q3" }
       ] }] });
       const page = <PageModel>survey.pages[0];
-      page.supportOnElementRerenderedEvent = false;
+      page.enableOnElementRerenderedEvent();
       expect(page.animationAllowed, "#1").toBe(true);
       const handler = throwOnPropertyChange(page, "rows", "throwOnAnimatedRows");
       handler.arm();

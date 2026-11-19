@@ -2,12 +2,14 @@ import { Component, Input } from "@angular/core";
 import { MatrixRowModel, ItemValue, QuestionMatrixModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 import { BaseAngular } from "../base-angular";
+import { SurveyBaseProviders } from "../component-depth";
 
 export interface INgMatrixCellChanged {
   onCellChanged(row: MatrixRowModel, column: ItemValue): void;
 }
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-matrix-cell, '[sv-ng-matrix-cell]'",
   templateUrl: "./matrixcell.component.html"
 })

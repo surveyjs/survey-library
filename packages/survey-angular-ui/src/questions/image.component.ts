@@ -2,17 +2,19 @@ import { Component } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { QuestionImageModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-image-question",
   templateUrl: "./image.component.html"
 })
 export class ImageQuestionComponent extends QuestionAngular<QuestionImageModel> {
-  override ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     this.model.locImageLink.onChanged = () => {
-      this.detectChanges();
+      this.update();
     };
-    super.ngAfterViewInit();
+    super.afterViewInit();
   }
   override ngOnDestroy(): void {
     this.model.locImageLink.onChanged = () => {};

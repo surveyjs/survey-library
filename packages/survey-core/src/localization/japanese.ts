@@ -309,6 +309,122 @@ export var japaneseSurveyStrings = {
   progressbar: "進行状況バー",
   // [Auto-translated] "Page {0}"
   progressbarPage: "ページ{0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "空っぽ",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "空っぽじゃない",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "対等者",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "等しくありません",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "含まれる",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "含まれない",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "いずれか",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "どれもありません",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "すべて",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "より大きい",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "以下",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "以下以上",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "以下",
+  // [Auto-translated] "Save"
+  filterSave: "保存",
+  // [Auto-translated] "Filters"
+  filterFilters: "フィルター",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "フィルター:{0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "フィルター",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "検索",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "{0}で検索",
+  // [Auto-translated] "Show More"
+  filterShowMore: "もっと見る",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "表示を減らす",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "すべてクリア",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "クリア{0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "プリセット",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "名前を付けて保存...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "保存",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "「{0}」を加えて...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "プリセット",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "{0}アイテムを表示",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "商品1件を表示",
+  // [Auto-translated] "Show results"
+  filterShowResults: "結果を表示",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "新しいプリセット",
+  // [Auto-translated] "Name"
+  filterPresetName: "名称",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "含まれる",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "この名前のプリセットはすでに存在します。",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "少なくとも一つの条件を追加してください。",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "式を入力してください。",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "この式は有効ではありません。",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "式として編集",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "タグボックスとして編集",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "ここに式を入力してください...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "プリセットを編集",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "削除",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "新規追加...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "選択済み編集...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0}表現",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "編集...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "フィルターで検索",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "何も見つからない。別のキーワードを試してみてください。",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "AIでプリセットを作成",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "AIでプリセットを編集",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "例えば、「ドイツ産のコーヒー&紅茶」など",
+  // [Auto-translated] "Create"
+  filterAiCreate: "作成",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "編集",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "創造...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "編集中...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AIはフィルターを作れませんでした。もう一度試してください。",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AIはこの説明のフィルターを作ることができませんでした。",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "選ぶために",
   // [Auto-translated] "to toggle"

@@ -2,6 +2,7 @@ import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 
 export class QuestionEmptyModel extends Question {
+  public hasDisplayTexts(): boolean { return false; }
   constructor(name: string) {
     super(name);
   }

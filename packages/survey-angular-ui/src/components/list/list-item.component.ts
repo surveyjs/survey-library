@@ -1,15 +1,17 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { ListModel, Action, IAction } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-list-item, '[sv-ng-list-item]'",
   templateUrl: "./list-item.component.html",
   styleUrls: ["../../hide-host.scss"],
 })
 
-export class ListItemComponent extends BaseAngular implements AfterViewInit {
+export class ListItemComponent extends BaseAngular {
   @Input() element: any;
   @Input() model!: Action;
   @Input() listModel!: ListModel;
@@ -56,7 +58,7 @@ export class ListItemComponent extends BaseAngular implements AfterViewInit {
     return this.model;
   }
 
-  ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     if (!!this.elementRef?.nativeElement) {
       this.listModel.onItemRended(this.model, this.elementRef.nativeElement);
     }

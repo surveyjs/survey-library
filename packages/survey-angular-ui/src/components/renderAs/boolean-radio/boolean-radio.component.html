@@ -1,5 +1,11 @@
 <div [class]="model.cssClasses.rootRadio" (keydown)="model.onKeyDownCore($event)">
-  <fieldset role="presentation" [class]="model.cssClasses.radioFieldset">
+  <fieldset role="radiogroup" [class]="model.cssClasses.radioFieldset"
+    [attr.aria-required]="model.a11y_input_ariaRequired"
+    [attr.aria-label]="model.a11y_input_ariaLabel"
+    [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+    [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+    [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+    [attr.aria-errormessage]="model.a11y_input_ariaErrormessage">
     <sv-ng-boolean-radio-item *ngIf="model.swapOrder" [value]="model.getValueTrue()" [locText]="model.locLabelTrue" [question]="model" ></sv-ng-boolean-radio-item>
     <sv-ng-boolean-radio-item  [value]="model.getValueFalse()" [locText]="model.locLabelFalse" [question]="model" ></sv-ng-boolean-radio-item>
     <sv-ng-boolean-radio-item *ngIf="!model.swapOrder" [value]="model.getValueTrue()" [locText]="model.locLabelTrue" [question]="model" ></sv-ng-boolean-radio-item>

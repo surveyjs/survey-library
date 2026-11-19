@@ -14,7 +14,10 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
     return this.model;
   }
   protected get elementComponentName(): string {
-    return this.model.isPanel ? "panel" : "question";
+    // Do not use isPanel here: a page nested in a page container (single-page or preview mode) is a panel
+    // only while it has a parent, and on complete the preview container releases its pages before
+    // the preview is removed from the screen.
+    return this.model.isQuestion ? "question" : "panel";
   }
 
   protected override onModelChanged(): void {

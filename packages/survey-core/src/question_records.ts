@@ -128,8 +128,6 @@ const rebindableQuestionTypes = ["text", "comment", "dropdown", "checkbox", "rad
  * @since 3.2.2
  */
 export abstract class QuestionRecordsModel extends Question implements IDynamicDataFilterSource {
-  // The records' display values are their questions' (columns') display values
-  public hasDisplayTexts(): boolean { return true; }
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;

@@ -351,7 +351,6 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
 export class QuestionMatrixModel
   extends Question
   implements IMatrixData, IMatrixCellsOwner {
-  public hasDisplayTexts(): boolean { return true; }
   protected generatedVisibleRows: Array<MatrixRowModel> = null;
   public visibleRowsChangedCallback: () => void;
   private isRowChanging = false;

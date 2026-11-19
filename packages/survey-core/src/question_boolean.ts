@@ -29,7 +29,6 @@ function isCustomRenderAs(val: string): boolean {
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-boolean/ (linkStyle))
  */
 export class QuestionBooleanModel extends Question implements ISelectQuestion {
-  public hasDisplayTexts(): boolean { return true; }
   public getType(): string {
     return "boolean";
   }

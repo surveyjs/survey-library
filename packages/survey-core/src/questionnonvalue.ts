@@ -8,6 +8,7 @@ import { SurveyError } from "./survey-error";
  * This class does not implement new functionality&mdash;it only redefines default values of certain properties inherited from the [`Question`](https://surveyjs.io/form-library/documentation/question) class.
  */
 export class QuestionNonValue extends Question {
+  public hasDisplayTexts(): boolean { return false; }
   constructor(name: string) {
     super(name);
   }

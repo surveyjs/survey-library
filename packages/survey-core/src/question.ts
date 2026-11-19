@@ -625,8 +625,11 @@ export class Question extends SurveyElement<Question>
   }
   protected getDefaultTitle(): string { return this.name; }
   // The display value is built from texts (choices, rows, columns, labels) that can have names of their
-  // own, so a text that shows it ({q1}) can change on a change of another value
-  public hasDisplayTexts(): boolean { return false; }
+  // own, so a text that shows it ({q1}) can change on a change of another value.
+  // true by default: a custom question can build its display value from anything. A wrong true costs
+  // an extra refresh, a wrong false leaves a stale text. A question whose display value comes from its
+  // value only returns false.
+  public hasDisplayTexts(): boolean { return true; }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.storeDefaultText = true;

@@ -1217,7 +1217,6 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
 }
 
 export class QuestionCompositeModel extends QuestionCustomModelBase {
-  public hasDisplayTexts(): boolean { return true; }
   private panelWrapper: PanelModel;
   private textProcessing: TextContextProcessor;
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {

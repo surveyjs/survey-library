@@ -41,6 +41,7 @@ export class SliderLabelItemValue extends ItemValue {
  * @since 2.1.0
  */
 export class QuestionSliderModel extends Question implements ISliderLabelItemOwner {
+  public hasDisplayTexts(): boolean { return false; }
   /**
    * Specifies whether the slider allows selecting a single value (`"single"`) or a value range (`"range"`).
    *

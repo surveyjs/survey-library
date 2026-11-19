@@ -8,9 +8,14 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { PageModel } from "../src/page";
+import { Question } from "../src/question";
+import { Serializer } from "../src/jsonobject";
 export * from "../src/question_text";
 export * from "../src/question_html";
 export * from "../src/question_checkbox";
+export * from "../src/question_comment";
+export * from "../src/question_multipletext";
+export * from "../src/question_expression";
 
 // How many times a string has refreshed (strChanged fired onStringChanged) since the call
 function countRefreshes(locStr: LocalizableString): { count: number } {
@@ -198,6 +203,38 @@ describe("A value change refreshes the strings that show the changed names", () 
     expect(survey.getQuestionByName("q1").displayValue).toBe("Hello Ann");
     expect(locTitle.renderedHtml).toBe("You chose: Hello Ann");
     expect(q3.count, "a text question's value is shown as it is").toBe(0);
+  });
+  test("a name of a custom question class refreshes on any value change: its display value can come from anything", () => {
+    class QuestionOwnDisplayModel extends Question {
+      public getType(): string { return "owndisplay"; }
+      protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+        return value + " of " + (<any>this.survey).getValue("q0");
+      }
+    }
+    Serializer.addClass("owndisplay", [], () => new QuestionOwnDisplayModel(""), "question");
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "text", name: "q0" },
+        { type: "owndisplay", name: "q1" },
+        { type: "text", name: "q2", title: "Shown: {q1}" }
+      ] });
+      survey.setValue("q1", 5);
+      const locTitle = survey.getQuestionByName("q2").locTitle;
+      const refreshes = countRefreshes(locTitle);
+      survey.setValue("q0", 10);
+      expect(refreshes.count).toBe(1);
+      expect(locTitle.renderedHtml).toBe("Shown: 5 of 10");
+    } finally {
+      Serializer.removeClass("owndisplay");
+    }
+  });
+  test("a question whose display value is its value does not ask for a refresh on other values", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1" }, { type: "comment", name: "q2" }, { type: "html", name: "q3" },
+      { type: "dropdown", name: "q4" }, { type: "multipletext", name: "q5" }, { type: "expression", name: "q6" }
+    ] });
+    const res = survey.getAllQuestions().map(q => q.name + ":" + q.hasDisplayTexts());
+    expect(res).toEqual(["q1:false", "q2:false", "q3:false", "q4:true", "q5:true", "q6:true"]);
   });
   test("an onGetQuestionTitle handler makes a value change refresh every string", () => {
     const survey = new SurveyModel({ elements: [

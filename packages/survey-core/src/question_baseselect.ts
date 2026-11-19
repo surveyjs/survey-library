@@ -299,7 +299,6 @@ const showingChoicePanels: INestedWalkOptions = { build: "none", visibleOnly: tr
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
 export class QuestionSelectBase extends Question implements IChoiceOwner, ISelectQuestion {
-  public hasDisplayTexts(): boolean { return true; }
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
   public renderedChoicesChangedCallback: () => void;

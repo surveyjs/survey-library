@@ -140,7 +140,6 @@ export function getRatingItemByDigitShortcut(items: Array<ItemValue>, digits: st
  * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
 export class QuestionRatingModel extends dropdownQuestionMixin(Question) implements IRatingItemOwner, ISelectQuestion {
-  public hasDisplayTexts(): boolean { return true; }
   constructor(name: string) {
     super(name);
 

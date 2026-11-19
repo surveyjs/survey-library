@@ -667,7 +667,7 @@ describe("Panel", () => {
       SurveyElement.FocusElement = oldFunc;
     }
   });
-  test("Expanding a collapsed panel focuses the first question inside", () => {
+  test("Expanding a collapsed panel scrolls the first question and leaves focus alone", () => {
     vi.useFakeTimers();
     const focusedIds: Array<string> = [];
     const oldFunc = SurveyElement.FocusElement;
@@ -675,6 +675,7 @@ describe("Panel", () => {
       focusedIds.push(elId);
       return true;
     };
+    const scrollCalls: Array<string> = [];
     try {
       const survey = new SurveyModel({
         elements: [
@@ -691,9 +692,13 @@ describe("Panel", () => {
         ]
       });
       const q1 = survey.getQuestionByName("q1");
+      survey.scrollElementToTop = (options: any) => {
+        scrollCalls.push(options && options.id);
+      };
       survey.getPanelByName("panel1").expand();
       vi.advanceTimersByTime(20);
-      expect(focusedIds).toContain(q1.inputId);
+      expect(scrollCalls).toEqual([q1.inputId]);
+      expect(focusedIds).not.toContain(q1.inputId);
     } finally {
       SurveyElement.FocusElement = oldFunc;
       vi.useRealTimers();

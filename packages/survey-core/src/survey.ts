@@ -1274,7 +1274,6 @@ export class SurveyModel extends SurveyElementCore
     // After the settings and before the JSON loads, so the handlers receive the events raised while it loads.
     addEventHandlersFromOptions(this, options);
 
-    this.locTitle.onStringChanged.add(() => this.updateCalculatedPropertyValue("titleIsEmpty", () => this.locTitle.isEmpty));
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
         jsonObj = JSON.parse(jsonObj as string);
@@ -1359,8 +1358,8 @@ export class SurveyModel extends SurveyElementCore
     if (curPageStateProps.indexOf(name) > -1) {
       this.onStateAndCurrentPageChanged();
     }
-    if (name === "logo" || name === "logoPosition") {
-      this.resetHasLogo();
+    if (name === "logoPosition") {
+      this.updateHasLogo();
     }
     if (name === "backgroundImage") {
       this.resetPropertyValue("renderBackgroundImage");
@@ -2590,9 +2589,7 @@ export class SurveyModel extends SurveyElementCore
    * @see logoPosition
    * @see logoFit
    */
-  @property({ localizable: { onCreate: (obj: SurveyModel, locStr: LocalizableString) =>
-    locStr.onStringChanged.add(() => obj.updateHasLogo())
-  } }) logo: string;
+  @property({ localizable: true }) logo: string;
   /**
    * A logo width in CSS-accepted values.
    *
@@ -2656,15 +2653,17 @@ export class SurveyModel extends SurveyElementCore
   private resetHasLogo(): void {
     this.resetPropertyValue("hasLogo");
   }
-  // The logo string refreshed: a value its text shows may have changed
   private updateHasLogo(): void {
-    this.updateCalculatedPropertyValue("hasLogo", () => this.calcHasLogo());
+    this.refreshLazyPropertyValue("hasLogo", () => this.calcHasLogo());
   }
-  // A value that was read is calculated again and written only when it differs, so its readers are
-  // notified on a real change only. A value nobody has read stays lazy.
-  private updateCalculatedPropertyValue(name: string, calcFunc: () => any): void {
-    if (this.getPropertyValueWithoutDefault(name) === undefined) return;
-    this.setPropertyValue(name, Base.runUntracked(calcFunc));
+  protected onLocalizableStringRenderedTextChanged(name: string): void {
+    super.onLocalizableStringRenderedTextChanged(name);
+    if (name === "logo") {
+      this.updateHasLogo();
+    }
+    if (name === "title") {
+      this.updateTitleIsEmpty();
+    }
   }
   public get isLogoBefore(): boolean {
     if (this.isDesignMode) return false;
@@ -2690,7 +2689,14 @@ export class SurveyModel extends SurveyElementCore
     return toCssClasses(this.css.logo, logoClasses[this.logoPosition]);
   }
   public get titleIsEmpty(): boolean {
-    return this.getPropertyValue("titleIsEmpty", undefined, () => this.locTitle.isEmpty);
+    return this.getPropertyValue("titleIsEmpty", undefined, () => this.calcTitleIsEmpty());
+  }
+  // The rendered text, as for the logo: dynamic text that resolves to an empty string shows no title
+  private calcTitleIsEmpty(): boolean {
+    return !this.locTitle.renderedHtml;
+  }
+  private updateTitleIsEmpty(): void {
+    this.refreshLazyPropertyValue("titleIsEmpty", () => this.calcTitleIsEmpty());
   }
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");

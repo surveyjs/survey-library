@@ -410,6 +410,64 @@ describe("The UI is notified under the string's name", () => {
     expect(survey.hasLogo).toBe(true);
     tracker.unsubscribe();
   });
+  test("a new logo that still shows an image does not notify hasLogo; a hidden logo position does", () => {
+    const survey = new SurveyModel({ logo: "a.png", elements: [{ type: "text", name: "q1" }] });
+    const { tracker, log } = renderAndSubscribe(() => { survey.hasLogo; });
+    survey.logo = "b.png";
+    expect(log).toHaveLength(0);
+    survey.logoPosition = "none";
+    expect(log.map(item => item.name)).toEqual(["hasLogo"]);
+    expect(survey.hasLogo).toBe(false);
+    survey.logoPosition = "right";
+    survey.logo = "";
+    expect(survey.hasLogo).toBe(false);
+    tracker.unsubscribe();
+  });
+  test("a survey title follows its rendered text: a set or cleared text and a value it shows", () => {
+    const survey = new SurveyModel({ title: "abc", elements: [{ type: "text", name: "q1" }] });
+    expect(survey.titleIsEmpty).toBe(false);
+    survey.title = "";
+    expect(survey.titleIsEmpty, "cleared").toBe(true);
+    survey.title = "{q1}";
+    expect(survey.titleIsEmpty, "a value it shows is empty").toBe(true);
+    const { tracker, log } = renderAndSubscribe(() => { survey.titleIsEmpty; });
+    survey.setValue("q1", "A");
+    expect(log.map(item => item.name)).toEqual(["titleIsEmpty"]);
+    expect(survey.titleIsEmpty).toBe(false);
+    log.length = 0;
+    survey.title = "Survey {q1}";
+    expect(log, "still not empty").toHaveLength(0);
+    tracker.unsubscribe();
+  });
+  test("a survey title in another locale only is empty in the current locale", () => {
+    const survey = new SurveyModel({ title: { de: "Titel" } });
+    expect(survey.titleIsEmpty).toBe(true);
+    survey.locale = "de";
+    expect(survey.titleIsEmpty).toBe(false);
+    survey.locale = "";
+  });
+  test("a description follows its rendered text at runtime and its text in design mode", () => {
+    const json = { description: "{v1}", elements: [{ type: "text", name: "q1", description: "{v1}" }] };
+    const survey = new SurveyModel(json);
+    survey.setVariable("v1", "");
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.hasDescription).toBe(false);
+    expect(survey.hasDescription).toBe(false);
+    const { tracker, log } = renderAndSubscribe(() => { q1.hasDescription; survey.hasDescription; });
+    survey.setVariable("v1", "Some text");
+    expect(log.map(item => item.name).sort()).toEqual(["hasDescription", "hasDescription"]);
+    expect(q1.hasDescription).toBe(true);
+    expect(survey.hasDescription).toBe(true);
+    log.length = 0;
+    q1.description = "Other {v1}";
+    expect(log, "still has a description").toHaveLength(0);
+    tracker.unsubscribe();
+
+    const designSurvey = new SurveyModel();
+    designSurvey.setDesignMode(true);
+    designSurvey.fromJSON(json);
+    expect(designSurvey.getQuestionByName("q1").hasDescription, "a designer sees the text").toBe(true);
+  });
   test("a render that reads a question title is notified under title when a name of the title changes", () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "q1" },

@@ -943,6 +943,16 @@ export class Base implements IObjectValueContext {
       this.setPropertyValue(name, undefined);
     }
   }
+  // The counterpart of a lazy getter (getPropertyValue with calcFunc). A value that was read is calculated
+  // again and written only when it differs, so its readers are notified on a real change only, while
+  // resetPropertyValue always notifies them. A value nobody has read stays lazy.
+  protected refreshLazyPropertyValue(name: string, calcFunc: () => any): void {
+    if (this.getPropertyValueWithoutDefault(name) === undefined) return;
+    this.setPropertyValue(name, Base.runUntracked(calcFunc));
+  }
+  // The text a localizable string renders has changed: the text was set, or a value or the locale it shows
+  // changed. A property calculated from the rendered text refreshes here (refreshLazyPropertyValue).
+  protected onLocalizableStringRenderedTextChanged(name: string): void { }
   protected isPropertyStoredInHash(name: string): boolean {
     return false;
   }
@@ -1564,7 +1574,9 @@ export class Base implements IObjectValueContext {
       // The text, or a value it shows, has changed: a component that read the string (getLocStringText) renders it
       // again. The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI.
       locStr.onRenderedTextChanged = () => {
-        if (!!this.onPropertyValueCoreChanged && !this.isDisposedValue) {
+        if (this.isDisposedValue) return;
+        this.onLocalizableStringRenderedTextChanged(name);
+        if (!!this.onPropertyValueCoreChanged) {
           Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue: undefined });
         }
       };

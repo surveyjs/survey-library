@@ -97,7 +97,9 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     this.setPropertyValue("hasDescription", val);
   }
   protected calcDescriptionVisibility(): boolean {
-    const newDescription = this.description;
+    // The rendered text at runtime: dynamic text that resolves to an empty string shows no description.
+    // A designer edits the text itself, so there the text counts.
+    const newDescription = this.isDesignMode ? this.description : this.locDescription.renderedHtml;
     let showPlaceholder = false;
     if (this.isDesignMode) {
       const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
@@ -116,12 +118,18 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     this.resetPropertyValue("hasDescription");
   }
   private updateDescriptionVisibility(): void {
-    if (this.getPropertyValueWithoutDefault("hasDescription") === undefined) return;
-    this.setPropertyValue("hasDescription", this.calcDescriptionVisibility());
+    this.refreshLazyPropertyValue("hasDescription", () => this.calcDescriptionVisibility());
+  }
+  protected onLocalizableStringRenderedTextChanged(name: string): void {
+    super.onLocalizableStringRenderedTextChanged(name);
+    if (name === "description") {
+      this.updateDescriptionVisibility();
+    }
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
-    if (name === "description" || (name === "title" && this.isDesignMode)) {
+    // beforeShowInplaceDescriptionEditorCallback may check the title
+    if (name === "title" && this.isDesignMode) {
       this.updateDescriptionVisibility();
     }
   }

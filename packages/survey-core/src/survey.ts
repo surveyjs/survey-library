@@ -2644,9 +2644,6 @@ export class SurveyModel extends SurveyElementCore
   protected get hasLogoImage(): boolean {
     return !!this.locLogo.renderedHtml;
   }
-  protected getHasLogo() {
-    return this.hasLogoImage && this.logoPosition !== "none";
-  }
   public get hasLogo(): boolean {
     return this.getPropertyValue("hasLogo", undefined, () => this.calcHasLogo());
   }
@@ -2690,9 +2687,6 @@ export class SurveyModel extends SurveyElementCore
       bottom: "sv-logo--bottom",
     };
     return toCssClasses(this.css.logo, logoClasses[this.logoPosition]);
-  }
-  private getTitleIsEmpty(): boolean {
-    return this.locTitle.isEmpty;
   }
   public get titleIsEmpty(): boolean {
     return this.getPropertyValue("titleIsEmpty", undefined, () => this.calcTitleIsEmpty());

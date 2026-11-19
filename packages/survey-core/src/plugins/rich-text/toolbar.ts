@@ -33,7 +33,7 @@ export function applyRichTextToolbarChrome(toolbar: ActionContainer, chrome: "fl
   const floating = chrome === "floating";
   const size = 16;
   toolbar.sizeMode = "small";
-  toolbar.setActionsAppearance({ style: "brand", mode: floating ? "tertiary" : "tertiary-muted", size: floating ? "x-small" : "x-small" });
+  toolbar.setActionsAppearance({ style: "neutral", mode: floating ? "tertiary" : "tertiary-muted", size: floating ? "x-small" : "x-small" });
   for (let i = 0; i < toolbar.actions.length; i++) {
     const action = toolbar.actions[i];
     if (!action.iconName) continue;

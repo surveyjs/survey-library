@@ -46,8 +46,7 @@ export class ResponsivityManager {
   }
 
   // Measures the sizes the actions' flags ask for; with onlyLarge, the large ones only.
-  private updateItemsDimensions(actions: Array<Action>, callback: () => void, onlyLarge?: boolean) {
-    if (!this.container) return;
+  private measureItems(actions: Array<Action>, callback: () => void, onlyLarge?: boolean) {
     let actionsCounter = actions.length;
     if (actionsCounter == 0) {
       callback();
@@ -76,13 +75,14 @@ export class ResponsivityManager {
   protected shouldProcessResponsiveness () {
     return this.isContainerVisible && !this.model.isResponsivenessDisabled && !this.isDisposed;
   }
+  // Measures the sizes fit() needs, then calls back; once per responsiveness pass (Creator's unit tests count the calls).
   // The flags of the actions tell the sizes to measure; a bar not initialized yet measures every rendered action.
   // Reads go first: an action shown large is measured as it is, with nothing rendered. When the large sizes fit,
   // fit() needs nothing else, and the small modes and the hidden dots item are measured only once the bar does not
   // fit: each of them is rendered to be measured, a write that the next read pays for with a forced layout (four per
-  // bar, 1,200 for the "Edit" bars of a 300-page preview).
-  private process(): void {
-    if (!this.shouldProcessResponsiveness()) return;
+  // bar, 1,200 for the "Edit" bars of a 300-page preview). The callback gets the fit options when they are read already.
+  private updateItemsDimensions(callback: (options?: { availableSpace: number, gap: number }) => void) {
+    if (!this.container) return;
     if (!this.isInitialized) {
       this.model.renderedActions.forEach(action => {
         action.needUpdateMaxDimension = true;
@@ -90,30 +90,31 @@ export class ResponsivityManager {
       });
     }
     const shownLarge = this.model.renderedActions.filter(action => action.needUpdateMaxDimension && action.isVisible && action.mode === "large");
-    this.updateItemsDimensions(shownLarge, () => {
+    this.measureItems(shownLarge, () => {
       if (!this.shouldProcessResponsiveness()) {
-        this.afterFit();
+        callback();
         return;
       }
       const options = { availableSpace: this.getAvailableSpace(), gap: this.getGap() };
       if (this.model.fitsWithLargeSizes(options)) {
-        this.model.fit(options);
-        this.afterFit();
+        callback(options);
         return;
       }
       const toMeasure = this.model.renderedActions.filter(action => action.needUpdateMaxDimension || action.needUpdateMinDimension);
-      this.updateItemsDimensions(toMeasure, () => {
-        if (this.shouldProcessResponsiveness()) {
-          this.model.fit({ availableSpace: this.getAvailableSpace(), gap: this.getGap() });
-        }
-        this.afterFit();
-      });
+      this.measureItems(toMeasure, () => callback());
     }, true);
   }
-  private afterFit(): void {
-    if (!this.isInitialized) {
-      this.isInitialized = true;
-      this.afterInitializeCallback && this.afterInitializeCallback();
+  private process(): void {
+    if (this.shouldProcessResponsiveness()) {
+      this.updateItemsDimensions((options) => {
+        if (this.shouldProcessResponsiveness()) {
+          this.model.fit(options || { availableSpace: this.getAvailableSpace(), gap: this.getGap() });
+        }
+        if (!this.isInitialized) {
+          this.isInitialized = true;
+          this.afterInitializeCallback && this.afterInitializeCallback();
+        }
+      });
     }
   }
   private isDisposed: boolean = false;

@@ -1,19 +1,16 @@
 import { ChangeDetectorRef, Component, Input } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { PopupBaseViewModel, PopupModalViewModel } from "survey-core";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-popup-container, '[sv-ng-popup-container]'",
   templateUrl: "./popup-container.component.html"
 })
 
 export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBaseViewModel> extends BaseAngular<T> {
   @Input() model!: T;
-
-  constructor(changeDetectorRef: ChangeDetectorRef) {
-    super(changeDetectorRef);
-    this.changeDetectorRef.detach();
-  }
   protected getModel(): T {
     return this.model;
   }
@@ -34,14 +31,6 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
 
   protected override getPropertiesToUpdateSync(): string[] {
     return ["height"];
-  }
-
-  protected override getShouldReattachChangeDetector(): boolean {
-    return false;
-  }
-
-  protected override onModelChanged(): void {
-    this.changeDetectorRef.detectChanges();
   }
 
   protected override afterUpdate(isSync: boolean = false): void {

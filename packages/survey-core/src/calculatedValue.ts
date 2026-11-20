@@ -160,10 +160,8 @@ export class CalculatedValue extends Base {
     if (!settings.calculatedValueTrackDependencies || !this.lastRun) return false;
     if (this.lastRun.name !== this.name) return false;
     if (!Helpers.isTwoValueEquals(this.lastRun.value, this.value, false, true, false)) return false;
-    const survey: any = this.getSurvey();
-    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
     // A calculated value reads a path under a cleared value ({m.row1} once m is cleared) again
-    return this.canSkipExpressionByKeys(this.expressionRunner, keys, undefined, true);
+    return this.canSkipExpressionByKeys(this.expressionRunner, this.getValueChangedKeys(), undefined, true);
   }
   private runDependentExpressions(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
     var variables = this.expressionRunner.getVariables();

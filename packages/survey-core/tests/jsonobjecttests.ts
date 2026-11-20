@@ -7,7 +7,9 @@ import {
 } from "../src/jsonobject";
 import { property } from "../src/decorators";
 import { ItemValue } from "../src/itemvalue";
-import { Base } from "../src/base";
+import { Base, Dependencies, PropertyAccessTracker } from "../src/base";
+import { ExpressionRunner } from "../src/expressions/expressionRunner";
+import { FunctionFactory, registerFunction } from "../src/functionsfactory";
 import { Helpers } from "../src/helpers";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
@@ -3287,6 +3289,12 @@ describe("JsonSerializationTests", () => {
     expect(q.getLocalizableString("description"), "There is a description after setting the value").toBeTruthy();
   });
 });
+// The properties toJSON() of a text question with only a name (and title) reads through getPropertyValueCore
+const textQuestionReadKeys = "allowClear allowFiltering autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
+  "descriptionLocation enableIf errorLocation filterOperators indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
+  "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf resetValueIf " +
+  "setValueExpression setValueIf showCommentArea showKeyboardHints showNumber startWithNewLine state step textUpdateMode titleLocation " +
+  "useDisplayValuesInDynamicTexts validators valueName visible visibleIf width";
 describe("toJSON skips empty properties", () => {
   const customQuestionName = "tojsoncustomdropdown";
   const funcPropName = "funcSerializedProp";
@@ -3392,7 +3400,8 @@ describe("toJSON skips empty properties", () => {
         name: "q9", state: "default", visible: true, useDisplayValuesInDynamicTexts: true, width: "", minWidth: "", maxWidth: "",
         startWithNewLine: true, indent: 0, titleLocation: "default", descriptionLocation: "default", showNumber: true, valueName: "",
         clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, readOnlyMode: "default", renderAs: "default", showCommentArea: false,
-        randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1
+        randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1,
+        allowFiltering: true
       });
       expect(survey.getQuestionByName("q6").items[0].toJSON({ storeDefaults: true }), "storeDefaults: multiple text item").toEqual({
         name: "i1", isRequired: false, inputType: "text", maskType: "none", inputTextAlignment: "auto", title: "Item 1", maxLength: -1
@@ -3524,17 +3533,13 @@ describe("toJSON skips empty properties", () => {
     };
     const text = getReadKeys("q1");
     expect(text.json, "text: json").toEqual({ name: "q1", title: "Title" });
-    expect(text.keys, "text: keys").toEqual(("allowClear autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
-      "descriptionLocation enableIf errorLocation indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
-      "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf resetValueIf " +
-      "setValueExpression setValueIf showCommentArea showKeyboardHints showNumber startWithNewLine state step textUpdateMode titleLocation " +
-      "useDisplayValuesInDynamicTexts validators valueName visible visibleIf width").split(" "));
+    expect(text.keys, "text: keys").toEqual(textQuestionReadKeys.split(" "));
     // The checkbox has no choice elements, so elements is stored in the hash and isSerializableFunc drops it before the empty check
     const checkbox = getReadKeys("q2");
     expect(checkbox.json, "checkbox: json").toEqual({ name: "q2" });
-    expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
+    expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear allowFiltering choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
       "choicesByUrl choicesEnableIf choicesFromQuestion choicesFromQuestionMode choicesOrder choicesVisibleIf clearIfInvisible colCount colSpan " +
-      "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation hideIfChoicesEmpty indent isRequired " +
+      "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation filterOperators hideIfChoicesEmpty indent isRequired " +
       "itemComponent maxSelectedChoices maxWidth minSelectedChoices minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf " +
       "resetValueIf separateSpecialChoices setValueExpression setValueIf showCommentArea showDontKnowItem showKeyboardHints showNoneItem showNumber showOtherItem " +
       "showRefuseItem showSelectAllItem startWithNewLine state storeOthersAsComment titleLocation useDisplayValuesInDynamicTexts validators " +
@@ -3553,6 +3558,193 @@ describe("toJSON skips empty properties", () => {
     } finally {
       spy.mockRestore();
     }
+  });
+});
+
+describe("toJSON empty check and the observers of a property read", () => {
+  const createSurvey = (): SurveyModel => new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  const surveyJson = { pages: [{ name: "page1", elements: [{ type: "text", name: "q1" }] }] };
+  // Every property survey.toJSON() of createSurvey() reads through getPropertyValueCore, per object
+  const surveyReads: { [obj: string]: string } = {
+    survey: "$schema allowResizeComment autoAdvanceAllowComplete autoAdvanceEnabled autoFocusFirstError autoFocusFirstQuestion autoGrowComment " +
+      "backgroundImage backgroundImageAttachment backgroundImageFit backgroundOpacity calculatedValues checkErrorsMode choiceShortcutsEnabled " +
+      "clearInvisibleValues commentAreaRows completedHtmlOnCondition cookieName elements firstPageIsStartPage fitToContainer gridLayoutEnabled " +
+      "headerView locale logoFit logoHeight logoPosition logoWidth matrixDragHandleArea maxCommentLength maxTextLength navigateToUrl " +
+      "navigateToUrlOnCondition navigationButtonsLocation pages partialSendEnabled previewMode progressBarInheritWidthFrom progressBarLocation " +
+      "progressBarNavigationTextLocation progressBarShowNavigationText progressBarShowPageNumbers progressBarType questionDescriptionLocation " +
+      "questionErrorLocation questionOrder questionStartIndex questionTitleLocation questionTitlePattern questionsOnPageMode readOnly readOnlyMode " +
+      "regionalFormat requiredMark showBrandInfo showCompletePage showKeyboardHints showNavigationButtons showPageNumbers showPageTitles " +
+      "showPrevButton showPreviewBeforeComplete showProgressBar showQuestionNumbers showTOC showTimer showTitle sjsVersion storeOthersAsComment " +
+      "surveyId surveyPostId surveyShowDataSaving textUpdateMode timeLimit timeLimitPerPage timerInfoMode timerLocation tocItemComponent " +
+      "tocLocation triggers validateVisitedEmptyFields width widthMode",
+    page1: "allowAdaptiveActions elements enableIf gridLayoutColumns indent innerIndent isRequired maxWidth minWidth name questionErrorLocation " +
+      "questionOrder questionStartIndex questionTitleLocation questionTitleWidth readOnly readOnlyMode requiredIf showNavigationButtons showNumber " +
+      "showQuestionNumbers startWithNewLine state timeLimit visible visibleIf width",
+    q1: textQuestionReadKeys,
+    masksettings: "saveMaskedValue"
+  };
+  const label = (obj: any): string => obj.isSurvey ? "survey" : (obj.name || obj.getType());
+  const expectedSurveyReads = (): Array<string> => {
+    const res = new Array<string>();
+    Object.keys(surveyReads).forEach(obj => surveyReads[obj].split(" ").forEach(name => res.push(obj + "." + name)));
+    return res.sort();
+  };
+  test("inside a dependency collection, the empty properties toJSON reads are collected", () => {
+    const survey = createSurvey();
+    const q1 = survey.getQuestionByName("q1");
+    let updaterCallCount = 0;
+    Base.startCollectDependencies(() => { updaterCallCount++; }, new Base(), "json");
+    let deps: Dependencies;
+    try {
+      expect(survey.toJSON()).toEqual(surveyJson);
+    } finally {
+      deps = Base.finishCollectDependencies();
+    }
+    try {
+      expect(deps.dependencies.map(dep => label(dep.obj) + "." + dep.prop).sort()).toEqual(expectedSurveyReads());
+      q1.visibleIf = "{a} empty";
+      expect(updaterCallCount, "visibleIf was empty during toJSON, its change runs the updater").toBe(1);
+    } finally {
+      deps.dispose();
+    }
+  });
+  test("inside a useCache function, a property toJSON read as empty invalidates the cached result", () => {
+    const survey = createSurvey();
+    const q1 = survey.getQuestionByName("q1");
+    let counter = 0;
+    registerFunction({ name: "toJsonObserversFunc", useCache: true, func: (): any => {
+      counter++;
+      return JSON.stringify(survey.toJSON()).length;
+    } });
+    try {
+      const runner = new ExpressionRunner("toJsonObserversFunc()");
+      const firstLength = runner.runValues({});
+      expect(counter, "the first run calls the function").toBe(1);
+      expect(runner.runValues({}), "the second run").toBe(firstLength);
+      expect(counter, "the second run comes from the cache").toBe(1);
+      q1.visibleIf = "{a} empty";
+      expect(runner.runValues({}), "the JSON has visibleIf").toBeGreaterThan(firstLength);
+      expect(counter, "visibleIf was empty during toJSON, its change invalidates the cache").toBe(2);
+    } finally {
+      FunctionFactory.Instance.unregister("toJsonObserversFunc");
+    }
+  });
+  // getSerializableValue's empty check: ItemValue.toJSON reaches it for every item property,
+  // and with storeLocaleStrings: false the loop does not skip, so every question property reaches it too
+  test.each([
+    ["default options", undefined],
+    ["storeLocaleStrings: false", { storeLocaleStrings: false }]
+  ])("with %s, an empty choice or question property toJSON reads is collected and invalidates a cached result", (_: string, options: any) => {
+    const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2] }] });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    let updaterCallCount = 0;
+    Base.startCollectDependencies(() => { updaterCallCount++; }, new Base(), "json");
+    let deps: Dependencies;
+    try {
+      survey.toJSON(options);
+    } finally {
+      deps = Base.finishCollectDependencies();
+    }
+    let counter = 0;
+    registerFunction({ name: "toJsonObserversItemFunc", useCache: true, func: (): any => {
+      counter++;
+      return JSON.stringify(survey.toJSON(options)).length;
+    } });
+    try {
+      const runner = new ExpressionRunner("toJsonObserversItemFunc()");
+      runner.runValues({});
+      runner.runValues({});
+      expect(counter, "the second run comes from the cache").toBe(1);
+      q1.choices[1].visibleIf = "{a} empty";
+      expect(updaterCallCount, "a choice's visibleIf: the updater runs").toBeGreaterThan(0);
+      runner.runValues({});
+      expect(counter, "a choice's visibleIf: the cache is invalidated").toBe(2);
+      updaterCallCount = 0;
+      q1.visibleIf = "{a} empty";
+      expect(updaterCallCount, "the question's visibleIf: the updater runs").toBeGreaterThan(0);
+      runner.runValues({});
+      expect(counter, "the question's visibleIf: the cache is invalidated").toBe(3);
+    } finally {
+      deps.dispose();
+      FunctionFactory.Instance.unregister("toJsonObserversItemFunc");
+    }
+  });
+  test("under a property-access tracker, toJSON records the properties it reads", () => {
+    const survey = createSurvey();
+    const q1 = survey.getQuestionByName("q1");
+    const changed = new Array<string>();
+    // Labelled after tracking: reading a model's name here would be tracked again
+    const reads = new Array<{ model: Base, name: string }>();
+    class RecordingTracker extends PropertyAccessTracker {
+      public onPropertyAccessed(model: Base, propertyName: string) {
+        if (!this.isTrackingBlocked()) reads.push({ model: model, name: propertyName });
+        super.onPropertyAccessed(model, propertyName);
+      }
+    }
+    const tracker = new RecordingTracker((model: Base, options: any) => { changed.push(label(model) + "." + options.name); });
+    tracker.startTracking();
+    try {
+      expect(survey.toJSON()).toEqual(surveyJson);
+    } finally {
+      tracker.stopTracking();
+    }
+    expect(Array.from(new Set(reads.map(read => label(read.model) + "." + read.name))).sort()).toEqual(expectedSurveyReads());
+    tracker.subscribe();
+    try {
+      q1.visibleIf = "{a} empty";
+      expect(changed, "visibleIf was empty during toJSON, its change notifies the tracker").toEqual(["q1.visibleIf"]);
+    } finally {
+      tracker.unsubscribe();
+    }
+  });
+  test("a wrapper keeps the empty check through getOriginalByProperty", () => {
+    const customName = "tojsonobserverscustom";
+    ComponentCollection.Instance.add({ name: customName, inheritBaseProps: true, questionJSON: { type: "dropdown", choices: [1, 2] } });
+    const spies = new Array<any>();
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: customName, name: "q1", allowClear: false },
+        { type: "matrixdropdown", name: "q2", rows: ["r1"], columns: [{ name: "c1", cellType: "text" }, { name: "c2", title: "Column 2" }] },
+        { type: "multipletext", name: "q3", items: [{ name: "i1", title: "Item 1" }, { name: "i2" }] }
+      ] });
+      const q2 = <any>survey.getQuestionByName("q2");
+      const q3 = <any>survey.getQuestionByName("q3");
+      const wrappers: Array<Base> = [survey.getQuestionByName("q1"), q2.columns[0], q2.columns[1], q3.items[0], q3.items[1]];
+      wrappers.forEach(obj => {
+        expect(obj.getOriginalObj(), label(obj) + " is a wrapper").not.toBe(obj);
+        spies.push(vi.spyOn(obj, "getOriginalByProperty"));
+      });
+      expect(survey.toJSON()).toEqual({ pages: [{ name: "page1", elements: [
+        { type: customName, name: "q1", allowClear: false },
+        { type: "matrixdropdown", name: "q2", rows: ["r1"], columns: [{ name: "c1", cellType: "text" }, { name: "c2", title: "Column 2" }] },
+        { type: "multipletext", name: "q3", items: [{ name: "i1", title: "Item 1" }, { name: "i2" }] }
+      ] }] });
+      wrappers.forEach((obj, index) => {
+        const names = new Set(spies[index].mock.calls.map((call: Array<any>) => call[0]));
+        Serializer.getProperties(obj.getType()).forEach(prop => {
+          if (!prop.isSerializable || prop.isSerializableFunc || prop.onSerializeValue) return;
+          expect(names.has(prop.name), label(obj) + "." + prop.name + " is checked through getOriginalByProperty").toBe(true);
+        });
+      });
+    } finally {
+      spies.forEach(spy => spy.mockRestore());
+      ComponentCollection.Instance.remove(customName);
+    }
+  });
+  test("inside survey.toJSON(), an object with getPropertyValueCoreHandler reads every property through it", () => {
+    const survey = createSurvey();
+    const q1 = survey.getQuestionByName("q1");
+    const keys = new Set<string>();
+    q1.getPropertyValueCoreHandler = (hash: any, key: string): any => {
+      keys.add(key);
+      return hash[key];
+    };
+    try {
+      expect(survey.toJSON()).toEqual(surveyJson);
+    } finally {
+      q1.getPropertyValueCoreHandler = undefined;
+    }
+    expect(Array.from(keys).sort()).toEqual(textQuestionReadKeys.split(" "));
   });
 });
 

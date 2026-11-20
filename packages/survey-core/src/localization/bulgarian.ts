@@ -309,6 +309,122 @@ export var bulgarianStrings = {
   progressbar: "Лента за напредъка",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Страница {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Празно",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Не е празно",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Равни",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Не е равно",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Съдържа",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Не съдържа",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Който и да е от",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Нито едно от",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Всички",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "По-голямо от",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "По-малко от",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "По-голямо или равно на",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "По-малко или равно на",
+  // [Auto-translated] "Save"
+  filterSave: "Запази",
+  // [Auto-translated] "Filters"
+  filterFilters: "Филтри",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Филтри: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Филтри",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Търсене",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Търсене по {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Покажи още",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Покажи по-малко",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Изчисти всичко",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Изчисти {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Предварително зададена настройка",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Запази като...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Запази",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Добавете \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Предварителни настройки",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Покажи {0} елемента",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Покажи 1 артикул",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Покажи резултати",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Нова предварителна настройка",
+  // [Auto-translated] "Name"
+  filterPresetName: "Име",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Съдържа",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Вече съществува предварителна настройка с това име.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Добавете поне едно условие.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Въведете израз.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Изразът не е валиден.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Редактиране като израз",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Редактиране като Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Напишете израз тук...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Редактиране на предварителна настройка",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Изтрий",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Добави ново...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Избрано редактиране...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Израз",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Редакция...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Търсене във филтри",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Нищо не намери, пробвай различни ключови думи",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Създаване на предварителна настройка с AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Редактиране на предварителна настройка с AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Например, \"Кафе и чай от Германия\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Създайте",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Редакция",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Създаване...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Монтаж...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI не можа да създаде филтър. Опитайте отново.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI не можа да направи филтър на това описание.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "да избера",
   // [Auto-translated] "to toggle"

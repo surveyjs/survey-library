@@ -1,10 +1,11 @@
-import { Directive, ElementRef, Input, NgModuleRef, OnChanges, SimpleChanges, TemplateRef, ViewContainerRef, Injector } from "@angular/core";
+import { Directive, Input, NgModuleRef, OnChanges, SimpleChanges, TemplateRef, ViewContainerRef, Injector, SimpleChange } from "@angular/core";
 import { AngularComponentFactory } from "../component-factory";
 
 interface IDynamicComponent {
   name: string;
   data?: any;
   default?: string;
+  key?: any;
 }
 
 @Directive({
@@ -18,6 +19,7 @@ export class DynamicComponentDirective implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const componentChanges = changes["component"];
     if (componentChanges.currentValue.name !== componentChanges.previousValue?.name ||
+      (!!componentChanges.previousValue && componentChanges.currentValue.key !== componentChanges.previousValue.key) ||
       (componentChanges.currentValue.name === undefined && componentChanges.previousValue === undefined && !this.componentInstance)) {
       this.createComponent();
     } else {
@@ -40,8 +42,15 @@ export class DynamicComponentDirective implements OnChanges {
   }
   updateComponentData(): void {
     const data = this.component.data;
-    Object.keys(data).forEach((key) => {
+    const changes: SimpleChanges = {};
+    for (const key in data) {
+      if (this.componentInstance[key] !== data[key]) {
+        changes[key] = new SimpleChange(this.componentInstance[key], data[key], this.componentInstance[key] === undefined);
+      }
       this.componentInstance[key] = data[key];
-    });
+    }
+    if (Object.keys(changes).length > 0 && this.componentInstance["ngOnChanges"]) {
+      this.componentInstance.ngOnChanges(changes);
+    }
   }
 }

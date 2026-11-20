@@ -1,20 +1,22 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { PanelModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
 import { AngularComponentFactory } from "./component-factory";
+import { SurveyBaseProviders } from "./component-depth";
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-panel, '[sv-ng-panel]'",
   templateUrl: "./panel.component.html",
   styleUrls: ["./hide-host.scss"]
 })
-export class PanelComponent extends BaseAngular<PanelModel> implements AfterViewInit {
+export class PanelComponent extends BaseAngular<PanelModel> {
   @Input() model!: PanelModel;
   @ViewChild("panelContainer", { static: false, read: ElementRef }) panelContainerRef!: ElementRef<HTMLDivElement>;
   private readonly panelPaddingHorizontal = "var(--sd-base-padding, var(--sjs2-spacing-x500))";
   protected getModel(): PanelModel {
     return this.model;
   }
-  ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     if (!!this.panelContainerRef?.nativeElement) {
       this.model.afterRender(this.panelContainerRef.nativeElement);
     }

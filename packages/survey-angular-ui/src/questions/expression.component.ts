@@ -2,8 +2,10 @@ import { Component } from "@angular/core";
 import { AngularComponentFactory } from "../component-factory";
 import { QuestionAngular } from "../question";
 import { QuestionExpressionModel } from "survey-core";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-expression",
   template: "<div [class]='model.cssClasses.root' #contentElement [attr.aria-label]='model.formatedValue' aria-live='polite' >{{ model.formatedValue }}</div>"
 })

@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedElementVisit, NestedWalkBuild, getNestedElementQuestions } from "./question";
@@ -31,6 +32,7 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
+import { collectFilterFields, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 import type { QuestionExpressionModel } from "./question_expression";
@@ -102,8 +104,8 @@ export class MatrixDropdownCell {
       return this.column.colOwner.getCellAriaLabel(row, this.column, rowTitle);
     };
   }
-  public locStrsChanged(): void {
-    this.question.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    this.question.locStrsChanged(changes);
   }
   protected createQuestion(
     column: MatrixDropdownColumn,
@@ -172,9 +174,9 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     res.setSurveyImpl(row);
     return res;
   }
-  public locStrsChanged() {
+  public locStrsChanged(changes?: ChangedKeys) {
     this.updateCellQuestion();
-    super.locStrsChanged();
+    super.locStrsChanged(changes);
   }
   // The total question is an expression question (createQuestion).
   public updateCellQuestion() {
@@ -798,12 +800,12 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   public getProcessedText(text: string): string {
     return this.data ? this.data.getProcessedText(text, this) : text;
   }
-  public locStrsChanged() {
+  public locStrsChanged(changes?: ChangedKeys) {
     for (var i = 0; i < this.cells.length; i++) {
-      this.cells[i].locStrsChanged();
+      this.cells[i].locStrsChanged(changes);
     }
     if (!!this.detailPanel) {
-      this.detailPanel.locStrsChanged();
+      this.detailPanel.locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {
@@ -1035,6 +1037,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   public get choiceCallbacks(): ISurveyChoiceCallbacks {
     return this.survey as ISurveyChoiceCallbacks;
+  }
+  // A table of its own: its columns are the filter fields, the matrix itself is not one.
+  public get isFilterable(): boolean {
+    return false;
+  }
+  // A Dropdown Matrix is a record too, but its cells write one level deeper, under the row
+  // ({md.r1.c1}), and its nested questions are one per row and column: walking into it would offer
+  // the same column once per row, under a path nothing resolves.
+  public get hasNestedFilterFields(): boolean {
+    return false;
   }
   public static get defaultCellType() {
     return settings.matrix.defaultCellType;
@@ -2138,19 +2150,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return column.isShowInMultipleColumns && !this.isMobile;
   }
 
-  public locStrsChanged() {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys) {
+    super.locStrsChanged(changes);
     var columns = this.columns;
     for (var i = 0; i < columns.length; i++) {
-      columns[i].locStrsChanged();
+      columns[i].locStrsChanged(changes);
     }
     var rows = this.generatedVisibleRows;
     if (!rows) return;
     for (var i = 0; i < rows.length; i++) {
-      rows[i].locStrsChanged();
+      rows[i].locStrsChanged(changes);
     }
     if (!!this.generatedTotalRow) {
-      this.generatedTotalRow.locStrsChanged();
+      this.generatedTotalRow.locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {
@@ -2751,6 +2763,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     // The columns first: a key they share with the detail panel keeps the column's type.
     const template = this.getRecordSortTemplate();
     return this.getFieldsOfQuestions(!!template ? questions.concat(template.questions) : questions);
+  }
+  // A filterable column is one field, described by the column itself: its title and its opt-out are
+  // the column's, not the cell question's. A cell whose value is a record of its own - a composite
+  // question registered as a cell type - is not a field: its children are, and they are collected
+  // by the same rule a Dynamic Panel template is walked by. collectFilterFields starts from the
+  // cell question, so it names them under getValueName() - the key the cell writes, which is what
+  // column.sortField reports and is not the column name when the column is bound through valueName.
+  public getFilterFields(): Array<IDynamicDataFilterField> {
+    const res = new Array<IDynamicDataFilterField>();
+    this.columns.forEach((column: MatrixDropdownColumn): void => {
+      const field = column.getFilterField();
+      if (!!field) {
+        res.push(field);
+        return;
+      }
+      if (column.allowFiltering) {
+        collectFilterFields(res, column.templateQuestion, "");
+      }
+    });
+    return res;
   }
   protected refreshRenderedPage(): void {
     this.resetRenderedTable();

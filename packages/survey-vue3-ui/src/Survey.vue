@@ -99,7 +99,7 @@
               ></SvComponent>
               <div v-if="hasCompletedPage">
                 <div
-                  v-html="vueSurvey.processedCompletedHtml"
+                  v-html="getProcessedCompletedHtml()"
                   :class="vueSurvey.completedCss"
                 ></div>
                 <SvComponent
@@ -112,12 +112,12 @@
               <div
                 v-if="vueSurvey.state === 'completedbefore'"
                 :class="vueSurvey.completedBeforeCss"
-                v-html="vueSurvey.processedCompletedBeforeHtml"
+                v-html="getProcessedCompletedBeforeHtml()"
               ></div>
               <div
                 v-if="vueSurvey.state === 'loading'"
                 :class="vueSurvey.loadingBodyCss"
-                v-html="vueSurvey.processedLoadingHtml"
+                v-html="getProcessedLoadingHtml()"
               ></div>
               <div v-if="vueSurvey.state === 'empty'" :class="css.bodyEmpty">
                 {{ vueSurvey.emptySurveyText }}
@@ -151,7 +151,7 @@ import {
   onMounted,
   triggerRef
 } from "vue";
-import { useBase } from "./base";
+import { useBase, useLocString } from "./base";
 
 const props = defineProps<
   | {
@@ -181,6 +181,23 @@ const hasCompletedPage = computed(
     vueSurvey.value.showCompletedPage && vueSurvey.value.state === "completed"
 );
 const css = computed(() => vueSurvey.value.css);
+// A localizable string keeps its value outside the property hash, so the template does not track it.
+// Reading these refs re-renders the page when the string changes; the getters still compute the HTML.
+const completedHtml = useLocString(() => vueSurvey.value.locCompletedHtml);
+const completedBeforeHtml = useLocString(() => vueSurvey.value.locCompletedBeforeHtml);
+const loadingHtml = useLocString(() => vueSurvey.value.locLoadingHtml);
+const getProcessedCompletedHtml = () => {
+  completedHtml.value;
+  return vueSurvey.value.processedCompletedHtml;
+};
+const getProcessedCompletedBeforeHtml = () => {
+  completedBeforeHtml.value;
+  return vueSurvey.value.processedCompletedBeforeHtml;
+};
+const getProcessedLoadingHtml = () => {
+  loadingHtml.value;
+  return vueSurvey.value.processedLoadingHtml;
+};
 const pageKey = computed(() => "page" + getActivePageId());
 
 const setupSurvey = (model: SurveyModel) => {

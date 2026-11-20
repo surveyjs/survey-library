@@ -162,5 +162,65 @@ frameworks.forEach((framework) => {
       await page.getByRole("button", { name: "Preview" }).click();
       await getButtonByText(page, "Complete").click();
     });
+    test("The complete page follows completedHtml through the save flow", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await initSurvey(page, framework, {
+        completedHtml: "<h3>Thank you</h3>",
+        elements: [{ type: "text", name: "q1" }]
+      });
+      await page.evaluate(() => {
+        const survey = window["survey"];
+        survey.onComplete.add((sender, options) => {
+          window["saveOptions"] = options;
+          sender.completedHtml = "<h3>Sending your message...</h3>";
+          options.showSaveInProgress("Saving");
+        });
+        survey.registerPropertyChangedHandlers(["completedState"], () => {
+          if (survey.completedState === "error") survey.completedHtml = "<h3>Your message has not been saved.</h3>";
+        });
+      });
+      const completedPage = page.locator(".sd-completedpage");
+
+      await getButtonByText(page, "Complete").click();
+      await expect(completedPage).toHaveText("Sending your message...");
+
+      await page.evaluate(() => { window["saveOptions"].showSaveError("Error"); });
+      await expect(completedPage).toHaveText("Your message has not been saved.");
+
+      await page.evaluate(() => {
+        window["survey"].setVariable("responseId", 42);
+        window["survey"].completedHtml = "<h3>Saved, Response ID: {responseId}</h3>";
+        window["saveOptions"].showSaveSuccess("Success");
+      });
+      await expect(completedPage).toHaveText("Saved, Response ID: 42");
+    });
+    test("The complete page shows a variable that changes after completion", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await initSurvey(page, framework, {
+        completedHtml: "<h3>Response ID: {responseId}</h3>",
+        elements: [{ type: "text", name: "q1" }]
+      });
+      await page.evaluate(() => { window["survey"].setVariable("responseId", 1); });
+      const completedPage = page.locator(".sd-completedpage");
+
+      await getButtonByText(page, "Complete").click();
+      await expect(completedPage).toHaveText("Response ID: 1");
+
+      await page.evaluate(() => { window["survey"].setVariable("responseId", 42); });
+      await expect(completedPage).toHaveText("Response ID: 42");
+    });
+    test("A question title on another page shows a value set on the first page", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await initSurvey(page, framework, {
+        pages: [
+          { elements: [{ type: "text", name: "q1" }] },
+          { elements: [{ type: "text", name: "q2", title: "Hello {q1}" }] }
+        ]
+      });
+      await page.locator("input[type='text']").fill("Ann");
+      await page.locator("input[type='text']").blur();
+      await getButtonByText(page, "Next").click();
+      await expect(page.locator(".sd-question__title").filter({ hasText: "Hello" })).toContainText("Hello Ann");
+    });
   });
 });

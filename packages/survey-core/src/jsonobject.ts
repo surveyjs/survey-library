@@ -228,7 +228,8 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       value === "" || Helpers.isValueEmpty(value)
     );
   }
-  // For internal use: the empty check of getSerializableValue, shared with JsonObject's loop that skips empty properties
+  // For internal use: the empty check of getSerializableValue, shared with JsonObject's loop that skips empty properties for a wrapper
+  // (for an object that is its own original, the loop calls isOwnSerializablePropertyEmpty, which this check ends in)
   public isEmptyIn(obj: any): boolean {
     return this.isSerializable && !!obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this);
   }
@@ -1768,9 +1769,18 @@ export class JsonObject {
     // With these options and property flags, valueToJson's filters let the property through and
     // getSerializableValue calls the same empty check (isEmptyIn) first, so an empty property writes nothing there.
     const canSkipEmpty = !options.storeDefaults && !options.version && this.storesAllLocaleStrings(options);
+    // For an object that is its own original, isEmptyIn ends in isOwnSerializablePropertyEmpty: the loop calls it directly
+    // (the same check as getSerializableValue's) and tests for a wrapper once per object. A wrapper keeps isEmptyIn.
+    const isOwnObj = canSkipEmpty && !!obj.isOwnSerializablePropertyEmpty && !!obj.getOriginalObj && obj.getOriginalObj() === obj;
+    // Once per object (see isPropertyReadObserved for the observers): a getter in the loop that starts a dependency collection
+    // or a useCache function ends it before it returns, and a getPropertyValueCoreHandler belongs to the object, so the state
+    // tested here holds for this object's loop. An observer left set by a throw only sends later checks down the observed path.
+    // Nested objects run their own propertiesToJson and test again.
+    const readHash = isOwnObj && !obj.isPropertyReadObserved();
     for (var i: number = 0; i < properties.length; i++) {
       const prop = properties[i];
-      if (canSkipEmpty && !prop.isSerializableFunc && !prop.onSerializeValue && !this.isLightSkipped(prop) && prop.isEmptyIn(obj)) continue;
+      if (canSkipEmpty && !prop.isSerializableFunc && !prop.onSerializeValue && !this.isLightSkipped(prop) &&
+        (isOwnObj ? prop.isSerializable && obj.isOwnSerializablePropertyEmpty(prop, readHash) : prop.isEmptyIn(obj))) continue;
       this.valueToJson(obj, json, prop, options);
     }
   }

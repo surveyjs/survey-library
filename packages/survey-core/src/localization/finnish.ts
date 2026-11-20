@@ -309,6 +309,122 @@ export var finnishSurveyStrings = {
   progressbar: "Edistymispalkki",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Sivu {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Tyhjä",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Ei tyhjä",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Yhtä suuri",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Ei ole sama kuin",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Sisältää",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Ei sisällä",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Mikä tahansa",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Ei mikään",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Kaikki",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Suurempi kuin",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Vähemmän kuin",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Suurempi tai yhtä suuri kuin",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Pienempi tai yhtä suuri kuin",
+  // [Auto-translated] "Save"
+  filterSave: "Tallenna",
+  // [Auto-translated] "Filters"
+  filterFilters: "Suodattimet",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Suodattimet: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Suodattimet",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Haku",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Hae {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Näytä lisää",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Näytä vähemmän",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Tyhjennä kaikki",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Tyhjennä {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Esiasetus",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Tallenna kuin...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Tallenna",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Lisää \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Esiasetukset",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Näytä {0} kohteet",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Näytä 1 tuote",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Näytä tulokset",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Uusi esiasetus",
+  // [Auto-translated] "Name"
+  filterPresetName: "Nimi",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Sisältää",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Esiasetus tällä nimellä on jo olemassa.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Lisää vähintään yksi ehto.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Syötä lauseke.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Lauseke ei ole kelvollinen.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Muokkaa lausekkeena",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Muokkaa tunnistelaatikona",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Kirjoita ilmaus tähän...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Muokkaa esiasetusta",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Poista",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Lisää uusi...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Muokkaa valittua...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Ilmaisu",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Muokkaus...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Haku suodattimissa",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Ei löytynyt mitään, kokeile eri avainsanoja",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Luo esiasetukset tekoälyllä",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Muokkaa esiasetusta tekoälyllä",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Esimerkiksi \"Coffee & Tea from Germany\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Luo",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Muokkaus",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Luomassa...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Editointi...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "Tekoäly ei pystynyt tekemään suodatinta. Yritä uudestaan.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "Tekoäly ei pystynyt tekemään suodatinta tälle kuvaukselle.",
   // "d" - a day placeholder symbol in a datetime input mask
   maskPlaceholderDay: "p",
   // "m" - a month placeholder symbol in a datetime input mask

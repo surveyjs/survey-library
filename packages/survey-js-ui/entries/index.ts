@@ -48,6 +48,7 @@ export { useState,
 import { Survey, PopupSurvey } from "../../survey-react-ui/entries/react-ui-model";
 
 import { SurveyModel } from "survey-core";
+import { releaseReplacedVNodes } from "../src/preact-replaced-vnodes";
 
 export function renderSurvey(model: SurveyModel, element: HTMLElement, props: any = {}) {
   const survey = React.createElement(Survey, { model, ...props });
@@ -90,6 +91,8 @@ function initJquery(instance: any) {
     SurveyWindow: doPopupSurvey
   });
 }
+
+releaseReplacedVNodes();
 
 SurveyModel.platform = "js-ui";
 SurveyModel.prototype["render"] = function (element: any = null) {

@@ -1,0 +1,6 @@
+<ng-template #template>
+  <div *ngIf="model" [class]="model.boxCss">
+    <sv-action-bar-item [model]="model"></sv-action-bar-item>
+    <sv-action-bar-item *ngIf="model.isClearable" [model]="model.clearAction"></sv-action-bar-item>
+  </div>
+</ng-template>

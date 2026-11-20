@@ -31,12 +31,20 @@ export class ScrollViewModel {
 
   onInnerHeightChanged: (hasScroll: boolean) => void;
 
+  // A scroll event can arrive after setRootElement(undefined): Chromium fires a queued scroll on a removed
+  // element, and Preact and Vue keep the listener on it after unmount.
+  private get hasElements(): boolean {
+    return !!this._containerElementValue && !!this._scrollbarElement;
+  }
+
   public onScrollContainer() {
+    if (!this.hasElements) return;
     this._lockScroll = true;
     this._scrollbarElement.scrollTop = this._containerElementValue.scrollTop;
   }
 
   public onScrollScrollbar() {
+    if (!this.hasElements) return;
     if (this._lockScroll) {
       this._lockScroll = false;
       return;

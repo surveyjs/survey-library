@@ -2,8 +2,10 @@ import { Component, Input } from "@angular/core";
 import { DropdownMultiSelectListModel, DropdownMultiSelectRenderState, QuestionTagboxModel } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-tagbox-filter",
   templateUrl: "./tagbox-filter.component.html",
   styleUrls: ["../../hide-host.scss"]

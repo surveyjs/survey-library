@@ -1,8 +1,10 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { DropdownListModel, DropdownRenderState, Helpers } from "survey-core";
 import { BaseAngular } from "../../base-angular";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-dropdown, '[sv-ng-dropdown]'",
   templateUrl: "./dropdown.component.html"
 })

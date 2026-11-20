@@ -1,7 +1,9 @@
-import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, Input, OnChanges, Optional, SimpleChanges } from "@angular/core";
 import { PopupSurveyModel, SurveyModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
+import { COMPONENT_DEPTH, SurveyBaseProviders } from "./component-depth";
 @Component({
+  providers: SurveyBaseProviders,
   selector: "popup-survey",
   templateUrl: "./popup.survey.component.html",
   styleUrls: ["./popup.survey.component.scss"]
@@ -15,15 +17,12 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
   @Input() onClose?: () => void;
   public popup!: PopupSurveyModel;
 
-  constructor(changeDetectorRef: ChangeDetectorRef) {
-    super(changeDetectorRef);
+  constructor(changeDetectorRef: ChangeDetectorRef, @Optional() @Inject(COMPONENT_DEPTH) depth?: number | null) {
+    super(changeDetectorRef, undefined, depth);
     changeDetectorRef.detach();
   }
   protected getModel(): PopupSurveyModel {
     return this.popup;
-  }
-  protected override getShouldReattachChangeDetector(): boolean {
-    return false;
   }
   public getHeaderCss(): string {
     let headerCss = this.popup.cssHeaderRoot;
@@ -40,7 +39,8 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  override ngOnChanges(changes: SimpleChanges): void {
+    super.ngOnChanges(changes);
     if (changes["model"]?.currentValue !== changes["model"]?.previousValue) {
       this.popup = new PopupSurveyModel(null, this.model);
     }
@@ -57,7 +57,6 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
       this.popup.closeOnCompleteTimeout = this.closeOnCompleteTimeout;
     }
     this.popup.isShowing = true;
-    this.changeDetectorRef.detectChanges();
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();

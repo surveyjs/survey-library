@@ -309,6 +309,122 @@ export var arabicSurveyStrings = {
   progressbar: "شريط التقدم",
   // [Auto-translated] "Page {0}"
   progressbarPage: "صفحة {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "فارغ",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "ليس فارغا",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "يساوي",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "لا يساوي",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "يحتوي على",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "لا يحتوي على",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "أي من",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "لا أحد من",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "كل",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "أكبر من",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "أقل من",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "أكبر من أو يساوي",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "أقل من أو يساوي",
+  // [Auto-translated] "Save"
+  filterSave: "حفظ",
+  // [Auto-translated] "Filters"
+  filterFilters: "الفلاتر",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "الفلاتر: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "الفلاتر",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "بحث",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "البحث حسب {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "عرض المزيد",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "عرض أقل",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "مسح الكل",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "مسح {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "إعداد مسبق",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "باستثناء ك...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "حفظ",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "أضف \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "الإعدادات المسبقة",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "عرض عناصر {0}",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "عرض عنصر واحد",
+  // [Auto-translated] "Show results"
+  filterShowResults: "عرض النتائج",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "إعداد مسبق جديد",
+  // [Auto-translated] "Name"
+  filterPresetName: "الاسم",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "يحتوي على",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "يوجد إعداد مسبق بهذا الاسم بالفعل.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "أضف شرطا واحدا على الأقل.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "أدخل تعبيرا.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "التعبير غير صالح.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "تحرير كتعبير",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "تحرير كصندوق وسوم",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "اكتب تعبيرا هنا...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "تحرير الإعداد المسبق",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "حذف",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "أضف جديد...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "تعديل تم تحديده...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "تعبير {0}",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "تعديل...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "البحث في الفلاتر",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "لم يتم العثور على شيء، جرب كلمات مفتاحية مختلفة",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "إنشاء إعداد مسبق باستخدام الذكاء الاصطناعي",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "تحرير الإعداد المسبق باستخدام الذكاء الاصطناعي",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "على سبيل المثال، \"القهوة والشاي من ألمانيا\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "إنشاء",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "تعديل",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "إنشاء...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "جار التحرير...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "لم يتمكن الذكاء الاصطناعي من صنع فلتر. حاول مرة أخرى.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "لم يستطع الذكاء الاصطناعي عمل فلتر لهذا الوصف.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "للاختيار",
   // [Auto-translated] "to toggle"

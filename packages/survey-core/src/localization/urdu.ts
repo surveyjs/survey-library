@@ -309,6 +309,122 @@ export var urduSurveyStrings = {
   progressbar: "Progress bar",
   // [Auto-translated] "Page {0}"
   progressbarPage: "صفحہ {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "خالی",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "خالی نہیں",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "برابر",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "برابر نہیں",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "شامل ہے",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "اس میں شامل نہیں ہے",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "کسی بھی میں سے",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "کوئی بھی نہیں",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "تمام",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "زیادہ سے زیادہ",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "کم سے کم",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "زیادہ یا مساوی",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "کم یا برابر",
+  // [Auto-translated] "Save"
+  filterSave: "محفوظ کریں",
+  // [Auto-translated] "Filters"
+  filterFilters: "فلٹرز",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "فلٹرز: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "فلٹرز",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "تلاش کریں",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "{0} کے حساب سے تلاش کریں",
+  // [Auto-translated] "Show More"
+  filterShowMore: "مزید دکھائیں",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "کم دکھائیں",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "سب صاف کریں",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "صاف {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "پری سیٹ",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "محفوظ کریں جسے...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "محفوظ کریں",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "\"{0}\" شامل کریں...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "پری سیٹس",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "{0} آئٹمز دکھائیں",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "1 آئٹم دکھائیں",
+  // [Auto-translated] "Show results"
+  filterShowResults: "نتائج دکھائیں",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "نیا پری سیٹ",
+  // [Auto-translated] "Name"
+  filterPresetName: "نام",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "شامل ہے",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "اس نام کا ایک پری سیٹ پہلے سے موجود ہے۔",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "کم از کم ایک شرط شامل کریں۔",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "ایک اظہار داخل کریں۔",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "اظہار درست نہیں ہے۔",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "اظہار کے طور پر ترمیم کریں",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "ٹیگ باکس کے طور پر ترمیم کریں",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "یہاں ایک اظہار ٹائپ کریں...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "پری سیٹ میں ترمیم کریں",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "حذف کریں",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "نیا شامل کریں...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "منتخب کیا گیا ترمیم کی گئی...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} اظہار",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "ترمیم...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "فلٹرز میں تلاش کریں",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "کچھ نہیں ملا، مختلف کی ورڈز آزما کر دیکھیں",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "AI کے ساتھ پری سیٹ بنائیں",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "AI کے ساتھ پری سیٹ میں ترمیم کریں",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "مثال کے طور پر، \"جرمنی سے کافی اور چائے\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "تخلیق کریں",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "ترمیم کریں",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "تخلیق...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "ایڈیٹنگ...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI فلٹر نہیں بنا سکا۔ دوبارہ کوشش کریں۔",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI اس وضاحت کا فلٹر نہیں بنا سکا۔",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "منتخب کرنے کے لیے",
   // [Auto-translated] "to toggle"

@@ -317,6 +317,36 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     return !!DomWindowHelper.getVisualViewport() && this.isOverlay;
   }
 
+  // hideOnFocusOut: the focus left the popup - for the page, or for nowhere (a click on the page's empty
+  // space, another window). It stays where it went: taken back to the element that had it before the
+  // popup, it would leave what the user moved to - another popup's search box, an input of the page.
+  public blur(event?: Event): void {
+    super.blur(event);
+    if (!this.isFocusLeaving(<FocusEvent>event)) return;
+    this.prevActiveElement = undefined;
+    this.hidePopup();
+  }
+  // Not leaving: the focus moves within the popup - its layer takes the focus of a click on the popup's
+  // empty space, and a popup opened from it is drawn inside it (only a modal one is mounted elsewhere).
+  // An element removed by a redraw is not left either.
+  private isFocusLeaving(event: FocusEvent): boolean {
+    if (!this.model.hideOnFocusOut || !this.model.isVisible || !event) return false;
+    const next = <Node>event.relatedTarget;
+    if (!next) return !!event.target && (<Node>event.target).isConnected;
+    return !this.container || !this.container.contains(next);
+  }
+  // hideOnFocusOut: the popup takes the focus 100 ms after it shows. A focus moved off the element that
+  // had it at the show - a quick click on another chip, on the page - has left the popup before it took
+  // the focus: the popup hides, and the focus stays where it went.
+  protected canFocusFirstInput(): boolean {
+    if (!this.model.hideOnFocusOut || !this.model.isVisible) return true;
+    const active = getRootNode(this.container)?.activeElement || null;
+    if (active === (this.prevActiveElement || null) || (!!active && this.container.contains(active))) return true;
+    this.prevActiveElement = undefined;
+    this.hidePopup();
+    return false;
+  }
+
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
     if (isResetHeight) {
       this.height = "auto";

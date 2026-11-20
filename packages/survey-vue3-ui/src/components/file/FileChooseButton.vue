@@ -1,5 +1,6 @@
 <template>
   <label
+    :id="question.chooseButtonId"
     tabindex="0"
     :class="item.getActionBarItemCss()"
     :for="question.inputId"

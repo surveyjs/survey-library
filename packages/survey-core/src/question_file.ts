@@ -728,6 +728,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
    */
   @property() maxFiles: number;
 
+  public get chooseButtonId(): string {
+    return this.inputId + "_choose";
+  }
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
+    const choose = this.actionsContainer.getActionById("sv-file-choose-file");
+    if (choose && choose.visible) return this.chooseButtonId;
+    return super.getFirstInputElementId();
+  }
   public chooseFile(event: MouseEvent): void {
     if (!this.contentElement) return;
 

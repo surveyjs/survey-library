@@ -22,6 +22,12 @@ export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
     this.updateInputDomElement();
   }
 
+  // onTyping follows the input event. A value committed only on blur re-renders under the pointer
+  // and the click that should apply it never reaches the button.
+  onInput(event: any): void {
+    if (this.model.isInputTextUpdate)this.model.onChange(event);
+  }
+
   updateInputDomElement(): void {
     if (!!this.inputElementRef?.nativeElement) {
       const control: any = this.inputElementRef.nativeElement;

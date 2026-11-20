@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "survey-core": [
+        "./build"
+      ]
+    }
+  },
+  "include": ["./entries/rich-text.ts", "./src/plugins/rich-text/svg.d.ts"],
+  "exclude": ["./build"]
+}

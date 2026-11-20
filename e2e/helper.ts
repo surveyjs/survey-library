@@ -187,8 +187,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
       surveyElement.innerHTML = "";
 
-      const shadowRoot = surveyElement.shadowRoot || surveyElement.attachShadow({ mode: "open" });
-      shadowRoot.innerHTML = "";
+      const shadowRoot = surveyElement.attachShadow({ mode: "open" });
       const rootElement = document.createElement("div");
       rootElement.classList.add("root-element");
       const styles = document.createElement("style");
@@ -201,22 +200,18 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       `;
       shadowRoot.appendChild(styles);
 
-      self.__surveyStylesLoaded = 0;
-      const addSheet = (href: string) => {
+      self.__surveyStylesLoaded = false;
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = href;
-        const done = () => { self.__surveyStylesLoaded++; };
-        link.onload = done;
-        link.onerror = done;
-        shadowRoot.appendChild(link);
-      };
-      addSheet("../../node_modules/survey-core/survey-core.min.css");
+      const surveyLink = document.createElement("link");
+      surveyLink.rel = "stylesheet";
+      surveyLink.href = "../../node_modules/survey-core/survey-core.min.css";
+      surveyLink.onload = () => { self.__surveyStylesLoaded = true; };
+      surveyLink.onerror = () => { self.__surveyStylesLoaded = true; };
+      shadowRoot.appendChild(surveyLink);
       shadowRoot.appendChild(rootElement);
     });
 
-    await page.waitForFunction(() => (window as any).__surveyStylesLoaded >= 1, { timeout: 5000 });
+    await page.waitForFunction(() => (window as any).__surveyStylesLoaded === true, { timeout: 5000 });
 
     await page.evaluate(() => {
       const self: any = window;

@@ -187,7 +187,9 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
       surveyElement.innerHTML = "";
 
-      const shadowRoot = surveyElement.attachShadow({ mode: "open" });
+      // attachShadow throws when the host already has a shadow root, and tests call initSurvey again without reloading.
+      const shadowRoot = surveyElement.shadowRoot || surveyElement.attachShadow({ mode: "open" });
+      shadowRoot.innerHTML = "";
       const rootElement = document.createElement("div");
       rootElement.classList.add("root-element");
       const styles = document.createElement("style");

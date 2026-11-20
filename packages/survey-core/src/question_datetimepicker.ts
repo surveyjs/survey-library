@@ -50,6 +50,11 @@ export class QuestionDateTimePickerModel extends Question {
       if (this.isMobile) return;
       this.popupModel.hide();
     });
+    this.calendarValue.onZoomChanged.add(() => {
+      if (!!this.popupModelValue && this.popupModelValue.isVisible) {
+        this.popupModelValue.recalculatePositionAfterRender(true);
+      }
+    });
     this.registerFunctionOnPropertyValueChanged("isMobile", () => {
       if (!!this.popupModelValue)this.updateMobileMode();
     });

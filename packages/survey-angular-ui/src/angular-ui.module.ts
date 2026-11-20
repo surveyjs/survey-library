@@ -30,6 +30,8 @@ import { DropdownQuestionComponent } from "./questions/dropdown.component";
 import { TagboxQuestionComponent } from "./questions/tagbox.component";
 import { RatingQuestionComponent } from "./questions/rating.component";
 import { SliderQuestionComponent } from "./questions/slider.component";
+import { DateTimePickerQuestionComponent } from "./questions/datetimepicker.component";
+import { CalendarComponent } from "./components/calendar/calendar.component";
 import { SliderLabelItemComponent } from "./components/slider/slider-label-item.component";
 import { BooleanQuestionComponent } from "./questions/boolean.component";
 import { ImagePickerItemComponent } from "./questions/imagepicker-item.component";
@@ -162,7 +164,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     FilterQuestionComponent, FilterChipsComponent, FilterChipComponent, FilterListItemComponent,
     FilterEditorPageComponent, FilterFieldPopupComponent, FilterSaveAsPopupComponent, FilterModalComponent, FilterPresetDialogComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
+    RatingQuestionComponent, SliderQuestionComponent, DateTimePickerQuestionComponent, CalendarComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, ProgressTocComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
@@ -189,7 +191,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     FilterQuestionComponent, FilterChipComponent, FilterListItemComponent,
     FilterFieldPopupComponent, FilterSaveAsPopupComponent, FilterModalComponent, FilterPresetDialogComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
+    RatingQuestionComponent, SliderQuestionComponent, DateTimePickerQuestionComponent, CalendarComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,

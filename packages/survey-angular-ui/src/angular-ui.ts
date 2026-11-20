@@ -32,6 +32,8 @@ export * from "./questions/imagepicker-item.component";
 export * from "./questions/imagepicker.component";
 export * from "./questions/imagemap.component";
 export * from "./questions/slider.component";
+export * from "./questions/datetimepicker.component";
+export * from "./components/calendar/calendar.component";
 export * from "./components/slider/slider-label-item.component";
 export * from "./questions/button-group/button-group.component";
 export * from "./question";

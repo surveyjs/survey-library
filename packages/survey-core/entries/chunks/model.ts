@@ -259,6 +259,7 @@ export type {
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";
+export { QuestionDateTimePickerModel } from "../../src/question_datetimepicker";
 export { QuestionExpressionModel } from "../../src/question_expression";
 export { QuestionTextBase, CharacterCounter, ICharacterCounterAction } from "../../src/question_textbase";
 export { QuestionTextModel } from "../../src/question_text";
@@ -354,6 +355,10 @@ export { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 export { PopupModalViewModel } from "../../src/popup-modal-view-model";
 export { createPopupViewModel, createPopupModalViewModel } from "../../src/popup-utils";
 export { PopupModalManager } from "../../src/popup-modal-manager";
+export { CalendarModel } from "../../src/calendar/calendar";
+export { CalendarViewModel } from "../../src/calendar/calendar-view-model";
+export { CalendarItem, CalendarMonth, CalendarZoom, CalendarRangePosition, ICalendarOptions } from "../../src/calendar/interfaces";
+export { calendarCssClasses } from "../../src/calendar/css-classes";
 export { DropdownListModel } from "../../src/dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../src/dropdownMultiSelectListModel";
 export { DropdownRenderState, DropdownMultiSelectRenderState } from "../../src/dropdownRenderState";

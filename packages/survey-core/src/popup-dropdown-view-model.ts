@@ -63,6 +63,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
     footerActions = this.model.updateFooterActions(footerActions);
     this.footerToolbarValue.setItems(footerActions);
+    this.model.onFooterActionsUpdated.add((_, options: { actions: Array<IAction> }) => {
+      this.footerToolbar.setItems(options.actions);
+    });
   }
 
   protected getAvailableAreaRect(): Rect {

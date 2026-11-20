@@ -5,7 +5,10 @@
                 <ng-template [component]="{ name: model.popupHeaderTemplate, data: { model: model } }"></ng-template>
             </ng-container>
             <div class="sv-popup__body-content">
-                <div *ngIf="model.title" class="sv-popup__body-header">{{ model.title }}</div>
+                <div *ngIf="model.title" class="sv-popup__body-header">
+                    <div class="sv-popup__body-header-title">{{ model.title }}</div>
+                    <div *ngIf="model.description" class="sv-popup__body-header-description">{{ model.description }}</div>
+                </div>
                 <div class="sv-popup__scrolling-content">
                     <div class="sv-popup__content">
                         <ng-template [component]="{ name: model.contentComponentName, data: model.contentComponentData }"></ng-template>

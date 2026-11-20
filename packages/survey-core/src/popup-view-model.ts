@@ -173,6 +173,9 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   public get title(): string {
     return this.model.title;
   }
+  public get description(): string {
+    return this.model.description;
+  }
   public get contentComponentName(): string {
     return this.model.contentComponentName;
   }

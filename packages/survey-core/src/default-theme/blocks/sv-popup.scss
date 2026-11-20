@@ -233,8 +233,16 @@ sv-popup {
 }
 
 .sv-popup__body-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x050);
   @include sjs2--typography--medium-strong;
   color: $foreground;
+}
+
+.sv-popup__body-header-description {
+  @include sjs2--typography--small;
+  color: $foreground-light;
 }
 
 .sv-popup__body-footer {

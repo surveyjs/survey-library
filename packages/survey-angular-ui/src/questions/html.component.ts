@@ -9,17 +9,6 @@ import { SurveyBaseProviders } from "../component-depth";
   templateUrl: "./html.component.html",
   styleUrls: []
 })
-export class HtmlQuestionComponent extends QuestionAngular<QuestionHtmlModel> {
-  override onModelChanged(): void {
-    super.onModelChanged();
-    this.model.locHtml.onChanged = () => {
-      this.update();
-    };
-  }
-  override ngOnDestroy(): void {
-    this.model.locHtml.onChanged = () => {};
-    super.ngOnDestroy();
-  }
-}
+export class HtmlQuestionComponent extends QuestionAngular<QuestionHtmlModel> {}
 
 AngularComponentFactory.Instance.registerComponent("html-question", HtmlQuestionComponent);

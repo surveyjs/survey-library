@@ -127,6 +127,9 @@ export class QuestionImageModel extends QuestionNonValue {
   public get renderedAltText() {
     return this.altText || this.title;
   }
+  public get renderedImageURL(): string {
+    return this.getLocStringHtml(this.locImageLink);
+  }
 
   public getImageCss(): string {
     const imageHeightProperty = this.getPropertyByName("imageHeight");

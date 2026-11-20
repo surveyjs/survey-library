@@ -63,6 +63,9 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
       this.videoNotLoaded = false;
     }
   }
+  public get renderedImageURL(): string {
+    return this.getLocStringHtml(this.locImageLink);
+  }
 
 }
 

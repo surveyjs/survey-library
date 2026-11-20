@@ -390,8 +390,8 @@
   --sjs2-layout-component-matrix-header-cell-padding-right: 16px;
   --sjs2-layout-component-matrix-cell-left-padding-left: 16px;
   --sjs2-layout-component-matrix-cell-right-padding-right: 16px;
-  --sjs2-layout-component-matrix-box-padding-left: var(--sjs-mui-card-edge-padding);
-  --sjs2-layout-component-matrix-box-padding-right: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-matrix-box-padding-left: 0px;
+  --sjs2-layout-component-matrix-box-padding-right: 0px;
   --sjs2-layout-component-matrix-box-padding-top: 0;
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
   --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
@@ -1012,18 +1012,8 @@
 }
 
 /* tables */
-.sd-table-wrapper {
-  &::before,
-  &::after {
-    width: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
-  &::before {
-    left: calc(1px - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
-
-  &:after {
-    right: calc(1px - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  }
+.sd-question--table .sd-question__content {
+  padding-inline: var(--sjs-mui-card-edge-padding);
 }
 
 .sd-table {

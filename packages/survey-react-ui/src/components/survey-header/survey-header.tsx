@@ -11,7 +11,6 @@ interface ISurveyHeaderProps {
 export class SurveyHeader extends SurveyElementBase<ISurveyHeaderProps, any> {
   constructor(props: ISurveyHeaderProps) {
     super(props);
-    this.state = { changed: 0 };
     this.rootRef = React.createRef();
   }
 
@@ -26,11 +25,6 @@ export class SurveyHeader extends SurveyElementBase<ISurveyHeaderProps, any> {
   componentDidMount() {
     super.componentDidMount();
     this.survey.afterRenderHeader(this.rootRef.current as HTMLDivElement);
-    this.survey.locLogo.onChanged = () => { this.setState({ changed: this.state.changed + 1 }); };
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    this.survey.locLogo.onChanged = function () { };
   }
 
   private renderTitle(): React.JSX.Element | null {

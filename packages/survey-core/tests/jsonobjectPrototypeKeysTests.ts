@@ -15,6 +15,7 @@ describe("Serializer registries and Object.prototype keys", () => {
       expect(Serializer.findProperty(key, "name")).toBeFalsy();
       expect(Serializer.isDescendantOf(key, "question")).toBe(false);
       expect(Serializer.createClass(key)).toBeFalsy();
+      expect(Serializer.isCreatableClass(key)).toBe(false);
       expect(Serializer.getChildrenClasses(key)).toEqual([]);
       expect(Serializer.getProperties(key)).toEqual([]);
       expect(Serializer.getDynamicPropertiesByTypes("matrixdropdowncolumn", key)).toEqual([]);

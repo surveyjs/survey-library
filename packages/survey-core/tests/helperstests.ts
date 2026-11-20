@@ -1,4 +1,4 @@
-import { Helpers, createDate, normalizeTextForSearch } from "../src/helpers";
+import { Helpers, createDate, getNameOfSuffixedKey, normalizeTextForSearch } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
 import { findNameByPath, parseValuePath, ValueGetter, VariableGetterContext } from "../src/conditions/conditionProcessValue";
@@ -525,6 +525,25 @@ describe("Helpers", () => {
     } finally {
       settings.commentSuffix = oldSuffix;
     }
+  });
+  test("getNameOfSuffixedKey reads a totals key as a comment key", () => {
+    expect(getNameOfSuffixedKey("m1-total", "-total"), "name of m1-total").toBe("m1");
+    expect(getNameOfSuffixedKey("-total", "-total"), "only the suffix").toBeUndefined();
+    expect(getNameOfSuffixedKey("m1-Total", "-total"), "case-sensitive").toBeUndefined();
+    expect(getNameOfSuffixedKey("m1-totals", "-total"), "suffix not at the end").toBeUndefined();
+  });
+  // Pinned as released: a key that is only the suffix names no question, before and after the keys shared one helper.
+  test("clearIncorrectValues(true) drops a key that is only the comment or totals suffix", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1" },
+      { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "t1" }] },
+    ] });
+    survey.data = {
+      "q1": "a", "q1-Comment": "c", "-Comment": "x", "-total": "y",
+      "p1": [{ "t1": "b", "t1-Comment": "d", "-Comment": "x", "-total": "y" }],
+    };
+    survey.clearIncorrectValues(true);
+    expect(survey.data).toEqual({ "q1": "a", "q1-Comment": "c", "p1": [{ "t1": "b", "t1-Comment": "d" }] });
   });
   test("Helpers.removeEmptyKeys removes empty keys at any depth and keeps 0 and false", () => {
     expect(Helpers.removeEmptyKeys({ a: "", b: null, c: {}, d: [], e: 0, f: false, g: "x", h: undefined, i: NaN }))

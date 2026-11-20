@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "../conditions/conditionProcessValue";
 import type { HashTable } from "../helpers";
 import type { LocalizableString } from "../localizablestring";
 import type { AdaptiveActionContainer } from "../actions/adaptive-container";
@@ -27,7 +28,7 @@ export interface ISurveyElement extends IShortcutText {
   onFirstRendering(): any;
   getType(): string;
   setVisibleIndex(value: number): number;
-  locStrsChanged(): any;
+  locStrsChanged(changes?: ChangedKeys): any;
   delete(doDispose?: boolean): void;
   toggleState(): void;
   stateChangedCallback(): void;

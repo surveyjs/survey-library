@@ -32,6 +32,10 @@ import { QuestionCommentModel } from "../src/question_comment";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { QuestionFactory } from "../src/questionfactory";
 import { ComponentCollection } from "../src/question_custom";
+// Not in the Creator toolbox (ElementFactory), yet a JSON "type" creates them.
+import "../src/question_buttongroup";
+import "../src/flowpanel";
+import "../src/question_imagemap";
 
 import { describe, test, expect, vi } from "vitest";
 class Car extends Base implements ILocalizableOwner {
@@ -4197,5 +4201,42 @@ describe("A value of the wrong type in the JSON", () => {
   test("a numeric sjsVersion loads", () => {
     const survey = new SurveyModel({ sjsVersion: 3, elements: [{ type: "text", name: "q" }] });
     expect(survey.getAllQuestions()).toHaveLength(1);
+  });
+});
+
+describe("Serializer.isCreatableClass and JsonObjectProperty.getObjClassName", () => {
+  test("isCreatableClass answers whether createClass builds an object", () => {
+    expect(["buttongroup", "flowpanel", "imagemap", "text", "Text"].map(name => Serializer.isCreatableClass(name)),
+      "registered classes with a creator").toEqual([true, true, true, true, true]);
+    expect(["", "nosuchclass", "constructor", undefined, null, 5].map(name => Serializer.isCreatableClass(<any>name)),
+      "nothing to create, no throw").toEqual([false, false, false, false, false, false]);
+    expect(Serializer.isCreatableClass("question"), "a class with no creator in its chain").toBe(false);
+    expect(!!Serializer.createClass("question"), "createClass agrees").toBe(false);
+  });
+  test("isCreatableClass and createClass find a creator on an ancestor", () => {
+    Serializer.addClass("textwithoutcreator", [], undefined, "text");
+    try {
+      expect(Serializer.isCreatableClass("textwithoutcreator")).toBe(true);
+      const obj = Serializer.createClass("textwithoutcreator");
+      expect(obj.getType(), "created by the text creator as a custom type").toBe("textwithoutcreator");
+      expect(obj.getTemplate(), "rendered as a text question").toBe("text");
+    } finally {
+      Serializer.removeClass("textwithoutcreator");
+    }
+  });
+  test("getObjClassName completes a JSON type with classNamePart", () => {
+    const triggers = Serializer.findProperty("survey", "triggers");
+    expect(triggers.getObjClassName("setvalue"), "short name").toBe("setvaluetrigger");
+    expect(triggers.getObjClassName("SetValueTrigger"), "full name, lower-cased").toBe("setvaluetrigger");
+    expect(triggers.getObjClassName("triggerx"), "the part anywhere in the name is kept as is").toBe("triggerx");
+    expect(triggers.getObjClassName(""), "empty").toBe("");
+    expect(triggers.getObjClassName(undefined as any), "no type").toBeUndefined();
+    expect(Serializer.findProperty("question", "validators").getObjClassName("expression")).toBe("expressionvalidator");
+  });
+  test("getObjClassName: the property's className wins over the JSON type", () => {
+    const choices = Serializer.findProperty("selectbase", "choices");
+    expect(!!choices.className, "an array of a class").toBe(true);
+    expect(choices.getObjClassName("anything")).toBe(choices.className.toLowerCase());
+    expect(Serializer.findProperty("question", "name").getObjClassName("Text"), "no className and no part").toBe("text");
   });
 });

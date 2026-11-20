@@ -4,6 +4,9 @@ import { settings } from "./settings";
 import { EventBase } from "./event";
 import { ItemValue } from "./itemvalue";
 import { ISaveToJSONOptions } from "./base-interfaces";
+import { TextPreProcessor } from "./textPreProcessor";
+import type { ChangedKeys, IValueGetterNameInfo } from "./conditions/conditionProcessValue";
+import type { HashTable } from "./helpers";
 
 export interface ILocalizableOwner {
   getLocale(): string;
@@ -12,7 +15,19 @@ export interface ILocalizableOwner {
   getRenderer(name: string, item?: ItemValue): string;
   getRendererContext(locStr: LocalizableString, item?: ItemValue): any;
   getAllowLineBreaks?(name: string): boolean;
+  // The names the owner's context adds to its texts ({row}, {panel}, {composite}), checked next to the changed
+  // names, as SurveyElement.canSkipExpressionByKeys does for expressions. undefined: the context adds none.
+  // A string whose owner has no such method refreshes whenever its text has names.
+  getTextContextKeys?(changes: ChangedKeys): HashTable<any>;
 }
+interface ITextNamesInfo {
+  text: string;
+  start: string;
+  end: string;
+  names: Array<string>;
+  namesInfo: Array<IValueGetterNameInfo>;
+}
+const emptyTextNamesInfo: ITextNamesInfo = { text: "", start: "", end: "", names: [], namesInfo: [] };
 export interface ILocalizableString {
   getLocaleText(loc: string): string;
   setLocaleText(loc: string, newValue: string): any;
@@ -52,7 +67,25 @@ export class LocalizableString implements ILocalizableString {
     }
     return this._allowLineBreaks;
   }
-  public onGetTextCallback: (str: string, nonProcessedText?: string) => string;
+  private onGetTextCallbackValue: (str: string, nonProcessedText?: string) => string;
+  public get onGetTextCallback(): (str: string, nonProcessedText?: string) => string {
+    return this.onGetTextCallbackValue;
+  }
+  public set onGetTextCallback(val: (str: string, nonProcessedText?: string) => string) {
+    this.onGetTextCallbackValue = val;
+    // A new callback reads whatever it reads: the code that sets a pure one marks it again
+    this.isTextCallbackPure = false;
+  }
+  // The callback's result depends on the text and on its owner's own properties only, never on
+  // other values: a value change refreshes the string only when a name of its text changed.
+  // Set it after the callback; assigning a callback resets it.
+  public isTextCallbackPure: boolean;
+  // Called when the text changed, and by strChanged() when the text it renders has changed, or when it keeps
+  // no rendered text: the owner read the raw text and processes it itself (SurveyModel.processedCompletedHtml)
+  public onRenderedTextChanged: () => void;
+  // The owner shows the raw text processed in its own way and checks more than the text's names
+  // (SurveyModel's completedHtml): every refresh calls onRenderedTextChanged, whatever the string renders
+  public isProcessedByOwner: boolean;
   public storeDefaultText: boolean;
   public serializeCallBackText: boolean;
   public onStrChanged: (oldValue: string, newValue: string) => void;
@@ -84,18 +117,70 @@ export class LocalizableString implements ILocalizableString {
     const loc = this.locale;
     return !loc || loc === settings.defaultLocaleName;
   }
-  public strChanged(): void {
-    if (!this.isTextRequested) return;
+  // changes: the names changed by a value change; the string refreshes only when they can change its
+  // text. Without them (a locale or page change, a new text handler) it always refreshes.
+  public strChanged(changes?: ChangedKeys): void {
+    this.strChangedCore(changes, true);
+  }
+  // Returns whether onRenderedTextChanged was called
+  private strChangedCore(changes: ChangedKeys, canNotify: boolean): boolean {
+    if (!this.isTextRequested) return false;
+    if (!!changes && !this.isRefreshRequired(changes)) return false;
     this.searchableText = undefined;
-    if (this.renderedText === undefined && this.isEmpty && !this.onGetTextCallback && !this.localizationName) return;
+    const renderedText = this.renderedText;
+    if (renderedText === undefined && this.isEmpty && !this.onGetTextCallback && !this.localizationName) return false;
     this.calculatedTextValue = this.calcText();
-    if (this.renderedText !== this.calculatedTextValue) {
+    const isRenderedTextChanged = renderedText !== this.calculatedTextValue;
+    if (isRenderedTextChanged) {
       this.renderedText = undefined;
       this.calculatedTextValue = undefined;
     }
     this.htmlValues = {};
     this.onChanged();
     this.onStringChanged.fire(this, {});
+    if (canNotify && (isRenderedTextChanged || this.isProcessedByOwner)) {
+      return this.notifyRenderedTextChanged();
+    }
+    return false;
+  }
+  private notifyRenderedTextChanged(): boolean {
+    if (!this.onRenderedTextChanged) return false;
+    this.onRenderedTextChanged();
+    return true;
+  }
+  // Whether the changed names can change the text: the same check as an expression's (ChangedKeys),
+  // over the names of the text and the names the owner's context adds
+  private isRefreshRequired(changes: ChangedKeys): boolean {
+    // The callback can read any value
+    if (!!this.onGetTextCallback && !this.isTextCallbackPure) return true;
+    const info = this.getTextNamesInfo();
+    if (info.names.length === 0) return false;
+    if (changes.isUnknown) return true;
+    const owner = this.owner;
+    // The owner cannot tell which names its context adds
+    if (!owner || typeof owner.getTextContextKeys !== "function") return true;
+    // A path under a cleared value ({m.row1} after m is cleared) shows another text
+    return changes.isAnyChanged(info.names, true, info.namesInfo, owner.getTextContextKeys(changes));
+  }
+  // The names the text interpolates ({q1}, {row.q2}). They are kept with the text they were read from,
+  // and read again when the text (its locale, a shared string) or the delimiters change.
+  public getTextNames(): Array<string> {
+    return this.getTextNamesInfo().names;
+  }
+  private textNamesInfo: ITextNamesInfo;
+  private getTextNamesInfo(): ITextNamesInfo {
+    const text = this.pureText;
+    const delimiters = settings.expressionVariableDelimiters;
+    if (!text || text.indexOf(delimiters.start) < 0) {
+      this.textNamesInfo = undefined;
+      return emptyTextNamesInfo;
+    }
+    let res = this.textNamesInfo;
+    if (!res || res.text !== text || res.start !== delimiters.start || res.end !== delimiters.end) {
+      res = { text: text, start: delimiters.start, end: delimiters.end, names: TextPreProcessor.getTextNames(text), namesInfo: [] };
+      this.textNamesInfo = res;
+    }
+    return res;
   }
   // Notifies only when a value the text interpolates ({name}) has changed since it was rendered.
   // A string nobody has rendered yet or one without placeholders is skipped.
@@ -278,11 +363,16 @@ export class LocalizableString implements ILocalizableString {
     }
   }
   private fireStrChanged(loc: string, oldValue: string) {
-    this.strChanged();
+    const isNotified = this.strChangedCore(undefined, true);
     if (!this.onStrChanged) return;
     const value = this.pureText;
     if (loc !== this.curLocale || oldValue !== value) {
       this.onStrChanged(oldValue, value);
+      // The text changed: a component that read it renders it again, also when nobody has read it yet
+      // (strChanged skipped it) or when it renders as before (a component may show the raw text)
+      if (!isNotified) {
+        this.notifyRenderedTextChanged();
+      }
     }
   }
   public hasNonDefaultText(): boolean {
@@ -358,7 +448,8 @@ export class LocalizableString implements ILocalizableString {
           this.setLocaleText(key, value[key]);
         }
       }
-      this.strChanged();
+      // Each text set above has notified the UI (fireStrChanged)
+      this.strChangedCore(undefined, false);
     }
   }
   public mergeWith(locStr: LocalizableString, locales?: string[]): void {

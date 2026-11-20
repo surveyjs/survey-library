@@ -638,6 +638,123 @@ describe("Panel", () => {
     page.validate(true);
     expect(page.getFirstQuestionToFocus(true).name, "q1 has error").toBe("q1");
   });
+  test("A page with only a collapsed panel focuses its collapse/expand button", () => {
+    const focusedIds: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedIds.push(elId);
+      return true;
+    };
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "panel",
+            name: "panel1",
+            title: "Collapsed panel",
+            state: "collapsed",
+            elements: [
+              { type: "text", name: "q1" },
+              { type: "text", name: "q2" }
+            ]
+          }
+        ]
+      });
+      const panel = survey.getPanelByName("panel1");
+      survey.pages[0].focusFirstQuestion();
+      expect(focusedIds).toEqual([panel.ariaTitleId]);
+    } finally {
+      SurveyElement.FocusElement = oldFunc;
+    }
+  });
+  test("Expanding a collapsed panel scrolls the first question and leaves focus alone", () => {
+    vi.useFakeTimers();
+    const focusedIds: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedIds.push(elId);
+      return true;
+    };
+    const scrollCalls: Array<string> = [];
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          {
+            type: "panel",
+            name: "panel1",
+            title: "Collapsed panel",
+            state: "collapsed",
+            elements: [
+              { type: "text", name: "q1" },
+              { type: "text", name: "q2" }
+            ]
+          }
+        ]
+      });
+      const q1 = survey.getQuestionByName("q1");
+      survey.scrollElementToTop = (options: any) => {
+        scrollCalls.push(options && options.id);
+      };
+      survey.getPanelByName("panel1").expand();
+      vi.advanceTimersByTime(20);
+      expect(scrollCalls).toEqual([q1.inputId]);
+      expect(focusedIds).not.toContain(q1.inputId);
+    } finally {
+      SurveyElement.FocusElement = oldFunc;
+      vi.useRealTimers();
+    }
+  });
+  test("Restoring uiState that expands a panel does not steal focus from activeElementName", () => {
+    vi.useFakeTimers();
+    const focusedIds: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedIds.push(elId);
+      return true;
+    };
+    try {
+      const survey = new SurveyModel({
+        pages: [
+          { elements: [{ type: "text", name: "q1" }] },
+          {
+            elements: [
+              {
+                type: "panel",
+                name: "panel1",
+                title: "Collapsed panel",
+                state: "collapsed",
+                elements: [
+                  { type: "text", name: "q3" },
+                  { type: "text", name: "q4" }
+                ]
+              },
+              {
+                type: "paneldynamic",
+                name: "q5",
+                templateElements: [
+                  { type: "text", name: "q6" },
+                  { type: "text", name: "q7" }
+                ],
+                panelCount: 3,
+                displayMode: "tab"
+              }
+            ]
+          }
+        ]
+      });
+      survey.uiState = {
+        panels: { panel1: { collapsed: false } },
+        questions: { q5: { activePanelIndex: 1 } },
+        activeElementName: "q5"
+      };
+      vi.advanceTimersByTime(20);
+      expect(survey.getPanelByName("panel1").isExpanded).toBeTruthy();
+      expect(focusedIds).not.toContain(survey.getQuestionByName("q3").inputId);
+    } finally {
+      SurveyElement.FocusElement = oldFunc;
+      vi.useRealTimers();
+    }
+  });
   test("Flow Panel, add new element/remove element", () => {
     const panel = new FlowPanelModel("p");
     panel.addNewQuestion("text", "q1");
@@ -3786,8 +3903,7 @@ describe("Panel", () => {
         const survey = new SurveyModel(json);
         survey.lazyRenderEnabled = true;
         survey.getAllQuestions().forEach(q => {
-          q.supportOnElementRerenderedEvent = true;
-          q.onElementRerenderedEventEnabled = true;
+          q.enableOnElementRerenderedEvent();
         });
         const page1: PageModel = survey.pages[0];
         const allPageRows = page1.getAllRows();
@@ -3852,8 +3968,7 @@ describe("Panel", () => {
         const survey = new SurveyModel(json);
         survey.lazyRenderEnabled = true;
         survey.getAllQuestions().forEach(q => {
-          q.supportOnElementRerenderedEvent = true;
-          q.onElementRerenderedEventEnabled = true;
+          q.enableOnElementRerenderedEvent();
         });
         const page1: PageModel = survey.pages[0];
         const allPageRows = page1.getAllRows();
@@ -3917,8 +4032,7 @@ describe("Panel", () => {
         const survey = new SurveyModel(json);
         survey.lazyRenderEnabled = true;
         survey.getAllQuestions().forEach(q => {
-          q.supportOnElementRerenderedEvent = true;
-          q.onElementRerenderedEventEnabled = true;
+          q.enableOnElementRerenderedEvent();
         });
         const page1: PageModel = survey.pages[0];
         const allPageRows = page1.getAllRows();

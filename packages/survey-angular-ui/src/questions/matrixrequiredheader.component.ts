@@ -4,8 +4,10 @@ import {
   MatrixDropdownColumn,
   QuestionMatrixDropdownModelBase,
 } from "survey-core";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-matrixheaderrequired",
   styles: [":host { display: none; }"],
   template: "<ng-template #template><ng-container *ngIf='column.isRenderedRequired'><span>&nbsp;</span><span [class]='question.cssClasses.cellRequiredMark'>{{ column.requiredMark }}</span></ng-container></ng-template>"

@@ -2,8 +2,10 @@ import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { PopupBaseViewModel, PopupDropdownViewModel } from "survey-core";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-popup-pointer, '[sv-ng-popup-pointer]'",
   templateUrl: "./popup-pointer.component.html"
 })

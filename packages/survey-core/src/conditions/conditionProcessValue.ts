@@ -2,6 +2,7 @@ import { IQuestion } from "../base-interfaces";
 import { Helpers, HashTable } from "../helpers";
 import { settings } from "../settings";
 import { isBuiltInVariableName } from "./builtInVariables";
+import type { ExpressionRunnerBase } from "../expressions/expressionRunner";
 import type { ISurveySettings } from "../survey-settings";
 
 export interface IValueGetterItem {
@@ -11,7 +12,7 @@ export interface IValueGetterItem {
   from?: number;
   to?: number;
 }
-// What ValueGetter.isAnyKeyChanged reads from a name, built once per name
+// What the value-change check (ChangedKeys.isAnyChanged) reads from a name, built once per name
 export interface IValueGetterNameInfo {
   name: string;
   lowerName: string;
@@ -155,62 +156,16 @@ export class ValueGetter {
   public getDisplayValue(name: string, context: IValueGetterContext, isDisplayValue: boolean = true): string {
     return this.getValue(name, context, true, isDisplayValue);
   }
-  // isClearedKeyChanged: a path under a key whose value has been cleared ({m.row1} for a cleared m)
-  // counts as changed. Elements leave it off: a matrix cell expression re-run while a handler clears
-  // the matrix writes its result back into the cleared rows.
-  // namesInfo keeps the parsed parts of usedNames between calls, one item per name, filled as the
-  // loop reaches a name (an expression runner owns it, see ExpressionRunnerBase.getVariablesInfo).
-  // Without it the parts are parsed and dropped, as each name is reached. An item is rebuilt when
-  // its name differs: a trigger may push a name into the runner's variables (CopyValueTrigger).
-  // sharedNamesInfo (the survey's, see SurveyModel.getVariableNamesInfo) holds the items by their exact
-  // name: a name is looked up there before it is parsed, and an item built here is stored there.
+  // Whether any of the names changed in the keys: ChangedKeys.isAnyChanged, the one rule, over keys given here
   public isAnyKeyChanged(keys: any, usedNames: string[], isClearedKeyChanged?: boolean, namesInfo?: Array<IValueGetterNameInfo>,
     sharedNamesInfo?: Map<string, IValueGetterNameInfo>): boolean {
-    // Settings are read on every call, never kept in a name's information: tests change them at runtime
-    const propPrefix = settings.expressionElementPropertyPrefix;
-    // Names are case-insensitive in expressions ({age} reads the question "Age"), so the keys are
-    // matched by their lower-case form, in both directions. Built when the first name needs it.
-    let lowerKeys: HashTable<Array<string>>;
-    for (var i = 0; i < usedNames.length; i++) {
-      const name = usedNames[i];
-      if (!name) continue;
-      // An element property reference ({$q1.isVisible}) can change without any value key change
-      if (!!propPrefix && name[0] === propPrefix) return true;
-      let info = !!namesInfo ? namesInfo[i] : undefined;
-      if (!info || info.name !== name) {
-        info = this.getSharedNameInfo(name, sharedNamesInfo);
-        if (!!namesInfo) namesInfo[i] = info;
-      }
-      // A built-in variable ({pageno}, {correctanswers}, ...) is never a key, but its value can change
-      // in any value-change run
-      if (info.isBuiltIn) return true;
-      if (!lowerKeys) lowerKeys = this.getLowerCaseKeys(keys);
-      if (!!lowerKeys[info.lowerName]) return true;
-      if (this.isUnwrappedNameChanged(lowerKeys, info.firstName)) return true;
-      const prefix = this.getFirstNameByKeys(lowerKeys, info.lowerPrefixes);
-      if (!prefix) continue;
-      if (info.lowerName === prefix) return true;
-      const keyNames = lowerKeys[prefix];
-      for (let j = 0; j < keyNames.length; j++) {
-        if (this.isKeyValueChanged(keys, keyNames[j], name, isClearedKeyChanged)) return true;
-      }
-    }
-    return false;
-  }
-  private getSharedNameInfo(name: string, sharedNamesInfo: Map<string, IValueGetterNameInfo>): IValueGetterNameInfo {
-    if (!sharedNamesInfo) return this.getNameInfo(name);
-    let info = sharedNamesInfo.get(name);
-    if (!info) {
-      info = this.getNameInfo(name);
-      sharedNamesInfo.set(name, info);
-    }
-    return info;
+    return new ChangedKeys(keys, sharedNamesInfo).isAnyChanged(usedNames, isClearedKeyChanged, namesInfo);
   }
   // The parts of a name that the key check reads and that depend on the name only. The parsed path
   // itself is not kept: run() changes the path it parses ({$q.isVisible}), so a kept one must never reach it.
   // A runner keeps one per variable (~90,000 on a large survey), so the arrays get their exact size and
   // the full-length prefix shares the lower-case name's string.
-  private getNameInfo(name: string): IValueGetterNameInfo {
+  public getNameInfo(name: string): IValueGetterNameInfo {
     const path = this.getPath(name);
     const lowerName = name.toLowerCase();
     const lowerPrefixes = new Array<string>(path.length);
@@ -230,52 +185,6 @@ export class ValueGetter {
       lowerPrefixes: lowerPrefixes
     };
   }
-  // Every key under its lower-case form. Two keys that differ in case only share one entry.
-  private getLowerCaseKeys(keys: any): HashTable<Array<string>> {
-    const res: HashTable<Array<string>> = Object.create(null);
-    for (const key in keys) {
-      if (!hasOwnKey(keys, key)) continue;
-      const lowerKey = key.toLowerCase();
-      if (!res[lowerKey]) res[lowerKey] = [];
-      res[lowerKey].push(key);
-    }
-    return res;
-  }
-  // Whether the part of the key's value that the name points to ({m.row1} in the key "m") changed.
-  // The key's own oldValue/newValue are read, whatever the letter case of the name.
-  private isKeyValueChanged(keys: any, keyName: string, name: string, isClearedKeyChanged: boolean): boolean {
-    const keyValue = keys[keyName];
-    if (keyValue == undefined) return !!isClearedKeyChanged;
-    if (
-      !hasOwnKey(keyValue, "oldValue") ||
-      !hasOwnKey(keyValue, "newValue")
-    )
-      return true;
-    const v: any = {};
-    v[keyName] = keyValue["oldValue"];
-    var oldValue = this.getValueFromObject(v, name);
-    v[keyName] = keyValue["newValue"];
-    var newValue = this.getValueFromObject(v, name);
-    return !Helpers.isTwoValueEquals(oldValue, newValue, false, false, false);
-  }
-  private isUnwrappedNameChanged(lowerKeys: HashTable<Array<string>>, first: string): boolean {
-    const postfix = settings.expressionVariables.unwrapPostfix;
-    if (!postfix) return false;
-    if (!first.endsWith(postfix)) return false;
-    const baseName = first.substring(0, first.length - postfix.length);
-    return !!lowerKeys[baseName.toLowerCase()];
-  }
-  // The shortest path prefix ("m" for "m.row1") that is a key, in lower case. Only it decides.
-  private getFirstNameByKeys(lowerKeys: HashTable<Array<string>>, lowerPrefixes: Array<string>): string {
-    for (let i = 0; i < lowerPrefixes.length; i++) {
-      if (!!lowerKeys[lowerPrefixes[i]]) return lowerPrefixes[i];
-    }
-    return "";
-  }
-  private getValueFromObject(obj: any, fullName: string): any {
-    const res = this.getValueInfo({ name: fullName, context: new VariableGetterContext(obj) });
-    return res.isFound ? res.value : undefined;
-  }
   private run(name: string, context: IValueGetterContext, createObjects: boolean, isOriginalValue?: boolean): any {
     if (!context) return undefined;
     let path = this.getPath(name);
@@ -289,6 +198,193 @@ export class ValueGetter {
   }
   public getPath(name: string): Array<IValueGetterItem> {
     return parseValuePath(name);
+  }
+}
+// Parses the names. ValueGetter keeps no state, so one is shared by every check.
+let nameParser: ValueGetter;
+function getNameParser(): ValueGetter {
+  if (!nameParser) nameParser = new ValueGetter();
+  return nameParser;
+}
+// What one value-change run knows, and the one rule that decides whether an expression's names changed in it.
+// The keys map a changed name to its value, or to { oldValue, newValue } (the survey triggers' keys): a path under
+// such a key ({m.r1}) counts as changed only when its value differs. Without keys nothing is known: every name
+// counts as changed. The survey keeps one object per value-change pass (SurveyModel.getValueChangedKeys); a caller
+// with keys of its own (a trigger, a records item) gets an object over them for one check.
+// Each caller keeps its own extra rule (settings, the last run, the trigger names); the ones every caller
+// shares are here: built-in names and element property references always count as changed, and
+// (canSkip) an expression with a function without variable parameters, or without variables, is never skipped.
+export class ChangedKeys {
+  private lowerKeys: HashTable<Array<string>>;
+  // keys: the object is used as it is and written through setKey, never copied
+  // isAlwaysChangedName: a name (its first part) that counts as changed on any key, the way a built-in name does.
+  // The survey passes it for texts: {q1} shows q1's display value, built from choice texts that can have names of their own.
+  constructor(private keysValue?: any, private sharedNamesInfo?: Map<string, IValueGetterNameInfo>,
+    private isAlwaysChangedName?: (name: string) => boolean) {
+  }
+  public get keys(): any {
+    return this.keysValue;
+  }
+  public get isUnknown(): boolean {
+    return !this.keysValue;
+  }
+  // A key added while the run goes on (a value set by an expression inside the pass) is seen by the next check
+  public setKey(name: string, value: any): void {
+    if (this.isUnknown) return;
+    if (!hasOwnKey(this.keysValue, name)) {
+      this.lowerKeys = undefined;
+    }
+    this.keysValue[name] = value;
+  }
+  // Whether a key has this name, in any letter case
+  public hasKey(name: string): boolean {
+    if (this.isUnknown) return true;
+    if (!name) return false;
+    return !!this.getLowerCaseKeys()[name.toLowerCase()];
+  }
+  // Whether an expression may keep its last result: none of its names changed.
+  // vars: the names to check; the runner's own variables and their kept information when not given.
+  // contextKeys: the names a value-getter context adds (a records item's {row}, {panel}, a composite's {composite}).
+  // They hold no old and new values, so a name under one of them always counts as changed.
+  // isClearedKeyChanged: a path under a key whose value has been cleared ({m.row1} for a cleared m)
+  // counts as changed. Elements leave it off: a matrix cell expression re-run while a handler clears
+  // the matrix writes its result back into the cleared rows.
+  public canSkip(runner: ExpressionRunnerBase, vars?: Array<string>, isClearedKeyChanged?: boolean, contextKeys?: HashTable<any>): boolean {
+    if (this.isUnknown) return false;
+    // A function call without variable parameters (now(), random()) can return another value at any time
+    if (!!runner && runner.hasFunction(true)) return false;
+    // Names given by the caller (triggers) have no per-runner slots: they are read from the shared map, or parsed
+    // per check without one. The runner's own variables reuse its kept information
+    let varsInfo: Array<IValueGetterNameInfo>;
+    if (vars === undefined && !!runner) {
+      vars = runner.getVariables();
+      varsInfo = runner.getVariablesInfo();
+    }
+    // An expression without variables is never skipped
+    if (!Array.isArray(vars) || vars.length === 0) return false;
+    return !this.isAnyChanged(vars, isClearedKeyChanged, varsInfo, contextKeys);
+  }
+  // namesInfo keeps the parsed parts of names between calls, one item per name, filled as the
+  // loop reaches a name (an expression runner owns it, see ExpressionRunnerBase.getVariablesInfo).
+  // Without it the parts are parsed and dropped, as each name is reached. An item is rebuilt when
+  // its name differs: a trigger may push a name into the runner's variables (CopyValueTrigger).
+  // The shared names info (the survey's, see SurveyModel.getVariableNamesInfo) holds the items by their exact
+  // name: a name is looked up there before it is parsed, and an item built here is stored there.
+  public isAnyChanged(names: Array<string>, isClearedKeyChanged?: boolean, namesInfo?: Array<IValueGetterNameInfo>, contextKeys?: HashTable<any>): boolean {
+    if (this.isUnknown) return true;
+    // Settings are read on every call, never kept in a name's information: tests change them at runtime
+    const propPrefix = settings.expressionElementPropertyPrefix;
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      if (!name) continue;
+      // An element property reference ({$q1.isVisible}) can change without any value key change
+      if (!!propPrefix && name[0] === propPrefix) return true;
+      let info = !!namesInfo ? namesInfo[i] : undefined;
+      if (!info || info.name !== name) {
+        info = this.getNameInfo(name);
+        if (!!namesInfo) namesInfo[i] = info;
+      }
+      // A built-in variable ({pageno}, {correctanswers}, ...) is never a key, but its value can change
+      // in any value-change run
+      if (info.isBuiltIn) return true;
+      if (!!contextKeys && this.isContextNameChanged(contextKeys, info, isClearedKeyChanged)) return true;
+      if (this.isNameChanged(info, isClearedKeyChanged)) return true;
+      if (!!this.isAlwaysChangedName && this.isAlwaysChangedName(info.firstName)) return true;
+    }
+    return false;
+  }
+  private getNameInfo(name: string): IValueGetterNameInfo {
+    const shared = this.sharedNamesInfo;
+    if (!shared) return getNameParser().getNameInfo(name);
+    let info = shared.get(name);
+    if (!info) {
+      info = getNameParser().getNameInfo(name);
+      shared.set(name, info);
+    }
+    return info;
+  }
+  private isNameChanged(info: IValueGetterNameInfo, isClearedKeyChanged: boolean): boolean {
+    const lowerKeys = this.getLowerCaseKeys();
+    if (!!lowerKeys[info.lowerName]) return true;
+    if (this.isUnwrappedNameChanged(lowerKeys, info.firstName)) return true;
+    const prefix = this.getFirstNameByKeys(lowerKeys, info.lowerPrefixes);
+    if (!prefix) return false;
+    if (info.lowerName === prefix) return true;
+    const keyNames = lowerKeys[prefix];
+    for (let j = 0; j < keyNames.length; j++) {
+      if (this.isKeyValueChanged(this.keysValue, keyNames[j], info.name, isClearedKeyChanged)) return true;
+    }
+    return false;
+  }
+  // The context names are checked next to the keys, never merged into them, so the keys' lower-case
+  // table serves every element. A context name has no dots, so only the name's first part can match it:
+  // as the whole name, as the shortest path prefix, or as the base of an unwrapped name.
+  private isContextNameChanged(contextKeys: HashTable<any>, info: IValueGetterNameInfo, isClearedKeyChanged: boolean): boolean {
+    const first = info.lowerPrefixes[0];
+    const unwrapped = this.getUnwrappedBaseName(info.firstName);
+    const lowerUnwrapped = unwrapped !== undefined ? unwrapped.toLowerCase() : undefined;
+    for (const key in contextKeys) {
+      if (!hasOwnKey(contextKeys, key)) continue;
+      const lowerKey = key.toLowerCase();
+      if (lowerKey === info.lowerName || lowerKey === lowerUnwrapped) return true;
+      if (lowerKey === first && this.isKeyValueChanged(contextKeys, key, info.name, isClearedKeyChanged)) return true;
+    }
+    return false;
+  }
+  // Every key under its lower-case form. Two keys that differ in case only share one entry.
+  // Built on the first check that needs it, and kept until a key is added
+  private getLowerCaseKeys(): HashTable<Array<string>> {
+    if (!this.lowerKeys) {
+      const keys = this.keysValue;
+      const res: HashTable<Array<string>> = Object.create(null);
+      for (const key in keys) {
+        if (!hasOwnKey(keys, key)) continue;
+        const lowerKey = key.toLowerCase();
+        if (!res[lowerKey]) res[lowerKey] = [];
+        res[lowerKey].push(key);
+      }
+      this.lowerKeys = res;
+    }
+    return this.lowerKeys;
+  }
+  // Whether the part of the key's value that the name points to ({m.row1} in the key "m") changed.
+  // The key's own oldValue/newValue are read, whatever the letter case of the name. The value is
+  // read on every call: a key set again in the run keeps its name and gets a new value.
+  private isKeyValueChanged(keys: any, keyName: string, name: string, isClearedKeyChanged: boolean): boolean {
+    const keyValue = keys[keyName];
+    if (keyValue == undefined) return !!isClearedKeyChanged;
+    if (
+      !hasOwnKey(keyValue, "oldValue") ||
+      !hasOwnKey(keyValue, "newValue")
+    )
+      return true;
+    const v: any = {};
+    v[keyName] = keyValue["oldValue"];
+    const oldValue = this.getValueFromObject(v, name);
+    v[keyName] = keyValue["newValue"];
+    const newValue = this.getValueFromObject(v, name);
+    return !Helpers.isTwoValueEquals(oldValue, newValue, false, false, false);
+  }
+  private getUnwrappedBaseName(first: string): string {
+    const postfix = settings.expressionVariables.unwrapPostfix;
+    if (!postfix) return undefined;
+    if (!first.endsWith(postfix)) return undefined;
+    return first.substring(0, first.length - postfix.length);
+  }
+  private isUnwrappedNameChanged(lowerKeys: HashTable<Array<string>>, first: string): boolean {
+    const baseName = this.getUnwrappedBaseName(first);
+    return baseName !== undefined && !!lowerKeys[baseName.toLowerCase()];
+  }
+  // The shortest path prefix ("m" for "m.row1") that is a key, in lower case. Only it decides.
+  private getFirstNameByKeys(lowerKeys: HashTable<Array<string>>, lowerPrefixes: Array<string>): string {
+    for (let i = 0; i < lowerPrefixes.length; i++) {
+      if (!!lowerKeys[lowerPrefixes[i]]) return lowerPrefixes[i];
+    }
+    return "";
+  }
+  private getValueFromObject(obj: any, fullName: string): any {
+    const res = getNameParser().getValueInfo({ name: fullName, context: new VariableGetterContext(obj) });
+    return res.isFound ? res.value : undefined;
   }
 }
 function getValueItem(name: string): IValueGetterItem {

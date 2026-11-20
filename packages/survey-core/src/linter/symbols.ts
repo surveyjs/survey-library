@@ -1,4 +1,4 @@
-import { Operand } from "survey-core";
+import { IQuestionValueTypeInfo, Operand } from "survey-core";
 import { IComponentDef } from "./types";
 import { ILintResolvedSettings } from "./lint-settings";
 
@@ -78,14 +78,6 @@ export interface ChoicesInfo {
   shownSpecialItems: Array<string>;
 }
 
-export type ValueShape = "scalar" | "array" | "object" | "none" | "unknown";
-export type ScalarType = "number" | "string" | "boolean" | "date" | "any";
-
-export interface ValueTypeInfo {
-  shape: ValueShape;
-  scalarType?: ScalarType;
-}
-
 export interface ScopeFramePanelDynamic {
   kind: "panelDynamic";
   owner: ElementRecord;
@@ -144,7 +136,7 @@ export interface ElementRecord {
   componentDef?: IComponentDef;
   componentFieldNames?: CIMap<boolean>;
   choicesInfo?: ChoicesInfo;
-  valueType: ValueTypeInfo;
+  valueType: IQuestionValueTypeInfo;
   // subpath-validation data per element type
   multipleTextItems?: CIMap<ElementRecord>;
   matrixRowValues?: Array<any>;

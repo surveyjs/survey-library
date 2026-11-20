@@ -1,4 +1,5 @@
-import { HashTable, Helpers } from "./helpers";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
+import { getNameOfSuffixedKey, HashTable, Helpers } from "./helpers";
 import type { QuestionExpressionModel } from "./question_expression";
 import {
   IElement,
@@ -2615,15 +2616,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return -1;
   }
-  public locStrsChanged() {
-    super.locStrsChanged();
-    this.locTemplateTitle.strChanged();
+  public locStrsChanged(changes?: ChangedKeys) {
+    super.locStrsChanged(changes);
+    this.locTemplateTitle.strChanged(changes);
     var panels = this.panelsCore;
     for (var i = 0; i < panels.length; i++) {
-      panels[i].locStrsChanged();
+      panels[i].locStrsChanged(changes);
     }
     if (this.tabbedMenu) {
-      this.tabbedMenu.locStrsChanged();
+      this.tabbedMenu.locStrsChanged(changes);
     }
   }
   public randomSeedChanged(): void {
@@ -2743,8 +2744,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     key: string,
     postPrefix: string
   ): boolean {
-    if (!key.endsWith(postPrefix)) return false;
-    return !!panel.getQuestionByName(key.substring(0, key.length - postPrefix.length));
+    const name = getNameOfSuffixedKey(key, postPrefix);
+    return !!name && !!panel.getQuestionByName(name);
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     const contextQ = !!context?.isValidator ? context.errorOwner : context;

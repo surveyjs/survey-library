@@ -16,7 +16,8 @@ import { IExpressionError } from "./expressions/expressionError";
 import { expressionObjectCachedValue, isExpressionObjectCacheCollecting } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { ChangedKeys } from "./conditions/conditionProcessValue";
 import { EventBase, Event, EventAsync } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isAnimationEnabled } from "./utils/reduced-motion";
@@ -269,8 +270,11 @@ export class PropertyAccessTracker implements IPropertyAccessListener, IProperty
   private pendingProperties: Map<Base, Set<string>> | undefined;
   private prevListener: IPropertyAccessListener;
   constructor(private onTrackedPropertyChanged: (model: Base, options: IPropertyArrayValueChangedEvent) => void) {}
+  private isSubscribed: boolean = false;
   private onPropertyChanged = (model: Base, options: IPropertyArrayValueChangedEvent) => {
-    if (PropertyAccessTracker.isTracking) return;
+    // A model notifies a copy of its callbacks: an earlier callback can unsubscribe this tracker
+    // (e.g. a parent's sync re-render destroys its component) and it must not be notified after that.
+    if (!this.isSubscribed || PropertyAccessTracker.isTracking) return;
     // A render that is not committed yet may already show the new value of a property the committed one did not read.
     if (this.trackedProperties.get(model)?.has(options.name) || this.pendingProperties?.get(model)?.has(options.name)) {
       this.onTrackedPropertyChanged(model, options);
@@ -309,9 +313,11 @@ export class PropertyAccessTracker implements IPropertyAccessListener, IProperty
       model.addOnArrayChangedCallback(this.onPropertyChanged);
       model.addOnPropertyValueChangedCallback(this.onPropertyChanged);
     }
+    this.isSubscribed = true;
   }
   // Keeps the committed properties, so that a mount without a render subscribes to them again.
   public unsubscribe() {
+    this.isSubscribed = false;
     this.pendingProperties = undefined;
     this.removeCallbacks();
   }
@@ -378,7 +384,7 @@ export class Base implements IObjectValueContext {
     Base.commentSuffix = val;
   }
   public static createItemValue: (item: any, type?: string) => any;
-  public static itemValueLocStrChanged: (arr: Array<any>) => void;
+  public static itemValueLocStrChanged: (arr: Array<any>, changes?: ChangedKeys) => void;
   /**
    * Returns `true` if a passed `value` is an empty string, array, or object or if it equals to `undefined` or `null`.
    *
@@ -803,21 +809,23 @@ export class Base implements IObjectValueContext {
     return Base.createProgressInfo();
   }
   public localeChanged(): void { }
-  public locStrsChanged(): void {
+  // changes: the names a value change changed. Only the strings they can change refresh; the other
+  // work of an override runs in every case. Without them (a locale or page change) every string refreshes.
+  public locStrsChanged(changes?: ChangedKeys): void {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
         let item = this.arraysInfo[key];
         if (item && item.isItemValues) {
           var arr = this.getPropertyValue(key);
           if (arr && !!Base.itemValueLocStrChanged)
-            Base.itemValueLocStrChanged(arr);
+            Base.itemValueLocStrChanged(arr, changes);
         }
       }
     }
     if (!!this.localizableStrings) {
       for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);
-        if (item) item.strChanged();
+        if (item) item.strChanged(changes);
       }
     }
   }
@@ -876,6 +884,16 @@ export class Base implements IObjectValueContext {
       return func();
     } finally {
       listener.releaseTracking();
+    }
+  }
+  public static runWithUpdateAccess<T>(func: () => T): T {
+    const listener = Base.currentPropertyAccessListener;
+    if (!listener) return func();
+    Base.currentPropertyAccessListener = undefined;
+    try {
+      return func();
+    } finally {
+      Base.currentPropertyAccessListener = listener;
     }
   }
   protected isValueUndefined(value: any): boolean {
@@ -940,6 +958,16 @@ export class Base implements IObjectValueContext {
       this.setPropertyValue(name, undefined);
     }
   }
+  // The counterpart of a lazy getter (getPropertyValue with calcFunc). A value that was read is calculated
+  // again and written only when it differs, so its readers are notified on a real change only, while
+  // resetPropertyValue always notifies them. A value nobody has read stays lazy.
+  protected refreshLazyPropertyValue(name: string, calcFunc: () => any): void {
+    if (this.getPropertyValueWithoutDefault(name) === undefined) return;
+    this.setPropertyValue(name, Base.runUntracked(calcFunc));
+  }
+  // The text a localizable string renders has changed: the text was set, or a value or the locale it shows
+  // changed. A property calculated from the rendered text refreshes here (refreshLazyPropertyValue).
+  protected onLocalizableStringRenderedTextChanged(name: string): void { }
   protected isPropertyStoredInHash(name: string): boolean {
     return false;
   }
@@ -1303,23 +1331,22 @@ export class Base implements IObjectValueContext {
     });
   }
   protected canSkipRunningExpression(propName: string): boolean {
-    const survey: any = this.getSurvey();
-    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    const keys = this.getValueChangedKeys();
     if (!keys) return false;
     return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
-  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
+  // The survey's value-change pass (SurveyModel.getValueChangedKeys), or undefined outside of it
+  protected getValueChangedKeys(): ChangedKeys {
+    const survey: any = this.getSurvey();
+    return !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+  }
+  // keys: the survey's pass, or keys of the caller's own (a trigger's), checked once by an object over them
+  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: ChangedKeys | any, vars?: string[], isClearedKeyChanged?: boolean, contextKeys?: HashTable<any>): boolean {
     if (!keys) return false;
-    if (!!runner && runner.hasFunction(true)) return false;
-    // Names given by the caller (triggers) have no per-runner slots: they are read from the survey's map, or parsed
-    // per check without a survey. The runner's own variables reuse its kept information
-    let varsInfo: Array<IValueGetterNameInfo>;
-    if (vars === undefined && !!runner) {
-      vars = runner.getVariables();
-      varsInfo = runner.getVariablesInfo();
-    }
-    if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChanged(keys, vars, isClearedKeyChanged, varsInfo, this.getSurveyVariableNamesInfo());
+    return this.getChangedKeys(keys).canSkip(runner, vars, isClearedKeyChanged, contextKeys);
+  }
+  protected getChangedKeys(keys: ChangedKeys | any): ChangedKeys {
+    return keys instanceof ChangedKeys ? keys : new ChangedKeys(keys, this.getSurveyVariableNamesInfo());
   }
   // The parsed variable names shared by every runner of the survey (SurveyModel.getVariableNamesInfo),
   // also for the names a trigger passes. Without a survey (a new Base()) each runner keeps its own items.
@@ -1558,9 +1585,14 @@ export class Base implements IObjectValueContext {
     if (!!name) {
       locStr.onStrChanged = (oldValue: string, newValue: string) => {
         this.propertyValueChanged(name, oldValue, newValue);
-        // The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI
-        if (!!this.onPropertyValueCoreChanged && !this.isDisposedValue) {
-          Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue });
+      };
+      // The text, or a value it shows, has changed: a component that read the string (getLocStringText) renders it
+      // again. The string keeps its value outside the property hash, so setPropertyValueCore does not notify the UI.
+      locStr.onRenderedTextChanged = () => {
+        if (this.isDisposedValue) return;
+        this.onLocalizableStringRenderedTextChanged(name);
+        if (!!this.onPropertyValueCoreChanged) {
+          Base.fireUICallbacks(() => this.onPropertyValueCoreChanged, this, { name, newValue: undefined });
         }
       };
     }
@@ -1920,7 +1952,7 @@ export class Base implements IObjectValueContext {
     return this.getIsAnimationAllowed();
   }
   protected getIsAnimationAllowed(): boolean {
-    return isAnimationEnabled() && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
+    return isAnimationEnabled() && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && !!this.onElementRerendered;
   }
   private animationAllowedLock: number = 0;
   public blockAnimations(): void {
@@ -1937,20 +1969,24 @@ export class Base implements IObjectValueContext {
       this.releaseAnimations();
     }
   }
-  //remove when knockout obsolete
-  public supportOnElementRerenderedEvent = true;
-  public onElementRerenderedEventEnabled = false;
+  public onElementRerenderedEventLock = 0;
+  public get onElementRerenderedEventEnabled () {
+    return this.onElementRerenderedEventLock > 0;
+  }
   public enableOnElementRerenderedEvent(): void {
-    this.onElementRerenderedEventEnabled = true;
+    this.onElementRerenderedEventLock++;
   }
   public disableOnElementRerenderedEvent(): void {
-    this.onElementRerendered?.fire(this, { isCancel: true });
-    this.onElementRerenderedEventEnabled = false;
+    this.onElementRerenderedEventLock--;
+    if (this.onElementRerenderedEventLock === 0) {
+      this._onElementRerendered.fire(this, { isCancel: true });
+    }
   }
   protected _onElementRerendered: EventBase<Base> = new EventBase();
   public get onElementRerendered(): EventBase<Base> {
-    return this.supportOnElementRerenderedEvent && this.onElementRerenderedEventEnabled ? this._onElementRerendered : undefined;
+    return this.onElementRerenderedEventEnabled ? this._onElementRerendered : undefined;
   }
+  public afterRerenderCallback = () => { this.afterRerender(); };
   public afterRerender(): void {
     this.onElementRerendered?.fire(this, { isCancel: false });
   }

@@ -174,7 +174,7 @@ export class Trigger extends Base {
     return !this.canSkipExpressionByKeys(runner, keys, this.getUsedVariables(runner));
   }
   protected getUsedVariables(runner: ExpressionRunner): string[] {
-    // The "-unwrapped" postfix is handled in ValueGetter.isAnyKeyChanged
+    // The "-unwrapped" postfix is handled in ChangedKeys.isAnyChanged
     if (!runner) return [];
     return runner.getVariables();
   }

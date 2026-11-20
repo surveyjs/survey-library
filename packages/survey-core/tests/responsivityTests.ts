@@ -794,3 +794,138 @@ test("Check fit for two actions: action with disableHide and action with icon", 
   expect(item2.mode, "100 item2 small").toBe("small");
   expect(!model.dotsItem.isVisible, "100 dotsItem hidden").toBeTruthy();
 });
+
+// A bar the tests below measure: each action's updateModeCallback renders it in the mode asked for at once and logs
+// "<id>:<mode>"; sizes[id] (sizes.dots for the dots item) gives its width in that mode.
+function createMeasuredBar(model: AdaptiveActionContainer, width: number, sizes: { [id: string]: { large: number, small: number } },
+  log: Array<string>): { manager: ResponsivityManager, container: SimpleContainer } {
+  const container: SimpleContainer = new SimpleContainer({ offsetWidth: width });
+  model.flushUpdates();
+  model.initResponsivityManager(<any>container);
+  const manager: ResponsivityManager = model["responsivityManager"];
+  (<any>manager.getComputedStyle) = () => {
+    return { boxSizing: "content-box", paddingLeft: 0, paddingRight: 0, display: "flex", rowGap: "0" };
+  };
+  model.renderedActions.forEach(action => {
+    const key = action === model.dotsItem ? "dots" : action.id;
+    action.updateModeCallback = (mode, callback) => {
+      log.push(key + ":" + mode);
+      action.mode = mode;
+      callback(mode, new SimpleContainer({ offsetWidth: mode === "small" ? sizes[key].small : sizes[key].large }) as any);
+    };
+  });
+  return { manager, container };
+}
+function runWithSyncFrames(callback: () => void): void {
+  const oldRequestAnimationFrame = window.requestAnimationFrame;
+  window.requestAnimationFrame = ((cb: any) => { cb(); }) as any;
+  try {
+    callback();
+  } finally {
+    window.requestAnimationFrame = oldRequestAnimationFrame;
+  }
+}
+const twoActionSizes = { first: { large: 100, small: 40 }, second: { large: 100, small: 40 }, dots: { large: 30, small: 30 } };
+class OwnFitContainer extends AdaptiveActionContainer {
+  public fit(options: { availableSpace: number, gap?: number }): void {
+    super.fit(options);
+  }
+}
+
+test("ResponsivityManager: a bar whose actions fit large is fitted by reading their large sizes alone", () => {
+  // A small mode or the hidden dots item is measured by rendering it: a write that the next read pays for with a layout.
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.setItems([{ id: "first", title: "First" }, { id: "second", title: "Second" }]);
+  const log: Array<string> = [];
+  const { manager } = createMeasuredBar(model, 300, twoActionSizes, log);
+  runWithSyncFrames(() => (manager["resizeObserver"] as any).run());
+  expect(log, "only the shown large modes are measured").toEqual(["first:large", "second:large"]);
+  expect(manager["isInitialized"], "initialized").toBe(true);
+  expect(model.getRootStyle(), "the bar is shown").toBeUndefined();
+  expect(model.actions[0].mode).toBe("large");
+  expect(model.actions[1].mode).toBe("large");
+  expect(model.dotsItem.isVisible, "dots hidden").toBe(false);
+  expect(model.actions[0].maxDimension).toBe(100);
+  expect(model.actions[0].minDimension, "the small size is not measured").toBeUndefined();
+  expect(model.dotsItem.maxDimension, "the dots item is not measured").toBeUndefined();
+});
+
+test("ResponsivityManager: a fitted bar that gets narrower measures the small modes and the dots item then", () => {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.setItems([{ id: "first", title: "First" }, { id: "second", title: "Second" }]);
+  const log: Array<string> = [];
+  const { manager, container } = createMeasuredBar(model, 300, twoActionSizes, log);
+  runWithSyncFrames(() => (manager["resizeObserver"] as any).run());
+  log.length = 0;
+  container.offsetWidth = 150;
+  runWithSyncFrames(() => (manager["resizeObserver"] as any).run());
+  expect(log.slice().sort(), "the sizes not measured yet").toEqual(["dots:large", "dots:small", "first:small", "second:small"]);
+  expect(model.actions[0].minDimension).toBe(40);
+  expect(model.actions[0].mode, "150: first large").toBe("large");
+  expect(model.actions[1].mode, "150: second small").toBe("small");
+  expect(model.dotsItem.isVisible, "150: dots hidden").toBe(false);
+  log.length = 0;
+  container.offsetWidth = 70;
+  runWithSyncFrames(() => (manager["resizeObserver"] as any).run());
+  expect(log, "every size is known").toEqual([]);
+  expect(model.actions[0].mode, "70: first small").toBe("small");
+  expect(model.actions[1].mode, "70: second in the menu").toBe("popup");
+  expect(model.dotsItem.isVisible, "70: dots shown").toBe(true);
+});
+
+test("ResponsivityManager: a title change on a bar that fits measures the large size of that action only", () => {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.setItems([{ id: "first", title: "First" }, { id: "second", title: "Second" }]);
+  const log: Array<string> = [];
+  const { manager } = createMeasuredBar(model, 300, twoActionSizes, log);
+  runWithSyncFrames(() => (manager["resizeObserver"] as any).run());
+  log.length = 0;
+  model.actions[0].title = "First action";
+  runWithSyncFrames(() => model.flushUpdates());
+  expect(log).toEqual(["first:large"]);
+  expect(model.actions[0].mode).toBe("large");
+  expect(model.actions[1].mode).toBe("large");
+});
+
+test("ResponsivityManager: a container with its own fit() is measured whole, as before", () => {
+  // Its fit() may read the small sizes even when the large ones fit (Creator shrinks the adorner bars on a phone).
+  const model: AdaptiveActionContainer = new OwnFitContainer();
+  model.setItems([{ id: "first", title: "First" }, { id: "second", title: "Second" }]);
+  const log: Array<string> = [];
+  const { manager } = createMeasuredBar(model, 300, twoActionSizes, log);
+  runWithSyncFrames(() => (manager["resizeObserver"] as any).run());
+  expect(log.slice().sort()).toEqual(["dots:large", "dots:small", "first:large", "first:small", "second:large", "second:small"]);
+  expect(model.actions[0].minDimension).toBe(40);
+  expect(model.actions[0].mode).toBe("large");
+  expect(model.actions[1].mode).toBe("large");
+  expect(manager["isInitialized"]).toBe(true);
+});
+
+test("AdaptiveActionContainer: fitsWithLargeSizes", () => {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const item1 = new Action({ id: "item1" });
+  item1.maxDimension = 100;
+  const item2 = new Action({ id: "item2" });
+  item2.maxDimension = 100;
+  const hidden = new Action({ id: "hidden", visible: false });
+  hidden.maxDimension = 1000;
+  model.actions.push(item1, item2, hidden);
+  model.flushUpdates();
+  expect(model.fitsWithLargeSizes({ availableSpace: 200 }), "200").toBe(true);
+  expect(model.fitsWithLargeSizes({ availableSpace: 199 }), "199").toBe(false);
+  expect(model.fitsWithLargeSizes({ availableSpace: 210, gap: 10 }), "210, gap 10").toBe(true);
+  expect(model.fitsWithLargeSizes({ availableSpace: 209, gap: 10 }), "209, gap 10").toBe(false);
+  expect(model.fitsWithLargeSizes({ availableSpace: 0 }), "no space").toBe(false);
+  item2.needUpdateMaxDimension = true;
+  expect(model.fitsWithLargeSizes({ availableSpace: 1000 }), "a large size to measure again").toBe(false);
+  item2.needUpdateMaxDimension = false;
+  item2.maxDimension = undefined;
+  expect(model.fitsWithLargeSizes({ availableSpace: 1000 }), "a large size not measured").toBe(false);
+
+  const own: AdaptiveActionContainer = new OwnFitContainer();
+  const item3 = new Action({ id: "item3" });
+  item3.maxDimension = 100;
+  own.actions.push(item3);
+  own.flushUpdates();
+  expect(own.fitsWithLargeSizes({ availableSpace: 1000 }), "a container with its own fit()").toBe(false);
+});

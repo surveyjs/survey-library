@@ -1,4 +1,4 @@
-import { SurveyVariablePresets, TextPreProcessor, buildTriggerExpression, getDataNestingKey } from "survey-core";
+import { getQuestionValueTypeInfo, SurveyVariablePresets, TextPreProcessor, buildTriggerExpression, getDataNestingKey } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
 import {
   ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS, TEXT_TEMPLATE_PROPS,
@@ -11,7 +11,7 @@ import {
   ExpressionSiteKind, getCapturingFrame, joinPath, NonNestingKey, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
   ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
-import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
+import { getChoicesInfo, getStaticChoiceValues } from "./value-types";
 import { annotateSharedValues, getDataKey, getFrameNames } from "./record-fields";
 import { createRecordScope, createRootScope, generateContainerName, getChildScope, getContainerNestingKind, getDataNestingMode,
   isInsideRecordScope } from "./data-nesting";
@@ -190,7 +190,7 @@ function walkComponentDefs(state: WalkState): void {
       const type = (el.type || "").toLowerCase();
       const record: ElementRecord = {
         name: el.name || "", type: type, kind: "question", path: path, json: el,
-        scope: scope.slice(), isUnknownType: false, valueType: getValueTypeInfo(type, el),
+        scope: scope.slice(), isUnknownType: false, valueType: getQuestionValueTypeInfo(type, el),
       };
       addSitesFromProps(state, el, path,
         state.metadata.getElementExpressionProps(type, "question"), record, scope);
@@ -330,7 +330,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
         name: nameOf(column.name), type: "matrixdropdowncolumn", effectiveType: effectiveCellType, kind: "column",
         path: columnPath, json: columnJson, parent: record, scope: rowScope.slice(),
         isUnknownType: false,
-        valueType: getValueTypeInfo(effectiveCellType, columnJson),
+        valueType: getQuestionValueTypeInfo(effectiveCellType, columnJson),
         choicesInfo: undefined,
       };
       // only select-base cells use choices; a text/comment/boolean/... cell
@@ -382,7 +382,7 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
     const itemRecord: ElementRecord = {
       name: nameOf(item.name), type: "multipletextitem", kind: "multipletextitem",
       path: itemPath, json: item, parent: record, scope: scope.slice(),
-      isUnknownType: false, valueType: getValueTypeInfo("text", item),
+      isUnknownType: false, valueType: getQuestionValueTypeInfo("text", item),
     };
     state.index.allElements.push(itemRecord);
     if (itemRecord.name) {
@@ -408,7 +408,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     type: type, kind: "question", path: path, json: json, parent: parent, scope: scope.slice(),
     isUnknownType: !state.metadata.isKnownElementType(type) && !componentDef,
     componentDef: componentDef,
-    valueType: getValueTypeInfo(type, json),
+    valueType: getQuestionValueTypeInfo(type, json),
     choicesInfo: getChoicesInfo(json, type),
     dataScope: dataScope,
   };

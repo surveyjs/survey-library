@@ -86,7 +86,7 @@ export var russianSurveyStrings = {
   // [Auto-translated] "Panel {panelIndex}"
   panelDynamicTabTextFormat: "Панель {panelIndex}",
   // "Answered {0}/{1} questions"
-  questionsProgressText: "Oтвечено на {0}/{1} вопросов",
+  questionsProgressText: "Отвечено на {0}/{1} вопросов",
   // [Auto-translated] "Question {0} of {1}"
   questionPositionProgressText: "Вопрос {0} {1}",
   // "The survey doesn't contain any visible elements."

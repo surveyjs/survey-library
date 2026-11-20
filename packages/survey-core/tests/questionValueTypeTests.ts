@@ -6,6 +6,13 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionBooleanModel } from "../src/question_boolean";
 import { QuestionRatingModel } from "../src/question_rating";
 import { ComponentCollection } from "../src/question_custom";
+import { Serializer } from "../src/jsonobject";
+import { settings } from "../src/settings";
+import { isMinMaxType, QuestionTextModel } from "../src/question_text";
+import { getInputValueType, getQuestionValueTypeInfo } from "../src/questionValueTypes";
+// The whole public API: it registers every built-in question type, and the drift test below
+// tells a built-in question class from one a test registered by its exported constructor.
+import * as SurveyCore from "survey-core";
 // The question types the tests create register themselves on import.
 import "../src/question_text";
 import "../src/question_comment";
@@ -422,5 +429,90 @@ describe("Question.isValueSortable", () => {
     } finally {
       ComponentCollection.Instance.clear();
     }
+  });
+});
+
+describe("getInputValueType", () => {
+  test("Every inputType has one value kind", () => {
+    const kinds: { [inputType: string]: string } = {};
+    settings.questions.inputTypes.concat(["search", "", "unknown-type"]).forEach(t => kinds[t] = getInputValueType(t));
+    expect(kinds).toEqual({
+      color: "string", date: "date", "datetime-local": "date", email: "string", month: "date", number: "number",
+      password: "string", range: "number", tel: "string", text: "string", time: "date", url: "string", week: "date",
+      search: "string", "": "string", "unknown-type": "string",
+    });
+    expect(getInputValueType("Number"), "case does not matter").toBe("number");
+    expect(getInputValueType(undefined as any), "no inputType").toBe("string");
+  });
+  test("min/max apply to the number and date kinds, and getValueType() reports the kind", () => {
+    settings.questions.inputTypes.concat(["search"]).forEach(t => {
+      const q = new QuestionTextModel("q");
+      q.inputType = t;
+      expect(isMinMaxType(q), t + ": isMinMaxType").toBe(getInputValueType(t) !== "string");
+      expect(q.getValueType(), t + ": getValueType").toBe(getInputValueType(t));
+    });
+  });
+});
+
+describe("getQuestionValueTypeInfo agrees with Question.getValueType()", () => {
+  // The types the JSON-side table deliberately has no value type for. A type is added here on purpose;
+  // any other built-in question type fails the test below until the table classifies it.
+  const unclassifiedTypes = [
+    "html", "image", "expression", "nonvalue", "filter", "empty", "textbase", "matrixdropdownbase",
+    // The runtime answers array or string by multiSelect; typing it in the table changes the linter's output.
+    "imagemap",
+  ];
+  // The modes a JSON can switch a type into. No "datetime" / "datetime_local" inputType: the inputType
+  // setter turns them into "datetime-local", the table does not.
+  const variants: { [type: string]: Array<any> } = {
+    text: settings.questions.inputTypes.concat(["search"]).map(t => ({ inputType: t })),
+    boolean: [{}, { valueTrue: "yes", valueFalse: "no" }],
+    radiogroup: [{ choices: ["a", "b"] }, { choices: [1, 2] }],
+    dropdown: [{ choices: ["a", "b"] }, { choices: [1, 2] }],
+    buttongroup: [{ choices: ["a", "b"] }, { choices: [1, 2] }],
+    checkbox: [{ choices: ["a", "b"] }],
+    tagbox: [{ choices: ["a", "b"] }],
+    ranking: [{ choices: ["a", "b"] }],
+    imagepicker: [{ choices: [{ value: "a", imageLink: "a.png" }] }, { choices: [{ value: 1, imageLink: "a.png" }] },
+      { multiSelect: true, choices: [{ value: "a", imageLink: "a.png" }] }],
+    rating: [{}, { rateValues: ["low", "high"] }],
+    slider: [{}, { sliderType: "range" }],
+  };
+  function isExportedClass(obj: any): boolean {
+    return Object.keys(SurveyCore).some(key => (<any>SurveyCore)[key] === obj.constructor);
+  }
+  test("Every registered built-in question type", () => {
+    const checked: Array<string> = [];
+    Serializer.getChildrenClasses("question", true).forEach(cls => {
+      const type = cls.name;
+      (variants[type] || [{}]).forEach(variant => {
+        const json = Object.assign({ type: type, name: "q" }, variant);
+        const question = new SurveyModel({ elements: [json] }).getQuestionByName("q");
+        // A class some other test file registered: it outlives that file because the files share the registry.
+        if (!question || !isExportedClass(question)) return;
+        const info = getQuestionValueTypeInfo(type, json);
+        const title = JSON.stringify(json);
+        if (unclassifiedTypes.indexOf(type) > -1) {
+          expect(info.shape === "none" || info.shape === "unknown", title + " is unclassified").toBe(true);
+        } else {
+          expect(info.shape === "scalar" || info.shape === "array" || info.shape === "object",
+            title + " is classified by getQuestionValueTypeInfo").toBe(true);
+          // A scalar the JSON does not pin to one type is not compared.
+          const expected = info.shape === "scalar" ? info.scalarType : info.shape;
+          if (expected !== "any") {
+            expect(question.getValueType(), title).toBe(expected);
+          }
+        }
+        if (checked.indexOf(type) < 0) checked.push(type);
+      });
+    });
+    expect(checked.length > 25, "the built-in question types were found: " + checked.join(", ")).toBe(true);
+  });
+  test("The table reads only what the JSON states", () => {
+    expect(getQuestionValueTypeInfo("boolean"), "no JSON").toEqual({ shape: "scalar", scalarType: "boolean" });
+    expect(getQuestionValueTypeInfo("dropdown"), "no JSON, no choices").toEqual({ shape: "scalar", scalarType: "any" });
+    expect(getQuestionValueTypeInfo("dropdown", { choices: [1, "a"] }), "mixed choices").toEqual({ shape: "scalar", scalarType: "any" });
+    expect(getQuestionValueTypeInfo("text"), "no JSON is a plain text").toEqual({ shape: "scalar", scalarType: "string" });
+    expect(getQuestionValueTypeInfo("mycomponent", {}), "a component type").toEqual({ shape: "unknown" });
   });
 });

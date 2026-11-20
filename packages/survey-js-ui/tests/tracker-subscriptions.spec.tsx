@@ -152,6 +152,36 @@ describe("The complete, completed-before and loading pages follow their HTML", (
     expect(container.textContent).toContain("Response ID: 42");
     survey.dispose();
   });
+  it("a variable change after completion notifies the complete page under completedHtml, not hasLogo", () => {
+    const survey = new SurveyModel({ completedHtml: "<h3>Response ID: {responseId}</h3>", elements });
+    survey.setVariable("responseId", 1);
+    const container = mount(<SurveyReact model={survey} />);
+    act(() => { survey.doComplete(); });
+    const names: Array<string> = [];
+    survey.addOnPropertyValueChangedCallback((_, options) => names.push(options.name));
+
+    act(() => { survey.setVariable("responseId", 42); });
+    expect(container.textContent).toContain("Response ID: 42");
+    expect(names, "the complete page's own string").toContain("completedHtml");
+    expect(names, "the logo shows no value").not.toContain("hasLogo");
+    expect(names, "the title shows no value").not.toContain("titleIsEmpty");
+    survey.dispose();
+  });
+  it("the complete page shows a variable in a completedHtmlOnCondition item's html that changes after completion", () => {
+    const survey = new SurveyModel({
+      completedHtmlOnCondition: [{ expression: "{q1} = 1", html: "<h3>Item ID: {responseId}</h3>" }],
+      elements
+    });
+    survey.setValue("q1", 1);
+    survey.setVariable("responseId", 1);
+    const container = mount(<SurveyReact model={survey} />);
+    act(() => { survey.doComplete(); });
+    expect(container.textContent).toContain("Item ID: 1");
+
+    act(() => { survey.setVariable("responseId", 42); });
+    expect(container.textContent).toContain("Item ID: 42");
+    survey.dispose();
+  });
   it("the complete page shows the html of a completedHtmlOnCondition item changed after completion", () => {
     const survey = new SurveyModel({
       completedHtmlOnCondition: [{ expression: "{q1} = 1", html: "<h3>Condition first</h3>" }],
@@ -184,6 +214,37 @@ describe("The complete, completed-before and loading pages follow their HTML", (
 
     act(() => { survey.loadingHtml = "<h3>Loading second</h3>"; });
     expect(container.textContent).toContain("Loading second");
+    survey.dispose();
+  });
+});
+
+describe("A question title shows the values it names", () => {
+  it("a question title with {q1} on the same page updates when q1 changes", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", title: "Hello {q1}" }
+    ] });
+    const container = mount(<SurveyReact model={survey} />);
+    expect(container.textContent).not.toContain("Hello Ann");
+
+    act(() => { survey.setValue("q1", "Ann"); });
+    expect(container.textContent).toContain("Hello Ann");
+    survey.dispose();
+  });
+  it("a question title on page 2 with {q1} shows the new value after going to page 2", () => {
+    const survey = new SurveyModel({ pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2", title: "Hello {q1}" }] }
+    ] });
+    const container = mount(<SurveyReact model={survey} />);
+    act(() => { survey.setValue("q1", "Ann"); });
+    act(() => { survey.nextPage(); });
+    expect(container.textContent).toContain("Hello Ann");
+
+    act(() => { survey.prevPage(); });
+    act(() => { survey.setValue("q1", "Bob"); });
+    act(() => { survey.nextPage(); });
+    expect(container.textContent).toContain("Hello Bob");
     survey.dispose();
   });
 });

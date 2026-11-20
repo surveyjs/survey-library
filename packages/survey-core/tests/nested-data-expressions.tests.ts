@@ -519,7 +519,7 @@ describe("nested data expressions: changed keys", () => {
     let keys: Array<string> = [];
     FunctionFactory.Instance.register("nestedDataKeys", function (this: any) {
       const changed = this.survey.getValueChangedKeys();
-      if (!!changed) keys = Object.keys(changed).sort();
+      if (!!changed && !!changed.keys) keys = Object.keys(changed.keys).sort();
       return true;
     });
     try {

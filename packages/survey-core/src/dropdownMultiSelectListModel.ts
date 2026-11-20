@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
@@ -17,8 +18,8 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return new DropdownMultiSelectRenderState(this.question, this);
   }
 
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.syncFilterStringPlaceholder();
   }
 

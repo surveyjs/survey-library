@@ -3,6 +3,7 @@ import { property } from "./decorators";
 import { Base } from "./base";
 import { ISurvey } from "./base-interfaces";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 
 export class ExpressionItem extends Base implements ILocalizableOwner {
   public locOwner: ILocalizableOwner;
@@ -47,6 +48,14 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   }
   public getSurvey(isLive: boolean = false): ISurvey {
     return <ISurvey>this.locOwner;
+  }
+  // Whether the expression's result can differ after a value change with these changed names
+  public isExpressionChanged(changes: ChangedKeys): boolean {
+    const runner = this.getExpressionByProperty("expression");
+    if (!runner) return false;
+    if (changes.isUnknown || runner.hasFunction(true)) return true;
+    const vars = runner.getVariables();
+    return vars.length > 0 && changes.isAnyChanged(vars, true, runner.getVariablesInfo());
   }
 }
 

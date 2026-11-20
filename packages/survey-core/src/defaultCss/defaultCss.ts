@@ -467,6 +467,7 @@ export var defaultCss = {
   multipletext: {
     root: "sd-multipletext",
     rootMobile: "sd-multipletext--mobile",
+    rootColCount: "sd-multipletext--col-count-",
     itemLabel: "sd-multipletext__item-container sd-formbox",
     itemLabelReadOnly: "sd-formbox--readonly",
     itemLabelView: "sd-formbox--view",

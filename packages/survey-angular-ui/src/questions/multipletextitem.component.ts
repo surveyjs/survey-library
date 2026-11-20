@@ -2,8 +2,10 @@ import { MultipleTextCell, MultipleTextItemModel, Question, QuestionMultipleText
 import { Component, DoCheck, Input, OnDestroy } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 import { getComponentName } from "../question";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "'[sv-ng-multipletext-item]'",
   templateUrl: "./mutlipletextitem.component.html"
 })
@@ -23,18 +25,4 @@ export class MultipleTextItemComponent extends BaseAngular<QuestionTextModel> im
     return this.model.item.editor;
   }
   public getComponentName(element: Question): string { return getComponentName(element); }
-  override ngDoCheck(): void {
-    super.ngDoCheck();
-    if (this.model.isErrorsCell) {
-      this.editor.registerFunctionOnPropertyValueChanged("errors", () => {
-        this.update();
-      }, "__ngSubscription");
-    }
-  }
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
-    if (this.model.isErrorsCell) {
-      this.editor.unRegisterFunctionOnPropertyValueChanged("errors", "__ngSubscription");
-    }
-  }
 }

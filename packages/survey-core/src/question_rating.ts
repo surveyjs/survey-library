@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
 import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
 import type { ISelectQuestion } from "./question_baseselect";
@@ -199,8 +200,10 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     if (resetReadOnlyTextProps.indexOf(name) > -1) {
       this.resetReadOnlyText();
     }
+    // The extreme items show a description only while it renders text (hasMin/MaxRateDescription)
     const resetItemsProps = (["rateMin", "rateMax",
-      "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems",
+      "minRateDescription", "maxRateDescription", "hasMinRateDescription", "hasMaxRateDescription",
+      "rateStep", "displayRateDescriptionsAsExtremeItems",
       "rateType", "rateValues"]);
     if (resetItemsProps.indexOf(name) > -1) {
       if (name === "rateType" || name === "rateValues") {
@@ -224,10 +227,10 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     }
   }
 
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.resetReadOnlyText();
-    this.dropdownListModelValue?.locStrsChanged();
+    this.dropdownListModelValue?.locStrsChanged(changes);
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
@@ -463,8 +466,9 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
   private getExtremeDescription(e: RatingItem): LocalizableString {
     const rateValues = this.visibleChoices;
     const idx = rateValues.indexOf(e);
-    if (idx == 0) return this.minRateDescription && this.locMinRateDescription;
-    if (idx == rateValues.length - 1) return this.maxRateDescription && this.locMaxRateDescription;
+    // A description that renders no text falls back to the rate value
+    if (idx == 0) return this.hasMinRateDescription ? this.locMinRateDescription : undefined;
+    if (idx == rateValues.length - 1) return this.hasMaxRateDescription ? this.locMaxRateDescription : undefined;
     return undefined;
   }
 
@@ -689,9 +693,7 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
    * @see rateValues
    * @see rateMin
    */
-  @property({ localizable: { markdown: true, onCreate: (obj: Base, loc: LocalizableString) =>
-    loc.onStringChanged.add(() => obj.setPropertyValue("hasMinRateDescription", !loc.isEmpty))
-  } }) minRateDescription: string;
+  @property({ localizable: { markdown: true } }) minRateDescription: string;
   /**
    * Specifies a description for the maximum (last) rate value.
    * @see rateDescriptionLocation
@@ -699,14 +701,37 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
    * @see rateValues
    * @see rateMax
    */
-  @property({ localizable: { markdown: true, onCreate: (obj: Base, loc: LocalizableString) =>
-    loc.onStringChanged.add(() => obj.setPropertyValue("hasMaxRateDescription", !loc.isEmpty))
-  } }) maxRateDescription: string;
+  @property({ localizable: { markdown: true } }) maxRateDescription: string;
   public get hasMinRateDescription(): boolean {
-    return this.getPropertyValue("hasMinRateDescription", undefined, () => !!this.minRateDescription);
+    return this.getPropertyValue("hasMinRateDescription", undefined, () => this.calcHasMinRateDescription());
   }
   public get hasMaxRateDescription(): boolean {
-    return this.getPropertyValue("hasMaxRateDescription", undefined, () => !!this.maxRateDescription);
+    return this.getPropertyValue("hasMaxRateDescription", undefined, () => this.calcHasMaxRateDescription());
+  }
+  // The rendered text at runtime: dynamic text that resolves to an empty string shows no description.
+  // A designer edits the text itself, so there the text counts.
+  private calcHasMinRateDescription(): boolean {
+    return this.isDesignMode ? !!this.minRateDescription : !!this.locMinRateDescription.renderedHtml;
+  }
+  private calcHasMaxRateDescription(): boolean {
+    return this.isDesignMode ? !!this.maxRateDescription : !!this.locMaxRateDescription.renderedHtml;
+  }
+  private resetRateDescriptionFlags(): void {
+    this.resetPropertyValue("hasMinRateDescription");
+    this.resetPropertyValue("hasMaxRateDescription");
+  }
+  protected onLocalizableStringRenderedTextChanged(name: string): void {
+    super.onLocalizableStringRenderedTextChanged(name);
+    if (name === "minRateDescription") {
+      this.refreshLazyPropertyValue("hasMinRateDescription", () => this.calcHasMinRateDescription());
+    }
+    if (name === "maxRateDescription") {
+      this.refreshLazyPropertyValue("hasMaxRateDescription", () => this.calcHasMaxRateDescription());
+    }
+  }
+  public localeChanged(): void {
+    super.localeChanged();
+    this.resetRateDescriptionFlags();
   }
   get hasMinLabel(): boolean {
     if (this.isCompactIconView) return false;
@@ -1158,6 +1183,7 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
     if (!this.survey) return;
+    this.resetRateDescriptionFlags();
     this.updateColors((this.survey as SurveyModel).themeVariables);
     this.updateRenderAsBasedOnDisplayMode();
   }

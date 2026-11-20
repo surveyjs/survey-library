@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
@@ -1707,16 +1708,16 @@ export class QuestionFilterModel extends QuestionNonValue {
     }
     this.survey.filterStateChanged(this);
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     // Neither collection is an ItemValue array, so Base.locStrsChanged does not reach into them.
-    this.fields.forEach((field: FilterField): void => { field.locStrsChanged(); });
-    this.items.forEach((item: FilterItem): void => { item.locStrsChanged(); });
-    this.userItemsValue.forEach((item: FilterItem): void => { item.locStrsChanged(); });
+    this.fields.forEach((field: FilterField): void => { field.locStrsChanged(changes); });
+    this.items.forEach((item: FilterItem): void => { item.locStrsChanged(changes); });
+    this.userItemsValue.forEach((item: FilterItem): void => { item.locStrsChanged(changes); });
     // The survey calls this on every value change too, for the texts that show a value: the badges'
     // texts are composed again only when what they are composed of changed.
     if (!!this.toolbarsValue && !this.isDisposed) {
-      this.toolbarsValue.locStrsChanged();
+      this.toolbarsValue.locStrsChanged(changes);
       this.updateToolbarsIfFieldsChanged();
     }
   }

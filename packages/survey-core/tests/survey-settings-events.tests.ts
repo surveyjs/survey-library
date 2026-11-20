@@ -323,7 +323,7 @@ describe("Survey settings: event handlers in the constructor options", () => {
       });
       proto = Object.getPrototypeOf(proto);
     }
-    expect(accessors.sort()).toEqual(["onElementRerendered", "onPropChangeFunctions"]);
+    expect(accessors.sort()).toEqual(["onElementRerendered", "onElementRerenderedEventEnabled", "onPropChangeFunctions"]);
   });
   test("A DOM element as the second argument reads no events and still renders", () => {
     const renderSpy = vi.spyOn(SurveyModel.prototype, "render").mockImplementation(() => { });

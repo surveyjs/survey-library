@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "../conditions/conditionProcessValue";
 import { Base, ComputedUpdater } from "../base";
 import { property } from "../decorators";
 import { Action, IAction, IActionAppearance } from "../actions/action";
@@ -265,9 +266,9 @@ export class FilterToolbars {
   // A locale change reaches the captions the library owns (Clear, Apply) through the containers. The
   // chips' texts and the rows' own captions are composed by update(): the control runs it when what
   // they are composed of - the locale too - changed (QuestionFilterModel.locStrsChanged).
-  public locStrsChanged(): void {
+  public locStrsChanged(changes?: ChangedKeys): void {
     [this.chipsToolbarValue, this.clearToolbarValue, this.searchToolbarValue].forEach((c: ActionContainer): void => {
-      if (!!c) c.locStrsChanged();
+      if (!!c) c.locStrsChanged(changes);
     });
   }
   // The Filters dialog (FilterModal): settings.showDialog mounts it through a portal into the

@@ -40,7 +40,7 @@ describe("prefers-reduced-motion", () => {
   test("animationAllowed stays off while reduced motion is requested", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
     const question = survey.getAllQuestions()[0];
-    question.supportOnElementRerenderedEvent = false;
+    question.enableOnElementRerenderedEvent();
     settings.animationEnabled = true;
     settings.animation.respectReducedMotion = true;
     setReducedMotion(false);

@@ -89,5 +89,32 @@ The types are `ResultFile` and `ResultEntry` in `perf/harness/node/result.ts`. A
 * `skipped`, `failed`, and `results[]`: `id`, `rev`, `samples`, `median`, `min`, `max`, `mad`, `phases`,
   `counters` (`value`, `kind`), `info`, `jsonErrors`, `tolerance`, `local`, `repeat`, `counterOnly`.
 
+A counter's `kind` says what it counts, not how to judge it: that is the caller's. All of them come from the untimed
+counter run or from outside the samples' timed runs:
+
+| kind | counters | what |
+|---|---|---|
+| `work` | `conditionRuns`, `expressionRuns`, `rowsCreated`, `panelsCreated`, a scenario's own | calls in survey-core during the counter run |
+| `dom` | `domNodes` (browser) | elements under the survey's root after the counter run |
+| `render` | `layoutCount`, `recalcStyleCount` (browser) | layouts and style recalcs (CDP `Performance.getMetrics`) from the counter run's first run until the rendering is quiet (the counts the same for 2 frames in a row; `null` when it is not quiet within 60 frames) |
+| `leak` | `listenerGrowth`, `nodeGrowth` (browser actions) | growth per sample of the JS event listeners and the DOM nodes, after a full gc (CDP `HeapProfiler.collectGarbage`), from the end of the first sample to the end of the last one: what a page keeps once is not counted |
+| `heap` | `jsHeapGrowth`, `blinkHeapGrowth` (browser actions) | growth per sample in KB of the V8 heap and of Blink's (CDP `Runtime.getHeapUsage`: `usedSize`, `embedderHeapUsedSize`), in the same snapshots as `leak` |
+
+What the counters do between runs of the same build, as observed (3 runs of the React, Vue 3 and Angular suites; the
+leak counters also of survey-js-ui):
+
+* `render` may differ by 1: a frame that falls inside an action (between an input event and the framework's commit)
+  lets a ResizeObserver see an intermediate size, and its callback may force one more layout.
+* `leak` was the same in every run.
+* `heap` is not 0 without a leak and differs between runs: `jsHeapGrowth` by a few percent (JIT code and V8's caches
+  grow the heap), `blinkHeapGrowth` by up to a few KB per sample (e.g. 5.51, 0.39, 5.42).
+
+A `value` is `null` when the target cannot count it (a funnel the build lacks, no CDP). `info` holds what is not a
+counter, for people: in the browser suites it adds `layoutMs`, `recalcStyleMs`, `scriptMs` (the `render` window's CDP
+durations) and `jsHeapMB`, `blinkHeapMB` (the V8 and Blink heaps after a full gc through CDP, at the end of the
+scenario) in place of the `heapMB` the core suite keeps.
+A caller skips a counter whose `kind` it does not know: a new counter or a new `kind` does not raise the contract
+version.
+
 `environment` is always `null` here: it belongs to the caller, which may fill it in (the server records the host load
 there).

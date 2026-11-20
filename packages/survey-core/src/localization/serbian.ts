@@ -290,7 +290,7 @@ export var serbianStrings = {
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nova tabla",
   // [Auto-translated] "More"
-  more: "Viљe",
+  more: "Više",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "U redu",
   // [Auto-translated] "All choices are selected for ranking"

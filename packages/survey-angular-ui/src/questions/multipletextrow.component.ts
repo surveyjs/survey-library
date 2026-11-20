@@ -1,8 +1,10 @@
 import { MultipleTextCell, MultipleTextItemModel, MutlipleTextRow, QuestionMultipleTextModel, QuestionTextModel } from "survey-core";
 import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-multipletext-row",
   templateUrl: "./multipletextrow.component.html",
   styleUrls: ["../hide-host.scss"]

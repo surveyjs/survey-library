@@ -2,8 +2,10 @@ import { Component } from "@angular/core";
 import { QuestionCheckboxModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 import { SelectBaseComponent } from "./selectbase.component";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-checkbox-question",
   templateUrl: "./selectbase.component.html"
 })

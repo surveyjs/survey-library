@@ -3,14 +3,17 @@ import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "
 import { SurveyModel, SvgRegistry } from "survey-core";
 import { BaseAngular } from "./base-angular";
 import { AngularComponentFactory } from "./component-factory";
+import { SurveyBaseProviders } from "./component-depth";
 @Component({
+  providers: SurveyBaseProviders,
   selector: "survey-content",
   templateUrl: "./survey-content.component.html"
 })
-export class SurveyContentComponent extends BaseAngular<SurveyModel> implements OnInit, AfterViewInit {
+export class SurveyContentComponent extends BaseAngular<SurveyModel> implements OnInit {
   @Input() model!: SurveyModel;
   @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
-  private isSurveyUpdated: boolean = false;
+  private isSurveyUpdated: boolean = true;
+  public key = 0;
   protected getModel(): SurveyModel {
     return this.model;
   }
@@ -21,6 +24,7 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     }
     if (!!this.model) {
       this.model.renderCallback = () => {
+        this.key++;
         this.detectChanges();
       };
     }
@@ -33,11 +37,8 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
       this.model.renderCallback = <any>undefined;
     }
   }
-  ngAfterViewInit(): void {
-    this.isSurveyUpdated = true;
-  }
-  override ngAfterViewChecked(): void {
-    super.ngAfterViewChecked();
+  override afterUpdate(): void {
+    super.afterUpdate();
     if (!!this.model && this.isSurveyUpdated) {
       this.isSurveyUpdated = false;
       this.model.afterRenderSurvey(this.rootEl.nativeElement);

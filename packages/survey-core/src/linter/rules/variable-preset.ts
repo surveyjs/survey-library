@@ -1,8 +1,7 @@
 import { ISurveyVariableError, ISurveyVariablePreset } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
-import { closestMatch } from "../levenshtein";
+import { suggestDefinitionVariable } from "../definition-variables";
 import { didYouMean } from "../message-utils";
-import { CIMap } from "../symbols";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 
@@ -56,8 +55,11 @@ function checkDefinition(ctx: LintContext): boolean {
 
 function checkUnknownVariables(ctx: LintContext, preset: ISurveyVariablePreset, index: number,
   unknown: Array<string>): void {
+  // a key is a root key or a path into an object variable ("users.nope"), in the preset's spelling
   unknown.forEach(key => {
-    const suggestion = closestMatch(key, ctx.index.definitionVariables.names());
+    let suggestion = suggestDefinitionVariable(key, ctx.index);
+    // a dotted key spelling a declared field's path ({ "users.tier": 1 }) is not offered itself back
+    if (!!suggestion && suggestion.toLowerCase() === key.toLowerCase()) suggestion = undefined;
     ctx.report({
       message: "Preset " + presetLabel(preset, index) + " sets \"" + key +
         "\", which the variable definition does not declare." + didYouMean(suggestion),
@@ -69,18 +71,37 @@ function checkUnknownVariables(ctx: LintContext, preset: ISurveyVariablePreset, 
   });
 }
 
+// Validation normalizes keys to the definition's spelling at every level of an object variable;
+// paths address the preset itself, so an error's path is spelled back key by key. No variable key
+// holds a dot, so the path splits into its keys; a dotted input key is never one of them. Among case
+// variants the last one, matching validateVariables' assignment order. A key the preset leaves out
+// (a required field) keeps the definition's spelling.
+function toInputPath(values: any, path: string): string {
+  let obj = values;
+  return path.split(".").map(key => {
+    const inputKey = isRecord(obj) ? findInputKey(obj, key) : undefined;
+    obj = inputKey !== undefined ? obj[inputKey] : undefined;
+    return inputKey !== undefined ? inputKey : key;
+  }).join(".");
+}
+
+function findInputKey(obj: any, key: string): string | undefined {
+  const lowerKey = key.toLowerCase();
+  let res: string;
+  Object.keys(obj).forEach(name => {
+    if (name.toLowerCase() === lowerKey) res = name;
+  });
+  return res;
+}
+
 // The verdict is the definition's own - its validators, its isRequired, its visibleIfs and the
 // choice-membership check the core companion adds - because it comes from a model of the
 // definition rather than from a static approximation of it. A required variable a preset leaves
 // out is therefore reported here too, on the key that is missing.
 function checkInvalidValues(ctx: LintContext, preset: ISurveyVariablePreset, index: number,
   errors: Array<ISurveyVariableError>): void {
-  // Validation normalizes keys to the definition's spelling; paths address the preset itself.
-  // The last case variant wins, matching validateVariables' assignment order.
-  const inputKeys = new CIMap<string>();
-  Object.keys(preset.variables).forEach(key => inputKeys.set(key, key));
   errors.forEach(error => {
-    const key = inputKeys.get(error.variable) || error.variable;
+    const key = toInputPath(preset.variables, error.variable);
     ctx.report({
       message: "Preset " + presetLabel(preset, index) + " sets \"" + error.variable +
         "\" to a value the variable definition rejects: " + error.errors[0],

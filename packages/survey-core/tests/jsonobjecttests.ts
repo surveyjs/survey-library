@@ -3572,7 +3572,7 @@ describe("toJSON empty check and the observers of a property read", () => {
   const surveyReads: { [obj: string]: string } = {
     survey: "$schema allowResizeComment autoAdvanceAllowComplete autoAdvanceEnabled autoFocusFirstError autoFocusFirstQuestion autoGrowComment " +
       "backgroundImage backgroundImageAttachment backgroundImageFit backgroundOpacity calculatedValues checkErrorsMode choiceShortcutsEnabled " +
-      "clearInvisibleValues commentAreaRows completedHtmlOnCondition cookieName elements firstPageIsStartPage fitToContainer gridLayoutEnabled " +
+      "clearInvisibleValues commentAreaRows completedHtmlOnCondition cookieName dataNesting elements firstPageIsStartPage fitToContainer gridLayoutEnabled " +
       "headerView locale logoFit logoHeight logoPosition logoWidth matrixDragHandleArea maxCommentLength maxTextLength navigateToUrl " +
       "navigateToUrlOnCondition navigationButtonsLocation pages partialSendEnabled previewMode progressBarInheritWidthFrom progressBarLocation " +
       "progressBarNavigationTextLocation progressBarShowNavigationText progressBarShowPageNumbers progressBarType questionDescriptionLocation " +
@@ -3583,7 +3583,7 @@ describe("toJSON empty check and the observers of a property read", () => {
       "tocLocation triggers validateVisitedEmptyFields width widthMode",
     page1: "allowAdaptiveActions elements enableIf gridLayoutColumns indent innerIndent isRequired maxWidth minWidth name questionErrorLocation " +
       "questionOrder questionStartIndex questionTitleLocation questionTitleWidth readOnly readOnlyMode requiredIf showNavigationButtons showNumber " +
-      "showQuestionNumbers startWithNewLine state timeLimit visible visibleIf width",
+      "showQuestionNumbers startWithNewLine state timeLimit valueName visible visibleIf width",
     q1: textQuestionReadKeys,
     masksettings: "saveMaskedValue"
   };

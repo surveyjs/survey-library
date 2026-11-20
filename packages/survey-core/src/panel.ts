@@ -16,9 +16,10 @@ import {
   ISurvey,
   IFindElement,
   ISurveyValidation,
+  ISurveyDataElement,
   IElementUIState
 } from "./base-interfaces";
-import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo } from "./survey-element";
+import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo, makeNameValid } from "./survey-element";
 import { Question } from "./question";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -38,6 +39,9 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
+import type { PanelDataScope } from "./panel-data-scope";
+import { getDataScopeHost, getKeyHolderScope } from "./panel-data-scope";
+import { ContainerDataNesting } from "./container-data-nesting";
 import { Scope } from "./utils/scope";
 
 // The lazily rendered rows waiting on one scroll container share a single "scroll" listener and a single
@@ -364,7 +368,7 @@ export class QuestionRowModel extends Base {
  * A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) and [`PageModel`](https://surveyjs.io/form-library/documentation/pagemodel) classes.
  */
 export class PanelModelBase extends SurveyElement<Question>
-  implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
+  implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner, ISurveyDataElement {
 
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
@@ -496,6 +500,12 @@ export class PanelModelBase extends SurveyElement<Question>
         this.validateContainerOnly();
       }
     }
+    if (name === "name" && !!this.survey) {
+      this.lifecycleCallbacks.elementRenamed(this);
+    }
+    if (name === "valueName" || name === "name") {
+      this.onDataScopeKeyChanged();
+    }
   }
   public getType(): string {
     return "panelbase";
@@ -514,15 +524,129 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.runWithoutAnimations(() => {
+      const prevKey = this.getDataScopeKey();
       super.setSurveyImpl(value, isLight);
       if (!!this.survey) {
         this.resetHasTextInTitle();
       }
       if (this.isDesignMode)this.onVisibleChanged();
+      const elementsImpl = this.updateDataScope(value);
       for (var i = 0; i < this.elements.length; i++) {
-        this.elements[i].setSurveyImpl(value, isLight);
+        this.elements[i].setSurveyImpl(elementsImpl, isLight);
+      }
+      this.containerNesting.elementsAttached();
+      // An instance the scope that holds the elements built while they were attached saw only some of them: it is
+      // dropped (one never built costs nothing). The survey may be gone already (a page taken out of the pages).
+      getKeyHolderScope(this.data)?.resetDataKeyIndex();
+      // An attach can start or stop the nesting (a panel attached before its parent is set does not nest, and nests
+      // once attached again): the instances it touches are dropped, as at a key change.
+      if (this.getDataScopeKey() !== prevKey) {
+        getDataScopeHost(this.survey)?.getRootDataScope().dataScopeKeysChanged(this);
       }
     });
+  }
+  public get valueName(): string {
+    return this.getPropertyValue("valueName", "");
+  }
+  public set valueName(val: string) {
+    this.setPropertyValue("valueName", val);
+  }
+  // Nested data: a nesting panel or page hands its elements a PanelDataScope, so their values are stored
+  // in an object under its key. ContainerDataNesting decides where the container is, whether it nests and
+  // under which key, and attaches its elements again when the key changes.
+  private containerNestingValue: ContainerDataNesting;
+  private get containerNesting(): ContainerDataNesting {
+    if (!this.containerNestingValue) {
+      this.containerNestingValue = new ContainerDataNesting(this, () => this.getDataNestingKind());
+    }
+    return this.containerNestingValue;
+  }
+  public getDataScope(): PanelDataScope {
+    return this.containerNesting.getScope();
+  }
+  // The key this container nests under, "" when it does not.
+  public getDataScopeKey(): string {
+    return this.containerNesting.getKey();
+  }
+  // The key this container nests under with these valueName and name (the Creator asks it before a rename),
+  // for where it is now: the dataNesting table on the survey; inside a record and in a records template
+  // under valueName only; "" for a record panel itself and inside a composite. A template panel
+  // answers with the key of the records built from it (getRecordDataNestingKey), not with its own,
+  // which is "" at design time.
+  public getDataNestingKeyFor(valueName: string, name: string): string {
+    return this.containerNesting.getKeyFor(valueName, name);
+  }
+  // The key a panel inside a record's template (a dynamic panel's template, a matrix's detail panel) nests
+  // under in the records built from it, whatever the template is attached to; "" when it does not.
+  public getRecordDataNestingKey(): string {
+    return this.containerNesting.getRecordKey();
+  }
+  // Whether this container stores its elements' values in an object under its key now.
+  public get isDataNesting(): boolean {
+    return this.containerNesting.isNesting;
+  }
+  // ISurveyDataElement: a nesting container owns its key in the data of its parent scope, as a question
+  // owns its value name. The survey reaches it through its data key index.
+  public getValueName(): string {
+    return this.getDataScopeKey();
+  }
+  protected getDataKey(): string {
+    return this.getDataScopeKey();
+  }
+  public onSurveyValueChanged(newValue: any): void {
+    const scope = this.getDataScope();
+    if (!scope || !scope.isActive) return;
+    scope.notifyValueChanged();
+  }
+  // The questions read the stored object: newValue is its copy. clearData does not apply to a container.
+  public updateValueFromSurvey(newValue: any, clearData: boolean): void {
+    const scope = this.getDataScope();
+    if (!!scope && scope.isActive) {
+      scope.updateValuesFromData();
+    }
+  }
+  // Writes this nesting container's stored object into data under its key, as one value: every structured
+  // data view shows a nesting container as <key>: <object> ("Structured Data Views" in
+  // docs/design-survey-nested-data.md).
+  collectDataNestingValue(data: any): void {
+    this.containerNesting.collectValue(data);
+  }
+  // Which by-name modes of dataNesting nest this container: "panel" or "page" (PageModel), or "" for none.
+  protected getDataNestingKind(): string {
+    return "panel";
+  }
+  protected getElementsSurveyImpl(): ISurveyImpl {
+    return this.getDataScope() || this.surveyImpl;
+  }
+  private updateDataScope(value: ISurveyImpl): ISurveyImpl {
+    return this.containerNesting.attach(value);
+  }
+  // A dynamic panel's template, or a matrix's detail panel template: the panel the records are built from.
+  public isRecordTemplatePanel(): boolean {
+    return ContainerDataNesting.isRecordTemplate(this);
+  }
+  // The records question this panel is the record panel of: a dynamic panel's template or one of its panels,
+  // a matrix's detail panel template or a row's detail panel. null for another panel.
+  public getRecordsOwner(): Question {
+    return ContainerDataNesting.getRecordsOwner(this);
+  }
+  // Whether this container's key is ignored: in the survey's dataNesting "none" (the default), on a record panel
+  // itself (its object is the record) and inside a composite (the component owns the shape of its value). The
+  // valueName property is hidden there (its visibleIf asks this); it shows on a panel inside a dynamic panel or
+  // a detail panel in every other mode.
+  public isDataNestingIgnored(): boolean {
+    return this.containerNesting.isKeyIgnored();
+  }
+  private onDataScopeKeyChanged(): void {
+    if (!this.surveyImpl) return;
+    this.containerNesting.onKeyChanged(this.surveyImpl);
+  }
+  // The container's key may have changed (its valueName or name, or the survey's dataNesting): a container
+  // that starts to nest gets its scope and re-attaches its elements. The data does not move ("Limitations"
+  // in docs/design-survey-nested-data.md).
+  public updateDataScopeAttachment(): void {
+    if (!this.surveyImpl) return;
+    this.containerNesting.updateAttachment(this.surveyImpl);
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
@@ -530,6 +654,14 @@ export class PanelModelBase extends SurveyElement<Question>
     this.onRowsChanged();
     if (this.isColumnsUpdatePending) {
       this.updateColumns();
+    }
+    // A name set while loading sends no notification (a JSON "name": "", or a rename in onPanelAdded). Nor does a key
+    // loaded in place (fromJSON): a panel that has a scope is treated as a changed key.
+    if (!!this.survey) {
+      this.lifecycleCallbacks.elementRenamed(this);
+      if (!!this.getDataScope()) {
+        getDataScopeHost(this.survey)?.getRootDataScope().dataScopeKeysChanged(this);
+      }
     }
   }
 
@@ -924,6 +1056,12 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see getDisplayValue
    */
   public getValue(): any {
+    // A nesting container's value is its stored object ("Structured Data Views" in
+    // docs/design-survey-nested-data.md).
+    if (this.isDataNesting) {
+      const val = this.getDataScope().getObjectValue();
+      return Helpers.isValueObject(val, true) && !Array.isArray(val) ? Helpers.getUnbindValue(val) : {};
+    }
     var data: any = {};
     this.collectValues(data, 0);
     return Helpers.getUnbindValue(data);
@@ -938,17 +1076,25 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return false;
   }
+  // level 0 writes the questions flat, walking through the panels. A nesting container inside is one
+  // value at any level, <key>: <its stored object>, as in every structured data view.
   collectValues(data: any, level: number): boolean {
-    let elements = this.elements;
-    if (level === 0) {
-      elements = this.questions;
-    }
+    const elements = this.elements;
     let hasValue = false;
     for (var i = 0; i < elements.length; i++) {
       const el = elements[i];
       if (el.isPanel || el.isPage) {
+        const panel = <PanelModelBase><any>el;
+        if (panel.isDataNesting) {
+          panel.collectDataNestingValue(data);
+          continue;
+        }
+        if (level === 0) {
+          panel.collectValues(data, 0);
+          continue;
+        }
         const panelData = {};
-        if ((<PanelModelBase><any>el).collectValues(panelData, level - 1)) {
+        if (panel.collectValues(panelData, level - 1)) {
           data[el.name] = panelData;
           hasValue = true;
         }
@@ -976,15 +1122,31 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   public getDisplayValue(keysAsText: boolean): any {
     var data: any = {};
-    var questions = this.questions;
-
-    for (var i = 0; i < questions.length; i++) {
-      var q = questions[i];
-      if (q.isEmpty()) continue;
-      var valueName = keysAsText ? q.title : q.getValueName();
-      data[valueName] = q.getDisplayValue(keysAsText);
-    }
+    this.collectDisplayValues(data, keysAsText);
     return data;
+  }
+  // The questions flat, walking through the panels, as getValue() does: a nesting container inside is one
+  // value, under its title (keysAsText) or its key.
+  private collectDisplayValues(data: any, keysAsText: boolean): void {
+    const elements = this.elements;
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      if (el.isPanel) {
+        const panel = <PanelModelBase><any>el;
+        if (panel.isDataNesting) {
+          const val = panel.getDisplayValue(keysAsText);
+          if (Object.keys(val).length > 0) {
+            data[keysAsText && !!panel.title ? panel.processedTitle : panel.getDataScopeKey()] = val;
+          }
+        } else {
+          panel.collectDisplayValues(data, keysAsText);
+        }
+        continue;
+      }
+      const q = <Question><any>el;
+      if (q.isEmpty()) continue;
+      data[keysAsText ? q.title : q.getValueName()] = q.getDisplayValue(keysAsText);
+    }
   }
   /**
    * Returns a JSON object with comments left to questions within this panel/page. Question names are used as keys.
@@ -995,7 +1157,8 @@ export class PanelModelBase extends SurveyElement<Question>
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
-      var comment = this.data.getComment(q.getValueName());
+      // Through the question's data: inside a nesting container it is the container's data scope.
+      var comment = (q.data || this.data).getComment(q.getValueName());
       if (!!comment) {
         (<any>comments)[q.getValueName()] = comment;
       }
@@ -1107,7 +1270,11 @@ export class PanelModelBase extends SurveyElement<Question>
   // A page and a panel own no data key of their own, a dynamic panel item included: the index of
   // the item is pushed by the dynamic panel that walks into it.
   public verifyDataCore(context: IVerifyDataContext): void {
+    // A nesting container adds its key to the location of its elements' findings.
+    const key = this.isDataNesting ? this.getDataScopeKey() : undefined;
+    if (!!key) context.pushSegment(key);
     this.elements.forEach(element => (<any>element).verifyDataCore(context));
+    if (!!key) context.popSegment();
   }
   public validateContainerOnly(): void {
     this.validateInPanels(new ValidationContext({ fireCallback: true, isOnValueChanged: false }));
@@ -1706,8 +1873,14 @@ export class PanelModelBase extends SurveyElement<Question>
   protected onAddElement(element: IElement, index: number): void {
     const survey = this.survey;
     const fireNotification = this.canFireAddRemoveNotifications(element);
+    // Named before it is attached (survey.panelAdded names it otherwise): a by-name dataNesting mode nests
+    // the panel's elements under the name.
+    const host = fireNotification && element.isPanel && !element.name ? getDataScopeHost(survey) : undefined;
+    if (!!host) {
+      (<any>element).name = host.getNewGeneratedName(host.getAllPanels(false, true), "panel");
+    }
     if (!!this.surveyImpl) {
-      element.setSurveyImpl(this.surveyImpl);
+      element.setSurveyImpl(this.getElementsSurveyImpl());
     }
     element.parent = this;
     this.markQuestionListDirty();
@@ -1744,6 +1917,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.markQuestionListDirty();
     this.updateRowsOnElementRemoved(element);
     if (this.isRandomizing) return;
+    // The instance of the scope that holds this container's elements is dropped, with a notification or without
+    // one (setPage). Not from the element's data: an add to another container gives it its new data first.
+    getKeyHolderScope(this.getElementsSurveyImpl()?.getSurveyData())?.resetDataKeyIndex();
     this.onRemoveElementNotifySurvey(element);
     if (!!this.removeElementCallback)this.removeElementCallback(element);
     this.onElementVisibilityChanged(this);
@@ -2236,10 +2412,10 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  onAnyValueChanged(name: string, questionName: string): void {
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
-      els[i].onAnyValueChanged(name, questionName);
+      els[i].onAnyValueChanged(name, questionName, question);
     }
   }
   checkBindings(valueName: string, value: any) {
@@ -2732,6 +2908,8 @@ Serializer.addClass(
   "panelbase",
   [
     "name",
+    { name: "valueName", visibleIf: (obj: any): boolean => !obj?.isDataNestingIgnored?.(),
+      onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
     {
       name: "elements",
       alternativeName: "questions",

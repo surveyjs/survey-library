@@ -2,7 +2,7 @@ import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { JsonObjectProperty, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, IQuestion, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedWalkOptions, NestedElementVisit, NestedWalkBuild } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -22,13 +22,15 @@ import { AnimationGroup, IAnimationGroupConsumer, AnimationBoolean } from "./uti
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
-import { Base, ComputedUpdater, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
+import { ArrayChanges, Base, ComputedUpdater, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
+import { getDataScopeHost } from "./panel-data-scope";
 import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts";
 import { Scope } from "./utils/scope";
 import { getIdSelector } from "./utils/dom-utils";
+import { isNameScopeMode } from "./name-scope";
 
 const OTHER_ITEM_VALUE = "other";
 // The key a choice comment is kept under in the object of a selected item (commentPropertyValue).
@@ -281,6 +283,9 @@ export class ChoiceItem extends ItemValue {
         pnl.name = "choicePanel_" + pnl.id;
         pnl.parent = <PanelModelBase>this.choiceOwner.parent;
         pnl.setSurveyImpl(survey);
+        // The panel's questions are the root data scope's: a panel linked after the select question was added (a
+        // lazy item.panel read) sends no other notification.
+        getDataScopeHost(survey)?.getRootDataScope().dataScopeKeysChanged(pnl);
       }
     }
   }
@@ -327,6 +332,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     super(name);
     this.createItemValues("choices");
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
+    this.registerFunctionOnPropertyValueChanged("choices", (newValue: any, arrayChanges: ArrayChanges): void => this.choicePanelsLeft(arrayChanges));
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -413,6 +419,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       const panel = item.createdPanel;
       return !!panel && visit({ element: panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
     });
+  }
+  // Choice items with a created panel left the choices: the root data scope holds their panels' questions, which stay
+  // linked to the survey.
+  private choicePanelsLeft(arrayChanges: ArrayChanges): void {
+    const left = !!arrayChanges ? arrayChanges.deletedItems.filter((item: any) => !!item?.createdPanel) : [];
+    if (left.length > 0) {
+      getDataScopeHost(this.survey)?.getRootDataScope().dataScopeKeysChanged(left[0].createdPanel);
+    }
   }
   // A select question always lists itself, and the questions of its choice panels only with includeNested.
   protected canListNestedElements(includeNested: boolean): boolean {
@@ -1361,8 +1375,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private getQuestionsWithSameValueName(): Array<QuestionSelectBase> {
     const res: Array<QuestionSelectBase> = [];
     if (!this.valueName || !this.survey) return res;
-    const questions = this.survey.questionsByValueName(this.getValueName());
-    if (!Array.isArray(questions) || questions.length < 2) return res;
+    const questions = this.getQuestionsSharingValue();
+    if (questions.length < 2) return res;
     questions.forEach((q: any) => {
       if (q !== this && q.isDescendantOf && q.isDescendantOf("selectbase")) {
         res.push(<QuestionSelectBase>q);
@@ -2193,14 +2207,21 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     this.forEachNestedElement(info => { (<PanelModel>info.element).onFirstRendering(); }, showingChoicePanels);
   }
-  onAnyValueChanged(name: string, questionName: string): void {
-    super.onAnyValueChanged(name, questionName);
+  // Whether the question that wrote is the one choicesFromQuestion names. A nesting mode compares the question
+  // the write carries with the one the name resolves to from here: a name is not unique there, and the name may
+  // be a path. "none" compares the names, as before.
+  private isChoicesSourceWriter(questionName: string, question: IQuestion): boolean {
+    if (!question || !isNameScopeMode(this.survey)) return questionName === this.choicesFromQuestion;
+    return question === this.findCarryForwardQuestion();
+  }
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
+    super.onAnyValueChanged(name, questionName, question);
     if (name != this.getValueName()) {
       this.runChoicesByUrl();
     }
     const chQuestion = this.choicesFromQuestion;
     // The same write reached updateDependedQuestion already, which recorded the projection it used.
-    if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion) && !this.isArrayChoicesSourceUnchanged()) {
+    if (!!name && chQuestion && (name === chQuestion || this.isChoicesSourceWriter(questionName, question)) && !this.isArrayChoicesSourceUnchanged()) {
       this.onVisibleChoicesChanged();
       this.clearIncorrectOwnValue();
     }
@@ -2534,7 +2555,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private canClearIncorrectValues(): boolean {
     if (this.canAddCustomChoices()) return false;
     if (this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return false;
-    if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) return false;
+    if (!!this.survey && this.getQuestionsSharingValue().length > 1) return false;
     // Only validate against successfully loaded choices. An empty list is valid,
     // but missing URL parameters, pending requests, and errors are not results.
     if (this.hasChoicesUrl && (!this.choicesFromUrl || this.isRunningChoicesValue ||

@@ -34,7 +34,7 @@ function getTargetColumns(record: ElementRecord): CIMultiMap<ElementRecord> | un
 // The question a trigger writes into: a plain name, or a matrix cell whose column owns the set.
 // An unresolvable target is trigger/unknown-target territory, not this rule.
 function getTargetDomain(ctx: LintContext, name: string): ValueSetDomain | undefined {
-  const ref = classifyTargetName(name, ctx.index, ctx.options);
+  const ref = classifyTargetName(name, ctx.index, ctx.options, true);
   if (ref.status !== "resolved" || !ref.resolvedTo) return undefined;
   const columns = getTargetColumns(ref.resolvedTo);
   switch(ref.segments.length) {
@@ -148,7 +148,7 @@ function checkRowTemplateProp(ctx: LintContext, record: ElementRecord, prop: str
 
 // The record a trigger name lands on: the question itself, or the column of a matrix cell.
 function resolveTargetRecord(ctx: LintContext, name: string): ElementRecord | undefined {
-  const ref = classifyTargetName(name, ctx.index, ctx.options);
+  const ref = classifyTargetName(name, ctx.index, ctx.options, true);
   if (ref.status !== "resolved" || !ref.resolvedTo) return undefined;
   if (ref.segments.length === 1) return ref.resolvedTo;
   const columns = getTargetColumns(ref.resolvedTo);

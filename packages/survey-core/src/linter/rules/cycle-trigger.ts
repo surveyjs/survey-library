@@ -1,5 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
-import { buildTriggerSetStep, classifySiteRefs, splitRefSegments } from "../expression-utils";
+import { buildTriggerSetStep, canonicalTargetSlot, classifySiteRefs, splitRefSegments } from "../expression-utils";
 import { reportCycles } from "../cycle-report";
 import { TriggerRecord } from "../symbols";
 import { ILintReproduction } from "../types";
@@ -32,7 +32,8 @@ function getExpressionRoots(ctx: LintContext, trigger: TriggerRecord): Array<str
   const fromName = trigger.json ? trigger.json.fromName : undefined;
   if (typeof fromName === "string" && fromName) {
     const root = splitRefSegments(fromName)[0];
-    if (root && root.name) res.push(canonicalRoot(ctx, root.name));
+    const slot = canonicalTargetSlot(fromName, ctx.index, ctx.options, root && root.name ? canonicalRoot(ctx, root.name) : "");
+    if (slot) res.push(slot);
   }
   return res;
 }
@@ -61,7 +62,8 @@ export const cycleTriggerRule: ILintRule = {
     // and messageData.cycle names the loop the way the other cycle rule names it
     const ids = triggers.map(trigger => trigger.path);
     const getEdges = (id: string): Array<string> => {
-      const setRoot = canonicalRoot(ctx, byId.get(id).setRoot);
+      const trigger = byId.get(id);
+      const setRoot = canonicalTargetSlot(trigger.setToName, ctx.index, ctx.options, canonicalRoot(ctx, trigger.setRoot));
       return ids.filter(otherId => roots.get(otherId).indexOf(setRoot) > -1);
     };
     reportCycles<TriggerRecord>(ctx, {

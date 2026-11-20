@@ -4,6 +4,7 @@ import { CalculatedValueRecord, ElementRecord, SurveyIndex } from "../symbols";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 import { getDataKey } from "../record-fields";
+import { isInNestedObject } from "../data-nesting";
 
 const reasons = SurveyLintReasons["variable/collision"];
 
@@ -20,10 +21,11 @@ function definitionRelated(questionName: string): Array<ILintRelated> {
 
 // Only a root question shares a data key with a host variable: a question inside a dynamic panel
 // template or a matrix cell writes into its container's value, and its name is addressed through
-// that container's scope. Display-only elements have no value to overwrite.
+// that container's scope; a question inside a nesting panel or page writes into the container's
+// object. Display-only elements have no value to overwrite.
 function isRootDataKey(record: ElementRecord, name: string): boolean {
-  return record.kind === "question" && record.scope.length === 0 && record.valueType.shape !== "none" &&
-    equalsCI(getDataKey(record), name);
+  return record.kind === "question" && record.scope.length === 0 && !isInNestedObject(record) &&
+    record.valueType.shape !== "none" && equalsCI(getDataKey(record), name);
 }
 
 // findByDataName's order - a name answers before a valueName - narrowed to the records that
@@ -87,7 +89,8 @@ export const variableCollisionRule: ILintRule = {
     const presets = ctx.variablePresets;
     if (!presets) return;
     ctx.index.definitionVariables.forEach(variable => {
-      const definitionQuestion = presets.getVariableQuestion(variable);
+      // the question, or the panel or page that describes an object variable
+      const definitionQuestion = presets.getVariableElement(variable);
       if (!definitionQuestion) return;
       const question = findRootDataQuestion(ctx.index, variable);
       if (!!question) {

@@ -4,7 +4,7 @@ import { property } from "./decorators";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IDataVerificationOptions, IDataIssue, DataIssueType } from "./base-interfaces";
 import { Base, ComputedUpdater } from "./base";
 import { EventBase } from "./event";
-import { SurveyElement, getReadOnlyModePropertyInfo } from "./survey-element";
+import { SurveyElement, getReadOnlyModePropertyInfo, makeNameValid } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
@@ -34,6 +34,7 @@ import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choice
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 import { IsTouch } from "./utils/devices";
+import { isNameScopeMode } from "./name-scope";
 import { getFilterOperatorChoices, isFilterFieldInReach } from "./filter/filter-field-properties";
 
 export const readOnlyViewEmptyText = "\u2014";
@@ -92,7 +93,9 @@ export class QuestionValueGetterContext implements IValueGetterContext {
           new QuestionArrayGetterContext(panel.questions).getValue(params);
       }
     }
-    if (!this.question.isEmpty()) {
+    // The own value answers a name first ({r1.c1} in a matrix's own expressions). The metadata mode reads no
+    // value, so it skips the step: the name goes on to the question's container.
+    if (!params.isMetadata && !this.question.isEmpty()) {
       let val = this.question.value;
       if (index >= 0) {
         if (!Array.isArray(val || index >= val.length)) return undefined;
@@ -125,7 +128,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
 export abstract class QuestionItemValueGetterContext extends ValueGetterContextCore {
   protected abstract getIndex(): number;
   protected abstract getQuestionData(): Question;
-  protected getValueFromBindedQuestions(path: Array<IValueGetterItem>, objValue: any): IValueGetterInfo {
+  protected getValueFromBindedQuestions(path: Array<IValueGetterItem>, objValue: any, isMetadata?: boolean): IValueGetterInfo {
     if (typeof objValue !== "object") {
       objValue = undefined;
     }
@@ -137,7 +140,7 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       if (!!name && q.valuePropertyName === name && !!objValue && objValue.hasOwnProperty(name)) {
         return { isFound: true, value: objValue[name], context: q.getValueGetterContext() };
       }
-      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex(), existingObjectsOnly: this.readsExistingObjectsOnly() });
+      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex(), existingObjectsOnly: this.readsExistingObjectsOnly(), isMetadata });
       if (!!res && res.isFound) return res;
     }
     return undefined;
@@ -154,7 +157,7 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       this.fillQuestions((<PanelModel>q.parent).getQuestionsByValueName(q.getValueName()), q, res);
     }
     if (res.length === 0 && !!q.survey) {
-      this.fillQuestions((<any>q.survey).getQuestionsByValueName(q.getValueName()), q, res);
+      this.fillQuestions(q.getValueScope()?.getQuestionsSharingValue(q), q, res);
     }
     return res;
   }
@@ -692,6 +695,9 @@ export class Question extends SurveyElement<Question>
     if (!!this.valueName) return this.valueName.toString();
     return this.name;
   }
+  protected getDataKey(): string {
+    return this.getValueName();
+  }
   /**
    * Specifies an object property that should store the question value.
    *
@@ -803,7 +809,20 @@ export class Question extends SurveyElement<Question>
     return this.getIsReadyDependendCore(false);
   }
   protected getDependedQuestionsByValueName(isDependOn: boolean): Array<IQuestion> {
-    return this.survey.questionsByValueName(this.getValueName());
+    return this.getQuestionsSharingValue();
+  }
+  // The questions that hold the same value, this one included. The value scope answers: a question does not know
+  // where its value is stored.
+  protected getQuestionsSharingValue(): Array<Question> {
+    const scope = this.getValueScope();
+    return !!scope ? scope.getQuestionsSharingValue(this) : [];
+  }
+  // Internal: whether another visible question holds this question's value (then the value is not cleared as
+  // invisible). A dynamic panel asks it of the questions of its records.
+  public hasVisibleValueSharer(): boolean {
+    const qs = this.getQuestionsSharingValue();
+    if (qs.length < 2) return false;
+    return qs.some(q => q !== this && q.isVisible && q.isParentVisible && !q.parentQuestion && q.parentQuestion === this.parentQuestion);
   }
   private getIsReadyDependendCore(isDependOn: boolean): Array<Question> {
     if (!this.survey) return [];
@@ -2512,7 +2531,7 @@ export class Question extends SurveyElement<Question>
     if (!this.data || !this.isKeepingEmptyValues() || !this.canSetValueToSurvey()) return;
     const val = this.data.getValue(this.getValueName());
     if (val === undefined || !this.isValueEmpty(val)) return;
-    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
+    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this);
   }
   protected isKeepingEmptyValues(): boolean {
     return !!this.survey && !!this.survey.getSettings().data.keepEmptyValues;
@@ -2573,7 +2592,7 @@ export class Question extends SurveyElement<Question>
     if (this.isVisibleInSurvey) return false;
     if (!!this.page && this.page.isStartPage) return false;
     if (!this.survey) return true;
-    return !this.survey.hasVisibleQuestionByValueName(this);
+    return !this.hasVisibleValueSharer();
   }
   /**
    * Returns `true` if a parent element (page or panel) is visible.
@@ -3524,9 +3543,7 @@ export class Question extends SurveyElement<Question>
   protected isValueKeyKnown(key: string): boolean {
     if (this.hasValueKey(key)) return true;
     if (!this.survey) return false;
-    const questions = this.survey.questionsByValueName(this.getValueName());
-    if (!Array.isArray(questions)) return false;
-    return questions.some((q: any) => q !== this && q instanceof Question && q.hasValueKey(key));
+    return this.getQuestionsSharingValue().some((q: any) => q !== this && q instanceof Question && q.hasValueKey(key));
   }
   // Tells whether a value has the JSON shape getValueType() reports.
   protected isValueOfValueType(val: any): boolean {
@@ -3539,7 +3556,7 @@ export class Question extends SurveyElement<Question>
   }
   protected clearIncorrectValueInData(): void {
     if (!this.hasIncorrectValueInData()) return;
-    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
+    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this);
   }
   // Compares val with the question value (a value-change check, see Base.isTwoValueEquals).
   // Unlike isNewValueEqualsToValue, the same array/object instance counts as equal.
@@ -3588,7 +3605,7 @@ export class Question extends SurveyElement<Question>
     this.isMouseDown = false;
   }
   private setValueToData(newValue: any): void {
-    this.data.setValue(this.getValueName(), newValue, this.getDataLocNotification(), this.allowNotifyValueChanged, this.name);
+    this.data.setValue(this.getValueName(), newValue, this.getDataLocNotification(), this.allowNotifyValueChanged, this);
   }
   // data.keepEmptyValues: false for a question whose empty value is never the respondent's own clear.
   protected canKeepEmptyValue(): boolean {
@@ -3807,10 +3824,20 @@ export class Question extends SurveyElement<Question>
   protected get isSurveyAutoAdvanceEnabled(): boolean {
     return (this.survey as SurveyModel)?.autoAdvanceEnabled === true;
   }
-  // getQuestionByValueName only sees top-level questions. A nested question with the same
-  // name must not advance on behalf of that other question.
+  // The survey is given the question (requestAutoAdvance), but a question whose value is a key of the
+  // survey data must also be the one getQuestionByValueName finds: a nested question with the same name
+  // must not advance on behalf of that other question. A question that holds its value where that question
+  // does not (inside a container) is its own owner. A question in a record never is: its value scope looks it
+  // up at the root, which holds no question of a record.
   protected get isAutoAdvanceOwner(): boolean {
-    return (this.survey as SurveyModel)?.getQuestionByValueName(this.getValueName()) === this;
+    const survey = this.survey as SurveyModel;
+    if (!survey) return false;
+    // The survey's lookup stays: the first holder of a value name is the root's rule, and a container's
+    // questions keep it out of their own.
+    const rootFirst = survey.getQuestionByValueName(this.getValueName());
+    if (rootFirst === this) return true;
+    const sharers = this.getQuestionsSharingValue();
+    return sharers.indexOf(this) > -1 && sharers.indexOf(rootFirst) < 0;
   }
   // A question nested in a choice item is found by value name, but it is not in the page's question
   // list, so the survey advances for it only when it is the single input on screen.
@@ -3820,7 +3847,7 @@ export class Question extends SurveyElement<Question>
   }
   protected requestAutoAdvance(): boolean {
     if (!this.isAutoAdvanceOwner) return false;
-    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomatic(this.getValueName()));
+    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomatic(this.getValueName(), { name: this.getValueName(), writer: this }));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();
@@ -3877,8 +3904,8 @@ export class Question extends SurveyElement<Question>
     this.errors = [];
   }
   public clearUnusedValues(): void { }
-  onAnyValueChanged(name: string, questionName: string): void {
-    this.validateOnAnyQuestionValueChanged(name, questionName);
+  onAnyValueChanged(name: string, questionName: string, question?: IQuestion): void {
+    this.validateOnAnyQuestionValueChanged(name, questionName, question);
   }
   checkBindings(valueName: string, value: any): void {
     if (this.bindings.isEmpty() || !this.data) return;
@@ -4117,7 +4144,9 @@ export class Question extends SurveyElement<Question>
     }
     return this.validationDependentNames;
   }
-  private validateOnAnyQuestionValueChanged(name: string, questionName: string): void {
+  // question: the question that wrote, when the write carries it. A nesting mode uses it: a name is not unique
+  // there. "none" looks the name up, as before.
+  private validateOnAnyQuestionValueChanged(name: string, questionName: string, question: IQuestion): void {
     if (!this.survey) return;
     const deps = this.getValidationDependentNames();
     if (deps.length === 0) return;
@@ -4125,7 +4154,7 @@ export class Question extends SurveyElement<Question>
     if (deps.indexOf(name) < 0 && !deps.some(d => d.indexOf(prefix) === 0)) return;
     let hasToValidate = this.getAllErrors().length > 0;
     if (!hasToValidate && this.validationCallbacks.isValidateOnValueChanged) {
-      const changedQuestion = <Question>this.data.findQuestionByName(questionName);
+      const changedQuestion = <Question>(!!question && isNameScopeMode(this.survey) ? question : this.data.findQuestionByName(questionName));
       hasToValidate = !changedQuestion || changedQuestion.getAllErrors().length == 0;
     }
     if (hasToValidate) {
@@ -4235,15 +4264,6 @@ export class Question extends SurveyElement<Question>
   @property() randomize: boolean;
   @property() randomizeCategory: string;
 }
-function makeNameValid(str: string): string {
-  if (!str) return str;
-  str = str.trim().replace(/[\{\}]+/g, "");
-  while(!!str && str[0] === settings.expressionDisableConversionChar) {
-    str = str.substring(1);
-  }
-  return str;
-}
-
 Serializer.addClass("question", [
   { name: "!name", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   {

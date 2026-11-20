@@ -4,6 +4,7 @@
 // into the bundle.
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
+import type { SurveyModel } from "../src/survey";
 
 export function createIActionArray(count: number): Array<IAction> {
   const result: Array<IAction> = [];
@@ -103,4 +104,13 @@ export function mockScrolledRect(el: Element, scroller: Element, contentTop: num
     const top = contentTop - scroller.scrollTop;
     return { top: top, bottom: top + height, left: 0, right: 100, width: 100, height: height, x: 0, y: top, toJSON: () => { } } as DOMRect;
   };
+}
+
+// A question or a panel by its name, whatever the dataNesting mode: in a nesting mode a name is unique only inside
+// its name scope, and the survey finds an inner element by its path.
+export function questionNamed(survey: SurveyModel, name: string): any {
+  return survey.getAllQuestions(false, true).filter(q => q.name === name)[0] || null;
+}
+export function panelNamed(survey: SurveyModel, name: string): any {
+  return survey.getAllPanels(false, true).filter(p => p.name === name)[0] || null;
 }

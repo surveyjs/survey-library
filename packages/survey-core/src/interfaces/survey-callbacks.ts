@@ -60,6 +60,8 @@ export interface ISurveyElementLifecycle {
     oldName: string,
     oldValueName: string
   ): any;
+  // A panel or a page may have a new name (a question reports questionRenamed)
+  elementRenamed(element: ISurveyElement): void;
   // A trigger property of a question changed, or the question order changed without an add or a remove
   questionTriggersChanged(): void;
   pageVisibilityChanged(page: IPage, newValue: boolean): any;

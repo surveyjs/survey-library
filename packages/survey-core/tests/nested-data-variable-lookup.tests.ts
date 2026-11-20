@@ -593,6 +593,145 @@ describe("nested data: exports and helpers (L6)", () => {
     expect(ps.getDataPath(), "a record question's path starts at the record").toEqual(["a", "ps"]);
     expect(dpSurvey.getQuestionVariableName(ps), "#7: no root variable reaches it: its name, not a.ps").toBe("ps");
   });
+  describe("getQuestionVariableName(question, context): the shortest variable that reads the question from context", () => {
+    const createSurvey = (): SurveyModel => new SurveyModel({ dataNesting: "auto", calculatedValues: [{ name: "calc", expression: "1" }], pages: [
+      { name: "page1", elements: [
+        { type: "text", name: "q1", valueName: "val1" },
+        { type: "panel", name: "addressPanel", valueName: "address", elements: [
+          { type: "text", name: "street" }, { type: "text", name: "city", valueName: "town" },
+          { type: "panel", name: "geoPanel", valueName: "geo", elements: [
+            { type: "text", name: "lat" }, { type: "text", name: "street" }] }] },
+        { type: "panel", name: "billingPanel", valueName: "billing", elements: [{ type: "text", name: "zip" }] }] },
+      { name: "page2", elements: [{ type: "text", name: "p2q" }] },
+      { name: "page3", valueName: "extra", elements: [{ type: "text", name: "note" }, { type: "text", name: "more" }] },
+      { name: "page4", elements: [{ type: "paneldynamic", name: "dp", templateElements: [
+        { type: "text", name: "ps" }, { type: "text", name: "q1" },
+        { type: "panel", name: "inner", valueName: "in", elements: [{ type: "text", name: "st" }, { type: "text", name: "st2" }] }] }] }
+    ] });
+    const check = (survey: SurveyModel, target: Question, context: Base, expected: string, msg: string): void => {
+      const res = survey.getQuestionVariableName(target, context);
+      expect(res, msg).toBe(expected);
+      const info = survey.getQuestionByVariable(res, context);
+      expect(!!info && info.question === target && info.rest === "", msg + ": resolves back from context").toBe(true);
+    };
+    test("from its own container, a sibling, the parent, a page and the root", () => {
+      const survey = createSurvey();
+      const q = (name: string): Question => survey.getQuestionByName(name);
+      const street = q("addressPanel.street");
+      check(survey, street, street, "street", "#1: from itself");
+      check(survey, street, q("addressPanel.city"), "street", "#2: from its own container");
+      check(survey, street, q("billingPanel.zip"), "address.street", "#3: from a sibling container");
+      check(survey, q("addressPanel.geoPanel.lat"), q("addressPanel.city"), "geo.lat", "#4: from the parent container");
+      check(survey, q("addressPanel.city"), q("addressPanel.geoPanel.lat"), "town", "#5: from an inner container, a valueName");
+      check(survey, street, survey.getPageByName("page1"), "address.street", "#6: from its page (the page's own expressions)");
+      check(survey, street, q("p2q"), "address.street", "#7: from a question of another page");
+      check(survey, street, survey, "address.street", "#8: from the root");
+      check(survey, street, q("val1"), "address.street", "#9: from a top-level question");
+      check(survey, street, survey.getPanelByName("addressPanel"), "address.street", "#10: from its container (the panel's own expressions run outside it)");
+      check(survey, q("addressPanel.geoPanel.lat"), survey.getPanelByName("addressPanel.geoPanel"), "geo.lat", "#11: from its container nested in another");
+      check(survey, q("page3.note"), q("page3.more"), "note", "#12: inside a nesting page");
+      check(survey, q("page3.note"), survey.getPageByName("page3"), "extra.note", "#13: from the nesting page itself");
+      check(survey, q("page3.note"), street, "extra.note", "#14: from another page");
+      check(survey, street, q("page3.more"), "address.street", "#15: from a nesting page");
+    });
+    test("a shadowed name: an inner street hides the outer one", () => {
+      const survey = createSurvey();
+      const q = (name: string): Question => survey.getQuestionByName(name);
+      const street = q("addressPanel.street");
+      const geoStreet = q("addressPanel.geoPanel.street");
+      const lat = q("addressPanel.geoPanel.lat");
+      expect(survey.getQuestionByVariable("street", lat).question, "the bare name reads the inner one").toBe(geoStreet);
+      check(survey, street, lat, "address.street", "#1: the outer one gets the longer text from inside");
+      check(survey, geoStreet, lat, "street", "#2: the inner one, its name");
+      check(survey, geoStreet, q("addressPanel.city"), "geo.street", "#3: the inner one from its parent");
+      check(survey, street, q("addressPanel.city"), "street", "#4: the outer one from its own container");
+    });
+    test("a question with a valueName, at the top level", () => {
+      const survey = createSurvey();
+      const q1 = survey.getQuestionByName("q1");
+      check(survey, q1, survey.getQuestionByName("addressPanel.street"), "val1", "#1: from a nesting panel");
+      check(survey, q1, survey.getQuestionByName("page3.note"), "val1", "#2: from a nesting page");
+      check(survey, q1, survey.getPageByName("page2"), "val1", "#3: from a page");
+    });
+    test("a question inside a record keeps the no-context answer; one outside is found from the record", () => {
+      const survey = createSurvey();
+      const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+      const check0 = (target: Question, context: Base, msg: string): void => {
+        expect(survey.getQuestionVariableName(target, context), msg).toBe(survey.getQuestionVariableName(target));
+      };
+      const tmpl = (name: string): Question => dp.template.getQuestions(true).filter(item => item.name === name)[0];
+      check0(tmpl("st"), tmpl("st2"), "#1: the template, from its own nesting panel");
+      check0(tmpl("st"), tmpl("ps"), "#2: the template, from the record");
+      check0(tmpl("ps"), tmpl("st"), "#3");
+      check0(tmpl("st"), survey.getQuestionByName("q1"), "#4: from outside");
+      expect(survey.getQuestionVariableName(tmpl("st"), tmpl("st2")), "#5").toBe("st");
+      dp.panelCount = 1;
+      const rec = (name: string): Question => dp.panels[0].getQuestions(true).filter(item => item.name === name)[0];
+      expect(rec("st").getDataPath(), "the path starts at the record").toEqual(["in", "st"]);
+      check0(rec("st"), rec("st2"), "#6: a built record");
+      check0(rec("ps"), rec("st"), "#7");
+      expect(survey.getQuestionVariableName(rec("st"), rec("ps")), "#8").toBe("st");
+      // A survey question from inside the record: the record's own q1 does not hide it (a bare name skips the record).
+      check(survey, survey.getQuestionByName("q1"), rec("ps"), "val1", "#9: the top-level question from the record");
+      check(survey, survey.getQuestionByName("addressPanel.street"), rec("st"), "address.street", "#10: from the record's nesting panel");
+    });
+    test("a design-time template, a matrix column and a choice as the context", () => {
+      // Design mode before the JSON loads, as the Creator does it.
+      const survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.fromJSON({ dataNesting: "auto", elements: [
+        { type: "text", name: "x" },
+        { type: "panel", name: "addressPanel", valueName: "address", elements: [
+          { type: "text", name: "street" },
+          { type: "paneldynamic", name: "dp", templateElements: [{ type: "text", name: "t1" }] },
+          { type: "matrixdynamic", name: "md", rowCount: 1, columns: [{ name: "c1", cellType: "text" }] },
+          { type: "radiogroup", name: "r", choices: [{ value: "a" }], validators: [{ type: "expression", expression: "true" }] }] }] });
+      const street = survey.getQuestionByName("addressPanel.street");
+      const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("addressPanel.dp");
+      const md = <any>survey.getQuestionByName("addressPanel.md");
+      const r = <any>survey.getQuestionByName("addressPanel.r");
+      check(survey, street, dp.template.getQuestionByName("t1"), "street", "#1: a template question of a dynamic panel inside the container");
+      check(survey, survey.getQuestionByName("x"), dp.template.getQuestionByName("t1"), "x", "#2: a top-level question from the template");
+      check(survey, street, md.columns[0], "street", "#3: a matrix column");
+      check(survey, street, r.choices[0], "street", "#4: a choice");
+      check(survey, street, r.validators[0], "street", "#5: a validator");
+    });
+    test("no text reaches the question: the no-context answer, which reads another question there", () => {
+      const survey = new SurveyModel({ dataNesting: "auto", elements: [
+        { type: "text", name: "street" },
+        { type: "panel", name: "addressPanel", valueName: "address", elements: [{ type: "text", name: "street" }, { type: "text", name: "city" }] }] });
+      const top = survey.getQuestionByName("street");
+      const city = survey.getQuestionByName("addressPanel.city");
+      expect(survey.getQuestionVariableName(top, city), "#1").toBe("street");
+      expect(survey.getQuestionByVariable("street", city).question, "#2: the text reads the inner street").toBe(survey.getQuestionByName("addressPanel.street"));
+    });
+    test("no context: today's results unchanged", () => {
+      const survey = createSurvey();
+      const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+      dp.panelCount = 1;
+      const questions = survey.getAllQuestions(false, true, true).concat(dp.panels[0].getQuestions(true));
+      const expected = ["val1", "address.street", "address.town", "address.geo.lat", "address.geo.street", "billing.zip", "p2q",
+        "extra.note", "extra.more", "dp", "ps", "q1", "st", "st2", "ps", "q1", "st", "st2"];
+      expect(questions.map(item => survey.getQuestionVariableName(item)), "#1").toEqual(expected);
+      expect(questions.map(item => survey.getQuestionVariableName(item, undefined)), "#2").toEqual(expected);
+      expect(questions.map(item => survey.getQuestionVariableName(item, survey)), "#3: the survey as the context").toEqual(expected);
+    });
+    test("dataNesting \"none\" and \"page\"", () => {
+      const json = { pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1", valueName: "v1" },
+          { type: "panel", name: "p", valueName: "pv", elements: [{ type: "text", name: "q2" }] }] },
+        { name: "page2", elements: [{ type: "text", name: "q3" }] }] };
+      const none = new SurveyModel(json);
+      ["q1", "q2", "q3"].forEach(name => {
+        check(none, none.getQuestionByName(name), none.getQuestionByName("q2"), name === "q1" ? "v1" : name, "none: " + name);
+      });
+      const page = new SurveyModel({ dataNesting: "page", ...json });
+      const q1 = page.getQuestionByName("page1.q1");
+      check(page, q1, page.getQuestionByName("page1.p.q2"), "v1", "page #1: from its own page, inside its panel");
+      check(page, q1, page.getQuestionByName("page2.q3"), "page1.v1", "page #2: from another page");
+      check(page, q1, page.getPageByName("page1"), "page1.v1", "page #3: from the page itself");
+    });
+  });
   test("getExpressionVariableName: a variable as it is, a question's name as the question's variable", () => {
     const survey = new SurveyModel({ dataNesting: "auto", calculatedValues: [{ name: "total", expression: "1" }], elements: [
       { type: "text", name: "q1", valueName: "val1" }, { type: "text", name: "top", valueName: "city" },

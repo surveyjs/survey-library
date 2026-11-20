@@ -245,6 +245,8 @@ survey.getQuestionByName("delivery.zip");             // null: a data path is no
 // Inside the panel, an expression reads {zip}, not {postcode}.
 ```
 
+A bare name in an expression is looked up in the scope of the expression's owner first, then in each scope around it, up to the survey. In the expressions of the elements inside `deliveryPanel`, `{zip}` reads the panel's question, and a name the panel does not hold reads the question of the scope around it. The panel's own `visibleIf` and `enableIf` run outside it: use `{delivery.zip}` there. A Dynamic Panel's record and a matrix row are skipped on the way: a bare name there reads the question outside the record, as in the `"none"` mode. Use `{panel.name}` or `{row.name}` for a question of the same record.
+
 A name that contains a dot is matched as a whole first: a question named `a.b` at the top level wins over a question `b` in a panel `a`.
 
 ### Where a Path of Names Works

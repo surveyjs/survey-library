@@ -7655,8 +7655,8 @@ export class SurveyModel extends SurveyElementCore
   public getQuestionByVariable(name: string, context?: Base): IExpressionVariableInfo {
     return getQuestionByVariable(this, name, context);
   }
-  public getQuestionVariableName(question: Question): string {
-    return getQuestionVariableName(this, question);
+  public getQuestionVariableName(question: Question, context?: Base): string {
+    return getQuestionVariableName(this, question, context);
   }
   // The path of names getElementByName / getQuestionByName find the element by (O2, O8): each name scope owner's
   // name, then the element's. Its name in "none" and for an element of the survey's own scope.

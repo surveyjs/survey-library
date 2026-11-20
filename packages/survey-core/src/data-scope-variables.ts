@@ -55,12 +55,33 @@ export function getQuestionByVariable(survey: SurveyModel, name: string, context
   if (info.isUnwrapped) res.isUnwrapped = true;
   return res;
 }
-// SurveyModel.getQuestionVariableName, the reverse of getQuestionByVariable: the variable a root expression
-// names question by. A top-level question: its value name. An inner question: its data path ({address.town}):
-// the root does not resolve a name inside a container (O3). A question no root variable reaches (one inside a
-// container of a record) keeps its name, as the record's own expressions read it: its data path starts at the
-// record, not at the survey data.
-export function getQuestionVariableName(survey: SurveyModel, question: Question): string {
+// The shortest variable that reads question from context's expressions (O3): the rest of its data path after one of
+// context's scopes, innermost first, that the walk resolves back to the question. An inner scope that holds the same
+// key makes the shorter text read another question, so a scope further out gives the text. undefined when none does.
+// The record prefixes ({panel.x}, {row.x}) are out of scope: a question inside a record (its data path starts at the
+// record) and the record-relative scopes are skipped; the caller writes the record's prefix itself.
+function getVariableNameFromScopes(survey: SurveyModel, question: Question, context: Base): string {
+  if (getExpressionScopePaths(survey, question).some(item => !!item.record)) return undefined;
+  const path = question.getDataPath();
+  for (const scope of getExpressionScopePaths(survey, context)) {
+    if (!!scope.record || scope.path.length >= path.length || scope.path.some((key, i) => key !== path[i])) continue;
+    const name = path.slice(scope.path.length).join(".");
+    const info = getQuestionByVariable(survey, name, context);
+    if (!!info && info.question === question && !info.rest) return name;
+  }
+  return undefined;
+}
+// SurveyModel.getQuestionVariableName, the reverse of getQuestionByVariable: the variable an expression of context
+// (the survey when it is omitted) names question by. From inside a container, the shortest text that reads it
+// (getVariableNameFromScopes): {street} inside address. Otherwise the root's answer. When no text reaches question
+// from context (a top-level street hidden by address's street, from inside address), that root's answer reads
+// another question or a container's object there. A top-level question: its value
+// name. An inner question: its data path ({address.town}): the root does not resolve a name inside a container (O3).
+// A question no root variable reaches (one inside a container of a record) keeps its name, as the record's own
+// expressions read it: its data path starts at the record, not at the survey data.
+export function getQuestionVariableName(survey: SurveyModel, question: Question, context?: Base): string {
+  const res = !!context && context !== survey ? getVariableNameFromScopes(survey, question, context) : undefined;
+  if (!!res) return res;
   const path = question.getDataPath();
   if (path.length < 2) return question.getValueName();
   const pathName = path.join(".");

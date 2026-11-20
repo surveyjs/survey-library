@@ -1013,8 +1013,7 @@
 
 /* tables */
 .sd-question--table .sd-question__content {
-  padding-left: var(--sjs-mui-card-edge-padding);
-  padding-right: var(--sjs-mui-card-edge-padding);
+  padding-inline: var(--sjs-mui-card-edge-padding);
 }
 
 .sd-table {

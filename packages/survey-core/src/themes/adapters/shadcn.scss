@@ -776,8 +776,7 @@
 
 /* tables */
 .sd-question--table .sd-question__content {
-  padding-left: var(--sjs2-shadcn-card-edge-spacing);
-  padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  padding-inline: var(--sjs2-shadcn-card-edge-spacing);
 }
 .sd-table {
   --sd-table-cell-width: initial;

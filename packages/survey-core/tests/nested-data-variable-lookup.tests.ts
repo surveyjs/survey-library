@@ -613,3 +613,82 @@ describe("nested data: exports and helpers (L6)", () => {
     expect(name(""), "#10").toBe("");
   });
 });
+describe("nested data: the scopes of a choice, a validator and a trigger", () => {
+  const json = (): any => ({ dataNesting: "auto", elements: [
+    { type: "text", name: "street", valueName: "topStreet" },
+    { type: "text", name: "q1" },
+    { type: "panel", name: "panel1", valueName: "address", elements: [
+      { type: "text", name: "street" },
+      { type: "radiogroup", name: "kind", choices: [{ value: "a", visibleIf: "{street} = 1" }],
+        validators: [{ type: "expression", expression: "{street} = 1" }] }] },
+    { type: "paneldynamic", name: "dp", templateElements: [
+      { type: "text", name: "ps" },
+      { type: "radiogroup", name: "pr", choices: [{ value: "a", visibleIf: "{panel.ps} = 1" }],
+        validators: [{ type: "expression", expression: "{panel.ps} = 1" }] },
+      { type: "panel", name: "inner", valueName: "in", elements: [{ type: "text", name: "st" },
+        { type: "radiogroup", name: "rg", choices: [{ value: "a", visibleIf: "{st} = 1" }],
+          validators: [{ type: "expression", expression: "{st} = 1" }] }] }] },
+    { type: "text", name: "item" }
+  ], triggers: [{ type: "setvalue", expression: "{q1} = 1", setToName: "q1", setValue: 2 }] });
+  const paths = (survey: SurveyModel, el: Base): Array<string> => survey.getExpressionScopePaths(el).map(item =>
+    item.path.join(".") + (item.record ? "@" + item.record.name : ""));
+  const name = (survey: SurveyModel, varName: string, el: Base): string => {
+    const info = survey.getQuestionByVariable(varName, el);
+    return !info ? "null" : info.question.getDataPath().join(".") + "|" + info.rest;
+  };
+  test("a choice's visibleIf, of a question inside a nesting panel: the question's scopes", () => {
+    const survey = new SurveyModel(json());
+    const kind: any = survey.getQuestionByName("panel1.kind");
+    expect(paths(survey, kind.choices[0]), "#1").toEqual(["address", ""]);
+    expect(paths(survey, kind.choices[0]), "#1a: as the question").toEqual(paths(survey, kind));
+    expect(name(survey, "street", kind.choices[0]), "#2: the inner street, not the top-level one").toBe("address.street|");
+    expect(name(survey, "topStreet", kind.choices[0]), "#3").toBe("topStreet|");
+  });
+  test("a validator's expression, of a question inside a nesting panel: the question's scopes", () => {
+    const survey = new SurveyModel(json());
+    const kind: any = survey.getQuestionByName("panel1.kind");
+    expect(paths(survey, kind.validators[0]), "#1").toEqual(["address", ""]);
+    expect(name(survey, "street", kind.validators[0]), "#2").toBe("address.street|");
+  });
+  test("a trigger's expression: the root", () => {
+    const survey = new SurveyModel(json());
+    const trigger = survey.triggers[0];
+    expect(paths(survey, trigger), "#1").toEqual([""]);
+    expect(name(survey, "q1", trigger), "#2").toBe("q1|");
+    expect(name(survey, "street", trigger), "#3: the root finds no inner question by its name (O3)").toBe("null");
+    expect(name(survey, "address.street", trigger), "#4").toBe("address.street|");
+  });
+  test("a choice and a validator of a question in a dynamic panel's template: the record first, as for the question", () => {
+    const survey = new SurveyModel(json());
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const pr: any = dp.template.getQuestionByName("pr");
+    expect(paths(survey, pr), "#0: the question").toEqual(["@dp", ""]);
+    expect(paths(survey, pr.choices[0]), "#1").toEqual(["@dp", ""]);
+    expect(paths(survey, pr.validators[0]), "#2").toEqual(["@dp", ""]);
+    expect(name(survey, "panel.ps", pr.choices[0]), "#3").toBe("ps|");
+    expect(name(survey, "panel.ps", pr.validators[0]), "#4").toBe("ps|");
+    dp.panelCount = 1;
+    const pr0: any = dp.panels[0].getQuestionByName("pr");
+    expect(paths(survey, pr0.choices[0]), "#5: a record's question").toEqual(["@dp", ""]);
+    expect(name(survey, "panel.ps", pr0.choices[0]), "#6").toBe("ps|");
+  });
+  test("a choice and a validator of a question in a nesting panel of a dynamic panel's template: a bare name", () => {
+    const survey = new SurveyModel(json());
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const rg: any = dp.template.getQuestionByName("rg");
+    expect(name(survey, "st", rg), "#0: the question (a template has no data: no path above it)").toBe("st|");
+    expect(paths(survey, rg.choices[0]), "#1").toEqual(paths(survey, rg));
+    expect(name(survey, "st", rg.choices[0]), "#2: the item value has no parent: its owner sees the template").toBe("st|");
+    expect(name(survey, "st", rg.validators[0]), "#3").toBe("st|");
+    dp.panelCount = 1;
+    const rg0: any = dp.panels[0].getQuestionByName("rg");
+    expect(name(survey, "st", rg0.choices[0]), "#4: a record's question: its path starts at the record").toBe("in.st|");
+  });
+  test("a choice's own variables stay its, also with a question named like one", () => {
+    const survey = new SurveyModel(json());
+    const kind: any = survey.getQuestionByName("panel1.kind");
+    expect(name(survey, "item", kind), "#1: the question reads the question \"item\"").toBe("item|");
+    expect(name(survey, "item", kind.choices[0]), "#2: the choice reads itself").toBe("null");
+    expect(name(survey, "item", kind.validators[0]), "#3: a validator has no own variables").toBe("item|");
+  });
+});

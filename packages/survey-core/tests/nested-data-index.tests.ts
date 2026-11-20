@@ -802,3 +802,105 @@ describe("the root's keys after an element moves", () => {
     expect(street.value, "a top-level write does not reach it").toBe("a");
   });
 });
+
+describe("nested data index: hasDataNesting", () => {
+  const json = (): any => ({ dataNesting: "auto", elements: [
+    { type: "text", name: "top" },
+    { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }] },
+    { type: "paneldynamic", name: "dp", templateElements: [{ type: "text", name: "dq" }] }] });
+  test("no container nests: false, also once one has nested", () => {
+    expect(new SurveyModel({ elements: [{ type: "text", name: "q1" }] }).hasDataNesting(), "#1").toBe(false);
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "panel", name: "plain", elements: [{ type: "text", name: "q1" }] }] });
+    expect(survey.hasDataNesting(), "#2: a panel with no valueName").toBe(false);
+    panelNamed(survey, "plain").valueName = "p";
+    expect(survey.hasDataNesting(), "#3").toBe(true);
+    panelNamed(survey, "plain").valueName = "";
+    expect(survey.isDataScopeUsed(), "#4: a container has nested").toBe(true);
+    expect(survey.hasDataNesting(), "#4: none nests now").toBe(false);
+  });
+  test("dataNesting \"none\", and back", () => {
+    const survey = new SurveyModel(json());
+    expect(survey.hasDataNesting(), "#1").toBe(true);
+    survey.dataNesting = "none";
+    expect(survey.hasDataNesting(), "#2").toBe(false);
+    survey.dataNesting = "auto";
+    expect(survey.hasDataNesting(), "#3").toBe(true);
+  });
+  test("the valueName removed, and set back", () => {
+    const survey = new SurveyModel(json());
+    const pa = panelNamed(survey, "pa");
+    pa.valueName = "";
+    expect(survey.hasDataNesting(), "#1").toBe(false);
+    pa.valueName = "a";
+    expect(survey.hasDataNesting(), "#2").toBe(true);
+  });
+  test("a by-name mode: the name removed, and set back", () => {
+    const survey = new SurveyModel({ dataNesting: "panel", elements: [
+      { type: "panel", name: "pa", elements: [{ type: "text", name: "q1" }] }] });
+    const pa = panelNamed(survey, "pa");
+    expect(survey.hasDataNesting(), "#1").toBe(true);
+    pa.name = "";
+    expect(survey.hasDataNesting(), "#2").toBe(false);
+    pa.name = "pa";
+    expect(survey.hasDataNesting(), "#3").toBe(true);
+    const pageSurvey = new SurveyModel({ dataNesting: "page", pages: [{ name: "page1", elements: [{ type: "text", name: "q1" }] }] });
+    expect(pageSurvey.hasDataNesting(), "#4: a page").toBe(true);
+    pageSurvey.pages[0].name = "";
+    expect(pageSurvey.hasDataNesting(), "#5").toBe(false);
+    pageSurvey.pages[0].name = "page1";
+    expect(pageSurvey.hasDataNesting(), "#6").toBe(true);
+  });
+  test("the container deleted, and added back", () => {
+    const survey = new SurveyModel(json());
+    const pa = panelNamed(survey, "pa");
+    survey.pages[0].removeElement(pa);
+    expect(survey.hasDataNesting(), "#1").toBe(false);
+    survey.pages[0].addElement(pa, 1);
+    expect(survey.hasDataNesting(), "#2").toBe(true);
+    const page = survey.pages[0];
+    page.valueName = "pg";
+    pa.valueName = "";
+    expect(survey.hasDataNesting(), "#3: a page nests").toBe(true);
+    survey.removePage(page);
+    expect(survey.hasDataNesting(), "#4: the page deleted").toBe(false);
+    survey.addPage(page);
+    expect(survey.hasDataNesting(), "#5").toBe(true);
+  });
+  test("a container inside a plain panel: the plain panel deleted, and added back", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "panel", name: "plain", elements: [
+        { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }] }] }] });
+    const plain = panelNamed(survey, "plain");
+    expect(survey.hasDataNesting(), "#1").toBe(true);
+    survey.pages[0].removeElement(plain);
+    expect(survey.hasDataNesting(), "#2").toBe(false);
+    survey.pages[0].addElement(plain);
+    expect(survey.hasDataNesting(), "#3").toBe(true);
+  });
+  test("one of two containers deleted: true", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "panel", name: "pa", valueName: "a", elements: [{ type: "text", name: "q1" }] },
+      { type: "panel", name: "pb", valueName: "b", elements: [{ type: "text", name: "q2" }] }] });
+    survey.pages[0].removeElement(panelNamed(survey, "pa"));
+    expect(survey.hasDataNesting(), "#1").toBe(true);
+    survey.pages[0].removeElement(panelNamed(survey, "pb"));
+    expect(survey.hasDataNesting(), "#2").toBe(false);
+  });
+  test("the container moved where it does not nest (a dynamic panel's template, a nesting page's plain page), and back", () => {
+    const survey = new SurveyModel(json());
+    const pa = panelNamed(survey, "pa");
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    survey.pages[0].removeElement(pa);
+    dp.template.addElement(pa);
+    expect(survey.hasDataNesting(), "#1: inside a template, it nests in the records only").toBe(false);
+    dp.template.removeElement(pa);
+    survey.pages[0].addElement(pa, 1);
+    expect(survey.hasDataNesting(), "#2").toBe(true);
+    const pageSurvey = new SurveyModel({ dataNesting: "page", pages: [
+      { name: "p1", elements: [{ type: "panel", name: "inner", elements: [{ type: "text", name: "q1" }] }] }] });
+    expect(pageSurvey.hasDataNesting(), "#3: the page nests").toBe(true);
+    pageSurvey.pages[0].name = "";
+    expect(pageSurvey.hasDataNesting(), "#4: \"page\": a panel does not nest").toBe(false);
+  });
+});

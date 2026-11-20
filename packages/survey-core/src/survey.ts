@@ -7506,6 +7506,12 @@ export class SurveyModel extends SurveyElementCore
   public isDataScopeUsed(): boolean {
     return this.rootDataScope.isUsed;
   }
+  // Whether a page or a panel of this survey nests now (isDataScopeUsed stays true once one has nested). The
+  // outermost nesting container is a root container, a key of the root's instance: that instance answers, built
+  // again only after a change of the containers. A container inside a record nests in the records, not here.
+  public hasDataNesting(): boolean {
+    return this.isDataScopeUsed() && this.getDataKeyIndex().hasScopes();
+  }
   public getDataKeyIndex(): ElementIndex {
     return this.rootDataScope.getDataKeyIndex();
   }

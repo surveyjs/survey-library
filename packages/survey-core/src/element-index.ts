@@ -94,6 +94,10 @@ export class ElementIndex {
   public getScopes(key: string, caseInsensitive?: boolean): Array<PanelDataScope> {
     return this.containerKeys.get(key, caseInsensitive).map(el => getElementDataScope(el));
   }
+  // Whether a container is held under a key.
+  public hasScopes(): boolean {
+    return !this.containerKeys.isEmpty();
+  }
   private getKeyHash(el: ISurveyDataElement): DataKeyHash {
     return el.isQuestion ? this.questionKeys : this.containerKeys;
   }

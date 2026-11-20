@@ -54,6 +54,10 @@ export class DataKeyHash<T = ISurveyDataElement> {
       DataKeyHash.removeFrom(this.lower, key.toLowerCase(), el);
     }
   }
+  // Whether no key holds an element: a key whose last element is removed is deleted.
+  public isEmpty(): boolean {
+    return Object.keys(this.exact).length === 0;
+  }
   // The list as stored, or a shared empty one: callers only read it.
   public get(key: string, caseInsensitive?: boolean): Array<T> {
     if (!key) return noElements;

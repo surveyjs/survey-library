@@ -6,6 +6,7 @@ import { CalendarModel } from "../src/calendar/calendar";
 import { CalendarViewModel } from "../src/calendar/calendar-view-model";
 import { CalendarItem } from "../src/calendar/interfaces";
 import { InputMaskDateTime } from "../src/mask/mask_datetime";
+import { IAction } from "../src/actions/action";
 
 import { describe, test, expect, vi, afterEach } from "vitest";
 
@@ -400,6 +401,13 @@ function findRangeDay(calendar: CalendarViewModel, date: Date): CalendarItem {
 function errorTypes(q: QuestionDateTimePickerModel): Array<string> {
   return q.errors.map(error => error.getErrorType());
 }
+function mobileFooterActions(q: QuestionDateTimePickerModel): Array<IAction> {
+  const actions: Array<IAction> = [];
+  q.popupModel.onFooterActionsUpdated.add((_, options: { actions: Array<IAction> }) => {
+    actions.splice(0, actions.length, ...options.actions);
+  });
+  return actions;
+}
 
 describe("QuestionDateTimePickerModel range", () => {
   afterEach(() => {
@@ -771,5 +779,83 @@ describe("QuestionDateTimePickerModel range", () => {
     q.calendarViewModel.selectItem(findDay(q.calendarViewModel, d(2026, 11, 7)));
     expect(q.value).toBe("2026-11-07");
     expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("An open popup follows isMobile", () => {
+    const q = createQuestion({ title: "Date", description: "Pick a day" });
+    q.popupModel.show();
+    expect(q.popupModel.displayMode).toBe("popup");
+    expect(q.popupModel.cssClass).not.toContain("sv-popup--sheet");
+
+    q.isMobile = true;
+    expect(q.popupModel.displayMode).toBe("overlay");
+    expect(q.popupModel.cssClass).toContain("sv-popup--sheet");
+    expect(q.popupModel.showCloseButton).toBe(true);
+    expect(q.popupModel.title).toBe("Date");
+    expect(q.popupModel.description).toBe("Pick a day");
+
+    q.isMobile = false;
+    expect(q.popupModel.displayMode).toBe("popup");
+    expect(q.popupModel.cssClass).not.toContain("sv-popup--sheet");
+    expect(q.popupModel.showCloseButton).toBe(false);
+    expect(q.popupModel.title).toBe("");
+  });
+
+  test("Mobile Clear drops the draft and keeps the committed range", () => {
+    const q = createQuestion({ range: true });
+    const root = document.createElement("div");
+    root.appendChild(document.createElement("input"));
+    root.appendChild(document.createElement("input"));
+    q.value = ["2026-11-05", "2026-11-12"];
+    q.afterRenderQuestionElement(root);
+    const inputs = root.querySelectorAll("input");
+    expect(inputs[0].value).toBe("11/05/2026");
+    expect(inputs[1].value).toBe("11/12/2026");
+    const actions = mobileFooterActions(q);
+    q.isMobile = true;
+    q.popupModel.show();
+    actions.filter(action => action.id === "sv-datetimepicker-reset")[0].action();
+    expect(inputs[0].value).toBe("mm/dd/yyyy");
+    expect(inputs[1].value).toBe("mm/dd/yyyy");
+    expect(q.renderedStartInputValue).toBe("");
+    expect(q.renderedEndInputValue).toBe("");
+    expect(q.value).toEqual(["2026-11-05", "2026-11-12"]);
+    expect(q.calendar.value).toBeUndefined();
+    expect(q.calendar.rangeStart).toBeUndefined();
+    q.beforeDestroyQuestionElement(root);
+  });
+
+  test("Mobile Apply with only a range start clears the value and closes the popup", () => {
+    const q = createQuestion({ range: true });
+    q.value = ["2026-11-05", "2026-11-12"];
+    const actions = mobileFooterActions(q);
+    q.isMobile = true;
+    q.popupModel.show();
+    q.calendar.value = undefined;
+    q.calendar.setRangeStart(d(2026, 11, 20));
+    expect(q.calendar.rangeStart.getTime()).toBe(d(2026, 11, 20).getTime());
+    expect(q.calendar.value).toBeUndefined();
+    expect(q.value).toEqual(["2026-11-05", "2026-11-12"]);
+    actions.filter(action => action.id === "sv-datetimepicker-apply")[0].action();
+    expect(q.value).toEqual([]);
+    expect(q.popupModel.isVisible).toBe(false);
+  });
+
+  test("The mobile footer has Apply, and Clear only for a range", () => {
+    const q = createQuestion();
+    const actions = mobileFooterActions(q);
+    q.isMobile = true;
+    q.popupModel.show();
+    expect(actions.map(action => action.id)).toEqual(["sv-datetimepicker-apply"]);
+    q.isMobile = false;
+    expect(actions.map(action => action.id)).toEqual([]);
+
+    const range = createQuestion({ range: true });
+    const rangeActions = mobileFooterActions(range);
+    range.isMobile = true;
+    range.popupModel.show();
+    expect(rangeActions.map(action => action.id)).toEqual(["sv-datetimepicker-apply", "sv-datetimepicker-reset"]);
+    range.isMobile = false;
+    expect(rangeActions.map(action => action.id)).toEqual([]);
   });
 });

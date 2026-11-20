@@ -17,14 +17,14 @@
         <div *ngFor="let name of model.weekDays" [class]="model.cssClasses.weekDay">{{ name }}</div>
       </div>
       <div [class]="model.cssClasses.table" (mouseleave)="hoverItem()">
-        <div *ngFor="let item of month.days" [class]="model.cssClasses.dayCell">
+        <div *ngFor="let item of month.days; trackBy: trackIndex" [class]="model.cssClasses.dayCell">
           <div [class]="item.css" (click)="selectItem(item)" (mouseenter)="hoverItem(item)">{{ item.text }}</div>
         </div>
       </div>
     </div>
   </div>
   <div *ngIf="!model.isDayZoom" [class]="model.cssClasses.table" (mouseleave)="hoverItem()">
-    <div *ngFor="let item of model.items" [class]="item.css" (click)="selectItem(item)" (mouseenter)="hoverItem(item)">{{ item.text }}</div>
+    <div *ngFor="let item of model.items; trackBy: trackIndex" [class]="item.css" (click)="selectItem(item)" (mouseenter)="hoverItem(item)">{{ item.text }}</div>
   </div>
   <div *ngIf="model.footerVisible" [class]="model.cssClasses.footer">
     <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>

@@ -67,6 +67,8 @@ function syncInputs(): void {
 }
 onMounted(syncInputs);
 onUpdated(syncInputs);
+// The template does not read the drafts, so a calendar click has to sync the inputs on its own.
+watch(() => renderedTexts().join("\0"), syncInputs);
 watch(() => props.question.range, async () => {
   await nextTick();
   if (!root.value) return;

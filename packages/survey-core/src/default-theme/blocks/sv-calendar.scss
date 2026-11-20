@@ -335,6 +335,8 @@ $range-day: ".sv-calendar__day--in-range:not(.sv-calendar__day--hidden)";
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--sjs2-spacing-x050);
+  // content-box keeps the min-width outside the padding, so shadow DOM matches the light DOM width.
+  box-sizing: content-box;
   min-width: 343px;
   width: calc(var(--sv-calendar-cell-size) * 7 + var(--sv-calendar-cell-gap) * 6);
 }

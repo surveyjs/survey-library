@@ -50,7 +50,8 @@ export class QuestionDateTimePickerModel extends Question {
       if (this.isMobile) return;
       this.popupModel.hide();
     });
-    this.registerFunctionOnPropertyValueChanged("isMobile", () => {
+    // isMobile writes the private _isMobile property, so the open popup hears that name.
+    this.registerFunctionOnPropertyValueChanged("_isMobile", () => {
       if (!!this.popupModelValue)this.updateMobileMode();
     });
   }
@@ -286,7 +287,8 @@ export class QuestionDateTimePickerModel extends Question {
     this.calendar.setRangeStart(undefined);
     this._startInputValue = undefined;
     this._endInputValue = undefined;
-    this.updateMaskAdapterValues();
+    this.maskInputAdapters.forEach(adapter => adapter.updateInputElementValue(undefined));
+    this.updateEditorButtons();
   }
   public togglePopup(): void {
     if (this.popupModel.isVisible) {

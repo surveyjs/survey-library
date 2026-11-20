@@ -35,6 +35,7 @@ interface ICalendarItemState {
 
 interface IMonthListBinding {
   root: HTMLElement;
+  scroller: HTMLElement;
   align(): void;
   dispose(): void;
 }
@@ -162,7 +163,9 @@ export class CalendarViewModel extends Base {
       this.detachMonthList();
       return;
     }
-    if (!!this.monthListBinding && this.monthListBinding.root === root) return;
+    const scroller = root.querySelector("." + calendarCssClasses.months) as HTMLElement;
+    if (!scroller) return;
+    if (!!this.monthListBinding && this.monthListBinding.root === root && this.monthListBinding.scroller === scroller) return;
     this.detachMonthList();
     this.monthListBinding = bindMonthList(this, root);
   }
@@ -414,18 +417,31 @@ function bindMonthList(viewModel: CalendarViewModel, root: HTMLElement): IMonthL
   const scroller = root.querySelector("." + calendarCssClasses.months) as HTMLElement;
   let isGrowing = false;
   let alignFrame: number;
+  let restoreFrame: number;
+  // The list can be in the DOM before the popup has a height, so one frame is not enough.
+  const alignAttemptLimit = 30;
   const align = (): void => {
     if (!scroller) return;
     cancelAnimationFrame(alignFrame);
-    alignFrame = requestAnimationFrame(() => {
-      const anchor = root.querySelector("[data-month=\"" + viewModel.anchorMonthKey + "\"]");
-      if (!anchor) return;
-      scroller.scrollTop += anchor.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
-    });
+    const step = (framesLeft: number): void => {
+      alignFrame = requestAnimationFrame(() => {
+        if (!scroller.isConnected) return;
+        const anchor = root.querySelector("[data-month=\"" + viewModel.anchorMonthKey + "\"]") as HTMLElement;
+        if (!anchor || scroller.clientHeight === 0) {
+          if (framesLeft > 0) step(framesLeft - 1);
+          return;
+        }
+        const delta = anchor.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+        if (Math.abs(delta) <= 1) return;
+        scroller.scrollTop += delta;
+        if (framesLeft > 0) step(framesLeft - 1);
+      });
+    };
+    step(alignAttemptLimit);
   };
   // Prepended months push the content down, so the scroll position is restored after they render.
   const grow = (): void => {
-    if (isGrowing) return;
+    if (isGrowing || !scroller) return;
     const nearStart = scroller.scrollTop < listGrowEdge;
     const nearEnd = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < listGrowEdge;
     if (!nearStart && !nearEnd) return;
@@ -433,10 +449,23 @@ function bindMonthList(viewModel: CalendarViewModel, root: HTMLElement): IMonthL
     const prevTop = scroller.scrollTop;
     if (!viewModel.extendMonthList(nearStart ? -1 : 1)) return;
     isGrowing = true;
-    requestAnimationFrame(() => {
-      if (nearStart) scroller.scrollTop = prevTop + scroller.scrollHeight - prevHeight;
-      isGrowing = false;
-    });
+    // The new months are painted on a later frame. Restoring before that sees no height change and the view jumps.
+    const restore = (framesLeft: number): void => {
+      restoreFrame = requestAnimationFrame(() => {
+        const grown = scroller.scrollHeight - prevHeight;
+        if (nearStart && grown > 0) {
+          scroller.scrollTop = prevTop + grown;
+          isGrowing = false;
+          return;
+        }
+        if (nearStart && framesLeft > 0) {
+          restore(framesLeft - 1);
+          return;
+        }
+        isGrowing = false;
+      });
+    };
+    restore(alignAttemptLimit);
   };
   const onScroll = (): void => {
     grow();
@@ -445,9 +474,11 @@ function bindMonthList(viewModel: CalendarViewModel, root: HTMLElement): IMonthL
   align();
   return {
     root: root,
+    scroller: scroller,
     align: align,
     dispose: () => {
       cancelAnimationFrame(alignFrame);
+      cancelAnimationFrame(restoreFrame);
       if (!!scroller) scroller.removeEventListener("scroll", onScroll);
     }
   };

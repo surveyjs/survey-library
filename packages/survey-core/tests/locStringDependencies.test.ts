@@ -10,12 +10,15 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { PageModel } from "../src/page";
 import { Question } from "../src/question";
 import { Serializer } from "../src/jsonobject";
+import { QuestionRatingModel } from "../src/question_rating";
+import { PanelModel } from "../src/panel";
 export * from "../src/question_text";
 export * from "../src/question_html";
 export * from "../src/question_checkbox";
 export * from "../src/question_comment";
 export * from "../src/question_multipletext";
 export * from "../src/question_expression";
+export * from "../src/question_rating";
 
 // How many times a string has refreshed (strChanged fired onStringChanged) since the call
 function countRefreshes(locStr: LocalizableString): { count: number } {
@@ -528,5 +531,147 @@ describe("A string whose owner cannot check the names", () => {
     withoutNames.strChanged(changes);
     expect(a.count).toBe(1);
     expect(b.count).toBe(0);
+  });
+});
+
+describe("Rating descriptions and panel and page titles follow their rendered text", () => {
+  const names = (log: Array<{ name: string }>): Array<string> => log.map(item => item.name);
+  test("a rating description cleared before it was rendered is hidden", () => {
+    const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", minRateDescription: "Low", maxRateDescription: "High" }] });
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    expect(q1.hasMinRateDescription).toBe(true);
+    expect(q1.hasMaxRateDescription).toBe(true);
+    q1.minRateDescription = "";
+    q1.maxRateDescription = "";
+    expect(q1.hasMinRateDescription).toBe(false);
+    expect(q1.hasMaxRateDescription).toBe(false);
+  });
+  test("a rating description in another locale only is hidden in the current locale and shown in that locale", () => {
+    const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", minRateDescription: { de: "Niedrig" } }] });
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    expect(q1.hasMinRateDescription).toBe(false);
+    survey.locale = "fr";
+    expect(q1.hasMinRateDescription, "fr").toBe(false);
+    survey.locale = "";
+    expect(q1.hasMinRateDescription, "back to the default locale").toBe(false);
+    survey.locale = "de";
+    expect(q1.hasMinRateDescription, "de").toBe(true);
+    survey.locale = "";
+  });
+  test("a panel title and a page title in one locale only: no title header in another locale, and back", () => {
+    const survey = new SurveyModel({ pages: [{ name: "page1", title: { en: "Page" },
+      elements: [{ type: "panel", name: "panel1", title: { en: "Panel" }, elements: [{ type: "text", name: "q1" }] }] }] });
+    const page = survey.pages[0];
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    expect(panel.hasTitle).toBe(true);
+    expect(page.hasTitle).toBe(true);
+    survey.locale = "fr";
+    expect(panel.hasTextInTitle, "panel, fr").toBe(false);
+    expect(panel.hasTitle, "panel, fr").toBe(false);
+    expect(page.hasTextInTitle, "page, fr").toBe(false);
+    expect(page.hasTitle, "page, fr").toBe(false);
+    survey.locale = "";
+    expect(panel.hasTitle, "panel, back").toBe(true);
+    expect(page.hasTitle, "page, back").toBe(true);
+  });
+  test("a text that resolves to an empty string shows no rating description and no panel or page title header", () => {
+    const survey = new SurveyModel({ pages: [{ name: "page1", title: "{v}", elements: [
+      { type: "rating", name: "q1", minRateDescription: "{v}", maxRateDescription: "{v}", displayRateDescriptionsAsExtremeItems: true },
+      { type: "panel", name: "panel1", title: "{v}", elements: [{ type: "text", name: "q2" }] }
+    ] }] });
+    survey.setVariable("v", "");
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    const page = survey.pages[0];
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    expect(q1.hasMinRateDescription).toBe(false);
+    expect(q1.hasMaxRateDescription).toBe(false);
+    expect(q1.visibleChoices[0].locText.renderedHtml, "the first item falls back to its value").toBe("1");
+    expect(q1.visibleChoices[4].locText.renderedHtml, "the last item falls back to its value").toBe("5");
+    expect(panel.hasTitle).toBe(false);
+    expect(page.hasTitle).toBe(false);
+    const { tracker, log } = renderAndSubscribe(() => {
+      q1.hasMinRateDescription; q1.hasMaxRateDescription; panel.hasTitle; page.hasTitle;
+    });
+    survey.setVariable("v", "Text");
+    expect(names(log)).toContain("hasMinRateDescription");
+    expect(names(log)).toContain("hasMaxRateDescription");
+    expect(log.filter(item => item.name === "hasTextInTitle").map(item => item.model)).toEqual([page, panel]);
+    expect(q1.hasMinRateDescription).toBe(true);
+    expect(q1.visibleChoices[0].locText.renderedHtml, "the first item shows the description").toBe("Text");
+    expect(panel.hasTitle).toBe(true);
+    expect(page.hasTitle).toBe(true);
+    tracker.unsubscribe();
+  });
+  test("a new non-empty text notifies neither flag", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "rating", name: "q1", minRateDescription: "Low" },
+      { type: "panel", name: "panel1", title: "Panel", elements: [{ type: "text", name: "q2" }] }
+    ] });
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    const { tracker, log } = renderAndSubscribe(() => { q1.hasMinRateDescription; panel.hasTitle; });
+    q1.minRateDescription = "Lowest";
+    panel.title = "Other panel";
+    expect(names(log)).not.toContain("hasMinRateDescription");
+    expect(names(log)).not.toContain("hasTextInTitle");
+    expect(q1.hasMinRateDescription).toBe(true);
+    expect(panel.hasTitle).toBe(true);
+    tracker.unsubscribe();
+  });
+  test("in design mode a text that resolves to an empty string keeps the rating description and the panel title", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [
+      { type: "rating", name: "q1", minRateDescription: "{v}", maxRateDescription: "{v}" },
+      { type: "panel", name: "panel1", title: "{v}", elements: [{ type: "text", name: "q2" }] }
+    ] });
+    survey.setVariable("v", "");
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    expect(q1.hasMinRateDescription).toBe(true);
+    expect(q1.hasMaxRateDescription).toBe(true);
+    expect(panel.hasTextInTitle).toBe(true);
+    expect(panel.hasTitle).toBe(true);
+  });
+  test("in design mode a written hasTextInTitle stays after locale changes, and a title change recalculates it", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [{ type: "panel", name: "panel1", title: { de: "Titel" }, elements: [{ type: "text", name: "q1" }] }] });
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    expect(panel.hasTextInTitle).toBe(false);
+    panel.setPropertyValue("hasTextInTitle", true);
+    survey.locale = "de";
+    survey.locale = "fr";
+    survey.locale = "";
+    expect(panel.hasTextInTitle).toBe(true);
+    panel.title = "Panel";
+    panel.title = "";
+    expect(panel.hasTextInTitle).toBe(false);
+  });
+  test("a collapsible panel without a title shows its name", () => {
+    const survey = new SurveyModel({ elements: [{ type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }] });
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    expect(panel.hasTitle).toBe(false);
+    const { tracker, log } = renderAndSubscribe(() => { panel.hasTitle; });
+    panel.state = "collapsed";
+    expect(names(log)).toContain("hasTextInTitle");
+    expect(panel.locTitle.renderedHtml).toBe("panel1");
+    expect(panel.hasTitle).toBe(true);
+    tracker.unsubscribe();
+  });
+  test("a rating description and a panel title read before joining a survey follow the values of that survey", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.setVariable("v", "");
+    const q2 = new QuestionRatingModel("q2");
+    q2.minRateDescription = "{v}";
+    const panel = new PanelModel("panel1");
+    panel.title = "{v}";
+    expect(q2.hasMinRateDescription, "a detached question shows the text as is").toBe(true);
+    expect(panel.hasTextInTitle, "a detached panel shows the text as is").toBe(true);
+    survey.pages[0].addElement(q2);
+    survey.pages[0].addElement(panel);
+    expect(q2.hasMinRateDescription).toBe(false);
+    expect(panel.hasTextInTitle).toBe(false);
+    expect(panel.hasTitle).toBe(false);
   });
 });

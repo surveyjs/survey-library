@@ -9,17 +9,6 @@ import { SurveyBaseProviders } from "../component-depth";
   selector: "sv-ng-image-question",
   templateUrl: "./image.component.html"
 })
-export class ImageQuestionComponent extends QuestionAngular<QuestionImageModel> {
-  protected override afterViewInit(): void {
-    this.model.locImageLink.onChanged = () => {
-      this.update();
-    };
-    super.afterViewInit();
-  }
-  override ngOnDestroy(): void {
-    this.model.locImageLink.onChanged = () => {};
-    super.ngOnDestroy();
-  }
-}
+export class ImageQuestionComponent extends QuestionAngular<QuestionImageModel> {}
 
 AngularComponentFactory.Instance.registerComponent("image-question", ImageQuestionComponent);

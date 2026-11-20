@@ -1,8 +1,10 @@
 import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 import { QuestionMatrixDropdownModelBase, QuestionMatrixDropdownRenderedTable } from "survey-core";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-matrix-table",
   templateUrl: "./matrixtable.component.html"
 })

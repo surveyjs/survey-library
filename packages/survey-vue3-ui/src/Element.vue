@@ -33,7 +33,8 @@ const root = ref<HTMLElement>();
 useBase(() => props.element);
 
 const getElementComponentName = (element: SurveyElement) => {
-  return element.isPanel ? "survey-panel" : "survey-question";
+  // Do not use isPanel here: a page nested in a page container is a panel only while it has a parent.
+  return element.isQuestion ? "survey-question" : "survey-panel";
 };
 const componentName = computed(() => {
   const survey = props.element.survey as SurveyModel;

@@ -2,8 +2,10 @@ import { Component } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { QuestionSignaturePadModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-signature-component",
   templateUrl: "./signature.component.html"
 })

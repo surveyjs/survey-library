@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "../conditions/conditionProcessValue";
 import { Base } from "../base";
 import { ISurvey } from "../base-interfaces";
 import { ItemValue } from "../itemvalue";
@@ -57,9 +58,9 @@ export class FilterField extends Base implements ILocalizableOwner {
   }
   // Base.locStrsChanged walks an object's own localizableStrings, and a field owns none: locTitle
   // belongs to the template question. Without this a locale change leaves field titles stale.
-  public locStrsChanged(): void {
-    super.locStrsChanged();
-    this.templateQuestion.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
+    this.templateQuestion.locStrsChanged(changes);
   }
   // Same reason: survey.getUsedLocales() would not see the title translations otherwise.
   public addUsedLocales(locales: Array<string>): void {

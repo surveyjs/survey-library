@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Base } from "./base";
 import {
   ISurveyData,
@@ -152,9 +153,9 @@ export class MultipleTextItemModel extends Base
     super.localeChanged();
     this.editor.localeChanged();
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
-    this.editor.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
+    this.editor.locStrsChanged(changes);
   }
   setData(data: IMultipleTextData) {
     this.data = data;
@@ -598,10 +599,10 @@ export class QuestionMultipleTextModel extends Question
     json["type"] = "text";
     return json;
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     for (var i = 0; i < this.items.length; i++) {
-      this.items[i].locStrsChanged();
+      this.items[i].locStrsChanged(changes);
     }
   }
   public localeChanged(): void {

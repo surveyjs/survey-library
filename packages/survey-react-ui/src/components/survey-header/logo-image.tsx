@@ -14,28 +14,13 @@ export class LogoImage extends SurveyElementBase<ILogoImageProps, any> {
   private get survey(): SurveyModel {
     return this.props.data;
   }
-  private reactOnStrChanged = () => {
-    this.setState({ locLogoLinkchanged: !!this.state && this.state.locLogoLink ? this.state.locLogoLink + 1 : 1 });
-  };
-  componentDidMount(): void {
-    super.componentDidMount();
-    this.survey.locLogo.onStringChanged.add(this.reactOnStrChanged);
-  }
-  componentDidUpdate(prevProps: any, prevState: any): void {
-    super.componentDidUpdate(prevProps, prevState);
-    this.survey.locLogo.onStringChanged.add(this.reactOnStrChanged);
-  }
-  componentWillUnmount(): void {
-    super.componentWillUnmount();
-    this.survey.locLogo.onStringChanged.remove(this.reactOnStrChanged);
-  }
   public renderElement() {
     const content: React.JSX.Element[] = [];
     content.push(
       <div key={"logo-image"} className={this.survey.logoClassNames}>
         <img
           className={this.survey.css.logoImage}
-          src={this.survey.locLogo.renderedHtml || null}
+          src={this.survey.renderedLogoURL || null}
           role="presentation"
           width={this.survey.renderedLogoWidth}
           height={this.survey.renderedLogoHeight}

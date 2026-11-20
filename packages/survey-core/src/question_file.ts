@@ -32,6 +32,7 @@ const customCategory = settings.customFileCategoryName;
  * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
  */
 export class QuestionFileModelBase extends Question {
+  public hasDisplayTexts(): boolean { return false; }
   // File Upload and Signature Pad already draw their own clear control.
   public get supportClearTitleAction(): boolean {
     return false;

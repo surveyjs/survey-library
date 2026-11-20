@@ -1,14 +1,16 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, ElementRef, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 import { Action } from "survey-core";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-action",
   templateUrl: "./action.component.html",
   styles: [":host { display: none; }"],
 })
-export class ActionComponent extends BaseAngular implements AfterViewInit {
+export class ActionComponent extends BaseAngular {
   @Input() model!: Action;
   @ViewChild("container") containerRef!: ElementRef<HTMLElement>;
   getModel() {
@@ -21,7 +23,7 @@ export class ActionComponent extends BaseAngular implements AfterViewInit {
     super.ngOnDestroy();
     this.model.updateModeCallback = undefined as any;
   }
-  public ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     this.model.updateModeCallback = (mode, callback) => {
       this.model.mode = mode;
       queueMicrotask(() => {

@@ -284,7 +284,7 @@ export var macedonianSurveyStrings = {
   // [Auto-translated] "Loading..."
   loadingData: "Вчитување...",
   // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Сè уште нема записи.\nКликнете на копчето подолу за да додадете нов запис.",
+  noEntriesText: "Сѐ уште нема записи.\nКликнете на копчето подолу за да додадете нов запис.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Нема записи",
   // [Auto-translated] "New Panel"

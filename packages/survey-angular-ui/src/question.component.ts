@@ -1,14 +1,16 @@
 import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { Question } from "survey-core";
+import { TrackingComponent } from "./base-angular";
 import { AngularComponentFactory } from "./component-factory";
-import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
+import { SurveyBaseProviders } from "./component-depth";
 import { getComponentName } from "./question";
 
 @Component({
   selector: "sv-ng-question",
-  templateUrl: "./question.component.html"
+  templateUrl: "./question.component.html",
+  providers: SurveyBaseProviders
 })
-export class QuestionComponent extends EmbeddedViewContentComponent {
+export class QuestionComponent extends TrackingComponent {
   @Input() model!: Question;
   @Input() css: any;
   @Input() survey: any;
@@ -22,13 +24,14 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
     return this.model.singleInputQuestion;
   }
 
-  ngAfterViewInit(): void {
+  protected override afterViewInit(): void {
     if (!!this.rootEl?.nativeElement) {
       this.model.afterRender(this.rootEl?.nativeElement);
     }
   }
 
-  ngOnDestroy() {
+  override ngOnDestroy() {
+    super.ngOnDestroy();
     if (!!this.model) {
       this.model.destroyResizeObserver();
     }

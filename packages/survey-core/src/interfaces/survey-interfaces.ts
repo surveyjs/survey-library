@@ -91,7 +91,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   //#region Rendered ids
   getElementId(id: string): string;
   //#endregion
-
   //#region Settings
   // The survey's effective settings (SurveyModel.getSettings)
   getSettings(): ISurveySettings;

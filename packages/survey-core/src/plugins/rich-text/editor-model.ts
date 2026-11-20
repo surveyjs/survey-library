@@ -483,10 +483,13 @@ export class RichTextEditorModel {
   private apply(command: RichTextCommand): void {
     if (!this.element || !this.saved) return;
     const range = this.saved;
+    const start = textOffset(this.element, range.startContainer, range.startOffset);
+    const end = textOffset(this.element, range.endContainer, range.endOffset);
     if (command === "bold" || command === "italic" || command === "underline" || command === "strikeThrough") {
       const tags = MARKS[command];
-      const remove = this.markState(range, tags) === "all";
-      replaceRange(range, markHtml(range, tags, remove));
+      if (this.markState(range, tags) === "all") clearMarks(this.element, range, tags);
+      else replaceRange(range, markHtml(range, tags));
+      this.keepTextSelection(start, end);
     } else if (command === "insertUnorderedList" || command === "insertOrderedList") {
       if (this.mode === "inline") return;
       const tag = command === "insertUnorderedList" ? "ul" : "ol";
@@ -494,7 +497,8 @@ export class RichTextEditorModel {
     } else if (command === "removeFormat") {
       const items = listItemsOverlapping(this.element, range);
       if (items.length) convertItemsToParagraphs(items);
-      else replaceRange(range, clearHtml(range));
+      else clearMarks(this.element, range, ["strong", "b", "em", "i", "u", "s", "strike", "del", "a"]);
+      this.keepTextSelection(start, end);
     }
     this.rememberSelection();
   }
@@ -513,6 +517,12 @@ export class RichTextEditorModel {
     if (all) return "all";
     if (none) return "none";
     return "mixed";
+  }
+
+  // Replacing the range collapses the caret. A non-collapsed selection goes back on the same characters.
+  private keepTextSelection(start: number, end: number): void {
+    if (!this.element || end <= start) return;
+    selectOffsets(this.element, start, end);
   }
 
   private afterEdit(): void {
@@ -581,14 +591,15 @@ export class RichTextEditorModel {
     const range = this.saved;
     if (!range) return;
     const link = linkContaining(range, this.element);
+    const start = textOffset(this.element, range.startContainer, range.startOffset);
+    const end = textOffset(this.element, range.endContainer, range.endOffset);
     if (!url) {
       if (link) unwrapElement(link);
+      this.keepTextSelection(start, end);
       this.afterEdit();
       return;
     }
     if (link) {
-      const start = textOffset(this.element, range.startContainer, range.startOffset);
-      const end = textOffset(this.element, range.endContainer, range.endOffset);
       link.setAttribute("href", url);
       link.setAttribute("target", "_blank");
       link.setAttribute("rel", "noopener noreferrer");
@@ -598,6 +609,7 @@ export class RichTextEditorModel {
     }
     const label = range.collapsed ? url : range.toString();
     replaceRange(range, "<a href=\"" + escapeHref(url) + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + escapePlain(label) + "</a>");
+    this.keepTextSelection(start, end);
     this.afterEdit();
   }
 
@@ -798,22 +810,136 @@ function overlaps(range: Range, node: Text): boolean {
   }
 }
 
-function markHtml(range: Range, tags: string[], remove: boolean): string {
+function markHtml(range: Range, tags: string[]): string {
   const doc = range.startContainer.ownerDocument;
   const contents = range.extractContents();
-  if (remove) unwrap(contents, tags);
-  else {
-    const wrapper = doc.createElement(tags[0]);
-    wrapper.appendChild(contents);
-    return wrapper.outerHTML;
-  }
-  return htmlOf(contents);
+  const wrapper = doc.createElement(tags[0]);
+  wrapper.appendChild(contents);
+  return wrapper.outerHTML;
 }
 
-function clearHtml(range: Range): string {
-  const contents = range.cloneContents();
-  unwrap(contents, ["strong", "b", "em", "i", "u", "s", "strike", "del", "a", "ul", "ol", "li"]);
-  return htmlOf(contents);
+// A mark that merely contains the selection is not inside the extracted fragment, so unwrap it in place.
+// A mark that crosses the selection is split, and only the selected part is removed.
+function clearMarks(root: HTMLElement, range: Range, tags: string[]): void {
+  const start = textOffset(root, range.startContainer, range.startOffset);
+  const end = textOffset(root, range.endContainer, range.endOffset);
+  if (end <= start) return;
+  let guard = 0;
+  while(guard++ < 100) {
+    const current = rangeFromOffsets(root, start, end);
+    if (!current) return;
+    const element = deepestMark(root, current, tags);
+    if (!element) return;
+    if (markCovered(root, current, element)) {
+      unwrapElement(element);
+      continue;
+    }
+    if (!splitMark(root, element, current)) return;
+  }
+}
+
+function deepestMark(root: HTMLElement, range: Range, tags: string[]): HTMLElement | undefined {
+  const found = root.querySelectorAll(tags.join(","));
+  let best: HTMLElement | undefined;
+  let depth = -1;
+  for (let i = 0; i < found.length; i++) {
+    const element = found[i] as HTMLElement;
+    if (!safeIntersects(range, element)) continue;
+    const next = nodeDepth(element);
+    if (next <= depth) continue;
+    best = element;
+    depth = next;
+  }
+  return best;
+}
+
+function nodeDepth(node: Node): number {
+  let depth = 0;
+  let current: Node | null = node;
+  while(current) {
+    depth += 1;
+    current = current.parentNode;
+  }
+  return depth;
+}
+
+function markCovered(root: HTMLElement, range: Range, element: HTMLElement): boolean {
+  const ends = textEnds(root, element);
+  if (!ends) return false;
+  const selStart = textOffset(root, range.startContainer, range.startOffset);
+  const selEnd = textOffset(root, range.endContainer, range.endOffset);
+  return selStart <= ends.start && selEnd >= ends.end && selEnd > selStart;
+}
+
+function splitMark(root: HTMLElement, element: HTMLElement, range: Range): boolean {
+  if (pointInside(root, element, range.startContainer, range.startOffset)) {
+    return extractBefore(element, range.startContainer, range.startOffset);
+  }
+  if (pointInside(root, element, range.endContainer, range.endOffset)) {
+    return extractBefore(element, range.endContainer, range.endOffset);
+  }
+  return false;
+}
+
+function pointInside(root: HTMLElement, element: HTMLElement, container: Node, offset: number): boolean {
+  if (container !== element && !element.contains(container)) return false;
+  const ends = textEnds(root, element);
+  if (!ends) return false;
+  const point = textOffset(root, container, offset);
+  return point > ends.start && point < ends.end;
+}
+
+function textEnds(root: HTMLElement, element: HTMLElement): { start: number, end: number } | undefined {
+  const doc = element.ownerDocument;
+  if (!doc) return undefined;
+  const inner = doc.createRange();
+  try {
+    inner.selectNodeContents(element);
+  } catch(e) {
+    return undefined;
+  }
+  return {
+    start: textOffset(root, inner.startContainer, inner.startOffset),
+    end: textOffset(root, inner.endContainer, inner.endOffset)
+  };
+}
+
+function extractBefore(element: HTMLElement, container: Node, offset: number): boolean {
+  const doc = element.ownerDocument;
+  const parent = element.parentNode;
+  if (!doc || !parent) return false;
+  const before = doc.createRange();
+  try {
+    before.selectNodeContents(element);
+    before.setEnd(container, offset);
+  } catch(e) {
+    return false;
+  }
+  const frag = before.extractContents();
+  if (!frag.hasChildNodes()) return false;
+  const left = doc.createElement(element.tagName.toLowerCase());
+  const attrs = element.attributes;
+  for (let i = 0; i < attrs.length; i++) left.setAttribute(attrs[i].name, attrs[i].value);
+  left.appendChild(frag);
+  parent.insertBefore(left, element);
+  if (!(element.textContent || "").length && !element.querySelector("br")) parent.removeChild(element);
+  return true;
+}
+
+function rangeFromOffsets(root: HTMLElement, start: number, end: number): Range | undefined {
+  const from = textPoint(root, start, end > start);
+  const to = textPoint(root, end, false);
+  if (!from || !to) return undefined;
+  const doc = root.ownerDocument;
+  if (!doc) return undefined;
+  const range = doc.createRange();
+  try {
+    range.setStart(from.node, from.offset);
+    range.setEnd(to.node, to.offset);
+  } catch(e) {
+    return undefined;
+  }
+  return range;
 }
 
 function unwrap(root: Node, tags: string[]): void {

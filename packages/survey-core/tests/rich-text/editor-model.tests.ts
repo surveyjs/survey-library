@@ -79,6 +79,39 @@ describe("rich text editor model", () => {
     expect(model.toggleState("bold")).toBe("mixed");
   });
 
+  test("formatting a selection keeps that selection", () => {
+    const question = new QuestionRichTextModel("c");
+    question.richTextToolbarMode = "onSelection";
+    const { element, model } = mount(question);
+    element.innerHTML = "Please read the terms";
+    selectText(element, model, "read", "read");
+    expect(model.toolbarOpen).toBe(true);
+
+    model.run("bold");
+    expect(document.getSelection().toString()).toBe("read");
+    expect(model.toggleState("bold")).toBe("all");
+    expect(model.toolbarOpen).toBe(true);
+    expect(element.innerHTML.toLowerCase()).toBe("please <strong>read</strong> the terms");
+
+    model.run("italic");
+    model.run("underline");
+    model.run("strikeThrough");
+    expect(document.getSelection().toString()).toBe("read");
+    expect(model.toggleState("bold")).toBe("all");
+    expect(model.toggleState("italic")).toBe("all");
+    expect(model.toggleState("underline")).toBe("all");
+    expect(model.toggleState("strikeThrough")).toBe("all");
+    expect(model.toolbarOpen).toBe(true);
+
+    model.run("removeFormat");
+    expect(document.getSelection().toString()).toBe("read");
+    expect(model.toggleState("bold")).toBe("none");
+    expect(model.toggleState("italic")).toBe("none");
+    expect(model.toggleState("underline")).toBe("none");
+    expect(model.toggleState("strikeThrough")).toBe("none");
+    expect(element.textContent).toBe("Please read the terms");
+  });
+
   test("bold on a mixed selection stores the worked example", () => {
     const survey = new SurveyModel({ elements: [{ type: "richtext", name: "c" }] });
     const question = survey.getQuestionByName("c") as QuestionRichTextModel;
@@ -547,6 +580,7 @@ describe("rich text editor model", () => {
       expect(url.errors.length).toBeGreaterThan(0);
       url.value = "https://surveyjs.io";
       expect(options.onApply()).toBe(true);
+      expect(document.getSelection().toString()).toBe("this");
       element.dispatchEvent(new FocusEvent("blur"));
       expect(question.value).toBe("read <a href=\"https://surveyjs.io\" target=\"_blank\" rel=\"noopener noreferrer\">this</a>");
     } finally {

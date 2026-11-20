@@ -31,7 +31,7 @@ In a script tag the UMD build is `survey-core/rich-text/index.js` and the global
 
 With `acceptCarriageReturn: false` the editor is one line: no paragraphs and no lists. Otherwise it is a block editor.
 
-The toolbar commands are bold, italic, underline, strikethrough, link, bulleted list, numbered list, and clear formatting. Lists are available only in block mode. A link must use `http://`, `https://`, or `mailto:`.
+The toolbar commands are bold, italic, underline, strikethrough, link, bulleted list, numbered list, and clear formatting. Lists are available only in block mode. A link must use `http://`, `https://`, or `mailto:`. A command applied to a selection leaves that selection in place, so the same text can take another format and an on-selection bar stays open.
 
 If the stored value contains markup the editor cannot change (a table, a style, a script), the question opens in source mode and shows the raw HTML. The respondent can choose "Edit as rich text", which drops the unsupported formatting. Blurring the field without that choice leaves the original value unchanged.
 

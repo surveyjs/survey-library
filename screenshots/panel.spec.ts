@@ -114,9 +114,11 @@ frameworks.forEach(framework => {
       });
 
       const panelRoot = page.locator(".sd-panel");
+      await resetFocusToBody(page);
       await compareScreenshot(page, panelRoot, "panel-collapse.png");
       await panelRoot.locator(".sd-panel__title").click();
       await page.hover("body", { position: { x: 0, y: 0 } });
+      await resetFocusToBody(page);
       await compareScreenshot(page, panelRoot, "panel-expand.png");
     });
 
@@ -143,9 +145,11 @@ frameworks.forEach(framework => {
       });
 
       const panelRoot = page.locator(".sd-panel");
+      await resetFocusToBody(page);
       await compareScreenshot(page, panelRoot, "panel-collapse-rtl.png");
       await panelRoot.locator(".sd-panel__title").click();
       await page.hover("body", { position: { x: 0, y: 0 } });
+      await resetFocusToBody(page);
       await compareScreenshot(page, panelRoot, "panel-expand-rtl.png");
 
       await page.setViewportSize({ width: 400, height: 1080 });
@@ -865,6 +869,7 @@ frameworks.forEach(framework => {
       await expect(page.locator(".sd-panel__title")).toBeVisible();
       await page.evaluate(() => window.scrollBy(0, 400));
       await page.locator(".sd-panel__title").click({ force: true });
+      await resetFocusToBody(page);
       await compareScreenshot(page, undefined, "panel-scroll-on-expand.png");
     });
   });

@@ -1,6 +1,6 @@
 import { resolve, dirname } from "node:path";
 import { fileURLToPath, URL } from "node:url";
-import { createEsmConfig, createUmdConfig, createCssConfig } from "../../rollup.helpers.mjs";
+import { createEsmConfig, createUmdConfig } from "../../rollup.helpers.mjs";
 import fs from "fs-extra";
 import process from "process";
 import pkg from "./package.json" with { type: "json" };
@@ -62,14 +62,6 @@ export default (options = {}) => {
       version: pkg.version,
       noEmitOnError: !options.watch,
       extraPlugins: [svgPlugin()],
-    }),
-    createCssConfig({
-      input: {
-        "rich-text": resolve("./src/default-theme/rich-text.scss"),
-      },
-      dir: buildPath,
-      emitMinified: process.env.emitMinified === "true",
-      version: pkg.version,
     })
   ];
 };

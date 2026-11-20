@@ -14,7 +14,6 @@
             var pluginOff = /[?&]plugin=off(?:&|$)/.test(location.search);
             window.__richTextPlugin = !pluginOff;
             if (pluginOff) return;
-            document.write("<link rel=\"stylesheet\" href=\"./node_modules/survey-core/rich-text.css\" />");
             document.write("<script src=\"./node_modules/survey-core/rich-text/index.js\"><\/script>");
         })();
     </script>

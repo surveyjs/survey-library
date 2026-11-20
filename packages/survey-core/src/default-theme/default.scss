@@ -84,6 +84,7 @@
 @use "blocks/sd-imagemap.scss";
 @use "blocks/sd-filter.scss";
 @use "./default.m600.scss";
+@use "rich-text.scss";
 
 body {
   --sv-defaultV2-mark: true;

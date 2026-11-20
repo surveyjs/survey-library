@@ -6,10 +6,9 @@ The rich-text API is a separate `survey-core/rich-text` plugin. Loading it regis
 
 ```ts
 import { QuestionRichTextModel, RichText } from "survey-core/rich-text";
-import "survey-core/rich-text.css";
 ```
 
-In a script tag the UMD build is `survey-core/rich-text/index.js` and the global is `SurveyRichText`. The plugin must be loaded after `survey-core`. A form that never imports it downloads neither the script nor the CSS.
+In a script tag the UMD build is `survey-core/rich-text/index.js` and the global is `SurveyRichText`. The plugin must be loaded after `survey-core`. The editor styles ship in `survey-core.css`. A form that never imports the plugin downloads none of its script.
 
 ## `richtext` question
 

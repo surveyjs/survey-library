@@ -213,11 +213,10 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
         shadowRoot.appendChild(link);
       };
       addSheet("../../node_modules/survey-core/survey-core.min.css");
-      addSheet("../../node_modules/survey-core/rich-text.min.css");
       shadowRoot.appendChild(rootElement);
     });
 
-    await page.waitForFunction(() => (window as any).__surveyStylesLoaded >= 2, { timeout: 5000 });
+    await page.waitForFunction(() => (window as any).__surveyStylesLoaded >= 1, { timeout: 5000 });
 
     await page.evaluate(() => {
       const self: any = window;

@@ -200,6 +200,27 @@ describe("QuestionDateTimePickerModel", () => {
     expect(q.popupModel.isVisible).toBe(false);
   });
 
+  test("Changing the zoom recalculates the popup height while the popup is shown", () => {
+    const q = createQuestion();
+    q.calendar.zoomOut();
+    expect(q["popupModelValue"]).toBeUndefined();
+    q.calendar.resetView();
+
+    const log: Array<boolean> = [];
+    q.popupModel.recalculatePositionAfterRender = (isResetHeight: boolean) => { log.push(isResetHeight); };
+    q.calendar.zoomOut();
+    expect(log).toEqual([]);
+
+    q.togglePopup();
+    log.length = 0;
+    q.calendar.zoomOut();
+    expect(q.calendar.zoom).toBe("month");
+    q.calendar.selectDate(d(2026, 3, 1));
+    expect(q.calendar.zoom).toBe("day");
+    expect(log).toEqual([true, true]);
+    q.togglePopup();
+  });
+
   test("Calendar button opens the popup", () => {
     const q = createQuestion();
     const button = q.editorButtons.getActionById("calendar");

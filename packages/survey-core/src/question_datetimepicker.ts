@@ -50,6 +50,11 @@ export class QuestionDateTimePickerModel extends Question {
       if (this.isMobile) return;
       this.popupModel.hide();
     });
+    this.calendarValue.onZoomChanged.add(() => {
+      if (!!this.popupModelValue && this.popupModelValue.isVisible) {
+        this.popupModelValue.recalculatePositionAfterRender(true);
+      }
+    });
     // isMobile writes the private _isMobile property, so the open popup hears that name.
     this.registerFunctionOnPropertyValueChanged("_isMobile", () => {
       if (!!this.popupModelValue)this.updateMobileMode();

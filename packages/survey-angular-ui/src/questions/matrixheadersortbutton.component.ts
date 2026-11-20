@@ -1,9 +1,11 @@
 import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 import { QuestionMatrixDropdownModelBase, QuestionMatrixDropdownRenderedCell } from "survey-core";
+import { SurveyBaseProviders } from "../component-depth";
 
 // The button a sortable column header holds. The cell computes every value; this only renders it.
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-matrixheadersortbutton",
   templateUrl: "./matrixheadersortbutton.component.html",
   styleUrls: ["../hide-host.scss"]

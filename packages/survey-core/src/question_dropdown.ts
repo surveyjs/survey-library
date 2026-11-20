@@ -1,3 +1,4 @@
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -37,8 +38,8 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
       this.updateInputPlaceholder(newValue);
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     this.resetReadOnlyText();
     this.updateInputPlaceholder(this.placeholder);
   }

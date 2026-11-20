@@ -8,6 +8,7 @@ import { median, min, max, mad, p75, summarize } from "./stats.ts";
 import { sampleLoop, scenarioDriver } from "./sample.ts";
 import type { SampleDriver } from "./sample.ts";
 import { installFunnels, funnels } from "./counters.ts";
+import { cdpMetricNames, pickMetrics, renderCounters, durationInfo, leakCounters, untilQuiet, pickHeapUsage, heapInfo, heapGrowthCounters } from "./cdp.ts";
 import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, RENDER_SUBSET } from "./ids.ts";
 import { defineScenarios, fixtureOfId, missingRequirement } from "./scenario.ts";
 import { allScenarios, PAGE_REV } from "../scenarios/index.ts";
@@ -75,6 +76,42 @@ describe("the sample loop", () => {
     expect(log.filter((x: string) => x === "check").length).toBe(1 + 5 + 1);
     expect(res.counters.own).toEqual({ value: 7, kind: "work" });
     expect(res.counters.conditionRuns).toEqual({ value: 0, kind: "work" });
+  });
+  test("beforeSamples runs after the warm-ups, afterSamples after the last sample and before the counter run", async() => {
+    const log: Array<string> = [];
+    let t = 0;
+    let warm = 2;
+    const driver: SampleDriver = {
+      sample: async(): Promise<any> => { t += 100; log.push(warm-- > 0 ? "warmup" : "sample"); return { ms: 100 }; },
+      counterRun: async(): Promise<any> => { log.push("counters"); return {}; },
+      beforeSamples: async(): Promise<void> => { log.push("before"); },
+      afterSamples: async(): Promise<void> => { log.push("after"); }
+    };
+    const res = await sampleLoop(driver, { warmup: 2, samples: 5, maxMs: 100000, minSamples: 5, now: () => t });
+    expect(log).toEqual(["warmup", "warmup", "before"].concat(new Array(5).fill("sample"), ["after", "counters"]));
+    expect(res.log).toEqual(["warmup", "warmup"].concat(new Array(5).fill("sample"), ["counters"]));
+  });
+  test("the counter run hooks wrap the runs only (repeat included), and their counters join the counter run's", async() => {
+    const log: Array<string> = [];
+    const s = defineScenarios([{
+      id: "manyPages/pages/prev", rev: 1, fixture: "manyPages", kind: "action", repeat: 3,
+      setup: () => { log.push("setup"); return {}; },
+      run: () => { log.push("run"); },
+      check: () => { log.push("check"); },
+      teardown: () => { log.push("teardown"); }
+    }])[0];
+    let t = 0;
+    const ctx: any = { Survey: Survey, fixture: {}, platform: "browser", now: () => t, cache: {} };
+    const driver = scenarioDriver(s, ctx, { now: () => ++t, gc: () => {}, installFunnels: () => installFunnels(Survey),
+      beforeCounterRun: async(): Promise<void> => { log.push("before"); },
+      afterCounterRun: async(): Promise<any> => { log.push("after"); return { layoutCount: { value: 2, kind: "render" } }; } });
+    const counters = await driver.counterRun();
+    expect(log).toEqual(["setup", "before", "run", "run", "run", "after", "check", "teardown"]);
+    expect(counters.layoutCount).toEqual({ value: 2, kind: "render" });
+    expect(counters.conditionRuns).toEqual({ value: 0, kind: "work" });
+    log.length = 0;
+    await driver.sample();
+    expect(log).toEqual(["setup", "run", "run", "run", "check", "teardown"]);
   });
   test("requires: the first property the build lacks is the skip reason", () => {
     const fake = { Serializer: { findProperty: (cls: string, prop: string) => (cls === "matrixdynamic" && prop === "pageSize" ? {} : null) } };
@@ -189,6 +226,90 @@ describe("counter funnels", () => {
     missing.uninstall();
     // Uninstalled: the prototypes are back.
     expect(Object.prototype.hasOwnProperty.call(Survey.ExpressionRunner.prototype, "runContextCore")).toBe(false);
+  });
+});
+
+describe("CDP metrics", () => {
+  const snap = (layouts: number, styles: number, layoutS: number, styleS: number, scriptS: number, listeners: number, nodes: number): any =>
+    pickMetrics([{ name: "LayoutCount", value: layouts }, { name: "RecalcStyleCount", value: styles }, { name: "LayoutDuration", value: layoutS },
+      { name: "RecalcStyleDuration", value: styleS }, { name: "ScriptDuration", value: scriptS }, { name: "JSEventListeners", value: listeners },
+      { name: "Nodes", value: nodes }, { name: "Documents", value: 9 }, { name: "Timestamp", value: 123 }]);
+  test("a snapshot keeps the named metrics only", () => {
+    expect(Object.keys(snap(1, 1, 0, 0, 0, 1, 1)).sort()).toEqual(cdpMetricNames.slice().sort());
+  });
+  test("render counters, durations and leaks are the differences of two snapshots", () => {
+    const before = snap(10, 20, 0.5, 0.25, 1, 100, 1000);
+    const after = snap(12, 23, 0.5012345, 0.2504, 1.003, 104, 1050);
+    expect(renderCounters(before, after)).toEqual({ layoutCount: { value: 2, kind: "render" }, recalcStyleCount: { value: 3, kind: "render" } });
+    expect(durationInfo(before, after)).toEqual({ layoutMs: 1.23, recalcStyleMs: 0.4, scriptMs: 3 });
+    expect(leakCounters(before, after, 1)).toEqual({ listenerGrowth: { value: 4, kind: "leak" }, nodeGrowth: { value: 50, kind: "leak" } });
+  });
+  test("leaks are the growth per cycle: a growth that stops after the first cycle is not one", () => {
+    const at = (listeners: number, nodes: number): any => snap(0, 0, 0, 0, 0, listeners, nodes);
+    // A real leak: +341 / +489 every cycle, whatever the number of cycles.
+    expect(leakCounters(at(2688, 4859), at(4052, 6815), 4)).toEqual({ listenerGrowth: { value: 341, kind: "leak" }, nodeGrowth: { value: 489, kind: "leak" } });
+    expect(leakCounters(at(2688, 4859), at(3370, 5837), 2)).toEqual({ listenerGrowth: { value: 341, kind: "leak" }, nodeGrowth: { value: 489, kind: "leak" } });
+    expect(leakCounters(at(10, 100), at(11, 102), 3)).toEqual({ listenerGrowth: { value: 0.33, kind: "leak" }, nodeGrowth: { value: 0.67, kind: "leak" } });
+    // No cycle between the snapshots: no growth to tell.
+    expect(leakCounters(at(1, 1), at(1, 1), 0)).toEqual({ listenerGrowth: { value: null, kind: "leak" }, nodeGrowth: { value: null, kind: "leak" } });
+  });
+  test("without the bridge the counters are null and there are no durations", () => {
+    expect(renderCounters(null, null)).toEqual({ layoutCount: { value: null, kind: "render" }, recalcStyleCount: { value: null, kind: "render" } });
+    expect(leakCounters(snap(1, 1, 0, 0, 0, 1, 1), null, 4)).toEqual({ listenerGrowth: { value: null, kind: "leak" }, nodeGrowth: { value: null, kind: "leak" } });
+    expect(durationInfo(null, null)).toEqual({});
+  });
+  test("heap usage: the V8 and the Blink heaps of Runtime.getHeapUsage, in MB for info", () => {
+    // Chromium 148's full response.
+    const res = { usedSize: 716436, totalSize: 1048576, embedderHeapUsedSize: 31467304, backingStorageSize: 30 };
+    expect(pickHeapUsage(res)).toEqual({ JSHeapUsed: 716436, BlinkHeapUsed: 31467304 });
+    expect(heapInfo(pickHeapUsage(res))).toEqual({ jsHeapMB: 0.68, blinkHeapMB: 30.01 });
+    // A Chromium without the embedder heap: no blinkHeapMB rather than a stand-in.
+    expect(pickHeapUsage({ usedSize: 2097152, totalSize: 4194304 })).toEqual({ JSHeapUsed: 2097152 });
+    expect(heapInfo(pickHeapUsage({ usedSize: 2097152, totalSize: 4194304 }))).toEqual({ jsHeapMB: 2 });
+    expect(heapInfo(null)).toEqual({});
+  });
+  test("heap growth per cycle, in KB, as counters of kind heap", () => {
+    const at = (js: number, blink: number): any => ({ JSHeapUsed: js, BlinkHeapUsed: blink });
+    expect(heapGrowthCounters(at(1048576, 2097152), at(1048576 + 4 * 10240, 2097152 + 4 * 512), 4))
+      .toEqual({ jsHeapGrowth: { value: 10, kind: "heap" }, blinkHeapGrowth: { value: 0.5, kind: "heap" } });
+    expect(heapGrowthCounters(at(1000, 1000), at(1000, 1000), 0))
+      .toEqual({ jsHeapGrowth: { value: null, kind: "heap" }, blinkHeapGrowth: { value: null, kind: "heap" } });
+    expect(heapGrowthCounters({ JSHeapUsed: 0 }, { JSHeapUsed: 3072 }, 3))
+      .toEqual({ jsHeapGrowth: { value: 1, kind: "heap" }, blinkHeapGrowth: { value: null, kind: "heap" } });
+  });
+  // A fake page: each wait() is a frame; the snapshot after frame i has the i-th layout and recalc counts.
+  const frames = (layouts: Array<number>, recalcs?: Array<number>): any => {
+    let i = -1;
+    const log: Array<string> = [];
+    return {
+      log: log,
+      wait: async(): Promise<void> => { i++; log.push("frame"); },
+      snapshot: async(): Promise<any> => {
+        log.push("snapshot");
+        const at = Math.min(i, layouts.length - 1);
+        return { LayoutCount: layouts[at], RecalcStyleCount: recalcs ? recalcs[Math.min(i, recalcs.length - 1)] : 0 };
+      }
+    };
+  };
+  test("the window closes when the counts stay the same for two frames in a row", async() => {
+    const f = frames([5, 7, 9, 9, 9, 12]);
+    const res = await untilQuiet(f.snapshot, f.wait, { quietFrames: 2, maxFrames: 60 });
+    expect(res.snapshot).toEqual({ LayoutCount: 9, RecalcStyleCount: 0 });
+    expect(res.frames).toBe(5);
+    expect(f.log.slice(0, 2)).toEqual(["frame", "snapshot"]);
+  });
+  test("a recalc count that still changes keeps the window open", async() => {
+    const f = frames([3, 3, 3, 3, 3], [1, 2, 3, 3, 3]);
+    const res = await untilQuiet(f.snapshot, f.wait, { quietFrames: 2, maxFrames: 60 });
+    expect(res.snapshot).toEqual({ LayoutCount: 3, RecalcStyleCount: 3 });
+    expect(res.frames).toBe(5);
+  });
+  test("no quiet within maxFrames, or no bridge: the snapshot is null", async() => {
+    const busy = frames(Array.from({ length: 100 }, (v: any, i: number) => i));
+    const res = await untilQuiet(busy.snapshot, busy.wait, { quietFrames: 2, maxFrames: 10 });
+    expect(res).toEqual({ snapshot: null, frames: 10 });
+    const none = await untilQuiet(async(): Promise<any> => null, async(): Promise<void> => {}, { quietFrames: 2, maxFrames: 10 });
+    expect(none).toEqual({ snapshot: null, frames: 1 });
   });
 });
 

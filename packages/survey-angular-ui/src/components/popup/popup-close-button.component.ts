@@ -2,8 +2,10 @@ import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { PopupBaseViewModel } from "survey-core";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-popup-close-button, '[sv-ng-popup-close-button]'",
   templateUrl: "./popup-close-button.component.html"
 })

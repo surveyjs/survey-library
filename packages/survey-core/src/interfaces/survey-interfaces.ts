@@ -17,6 +17,7 @@ import type {
   ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks,
   ISurveyDynamicDataCallbacks,
+  ISurveyFilterCallbacks,
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
@@ -73,7 +74,7 @@ export interface ISurveySingleInput {
 }
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   ISurveyElementLifecycle, ISurveyFileCallbacks, ISurveyMatrixCallbacks,
-  ISurveyDynamicPanelCallbacks, ISurveyDynamicDataCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
+  ISurveyDynamicPanelCallbacks, ISurveyDynamicDataCallbacks, ISurveyFilterCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks, ISurveyTitleSettings, ISurveyValidation,
   ISurveySingleInput {
 
@@ -90,7 +91,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   //#region Rendered ids
   getElementId(id: string): string;
   //#endregion
-
   //#region Settings
   // The survey's effective settings (SurveyModel.getSettings)
   getSettings(): ISurveySettings;

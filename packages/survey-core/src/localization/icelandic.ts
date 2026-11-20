@@ -309,6 +309,122 @@ export var icelandicSurveyStrings = {
   progressbar: "Framvindustika",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Síða {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Tómt",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Ekki tómt",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Jafngildir",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Jafngildir ekki",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Inniheldur",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Inniheldur ekki",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Hvaða sem er",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Ekkert af",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Allt",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Meiri en",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Minna en",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Stærri eða jafnt og",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Minna en eða jafnt",
+  // [Auto-translated] "Save"
+  filterSave: "Vista",
+  // [Auto-translated] "Filters"
+  filterFilters: "Síur",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Síur: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Síur",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Leita",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Leitaðu eftir {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Sýna meira",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Sýna minna",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Hreinsið allt",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Skýrt {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Forstilling",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Vista sem...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Vista",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Bæta við \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Forstillingar",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Sýna {0} atriði",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Sýna 1 atriði",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Niðurstöður sýna",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Ný forstilling",
+  // [Auto-translated] "Name"
+  filterPresetName: "Nafn",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Inniheldur",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Forstilling með þessu nafni er þegar til.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Bættu við að minnsta kosti einu skilyrði.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Sláðu inn tjáningu.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Tjáningin er ekki gild.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Breyting sem tjáning",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Breyting sem Tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Sláðu inn orðatiltæki hér...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Breyta forstillingu",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Eyða",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Bæta við nýju...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Breyta valið...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Tjáning",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Breyting...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Leitaðu í síum",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Ekkert fannst, prófaðu mismunandi leitarorð",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Búðu til forstillingu með gervigreind",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Breyta forstillingu með gervigreind",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Til dæmis \"Kaffi & te frá Þýskalandi\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Búa til",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Breyta",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Að skapa...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Klipping...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI gat ekki búið til síu. Reyndu aftur.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "Gervigreind gat ekki búið til síu af þessari lýsingu.",
   // [Auto-translated] "to select"
   keyboardHintSelectText: "Til að velja",
   // [Auto-translated] "to toggle"

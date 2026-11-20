@@ -21,9 +21,10 @@ import {
   ISurveySingleInput
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import type { ChangedKeys } from "./conditions/conditionProcessValue";
 import { ActionContainer } from "./actions/container";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
@@ -96,7 +97,9 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     this.setPropertyValue("hasDescription", val);
   }
   protected calcDescriptionVisibility(): boolean {
-    const newDescription = this.description;
+    // The rendered text at runtime: dynamic text that resolves to an empty string shows no description.
+    // A designer edits the text itself, so there the text counts.
+    const newDescription = this.isDesignMode ? this.description : this.locDescription.renderedHtml;
     let showPlaceholder = false;
     if (this.isDesignMode) {
       const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
@@ -115,12 +118,18 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     this.resetPropertyValue("hasDescription");
   }
   private updateDescriptionVisibility(): void {
-    if (this.getPropertyValueWithoutDefault("hasDescription") === undefined) return;
-    this.setPropertyValue("hasDescription", this.calcDescriptionVisibility());
+    this.refreshLazyPropertyValue("hasDescription", () => this.calcDescriptionVisibility());
+  }
+  protected onLocalizableStringRenderedTextChanged(name: string): void {
+    super.onLocalizableStringRenderedTextChanged(name);
+    if (name === "description") {
+      this.updateDescriptionVisibility();
+    }
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
-    if (name === "description" || (name === "title" && this.isDesignMode)) {
+    // beforeShowInplaceDescriptionEditorCallback may check the title
+    if (name === "title" && this.isDesignMode) {
       this.updateDescriptionVisibility();
     }
   }
@@ -489,10 +498,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       Array.prototype.push.apply(titleActions, actions);
     }
   }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
+  public locStrsChanged(changes?: ChangedKeys): void {
+    super.locStrsChanged(changes);
     if (!!this.titleToolbarValue) {
-      this.titleToolbarValue.locStrsChanged();
+      this.titleToolbarValue.locStrsChanged(changes);
     }
     // An error text can interpolate values ({calculatedValue}) the same way a title does.
     // Read the property directly: the errors getter creates the array.
@@ -548,16 +557,39 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const data = <IObjectValueContext><any>this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
+  // The data context adds its own names ({row}, {panel}, {composite}). They are checked next to the
+  // keys, not merged into them, and the context reads the raw keys
   protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     const data = <IObjectValueContext><any>this.data;
     if (!!data && typeof data.getValueGetterContext === "function") {
       const dataContext = data.getValueGetterContext();
       if (typeof dataContext?.getContextKeys === "function") {
-        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars, isClearedKeyChanged);
+        const changedKeys = this.getChangedKeys(keys);
+        return super.canSkipExpressionByKeys(runner, changedKeys, vars, isClearedKeyChanged, dataContext.getContextKeys(changedKeys.keys));
       }
     }
     return super.canSkipExpressionByKeys(runner, keys, vars, isClearedKeyChanged);
+  }
+  // ILocalizableOwner: the names the data context adds ({row}, {panel}, {composite}), the way
+  // canSkipExpressionByKeys reads them. Kept for the walk of one value change: every string of the
+  // element is checked against the same changes.
+  private textContextKeys: { changes: ChangedKeys, keys: HashTable<any> };
+  public getTextContextKeys(changes: ChangedKeys): HashTable<any> {
+    if (changes.isUnknown) return undefined;
+    const cached = this.textContextKeys;
+    if (!!cached && cached.changes === changes) return cached.keys;
+    let keys: HashTable<any> = undefined;
+    const data: any = this.data;
+    // The survey's context adds no names
+    if (!!data && !data.isSurvey && typeof data.getValueGetterContext === "function") {
+      const dataContext = data.getValueGetterContext();
+      if (typeof dataContext?.getContextKeys === "function") {
+        keys = dataContext.getContextKeys(changes.keys);
+      }
+    }
+    this.textContextKeys = { changes: changes, keys: keys };
+    return keys;
   }
   protected get shouldHandleFocusScroll(): boolean {
     return !!(this.survey as SurveyModel)?.autoCenterFocusedQuestion;
@@ -1158,7 +1190,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   private setRootStyle() {
-    this.rootStyle = this.calcRootStyle();
+    const style = this.calcRootStyle();
+    if (!Helpers.isTwoValueEquals(this.rootStyle, style)) {
+      this.rootStyle = style;
+    }
   }
   /**
    * A total width, in percent, of the grid layout columns this element occupies, or 0 when the grid layout is disabled.

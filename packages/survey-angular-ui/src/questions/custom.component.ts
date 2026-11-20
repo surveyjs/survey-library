@@ -3,8 +3,10 @@ import { QuestionCustomModel } from "survey-core";
 import { Component } from "@angular/core";
 import { QuestionAngular, getComponentName } from "../question";
 import { AngularComponentFactory } from "../component-factory";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-custom-question",
   template: "<ng-template [component]='{ name: getComponentName(contentQuestion), data: { model: contentQuestion } }'></ng-template>"
 })

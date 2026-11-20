@@ -2,8 +2,10 @@ import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 import { ItemValue, QuestionRankingModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SurveyBaseProviders } from "../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-ranking-item",
   templateUrl: "./ranking-item.component.html"
 })

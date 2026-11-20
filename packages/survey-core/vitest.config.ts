@@ -20,6 +20,7 @@ export default defineConfig({
       "tests/dynamic-data/paging-write-costs-helpers.ts",
       "tests/dynamic-data/remote-source-integration-helpers.ts",
       "tests/linter/lint-fixtures.ts",
+      "tests/filter/filter-test-helpers.ts",
       "tests/expressions/oracle/**",
       "node_modules/**",
       "build/**",

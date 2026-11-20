@@ -58,6 +58,13 @@ React already cover.
   partial-Ivy, so global-setup links it with Angular's linker and bundles it with `browser/angular-entry.ts` into one
   page script. That script takes `survey-core` from `window.Survey` and the icons from the same core build.
 
+The browser suites also count through CDP `Performance.getMetrics` (`browser/cdp-metrics.ts` exposes it to the page as
+`__perfMetrics()`, `harness/cdp.ts` turns snapshots into counters), never inside a timed run: `layoutCount` and
+`recalcStyleCount` in the counter run (until the rendering is quiet: survey-core's ResizeObserver callbacks measure in
+the rAF of a later frame), `listenerGrowth`, `nodeGrowth`, `jsHeapGrowth` and `blinkHeapGrowth` of an action scenario per sample, from the first
+sample to the last (after a full gc through CDP), `jsHeapMB` and `blinkHeapMB` in `info`, and the counter run's layout, style and script durations in `info`
+(`CONTRACT.md` lists the counter kinds).
+
 ## Changing the suites
 
 A new scenario, fixture or suite needs no change on the server: it reads the ids and commands from

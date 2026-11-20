@@ -309,6 +309,122 @@ export var czechSurveyStrings = {
   progressbar: "Indikátor průběhu",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Stránka {0}",
+  // [Auto-translated] "Empty"
+  conditionOperatorEmpty: "Prázdné",
+  // [Auto-translated] "Not empty"
+  conditionOperatorNotempty: "Není prázdné",
+  // [Auto-translated] "Equals"
+  conditionOperatorEqual: "Rovná se",
+  // [Auto-translated] "Does not equal"
+  conditionOperatorNotequal: "Nerovná se",
+  // [Auto-translated] "Contains"
+  conditionOperatorContains: "Obsahuje",
+  // [Auto-translated] "Does not contain"
+  conditionOperatorNotcontains: "Neobsahuje",
+  // [Auto-translated] "Any of"
+  conditionOperatorAnyof: "Jakýkoli z",
+  // [Auto-translated] "None of"
+  conditionOperatorNoneof: "Žádné z",
+  // [Auto-translated] "All of"
+  conditionOperatorAllof: "Všichni",
+  // [Auto-translated] "Greater than"
+  conditionOperatorGreater: "Větší než",
+  // [Auto-translated] "Less than"
+  conditionOperatorLess: "Méně než",
+  // [Auto-translated] "Greater than or equal to"
+  conditionOperatorGreaterorequal: "Větší nebo rovno",
+  // [Auto-translated] "Less than or equal to"
+  conditionOperatorLessorequal: "Menší nebo rovno",
+  // [Auto-translated] "Save"
+  filterSave: "Uložit",
+  // [Auto-translated] "Filters"
+  filterFilters: "Filtry",
+  // [Auto-translated] "Filters: {0}"
+  filterFiltersCount: "Filtry: {0}",
+  // [Auto-translated] "Filters"
+  filterDialogTitle: "Filtry",
+  // [Auto-translated] "Search"
+  filterSearchLabel: "Hledat",
+  // [Auto-translated] "Search by {0}"
+  filterSearchPlaceholder: "Hledat podle {0}",
+  // [Auto-translated] "Show More"
+  filterShowMore: "Zobrazit více",
+  // [Auto-translated] "Show Less"
+  filterShowLess: "Zobrazit méně",
+  // [Auto-translated] "Clear All"
+  filterClearAll: "Vymazat vše",
+  // [Auto-translated] "Clear {0}"
+  filterClearChip: "Vyčistit {0}",
+  // [Auto-translated] "Preset"
+  filterPreset: "Přednastavení",
+  // [Auto-translated] "Save as..."
+  filterSaveAs: "Uložit jako...",
+  // [Auto-translated] "Save"
+  filterSaveAsSave: "Uložit",
+  // [Auto-translated] "Add \"{0}\"..."
+  filterAddCustomValue: "Přidejte \"{0}\"...",
+  // [Auto-translated] "Presets"
+  filterPresetsTitle: "Přednastavení",
+  // [Auto-translated] "Show {0} items"
+  filterShowResultsCount: "Zobrazit {0} položky",
+  // [Auto-translated] "Show 1 item"
+  filterShowOneResult: "Zobrazit 1 položku",
+  // [Auto-translated] "Show results"
+  filterShowResults: "Zobrazit výsledky",
+  // [Auto-translated] "New Preset"
+  filterAddPresetTitle: "Nové přednastavení",
+  // [Auto-translated] "Name"
+  filterPresetName: "Jméno",
+  // [Auto-translated] "Contains"
+  filterPresetContains: "Obsahuje",
+  // [Auto-translated] "A preset with this name already exists."
+  filterPresetTitleExists: "Přednastavení s tímto názvem již existuje.",
+  // [Auto-translated] "Add at least one condition."
+  filterPresetNoConditions: "Přidejte alespoň jednu podmínku.",
+  // [Auto-translated] "Enter an expression."
+  filterPresetNoExpression: "Zadejte výraz.",
+  // [Auto-translated] "The expression is not valid."
+  filterPresetInvalidExpression: "Tento výraz není platný.",
+  // [Auto-translated] "Edit as Expression"
+  filterEditAsText: "Upravit jako výraz",
+  // [Auto-translated] "Edit as Tagbox"
+  filterEditAsFields: "Upravit jako tagbox",
+  // [Auto-translated] "Type an expression here..."
+  filterExpressionPlaceholder: "Zadejte zde výraz...",
+  // [Auto-translated] "Edit Preset"
+  filterEditPreset: "Upravit přednastavení",
+  // [Auto-translated] "Delete"
+  filterDeletePreset: "Smazat",
+  // [Auto-translated] "Add New..."
+  filterAddPreset: "Přidat nové...",
+  // [Auto-translated] "Edit Selected..."
+  filterEditSelected: "Upravit vybrané...",
+  // [Auto-translated] "{0} Expression"
+  filterPresetExpression: "{0} Výraz",
+  // [Auto-translated] "Edit..."
+  filterEditExpression: "Edit...",
+  // [Auto-translated] "Search in Filters"
+  filterSearchInFilters: "Hledat ve filtrech",
+  // [Auto-translated] "Nothing found, try different keywords"
+  filterNothingFound: "Nic nenalezeno, zkuste různá klíčová slova",
+  // [Auto-translated] "Create preset with AI"
+  filterAiPromptNew: "Vytvořte přednastavení pomocí AI",
+  // [Auto-translated] "Edit preset with AI"
+  filterAiPromptEdit: "Úprava přednastavení pomocí AI",
+  // [Auto-translated] "For example, “Coffee & Tea from Germany”"
+  filterAiPromptPlaceholder: "Například \"Káva a čaj z Německa\"",
+  // [Auto-translated] "Create"
+  filterAiCreate: "Vytvořit",
+  // [Auto-translated] "Edit"
+  filterAiEdit: "Edit",
+  // [Auto-translated] "Creating..."
+  filterAiCreating: "Tvořící...",
+  // [Auto-translated] "Editing..."
+  filterAiEditing: "Úpravy...",
+  // [Auto-translated] "AI could not make a filter. Try again."
+  filterAiError: "AI nedokázala vytvořit filtr. Zkuste to znovu.",
+  // [Auto-translated] "AI could not make a filter of this description."
+  filterAiEmpty: "AI nedokázala vytvořit filtr tohoto popisu.",
   // "d" - a day placeholder symbol in a datetime input mask
   maskPlaceholderDay: "d",
   // "m" - a month placeholder symbol in a datetime input mask

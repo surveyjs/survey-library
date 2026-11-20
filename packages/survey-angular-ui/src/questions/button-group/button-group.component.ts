@@ -3,8 +3,10 @@ import { Component } from "@angular/core";
 import { QuestionAngular } from "../../question";
 import { QuestionButtonGroupModel } from "survey-core";
 import { AngularComponentFactory } from "../../component-factory";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-ng-buttongroup-question",
   templateUrl: "./button-group.component.html"
 })

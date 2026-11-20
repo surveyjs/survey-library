@@ -1,8 +1,10 @@
 import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { Base, Notifier } from "survey-core";
+import { SurveyBaseProviders } from "../../component-depth";
 
 @Component({
+  providers: SurveyBaseProviders,
   selector: "sv-notifier",
   templateUrl: "./notifier.component.html",
   styles: [":host { display: none; }"]

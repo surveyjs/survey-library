@@ -436,12 +436,23 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
 
   if (isSelectBase(type)) {
     addItemValueSites(state, json, "choices", type, path, record, scope);
-    // choiceitem.elements: full questions nested inside a choice
+    // choiceitem.elements: full questions nested inside a choice. The runtime binds a choice panel to the
+    // survey (ChoiceItem.setPanelSurvey) wherever the select question is - inside a nesting container, a
+    // dynamic panel's template or a matrix's detail panel - so its questions write keys of the survey data,
+    // and their expressions run outside any record: no {row.x} frame and no record's {panel.x} reaches them.
+    // Their {panel.x} is the choice panel itself (a question's parent panel), so the choice stands for it:
+    // a panel record that names nothing and holds no key, and no outer panel answers {panel.x} there.
     if (Array.isArray(json.choices)) {
       json.choices.forEach((choice: any, i: number) => {
         if (!choice || typeof choice !== "object" || !Array.isArray(choice.elements)) return;
-        walkElementsArray(state, choice.elements, path + ".choices[" + i + "].elements",
-          record, scope, ancestorPanels, undefined, dataScope);
+        const choicePath = path + ".choices[" + i + "]";
+        const choicePanel: ElementRecord = {
+          name: "", type: "panel", kind: "panel", path: choicePath, json: choice, parent: record, scope: [],
+          isUnknownType: false, valueType: { shape: "none" }, panelDescendantNames: new CIMap<ElementRecord>(),
+          dataScope: state.index.rootScope,
+        };
+        walkElementsArray(state, choice.elements, choicePath + ".elements",
+          choicePanel, [], [choicePanel], undefined, state.index.rootScope);
       });
     }
     if (json.choicesByUrl && typeof json.choicesByUrl === "object") {

@@ -1454,3 +1454,140 @@ describe("nested data: dataNesting defaults to \"none\" (SN2)", () => {
     expect(reloaded.data).toEqual({ first: { home: { street: "z" } } });
   });
 });
+
+describe("nested data: a getPlainData item gives the question that built it", () => {
+  // [path, the question getQuestion() gives, or null when the item has no getQuestion]
+  const walk = (items: Array<any>, path: string = "", res: Array<any> = []): Array<any> => {
+    (items || []).forEach(item => {
+      const itemPath = path + item.name;
+      res.push([itemPath, typeof item.getQuestion === "function" ? item.getQuestion() : null]);
+      walk(item.data, itemPath + "/", res);
+    });
+    return res;
+  };
+  const top = (survey: SurveyModel, name: string): Question => survey.getAllQuestions().filter(q => q.name === name)[0];
+  beforeEach(() => {
+    ComponentCollection.Instance.add({ name: "plaincomp", elementsJSON: [{ type: "text", name: "cq" }] });
+    ComponentCollection.Instance.add({ name: "plaincustom", questionJSON: { type: "dropdown", choices: ["a", "b"] } });
+  });
+  afterEach(() => {
+    ComponentCollection.Instance.clear();
+  });
+  ["none", "auto"].forEach(mode => {
+    test("a top-level question and an inner question of a panel (" + mode + ")", () => {
+      const survey = new SurveyModel({ dataNesting: mode, elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "text", name: "street" }] }
+      ] });
+      top(survey, "q1").value = "v";
+      top(survey, "street").value = "s";
+      // A nesting container builds no item of its own: its questions are listed at the top level.
+      expect(walk(survey.getPlainData({ includeEmpty: false, includeValues: true }))).toStrictEqual([
+        ["q1", top(survey, "q1")], ["street", top(survey, "street")]
+      ]);
+      expect(top(survey, "street").getPlainData().getQuestion()).toBe(top(survey, "street"));
+    });
+  });
+  test("a checkbox's choices, the other item and a comment item carry none", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "checkbox", name: "cb", choices: ["a", "b"], showOtherItem: true },
+      { type: "radiogroup", name: "rg", choices: ["a"], showCommentArea: true }
+    ] });
+    survey.data = { cb: ["a", "other"], "cb-Comment": "o", rg: "a", "rg-Comment": "note" };
+    const items = survey.getPlainData({ includeEmpty: false });
+    expect(walk(items)).toStrictEqual([
+      ["cb", top(survey, "cb")], ["cb/0", null], ["cb/1", null],
+      ["rg", top(survey, "rg")], ["rg/0", null], ["rg/0", null]
+    ]);
+    expect(items[0].data[1].isOther).toBe(true);
+    expect(items[1].data[0].isComment).toBe(true);
+  });
+  test("a matrix's rows carry none; a matrix dropdown's rows carry none and its cells their cell questions", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrix", name: "m", rows: ["r1", "r2"], columns: ["c1", "c2"] },
+      { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "dropdown", choices: ["a"] }] }
+    ] });
+    survey.data = { m: { r1: "c1", r2: "c2" }, md: { r1: { c1: "x", c2: "a" } } };
+    const cells = (<any>top(survey, "md")).visibleRows[0].cells;
+    expect(walk(survey.getPlainData({ includeEmpty: false }))).toStrictEqual([
+      ["m", top(survey, "m")], ["m/r1", null], ["m/r2", null],
+      ["md", top(survey, "md")], ["md/r1", null], ["md/r1/c1", cells[0].question], ["md/r1/c2", cells[1].question],
+      ["md/r1/c2/0", null]
+    ]);
+  });
+  test("a paged matrix: a record on its page gives its cells' questions, a record off its page none", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "md", pageSize: 1, columns: [{ name: "c1", cellType: "text" }] }
+    ] });
+    survey.data = { md: [{ c1: "a" }, { c1: "b" }, { c1: "c" }] };
+    const matrix = <QuestionMatrixDynamicModel>top(survey, "md");
+    const res = walk(survey.getPlainData({ includeEmpty: false }));
+    expect(res.map(r => r[0])).toStrictEqual(["md", "md/row1", "md/row1/c1", "md/row2", "md/row2/c1", "md/row3", "md/row3/c1"]);
+    expect(res.map(r => r[1])).toStrictEqual([matrix, null, matrix.visibleRows[0].cells[0].question, null, null, null, null]);
+  });
+  test("a dynamic panel: its panels carry none, each panel's questions carry theirs", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "paneldynamic", name: "pd", templateElements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "inner", valueName: "address", elements: [{ type: "text", name: "street" }] }
+      ] }
+    ] });
+    survey.data = { pd: [{ q1: "a", address: { street: "s1" } }, { q1: "b" }] };
+    const pd = <QuestionPanelDynamicModel>top(survey, "pd");
+    const panels = pd.panels;
+    expect(walk(survey.getPlainData({ includeEmpty: false }))).toStrictEqual([
+      ["pd", pd],
+      ["pd/0", null], ["pd/0/q1", panels[0].getQuestionByName("q1")], ["pd/0/street", panels[0].getQuestionByName("street")],
+      ["pd/1", null], ["pd/1/q1", panels[1].getQuestionByName("q1")]
+    ]);
+  });
+  test("a composite and a custom question give themselves; a file's items and the extra data keys carry none", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "plaincomp", name: "comp" },
+      { type: "plaincustom", name: "cust" },
+      { type: "file", name: "f", allowMultiple: true, storeDataAsText: true }
+    ] });
+    survey.data = { comp: { cq: "c" }, cust: "a", f: [{ name: "a.txt", content: "x" }], extra: "e" };
+    const items = survey.getPlainData({ includeEmpty: false, includeValues: true });
+    expect(walk(items)).toStrictEqual([
+      ["comp", top(survey, "comp")], ["cust", top(survey, "cust")], ["f", top(survey, "f")], ["f/0", null], ["extra", null]
+    ]);
+    expect(items[0].data, "a composite lists no items of its content questions").toBeUndefined();
+  });
+  test("JSON.stringify of the whole plain data works and gives the string it gave before", () => {
+    const survey = new SurveyModel({ dataNesting: "auto", elements: [
+      { type: "text", name: "q1" },
+      { type: "panel", name: "panel1", valueName: "address", elements: [{ type: "radiogroup", name: "kind", choices: ["h"], showCommentArea: true }] },
+      { type: "checkbox", name: "cb", choices: ["a", "b"], showOtherItem: true },
+      { type: "matrix", name: "m", rows: ["r1"], columns: ["c1"] },
+      { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c1", cellType: "text" }] },
+      { type: "paneldynamic", name: "pd", templateElements: [{ type: "text", name: "pq" }] },
+      { type: "plaincomp", name: "comp" }
+    ] });
+    survey.data = { q1: "v", address: { kind: "h" }, cb: ["a", "other"], "cb-Comment": "o",
+      m: { r1: "c1" }, md: { r1: { c1: "x" } }, pd: [{ pq: "z" }], comp: { cq: "c" }, extra: "e" };
+    survey.getQuestionByName("panel1.kind").comment = "note";
+    const text = JSON.stringify(survey.getPlainData({ includeEmpty: false, includeValues: true, includeQuestionTypes: true }));
+    // Taken from getPlainData before getQuestion was added.
+    expect(text).toBe("[" + [
+      "{\"name\":\"q1\",\"title\":\"q1\",\"value\":\"v\",\"displayValue\":\"v\",\"isNode\":false,\"questionType\":\"text\"}",
+      "{\"name\":\"kind\",\"title\":\"kind\",\"value\":\"h\",\"displayValue\":\"h\",\"isNode\":true,\"questionType\":\"radiogroup\",\"data\":[" +
+        "{\"name\":0,\"isComment\":true,\"title\":\"Comment\",\"value\":\"-Comment\",\"displayValue\":\"note\",\"isNode\":false}," +
+        "{\"name\":0,\"title\":\"Choice option\",\"value\":\"h\",\"displayValue\":\"h\",\"isNode\":false}]}",
+      "{\"name\":\"cb\",\"title\":\"cb\",\"value\":[\"a\",\"other\"],\"displayValue\":\"a, o\",\"isNode\":true,\"questionType\":\"checkbox\",\"data\":[" +
+        "{\"name\":0,\"title\":\"Choice option\",\"value\":\"a\",\"displayValue\":\"a\",\"isNode\":false}," +
+        "{\"name\":1,\"title\":\"Choice option\",\"value\":\"other\",\"displayValue\":\"o\",\"isNode\":false,\"isOther\":true}]}",
+      "{\"name\":\"m\",\"title\":\"m\",\"value\":{\"r1\":\"c1\"},\"displayValue\":{\"r1\":\"c1\"},\"isNode\":true,\"questionType\":\"matrix\",\"data\":[" +
+        "{\"name\":\"r1\",\"title\":\"r1\",\"value\":\"c1\",\"displayValue\":\"c1\",\"isNode\":false}]}",
+      "{\"name\":\"md\",\"title\":\"md\",\"value\":{\"r1\":{\"c1\":\"x\"}},\"displayValue\":{\"r1\":{\"c1\":\"x\"}},\"isNode\":true,\"questionType\":\"matrixdropdown\",\"data\":[" +
+        "{\"name\":\"r1\",\"title\":\"r1\",\"value\":{\"c1\":\"x\"},\"displayValue\":{\"c1\":\"x\"},\"isNode\":true,\"data\":[" +
+        "{\"name\":\"c1\",\"title\":\"row r1, column c1\",\"value\":\"x\",\"displayValue\":\"x\",\"isNode\":false,\"questionType\":\"text\"}]}]}",
+      "{\"name\":\"pd\",\"title\":\"pd\",\"value\":[{\"pq\":\"z\"}],\"displayValue\":[{\"pq\":\"z\"}],\"isNode\":true,\"questionType\":\"paneldynamic\",\"data\":[" +
+        "{\"name\":0,\"title\":\"Panel\",\"value\":{\"pq\":\"z\"},\"displayValue\":{\"pq\":\"z\"},\"isNode\":true,\"data\":[" +
+        "{\"name\":\"pq\",\"title\":\"pq\",\"value\":\"z\",\"displayValue\":\"z\",\"isNode\":false,\"questionType\":\"text\"}]}]}",
+      "{\"name\":\"comp\",\"title\":\"comp\",\"value\":{\"cq\":\"c\"},\"displayValue\":{\"cq\":\"c\"},\"isNode\":false,\"questionType\":\"plaincomp\"}",
+      "{\"name\":\"cb-Comment\",\"title\":\"cb-Comment\",\"value\":\"o\",\"displayValue\":\"o\",\"isNode\":false}",
+      "{\"name\":\"extra\",\"title\":\"extra\",\"value\":\"e\",\"displayValue\":\"e\",\"isNode\":false}"
+    ].join(",") + "]");
+  });
+});

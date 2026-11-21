@@ -56,6 +56,8 @@ export interface IQuestionPlainData {
   questionType?: string;
   data?: Array<IQuestionPlainData>;
   getString: (val: any) => string;
+  // The question that built the item. A function, as getString is, so JSON.stringify skips it.
+  getQuestion?: () => Question;
   [key: string]: any;
 }
 
@@ -2793,6 +2795,11 @@ export class Question extends SurveyElement<Question>
         displayValue: this.displayValue,
         isNode: false,
         getString: (val: any) => this.getValueAsString(val),
+        /* Only a question's own item gives its question. A choice, a matrix row, a record and a comment are
+           parts of a question's value and give none; the survey's extra data keys belong to no listed question
+           and give none. A nesting container builds no item of its own (the survey lists its questions), so
+           there is no container item to give one. */
+        getQuestion: (): Question => this,
       };
       if (options.includeQuestionTypes === true) {
         questionPlainData.questionType = this.getType();

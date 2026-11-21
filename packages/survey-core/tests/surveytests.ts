@@ -10550,6 +10550,7 @@ describe("Survey", () => {
     var plainData = survey.getPlainData();
     expect(plainData.length).toEqual(1);
     delete plainData[0]["getString"];
+    delete plainData[0]["getQuestion"];
     delete plainData[0]["data"];
     expect(plainData[0], "Question only").toEqual({
       "displayValue": "1",
@@ -10562,6 +10563,7 @@ describe("Survey", () => {
     plainData = survey.getPlainData({ includeValues: true });
     expect(plainData.length).toEqual(2);
     delete plainData[0]["getString"];
+    delete plainData[0]["getQuestion"];
     delete plainData[0]["data"];
     delete plainData[1]["getString"];
     delete plainData[1]["data"];

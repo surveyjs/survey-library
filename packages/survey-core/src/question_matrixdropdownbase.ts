@@ -2702,7 +2702,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
           q.locTitle.onGetTextCallback = (): string => this.getCellAriaLabel({}, cell.column, rowTitle);
           q.value = value[q.getValueName()];
           q.comment = value[Helpers.getCommentKey(q.getValueName())];
-          return q.getPlainData(options);
+          const res = q.getPlainData(options);
+          // The cell question is disposed below: a record without a row gives no question for its cells.
+          if (!!res) delete res.getQuestion;
+          return res;
         }), undefined, options));
     });
     (cellQuestions || []).forEach(cell => cell.question.dispose());

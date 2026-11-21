@@ -5891,6 +5891,45 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(actions.length).toBe(2);
     expect(actions[0].visible).toBe(false);
   });
+  test("onGetQuestionFooterActions: remove default actions and add a custom one", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [{ type: "text", name: "q1" }],
+          panelCount: 3
+        },
+        {
+          type: "paneldynamic",
+          name: "other",
+          templateElements: [{ type: "text", name: "q2" }]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const other = <QuestionPanelDynamicModel>survey.getQuestionByName("other");
+    const raised: Array<any> = [];
+    survey.onGetQuestionFooterActions.add((sender, opt) => {
+      expect(sender).toBe(survey);
+      raised.push(opt.question);
+      if (opt.question !== panel) return;
+      opt.actions = opt.actions.filter(a => a.id !== "sv-pd-prev-btn" && a.id !== "sv-pd-next-btn");
+      opt.actions.push({ id: "custom", title: "Custom", action: () => { } });
+    });
+    expect(raised).toEqual([]);
+    const ids = (q: QuestionPanelDynamicModel) => q.footerToolbar.actions.map(a => a.id);
+    expect(ids(panel)).toEqual(["sv-pd-add-btn", "sv-pd-progress-text", "custom"]);
+    expect(ids(other)).toEqual(["sv-pd-prev-btn", "sv-pd-next-btn", "sv-pd-add-btn", "sv-pd-progress-text"]);
+    expect(raised).toEqual([panel, other]);
+    // the event is raised once per footer toolbar
+    expect(ids(panel).length).toBe(3);
+    expect(raised.length).toBe(2);
+    // the remaining default actions keep working
+    expect(panel.footerToolbar.getActionById("sv-pd-add-btn").visible).toBe(true);
+    panel.footerToolbar.getActionById("sv-pd-add-btn").action();
+    expect(panel.panelCount).toBe(4);
+  });
   test("Error in nested dynamic collapsed panel", () => {
     const survey = new SurveyModel({
       elements: [

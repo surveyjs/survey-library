@@ -3107,6 +3107,14 @@ export class SurveyModel extends SurveyElementCore
   @property({ localizable: { defaultStr: true } }) editText: string;
 
   public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
+  // Nested data: called before a question's or a container's data key changes (its name or valueName), with the
+  // key before and after. It is for a designer that rewrites the expressions that read the element (Survey
+  // Creator): inside the callback the survey still resolves the old variables (getQuestionByVariable). The data
+  // does not move (D8). Not called while the survey loads, nor when the element has no key before or after; a
+  // change of the letter case is a change. Not called for a matrix column or cell, a multiple text item, or a
+  // matrix detail panel's template (it has no survey). At runtime a dynamic panel's template change is copied to
+  // each panel, which calls it again. It runs inside the setter: an exception stops the change.
+  public onDataKeyChangingCallback: (element: Base, oldKey: string, newKey: string) => void;
   // A survey-level override of settings.designMode.showEmptyTitles / showEmptyDescriptions. Survey Creator sets it
   // on its own design surveys: its page edit mode belongs to one creator, while the setting is global.
   // undefined (the default) follows the setting. Design-time options, so not registered in Serializer (not in toJSON).

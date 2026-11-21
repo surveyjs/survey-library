@@ -698,6 +698,12 @@ export class Question extends SurveyElement<Question>
   protected getDataKey(): string {
     return this.getValueName();
   }
+  protected getDataKeyFor(valueName: string, name: string): string {
+    // A question that is no element of a container holds no data key of its own: a matrix cell, a column's or a
+    // filter field's template question. The column is renamed, and its name is a key of a row.
+    if (!this.parent) return "";
+    return !!valueName ? valueName.toString() : name || "";
+  }
   /**
    * Specifies an object property that should store the question value.
    *
@@ -708,6 +714,7 @@ export class Question extends SurveyElement<Question>
   }
   public set valueName(val: string) {
     var oldValueName = this.getValueName();
+    this.dataKeyChanging("valueName", val);
     this.setPropertyValue("valueName", val);
     this.onValueNameChanged(oldValueName);
   }

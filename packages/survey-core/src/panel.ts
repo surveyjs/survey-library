@@ -549,6 +549,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.getPropertyValue("valueName", "");
   }
   public set valueName(val: string) {
+    this.dataKeyChanging("valueName", val);
     this.setPropertyValue("valueName", val);
   }
   // Nested data: a nesting panel or page hands its elements a PanelDataScope, so their values are stored
@@ -575,6 +576,10 @@ export class PanelModelBase extends SurveyElement<Question>
   // which is "" at design time.
   public getDataNestingKeyFor(valueName: string, name: string): string {
     return this.containerNesting.getKeyFor(valueName, name);
+  }
+  protected getDataKeyFor(valueName: string, name: string): string {
+    // A valueName loaded from JSON may be a number (onSettingValue does not run while loading)
+    return this.getDataNestingKeyFor(!!valueName ? String(valueName) : valueName, name);
   }
   // The key a panel inside a record's template (a dynamic panel's template, a matrix's detail panel) nests
   // under in the records built from it, whatever the template is attached to; "" when it does not.

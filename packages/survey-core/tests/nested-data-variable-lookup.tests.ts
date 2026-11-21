@@ -831,3 +831,198 @@ describe("nested data: the scopes of a choice, a validator and a trigger", () =>
     expect(name(survey, "item", kind.validators[0]), "#3: a validator has no own variables").toBe("item|");
   });
 });
+
+describe("nested data: onDataKeyChangingCallback, before an element's data key changes", () => {
+  const createSurvey = (mode: string = "auto"): SurveyModel => new SurveyModel({ dataNesting: mode, pages: [
+    { name: "page1", elements: [
+      { type: "text", name: "top" },
+      { type: "panel", name: "addressPanel", valueName: "address", elements: [
+        { type: "text", name: "street" }, { type: "text", name: "city", valueName: "town" }] },
+      { type: "panel", name: "plain", elements: [{ type: "text", name: "inPlain" }] }] },
+    { name: "page2", elements: [{ type: "text", name: "p2q" }] }] });
+  type Call = { element: Base, oldKey: string, newKey: string, nameBefore: string, valueNameBefore: string };
+  const listen = (survey: SurveyModel): Array<Call> => {
+    const calls: Array<Call> = [];
+    survey.onDataKeyChangingCallback = (element: Base, oldKey: string, newKey: string): void => {
+      calls.push({ element: element, oldKey: oldKey, newKey: newKey, nameBefore: element["name"], valueNameBefore: element["valueName"] });
+    };
+    return calls;
+  };
+  const keys = (calls: Array<Call>): Array<string> => calls.map(item => item.oldKey + "->" + item.newKey);
+  test("a question's name with no valueName, and its valueName", () => {
+    const survey = createSurvey();
+    const calls = listen(survey);
+    const street = survey.getQuestionByName("addressPanel.street");
+    street.name = "road";
+    expect(keys(calls), "#1: the name").toEqual(["street->road"]);
+    expect(calls[0].element, "#1: the question").toBe(street);
+    expect(calls[0].nameBefore, "#1: called before the set").toBe("street");
+    street.valueName = "way";
+    expect(keys(calls).slice(1), "#2: a valueName set").toEqual(["road->way"]);
+    expect(calls[1].valueNameBefore, "#2: called before the set").toBe("");
+    const city = survey.getQuestionByName("addressPanel.city");
+    city.valueName = "place";
+    expect(keys(calls).slice(2), "#3: a valueName changed").toEqual(["town->place"]);
+    city.valueName = "";
+    expect(keys(calls).slice(3), "#4: a valueName cleared: the name is the key again").toEqual(["place->city"]);
+    survey.getQuestionByName("top").name = "first";
+    expect(keys(calls).slice(4), "#5: a top-level question").toEqual(["top->first"]);
+    expect(calls.length, "#6: once per change").toBe(5);
+  });
+  test("a nesting panel's valueName, a panel's name in a by-name mode, a page's name in \"page\" mode", () => {
+    const survey = createSurvey();
+    const calls = listen(survey);
+    const panel = <PanelModel>survey.getPanelByName("addressPanel");
+    panel.valueName = "addr";
+    expect(keys(calls), "#1: a nesting panel's valueName").toEqual(["address->addr"]);
+    expect(calls[0].element, "#1: the panel").toBe(panel);
+    expect(calls[0].valueNameBefore, "#1: called before the set").toBe("address");
+
+    const panelSurvey = createSurvey("panel");
+    const panelCalls = listen(panelSurvey);
+    panelSurvey.getPanelByName("plain").name = "simple";
+    expect(keys(panelCalls), "#2: \"panel\" mode: a panel's name").toEqual(["plain->simple"]);
+    expect(panelCalls[0].nameBefore, "#2: called before the set").toBe("plain");
+
+    const pageSurvey = createSurvey("page");
+    const pageCalls = listen(pageSurvey);
+    const page = pageSurvey.getPageByName("page2");
+    page.name = "second";
+    expect(keys(pageCalls), "#3: \"page\" mode: a page's name").toEqual(["page2->second"]);
+    expect(pageCalls[0].element, "#3: the page").toBe(page);
+    expect(pageCalls[0].nameBefore, "#3: called before the set").toBe("page2");
+    page.valueName = "extra";
+    expect(keys(pageCalls).slice(1), "#4: \"page\" mode: a page's valueName").toEqual(["second->extra"]);
+  });
+  test("a rename to the same key in another letter case is a change: the Creator rewrites the text (isCaseChange)", () => {
+    const survey = createSurvey();
+    const calls = listen(survey);
+    survey.getQuestionByName("addressPanel.street").name = "Street";
+    (<PanelModel>survey.getPanelByName("addressPanel")).valueName = "Address";
+    expect(keys(calls)).toEqual(["street->Street", "address->Address"]);
+  });
+  test("not called when the key does not change", () => {
+    const survey = createSurvey();
+    const calls = listen(survey);
+    const city = survey.getQuestionByName("addressPanel.city");
+    city.name = "city2";
+    expect(keys(calls), "#1: a question's name with a valueName").toEqual([]);
+    city.valueName = "town";
+    expect(keys(calls), "#2: the same valueName").toEqual([]);
+    const street = survey.getQuestionByName("addressPanel.street");
+    street.valueName = "street";
+    expect(keys(calls), "#3: a valueName equal to the name").toEqual([]);
+    street.name = " street ";
+    expect(keys(calls), "#4: the same name after trimming").toEqual([]);
+    const plain = <PanelModel>survey.getPanelByName("plain");
+    plain.name = "simple";
+    expect(keys(calls), "#5: \"auto\": a panel with no valueName does not nest").toEqual([]);
+    const addressPanel = <PanelModel>survey.getPanelByName("addressPanel");
+    addressPanel.name = "addressPanel2";
+    expect(keys(calls), "#6: \"auto\": a nesting panel's name").toEqual([]);
+    survey.getPageByName("page2").name = "second";
+    expect(keys(calls), "#7: \"auto\": a page's name").toEqual([]);
+    plain.valueName = "plainData";
+    expect(keys(calls), "#8: a panel that starts to nest: it had no key").toEqual([]);
+    addressPanel.valueName = "";
+    expect(keys(calls), "#9: a panel that stops nesting: it has no key after").toEqual([]);
+
+    const noneSurvey = createSurvey("none");
+    const noneCalls = listen(noneSurvey);
+    (<PanelModel>noneSurvey.getPanelByName("addressPanel")).valueName = "addr";
+    noneSurvey.getPageByName("page2").name = "second";
+    expect(keys(noneCalls), "#10: \"none\": no container nests").toEqual([]);
+    noneSurvey.getQuestionByName("street").name = "road";
+    expect(keys(noneCalls), "#11: \"none\": a question's key still changes").toEqual(["street->road"]);
+
+    const numSurvey = new SurveyModel({ dataNesting: "auto", elements: [{ type: "panel", name: "np", valueName: 7, elements: [{ type: "text", name: "a" }] },
+      { type: "text", name: "nq", valueName: 8 }] });
+    const numCalls = listen(numSurvey);
+    (<PanelModel>numSurvey.getPanelByName("np")).valueName = "7";
+    numSurvey.getQuestionByName("nq").valueName = "8";
+    expect(keys(numCalls), "#12: a number loaded from JSON and the same key as text").toEqual([]);
+    (<PanelModel>numSurvey.getPanelByName("np")).valueName = "nine";
+    expect(numCalls.map(item => typeof item.oldKey + ":" + item.oldKey + "->" + item.newKey), "#13: the old key is a string").toEqual(["string:7->nine"]);
+  });
+  test("a record's template; not called for a matrix column, its cells or a multiple text item (they hold no key)", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ dataNesting: "auto", elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 2, columns: [{ name: "col1" }, { name: "col3", totalType: "sum" }],
+        detailPanelMode: "underRow", detailElements: [{ type: "text", name: "dq" }] },
+      { type: "matrixdropdown", name: "md", rows: ["r1", "r2"], columns: [{ name: "c1" }] },
+      { type: "multipletext", name: "mt", items: [{ name: "it1" }] },
+      { type: "paneldynamic", name: "dp", templateElements: [{ type: "text", name: "tq" },
+        { type: "panel", name: "tp", valueName: "tpk", elements: [{ type: "text", name: "tpq" }] }] }] });
+    const calls = listen(survey);
+    const m: any = survey.getQuestionByName("m");
+    const md: any = survey.getQuestionByName("md");
+    expect(m.visibleRows.length + md.visibleRows.length, "#0: the rows are built, as in the designer").toBe(4);
+    m.columns[0].name = "col2";
+    m.columns[1].name = "col4";
+    md.columns[0].name = "c2";
+    (<any>survey.getQuestionByName("mt")).items[0].name = "it2";
+    expect(keys(calls), "#1: a column, its cells and total cells, an item").toEqual([]);
+    m.detailPanel.getQuestionByName("dq").name = "dq2";
+    expect(keys(calls), "#1a: a matrix detail panel's template has no survey").toEqual([]);
+    m.visibleRows[0].showDetailPanel();
+    m.visibleRows[0].detailPanel.getQuestionByName("dq2").name = "dq3";
+    expect(keys(calls), "#1b: a row's detail panel is a record: its question's key changes").toEqual(["dq2->dq3"]);
+    calls.length = 0;
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const tq = dp.template.getQuestionByName("tq");
+    tq.name = "tq2";
+    (<PanelModel>dp.template.getElementByName("tp")).valueName = "tpk2";
+    expect(keys(calls), "#2: a template's question and nesting panel: keys of the records").toEqual(["tq->tq2", "tpk->tpk2"]);
+    expect(calls[0].element, "#2: the template's question").toBe(tq);
+  });
+  test("not called while loading from JSON, nor for an element out of a survey", () => {
+    const survey = new SurveyModel();
+    const calls = listen(survey);
+    survey.fromJSON({ dataNesting: "auto", elements: [{ type: "text", name: "q1" },
+      { type: "panel", name: "p1", valueName: "data", elements: [{ type: "text", name: "q2", valueName: "v2" }] }] });
+    expect(keys(calls), "#1: survey.fromJSON").toEqual([]);
+    const q1 = survey.getQuestionByName("q1");
+    q1.fromJSON({ name: "q1a", valueName: "v1" });
+    survey.getPanelByName("p1").fromJSON({ name: "p1", valueName: "data2" });
+    expect(keys(calls), "#2: an element's fromJSON").toEqual([]);
+    const detached = new QuestionTextModel("free");
+    detached.name = "free2";
+    detached.valueName = "v";
+    const loose = new PanelModel("loose");
+    loose.valueName = "a";
+    loose.valueName = "b";
+    expect(keys(calls), "#3: no survey").toEqual([]);
+    q1.valueName = "";
+    expect(keys(calls), "#4: a change after the load").toEqual(["v1->q1a"]);
+  });
+  test("the Creator's use: the old variable resolves inside the callback, the new text after the change", () => {
+    const survey = createSurvey();
+    const top = survey.getQuestionByName("top");
+    const street = survey.getQuestionByName("addressPanel.street");
+    const city = survey.getQuestionByName("addressPanel.city");
+    const reaches = (variable: string, owner: Base): boolean => {
+      const info = survey.getQuestionByVariable(variable, owner);
+      return !!info && info.question === street && info.rest === "";
+    };
+    const before: Array<boolean> = [];
+    survey.onDataKeyChangingCallback = (element: Base, oldKey: string): void => {
+      if (element === street) {
+        before.push(reaches(oldKey, city), reaches("address." + oldKey, top));
+      } else {
+        before.push(reaches(oldKey + "." + street.name, top), reaches(street.name, city));
+      }
+    };
+    const after = (): Array<string> => [survey.getQuestionVariableName(street, city), survey.getQuestionVariableName(street, top)];
+    expect(after(), "#0").toEqual(["street", "address.street"]);
+    street.name = "road";
+    expect(before, "#1: a question's key: inside the callback the old variables still reach it").toEqual([true, true]);
+    expect(after(), "#2: the new text after the change").toEqual(["road", "address.road"]);
+    expect(reaches("street", city) || reaches("address.street", top), "#2a: the old variables reach nothing after it").toBe(false);
+    before.length = 0;
+    (<PanelModel>survey.getPanelByName("addressPanel")).valueName = "addr";
+    expect(before, "#3: a container's key: the old path still reaches the question").toEqual([true, true]);
+    expect(after(), "#4: the new text after the change").toEqual(["road", "addr.road"]);
+    expect(reaches("address.road", top), "#4a: the old path reaches nothing after it").toBe(false);
+  });
+});

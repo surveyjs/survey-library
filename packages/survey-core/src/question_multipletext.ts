@@ -74,6 +74,10 @@ export class MultipleTextEditorModel extends QuestionTextModel {
   public get a11y_input_ariaDescribedBy(): string {
     return null;
   }
+  // The item is renamed, and its name is a key in the question's value: the editor holds no data key of its own.
+  protected getDataKeyFor(valueName: string, name: string): string {
+    return "";
+  }
 }
 
 /**

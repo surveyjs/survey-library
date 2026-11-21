@@ -854,10 +854,30 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set name(val: string) {
     var oldValue = this.name;
-    this.setPropertyValue("name", this.getValidName(val));
+    val = this.getValidName(val);
+    this.dataKeyChanging("name", val);
+    this.setPropertyValue("name", val);
     if (!this.isLoadingFromJson && !!oldValue) {
       this.onNameChanged(oldValue);
     }
+  }
+  // Calls survey.onDataKeyChangingCallback before propName ("name" or "valueName") becomes val, when the data key
+  // changes. The value is checked as setPropertyValue checks it (makeNameValid), so newKey is the key after the set.
+  protected dataKeyChanging(propName: string, val: any): void {
+    const callback = this.survey?.onDataKeyChangingCallback;
+    if (!callback || this.isLoadingFromJson) return;
+    const prop = this.getPropertyByName(propName);
+    if (!!prop) val = prop.settingValue(this, val);
+    const valueName = this.getPropertyValue("valueName", "");
+    const oldKey = this.getDataKeyFor(valueName, this.name);
+    const newKey = propName === "name" ? this.getDataKeyFor(valueName, val) : this.getDataKeyFor(val, this.name);
+    if (!!oldKey && !!newKey && oldKey !== newKey) {
+      callback(this, oldKey, newKey);
+    }
+  }
+  // The data key the element would have with these valueName and name; "" for an element that has none.
+  protected getDataKeyFor(valueName: string, name: string): string {
+    return "";
   }
   protected getValidName(name: string): string {
     // A number is valid JSON for a name, so it is kept as its string. Any other value that is not a string is not a name.

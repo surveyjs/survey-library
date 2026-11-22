@@ -1,22 +1,18 @@
+import { SurveyVariablePresets } from "survey-core";
 import { closestMatch } from "./levenshtein";
 import { ParsedRefSegment, SurveyIndex } from "./symbols";
 
-// The host's variable definition ("Host Variables" in docs/design-survey-nested-data.md), as the walker
-// snapshots it into the index: index.definitionVariables holds its root variables, index.definitionPaths
-// every path into its data.
+// The host's variable definition ("Host Variables" in docs/design-survey-nested-data.md):
+// index.definitionVariables holds its root variables, and every path into its data is read from the
+// run's companion (index.definitionPresets): the tree SurveyVariablePresets builds, matched as the
+// runtime matches a variable's object.
 
 // The fields of the definition's object variables ("users.tier"): what a condition can test below
-// a root variable. Built on the first ask and kept on the index for the run.
+// a root variable.
 export function getDefinitionFieldPaths(index: SurveyIndex): Array<string> {
-  if (!index.definitionFieldPaths) {
-    const res: Array<string> = [];
-    index.definitionPaths.forEach((kind, path) => {
-      // no variable key holds a dot, so a dotted path is below a root variable
-      if (kind === "question" && path.indexOf(".") > -1) res.push(path);
-    });
-    index.definitionFieldPaths = res;
-  }
-  return index.definitionFieldPaths;
+  if (!index.definitionPresets) return [];
+  // no variable key holds a dot, so a dotted path is below a root variable
+  return index.definitionPresets.getVariablePaths().filter(path => path.indexOf(".") > -1);
 }
 
 // The name a misspelled host variable most likely meant. An inner question's own name ({tier}) reads
@@ -41,13 +37,22 @@ export function findDefinitionFieldByKey(name: string, index: SurveyIndex): stri
 // field nothing is checked, as for a flat variable. No variable key holds a dot, so each segment is one
 // key.
 export function isUnknownDefinitionPath(segments: Array<ParsedRefSegment>, index: SurveyIndex): boolean {
-  if (segments.length < 2 || index.definitionPaths.get(segments[0].name) !== "object") return false;
+  const presets = index.definitionPresets;
+  if (segments.length < 2 || getPathKind(presets, segments[0].name) !== "object") return false;
   let path = segments[0].name;
   for (let i = 1; i < segments.length; i++) {
     path += "." + segments[i].name;
-    const kind = index.definitionPaths.get(path);
+    const kind = getPathKind(presets, path);
     if (!kind) return true;
     if (kind === "question") return false;
   }
   return false;
+}
+
+// A path the presets answer with a question is a field, even where a container shares its key; one
+// they know without a question is an object variable.
+function getPathKind(presets: SurveyVariablePresets | undefined, path: string): "object" | "question" | undefined {
+  if (!presets) return undefined;
+  if (!!presets.getVariableQuestion(path)) return "question";
+  return presets.hasVariable(path) ? "object" : undefined;
 }

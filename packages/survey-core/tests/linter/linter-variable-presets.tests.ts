@@ -612,6 +612,26 @@ describe("the linter with a nested variable definition", () => {
     expect(findings.map(f => f.messageData.name)).toEqual(["page.users.tiir", "page.user.tier", "page.users.a", "page.users.a.b"]);
     expect(findings[0].suggestion).toBe("page.users.tier");
   });
+  test("an object variable that holds only an object is known, as the presets know it", () => {
+    const definition = { dataNesting: "auto", elements: [
+      { type: "panel", name: "user", valueName: "users", elements: [
+        { type: "panel", name: "prefs", valueName: "prefs", elements: [{ type: "panel", name: "inner" }] }] }] };
+    const presets = new SurveyVariablePresets({ definition: definition });
+    expect(presets.hasVariable("users.prefs")).toBe(true);
+    expect(presets.getVariableQuestion("users.prefs")).toBeUndefined();
+    expect(presets.hasVariable("users.prefs.x")).toBe(false);
+    presets.dispose();
+    const options: ISurveyLintOptions = { variablePresets: { definition: definition } };
+    expect(refs(withCondition("{users.prefs} notempty and {Users.Prefs} notempty"), options)).toHaveLength(0);
+    const findings = refs(withCondition("{users.prefs.x} = 1"), options);
+    expect(findings.map(f => f.messageData.name)).toEqual(["users.prefs.x"]);
+  });
+  test("a question sharing its key with an object is a field: nothing below it is checked", () => {
+    const options: ISurveyLintOptions = { variablePresets: { definition: { dataNesting: "auto", elements: [
+      { type: "panel", name: "user", valueName: "users", elements: [
+        { type: "panel", name: "prefs", valueName: "prefs" }, { type: "text", name: "prefs" }] }] } } };
+    expect(refs(withCondition("{users.prefs} notempty and {users.prefs.zz} = 1"), options)).toHaveLength(0);
+  });
   test("a knownVariables entry of the same name keeps the object unchecked", () => {
     const options = nestedOptions();
     options.knownVariables = ["users"];

@@ -532,6 +532,20 @@ describe("Helpers", () => {
     expect(getNameOfSuffixedKey("m1-Total", "-total"), "case-sensitive").toBeUndefined();
     expect(getNameOfSuffixedKey("m1-totals", "-total"), "suffix not at the end").toBeUndefined();
   });
+  test("getNameOfCommentKey ignores letter case when asked, as an expression names a comment key", () => {
+    expect(Helpers.getNameOfCommentKey("Kind-comment", true), "name of Kind-comment").toBe("Kind");
+    expect(Helpers.getNameOfCommentKey("Kind-comment"), "case-sensitive by default").toBeUndefined();
+    expect(Helpers.getNameOfCommentKey("-COMMENT", true), "only the suffix").toBeUndefined();
+    expect(Helpers.getNameOfCommentKey("kind", true), "no suffix").toBeUndefined();
+    const oldSuffix = settings.commentSuffix;
+    try {
+      settings.commentSuffix = "";
+      expect(Helpers.getNameOfCommentKey("kind", true), "an empty suffix: no comment key").toBeUndefined();
+      expect(getNameOfSuffixedKey("kind", ""), "an empty suffix, case-sensitive: the key itself, as before").toBe("kind");
+    } finally {
+      settings.commentSuffix = oldSuffix;
+    }
+  });
   // Pinned as released: a key that is only the suffix names no question, before and after the keys shared one helper.
   test("clearIncorrectValues(true) drops a key that is only the comment or totals suffix", () => {
     const survey = new SurveyModel({ elements: [

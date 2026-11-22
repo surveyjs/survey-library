@@ -53,10 +53,14 @@ export function normalizeTextForSearch(text: string, reason: string = "filter"):
 }
 
 // The value name a key made of a name and a suffix (comment, totals) belongs to; undefined when the
-// key does not end with the suffix. A key that is only the suffix belongs to no name. Case-sensitive.
-export function getNameOfSuffixedKey(key: string, suffix: string): string {
-  if (!key || key.length <= suffix.length || !key.endsWith(suffix)) return undefined;
-  return key.substring(0, key.length - suffix.length);
+// key does not end with the suffix. A key that is only the suffix belongs to no name. Case-sensitive unless
+// caseInsensitive is set ({Kind-comment} -> "Kind", as an expression names it); then an empty suffix matches
+// no key, while the case-sensitive match keeps the key itself as the name.
+export function getNameOfSuffixedKey(key: string, suffix: string, caseInsensitive?: boolean): string {
+  if (caseInsensitive && !suffix) return undefined;
+  if (!key || key.length <= suffix.length) return undefined;
+  const isSuffixed = caseInsensitive ? key.toLowerCase().endsWith(suffix.toLowerCase()) : key.endsWith(suffix);
+  return isSuffixed ? key.substring(0, key.length - suffix.length) : undefined;
 }
 
 export class Helpers {
@@ -65,8 +69,8 @@ export class Helpers {
   }
   // The value name a comment key belongs to; undefined when the key is not a comment key.
   // A key that is only the suffix is not a comment key.
-  public static getNameOfCommentKey(key: string): string {
-    return getNameOfSuffixedKey(key, settings.commentSuffix);
+  public static getNameOfCommentKey(key: string, caseInsensitive?: boolean): string {
+    return getNameOfSuffixedKey(key, settings.commentSuffix, caseInsensitive);
   }
   /**
    * A static methods that returns true if a value undefined, null, empty string or empty array.

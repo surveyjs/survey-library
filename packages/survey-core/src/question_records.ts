@@ -40,8 +40,9 @@ import { ObjectDataScope, PanelDataScope, getActiveDataScope, getDataScopeHost }
 import { isNameScopeMode } from "./name-scope";
 import { getElementDataScope } from "./data-key-index";
 import { RecordKeyLevel, hasRecordDataNesting, isInRecordNestingPanel } from "./record-key-level";
-import { PanelDataScopeValueGetterContext, RecordKeyLevelValueGetterContext } from "./data-scope-contexts";
-import { asScopeObject, getNameOfCommentName, getValueByPath } from "./data-object-utils";
+import { PanelDataScopeValueGetterContext, RecordKeyLevelValueGetterContext, updateValueByDataLevel } from "./data-scope-contexts";
+import type { IDataLevelFinder } from "./data-scope-contexts";
+import { asScopeObject, getValueByPath } from "./data-object-utils";
 import { RecordsDataWaits } from "./records/records-data-waits";
 import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainerVisible } from "./records/records-hidden-answers";
 import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/records-cleanup-runner";
@@ -4331,7 +4332,7 @@ export abstract class QuestionRecordsValueGetterContext extends QuestionValueGet
   }
 }
 
-export abstract class QuestionRecordItemGetterContext extends QuestionItemValueGetterContext {
+export abstract class QuestionRecordItemGetterContext extends QuestionItemValueGetterContext implements IDataLevelFinder {
   constructor(protected item: QuestionRecordItem) {
     super();
   }
@@ -4399,51 +4400,38 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
     }
     return undefined;
   }
+  // The data level's name step (updateValueByDataLevel) over the record's keys, with no unwrap postfix (as
+  // before the step was shared). The context is its own finder, so a step allocates nothing; the two fields
+  // hold the step's mode and its template level, and nothing re-enters the context during a step.
+  // The metadata mode at design time also asks the template's keys: a template's nesting panels have no scope,
+  // and a row's detail panel is not built. On each lookup the template's question or levels come after the
+  // record's; the level is built once a step reaches it. A comment key ({panel.kind-Comment}) answers in the
+  // metadata mode only (this finder has no getCommentValue): the runtime reads it from the record's values.
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const qs = this.item.getQuestionsByValueName(name, true);
-    if (qs.length > 0) {
-      res.isFound = true;
-      res.obj = qs[0];
-      res.context = qs[0].getValueGetterContext();
-      return;
+    this.isMetadataStep = !!res.isMetadata;
+    this.stepLevel = undefined;
+    updateValueByDataLevel(name, res, this);
+    this.stepLevel = undefined;
+  }
+  private isMetadataStep: boolean;
+  private stepLevel: RecordKeyLevel;
+  private getStepLevel(): RecordKeyLevel {
+    if (!this.stepLevel) {
+      this.stepLevel = new RecordKeyLevel(this.item.getRecordKeyElements());
     }
-    // A nesting panel's key ({panel.address.street}, {row.address}): its scope answers the rest of the path.
-    const scopes = this.item.getDataScopesByKey(name, true);
-    if (scopes.length > 0) {
-      res.isFound = true;
-      res.context = new PanelDataScopeValueGetterContext(scopes);
-      return;
-    }
-    // The metadata mode at design time: a template's nesting panels have no scope, and a row's detail panel is
-    // not built; the template's keys answer.
-    if (res.isMetadata) {
-      const level = new RecordKeyLevel(this.item.getRecordKeyElements());
-      const q = level.getQuestion(name, true);
-      if (!!q) {
-        res.isFound = true;
-        res.obj = q;
-        res.context = q.getValueGetterContext();
-        return;
-      }
-      const levels = level.getLevels(name, true);
-      if (levels.length > 0) {
-        res.isFound = true;
-        res.context = new RecordKeyLevelValueGetterContext(levels);
-        return;
-      }
-      // A record-level comment key ({panel.kind-Comment}), which the runtime reads from the record's values:
-      // it names the question, as the root does for a top-level comment key.
-      const baseName = getNameOfCommentName(name);
-      if (!!baseName) {
-        const owners = this.item.getQuestionsByValueName(baseName, true);
-        const owner = owners.length > 0 ? owners[0] : level.getQuestion(baseName, true);
-        if (!!owner) {
-          res.isFound = true;
-          res.obj = owner;
-          res.isComment = true;
-        }
-      }
-    }
+    return this.stepLevel;
+  }
+  public findQuestion(key: string): Question {
+    const qs = this.item.getQuestionsByValueName(key, true);
+    if (qs.length > 0) return qs[0];
+    return this.isMetadataStep ? this.getStepLevel().getQuestion(key, true) : null;
+  }
+  // A nesting panel's key ({panel.address.street}, {row.address}): its scope answers the rest of the path.
+  public findInnerContext(key: string): IValueGetterContext {
+    const scopes = this.item.getDataScopesByKey(key, true);
+    if (scopes.length > 0) return new PanelDataScopeValueGetterContext(scopes);
+    const levels = this.isMetadataStep ? this.getStepLevel().getLevels(key, true) : [];
+    return levels.length > 0 ? new RecordKeyLevelValueGetterContext(levels) : undefined;
   }
   /* The neighbour comes from the view, not from the objects that exist: the first panel or row of a
      page has a previous record, it just has no object. The owner answers with the object's item or

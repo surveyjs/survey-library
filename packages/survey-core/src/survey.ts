@@ -41,7 +41,7 @@ import { CalculatedValue } from "./calculatedValue";
 import { QuestionExpressionModel } from "./question_expression";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, IValueGetterNameInfo, PropertyGetterContext, stripUnwrapPostfix, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { ChangedKeys } from "./conditions/conditionProcessValue";
 import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
 import { surveyLocalization } from "./surveyStrings";
@@ -102,7 +102,7 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { getActiveDataScope } from "./panel-data-scope";
 import type { IDataScope } from "./data-key-index";
-import { getNameOfCommentName, isContainerObjectKept, setValueByPath } from "./data-object-utils";
+import { isContainerObjectKept, setValueByPath } from "./data-object-utils";
 import { SurveyRootDataScope, IValueWrite } from "./survey-root-data-scope";
 import { ElementIndex } from "./element-index";
 import { INameScope, findElementInNameScope, getElementNamePath as getNameScopePath, getNameScopeOwner, isNameScopeMode } from "./name-scope";
@@ -215,16 +215,12 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   // The metadata mode: a top-level question's comment key ({kind-Comment}), which the runtime reads from the
   // raw data (the step after this one). It names the question, not the stored key.
   private getTopLevelCommentInfo(path: Array<IValueGetterItem>): IValueGetterInfo {
-    const baseName = path.length > 0 ? getNameOfCommentName(path[0].name) : "";
+    const baseName = path.length > 0 ? Helpers.getNameOfCommentKey(path[0].name, true) : undefined;
     const q = !!baseName ? this.survey.getQuestionByValueName(baseName, true) : null;
     return !!q ? { isFound: true, obj: q, isComment: true, restFrom: path[0].to } : undefined;
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
-    if (!!unWrappedNameSuffix && name.endsWith(unWrappedNameSuffix)) {
-      name = name.substring(0, name.length - unWrappedNameSuffix.length);
-      if (res.isMetadata) res.isUnwrapped = true;
-    }
+    name = stripUnwrapPostfix(name, res);
     // Before the raw data: the root data scope's key.
     const info = findDataScopeValueContext(this.survey, name);
     if (!!info) {

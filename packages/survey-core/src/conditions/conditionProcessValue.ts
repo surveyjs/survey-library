@@ -321,7 +321,7 @@ export class ChangedKeys {
   // as the whole name, as the shortest path prefix, or as the base of an unwrapped name.
   private isContextNameChanged(contextKeys: HashTable<any>, info: IValueGetterNameInfo, isClearedKeyChanged: boolean): boolean {
     const first = info.lowerPrefixes[0];
-    const unwrapped = this.getUnwrappedBaseName(info.firstName);
+    const unwrapped = getUnwrappedBaseName(info.firstName);
     const lowerUnwrapped = unwrapped !== undefined ? unwrapped.toLowerCase() : undefined;
     for (const key in contextKeys) {
       if (!hasOwnKey(contextKeys, key)) continue;
@@ -365,14 +365,8 @@ export class ChangedKeys {
     const newValue = this.getValueFromObject(v, name);
     return !Helpers.isTwoValueEquals(oldValue, newValue, false, false, false);
   }
-  private getUnwrappedBaseName(first: string): string {
-    const postfix = settings.expressionVariables.unwrapPostfix;
-    if (!postfix) return undefined;
-    if (!first.endsWith(postfix)) return undefined;
-    return first.substring(0, first.length - postfix.length);
-  }
   private isUnwrappedNameChanged(lowerKeys: HashTable<Array<string>>, first: string): boolean {
-    const baseName = this.getUnwrappedBaseName(first);
+    const baseName = getUnwrappedBaseName(first);
     return baseName !== undefined && !!lowerKeys[baseName.toLowerCase()];
   }
   // The shortest path prefix ("m" for "m.row1") that is a key, in lower case. Only it decides.
@@ -457,6 +451,20 @@ export function findNameByPath(path: Array<IValueGetterItem>, start: number, isR
     index += isRevert ? -1 : 1;
   }
   return -1;
+}
+// The name an unwrapped name ({q-unwrapped}) reads; undefined when the unwrap postfix is empty or the name
+// does not end with it.
+function getUnwrappedBaseName(name: string): string {
+  const postfix = settings.expressionVariables.unwrapPostfix;
+  if (!postfix || !name.endsWith(postfix)) return undefined;
+  return name.substring(0, name.length - postfix.length);
+}
+// A name step's first part: the name without the unwrap postfix. The metadata mode marks the result unwrapped.
+export function stripUnwrapPostfix(name: string, res: IValueGetterInfo): string {
+  const baseName = getUnwrappedBaseName(name);
+  if (baseName === undefined) return name;
+  if (res.isMetadata) res.isUnwrapped = true;
+  return baseName;
 }
 export class ValueGetterContextCore implements IValueGetterContext {
   constructor() {}

@@ -1,6 +1,5 @@
 import type { ISurvey } from "./base-interfaces";
 import { Helpers } from "./helpers";
-import { settings } from "./settings";
 
 // The plain-object side of nested data: a key's value read as an object, a key set or removed in a copy, the
 // value at a path read and written, the keys at paths removed, and the data.keepEmptyValues rule for the keys
@@ -76,10 +75,4 @@ export function setObjectKey(obj: any, name: string, value: any, survey?: ISurve
     res[name] = Helpers.getUnbindValue(value);
   }
   return res;
-}
-// The value name a comment key names, ignoring letter case ({Kind-comment} -> "Kind"); "" for another name.
-export function getNameOfCommentName(name: string): string {
-  const suffix = settings.commentSuffix;
-  if (!suffix || name.length <= suffix.length) return "";
-  return name.toLowerCase().endsWith(suffix.toLowerCase()) ? name.substring(0, name.length - suffix.length) : "";
 }

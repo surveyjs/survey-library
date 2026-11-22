@@ -23,10 +23,10 @@ export var indonesianStrings = {
   sortAZText: "Alfabet, A - Z",
   // [Auto-translated] "Alphabet, Z - A"
   sortZAText: "Alfabet, Z - A",
-  // [Auto-translated] "Newest first"
-  sortNewestFirstText: "Pertama yang terbaru",
-  // [Auto-translated] "Oldest first"
-  sortOldestFirstText: "Pertama kali tertua",
+  // "Newest first"
+  sortNewestFirstText: "Terbaru lebih dulu",
+  // "Oldest first"
+  sortOldestFirstText: "Terlama lebih dulu",
   // [Auto-translated] "Sorted by {0}"
   sortOrderText: "Diurutkan berdasarkan {0}",
   // [Auto-translated] "{0} ({1})"
@@ -35,20 +35,20 @@ export var indonesianStrings = {
   sortOrderNextText: "{0}, lalu {1}",
   // [Auto-translated] "Sort by"
   sortByText: "Urutkan berdasarkan",
-  // [Auto-translated] "Default"
-  sortDefaultText: "Gagal bayar",
+  // "Default"
+  sortDefaultText: "Bawaan",
   // [Auto-translated] "Sort field"
   sortFieldAriaLabel: "Kolom pengurutan",
   // [Auto-translated] "Sort order"
   sortDirectionAriaLabel: "Urutan pengurutan",
   // [Auto-translated] "Add sort level"
   sortAddLevelText: "Tambahkan tingkat pengurutan",
-  // [Auto-translated] "Remove sort level {0}"
-  sortRemoveLevelText: "Hapus {0} tingkat pengurutan",
-  // [Auto-translated] "Sort field {0}"
-  sortLevelFieldAriaLabel: "Urutkan bidang {0}",
-  // [Auto-translated] "Sort order {0}"
-  sortLevelDirectionAriaLabel: "Urutkan urutan {0}",
+  // "Remove sort level {0}"
+  sortRemoveLevelText: "Hapus tingkat pengurutan {0}",
+  // "Sort field {0}"
+  sortLevelFieldAriaLabel: "Kolom pengurutan {0}",
+  // "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Urutan pengurutan {0}",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Tampilkan semua tingkat pengurutan",
   // [Auto-translated] "Add New"
@@ -87,8 +87,8 @@ export var indonesianStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Menjawab pertanyaan {0} / {1}",
-  // [Auto-translated] "Question {0} of {1}"
-  questionPositionProgressText: "Pertanyaan {0} {1}",
+  // "Question {0} of {1}"
+  questionPositionProgressText: "Pertanyaan {0} dari {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tidak ada halaman atau pertanyaan dalam survei.",
   // "Thank you for completing the survey"
@@ -129,8 +129,8 @@ export var indonesianStrings = {
   maxError: "Nilai tidak boleh lebih besar dari {0}",
   // [Auto-translated] "Invalid input"
   invalidInputError: "Masukan tidak valid",
-  // [Auto-translated] "Numbers are not allowed."
-  textNoDigitsAllow: "Nomor tidak diperbolehkan.",
+  // "Numbers are not allowed."
+  textNoDigitsAllow: "Angka tidak diperbolehkan.",
   // [Auto-translated] "Please complete the value to match the required format."
   incompletePatternError: "Lengkapi nilai agar sesuai dengan format yang diperlukan.",
   // "Please enter at least {0} character(s)."
@@ -165,8 +165,8 @@ export var indonesianStrings = {
   fileSizeUnits: "Byte, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Jumlah maksimum file yang dapat Anda unggah adalah {0}.",
-  // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
-  noUploadFilesHandler: "File tidak dapat diunggah. Harap tambahkan handler untuk acara 'onUploadFiles'.",
+  // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
+  noUploadFilesHandler: "File tidak dapat diunggah. Harap tambahkan handler untuk event 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Silahkan masukkan nilai lainnnya.",
   // [Auto-translated] "The value '{0}' is not one of the available choices."
@@ -207,8 +207,8 @@ export var indonesianStrings = {
   showDetails: "Tampilkan Detail",
   // [Auto-translated] "Hide Details"
   hideDetails: "Sembunyikan Detail",
-  // [Auto-translated] "item"
-  choices_Item: "barang",
+  // "item"
+  choices_Item: "item",
   // [Auto-translated] "Choice option"
   choices_Choice: "Opsi pilihan",
   // "Column"
@@ -273,24 +273,24 @@ export var indonesianStrings = {
   questionTitlePatternText: "Judul pertanyaan",
   // [Auto-translated] "Cancel"
   modalCancelButtonText: "Membatalkan",
-  // [Auto-translated] "Apply"
-  modalApplyButtonText: "Berlaku",
+  // "Apply"
+  modalApplyButtonText: "Terapkan",
   // [Auto-translated] "Type to search..."
   filterStringPlaceholder: "Ketik untuk mencari...",
   // [Auto-translated] "No data to display"
   emptyMessage: "Tidak ada data untuk ditampilkan",
-  // [Auto-translated] "Loading..."
-  loadingPage: "Loading...",
-  // [Auto-translated] "Loading..."
-  loadingData: "Loading...",
+  // "Loading..."
+  loadingPage: "Memuat...",
+  // "Loading..."
+  loadingData: "Memuat...",
   // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Belum ada entri.\nKlik tombol di bawah ini untuk menambahkan entri baru.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Tidak ada entri",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Panel Baru",
-  // [Auto-translated] "More"
-  more: "Lebih",
+  // "More"
+  more: "Lainnya",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OKE",
   // [Auto-translated] "All choices are selected for ranking"
@@ -303,8 +303,8 @@ export var indonesianStrings = {
   cancel: "Membatalkan",
   // "Create \"{0}\" item..."
   createCustomItem: "Buat item \"{0}\"...",
-  // [Auto-translated] "Table of contents"
-  toc: "Indeks",
+  // "Table of contents"
+  toc: "Daftar isi",
   // [Auto-translated] "Progress bar"
   progressbar: "Bilah kemajuan",
   // [Auto-translated] "Page {0}"
@@ -323,10 +323,10 @@ export var indonesianStrings = {
   conditionOperatorNotcontains: "Tidak mengandung",
   // [Auto-translated] "Any of"
   conditionOperatorAnyof: "Salah satu dari",
-  // [Auto-translated] "None of"
-  conditionOperatorNoneof: "Tidak ada",
-  // [Auto-translated] "All of"
-  conditionOperatorAllof: "Seluruh",
+  // "None of"
+  conditionOperatorNoneof: "Tidak satu pun dari",
+  // "All of"
+  conditionOperatorAllof: "Semua dari",
   // [Auto-translated] "Greater than"
   conditionOperatorGreater: "Lebih besar dari",
   // [Auto-translated] "Less than"
@@ -365,8 +365,8 @@ export var indonesianStrings = {
   filterAddCustomValue: "Tambahkan \"{0}\"...",
   // [Auto-translated] "Presets"
   filterPresetsTitle: "Preset",
-  // [Auto-translated] "Show {0} items"
-  filterShowResultsCount: "Tampilkan item {0}",
+  // "Show {0} items"
+  filterShowResultsCount: "Tampilkan {0} item",
   // [Auto-translated] "Show 1 item"
   filterShowOneResult: "Tampilkan 1 item",
   // [Auto-translated] "Show results"
@@ -399,8 +399,8 @@ export var indonesianStrings = {
   filterAddPreset: "Tambahkan Baru...",
   // [Auto-translated] "Edit Selected..."
   filterEditSelected: "Edit Dipilih...",
-  // [Auto-translated] "{0} Expression"
-  filterPresetExpression: "{0} Ekspresi",
+  // "{0} Expression"
+  filterPresetExpression: "Ekspresi {0}",
   // [Auto-translated] "Edit..."
   filterEditExpression: "Edit...",
   // [Auto-translated] "Search in Filters"
@@ -419,8 +419,8 @@ export var indonesianStrings = {
   filterAiEdit: "Edit",
   // [Auto-translated] "Creating..."
   filterAiCreating: "Menciptakan...",
-  // [Auto-translated] "Editing..."
-  filterAiEditing: "Editing...",
+  // "Editing..."
+  filterAiEditing: "Mengedit...",
   // [Auto-translated] "AI could not make a filter. Try again."
   filterAiError: "AI tidak bisa membuat filter. Coba lagi.",
   // [Auto-translated] "AI could not make a filter of this description."
@@ -437,8 +437,8 @@ export var indonesianStrings = {
   keyboardHintSubmitText: "mengajukan",
   // [Auto-translated] "or"
   keyboardHintOrText: "atau",
-  // [Auto-translated] "for a new line"
-  keyboardHintNewLineText: "untuk lini baru",
+  // "for a new line"
+  keyboardHintNewLineText: "untuk baris baru",
   // [Auto-translated] "to next option"
   keyboardHintNextItemText: "ke opsi berikutnya",
   // [Auto-translated] "to move"
